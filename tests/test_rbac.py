@@ -108,7 +108,9 @@ class RBACTester:
         retrieved_role = self.rbac_service.get_role(custom_role.id)
         assert retrieved_role is not None, "Custom role not found after creation"
         assert retrieved_role.name == "Test Role", "Custom role name mismatch"
-        assert len(retrieved_role.permissions) == 2, "Custom role should have 2 permissions"
+        assert (
+            len(retrieved_role.permissions) == 2
+        ), "Custom role should have 2 permissions"
 
         # Update the role
         updated_role = self.rbac_service.update_role(
@@ -119,7 +121,9 @@ class RBACTester:
 
         assert updated_role is not None, "Role update failed"
         assert updated_role.name == "Updated Test Role", "Role name not updated"
-        assert updated_role.description == "Updated description", "Role description not updated"
+        assert (
+            updated_role.description == "Updated description"
+        ), "Role description not updated"
 
         logger.info(f"Updated custom role: {updated_role.name}")
 
@@ -255,8 +259,12 @@ class RBACTester:
         )
 
         # Get role assignments for user
-        user_assignments = self.rbac_service.get_role_assignments(user_id=regular_user.id)
-        assert len(user_assignments) >= 2, "User should have at least 2 role assignments"
+        user_assignments = self.rbac_service.get_role_assignments(
+            user_id=regular_user.id
+        )
+        assert (
+            len(user_assignments) >= 2
+        ), "User should have at least 2 role assignments"
 
         # Update a role assignment
         updated_assignment = self.rbac_service.update_role_assignment(
@@ -265,7 +273,9 @@ class RBACTester:
         )
 
         assert updated_assignment is not None, "Role assignment update failed"
-        assert updated_assignment.constraints["department"] == "Product", "Constraint not updated"
+        assert (
+            updated_assignment.constraints["department"] == "Product"
+        ), "Constraint not updated"
 
         logger.info("✅ Role assignments test passed")
 
@@ -319,7 +329,9 @@ class RBACTester:
             context={"department": "Product"},
         )
 
-        assert has_permission, "User should have project manage permission with correct context"
+        assert (
+            has_permission
+        ), "User should have project manage permission with correct context"
 
         # Test permission with wrong scope
         has_permission = self.rbac_service.check_permission(
@@ -329,7 +341,9 @@ class RBACTester:
             resource_id="project456",
         )
 
-        assert not has_permission, "User should not have permission for different project"
+        assert (
+            not has_permission
+        ), "User should not have permission for different project"
 
         # Test permission with wrong context
         has_permission = self.rbac_service.check_permission(
@@ -383,4 +397,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

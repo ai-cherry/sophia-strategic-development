@@ -14,10 +14,10 @@ from typing import Any
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class Phase1EnhancedMigrationDeployer:
     """Deploys the complete Phase 1 Enhanced Migration infrastructure and tools"""
@@ -27,7 +27,7 @@ class Phase1EnhancedMigrationDeployer:
             "timestamp": datetime.now().isoformat(),
             "phase": "Phase 1 Enhanced: MCP Modernization + Salesforce Migration",
             "components": {},
-            "status": "pending"
+            "status": "pending",
         }
 
     def run_command(self, command: str, description: str) -> dict[str, Any]:
@@ -41,7 +41,7 @@ class Phase1EnhancedMigrationDeployer:
                 shell=True,
                 capture_output=True,
                 text=True,
-                timeout=300  # 5 minute timeout
+                timeout=300,  # 5 minute timeout
             )
 
             if result.returncode == 0:
@@ -50,7 +50,7 @@ class Phase1EnhancedMigrationDeployer:
                     "status": "success",
                     "stdout": result.stdout,
                     "stderr": result.stderr,
-                    "returncode": result.returncode
+                    "returncode": result.returncode,
                 }
             else:
                 logger.error(f"❌ {description}: FAILED")
@@ -61,7 +61,7 @@ class Phase1EnhancedMigrationDeployer:
                     "status": "failed",
                     "stdout": result.stdout,
                     "stderr": result.stderr,
-                    "returncode": result.returncode
+                    "returncode": result.returncode,
                 }
 
         except subprocess.TimeoutExpired:
@@ -77,8 +77,7 @@ class Phase1EnhancedMigrationDeployer:
         logger.info("🔄 Testing Pipedream integration...")
 
         return self.run_command(
-            "python scripts/test_pipedream_integration.py",
-            "Pipedream Integration Test"
+            "python scripts/test_pipedream_integration.py", "Pipedream Integration Test"
         )
 
     def implement_migration_orchestrator(self) -> dict[str, Any]:
@@ -87,7 +86,7 @@ class Phase1EnhancedMigrationDeployer:
 
         return self.run_command(
             "python scripts/implement_migration_orchestrator.py",
-            "Migration Orchestrator Implementation"
+            "Migration Orchestrator Implementation",
         )
 
     def setup_migration_mcp_servers(self) -> dict[str, Any]:
@@ -95,8 +94,7 @@ class Phase1EnhancedMigrationDeployer:
         logger.info("🔧 Setting up Migration MCP Servers...")
 
         return self.run_command(
-            "bash scripts/setup_migration_mcp_servers.sh",
-            "Migration MCP Servers Setup"
+            "bash scripts/setup_migration_mcp_servers.sh", "Migration MCP Servers Setup"
         )
 
     def analyze_salesforce_data(self) -> dict[str, Any]:
@@ -105,7 +103,7 @@ class Phase1EnhancedMigrationDeployer:
 
         return self.run_command(
             "python scripts/ai_analyze_salesforce_data.py",
-            "AI-Enhanced Salesforce Analysis"
+            "AI-Enhanced Salesforce Analysis",
         )
 
     def assess_mcp_servers(self) -> dict[str, Any]:
@@ -114,7 +112,7 @@ class Phase1EnhancedMigrationDeployer:
 
         return self.run_command(
             "python scripts/assess_all_mcp_servers.py --include-migration",
-            "Comprehensive MCP Server Assessment"
+            "Comprehensive MCP Server Assessment",
         )
 
     def run_enhanced_deployment(self) -> dict[str, Any]:
@@ -124,10 +122,13 @@ class Phase1EnhancedMigrationDeployer:
         # Deployment sequence based on the enhanced plan
         deployment_steps = [
             ("Pipedream Integration Test", self.test_pipedream_integration),
-            ("Migration Orchestrator Implementation", self.implement_migration_orchestrator),
+            (
+                "Migration Orchestrator Implementation",
+                self.implement_migration_orchestrator,
+            ),
             ("Migration MCP Servers Setup", self.setup_migration_mcp_servers),
             ("Salesforce Data Analysis", self.analyze_salesforce_data),
-            ("MCP Server Assessment", self.assess_mcp_servers)
+            ("MCP Server Assessment", self.assess_mcp_servers),
         ]
 
         successful_steps = 0
@@ -157,7 +158,7 @@ class Phase1EnhancedMigrationDeployer:
                 logger.error(f"❌ {step_name}: EXCEPTION - {e}")
                 self.deployment_results["components"][step_name] = {
                     "status": "exception",
-                    "error": str(e)
+                    "error": str(e),
                 }
 
         # Calculate success rate
@@ -177,7 +178,7 @@ class Phase1EnhancedMigrationDeployer:
         self.deployment_results["summary"] = {
             "successful_steps": successful_steps,
             "total_steps": total_steps,
-            "success_rate": success_rate
+            "success_rate": success_rate,
         }
 
         # Print comprehensive summary
@@ -185,7 +186,9 @@ class Phase1EnhancedMigrationDeployer:
         logger.info("📊 PHASE 1 ENHANCED MIGRATION DEPLOYMENT SUMMARY")
         logger.info(f"{'='*80}")
         logger.info(f"{status_emoji} Overall Status: {overall_status.upper()}")
-        logger.info(f"📈 Success Rate: {success_rate:.1f}% ({successful_steps}/{total_steps} steps)")
+        logger.info(
+            f"📈 Success Rate: {success_rate:.1f}% ({successful_steps}/{total_steps} steps)"
+        )
 
         # Detailed step results
         logger.info("\n📋 STEP-BY-STEP RESULTS:")
@@ -216,9 +219,15 @@ class Phase1EnhancedMigrationDeployer:
             logger.info("   • 90% reduction in manual import tasks")
 
             logger.info("\n🎯 IMMEDIATE NEXT ACTIONS:")
-            logger.info("   1. Configure API credentials for Salesforce, HubSpot, Intercom")
-            logger.info("   2. Set up Pipedream API key: export PIPEDREAM_API_KEY=<your_key>")
-            logger.info("   3. Test migration orchestrator: python mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py")
+            logger.info(
+                "   1. Configure API credentials for Salesforce, HubSpot, Intercom"
+            )
+            logger.info(
+                "   2. Set up Pipedream API key: export PIPEDREAM_API_KEY=<your_key>"
+            )
+            logger.info(
+                "   3. Test migration orchestrator: python mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py"
+            )
             logger.info("   4. Execute pilot migration on small dataset")
             logger.info("   5. Scale to full production migration")
 
@@ -239,7 +248,9 @@ class Phase1EnhancedMigrationDeployer:
         # Troubleshooting guidance
         if overall_status != "success":
             logger.info("\n🔧 TROUBLESHOOTING GUIDANCE:")
-            logger.info("   • Check that all required scripts exist in scripts/ directory")
+            logger.info(
+                "   • Check that all required scripts exist in scripts/ directory"
+            )
             logger.info("   • Ensure Python environment is properly configured")
             logger.info("   • Verify network connectivity for external dependencies")
             logger.info("   • Check file permissions for script execution")
@@ -253,13 +264,13 @@ def main():
     deployer = Phase1EnhancedMigrationDeployer()
 
     # Print deployment header
-    logger.info("="*80)
+    logger.info("=" * 80)
     logger.info("🚀 PHASE 1 ENHANCED: MCP MODERNIZATION + SALESFORCE MIGRATION")
-    logger.info("="*80)
+    logger.info("=" * 80)
     logger.info("Deploying AI-enhanced migration infrastructure...")
     logger.info("Integration: Salesforce → HubSpot/Intercom with Pipedream automation")
     logger.info("AI Enhancement: Portkey LLM + Snowflake Cortex + Gong context")
-    logger.info("="*80)
+    logger.info("=" * 80)
 
     try:
         # Run enhanced deployment
@@ -274,10 +285,14 @@ def main():
 
         # Return appropriate exit code
         if results["status"] == "success":
-            logger.info("\n🎉 Phase 1 Enhanced Migration deployment COMPLETED SUCCESSFULLY!")
+            logger.info(
+                "\n🎉 Phase 1 Enhanced Migration deployment COMPLETED SUCCESSFULLY!"
+            )
             return 0
         elif results["status"] == "partial":
-            logger.info("\n⚠️  Phase 1 Enhanced Migration deployment completed with ISSUES")
+            logger.info(
+                "\n⚠️  Phase 1 Enhanced Migration deployment completed with ISSUES"
+            )
             return 1
         else:
             logger.info("\n❌ Phase 1 Enhanced Migration deployment FAILED")

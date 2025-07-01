@@ -13,6 +13,7 @@ from typing import Any
 try:
     import numpy as np
     import pandas as pd
+
     PANDAS_AVAILABLE = True
 except ImportError:
     PANDAS_AVAILABLE = False
@@ -36,8 +37,10 @@ try:
 except ImportError:
     get_snowflake_connection = None
 
+
 class ChunkingStrategy(Enum):
     """Available chunking strategies for different data types"""
+
     CONTENT_AWARE = "content-aware"
     ROW_BASED = "row-based"
     SEMANTIC = "semantic"
@@ -45,17 +48,21 @@ class ChunkingStrategy(Enum):
     DOCUMENT_SECTION = "document-section"
     TIME_SERIES = "time-series"
 
+
 class DataQuality(Enum):
     """Data quality assessment levels"""
+
     EXCELLENT = "excellent"  # 0.9-1.0
-    GOOD = "good"           # 0.7-0.89
-    FAIR = "fair"           # 0.5-0.69
-    POOR = "poor"           # 0.3-0.49
-    CRITICAL = "critical"   # 0.0-0.29
+    GOOD = "good"  # 0.7-0.89
+    FAIR = "fair"  # 0.5-0.69
+    POOR = "poor"  # 0.3-0.49
+    CRITICAL = "critical"  # 0.0-0.29
+
 
 @dataclass
 class FieldStatistics:
     """Statistics for a single field/column"""
+
     field_name: str
     data_type: str
     null_count: int
@@ -69,9 +76,11 @@ class FieldStatistics:
     suggested_type: str | None = None
     quality_score: float = 0.0
 
+
 @dataclass
 class SchemaMapping:
     """Mapping suggestion from source to target schema"""
+
     source_field: str
     target_field: str
     target_schema: str
@@ -80,9 +89,11 @@ class SchemaMapping:
     transformation_required: bool = False
     transformation_rules: dict | None = None
 
+
 @dataclass
 class ChunkAnalysis:
     """Analysis results for a chunk of data"""
+
     chunk_id: str
     chunk_type: str
     content_summary: str
@@ -92,9 +103,11 @@ class ChunkAnalysis:
     business_relevance: float
     relationships: list[str]
 
+
 @dataclass
 class DataDiscoveryResult:
     """Complete analysis result for a staged file"""
+
     stage_id: str
     filename: str
     file_type: str
@@ -111,20 +124,30 @@ class DataDiscoveryResult:
     validation_errors: list[str]
     processing_recommendations: dict[str, Any]
 
+
 class IntelligentDataDiscoveryService:
     """
     AI-powered data discovery and analysis service for staging area
     """
 
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService() if SnowflakeCortexService else None
+        self.cortex_service = (
+            SnowflakeCortexService() if SnowflakeCortexService else None
+        )
         self.ai_service = SmartAIService() if SmartAIService else None
         self.target_schemas = {
-            "SALESFORCE": ["account", "contact", "opportunity", "lead", "task", "event"],
+            "SALESFORCE": [
+                "account",
+                "contact",
+                "opportunity",
+                "lead",
+                "task",
+                "event",
+            ],
             "HUBSPOT_DATA": ["deals", "companies", "contacts", "tickets"],
             "GONG_DATA": ["calls", "transcripts", "users", "meetings"],
             "AI_MEMORY": ["memory_records", "categories", "sources"],
-            "FOUNDATIONAL_KB": ["documents", "entities", "relationships"]
+            "FOUNDATIONAL_KB": ["documents", "entities", "relationships"],
         }
 
     async def analyze_staged_file(
@@ -132,7 +155,7 @@ class IntelligentDataDiscoveryService:
         stage_id: str,
         file_path: str,
         user_id: str,
-        analysis_preferences: dict | None = None
+        analysis_preferences: dict | None = None,
     ) -> DataDiscoveryResult:
         """
         Perform comprehensive AI-powered analysis of a staged file
@@ -145,10 +168,14 @@ class IntelligentDataDiscoveryService:
             detected_schema = await self._discover_schema(file_data, file_info)
 
             # Calculate field statistics
-            field_stats = await self._calculate_field_statistics(file_data, detected_schema)
+            field_stats = await self._calculate_field_statistics(
+                file_data, detected_schema
+            )
 
             # Analyze content and determine business context
-            content_analysis = await self._analyze_content_context(file_data, field_stats)
+            content_analysis = await self._analyze_content_context(
+                file_data, field_stats
+            )
 
             # Suggest target schema mappings
             suggested_mappings = await self._suggest_schema_mappings(
@@ -182,11 +209,15 @@ class IntelligentDataDiscoveryService:
             )
 
             # Validate and identify issues
-            validation_errors = await self._validate_data_quality(file_data, field_stats)
+            validation_errors = await self._validate_data_quality(
+                file_data, field_stats
+            )
 
             # Generate processing recommendations
-            processing_recommendations = await self._generate_processing_recommendations(
-                file_info, data_quality, chunk_strategy, validation_errors
+            processing_recommendations = (
+                await self._generate_processing_recommendations(
+                    file_info, data_quality, chunk_strategy, validation_errors
+                )
             )
 
             # Create discovery result
@@ -205,7 +236,7 @@ class IntelligentDataDiscoveryService:
                 content_analysis=content_analysis,
                 chunk_preview=chunk_preview,
                 validation_errors=validation_errors,
-                processing_recommendations=processing_recommendations
+                processing_recommendations=processing_recommendations,
             )
 
             # Store results in staging area
@@ -222,18 +253,28 @@ class IntelligentDataDiscoveryService:
         file_info = {
             "filename": path_obj.name,
             "file_type": path_obj.suffix.lower(),
-            "size_bytes": path_obj.stat().st_size if path_obj.exists() else 0
+            "size_bytes": path_obj.stat().st_size if path_obj.exists() else 0,
         }
 
         try:
-            if file_info["file_type"] in [".csv", ".tsv"] and PANDAS_AVAILABLE and pd is not None:
+            if (
+                file_info["file_type"] in [".csv", ".tsv"]
+                and PANDAS_AVAILABLE
+                and pd is not None
+            ):
                 separator = "\t" if file_info["file_type"] == ".tsv" else ","
-                df = pd.read_csv(path_obj, sep=separator, nrows=10000)  # Sample first 10k rows
-                data = df.to_dict('records')
+                df = pd.read_csv(
+                    path_obj, sep=separator, nrows=10000
+                )  # Sample first 10k rows
+                data = df.to_dict("records")
 
-            elif file_info["file_type"] in [".xlsx", ".xls"] and PANDAS_AVAILABLE and pd is not None:
+            elif (
+                file_info["file_type"] in [".xlsx", ".xls"]
+                and PANDAS_AVAILABLE
+                and pd is not None
+            ):
                 df = pd.read_excel(path_obj, nrows=10000)
-                data = df.to_dict('records')
+                data = df.to_dict("records")
 
             elif file_info["file_type"] == ".json":
                 with open(path_obj) as f:
@@ -254,9 +295,10 @@ class IntelligentDataDiscoveryService:
             elif file_info["file_type"] in [".csv", ".tsv"] and not PANDAS_AVAILABLE:
                 # Fallback CSV parsing without pandas
                 import csv
+
                 data = []
                 separator = "\t" if file_info["file_type"] == ".tsv" else ","
-                with open(path_obj, encoding='utf-8') as f:
+                with open(path_obj, encoding="utf-8") as f:
                     reader = csv.DictReader(f, delimiter=separator)
                     for i, row in enumerate(reader):
                         if i >= 10000:  # Sample first 10k records
@@ -265,16 +307,20 @@ class IntelligentDataDiscoveryService:
 
             else:
                 # For text files, treat as documents
-                with open(path_obj, encoding='utf-8') as f:
+                with open(path_obj, encoding="utf-8") as f:
                     content = f.read()
-                data = [{"document_content": content, "filename": file_info["filename"]}]
+                data = [
+                    {"document_content": content, "filename": file_info["filename"]}
+                ]
 
             return data, file_info
 
         except Exception as e:
             raise Exception(f"Failed to load file {path_obj}: {str(e)}")
 
-    async def _discover_schema(self, data: list[dict], file_info: dict) -> dict[str, Any]:
+    async def _discover_schema(
+        self, data: list[dict], file_info: dict
+    ) -> dict[str, Any]:
         """Discover and analyze the schema structure"""
         if not data:
             return {"fields": [], "record_count": 0}
@@ -291,7 +337,7 @@ class IntelligentDataDiscoveryService:
                 "name": field_name,
                 "type": "unknown",
                 "nullable": False,
-                "sample_values": []
+                "sample_values": [],
             }
 
             # Collect sample values and infer type
@@ -316,9 +362,7 @@ class IntelligentDataDiscoveryService:
         return schema
 
     async def _calculate_field_statistics(
-        self,
-        data: list[dict],
-        schema: dict[str, Any]
+        self, data: list[dict], schema: dict[str, Any]
     ) -> list[FieldStatistics]:
         """Calculate comprehensive statistics for each field"""
         stats = []
@@ -355,7 +399,9 @@ class IntelligentDataDiscoveryService:
                     pass
 
             # Pattern analysis
-            pattern_analysis = await self._analyze_field_patterns(values, field_info["type"])
+            pattern_analysis = await self._analyze_field_patterns(
+                values, field_info["type"]
+            )
 
             # Suggest improved type
             suggested_type = await self._suggest_field_type(values, pattern_analysis)
@@ -377,7 +423,7 @@ class IntelligentDataDiscoveryService:
                 mean_value=mean_val,
                 pattern_analysis=pattern_analysis,
                 suggested_type=suggested_type,
-                quality_score=quality_score
+                quality_score=quality_score,
             )
 
             stats.append(field_stat)
@@ -385,9 +431,7 @@ class IntelligentDataDiscoveryService:
         return stats
 
     async def _analyze_content_context(
-        self,
-        data: list[dict],
-        field_stats: list[FieldStatistics]
+        self, data: list[dict], field_stats: list[FieldStatistics]
     ) -> dict[str, Any]:
         """Analyze content to understand business context and domain"""
         try:
@@ -430,15 +474,15 @@ class IntelligentDataDiscoveryService:
             # Get AI analysis - using a basic completion method
             try:
                 ai_response = None
-                if self.ai_service and hasattr(self.ai_service, 'generate_completion'):
+                if self.ai_service and hasattr(self.ai_service, "generate_completion"):
                     ai_response = await self.ai_service.generate_completion(
                         messages=[{"role": "user", "content": analysis_prompt}],
                         task_type="data_analysis",
-                        context="business_intelligence"
+                        context="business_intelligence",
                     )
-                elif self.ai_service and hasattr(self.ai_service, 'complete'):
+                elif self.ai_service and hasattr(self.ai_service, "complete"):
                     ai_response = await self.ai_service.complete(analysis_prompt)
-                elif self.ai_service and hasattr(self.ai_service, 'chat_completion'):
+                elif self.ai_service and hasattr(self.ai_service, "chat_completion"):
                     ai_response = await self.ai_service.chat_completion(analysis_prompt)
                 else:
                     # Fallback if no suitable method found
@@ -447,34 +491,44 @@ class IntelligentDataDiscoveryService:
                 if ai_response:
                     content_analysis = json.loads(ai_response)
                 else:
-                    content_analysis = self._fallback_content_analysis(field_names, sample_records)
+                    content_analysis = self._fallback_content_analysis(
+                        field_names, sample_records
+                    )
             except Exception:
                 # Fallback analysis if AI response is not valid JSON or any error occurs
-                content_analysis = self._fallback_content_analysis(field_names, sample_records)
+                content_analysis = self._fallback_content_analysis(
+                    field_names, sample_records
+                )
 
             # Add additional analysis
             content_analysis["total_records"] = len(data)
             content_analysis["total_fields"] = len(field_stats)
-            content_analysis["data_completeness"] = self._calculate_data_completeness(field_stats)
+            content_analysis["data_completeness"] = self._calculate_data_completeness(
+                field_stats
+            )
 
             return content_analysis
 
         except Exception:
             # Return fallback analysis
-            return self._fallback_content_analysis([stat.field_name for stat in field_stats], data[:5])
+            return self._fallback_content_analysis(
+                [stat.field_name for stat in field_stats], data[:5]
+            )
 
     async def _suggest_schema_mappings(
         self,
         field_stats: list[FieldStatistics],
         content_analysis: dict[str, Any],
-        preferences: dict | None = None
+        preferences: dict | None = None,
     ) -> list[SchemaMapping]:
         """Generate AI-powered schema mapping suggestions"""
         mappings = []
         business_domain = content_analysis.get("business_domain", "unknown")
 
         # Determine most likely target schemas based on content analysis
-        target_candidates = self._get_target_schema_candidates(business_domain, content_analysis)
+        target_candidates = self._get_target_schema_candidates(
+            business_domain, content_analysis
+        )
 
         for field_stat in field_stats:
             field_stat.field_name.lower()
@@ -495,8 +549,10 @@ class IntelligentDataDiscoveryService:
                         target_schema=schema_name,
                         confidence=best_match["confidence"],
                         reasoning=best_match["reasoning"],
-                        transformation_required=best_match.get("transformation_required", False),
-                        transformation_rules=best_match.get("transformation_rules")
+                        transformation_required=best_match.get(
+                            "transformation_required", False
+                        ),
+                        transformation_rules=best_match.get("transformation_rules"),
                     )
                     mappings.append(mapping)
 
@@ -505,9 +561,7 @@ class IntelligentDataDiscoveryService:
         return mappings[:20]  # Return top 20 mappings
 
     async def _recommend_target_schema(
-        self,
-        mappings: list[SchemaMapping],
-        content_analysis: dict[str, Any]
+        self, mappings: list[SchemaMapping], content_analysis: dict[str, Any]
     ) -> str:
         """Recommend the best target schema based on mappings and content analysis"""
         if not mappings:
@@ -526,9 +580,15 @@ class IntelligentDataDiscoveryService:
 
         # Calculate average confidence for each schema
         for schema, scores in schema_scores.items():
-            scores["average_confidence"] = scores["total_confidence"] / scores["field_count"]
-            scores["coverage_score"] = min(scores["field_count"] / 10, 1.0)  # Normalize to 0-1
-            scores["final_score"] = scores["average_confidence"] * scores["coverage_score"]
+            scores["average_confidence"] = (
+                scores["total_confidence"] / scores["field_count"]
+            )
+            scores["coverage_score"] = min(
+                scores["field_count"] / 10, 1.0
+            )  # Normalize to 0-1
+            scores["final_score"] = (
+                scores["average_confidence"] * scores["coverage_score"]
+            )
 
         # Find schema with highest final score
         best_schema = max(schema_scores.items(), key=lambda x: x[1]["final_score"])
@@ -538,7 +598,7 @@ class IntelligentDataDiscoveryService:
         self,
         file_info: dict[str, Any],
         content_analysis: dict[str, Any],
-        record_count: int
+        record_count: int,
     ) -> ChunkingStrategy:
         """Recommend optimal chunking strategy based on data characteristics"""
         file_size_mb = file_info.get("size_bytes", 0) / (1024 * 1024)
@@ -550,11 +610,16 @@ class IntelligentDataDiscoveryService:
             return ChunkingStrategy.DOCUMENT_SECTION
         elif "time" in data_type.lower() or "transaction" in data_type.lower():
             return ChunkingStrategy.TIME_SERIES
-        elif business_domain.lower() in ["crm", "sales", "marketing"] and record_count > 10000:
+        elif (
+            business_domain.lower() in ["crm", "sales", "marketing"]
+            and record_count > 10000
+        ):
             return ChunkingStrategy.RELATIONSHIP_PRESERVING
         elif file_size_mb > 100 or record_count > 50000:
             return ChunkingStrategy.SEMANTIC
-        elif "conversation" in data_type.lower() or "communication" in data_type.lower():
+        elif (
+            "conversation" in data_type.lower() or "communication" in data_type.lower()
+        ):
             return ChunkingStrategy.CONTENT_AWARE
         else:
             return ChunkingStrategy.ROW_BASED
@@ -563,7 +628,7 @@ class IntelligentDataDiscoveryService:
         self,
         data: list[dict],
         strategy: ChunkingStrategy,
-        content_analysis: dict[str, Any]
+        content_analysis: dict[str, Any],
     ) -> list[ChunkAnalysis]:
         """Generate preview of how data would be chunked"""
         preview_chunks = []
@@ -572,8 +637,10 @@ class IntelligentDataDiscoveryService:
             if strategy == ChunkingStrategy.ROW_BASED:
                 # Group rows into chunks of 1000
                 chunk_size = 1000
-                for i in range(0, min(len(data), 5000), chunk_size):  # Preview first 5 chunks
-                    chunk_data = data[i:i+chunk_size]
+                for i in range(
+                    0, min(len(data), 5000), chunk_size
+                ):  # Preview first 5 chunks
+                    chunk_data = data[i : i + chunk_size]
                     chunk = ChunkAnalysis(
                         chunk_id=f"preview_chunk_{i//chunk_size + 1}",
                         chunk_type="data_rows",
@@ -582,7 +649,7 @@ class IntelligentDataDiscoveryService:
                         quality_score=0.8,
                         semantic_coherence=0.7,
                         business_relevance=0.9,
-                        relationships=[]
+                        relationships=[],
                     )
                     preview_chunks.append(chunk)
 
@@ -600,15 +667,17 @@ class IntelligentDataDiscoveryService:
                         quality_score=0.85,
                         semantic_coherence=0.9,
                         business_relevance=0.8,
-                        relationships=[entity_type]
+                        relationships=[entity_type],
                     )
                     preview_chunks.append(chunk)
 
             else:
                 # Default chunking for other strategies
                 chunk_size = 500
-                for i in range(0, min(len(data), 2500), chunk_size):  # Preview first 5 chunks
-                    chunk_data = data[i:i+chunk_size]
+                for i in range(
+                    0, min(len(data), 2500), chunk_size
+                ):  # Preview first 5 chunks
+                    chunk_data = data[i : i + chunk_size]
                     chunk = ChunkAnalysis(
                         chunk_id=f"content_chunk_{i//chunk_size + 1}",
                         chunk_type=strategy.value,
@@ -617,7 +686,7 @@ class IntelligentDataDiscoveryService:
                         quality_score=0.75,
                         semantic_coherence=0.8,
                         business_relevance=0.7,
-                        relationships=[]
+                        relationships=[],
                     )
                     preview_chunks.append(chunk)
 
@@ -632,7 +701,7 @@ class IntelligentDataDiscoveryService:
                     quality_score=0.7,
                     semantic_coherence=0.6,
                     business_relevance=0.8,
-                    relationships=[]
+                    relationships=[],
                 )
             ]
 
@@ -666,19 +735,22 @@ class IntelligentDataDiscoveryService:
                     WHERE STAGE_ID = %s
                     """
 
-                    await cursor.execute(update_query, (
-                        'analyzed',
-                        json.dumps(result.detected_schema),
-                        json.dumps([asdict(m) for m in result.suggested_mappings]),
-                        result.recommended_target_schema,
-                        json.dumps(result.content_analysis),
-                        result.recommended_chunk_strategy.value,
-                        json.dumps([asdict(c) for c in result.chunk_preview]),
-                        result.data_quality_score,
-                        result.confidence_score,
-                        json.dumps(result.validation_errors),
-                        result.stage_id
-                    ))
+                    await cursor.execute(
+                        update_query,
+                        (
+                            "analyzed",
+                            json.dumps(result.detected_schema),
+                            json.dumps([asdict(m) for m in result.suggested_mappings]),
+                            result.recommended_target_schema,
+                            json.dumps(result.content_analysis),
+                            result.recommended_chunk_strategy.value,
+                            json.dumps([asdict(c) for c in result.chunk_preview]),
+                            result.data_quality_score,
+                            result.confidence_score,
+                            json.dumps(result.validation_errors),
+                            result.stage_id,
+                        ),
+                    )
 
                     # Store field mappings
                     for mapping in result.suggested_mappings:
@@ -689,16 +761,19 @@ class IntelligentDataDiscoveryService:
                             MAPPING_STATUS
                         ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         """
-                        await cursor.execute(mapping_query, (
-                            str(uuid.uuid4()),
-                            result.stage_id,
-                            mapping.source_field,
-                            mapping.target_field,
-                            mapping.target_schema,
-                            mapping.confidence,
-                            mapping.reasoning,
-                            'suggested'
-                        ))
+                        await cursor.execute(
+                            mapping_query,
+                            (
+                                str(uuid.uuid4()),
+                                result.stage_id,
+                                mapping.source_field,
+                                mapping.target_field,
+                                mapping.target_schema,
+                                mapping.confidence,
+                                mapping.reasoning,
+                                "suggested",
+                            ),
+                        )
 
                     await conn.commit()
 
@@ -739,18 +814,22 @@ class IntelligentDataDiscoveryService:
             if any(indicator in str_value for indicator in datetime_indicators):
                 return "datetime"
             # Basic date pattern check
-            if len(str_value) >= 8 and any(sep in str_value for sep in ["-", "/", ":", " "]):
+            if len(str_value) >= 8 and any(
+                sep in str_value for sep in ["-", "/", ":", " "]
+            ):
                 return "datetime"
 
         return "string"
 
-    async def _analyze_field_patterns(self, values: list[Any], data_type: str) -> dict[str, Any]:
+    async def _analyze_field_patterns(
+        self, values: list[Any], data_type: str
+    ) -> dict[str, Any]:
         """Analyze patterns in field values"""
         pattern_analysis = {
             "common_patterns": [],
             "format_consistency": 0.0,
             "special_characters": False,
-            "typical_length": 0
+            "typical_length": 0,
         }
 
         if not values:
@@ -771,7 +850,9 @@ class IntelligentDataDiscoveryService:
                     pattern_analysis["common_patterns"].append("email")
 
                 # Check for phone patterns
-                phone_count = sum(1 for v in str_values if any(c.isdigit() for c in v) and len(v) > 7)
+                phone_count = sum(
+                    1 for v in str_values if any(c.isdigit() for c in v) and len(v) > 7
+                )
                 if phone_count > len(str_values) * 0.5:
                     pattern_analysis["common_patterns"].append("phone")
 
@@ -782,7 +863,9 @@ class IntelligentDataDiscoveryService:
 
         return pattern_analysis
 
-    async def _suggest_field_type(self, values: list[Any], pattern_analysis: dict) -> str:
+    async def _suggest_field_type(
+        self, values: list[Any], pattern_analysis: dict
+    ) -> str:
         """Suggest improved field type based on analysis"""
         if "email" in pattern_analysis.get("common_patterns", []):
             return "email"
@@ -798,7 +881,7 @@ class IntelligentDataDiscoveryService:
         null_percentage: float,
         unique_count: int,
         total_count: int,
-        pattern_analysis: dict
+        pattern_analysis: dict,
     ) -> float:
         """Calculate quality score for a field"""
         # Base score starts at 1.0
@@ -823,7 +906,9 @@ class IntelligentDataDiscoveryService:
 
         return max(0.0, min(1.0, score))
 
-    def _calculate_data_quality_score(self, field_stats: list[FieldStatistics]) -> float:
+    def _calculate_data_quality_score(
+        self, field_stats: list[FieldStatistics]
+    ) -> float:
         """Calculate overall data quality score"""
         if not field_stats:
             return 0.0
@@ -835,7 +920,7 @@ class IntelligentDataDiscoveryService:
         self,
         mappings: list[SchemaMapping],
         content_analysis: dict[str, Any],
-        data_quality: float
+        data_quality: float,
     ) -> float:
         """Calculate overall confidence in the analysis"""
         if not mappings:
@@ -852,10 +937,10 @@ class IntelligentDataDiscoveryService:
 
         # Weighted combination
         final_confidence = (
-            avg_mapping_confidence * 0.4 +
-            content_confidence * 0.3 +
-            quality_contribution +
-            0.1  # Base confidence
+            avg_mapping_confidence * 0.4
+            + content_confidence * 0.3
+            + quality_contribution
+            + 0.1  # Base confidence
         )
 
         return min(1.0, final_confidence)
@@ -865,7 +950,7 @@ class IntelligentDataDiscoveryService:
         schema: dict[str, Any],
         mappings: list[SchemaMapping],
         target_schema: str,
-        quality_score: float
+        quality_score: float,
     ) -> str:
         """Generate human-readable analysis summary"""
         field_count = len(schema.get("fields", []))
@@ -901,9 +986,7 @@ class IntelligentDataDiscoveryService:
             return DataQuality.CRITICAL
 
     async def _validate_data_quality(
-        self,
-        data: list[dict],
-        field_stats: list[FieldStatistics]
+        self, data: list[dict], field_stats: list[FieldStatistics]
     ) -> list[str]:
         """Identify data quality issues and validation errors"""
         errors = []
@@ -911,7 +994,9 @@ class IntelligentDataDiscoveryService:
         # Check for high null rates
         for stat in field_stats:
             if stat.null_percentage > 70:
-                errors.append(f"Field '{stat.field_name}' has high null rate ({stat.null_percentage:.1f}%)")
+                errors.append(
+                    f"Field '{stat.field_name}' has high null rate ({stat.null_percentage:.1f}%)"
+                )
 
         # Check for data consistency
         if len(data) < 10:
@@ -923,7 +1008,9 @@ class IntelligentDataDiscoveryService:
             errors.append("Duplicate field names detected")
 
         # Check for entirely empty fields
-        empty_fields = [stat.field_name for stat in field_stats if stat.null_percentage == 100]
+        empty_fields = [
+            stat.field_name for stat in field_stats if stat.null_percentage == 100
+        ]
         if empty_fields:
             errors.append(f"Completely empty fields: {', '.join(empty_fields)}")
 
@@ -934,7 +1021,7 @@ class IntelligentDataDiscoveryService:
         file_info: dict[str, Any],
         quality_score: float,
         chunk_strategy: ChunkingStrategy,
-        validation_errors: list[str]
+        validation_errors: list[str],
     ) -> dict[str, Any]:
         """Generate recommendations for processing this data"""
         recommendations = {
@@ -942,12 +1029,14 @@ class IntelligentDataDiscoveryService:
             "chunking_parameters": {},
             "quality_improvements": [],
             "estimated_processing_time": "5-10 minutes",
-            "resource_requirements": "standard"
+            "resource_requirements": "standard",
         }
 
         # Preprocessing recommendations
         if quality_score < 0.7:
-            recommendations["preprocessing_steps"].append("Data cleaning and validation")
+            recommendations["preprocessing_steps"].append(
+                "Data cleaning and validation"
+            )
 
         if validation_errors:
             recommendations["preprocessing_steps"].append("Address validation errors")
@@ -957,13 +1046,13 @@ class IntelligentDataDiscoveryService:
             recommendations["chunking_parameters"] = {
                 "chunk_size": 1000,
                 "overlap": 0,
-                "preserve_relationships": False
+                "preserve_relationships": False,
             }
         elif chunk_strategy == ChunkingStrategy.SEMANTIC:
             recommendations["chunking_parameters"] = {
                 "chunk_size": 500,
                 "overlap": 50,
-                "preserve_relationships": True
+                "preserve_relationships": True,
             }
 
         # Resource requirements
@@ -977,7 +1066,9 @@ class IntelligentDataDiscoveryService:
 
         return recommendations
 
-    def _fallback_content_analysis(self, field_names: list[str], sample_data: list[dict]) -> dict[str, Any]:
+    def _fallback_content_analysis(
+        self, field_names: list[str], sample_data: list[dict]
+    ) -> dict[str, Any]:
         """Fallback content analysis when AI analysis fails"""
         # Simple heuristic-based analysis
         business_domain = "unknown"
@@ -986,7 +1077,9 @@ class IntelligentDataDiscoveryService:
         # Check field names for common patterns
         name_text = " ".join(field_names).lower()
 
-        if any(term in name_text for term in ["account", "contact", "lead", "opportunity"]):
+        if any(
+            term in name_text for term in ["account", "contact", "lead", "opportunity"]
+        ):
             business_domain = "crm"
         elif any(term in name_text for term in ["call", "transcript", "recording"]):
             business_domain = "communication"
@@ -1000,10 +1093,12 @@ class IntelligentDataDiscoveryService:
             "field_relationships": {},
             "suggested_use_cases": ["data_analysis", "reporting"],
             "sensitivity_level": "internal",
-            "confidence": 0.5
+            "confidence": 0.5,
         }
 
-    def _get_target_schema_candidates(self, business_domain: str, content_analysis: dict) -> list[str]:
+    def _get_target_schema_candidates(
+        self, business_domain: str, content_analysis: dict
+    ) -> list[str]:
         """Get likely target schema candidates based on business domain"""
         domain_mapping = {
             "crm": ["SALESFORCE", "HUBSPOT_DATA"],
@@ -1012,17 +1107,14 @@ class IntelligentDataDiscoveryService:
             "marketing": ["HUBSPOT_DATA", "AI_MEMORY"],
             "financial": ["FOUNDATIONAL_KB"],
             "hr": ["FOUNDATIONAL_KB"],
-            "unknown": ["FOUNDATIONAL_KB", "AI_MEMORY"]
+            "unknown": ["FOUNDATIONAL_KB", "AI_MEMORY"],
         }
 
         candidates = domain_mapping.get(business_domain.lower(), ["FOUNDATIONAL_KB"])
         return candidates[:3]  # Return top 3 candidates
 
     async def _find_best_field_match(
-        self,
-        field_stat: FieldStatistics,
-        target_fields: list[str],
-        schema_name: str
+        self, field_stat: FieldStatistics, target_fields: list[str], schema_name: str
     ) -> dict[str, Any] | None:
         """Find best matching target field for a source field"""
         field_name = field_stat.field_name.lower()
@@ -1033,7 +1125,7 @@ class IntelligentDataDiscoveryService:
                 return {
                     "field": target_field,
                     "confidence": 0.95,
-                    "reasoning": f"Direct name match: {field_name} -> {target_field}"
+                    "reasoning": f"Direct name match: {field_name} -> {target_field}",
                 }
 
         # Partial matching
@@ -1042,7 +1134,7 @@ class IntelligentDataDiscoveryService:
                 return {
                     "field": target_field,
                     "confidence": 0.8,
-                    "reasoning": f"Partial name match: {field_name} -> {target_field}"
+                    "reasoning": f"Partial name match: {field_name} -> {target_field}",
                 }
 
         # Semantic matching (simplified)
@@ -1051,7 +1143,7 @@ class IntelligentDataDiscoveryService:
             "email": ["email", "mail", "contact"],
             "phone": ["phone", "mobile", "tel"],
             "id": ["id", "identifier", "key"],
-            "date": ["date", "time", "created", "updated"]
+            "date": ["date", "time", "created", "updated"],
         }
 
         for pattern, keywords in semantic_matches.items():
@@ -1061,12 +1153,14 @@ class IntelligentDataDiscoveryService:
                         return {
                             "field": target_field,
                             "confidence": 0.7,
-                            "reasoning": f"Semantic match: {field_name} -> {target_field}"
+                            "reasoning": f"Semantic match: {field_name} -> {target_field}",
                         }
 
         return None
 
-    def _group_by_entities(self, data: list[dict], content_analysis: dict) -> dict[str, list[dict]]:
+    def _group_by_entities(
+        self, data: list[dict], content_analysis: dict
+    ) -> dict[str, list[dict]]:
         """Group data by detected entities (simplified grouping)"""
         groups = {"general": data}  # Simplified - in real implementation, use NER
         return groups

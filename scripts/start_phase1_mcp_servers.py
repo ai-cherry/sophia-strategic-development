@@ -12,7 +12,9 @@ import sys
 import time
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +30,12 @@ class Phase1MCPServerStarter:
             {"name": "ui_ux_agent", "port": 9002, "priority": 2, "critical": True},
             {"name": "codacy", "port": 3008, "priority": 2, "critical": True},
             {"name": "portkey_admin", "port": 9013, "priority": 3, "critical": False},
-            {"name": "snowflake_cli_enhanced", "port": 9021, "priority": 3, "critical": False},
+            {
+                "name": "snowflake_cli_enhanced",
+                "port": 9021,
+                "priority": 3,
+                "critical": False,
+            },
             {"name": "ag_ui", "port": 9004, "priority": 4, "critical": False},
             {"name": "snowflake_admin", "port": 9022, "priority": 4, "critical": False},
         ]
@@ -46,7 +53,7 @@ class Phase1MCPServerStarter:
             "already_running": [],
             "health_checks": {},
             "total_started": 0,
-            "critical_success": False
+            "critical_success": False,
         }
 
         # Group servers by priority
@@ -77,8 +84,16 @@ class Phase1MCPServerStarter:
         # Calculate success metrics
         results["total_started"] = len(results["started_servers"])
         critical_servers = [s for s in self.phase1_servers if s["critical"]]
-        critical_started = len([s for s in results["started_servers"] if any(cs["name"] == s for cs in critical_servers)])
-        results["critical_success"] = critical_started >= len(critical_servers) * 0.75  # 75% success rate
+        critical_started = len(
+            [
+                s
+                for s in results["started_servers"]
+                if any(cs["name"] == s for cs in critical_servers)
+            ]
+        )
+        results["critical_success"] = (
+            critical_started >= len(critical_servers) * 0.75
+        )  # 75% success rate
 
         # Generate summary
         await self.generate_startup_summary(results)
@@ -91,7 +106,7 @@ class Phase1MCPServerStarter:
             "started": [],
             "failed": [],
             "already_running": [],
-            "health_checks": {}
+            "health_checks": {},
         }
 
         # Start servers in parallel within the same priority group
@@ -131,20 +146,14 @@ class Phase1MCPServerStarter:
         if await self.check_server_running(port):
             logger.info(f"✅ {server_name} already running on port {port}")
             health_check = await self.perform_health_check(port)
-            return {
-                "status": "already_running",
-                "health_check": health_check
-            }
+            return {"status": "already_running", "health_check": health_check}
 
         # Find server file
         server_file = self.find_server_file(server_name)
         if not server_file:
             error_msg = f"Server file not found for {server_name}"
             logger.error(f"❌ {error_msg}")
-            return {
-                "status": "failed",
-                "error": error_msg
-            }
+            return {"status": "failed", "error": error_msg}
 
         # Start the server
         try:
@@ -160,7 +169,7 @@ class Phase1MCPServerStarter:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=env,
-                cwd=str(server_file.parent)
+                cwd=str(server_file.parent),
             )
 
             # Wait a moment for startup
@@ -172,10 +181,7 @@ class Phase1MCPServerStarter:
                 stdout, stderr = process.communicate()
                 error_msg = f"Process died: {stderr.decode()}"
                 logger.error(f"❌ {server_name}: {error_msg}")
-                return {
-                    "status": "failed",
-                    "error": error_msg
-                }
+                return {"status": "failed", "error": error_msg}
 
             # Check if server is responding
             if await self.check_server_running(port):
@@ -184,34 +190,26 @@ class Phase1MCPServerStarter:
                 self.running_servers[server_name] = {
                     "process": process,
                     "port": port,
-                    "started_at": time.time()
+                    "started_at": time.time(),
                 }
-                return {
-                    "status": "started",
-                    "health_check": health_check
-                }
+                return {"status": "started", "health_check": health_check}
             else:
                 # Server not responding
                 process.terminate()
                 error_msg = f"Server not responding on port {port}"
                 logger.error(f"❌ {server_name}: {error_msg}")
-                return {
-                    "status": "failed",
-                    "error": error_msg
-                }
+                return {"status": "failed", "error": error_msg}
 
         except Exception as e:
             error_msg = f"Failed to start: {e}"
             logger.error(f"❌ {server_name}: {error_msg}")
-            return {
-                "status": "failed",
-                "error": error_msg
-            }
+            return {"status": "failed", "error": error_msg}
 
     async def check_server_running(self, port: int) -> bool:
         """Check if a server is running on the specified port"""
         try:
             import aiohttp
+
             timeout = aiohttp.ClientTimeout(total=5)
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.get(f"http://localhost:{port}/health") as response:
@@ -223,6 +221,7 @@ class Phase1MCPServerStarter:
         """Perform detailed health check on a server"""
         try:
             import aiohttp
+
             timeout = aiohttp.ClientTimeout(total=10)
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 start_time = time.time()
@@ -233,19 +232,16 @@ class Phase1MCPServerStarter:
                         return {
                             "status": "healthy",
                             "response_time_ms": response_time,
-                            "details": health_data
+                            "details": health_data,
                         }
                     else:
                         return {
                             "status": "unhealthy",
                             "response_time_ms": response_time,
-                            "error": f"HTTP {response.status}"
+                            "error": f"HTTP {response.status}",
                         }
         except Exception as e:
-            return {
-                "status": "error",
-                "error": str(e)
-            }
+            return {"status": "error", "error": str(e)}
 
     def find_server_file(self, server_name: str) -> Path | None:
         """Find the main server file for a given server"""
@@ -258,7 +254,7 @@ class Phase1MCPServerStarter:
             f"{server_name}_mcp_server.py",
             "mcp_server.py",
             "server.py",
-            "main.py"
+            "main.py",
         ]
 
         for name in possible_names:
@@ -287,7 +283,9 @@ class Phase1MCPServerStarter:
 
         logger.info("\n📊 OVERVIEW:")
         logger.info(f"   Total Phase 1 servers: {total_servers}")
-        logger.info(f"   ✅ Operational: {operational} ({operational/total_servers*100:.1f}%)")
+        logger.info(
+            f"   ✅ Operational: {operational} ({operational/total_servers*100:.1f}%)"
+        )
         logger.info(f"   🔄 Started this session: {started}")
         logger.info(f"   ✅ Already running: {already_running}")
         logger.info(f"   ❌ Failed: {failed}")
@@ -308,15 +306,23 @@ class Phase1MCPServerStarter:
                 logger.info(f"   • {server}")
 
         # Health check summary
-        healthy_servers = sum(1 for hc in results["health_checks"].values() if hc.get("status") == "healthy")
+        healthy_servers = sum(
+            1
+            for hc in results["health_checks"].values()
+            if hc.get("status") == "healthy"
+        )
         if results["health_checks"]:
             logger.info("\n🏥 HEALTH STATUS:")
-            logger.info(f"   Healthy: {healthy_servers}/{len(results['health_checks'])}")
+            logger.info(
+                f"   Healthy: {healthy_servers}/{len(results['health_checks'])}"
+            )
 
             for server, health in results["health_checks"].items():
                 status_emoji = "✅" if health.get("status") == "healthy" else "⚠️"
                 response_time = health.get("response_time_ms", 0)
-                logger.info(f"   {status_emoji} {server}: {health.get('status', 'unknown')} ({response_time:.1f}ms)")
+                logger.info(
+                    f"   {status_emoji} {server}: {health.get('status', 'unknown')} ({response_time:.1f}ms)"
+                )
 
         # Success assessment
         logger.info("\n🎯 PHASE 1 RECOVERY STATUS:")

@@ -27,6 +27,7 @@ from backend.core.auto_esc_config import _load_esc_environment, get_config_value
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class MCPPulumiESCValidator:
     """Validates MCP server Pulumi ESC integration"""
 
@@ -37,7 +38,7 @@ class MCPPulumiESCValidator:
             "secret_mappings": {},
             "mcp_server_secrets": {},
             "overall_status": "unknown",
-            "recommendations": []
+            "recommendations": [],
         }
         self.required_secrets = [
             # Core AI Services
@@ -61,7 +62,7 @@ class MCPPulumiESCValidator:
             "notion_api_token",
             # Gateway Services
             "portkey_api_key",
-            "openrouter_api_key"
+            "openrouter_api_key",
         ]
 
     async def run_comprehensive_validation(self) -> dict[str, Any]:
@@ -97,20 +98,22 @@ class MCPPulumiESCValidator:
                 "environment_name": "scoobyjava-org/default/sophia-ai-production",
                 "keys_loaded": len(esc_data),
                 "test_status": "passed" if len(esc_data) > 0 else "failed",
-                "details": f"Loaded {len(esc_data)} configuration keys"
+                "details": f"Loaded {len(esc_data)} configuration keys",
             }
 
             if len(esc_data) > 0:
                 logger.info(f"✅ Pulumi ESC loaded {len(esc_data)} configuration keys")
             else:
-                logger.warning("⚠️  Pulumi ESC environment appears empty or inaccessible")
+                logger.warning(
+                    "⚠️  Pulumi ESC environment appears empty or inaccessible"
+                )
 
         except Exception as e:
             self.test_results["pulumi_esc_status"] = {
                 "environment_accessible": False,
                 "test_status": "failed",
                 "error": str(e),
-                "details": "Failed to load Pulumi ESC environment"
+                "details": "Failed to load Pulumi ESC environment",
             }
             logger.error(f"❌ Pulumi ESC loading failed: {e}")
 
@@ -136,11 +139,15 @@ class MCPPulumiESCValidator:
                     "has_value": is_accessible and not is_placeholder,
                     "is_placeholder": is_placeholder,
                     "value_length": len(str(secret_value)) if secret_value else 0,
-                    "test_status": "passed" if (is_accessible and not is_placeholder) else "failed"
+                    "test_status": (
+                        "passed" if (is_accessible and not is_placeholder) else "failed"
+                    ),
                 }
 
                 if is_accessible and not is_placeholder:
-                    logger.info(f"✅ {secret_name}: accessible ({len(str(secret_value))} chars)")
+                    logger.info(
+                        f"✅ {secret_name}: accessible ({len(str(secret_value))} chars)"
+                    )
                 elif is_placeholder:
                     logger.warning(f"⚠️  {secret_name}: placeholder value detected")
                 else:
@@ -151,7 +158,7 @@ class MCPPulumiESCValidator:
                     "accessible": False,
                     "has_value": False,
                     "error": str(e),
-                    "test_status": "failed"
+                    "test_status": "failed",
                 }
                 logger.error(f"❌ {secret_name}: error accessing - {e}")
 
@@ -159,9 +166,13 @@ class MCPPulumiESCValidator:
 
         # Calculate summary
         accessible_count = sum(1 for r in secret_results.values() if r["accessible"])
-        valid_count = sum(1 for r in secret_results.values() if r.get("has_value", False))
+        valid_count = sum(
+            1 for r in secret_results.values() if r.get("has_value", False)
+        )
 
-        logger.info(f"📊 Secret Summary: {accessible_count}/{len(self.required_secrets)} accessible, {valid_count}/{len(self.required_secrets)} valid")
+        logger.info(
+            f"📊 Secret Summary: {accessible_count}/{len(self.required_secrets)} accessible, {valid_count}/{len(self.required_secrets)} valid"
+        )
 
     async def test_mcp_server_secrets(self) -> None:
         """Test MCP server specific secret requirements"""
@@ -177,11 +188,19 @@ class MCPPulumiESCValidator:
             "linear": ["linear_api_key"],
             "github": ["github_token"],
             "slack": ["slack_bot_token", "slack_app_token"],
-            "snowflake_admin": ["snowflake_account", "snowflake_user", "snowflake_password"],
+            "snowflake_admin": [
+                "snowflake_account",
+                "snowflake_user",
+                "snowflake_password",
+            ],
             "portkey_admin": ["portkey_api_key"],
             "openrouter_search": ["openrouter_api_key"],
             "lambda_labs_cli": ["lambda_api_key"],
-            "snowflake_cli_enhanced": ["snowflake_account", "snowflake_user", "snowflake_password"]
+            "snowflake_cli_enhanced": [
+                "snowflake_account",
+                "snowflake_user",
+                "snowflake_password",
+            ],
         }
 
         server_results = {}
@@ -191,26 +210,34 @@ class MCPPulumiESCValidator:
                 "required_secrets": required_secrets,
                 "secrets_status": {},
                 "all_secrets_available": True,
-                "test_status": "unknown"
+                "test_status": "unknown",
             }
 
             for secret in required_secrets:
                 secret_value = get_config_value(secret)
-                secret_available = secret_value is not None and secret_value != "" and "PLACEHOLDER" not in str(secret_value).upper()
+                secret_available = (
+                    secret_value is not None
+                    and secret_value != ""
+                    and "PLACEHOLDER" not in str(secret_value).upper()
+                )
 
                 server_status["secrets_status"][secret] = {
                     "available": secret_available,
-                    "value_length": len(str(secret_value)) if secret_value else 0
+                    "value_length": len(str(secret_value)) if secret_value else 0,
                 }
 
                 if not secret_available:
                     server_status["all_secrets_available"] = False
 
-            server_status["test_status"] = "passed" if server_status["all_secrets_available"] else "failed"
+            server_status["test_status"] = (
+                "passed" if server_status["all_secrets_available"] else "failed"
+            )
             server_results[server_name] = server_status
 
             status_icon = "✅" if server_status["all_secrets_available"] else "❌"
-            logger.info(f"{status_icon} {server_name}: {len([s for s in server_status['secrets_status'].values() if s['available']])}/{len(required_secrets)} secrets available")
+            logger.info(
+                f"{status_icon} {server_name}: {len([s for s in server_status['secrets_status'].values() if s['available']])}/{len(required_secrets)} secrets available"
+            )
 
         self.test_results["mcp_server_secrets"] = server_results
 
@@ -223,7 +250,7 @@ class MCPPulumiESCValidator:
             "snowflake_config": self.test_snowflake_config(),
             "ai_services_config": self.test_ai_services_config(),
             "business_tools_config": self.test_business_tools_config(),
-            "infrastructure_config": self.test_infrastructure_config()
+            "infrastructure_config": self.test_infrastructure_config(),
         }
 
         completeness_results = {}
@@ -234,14 +261,24 @@ class MCPPulumiESCValidator:
 
     def test_snowflake_config(self) -> dict[str, Any]:
         """Test Snowflake configuration completeness"""
-        snowflake_keys = ["snowflake_account", "snowflake_user", "snowflake_password", "snowflake_warehouse", "snowflake_database"]
+        snowflake_keys = [
+            "snowflake_account",
+            "snowflake_user",
+            "snowflake_password",
+            "snowflake_warehouse",
+            "snowflake_database",
+        ]
 
         config_status = {}
         all_present = True
 
         for key in snowflake_keys:
             value = get_config_value(key)
-            is_present = value is not None and value != "" and "PLACEHOLDER" not in str(value).upper()
+            is_present = (
+                value is not None
+                and value != ""
+                and "PLACEHOLDER" not in str(value).upper()
+            )
             config_status[key] = is_present
             if not is_present:
                 all_present = False
@@ -251,19 +288,29 @@ class MCPPulumiESCValidator:
             "keys_tested": snowflake_keys,
             "status": config_status,
             "complete": all_present,
-            "test_status": "passed" if all_present else "failed"
+            "test_status": "passed" if all_present else "failed",
         }
 
     def test_ai_services_config(self) -> dict[str, Any]:
         """Test AI services configuration completeness"""
-        ai_keys = ["openai_api_key", "anthropic_api_key", "pinecone_api_key", "portkey_api_key", "openrouter_api_key"]
+        ai_keys = [
+            "openai_api_key",
+            "anthropic_api_key",
+            "pinecone_api_key",
+            "portkey_api_key",
+            "openrouter_api_key",
+        ]
 
         config_status = {}
         all_present = True
 
         for key in ai_keys:
             value = get_config_value(key)
-            is_present = value is not None and value != "" and "PLACEHOLDER" not in str(value).upper()
+            is_present = (
+                value is not None
+                and value != ""
+                and "PLACEHOLDER" not in str(value).upper()
+            )
             config_status[key] = is_present
             if not is_present:
                 all_present = False
@@ -273,19 +320,29 @@ class MCPPulumiESCValidator:
             "keys_tested": ai_keys,
             "status": config_status,
             "complete": all_present,
-            "test_status": "passed" if all_present else "failed"
+            "test_status": "passed" if all_present else "failed",
         }
 
     def test_business_tools_config(self) -> dict[str, Any]:
         """Test business tools configuration completeness"""
-        business_keys = ["gong_access_key", "hubspot_access_token", "slack_bot_token", "linear_api_key", "github_token"]
+        business_keys = [
+            "gong_access_key",
+            "hubspot_access_token",
+            "slack_bot_token",
+            "linear_api_key",
+            "github_token",
+        ]
 
         config_status = {}
         present_count = 0
 
         for key in business_keys:
             value = get_config_value(key)
-            is_present = value is not None and value != "" and "PLACEHOLDER" not in str(value).upper()
+            is_present = (
+                value is not None
+                and value != ""
+                and "PLACEHOLDER" not in str(value).upper()
+            )
             config_status[key] = is_present
             if is_present:
                 present_count += 1
@@ -300,7 +357,7 @@ class MCPPulumiESCValidator:
             "present_count": present_count,
             "total_count": len(business_keys),
             "complete": is_complete,
-            "test_status": "passed" if is_complete else "failed"
+            "test_status": "passed" if is_complete else "failed",
         }
 
     def test_infrastructure_config(self) -> dict[str, Any]:
@@ -312,7 +369,11 @@ class MCPPulumiESCValidator:
 
         for key in infra_keys:
             value = get_config_value(key)
-            is_present = value is not None and value != "" and "PLACEHOLDER" not in str(value).upper()
+            is_present = (
+                value is not None
+                and value != ""
+                and "PLACEHOLDER" not in str(value).upper()
+            )
             config_status[key] = is_present
             if is_present:
                 present_count += 1
@@ -327,7 +388,7 @@ class MCPPulumiESCValidator:
             "present_count": present_count,
             "total_count": len(infra_keys),
             "complete": is_complete,
-            "test_status": "passed" if is_complete else "failed"
+            "test_status": "passed" if is_complete else "failed",
         }
 
     def generate_final_assessment(self) -> None:
@@ -335,16 +396,22 @@ class MCPPulumiESCValidator:
         logger.info("📊 Generating final assessment...")
 
         # Calculate overall scores
-        pulumi_esc_working = self.test_results["pulumi_esc_status"].get("environment_accessible", False)
+        pulumi_esc_working = self.test_results["pulumi_esc_status"].get(
+            "environment_accessible", False
+        )
 
         secret_results = self.test_results["secret_mappings"]
         total_secrets = len(secret_results)
         sum(1 for r in secret_results.values() if r["accessible"])
-        valid_secrets = sum(1 for r in secret_results.values() if r.get("has_value", False))
+        valid_secrets = sum(
+            1 for r in secret_results.values() if r.get("has_value", False)
+        )
 
         mcp_server_results = self.test_results["mcp_server_secrets"]
         total_servers = len(mcp_server_results)
-        operational_servers = sum(1 for r in mcp_server_results.values() if r["all_secrets_available"])
+        operational_servers = sum(
+            1 for r in mcp_server_results.values() if r["all_secrets_available"]
+        )
 
         config_results = self.test_results["configuration_completeness"]
         complete_configs = sum(1 for r in config_results.values() if r["complete"])
@@ -374,33 +441,47 @@ class MCPPulumiESCValidator:
             "pulumi_esc": esc_score,
             "secrets": secret_score,
             "servers": server_score,
-            "configuration": config_score
+            "configuration": config_score,
         }
 
         # Generate recommendations
         recommendations = []
 
         if not pulumi_esc_working:
-            recommendations.append("Fix Pulumi ESC environment access - ensure 'pulumi env get scoobyjava-org/default/sophia-ai-production' works")
+            recommendations.append(
+                "Fix Pulumi ESC environment access - ensure 'pulumi env get scoobyjava-org/default/sophia-ai-production' works"
+            )
 
         if valid_secrets < total_secrets * 0.8:
-            recommendations.append(f"Add missing secrets to Pulumi ESC: {total_secrets - valid_secrets} secrets need attention")
+            recommendations.append(
+                f"Add missing secrets to Pulumi ESC: {total_secrets - valid_secrets} secrets need attention"
+            )
 
         if operational_servers < total_servers * 0.8:
-            recommendations.append(f"Fix MCP server secret mappings: {total_servers - operational_servers} servers have missing secrets")
+            recommendations.append(
+                f"Fix MCP server secret mappings: {total_servers - operational_servers} servers have missing secrets"
+            )
 
         if complete_configs < total_configs:
             recommendations.append("Complete configuration for all service categories")
 
         if not recommendations:
-            recommendations.append("All systems operational - no immediate action required")
+            recommendations.append(
+                "All systems operational - no immediate action required"
+            )
 
         self.test_results["recommendations"] = recommendations
 
         # Log final results
-        logger.info(f"🎯 Final Assessment: {overall_status.upper()} ({overall_score:.1f}/100)")
-        logger.info(f"📈 Breakdown: ESC={esc_score:.0f}, Secrets={secret_score:.1f}, Servers={server_score:.1f}, Config={config_score:.1f}")
-        logger.info(f"✅ Operational: {operational_servers}/{total_servers} servers, {valid_secrets}/{total_secrets} secrets")
+        logger.info(
+            f"🎯 Final Assessment: {overall_status.upper()} ({overall_score:.1f}/100)"
+        )
+        logger.info(
+            f"📈 Breakdown: ESC={esc_score:.0f}, Secrets={secret_score:.1f}, Servers={server_score:.1f}, Config={config_score:.1f}"
+        )
+        logger.info(
+            f"✅ Operational: {operational_servers}/{total_servers} servers, {valid_secrets}/{total_secrets} secrets"
+        )
 
         for recommendation in recommendations:
             logger.info(f"💡 Recommendation: {recommendation}")
@@ -413,11 +494,12 @@ class MCPPulumiESCValidator:
 
         report_path = Path(__file__).parent.parent / filename
 
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             json.dump(self.test_results, f, indent=2)
 
         logger.info(f"📄 Test report saved to: {report_path}")
         return str(report_path)
+
 
 async def main():
     """Main function to run the MCP Pulumi ESC validation"""
@@ -431,25 +513,26 @@ async def main():
         report_path = await validator.save_test_report()
 
         # Print summary
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("MCP PULUMI ESC INTEGRATION TEST SUMMARY")
-        print("="*60)
+        print("=" * 60)
         print(f"Overall Status: {results['overall_status'].upper()}")
         print(f"Overall Score: {results['overall_score']:.1f}/100")
         print(f"Test Date: {results['validation_timestamp']}")
         print(f"Report: {report_path}")
         print("\nRecommendations:")
-        for i, rec in enumerate(results['recommendations'], 1):
+        for i, rec in enumerate(results["recommendations"], 1):
             print(f"{i}. {rec}")
-        print("="*60)
+        print("=" * 60)
 
         # Exit with appropriate code
-        exit_code = 0 if results['overall_score'] >= 75 else 1
+        exit_code = 0 if results["overall_score"] >= 75 else 1
         sys.exit(exit_code)
 
     except Exception as e:
         logger.error(f"❌ Validation failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

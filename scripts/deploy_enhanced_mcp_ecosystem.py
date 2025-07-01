@@ -13,8 +13,11 @@ import time
 from pathlib import Path
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class MCPEcosystemDeployer:
     """Enhanced MCP ecosystem deployment orchestrator"""
@@ -29,7 +32,7 @@ class MCPEcosystemDeployer:
         self.phases = {
             1: "High-Impact Server Upgrades",
             2: "Strategic Platform Extensions",
-            3: "Advanced Capabilities"
+            3: "Advanced Capabilities",
         }
 
         # Server configurations
@@ -41,7 +44,7 @@ class MCPEcosystemDeployer:
             "openrouter_search": "https://github.com/joaomj/openrouter-search-server.git",
             "isaacwasserman_snowflake": "https://github.com/isaacwasserman/mcp-snowflake-server.git",
             "davidamom_snowflake": "https://github.com/davidamom/snowflake-mcp.git",
-            "dynamike_snowflake": "https://github.com/dynamike/snowflake-mcp-server.git"
+            "dynamike_snowflake": "https://github.com/dynamike/snowflake-mcp-server.git",
         }
 
         self.npm_packages = [
@@ -49,7 +52,7 @@ class MCPEcosystemDeployer:
             "@modelcontextprotocol/server-filesystem",
             "@modelcontextprotocol/server-postgres",
             "@vercel/sdk",
-            "@modelcontextprotocol/inspector"
+            "@modelcontextprotocol/inspector",
         ]
 
         # Port assignments
@@ -60,24 +63,21 @@ class MCPEcosystemDeployer:
             "portkey_gateway": 9002,
             "code_intelligence": 9003,
             "business_intelligence": 9004,
-
             # Official integrations (new)
             "microsoft_playwright": 9010,
             "glips_figma_context": 9011,
             "snowflake_cortex_official": 9012,
             "portkey_admin": 9013,
             "openrouter_search": 9014,
-
             # npm services (new)
             "github_enhanced": 9020,
             "filesystem_secure": 9021,
             "postgres_advanced": 9022,
             "vercel_deploy": 9023,
-
             # Additional Snowflake servers
             "isaacwasserman_snowflake": 9030,
             "davidamom_snowflake": 9031,
-            "dynamike_snowflake": 9032
+            "dynamike_snowflake": 9032,
         }
 
     async def deploy_phase(self, phase: int) -> bool:
@@ -104,20 +104,24 @@ class MCPEcosystemDeployer:
         logger.info("Phase 1: Deploying high-impact server upgrades...")
 
         tasks = [
-            self._clone_official_repos([
-                "microsoft_playwright",
-                "glips_figma_context",
-                "snowflake_cortex_official"
-            ]),
+            self._clone_official_repos(
+                [
+                    "microsoft_playwright",
+                    "glips_figma_context",
+                    "snowflake_cortex_official",
+                ]
+            ),
             self._install_npm_packages(),
             self._backup_existing_config(),
-            self._update_mcp_configuration(phase=1)
+            self._update_mcp_configuration(phase=1),
         ]
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Check if all tasks succeeded
-        success = all(not isinstance(result, Exception) and result for result in results)
+        success = all(
+            not isinstance(result, Exception) and result for result in results
+        )
 
         if success:
             logger.info("✅ Phase 1 deployment completed successfully")
@@ -131,18 +135,22 @@ class MCPEcosystemDeployer:
         logger.info("Phase 2: Deploying strategic platform extensions...")
 
         tasks = [
-            self._clone_official_repos([
-                "portkey_admin",
-                "openrouter_search",
-                "isaacwasserman_snowflake",
-                "davidamom_snowflake"
-            ]),
+            self._clone_official_repos(
+                [
+                    "portkey_admin",
+                    "openrouter_search",
+                    "isaacwasserman_snowflake",
+                    "davidamom_snowflake",
+                ]
+            ),
             self._setup_multi_snowflake_routing(),
-            self._update_mcp_configuration(phase=2)
+            self._update_mcp_configuration(phase=2),
         ]
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        success = all(not isinstance(result, Exception) and result for result in results)
+        success = all(
+            not isinstance(result, Exception) and result for result in results
+        )
 
         if success:
             logger.info("✅ Phase 2 deployment completed successfully")
@@ -159,11 +167,13 @@ class MCPEcosystemDeployer:
             self._clone_official_repos(["dynamike_snowflake"]),
             self._setup_intelligent_routing(),
             self._deploy_containerized_ecosystem(),
-            self._update_mcp_configuration(phase=3)
+            self._update_mcp_configuration(phase=3),
         ]
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        success = all(not isinstance(result, Exception) and result for result in results)
+        success = all(
+            not isinstance(result, Exception) and result for result in results
+        )
 
         if success:
             logger.info("✅ Phase 3 deployment completed successfully")
@@ -191,17 +201,14 @@ class MCPEcosystemDeployer:
                 if target_dir.exists():
                     logger.info(f"Repository {repo_name} already exists, updating...")
                     subprocess.run(
-                        ["git", "pull"],
-                        cwd=target_dir,
-                        check=True,
-                        capture_output=True
+                        ["git", "pull"], cwd=target_dir, check=True, capture_output=True
                     )
                 else:
                     logger.info(f"Cloning {repo_name}...")
                     subprocess.run(
                         ["git", "clone", repo_url, str(target_dir)],
                         check=True,
-                        capture_output=True
+                        capture_output=True,
                     )
 
                 logger.info(f"✅ {repo_name} ready")
@@ -228,10 +235,10 @@ class MCPEcosystemDeployer:
                 "version": "1.0.0",
                 "description": "npm MCP servers for Sophia AI",
                 "private": True,
-                "dependencies": {}
+                "dependencies": {},
             }
 
-            with open(package_json, 'w') as f:
+            with open(package_json, "w") as f:
                 json.dump(init_package, f, indent=2)
 
         # Install packages
@@ -242,7 +249,7 @@ class MCPEcosystemDeployer:
                     ["npm", "install", package],
                     cwd=npm_mcp_dir,
                     check=True,
-                    capture_output=True
+                    capture_output=True,
                 )
 
             logger.info("✅ npm packages installed successfully")
@@ -258,7 +265,10 @@ class MCPEcosystemDeployer:
 
         try:
             config_file = self.config_dir / "cursor_enhanced_mcp_config.json"
-            backup_file = self.config_dir / f"cursor_enhanced_mcp_config_backup_{int(time.time())}.json"
+            backup_file = (
+                self.config_dir
+                / f"cursor_enhanced_mcp_config_backup_{int(time.time())}.json"
+            )
 
             if config_file.exists():
                 subprocess.run(["cp", str(config_file), str(backup_file)], check=True)
@@ -296,7 +306,7 @@ class MCPEcosystemDeployer:
                 config = self._add_phase_3_servers(config)
 
             # Write updated configuration
-            with open(config_file, 'w') as f:
+            with open(config_file, "w") as f:
                 json.dump(config, f, indent=2)
 
             logger.info("✅ MCP configuration updated successfully")
@@ -317,8 +327,8 @@ class MCPEcosystemDeployer:
                 "official_integrations": True,
                 "npm_server_support": True,
                 "intelligent_routing": True,
-                "multi_server_fallbacks": True
-            }
+                "multi_server_fallbacks": True,
+            },
         }
 
     def _add_phase_1_servers(self, config: dict) -> dict:
@@ -327,19 +337,23 @@ class MCPEcosystemDeployer:
             "microsoft_playwright_official": {
                 "command": "node",
                 "args": [
-                    str(self.external_dir / "microsoft_playwright" / "dist" / "index.js")
+                    str(
+                        self.external_dir / "microsoft_playwright" / "dist" / "index.js"
+                    )
                 ],
                 "env": {
                     "ENVIRONMENT": "prod",
-                    "MCP_SERVER_PORT": str(self.port_assignments["microsoft_playwright"])
+                    "MCP_SERVER_PORT": str(
+                        self.port_assignments["microsoft_playwright"]
+                    ),
                 },
                 "capabilities": [
                     "web_automation",
                     "browser_testing",
                     "accessibility_snapshots",
                     "pdf_handling",
-                    "javascript_execution"
-                ]
+                    "javascript_execution",
+                ],
             },
             "glips_figma_context_official": {
                 "command": "node",
@@ -349,32 +363,32 @@ class MCPEcosystemDeployer:
                 "env": {
                     "FIGMA_PAT": "${FIGMA_PAT}",
                     "ENVIRONMENT": "prod",
-                    "MCP_SERVER_PORT": str(self.port_assignments["glips_figma_context"])
+                    "MCP_SERVER_PORT": str(
+                        self.port_assignments["glips_figma_context"]
+                    ),
                 },
                 "capabilities": [
                     "design_to_code",
                     "figma_integration",
                     "component_generation",
-                    "design_system_sync"
-                ]
+                    "design_system_sync",
+                ],
             },
             "npm_github_enhanced": {
                 "command": "npx",
-                "args": [
-                    "@modelcontextprotocol/server-github"
-                ],
+                "args": ["@modelcontextprotocol/server-github"],
                 "env": {
                     "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}",
                     "ENVIRONMENT": "prod",
-                    "MCP_SERVER_PORT": str(self.port_assignments["github_enhanced"])
+                    "MCP_SERVER_PORT": str(self.port_assignments["github_enhanced"]),
                 },
                 "capabilities": [
                     "github_operations",
                     "repository_management",
                     "advanced_search",
-                    "branch_management"
-                ]
-            }
+                    "branch_management",
+                ],
+            },
         }
 
         config["mcpServers"].update(phase_1_servers)
@@ -391,14 +405,14 @@ class MCPEcosystemDeployer:
                 "env": {
                     "PORTKEY_API_KEY": "${PORTKEY_API_KEY}",
                     "ENVIRONMENT": "prod",
-                    "MCP_SERVER_PORT": str(self.port_assignments["portkey_admin"])
+                    "MCP_SERVER_PORT": str(self.port_assignments["portkey_admin"]),
                 },
                 "capabilities": [
                     "portkey_management",
                     "cost_optimization",
                     "provider_analytics",
-                    "advanced_routing"
-                ]
+                    "advanced_routing",
+                ],
             },
             "openrouter_search_official": {
                 "command": "node",
@@ -408,15 +422,15 @@ class MCPEcosystemDeployer:
                 "env": {
                     "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
                     "ENVIRONMENT": "prod",
-                    "MCP_SERVER_PORT": str(self.port_assignments["openrouter_search"])
+                    "MCP_SERVER_PORT": str(self.port_assignments["openrouter_search"]),
                 },
                 "capabilities": [
                     "model_search",
                     "provider_discovery",
                     "cost_comparison",
-                    "performance_analytics"
-                ]
-            }
+                    "performance_analytics",
+                ],
+            },
         }
 
         config["mcpServers"].update(phase_2_servers)
@@ -431,19 +445,19 @@ class MCPEcosystemDeployer:
                     "run",
                     "python",
                     "-m",
-                    "backend.mcp_servers.intelligent_mcp_router"
+                    "backend.mcp_servers.intelligent_mcp_router",
                 ],
                 "env": {
                     "ENVIRONMENT": "prod",
                     "MCP_SERVER_PORT": "9040",
-                    "ROUTING_STRATEGY": "performance_optimized"
+                    "ROUTING_STRATEGY": "performance_optimized",
                 },
                 "capabilities": [
                     "intelligent_routing",
                     "load_balancing",
                     "failover_management",
-                    "performance_optimization"
-                ]
+                    "performance_optimization",
+                ],
             }
         }
 
@@ -519,12 +533,13 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Deploy Enhanced MCP Ecosystem")
-    parser.add_argument("--phase", type=int, choices=[1, 2, 3],
-                       help="Deployment phase (1, 2, or 3)")
-    parser.add_argument("--all", action="store_true",
-                       help="Deploy all phases")
-    parser.add_argument("--health-check", action="store_true",
-                       help="Run health check only")
+    parser.add_argument(
+        "--phase", type=int, choices=[1, 2, 3], help="Deployment phase (1, 2, or 3)"
+    )
+    parser.add_argument("--all", action="store_true", help="Deploy all phases")
+    parser.add_argument(
+        "--health-check", action="store_true", help="Run health check only"
+    )
 
     args = parser.parse_args()
 

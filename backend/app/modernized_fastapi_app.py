@@ -44,7 +44,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -57,9 +57,13 @@ logger = structlog.get_logger()
 settings = Settings()
 
 # Metrics
-REQUEST_COUNT = Counter('sophia_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-REQUEST_DURATION = Histogram('sophia_request_duration_seconds', 'Request duration')
-AI_REQUESTS = Counter('sophia_ai_requests_total', 'AI service requests', ['service', 'model'])
+REQUEST_COUNT = Counter(
+    "sophia_requests_total", "Total requests", ["method", "endpoint", "status"]
+)
+REQUEST_DURATION = Histogram("sophia_request_duration_seconds", "Request duration")
+AI_REQUESTS = Counter(
+    "sophia_ai_requests_total", "AI service requests", ["service", "model"]
+)
 
 # Rate limiting
 limiter = Limiter(key_func=get_remote_address)
@@ -68,6 +72,7 @@ security = HTTPBearer()
 # Global services
 chat_service: UnifiedChatService | None = None
 ai_service: SmartAIService | None = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -102,6 +107,7 @@ async def lifespan(app: FastAPI):
 
         logger.info("✅ Shutdown complete")
 
+
 def create_application() -> FastAPI:
     """Create modern FastAPI application with 2025 best practices"""
 
@@ -135,7 +141,9 @@ def create_application() -> FastAPI:
         start_time = time.time()
 
         # Add correlation ID
-        correlation_id = request.headers.get("X-Correlation-ID", f"req_{int(time.time())}")
+        correlation_id = request.headers.get(
+            "X-Correlation-ID", f"req_{int(time.time())}"
+        )
 
         with structlog.contextvars.bound_contextvars(correlation_id=correlation_id):
             response = await call_next(request)
@@ -145,7 +153,7 @@ def create_application() -> FastAPI:
             REQUEST_COUNT.labels(
                 method=request.method,
                 endpoint=request.url.path,
-                status=response.status_code
+                status=response.status_code,
             ).inc()
             REQUEST_DURATION.observe(duration)
 
@@ -163,11 +171,12 @@ def create_application() -> FastAPI:
             content=ErrorResponse(
                 error="Internal server error",
                 message="An unexpected error occurred",
-                correlation_id=request.headers.get("X-Correlation-ID")
-            ).model_dump()
+                correlation_id=request.headers.get("X-Correlation-ID"),
+            ).model_dump(),
         )
 
     return app
+
 
 # Create application instance
 app = create_application()
@@ -175,6 +184,7 @@ app = create_application()
 # ==============================================================================
 # HEALTH & SYSTEM ENDPOINTS
 # ==============================================================================
+
 
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health_check():
@@ -186,14 +196,18 @@ async def health_check():
         timestamp=datetime.utcnow().isoformat(),
         services={
             "chat_service": chat_service.is_healthy() if chat_service else False,
-            "streaming_service": streaming_service.is_healthy() if streaming_service else False,
-        }
+            "streaming_service": (
+                streaming_service.is_healthy() if streaming_service else False
+            ),
+        },
     )
+
 
 @app.get("/metrics", tags=["System"])
 async def metrics():
     """Prometheus metrics endpoint"""
     return Response(generate_latest(), media_type="text/plain")
+
 
 @app.get("/", tags=["System"])
 async def root():
@@ -204,15 +218,19 @@ async def root():
             "Streaming AI chat",
             "Business intelligence",
             "Real-time analytics",
-            "Enterprise security"
+            "Enterprise security",
         ],
-        "documentation": "/docs" if settings.debug else "Contact admin for documentation",
-        "version": "3.0.0"
+        "documentation": (
+            "/docs" if settings.debug else "Contact admin for documentation"
+        ),
+        "version": "3.0.0",
     }
+
 
 # ==============================================================================
 # AUTHENTICATION ENDPOINTS
 # ==============================================================================
+
 
 @app.post("/api/v3/auth/token", tags=["Authentication"])
 async def create_access_token(credentials: dict):
@@ -222,12 +240,14 @@ async def create_access_token(credentials: dict):
     return {
         "access_token": "placeholder_token",
         "token_type": "bearer",
-        "expires_in": settings.access_token_expire_minutes * 60
+        "expires_in": settings.access_token_expire_minutes * 60,
     }
+
 
 # ==============================================================================
 # AI CHAT ENDPOINTS (MIGRATED FROM FLASK)
 # ==============================================================================
+
 
 @app.post("/api/v3/chat", response_model=ChatResponse, tags=["AI Chat"])
 @limiter.limit("10/minute")
@@ -235,7 +255,7 @@ async def chat_endpoint(
     request: Request,
     chat_request: ChatRequest,
     background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Modern chat endpoint with streaming support"""
 
@@ -257,7 +277,7 @@ async def chat_endpoint(
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
-            }
+            },
         )
     else:
         # Return complete response
@@ -265,27 +285,27 @@ async def chat_endpoint(
 
         # Log response for analytics
         background_tasks.add_task(
-            chat_service.log_chat_interaction,
-            chat_request,
-            response,
-            current_user
+            chat_service.log_chat_interaction, chat_request, response, current_user
         )
 
         return response
+
 
 @app.post("/api/v3/chat/stream", tags=["AI Chat"])
 @limiter.limit("5/minute")
 async def stream_chat(
     request: Request,
     chat_request: ChatRequest,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Dedicated streaming chat endpoint"""
 
     if not streaming_service:
         raise HTTPException(status_code=503, detail="Streaming service not available")
 
-    logger.info(f"Streaming chat request from user {current_user.get('username', 'unknown')}")
+    logger.info(
+        f"Streaming chat request from user {current_user.get('username', 'unknown')}"
+    )
 
     async def generate_stream():
         async for chunk in streaming_service.stream_chat_response(chat_request):
@@ -298,14 +318,18 @@ async def stream_chat(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-        }
+        },
     )
+
 
 # ==============================================================================
 # DASHBOARD ENDPOINTS (MIGRATED FROM FLASK)
 # ==============================================================================
 
-@app.get("/api/v3/dashboard/metrics", response_model=DashboardMetrics, tags=["Dashboard"])
+
+@app.get(
+    "/api/v3/dashboard/metrics", response_model=DashboardMetrics, tags=["Dashboard"]
+)
 @limiter.limit("30/minute")
 async def get_dashboard_metrics(current_user: dict = Depends(get_current_user)):
     """Get enhanced dashboard KPI metrics"""
@@ -314,8 +338,9 @@ async def get_dashboard_metrics(current_user: dict = Depends(get_current_user)):
         agents={"value": 48, "change": 5, "trend": "up"},
         success_rate={"value": 94.2, "change": -0.5, "trend": "down"},
         api_calls={"value": 1200000000, "change": 12, "trend": "up"},
-        timestamp=datetime.utcnow().isoformat()
+        timestamp=datetime.utcnow().isoformat(),
     )
+
 
 @app.get("/api/v3/dashboard/agno-metrics", tags=["Dashboard"])
 @limiter.limit("30/minute")
@@ -327,8 +352,9 @@ async def get_agno_metrics(current_user: dict = Depends(get_current_user)):
         "performance_note": "Agno-powered agents are 5000x faster than legacy implementations",
         "uptime": "99.9%",
         "requests_processed": 1_247_832,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 @app.get("/api/v3/dashboard/cost-analysis", tags=["Dashboard"])
 @limiter.limit("30/minute")
@@ -338,23 +364,24 @@ async def get_cost_analysis(current_user: dict = Depends(get_current_user)):
         "providers": [
             {"name": "OpenAI", "cost": 1250, "usage": 45, "efficiency": 8.7},
             {"name": "Anthropic", "cost": 890, "usage": 30, "efficiency": 9.2},
-            {"name": "Portkey", "cost": 650, "usage": 25, "efficiency": 8.1}
+            {"name": "Portkey", "cost": 650, "usage": 25, "efficiency": 8.1},
         ],
         "total_cost": 2790,
         "trend": "decreasing",
         "optimization_savings": 456,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 # ==============================================================================
 # KNOWLEDGE MANAGEMENT ENDPOINTS (MIGRATED FROM FLASK)
 # ==============================================================================
 
+
 @app.post("/api/v3/knowledge/upload", tags=["Knowledge Management"])
 @limiter.limit("5/minute")
 async def upload_knowledge(
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge file upload with background processing"""
 
@@ -368,14 +395,14 @@ async def upload_knowledge(
         "status": "accepted",
         "message": "File uploaded and processing started",
         "file_id": file_id,
-        "estimated_processing_time": "2-5 minutes"
+        "estimated_processing_time": "2-5 minutes",
     }
+
 
 @app.post("/api/v3/knowledge/sync", tags=["Knowledge Management"])
 @limiter.limit("3/minute")
 async def sync_knowledge(
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge source synchronization"""
 
@@ -388,18 +415,19 @@ async def sync_knowledge(
         "status": "started",
         "message": "Knowledge synchronization started",
         "sync_id": sync_id,
-        "sources": ["confluence", "sharepoint", "gdrive", "notion"]
+        "sources": ["confluence", "sharepoint", "gdrive", "notion"],
     }
+
 
 # ==============================================================================
 # MCP INTEGRATION ENDPOINTS (ENHANCED FROM FLASK)
 # ==============================================================================
 
+
 @app.get("/api/v3/mcp/{service_name}/health", tags=["MCP Integration"])
 @limiter.limit("60/minute")
 async def mcp_service_health(
-    service_name: str,
-    current_user: dict = Depends(get_current_user)
+    service_name: str, current_user: dict = Depends(get_current_user)
 ):
     """Enhanced MCP service health check"""
 
@@ -411,8 +439,9 @@ async def mcp_service_health(
         "timestamp": datetime.utcnow().isoformat(),
         "version": "3.0.0",
         "response_time": "15ms",
-        "uptime": "99.9%"
+        "uptime": "99.9%",
     }
+
 
 @app.get("/api/v3/mcp/system/health", tags=["MCP Integration"])
 @limiter.limit("60/minute")
@@ -425,12 +454,14 @@ async def mcp_system_health(current_user: dict = Depends(get_current_user)):
         "system_health": "excellent",
         "last_updated": datetime.utcnow().isoformat(),
         "average_response_time": "12ms",
-        "total_requests_today": 45_678
+        "total_requests_today": 45_678,
     }
+
 
 # ==============================================================================
 # BACKGROUND TASKS
 # ==============================================================================
+
 
 async def process_knowledge_file(file_id: str):
     """Background task to process uploaded knowledge files"""
@@ -439,12 +470,14 @@ async def process_knowledge_file(file_id: str):
     await asyncio.sleep(2)  # Simulate processing
     logger.info(f"Knowledge file {file_id} processed successfully")
 
+
 async def sync_knowledge_sources(sync_id: str):
     """Background task to sync knowledge sources"""
     logger.info(f"Starting knowledge sync {sync_id}")
     # TODO: Implement actual knowledge sync
     await asyncio.sleep(5)  # Simulate sync
     logger.info(f"Knowledge sync {sync_id} completed successfully")
+
 
 # ==============================================================================
 # APPLICATION ENTRY POINT
@@ -460,5 +493,5 @@ if __name__ == "__main__":
         reload=settings.debug,
         log_level="debug" if settings.debug else "info",
         access_log=True,
-        workers=1 if settings.debug else 4
+        workers=1 if settings.debug else 4,
     )

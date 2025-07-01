@@ -20,6 +20,7 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class WorkflowDefinition(BaseModel):
     name: str
     description: str
@@ -29,13 +30,16 @@ class WorkflowDefinition(BaseModel):
     active: bool = True
     tags: list[str] = []
 
+
 class N8NCliManager:
     """Enhanced N8N CLI manager leveraging CLI capabilities for Sophia AI"""
 
-    def __init__(self,
-                 n8n_url: str = "http://localhost:5678",
-                 n8n_user: str = "sophia_admin",
-                 n8n_password: str = "sophia_secure_password"):
+    def __init__(
+        self,
+        n8n_url: str = "http://localhost:5678",
+        n8n_user: str = "sophia_admin",
+        n8n_password: str = "sophia_secure_password",
+    ):
         self.n8n_url = n8n_url
         self.n8n_user = n8n_user
         self.n8n_password = n8n_password
@@ -64,24 +68,25 @@ class N8NCliManager:
             # Login to N8N instance
             login_response = await self.client.post(
                 f"{self.n8n_url}/rest/login",
-                json={
-                    "email": self.n8n_user,
-                    "password": self.n8n_password
-                }
+                json={"email": self.n8n_user, "password": self.n8n_password},
             )
 
             if login_response.status_code == 200:
                 logger.info("✅ Successfully authenticated with N8N")
                 return True
             else:
-                logger.error(f"❌ N8N authentication failed: {login_response.status_code}")
+                logger.error(
+                    f"❌ N8N authentication failed: {login_response.status_code}"
+                )
                 return False
 
         except Exception as e:
             logger.error(f"❌ N8N authentication error: {e}")
             return False
 
-    def run_cli_command(self, command: list[str], cwd: Path | None = None) -> dict[str, Any]:
+    def run_cli_command(
+        self, command: list[str], cwd: Path | None = None
+    ) -> dict[str, Any]:
         """Execute N8N CLI command and return result"""
         try:
             # Ensure n8n is available globally (should be installed via npm)
@@ -92,14 +97,14 @@ class N8NCliManager:
                 cwd=cwd or self.workflows_dir,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
             )
 
             return {
                 "success": result.returncode == 0,
                 "stdout": result.stdout,
                 "stderr": result.stderr,
-                "return_code": result.returncode
+                "return_code": result.returncode,
             }
 
         except subprocess.TimeoutExpired:
@@ -117,69 +122,76 @@ class N8NCliManager:
         logger.info("📤 Exporting workflows via N8N CLI...")
 
         # Export workflows
-        result = self.run_cli_command([
-            "export:workflow",
-            "--output", str(export_dir),
-            "--all"
-        ])
+        result = self.run_cli_command(
+            ["export:workflow", "--output", str(export_dir), "--all"]
+        )
 
         if result["success"]:
             logger.info("✅ Workflows exported successfully")
             return {
                 "success": True,
                 "export_path": str(export_dir),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
         else:
-            logger.error(f"❌ Workflow export failed: {result.get('stderr', 'Unknown error')}")
+            logger.error(
+                f"❌ Workflow export failed: {result.get('stderr', 'Unknown error')}"
+            )
             return {"success": False, "error": result.get("stderr", "Export failed")}
 
     async def import_workflows(self, import_dir: Path) -> dict[str, Any]:
         """Import workflows using N8N CLI"""
         if not import_dir.exists():
-            return {"success": False, "error": f"Import directory {import_dir} does not exist"}
+            return {
+                "success": False,
+                "error": f"Import directory {import_dir} does not exist",
+            }
 
         logger.info(f"📥 Importing workflows from {import_dir}...")
 
         # Import workflows
-        result = self.run_cli_command([
-            "import:workflow",
-            "--input", str(import_dir),
-            "--separate"
-        ])
+        result = self.run_cli_command(
+            ["import:workflow", "--input", str(import_dir), "--separate"]
+        )
 
         if result["success"]:
             logger.info("✅ Workflows imported successfully")
             return {
                 "success": True,
                 "import_path": str(import_dir),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
         else:
-            logger.error(f"❌ Workflow import failed: {result.get('stderr', 'Unknown error')}")
+            logger.error(
+                f"❌ Workflow import failed: {result.get('stderr', 'Unknown error')}"
+            )
             return {"success": False, "error": result.get("stderr", "Import failed")}
 
-    async def manage_credentials(self, action: str, credential_data: dict | None = None) -> dict[str, Any]:
+    async def manage_credentials(
+        self, action: str, credential_data: dict | None = None
+    ) -> dict[str, Any]:
         """Manage credentials using N8N CLI"""
         logger.info(f"🔐 Managing credentials: {action}")
 
         if action == "export":
             # Export credentials
-            result = self.run_cli_command([
-                "export:credentials",
-                "--output", str(self.workflows_dir / "credentials"),
-                "--decrypt"
-            ])
+            result = self.run_cli_command(
+                [
+                    "export:credentials",
+                    "--output",
+                    str(self.workflows_dir / "credentials"),
+                    "--decrypt",
+                ]
+            )
         elif action == "import" and credential_data:
             # Import credentials
             cred_file = self.workflows_dir / "temp_credentials.json"
-            with open(cred_file, 'w') as f:
+            with open(cred_file, "w") as f:
                 json.dump(credential_data, f)
 
-            result = self.run_cli_command([
-                "import:credentials",
-                "--input", str(cred_file)
-            ])
+            result = self.run_cli_command(
+                ["import:credentials", "--input", str(cred_file)]
+            )
 
             # Clean up temp file
             cred_file.unlink(missing_ok=True)
@@ -195,17 +207,16 @@ class N8NCliManager:
         for package in node_packages:
             logger.info(f"📦 Installing community node: {package}")
 
-            result = self.run_cli_command([
-                "community-install",
-                package
-            ])
+            result = self.run_cli_command(["community-install", package])
 
-            results.append({
-                "package": package,
-                "success": result["success"],
-                "output": result.get("stdout", ""),
-                "error": result.get("stderr", "")
-            })
+            results.append(
+                {
+                    "package": package,
+                    "success": result["success"],
+                    "output": result.get("stdout", ""),
+                    "error": result.get("stderr", ""),
+                }
+            )
 
         successful_installs = [r for r in results if r["success"]]
 
@@ -213,7 +224,7 @@ class N8NCliManager:
             "success": len(successful_installs) == len(node_packages),
             "total_packages": len(node_packages),
             "successful_installs": len(successful_installs),
-            "results": results
+            "results": results,
         }
 
     async def create_sophia_ai_workflows(self) -> dict[str, Any]:
@@ -230,10 +241,8 @@ class N8NCliManager:
                     "type": "n8n-nodes-base.cron",
                     "position": [200, 200],
                     "parameters": {
-                        "rule": {
-                            "interval": [{"field": "hours", "value": 4}]
-                        }
-                    }
+                        "rule": {"interval": [{"field": "hours", "value": 4}]}
+                    },
                 },
                 {
                     "name": "Apify Intelligence",
@@ -241,8 +250,8 @@ class N8NCliManager:
                     "position": [400, 200],
                     "parameters": {
                         "url": "http://localhost:9015/api/competitive-analysis",
-                        "method": "POST"
-                    }
+                        "method": "POST",
+                    },
                 },
                 {
                     "name": "Sophia AI Enhancement",
@@ -250,23 +259,21 @@ class N8NCliManager:
                     "position": [600, 200],
                     "parameters": {
                         "url": "http://localhost:9099/api/v1/n8n/process",
-                        "method": "POST"
-                    }
+                        "method": "POST",
+                    },
                 },
                 {
                     "name": "Executive Notification",
                     "type": "n8n-nodes-base.slack",
                     "position": [800, 200],
-                    "parameters": {
-                        "channel": "#executive-insights"
-                    }
-                }
+                    "parameters": {"channel": "#executive-insights"},
+                },
             ],
             "connections": {
                 "Trigger": {"main": [["Apify Intelligence"]]},
                 "Apify Intelligence": {"main": [["Sophia AI Enhancement"]]},
-                "Sophia AI Enhancement": {"main": [["Executive Notification"]]}
-            }
+                "Sophia AI Enhancement": {"main": [["Executive Notification"]]},
+            },
         }
 
         # Business Intelligence Workflow
@@ -278,9 +285,7 @@ class N8NCliManager:
                     "name": "Webhook Trigger",
                     "type": "n8n-nodes-base.webhook",
                     "position": [200, 200],
-                    "parameters": {
-                        "path": "sophia-business-data"
-                    }
+                    "parameters": {"path": "sophia-business-data"},
                 },
                 {
                     "name": "Hugging Face Processing",
@@ -288,8 +293,8 @@ class N8NCliManager:
                     "position": [400, 200],
                     "parameters": {
                         "url": "http://localhost:9016/api/process-business-data",
-                        "method": "POST"
-                    }
+                        "method": "POST",
+                    },
                 },
                 {
                     "name": "Vector Storage",
@@ -297,8 +302,8 @@ class N8NCliManager:
                     "position": [600, 200],
                     "parameters": {
                         "url": "http://localhost:9017/api/store-vectors",
-                        "method": "POST"
-                    }
+                        "method": "POST",
+                    },
                 },
                 {
                     "name": "Dashboard Update",
@@ -306,23 +311,26 @@ class N8NCliManager:
                     "position": [800, 200],
                     "parameters": {
                         "url": "http://localhost:3000/api/dashboard/update",
-                        "method": "POST"
-                    }
-                }
+                        "method": "POST",
+                    },
+                },
             ],
             "connections": {
                 "Webhook Trigger": {"main": [["Hugging Face Processing"]]},
                 "Hugging Face Processing": {"main": [["Vector Storage"]]},
-                "Vector Storage": {"main": [["Dashboard Update"]]}
-            }
+                "Vector Storage": {"main": [["Dashboard Update"]]},
+            },
         }
 
         workflows.extend([executive_workflow, business_workflow])
 
         # Save workflows to files
         for workflow in workflows:
-            workflow_file = self.workflows_dir / f"{workflow['name'].lower().replace(' ', '_')}.json"
-            with open(workflow_file, 'w') as f:
+            workflow_file = (
+                self.workflows_dir
+                / f"{workflow['name'].lower().replace(' ', '_')}.json"
+            )
+            with open(workflow_file, "w") as f:
                 json.dump(workflow, f, indent=2)
 
             logger.info(f"✅ Created workflow template: {workflow['name']}")
@@ -330,7 +338,7 @@ class N8NCliManager:
         return {
             "success": True,
             "workflows_created": len(workflows),
-            "workflow_files": [w["name"] for w in workflows]
+            "workflow_files": [w["name"] for w in workflows],
         }
 
     async def monitor_workflows(self) -> dict[str, Any]:
@@ -344,7 +352,13 @@ class N8NCliManager:
 
                 # Analyze execution status
                 total_executions = len(executions.get("data", []))
-                successful_executions = len([e for e in executions.get("data", []) if e.get("finished") and not e.get("stoppedAt")])
+                successful_executions = len(
+                    [
+                        e
+                        for e in executions.get("data", [])
+                        if e.get("finished") and not e.get("stoppedAt")
+                    ]
+                )
                 failed_executions = total_executions - successful_executions
 
                 return {
@@ -352,11 +366,18 @@ class N8NCliManager:
                     "total_executions": total_executions,
                     "successful_executions": successful_executions,
                     "failed_executions": failed_executions,
-                    "success_rate": (successful_executions / total_executions * 100) if total_executions > 0 else 0,
-                    "timestamp": datetime.now().isoformat()
+                    "success_rate": (
+                        (successful_executions / total_executions * 100)
+                        if total_executions > 0
+                        else 0
+                    ),
+                    "timestamp": datetime.now().isoformat(),
                 }
             else:
-                return {"success": False, "error": f"API call failed: {response.status_code}"}
+                return {
+                    "success": False,
+                    "error": f"API call failed: {response.status_code}",
+                }
 
         except Exception as e:
             logger.error(f"❌ Workflow monitoring failed: {e}")
@@ -364,7 +385,9 @@ class N8NCliManager:
 
     async def backup_n8n_data(self) -> dict[str, Any]:
         """Create comprehensive backup of N8N data"""
-        backup_dir = self.workflows_dir / "backups" / datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = (
+            self.workflows_dir / "backups" / datetime.now().strftime("%Y%m%d_%H%M%S")
+        )
         backup_dir.mkdir(parents=True, exist_ok=True)
 
         logger.info(f"💾 Creating N8N backup in {backup_dir}...")
@@ -376,11 +399,14 @@ class N8NCliManager:
         backup_results["workflows"] = workflow_backup
 
         # Export credentials
-        cred_result = self.run_cli_command([
-            "export:credentials",
-            "--output", str(backup_dir / "credentials"),
-            "--decrypt"
-        ])
+        cred_result = self.run_cli_command(
+            [
+                "export:credentials",
+                "--output",
+                str(backup_dir / "credentials"),
+                "--decrypt",
+            ]
+        )
         backup_results["credentials"] = {"success": cred_result["success"]}
 
         # Create backup manifest
@@ -388,18 +414,19 @@ class N8NCliManager:
             "backup_timestamp": datetime.now().isoformat(),
             "backup_dir": str(backup_dir),
             "components": backup_results,
-            "sophia_ai_version": "enhanced_cli_v1.0"
+            "sophia_ai_version": "enhanced_cli_v1.0",
         }
 
-        with open(backup_dir / "backup_manifest.json", 'w') as f:
+        with open(backup_dir / "backup_manifest.json", "w") as f:
             json.dump(manifest, f, indent=2)
 
         return {
             "success": True,
             "backup_path": str(backup_dir),
             "components_backed_up": len(backup_results),
-            "manifest": manifest
+            "manifest": manifest,
         }
+
 
 # CLI Commands for easy management
 async def main():
@@ -408,7 +435,9 @@ async def main():
 
     if len(sys.argv) < 2:
         print("Usage: python enhanced_n8n_cli_manager.py <command>")
-        print("Commands: export, import, backup, monitor, create-workflows, install-nodes")
+        print(
+            "Commands: export, import, backup, monitor, create-workflows, install-nodes"
+        )
         return
 
     command = sys.argv[1]
@@ -435,13 +464,14 @@ async def main():
             nodes = [
                 "n8n-nodes-slack-enhanced",
                 "n8n-nodes-hubspot-enhanced",
-                "n8n-nodes-snowflake"
+                "n8n-nodes-snowflake",
             ]
             result = await n8n_manager.install_community_nodes(nodes)
             print(f"Node installation result: {result}")
 
         else:
             print(f"Unknown command: {command}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

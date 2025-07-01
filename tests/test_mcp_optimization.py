@@ -161,9 +161,9 @@ class PerformanceTest:
 
         # Calculate overall improvement
         overall_improvement = (
-            network_results["time_improvement_percent"] +
-            client_results["time_improvement_percent"] +
-            io_results["time_improvement_percent"]
+            network_results["time_improvement_percent"]
+            + client_results["time_improvement_percent"]
+            + io_results["time_improvement_percent"]
         ) / 3
 
         self.results["overall_improvement_percent"] = overall_improvement
@@ -192,10 +192,18 @@ async def main():
     print("\n" + "=" * 50)
     print("MCP OPTIMIZATION PERFORMANCE TEST RESULTS")
     print("=" * 50)
-    print(f"Network Performance Improvement: {results['network']['time_improvement_percent']:.2f}%")
-    print(f"Client Performance Improvement: {results['client']['time_improvement_percent']:.2f}%")
-    print(f"I/O Performance Improvement: {results['io']['time_improvement_percent']:.2f}%")
-    print(f"Overall Performance Improvement: {results['overall_improvement_percent']:.2f}%")
+    print(
+        f"Network Performance Improvement: {results['network']['time_improvement_percent']:.2f}%"
+    )
+    print(
+        f"Client Performance Improvement: {results['client']['time_improvement_percent']:.2f}%"
+    )
+    print(
+        f"I/O Performance Improvement: {results['io']['time_improvement_percent']:.2f}%"
+    )
+    print(
+        f"Overall Performance Improvement: {results['overall_improvement_percent']:.2f}%"
+    )
     print("=" * 50)
 
     logger.info("Performance tests completed")
@@ -203,4 +211,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

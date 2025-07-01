@@ -409,7 +409,6 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         self.preloaded_knowledge = True
         logger.info("✅ AI coding knowledge base pre-loaded successfully")
 
-
     async def server_specific_init(self) -> None:
         """Initialize AI Memory server specific components"""
         await self._initialize_openai()
@@ -429,7 +428,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             "openai_available": self.openai_client is not None,
             "pinecone_available": self.pinecone_index is not None,
             "cortex_available": self.cortex_service is not None,
-            "memory_count": len(await self.recall_memory("", limit=1))
+            "memory_count": len(await self.recall_memory("", limit=1)),
         }
 
     async def check_external_api(self) -> bool:
@@ -454,7 +453,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 category=analysis["category"],
                 tags=analysis["tags"],
                 importance_score=analysis["importance_score"],
-                auto_detected=True
+                auto_detected=True,
             )
             return {"auto_stored": True, "memory_id": result.get("memory_id")}
 
@@ -468,7 +467,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             "vector_search": self.pinecone_index is not None,
             "cortex_integration": self.cortex_service is not None,
             "auto_discovery": True,
-            "conversation_analysis": True
+            "conversation_analysis": True,
         }
 
     async def sync_data(self) -> dict[str, Any]:

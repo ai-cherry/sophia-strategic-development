@@ -11,6 +11,7 @@ import re
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def fix_all_critical_vulnerabilities():
     """Fix all critical vulnerabilities comprehensively"""
     fixes_applied = 0
@@ -18,33 +19,41 @@ def fix_all_critical_vulnerabilities():
     # 1. Fix remaining SQL injection vulnerabilities
     sql_injection_fixes = [
         # Fix f-strings in cursor.execute calls
-        ('backend/core/comprehensive_snowflake_config.py',
-         r'cursor\.execute\(f"USE SCHEMA \{schema\.value\}"\)',
-         'cursor.execute("USE SCHEMA " + self._validate_schema_name(schema.value))'),
-
-        ('backend/core/enhanced_snowflake_config.py',
-         r'cursor\.execute\(f"USE SCHEMA \{schema\.value\}"\)',
-         'cursor.execute("USE SCHEMA " + self._validate_schema_name(schema.value))'),
-
-        ('backend/etl/gong/ingest_gong_data.py',
-         r'cursor\.execute\(f"CREATE SCHEMA IF NOT EXISTS \{self\.database\}\.\{self\.schema\}"\)',
-         'cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema_name(f"{self.database}.{self.schema}"))'),
-
-        ('backend/etl/gong/ingest_gong_data.py',
-         r'cursor\.execute\(f"USE SCHEMA \{self\.database\}\.\{self\.schema\}"\)',
-         'cursor.execute("USE SCHEMA " + self._validate_schema_name(f"{self.database}.{self.schema}"))'),
-
-        ('backend/scripts/deploy_snowflake_application_layer.py',
-         r'cursor\.execute\(f"SHOW TABLES IN SCHEMA \{schema\}"\)',
-         'cursor.execute("SHOW TABLES IN SCHEMA " + self._validate_schema_name(schema))'),
-
-        ('backend/scripts/deploy_gong_snowflake_setup.py',
-         r'cursor\.execute\(f"SELECT COUNT\(\*\) FROM \{table\} LIMIT 1"\)',
-         'cursor.execute("SELECT COUNT(*) FROM " + self._validate_table_name(table) + " LIMIT 1")'),
-
-        ('backend/services/cortex_agent_service.py',
-         r'cursor\.execute\(f"USE WAREHOUSE \{warehouse\}"\)',
-         'cursor.execute("USE WAREHOUSE " + self._validate_warehouse_name(warehouse))'),
+        (
+            "backend/core/comprehensive_snowflake_config.py",
+            r'cursor\.execute\(f"USE SCHEMA \{schema\.value\}"\)',
+            'cursor.execute("USE SCHEMA " + self._validate_schema_name(schema.value))',
+        ),
+        (
+            "backend/core/enhanced_snowflake_config.py",
+            r'cursor\.execute\(f"USE SCHEMA \{schema\.value\}"\)',
+            'cursor.execute("USE SCHEMA " + self._validate_schema_name(schema.value))',
+        ),
+        (
+            "backend/etl/gong/ingest_gong_data.py",
+            r'cursor\.execute\(f"CREATE SCHEMA IF NOT EXISTS \{self\.database\}\.\{self\.schema\}"\)',
+            'cursor.execute("CREATE SCHEMA IF NOT EXISTS " + self._validate_schema_name(f"{self.database}.{self.schema}"))',
+        ),
+        (
+            "backend/etl/gong/ingest_gong_data.py",
+            r'cursor\.execute\(f"USE SCHEMA \{self\.database\}\.\{self\.schema\}"\)',
+            'cursor.execute("USE SCHEMA " + self._validate_schema_name(f"{self.database}.{self.schema}"))',
+        ),
+        (
+            "backend/scripts/deploy_snowflake_application_layer.py",
+            r'cursor\.execute\(f"SHOW TABLES IN SCHEMA \{schema\}"\)',
+            'cursor.execute("SHOW TABLES IN SCHEMA " + self._validate_schema_name(schema))',
+        ),
+        (
+            "backend/scripts/deploy_gong_snowflake_setup.py",
+            r'cursor\.execute\(f"SELECT COUNT\(\*\) FROM \{table\} LIMIT 1"\)',
+            'cursor.execute("SELECT COUNT(*) FROM " + self._validate_table_name(table) + " LIMIT 1")',
+        ),
+        (
+            "backend/services/cortex_agent_service.py",
+            r'cursor\.execute\(f"USE WAREHOUSE \{warehouse\}"\)',
+            'cursor.execute("USE WAREHOUSE " + self._validate_warehouse_name(warehouse))',
+        ),
     ]
 
     for file_path, pattern, replacement in sql_injection_fixes:
@@ -57,7 +66,10 @@ def fix_all_critical_vulnerabilities():
                     content = re.sub(pattern, replacement, content)
 
                     # Add validation methods if not present
-                    if '_validate_schema_name' not in content and 'validate_schema_name' in replacement:
+                    if (
+                        "_validate_schema_name" not in content
+                        and "validate_schema_name" in replacement
+                    ):
                         validation_method = '''
     def _validate_schema_name(self, schema_name: str) -> str:
         """Validate schema name to prevent SQL injection"""
@@ -67,12 +79,19 @@ def fix_all_critical_vulnerabilities():
         return str(schema_name)
 '''
                         # Find class definition and add method
-                        class_match = re.search(r'(class \w+.*?:)', content)
+                        class_match = re.search(r"(class \w+.*?:)", content)
                         if class_match:
-                            insert_pos = content.find('\n', class_match.end())
-                            content = content[:insert_pos] + validation_method + content[insert_pos:]
+                            insert_pos = content.find("\n", class_match.end())
+                            content = (
+                                content[:insert_pos]
+                                + validation_method
+                                + content[insert_pos:]
+                            )
 
-                    if '_validate_table_name' not in content and 'validate_table_name' in replacement:
+                    if (
+                        "_validate_table_name" not in content
+                        and "validate_table_name" in replacement
+                    ):
                         validation_method = '''
     def _validate_table_name(self, table_name: str) -> str:
         """Validate table name to prevent SQL injection"""
@@ -81,12 +100,19 @@ def fix_all_critical_vulnerabilities():
             raise ValueError(f"Invalid table name: {table_name}")
         return str(table_name)
 '''
-                        class_match = re.search(r'(class \w+.*?:)', content)
+                        class_match = re.search(r"(class \w+.*?:)", content)
                         if class_match:
-                            insert_pos = content.find('\n', class_match.end())
-                            content = content[:insert_pos] + validation_method + content[insert_pos:]
+                            insert_pos = content.find("\n", class_match.end())
+                            content = (
+                                content[:insert_pos]
+                                + validation_method
+                                + content[insert_pos:]
+                            )
 
-                    if '_validate_warehouse_name' not in content and 'validate_warehouse_name' in replacement:
+                    if (
+                        "_validate_warehouse_name" not in content
+                        and "validate_warehouse_name" in replacement
+                    ):
                         validation_method = '''
     def _validate_warehouse_name(self, warehouse_name: str) -> str:
         """Validate warehouse name to prevent SQL injection"""
@@ -95,12 +121,16 @@ def fix_all_critical_vulnerabilities():
             raise ValueError(f"Invalid warehouse name: {warehouse_name}")
         return str(warehouse_name)
 '''
-                        class_match = re.search(r'(class \w+.*?:)', content)
+                        class_match = re.search(r"(class \w+.*?:)", content)
                         if class_match:
-                            insert_pos = content.find('\n', class_match.end())
-                            content = content[:insert_pos] + validation_method + content[insert_pos:]
+                            insert_pos = content.find("\n", class_match.end())
+                            content = (
+                                content[:insert_pos]
+                                + validation_method
+                                + content[insert_pos:]
+                            )
 
-                    with open(file_path, 'w') as f:
+                    with open(file_path, "w") as f:
                         f.write(content)
 
                     fixes_applied += 1
@@ -111,26 +141,26 @@ def fix_all_critical_vulnerabilities():
 
     # 2. Fix command injection vulnerabilities - remaining files
     command_injection_files = [
-        'backend/core/simple_config.py',
-        'estuary_advanced_integration.py',
-        'scripts/monitor_all_mcp_servers.py',
-        'load_github_secrets.py',
-        'deploy_mcp_servers.py',
-        'scripts/implement_sophia_ui.py',
-        'deploy_estuary_foundation_corrected.py',
-        'unified_ai_coding_assistant.py',
-        'backend/monitoring/deployment_tracker.py',
-        'backend/core/sophia_env_config.py',
-        'gemini-cli-integration/gemini_mcp_integration.py',
-        'ui-ux-agent/start_ui_ux_agent_system.py',
-        'start_mcp_servers.py',
-        'backend/integrations/estuary_flow_manager.py',
-        'ultimate_snowflake_fix.py',
-        'start_sophia_enhanced.py',
-        'start_sophia_complete.py',
-        'verify_complete_secrets_sync.py',
-        'scripts/dns-manager.py',
-        'backend/mcp_servers/mixins/cline_v3_18_features.py'
+        "backend/core/simple_config.py",
+        "estuary_advanced_integration.py",
+        "scripts/monitor_all_mcp_servers.py",
+        "load_github_secrets.py",
+        "deploy_mcp_servers.py",
+        "scripts/implement_sophia_ui.py",
+        "deploy_estuary_foundation_corrected.py",
+        "unified_ai_coding_assistant.py",
+        "backend/monitoring/deployment_tracker.py",
+        "backend/core/sophia_env_config.py",
+        "gemini-cli-integration/gemini_mcp_integration.py",
+        "ui-ux-agent/start_ui_ux_agent_system.py",
+        "start_mcp_servers.py",
+        "backend/integrations/estuary_flow_manager.py",
+        "ultimate_snowflake_fix.py",
+        "start_sophia_enhanced.py",
+        "start_sophia_complete.py",
+        "verify_complete_secrets_sync.py",
+        "scripts/dns-manager.py",
+        "backend/mcp_servers/mixins/cline_v3_18_features.py",
     ]
 
     for file_path in command_injection_files:
@@ -143,27 +173,27 @@ def fix_all_critical_vulnerabilities():
 
                 # Fix subprocess.run with shell=True
                 content = re.sub(
-                    r'subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)',
-                    r'subprocess.run(shlex.split(\1)\2)  # SECURITY FIX: Removed shell=True',
-                    content
+                    r"subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)",
+                    r"subprocess.run(shlex.split(\1)\2)  # SECURITY FIX: Removed shell=True",
+                    content,
                 )
 
                 # Fix os.system calls
                 content = re.sub(
-                    r'os\.system\s*\(([^)]+)\)',
-                    r'subprocess.run(shlex.split(\1), check=True)  # SECURITY FIX: Replaced os.system',
-                    content
+                    r"os\.system\s*\(([^)]+)\)",
+                    r"subprocess.run(shlex.split(\1), check=True)  # SECURITY FIX: Replaced os.system",
+                    content,
                 )
 
                 # Add imports if needed
-                if 'shlex.split' in content and 'import shlex' not in content:
-                    content = 'import shlex\n' + content
+                if "shlex.split" in content and "import shlex" not in content:
+                    content = "import shlex\n" + content
 
-                if 'subprocess.run' in content and 'import subprocess' not in content:
-                    content = 'import subprocess\n' + content
+                if "subprocess.run" in content and "import subprocess" not in content:
+                    content = "import subprocess\n" + content
 
                 if content != original_content:
-                    with open(file_path, 'w') as f:
+                    with open(file_path, "w") as f:
                         f.write(content)
 
                     fixes_applied += 1
@@ -174,8 +204,8 @@ def fix_all_critical_vulnerabilities():
 
     # 3. Fix remaining hardcoded secrets
     secret_files = [
-        'backend/services/enhanced_data_ingestion.py',
-        'backend/core/security_config.py'
+        "backend/services/enhanced_data_ingestion.py",
+        "backend/core/security_config.py",
     ]
 
     for file_path in secret_files:
@@ -199,11 +229,11 @@ def fix_all_critical_vulnerabilities():
                     content = re.sub(pattern, replacement, content)
 
                 # Add import if needed
-                if 'os.getenv' in content and 'import os' not in content:
-                    content = 'import os\n' + content
+                if "os.getenv" in content and "import os" not in content:
+                    content = "import os\n" + content
 
                 if content != original_content:
-                    with open(file_path, 'w') as f:
+                    with open(file_path, "w") as f:
                         f.write(content)
 
                     fixes_applied += 1
@@ -214,10 +244,10 @@ def fix_all_critical_vulnerabilities():
 
     # 4. Fix remaining file permissions
     permission_files = [
-        'scripts/implement_missing_snowflake_schemas.py',
-        'backend/integrations/estuary_flow_manager.py',
-        'final_snowflake_fix.py',
-        'ultimate_snowflake_fix.py'
+        "scripts/implement_missing_snowflake_schemas.py",
+        "backend/integrations/estuary_flow_manager.py",
+        "final_snowflake_fix.py",
+        "ultimate_snowflake_fix.py",
     ]
 
     for file_path in permission_files:
@@ -230,13 +260,14 @@ def fix_all_critical_vulnerabilities():
 
                 # Replace 0o755 with 0o644
                 content = re.sub(
-                    r'os\.chmod\s*\([^,]+,\s*0o755\s*\)',
-                    lambda m: m.group(0).replace('0o755', '0o644') + '  # SECURITY FIX: Reduced permissions',
-                    content
+                    r"os\.chmod\s*\([^,]+,\s*0o755\s*\)",
+                    lambda m: m.group(0).replace("0o755", "0o644")
+                    + "  # SECURITY FIX: Reduced permissions",
+                    content,
                 )
 
                 if content != original_content:
-                    with open(file_path, 'w') as f:
+                    with open(file_path, "w") as f:
                         f.write(content)
 
                     fixes_applied += 1
@@ -245,8 +276,11 @@ def fix_all_critical_vulnerabilities():
             except Exception as e:
                 logger.error(f"❌ Error fixing {file_path}: {e}")
 
-    logger.info(f"🎉 COMPREHENSIVE SECURITY FIXES COMPLETE: {fixes_applied} fixes applied")
+    logger.info(
+        f"🎉 COMPREHENSIVE SECURITY FIXES COMPLETE: {fixes_applied} fixes applied"
+    )
     return fixes_applied
+
 
 if __name__ == "__main__":
     fix_all_critical_vulnerabilities()

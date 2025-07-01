@@ -10,8 +10,11 @@ import logging
 import os
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class QuickDeploymentScanner:
     def __init__(self):
@@ -31,7 +34,7 @@ class QuickDeploymentScanner:
             "environment_check": self._check_environment_config(),
             "secrets_check": self._check_secrets_management(),
             "syntax_check": self._check_critical_syntax(),
-            "deployment_config": self._check_deployment_config()
+            "deployment_config": self._check_deployment_config(),
         }
 
         overall_score = self._calculate_readiness_score(results)
@@ -41,7 +44,7 @@ class QuickDeploymentScanner:
             "detailed_results": results,
             "critical_issues": self.issues,
             "warnings": self.warnings,
-            "fixes_applied": self.fixes_applied
+            "fixes_applied": self.fixes_applied,
         }
 
     def _check_frontend_deployment(self) -> dict:
@@ -67,7 +70,9 @@ class QuickDeploymentScanner:
             issues.append("Missing frontend/src/App.jsx")
 
         # Check if UniversalChatInterface.tsx exists
-        chat_interface = frontend_path / "src" / "components" / "UniversalChatInterface.tsx"
+        chat_interface = (
+            frontend_path / "src" / "components" / "UniversalChatInterface.tsx"
+        )
         if not chat_interface.exists():
             issues.append("Missing UniversalChatInterface.tsx component")
 
@@ -80,7 +85,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "❌ ISSUES",
             "issues": issues,
-            "score": 100 if not issues else max(0, 100 - len(issues) * 20)
+            "score": 100 if not issues else max(0, 100 - len(issues) * 20),
         }
 
     def _check_backend_deployment(self) -> dict:
@@ -94,7 +99,7 @@ class QuickDeploymentScanner:
         critical_files = [
             "app/fastapi_app.py",
             "core/auto_esc_config.py",
-            "services/mcp_orchestration_service.py"
+            "services/mcp_orchestration_service.py",
         ]
 
         for file_path in critical_files:
@@ -108,7 +113,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "❌ ISSUES",
             "issues": issues,
-            "score": 100 if not issues else max(0, 100 - len(issues) * 25)
+            "score": 100 if not issues else max(0, 100 - len(issues) * 25),
         }
 
     def _check_api_routes(self) -> dict:
@@ -122,7 +127,7 @@ class QuickDeploymentScanner:
         chat_routes_files = [
             "enhanced_unified_chat_routes.py",
             "sophia_universal_chat_routes.py",
-            "unified_chat_routes.py"
+            "unified_chat_routes.py",
         ]
 
         found_chat_routes = False
@@ -141,7 +146,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "❌ ISSUES",
             "issues": issues,
-            "score": 100 if not issues else 50
+            "score": 100 if not issues else 50,
         }
 
     def _check_environment_config(self) -> dict:
@@ -164,7 +169,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "❌ ISSUES",
             "issues": issues,
-            "score": 100 if not issues else 60
+            "score": 100 if not issues else 60,
         }
 
     def _check_secrets_management(self) -> dict:
@@ -186,7 +191,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "⚠️ WARNINGS",
             "issues": issues,
-            "score": 100 if not issues else 80
+            "score": 100 if not issues else 80,
         }
 
     def _check_critical_syntax(self) -> dict:
@@ -200,7 +205,7 @@ class QuickDeploymentScanner:
             critical_python_files = [
                 "backend/app/fastapi_app.py",
                 "backend/core/auto_esc_config.py",
-                "backend/api/enhanced_unified_chat_routes.py"
+                "backend/api/enhanced_unified_chat_routes.py",
             ]
 
             for file_path in critical_python_files:
@@ -220,7 +225,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "❌ ISSUES",
             "issues": issues,
-            "score": 100 if not issues else 0  # Syntax errors are critical
+            "score": 100 if not issues else 0,  # Syntax errors are critical
         }
 
     def _check_deployment_config(self) -> dict:
@@ -230,7 +235,9 @@ class QuickDeploymentScanner:
         issues = []
 
         # Check GitHub Actions deployment workflow
-        deploy_workflow = self.root_path / ".github" / "workflows" / "deploy-sophia-platform.yml"
+        deploy_workflow = (
+            self.root_path / ".github" / "workflows" / "deploy-sophia-platform.yml"
+        )
         if not deploy_workflow.exists():
             issues.append("Missing deployment workflow")
         else:
@@ -246,7 +253,7 @@ class QuickDeploymentScanner:
         return {
             "status": "✅ READY" if not issues else "⚠️ WARNINGS",
             "issues": issues,
-            "score": 100 if not issues else 70
+            "score": 100 if not issues else 70,
         }
 
     def _fix_simple_syntax_error(self, file_path: Path, error: SyntaxError) -> None:
@@ -260,20 +267,25 @@ class QuickDeploymentScanner:
             # Fix invalid assignment statements
             if "get_config_value =" in content:
                 content = content.replace(
-                    "get_config_value =",
-                    "# get_config_value fixed assignment - "
+                    "get_config_value =", "# get_config_value fixed assignment - "
                 )
                 fixes_made.append("Fixed invalid get_config_value assignment")
 
             # Fix missing imports
-            if "from backend.core.auto_esc_config import get_config_value" not in content and "get_config_value" in content:
-                lines = content.split('\n')
-                import_line = "from backend.core.auto_esc_config import get_config_value"
+            if (
+                "from backend.core.auto_esc_config import get_config_value"
+                not in content
+                and "get_config_value" in content
+            ):
+                lines = content.split("\n")
+                import_line = (
+                    "from backend.core.auto_esc_config import get_config_value"
+                )
 
                 # Find a good place to insert the import
                 insert_index = 0
                 for i, line in enumerate(lines):
-                    if line.startswith('import ') or line.startswith('from '):
+                    if line.startswith("import ") or line.startswith("from "):
                         insert_index = i + 1
                     elif line.strip() == "":
                         continue
@@ -281,7 +293,7 @@ class QuickDeploymentScanner:
                         break
 
                 lines.insert(insert_index, import_line)
-                content = '\n'.join(lines)
+                content = "\n".join(lines)
                 fixes_made.append("Added missing get_config_value import")
 
             if fixes_made:
@@ -313,7 +325,7 @@ class QuickDeploymentScanner:
         return {
             "score": overall_score,
             "status": status,
-            "recommendation": recommendation
+            "recommendation": recommendation,
         }
 
     def generate_report(self, results: dict) -> str:
@@ -386,6 +398,7 @@ class QuickDeploymentScanner:
 """
         return report
 
+
 def main():
     """Run deployment scan"""
     scanner = QuickDeploymentScanner()
@@ -400,7 +413,8 @@ def main():
     print(report)
     print(f"\n📄 Report saved to: {report_file}")
 
-    return results['overall_readiness']['score']
+    return results["overall_readiness"]["score"]
+
 
 if __name__ == "__main__":
     score = main()

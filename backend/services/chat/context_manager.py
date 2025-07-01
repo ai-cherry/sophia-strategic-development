@@ -10,6 +10,7 @@ from ...models.chat_models import ChatContext
 
 logger = logging.getLogger(__name__)
 
+
 class ContextManager:
     """
     Manages conversation context and business intelligence
@@ -17,7 +18,9 @@ class ContextManager:
     """
 
     def __init__(self):
-        self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
+        )
 
         # In-memory context storage (replace with database in production)
         self._contexts: dict[str, ChatContext] = {}
@@ -45,7 +48,9 @@ class ContextManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to update context for session {session_id}: {str(e)}")
+            self.logger.error(
+                f"Failed to update context for session {session_id}: {str(e)}"
+            )
             return False
 
     def _merge_contexts(self, existing: ChatContext, new: ChatContext) -> ChatContext:
@@ -54,7 +59,7 @@ class ContextManager:
             user_id=new.user_id or existing.user_id,
             user_role=new.user_role or existing.user_role,
             organization=new.organization or existing.organization,
-            department=new.department or existing.department
+            department=new.department or existing.department,
         )
 
         # Merge preferences
@@ -69,7 +74,9 @@ class ContextManager:
 
         return merged
 
-    async def enrich_context(self, session_id: str, enrichment_data: dict[str, Any]) -> bool:
+    async def enrich_context(
+        self, session_id: str, enrichment_data: dict[str, Any]
+    ) -> bool:
         """Enrich context with additional business intelligence"""
         try:
             context = self._contexts.get(session_id)
@@ -88,7 +95,9 @@ class ContextManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Failed to enrich context for session {session_id}: {str(e)}")
+            self.logger.error(
+                f"Failed to enrich context for session {session_id}: {str(e)}"
+            )
             return False
 
     async def get_business_insights(self, session_id: str) -> dict[str, Any]:
@@ -103,11 +112,11 @@ class ContextManager:
             "user_profile": {
                 "role": context.user_role,
                 "department": context.department,
-                "organization": context.organization
+                "organization": context.organization,
             },
             "business_metrics": context.business_context.get("metrics", {}),
             "recent_activities": context.business_context.get("activities", []),
-            "preferences": context.preferences or {}
+            "preferences": context.preferences or {},
         }
 
         return insights
@@ -123,15 +132,21 @@ class ContextManager:
 
         # Role-based suggestions
         if context.user_role:
-            suggestions.extend(self._get_role_based_suggestions(context.user_role, mode))
+            suggestions.extend(
+                self._get_role_based_suggestions(context.user_role, mode)
+            )
 
         # Department-based suggestions
         if context.department:
-            suggestions.extend(self._get_department_suggestions(context.department, mode))
+            suggestions.extend(
+                self._get_department_suggestions(context.department, mode)
+            )
 
         # Business context suggestions
         if context.business_context:
-            suggestions.extend(self._get_business_context_suggestions(context.business_context, mode))
+            suggestions.extend(
+                self._get_business_context_suggestions(context.business_context, mode)
+            )
 
         # Remove duplicates and limit
         unique_suggestions = list(dict.fromkeys(suggestions))
@@ -143,18 +158,18 @@ class ContextManager:
             "universal": [
                 "How can I help you today?",
                 "What would you like to know?",
-                "Tell me more about your needs"
+                "Tell me more about your needs",
             ],
             "sophia": [
                 "Analyze our business performance",
                 "What are the key trends?",
-                "Generate strategic insights"
+                "Generate strategic insights",
             ],
             "executive": [
                 "Summarize key metrics",
                 "What are our priorities?",
-                "Prepare board summary"
-            ]
+                "Prepare board summary",
+            ],
         }
 
         return defaults.get(mode, defaults["universal"])
@@ -165,23 +180,23 @@ class ContextManager:
             "ceo": [
                 "Review quarterly performance",
                 "Analyze competitive positioning",
-                "Strategic planning insights"
+                "Strategic planning insights",
             ],
             "cfo": [
                 "Financial performance analysis",
                 "Cost optimization opportunities",
-                "Revenue forecasting"
+                "Revenue forecasting",
             ],
             "cto": [
                 "Technology roadmap review",
                 "Infrastructure optimization",
-                "Innovation opportunities"
+                "Innovation opportunities",
             ],
             "manager": [
                 "Team performance metrics",
                 "Resource allocation",
-                "Process improvements"
-            ]
+                "Process improvements",
+            ],
         }
 
         return role_suggestions.get(role.lower(), [])
@@ -192,28 +207,30 @@ class ContextManager:
             "sales": [
                 "Sales pipeline analysis",
                 "Customer acquisition metrics",
-                "Revenue forecasting"
+                "Revenue forecasting",
             ],
             "marketing": [
                 "Campaign performance",
                 "Lead generation analysis",
-                "Brand metrics"
+                "Brand metrics",
             ],
             "engineering": [
                 "Development velocity",
                 "Code quality metrics",
-                "Technical debt analysis"
+                "Technical debt analysis",
             ],
             "finance": [
                 "Budget analysis",
                 "Cost center performance",
-                "Financial projections"
-            ]
+                "Financial projections",
+            ],
         }
 
         return dept_suggestions.get(department.lower(), [])
 
-    def _get_business_context_suggestions(self, business_context: dict[str, Any], mode: str) -> list[str]:
+    def _get_business_context_suggestions(
+        self, business_context: dict[str, Any], mode: str
+    ) -> list[str]:
         """Get suggestions based on business context"""
         suggestions = []
 
@@ -255,7 +272,11 @@ class ContextManager:
             "department": context.department,
             "has_preferences": bool(context.preferences),
             "has_business_context": bool(context.business_context),
-            "business_context_keys": list(context.business_context.keys()) if context.business_context else []
+            "business_context_keys": (
+                list(context.business_context.keys())
+                if context.business_context
+                else []
+            ),
         }
 
     async def close(self):
@@ -266,4 +287,3 @@ class ContextManager:
     def __len__(self) -> int:
         """Get number of contexts"""
         return len(self._contexts)
-

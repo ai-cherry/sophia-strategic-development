@@ -16,10 +16,12 @@ class ChatRequest(BaseModel):
     model: str = Field(default="gpt-4")
     session_id: str | None = None
 
+
 class KnowledgeUploadRequest(BaseModel):
     filename: str
     content_type: str
     size: int = Field(..., gt=0, le=100_000_000)  # 100MB limit
+
 
 # Response Models
 class ChatResponse(BaseModel):
@@ -29,10 +31,12 @@ class ChatResponse(BaseModel):
     timestamp: str
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+
 class ChatStreamChunk(BaseModel):
     content: str
     finished: bool = False
     metadata: dict[str, Any] = Field(default_factory=dict)
+
 
 class HealthResponse(BaseModel):
     status: str
@@ -41,6 +45,7 @@ class HealthResponse(BaseModel):
     timestamp: str
     services: dict[str, bool] = Field(default_factory=dict)
 
+
 class DashboardMetrics(BaseModel):
     revenue: dict[str, Any]
     agents: dict[str, Any]
@@ -48,11 +53,13 @@ class DashboardMetrics(BaseModel):
     api_calls: dict[str, Any]
     timestamp: str
 
+
 class ErrorResponse(BaseModel):
     error: str
     message: str
     correlation_id: str | None = None
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
 
 # MCP Models
 class MCPServiceHealth(BaseModel):

@@ -12,8 +12,11 @@ from pathlib import Path
 from typing import Any
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class FastAPIModernizer:
     """Modernizes FastAPI applications with 2025 best practices"""
@@ -29,7 +32,7 @@ class FastAPIModernizer:
             "files_processed": 0,
             "files_modernized": 0,
             "patterns_applied": set(),
-            "errors": []
+            "errors": [],
         }
 
     async def modernize_all_fastapi_apps(self) -> dict[str, Any]:
@@ -59,7 +62,7 @@ class FastAPIModernizer:
             return {
                 "status": "success",
                 "summary": self.modernization_results,
-                "recommendations": self._generate_recommendations()
+                "recommendations": self._generate_recommendations(),
             }
 
         except Exception as e:
@@ -67,7 +70,7 @@ class FastAPIModernizer:
             return {
                 "status": "failed",
                 "error": str(e),
-                "summary": self.modernization_results
+                "summary": self.modernization_results,
             }
 
     async def _modernize_main_applications(self):
@@ -77,7 +80,7 @@ class FastAPIModernizer:
         main_apps = [
             self.backend_path / "app" / "fastapi_app.py",
             self.backend_path / "app" / "main.py",
-            self.backend_path / "fastapi_main.py"
+            self.backend_path / "fastapi_main.py",
         ]
 
         for app_path in main_apps:
@@ -154,8 +157,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 '''
 
         # Remove old event handlers
-        content = re.sub(r'@app\.on_event\("startup"\).*?(?=@app\.|\n\n|\Z)', '', content, flags=re.DOTALL)
-        content = re.sub(r'@app\.on_event\("shutdown"\).*?(?=@app\.|\n\n|\Z)', '', content, flags=re.DOTALL)
+        content = re.sub(
+            r'@app\.on_event\("startup"\).*?(?=@app\.|\n\n|\Z)',
+            "",
+            content,
+            flags=re.DOTALL,
+        )
+        content = re.sub(
+            r'@app\.on_event\("shutdown"\).*?(?=@app\.|\n\n|\Z)',
+            "",
+            content,
+            flags=re.DOTALL,
+        )
 
         # Add modern lifespan
         if "from contextlib import asynccontextmanager" not in content:
@@ -163,19 +176,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             content = self._add_to_imports(content, import_section)
 
         # Add lifespan function before app creation
-        app_creation_pattern = r'(app = FastAPI\()'
+        app_creation_pattern = r"(app = FastAPI\()"
         if re.search(app_creation_pattern, content):
-            content = re.sub(
-                app_creation_pattern,
-                lifespan_pattern + r'\n\1',
-                content
-            )
+            content = re.sub(app_creation_pattern, lifespan_pattern + r"\n\1", content)
             # Add lifespan parameter to FastAPI constructor
             content = re.sub(
-                r'app = FastAPI\((.*?)\)',
-                r'app = FastAPI(\1, lifespan=lifespan)',
+                r"app = FastAPI\((.*?)\)",
+                r"app = FastAPI(\1, lifespan=lifespan)",
                 content,
-                flags=re.DOTALL
+                flags=re.DOTALL,
             )
 
         return content
@@ -217,20 +226,27 @@ settings = Settings()
 
         # Add import
         if "from pydantic_settings import BaseSettings" not in content:
-            content = self._add_to_imports(content, "from pydantic_settings import BaseSettings\n")
+            content = self._add_to_imports(
+                content, "from pydantic_settings import BaseSettings\n"
+            )
 
         # Add settings class before app creation
         if "class Settings" not in content:
             app_creation_idx = content.find("app = FastAPI(")
             if app_creation_idx != -1:
-                content = content[:app_creation_idx] + settings_pattern + "\n" + content[app_creation_idx:]
+                content = (
+                    content[:app_creation_idx]
+                    + settings_pattern
+                    + "\n"
+                    + content[app_creation_idx:]
+                )
 
         return content
 
     def _enhance_middleware_stack(self, content: str) -> str:
         """Enhance middleware stack with modern patterns"""
 
-        middleware_enhancements = '''
+        middleware_enhancements = """
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import time
@@ -260,16 +276,16 @@ async def add_request_tracking(request: Request, call_next):
     response.headers["X-Correlation-ID"] = correlation_id
 
     return response
-'''
+"""
 
         # Add after CORS middleware if it exists
-        cors_pattern = r'(app\.add_middleware\(\s*CORSMiddleware.*?\))'
+        cors_pattern = r"(app\.add_middleware\(\s*CORSMiddleware.*?\))"
         if re.search(cors_pattern, content, re.DOTALL):
             content = re.sub(
                 cors_pattern,
-                r'\1\n' + middleware_enhancements,
+                r"\1\n" + middleware_enhancements,
                 content,
-                flags=re.DOTALL
+                flags=re.DOTALL,
             )
 
         return content
@@ -311,8 +327,13 @@ async def add_metrics(request: Request, call_next):
 '''
 
         # Add imports
-        content = self._add_to_imports(content, "from prometheus_client import Counter, Histogram, generate_latest\n")
-        content = self._add_to_imports(content, "from fastapi.responses import PlainTextResponse\n")
+        content = self._add_to_imports(
+            content,
+            "from prometheus_client import Counter, Histogram, generate_latest\n",
+        )
+        content = self._add_to_imports(
+            content, "from fastapi.responses import PlainTextResponse\n"
+        )
 
         # Add metrics after app creation
         app_creation_idx = content.find("app = FastAPI(")
@@ -320,7 +341,12 @@ async def add_metrics(request: Request, call_next):
             # Find end of app creation block
             next_section_idx = content.find("\n@app.", app_creation_idx)
             if next_section_idx != -1:
-                content = content[:next_section_idx] + "\n" + metrics_pattern + content[next_section_idx:]
+                content = (
+                    content[:next_section_idx]
+                    + "\n"
+                    + metrics_pattern
+                    + content[next_section_idx:]
+                )
 
         return content
 
@@ -368,9 +394,15 @@ async def global_exception_handler(request: Request, exc: Exception):
 '''
 
         # Add imports
-        content = self._add_to_imports(content, "from slowapi import Limiter, _rate_limit_exceeded_handler\n")
-        content = self._add_to_imports(content, "from slowapi.util import get_remote_address\n")
-        content = self._add_to_imports(content, "from fastapi.responses import JSONResponse\n")
+        content = self._add_to_imports(
+            content, "from slowapi import Limiter, _rate_limit_exceeded_handler\n"
+        )
+        content = self._add_to_imports(
+            content, "from slowapi.util import get_remote_address\n"
+        )
+        content = self._add_to_imports(
+            content, "from fastapi.responses import JSONResponse\n"
+        )
 
         # Add security enhancements after middleware
         middleware_end_idx = content.rfind("app.add_middleware(")
@@ -378,7 +410,12 @@ async def global_exception_handler(request: Request, exc: Exception):
             # Find end of middleware block
             next_section_idx = content.find("\n\n", middleware_end_idx)
             if next_section_idx != -1:
-                content = content[:next_section_idx] + "\n" + security_pattern + content[next_section_idx:]
+                content = (
+                    content[:next_section_idx]
+                    + "\n"
+                    + security_pattern
+                    + content[next_section_idx:]
+                )
 
         return content
 
@@ -388,20 +425,20 @@ async def global_exception_handler(request: Request, exc: Exception):
             return content
 
         # Find the end of existing imports
-        lines = content.split('\n')
+        lines = content.split("\n")
         import_end_idx = 0
 
         for i, line in enumerate(lines):
-            if line.strip().startswith('import ') or line.strip().startswith('from '):
+            if line.strip().startswith("import ") or line.strip().startswith("from "):
                 import_end_idx = i + 1
-            elif line.strip() == '' and import_end_idx > 0:
+            elif line.strip() == "" and import_end_idx > 0:
                 continue
             elif import_end_idx > 0:
                 break
 
         # Insert new import
         lines.insert(import_end_idx, import_statement.strip())
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     async def _modernize_api_routes(self):
         """Modernize all API route files"""
@@ -443,7 +480,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
         # Write if changed
         if modernized_content != content:
-            backup_path = route_file.with_suffix(f".backup.{int(datetime.now().timestamp())}")
+            backup_path = route_file.with_suffix(
+                f".backup.{int(datetime.now().timestamp())}"
+            )
             route_file.rename(backup_path)
             route_file.write_text(modernized_content)
 
@@ -460,14 +499,18 @@ async def global_exception_handler(request: Request, exc: Exception):
             content = self._add_to_imports(content, "from slowapi import Limiter")
 
         # Add rate limiting to POST routes
-        post_pattern = r'(@router\.post\([^)]+\)\s*(?:\n[^@]*)*\s*async def [^(]+\([^)]*\):)'
+        post_pattern = (
+            r"(@router\.post\([^)]+\)\s*(?:\n[^@]*)*\s*async def [^(]+\([^)]*\):)"
+        )
 
         def add_rate_limit(match):
             route_line = match.group(1)
             # Add rate limiting decorator
             return f'@limiter.limit("10/minute")\n{route_line}'
 
-        content = re.sub(post_pattern, add_rate_limit, content, flags=re.MULTILINE | re.DOTALL)
+        content = re.sub(
+            post_pattern, add_rate_limit, content, flags=re.MULTILINE | re.DOTALL
+        )
 
         return content
 
@@ -484,7 +527,7 @@ async def global_exception_handler(request: Request, exc: Exception):
                 func_body = match.group(2)
 
                 if "try:" not in func_body:
-                    wrapped_body = f'''    try:
+                    wrapped_body = f"""    try:
         {func_body.strip()}
     except HTTPException:
         raise
@@ -493,12 +536,14 @@ async def global_exception_handler(request: Request, exc: Exception):
         raise HTTPException(
             status_code=500,
             detail="Internal server error"
-        )'''
+        )"""
                     return func_def + wrapped_body
 
                 return match.group(0)
 
-            content = re.sub(route_pattern, add_error_handling, content, flags=re.DOTALL)
+            content = re.sub(
+                route_pattern, add_error_handling, content, flags=re.DOTALL
+            )
 
         return content
 
@@ -508,7 +553,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         # Add response model imports if not present
         if "response_model" not in content and "@router." in content:
             # Find routes without response models and suggest adding them
-            route_pattern = r'@router\.(get|post|put|delete)\(([^)]+)\)'
+            route_pattern = r"@router\.(get|post|put|delete)\(([^)]+)\)"
 
             def add_response_model(match):
                 method = match.group(1)
@@ -517,9 +562,9 @@ async def global_exception_handler(request: Request, exc: Exception):
                 if "response_model" not in params:
                     # Add a generic response model
                     if method == "get":
-                        return f'@router.{method}({params}, response_model=dict)'
+                        return f"@router.{method}({params}, response_model=dict)"
                     else:
-                        return f'@router.{method}({params}, response_model=dict)'
+                        return f"@router.{method}({params}, response_model=dict)"
 
                 return match.group(0)
 
@@ -532,7 +577,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
         # Add BackgroundTasks import if not present
         if "BackgroundTasks" not in content and "POST" in content:
-            content = self._add_to_imports(content, "from fastapi import BackgroundTasks")
+            content = self._add_to_imports(
+                content, "from fastapi import BackgroundTasks"
+            )
 
         return content
 
@@ -568,7 +615,9 @@ async def global_exception_handler(request: Request, exc: Exception):
             modernized_content = self._add_standardized_mcp_base(content)
 
             if modernized_content != content:
-                backup_path = mcp_file.with_suffix(f".backup.{int(datetime.now().timestamp())}")
+                backup_path = mcp_file.with_suffix(
+                    f".backup.{int(datetime.now().timestamp())}"
+                )
                 mcp_file.rename(backup_path)
                 mcp_file.write_text(modernized_content)
 
@@ -584,8 +633,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         content = self._add_to_imports(content, base_import)
 
         # Replace class inheritance if needed
-        class_pattern = r'class (\w+)(?:\([^)]*\))?:'
-        content = re.sub(class_pattern, r'class \1(StandardizedMCPServer):', content)
+        class_pattern = r"class (\w+)(?:\([^)]*\))?:"
+        content = re.sub(class_pattern, r"class \1(StandardizedMCPServer):", content)
 
         return content
 
@@ -600,14 +649,14 @@ async def global_exception_handler(request: Request, exc: Exception):
 
             # Update FastAPI and related dependencies to latest versions
             updated_deps = {
-                'fastapi': '>=0.115.0',
-                'uvicorn[standard]': '>=0.32.0',
-                'pydantic': '>=2.10.3',
-                'pydantic-settings': '>=2.6.1',
-                'starlette': '>=0.37.2,<0.39.0',
-                'slowapi': '>=0.1.9',
-                'prometheus-client': '>=0.19.0',
-                'structlog': '>=24.4.0'
+                "fastapi": ">=0.115.0",
+                "uvicorn[standard]": ">=0.32.0",
+                "pydantic": ">=2.10.3",
+                "pydantic-settings": ">=2.6.1",
+                "starlette": ">=0.37.2,<0.39.0",
+                "slowapi": ">=0.1.9",
+                "prometheus-client": ">=0.19.0",
+                "structlog": ">=24.4.0",
             }
 
             for dep, version in updated_deps.items():
@@ -633,7 +682,7 @@ async def global_exception_handler(request: Request, exc: Exception):
             "security.py": self._generate_security_middleware(),
             "monitoring.py": self._generate_monitoring_middleware(),
             "rate_limiting.py": self._generate_rate_limiting_middleware(),
-            "cors.py": self._generate_cors_middleware()
+            "cors.py": self._generate_cors_middleware(),
         }
 
         for filename, content in middleware_files.items():
@@ -660,7 +709,9 @@ __all__ = [
 '''
         (middleware_dir / "__init__.py").write_text(init_content)
 
-        self.modernization_results["patterns_applied"].add("Modern middleware collection")
+        self.modernization_results["patterns_applied"].add(
+            "Modern middleware collection"
+        )
 
     def _generate_security_middleware(self) -> str:
         """Generate security middleware"""
@@ -814,7 +865,7 @@ class CORSMiddleware:
         logger.info("📋 Updating requirements")
 
         # Enhanced requirements for 2025
-        enhanced_requirements = '''# Sophia AI Platform - Enhanced Requirements (2025)
+        enhanced_requirements = """# Sophia AI Platform - Enhanced Requirements (2025)
 # Modern FastAPI stack with performance and security optimizations
 
 # Core FastAPI with latest features
@@ -862,7 +913,7 @@ pytest-asyncio>=0.24.0
 # Production deployment
 gunicorn>=23.0.0
 uvloop>=0.21.0
-'''
+"""
 
         requirements_path = self.backend_path / "requirements-enhanced-2025.txt"
         requirements_path.write_text(enhanced_requirements)
@@ -882,31 +933,32 @@ uvloop>=0.21.0
             "Implement circuit breaker pattern for external API calls",
             "Add API versioning strategy",
             "Consider implementing WebSocket endpoints for real-time features",
-            "Add comprehensive documentation with automated generation"
+            "Add comprehensive documentation with automated generation",
         ]
+
 
 async def main():
     """Main function to run the modernization"""
     modernizer = FastAPIModernizer()
     results = await modernizer.modernize_all_fastapi_apps()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🚀 FASTAPI MODERNIZATION COMPLETE")
-    print("="*60)
+    print("=" * 60)
     print(f"Status: {results['status']}")
 
-    if results['status'] == 'success':
-        summary = results['summary']
+    if results["status"] == "success":
+        summary = results["summary"]
         print(f"Files Processed: {summary['files_processed']}")
         print(f"Files Modernized: {summary['files_modernized']}")
         print(f"Patterns Applied: {len(summary['patterns_applied'])}")
 
         print("\n✅ Modernization patterns applied:")
-        for pattern in summary['patterns_applied']:
+        for pattern in summary["patterns_applied"]:
             print(f"  • {pattern}")
 
         print("\n💡 Recommendations for further improvement:")
-        for recommendation in results['recommendations']:
+        for recommendation in results["recommendations"]:
             print(f"  • {recommendation}")
 
         print("\n🎯 Next Steps:")
@@ -917,6 +969,7 @@ async def main():
         print("  5. Deploy to staging environment")
     else:
         print(f"\n❌ Modernization failed: {results.get('error', 'Unknown error')}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

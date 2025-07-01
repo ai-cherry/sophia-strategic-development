@@ -16,7 +16,7 @@ def get_files_with_undefined_get_config_value() -> list[str]:
             ["ruff", "check", ".", "--select=F821", "--output-format=json"],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
 
         if result.returncode != 0:
@@ -25,14 +25,14 @@ def get_files_with_undefined_get_config_value() -> list[str]:
                 ["ruff", "check", ".", "--select=F821"],
                 capture_output=True,
                 text=True,
-                cwd=Path.cwd()
+                cwd=Path.cwd(),
             )
 
             files = set()
-            for line in result.stdout.split('\n'):
-                if 'get_config_value' in line and 'F821' in line:
+            for line in result.stdout.split("\n"):
+                if "get_config_value" in line and "F821" in line:
                     # Extract filename from line like: "file:line:col: F821 message"
-                    file_path = line.split(':')[0]
+                    file_path = line.split(":")[0]
                     if file_path and Path(file_path).exists():
                         files.add(file_path)
 
@@ -46,18 +46,21 @@ def get_files_with_undefined_get_config_value() -> list[str]:
 def fix_get_config_value_import(file_path: str) -> bool:
     """Fix missing get_config_value import in a specific file"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Check if get_config_value is used but not imported
-        if 'get_config_value' not in content:
+        if "get_config_value" not in content:
             return False
 
         # Check if already imported
-        if 'from backend.core.auto_esc_config import' in content and 'get_config_value' in content:
+        if (
+            "from backend.core.auto_esc_config import" in content
+            and "get_config_value" in content
+        ):
             return False
 
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Find the best place to add the import
         import_line = "from backend.core.auto_esc_config import get_config_value"
@@ -68,9 +71,13 @@ def fix_get_config_value_import(file_path: str) -> bool:
 
         for i, line in enumerate(lines):
             stripped = line.strip()
-            if stripped.startswith('from backend.') or stripped.startswith('import backend.'):
+            if stripped.startswith("from backend.") or stripped.startswith(
+                "import backend."
+            ):
                 backend_import_idx = i
-            elif stripped.startswith(('import ', 'from ')) and not stripped.startswith('#'):
+            elif stripped.startswith(("import ", "from ")) and not stripped.startswith(
+                "#"
+            ):
                 last_import_idx = i
 
         # Insert the import
@@ -85,7 +92,12 @@ def fix_get_config_value_import(file_path: str) -> bool:
             insert_idx = 0
             for i, line in enumerate(lines):
                 stripped = line.strip()
-                if not stripped or stripped.startswith('#') or '"""' in stripped or "'''" in stripped:
+                if (
+                    not stripped
+                    or stripped.startswith("#")
+                    or '"""' in stripped
+                    or "'''" in stripped
+                ):
                     continue
                 insert_idx = i
                 break
@@ -93,8 +105,8 @@ def fix_get_config_value_import(file_path: str) -> bool:
             lines.insert(insert_idx + 1, "")  # Add blank line
 
         # Write back the file
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lines))
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
 
         print(f"✅ Fixed import in {file_path}")
         return True
@@ -112,15 +124,15 @@ def fix_bare_except_clauses() -> int:
             ["ruff", "check", ".", "--select=E722"],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
 
         files_fixed = 0
         files_to_fix = set()
 
-        for line in result.stdout.split('\n'):
-            if 'E722' in line:
-                file_path = line.split(':')[0]
+        for line in result.stdout.split("\n"):
+            if "E722" in line:
+                file_path = line.split(":")[0]
                 if file_path and Path(file_path).exists():
                     files_to_fix.add(file_path)
 
@@ -138,18 +150,18 @@ def fix_bare_except_clauses() -> int:
 def fix_bare_except_in_file(file_path: str) -> bool:
     """Fix bare except clauses in a specific file"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Replace bare except with Exception
         # Pattern: except: -> except Exception:
-        pattern = r'(\s+)except:\s*$'
-        replacement = r'\1except Exception:'
+        pattern = r"(\s+)except:\s*$"
+        replacement = r"\1except Exception:"
 
         new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             print(f"✅ Fixed bare except in {file_path}")
             return True
@@ -193,7 +205,7 @@ def main():
         ["ruff", "check", ".", "--select=F821,E722", "--statistics"],
         capture_output=True,
         text=True,
-        cwd=Path.cwd()
+        cwd=Path.cwd(),
     )
 
     print("Final status:")

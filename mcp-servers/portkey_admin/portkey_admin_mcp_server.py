@@ -33,10 +33,17 @@ from backend.mcp_servers.base.standardized_mcp_server import (
 
 logger = logging.getLogger(__name__)
 
+
 class AIModelRoute:
     """Represents an AI model routing configuration"""
 
-    def __init__(self, model_name: str, provider: str, cost_per_token: float, performance_score: float):
+    def __init__(
+        self,
+        model_name: str,
+        provider: str,
+        cost_per_token: float,
+        performance_score: float,
+    ):
         self.model_name = model_name
         self.provider = provider
         self.cost_per_token = cost_per_token
@@ -53,8 +60,9 @@ class AIModelRoute:
             "performance_score": self.performance_score,
             "usage_count": self.usage_count,
             "total_cost": self.total_cost,
-            "last_used": self.last_used.isoformat() if self.last_used else None
+            "last_used": self.last_used.isoformat() if self.last_used else None,
         }
+
 
 class PortkeyAdminMCPServer(StandardizedMCPServer):
     """MCP server for Portkey AI gateway administration"""
@@ -75,12 +83,16 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
             "gpt-4o": AIModelRoute("gpt-4o", "openai", 0.00003, 95.0),
             "claude-3-opus": AIModelRoute("claude-3-opus", "anthropic", 0.000015, 97.0),
             "gemini-1.5-pro": AIModelRoute("gemini-1.5-pro", "google", 0.000007, 90.0),
-            "claude-3-haiku": AIModelRoute("claude-3-haiku", "anthropic", 0.000001, 85.0),
+            "claude-3-haiku": AIModelRoute(
+                "claude-3-haiku", "anthropic", 0.000001, 85.0
+            ),
             "gpt-4-turbo": AIModelRoute("gpt-4-turbo", "openai", 0.00001, 88.0),
             "deepseek-v3": AIModelRoute("deepseek-v3", "openrouter", 0.000002, 82.0),
             "llama-3-70b": AIModelRoute("llama-3-70b", "openrouter", 0.000001, 78.0),
             "qwen2-72b": AIModelRoute("qwen2-72b", "openrouter", 0.0000015, 80.0),
-            "mixtral-8x22b": AIModelRoute("mixtral-8x22b", "openrouter", 0.000001, 75.0)
+            "mixtral-8x22b": AIModelRoute(
+                "mixtral-8x22b", "openrouter", 0.000001, 75.0
+            ),
         }
 
         # Initialize intelligent routing rules
@@ -90,29 +102,29 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
                 "conditions": ["analyze", "reason", "complex", "architect"],
                 "preferred_models": ["claude-3-opus", "gpt-4o"],
                 "fallback_models": ["claude-3-haiku", "gpt-4-turbo"],
-                "priority": "performance"
+                "priority": "performance",
             },
             {
                 "rule_id": "large_context",
                 "conditions": ["context_size > 100000"],
                 "preferred_models": ["gemini-1.5-pro", "claude-3-opus"],
                 "fallback_models": ["gpt-4o"],
-                "priority": "capability"
+                "priority": "capability",
             },
             {
                 "rule_id": "cost_optimization",
                 "conditions": ["bulk", "simple", "routine"],
                 "preferred_models": ["claude-3-haiku", "deepseek-v3", "llama-3-70b"],
                 "fallback_models": ["gpt-4-turbo"],
-                "priority": "cost"
+                "priority": "cost",
             },
             {
                 "rule_id": "experimental",
                 "conditions": ["test", "experiment", "trial"],
                 "preferred_models": ["qwen2-72b", "mixtral-8x22b", "deepseek-v3"],
                 "fallback_models": ["claude-3-haiku"],
-                "priority": "exploration"
-            }
+                "priority": "exploration",
+            },
         ]
 
         logger.info("✅ Portkey Admin MCP Server initialized")
@@ -131,8 +143,10 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
             metadata={
                 "available_models": len(self.available_models),
                 "routing_rules": len(self.routing_rules),
-                "total_usage": sum(model.usage_count for model in self.available_models.values())
-            }
+                "total_usage": sum(
+                    model.usage_count for model in self.available_models.values()
+                ),
+            },
         )
 
     async def check_external_api(self) -> bool:
@@ -148,29 +162,29 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
                 category="ai",
                 available=True,
                 version="1.0.0",
-                metadata={"models_available": len(self.available_models)}
+                metadata={"models_available": len(self.available_models)},
             ),
             ServerCapability(
                 name="cost_optimization",
                 description="AI model cost analysis and optimization",
                 category="finance",
                 available=True,
-                version="1.0.0"
+                version="1.0.0",
             ),
             ServerCapability(
                 name="performance_monitoring",
                 description="AI model performance tracking and analytics",
                 category="monitoring",
                 available=True,
-                version="1.0.0"
+                version="1.0.0",
             ),
             ServerCapability(
                 name="routing_rules",
                 description="Dynamic routing rules management",
                 category="automation",
                 available=True,
-                version="1.0.0"
-            )
+                version="1.0.0",
+            ),
         ]
 
     async def sync_data(self) -> dict[str, Any]:
@@ -183,25 +197,35 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
             "total_cost": total_cost,
             "total_usage": total_usage,
             "average_cost_per_request": total_cost / max(total_usage, 1),
-            "most_used_model": max(self.available_models.items(), key=lambda x: x[1].usage_count)[0] if self.available_models else None,
-            "cost_by_provider": self._calculate_cost_by_provider()
+            "most_used_model": (
+                max(self.available_models.items(), key=lambda x: x[1].usage_count)[0]
+                if self.available_models
+                else None
+            ),
+            "cost_by_provider": self._calculate_cost_by_provider(),
         }
 
         return {
             "synced": True,
             "models_synced": len(self.available_models),
             "cost_analytics": self.cost_analytics,
-            "sync_time": datetime.now(UTC).isoformat()
+            "sync_time": datetime.now(UTC).isoformat(),
         }
 
-    async def process_with_ai(self, data: Any, model: ModelProvider | None = None) -> Any:
+    async def process_with_ai(
+        self, data: Any, model: ModelProvider | None = None
+    ) -> Any:
         """Process data with optimal AI model routing"""
         if isinstance(data, dict) and "task" in data:
-            optimal_model = await self.route_request(data["task"], data.get("context_size", 0))
+            optimal_model = await self.route_request(
+                data["task"], data.get("context_size", 0)
+            )
             return {
                 "optimal_model": optimal_model,
                 "reasoning": "Selected based on task analysis and routing rules",
-                "estimated_cost": self._estimate_cost(optimal_model, data.get("context_size", 1000))
+                "estimated_cost": self._estimate_cost(
+                    optimal_model, data.get("context_size", 1000)
+                ),
             }
         return data
 
@@ -238,7 +262,9 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
 
         return default_model
 
-    def _matches_conditions(self, task: str, context_size: int, conditions: list[str]) -> bool:
+    def _matches_conditions(
+        self, task: str, context_size: int, conditions: list[str]
+    ) -> bool:
         """Check if task matches routing rule conditions"""
         for condition in conditions:
             if "context_size" in condition:
@@ -268,6 +294,7 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
             cost_by_provider[model.provider] += model.total_cost
         return cost_by_provider
 
+
 # FastAPI route setup
 def setup_portkey_admin_routes(app, server: PortkeyAdminMCPServer):
     """Setup Portkey Admin routes"""
@@ -275,7 +302,9 @@ def setup_portkey_admin_routes(app, server: PortkeyAdminMCPServer):
     @app.get("/portkey/models")
     async def get_available_models():
         return {
-            "models": {name: model.to_dict() for name, model in server.available_models.items()}
+            "models": {
+                name: model.to_dict() for name, model in server.available_models.items()
+            }
         }
 
     @app.get("/portkey/routing-rules")
@@ -290,7 +319,7 @@ def setup_portkey_admin_routes(app, server: PortkeyAdminMCPServer):
         return {
             "optimal_model": optimal_model,
             "estimated_cost": server._estimate_cost(optimal_model, context_size),
-            "routing_reasoning": "Selected based on intelligent routing rules"
+            "routing_reasoning": "Selected based on intelligent routing rules",
         }
 
     @app.get("/portkey/analytics")
@@ -302,6 +331,7 @@ def setup_portkey_admin_routes(app, server: PortkeyAdminMCPServer):
     async def get_status():
         return {"status": "Portkey Admin MCP Server operational", "port": 9013}
 
+
 async def main():
     """Main function to run the Portkey Admin MCP Server"""
     config = MCPServerConfig(
@@ -311,7 +341,7 @@ async def main():
         enable_ai_processing=False,  # Disabled to avoid Snowflake connection issues
         enable_metrics=True,
         enable_webfetch=True,
-        enable_self_knowledge=True
+        enable_self_knowledge=True,
     )
 
     server = PortkeyAdminMCPServer(config)
@@ -319,6 +349,7 @@ async def main():
 
     # Start the server
     await server.start()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

@@ -2,7 +2,6 @@
 Enhanced Settings for Sophia AI Platform - 2025 Best Practices
 """
 
-
 from pydantic_settings import BaseSettings
 
 

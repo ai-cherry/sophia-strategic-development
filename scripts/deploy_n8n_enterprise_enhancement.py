@@ -27,8 +27,11 @@ if TYPE_CHECKING:
     from pydantic import BaseModel
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class PhaseConfig(BaseModel):
     phase: int
@@ -37,6 +40,7 @@ class PhaseConfig(BaseModel):
     tasks: list[str]
     success_criteria: list[str]
     estimated_days: int
+
 
 class N8NEnterpriseDeployer:
     """Comprehensive N8N Enterprise Enhancement Deployer"""
@@ -63,14 +67,14 @@ class N8NEnterpriseDeployer:
                     "migrate_redis_cluster",
                     "implement_external_secrets",
                     "deploy_queue_workers",
-                    "setup_prometheus_metrics"
+                    "setup_prometheus_metrics",
                 ],
                 success_criteria=[
                     "Blue/green deployments functional",
                     "Failover time ≤10 minutes",
-                    "50% faster processing achieved"
+                    "50% faster processing achieved",
                 ],
-                estimated_days=30
+                estimated_days=30,
             ),
             PhaseConfig(
                 phase=2,
@@ -81,14 +85,14 @@ class N8NEnterpriseDeployer:
                     "configure_model_routing",
                     "implement_cost_tracking",
                     "build_executive_workflows",
-                    "setup_risk_assessment"
+                    "setup_risk_assessment",
                 ],
                 success_criteria=[
                     "40% cost reduction achieved",
                     "P90 execution latency ≤150ms",
-                    "Real-time insights operational"
+                    "Real-time insights operational",
                 ],
-                estimated_days=30
+                estimated_days=30,
             ),
             PhaseConfig(
                 phase=3,
@@ -99,15 +103,15 @@ class N8NEnterpriseDeployer:
                     "configure_gdpr_workflows",
                     "setup_secret_rotation",
                     "deploy_grafana_dashboards",
-                    "create_disaster_recovery"
+                    "create_disaster_recovery",
                 ],
                 success_criteria=[
                     "99.95% uptime SLO achieved",
                     "SOC 2 audit readiness",
-                    "RTO ≤15 minutes"
+                    "RTO ≤15 minutes",
                 ],
-                estimated_days=30
-            )
+                estimated_days=30,
+            ),
         ]
 
     async def deploy_full_enhancement(self, start_phase: int = 1) -> dict[str, Any]:
@@ -115,24 +119,30 @@ class N8NEnterpriseDeployer:
 
         logger.info("🚀 Starting N8N Enterprise Enhancement Deployment")
         logger.info(f"📋 Total phases: {len(self.phases)}")
-        logger.info(f"⏱️  Estimated duration: {sum(p.estimated_days for p in self.phases)} days")
+        logger.info(
+            f"⏱️  Estimated duration: {sum(p.estimated_days for p in self.phases)} days"
+        )
 
         deployment_results = {
             "start_time": datetime.now().isoformat(),
             "phases": {},
-            "overall_status": "in_progress"
+            "overall_status": "in_progress",
         }
 
         try:
-            for phase_config in self.phases[start_phase-1:]:
+            for phase_config in self.phases[start_phase - 1 :]:
                 logger.info(f"\n🎯 PHASE {phase_config.phase}: {phase_config.name}")
                 logger.info(f"📖 Description: {phase_config.description}")
 
                 phase_result = await self.execute_phase(phase_config)
-                deployment_results["phases"][f"phase_{phase_config.phase}"] = phase_result
+                deployment_results["phases"][
+                    f"phase_{phase_config.phase}"
+                ] = phase_result
 
                 if not phase_result["success"]:
-                    logger.error(f"❌ Phase {phase_config.phase} failed. Stopping deployment.")
+                    logger.error(
+                        f"❌ Phase {phase_config.phase} failed. Stopping deployment."
+                    )
                     deployment_results["overall_status"] = "failed"
                     break
 
@@ -144,7 +154,9 @@ class N8NEnterpriseDeployer:
             # Save deployment report
             await self.save_deployment_report(deployment_results)
 
-            logger.info("🎉 N8N Enterprise Enhancement deployment completed successfully!")
+            logger.info(
+                "🎉 N8N Enterprise Enhancement deployment completed successfully!"
+            )
             return deployment_results
 
         except Exception as e:
@@ -162,7 +174,7 @@ class N8NEnterpriseDeployer:
             "start_time": datetime.now().isoformat(),
             "tasks_completed": [],
             "tasks_failed": [],
-            "success": False
+            "success": False,
         }
 
         for task in phase_config.tasks:
@@ -176,7 +188,9 @@ class N8NEnterpriseDeployer:
                     logger.info(f"✅ Task completed: {task}")
                 else:
                     phase_result["tasks_failed"].append(task)
-                    logger.error(f"❌ Task failed: {task} - {task_result.get('error', 'Unknown error')}")
+                    logger.error(
+                        f"❌ Task failed: {task} - {task_result.get('error', 'Unknown error')}"
+                    )
 
             except Exception as e:
                 phase_result["tasks_failed"].append(task)
@@ -198,20 +212,18 @@ class N8NEnterpriseDeployer:
             "implement_external_secrets": self.implement_external_secrets,
             "deploy_queue_workers": self.deploy_queue_workers,
             "setup_prometheus_metrics": self.setup_prometheus_metrics,
-
             # Phase 2 tasks
             "deploy_portkey_gateway": self.deploy_portkey_gateway,
             "configure_model_routing": self.configure_model_routing,
             "implement_cost_tracking": self.implement_cost_tracking,
             "build_executive_workflows": self.build_executive_workflows,
             "setup_risk_assessment": self.setup_risk_assessment,
-
             # Phase 3 tasks
             "implement_rbac_audit": self.implement_rbac_audit,
             "configure_gdpr_workflows": self.configure_gdpr_workflows,
             "setup_secret_rotation": self.setup_secret_rotation,
             "deploy_grafana_dashboards": self.deploy_grafana_dashboards,
-            "create_disaster_recovery": self.create_disaster_recovery
+            "create_disaster_recovery": self.create_disaster_recovery,
         }
 
         if task not in task_methods:
@@ -242,14 +254,14 @@ class N8NEnterpriseDeployer:
                 {
                     "name": "redis",
                     "version": "18.x.x",
-                    "repository": "https://charts.bitnami.com/bitnami"
+                    "repository": "https://charts.bitnami.com/bitnami",
                 },
                 {
                     "name": "prometheus",
                     "version": "25.x.x",
-                    "repository": "https://prometheus-community.github.io/helm-charts"
-                }
-            ]
+                    "repository": "https://prometheus-community.github.io/helm-charts",
+                },
+            ],
         }
 
         with open(chart_dir / "Chart.yaml", "w") as f:
@@ -257,20 +269,13 @@ class N8NEnterpriseDeployer:
 
         # Values.yaml (comprehensive configuration)
         values_yaml = {
-            "global": {
-                "environment": "production",
-                "namespace": "sophia-ai"
-            },
+            "global": {"environment": "production", "namespace": "sophia-ai"},
             "n8n": {
-                "replicaCount": {
-                    "webhook": 2,
-                    "main": 1,
-                    "worker": 3
-                },
+                "replicaCount": {"webhook": 2, "main": 1, "worker": 3},
                 "image": {
                     "repository": "n8nio/n8n",
                     "tag": "latest",
-                    "pullPolicy": "Always"
+                    "pullPolicy": "Always",
                 },
                 "queue": {
                     "enabled": True,
@@ -280,39 +285,39 @@ class N8NEnterpriseDeployer:
                         "port": 6379,
                         "password": {
                             "secretName": "redis-credentials",
-                            "secretKey": "password"
-                        }
-                    }
+                            "secretKey": "password",
+                        },
+                    },
                 },
                 "resources": {
                     "webhook": {
                         "limits": {"cpu": "1000m", "memory": "1Gi"},
-                        "requests": {"cpu": "500m", "memory": "512Mi"}
+                        "requests": {"cpu": "500m", "memory": "512Mi"},
                     },
                     "worker": {
                         "limits": {"cpu": "2000m", "memory": "2Gi"},
-                        "requests": {"cpu": "1000m", "memory": "1Gi"}
-                    }
+                        "requests": {"cpu": "1000m", "memory": "1Gi"},
+                    },
                 },
                 "autoscaling": {
                     "webhook": {
                         "enabled": True,
                         "minReplicas": 2,
                         "maxReplicas": 10,
-                        "targetCPUUtilizationPercentage": 70
+                        "targetCPUUtilizationPercentage": 70,
                     },
                     "worker": {
                         "enabled": True,
                         "minReplicas": 3,
                         "maxReplicas": 20,
-                        "targetMemoryUtilizationPercentage": 80
-                    }
-                }
+                        "targetMemoryUtilizationPercentage": 80,
+                    },
+                },
             },
             "redis": {
                 "cluster": {"enabled": True, "slaveCount": 3},
                 "master": {"count": 3},
-                "auth": {"enabled": True, "existingSecret": "redis-credentials"}
+                "auth": {"enabled": True, "existingSecret": "redis-credentials"},
             },
             "portkey": {
                 "enabled": True,
@@ -320,24 +325,26 @@ class N8NEnterpriseDeployer:
                 "config": {
                     "apiKey": {
                         "secretName": "portkey-credentials",
-                        "secretKey": "api-key"
+                        "secretKey": "api-key",
                     }
-                }
+                },
             },
             "monitoring": {
                 "prometheus": {"enabled": True, "serviceMonitor": True},
                 "grafana": {
                     "enabled": True,
-                    "dashboards": [{"name": "n8n-performance", "configMap": "n8n-dashboards"}]
-                }
+                    "dashboards": [
+                        {"name": "n8n-performance", "configMap": "n8n-dashboards"}
+                    ],
+                },
             },
             "secrets": {
                 "externalSecrets": {
                     "enabled": True,
                     "refreshInterval": "15s",
-                    "secretStore": "pulumi-esc"
+                    "secretStore": "pulumi-esc",
                 }
-            }
+            },
         }
 
         with open(chart_dir / "values.yaml", "w") as f:
@@ -781,7 +788,9 @@ spec:
         """Configure intelligent AI model routing"""
 
         # Create enhanced Portkey gateway service
-        portkey_service_path = self.project_root / "backend" / "services" / "portkey_ai_gateway.py"
+        portkey_service_path = (
+            self.project_root / "backend" / "services" / "portkey_ai_gateway.py"
+        )
 
         logger.info("✅ Model routing configuration created")
         return {"portkey_service": str(portkey_service_path)}
@@ -795,18 +804,18 @@ spec:
                 "gpt-4-turbo": 0.02,
                 "claude-3-opus": 0.075,
                 "claude-3-sonnet": 0.015,
-                "claude-3-haiku": 0.0025
+                "claude-3-haiku": 0.0025,
             },
             "optimization_rules": {
                 "cost": ["claude-3-haiku", "gpt-3.5-turbo", "llama-3-70b"],
                 "balanced": ["claude-3-sonnet", "gpt-4-turbo", "gemini-1.5-flash"],
-                "performance": ["gpt-4o", "claude-3-opus", "gemini-1.5-pro"]
+                "performance": ["gpt-4o", "claude-3-opus", "gemini-1.5-pro"],
             },
             "use_case_mapping": {
                 "executive_analysis": "performance",
                 "business_analysis": "balanced",
-                "data_processing": "cost"
-            }
+                "data_processing": "cost",
+            },
         }
 
         cost_config_file = self.project_root / "config" / "ai_cost_optimization.json"
@@ -820,7 +829,9 @@ spec:
         """Build enhanced executive intelligence workflows"""
 
         # Create executive intelligence workflow
-        workflow_file = self.n8n_dir / "workflows" / "executive_intelligence_enhanced.json"
+        workflow_file = (
+            self.n8n_dir / "workflows" / "executive_intelligence_enhanced.json"
+        )
         workflow_file.parent.mkdir(exist_ok=True)
 
         executive_workflow = {
@@ -833,9 +844,9 @@ spec:
                     "type": "n8n-nodes-base.cron",
                     "parameters": {
                         "cronExpression": "0 */2 * * *",
-                        "timezone": "America/New_York"
+                        "timezone": "America/New_York",
                     },
-                    "position": [100, 300]
+                    "position": [100, 300],
                 },
                 {
                     "name": "Concurrent Data Fetching",
@@ -868,7 +879,7 @@ spec:
                         }));
                         """
                     },
-                    "position": [300, 300]
+                    "position": [300, 300],
                 },
                 {
                     "name": "AI-Powered Cross-Platform Analysis",
@@ -878,35 +889,33 @@ spec:
                         "method": "POST",
                         "headers": {
                             "Authorization": "Bearer {{$env.PORTKEY_API_KEY}}",
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
                         },
                         "body": {
                             "model": "gpt-4o",
                             "messages": [
                                 {
                                     "role": "system",
-                                    "content": "You are Sophia AI's executive intelligence analyst. Provide strategic insights from cross-platform business data with specific recommendations and risk assessments."
+                                    "content": "You are Sophia AI's executive intelligence analyst. Provide strategic insights from cross-platform business data with specific recommendations and risk assessments.",
                                 },
                                 {
                                     "role": "user",
-                                    "content": "Analyze this business intelligence data and provide executive insights: {{JSON.stringify($json)}}"
-                                }
+                                    "content": "Analyze this business intelligence data and provide executive insights: {{JSON.stringify($json)}}",
+                                },
                             ],
                             "temperature": 0.3,
-                            "max_tokens": 2000
-                        }
+                            "max_tokens": 2000,
+                        },
                     },
-                    "position": [500, 300]
-                }
+                    "position": [500, 300],
+                },
             ],
             "connections": {
-                "Multi-Platform Trigger": {
-                    "main": [["Concurrent Data Fetching"]]
-                },
+                "Multi-Platform Trigger": {"main": [["Concurrent Data Fetching"]]},
                 "Concurrent Data Fetching": {
                     "main": [["AI-Powered Cross-Platform Analysis"]]
-                }
-            }
+                },
+            },
         }
 
         with open(workflow_file, "w") as f:
@@ -923,25 +932,16 @@ spec:
                 "revenue",
                 "customer_churn",
                 "competitive",
-                "operational"
+                "operational",
             ],
-            "prediction_horizons": [
-                "7_days",
-                "30_days",
-                "90_days"
-            ],
-            "alert_thresholds": {
-                "low": 3,
-                "medium": 5,
-                "high": 7,
-                "critical": 9
-            },
+            "prediction_horizons": ["7_days", "30_days", "90_days"],
+            "alert_thresholds": {"low": 3, "medium": 5, "high": 7, "critical": 9},
             "notification_channels": {
                 "low": ["#analytics"],
                 "medium": ["#executive-alerts"],
                 "high": ["#ceo-urgent"],
-                "critical": ["#ceo-urgent", "#board-alerts"]
-            }
+                "critical": ["#ceo-urgent", "#board-alerts"],
+            },
         }
 
         risk_config_file = self.project_root / "config" / "risk_assessment.json"
@@ -1002,26 +1002,17 @@ metadata:
 
         gdpr_config = {
             "data_retention_days": 365,
-            "pii_fields": [
-                "email",
-                "phone",
-                "name",
-                "address",
-                "ip_address"
-            ],
+            "pii_fields": ["email", "phone", "name", "address", "ip_address"],
             "data_processing_purposes": [
                 "business_intelligence",
                 "customer_analytics",
-                "executive_reporting"
+                "executive_reporting",
             ],
             "deletion_workflows": {
                 "manual_request": "gdpr_deletion_request",
-                "automatic_expiry": "gdpr_auto_cleanup"
+                "automatic_expiry": "gdpr_auto_cleanup",
             },
-            "consent_tracking": {
-                "required": True,
-                "storage_duration_days": 1095
-            }
+            "consent_tracking": {"required": True, "storage_duration_days": 1095},
         }
 
         gdpr_config_file = self.project_root / "config" / "gdpr_compliance.json"
@@ -1038,11 +1029,11 @@ metadata:
             "rotation_schedule": {
                 "api_keys": "90d",
                 "database_passwords": "60d",
-                "certificates": "30d"
+                "certificates": "30d",
             },
             "notification_before_expiry": "7d",
             "emergency_rotation_endpoint": "/api/v1/secrets/emergency-rotate",
-            "backup_retention": "5"
+            "backup_retention": "5",
         }
 
         rotation_file = self.project_root / "config" / "secret_rotation.json"
@@ -1063,26 +1054,28 @@ metadata:
                     {
                         "title": "Executive Workflow Performance",
                         "type": "stat",
-                        "metric": "rate(n8n_requests_total{workflow_type='executive_intelligence'}[5m])"
+                        "metric": "rate(n8n_requests_total{workflow_type='executive_intelligence'}[5m])",
                     },
                     {
                         "title": "AI Gateway Cost Savings",
                         "type": "stat",
-                        "metric": "sum(portkey_cost_savings_total)"
+                        "metric": "sum(portkey_cost_savings_total)",
                     },
                     {
                         "title": "Queue Processing Efficiency",
                         "type": "graph",
-                        "metrics": [
-                            "n8n_queue_size",
-                            "n8n_active_workflows"
-                        ]
-                    }
-                ]
+                        "metrics": ["n8n_queue_size", "n8n_active_workflows"],
+                    },
+                ],
             }
         }
 
-        dashboard_file = self.project_root / "monitoring" / "dashboards" / "executive_intelligence.json"
+        dashboard_file = (
+            self.project_root
+            / "monitoring"
+            / "dashboards"
+            / "executive_intelligence.json"
+        )
         dashboard_file.parent.mkdir(parents=True, exist_ok=True)
 
         with open(dashboard_file, "w") as f:
@@ -1095,21 +1088,18 @@ metadata:
         """Create disaster recovery procedures"""
 
         dr_plan = {
-            "recovery_objectives": {
-                "rto_minutes": 15,
-                "rpo_minutes": 5
-            },
+            "recovery_objectives": {"rto_minutes": 15, "rpo_minutes": 5},
             "backup_strategy": {
                 "database": {
                     "frequency": "hourly",
                     "retention": "30d",
-                    "cross_region": True
+                    "cross_region": True,
                 },
                 "workflows": {
                     "frequency": "daily",
                     "retention": "90d",
-                    "version_control": True
-                }
+                    "version_control": True,
+                },
             },
             "failover_procedures": [
                 "Detect service outage",
@@ -1117,9 +1107,9 @@ metadata:
                 "Validate backup systems",
                 "Redirect traffic",
                 "Notify stakeholders",
-                "Monitor recovery metrics"
+                "Monitor recovery metrics",
             ],
-            "testing_schedule": "monthly"
+            "testing_schedule": "monthly",
         }
 
         dr_file = self.project_root / "docs" / "disaster_recovery_plan.json"
@@ -1132,12 +1122,16 @@ metadata:
     async def save_deployment_report(self, results: dict[str, Any]) -> None:
         """Save comprehensive deployment report"""
 
-        report_file = self.project_root / f"N8N_ENTERPRISE_DEPLOYMENT_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_file = (
+            self.project_root
+            / f"N8N_ENTERPRISE_DEPLOYMENT_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
 
         with open(report_file, "w") as f:
             json.dump(results, f, indent=2)
 
         logger.info(f"📄 Deployment report saved: {report_file}")
+
 
 async def main():
     """Main deployment function"""
@@ -1154,6 +1148,7 @@ async def main():
     else:
         print("❌ Deployment failed. Check logs for details.")
         print(f"Error: {results.get('error', 'Unknown error')}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

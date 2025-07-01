@@ -80,6 +80,7 @@ class AuditEventType(Enum):
 
 class AuditLogLevel(Enum):
     """Audit log severity levels"""
+
     DEBUG = "DEBUG"
     INFO = "INFO"
     WARNING = "WARNING"
@@ -89,6 +90,7 @@ class AuditLogLevel(Enum):
 
 class SensitiveDataType(Enum):
     """Types of sensitive data for redaction"""
+
     API_KEY = "API_KEY"
     PASSWORD = "PASSWORD"
     PII = "PII"
@@ -131,7 +133,9 @@ class AuditLogger:
         self.log_level = log_level
         self.enable_console = enable_console
         self.enable_file = enable_file
-        self.file_path = file_path or os.path.join(os.getcwd(), "logs", f"{app_name}_audit.log")
+        self.file_path = file_path or os.path.join(
+            os.getcwd(), "logs", f"{app_name}_audit.log"
+        )
         self.enable_sentry = enable_sentry
         self.sentry_dsn = sentry_dsn
         self.redact_sensitive_data = redact_sensitive_data
@@ -227,14 +231,16 @@ class AuditLogger:
         if not hasattr(_thread_local, "context"):
             _thread_local.context = {}
 
-        _thread_local.context.update({
-            "user_id": user_id,
-            "session_id": session_id,
-            "request_id": request_id or str(uuid.uuid4()),
-            "ip_address": ip_address,
-            "user_agent": user_agent,
-            **(additional_context or {}),
-        })
+        _thread_local.context.update(
+            {
+                "user_id": user_id,
+                "session_id": session_id,
+                "request_id": request_id or str(uuid.uuid4()),
+                "ip_address": ip_address,
+                "user_agent": user_agent,
+                **(additional_context or {}),
+            }
+        )
 
     def clear_request_context(self):
         """Clear the request context for the current thread"""
@@ -263,10 +269,24 @@ class AuditLogger:
             result = {}
             for key, value in data.items():
                 # Check if key indicates sensitive data
-                if any(s in key.lower() for s in (
-                    "password", "secret", "token", "key", "auth", "credential", "ssn",
-                    "credit", "card", "cvv", "social", "security", "private"
-                )):
+                if any(
+                    s in key.lower()
+                    for s in (
+                        "password",
+                        "secret",
+                        "token",
+                        "key",
+                        "auth",
+                        "credential",
+                        "ssn",
+                        "credit",
+                        "card",
+                        "cvv",
+                        "social",
+                        "security",
+                        "private",
+                    )
+                ):
                     result[key] = "[REDACTED]"
                 else:
                     result[key] = self._redact_sensitive_data(value)
@@ -281,30 +301,24 @@ class AuditLogger:
 
             # API Keys and Tokens
             result = re.sub(
-                r'(api[_-]?key|token)[\"\':]?\s*[:=]\s*[\"\':]?([a-zA-Z0-9_\-\.]{20,})[\"\':]?',
-                r'\1=[REDACTED]',
-                result
+                r"(api[_-]?key|token)[\"\':]?\s*[:=]\s*[\"\':]?([a-zA-Z0-9_\-\.]{20,})[\"\':]?",
+                r"\1=[REDACTED]",
+                result,
             )
 
             # Credit Card Numbers
             result = re.sub(
-                r'\b(?:\d{4}[- ]?){3}\d{4}\b',
-                '[CREDIT_CARD_REDACTED]',
-                result
+                r"\b(?:\d{4}[- ]?){3}\d{4}\b", "[CREDIT_CARD_REDACTED]", result
             )
 
             # Social Security Numbers
-            result = re.sub(
-                r'\b\d{3}[-]?\d{2}[-]?\d{4}\b',
-                '[SSN_REDACTED]',
-                result
-            )
+            result = re.sub(r"\b\d{3}[-]?\d{2}[-]?\d{4}\b", "[SSN_REDACTED]", result)
 
             # Email addresses in specific contexts
             result = re.sub(
-                r'(email|e-mail|mail)[\"\':]?\s*[:=]\s*[\"\':]?([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)[\"\':]?',
-                r'\1=[EMAIL_REDACTED]',
-                result
+                r"(email|e-mail|mail)[\"\':]?\s*[:=]\s*[\"\':]?([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)[\"\':]?",
+                r"\1=[EMAIL_REDACTED]",
+                result,
             )
 
             return result
@@ -382,7 +396,10 @@ class AuditLogger:
         log_method(log_json)
 
         # Send to Sentry if enabled and level is appropriate
-        if self.enable_sentry and level in (AuditLogLevel.ERROR, AuditLogLevel.CRITICAL):
+        if self.enable_sentry and level in (
+            AuditLogLevel.ERROR,
+            AuditLogLevel.CRITICAL,
+        ):
             try:
                 import sentry_sdk
 
@@ -440,6 +457,7 @@ class AuditLogger:
         """Log an ERROR level audit event"""
         if exc_info:
             import traceback
+
             if details is None:
                 details = {}
             details["exception"] = traceback.format_exc()
@@ -456,6 +474,7 @@ class AuditLogger:
         """Log a CRITICAL level audit event"""
         if exc_info:
             import traceback
+
             if details is None:
                 details = {}
             details["exception"] = traceback.format_exc()
@@ -483,6 +502,7 @@ class AuditLogger:
         Returns:
             Decorated function
         """
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -492,7 +512,7 @@ class AuditLogger:
                 # Include arguments if requested
                 if include_args:
                     # Convert args to dict for better logging
-                    arg_names = func.__code__.co_varnames[:func.__code__.co_argcount]
+                    arg_names = func.__code__.co_varnames[: func.__code__.co_argcount]
                     details["args"] = dict(zip(arg_names, args, strict=False))
                     details["kwargs"] = kwargs
 
@@ -655,12 +675,18 @@ def configure_from_env():
     # Get configuration from environment variables
     app_name = os.environ.get("SOPHIA_AUDIT_APP_NAME", "sophia")
     log_level = os.environ.get("SOPHIA_AUDIT_LOG_LEVEL", "INFO")
-    enable_console = os.environ.get("SOPHIA_AUDIT_ENABLE_CONSOLE", "true").lower() == "true"
+    enable_console = (
+        os.environ.get("SOPHIA_AUDIT_ENABLE_CONSOLE", "true").lower() == "true"
+    )
     enable_file = os.environ.get("SOPHIA_AUDIT_ENABLE_FILE", "true").lower() == "true"
     file_path = os.environ.get("SOPHIA_AUDIT_FILE_PATH")
-    enable_sentry = os.environ.get("SOPHIA_AUDIT_ENABLE_SENTRY", "false").lower() == "true"
+    enable_sentry = (
+        os.environ.get("SOPHIA_AUDIT_ENABLE_SENTRY", "false").lower() == "true"
+    )
     sentry_dsn = os.environ.get("SOPHIA_AUDIT_SENTRY_DSN")
-    redact_sensitive_data = os.environ.get("SOPHIA_AUDIT_REDACT_SENSITIVE", "true").lower() == "true"
+    redact_sensitive_data = (
+        os.environ.get("SOPHIA_AUDIT_REDACT_SENSITIVE", "true").lower() == "true"
+    )
 
     # Create new audit logger with environment configuration
     global default_audit_logger
@@ -679,4 +705,3 @@ def configure_from_env():
 # Configure from environment if running as main module
 if __name__ == "__main__":
     configure_from_env()
-

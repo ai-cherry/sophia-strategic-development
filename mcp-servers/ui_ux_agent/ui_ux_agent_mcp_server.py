@@ -34,11 +34,14 @@ from backend.mcp_servers.base.standardized_mcp_server import (
 
 logger = logging.getLogger(__name__)
 
+
 class UIComponent:
     """Represents a UI component with metadata and analysis"""
 
     def __init__(self, name: str, component_type: str, framework: str):
-        self.component_id = hashlib.md5(f"{name}_{component_type}".encode()).hexdigest()[:8]
+        self.component_id = hashlib.md5(
+            f"{name}_{component_type}".encode()
+        ).hexdigest()[:8]
         self.name = name
         self.component_type = component_type
         self.framework = framework
@@ -63,8 +66,14 @@ class UIComponent:
             "last_updated": self.last_updated.isoformat(),
             "usage_count": self.usage_count,
             "feedback_score": self.feedback_score,
-            "overall_quality": (self.accessibility_score + self.performance_score + self.design_consistency_score) / 3
+            "overall_quality": (
+                self.accessibility_score
+                + self.performance_score
+                + self.design_consistency_score
+            )
+            / 3,
         }
+
 
 class DesignPattern:
     """Represents a design pattern with automation rules"""
@@ -84,8 +93,9 @@ class DesignPattern:
             "automation_rules": self.automation_rules,
             "usage_frequency": self.usage_frequency,
             "success_rate": self.success_rate,
-            "last_used": self.last_used.isoformat() if self.last_used else None
+            "last_used": self.last_used.isoformat() if self.last_used else None,
         }
+
 
 class UIUXAgentMCPServer(StandardizedMCPServer):
     """MCP server for UI/UX design automation and optimization"""
@@ -110,8 +120,8 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "auto_apply_backdrop_blur",
                     "auto_generate_gradient_background",
                     "auto_adjust_opacity_for_readability",
-                    "auto_add_subtle_shadows"
-                ]
+                    "auto_add_subtle_shadows",
+                ],
             ),
             "responsive_grid": DesignPattern(
                 "Responsive Grid",
@@ -120,8 +130,8 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "auto_breakpoint_generation",
                     "auto_column_adaptation",
                     "auto_spacing_optimization",
-                    "auto_mobile_stack_conversion"
-                ]
+                    "auto_mobile_stack_conversion",
+                ],
             ),
             "accessible_form": DesignPattern(
                 "Accessible Form",
@@ -131,8 +141,8 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "auto_aria_attributes",
                     "auto_error_message_linking",
                     "auto_keyboard_navigation",
-                    "auto_screen_reader_optimization"
-                ]
+                    "auto_screen_reader_optimization",
+                ],
             ),
             "progressive_disclosure": DesignPattern(
                 "Progressive Disclosure",
@@ -141,8 +151,8 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "auto_complexity_detection",
                     "auto_step_breakdown",
                     "auto_progress_indicator",
-                    "auto_save_state_management"
-                ]
+                    "auto_save_state_management",
+                ],
             ),
             "dark_mode_toggle": DesignPattern(
                 "Dark Mode Toggle",
@@ -151,9 +161,9 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "auto_color_palette_generation",
                     "auto_contrast_validation",
                     "auto_state_persistence",
-                    "auto_system_preference_detection"
-                ]
-            )
+                    "auto_system_preference_detection",
+                ],
+            ),
         }
 
         # Initialize automation rules for development workflow
@@ -166,10 +176,10 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "analyze_component_accessibility",
                     "check_design_consistency",
                     "validate_responsive_design",
-                    "update_component_library"
+                    "update_component_library",
                 ],
                 "priority": "high",
-                "auto_execute": True
+                "auto_execute": True,
             },
             {
                 "rule_id": "component_creation",
@@ -179,10 +189,10 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "apply_design_pattern",
                     "generate_documentation",
                     "create_storybook_story",
-                    "add_accessibility_tests"
+                    "add_accessibility_tests",
                 ],
                 "priority": "medium",
-                "auto_execute": True
+                "auto_execute": True,
             },
             {
                 "rule_id": "design_review",
@@ -192,10 +202,10 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "automated_visual_regression_test",
                     "accessibility_audit",
                     "performance_impact_analysis",
-                    "design_system_compliance_check"
+                    "design_system_compliance_check",
                 ],
                 "priority": "high",
-                "auto_execute": False  # Requires approval
+                "auto_execute": False,  # Requires approval
             },
             {
                 "rule_id": "user_feedback_integration",
@@ -205,11 +215,11 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                     "analyze_feedback_sentiment",
                     "identify_improvement_opportunities",
                     "suggest_component_modifications",
-                    "update_component_ratings"
+                    "update_component_ratings",
                 ],
                 "priority": "medium",
-                "auto_execute": True
-            }
+                "auto_execute": True,
+            },
         ]
 
         logger.info("✅ UI/UX Agent MCP Server initialized")
@@ -229,8 +239,8 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 "components_managed": len(self.components),
                 "design_patterns": len(self.design_patterns),
                 "automation_rules": len(self.automation_rules),
-                "average_component_quality": self._calculate_average_quality()
-            }
+                "average_component_quality": self._calculate_average_quality(),
+            },
         )
 
     async def check_external_api(self) -> bool:
@@ -246,7 +256,9 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 category="automation",
                 available=True,
                 version="1.0.0",
-                metadata={"frameworks_supported": ["React", "Vue", "Svelte", "Angular"]}
+                metadata={
+                    "frameworks_supported": ["React", "Vue", "Svelte", "Angular"]
+                },
             ),
             ServerCapability(
                 name="accessibility_analysis",
@@ -254,36 +266,36 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
                 category="quality_assurance",
                 available=True,
                 version="1.0.0",
-                metadata={"wcag_level": "AA", "auto_fix_enabled": True}
+                metadata={"wcag_level": "AA", "auto_fix_enabled": True},
             ),
             ServerCapability(
                 name="design_consistency",
                 description="Design system consistency enforcement",
                 category="quality_assurance",
                 available=True,
-                version="1.0.0"
+                version="1.0.0",
             ),
             ServerCapability(
                 name="performance_optimization",
                 description="UI performance analysis and optimization",
                 category="performance",
                 available=True,
-                version="1.0.0"
+                version="1.0.0",
             ),
             ServerCapability(
                 name="responsive_design",
                 description="Automated responsive design validation",
                 category="quality_assurance",
                 available=True,
-                version="1.0.0"
+                version="1.0.0",
             ),
             ServerCapability(
                 name="user_experience_analysis",
                 description="UX pattern analysis and improvement suggestions",
                 category="analytics",
                 available=True,
-                version="1.0.0"
-            )
+                version="1.0.0",
+            ),
         ]
 
     async def sync_data(self) -> dict[str, Any]:
@@ -291,7 +303,9 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
         # Update analytics
         total_components = len(self.components)
         avg_quality = self._calculate_average_quality()
-        pattern_usage = sum(pattern.usage_frequency for pattern in self.design_patterns.values())
+        pattern_usage = sum(
+            pattern.usage_frequency for pattern in self.design_patterns.values()
+        )
 
         self.analytics = {
             "total_components": total_components,
@@ -299,7 +313,7 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "design_pattern_usage": pattern_usage,
             "most_used_pattern": self._get_most_used_pattern(),
             "accessibility_compliance_rate": self._calculate_accessibility_compliance(),
-            "automation_success_rate": self._calculate_automation_success_rate()
+            "automation_success_rate": self._calculate_automation_success_rate(),
         }
 
         return {
@@ -307,30 +321,42 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "components_synced": total_components,
             "patterns_synced": len(self.design_patterns),
             "analytics": self.analytics,
-            "sync_time": datetime.now(UTC).isoformat()
+            "sync_time": datetime.now(UTC).isoformat(),
         }
 
-    async def process_with_ai(self, data: Any, model: ModelProvider | None = None) -> Any:
+    async def process_with_ai(
+        self, data: Any, model: ModelProvider | None = None
+    ) -> Any:
         """Process UI/UX data with AI for optimization suggestions"""
         if isinstance(data, dict):
             if "component_code" in data:
-                return await self.analyze_component(data["component_code"], data.get("component_type", "unknown"))
+                return await self.analyze_component(
+                    data["component_code"], data.get("component_type", "unknown")
+                )
             elif "design_request" in data:
                 return await self.generate_component_suggestion(data["design_request"])
             elif "accessibility_check" in data:
-                return await self.perform_accessibility_analysis(data["accessibility_check"])
+                return await self.perform_accessibility_analysis(
+                    data["accessibility_check"]
+                )
         return data
 
-    async def analyze_component(self, component_code: str, component_type: str) -> dict[str, Any]:
+    async def analyze_component(
+        self, component_code: str, component_type: str
+    ) -> dict[str, Any]:
         """Analyze a UI component for quality and improvements"""
         # Simulate component analysis
         component_name = f"Component_{len(self.components) + 1}"
         component = UIComponent(component_name, component_type, "React")
 
         # Simulate scoring (would use actual analysis in production)
-        component.accessibility_score = 85.0 + (len(component_code) % 15)  # Mock scoring
+        component.accessibility_score = 85.0 + (
+            len(component_code) % 15
+        )  # Mock scoring
         component.performance_score = 78.0 + (hash(component_code) % 20)  # Mock scoring
-        component.design_consistency_score = 92.0 + (len(component_name) % 8)  # Mock scoring
+        component.design_consistency_score = 92.0 + (
+            len(component_name) % 8
+        )  # Mock scoring
 
         self.components[component.component_id] = component
 
@@ -338,10 +364,12 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "component_id": component.component_id,
             "analysis": component.to_dict(),
             "recommendations": await self._generate_recommendations(component),
-            "auto_improvements": await self._suggest_auto_improvements(component)
+            "auto_improvements": await self._suggest_auto_improvements(component),
         }
 
-    async def generate_component_suggestion(self, design_request: str) -> dict[str, Any]:
+    async def generate_component_suggestion(
+        self, design_request: str
+    ) -> dict[str, Any]:
         """Generate component suggestions based on design request"""
         # Analyze request for pattern matching
         request_lower = design_request.lower()
@@ -357,10 +385,12 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             "recommended_framework": "React",  # Default recommendation
             "estimated_development_time": "2-4 hours",
             "complexity_score": len(suggested_patterns) * 2.5,
-            "generated_at": datetime.now(UTC).isoformat()
+            "generated_at": datetime.now(UTC).isoformat(),
         }
 
-    async def perform_accessibility_analysis(self, component_data: str) -> dict[str, Any]:
+    async def perform_accessibility_analysis(
+        self, component_data: str
+    ) -> dict[str, Any]:
         """Perform comprehensive accessibility analysis"""
         issues = []
         suggestions = []
@@ -382,11 +412,15 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
 
         return {
             "accessibility_score": compliance_score,
-            "wcag_compliance": "AA" if compliance_score >= 80 else "A" if compliance_score >= 60 else "Non-compliant",
+            "wcag_compliance": (
+                "AA"
+                if compliance_score >= 80
+                else "A" if compliance_score >= 60 else "Non-compliant"
+            ),
             "issues_found": issues,
             "improvement_suggestions": suggestions,
             "auto_fix_available": len(issues) > 0,
-            "analyzed_at": datetime.now(UTC).isoformat()
+            "analyzed_at": datetime.now(UTC).isoformat(),
         }
 
     async def _generate_recommendations(self, component: UIComponent) -> list[str]:
@@ -394,7 +428,9 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
         recommendations = []
 
         if component.accessibility_score < 90:
-            recommendations.append("Improve accessibility compliance with ARIA attributes")
+            recommendations.append(
+                "Improve accessibility compliance with ARIA attributes"
+            )
         if component.performance_score < 85:
             recommendations.append("Optimize component rendering performance")
         if component.design_consistency_score < 95:
@@ -402,25 +438,31 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
 
         return recommendations
 
-    async def _suggest_auto_improvements(self, component: UIComponent) -> list[dict[str, Any]]:
+    async def _suggest_auto_improvements(
+        self, component: UIComponent
+    ) -> list[dict[str, Any]]:
         """Suggest automated improvements"""
         improvements = []
 
         if component.accessibility_score < 90:
-            improvements.append({
-                "type": "accessibility",
-                "action": "auto_add_aria_labels",
-                "description": "Automatically add ARIA labels for screen readers",
-                "estimated_impact": "15-20% accessibility score improvement"
-            })
+            improvements.append(
+                {
+                    "type": "accessibility",
+                    "action": "auto_add_aria_labels",
+                    "description": "Automatically add ARIA labels for screen readers",
+                    "estimated_impact": "15-20% accessibility score improvement",
+                }
+            )
 
         if component.performance_score < 85:
-            improvements.append({
-                "type": "performance",
-                "action": "auto_memoization",
-                "description": "Add React.memo for performance optimization",
-                "estimated_impact": "10-15% render performance improvement"
-            })
+            improvements.append(
+                {
+                    "type": "performance",
+                    "action": "auto_memoization",
+                    "description": "Add React.memo for performance optimization",
+                    "estimated_impact": "10-15% render performance improvement",
+                }
+            )
 
         return improvements
 
@@ -430,7 +472,12 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
             return 0.0
 
         total_score = sum(
-            (comp.accessibility_score + comp.performance_score + comp.design_consistency_score) / 3
+            (
+                comp.accessibility_score
+                + comp.performance_score
+                + comp.design_consistency_score
+            )
+            / 3
             for comp in self.components.values()
         )
         return total_score / len(self.components)
@@ -457,6 +504,7 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
         # Mock calculation - would track actual automation success in production
         return 87.5
 
+
 # FastAPI route setup
 def setup_ui_ux_agent_routes(app, server: UIUXAgentMCPServer):
     """Setup UI/UX Agent routes"""
@@ -464,13 +512,18 @@ def setup_ui_ux_agent_routes(app, server: UIUXAgentMCPServer):
     @app.get("/ui-ux/components")
     async def get_components():
         return {
-            "components": {comp_id: comp.to_dict() for comp_id, comp in server.components.items()}
+            "components": {
+                comp_id: comp.to_dict() for comp_id, comp in server.components.items()
+            }
         }
 
     @app.get("/ui-ux/patterns")
     async def get_design_patterns():
         return {
-            "patterns": {name: pattern.to_dict() for name, pattern in server.design_patterns.items()}
+            "patterns": {
+                name: pattern.to_dict()
+                for name, pattern in server.design_patterns.items()
+            }
         }
 
     @app.post("/ui-ux/analyze")
@@ -502,6 +555,7 @@ def setup_ui_ux_agent_routes(app, server: UIUXAgentMCPServer):
     async def get_status():
         return {"status": "UI/UX Agent MCP Server operational", "port": 9002}
 
+
 async def main():
     """Main function to run the UI/UX Agent MCP Server"""
     config = MCPServerConfig(
@@ -511,7 +565,7 @@ async def main():
         enable_ai_processing=False,  # Disabled to avoid Snowflake connection issues
         enable_metrics=True,
         enable_webfetch=True,
-        enable_self_knowledge=True
+        enable_self_knowledge=True,
     )
 
     server = UIUXAgentMCPServer(config)
@@ -519,6 +573,7 @@ async def main():
 
     # Start the server
     await server.start()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

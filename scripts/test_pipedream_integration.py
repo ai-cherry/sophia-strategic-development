@@ -17,10 +17,10 @@ sys.path.append(str(Path(__file__).parent.parent / "backend"))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class PipedreamIntegrationTester:
     """Comprehensive Pipedream integration tester for migration workflows"""
@@ -30,7 +30,7 @@ class PipedreamIntegrationTester:
         self.test_results = {
             "timestamp": datetime.now().isoformat(),
             "tests": {},
-            "overall_status": "pending"
+            "overall_status": "pending",
         }
 
     def check_api_key(self) -> bool:
@@ -41,12 +41,20 @@ class PipedreamIntegrationTester:
 
             if not self.api_key:
                 logger.error("❌ PIPEDREAM_API_KEY not found in environment")
-                logger.info("💡 Please add PIPEDREAM_API_KEY to your environment variables")
-                logger.info("   You can get your API key from: https://pipedream.com/settings/account")
+                logger.info(
+                    "💡 Please add PIPEDREAM_API_KEY to your environment variables"
+                )
+                logger.info(
+                    "   You can get your API key from: https://pipedream.com/settings/account"
+                )
                 return False
 
             # Mask API key for logging
-            masked_key = f"{self.api_key[:8]}...{self.api_key[-4:]}" if len(self.api_key) > 12 else "***"
+            masked_key = (
+                f"{self.api_key[:8]}...{self.api_key[-4:]}"
+                if len(self.api_key) > 12
+                else "***"
+            )
             logger.info(f"🔑 Found Pipedream API key: {masked_key}")
             return True
 
@@ -63,7 +71,7 @@ class PipedreamIntegrationTester:
             if not self.check_api_key():
                 self.test_results["tests"][test_name] = {
                     "status": "failed",
-                    "error": "PIPEDREAM_API_KEY not found"
+                    "error": "PIPEDREAM_API_KEY not found",
                 }
                 return {"status": "failed", "error": "API key not configured"}
 
@@ -72,23 +80,20 @@ class PipedreamIntegrationTester:
                 logger.warning("⚠️  API key seems too short, please verify")
                 self.test_results["tests"][test_name] = {
                     "status": "warning",
-                    "message": "API key format unusual"
+                    "message": "API key format unusual",
                 }
                 return {"status": "warning", "message": "API key format unusual"}
 
             logger.info("✅ Configuration test passed")
             self.test_results["tests"][test_name] = {
                 "status": "success",
-                "api_key_configured": True
+                "api_key_configured": True,
             }
             return {"status": "success"}
 
         except Exception as e:
             logger.error(f"❌ Configuration test failed: {e}")
-            self.test_results["tests"][test_name] = {
-                "status": "error",
-                "error": str(e)
-            }
+            self.test_results["tests"][test_name] = {"status": "error", "error": str(e)}
             return {"status": "error", "error": str(e)}
 
     def test_migration_readiness(self) -> dict[str, Any]:
@@ -104,7 +109,7 @@ class PipedreamIntegrationTester:
                 "workflow_automation": True,  # Pipedream supports this
                 "salesforce_integration": True,  # Pipedream has Salesforce components
                 "hubspot_integration": True,  # Pipedream has HubSpot components
-                "intercom_integration": True  # Pipedream has Intercom components
+                "intercom_integration": True,  # Pipedream has Intercom components
             }
 
             ready_count = sum(requirements.values())
@@ -124,27 +129,26 @@ class PipedreamIntegrationTester:
                 logger.info(f"⚠️  Migration readiness: {readiness_score:.0f}% - PARTIAL")
             else:
                 status = "not_ready"
-                logger.info(f"❌ Migration readiness: {readiness_score:.0f}% - NOT READY")
+                logger.info(
+                    f"❌ Migration readiness: {readiness_score:.0f}% - NOT READY"
+                )
 
             self.test_results["tests"][test_name] = {
                 "status": "success",
                 "readiness_score": readiness_score,
                 "readiness_status": status,
-                "requirements": requirements
+                "requirements": requirements,
             }
 
             return {
                 "status": "success",
                 "readiness_score": readiness_score,
-                "readiness_status": status
+                "readiness_status": status,
             }
 
         except Exception as e:
             logger.error(f"❌ Migration readiness test failed: {e}")
-            self.test_results["tests"][test_name] = {
-                "status": "error",
-                "error": str(e)
-            }
+            self.test_results["tests"][test_name] = {"status": "error", "error": str(e)}
             return {"status": "error", "error": str(e)}
 
     def run_comprehensive_test(self) -> dict[str, Any]:
@@ -154,7 +158,7 @@ class PipedreamIntegrationTester:
         # Run tests
         tests = [
             ("Configuration", self.test_configuration),
-            ("Migration Readiness", self.test_migration_readiness)
+            ("Migration Readiness", self.test_migration_readiness),
         ]
 
         passed_tests = 0
@@ -171,7 +175,9 @@ class PipedreamIntegrationTester:
                     passed_tests += 1
                     logger.info(f"✅ {test_name}: PASSED")
                 else:
-                    logger.error(f"❌ {test_name}: FAILED - {result.get('error', 'Unknown error')}")
+                    logger.error(
+                        f"❌ {test_name}: FAILED - {result.get('error', 'Unknown error')}"
+                    )
 
             except Exception as e:
                 logger.error(f"❌ {test_name}: ERROR - {e}")
@@ -193,7 +199,7 @@ class PipedreamIntegrationTester:
         self.test_results["summary"] = {
             "passed_tests": passed_tests,
             "total_tests": total_tests,
-            "success_rate": success_rate
+            "success_rate": success_rate,
         }
 
         # Print summary
@@ -201,7 +207,9 @@ class PipedreamIntegrationTester:
         logger.info("📊 PIPEDREAM INTEGRATION TEST SUMMARY")
         logger.info(f"{'='*60}")
         logger.info(f"{status_emoji} Overall Status: {overall_status.upper()}")
-        logger.info(f"📈 Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)")
+        logger.info(
+            f"📈 Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests} tests passed)"
+        )
 
         # Next steps
         if overall_status == "success":
@@ -217,7 +225,9 @@ class PipedreamIntegrationTester:
         else:
             logger.info("\n❌ REQUIRED ACTIONS:")
             logger.info("   1. Configure PIPEDREAM_API_KEY environment variable")
-            logger.info("   2. Get API key from: https://pipedream.com/settings/account")
+            logger.info(
+                "   2. Get API key from: https://pipedream.com/settings/account"
+            )
             logger.info("   3. Run test again after configuration")
 
         return self.test_results

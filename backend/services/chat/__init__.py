@@ -23,14 +23,11 @@ __all__ = [
     "ExecutiveChatService",
     "UniversalChatService",
     "UnifiedChatService",
-
     # Managers
     "SessionManager",
     "ContextManager",
-
     # Providers
     "BaseProvider",
     "OpenAIProvider",
-    "PortkeyProvider"
+    "PortkeyProvider",
 ]
-

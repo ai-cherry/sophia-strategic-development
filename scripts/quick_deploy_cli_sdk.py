@@ -16,6 +16,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class QuickCLISDKDeployer:
     """Quick deployer for CLI/SDK enhancements"""
 
@@ -26,7 +27,7 @@ class QuickCLISDKDeployer:
             "apify_intelligence": 9015,
             "huggingface_ai": 9016,
             "weaviate_primary": 9017,
-            "arize_phoenix": 9018
+            "arize_phoenix": 9018,
         }
 
     async def quick_deploy(self):
@@ -36,7 +37,7 @@ class QuickCLISDKDeployer:
         results = {
             "deployed_servers": [],
             "failed_servers": [],
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Install requirements
@@ -59,7 +60,9 @@ class QuickCLISDKDeployer:
 
                 if success:
                     results["deployed_servers"].append(server_name)
-                    logger.info(f"✅ {server_name} deployed successfully on port {port}")
+                    logger.info(
+                        f"✅ {server_name} deployed successfully on port {port}"
+                    )
                 else:
                     results["failed_servers"].append(server_name)
                     logger.error(f"❌ Failed to deploy {server_name}")
@@ -83,7 +86,7 @@ class QuickCLISDKDeployer:
         requirements = [
             "pip install httpx aiohttp",
             "pip install transformers sentence-transformers",
-            "npm install -g n8n"
+            "npm install -g n8n",
         ]
 
         for req in requirements:
@@ -92,7 +95,9 @@ class QuickCLISDKDeployer:
             except Exception:
                 pass
 
-    async def _create_simple_server(self, server_name: str, port: int, server_dir: Path):
+    async def _create_simple_server(
+        self, server_name: str, port: int, server_dir: Path
+    ):
         """Create a simple MCP server"""
 
         server_content = f'''#!/usr/bin/env python3
@@ -189,18 +194,25 @@ if __name__ == "__main__":
 
         # Write server file
         server_file = server_dir / f"{server_name}_mcp_server.py"
-        with open(server_file, 'w') as f:
+        with open(server_file, "w") as f:
             f.write(server_content)
 
     async def _start_simple_server(self, server_name: str, port: int) -> bool:
         """Start a simple server"""
         try:
-            server_script = self.project_root / "mcp-servers" / server_name / f"{server_name}_mcp_server.py"
+            server_script = (
+                self.project_root
+                / "mcp-servers"
+                / server_name
+                / f"{server_name}_mcp_server.py"
+            )
 
             # Start server in background
-            process = subprocess.Popen([
-                sys.executable, str(server_script)
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(
+                [sys.executable, str(server_script)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
             # Wait for startup
             await asyncio.sleep(2)
@@ -221,11 +233,11 @@ if __name__ == "__main__":
             enhanced_config = {
                 "comment": "Quick deployed CLI/SDK enhanced servers",
                 "servers": self.servers,
-                "deployment_timestamp": datetime.now().isoformat()
+                "deployment_timestamp": datetime.now().isoformat(),
             }
 
             config_path = self.project_root / "config" / "quick_enhanced_mcp_ports.json"
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 json.dump(enhanced_config, f, indent=2)
 
             logger.info(f"✅ Configuration updated: {config_path}")
@@ -235,30 +247,34 @@ if __name__ == "__main__":
 
     def _print_results(self, results):
         """Print deployment results"""
-        print("\n" + "="*50)
+        print("\n" + "=" * 50)
         print("📊 QUICK DEPLOYMENT RESULTS")
-        print("="*50)
+        print("=" * 50)
 
         print(f"✅ Successfully deployed: {len(results['deployed_servers'])} servers")
-        for server in results['deployed_servers']:
+        for server in results["deployed_servers"]:
             port = self.servers[server]
             print(f"  - {server}: http://localhost:{port}/health")
 
-        if results['failed_servers']:
+        if results["failed_servers"]:
             print(f"\n❌ Failed deployments: {len(results['failed_servers'])} servers")
-            for server in results['failed_servers']:
+            for server in results["failed_servers"]:
                 print(f"  - {server}")
 
         print(f"\n🕐 Deployment completed: {results['timestamp']}")
 
-        if results['deployed_servers']:
+        if results["deployed_servers"]:
             print("\n🎯 Enhanced capabilities now available!")
-            print("  Test servers: python -c \"import asyncio, httpx; asyncio.run(httpx.get('http://localhost:9015/health'))\"")
+            print(
+                "  Test servers: python -c \"import asyncio, httpx; asyncio.run(httpx.get('http://localhost:9015/health'))\""
+            )
+
 
 # Main execution
 async def main():
     deployer = QuickCLISDKDeployer()
     await deployer.quick_deploy()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -20,8 +20,7 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class RemainingVulnerabilityFixer:
             "sql_injection": self._fix_remaining_sql_injection(),
             "command_injection": self._fix_remaining_command_injection(),
             "hardcoded_secrets": self._fix_remaining_hardcoded_secrets(),
-            "file_permissions": self._fix_file_permissions()
+            "file_permissions": self._fix_file_permissions(),
         }
 
         total_fixes = sum(results.values())
@@ -62,7 +61,7 @@ class RemainingVulnerabilityFixer:
             "scripts/cortex_ai/deploy_cortex_agents.py",
             "backend/mcp_servers/costar_mcp_server.py",
             "backend/utils/snowflake_cortex_service.py",
-            "backend/scripts/batch_embed_data.py"
+            "backend/scripts/batch_embed_data.py",
         ]
 
         for file_path_str in sql_files:
@@ -77,7 +76,7 @@ class RemainingVulnerabilityFixer:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -99,13 +98,15 @@ class RemainingVulnerabilityFixer:
             content = re.sub(fstring_pattern, fix_fstring, content)
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 fixes_in_file = content.count("# SECURITY FIX:")
                 fixes += fixes_in_file
                 self.files_modified.add(file_path)
-                logger.info(f"✅ Fixed {fixes_in_file} SQL injection issues in {file_path}")
+                logger.info(
+                    f"✅ Fixed {fixes_in_file} SQL injection issues in {file_path}"
+                )
 
         except Exception as e:
             error_msg = f"Error fixing SQL injection in {file_path}: {e}"
@@ -123,7 +124,7 @@ class RemainingVulnerabilityFixer:
             "scripts/start_cline_v3_18_servers.py",
             "tests/infrastructure/run_all_tests.py",
             "gemini-cli-integration/gemini_cli_provider.py",
-            "scripts/deploy_gong_webhook_service.py"
+            "scripts/deploy_gong_webhook_service.py",
         ]
 
         for file_path_str in cmd_files:
@@ -138,27 +139,29 @@ class RemainingVulnerabilityFixer:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             # Fix subprocess.run with shell=True
-            shell_true_pattern = r'subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)'
+            shell_true_pattern = (
+                r"subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)"
+            )
 
             def fix_shell_true(match):
                 command = match.group(1).strip()
                 other_args = match.group(2)
-                return f'subprocess.run(shlex.split({command}){other_args})  # SECURITY FIX: Removed shell=True'
+                return f"subprocess.run(shlex.split({command}){other_args})  # SECURITY FIX: Removed shell=True"
 
             content = re.sub(shell_true_pattern, fix_shell_true, content)
 
             # Fix os.system calls
-            os_system_pattern = r'os\.system\s*\(([^)]+)\)'
+            os_system_pattern = r"os\.system\s*\(([^)]+)\)"
 
             def fix_os_system(match):
                 command = match.group(1).strip()
-                return f'subprocess.run(shlex.split({command}), check=True)  # SECURITY FIX: Replaced os.system'
+                return f"subprocess.run(shlex.split({command}), check=True)  # SECURITY FIX: Replaced os.system"
 
             content = re.sub(os_system_pattern, fix_os_system, content)
 
@@ -170,13 +173,15 @@ class RemainingVulnerabilityFixer:
                 content = "import subprocess\n" + content
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 fixes_in_file = content.count("# SECURITY FIX:")
                 fixes += fixes_in_file
                 self.files_modified.add(file_path)
-                logger.info(f"✅ Fixed {fixes_in_file} command injection issues in {file_path}")
+                logger.info(
+                    f"✅ Fixed {fixes_in_file} command injection issues in {file_path}"
+                )
 
         except Exception as e:
             error_msg = f"Error fixing command injection in {file_path}: {e}"
@@ -193,7 +198,7 @@ class RemainingVulnerabilityFixer:
         secret_files = [
             "pulumi/esc/sophia-ai-production.yaml",
             "backend/services/enhanced_data_ingestion.py",
-            "backend/core/security_config.py"
+            "backend/core/security_config.py",
         ]
 
         # Secret patterns to replace
@@ -218,7 +223,7 @@ class RemainingVulnerabilityFixer:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -229,11 +234,15 @@ class RemainingVulnerabilityFixer:
                     fixes += 1
 
             # Add necessary imports for Python files
-            if file_path.suffix == '.py' and 'os.getenv' in content and 'import os' not in content:
+            if (
+                file_path.suffix == ".py"
+                and "os.getenv" in content
+                and "import os" not in content
+            ):
                 content = "import os\n" + content
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.files_modified.add(file_path)
@@ -255,7 +264,7 @@ class RemainingVulnerabilityFixer:
             "setup_enhanced_coding_workflow.py",
             "fix_github_pulumi_sync_permanently.py",
             "scripts/standardize_mcp_servers.py",
-            "scripts/security_fixes_examples.py"
+            "scripts/security_fixes_examples.py",
         ]
 
         for file_path_str in permission_files:
@@ -270,22 +279,26 @@ class RemainingVulnerabilityFixer:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             # Replace 0o755 with 0o644
-            permission_pattern = r'os\.chmod\s*\([^,]+,\s*0o755\s*\)'
+            permission_pattern = r"os\.chmod\s*\([^,]+,\s*0o755\s*\)"
+
             def replacement(m):
-                return m.group(0).replace('0o755', '0o644') + '  # SECURITY FIX: Reduced permissions'
+                return (
+                    m.group(0).replace("0o755", "0o644")
+                    + "  # SECURITY FIX: Reduced permissions"
+                )
 
             if re.search(permission_pattern, content):
                 content = re.sub(permission_pattern, replacement, content)
                 fixes += 1
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.files_modified.add(file_path)

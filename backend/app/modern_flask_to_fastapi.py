@@ -45,7 +45,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -58,8 +58,10 @@ logger = structlog.get_logger()
 # SETTINGS AND CONFIGURATION
 # ==============================================================================
 
+
 class Settings(BaseSettings):
     """Application settings with Pydantic v2"""
+
     app_name: str = "Sophia AI Platform"
     app_version: str = "3.0.0"
     environment: str = "production"
@@ -89,6 +91,7 @@ class Settings(BaseSettings):
         case_sensitive = False
         env_file = ".env"
 
+
 # Initialize settings
 settings = Settings()
 
@@ -97,11 +100,17 @@ settings = Settings()
 # ==============================================================================
 
 # Prometheus metrics
-REQUEST_COUNT = Counter('sophia_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-REQUEST_DURATION = Histogram('sophia_request_duration_seconds', 'Request duration')
-AI_REQUESTS = Counter('sophia_ai_requests_total', 'AI service requests', ['service', 'model'])
-CHAT_REQUESTS = Counter('sophia_chat_requests_total', 'Chat requests', ['mode', 'stream'])
-ERROR_COUNT = Counter('sophia_errors_total', 'Total errors', ['error_type', 'endpoint'])
+REQUEST_COUNT = Counter(
+    "sophia_requests_total", "Total requests", ["method", "endpoint", "status"]
+)
+REQUEST_DURATION = Histogram("sophia_request_duration_seconds", "Request duration")
+AI_REQUESTS = Counter(
+    "sophia_ai_requests_total", "AI service requests", ["service", "model"]
+)
+CHAT_REQUESTS = Counter(
+    "sophia_chat_requests_total", "Chat requests", ["mode", "stream"]
+)
+ERROR_COUNT = Counter("sophia_errors_total", "Total errors", ["error_type", "endpoint"])
 
 # Rate limiting
 limiter = Limiter(key_func=get_remote_address)
@@ -111,61 +120,93 @@ security = HTTPBearer(auto_error=False)
 # PYDANTIC V2 MODELS
 # ==============================================================================
 
+
 class ChatRequest(BaseModel):
     """Chat request model with validation"""
-    message: str = Field(..., min_length=1, max_length=10000, description="Chat message")
-    mode: str = Field(default="universal", pattern="^(universal|sophia|executive)$", description="Chat mode")
-    session_id: str = Field(default_factory=lambda: f"session_{uuid.uuid4()}", description="Session ID")
+
+    message: str = Field(
+        ..., min_length=1, max_length=10000, description="Chat message"
+    )
+    mode: str = Field(
+        default="universal",
+        pattern="^(universal|sophia|executive)$",
+        description="Chat mode",
+    )
+    session_id: str = Field(
+        default_factory=lambda: f"session_{uuid.uuid4()}", description="Session ID"
+    )
     stream: bool = Field(default=True, description="Enable streaming response")
     model: str = Field(default="gpt-4", description="AI model to use")
 
+
 class ChatResponse(BaseModel):
     """Chat response model"""
+
     response: str = Field(..., description="AI response")
     mode: str = Field(..., description="Chat mode used")
     session_id: str = Field(..., description="Session ID")
     timestamp: str = Field(..., description="Response timestamp")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
+
 
 class ChatStreamChunk(BaseModel):
     """Streaming chat chunk model"""
+
     content: str = Field(..., description="Chunk content")
     finished: bool = Field(default=False, description="Is this the final chunk")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Chunk metadata")
 
+
 class HealthResponse(BaseModel):
     """Health check response model"""
+
     status: str = Field(..., description="Service status")
     service: str = Field(..., description="Service name")
     version: str = Field(..., description="Service version")
     timestamp: str = Field(..., description="Health check timestamp")
-    services: dict[str, bool] = Field(default_factory=dict, description="Individual service health")
+    services: dict[str, bool] = Field(
+        default_factory=dict, description="Individual service health"
+    )
     uptime: str = Field(default="unknown", description="Service uptime")
+
 
 class DashboardMetrics(BaseModel):
     """Dashboard metrics response model"""
+
     revenue: dict[str, Any] = Field(..., description="Revenue metrics")
     agents: dict[str, Any] = Field(..., description="Agent metrics")
     success_rate: dict[str, Any] = Field(..., description="Success rate metrics")
     api_calls: dict[str, Any] = Field(..., description="API call metrics")
     timestamp: str = Field(..., description="Metrics timestamp")
 
+
 class ErrorResponse(BaseModel):
     """Error response model"""
+
     error: str = Field(..., description="Error type")
     message: str = Field(..., description="Error message")
     correlation_id: str | None = Field(None, description="Request correlation ID")
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Error timestamp")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat(),
+        description="Error timestamp",
+    )
+
 
 class MCPServiceHealth(BaseModel):
     """MCP service health model"""
+
     status: str = Field(..., description="Service status")
     service: str = Field(..., description="Service name")
-    capabilities: list[str] = Field(default_factory=list, description="Service capabilities")
+    capabilities: list[str] = Field(
+        default_factory=list, description="Service capabilities"
+    )
     timestamp: str = Field(..., description="Health check timestamp")
     version: str = Field(..., description="Service version")
     response_time: str = Field(default="unknown", description="Response time")
     uptime: str = Field(default="unknown", description="Service uptime")
+
 
 # ==============================================================================
 # SERVICE INITIALIZATION AND LIFESPAN
@@ -177,8 +218,9 @@ service_health = {
     "chat_service": True,
     "streaming_service": True,
     "ai_memory": True,
-    "business_intelligence": True
+    "business_intelligence": True,
 }
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -201,6 +243,7 @@ async def lifespan(app: FastAPI):
         await cleanup_services()
         logger.info("✅ Shutdown complete")
 
+
 async def initialize_services():
     """Initialize all application services"""
     # TODO: Initialize actual services
@@ -212,6 +255,7 @@ async def initialize_services():
     await asyncio.sleep(0.1)  # Simulate initialization
     logger.info("✅ Services initialized")
 
+
 async def cleanup_services():
     """Cleanup all application services"""
     # TODO: Cleanup actual services
@@ -221,9 +265,11 @@ async def cleanup_services():
     await asyncio.sleep(0.1)  # Simulate cleanup
     logger.info("✅ Services cleaned up")
 
+
 # ==============================================================================
 # APPLICATION FACTORY
 # ==============================================================================
+
 
 def create_application() -> FastAPI:
     """Create modern FastAPI application with 2025 best practices"""
@@ -253,7 +299,9 @@ def create_application() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai", "*.sophia-intel.ai"]
+        allowed_hosts=(
+            ["*"] if settings.debug else ["app.sophia-intel.ai", "*.sophia-intel.ai"]
+        ),
     )
     app.add_middleware(
         CORSMiddleware,
@@ -261,7 +309,7 @@ def create_application() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-        expose_headers=["X-Process-Time", "X-Correlation-ID", "X-Request-ID"]
+        expose_headers=["X-Process-Time", "X-Correlation-ID", "X-Request-ID"],
     )
 
     # Request tracking middleware
@@ -281,7 +329,7 @@ def create_application() -> FastAPI:
                 method=request.method,
                 path=request.url.path,
                 query_params=str(request.query_params),
-                user_agent=request.headers.get("User-Agent", "unknown")
+                user_agent=request.headers.get("User-Agent", "unknown"),
             )
 
             # Process request
@@ -294,7 +342,7 @@ def create_application() -> FastAPI:
             REQUEST_COUNT.labels(
                 method=request.method,
                 endpoint=request.url.path,
-                status=response.status_code
+                status=response.status_code,
             ).inc()
             REQUEST_DURATION.observe(duration)
 
@@ -309,7 +357,7 @@ def create_application() -> FastAPI:
                 method=request.method,
                 path=request.url.path,
                 status_code=response.status_code,
-                duration=duration
+                duration=duration,
             )
 
             return response
@@ -318,12 +366,11 @@ def create_application() -> FastAPI:
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         """Global exception handler with structured logging"""
-        correlation_id = getattr(request.state, 'correlation_id', 'unknown')
+        correlation_id = getattr(request.state, "correlation_id", "unknown")
 
         # Count error
         ERROR_COUNT.labels(
-            error_type=type(exc).__name__,
-            endpoint=request.url.path
+            error_type=type(exc).__name__, endpoint=request.url.path
         ).inc()
 
         # Log error with full context
@@ -334,7 +381,7 @@ def create_application() -> FastAPI:
             method=request.method,
             error_type=type(exc).__name__,
             error_message=str(exc),
-            exc_info=True
+            exc_info=True,
         )
 
         return JSONResponse(
@@ -342,15 +389,15 @@ def create_application() -> FastAPI:
             content=ErrorResponse(
                 error="Internal server error",
                 message="An unexpected error occurred. Please contact support with the correlation ID.",
-                correlation_id=correlation_id
-            ).model_dump()
+                correlation_id=correlation_id,
+            ).model_dump(),
         )
 
     # HTTP exception handler
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
         """Handle HTTP exceptions with proper logging"""
-        correlation_id = getattr(request.state, 'correlation_id', 'unknown')
+        correlation_id = getattr(request.state, "correlation_id", "unknown")
 
         logger.warning(
             "HTTP exception",
@@ -358,7 +405,7 @@ def create_application() -> FastAPI:
             path=request.url.path,
             method=request.method,
             status_code=exc.status_code,
-            detail=exc.detail
+            detail=exc.detail,
         )
 
         return JSONResponse(
@@ -366,11 +413,12 @@ def create_application() -> FastAPI:
             content=ErrorResponse(
                 error=f"HTTP {exc.status_code}",
                 message=exc.detail,
-                correlation_id=correlation_id
-            ).model_dump()
+                correlation_id=correlation_id,
+            ).model_dump(),
         )
 
     return app
+
 
 # Create application instance
 app = create_application()
@@ -379,7 +427,10 @@ app = create_application()
 # AUTHENTICATION AND SECURITY
 # ==============================================================================
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(security)):
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+):
     """Get current user from JWT token (optional for demo)"""
     if not credentials:
         # For demo purposes, return a default user
@@ -392,11 +443,17 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials | None = De
     # 3. Load user from database
     # 4. Check user permissions
 
-    return {"username": "authenticated_user", "is_active": True, "roles": ["user", "admin"]}
+    return {
+        "username": "authenticated_user",
+        "is_active": True,
+        "roles": ["user", "admin"],
+    }
+
 
 # ==============================================================================
 # SYSTEM ENDPOINTS
 # ==============================================================================
+
 
 @app.get("/", tags=["System"])
 async def root():
@@ -415,14 +472,19 @@ async def root():
             "📈 Comprehensive monitoring and metrics",
             "🚀 MCP (Model Context Protocol) integration",
             "🎯 Background task processing",
-            "🔄 Real-time data synchronization"
+            "🔄 Real-time data synchronization",
         ],
         "uptime": str(uptime),
-        "documentation": settings.docs_url if settings.debug else "Contact admin for API documentation",
+        "documentation": (
+            settings.docs_url
+            if settings.debug
+            else "Contact admin for API documentation"
+        ),
         "health": "/health",
         "metrics": "/metrics",
-        "api_prefix": settings.api_prefix
+        "api_prefix": settings.api_prefix,
     }
+
 
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health_check():
@@ -435,13 +497,15 @@ async def health_check():
         version=settings.app_version,
         timestamp=datetime.utcnow().isoformat(),
         services=service_health,
-        uptime=str(uptime)
+        uptime=str(uptime),
     )
+
 
 @app.get("/health/live", tags=["System"])
 async def liveness_check():
     """Kubernetes liveness probe"""
     return {"status": "alive", "timestamp": datetime.utcnow().isoformat()}
+
 
 @app.get("/health/ready", tags=["System"])
 async def readiness_check():
@@ -450,17 +514,20 @@ async def readiness_check():
     return {
         "status": "ready" if all_ready else "not_ready",
         "services": service_health,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 @app.get("/metrics", response_class=PlainTextResponse, tags=["System"])
 async def metrics():
     """Prometheus metrics endpoint"""
     return generate_latest()
 
+
 # ==============================================================================
 # CHAT ENDPOINTS (MIGRATED FROM FLASK WITH ENHANCEMENTS)
 # ==============================================================================
+
 
 @app.post(f"{settings.api_prefix}/chat", response_model=ChatResponse, tags=["AI Chat"])
 @limiter.limit(f"{settings.chat_rate_limit_per_minute}/minute")
@@ -468,7 +535,7 @@ async def unified_chat(
     request: Request,
     chat_request: ChatRequest,
     background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Enhanced unified chat endpoint with streaming support"""
 
@@ -481,7 +548,7 @@ async def unified_chat(
         mode=chat_request.mode,
         stream=chat_request.stream,
         model=chat_request.model,
-        session_id=chat_request.session_id
+        session_id=chat_request.session_id,
     )
 
     if chat_request.stream:
@@ -493,7 +560,7 @@ async def unified_chat(
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",  # Nginx optimization
-            }
+            },
         )
     else:
         # Generate complete response
@@ -507,19 +574,17 @@ async def unified_chat(
             metadata={
                 "model": chat_request.model,
                 "user": current_user.get("username"),
-                "processing_time": "simulated"
-            }
+                "processing_time": "simulated",
+            },
         )
 
         # Log chat interaction in background
         background_tasks.add_task(
-            log_chat_interaction,
-            chat_request,
-            response,
-            current_user
+            log_chat_interaction, chat_request, response, current_user
         )
 
         return response
+
 
 async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
     """Generate streaming chat response with SSE"""
@@ -531,7 +596,7 @@ async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
         "with advanced AI capabilities. ",
         "This response includes real-time streaming, ",
         "enterprise security, and comprehensive monitoring. ",
-        f"Session: {chat_request.session_id}"
+        f"Session: {chat_request.session_id}",
     ]
 
     for i, part in enumerate(response_parts):
@@ -541,8 +606,8 @@ async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
             metadata={
                 "chunk_id": i,
                 "model": chat_request.model,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
 
         yield f"data: {chunk.model_dump_json()}\n\n"
@@ -551,6 +616,7 @@ async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
     # Send completion signal
     yield "data: [DONE]\n\n"
 
+
 async def generate_chat_response(chat_request: ChatRequest, current_user: dict) -> str:
     """Generate complete chat response"""
 
@@ -558,7 +624,7 @@ async def generate_chat_response(chat_request: ChatRequest, current_user: dict) 
     response_templates = {
         "universal": f"Universal Chat Response: {chat_request.message}",
         "sophia": f"Sophia AI Enhanced Response: Analyzing '{chat_request.message}' with comprehensive business intelligence context, real-time data integration, and strategic insights.",
-        "executive": f"Executive Assistant Response: Providing strategic analysis for '{chat_request.message}' with market intelligence, competitive analysis, and actionable recommendations."
+        "executive": f"Executive Assistant Response: Providing strategic analysis for '{chat_request.message}' with market intelligence, competitive analysis, and actionable recommendations.",
     }
 
     # Simulate processing time
@@ -566,21 +632,22 @@ async def generate_chat_response(chat_request: ChatRequest, current_user: dict) 
 
     return response_templates.get(chat_request.mode, response_templates["universal"])
 
+
 # ==============================================================================
 # DASHBOARD ENDPOINTS (MIGRATED FROM FLASK WITH ENHANCEMENTS)
 # ==============================================================================
 
-@app.get(f"{settings.api_prefix}/dashboard/metrics", response_model=DashboardMetrics, tags=["Dashboard"])
+
+@app.get(
+    f"{settings.api_prefix}/dashboard/metrics",
+    response_model=DashboardMetrics,
+    tags=["Dashboard"],
+)
 @limiter.limit("30/minute")
-async def get_dashboard_metrics(
-    current_user: dict = Depends(get_current_user)
-):
+async def get_dashboard_metrics(current_user: dict = Depends(get_current_user)):
     """Enhanced dashboard KPI metrics with real-time data"""
 
-    logger.info(
-        "Dashboard metrics requested",
-        user=current_user.get("username")
-    )
+    logger.info("Dashboard metrics requested", user=current_user.get("username"))
 
     return DashboardMetrics(
         revenue={
@@ -588,37 +655,36 @@ async def get_dashboard_metrics(
             "change": 3.2,
             "trend": "up",
             "currency": "USD",
-            "period": "monthly"
+            "period": "monthly",
         },
         agents={
             "value": 48,
             "change": 5,
             "trend": "up",
             "active": 42,
-            "efficiency": 94.2
+            "efficiency": 94.2,
         },
         success_rate={
             "value": 94.2,
             "change": -0.5,
             "trend": "down",
             "target": 95.0,
-            "last_month": 94.7
+            "last_month": 94.7,
         },
         api_calls={
             "value": 1200000000,
             "change": 12,
             "trend": "up",
             "rate_per_minute": 847,
-            "errors": 0.3
+            "errors": 0.3,
         },
-        timestamp=datetime.utcnow().isoformat()
+        timestamp=datetime.utcnow().isoformat(),
     )
+
 
 @app.get(f"{settings.api_prefix}/dashboard/agno-metrics", tags=["Dashboard"])
 @limiter.limit("30/minute")
-async def get_agno_metrics(
-    current_user: dict = Depends(get_current_user)
-):
+async def get_agno_metrics(current_user: dict = Depends(get_current_user)):
     """Enhanced Agno performance metrics with detailed insights"""
 
     return {
@@ -632,14 +698,13 @@ async def get_agno_metrics(
         "cache_hit_ratio": "89.4%",
         "active_agents": 48,
         "queue_depth": 3,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 @app.get(f"{settings.api_prefix}/dashboard/cost-analysis", tags=["Dashboard"])
 @limiter.limit("30/minute")
-async def get_cost_analysis(
-    current_user: dict = Depends(get_current_user)
-):
+async def get_cost_analysis(current_user: dict = Depends(get_current_user)):
     """Enhanced LLM cost analysis with optimization insights"""
 
     return {
@@ -650,7 +715,7 @@ async def get_cost_analysis(
                 "usage": 45,
                 "efficiency": 8.7,
                 "models": ["gpt-4", "gpt-3.5-turbo"],
-                "optimization_potential": 12.5
+                "optimization_potential": 12.5,
             },
             {
                 "name": "Anthropic",
@@ -658,7 +723,7 @@ async def get_cost_analysis(
                 "usage": 30,
                 "efficiency": 9.2,
                 "models": ["claude-3-opus", "claude-3-sonnet"],
-                "optimization_potential": 8.3
+                "optimization_potential": 8.3,
             },
             {
                 "name": "Portkey",
@@ -666,8 +731,8 @@ async def get_cost_analysis(
                 "usage": 25,
                 "efficiency": 8.1,
                 "models": ["various"],
-                "optimization_potential": 15.7
-            }
+                "optimization_potential": 15.7,
+            },
         ],
         "total_cost": 2790,
         "trend": "decreasing",
@@ -678,37 +743,32 @@ async def get_cost_analysis(
         "recommendations": [
             "Consider model routing optimization",
             "Implement request caching",
-            "Use smaller models for simple queries"
+            "Use smaller models for simple queries",
         ],
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 # ==============================================================================
 # KNOWLEDGE MANAGEMENT ENDPOINTS (MIGRATED FROM FLASK WITH ENHANCEMENTS)
 # ==============================================================================
 
+
 @app.post(f"{settings.api_prefix}/knowledge/upload", tags=["Knowledge Management"])
 @limiter.limit("5/minute")
 async def upload_knowledge(
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge file upload with background processing and validation"""
 
     file_id = f"kb_{int(time.time())}_{uuid.uuid4().hex[:8]}"
 
     logger.info(
-        "Knowledge upload started",
-        file_id=file_id,
-        user=current_user.get("username")
+        "Knowledge upload started", file_id=file_id, user=current_user.get("username")
     )
 
     # Process file in background with comprehensive workflow
-    background_tasks.add_task(
-        process_knowledge_file,
-        file_id,
-        current_user
-    )
+    background_tasks.add_task(process_knowledge_file, file_id, current_user)
 
     return {
         "status": "accepted",
@@ -720,75 +780,58 @@ async def upload_knowledge(
             "Content extraction",
             "AI enhancement",
             "Vector embedding",
-            "Index integration"
+            "Index integration",
         ],
         "webhook_url": f"/api/v3/knowledge/status/{file_id}",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 @app.post(f"{settings.api_prefix}/knowledge/sync", tags=["Knowledge Management"])
 @limiter.limit("3/minute")
 async def sync_knowledge(
-    background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge source synchronization with progress tracking"""
 
     sync_id = f"sync_{int(time.time())}_{uuid.uuid4().hex[:8]}"
 
     logger.info(
-        "Knowledge sync started",
-        sync_id=sync_id,
-        user=current_user.get("username")
+        "Knowledge sync started", sync_id=sync_id, user=current_user.get("username")
     )
 
     # Start comprehensive sync in background
-    background_tasks.add_task(
-        sync_knowledge_sources,
-        sync_id,
-        current_user
-    )
+    background_tasks.add_task(sync_knowledge_sources, sync_id, current_user)
 
     return {
         "status": "started",
         "message": "Knowledge synchronization started",
         "sync_id": sync_id,
         "sources": [
-            {
-                "name": "confluence",
-                "type": "wiki",
-                "estimated_items": 1250
-            },
-            {
-                "name": "sharepoint",
-                "type": "documents",
-                "estimated_items": 890
-            },
-            {
-                "name": "gdrive",
-                "type": "files",
-                "estimated_items": 2340
-            },
-            {
-                "name": "notion",
-                "type": "pages",
-                "estimated_items": 567
-            }
+            {"name": "confluence", "type": "wiki", "estimated_items": 1250},
+            {"name": "sharepoint", "type": "documents", "estimated_items": 890},
+            {"name": "gdrive", "type": "files", "estimated_items": 2340},
+            {"name": "notion", "type": "pages", "estimated_items": 567},
         ],
         "estimated_completion": "15-30 minutes",
         "progress_url": f"/api/v3/knowledge/sync/status/{sync_id}",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 # ==============================================================================
 # MCP INTEGRATION ENDPOINTS (ENHANCED FROM FLASK)
 # ==============================================================================
 
-@app.get(f"{settings.api_prefix}/mcp/{{service_name}}/health", response_model=MCPServiceHealth, tags=["MCP Integration"])
+
+@app.get(
+    f"{settings.api_prefix}/mcp/{{service_name}}/health",
+    response_model=MCPServiceHealth,
+    tags=["MCP Integration"],
+)
 @limiter.limit("60/minute")
 async def mcp_service_health(
-    service_name: str,
-    current_user: dict = Depends(get_current_user)
+    service_name: str, current_user: dict = Depends(get_current_user)
 ):
     """Enhanced MCP service health check with detailed diagnostics"""
 
@@ -802,19 +845,18 @@ async def mcp_service_health(
             "enhanced_capability",
             "real_time_processing",
             "ai_integration",
-            "background_tasks"
+            "background_tasks",
         ],
         timestamp=datetime.utcnow().isoformat(),
         version="3.0.0",
         response_time="12ms",
-        uptime="99.97%"
+        uptime="99.97%",
     )
+
 
 @app.get(f"{settings.api_prefix}/mcp/system/health", tags=["MCP Integration"])
 @limiter.limit("60/minute")
-async def mcp_system_health(
-    current_user: dict = Depends(get_current_user)
-):
+async def mcp_system_health(current_user: dict = Depends(get_current_user)):
     """Enhanced MCP system health overview with comprehensive metrics"""
 
     return {
@@ -830,20 +872,27 @@ async def mcp_system_health(
         "uptime": "99.97%",
         "services": [
             {"name": "ai_memory", "status": "healthy", "response_time": "8ms"},
-            {"name": "business_intelligence", "status": "healthy", "response_time": "15ms"},
+            {
+                "name": "business_intelligence",
+                "status": "healthy",
+                "response_time": "15ms",
+            },
             {"name": "portkey_admin", "status": "healthy", "response_time": "10ms"},
             {"name": "snowflake_cortex", "status": "healthy", "response_time": "18ms"},
-            {"name": "enhanced_chat", "status": "healthy", "response_time": "12ms"}
-        ]
+            {"name": "enhanced_chat", "status": "healthy", "response_time": "12ms"},
+        ],
     }
 
-@app.post(f"{settings.api_prefix}/mcp/{{service_name}}/execute", tags=["MCP Integration"])
+
+@app.post(
+    f"{settings.api_prefix}/mcp/{{service_name}}/execute", tags=["MCP Integration"]
+)
 @limiter.limit("20/minute")
 async def execute_mcp_service(
     service_name: str,
     request_data: dict,
     background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
 ):
     """Execute MCP service operation with background processing"""
 
@@ -853,16 +902,12 @@ async def execute_mcp_service(
         "MCP service execution started",
         service_name=service_name,
         execution_id=execution_id,
-        user=current_user.get("username")
+        user=current_user.get("username"),
     )
 
     # Execute MCP service in background
     background_tasks.add_task(
-        execute_mcp_operation,
-        service_name,
-        request_data,
-        execution_id,
-        current_user
+        execute_mcp_operation, service_name, request_data, execution_id, current_user
     )
 
     return {
@@ -871,17 +916,17 @@ async def execute_mcp_service(
         "service": service_name,
         "estimated_completion": "30-60 seconds",
         "status_url": f"/api/v3/mcp/{service_name}/status/{execution_id}",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
 
 # ==============================================================================
 # BACKGROUND TASKS
 # ==============================================================================
 
+
 async def log_chat_interaction(
-    chat_request: ChatRequest,
-    chat_response: ChatResponse,
-    user: dict
+    chat_request: ChatRequest, chat_response: ChatResponse, user: dict
 ):
     """Log chat interaction for analytics"""
 
@@ -890,11 +935,12 @@ async def log_chat_interaction(
         session_id=chat_request.session_id,
         mode=chat_request.mode,
         user=user.get("username"),
-        response_length=len(chat_response.response)
+        response_length=len(chat_response.response),
     )
 
     # TODO: Store in database for analytics
     await asyncio.sleep(0.1)
+
 
 async def process_knowledge_file(file_id: str, user: dict):
     """Background task to process uploaded knowledge files"""
@@ -908,7 +954,7 @@ async def process_knowledge_file(file_id: str, user: dict):
             "Content extraction",
             "AI enhancement",
             "Vector embedding",
-            "Index integration"
+            "Index integration",
         ]
 
         for stage in stages:
@@ -919,6 +965,7 @@ async def process_knowledge_file(file_id: str, user: dict):
 
     except Exception as e:
         logger.error(f"Knowledge file {file_id} processing failed: {e}")
+
 
 async def sync_knowledge_sources(sync_id: str, user: dict):
     """Background task to sync knowledge sources"""
@@ -937,11 +984,9 @@ async def sync_knowledge_sources(sync_id: str, user: dict):
     except Exception as e:
         logger.error(f"Knowledge sync {sync_id} failed: {e}")
 
+
 async def execute_mcp_operation(
-    service_name: str,
-    request_data: dict,
-    execution_id: str,
-    user: dict
+    service_name: str, request_data: dict, execution_id: str, user: dict
 ):
     """Background task to execute MCP service operations"""
 
@@ -955,6 +1000,7 @@ async def execute_mcp_operation(
 
     except Exception as e:
         logger.error(f"MCP operation {execution_id} failed: {e}")
+
 
 # ==============================================================================
 # APPLICATION ENTRY POINT
@@ -974,5 +1020,5 @@ if __name__ == "__main__":
         workers=1 if settings.debug else 4,
         loop="uvloop" if not settings.debug else "asyncio",
         http="h11",
-        ws="websockets"
+        ws="websockets",
     )

@@ -53,8 +53,14 @@ class TestEnhancedLangGraphOrchestration:
     async def orchestrator(self):
         """Initialize orchestrator for testing"""
         # Mock the services to avoid actual connections
-        with patch('backend.workflows.enhanced_langgraph_orchestration.SnowflakeCortexService') as mock_cortex, \
-             patch('backend.workflows.enhanced_langgraph_orchestration.EnhancedAiMemoryMCPServer') as mock_memory:
+        with (
+            patch(
+                "backend.workflows.enhanced_langgraph_orchestration.SnowflakeCortexService"
+            ) as mock_cortex,
+            patch(
+                "backend.workflows.enhanced_langgraph_orchestration.EnhancedAiMemoryMCPServer"
+            ) as mock_memory,
+        ):
 
             mock_cortex_instance = AsyncMock()
             mock_cortex.return_value = mock_cortex_instance
@@ -68,24 +74,28 @@ class TestEnhancedLangGraphOrchestration:
     @pytest.mark.asyncio
     async def test_workflow_creation_from_natural_language(self, orchestrator):
         """Test creating workflows from natural language"""
-        user_request = "Create a workflow to analyze customer feedback and generate insights"
+        user_request = (
+            "Create a workflow to analyze customer feedback and generate insights"
+        )
         user_id = "test_user_123"
         session_id = "test_session_456"
 
         # Mock Cortex response
-        with patch.object(orchestrator.cortex_service, 'complete_text_with_cortex') as mock_cortex:
-            mock_cortex.return_value = json.dumps({
-                "type": "data_analysis",
-                "required_data_sources": ["customer_feedback"],
-                "processing_steps": ["sentiment_analysis", "topic_extraction"],
-                "human_approval_points": ["final_review"],
-                "expected_outputs": ["insights_report"]
-            })
+        with patch.object(
+            orchestrator.cortex_service, "complete_text_with_cortex"
+        ) as mock_cortex:
+            mock_cortex.return_value = json.dumps(
+                {
+                    "type": "data_analysis",
+                    "required_data_sources": ["customer_feedback"],
+                    "processing_steps": ["sentiment_analysis", "topic_extraction"],
+                    "human_approval_points": ["final_review"],
+                    "expected_outputs": ["insights_report"],
+                }
+            )
 
             workflow_id = await orchestrator.create_workflow_from_natural_language(
-                user_request=user_request,
-                user_id=user_id,
-                session_id=session_id
+                user_request=user_request, user_id=user_id, session_id=session_id
             )
 
             assert workflow_id is not None
@@ -109,7 +119,7 @@ class TestEnhancedLangGraphOrchestration:
             "user_id": "test_user",
             "parallel_results": {},
             "parallel_errors": {},
-            "node_timings": {}
+            "node_timings": {},
         }
 
         # Define parallel tasks
@@ -118,21 +128,21 @@ class TestEnhancedLangGraphOrchestration:
                 task_id="task_1",
                 task_name="Data Collection",
                 task_function="hubspot_data",
-                timeout_minutes=5
+                timeout_minutes=5,
             ),
             ParallelTask(
                 task_id="task_2",
                 task_name="Call Analysis",
                 task_function="gong_data",
-                timeout_minutes=5
-            )
+                timeout_minutes=5,
+            ),
         ]
 
         # Mock task execution
-        with patch.object(orchestrator, '_execute_single_task') as mock_execute:
+        with patch.object(orchestrator, "_execute_single_task") as mock_execute:
             mock_execute.side_effect = [
                 {"source": "hubspot", "data": "test_data_1"},
-                {"source": "gong", "data": "test_data_2"}
+                {"source": "gong", "data": "test_data_2"},
             ]
 
             result = await orchestrator.execute_parallel_tasks(workflow_id, tasks)
@@ -150,7 +160,7 @@ class TestEnhancedLangGraphOrchestration:
             "workflow_id": workflow_id,
             "user_id": "test_user",
             "status": WorkflowStatus.RUNNING,
-            "pending_checkpoints": []
+            "pending_checkpoints": [],
         }
 
         checkpoint = HumanCheckpoint(
@@ -159,14 +169,20 @@ class TestEnhancedLangGraphOrchestration:
             description="Please review the generated insights before proceeding",
             required_approval=True,
             timeout_minutes=30,
-            context_data={"analysis_results": "test_results"}
+            context_data={"analysis_results": "test_results"},
         )
 
         # Mock Cortex for prompt generation
-        with patch.object(orchestrator.cortex_service, 'complete_text_with_cortex') as mock_cortex:
-            mock_cortex.return_value = "Please review the analysis results and approve to continue."
+        with patch.object(
+            orchestrator.cortex_service, "complete_text_with_cortex"
+        ) as mock_cortex:
+            mock_cortex.return_value = (
+                "Please review the analysis results and approve to continue."
+            )
 
-            checkpoint_id = await orchestrator.create_human_checkpoint(workflow_id, checkpoint)
+            checkpoint_id = await orchestrator.create_human_checkpoint(
+                workflow_id, checkpoint
+            )
 
             assert checkpoint_id == checkpoint.checkpoint_id
             assert checkpoint_id in orchestrator.pending_approvals
@@ -189,25 +205,25 @@ class TestEnhancedLangGraphOrchestration:
                 HumanCheckpoint(
                     checkpoint_id=checkpoint_id,
                     title="Test Checkpoint",
-                    description="Test description"
+                    description="Test description",
                 )
             ],
             "checkpoint_responses": {},
-            "human_feedback": []
+            "human_feedback": [],
         }
 
         orchestrator.pending_approvals[checkpoint_id] = HumanCheckpoint(
             checkpoint_id=checkpoint_id,
             title="Test Checkpoint",
-            description="Test description"
+            description="Test description",
         )
 
         # Mock event processing
-        with patch.object(orchestrator, '_process_event'):
+        with patch.object(orchestrator, "_process_event"):
             approved = await orchestrator.handle_human_response(
                 checkpoint_id=checkpoint_id,
                 response={"approved": True, "feedback": "Looks good!"},
-                user_id="test_user"
+                user_id="test_user",
             )
 
             assert approved is True
@@ -230,7 +246,7 @@ class TestEnhancedLangGraphOrchestration:
             "failed_nodes": [],
             "pending_checkpoints": [],
             "execution_metrics": {"total_time": 1500},
-            "updated_at": datetime.now()
+            "updated_at": datetime.now(),
         }
 
         status = await orchestrator.get_workflow_status(workflow_id)
@@ -248,8 +264,14 @@ class TestUniversalChatService:
     @pytest.fixture
     async def chat_service(self):
         """Initialize chat service for testing"""
-        with patch('backend.services.sophia_universal_chat_service.SnowflakeCortexService') as mock_cortex, \
-             patch('backend.services.sophia_universal_chat_service.EnhancedAiMemoryMCPServer') as mock_memory:
+        with (
+            patch(
+                "backend.services.sophia_universal_chat_service.SnowflakeCortexService"
+            ) as mock_cortex,
+            patch(
+                "backend.services.sophia_universal_chat_service.EnhancedAiMemoryMCPServer"
+            ) as mock_memory,
+        ):
 
             mock_cortex_instance = AsyncMock()
             mock_cortex.return_value = mock_cortex_instance
@@ -269,16 +291,20 @@ class TestUniversalChatService:
             ("I approve the analysis", IntentType.APPROVE_CHECKPOINT),
             ("Create an AI agent for customer support", IntentType.CREATE_AGENT),
             ("Analyze our Q4 performance", IntentType.DATA_ANALYSIS),
-            ("How do workflows work?", IntentType.WORKFLOW_HELP)
+            ("How do workflows work?", IntentType.WORKFLOW_HELP),
         ]
 
         for message, expected_intent in test_cases:
-            with patch.object(chat_service.cortex_service, 'complete_text_with_cortex') as mock_cortex:
-                mock_cortex.return_value = json.dumps({
-                    "intent": expected_intent.value,
-                    "confidence": 0.9,
-                    "reasoning": "Test reasoning"
-                })
+            with patch.object(
+                chat_service.cortex_service, "complete_text_with_cortex"
+            ) as mock_cortex:
+                mock_cortex.return_value = json.dumps(
+                    {
+                        "intent": expected_intent.value,
+                        "confidence": 0.9,
+                        "reasoning": "Test reasoning",
+                    }
+                )
 
                 intent, confidence = await chat_service._recognize_intent(message, [])
 
@@ -293,20 +319,24 @@ class TestUniversalChatService:
         message = "Create a workflow to analyze customer feedback"
 
         # Mock orchestrator workflow creation
-        with patch.object(chat_service.orchestrator, 'create_workflow_from_natural_language') as mock_create, \
-             patch.object(chat_service.orchestrator, 'get_workflow_status') as mock_status:
+        with (
+            patch.object(
+                chat_service.orchestrator, "create_workflow_from_natural_language"
+            ) as mock_create,
+            patch.object(
+                chat_service.orchestrator, "get_workflow_status"
+            ) as mock_status,
+        ):
 
             mock_create.return_value = "workflow_123"
             mock_status.return_value = {
                 "status": "pending",
                 "current_node": "start",
-                "workflow_id": "workflow_123"
+                "workflow_id": "workflow_123",
             }
 
             response = await chat_service.process_message(
-                user_id=user_id,
-                session_id=session_id,
-                message_content=message
+                user_id=user_id, session_id=session_id, message_content=message
             )
 
             assert response.message_type == ChatMessageType.SYSTEM_MESSAGE
@@ -321,20 +351,28 @@ class TestUniversalChatService:
         session_id = "test_session"
 
         # Mock pending approvals
-        with patch.object(chat_service.orchestrator, 'get_pending_approvals') as mock_pending, \
-             patch.object(chat_service.orchestrator, 'handle_human_response') as mock_handle:
+        with (
+            patch.object(
+                chat_service.orchestrator, "get_pending_approvals"
+            ) as mock_pending,
+            patch.object(
+                chat_service.orchestrator, "handle_human_response"
+            ) as mock_handle,
+        ):
 
-            mock_pending.return_value = [{
-                "checkpoint_id": "checkpoint_123",
-                "title": "Review Analysis",
-                "description": "Please review the analysis results"
-            }]
+            mock_pending.return_value = [
+                {
+                    "checkpoint_id": "checkpoint_123",
+                    "title": "Review Analysis",
+                    "description": "Please review the analysis results",
+                }
+            ]
             mock_handle.return_value = True
 
             response = await chat_service.process_message(
                 user_id=user_id,
                 session_id=session_id,
-                message_content="I approve the analysis"
+                message_content="I approve the analysis",
             )
 
             assert response.message_type == ChatMessageType.SYSTEM_MESSAGE
@@ -348,9 +386,7 @@ class TestUniversalChatService:
 
         # Create session through message processing
         await chat_service.process_message(
-            user_id=user_id,
-            session_id=session_id,
-            message_content="Hello"
+            user_id=user_id, session_id=session_id, message_content="Hello"
         )
 
         assert session_id in chat_service.active_sessions
@@ -370,8 +406,14 @@ class TestCostEngineeringService:
     @pytest.fixture
     async def cost_service(self):
         """Initialize cost engineering service for testing"""
-        with patch('backend.services.cost_engineering_service.SnowflakeCortexService') as mock_cortex, \
-             patch('backend.services.cost_engineering_service.EnhancedAiMemoryMCPServer') as mock_memory:
+        with (
+            patch(
+                "backend.services.cost_engineering_service.SnowflakeCortexService"
+            ) as mock_cortex,
+            patch(
+                "backend.services.cost_engineering_service.EnhancedAiMemoryMCPServer"
+            ) as mock_memory,
+        ):
 
             mock_cortex_instance = AsyncMock()
             mock_cortex.return_value = mock_cortex_instance
@@ -388,8 +430,14 @@ class TestCostEngineeringService:
         test_cases = [
             ("What is 2+2?", TaskComplexity.SIMPLE),
             ("Analyze the sales performance for Q4", TaskComplexity.MODERATE),
-            ("Perform a comprehensive market analysis with competitive intelligence", TaskComplexity.COMPLEX),
-            ("Research advanced machine learning techniques for specialized domain", TaskComplexity.EXPERT)
+            (
+                "Perform a comprehensive market analysis with competitive intelligence",
+                TaskComplexity.COMPLEX,
+            ),
+            (
+                "Research advanced machine learning techniques for specialized domain",
+                TaskComplexity.EXPERT,
+            ),
         ]
 
         for prompt, expected_complexity in test_cases:
@@ -397,10 +445,12 @@ class TestCostEngineeringService:
                 request_id=str(uuid.uuid4()),
                 user_id="test_user",
                 task_type="analysis",
-                prompt=prompt
+                prompt=prompt,
             )
 
-            with patch.object(cost_service.cortex_service, 'complete_text_with_cortex') as mock_cortex:
+            with patch.object(
+                cost_service.cortex_service, "complete_text_with_cortex"
+            ) as mock_cortex:
                 mock_cortex.return_value = expected_complexity.value.upper()
 
                 complexity = await cost_service._analyze_task_complexity(task_request)
@@ -414,18 +464,22 @@ class TestCostEngineeringService:
             user_id="test_user",
             task_type="analysis",
             prompt="Analyze this data",
-            required_quality=0.8
+            required_quality=0.8,
         )
 
         # Test cost-first strategy
         cost_service.optimization_strategy = CostOptimizationStrategy.COST_FIRST
-        model = await cost_service._select_optimal_model(task_request, TaskComplexity.MODERATE)
+        model = await cost_service._select_optimal_model(
+            task_request, TaskComplexity.MODERATE
+        )
         model_config = cost_service.model_configs[model]
         assert model_config.tier in [ModelTier.SMALL, ModelTier.MEDIUM]
 
         # Test performance-first strategy
         cost_service.optimization_strategy = CostOptimizationStrategy.PERFORMANCE_FIRST
-        model = await cost_service._select_optimal_model(task_request, TaskComplexity.COMPLEX)
+        model = await cost_service._select_optimal_model(
+            task_request, TaskComplexity.COMPLEX
+        )
         model_config = cost_service.model_configs[model]
         assert model_config.tier in [ModelTier.LARGE, ModelTier.PREMIUM]
 
@@ -436,19 +490,11 @@ class TestCostEngineeringService:
 
         # Simulate task processing
         await cost_service._update_metrics(
-            user_id=user_id,
-            tokens_used=100,
-            cost=0.01,
-            latency_ms=500,
-            cache_hit=False
+            user_id=user_id, tokens_used=100, cost=0.01, latency_ms=500, cache_hit=False
         )
 
         await cost_service._update_metrics(
-            user_id=user_id,
-            tokens_used=0,
-            cost=0.0,
-            latency_ms=50,
-            cache_hit=True
+            user_id=user_id, tokens_used=0, cost=0.0, latency_ms=50, cache_hit=True
         )
 
         # Check metrics
@@ -468,9 +514,13 @@ class TestCostEngineeringService:
     @pytest.mark.asyncio
     async def test_prompt_optimization(self, cost_service):
         """Test prompt optimization for cost efficiency"""
-        long_prompt = "This is a very long prompt with lots of redundant information " * 20
+        long_prompt = (
+            "This is a very long prompt with lots of redundant information " * 20
+        )
 
-        with patch.object(cost_service.cortex_service, 'complete_text_with_cortex') as mock_cortex:
+        with patch.object(
+            cost_service.cortex_service, "complete_text_with_cortex"
+        ) as mock_cortex:
             mock_cortex.return_value = "Optimized shorter prompt with same intent"
 
             optimized = await cost_service._optimize_prompt(long_prompt, "mistral-7b")
@@ -485,12 +535,16 @@ class TestCostEngineeringService:
             request_id=str(uuid.uuid4()),
             user_id="test_user",
             task_type="analysis",
-            prompt="Analyze sales data"
+            prompt="Analyze sales data",
         )
 
         # Mock cache miss first
-        with patch.object(cost_service.cache_manager, 'get') as mock_get, \
-             patch.object(cost_service.ai_memory, 'search_similar_content') as mock_search:
+        with (
+            patch.object(cost_service.cache_manager, "get") as mock_get,
+            patch.object(
+                cost_service.ai_memory, "search_similar_content"
+            ) as mock_search,
+        ):
 
             mock_get.return_value = None
             mock_search.return_value = []
@@ -499,11 +553,13 @@ class TestCostEngineeringService:
             assert result is None
 
             # Mock cache hit
-            mock_search.return_value = [{
-                "response": "Cached analysis result",
-                "model_used": "mistral-7b",
-                "quality_score": 0.9
-            }]
+            mock_search.return_value = [
+                {
+                    "response": "Cached analysis result",
+                    "model_used": "mistral-7b",
+                    "quality_score": 0.9,
+                }
+            ]
 
             result = await cost_service._check_semantic_cache(task_request)
             assert result is not None
@@ -516,7 +572,9 @@ class TestEnhancedSnowflakeCortexService:
     @pytest.fixture
     async def cortex_service(self):
         """Initialize enhanced Cortex service for testing"""
-        with patch('backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect') as mock_connect:
+        with patch(
+            "backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect"
+        ) as mock_connect:
             mock_connection = MagicMock()
             mock_cursor = MagicMock()
             mock_connection.cursor.return_value = mock_cursor
@@ -529,9 +587,7 @@ class TestEnhancedSnowflakeCortexService:
     async def test_advanced_cortex_search(self, cortex_service):
         """Test advanced Cortex Search functionality"""
         search_config = CortexSearchConfig(
-            search_mode=CortexSearchMode.HYBRID,
-            max_results=5,
-            similarity_threshold=0.8
+            search_mode=CortexSearchMode.HYBRID, max_results=5, similarity_threshold=0.8
         )
 
         # Mock database results
@@ -539,16 +595,16 @@ class TestEnhancedSnowflakeCortexService:
             {
                 "content": "Test content 1",
                 "similarity_score": 0.9,
-                "metadata": {"source": "test"}
+                "metadata": {"source": "test"},
             },
             {
                 "content": "Test content 2",
                 "similarity_score": 0.85,
-                "metadata": {"source": "test"}
-            }
+                "metadata": {"source": "test"},
+            },
         ]
 
-        with patch.object(cortex_service, '_get_connection') as mock_conn:
+        with patch.object(cortex_service, "_get_connection") as mock_conn:
             mock_connection = AsyncMock()
             mock_cursor = MagicMock()
             mock_cursor.fetchall.return_value = mock_results
@@ -556,9 +612,7 @@ class TestEnhancedSnowflakeCortexService:
             mock_conn.return_value = mock_connection
 
             result = await cortex_service.advanced_cortex_search(
-                query="test query",
-                search_service="test_service",
-                config=search_config
+                query="test query", search_service="test_service", config=search_config
             )
 
             assert "results" in result
@@ -574,8 +628,11 @@ class TestEnhancedSnowflakeCortexService:
             source_tables=["source_table_1"],
             target_table="target_table",
             processing_mode=DataProcessingMode.BATCH,
-            ai_functions=[AIFunctionType.SENTIMENT_ANALYSIS, AIFunctionType.SUMMARIZATION],
-            batch_size=100
+            ai_functions=[
+                AIFunctionType.SENTIMENT_ANALYSIS,
+                AIFunctionType.SUMMARIZATION,
+            ],
+            batch_size=100,
         )
 
         execution_id = await cortex_service.create_data_pipeline(pipeline_config)
@@ -590,18 +647,22 @@ class TestEnhancedSnowflakeCortexService:
         test_row = {
             "id": 1,
             "content": "This is a great product! I love it.",
-            "customer_name": "John Doe"
+            "customer_name": "John Doe",
         }
 
         # Test sentiment analysis
-        with patch.object(cortex_service, '_get_connection') as mock_conn:
+        with patch.object(cortex_service, "_get_connection") as mock_conn:
             mock_connection = AsyncMock()
             mock_cursor = MagicMock()
-            mock_cursor.fetchone.return_value = ['{"sentiment": 0.8, "classification": "positive", "confidence": 0.9}']
+            mock_cursor.fetchone.return_value = [
+                '{"sentiment": 0.8, "classification": "positive", "confidence": 0.9}'
+            ]
             mock_connection.cursor.return_value = mock_cursor
             mock_conn.return_value = mock_connection
 
-            result = await cortex_service._apply_sentiment_analysis(test_row, "test_execution")
+            result = await cortex_service._apply_sentiment_analysis(
+                test_row, "test_execution"
+            )
 
             assert result.function_type == AIFunctionType.SENTIMENT_ANALYSIS
             assert "sentiment_score" in result.output_data
@@ -613,16 +674,31 @@ class TestEnhancedSnowflakeCortexService:
         mock_schema = [
             {"name": "id", "type": "NUMBER"},
             {"name": "content", "type": "VARCHAR"},
-            {"name": "created_at", "type": "TIMESTAMP"}
+            {"name": "created_at", "type": "TIMESTAMP"},
         ]
 
         mock_quality_stats = [
-            {"total_rows": 1000, "non_null_rows": 1000, "null_rows": 0, "null_percentage": 0.0},
-            {"total_rows": 1000, "non_null_rows": 950, "null_rows": 50, "null_percentage": 5.0},
-            {"total_rows": 1000, "non_null_rows": 1000, "null_rows": 0, "null_percentage": 0.0}
+            {
+                "total_rows": 1000,
+                "non_null_rows": 1000,
+                "null_rows": 0,
+                "null_percentage": 0.0,
+            },
+            {
+                "total_rows": 1000,
+                "non_null_rows": 950,
+                "null_rows": 50,
+                "null_percentage": 5.0,
+            },
+            {
+                "total_rows": 1000,
+                "non_null_rows": 1000,
+                "null_rows": 0,
+                "null_percentage": 0.0,
+            },
         ]
 
-        with patch.object(cortex_service, '_get_connection') as mock_conn:
+        with patch.object(cortex_service, "_get_connection") as mock_conn:
             mock_connection = AsyncMock()
             mock_cursor = MagicMock()
 
@@ -650,14 +726,14 @@ class TestEnhancedSnowflakeCortexService:
             source_tables=["source_table"],
             target_table="target_table",
             processing_mode=DataProcessingMode.BATCH,
-            ai_functions=[AIFunctionType.SENTIMENT_ANALYSIS]
+            ai_functions=[AIFunctionType.SENTIMENT_ANALYSIS],
         )
 
         # Set up pipeline
         cortex_service.active_pipelines[execution_id] = pipeline_config
         cortex_service.pipeline_results[execution_id] = [
             MagicMock(cost=0.01, quality_score=0.9, processing_time_ms=500),
-            MagicMock(cost=0.02, quality_score=0.85, processing_time_ms=600)
+            MagicMock(cost=0.02, quality_score=0.85, processing_time_ms=600),
         ]
 
         status = await cortex_service.get_pipeline_status(execution_id)
@@ -683,12 +759,24 @@ class TestEndToEndIntegration:
         # 5. Workflow completes with Cortex processing
 
         # Mock all services
-        with patch('backend.services.sophia_universal_chat_service.SnowflakeCortexService'), \
-             patch('backend.services.sophia_universal_chat_service.EnhancedAiMemoryMCPServer'), \
-             patch('backend.workflows.enhanced_langgraph_orchestration.SnowflakeCortexService'), \
-             patch('backend.workflows.enhanced_langgraph_orchestration.EnhancedAiMemoryMCPServer'), \
-             patch('backend.services.cost_engineering_service.SnowflakeCortexService'), \
-             patch('backend.services.cost_engineering_service.EnhancedAiMemoryMCPServer'):
+        with (
+            patch(
+                "backend.services.sophia_universal_chat_service.SnowflakeCortexService"
+            ),
+            patch(
+                "backend.services.sophia_universal_chat_service.EnhancedAiMemoryMCPServer"
+            ),
+            patch(
+                "backend.workflows.enhanced_langgraph_orchestration.SnowflakeCortexService"
+            ),
+            patch(
+                "backend.workflows.enhanced_langgraph_orchestration.EnhancedAiMemoryMCPServer"
+            ),
+            patch("backend.services.cost_engineering_service.SnowflakeCortexService"),
+            patch(
+                "backend.services.cost_engineering_service.EnhancedAiMemoryMCPServer"
+            ),
+        ):
 
             # Initialize services
             await universal_chat_service.initialize()
@@ -699,19 +787,23 @@ class TestEndToEndIntegration:
             session_id = "test_session"
 
             # Step 1: Create workflow via chat
-            with patch.object(enhanced_orchestrator.cortex_service, 'complete_text_with_cortex') as mock_cortex:
-                mock_cortex.return_value = json.dumps({
-                    "type": "data_analysis",
-                    "required_data_sources": ["sales_data"],
-                    "processing_steps": ["analysis"],
-                    "human_approval_points": ["review"],
-                    "expected_outputs": ["report"]
-                })
+            with patch.object(
+                enhanced_orchestrator.cortex_service, "complete_text_with_cortex"
+            ) as mock_cortex:
+                mock_cortex.return_value = json.dumps(
+                    {
+                        "type": "data_analysis",
+                        "required_data_sources": ["sales_data"],
+                        "processing_steps": ["analysis"],
+                        "human_approval_points": ["review"],
+                        "expected_outputs": ["report"],
+                    }
+                )
 
                 response = await universal_chat_service.process_message(
                     user_id=user_id,
                     session_id=session_id,
-                    message_content="Create a workflow to analyze our sales data"
+                    message_content="Create a workflow to analyze our sales data",
                 )
 
                 assert response.message_type == ChatMessageType.SYSTEM_MESSAGE
@@ -722,45 +814,63 @@ class TestEndToEndIntegration:
             checkpoint = HumanCheckpoint(
                 checkpoint_id=str(uuid.uuid4()),
                 title="Review Analysis",
-                description="Please review the analysis results"
+                description="Please review the analysis results",
             )
 
-            with patch.object(enhanced_orchestrator.cortex_service, 'complete_text_with_cortex') as mock_cortex:
-                mock_cortex.return_value = "Please review the analysis and approve to continue."
+            with patch.object(
+                enhanced_orchestrator.cortex_service, "complete_text_with_cortex"
+            ) as mock_cortex:
+                mock_cortex.return_value = (
+                    "Please review the analysis and approve to continue."
+                )
 
                 checkpoint_id = await enhanced_orchestrator.create_human_checkpoint(
                     workflow_id, checkpoint
                 )
 
             # Step 3: User approves via chat
-            with patch.object(enhanced_orchestrator, 'get_pending_approvals') as mock_pending, \
-                 patch.object(enhanced_orchestrator, 'handle_human_response') as mock_handle:
+            with (
+                patch.object(
+                    enhanced_orchestrator, "get_pending_approvals"
+                ) as mock_pending,
+                patch.object(
+                    enhanced_orchestrator, "handle_human_response"
+                ) as mock_handle,
+            ):
 
-                mock_pending.return_value = [{
-                    "checkpoint_id": checkpoint_id,
-                    "title": "Review Analysis",
-                    "description": "Please review the analysis results"
-                }]
+                mock_pending.return_value = [
+                    {
+                        "checkpoint_id": checkpoint_id,
+                        "title": "Review Analysis",
+                        "description": "Please review the analysis results",
+                    }
+                ]
                 mock_handle.return_value = True
 
                 approval_response = await universal_chat_service.process_message(
                     user_id=user_id,
                     session_id=session_id,
-                    message_content="I approve the analysis"
+                    message_content="I approve the analysis",
                 )
 
                 assert "✅ Approved!" in approval_response.content
 
             # Verify workflow state
-            workflow_status = await enhanced_orchestrator.get_workflow_status(workflow_id)
+            workflow_status = await enhanced_orchestrator.get_workflow_status(
+                workflow_id
+            )
             assert workflow_status["workflow_id"] == workflow_id
 
     @pytest.mark.asyncio
     async def test_cost_optimized_processing_pipeline(self):
         """Test cost-optimized processing with Cortex integration"""
         # Mock services
-        with patch('backend.services.cost_engineering_service.SnowflakeCortexService'), \
-             patch('backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect'):
+        with (
+            patch("backend.services.cost_engineering_service.SnowflakeCortexService"),
+            patch(
+                "backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect"
+            ),
+        ):
 
             await cost_engineering_service.initialize()
             await enhanced_cortex_service.initialize()
@@ -771,12 +881,16 @@ class TestEndToEndIntegration:
                 user_id="test_user",
                 task_type="sentiment_analysis",
                 prompt="Analyze the sentiment of customer feedback",
-                required_quality=0.8
+                required_quality=0.8,
             )
 
             # Mock cost service processing
-            with patch.object(cost_engineering_service, '_execute_task') as mock_execute, \
-                 patch.object(cost_engineering_service, '_assess_response_quality') as mock_quality:
+            with (
+                patch.object(cost_engineering_service, "_execute_task") as mock_execute,
+                patch.object(
+                    cost_engineering_service, "_assess_response_quality"
+                ) as mock_quality,
+            ):
 
                 mock_execute.return_value = ("Positive sentiment detected", 50)
                 mock_quality.return_value = 0.9
@@ -795,9 +909,15 @@ class TestEndToEndIntegration:
         # collected and aggregated across all Phase 2 services
 
         # Mock all services
-        with patch('backend.services.sophia_universal_chat_service.SnowflakeCortexService'), \
-             patch('backend.services.cost_engineering_service.SnowflakeCortexService'), \
-             patch('backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect'):
+        with (
+            patch(
+                "backend.services.sophia_universal_chat_service.SnowflakeCortexService"
+            ),
+            patch("backend.services.cost_engineering_service.SnowflakeCortexService"),
+            patch(
+                "backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect"
+            ),
+        ):
 
             await universal_chat_service.initialize()
             await cost_engineering_service.initialize()
@@ -810,7 +930,7 @@ class TestEndToEndIntegration:
             await universal_chat_service.process_message(
                 user_id=user_id,
                 session_id="test_session",
-                message_content="Test message"
+                message_content="Test message",
             )
 
             # Cost service metrics
@@ -819,7 +939,7 @@ class TestEndToEndIntegration:
                 tokens_used=100,
                 cost=0.01,
                 latency_ms=500,
-                cache_hit=False
+                cache_hit=False,
             )
 
             # Verify metrics are collected
@@ -842,4 +962,3 @@ def event_loop():
 if __name__ == "__main__":
     # Run tests
     pytest.main([__file__, "-v", "--asyncio-mode=auto"])
-

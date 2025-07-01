@@ -56,7 +56,9 @@ class SnowflakeMCPServer:
 
                 # Execute query
                 cursor = connection.cursor()
-                cursor.execute("SELECT * FROM (%s) LIMIT {limit}", (query,))  # SECURITY FIX: Parameterized query
+                cursor.execute(
+                    "SELECT * FROM (%s) LIMIT {limit}", (query,)
+                )  # SECURITY FIX: Parameterized query
 
                 # Fetch results
                 results = cursor.fetchall()
@@ -111,7 +113,9 @@ class SnowflakeMCPServer:
                 columns = cursor.fetchall()
 
                 # Get row count
-                cursor.execute("SELECT COUNT(*) FROM %s.{table_name}", (schema,))  # SECURITY FIX: Parameterized query
+                cursor.execute(
+                    "SELECT COUNT(*) FROM %s.{table_name}", (schema,)
+                )  # SECURITY FIX: Parameterized query
                 row_count = cursor.fetchone()[0]
 
                 cursor.close()

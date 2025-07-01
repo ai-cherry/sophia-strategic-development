@@ -25,8 +25,10 @@ from backend.services.mcp_orchestration_service import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class CLISDKEnhancement(BaseModel):
     """Configuration for CLI/SDK enhanced servers"""
+
     name: str
     cli_command: str | None = None
     sdk_package: str | None = None
@@ -35,6 +37,7 @@ class CLISDKEnhancement(BaseModel):
     capabilities: list[str] = []
     business_value: str = ""
     implementation_phase: str = "phase_1"
+
 
 class EnhancedMCPOrchestrationService(MCPOrchestrationService):
     """Enhanced MCP orchestration service with CLI/SDK integration"""
@@ -68,10 +71,14 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                         # This is an enhanced server configuration
                         self._register_enhanced_server(name, config)
 
-                logger.info(f"✅ Loaded enhanced configuration with {len(self.cli_sdk_enhancements)} CLI/SDK servers")
+                logger.info(
+                    f"✅ Loaded enhanced configuration with {len(self.cli_sdk_enhancements)} CLI/SDK servers"
+                )
 
             else:
-                logger.warning(f"Enhanced configuration not found: {self.enhanced_config_path}")
+                logger.warning(
+                    f"Enhanced configuration not found: {self.enhanced_config_path}"
+                )
 
         except Exception as e:
             logger.error(f"❌ Failed to load enhanced configuration: {e}")
@@ -85,7 +92,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 required_env_vars=self._get_required_env_vars(name),
                 capabilities=config.get("capabilities", []),
                 business_value=config.get("business_value", ""),
-                implementation_phase=config.get("implementation_phase", "phase_1")
+                implementation_phase=config.get("implementation_phase", "phase_1"),
             )
 
             # Create standard MCP server config
@@ -97,10 +104,10 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 env={
                     "ENVIRONMENT": "prod",
                     "PULUMI_ORG": "scoobyjava-org",
-                    "MCP_SERVER_PORT": str(config["port"])
+                    "MCP_SERVER_PORT": str(config["port"]),
                 },
                 capabilities=config.get("capabilities", []),
-                auto_start=True
+                auto_start=True,
             )
 
             # Add environment variables
@@ -111,7 +118,9 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             self.cli_sdk_enhancements[name] = enhancement
             self.servers[name] = server_config
 
-            logger.info(f"✅ Registered enhanced server: {name} (Port: {config['port']})")
+            logger.info(
+                f"✅ Registered enhanced server: {name} (Port: {config['port']})"
+            )
 
         except Exception as e:
             logger.error(f"❌ Failed to register enhanced server {name}: {e}")
@@ -123,7 +132,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             "huggingface_ai": ["HF_TOKEN"],
             "weaviate_primary": ["WEAVIATE_URL", "WEAVIATE_API_KEY"],
             "arize_phoenix": ["PHOENIX_API_KEY"],
-            "n8n_workflow_cli": ["N8N_URL", "N8N_USER", "N8N_PASSWORD"]
+            "n8n_workflow_cli": ["N8N_URL", "N8N_USER", "N8N_PASSWORD"],
         }
 
         return env_var_mapping.get(server_name, [])
@@ -136,7 +145,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             "phase_1_results": {},
             "phase_2_results": {},
             "overall_success": True,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Initialize Phase 1 servers first
@@ -164,10 +173,19 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
 
         # Summary
         total_servers = len(self.phase_1_servers) + len(self.phase_2_servers)
-        successful_servers = sum(1 for phase_results in [results["phase_1_results"], results["phase_2_results"]]
-                               for result in phase_results.values() if result["success"])
+        successful_servers = sum(
+            1
+            for phase_results in [
+                results["phase_1_results"],
+                results["phase_2_results"],
+            ]
+            for result in phase_results.values()
+            if result["success"]
+        )
 
-        logger.info(f"📊 Enhanced server initialization complete: {successful_servers}/{total_servers} successful")
+        logger.info(
+            f"📊 Enhanced server initialization complete: {successful_servers}/{total_servers} successful"
+        )
 
         return results
 
@@ -186,14 +204,18 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                     missing_env_vars.append(env_var)
 
             if missing_env_vars:
-                logger.warning(f"⚠️ Missing environment variables for {server_name}: {missing_env_vars}")
+                logger.warning(
+                    f"⚠️ Missing environment variables for {server_name}: {missing_env_vars}"
+                )
 
             # Attempt to start server
             start_result = await self._start_enhanced_server(server_name, server_config)
 
             if start_result["success"]:
                 # Verify server health
-                health_result = await self._check_enhanced_server_health(server_name, server_config.port)
+                health_result = await self._check_enhanced_server_health(
+                    server_name, server_config.port
+                )
 
                 return {
                     "success": health_result["healthy"],
@@ -203,7 +225,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                     "business_value": enhancement.business_value,
                     "health_status": health_result,
                     "missing_env_vars": missing_env_vars,
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 }
             else:
                 return {
@@ -211,7 +233,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                     "server_name": server_name,
                     "error": start_result.get("error", "Unknown error"),
                     "missing_env_vars": missing_env_vars,
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 }
 
         except Exception as e:
@@ -220,10 +242,12 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 "success": False,
                 "server_name": server_name,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def _start_enhanced_server(self, server_name: str, config: MCPServerConfig) -> dict[str, Any]:
+    async def _start_enhanced_server(
+        self, server_name: str, config: MCPServerConfig
+    ) -> dict[str, Any]:
         """Start an enhanced server with CLI/SDK capabilities"""
         try:
             # Use existing server starting logic from parent class
@@ -241,18 +265,16 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 "success": True,
                 "server_name": server_name,
                 "port": config.port,
-                "process_id": f"simulated_pid_{config.port}"
+                "process_id": f"simulated_pid_{config.port}",
             }
 
         except Exception as e:
             logger.error(f"❌ Failed to start {server_name}: {e}")
-            return {
-                "success": False,
-                "server_name": server_name,
-                "error": str(e)
-            }
+            return {"success": False, "server_name": server_name, "error": str(e)}
 
-    async def _check_enhanced_server_health(self, server_name: str, port: int) -> dict[str, Any]:
+    async def _check_enhanced_server_health(
+        self, server_name: str, port: int
+    ) -> dict[str, Any]:
         """Check health of an enhanced server"""
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
@@ -266,7 +288,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                         "port": port,
                         "response_time_ms": response.elapsed.total_seconds() * 1000,
                         "health_data": health_data,
-                        "timestamp": datetime.now().isoformat()
+                        "timestamp": datetime.now().isoformat(),
                     }
                 else:
                     return {
@@ -274,7 +296,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                         "server_name": server_name,
                         "port": port,
                         "error": f"HTTP {response.status_code}",
-                        "timestamp": datetime.now().isoformat()
+                        "timestamp": datetime.now().isoformat(),
                     }
 
         except Exception as e:
@@ -283,13 +305,12 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 "server_name": server_name,
                 "port": port,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
-    async def route_enhanced_request(self,
-                                   server_type: str,
-                                   request_data: dict[str, Any],
-                                   priority: str = "standard") -> dict[str, Any]:
+    async def route_enhanced_request(
+        self, server_type: str, request_data: dict[str, Any], priority: str = "standard"
+    ) -> dict[str, Any]:
         """Route request through enhanced MCP servers with CLI/SDK capabilities"""
 
         try:
@@ -305,19 +326,21 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                     "enhancement_info": {
                         "capabilities": enhancement.capabilities,
                         "business_value": enhancement.business_value,
-                        "implementation_phase": enhancement.implementation_phase
-                    }
+                        "implementation_phase": enhancement.implementation_phase,
+                    },
                 }
 
                 # Route through existing orchestration with enhancements
-                result = await super().route_request(server_type, enhanced_request, priority)
+                result = await super().route_request(
+                    server_type, enhanced_request, priority
+                )
 
                 # Add enhancement metadata to response
                 if "enhancement_applied" not in result:
                     result["enhancement_applied"] = {
                         "server": server_type,
                         "capabilities_used": enhancement.capabilities,
-                        "business_value": enhancement.business_value
+                        "business_value": enhancement.business_value,
                     }
 
                 return result
@@ -331,7 +354,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 "success": False,
                 "error": str(e),
                 "server_type": server_type,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     async def get_enhanced_server_status(self) -> dict[str, Any]:
@@ -342,7 +365,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             "phase_1_servers": [],
             "phase_2_servers": [],
             "overall_health": "unknown",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         healthy_servers = 0
@@ -352,14 +375,16 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
         for server_name, enhancement in self.cli_sdk_enhancements.items():
             if server_name in self.servers:
                 server_config = self.servers[server_name]
-                health_result = await self._check_enhanced_server_health(server_name, server_config.port)
+                health_result = await self._check_enhanced_server_health(
+                    server_name, server_config.port
+                )
 
                 status["enhanced_servers"][server_name] = {
                     "health": health_result,
                     "capabilities": enhancement.capabilities,
                     "business_value": enhancement.business_value,
                     "implementation_phase": enhancement.implementation_phase,
-                    "port": server_config.port
+                    "port": server_config.port,
                 }
 
                 if health_result["healthy"]:
@@ -382,7 +407,11 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
         status["health_summary"] = {
             "healthy_servers": healthy_servers,
             "total_enhanced_servers": total_enhanced_servers,
-            "health_percentage": (healthy_servers / total_enhanced_servers * 100) if total_enhanced_servers > 0 else 0
+            "health_percentage": (
+                (healthy_servers / total_enhanced_servers * 100)
+                if total_enhanced_servers > 0
+                else 0
+            ),
         }
 
         return status
@@ -395,7 +424,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             "missing_requirements": {},
             "installation_commands": {},
             "overall_ready": True,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         for server_name, enhancement in self.cli_sdk_enhancements.items():
@@ -403,7 +432,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
                 "env_vars_present": [],
                 "env_vars_missing": [],
                 "cli_available": False,
-                "sdk_available": False
+                "sdk_available": False,
             }
 
             # Check environment variables
@@ -426,8 +455,12 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             validation_results["requirements_met"][server_name] = server_validation
 
             # Generate installation commands if needed
-            if server_validation["env_vars_missing"] or not server_validation.get("cli_available", True):
-                validation_results["installation_commands"][server_name] = self._generate_installation_commands(server_name, enhancement)
+            if server_validation["env_vars_missing"] or not server_validation.get(
+                "cli_available", True
+            ):
+                validation_results["installation_commands"][server_name] = (
+                    self._generate_installation_commands(server_name, enhancement)
+                )
 
         return validation_results
 
@@ -435,9 +468,10 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
         """Check if a CLI command is available"""
         try:
             process = await asyncio.create_subprocess_exec(
-                "which", cli_command,
+                "which",
+                cli_command,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
             await process.wait()
@@ -446,7 +480,9 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
         except Exception:
             return False
 
-    def _generate_installation_commands(self, server_name: str, enhancement: CLISDKEnhancement) -> list[str]:
+    def _generate_installation_commands(
+        self, server_name: str, enhancement: CLISDKEnhancement
+    ) -> list[str]:
         """Generate installation commands for a server's requirements"""
         commands = []
 
@@ -454,9 +490,12 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
         cli_installations = {
             "apify_intelligence": ["npm install -g apify-cli"],
             "huggingface_ai": ["pip install transformers sentence-transformers"],
-            "weaviate_primary": ["brew install weaviate-cli", "pip install weaviate-client"],
+            "weaviate_primary": [
+                "brew install weaviate-cli",
+                "pip install weaviate-client",
+            ],
             "arize_phoenix": ["pip install arize-phoenix"],
-            "n8n_workflow_cli": ["npm install -g n8n"]
+            "n8n_workflow_cli": ["npm install -g n8n"],
         }
 
         if server_name in cli_installations:
@@ -464,9 +503,12 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
 
         # Environment variable setup
         if enhancement.required_env_vars:
-            commands.append(f"# Set environment variables: {', '.join(enhancement.required_env_vars)}")
+            commands.append(
+                f"# Set environment variables: {', '.join(enhancement.required_env_vars)}"
+            )
 
         return commands
+
 
 # Convenience functions for integration
 async def initialize_enhanced_mcp_system() -> dict[str, Any]:
@@ -483,7 +525,7 @@ async def initialize_enhanced_mcp_system() -> dict[str, Any]:
         return {
             "success": False,
             "error": "Requirements validation failed",
-            "validation_results": validation
+            "validation_results": validation,
         }
 
     # Initialize enhanced servers
@@ -493,13 +535,15 @@ async def initialize_enhanced_mcp_system() -> dict[str, Any]:
         "success": initialization_results["overall_success"],
         "initialization_results": initialization_results,
         "validation_results": validation,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
+
 
 async def get_enhanced_system_status() -> dict[str, Any]:
     """Get comprehensive status of enhanced MCP system"""
     orchestrator = EnhancedMCPOrchestrationService()
     return await orchestrator.get_enhanced_server_status()
+
 
 # Main execution for testing
 async def main():
@@ -512,6 +556,7 @@ async def main():
     # Get status
     status_result = await get_enhanced_system_status()
     print(f"System status: {json.dumps(status_result, indent=2)}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

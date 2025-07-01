@@ -28,7 +28,7 @@ class CortexAIDeployer:
 
     def _validate_agent_name(self, agent_name: str) -> str:
         """Validate agent name to prevent SQL injection"""
-        if not re.match(r'^[A-Z_][A-Z0-9_]*$', agent_name):
+        if not re.match(r"^[A-Z_][A-Z0-9_]*$", agent_name):
             raise ValueError(f"Invalid agent name: {agent_name}")
         return agent_name
 
@@ -57,7 +57,7 @@ class CortexAIDeployer:
         for agent in agents:
             try:
                 # SECURITY FIX: Use validated agent name and parameterized query
-                agent_name = self._validate_agent_name(agent['name'])
+                agent_name = self._validate_agent_name(agent["name"])
                 cursor.execute(
                     """
                     CREATE OR REPLACE CORTEX AGENT %s
@@ -67,7 +67,7 @@ class CortexAIDeployer:
                     DATABASE = 'SOPHIA_AI_ADVANCED'
                     SCHEMA = 'PROCESSED_AI'
                 """,
-                    (agent_name, agent['description'], str(agent['tools']))
+                    (agent_name, agent["description"], str(agent["tools"])),
                 )
                 logger.info(f"✅ Deployed {agent['name']}")
             except Exception as e:

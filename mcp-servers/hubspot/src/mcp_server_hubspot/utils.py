@@ -101,7 +101,9 @@ def search_in_faiss(
 
         # Format results
         results = []
-        for i, (metadata, distance) in enumerate(zip(metadata_list, distances, strict=False)):
+        for i, (metadata, distance) in enumerate(
+            zip(metadata_list, distances, strict=False)
+        ):
             results.append(
                 {
                     "rank": i + 1,

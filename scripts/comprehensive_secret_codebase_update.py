@@ -11,8 +11,11 @@ from datetime import datetime
 from pathlib import Path
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class SecretCodebaseUpdater:
     def __init__(self):
@@ -26,7 +29,7 @@ class SecretCodebaseUpdater:
             "fallback_keys_removed": 0,
             "placeholders_removed": 0,
             "imports_added": 0,
-            "hardcoded_secrets_found": 0
+            "hardcoded_secrets_found": 0,
         }
 
         # Secret name mappings (GitHub Org Secret → ESC key path)
@@ -36,7 +39,6 @@ class SecretCodebaseUpdater:
             "ANTHROPIC_API_KEY": "anthropic_api_key",
             "PORTKEY_API_KEY": "portkey_api_key",
             "OPENROUTER_API_KEY": "openrouter_api_key",
-
             # Business Intelligence
             "HUBSPOT_ACCESS_TOKEN": "hubspot_access_token",
             "GONG_ACCESS_KEY": "gong_access_key",
@@ -44,47 +46,42 @@ class SecretCodebaseUpdater:
             "LINEAR_API_KEY": "linear_api_key",
             "ASANA_API_TOKEN": "asana_access_token",
             "ASANA_ACCESS_TOKEN": "asana_access_token",
-
             # Communication
             "SLACK_BOT_TOKEN": "slack_bot_token",
             "SLACK_APP_TOKEN": "slack_app_token",
             "SLACK_USER_TOKEN": "slack_user_token",
-
             # Data Infrastructure
             "SNOWFLAKE_PASSWORD": "snowflake_password",
             "PINECONE_API_KEY": "pinecone_api_key",
             "WEAVIATE_API_KEY": "weaviate_api_key",
-
             # Development
             "GITHUB_TOKEN": "github_token",
             "GH_API_TOKEN": "github_token",
             "FIGMA_PAT": "figma_pat",
             "NOTION_API_KEY": "notion_api_token",
             "NOTION_API_TOKEN": "notion_api_token",
-
             # Cloud Infrastructure
             "LAMBDA_API_KEY": "lambda_api_key",
             "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
             "VERCEL_ACCESS_TOKEN": "vercel_access_token",
-
             # Other Services
             "HF_TOKEN": "huggingface_token",
-            "APIFY_API_TOKEN": "apify_api_token"
+            "APIFY_API_TOKEN": "apify_api_token",
         }
 
         # Patterns to detect and fix
         self.patterns_to_fix = [
             # Direct os.getenv() patterns
-            (r'os\.getenv\(["\']([A-Z_]+)["\'](?:,\s*["\'][^"\']*["\'])?\)', self._replace_os_getenv),
-
+            (
+                r'os\.getenv\(["\']([A-Z_]+)["\'](?:,\s*["\'][^"\']*["\'])?\)',
+                self._replace_os_getenv,
+            ),
             # Direct os.environ[] patterns
             (r'os\.environ\[["\']([A-Z_]+)["\']\]', self._replace_os_environ),
-
             # Fallback key patterns
             (r'["\']fallback-key["\']', '""'),
             (r'["\']sk-development-key-fallback["\']', '""'),
             (r'["\']dev-[^"\']*-key["\']', '""'),
-
             # Placeholder patterns
             (r'["\']PLACEHOLDER_[^"\']*["\']', '""'),
             (r'["\']your_[^"\']*_here["\']', '""'),
@@ -100,7 +97,7 @@ class SecretCodebaseUpdater:
             ".env",
             "requirements.txt",
             "package.json",
-            "package-lock.json"
+            "package-lock.json",
         }
 
     def _should_exclude_file(self, file_path: Path) -> bool:
@@ -145,16 +142,18 @@ class SecretCodebaseUpdater:
             return content
 
         # Add import at the top after other imports
-        lines = content.split('\n')
+        lines = content.split("\n")
         import_inserted = False
 
         for i, line in enumerate(lines):
             # Insert after the last import or at the beginning
-            if (line.strip() and
-                not line.startswith('#') and
-                not line.startswith('"""') and
-                not line.startswith("'''") and
-                'import' not in line):
+            if (
+                line.strip()
+                and not line.startswith("#")
+                and not line.startswith('"""')
+                and not line.startswith("'''")
+                and "import" not in line
+            ):
                 lines.insert(i, import_line)
                 import_inserted = True
                 self.statistics["imports_added"] += 1
@@ -165,17 +164,17 @@ class SecretCodebaseUpdater:
             lines.insert(0, import_line)
             self.statistics["imports_added"] += 1
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _detect_hardcoded_secrets(self, content: str, file_path: Path) -> list[str]:
         """Detect potentially hardcoded secrets"""
         hardcoded_patterns = [
-            r'sk-[a-zA-Z0-9]{20,}',  # OpenAI API keys
-            r'pk-[a-zA-Z0-9]{20,}',  # Pinecone API keys
-            r'xoxb-[a-zA-Z0-9-]+',   # Slack bot tokens
-            r'xapp-[a-zA-Z0-9-]+',   # Slack app tokens
-            r'ghp_[a-zA-Z0-9]{36}',  # GitHub personal access tokens
-            r'pat-[a-zA-Z0-9]{40}',  # Figma personal access tokens
+            r"sk-[a-zA-Z0-9]{20,}",  # OpenAI API keys
+            r"pk-[a-zA-Z0-9]{20,}",  # Pinecone API keys
+            r"xoxb-[a-zA-Z0-9-]+",  # Slack bot tokens
+            r"xapp-[a-zA-Z0-9-]+",  # Slack app tokens
+            r"ghp_[a-zA-Z0-9]{36}",  # GitHub personal access tokens
+            r"pat-[a-zA-Z0-9]{40}",  # Figma personal access tokens
         ]
 
         found_secrets = []
@@ -186,14 +185,16 @@ class SecretCodebaseUpdater:
                 self.statistics["hardcoded_secrets_found"] += len(matches)
 
         if found_secrets:
-            self.issues_found.append(f"Hardcoded secrets in {file_path}: {found_secrets}")
+            self.issues_found.append(
+                f"Hardcoded secrets in {file_path}: {found_secrets}"
+            )
 
         return found_secrets
 
     def update_file(self, file_path: Path) -> bool:
         """Update a single file with secret management fixes"""
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 original_content = f.read()
 
             updated_content = original_content
@@ -223,7 +224,7 @@ class SecretCodebaseUpdater:
 
             # Write back if changed
             if file_changed:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(updated_content)
 
                 self.updated_files.append(str(file_path))
@@ -261,7 +262,7 @@ class SecretCodebaseUpdater:
                     self.statistics["files_scanned"] += 1
                     # Just scan for hardcoded secrets, don't update
                     try:
-                        with open(file_path, encoding='utf-8') as f:
+                        with open(file_path, encoding="utf-8") as f:
                             content = f.read()
                         self._detect_hardcoded_secrets(content, file_path)
                     except Exception:
@@ -344,7 +345,7 @@ The following environment variables were mapped to centralized config:
         # Generate and save report
         report = self.generate_report()
         report_path = self.root_path / "COMPREHENSIVE_SECRET_CODEBASE_UPDATE_REPORT.md"
-        with open(report_path, 'w', encoding='utf-8') as f:
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
 
         # Summary
@@ -355,14 +356,19 @@ The following environment variables were mapped to centralized config:
         logger.info(f"Files Updated: {self.statistics['files_updated']}")
         logger.info(f"os.getenv() Replaced: {self.statistics['os_getenv_replaced']}")
         logger.info(f"Imports Added: {self.statistics['imports_added']}")
-        logger.info(f"Hardcoded Secrets Found: {self.statistics['hardcoded_secrets_found']}")
+        logger.info(
+            f"Hardcoded Secrets Found: {self.statistics['hardcoded_secrets_found']}"
+        )
         logger.info(f"\n✅ Report saved: {report_path}")
 
-        if self.statistics['files_updated'] > 0:
-            logger.info(f"\n🎯 SUCCESS: Updated {self.statistics['files_updated']} files")
+        if self.statistics["files_updated"] > 0:
+            logger.info(
+                f"\n🎯 SUCCESS: Updated {self.statistics['files_updated']} files"
+            )
             logger.info("🔄 Next: Run MCP validation test to verify improvements")
         else:
             logger.info("\n📍 No files needed updating - codebase already aligned!")
+
 
 if __name__ == "__main__":
     updater = SecretCodebaseUpdater()

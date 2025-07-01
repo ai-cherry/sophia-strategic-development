@@ -33,6 +33,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
 
 logger = logging.getLogger(__name__)
 
+
 class SnowflakeQueryResult:
     """Represents a Snowflake query result with metadata"""
 
@@ -50,8 +51,9 @@ class SnowflakeQueryResult:
             "results": self.results,
             "execution_time_ms": self.execution_time_ms,
             "timestamp": self.timestamp.isoformat(),
-            "row_count": len(self.results)
+            "row_count": len(self.results),
         }
+
 
 class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
     """Enhanced MCP server for Snowflake CLI operations"""
@@ -77,7 +79,7 @@ class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
             component="snowflake_cli",
             status=HealthStatus.HEALTHY,
             response_time_ms=50.0,
-            last_success=datetime.now(UTC)
+            last_success=datetime.now(UTC),
         )
 
     async def check_external_api(self) -> bool:
@@ -92,7 +94,7 @@ class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
                 description="Query cost analysis and optimization",
                 category="finance",
                 available=True,
-                version="1.0.0"
+                version="1.0.0",
             )
         ]
 
@@ -101,12 +103,15 @@ class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
         return {
             "synced": True,
             "query_history_count": len(self.query_history),
-            "sync_time": datetime.now(UTC).isoformat()
+            "sync_time": datetime.now(UTC).isoformat(),
         }
 
-    async def process_with_ai(self, data: Any, model: ModelProvider | None = None) -> Any:
+    async def process_with_ai(
+        self, data: Any, model: ModelProvider | None = None
+    ) -> Any:
         """Process Snowflake data with AI"""
         return data
+
 
 # FastAPI route setup
 def setup_enhanced_snowflake_routes(app, server: EnhancedSnowflakeCLIMCPServer):
@@ -116,6 +121,7 @@ def setup_enhanced_snowflake_routes(app, server: EnhancedSnowflakeCLIMCPServer):
     async def get_status():
         return {"status": "Enhanced Snowflake CLI MCP Server operational", "port": 9021}
 
+
 async def main():
     """Main function to run the Enhanced Snowflake CLI MCP Server"""
     config = MCPServerConfig(
@@ -123,7 +129,7 @@ async def main():
         port=9021,
         sync_priority=SyncPriority.HIGH,
         enable_ai_processing=False,  # Disabled to avoid Snowflake connection issues
-        enable_metrics=True
+        enable_metrics=True,
     )
 
     server = EnhancedSnowflakeCLIMCPServer(config)
@@ -131,6 +137,7 @@ async def main():
 
     # Start the server
     await server.start()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

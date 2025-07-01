@@ -28,19 +28,24 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+
 class TaskPriority(Enum):
     """Task execution priority levels"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
+
 class ServerStatus(Enum):
     """MCP server status enumeration"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     OFFLINE = "offline"
+
 
 class MCPServerStatus(Enum):
     HEALTHY = "healthy"
@@ -48,6 +53,7 @@ class MCPServerStatus(Enum):
     OFFLINE = "offline"
     STARTING = "starting"
     ERROR = "error"
+
 
 @dataclass
 class MCPServerConfig:
@@ -61,6 +67,7 @@ class MCPServerConfig:
     timeout: int = 30
     retry_count: int = 3
 
+
 @dataclass
 class MCPServerHealth:
     name: str
@@ -71,6 +78,7 @@ class MCPServerHealth:
     uptime_seconds: int | None
     capabilities: list[str]
 
+
 @dataclass
 class MCPOperation:
     server: str
@@ -78,6 +86,7 @@ class MCPOperation:
     params: dict[str, Any]
     timestamp: datetime
     user_id: str | None = None
+
 
 @dataclass
 class MCPResponse:
@@ -88,9 +97,11 @@ class MCPResponse:
     error_message: str | None = None
     fallback_used: bool = False
 
+
 @dataclass
 class MCPServerEndpoint:
     """MCP server endpoint configuration"""
+
     server_name: str
     host: str = "localhost"
     port: int = 9000
@@ -109,9 +120,11 @@ class MCPServerEndpoint:
     def base_url(self) -> str:
         return f"http://{self.host}:{self.port}{self.base_path}"
 
+
 @dataclass
 class BusinessTask:
     """Represents a business task requiring MCP server orchestration"""
+
     task_id: str
     task_type: str
     description: str
@@ -128,9 +141,11 @@ class BusinessTask:
         if self.created_at is None:
             self.created_at = datetime.now(UTC)
 
+
 @dataclass
 class OrchestrationResult:
     """Result from orchestrated task execution"""
+
     task_id: str
     success: bool
     results: dict[str, Any]
@@ -143,6 +158,7 @@ class OrchestrationResult:
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
+
 
 class MCPOrchestrationService:
     """
@@ -186,7 +202,7 @@ class MCPOrchestrationService:
                     self.servers[name] = MCPServerEndpoint(
                         name=name,
                         port=port,
-                        capabilities=server_config.get("capabilities", [])
+                        capabilities=server_config.get("capabilities", []),
                     )
 
                 logger.info(f"Loaded configuration for {len(self.servers)} MCP servers")
@@ -223,7 +239,7 @@ class MCPOrchestrationService:
             "ai_memory": 9000,
             "codacy": 3008,
             "asana": 3006,
-            "notion": 3007
+            "notion": 3007,
         }
 
         return port_mapping.get(name, 9050)  # Default fallback port
@@ -234,17 +250,19 @@ class MCPOrchestrationService:
             "ai_memory": MCPServerEndpoint(
                 name="ai_memory",
                 port=9000,
-                capabilities=["memory_storage", "context_recall"]
+                capabilities=["memory_storage", "context_recall"],
             ),
             "codacy": MCPServerEndpoint(
                 name="codacy",
                 port=3008,
-                capabilities=["code_analysis", "security_scan"]
-            )
+                capabilities=["code_analysis", "security_scan"],
+            ),
         }
 
         self.servers.update(default_servers)
-        logger.info(f"Loaded default configuration for {len(default_servers)} MCP servers")
+        logger.info(
+            f"Loaded default configuration for {len(default_servers)} MCP servers"
+        )
 
     async def initialize_mcp_servers(self) -> dict[str, Any]:
         """Initialize and start all configured MCP servers"""
@@ -254,7 +272,7 @@ class MCPOrchestrationService:
             "started": [],
             "failed": [],
             "total": len(self.servers),
-            "success_rate": 0
+            "success_rate": 0,
         }
 
         # Start servers in parallel with error handling
@@ -269,24 +287,26 @@ class MCPOrchestrationService:
             server_name = list(self.servers.keys())[i]
             if isinstance(result, Exception):
                 logger.error(f"Failed to start {server_name}: {result}")
-                initialization_results["failed"].append({
-                    "server": server_name,
-                    "error": str(result)
-                })
+                initialization_results["failed"].append(
+                    {"server": server_name, "error": str(result)}
+                )
             elif result:
                 initialization_results["started"].append(server_name)
                 self.running_servers.add(server_name)
             else:
-                initialization_results["failed"].append({
-                    "server": server_name,
-                    "error": "Unknown startup failure"
-                })
+                initialization_results["failed"].append(
+                    {"server": server_name, "error": "Unknown startup failure"}
+                )
 
         # Calculate success rate
         success_count = len(initialization_results["started"])
-        initialization_results["success_rate"] = (success_count / len(self.servers)) * 100
+        initialization_results["success_rate"] = (
+            success_count / len(self.servers)
+        ) * 100
 
-        logger.info(f"MCP initialization complete: {success_count}/{len(self.servers)} servers started")
+        logger.info(
+            f"MCP initialization complete: {success_count}/{len(self.servers)} servers started"
+        )
 
         # Perform initial health check
         await self.check_all_server_health()
@@ -324,14 +344,18 @@ class MCPOrchestrationService:
                 return True
 
             else:
-                logger.warning(f"Unknown command type for {server_name}: {config.command}")
+                logger.warning(
+                    f"Unknown command type for {server_name}: {config.command}"
+                )
                 return False
 
         except Exception as e:
             logger.error(f"Failed to start MCP server {server_name}: {e}")
             return False
 
-    async def route_to_mcp(self, server: str, tool: str, params: dict[str, Any], user_id: str | None = None) -> MCPResponse:
+    async def route_to_mcp(
+        self, server: str, tool: str, params: dict[str, Any], user_id: str | None = None
+    ) -> MCPResponse:
         """Route request to appropriate MCP server with fallback handling"""
         start_time = datetime.now()
 
@@ -342,7 +366,7 @@ class MCPOrchestrationService:
                 data=None,
                 server_used=server,
                 response_time_ms=0,
-                error_message=f"Unknown MCP server: {server}"
+                error_message=f"Unknown MCP server: {server}",
             )
 
         try:
@@ -351,15 +375,19 @@ class MCPOrchestrationService:
                 # Try fallback server if available
                 fallback_server = self._get_fallback_server(server)
                 if fallback_server:
-                    logger.warning(f"Server {server} unhealthy, using fallback: {fallback_server}")
-                    return await self.route_to_mcp(fallback_server, tool, params, user_id)
+                    logger.warning(
+                        f"Server {server} unhealthy, using fallback: {fallback_server}"
+                    )
+                    return await self.route_to_mcp(
+                        fallback_server, tool, params, user_id
+                    )
                 else:
                     return MCPResponse(
                         success=False,
                         data=None,
                         server_used=server,
                         response_time_ms=0,
-                        error_message=f"Server {server} is offline and no fallback available"
+                        error_message=f"Server {server} is offline and no fallback available",
                     )
 
             # Construct operation
@@ -368,7 +396,7 @@ class MCPOrchestrationService:
                 tool=tool,
                 params=params,
                 timestamp=start_time,
-                user_id=user_id
+                user_id=user_id,
             )
 
             # Route to server
@@ -382,7 +410,7 @@ class MCPOrchestrationService:
                 data=result,
                 server_used=server,
                 response_time_ms=response_time,
-                fallback_used=False
+                fallback_used=False,
             )
 
         except Exception as e:
@@ -394,7 +422,7 @@ class MCPOrchestrationService:
                 data=None,
                 server_used=server,
                 response_time_ms=response_time,
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def _execute_mcp_operation(self, operation: MCPOperation) -> Any:
@@ -415,7 +443,7 @@ class MCPOrchestrationService:
             "cost_analysis": "/cost",
             "model_search": "/models",
             "browser_action": "/action",
-            "figma_design": "/design"
+            "figma_design": "/design",
         }
 
         endpoint = endpoint_mapping.get(operation.tool, f"/{operation.tool}")
@@ -423,11 +451,7 @@ class MCPOrchestrationService:
 
         try:
             # Make HTTP request to MCP server
-            response = await self.client.post(
-                url,
-                json=operation.params,
-                timeout=30.0
-            )
+            response = await self.client.post(url, json=operation.params, timeout=30.0)
 
             if response.status_code == 200:
                 return response.json()
@@ -444,19 +468,44 @@ class MCPOrchestrationService:
     async def get_mcp_health_status(self) -> dict[str, Any]:
         """Get comprehensive health status of all MCP servers"""
         # Check if we need to refresh health status
-        if (self.last_health_check is None or
-            datetime.now() - self.last_health_check > timedelta(seconds=self.health_check_interval)):
+        if (
+            self.last_health_check is None
+            or datetime.now() - self.last_health_check
+            > timedelta(seconds=self.health_check_interval)
+        ):
             await self.check_all_server_health()
 
         # Compile comprehensive status
         status_summary = {
             "overall_health": self._calculate_overall_health(),
             "total_servers": len(self.servers),
-            "healthy_servers": len([s for s in self.health_status.values() if s.status == MCPServerStatus.HEALTHY]),
-            "degraded_servers": len([s for s in self.health_status.values() if s.status == MCPServerStatus.DEGRADED]),
-            "offline_servers": len([s for s in self.health_status.values() if s.status == MCPServerStatus.OFFLINE]),
-            "last_check": self.last_health_check.isoformat() if self.last_health_check else None,
-            "servers": {name: asdict(health) for name, health in self.health_status.items()}
+            "healthy_servers": len(
+                [
+                    s
+                    for s in self.health_status.values()
+                    if s.status == MCPServerStatus.HEALTHY
+                ]
+            ),
+            "degraded_servers": len(
+                [
+                    s
+                    for s in self.health_status.values()
+                    if s.status == MCPServerStatus.DEGRADED
+                ]
+            ),
+            "offline_servers": len(
+                [
+                    s
+                    for s in self.health_status.values()
+                    if s.status == MCPServerStatus.OFFLINE
+                ]
+            ),
+            "last_check": (
+                self.last_health_check.isoformat() if self.last_health_check else None
+            ),
+            "servers": {
+                name: asdict(health) for name, health in self.health_status.items()
+            },
         }
 
         return status_summary
@@ -474,8 +523,16 @@ class MCPOrchestrationService:
         self.last_health_check = datetime.now()
 
         # Log health summary
-        healthy_count = len([s for s in self.health_status.values() if s.status == MCPServerStatus.HEALTHY])
-        logger.info(f"Health check complete: {healthy_count}/{len(self.servers)} servers healthy")
+        healthy_count = len(
+            [
+                s
+                for s in self.health_status.values()
+                if s.status == MCPServerStatus.HEALTHY
+            ]
+        )
+        logger.info(
+            f"Health check complete: {healthy_count}/{len(self.servers)} servers healthy"
+        )
 
     async def _check_server_health(self, server_name: str) -> bool:
         """Check health of individual MCP server"""
@@ -500,7 +557,7 @@ class MCPOrchestrationService:
                     response_time_ms=response_time,
                     error_message=None,
                     uptime_seconds=None,  # Could be extracted from response
-                    capabilities=config.capabilities
+                    capabilities=config.capabilities,
                 )
                 return True
             else:
@@ -511,7 +568,7 @@ class MCPOrchestrationService:
                     response_time_ms=response_time,
                     error_message=f"HTTP {response.status_code}",
                     uptime_seconds=None,
-                    capabilities=config.capabilities
+                    capabilities=config.capabilities,
                 )
                 return False
 
@@ -523,7 +580,7 @@ class MCPOrchestrationService:
                 response_time_ms=None,
                 error_message=str(e),
                 uptime_seconds=None,
-                capabilities=config.capabilities
+                capabilities=config.capabilities,
             )
             return False
 
@@ -532,7 +589,13 @@ class MCPOrchestrationService:
         if not self.health_status:
             return "unknown"
 
-        healthy_count = len([s for s in self.health_status.values() if s.status == MCPServerStatus.HEALTHY])
+        healthy_count = len(
+            [
+                s
+                for s in self.health_status.values()
+                if s.status == MCPServerStatus.HEALTHY
+            ]
+        )
         total_count = len(self.health_status)
         health_percentage = (healthy_count / total_count) * 100
 
@@ -553,7 +616,7 @@ class MCPOrchestrationService:
             "portkey_admin_official": "portkey_gateway",
             "microsoft_playwright_official": None,  # No fallback for unique services
             "glips_figma_context_official": None,
-            "openrouter_search_official": None
+            "openrouter_search_official": None,
         }
 
         fallback = fallback_mapping.get(primary_server)
@@ -579,12 +642,16 @@ class MCPOrchestrationService:
         if restart_success:
             logger.info(f"Successfully restarted {failed_server}")
         else:
-            logger.error(f"Failed to restart {failed_server}, using fallback strategies")
+            logger.error(
+                f"Failed to restart {failed_server}, using fallback strategies"
+            )
 
             # Implement fallback strategies
             fallback_server = self._get_fallback_server(failed_server)
             if fallback_server:
-                logger.info(f"Routing {failed_server} traffic to fallback: {fallback_server}")
+                logger.info(
+                    f"Routing {failed_server} traffic to fallback: {fallback_server}"
+                )
             else:
                 logger.warning(f"No fallback available for {failed_server}")
 
@@ -641,77 +708,151 @@ class MCPOrchestrationService:
         """Initialize known MCP server endpoints"""
         self.servers = {
             "ai_memory": MCPServerEndpoint(
-                "ai_memory", port=9000,
-                capabilities=["memory_storage", "semantic_search", "context_recall"]
+                "ai_memory",
+                port=9000,
+                capabilities=["memory_storage", "semantic_search", "context_recall"],
             ),
             "figma_context": MCPServerEndpoint(
-                "figma_context", port=9001,
-                capabilities=["design_system", "component_generation", "figma_integration"]
+                "figma_context",
+                port=9001,
+                capabilities=[
+                    "design_system",
+                    "component_generation",
+                    "figma_integration",
+                ],
             ),
             "ui_ux_agent": MCPServerEndpoint(
-                "ui_ux_agent", port=9002,
-                capabilities=["accessibility_analysis", "component_optimization", "design_validation"]
+                "ui_ux_agent",
+                port=9002,
+                capabilities=[
+                    "accessibility_analysis",
+                    "component_optimization",
+                    "design_validation",
+                ],
             ),
             "codacy": MCPServerEndpoint(
-                "codacy", port=9003,
-                capabilities=["code_analysis", "security_scanning", "quality_metrics"]
+                "codacy",
+                port=9003,
+                capabilities=["code_analysis", "security_scanning", "quality_metrics"],
             ),
             "asana": MCPServerEndpoint(
-                "asana", port=9004,
-                capabilities=["project_management", "task_tracking", "team_analytics"]
+                "asana",
+                port=9004,
+                capabilities=["project_management", "task_tracking", "team_analytics"],
             ),
             "notion": MCPServerEndpoint(
-                "notion", port=9005,
-                capabilities=["knowledge_management", "documentation", "content_organization"]
+                "notion",
+                port=9005,
+                capabilities=[
+                    "knowledge_management",
+                    "documentation",
+                    "content_organization",
+                ],
             ),
             "linear": MCPServerEndpoint(
-                "linear", port=9006,
-                capabilities=["issue_tracking", "development_workflow", "project_health"]
+                "linear",
+                port=9006,
+                capabilities=[
+                    "issue_tracking",
+                    "development_workflow",
+                    "project_health",
+                ],
             ),
             "github": MCPServerEndpoint(
-                "github", port=9007,
-                capabilities=["repository_management", "code_review", "deployment_tracking"]
+                "github",
+                port=9007,
+                capabilities=[
+                    "repository_management",
+                    "code_review",
+                    "deployment_tracking",
+                ],
             ),
             "slack": MCPServerEndpoint(
-                "slack", port=9008,
-                capabilities=["communication_analysis", "sentiment_tracking", "team_insights"]
+                "slack",
+                port=9008,
+                capabilities=[
+                    "communication_analysis",
+                    "sentiment_tracking",
+                    "team_insights",
+                ],
             ),
             "postgresql": MCPServerEndpoint(
-                "postgresql", port=9009,
-                capabilities=["database_operations", "query_optimization", "data_management"]
+                "postgresql",
+                port=9009,
+                capabilities=[
+                    "database_operations",
+                    "query_optimization",
+                    "data_management",
+                ],
             ),
             "sophia_data": MCPServerEndpoint(
-                "sophia_data", port=9010,
-                capabilities=["data_orchestration", "pipeline_management", "analytics"]
+                "sophia_data",
+                port=9010,
+                capabilities=["data_orchestration", "pipeline_management", "analytics"],
             ),
             "sophia_infrastructure": MCPServerEndpoint(
-                "sophia_infrastructure", port=9011,
-                capabilities=["infrastructure_management", "deployment_automation", "monitoring"]
+                "sophia_infrastructure",
+                port=9011,
+                capabilities=[
+                    "infrastructure_management",
+                    "deployment_automation",
+                    "monitoring",
+                ],
             ),
             "snowflake_admin": MCPServerEndpoint(
-                "snowflake_admin", port=9012,
-                capabilities=["database_administration", "cost_optimization", "performance_tuning"]
+                "snowflake_admin",
+                port=9012,
+                capabilities=[
+                    "database_administration",
+                    "cost_optimization",
+                    "performance_tuning",
+                ],
             ),
             "portkey_admin": MCPServerEndpoint(
-                "portkey_admin", port=9013,
-                capabilities=["ai_model_routing", "cost_optimization", "performance_monitoring"]
+                "portkey_admin",
+                port=9013,
+                capabilities=[
+                    "ai_model_routing",
+                    "cost_optimization",
+                    "performance_monitoring",
+                ],
             ),
             "openrouter_search": MCPServerEndpoint(
-                "openrouter_search", port=9014,
-                capabilities=["model_discovery", "model_comparison", "routing_optimization"]
+                "openrouter_search",
+                port=9014,
+                capabilities=[
+                    "model_discovery",
+                    "model_comparison",
+                    "routing_optimization",
+                ],
             ),
             "lambda_labs_cli": MCPServerEndpoint(
-                "lambda_labs_cli", port=9020,
-                capabilities=["gpu_management", "instance_optimization", "cost_tracking"]
+                "lambda_labs_cli",
+                port=9020,
+                capabilities=[
+                    "gpu_management",
+                    "instance_optimization",
+                    "cost_tracking",
+                ],
             ),
             "snowflake_cli_enhanced": MCPServerEndpoint(
-                "snowflake_cli_enhanced", port=9021,
-                capabilities=["advanced_snowflake_ops", "cortex_integration", "cost_analysis"]
+                "snowflake_cli_enhanced",
+                port=9021,
+                capabilities=[
+                    "advanced_snowflake_ops",
+                    "cortex_integration",
+                    "cost_analysis",
+                ],
             ),
             "estuary_flow": MCPServerEndpoint(
-                "estuary_flow", port=9022,
-                capabilities=["data_pipeline_management", "stream_processing", "reliability_monitoring"]
-            )
+                "estuary_flow",
+                port=9022,
+                capabilities=[
+                    "data_pipeline_management",
+                    "stream_processing",
+                    "reliability_monitoring",
+                ],
+            ),
         }
 
     def _initialize_orchestration_rules(self):
@@ -723,15 +864,24 @@ class MCPOrchestrationService:
                 "server_sequence": ["codacy", "github", "ai_memory"],
                 "synthesis_type": "security_quality_report",
                 "parallel_execution": True,
-                "priority": TaskPriority.HIGH
+                "priority": TaskPriority.HIGH,
             },
             {
                 "rule_id": "ui_development_workflow",
-                "task_types": ["ui_component_creation", "design_validation", "accessibility_check"],
-                "server_sequence": ["figma_context", "ui_ux_agent", "codacy", "ai_memory"],
+                "task_types": [
+                    "ui_component_creation",
+                    "design_validation",
+                    "accessibility_check",
+                ],
+                "server_sequence": [
+                    "figma_context",
+                    "ui_ux_agent",
+                    "codacy",
+                    "ai_memory",
+                ],
                 "synthesis_type": "ui_development_report",
                 "parallel_execution": False,  # Sequential for design workflow
-                "priority": TaskPriority.MEDIUM
+                "priority": TaskPriority.MEDIUM,
             },
             {
                 "rule_id": "project_health_monitoring",
@@ -739,47 +889,85 @@ class MCPOrchestrationService:
                 "server_sequence": ["asana", "linear", "github", "slack", "ai_memory"],
                 "synthesis_type": "project_health_dashboard",
                 "parallel_execution": True,
-                "priority": TaskPriority.HIGH
+                "priority": TaskPriority.HIGH,
             },
             {
                 "rule_id": "data_pipeline_optimization",
-                "task_types": ["data_processing", "pipeline_health", "cost_optimization"],
-                "server_sequence": ["sophia_data", "snowflake_admin", "snowflake_cli_enhanced", "ai_memory"],
+                "task_types": [
+                    "data_processing",
+                    "pipeline_health",
+                    "cost_optimization",
+                ],
+                "server_sequence": [
+                    "sophia_data",
+                    "snowflake_admin",
+                    "snowflake_cli_enhanced",
+                    "ai_memory",
+                ],
                 "synthesis_type": "data_optimization_report",
                 "parallel_execution": True,
-                "priority": TaskPriority.HIGH
+                "priority": TaskPriority.HIGH,
             },
             {
                 "rule_id": "ai_model_optimization",
-                "task_types": ["model_selection", "cost_optimization", "performance_tuning"],
-                "server_sequence": ["portkey_admin", "openrouter_search", "lambda_labs_cli", "ai_memory"],
+                "task_types": [
+                    "model_selection",
+                    "cost_optimization",
+                    "performance_tuning",
+                ],
+                "server_sequence": [
+                    "portkey_admin",
+                    "openrouter_search",
+                    "lambda_labs_cli",
+                    "ai_memory",
+                ],
                 "synthesis_type": "ai_optimization_strategy",
                 "parallel_execution": True,
-                "priority": TaskPriority.MEDIUM
+                "priority": TaskPriority.MEDIUM,
             },
             {
                 "rule_id": "infrastructure_monitoring",
-                "task_types": ["infrastructure_health", "deployment_status", "resource_optimization"],
-                "server_sequence": ["sophia_infrastructure", "lambda_labs_cli", "github", "ai_memory"],
+                "task_types": [
+                    "infrastructure_health",
+                    "deployment_status",
+                    "resource_optimization",
+                ],
+                "server_sequence": [
+                    "sophia_infrastructure",
+                    "lambda_labs_cli",
+                    "github",
+                    "ai_memory",
+                ],
                 "synthesis_type": "infrastructure_status_report",
                 "parallel_execution": True,
-                "priority": TaskPriority.HIGH
+                "priority": TaskPriority.HIGH,
             },
             {
                 "rule_id": "business_intelligence_synthesis",
-                "task_types": ["executive_dashboard", "business_insights", "strategic_analysis"],
-                "server_sequence": ["ai_memory", "slack", "asana", "linear", "github", "snowflake_admin"],
+                "task_types": [
+                    "executive_dashboard",
+                    "business_insights",
+                    "strategic_analysis",
+                ],
+                "server_sequence": [
+                    "ai_memory",
+                    "slack",
+                    "asana",
+                    "linear",
+                    "github",
+                    "snowflake_admin",
+                ],
                 "synthesis_type": "executive_business_intelligence",
                 "parallel_execution": True,
-                "priority": TaskPriority.CRITICAL
-            }
+                "priority": TaskPriority.CRITICAL,
+            },
         ]
 
     async def initialize(self):
         """Initialize the orchestration service"""
         self.session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=30),
-            headers={"User-Agent": "Sophia-AI-Orchestrator/3.18.0"}
+            headers={"User-Agent": "Sophia-AI-Orchestrator/3.18.0"},
         )
 
         # Perform initial health checks
@@ -804,21 +992,29 @@ class MCPOrchestrationService:
             else:
                 health_results[server_name] = result
 
-        logger.info(f"Health check completed: {len([s for s in health_results.values() if s == ServerStatus.HEALTHY])}/{len(self.servers)} servers healthy")
+        logger.info(
+            f"Health check completed: {len([s for s in health_results.values() if s == ServerStatus.HEALTHY])}/{len(self.servers)} servers healthy"
+        )
         return health_results
 
-    async def _check_server_health(self, server_name: str, server: MCPServerEndpoint) -> ServerStatus:
+    async def _check_server_health(
+        self, server_name: str, server: MCPServerEndpoint
+    ) -> ServerStatus:
         """Check health of a specific server"""
         try:
             start_time = datetime.now(UTC)
 
-            async with self.session.get(f"{server.base_url}{server.health_endpoint}") as response:
+            async with self.session.get(
+                f"{server.base_url}{server.health_endpoint}"
+            ) as response:
                 if response.status == 200:
                     health_data = await response.json()
 
                     # Update server status
                     server.last_health_check = datetime.now(UTC)
-                    server.response_time_ms = (server.last_health_check - start_time).total_seconds() * 1000
+                    server.response_time_ms = (
+                        server.last_health_check - start_time
+                    ).total_seconds() * 1000
 
                     # Determine status based on health response
                     if health_data.get("status") == "healthy":
@@ -841,7 +1037,10 @@ class MCPOrchestrationService:
     async def execute_business_task(self, task: BusinessTask) -> OrchestrationResult:
         """Execute a business task using intelligent server orchestration"""
         start_time = datetime.now(UTC)
-        task_id = task.task_id or hashlib.md5(f"{task.task_type}_{start_time}".encode()).hexdigest()[:8]
+        task_id = (
+            task.task_id
+            or hashlib.md5(f"{task.task_type}_{start_time}".encode()).hexdigest()[:8]
+        )
 
         self.active_tasks[task_id] = task
 
@@ -856,7 +1055,7 @@ class MCPOrchestrationService:
                     results={},
                     execution_time_ms=0,
                     servers_used=[],
-                    error_message="No matching orchestration rule found"
+                    error_message="No matching orchestration rule found",
                 )
 
             # Get relevant servers
@@ -869,7 +1068,7 @@ class MCPOrchestrationService:
                     results={},
                     execution_time_ms=0,
                     servers_used=[],
-                    error_message="No healthy servers available for task"
+                    error_message="No healthy servers available for task",
                 )
 
             # Execute task on servers
@@ -882,8 +1081,7 @@ class MCPOrchestrationService:
             synthesized_result = {}
             if task.requires_synthesis:
                 synthesized_result = await self._synthesize_results(
-                    server_results,
-                    orchestration_rule.get("synthesis_type", "general")
+                    server_results, orchestration_rule.get("synthesis_type", "general")
                 )
 
             execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
@@ -893,15 +1091,19 @@ class MCPOrchestrationService:
                 success=True,
                 results={
                     "server_results": server_results,
-                    "synthesized_result": synthesized_result
+                    "synthesized_result": synthesized_result,
                 },
                 execution_time_ms=execution_time,
                 servers_used=list(relevant_servers.keys()),
                 synthesis_applied=task.requires_synthesis,
                 metadata={
                     "orchestration_rule": orchestration_rule["rule_id"],
-                    "execution_mode": "parallel" if orchestration_rule.get("parallel_execution") else "sequential"
-                }
+                    "execution_mode": (
+                        "parallel"
+                        if orchestration_rule.get("parallel_execution")
+                        else "sequential"
+                    ),
+                },
             )
 
             self.task_history.append(result)
@@ -917,7 +1119,7 @@ class MCPOrchestrationService:
                 results={},
                 execution_time_ms=execution_time,
                 servers_used=[],
-                error_message=str(e)
+                error_message=str(e),
             )
 
             self.task_history.append(result)
@@ -939,10 +1141,12 @@ class MCPOrchestrationService:
             "server_sequence": ["ai_memory"],
             "synthesis_type": "general",
             "parallel_execution": True,
-            "priority": TaskPriority.LOW
+            "priority": TaskPriority.LOW,
         }
 
-    def _identify_relevant_servers(self, task: BusinessTask, rule: dict[str, Any]) -> dict[str, MCPServerEndpoint]:
+    def _identify_relevant_servers(
+        self, task: BusinessTask, rule: dict[str, Any]
+    ) -> dict[str, MCPServerEndpoint]:
         """Identify healthy servers relevant to the task"""
         relevant_servers = {}
 
@@ -951,19 +1155,25 @@ class MCPOrchestrationService:
                 server = self.servers[server_name]
                 if server.status in [ServerStatus.HEALTHY, ServerStatus.DEGRADED]:
                     # Check if server has required capabilities
-                    if self._server_has_capabilities(server, task.required_capabilities):
+                    if self._server_has_capabilities(
+                        server, task.required_capabilities
+                    ):
                         relevant_servers[server_name] = server
 
         return relevant_servers
 
-    def _server_has_capabilities(self, server: MCPServerEndpoint, required_capabilities: list[str]) -> bool:
+    def _server_has_capabilities(
+        self, server: MCPServerEndpoint, required_capabilities: list[str]
+    ) -> bool:
         """Check if a server has the required capabilities"""
         if not required_capabilities:
             return True
 
         return any(cap in server.capabilities for cap in required_capabilities)
 
-    async def _execute_parallel(self, servers: dict[str, MCPServerEndpoint], task: BusinessTask) -> dict[str, Any]:
+    async def _execute_parallel(
+        self, servers: dict[str, MCPServerEndpoint], task: BusinessTask
+    ) -> dict[str, Any]:
         """Execute task on multiple servers in parallel"""
         tasks = []
 
@@ -982,7 +1192,9 @@ class MCPOrchestrationService:
 
         return server_results
 
-    async def _execute_sequential(self, servers: dict[str, MCPServerEndpoint], task: BusinessTask) -> dict[str, Any]:
+    async def _execute_sequential(
+        self, servers: dict[str, MCPServerEndpoint], task: BusinessTask
+    ) -> dict[str, Any]:
         """Execute task on servers sequentially"""
         server_results = {}
         context_data = task.context_data.copy()
@@ -998,10 +1210,12 @@ class MCPOrchestrationService:
                     priority=task.priority,
                     context_data=context_data,
                     max_execution_time_seconds=task.max_execution_time_seconds,
-                    requires_synthesis=task.requires_synthesis
+                    requires_synthesis=task.requires_synthesis,
                 )
 
-                result = await self._execute_on_server(server_name, server, task_with_context)
+                result = await self._execute_on_server(
+                    server_name, server, task_with_context
+                )
                 server_results[server_name] = result
 
                 # Add result to context for next server
@@ -1012,7 +1226,9 @@ class MCPOrchestrationService:
 
         return server_results
 
-    async def _execute_on_server(self, server_name: str, server: MCPServerEndpoint, task: BusinessTask) -> dict[str, Any]:
+    async def _execute_on_server(
+        self, server_name: str, server: MCPServerEndpoint, task: BusinessTask
+    ) -> dict[str, Any]:
         """Execute a task on a specific server"""
         try:
             # For now, just call the health endpoint as a placeholder
@@ -1026,84 +1242,100 @@ class MCPOrchestrationService:
                         "task_type": task.task_type,
                         "health_status": health_data.get("status"),
                         "response_time_ms": server.response_time_ms,
-                        "message": f"Task {task.task_type} acknowledged by {server_name}"
+                        "message": f"Task {task.task_type} acknowledged by {server_name}",
                     }
                 else:
                     return {
                         "success": False,
                         "server": server_name,
-                        "error": f"Server returned status {response.status}"
+                        "error": f"Server returned status {response.status}",
                     }
         except Exception as e:
-            return {
-                "success": False,
-                "server": server_name,
-                "error": str(e)
-            }
+            return {"success": False, "server": server_name, "error": str(e)}
 
-    async def _synthesize_results(self, server_results: dict[str, Any], synthesis_type: str) -> dict[str, Any]:
+    async def _synthesize_results(
+        self, server_results: dict[str, Any], synthesis_type: str
+    ) -> dict[str, Any]:
         """Synthesize results from multiple servers into unified insights"""
-        successful_results = {k: v for k, v in server_results.items() if v.get("success", False)}
+        successful_results = {
+            k: v for k, v in server_results.items() if v.get("success", False)
+        }
 
         synthesis = {
             "synthesis_type": synthesis_type,
             "total_servers": len(server_results),
             "successful_servers": len(successful_results),
-            "success_rate": len(successful_results) / len(server_results) if server_results else 0,
+            "success_rate": (
+                len(successful_results) / len(server_results) if server_results else 0
+            ),
             "insights": [],
             "recommendations": [],
-            "summary": ""
+            "summary": "",
         }
 
         if synthesis_type == "security_quality_report":
             synthesis["insights"] = [
                 "Code analysis completed across multiple dimensions",
                 "Security scanning identified potential vulnerabilities",
-                "Quality metrics aggregated for comprehensive assessment"
+                "Quality metrics aggregated for comprehensive assessment",
             ]
             synthesis["recommendations"] = [
                 "Review security scan results for immediate attention",
                 "Implement suggested code quality improvements",
-                "Schedule regular automated security audits"
+                "Schedule regular automated security audits",
             ]
-            synthesis["summary"] = f"Comprehensive code analysis completed with {len(successful_results)} services contributing to security and quality assessment."
+            synthesis["summary"] = (
+                f"Comprehensive code analysis completed with {len(successful_results)} services contributing to security and quality assessment."
+            )
 
         elif synthesis_type == "project_health_dashboard":
             synthesis["insights"] = [
                 "Project health analyzed across multiple platforms",
                 "Team performance metrics aggregated",
-                "Risk factors identified and prioritized"
+                "Risk factors identified and prioritized",
             ]
             synthesis["recommendations"] = [
                 "Address high-priority project risks",
                 "Optimize team workflow based on insights",
-                "Implement predictive project monitoring"
+                "Implement predictive project monitoring",
             ]
-            synthesis["summary"] = f"Project health dashboard synthesized from {len(successful_results)} data sources providing comprehensive project visibility."
+            synthesis["summary"] = (
+                f"Project health dashboard synthesized from {len(successful_results)} data sources providing comprehensive project visibility."
+            )
 
         elif synthesis_type == "executive_business_intelligence":
             synthesis["insights"] = [
                 "Executive-level business intelligence compiled",
                 "Cross-functional performance metrics analyzed",
-                "Strategic recommendations generated"
+                "Strategic recommendations generated",
             ]
             synthesis["recommendations"] = [
                 "Focus on high-impact strategic initiatives",
                 "Optimize resource allocation based on insights",
-                "Implement data-driven decision making processes"
+                "Implement data-driven decision making processes",
             ]
-            synthesis["summary"] = f"Executive business intelligence synthesized from {len(successful_results)} business systems."
+            synthesis["summary"] = (
+                f"Executive business intelligence synthesized from {len(successful_results)} business systems."
+            )
 
         else:  # general synthesis
-            synthesis["summary"] = f"Task completed with {len(successful_results)} successful server responses."
-            synthesis["insights"] = ["Task executed across distributed server architecture"]
+            synthesis["summary"] = (
+                f"Task completed with {len(successful_results)} successful server responses."
+            )
+            synthesis["insights"] = [
+                "Task executed across distributed server architecture"
+            ]
             synthesis["recommendations"] = ["Continue monitoring server performance"]
 
         return synthesis
 
     def get_orchestration_status(self) -> dict[str, Any]:
         """Get current orchestration service status"""
-        healthy_servers = sum(1 for server in self.servers.values() if server.status == ServerStatus.HEALTHY)
+        healthy_servers = sum(
+            1
+            for server in self.servers.values()
+            if server.status == ServerStatus.HEALTHY
+        )
 
         return {
             "service_status": "operational",
@@ -1113,13 +1345,18 @@ class MCPOrchestrationService:
             "completed_tasks": len(self.task_history),
             "orchestration_rules": len(self.orchestration_rules),
             "last_health_check": max(
-                (server.last_health_check for server in self.servers.values() if server.last_health_check),
-                default=None
+                (
+                    server.last_health_check
+                    for server in self.servers.values()
+                    if server.last_health_check
+                ),
+                default=None,
             ),
             "server_status": {
                 name: server.status.value for name, server in self.servers.items()
-            }
+            },
         }
+
 
 # Global orchestration service instance
 orchestration_service = MCPOrchestrationService()

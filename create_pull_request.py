@@ -7,7 +7,6 @@ This script creates a comprehensive pull request for the strategic plan improvem
 """
 
 
-
 def create_pull_request():
     """Create a comprehensive pull request."""
 

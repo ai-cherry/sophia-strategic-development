@@ -304,7 +304,9 @@ async def get_performance_metrics():
 
     except Exception as e:
         logger.error(f"Performance metrics failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Performance metrics error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Performance metrics error: {e}"
+        ) from e
 
 
 # Optimized Cortex service endpoints
@@ -359,7 +361,9 @@ async def analyze_with_cortex(request: CortexAnalysisRequest):
 
     except Exception as e:
         logger.error(f"Cortex analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cortex analysis error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Cortex analysis error: {e}"
+        ) from e
 
 
 # Optimized Gong integration endpoints
@@ -539,7 +543,9 @@ async def optimize_system(background_tasks: BackgroundTasks):
 
     except Exception as e:
         logger.error(f"System optimization failed: {e}")
-        raise HTTPException(status_code=500, detail=f"System optimization error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"System optimization error: {e}"
+        ) from e
 
 
 async def run_optimization_tasks():

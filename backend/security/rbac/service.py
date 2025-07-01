@@ -135,7 +135,9 @@ class RBACService:
         try:
             data = {
                 "roles": [role.dict() for role in self.roles.values()],
-                "role_assignments": [assignment.dict() for assignment in self.role_assignments.values()],
+                "role_assignments": [
+                    assignment.dict() for assignment in self.role_assignments.values()
+                ],
                 "users": [user.dict() for user in self.users.values()],
             }
 
@@ -749,4 +751,3 @@ def get_rbac_service() -> RBACService:
         raise RuntimeError("RBAC service has not been initialized")
 
     return _rbac_service
-

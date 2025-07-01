@@ -16,8 +16,11 @@ from pathlib import Path
 import aiohttp
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class ValidationLevel(Enum):
     BASIC = "basic"
@@ -25,9 +28,11 @@ class ValidationLevel(Enum):
     PERFORMANCE = "performance"
     INTEGRATION = "integration"
 
+
 @dataclass
 class ValidationResult:
     """Results from a validation test"""
+
     server_name: str
     test_name: str
     success: bool
@@ -35,15 +40,18 @@ class ValidationResult:
     error_message: str | None = None
     details: dict = field(default_factory=dict)
 
+
 @dataclass
 class ServerHealth:
     """Health status of an MCP server"""
+
     name: str
     port: int
     is_running: bool
     response_time: float | None = None
     capabilities: list[str] = field(default_factory=list)
     error: str | None = None
+
 
 class MCPEcosystemValidator:
     """Comprehensive MCP ecosystem validator"""
@@ -61,24 +69,21 @@ class MCPEcosystemValidator:
             "portkey_gateway": 9002,
             "code_intelligence": 9003,
             "business_intelligence": 9004,
-
             # Official integrations
             "microsoft_playwright_official": 9010,
             "glips_figma_context_official": 9011,
             "snowflake_cortex_official": 9012,
             "portkey_admin_official": 9013,
             "openrouter_search_official": 9014,
-
             # npm services
             "npm_github_enhanced": 9020,
             "npm_filesystem_secure": 9021,
             "npm_postgres_advanced": 9022,
             "npm_vercel_deploy": 9023,
-
             # Additional Snowflake servers
             "isaacwasserman_snowflake": 9030,
             "davidamom_snowflake": 9031,
-            "dynamike_snowflake": 9032
+            "dynamike_snowflake": 9032,
         }
 
         # Performance thresholds
@@ -86,10 +91,12 @@ class MCPEcosystemValidator:
             "response_time_ms": 200,
             "startup_time_s": 30,
             "memory_usage_mb": 500,
-            "cpu_usage_percent": 50
+            "cpu_usage_percent": 50,
         }
 
-    async def validate_ecosystem(self, level: ValidationLevel = ValidationLevel.COMPREHENSIVE) -> dict:
+    async def validate_ecosystem(
+        self, level: ValidationLevel = ValidationLevel.COMPREHENSIVE
+    ) -> dict:
         """Main validation entry point"""
         logger.info(f"🧪 Starting {level.value} ecosystem validation...")
 
@@ -128,7 +135,9 @@ class MCPEcosystemValidator:
             with open(config_file) as f:
                 config = json.load(f)
 
-            logger.info(f"✅ Loaded configuration with {len(config.get('mcpServers', {}))} servers")
+            logger.info(
+                f"✅ Loaded configuration with {len(config.get('mcpServers', {}))} servers"
+            )
             return config
 
         except Exception as e:
@@ -143,24 +152,34 @@ class MCPEcosystemValidator:
             "health_checks": [],
             "configuration_validation": {},
             "port_availability": {},
-            "dependency_checks": {}
+            "dependency_checks": {},
         }
 
         # Health check all configured servers
         servers = config.get("mcpServers", {})
-        health_results = await asyncio.gather(*[
-            self._check_server_health(name, server_config)
-            for name, server_config in servers.items()
-        ], return_exceptions=True)
+        health_results = await asyncio.gather(
+            *[
+                self._check_server_health(name, server_config)
+                for name, server_config in servers.items()
+            ],
+            return_exceptions=True,
+        )
 
         results["health_checks"] = [
-            result if not isinstance(result, Exception) else
-            ServerHealth(name="unknown", port=0, is_running=False, error=str(result))
+            (
+                result
+                if not isinstance(result, Exception)
+                else ServerHealth(
+                    name="unknown", port=0, is_running=False, error=str(result)
+                )
+            )
             for result in health_results
         ]
 
         # Validate configuration structure
-        results["configuration_validation"] = await self._validate_configuration_structure(config)
+        results["configuration_validation"] = (
+            await self._validate_configuration_structure(config)
+        )
 
         # Check port availability
         results["port_availability"] = await self._check_port_availability()
@@ -178,12 +197,14 @@ class MCPEcosystemValidator:
         results = await self._basic_validation(config)
 
         # Add comprehensive tests
-        results.update({
-            "functionality_tests": await self._test_server_functionality(config),
-            "integration_tests": await self._test_server_integration(config),
-            "security_checks": await self._run_security_checks(config),
-            "performance_metrics": await self._collect_performance_metrics(config)
-        })
+        results.update(
+            {
+                "functionality_tests": await self._test_server_functionality(config),
+                "integration_tests": await self._test_server_integration(config),
+                "security_checks": await self._run_security_checks(config),
+                "performance_metrics": await self._collect_performance_metrics(config),
+            }
+        )
 
         return results
 
@@ -195,18 +216,21 @@ class MCPEcosystemValidator:
             "response_time_tests": [],
             "throughput_tests": [],
             "resource_usage": {},
-            "scalability_tests": []
+            "scalability_tests": [],
         }
 
         # Response time tests
         servers = config.get("mcpServers", {})
         for name, server_config in servers.items():
             response_time = await self._measure_response_time(name, server_config)
-            results["response_time_tests"].append({
-                "server": name,
-                "response_time_ms": response_time,
-                "passes_threshold": response_time < self.performance_thresholds["response_time_ms"]
-            })
+            results["response_time_tests"].append(
+                {
+                    "server": name,
+                    "response_time_ms": response_time,
+                    "passes_threshold": response_time
+                    < self.performance_thresholds["response_time_ms"],
+                }
+            )
 
         # Throughput tests
         results["throughput_tests"] = await self._run_throughput_tests(servers)
@@ -227,14 +251,16 @@ class MCPEcosystemValidator:
             "workflow_tests": [],
             "cross_server_communication": [],
             "data_flow_validation": [],
-            "business_process_tests": []
+            "business_process_tests": [],
         }
 
         # Test key workflows
         results["workflow_tests"] = await self._test_key_workflows(config)
 
         # Test cross-server communication
-        results["cross_server_communication"] = await self._test_cross_server_communication(config)
+        results["cross_server_communication"] = (
+            await self._test_cross_server_communication(config)
+        )
 
         # Validate data flows
         results["data_flow_validation"] = await self._validate_data_flows(config)
@@ -244,7 +270,9 @@ class MCPEcosystemValidator:
 
         return results
 
-    async def _check_server_health(self, name: str, server_config: dict) -> ServerHealth:
+    async def _check_server_health(
+        self, name: str, server_config: dict
+    ) -> ServerHealth:
         """Check health of individual MCP server"""
         try:
             # Extract port from environment or use default
@@ -259,7 +287,9 @@ class MCPEcosystemValidator:
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 try:
                     # Try health endpoint
-                    async with session.get(f"http://localhost:{port}/health") as response:
+                    async with session.get(
+                        f"http://localhost:{port}/health"
+                    ) as response:
                         response_time = (time.time() - start_time) * 1000
 
                         if response.status == 200:
@@ -269,14 +299,14 @@ class MCPEcosystemValidator:
                                 port=port,
                                 is_running=True,
                                 response_time=response_time,
-                                capabilities=data.get("capabilities", [])
+                                capabilities=data.get("capabilities", []),
                             )
                         else:
                             return ServerHealth(
                                 name=name,
                                 port=port,
                                 is_running=False,
-                                error=f"HTTP {response.status}"
+                                error=f"HTTP {response.status}",
                             )
 
                 except aiohttp.ClientError as e:
@@ -284,7 +314,7 @@ class MCPEcosystemValidator:
                         name=name,
                         port=port,
                         is_running=False,
-                        error=f"Connection failed: {str(e)}"
+                        error=f"Connection failed: {str(e)}",
                     )
 
         except Exception as e:
@@ -292,7 +322,7 @@ class MCPEcosystemValidator:
                 name=name,
                 port=0,
                 is_running=False,
-                error=f"Health check failed: {str(e)}"
+                error=f"Health check failed: {str(e)}",
             )
 
     async def _validate_configuration_structure(self, config: dict) -> dict:
@@ -301,7 +331,7 @@ class MCPEcosystemValidator:
             "version_check": False,
             "servers_defined": False,
             "required_fields": {},
-            "warnings": []
+            "warnings": [],
         }
 
         # Check version
@@ -335,6 +365,7 @@ class MCPEcosystemValidator:
             try:
                 # Try to bind to port to check availability
                 import socket
+
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.settimeout(1)
                 result = sock.connect_ex(("localhost", port))
@@ -343,14 +374,14 @@ class MCPEcosystemValidator:
                 port_results[port] = {
                     "server": server_name,
                     "available": result != 0,  # Port is available if connection fails
-                    "in_use": result == 0
+                    "in_use": result == 0,
                 }
 
             except Exception as e:
                 port_results[port] = {
                     "server": server_name,
                     "available": False,
-                    "error": str(e)
+                    "error": str(e),
                 }
 
         return port_results
@@ -360,7 +391,7 @@ class MCPEcosystemValidator:
         dependency_results = {
             "python_packages": {},
             "npm_packages": {},
-            "external_tools": {}
+            "external_tools": {},
         }
 
         # Check Python packages
@@ -377,9 +408,7 @@ class MCPEcosystemValidator:
         for dep in npm_deps:
             try:
                 result = subprocess.run(
-                    ["npm", "list", dep, "--global"],
-                    capture_output=True,
-                    text=True
+                    ["npm", "list", dep, "--global"], capture_output=True, text=True
                 )
                 dependency_results["npm_packages"][dep] = result.returncode == 0
             except Exception:
@@ -389,10 +418,7 @@ class MCPEcosystemValidator:
         external_tools = ["node", "npm", "git", "docker"]
         for tool in external_tools:
             try:
-                result = subprocess.run(
-                    ["which", tool],
-                    capture_output=True
-                )
+                result = subprocess.run(["which", tool], capture_output=True)
                 dependency_results["external_tools"][tool] = result.returncode == 0
             except Exception:
                 dependency_results["external_tools"][tool] = False
@@ -413,7 +439,7 @@ class MCPEcosystemValidator:
                     return (end_time - start_time) * 1000
 
         except Exception:
-            return float('inf')
+            return float("inf")
 
     async def _test_server_functionality(self, config: dict) -> list[dict]:
         """Test core functionality of each server"""
@@ -422,10 +448,7 @@ class MCPEcosystemValidator:
         servers = config.get("mcpServers", {})
 
         for name, server_config in servers.items():
-            test_result = {
-                "server": name,
-                "tests": []
-            }
+            test_result = {"server": name, "tests": []}
 
             # Test based on server capabilities
             capabilities = server_config.get("capabilities", [])
@@ -448,7 +471,7 @@ class MCPEcosystemValidator:
             "capability": capability,
             "success": True,  # Mock success
             "response_time": 50.0,  # Mock response time
-            "details": f"Successfully tested {capability} on {server_name}"
+            "details": f"Successfully tested {capability} on {server_name}",
         }
 
         return test_result
@@ -462,18 +485,18 @@ class MCPEcosystemValidator:
             {
                 "name": "Playwright + AI Memory",
                 "servers": ["microsoft_playwright_official", "enhanced_ai_memory"],
-                "test": "web_scraping_with_memory"
+                "test": "web_scraping_with_memory",
             },
             {
                 "name": "Figma + Dashboard",
                 "servers": ["glips_figma_context_official", "ag_ui"],
-                "test": "design_to_dashboard"
+                "test": "design_to_dashboard",
             },
             {
                 "name": "Snowflake + Business Intelligence",
                 "servers": ["snowflake_cortex_official", "business_intelligence"],
-                "test": "data_analysis_workflow"
-            }
+                "test": "data_analysis_workflow",
+            },
         ]
 
         for scenario in test_scenarios:
@@ -490,7 +513,7 @@ class MCPEcosystemValidator:
             "servers": scenario["servers"],
             "success": True,  # Mock success
             "response_time": 150.0,
-            "details": f"Successfully tested {scenario['test']}"
+            "details": f"Successfully tested {scenario['test']}",
         }
 
     async def _run_security_checks(self, config: dict) -> dict:
@@ -499,7 +522,7 @@ class MCPEcosystemValidator:
             "credential_exposure": [],
             "port_security": {},
             "configuration_security": {},
-            "dependency_vulnerabilities": []
+            "dependency_vulnerabilities": [],
         }
 
         # Check for exposed credentials in configuration
@@ -508,11 +531,17 @@ class MCPEcosystemValidator:
             env_vars = server_config.get("env", {})
             for key, value in env_vars.items():
                 if not value.startswith("${"):  # Not a placeholder
-                    security_results["credential_exposure"].append({
-                        "server": name,
-                        "variable": key,
-                        "risk": "high" if "key" in key.lower() or "token" in key.lower() else "medium"
-                    })
+                    security_results["credential_exposure"].append(
+                        {
+                            "server": name,
+                            "variable": key,
+                            "risk": (
+                                "high"
+                                if "key" in key.lower() or "token" in key.lower()
+                                else "medium"
+                            ),
+                        }
+                    )
 
         return security_results
 
@@ -522,7 +551,7 @@ class MCPEcosystemValidator:
             "average_response_time": 125.5,  # Mock data
             "total_memory_usage": 1024,
             "cpu_usage": 15.5,
-            "active_connections": 25
+            "active_connections": 25,
         }
 
     async def _run_throughput_tests(self, servers: dict) -> list[dict]:
@@ -533,7 +562,7 @@ class MCPEcosystemValidator:
                 "server": name,
                 "requests_per_second": 100,  # Mock RPS
                 "concurrent_connections": 10,
-                "success_rate": 99.5
+                "success_rate": 99.5,
             }
             for name in servers.keys()
         ]
@@ -546,16 +575,14 @@ class MCPEcosystemValidator:
             return {
                 "cpu_percent": psutil.cpu_percent(),
                 "memory_percent": psutil.virtual_memory().percent,
-                "disk_usage": psutil.disk_usage('/').percent,
+                "disk_usage": psutil.disk_usage("/").percent,
                 "network_io": {
                     "bytes_sent": psutil.net_io_counters().bytes_sent,
-                    "bytes_recv": psutil.net_io_counters().bytes_recv
-                }
+                    "bytes_recv": psutil.net_io_counters().bytes_recv,
+                },
             }
         except ImportError:
-            return {
-                "error": "psutil not available for resource monitoring"
-            }
+            return {"error": "psutil not available for resource monitoring"}
 
     async def _run_scalability_tests(self, servers: dict) -> list[dict]:
         """Run scalability tests"""
@@ -566,7 +593,7 @@ class MCPEcosystemValidator:
                 "baseline_rps": 100,
                 "peak_rps": 500,
                 "degradation_point": 450,
-                "recovery_time": 5.2
+                "recovery_time": 5.2,
             }
         ]
 
@@ -576,13 +603,13 @@ class MCPEcosystemValidator:
             {
                 "name": "Code Generation Workflow",
                 "steps": ["context_analysis", "code_generation", "quality_check"],
-                "expected_duration": 30
+                "expected_duration": 30,
             },
             {
                 "name": "Business Analysis Workflow",
                 "steps": ["data_retrieval", "analysis", "report_generation"],
-                "expected_duration": 60
-            }
+                "expected_duration": 60,
+            },
         ]
 
         workflow_results = []
@@ -600,7 +627,7 @@ class MCPEcosystemValidator:
             "success": True,
             "duration": workflow["expected_duration"] * 0.8,  # Mock 20% faster
             "steps_completed": len(workflow["steps"]),
-            "steps_failed": 0
+            "steps_failed": 0,
         }
 
     async def _test_cross_server_communication(self, config: dict) -> list[dict]:
@@ -612,7 +639,7 @@ class MCPEcosystemValidator:
                 "to_server": "enhanced_ai_memory",
                 "communication_type": "memory_storage",
                 "success": True,
-                "latency_ms": 15.5
+                "latency_ms": 15.5,
             }
         ]
 
@@ -625,7 +652,7 @@ class MCPEcosystemValidator:
                 "source": "microsoft_playwright_official",
                 "destination": "enhanced_ai_memory",
                 "data_integrity": True,
-                "processing_time": 250.0
+                "processing_time": 250.0,
             }
         ]
 
@@ -637,7 +664,7 @@ class MCPEcosystemValidator:
                 "process": "competitive_intelligence",
                 "success": True,
                 "automation_rate": 95.5,
-                "human_intervention_required": False
+                "human_intervention_required": False,
             }
         ]
 
@@ -652,15 +679,17 @@ class MCPEcosystemValidator:
             "execution_time_seconds": execution_time,
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "total_servers_tested": len(results.get("health_checks", [])),
-            "servers_healthy": sum(1 for h in results.get("health_checks", []) if h.is_running),
+            "servers_healthy": sum(
+                1 for h in results.get("health_checks", []) if h.is_running
+            ),
             "critical_issues": self._identify_critical_issues(results),
-            "recommendations": self._generate_recommendations(results)
+            "recommendations": self._generate_recommendations(results),
         }
 
         return {
             "summary": summary,
             "detailed_results": results,
-            "success": health_score > 80
+            "success": health_score > 80,
         }
 
     def _calculate_health_score(self, results: dict) -> float:
@@ -720,7 +749,10 @@ class MCPEcosystemValidator:
 
         # Check for performance issues
         performance = results.get("performance_metrics", {})
-        if performance.get("average_response_time", 0) > self.performance_thresholds["response_time_ms"]:
+        if (
+            performance.get("average_response_time", 0)
+            > self.performance_thresholds["response_time_ms"]
+        ):
             issues.append("Response time above threshold")
 
         # Check for security issues
@@ -757,8 +789,12 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Validate MCP Ecosystem")
-    parser.add_argument("--level", choices=["basic", "comprehensive", "performance", "integration"],
-                       default="comprehensive", help="Validation level")
+    parser.add_argument(
+        "--level",
+        choices=["basic", "comprehensive", "performance", "integration"],
+        default="comprehensive",
+        help="Validation level",
+    )
     parser.add_argument("--output", help="Output file for results")
     parser.add_argument("--json", action="store_true", help="Output in JSON format")
 
@@ -793,14 +829,14 @@ Status: {'✅ PASSED' if results['success'] else '❌ FAILED'}
         """
 
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             f.write(output)
         logger.info(f"Results written to {args.output}")
     else:
         print(output)
 
     # Exit with appropriate code
-    exit_code = 0 if results['success'] else 1
+    exit_code = 0 if results["success"] else 1
     return exit_code
 
 

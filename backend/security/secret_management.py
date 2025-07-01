@@ -42,10 +42,14 @@ class SecretType(str, Enum):
 
     API_KEY = "api_key"
     OAUTH_TOKEN = "oauth_token"
-    DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")  # SECURITY FIX: Use environment variable
+    DATABASE_PASSWORD = os.getenv(
+        "DATABASE_PASSWORD"
+    )  # SECURITY FIX: Use environment variable
     JWT_KEY = "jwt_key"
     ENCRYPTION_KEY = "encryption_key"
-    WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")  # SECURITY FIX: Use environment variable
+    WEBHOOK_SECRET = os.getenv(
+        "WEBHOOK_SECRET"
+    )  # SECURITY FIX: Use environment variable
     CERTIFICATE = "certificate"
 
 

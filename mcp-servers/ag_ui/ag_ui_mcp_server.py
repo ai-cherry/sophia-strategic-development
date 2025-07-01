@@ -350,10 +350,7 @@ class AGUIMCPServer(StandardizedMCPServer):
 
     async def server_specific_health_check(self) -> dict:
         """Perform AG UI specific health checks"""
-        return {
-            "components_available": True,
-            "ui_generation_ready": True
-        }
+        return {"components_available": True, "ui_generation_ready": True}
 
     async def check_external_api(self) -> bool:
         """Check external API connectivity"""
@@ -365,10 +362,7 @@ class AGUIMCPServer(StandardizedMCPServer):
 
     def get_server_capabilities(self) -> dict:
         """Get AG UI server capabilities"""
-        return {
-            "ui_generation": True,
-            "component_creation": True
-        }
+        return {"ui_generation": True, "component_creation": True}
 
     async def sync_data(self) -> dict:
         """Sync UI data"""

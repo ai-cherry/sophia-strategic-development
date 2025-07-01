@@ -38,4 +38,3 @@ __all__ = [
     "EphemeralCredentialsMiddleware",
     "setup_ephemeral_credentials_middleware",
 ]
-

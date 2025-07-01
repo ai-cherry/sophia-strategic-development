@@ -164,7 +164,7 @@ def main():
         print("\n❌ LAMBDA LABS ACCESS FAILED")
         print("Please ensure you have a valid Lambda Labs API key configured.")
         print("\nOptions to configure API key:")
-        print("1. Set environment variable: export LAMBDA_API_KEY=""")
+        print("1. Set environment variable: export LAMBDA_API_KEY=" "")
         print("2. Add to Pulumi ESC under 'lambda_labs_api_key'")
         print("3. Create ~/.lambda/config file with API key")
         print("4. Add to project config/lambda_config.json")

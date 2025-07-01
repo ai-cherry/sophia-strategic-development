@@ -46,12 +46,10 @@ __all__ = [
     "User",
     "SYSTEM_ROLES",
     "has_permission",
-
     # Service
     "RBACService",
     "initialize_rbac_service",
     "get_rbac_service",
-
     # Dependencies
     "get_current_user",
     "get_optional_user",
@@ -61,4 +59,3 @@ __all__ = [
     "requires_system_admin",
     "setup_rbac",
 ]
-

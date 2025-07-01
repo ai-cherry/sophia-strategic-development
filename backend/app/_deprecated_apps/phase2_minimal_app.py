@@ -141,7 +141,9 @@ async def get_performance_metrics():
 
     except Exception as e:
         logger.error(f"Performance metrics failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Performance metrics error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Performance metrics error: {e}"
+        ) from e
 
 
 @app.get("/")

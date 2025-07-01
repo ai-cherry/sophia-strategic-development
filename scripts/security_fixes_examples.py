@@ -40,7 +40,9 @@ def secure_generate_hash_for_security(data: str) -> str:
 # INSECURE - Using shell=True with subprocess
 def insecure_run_command(command: str) -> subprocess.CompletedProcess:
     """Insecure way to run a command with shell=True."""
-    return subprocess.run(shlex.split(command), capture_output=True, text=True)  # SECURITY FIX: Removed shell=True
+    return subprocess.run(
+        shlex.split(command), capture_output=True, text=True
+    )  # SECURITY FIX: Removed shell=True
 
 
 # SECURE - Avoid shell=True by passing command as list
@@ -144,7 +146,9 @@ class SecureSecretManager:
 # INSECURE - Overly permissive file permissions
 def insecure_make_executable(script_path: str):
     """Insecure way to make a script executable with overly permissive permissions."""
-    os.chmod(script_path, 0o644)  # SECURITY FIX: Reduced permissions  # rwxr-xr-x (readable and executable by anyone)
+    os.chmod(
+        script_path, 0o644
+    )  # SECURITY FIX: Reduced permissions  # rwxr-xr-x (readable and executable by anyone)
 
 
 # SECURE - Use least privilege permissions

@@ -60,7 +60,9 @@ class EphemeralCredentialsService:
             token_signing_key: Key for signing tokens (generated if not provided)
         """
         self.secret_manager = secret_manager or SecretManager()
-        self.storage_path = storage_path or os.path.join(os.getcwd(), "data", "ephemeral_credentials.json")
+        self.storage_path = storage_path or os.path.join(
+            os.getcwd(), "data", "ephemeral_credentials.json"
+        )
         self.auto_save = auto_save
 
         # Ensure storage directory exists
@@ -101,7 +103,9 @@ class EphemeralCredentialsService:
     def _load_from_storage(self) -> None:
         """Load credentials from storage file."""
         if not os.path.exists(self.storage_path):
-            self.logger.info("No credentials storage file found, starting with empty state")
+            self.logger.info(
+                "No credentials storage file found, starting with empty state"
+            )
             return
 
         try:
@@ -112,21 +116,33 @@ class EphemeralCredentialsService:
             for cred_data in data.get("credentials", []):
                 # Convert string dates to datetime objects
                 if "created_at" in cred_data:
-                    cred_data["created_at"] = datetime.fromisoformat(cred_data["created_at"])
+                    cred_data["created_at"] = datetime.fromisoformat(
+                        cred_data["created_at"]
+                    )
                 if "expires_at" in cred_data:
-                    cred_data["expires_at"] = datetime.fromisoformat(cred_data["expires_at"])
+                    cred_data["expires_at"] = datetime.fromisoformat(
+                        cred_data["expires_at"]
+                    )
                 if "last_used_at" in cred_data and cred_data["last_used_at"]:
-                    cred_data["last_used_at"] = datetime.fromisoformat(cred_data["last_used_at"])
+                    cred_data["last_used_at"] = datetime.fromisoformat(
+                        cred_data["last_used_at"]
+                    )
                 if "revoked_at" in cred_data and cred_data["revoked_at"]:
-                    cred_data["revoked_at"] = datetime.fromisoformat(cred_data["revoked_at"])
+                    cred_data["revoked_at"] = datetime.fromisoformat(
+                        cred_data["revoked_at"]
+                    )
 
                 # Convert string scopes to enum values
                 if "scopes" in cred_data:
-                    cred_data["scopes"] = [CredentialScope(s) for s in cred_data["scopes"]]
+                    cred_data["scopes"] = [
+                        CredentialScope(s) for s in cred_data["scopes"]
+                    ]
 
                 # Convert string credential type to enum value
                 if "credential_type" in cred_data:
-                    cred_data["credential_type"] = CredentialType(cred_data["credential_type"])
+                    cred_data["credential_type"] = CredentialType(
+                        cred_data["credential_type"]
+                    )
 
                 # Convert string status to enum value
                 if "status" in cred_data:
@@ -205,7 +221,10 @@ class EphemeralCredentialsService:
             random_part = secrets.token_hex(16)
             return f"{prefix}-{random_part}"
 
-        elif credential_type in (CredentialType.ACCESS_TOKEN, CredentialType.SERVICE_TOKEN):
+        elif credential_type in (
+            CredentialType.ACCESS_TOKEN,
+            CredentialType.SERVICE_TOKEN,
+        ):
             # Generate a JWT token
             payload = {
                 "jti": str(uuid.uuid4()),
@@ -528,4 +547,3 @@ class EphemeralCredentialsService:
 
         # Log shutdown
         self.logger.info("Ephemeral credentials service shut down")
-

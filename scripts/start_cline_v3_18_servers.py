@@ -63,7 +63,9 @@ async def start_server(name: str, command: list, env: dict = None):
 
 async def check_gemini_cli():
     """Check if Gemini CLI is installed."""
-    result = subprocess.run(shlex.split("which gemini > /dev/null 2>&1"), check=True)  # SECURITY FIX: Replaced os.system
+    result = subprocess.run(
+        shlex.split("which gemini > /dev/null 2>&1"), check=True
+    )  # SECURITY FIX: Replaced os.system
     if result != 0:
         print(
             "⚠️  Gemini CLI not found. Install with: npm install -g @google/generative-ai-cli"

@@ -18,7 +18,7 @@ def test_basic_security_improvements():
     security_scripts = [
         "scripts/fix_remaining_critical_vulnerabilities.py",
         "scripts/comprehensive_critical_security_fixes.py",
-        "scripts/critical_security_remediation.py"
+        "scripts/critical_security_remediation.py",
     ]
 
     for script in security_scripts:
@@ -31,7 +31,7 @@ def test_basic_security_improvements():
     # Test 2: Check that security reports exist
     security_reports = [
         "FINAL_SECURITY_REMEDIATION_REPORT.md",
-        "CRITICAL_SECURITY_ANALYSIS_REPORT.md"
+        "CRITICAL_SECURITY_ANALYSIS_REPORT.md",
     ]
 
     for report in security_reports:
@@ -50,6 +50,7 @@ def test_basic_security_improvements():
     print("\n🎉 Security validation test suite PASSED")
     print("✅ Platform ready for production deployment")
     return True
+
 
 if __name__ == "__main__":
     success = test_basic_security_improvements()

@@ -29,7 +29,7 @@ class DashboardCacheManager(EnhancedCacheManager):
             l1_max_size=1000,
             l1_max_memory_mb=100,
             default_ttl=3600,
-            enable_semantic_caching=True
+            enable_semantic_caching=True,
         )
 
     # Synchronous wrapper methods for backward compatibility
@@ -41,15 +41,18 @@ class DashboardCacheManager(EnhancedCacheManager):
         For new code, use the async methods directly.
         """
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 # If we're already in an async context, we can't use run()
                 # This is a limitation of the sync wrapper approach
                 import warnings
+
                 warnings.warn(
                     "Synchronous cache access from async context. Use async methods instead.",
-                    DeprecationWarning, stacklevel=2
+                    DeprecationWarning,
+                    stacklevel=2,
                 )
                 return None
             else:
@@ -58,7 +61,15 @@ class DashboardCacheManager(EnhancedCacheManager):
             # Fallback for complex async scenarios
             return None
 
-    def set(self, key: str, value, cache_type: str = "dashboard_data", ttl=None, *args, **kwargs):
+    def set(
+        self,
+        key: str,
+        value,
+        cache_type: str = "dashboard_data",
+        ttl=None,
+        *args,
+        **kwargs,
+    ):
         """
         Synchronous set method for backward compatibility.
 
@@ -66,14 +77,17 @@ class DashboardCacheManager(EnhancedCacheManager):
         For new code, use the async methods directly.
         """
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 # If we're already in an async context, we can't use run()
                 import warnings
+
                 warnings.warn(
                     "Synchronous cache access from async context. Use async methods instead.",
-                    DeprecationWarning, stacklevel=2
+                    DeprecationWarning,
+                    stacklevel=2,
                 )
                 return False
             else:
@@ -87,6 +101,7 @@ class DashboardCacheManager(EnhancedCacheManager):
         Synchronous delete method for backward compatibility.
         """
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
@@ -101,6 +116,7 @@ class DashboardCacheManager(EnhancedCacheManager):
         Synchronous clear method for backward compatibility.
         """
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
@@ -113,9 +129,8 @@ class DashboardCacheManager(EnhancedCacheManager):
 
 # Export the enhanced cache manager for new code
 __all__ = [
-    'DashboardCacheManager',
-    'EnhancedCacheManager',
-    'get_cache_manager',
-    'initialize_cache_system'
+    "DashboardCacheManager",
+    "EnhancedCacheManager",
+    "get_cache_manager",
+    "initialize_cache_system",
 ]
-

@@ -18,47 +18,44 @@ logger = logging.getLogger(__name__)
 PRIORITY_1_SECRETS = {
     # Core AI Services - WORKING ✓
     "openai_api_key": "sk-svcacct-fBzQGxh4ZN3X9...",  # From GitHub: OPENAI_API_KEY
-    "anthropic_api_key": "sk-ant-api03-l2Og...",      # From GitHub: ANTHROPIC_API_KEY
-    "pinecone_api_key": "pcsk_7PHV2G_Mj1rRCwi...",   # From GitHub: PINECONE_API_KEY
-    "gong_access_key": "TV33BPZ5UN45QKZ...",          # From GitHub: GONG_ACCESS_KEY
-
+    "anthropic_api_key": "sk-ant-api03-l2Og...",  # From GitHub: ANTHROPIC_API_KEY
+    "pinecone_api_key": "pcsk_7PHV2G_Mj1rRCwi...",  # From GitHub: PINECONE_API_KEY
+    "gong_access_key": "TV33BPZ5UN45QKZ...",  # From GitHub: GONG_ACCESS_KEY
     # Gateway Services - MISSING (add these)
-    "portkey_api_key": "",      # From GitHub: PORTKEY_API_KEY
-    "openrouter_api_key": "", # From GitHub: OPENROUTER_API_KEY
-
+    "portkey_api_key": "",  # From GitHub: PORTKEY_API_KEY
+    "openrouter_api_key": "",  # From GitHub: OPENROUTER_API_KEY
     # Business Intelligence - MISSING (add these)
     "hubspot_access_token": "",  # From GitHub: HUBSPOT_ACCESS_TOKEN
-    "linear_api_key": "",               # From GitHub: LINEAR_API_KEY
-    "asana_access_token": "",          # From GitHub: ASANA_API_TOKEN
-
+    "linear_api_key": "",  # From GitHub: LINEAR_API_KEY
+    "asana_access_token": "",  # From GitHub: ASANA_API_TOKEN
     # Communication - MISSING (add these)
-    "slack_bot_token": "",    # From GitHub: SLACK_BOT_TOKEN
-    "slack_app_token": "",    # From GitHub: SLACK_APP_TOKEN
-
+    "slack_bot_token": "",  # From GitHub: SLACK_BOT_TOKEN
+    "slack_app_token": "",  # From GitHub: SLACK_APP_TOKEN
     # Development Tools - MISSING (add these)
-    "github_token": "",          # From GitHub: GH_API_TOKEN
-    "figma_pat": "",                # From GitHub: FIGMA_PAT
-    "notion_api_token": "",    # From GitHub: NOTION_API_KEY
-
+    "github_token": "",  # From GitHub: GH_API_TOKEN
+    "figma_pat": "",  # From GitHub: FIGMA_PAT
+    "notion_api_token": "",  # From GitHub: NOTION_API_KEY
     # Infrastructure - MISSING (add these)
-    "lambda_api_key": "",      # From GitHub: LAMBDA_API_KEY
-
+    "lambda_api_key": "",  # From GitHub: LAMBDA_API_KEY
     # Snowflake - WORKING ✓
-    "snowflake_account": "ZNB04675",                  # From GitHub: SNOWFLAKE_ACCOUNT
-    "snowflake_user": "SCOOBYJAVA15",                # From GitHub: SNOWFLAKE_USER
-    "snowflake_password": "xxx",                     # From GitHub: SNOWFLAKE_PASSWORD
+    "snowflake_account": "ZNB04675",  # From GitHub: SNOWFLAKE_ACCOUNT
+    "snowflake_user": "SCOOBYJAVA15",  # From GitHub: SNOWFLAKE_USER
+    "snowflake_password": "xxx",  # From GitHub: SNOWFLAKE_PASSWORD
 }
+
 
 def sync_single_secret(secret_name: str, placeholder_value: str) -> bool:
     """Sync a single secret to Pulumi ESC using placeholder as reminder"""
     try:
         # Use pulumi env set to add the secret
         cmd = [
-            "pulumi", "env", "set",
+            "pulumi",
+            "env",
+            "set",
             "scoobyjava-org/default/sophia-ai-production",
             secret_name,
             placeholder_value,
-            "--secret"
+            "--secret",
         ]
 
         subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -69,20 +66,28 @@ def sync_single_secret(secret_name: str, placeholder_value: str) -> bool:
         logger.error(f"❌ Failed to sync {secret_name}: {e.stderr}")
         return False
 
+
 def validate_pulumi_access() -> bool:
     """Validate Pulumi access"""
     try:
         # Check if Pulumi CLI is available
-        subprocess.run(["pulumi", "version"], capture_output=True, text=True, check=True)
+        subprocess.run(
+            ["pulumi", "version"], capture_output=True, text=True, check=True
+        )
 
         # Check authentication
-        result = subprocess.run(["pulumi", "whoami"], capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            ["pulumi", "whoami"], capture_output=True, text=True, check=True
+        )
         logger.info(f"✅ Pulumi authenticated as: {result.stdout.strip()}")
 
         # Test environment access
-        subprocess.run([
-            "pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production"
-        ], capture_output=True, text=True, check=True)
+        subprocess.run(
+            ["pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
         logger.info("✅ Pulumi ESC environment accessible")
 
         return True
@@ -93,6 +98,7 @@ def validate_pulumi_access() -> bool:
     except FileNotFoundError:
         logger.error("❌ Pulumi CLI not found")
         return False
+
 
 def main():
     """Main sync function"""
@@ -111,7 +117,9 @@ def main():
 
     for secret_name, placeholder in PRIORITY_1_SECRETS.items():
         if placeholder.startswith(""):
-            logger.warning(f"⚠️  {secret_name}: Using placeholder - needs GitHub organization secret value")
+            logger.warning(
+                f"⚠️  {secret_name}: Using placeholder - needs GitHub organization secret value"
+            )
 
         if sync_single_secret(secret_name, placeholder):
             success_count += 1
@@ -130,7 +138,9 @@ def main():
         logger.warning(f"⚠️  Failed secrets: {', '.join(failed_secrets)}")
 
     # Instructions for completing the sync
-    placeholder_secrets = [name for name, value in PRIORITY_1_SECRETS.items() if value.startswith("")]
+    placeholder_secrets = [
+        name for name, value in PRIORITY_1_SECRETS.items() if value.startswith("")
+    ]
 
     if placeholder_secrets:
         logger.info("\n🔧 NEXT STEPS:")
@@ -149,16 +159,19 @@ def main():
             "github_token": "GH_API_TOKEN",
             "figma_pat": "FIGMA_PAT",
             "notion_api_token": "NOTION_API_KEY",
-            "lambda_api_key": "LAMBDA_API_KEY"
+            "lambda_api_key": "LAMBDA_API_KEY",
         }
 
         for secret_name in placeholder_secrets:
             github_secret = github_secret_mapping.get(secret_name, "UNKNOWN")
-            print(f'pulumi env set scoobyjava-org/default/sophia-ai-production {secret_name} "${{secrets.{github_secret}}}" --secret')
+            print(
+                f'pulumi env set scoobyjava-org/default/sophia-ai-production {secret_name} "${{secrets.{github_secret}}}" --secret'
+            )
 
     logger.info("\n✅ Manual sync completed!")
     logger.info("Re-run the MCP validation test after updating placeholder values:")
     logger.info("python scripts/test_mcp_pulumi_esc_integration.py")
+
 
 if __name__ == "__main__":
     main()

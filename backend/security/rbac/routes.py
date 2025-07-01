@@ -34,8 +34,10 @@ router = APIRouter(prefix="/api/v3/rbac", tags=["RBAC"])
 
 # Request and response models
 
+
 class PermissionCreate(BaseModel):
     """Model for creating a permission"""
+
     resource_type: ResourceType
     actions: list[ActionType]
     resource_id: str | None = None
@@ -46,6 +48,7 @@ class PermissionCreate(BaseModel):
 
 class RoleCreate(BaseModel):
     """Model for creating a role"""
+
     name: str
     permissions: list[PermissionCreate]
     description: str | None = None
@@ -53,6 +56,7 @@ class RoleCreate(BaseModel):
 
 class RoleUpdate(BaseModel):
     """Model for updating a role"""
+
     name: str | None = None
     permissions: list[PermissionCreate] | None = None
     description: str | None = None
@@ -60,6 +64,7 @@ class RoleUpdate(BaseModel):
 
 class RoleResponse(BaseModel):
     """Model for role response"""
+
     id: str
     name: str
     permissions: list[Permission]
@@ -71,6 +76,7 @@ class RoleResponse(BaseModel):
 
 class UserCreate(BaseModel):
     """Model for creating a user"""
+
     id: str
     email: str
     name: str | None = None
@@ -81,6 +87,7 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     """Model for updating a user"""
+
     email: str | None = None
     name: str | None = None
     department: str | None = None
@@ -90,6 +97,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     """Model for user response"""
+
     id: str
     email: str
     name: str | None = None
@@ -102,6 +110,7 @@ class UserResponse(BaseModel):
 
 class RoleAssignmentCreate(BaseModel):
     """Model for creating a role assignment"""
+
     user_id: str
     role_id: str
     scope_type: ResourceType | None = None
@@ -112,6 +121,7 @@ class RoleAssignmentCreate(BaseModel):
 
 class RoleAssignmentUpdate(BaseModel):
     """Model for updating a role assignment"""
+
     scope_type: ResourceType | None = None
     scope_id: str | None = None
     constraints: dict[str, Any] | None = None
@@ -120,6 +130,7 @@ class RoleAssignmentUpdate(BaseModel):
 
 class RoleAssignmentResponse(BaseModel):
     """Model for role assignment response"""
+
     id: str
     user_id: str
     role_id: str
@@ -133,6 +144,7 @@ class RoleAssignmentResponse(BaseModel):
 
 class PermissionCheckRequest(BaseModel):
     """Model for permission check request"""
+
     user_id: str
     resource_type: ResourceType
     action: ActionType
@@ -142,6 +154,7 @@ class PermissionCheckRequest(BaseModel):
 
 class PermissionCheckResponse(BaseModel):
     """Model for permission check response"""
+
     has_permission: bool
     user_id: str
     resource_type: ResourceType
@@ -151,6 +164,7 @@ class PermissionCheckResponse(BaseModel):
 
 
 # Role routes
+
 
 @router.get("/roles", response_model=list[RoleResponse])
 async def get_roles(
@@ -198,7 +212,9 @@ async def get_role(
 @router.post("/roles", response_model=RoleResponse, status_code=status.HTTP_201_CREATED)
 async def create_role(
     role_create: RoleCreate,
-    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.CREATE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.ROLE, ActionType.CREATE)
+    ),
 ) -> Role:
     """
     Create a new role.
@@ -238,7 +254,9 @@ async def create_role(
 async def update_role(
     role_update: RoleUpdate,
     role_id: str = Path(..., description="ID of the role to update"),
-    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.UPDATE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.ROLE, ActionType.UPDATE)
+    ),
 ) -> Role:
     """
     Update a role.
@@ -305,7 +323,9 @@ async def update_role(
 @router.delete("/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
     role_id: str = Path(..., description="ID of the role to delete"),
-    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.DELETE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.ROLE, ActionType.DELETE)
+    ),
 ) -> None:
     """
     Delete a role.
@@ -344,6 +364,7 @@ async def delete_role(
 
 
 # User routes
+
 
 @router.get("/users", response_model=list[UserResponse])
 async def get_users(
@@ -391,7 +412,9 @@ async def get_user(
 @router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_create: UserCreate,
-    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.CREATE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.USER, ActionType.CREATE)
+    ),
 ) -> User:
     """
     Create a new user.
@@ -421,7 +444,9 @@ async def create_user(
 async def update_user(
     user_update: UserUpdate,
     user_id: str = Path(..., description="ID of the user to update"),
-    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.UPDATE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.USER, ActionType.UPDATE)
+    ),
 ) -> User:
     """
     Update a user.
@@ -460,7 +485,9 @@ async def update_user(
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: str = Path(..., description="ID of the user to delete"),
-    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.DELETE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.USER, ActionType.DELETE)
+    ),
 ) -> None:
     """
     Delete a user.
@@ -484,6 +511,7 @@ async def delete_user(
 
 
 # Role assignment routes
+
 
 @router.get("/assignments", response_model=list[RoleAssignmentResponse])
 async def get_role_assignments(
@@ -600,7 +628,9 @@ async def create_role_assignment(
 async def update_role_assignment(
     assignment_update: RoleAssignmentUpdate,
     assignment_id: str = Path(..., description="ID of the role assignment to update"),
-    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.UPDATE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.ROLE, ActionType.UPDATE)
+    ),
 ) -> RoleAssignment:
     """
     Update a role assignment.
@@ -638,7 +668,9 @@ async def update_role_assignment(
 @router.delete("/assignments/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role_assignment(
     assignment_id: str = Path(..., description="ID of the role assignment to delete"),
-    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.DELETE)),
+    _: dict[str, Any] = Depends(
+        require_permission(ResourceType.ROLE, ActionType.DELETE)
+    ),
 ) -> None:
     """
     Delete a role assignment.
@@ -662,6 +694,7 @@ async def delete_role_assignment(
 
 
 # Permission checking routes
+
 
 @router.post("/check", response_model=PermissionCheckResponse)
 async def check_permission(
@@ -710,4 +743,3 @@ async def check_permission(
         resource_id=check_request.resource_id,
         context=check_request.context,
     )
-

@@ -26,8 +26,7 @@ from typing import Any
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -50,7 +49,7 @@ class CriticalSecurityRemediator:
             "vulnerabilities_fixed": {},
             "files_modified": [],
             "critical_errors": [],
-            "success": False
+            "success": False,
         }
 
         try:
@@ -96,7 +95,7 @@ class CriticalSecurityRemediator:
             "backend/mcp_servers/costar_mcp_server.py",
             "mcp-servers/snowflake/snowflake_mcp_server.py",
             "backend/utils/snowflake_cortex_service.py",
-            "backend/scripts/batch_embed_data.py"
+            "backend/scripts/batch_embed_data.py",
         ]
 
         for file_path_str in critical_files:
@@ -111,7 +110,7 @@ class CriticalSecurityRemediator:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -133,13 +132,15 @@ class CriticalSecurityRemediator:
             content = re.sub(fstring_pattern, fix_fstring, content)
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 fixes_in_file = content.count("# SECURITY FIX:")
                 fixes += fixes_in_file
                 self.files_modified.add(file_path)
-                logger.info(f"✅ Fixed {fixes_in_file} SQL injection issues in {file_path}")
+                logger.info(
+                    f"✅ Fixed {fixes_in_file} SQL injection issues in {file_path}"
+                )
 
         except Exception as e:
             error_msg = f"Error fixing SQL injection in {file_path}: {e}"
@@ -156,7 +157,7 @@ class CriticalSecurityRemediator:
         critical_files = [
             "unified_ai_assistant.py",
             "scripts/start_cline_v3_18_servers.py",
-            "scripts/security_fixes_examples.py"
+            "scripts/security_fixes_examples.py",
         ]
 
         for file_path_str in critical_files:
@@ -171,18 +172,20 @@ class CriticalSecurityRemediator:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             # Fix subprocess.run with shell=True
-            shell_true_pattern = r'subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)'
+            shell_true_pattern = (
+                r"subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)"
+            )
 
             def fix_shell_true(match):
                 command = match.group(1).strip()
                 other_args = match.group(2)
-                return f'subprocess.run(shlex.split({command}){other_args})  # SECURITY FIX: Removed shell=True'
+                return f"subprocess.run(shlex.split({command}){other_args})  # SECURITY FIX: Removed shell=True"
 
             content = re.sub(shell_true_pattern, fix_shell_true, content)
 
@@ -191,13 +194,15 @@ class CriticalSecurityRemediator:
                 content = "import shlex\n" + content
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 fixes_in_file = content.count("# SECURITY FIX:")
                 fixes += fixes_in_file
                 self.files_modified.add(file_path)
-                logger.info(f"✅ Fixed {fixes_in_file} command injection issues in {file_path}")
+                logger.info(
+                    f"✅ Fixed {fixes_in_file} command injection issues in {file_path}"
+                )
 
         except Exception as e:
             error_msg = f"Error fixing command injection in {file_path}: {e}"
@@ -213,7 +218,7 @@ class CriticalSecurityRemediator:
         # Critical files with hardcoded secrets
         critical_files = [
             "scripts/security/remove_exposed_secrets.py",
-            "backend/security/secret_management.py"
+            "backend/security/secret_management.py",
         ]
 
         # Secret patterns to replace
@@ -235,14 +240,18 @@ class CriticalSecurityRemediator:
         fixes = 0
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
 
             for pattern, replacement in patterns.items():
                 if re.search(pattern, content):
-                    content = re.sub(pattern, replacement + '  # SECURITY FIX: Use environment variable', content)
+                    content = re.sub(
+                        pattern,
+                        replacement + "  # SECURITY FIX: Use environment variable",
+                        content,
+                    )
                     fixes += 1
 
             # Add os import if needed
@@ -250,7 +259,7 @@ class CriticalSecurityRemediator:
                 content = "import os\n" + content
 
             if content != original_content:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 self.files_modified.add(file_path)
@@ -270,10 +279,7 @@ def main():
         description="🚨 Critical Security Remediation for Sophia AI"
     )
     parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=Path.cwd(),
-        help="Project root directory"
+        "--project-root", type=Path, default=Path.cwd(), help="Project root directory"
     )
 
     args = parser.parse_args()
@@ -291,13 +297,19 @@ def main():
     print("=" * 60)
     print(f"Total vulnerabilities fixed: {total_fixes}")
     print(f"Files modified: {len(results['files_modified'])}")
-    print(f"SQL Injection fixes: {results['vulnerabilities_fixed'].get('sql_injection', 0)}")
-    print(f"Command Injection fixes: {results['vulnerabilities_fixed'].get('command_injection', 0)}")
-    print(f"Hardcoded Secret fixes: {results['vulnerabilities_fixed'].get('hardcoded_secrets', 0)}")
+    print(
+        f"SQL Injection fixes: {results['vulnerabilities_fixed'].get('sql_injection', 0)}"
+    )
+    print(
+        f"Command Injection fixes: {results['vulnerabilities_fixed'].get('command_injection', 0)}"
+    )
+    print(
+        f"Hardcoded Secret fixes: {results['vulnerabilities_fixed'].get('hardcoded_secrets', 0)}"
+    )
     print("=" * 60)
 
     # Exit with appropriate code
-    sys.exit(0 if results['success'] else 1)
+    sys.exit(0 if results["success"] else 1)
 
 
 if __name__ == "__main__":

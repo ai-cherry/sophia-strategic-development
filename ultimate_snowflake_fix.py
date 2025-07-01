@@ -211,10 +211,15 @@ if __name__ == "__main__":
 
     # 6. Clear Python cache
     print("6. Clearing Python cache...")
-    subprocess.run(shlex.split("find . -name '*.pyc' -delete 2>/dev/null || true"), check=True)  # SECURITY FIX: Replaced os.system
-    subprocess.run(shlex.split(
-        "find . -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true"
-    ), check=True)  # SECURITY FIX: Replaced os.system
+    subprocess.run(
+        shlex.split("find . -name '*.pyc' -delete 2>/dev/null || true"), check=True
+    )  # SECURITY FIX: Replaced os.system
+    subprocess.run(
+        shlex.split(
+            "find . -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true"
+        ),
+        check=True,
+    )  # SECURITY FIX: Replaced os.system
     print("   ✅ Python cache cleared")
 
     print("\n🎉 ULTIMATE SNOWFLAKE FIX COMPLETE!")

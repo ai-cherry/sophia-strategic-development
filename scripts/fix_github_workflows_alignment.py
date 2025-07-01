@@ -18,27 +18,19 @@ def fix_environment_defaults(workflow_path: str) -> bool:
             content = f.read()
 
         # Fix environment default values
-        content = re.sub(
-            r"default:\s*['\"]staging['\"]",
-            "default: 'prod'",
-            content
-        )
+        content = re.sub(r"default:\s*['\"]staging['\"]", "default: 'prod'", content)
 
         # Fix ENVIRONMENT variable assignments
-        content = re.sub(
-            r'ENVIRONMENT="staging"',
-            'ENVIRONMENT="prod"',
-            content
-        )
+        content = re.sub(r'ENVIRONMENT="staging"', 'ENVIRONMENT="prod"', content)
 
         # Fix conditional environment checks
         content = re.sub(
-            r'ENVIRONMENT.*staging',
-            lambda m: m.group(0).replace('staging', 'prod'),
-            content
+            r"ENVIRONMENT.*staging",
+            lambda m: m.group(0).replace("staging", "prod"),
+            content,
         )
 
-        with open(workflow_path, 'w') as f:
+        with open(workflow_path, "w") as f:
             f.write(content)
 
         print(f"✅ Fixed environment defaults in {workflow_path}")
@@ -47,6 +39,7 @@ def fix_environment_defaults(workflow_path: str) -> bool:
     except Exception as e:
         print(f"❌ Error fixing {workflow_path}: {e}")
         return False
+
 
 def fix_yaml_syntax_errors(workflow_path: str) -> bool:
     """Fix common YAML syntax errors in workflows."""
@@ -58,23 +51,23 @@ def fix_yaml_syntax_errors(workflow_path: str) -> bool:
         content = re.sub(r":\s*$", "", content, flags=re.MULTILINE)
 
         # Fix indentation issues
-        lines = content.split('\n')
+        lines = content.split("\n")
         fixed_lines = []
 
         for line in lines:
             # Fix common indentation issues
-            if line.strip().startswith('echo ') and line.endswith(':'):
-                line = line.rstrip(':')
-            elif line.strip().startswith('uv ') and line.endswith(':'):
-                line = line.rstrip(':')
-            elif line.strip().startswith('python ') and line.endswith(':'):
-                line = line.rstrip(':')
+            if line.strip().startswith("echo ") and line.endswith(":"):
+                line = line.rstrip(":")
+            elif line.strip().startswith("uv ") and line.endswith(":"):
+                line = line.rstrip(":")
+            elif line.strip().startswith("python ") and line.endswith(":"):
+                line = line.rstrip(":")
 
             fixed_lines.append(line)
 
-        content = '\n'.join(fixed_lines)
+        content = "\n".join(fixed_lines)
 
-        with open(workflow_path, 'w') as f:
+        with open(workflow_path, "w") as f:
             f.write(content)
 
         print(f"✅ Fixed YAML syntax in {workflow_path}")
@@ -84,6 +77,7 @@ def fix_yaml_syntax_errors(workflow_path: str) -> bool:
         print(f"❌ Error fixing YAML syntax in {workflow_path}: {e}")
         return False
 
+
 def remove_database_url_dependencies(workflow_path: str) -> bool:
     """Remove DATABASE_URL dependencies and replace with Snowflake ESC."""
     try:
@@ -91,29 +85,16 @@ def remove_database_url_dependencies(workflow_path: str) -> bool:
             content = f.read()
 
         # Remove DATABASE_URL environment variables
-        content = re.sub(
-            r'^\s*DATABASE_URL:.*$',
-            '',
-            content,
-            flags=re.MULTILINE
-        )
+        content = re.sub(r"^\s*DATABASE_URL:.*$", "", content, flags=re.MULTILINE)
 
         # Remove DATABASE_URL validation checks
-        content = re.sub(
-            r'.*DATABASE_URL.*not set.*$',
-            '',
-            content,
-            flags=re.MULTILINE
-        )
+        content = re.sub(r".*DATABASE_URL.*not set.*$", "", content, flags=re.MULTILINE)
 
         # Add Snowflake ESC integration if missing
-        if 'PULUMI_ORG: scoobyjava-org' not in content:
-            content = content.replace(
-                'env:',
-                'env:\n  PULUMI_ORG: scoobyjava-org'
-            )
+        if "PULUMI_ORG: scoobyjava-org" not in content:
+            content = content.replace("env:", "env:\n  PULUMI_ORG: scoobyjava-org")
 
-        with open(workflow_path, 'w') as f:
+        with open(workflow_path, "w") as f:
             f.write(content)
 
         print(f"✅ Removed DATABASE_URL dependencies in {workflow_path}")
@@ -123,6 +104,7 @@ def remove_database_url_dependencies(workflow_path: str) -> bool:
         print(f"❌ Error removing DATABASE_URL from {workflow_path}: {e}")
         return False
 
+
 def update_application_entry_points(workflow_path: str) -> bool:
     """Update workflows to use correct FastAPI entry points."""
     try:
@@ -131,16 +113,25 @@ def update_application_entry_points(workflow_path: str) -> bool:
 
         # Update Python application startup commands
         replacements = [
-            (r'python app\.py', 'python -m uvicorn app.main:app --host 0.0.0.0 --port 8000'),
-            (r'python main\.py', 'python -m uvicorn app.main:app --host 0.0.0.0 --port 8000'),
-            (r'flask run', 'python -m uvicorn app.main:app --host 0.0.0.0 --port 8000'),
-            (r'gunicorn.*app', 'python -m uvicorn app.main:app --host 0.0.0.0 --port 8000'),
+            (
+                r"python app\.py",
+                "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000",
+            ),
+            (
+                r"python main\.py",
+                "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000",
+            ),
+            (r"flask run", "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"),
+            (
+                r"gunicorn.*app",
+                "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000",
+            ),
         ]
 
         for old_pattern, new_command in replacements:
             content = re.sub(old_pattern, new_command, content)
 
-        with open(workflow_path, 'w') as f:
+        with open(workflow_path, "w") as f:
             f.write(content)
 
         print(f"✅ Updated application entry points in {workflow_path}")
@@ -150,15 +141,16 @@ def update_application_entry_points(workflow_path: str) -> bool:
         print(f"❌ Error updating entry points in {workflow_path}: {e}")
         return False
 
+
 def analyze_workflow_health() -> dict[str, list[str]]:
     """Analyze all workflows and categorize their health status."""
-    workflows_dir = Path('.github/workflows')
+    workflows_dir = Path(".github/workflows")
 
     aligned = []
     needs_updates = []
     deprecated = []
 
-    for workflow_file in workflows_dir.glob('*.yml'):
+    for workflow_file in workflows_dir.glob("*.yml"):
         workflow_name = workflow_file.name
 
         try:
@@ -168,11 +160,13 @@ def analyze_workflow_health() -> dict[str, list[str]]:
             # Check for misalignment indicators
             has_staging_default = "default: 'staging'" in content
             has_database_url = "DATABASE_URL" in content
-            has_old_entry_points = any(pattern in content for pattern in ['python app.py', 'flask run'])
+            has_old_entry_points = any(
+                pattern in content for pattern in ["python app.py", "flask run"]
+            )
 
             if has_staging_default or has_database_url or has_old_entry_points:
                 needs_updates.append(workflow_name)
-            elif workflow_name in ['production_deployment.yml', 'deploy-phase2.yml']:
+            elif workflow_name in ["production_deployment.yml", "deploy-phase2.yml"]:
                 deprecated.append(workflow_name)
             else:
                 aligned.append(workflow_name)
@@ -182,10 +176,11 @@ def analyze_workflow_health() -> dict[str, list[str]]:
             needs_updates.append(workflow_name)
 
     return {
-        'aligned': aligned,
-        'needs_updates': needs_updates,
-        'deprecated': deprecated
+        "aligned": aligned,
+        "needs_updates": needs_updates,
+        "deprecated": deprecated,
     }
+
 
 def create_workflow_hierarchy_documentation():
     """Create documentation for the recommended workflow hierarchy."""
@@ -274,10 +269,11 @@ gh run view <run-id>
 ```
 """
 
-    with open('GITHUB_WORKFLOWS_HIERARCHY.md', 'w') as f:
+    with open("GITHUB_WORKFLOWS_HIERARCHY.md", "w") as f:
         f.write(hierarchy_doc)
 
     print("✅ Created workflow hierarchy documentation")
+
 
 def main():
     """Main function to fix all workflow alignment issues."""
@@ -285,21 +281,18 @@ def main():
     print("=" * 50)
 
     # Get list of workflows to fix
-    workflows_dir = Path('.github/workflows')
+    workflows_dir = Path(".github/workflows")
 
     # Workflows that need environment fixes
     environment_fix_workflows = [
-        'deploy-sophia-platform.yml',
-        'deploy-sophia-platform-fixed.yml',
-        'deploy_infrastructure.yml',
-        'master-deployment-workflow.yml'
+        "deploy-sophia-platform.yml",
+        "deploy-sophia-platform-fixed.yml",
+        "deploy_infrastructure.yml",
+        "master-deployment-workflow.yml",
     ]
 
     # Workflows that need DATABASE_URL removal
-    database_url_workflows = [
-        'deploy-phase2.yml',
-        'sync_secrets.yml'
-    ]
+    database_url_workflows = ["deploy-phase2.yml", "sync_secrets.yml"]
 
     success_count = 0
     total_fixes = 0
@@ -315,7 +308,7 @@ def main():
 
     # Fix YAML syntax errors
     print("\n🔧 Fixing YAML Syntax Errors...")
-    for workflow_file in workflows_dir.glob('*.yml'):
+    for workflow_file in workflows_dir.glob("*.yml"):
         total_fixes += 1
         if fix_yaml_syntax_errors(str(workflow_file)):
             success_count += 1
@@ -331,7 +324,7 @@ def main():
 
     # Update application entry points
     print("\n🚀 Updating Application Entry Points...")
-    for workflow_file in workflows_dir.glob('*.yml'):
+    for workflow_file in workflows_dir.glob("*.yml"):
         total_fixes += 1
         if update_application_entry_points(str(workflow_file)):
             success_count += 1
@@ -341,17 +334,17 @@ def main():
     health_status = analyze_workflow_health()
 
     print(f"\n✅ Aligned Workflows ({len(health_status['aligned'])}):")
-    for workflow in health_status['aligned'][:5]:  # Show first 5
+    for workflow in health_status["aligned"][:5]:  # Show first 5
         print(f"  - {workflow}")
-    if len(health_status['aligned']) > 5:
+    if len(health_status["aligned"]) > 5:
         print(f"  ... and {len(health_status['aligned']) - 5} more")
 
     print(f"\n⚠️ Needs Updates ({len(health_status['needs_updates'])}):")
-    for workflow in health_status['needs_updates']:
+    for workflow in health_status["needs_updates"]:
         print(f"  - {workflow}")
 
     print(f"\n❌ Deprecated ({len(health_status['deprecated'])}):")
-    for workflow in health_status['deprecated']:
+    for workflow in health_status["deprecated"]:
         print(f"  - {workflow}")
 
     # Create documentation
@@ -365,8 +358,10 @@ def main():
     print(f"Successful fixes: {success_count}")
     print(f"Success rate: {(success_count/total_fixes)*100:.1f}%")
 
-    alignment_percentage = (len(health_status['aligned']) /
-                          (len(health_status['aligned']) + len(health_status['needs_updates']))) * 100
+    alignment_percentage = (
+        len(health_status["aligned"])
+        / (len(health_status["aligned"]) + len(health_status["needs_updates"]))
+    ) * 100
     print(f"Workflow alignment: {alignment_percentage:.1f}%")
 
     if alignment_percentage >= 90:
@@ -381,6 +376,7 @@ def main():
     print("2. Test deployment with: gh workflow run 'Sophia AI Production Deployment'")
     print("3. Monitor workflow runs: gh run list")
     print("4. Check GITHUB_WORKFLOWS_HIERARCHY.md for usage guidelines")
+
 
 if __name__ == "__main__":
     main()

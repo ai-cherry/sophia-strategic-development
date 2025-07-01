@@ -109,10 +109,7 @@ class EphemeralCredential(BaseModel):
 
     def is_valid(self) -> bool:
         """Check if the credential is valid."""
-        return (
-            self.status == CredentialStatus.ACTIVE
-            and not self.is_expired()
-        )
+        return self.status == CredentialStatus.ACTIVE and not self.is_expired()
 
     def to_response_dict(self) -> dict[str, Any]:
         """Convert to a dictionary suitable for API responses."""
@@ -124,12 +121,14 @@ class EphemeralCredential(BaseModel):
             "status": self.status,
             "created_at": self.created_at.isoformat(),
             "expires_at": self.expires_at.isoformat(),
-            "last_used_at": self.last_used_at.isoformat() if self.last_used_at else None,
+            "last_used_at": (
+                self.last_used_at.isoformat() if self.last_used_at else None
+            ),
             "metadata": {
                 "user_id": self.metadata.user_id,
                 "service_id": self.metadata.service_id,
                 "client_id": self.metadata.client_id,
-            }
+            },
         }
 
 
@@ -191,4 +190,3 @@ class CredentialValidationResponse(BaseModel):
     scopes: list[str] | None = None
     expires_at: str | None = None
     error: str | None = None
-

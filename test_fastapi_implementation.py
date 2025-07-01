@@ -21,9 +21,10 @@ TEST_CONFIG = {
         "/health",
         "/health/detailed",
         "/debug/routes",
-        "/api/v1/chat"
-    ]
+        "/api/v1/chat",
+    ],
 }
+
 
 class FastAPITester:
     def __init__(self, base_url: str):
@@ -31,7 +32,9 @@ class FastAPITester:
         self.client = httpx.AsyncClient(timeout=TEST_CONFIG["timeout"])
         self.results = []
 
-    async def log_test(self, test_name: str, success: bool, details: str = "", duration: float = 0):
+    async def log_test(
+        self, test_name: str, success: bool, details: str = "", duration: float = 0
+    ):
         """Log test results"""
         status = "✅ PASS" if success else "❌ FAIL"
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -41,7 +44,7 @@ class FastAPITester:
             "success": success,
             "details": details,
             "duration": f"{duration:.2f}s",
-            "timestamp": timestamp
+            "timestamp": timestamp,
         }
 
         self.results.append(result)
@@ -62,25 +65,17 @@ class FastAPITester:
                     "Health Endpoint",
                     True,
                     f"Status: {data.get('status', 'unknown')}",
-                    duration
+                    duration,
                 )
                 return True
             else:
                 await self.log_test(
-                    "Health Endpoint",
-                    False,
-                    f"HTTP {response.status_code}",
-                    duration
+                    "Health Endpoint", False, f"HTTP {response.status_code}", duration
                 )
                 return False
         except Exception as e:
             duration = time.time() - start_time
-            await self.log_test(
-                "Health Endpoint",
-                False,
-                f"Error: {str(e)}",
-                duration
-            )
+            await self.log_test("Health Endpoint", False, f"Error: {str(e)}", duration)
             return False
 
     async def test_detailed_health_endpoint(self):
@@ -92,15 +87,23 @@ class FastAPITester:
 
             if response.status_code == 200:
                 data = response.json()
-                expected_fields = ["status", "service", "version", "environment", "timestamp"]
-                missing_fields = [field for field in expected_fields if field not in data]
+                expected_fields = [
+                    "status",
+                    "service",
+                    "version",
+                    "environment",
+                    "timestamp",
+                ]
+                missing_fields = [
+                    field for field in expected_fields if field not in data
+                ]
 
                 if not missing_fields:
                     await self.log_test(
                         "Detailed Health Endpoint",
                         True,
                         f"Service: {data.get('service')}, Version: {data.get('version')}",
-                        duration
+                        duration,
                     )
                     return True
                 else:
@@ -108,7 +111,7 @@ class FastAPITester:
                         "Detailed Health Endpoint",
                         False,
                         f"Missing fields: {missing_fields}",
-                        duration
+                        duration,
                     )
                     return False
             else:
@@ -116,16 +119,13 @@ class FastAPITester:
                     "Detailed Health Endpoint",
                     False,
                     f"HTTP {response.status_code}",
-                    duration
+                    duration,
                 )
                 return False
         except Exception as e:
             duration = time.time() - start_time
             await self.log_test(
-                "Detailed Health Endpoint",
-                False,
-                f"Error: {str(e)}",
-                duration
+                "Detailed Health Endpoint", False, f"Error: {str(e)}", duration
             )
             return False
 
@@ -136,12 +136,11 @@ class FastAPITester:
             payload = {
                 "message": TEST_CONFIG["test_message"],
                 "user_id": "test_user",
-                "stream": False
+                "stream": False,
             }
 
             response = await self.client.post(
-                f"{self.base_url}/api/v1/chat",
-                json=payload
+                f"{self.base_url}/api/v1/chat", json=payload
             )
             duration = time.time() - start_time
 
@@ -152,7 +151,7 @@ class FastAPITester:
                         "Chat Endpoint (Regular)",
                         True,
                         f"Response length: {len(data['content'])} chars",
-                        duration
+                        duration,
                     )
                     return True
                 else:
@@ -160,7 +159,7 @@ class FastAPITester:
                         "Chat Endpoint (Regular)",
                         False,
                         f"Invalid response format: {list(data.keys())}",
-                        duration
+                        duration,
                     )
                     return False
             else:
@@ -168,16 +167,13 @@ class FastAPITester:
                     "Chat Endpoint (Regular)",
                     False,
                     f"HTTP {response.status_code}",
-                    duration
+                    duration,
                 )
                 return False
         except Exception as e:
             duration = time.time() - start_time
             await self.log_test(
-                "Chat Endpoint (Regular)",
-                False,
-                f"Error: {str(e)}",
-                duration
+                "Chat Endpoint (Regular)", False, f"Error: {str(e)}", duration
             )
             return False
 
@@ -188,12 +184,11 @@ class FastAPITester:
             payload = {
                 "message": TEST_CONFIG["test_message"],
                 "user_id": "test_user",
-                "stream": True
+                "stream": True,
             }
 
             response = await self.client.post(
-                f"{self.base_url}/api/v1/chat",
-                json=payload
+                f"{self.base_url}/api/v1/chat", json=payload
             )
             duration = time.time() - start_time
 
@@ -214,7 +209,7 @@ class FastAPITester:
                             "Chat Endpoint (Streaming)",
                             True,
                             f"Received {len(content_chunks)} chunks",
-                            duration
+                            duration,
                         )
                         return True
                     else:
@@ -222,7 +217,7 @@ class FastAPITester:
                             "Chat Endpoint (Streaming)",
                             False,
                             "No SSE data format found",
-                            duration
+                            duration,
                         )
                         return False
                 else:
@@ -230,7 +225,7 @@ class FastAPITester:
                         "Chat Endpoint (Streaming)",
                         False,
                         f"Wrong content-type: {content_type}",
-                        duration
+                        duration,
                     )
                     return False
             else:
@@ -238,16 +233,13 @@ class FastAPITester:
                     "Chat Endpoint (Streaming)",
                     False,
                     f"HTTP {response.status_code}",
-                    duration
+                    duration,
                 )
                 return False
         except Exception as e:
             duration = time.time() - start_time
             await self.log_test(
-                "Chat Endpoint (Streaming)",
-                False,
-                f"Error: {str(e)}",
-                duration
+                "Chat Endpoint (Streaming)", False, f"Error: {str(e)}", duration
             )
             return False
 
@@ -266,7 +258,7 @@ class FastAPITester:
                         "Debug Routes Endpoint",
                         True,
                         f"Found {route_count} routes",
-                        duration
+                        duration,
                     )
                     return True
                 else:
@@ -274,7 +266,7 @@ class FastAPITester:
                         "Debug Routes Endpoint",
                         False,
                         "Invalid routes format",
-                        duration
+                        duration,
                     )
                     return False
             else:
@@ -282,16 +274,13 @@ class FastAPITester:
                     "Debug Routes Endpoint",
                     False,
                     f"HTTP {response.status_code}",
-                    duration
+                    duration,
                 )
                 return False
         except Exception as e:
             duration = time.time() - start_time
             await self.log_test(
-                "Debug Routes Endpoint",
-                False,
-                f"Error: {str(e)}",
-                duration
+                "Debug Routes Endpoint", False, f"Error: {str(e)}", duration
             )
             return False
 
@@ -304,9 +293,15 @@ class FastAPITester:
             duration = time.time() - start_time
 
             cors_headers = {
-                "access-control-allow-origin": response.headers.get("access-control-allow-origin"),
-                "access-control-allow-methods": response.headers.get("access-control-allow-methods"),
-                "access-control-allow-headers": response.headers.get("access-control-allow-headers")
+                "access-control-allow-origin": response.headers.get(
+                    "access-control-allow-origin"
+                ),
+                "access-control-allow-methods": response.headers.get(
+                    "access-control-allow-methods"
+                ),
+                "access-control-allow-headers": response.headers.get(
+                    "access-control-allow-headers"
+                ),
             }
 
             if cors_headers["access-control-allow-origin"]:
@@ -314,24 +309,18 @@ class FastAPITester:
                     "CORS Configuration",
                     True,
                     f"Origin: {cors_headers['access-control-allow-origin']}",
-                    duration
+                    duration,
                 )
                 return True
             else:
                 await self.log_test(
-                    "CORS Configuration",
-                    False,
-                    "Missing CORS headers",
-                    duration
+                    "CORS Configuration", False, "Missing CORS headers", duration
                 )
                 return False
         except Exception as e:
             duration = time.time() - start_time
             await self.log_test(
-                "CORS Configuration",
-                False,
-                f"Error: {str(e)}",
-                duration
+                "CORS Configuration", False, f"Error: {str(e)}", duration
             )
             return False
 
@@ -348,7 +337,7 @@ class FastAPITester:
             self.test_chat_endpoint_regular,
             self.test_chat_endpoint_streaming,
             self.test_debug_routes_endpoint,
-            self.test_cors_configuration
+            self.test_cors_configuration,
         ]
 
         total_tests = len(test_functions)
@@ -371,6 +360,7 @@ class FastAPITester:
 
         return passed_tests == total_tests
 
+
 async def main():
     """Main test function"""
     print("🔍 FastAPI 2025 Implementation Validator")
@@ -382,7 +372,9 @@ async def main():
         success = await tester.run_all_tests()
 
         if success:
-            print("\n🎉 ALL TESTS PASSED! FastAPI 2025 implementation is working correctly.")
+            print(
+                "\n🎉 ALL TESTS PASSED! FastAPI 2025 implementation is working correctly."
+            )
             return 0
         else:
             print("\n⚠️  Some tests failed. Please check the implementation.")
@@ -394,6 +386,7 @@ async def main():
     except Exception as e:
         print(f"\n💥 Test suite error: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))

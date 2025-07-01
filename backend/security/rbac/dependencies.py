@@ -28,6 +28,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 # User extraction
 
+
 async def get_current_user(token: str | None = Depends(oauth2_scheme)) -> User:
     """
     Get the current user from the token.
@@ -103,6 +104,7 @@ async def get_optional_user(token: str | None = Depends(oauth2_scheme)) -> User 
 
 # Permission checking dependencies
 
+
 def require_permission(
     resource_type: ResourceType,
     action: ActionType,
@@ -130,6 +132,7 @@ def require_permission(
             ...
         ```
     """
+
     async def check_permission(
         request: Request,
         user: User = Depends(get_current_user),
@@ -251,6 +254,7 @@ def require_system_admin(user: User = Depends(get_current_user)) -> User:
 
 # RBAC middleware
 
+
 class RBACMiddleware:
     """
     Middleware for automatic RBAC permission checking.
@@ -311,7 +315,9 @@ class RBACMiddleware:
 
         # Extract configuration
         resource_type = route_config.get("resource_type", self.default_resource_type)
-        action = route_config.get("action", self.default_action_mapping.get(request.method))
+        action = route_config.get(
+            "action", self.default_action_mapping.get(request.method)
+        )
         resource_id = route_config.get("resource_id")
 
         if not resource_type or not action:
@@ -378,9 +384,9 @@ class RBACMiddleware:
 
                 # Return 403 Forbidden
                 return Response(
-                    content=json.dumps({
-                        "detail": f"Permission denied: {action} {resource_type}"
-                    }),
+                    content=json.dumps(
+                        {"detail": f"Permission denied: {action} {resource_type}"}
+                    ),
                     status_code=status.HTTP_403_FORBIDDEN,
                     media_type="application/json",
                 )
@@ -493,6 +499,7 @@ def requires_permission(
             ...
         ```
     """
+
     def decorator(func: T) -> T:
         # Add dependency to the endpoint
         dependency = require_permission(resource_type, action, resource_id)
@@ -555,6 +562,7 @@ def requires_system_admin(func: T) -> T:
 
 # Setup function for FastAPI
 
+
 def setup_rbac(
     app: FastAPI,
     storage_path: str | None = None,
@@ -613,4 +621,3 @@ def setup_rbac(
             "use_middleware": use_middleware,
         },
     )
-

@@ -74,13 +74,21 @@ async def test_get_or_set(cache: EnhancedCacheManager):
         return f"expensive_result_{call_count}"
 
     # First call should execute the function
-    result1 = await cache.get_or_set("expensive_key", expensive_operation, ttl=10, cache_type="test_type")
-    assert result1 == "expensive_result_1", f"Expected 'expensive_result_1', got {result1}"
+    result1 = await cache.get_or_set(
+        "expensive_key", expensive_operation, ttl=10, cache_type="test_type"
+    )
+    assert (
+        result1 == "expensive_result_1"
+    ), f"Expected 'expensive_result_1', got {result1}"
     assert call_count == 1, f"Function should be called once, got {call_count}"
 
     # Second call should use cached value
-    result2 = await cache.get_or_set("expensive_key", expensive_operation, ttl=10, cache_type="test_type")
-    assert result2 == "expensive_result_1", f"Expected cached 'expensive_result_1', got {result2}"
+    result2 = await cache.get_or_set(
+        "expensive_key", expensive_operation, ttl=10, cache_type="test_type"
+    )
+    assert (
+        result2 == "expensive_result_1"
+    ), f"Expected cached 'expensive_result_1', got {result2}"
     assert call_count == 1, f"Function should not be called again, count: {call_count}"
 
     logger.info("✅ get_or_set test passed")
@@ -102,7 +110,9 @@ async def test_cache_types(cache: EnhancedCacheManager):
 
     assert llm_value == "llm_value", f"Expected 'llm_value', got {llm_value}"
     assert tool_value == "tool_value", f"Expected 'tool_value', got {tool_value}"
-    assert context_value == "context_value", f"Expected 'context_value', got {context_value}"
+    assert (
+        context_value == "context_value"
+    ), f"Expected 'context_value', got {context_value}"
 
     logger.info("✅ Cache types test passed")
 
@@ -119,21 +129,27 @@ async def test_performance(cache: EnhancedCacheManager):
     for key, value in test_data.items():
         await cache.set(key, value, "performance_test")
     set_time = time.time() - start_time
-    logger.info(f"Set 1000 items in {set_time:.4f} seconds ({1000/set_time:.2f} ops/sec)")
+    logger.info(
+        f"Set 1000 items in {set_time:.4f} seconds ({1000/set_time:.2f} ops/sec)"
+    )
 
     # Test get performance (cached)
     start_time = time.time()
     for key in test_data.keys():
         await cache.get(key, "performance_test")
     get_time = time.time() - start_time
-    logger.info(f"Get 1000 cached items in {get_time:.4f} seconds ({1000/get_time:.2f} ops/sec)")
+    logger.info(
+        f"Get 1000 cached items in {get_time:.4f} seconds ({1000/get_time:.2f} ops/sec)"
+    )
 
     # Test get performance (uncached)
     start_time = time.time()
     for i in range(1000):
         await cache.get(f"nonexistent_key_{i}", "performance_test")
     miss_time = time.time() - start_time
-    logger.info(f"Get 1000 uncached items in {miss_time:.4f} seconds ({1000/miss_time:.2f} ops/sec)")
+    logger.info(
+        f"Get 1000 uncached items in {miss_time:.4f} seconds ({1000/miss_time:.2f} ops/sec)"
+    )
 
     # Get cache stats
     stats = cache.get_stats()
@@ -151,7 +167,9 @@ async def test_semantic_caching(cache: EnhancedCacheManager):
     content2 = "Tell me about the capital of France."
 
     # Set with semantic caching
-    await cache.set_semantic(content1, "Paris is the capital of France", "llm_response", ttl=10)
+    await cache.set_semantic(
+        content1, "Paris is the capital of France", "llm_response", ttl=10
+    )
 
     # Get with semantic caching
     # Note: With the current implementation, only exact matches will work
@@ -159,7 +177,9 @@ async def test_semantic_caching(cache: EnhancedCacheManager):
     result1 = await cache.get_semantic_similar(content1, "llm_response")
     result2 = await cache.get_semantic_similar(content2, "llm_response")
 
-    assert result1 == "Paris is the capital of France", f"Expected semantic match, got {result1}"
+    assert (
+        result1 == "Paris is the capital of France"
+    ), f"Expected semantic match, got {result1}"
     # With our current implementation, this will be None since we're not doing true semantic matching yet
     logger.info(f"Semantic match for different query: {result2}")
 
@@ -175,7 +195,7 @@ async def main():
         l1_max_size=10000,
         l1_max_memory_mb=100,
         default_ttl=3600,
-        enable_semantic_caching=True
+        enable_semantic_caching=True,
     )
 
     try:
@@ -198,4 +218,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

@@ -91,7 +91,9 @@ class AutomatedWebhookManager:
                     },
                 ],
                 "auth_type": "signature",
-                "credentials": {"access_token": get_config_value("hubspot_access_token")},
+                "credentials": {
+                    "access_token": get_config_value("hubspot_access_token")
+                },
             },
             "estuary": {
                 "platform_api_base": "https://api.estuary.dev/v1",

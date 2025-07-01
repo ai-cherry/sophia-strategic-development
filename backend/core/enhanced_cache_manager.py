@@ -39,7 +39,7 @@ class EnhancedCacheManager:
         l1_max_size: int = 1000,
         l1_max_memory_mb: int = 100,
         default_ttl: int = 3600,  # 1 hour default TTL
-        enable_semantic_caching: bool = True
+        enable_semantic_caching: bool = True,
     ):
         self.default_ttl = default_ttl
         self.enable_semantic_caching = enable_semantic_caching
@@ -49,7 +49,7 @@ class EnhancedCacheManager:
             l1_max_size=l1_max_size,
             l2_max_size=10000,  # Default L2 size
             default_ttl=default_ttl,
-            compression_threshold=1024  # 1KB compression threshold
+            compression_threshold=1024,  # 1KB compression threshold
         )
 
         # Initialize the cache system
@@ -57,12 +57,27 @@ class EnhancedCacheManager:
 
         # Cache type configurations
         self._cache_configs = {
-            "llm_response": {"ttl": 7200, "compress": True},  # 2 hours for LLM responses
-            "tool_result": {"ttl": 1800, "compress": False},  # 30 minutes for tool results
+            "llm_response": {
+                "ttl": 7200,
+                "compress": True,
+            },  # 2 hours for LLM responses
+            "tool_result": {
+                "ttl": 1800,
+                "compress": False,
+            },  # 30 minutes for tool results
             "context_data": {"ttl": 3600, "compress": True},  # 1 hour for context data
-            "user_session": {"ttl": 86400, "compress": False},  # 24 hours for user sessions
-            "api_response": {"ttl": 900, "compress": True},  # 15 minutes for API responses
-            "dashboard_data": {"ttl": 1800, "compress": False},  # 30 minutes for dashboard data
+            "user_session": {
+                "ttl": 86400,
+                "compress": False,
+            },  # 24 hours for user sessions
+            "api_response": {
+                "ttl": 900,
+                "compress": True,
+            },  # 15 minutes for API responses
+            "dashboard_data": {
+                "ttl": 1800,
+                "compress": False,
+            },  # 30 minutes for dashboard data
         }
 
         # Performance metrics
@@ -71,7 +86,7 @@ class EnhancedCacheManager:
             "cache_hits": 0,
             "cache_misses": 0,
             "avg_response_time_ms": 0.0,
-            "last_reset": datetime.now()
+            "last_reset": datetime.now(),
         }
 
         logger.info("✅ Enhanced Cache Manager initialized with hierarchical caching")
@@ -117,7 +132,7 @@ class EnhancedCacheManager:
         value: Any,
         cache_type: str = "default",
         ttl: int | None = None,
-        force_level: CacheLevel | None = None
+        force_level: CacheLevel | None = None,
     ) -> bool:
         """
         Set value in cache with intelligent cache type handling.
@@ -137,20 +152,21 @@ class EnhancedCacheManager:
             cache_key = self._generate_cache_key(key, cache_type)
 
             # Get cache configuration for this type
-            config = self._cache_configs.get(cache_type, {"ttl": self.default_ttl, "compress": False})
+            config = self._cache_configs.get(
+                cache_type, {"ttl": self.default_ttl, "compress": False}
+            )
             effective_ttl = ttl if ttl is not None else config["ttl"]
 
             # Set in hierarchical cache using put method
             cache_level = CacheLevel.L1_MEMORY if force_level is None else force_level
             success = await self._cache.put(
-                cache_key,
-                value,
-                ttl=effective_ttl,
-                cache_level=cache_level
+                cache_key, value, ttl=effective_ttl, cache_level=cache_level
             )
 
             if success:
-                logger.debug(f"Cache SET for key: {cache_key[:50]}... (TTL: {effective_ttl}s)")
+                logger.debug(
+                    f"Cache SET for key: {cache_key[:50]}... (TTL: {effective_ttl}s)"
+                )
             else:
                 logger.warning(f"Cache SET failed for key: {cache_key[:50]}...")
 
@@ -201,7 +217,7 @@ class EnhancedCacheManager:
         self,
         content: str,
         cache_type: str = "llm_response",
-        similarity_threshold: float = 0.85
+        similarity_threshold: float = 0.85,
     ) -> Any | None:
         """
         Get semantically similar cached content using embedding-based similarity.
@@ -235,7 +251,7 @@ class EnhancedCacheManager:
         content: str,
         value: Any,
         cache_type: str = "llm_response",
-        ttl: int | None = None
+        ttl: int | None = None,
     ) -> bool:
         """
         Set content with semantic caching capability.
@@ -259,7 +275,9 @@ class EnhancedCacheManager:
 
             # Cache both with regular key and semantic key
             regular_success = await self.set(content, value, cache_type, ttl)
-            semantic_success = await self.set(semantic_key, value, f"semantic_{cache_type}", ttl)
+            semantic_success = await self.set(
+                semantic_key, value, f"semantic_{cache_type}", ttl
+            )
 
             return regular_success and semantic_success
 
@@ -279,9 +297,8 @@ class EnhancedCacheManager:
             cache_stats = self._cache.get_stats()
 
             # Add performance metrics
-            hit_ratio = (
-                self._performance_metrics["cache_hits"] /
-                max(self._performance_metrics["total_requests"], 1)
+            hit_ratio = self._performance_metrics["cache_hits"] / max(
+                self._performance_metrics["total_requests"], 1
             )
 
             return {
@@ -291,19 +308,27 @@ class EnhancedCacheManager:
                     "cache_hits": self._performance_metrics["cache_hits"],
                     "cache_misses": self._performance_metrics["cache_misses"],
                     "hit_ratio": round(hit_ratio, 3),
-                    "avg_response_time_ms": round(self._performance_metrics["avg_response_time_ms"], 2),
+                    "avg_response_time_ms": round(
+                        self._performance_metrics["avg_response_time_ms"], 2
+                    ),
                     "uptime_hours": round(
-                        (datetime.now() - self._performance_metrics["last_reset"]).total_seconds() / 3600, 2
-                    )
+                        (
+                            datetime.now() - self._performance_metrics["last_reset"]
+                        ).total_seconds()
+                        / 3600,
+                        2,
+                    ),
                 },
                 "cache_types": list(self._cache_configs.keys()),
-                "semantic_caching_enabled": self.enable_semantic_caching
+                "semantic_caching_enabled": self.enable_semantic_caching,
             }
         except Exception as e:
             logger.warning(f"Error getting cache stats: {e}")
             return {"error": str(e)}
 
-    async def warm_cache(self, cache_type: str, data_loader_func, keys: list[str]) -> int:
+    async def warm_cache(
+        self, cache_type: str, data_loader_func, keys: list[str]
+    ) -> int:
         """
         Warm cache with frequently accessed data.
 
@@ -334,7 +359,9 @@ class EnhancedCacheManager:
                     logger.warning(f"Cache warming failed for key {key}: {e}")
                     continue
 
-            logger.info(f"Cache warming completed: {cached_count}/{len(keys)} items cached")
+            logger.info(
+                f"Cache warming completed: {cached_count}/{len(keys)} items cached"
+            )
             return cached_count
 
         except Exception as e:
@@ -366,7 +393,7 @@ class EnhancedCacheManager:
         key: str,
         data_loader_func,
         ttl: int | None = None,
-        cache_type: str = "default"
+        cache_type: str = "default",
     ) -> Any:
         """
         Get value from cache or set it if not found.
@@ -422,6 +449,5 @@ class EnhancedCacheManager:
         current_avg = self._performance_metrics["avg_response_time_ms"]
         total_requests = self._performance_metrics["total_requests"]
         self._performance_metrics["avg_response_time_ms"] = (
-            (current_avg * (total_requests - 1) + response_time) / total_requests
-        )
-
+            current_avg * (total_requests - 1) + response_time
+        ) / total_requests

@@ -132,7 +132,11 @@ async def validate_credential(
 
     # Log validation
     info(
-        AuditEventType.ACCESS_GRANTED if response.valid else AuditEventType.ACCESS_DENIED,
+        (
+            AuditEventType.ACCESS_GRANTED
+            if response.valid
+            else AuditEventType.ACCESS_DENIED
+        ),
         f"Validated ephemeral credential: {'valid' if response.valid else 'invalid'}",
         {
             "credential_id": response.credential_id,
@@ -333,4 +337,3 @@ async def authenticate_request(request: Request, call_next):
 
     # Continue with request
     return await call_next(request)
-

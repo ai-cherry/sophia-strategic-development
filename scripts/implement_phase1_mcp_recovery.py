@@ -19,8 +19,7 @@ import aiohttp
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -39,20 +38,16 @@ class Phase1MCPRecovery:
             "lambda_labs_cli",
             "ui_ux_agent",
             "portkey_admin",
-            "snowflake_cli_enhanced"
+            "snowflake_cli_enhanced",
         ]
 
-        self.good_servers = [
-            "ai_memory",
-            "ag_ui",
-            "codacy"
-        ]
+        self.good_servers = ["ai_memory", "ag_ui", "codacy"]
 
-        self.needs_work_servers = [
-            "snowflake_admin"
-        ]
+        self.needs_work_servers = ["snowflake_admin"]
 
-        self.phase1_targets = self.excellent_servers + self.good_servers + self.needs_work_servers
+        self.phase1_targets = (
+            self.excellent_servers + self.good_servers + self.needs_work_servers
+        )
 
         # Track progress
         self.results = {
@@ -60,13 +55,15 @@ class Phase1MCPRecovery:
             "operational_servers": [],
             "failed_servers": [],
             "critical_issues_resolved": [],
-            "warnings": []
+            "warnings": [],
         }
 
     async def execute_phase1_recovery(self) -> dict[str, Any]:
         """Execute Phase 1 recovery plan"""
         logger.info("🚀 Starting Phase 1 MCP Recovery Implementation")
-        logger.info(f"Target: Restore {len(self.phase1_targets)} critical servers to operational status")
+        logger.info(
+            f"Target: Restore {len(self.phase1_targets)} critical servers to operational status"
+        )
 
         try:
             # Initialize HTTP session
@@ -112,7 +109,7 @@ class Phase1MCPRecovery:
             self._fix_import_conflicts,
             self._resolve_dependency_issues,
             self._fix_syntax_errors,
-            self._update_environment_configuration
+            self._update_environment_configuration,
         ]
 
         for fix_func in critical_fixes:
@@ -120,7 +117,9 @@ class Phase1MCPRecovery:
                 await fix_func()
             except Exception as e:
                 logger.error(f"Critical fix failed: {fix_func.__name__}: {e}")
-                self.results["warnings"].append(f"Critical fix failed: {fix_func.__name__}")
+                self.results["warnings"].append(
+                    f"Critical fix failed: {fix_func.__name__}"
+                )
 
     async def _fix_import_conflicts(self):
         """Fix import conflicts in critical servers"""
@@ -133,11 +132,16 @@ class Phase1MCPRecovery:
                 content = ai_memory_file.read_text()
 
                 # Fix MemoryCategory import
-                if "from backend.mcp_servers.enhanced_ai_memory_mcp_server import" in content:
-                    if "MemoryCategory" in content and "EnhancedMemoryCategory" not in content:
+                if (
+                    "from backend.mcp_servers.enhanced_ai_memory_mcp_server import"
+                    in content
+                ):
+                    if (
+                        "MemoryCategory" in content
+                        and "EnhancedMemoryCategory" not in content
+                    ):
                         content = content.replace(
-                            "MemoryCategory",
-                            "EnhancedMemoryCategory"
+                            "MemoryCategory", "EnhancedMemoryCategory"
                         )
                         ai_memory_file.write_text(content)
                         self.results["critical_issues_resolved"].append(
@@ -156,10 +160,14 @@ class Phase1MCPRecovery:
 
         try:
             # Check if StandardizedMCPServer is available
-            base_server_file = self.base_path / "backend/mcp_servers/base/standardized_mcp_server.py"
+            base_server_file = (
+                self.base_path / "backend/mcp_servers/base/standardized_mcp_server.py"
+            )
             if not base_server_file.exists():
                 logger.warning("StandardizedMCPServer base class not found")
-                self.results["warnings"].append("StandardizedMCPServer base class missing")
+                self.results["warnings"].append(
+                    "StandardizedMCPServer base class missing"
+                )
                 return
 
             # Validate base imports
@@ -168,7 +176,7 @@ class Phase1MCPRecovery:
                 "from abc import ABC, abstractmethod",
                 "import asyncio",
                 "import logging",
-                "from typing import Any"
+                "from typing import Any",
             ]
 
             missing_imports = []
@@ -177,7 +185,9 @@ class Phase1MCPRecovery:
                     missing_imports.append(required_import)
 
             if missing_imports:
-                self.results["warnings"].append(f"Missing imports in base class: {missing_imports}")
+                self.results["warnings"].append(
+                    f"Missing imports in base class: {missing_imports}"
+                )
             else:
                 logger.info("✅ Dependency validation passed")
 
@@ -205,12 +215,16 @@ class Phase1MCPRecovery:
                     content = f.read()
 
                 # Compile to check for syntax errors
-                compile(content, str(server_file), 'exec')
+                compile(content, str(server_file), "exec")
                 logger.info(f"✅ {server_name}: No syntax errors")
 
             except SyntaxError as e:
-                logger.error(f"❌ {server_name}: Syntax error at line {e.lineno}: {e.msg}")
-                self.results["warnings"].append(f"{server_name}: Syntax error at line {e.lineno}")
+                logger.error(
+                    f"❌ {server_name}: Syntax error at line {e.lineno}: {e.msg}"
+                )
+                self.results["warnings"].append(
+                    f"{server_name}: Syntax error at line {e.lineno}"
+                )
             except Exception as e:
                 logger.error(f"❌ {server_name}: Error checking syntax: {e}")
 
@@ -222,7 +236,9 @@ class Phase1MCPRecovery:
         current_env = os.getenv("ENVIRONMENT", "unknown")
         if current_env != "prod":
             logger.warning(f"ENVIRONMENT is {current_env}, should be 'prod'")
-            self.results["warnings"].append(f"Environment is {current_env}, should be prod")
+            self.results["warnings"].append(
+                f"Environment is {current_env}, should be prod"
+            )
 
         # Ensure PULUMI_ORG is set
         pulumi_org = os.getenv("PULUMI_ORG")
@@ -319,26 +335,30 @@ class Phase1MCPRecovery:
         if "def main():" in content and "async def main():" not in content:
             content = content.replace("def main():", "async def main():")
             if "asyncio.run(main())" not in content:
-                content = content.replace("if __name__ == \"__main__\":\n    main()",
-                                        "if __name__ == \"__main__\":\n    asyncio.run(main())")
+                content = content.replace(
+                    'if __name__ == "__main__":\n    main()',
+                    'if __name__ == "__main__":\n    asyncio.run(main())',
+                )
             fixes_applied.append("Fixed async main pattern")
 
         # Ensure proper imports
         if "import asyncio" not in content:
             # Insert import after other imports
-            lines = content.split('\n')
+            lines = content.split("\n")
             import_index = 0
             for i, line in enumerate(lines):
-                if line.startswith('import ') or line.startswith('from '):
+                if line.startswith("import ") or line.startswith("from "):
                     import_index = i
             lines.insert(import_index + 1, "import asyncio")
-            content = '\n'.join(lines)
+            content = "\n".join(lines)
             fixes_applied.append("Added missing asyncio import")
 
         # Save fixes if any were applied
         if fixes_applied:
             server_file.write_text(content)
-            self.results["fixed_servers"].append(f"{server_name}: {', '.join(fixes_applied)}")
+            self.results["fixed_servers"].append(
+                f"{server_name}: {', '.join(fixes_applied)}"
+            )
 
         # Ensure server can be made operational
         await self._ensure_server_operational(server_name)
@@ -366,25 +386,34 @@ class Phase1MCPRecovery:
         standardization_applied = []
 
         # Add StandardizedMCPServer import
-        if "from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer" not in content:
-            lines = content.split('\n')
+        if (
+            "from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer"
+            not in content
+        ):
+            lines = content.split("\n")
             import_index = 0
             for i, line in enumerate(lines):
-                if line.startswith('import ') or line.startswith('from '):
+                if line.startswith("import ") or line.startswith("from "):
                     import_index = i
-            lines.insert(import_index + 1,
-                        "from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer")
-            content = '\n'.join(lines)
+            lines.insert(
+                import_index + 1,
+                "from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServer",
+            )
+            content = "\n".join(lines)
             standardization_applied.append("Added StandardizedMCPServer import")
 
         # Save changes
         if standardization_applied:
             server_file.write_text(content)
-            self.results["fixed_servers"].append(f"{server_name}: {', '.join(standardization_applied)}")
+            self.results["fixed_servers"].append(
+                f"{server_name}: {', '.join(standardization_applied)}"
+            )
 
         # Note: Full standardization would require more comprehensive changes
         # This is a minimal implementation for Phase 1
-        self.results["warnings"].append(f"{server_name}: Partial standardization applied")
+        self.results["warnings"].append(
+            f"{server_name}: Partial standardization applied"
+        )
 
     async def _validate_port_assignments(self):
         """Validate and fix port assignments"""
@@ -402,7 +431,9 @@ class Phase1MCPRecovery:
 
             for server_name, port in active_servers.items():
                 if port in ports_used:
-                    conflicts.append(f"Port {port} used by both {ports_used[port]} and {server_name}")
+                    conflicts.append(
+                        f"Port {port} used by both {ports_used[port]} and {server_name}"
+                    )
                 else:
                     ports_used[port] = server_name
 
@@ -447,13 +478,20 @@ class Phase1MCPRecovery:
             if health_status.get("status") == "healthy":
                 logger.info(f"✅ {server_name}: Health check passed")
             else:
-                logger.warning(f"⚠️ {server_name}: Health check failed - {health_status.get('error', 'unknown')}")
+                logger.warning(
+                    f"⚠️ {server_name}: Health check failed - {health_status.get('error', 'unknown')}"
+                )
 
         # Count healthy servers
-        healthy_count = sum(1 for status in health_check_results.values()
-                           if status.get("status") == "healthy")
+        healthy_count = sum(
+            1
+            for status in health_check_results.values()
+            if status.get("status") == "healthy"
+        )
 
-        logger.info(f"Health checks complete: {healthy_count}/{len(self.phase1_targets)} servers healthy")
+        logger.info(
+            f"Health checks complete: {healthy_count}/{len(self.phase1_targets)} servers healthy"
+        )
 
         self.results["health_check_results"] = health_check_results
 
@@ -466,16 +504,22 @@ class Phase1MCPRecovery:
         operational_count = len(self.results["operational_servers"])
         operational_rate = (operational_count / total_servers) * 100
 
-        logger.info(f"Operational rate: {operational_rate:.1f}% ({operational_count}/{total_servers})")
+        logger.info(
+            f"Operational rate: {operational_rate:.1f}% ({operational_count}/{total_servers})"
+        )
 
         # Check if we met Phase 1 target (80% operational)
         target_operational_rate = 80.0
         phase1_success = operational_rate >= target_operational_rate
 
         if phase1_success:
-            logger.info(f"🎉 Phase 1 SUCCESS: Achieved {operational_rate:.1f}% operational rate (target: {target_operational_rate}%)")
+            logger.info(
+                f"🎉 Phase 1 SUCCESS: Achieved {operational_rate:.1f}% operational rate (target: {target_operational_rate}%)"
+            )
         else:
-            logger.warning(f"⚠️ Phase 1 PARTIAL: Achieved {operational_rate:.1f}% operational rate (target: {target_operational_rate}%)")
+            logger.warning(
+                f"⚠️ Phase 1 PARTIAL: Achieved {operational_rate:.1f}% operational rate (target: {target_operational_rate}%)"
+            )
 
         self.results["phase1_success"] = phase1_success
         self.results["operational_rate"] = operational_rate
@@ -497,20 +541,23 @@ class Phase1MCPRecovery:
                 "failed_servers": len(self.results["failed_servers"]),
                 "operational_rate": self.results.get("operational_rate", 0),
                 "target_rate": self.results.get("target_rate", 80),
-                "phase1_success": self.results.get("phase1_success", False)
+                "phase1_success": self.results.get("phase1_success", False),
             },
             "detailed_results": self.results,
             "next_steps": [
                 "Proceed to Phase 2: Core Platform Recovery",
                 "Address any failed servers from Phase 1",
                 "Monitor operational servers for stability",
-                "Begin standardization of remaining servers"
-            ]
+                "Begin standardization of remaining servers",
+            ],
         }
 
         # Save report
-        report_file = self.base_path / f"PHASE1_RECOVERY_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(report_file, 'w') as f:
+        report_file = (
+            self.base_path
+            / f"PHASE1_RECOVERY_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
         logger.info(f"📄 Phase 1 report saved to: {report_file}")
@@ -522,18 +569,20 @@ class Phase1MCPRecovery:
         """Print Phase 1 execution summary"""
         summary = report["execution_summary"]
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("🚀 PHASE 1 RECOVERY EXECUTION SUMMARY")
-        print("="*70)
+        print("=" * 70)
 
         print("\n📊 RESULTS:")
         print(f"   Target Servers: {summary['target_servers']}")
         print(f"   Operational: {summary['operational_servers']}")
         print(f"   Fixed: {summary['fixed_servers']}")
         print(f"   Failed: {summary['failed_servers']}")
-        print(f"   Operational Rate: {summary['operational_rate']:.1f}% (target: {summary['target_rate']}%)")
+        print(
+            f"   Operational Rate: {summary['operational_rate']:.1f}% (target: {summary['target_rate']}%)"
+        )
 
-        if summary['phase1_success']:
+        if summary["phase1_success"]:
             print("\n🎉 PHASE 1 SUCCESS!")
             print("   ✅ Target operational rate achieved")
             print("   ✅ Ready to proceed to Phase 2")
@@ -555,7 +604,7 @@ class Phase1MCPRecovery:
         for step in report["next_steps"]:
             print(f"   • {step}")
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
 
     async def _get_server_config(self, server_name: str) -> dict[str, Any]:
         """Get server configuration"""
@@ -578,12 +627,17 @@ class Phase1MCPRecovery:
             return {"status": "error", "error": "No HTTP session"}
 
         try:
-            async with self.session.get(f"http://localhost:{port}/health",
-                                      timeout=5) as response:
+            async with self.session.get(
+                f"http://localhost:{port}/health", timeout=5
+            ) as response:
                 if response.status == 200:
                     return {"status": "healthy", "port": port}
                 else:
-                    return {"status": "unhealthy", "port": port, "http_status": response.status}
+                    return {
+                        "status": "unhealthy",
+                        "port": port,
+                        "http_status": response.status,
+                    }
 
         except Exception as e:
             return {"status": "unreachable", "port": port, "error": str(e)}
@@ -610,7 +664,7 @@ class Phase1MCPRecovery:
             f"{server_path.name}_mcp_server.py",
             "mcp_server.py",
             "server.py",
-            "main.py"
+            "main.py",
         ]
 
         for name in possible_names:

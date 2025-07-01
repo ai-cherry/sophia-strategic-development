@@ -163,7 +163,9 @@ async def test_ephemeral_credentials():
     )
 
     logger.info(f"API key invalid validation: {api_key_invalid_validation.valid}")
-    assert not api_key_invalid_validation.valid, "API key invalid validation should fail"
+    assert (
+        not api_key_invalid_validation.valid
+    ), "API key invalid validation should fail"
 
     # Test credential revocation
     logger.info("Testing credential revocation")
@@ -188,7 +190,9 @@ async def test_ephemeral_credentials():
     )
 
     logger.info(f"Revoked API key validation: {api_key_revoked_validation.valid}")
-    assert not api_key_revoked_validation.valid, "Revoked API key validation should fail"
+    assert (
+        not api_key_revoked_validation.valid
+    ), "Revoked API key validation should fail"
 
     # Test credential listing
     logger.info("Testing credential listing")
@@ -251,4 +255,3 @@ async def test_ephemeral_credentials():
 
 if __name__ == "__main__":
     asyncio.run(test_ephemeral_credentials())
-

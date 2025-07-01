@@ -93,6 +93,7 @@ def get_request_chat_service(request):
     """FastAPI dependency that gets chat service from request app state"""
     return get_chat_service_from_app_state(request)
 
+
 # Cache Manager Dependencies
 
 # Import the cache manager
@@ -122,4 +123,3 @@ async def get_cache_manager_dependency():
 def get_request_cache_manager(request):
     """FastAPI dependency that gets cache manager from request app state"""
     return get_cache_manager_from_app_state(request)
-

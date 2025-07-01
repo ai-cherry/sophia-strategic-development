@@ -17,8 +17,11 @@ from typing import Any
 import httpx
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class CLISDKEnhancementDeployer:
     """Comprehensive deployer for CLI/SDK enhancements"""
@@ -30,7 +33,7 @@ class CLISDKEnhancementDeployer:
             "phase_2": {},
             "validation": {},
             "overall_success": False,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Enhancement server configurations
@@ -40,35 +43,35 @@ class CLISDKEnhancementDeployer:
                     "port": 9019,
                     "description": "Enhanced N8N workflow management",
                     "requirements": ["n8n", "httpx"],
-                    "validation_endpoint": "/health"
+                    "validation_endpoint": "/health",
                 },
                 "apify_intelligence": {
                     "port": 9015,
                     "description": "Competitive intelligence and web scraping",
                     "requirements": ["apify-cli", "httpx"],
-                    "validation_endpoint": "/health"
+                    "validation_endpoint": "/health",
                 },
                 "huggingface_ai": {
                     "port": 9016,
                     "description": "Advanced ML model management",
                     "requirements": ["transformers", "sentence-transformers"],
-                    "validation_endpoint": "/health"
-                }
+                    "validation_endpoint": "/health",
+                },
             },
             "phase_2": {
                 "weaviate_primary": {
                     "port": 9017,
                     "description": "Vector database redundancy",
                     "requirements": ["weaviate-client"],
-                    "validation_endpoint": "/health"
+                    "validation_endpoint": "/health",
                 },
                 "arize_phoenix": {
                     "port": 9018,
                     "description": "AI observability and monitoring",
                     "requirements": ["arize-phoenix"],
-                    "validation_endpoint": "/health"
-                }
-            }
+                    "validation_endpoint": "/health",
+                },
+            },
         }
 
     async def deploy_all_enhancements(self) -> dict[str, Any]:
@@ -101,8 +104,7 @@ class CLISDKEnhancementDeployer:
 
             # Overall success determination
             self.deployment_results["overall_success"] = (
-                phase_1_result["overall_success"] and
-                phase_2_result["overall_success"]
+                phase_1_result["overall_success"] and phase_2_result["overall_success"]
             )
 
             # Post-deployment integration
@@ -128,7 +130,7 @@ class CLISDKEnhancementDeployer:
             "prerequisites_met": True,
             "checks": {},
             "missing_requirements": [],
-            "installation_commands": []
+            "installation_commands": [],
         }
 
         # Check Python environment
@@ -161,7 +163,9 @@ class CLISDKEnhancementDeployer:
 
         # Generate installation commands for missing requirements
         if not validation["prerequisites_met"]:
-            validation["installation_commands"] = self._generate_installation_commands(validation["checks"])
+            validation["installation_commands"] = self._generate_installation_commands(
+                validation["checks"]
+            )
 
         return validation
 
@@ -172,7 +176,7 @@ class CLISDKEnhancementDeployer:
         phase_1_result = {
             "servers": {},
             "overall_success": True,
-            "deployment_time_seconds": 0
+            "deployment_time_seconds": 0,
         }
 
         start_time = datetime.now()
@@ -189,7 +193,9 @@ class CLISDKEnhancementDeployer:
                 logger.error(f"❌ Failed to deploy {server_name}")
 
         # Calculate deployment time
-        phase_1_result["deployment_time_seconds"] = (datetime.now() - start_time).total_seconds()
+        phase_1_result["deployment_time_seconds"] = (
+            datetime.now() - start_time
+        ).total_seconds()
 
         # Test Phase 1 integration
         if phase_1_result["overall_success"]:
@@ -208,7 +214,7 @@ class CLISDKEnhancementDeployer:
         phase_2_result = {
             "servers": {},
             "overall_success": True,
-            "deployment_time_seconds": 0
+            "deployment_time_seconds": 0,
         }
 
         start_time = datetime.now()
@@ -225,7 +231,9 @@ class CLISDKEnhancementDeployer:
                 logger.error(f"❌ Failed to deploy {server_name}")
 
         # Calculate deployment time
-        phase_2_result["deployment_time_seconds"] = (datetime.now() - start_time).total_seconds()
+        phase_2_result["deployment_time_seconds"] = (
+            datetime.now() - start_time
+        ).total_seconds()
 
         # Test Phase 2 integration
         if phase_2_result["overall_success"]:
@@ -237,7 +245,9 @@ class CLISDKEnhancementDeployer:
 
         return phase_2_result
 
-    async def _deploy_single_server(self, server_name: str, config: dict[str, Any]) -> dict[str, Any]:
+    async def _deploy_single_server(
+        self, server_name: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Deploy a single enhancement server"""
         deployment_result = {
             "success": False,
@@ -246,17 +256,21 @@ class CLISDKEnhancementDeployer:
             "description": config["description"],
             "deployment_steps": [],
             "health_check": {},
-            "error": None
+            "error": None,
         }
 
         try:
             # Step 1: Install requirements
-            install_result = await self._install_server_requirements(server_name, config["requirements"])
-            deployment_result["deployment_steps"].append({
-                "step": "install_requirements",
-                "success": install_result["success"],
-                "details": install_result
-            })
+            install_result = await self._install_server_requirements(
+                server_name, config["requirements"]
+            )
+            deployment_result["deployment_steps"].append(
+                {
+                    "step": "install_requirements",
+                    "success": install_result["success"],
+                    "details": install_result,
+                }
+            )
 
             if not install_result["success"]:
                 deployment_result["error"] = "Requirements installation failed"
@@ -264,41 +278,53 @@ class CLISDKEnhancementDeployer:
 
             # Step 2: Verify server files exist
             files_result = await self._verify_server_files(server_name)
-            deployment_result["deployment_steps"].append({
-                "step": "verify_files",
-                "success": files_result["exists"],
-                "details": files_result
-            })
+            deployment_result["deployment_steps"].append(
+                {
+                    "step": "verify_files",
+                    "success": files_result["exists"],
+                    "details": files_result,
+                }
+            )
 
             # Step 3: Start server (if files exist) or create stub
             if files_result["exists"]:
                 start_result = await self._start_server(server_name, config["port"])
             else:
-                start_result = await self._create_and_start_server_stub(server_name, config)
+                start_result = await self._create_and_start_server_stub(
+                    server_name, config
+                )
 
-            deployment_result["deployment_steps"].append({
-                "step": "start_server",
-                "success": start_result["success"],
-                "details": start_result
-            })
+            deployment_result["deployment_steps"].append(
+                {
+                    "step": "start_server",
+                    "success": start_result["success"],
+                    "details": start_result,
+                }
+            )
 
             if not start_result["success"]:
                 deployment_result["error"] = "Server startup failed"
                 return deployment_result
 
             # Step 4: Health check
-            health_result = await self._perform_health_check(server_name, config["port"])
+            health_result = await self._perform_health_check(
+                server_name, config["port"]
+            )
             deployment_result["health_check"] = health_result
-            deployment_result["deployment_steps"].append({
-                "step": "health_check",
-                "success": health_result["healthy"],
-                "details": health_result
-            })
+            deployment_result["deployment_steps"].append(
+                {
+                    "step": "health_check",
+                    "success": health_result["healthy"],
+                    "details": health_result,
+                }
+            )
 
             deployment_result["success"] = health_result["healthy"]
 
             if deployment_result["success"]:
-                logger.info(f"✅ Successfully deployed {server_name} on port {config['port']}")
+                logger.info(
+                    f"✅ Successfully deployed {server_name} on port {config['port']}"
+                )
             else:
                 deployment_result["error"] = "Health check failed"
 
@@ -308,13 +334,15 @@ class CLISDKEnhancementDeployer:
 
         return deployment_result
 
-    async def _install_server_requirements(self, server_name: str, requirements: list[str]) -> dict[str, Any]:
+    async def _install_server_requirements(
+        self, server_name: str, requirements: list[str]
+    ) -> dict[str, Any]:
         """Install requirements for a specific server"""
         install_result = {
             "success": True,
             "installed_packages": [],
             "failed_packages": [],
-            "details": {}
+            "details": {},
         }
 
         for requirement in requirements:
@@ -329,7 +357,9 @@ class CLISDKEnhancementDeployer:
                     # Python packages
                     cmd = ["pip", "install", requirement]
 
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=300
+                )
 
                 if result.returncode == 0:
                     install_result["installed_packages"].append(requirement)
@@ -342,7 +372,7 @@ class CLISDKEnhancementDeployer:
                 install_result["details"][requirement] = {
                     "return_code": result.returncode,
                     "stdout": result.stdout,
-                    "stderr": result.stderr
+                    "stderr": result.stderr,
                 }
 
             except subprocess.TimeoutExpired:
@@ -359,15 +389,22 @@ class CLISDKEnhancementDeployer:
 
     async def _verify_server_files(self, server_name: str) -> dict[str, Any]:
         """Verify that server files exist"""
-        server_path = self.project_root / "mcp-servers" / server_name / f"{server_name}_mcp_server.py"
+        server_path = (
+            self.project_root
+            / "mcp-servers"
+            / server_name
+            / f"{server_name}_mcp_server.py"
+        )
 
         return {
             "exists": server_path.exists(),
             "server_path": str(server_path),
-            "directory_exists": server_path.parent.exists()
+            "directory_exists": server_path.parent.exists(),
         }
 
-    async def _create_and_start_server_stub(self, server_name: str, config: dict[str, Any]) -> dict[str, Any]:
+    async def _create_and_start_server_stub(
+        self, server_name: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Create and start a server stub if the actual server doesn't exist"""
         logger.info(f"🏗️ Creating server stub for {server_name}...")
 
@@ -421,7 +458,7 @@ if __name__ == '__main__':
 
             # Write stub file
             stub_file = server_dir / f"{server_name}_mcp_server.py"
-            with open(stub_file, 'w') as f:
+            with open(stub_file, "w") as f:
                 f.write(stub_content)
 
             # Make executable
@@ -434,45 +471,41 @@ if __name__ == '__main__':
             return start_result
 
         except Exception as e:
-            return {
-                "success": False,
-                "error": f"Failed to create stub: {str(e)}"
-            }
+            return {"success": False, "error": f"Failed to create stub: {str(e)}"}
 
     async def _start_server(self, server_name: str, port: int) -> dict[str, Any]:
         """Start a server"""
         try:
-            server_script = self.project_root / "mcp-servers" / server_name / f"{server_name}_mcp_server.py"
+            server_script = (
+                self.project_root
+                / "mcp-servers"
+                / server_name
+                / f"{server_name}_mcp_server.py"
+            )
 
             # Start server in background
-            process = subprocess.Popen([
-                sys.executable, str(server_script)
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen(
+                [sys.executable, str(server_script)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
             # Wait a moment for startup
             await asyncio.sleep(3)
 
             # Check if process is still running
             if process.poll() is None:
-                return {
-                    "success": True,
-                    "process_id": process.pid,
-                    "port": port
-                }
+                return {"success": True, "process_id": process.pid, "port": port}
             else:
                 stdout, stderr = process.communicate()
-                return {
-                    "success": False,
-                    "error": f"Process exited: {stderr.decode()}"
-                }
+                return {"success": False, "error": f"Process exited: {stderr.decode()}"}
 
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
 
-    async def _perform_health_check(self, server_name: str, port: int) -> dict[str, Any]:
+    async def _perform_health_check(
+        self, server_name: str, port: int
+    ) -> dict[str, Any]:
         """Perform health check on a server"""
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
@@ -485,14 +518,14 @@ if __name__ == '__main__':
                         "server_name": server_name,
                         "port": port,
                         "response_time_ms": response.elapsed.total_seconds() * 1000,
-                        "health_data": health_data
+                        "health_data": health_data,
                     }
                 else:
                     return {
                         "healthy": False,
                         "server_name": server_name,
                         "port": port,
-                        "error": f"HTTP {response.status_code}"
+                        "error": f"HTTP {response.status_code}",
                     }
 
         except Exception as e:
@@ -500,7 +533,7 @@ if __name__ == '__main__':
                 "healthy": False,
                 "server_name": server_name,
                 "port": port,
-                "error": str(e)
+                "error": str(e),
             }
 
     # Validation helper methods
@@ -508,12 +541,13 @@ if __name__ == '__main__':
         """Check Python environment"""
         try:
             import sys
+
             python_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
 
             return {
                 "valid": sys.version_info >= (3, 8),
                 "version": python_version,
-                "executable": sys.executable
+                "executable": sys.executable,
             }
         except Exception:
             return {"valid": False, "error": "Python check failed"}
@@ -521,12 +555,17 @@ if __name__ == '__main__':
     async def _check_nodejs_environment(self) -> dict[str, Any]:
         """Check Node.js environment"""
         try:
-            result = subprocess.run(["node", "--version"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["node", "--version"], capture_output=True, text=True
+            )
             if result.returncode == 0:
                 return {
                     "valid": True,
                     "version": result.stdout.strip(),
-                    "npm_available": subprocess.run(["npm", "--version"], capture_output=True).returncode == 0
+                    "npm_available": subprocess.run(
+                        ["npm", "--version"], capture_output=True
+                    ).returncode
+                    == 0,
                 }
             else:
                 return {"valid": False, "error": "Node.js not found"}
@@ -535,13 +574,18 @@ if __name__ == '__main__':
 
     async def _check_mcp_infrastructure(self) -> dict[str, Any]:
         """Check existing MCP infrastructure"""
-        mcp_config_path = self.project_root / "config" / "cursor_enhanced_mcp_config.json"
-        orchestration_service_path = self.project_root / "backend" / "services" / "mcp_orchestration_service.py"
+        mcp_config_path = (
+            self.project_root / "config" / "cursor_enhanced_mcp_config.json"
+        )
+        orchestration_service_path = (
+            self.project_root / "backend" / "services" / "mcp_orchestration_service.py"
+        )
 
         return {
-            "available": mcp_config_path.exists() and orchestration_service_path.exists(),
+            "available": mcp_config_path.exists()
+            and orchestration_service_path.exists(),
             "config_exists": mcp_config_path.exists(),
-            "orchestration_exists": orchestration_service_path.exists()
+            "orchestration_exists": orchestration_service_path.exists(),
         }
 
     async def _check_port_availability(self) -> dict[str, Any]:
@@ -559,7 +603,7 @@ if __name__ == '__main__':
         for port in all_ports:
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    result = s.connect_ex(('localhost', port))
+                    result = s.connect_ex(("localhost", port))
                     if result != 0:
                         available_ports.append(port)
                     else:
@@ -570,7 +614,7 @@ if __name__ == '__main__':
         return {
             "all_available": len(occupied_ports) == 0,
             "available_ports": available_ports,
-            "occupied_ports": occupied_ports
+            "occupied_ports": occupied_ports,
         }
 
     async def _check_environment_variables(self) -> dict[str, Any]:
@@ -580,7 +624,7 @@ if __name__ == '__main__':
             "HF_TOKEN",
             "WEAVIATE_URL",
             "PHOENIX_API_KEY",
-            "N8N_URL"
+            "N8N_URL",
         ]
 
         present_vars = []
@@ -595,7 +639,7 @@ if __name__ == '__main__':
         return {
             "all_present": len(missing_vars) == 0,
             "present_vars": present_vars,
-            "missing_vars": missing_vars
+            "missing_vars": missing_vars,
         }
 
     def _generate_installation_commands(self, checks: dict[str, Any]) -> list[str]:
@@ -603,28 +647,34 @@ if __name__ == '__main__':
         commands = []
 
         if not checks.get("nodejs", {}).get("valid", True):
-            commands.extend([
-                "# Install Node.js and npm",
-                "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
-                "sudo apt-get install -y nodejs",
-                "# Or on macOS: brew install node"
-            ])
+            commands.extend(
+                [
+                    "# Install Node.js and npm",
+                    "curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -",
+                    "sudo apt-get install -y nodejs",
+                    "# Or on macOS: brew install node",
+                ]
+            )
 
         if not checks.get("python", {}).get("valid", True):
-            commands.extend([
-                "# Install Python 3.8+",
-                "sudo apt-get install python3.8 python3-pip",
-                "# Or on macOS: brew install python@3.8"
-            ])
+            commands.extend(
+                [
+                    "# Install Python 3.8+",
+                    "sudo apt-get install python3.8 python3-pip",
+                    "# Or on macOS: brew install python@3.8",
+                ]
+            )
 
-        commands.extend([
-            "# Install CLI tools",
-            "npm install -g n8n",
-            "npm install -g apify-cli",
-            "pip install transformers sentence-transformers",
-            "pip install weaviate-client",
-            "pip install arize-phoenix"
-        ])
+        commands.extend(
+            [
+                "# Install CLI tools",
+                "npm install -g n8n",
+                "npm install -g apify-cli",
+                "pip install transformers sentence-transformers",
+                "pip install weaviate-client",
+                "pip install arize-phoenix",
+            ]
+        )
 
         return commands
 
@@ -632,10 +682,7 @@ if __name__ == '__main__':
         """Test Phase 1 integration"""
         logger.info("🧪 Testing Phase 1 integration...")
 
-        test_results = {
-            "success": True,
-            "tests": {}
-        }
+        test_results = {"success": True, "tests": {}}
 
         # Test each Phase 1 server
         for server_name in self.enhancements["phase_1"].keys():
@@ -652,10 +699,7 @@ if __name__ == '__main__':
         """Test Phase 2 integration"""
         logger.info("🧪 Testing Phase 2 integration...")
 
-        test_results = {
-            "success": True,
-            "tests": {}
-        }
+        test_results = {"success": True, "tests": {}}
 
         # Test each Phase 2 server
         for server_name in self.enhancements["phase_2"].keys():
@@ -674,12 +718,19 @@ if __name__ == '__main__':
 
         try:
             # Update enhanced MCP ports configuration
-            enhanced_config_path = self.project_root / "config" / "enhanced_mcp_ports.json"
+            enhanced_config_path = (
+                self.project_root / "config" / "enhanced_mcp_ports.json"
+            )
             if enhanced_config_path.exists():
                 logger.info("✅ Enhanced MCP ports configuration already exists")
 
             # Update MCP orchestration service
-            orchestration_path = self.project_root / "backend" / "services" / "enhanced_mcp_orchestration_service.py"
+            orchestration_path = (
+                self.project_root
+                / "backend"
+                / "services"
+                / "enhanced_mcp_orchestration_service.py"
+            )
             if orchestration_path.exists():
                 logger.info("✅ Enhanced MCP orchestration service already exists")
 
@@ -692,7 +743,10 @@ if __name__ == '__main__':
         """Generate comprehensive deployment report"""
         logger.info("📊 Generating deployment report...")
 
-        report_path = self.project_root / f"CLI_SDK_DEPLOYMENT_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        report_path = (
+            self.project_root
+            / f"CLI_SDK_DEPLOYMENT_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        )
 
         report_content = f"""# CLI/SDK Enhancement Deployment Report
 
@@ -722,10 +776,11 @@ if __name__ == '__main__':
 - **Arize Phoenix**: http://localhost:9018/health
 """
 
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             f.write(report_content)
 
         logger.info(f"📊 Deployment report saved: {report_path}")
+
 
 # Main execution
 async def main():
@@ -759,6 +814,7 @@ async def main():
         print("Check the deployment report for details.")
 
     print(f"\n📊 Full results: {json.dumps(results, indent=2)}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -46,7 +46,9 @@ def get_figma_credentials():
             logger.warning(f"Pulumi ESC access failed: {e}")
 
     # Fallback to environment variable
-    figma_pat = get_config_value("figma_pat") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
+    figma_pat = get_config_value("figma_pat") or os.getenv(
+        "FIGMA_PERSONAL_ACCESS_TOKEN"
+    )
     if figma_pat:
         logger.info("✅ Using Figma PAT from environment variable")
         return figma_pat

@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     """Application settings with Pydantic v2"""
+
     app_name: str = "Sophia AI Platform"
     app_version: str = "3.0.0"
     environment: str = "production"
@@ -53,8 +54,10 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # Metrics
-REQUEST_COUNT = Counter('sophia_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-REQUEST_DURATION = Histogram('sophia_request_duration_seconds', 'Request duration')
+REQUEST_COUNT = Counter(
+    "sophia_requests_total", "Total requests", ["method", "endpoint", "status"]
+)
+REQUEST_DURATION = Histogram("sophia_request_duration_seconds", "Request duration")
 
 # Rate limiting
 limiter = Limiter(key_func=get_remote_address)
@@ -111,7 +114,7 @@ def create_fastapi_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai"]
+        allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai"],
     )
 
     # Rate limiting setup
@@ -133,7 +136,7 @@ def create_fastapi_app() -> FastAPI:
         REQUEST_COUNT.labels(
             method=request.method,
             endpoint=request.url.path,
-            status=response.status_code
+            status=response.status_code,
         ).inc()
         REQUEST_DURATION.observe(duration)
 
@@ -168,9 +171,9 @@ def create_fastapi_app() -> FastAPI:
                 "correlation_id": correlation_id,
                 "path": request.url.path,
                 "method": request.method,
-                "error": str(exc)
+                "error": str(exc),
             },
-            exc_info=True
+            exc_info=True,
         )
 
         return JSONResponse(
@@ -178,8 +181,8 @@ def create_fastapi_app() -> FastAPI:
             content={
                 "error": "Internal server error",
                 "correlation_id": correlation_id,
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
 
     # Include application router

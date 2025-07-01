@@ -68,7 +68,7 @@ async def lifespan(app: FastAPI):
         info(
             AuditEventType.SYSTEM_START,
             "Sophia AI Unified Ecosystem starting",
-            {"app_name": "sophia"}
+            {"app_name": "sophia"},
         )
 
         # Initialize the RBAC system
@@ -82,7 +82,9 @@ async def lifespan(app: FastAPI):
 
         # Initialize the ephemeral credentials system
         ephemeral_credentials_service = EphemeralCredentialsService(
-            storage_path=os.path.join(os.getcwd(), "data", "ephemeral_credentials.json"),
+            storage_path=os.path.join(
+                os.getcwd(), "data", "ephemeral_credentials.json"
+            ),
             auto_save=True,
         )
         await ephemeral_credentials_service.initialize()
@@ -139,7 +141,7 @@ async def lifespan(app: FastAPI):
         info(
             AuditEventType.SYSTEM_STOP,
             "Sophia AI Unified Ecosystem shutting down",
-            {"app_name": "sophia"}
+            {"app_name": "sophia"},
         )
 
         # Cleanup cache system if it exists
@@ -160,7 +162,9 @@ async def lifespan(app: FastAPI):
                 delattr(app.state, "ephemeral_credentials_service")
                 logger.info("✅ Ephemeral credentials system cleaned up")
             except Exception as e:
-                logger.error(f"⚠️ Error during ephemeral credentials system cleanup: {e}")
+                logger.error(
+                    f"⚠️ Error during ephemeral credentials system cleanup: {e}"
+                )
 
         # Cleanup services if they exist
         for service_name in ["unified_intelligence", "chat_service_instance"]:
@@ -177,9 +181,9 @@ async def lifespan(app: FastAPI):
 # Create FastAPI app with lifespan
 
 
-
 class Settings(BaseSettings):
     """Application settings with Pydantic v2"""
+
     app_name: str = "Sophia AI Platform"
     app_version: str = "3.0.0"
     environment: str = "production"
@@ -198,6 +202,7 @@ class Settings(BaseSettings):
         env_prefix = "SOPHIA_"
         case_sensitive = False
         env_file = ".env"
+
 
 # Initialize settings
 settings = Settings()
@@ -228,7 +233,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai"]
+    allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai"],
 )
 
 from slowapi.errors import RateLimitExceeded
@@ -256,7 +261,13 @@ logger.info("✅ RBAC middleware configured")
 # Set up ephemeral credentials middleware
 setup_ephemeral_credentials_middleware(
     app=app,
-    exclude_paths=["/docs", "/redoc", "/openapi.json", "/api/v3/auth", "/api/v3/health"],
+    exclude_paths=[
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+        "/api/v3/auth",
+        "/api/v3/health",
+    ],
 )
 
 # Log ephemeral credentials middleware setup
@@ -270,6 +281,7 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+
 # Enhanced error handling
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -282,9 +294,9 @@ async def global_exception_handler(request: Request, exc: Exception):
             "correlation_id": correlation_id,
             "path": request.url.path,
             "method": request.method,
-            "error": str(exc)
+            "error": str(exc),
         },
-        exc_info=True
+        exc_info=True,
     )
 
     return JSONResponse(
@@ -292,8 +304,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={
             "error": "Internal server error",
             "correlation_id": correlation_id,
-            "timestamp": datetime.utcnow().isoformat()
-        }
+            "timestamp": datetime.utcnow().isoformat(),
+        },
     )
 
 
@@ -301,13 +313,17 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # Metrics
-REQUEST_COUNT = Counter('sophia_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
-REQUEST_DURATION = Histogram('sophia_request_duration_seconds', 'Request duration')
+REQUEST_COUNT = Counter(
+    "sophia_requests_total", "Total requests", ["method", "endpoint", "status"]
+)
+REQUEST_DURATION = Histogram("sophia_request_duration_seconds", "Request duration")
+
 
 @app.get("/metrics", response_class=PlainTextResponse, tags=["System"])
 async def metrics():
     """Prometheus metrics endpoint"""
     return generate_latest()
+
 
 # Metrics middleware
 @app.middleware("http")
@@ -317,13 +333,12 @@ async def add_metrics(request: Request, call_next):
     duration = time.time() - start_time
 
     REQUEST_COUNT.labels(
-        method=request.method,
-        endpoint=request.url.path,
-        status=response.status_code
+        method=request.method, endpoint=request.url.path, status=response.status_code
     ).inc()
     REQUEST_DURATION.observe(duration)
 
     return response
+
 
 @app.middleware("http")
 async def add_request_tracking(request: Request, call_next):
@@ -341,7 +356,6 @@ async def add_request_tracking(request: Request, call_next):
     response.headers["X-Correlation-ID"] = correlation_id
 
     return response
-
 
 
 # Global exception handler

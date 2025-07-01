@@ -23,6 +23,7 @@ from .universal_chat_service import UniversalChatService
 
 logger = logging.getLogger(__name__)
 
+
 class UnifiedChatService:
     """
     Unified chat service that orchestrates all chat modes
@@ -30,7 +31,9 @@ class UnifiedChatService:
     """
 
     def __init__(self):
-        self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
+        )
 
         # Initialize managers
         self.session_manager = SessionManager()
@@ -62,15 +65,13 @@ class UnifiedChatService:
         try:
             # Get or create session
             await self.session_manager.get_or_create_session(
-                session_id=request.session_id,
-                mode=request.mode
+                session_id=request.session_id, mode=request.mode
             )
 
             # Update context if provided
             if request.context:
                 await self.context_manager.update_context(
-                    session_id=request.session_id,
-                    context=request.context
+                    session_id=request.session_id, context=request.context
                 )
 
             # Get the appropriate service
@@ -83,10 +84,12 @@ class UnifiedChatService:
             await self.session_manager.update_session_activity(
                 session_id=request.session_id,
                 tokens_used=response.usage.total_tokens if response.usage else 0,
-                cost=response.usage.estimated_cost if response.usage else 0.0
+                cost=response.usage.estimated_cost if response.usage else 0.0,
             )
 
-            self.logger.info(f"Chat processed successfully: mode={request.mode.value}, session={request.session_id}")
+            self.logger.info(
+                f"Chat processed successfully: mode={request.mode.value}, session={request.session_id}"
+            )
             return response
 
         except Exception as e:
@@ -127,14 +130,14 @@ class UnifiedChatService:
             "status": "healthy",
             "timestamp": datetime.now(UTC).isoformat(),
             "services": {},
-            "total_services": len(self._services)
+            "total_services": len(self._services),
         }
 
         for mode, service in self._services.items():
             status["services"][mode.value] = {
                 "status": "healthy",
                 "capabilities": service.get_capabilities(),
-                "supports_streaming": service.supports_streaming()
+                "supports_streaming": service.supports_streaming(),
             }
 
         return status
@@ -145,14 +148,10 @@ class UnifiedChatService:
         return {
             "total_sessions": 150,
             "total_messages": 1250,
-            "mode_distribution": {
-                "universal": 45,
-                "sophia": 75,
-                "executive": 30
-            },
+            "mode_distribution": {"universal": 45, "sophia": 75, "executive": 30},
             "average_session_length": 8.5,
             "total_tokens": 125000,
-            "total_cost": 15.75
+            "total_cost": 15.75,
         }
 
     def register_service(self, mode: ChatMode, service: BaseChatService):
@@ -177,4 +176,3 @@ class UnifiedChatService:
         await self.context_manager.close()
 
         self.logger.info("Unified chat service shutdown complete")
-

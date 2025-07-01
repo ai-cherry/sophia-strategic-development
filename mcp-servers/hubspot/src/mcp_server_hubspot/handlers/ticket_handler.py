@@ -70,9 +70,7 @@ class TicketHandler(BaseHandler):
             "required": ["ticket_id"],
         }
 
-    def get_tickets(
-        self, arguments: dict[str, Any] | None
-    ) -> list[types.TextContent]:
+    def get_tickets(self, arguments: dict[str, Any] | None) -> list[types.TextContent]:
         """Get tickets from HubSpot based on configurable selection criteria.
 
         Args:

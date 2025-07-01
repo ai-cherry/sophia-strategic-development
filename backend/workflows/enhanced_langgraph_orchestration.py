@@ -52,6 +52,7 @@ logger = logging.getLogger(__name__)
 
 class WorkflowStatus(Enum):
     """Enhanced workflow status tracking"""
+
     PENDING = "pending"
     RUNNING = "running"
     PAUSED = "paused"
@@ -63,6 +64,7 @@ class WorkflowStatus(Enum):
 
 class NodeType(Enum):
     """Types of nodes in the workflow graph"""
+
     TASK = "task"
     PARALLEL = "parallel"
     DECISION = "decision"
@@ -73,6 +75,7 @@ class NodeType(Enum):
 
 class EventType(Enum):
     """Types of events that can trigger workflow transitions"""
+
     TASK_COMPLETED = "task_completed"
     TASK_FAILED = "task_failed"
     HUMAN_APPROVED = "human_approved"
@@ -85,6 +88,7 @@ class EventType(Enum):
 @dataclass
 class WorkflowEvent:
     """Event that can trigger workflow state changes"""
+
     event_type: EventType
     source_node: str
     target_node: str | None = None
@@ -96,6 +100,7 @@ class WorkflowEvent:
 @dataclass
 class HumanCheckpoint:
     """Configuration for human-in-the-loop checkpoints"""
+
     checkpoint_id: str
     title: str
     description: str
@@ -110,6 +115,7 @@ class HumanCheckpoint:
 @dataclass
 class ParallelTask:
     """Configuration for parallel task execution"""
+
     task_id: str
     task_name: str
     task_function: str
@@ -248,48 +254,85 @@ class EnhancedLangGraphOrchestrator:
                 "description": "Analyze deals using multiple data sources and AI agents",
                 "nodes": {
                     "start": {"type": NodeType.ROUTER, "next": ["data_collection"]},
-                    "data_collection": {"type": NodeType.PARALLEL, "tasks": ["hubspot_data", "gong_data", "email_data"]},
-                    "analysis": {"type": NodeType.PARALLEL, "tasks": ["sales_analysis", "call_analysis", "sentiment_analysis"]},
-                    "human_review": {"type": NodeType.HUMAN_CHECKPOINT, "required": True},
+                    "data_collection": {
+                        "type": NodeType.PARALLEL,
+                        "tasks": ["hubspot_data", "gong_data", "email_data"],
+                    },
+                    "analysis": {
+                        "type": NodeType.PARALLEL,
+                        "tasks": [
+                            "sales_analysis",
+                            "call_analysis",
+                            "sentiment_analysis",
+                        ],
+                    },
+                    "human_review": {
+                        "type": NodeType.HUMAN_CHECKPOINT,
+                        "required": True,
+                    },
                     "final_report": {"type": NodeType.TASK, "next": ["end"]},
-                    "end": {"type": NodeType.TASK}
-                }
+                    "end": {"type": NodeType.TASK},
+                },
             },
             "agent_creation": {
                 "name": "AI Agent Creation Workflow",
                 "description": "Create and configure new AI agents through natural language",
                 "nodes": {
-                    "start": {"type": NodeType.ROUTER, "next": ["requirements_analysis"]},
-                    "requirements_analysis": {"type": NodeType.TASK, "next": ["capability_mapping"]},
-                    "capability_mapping": {"type": NodeType.TASK, "next": ["human_approval"]},
-                    "human_approval": {"type": NodeType.HUMAN_CHECKPOINT, "required": True},
+                    "start": {
+                        "type": NodeType.ROUTER,
+                        "next": ["requirements_analysis"],
+                    },
+                    "requirements_analysis": {
+                        "type": NodeType.TASK,
+                        "next": ["capability_mapping"],
+                    },
+                    "capability_mapping": {
+                        "type": NodeType.TASK,
+                        "next": ["human_approval"],
+                    },
+                    "human_approval": {
+                        "type": NodeType.HUMAN_CHECKPOINT,
+                        "required": True,
+                    },
                     "agent_generation": {"type": NodeType.TASK, "next": ["testing"]},
-                    "testing": {"type": NodeType.PARALLEL, "tasks": ["unit_tests", "integration_tests"]},
+                    "testing": {
+                        "type": NodeType.PARALLEL,
+                        "tasks": ["unit_tests", "integration_tests"],
+                    },
                     "deployment": {"type": NodeType.TASK, "next": ["end"]},
-                    "end": {"type": NodeType.TASK}
-                }
+                    "end": {"type": NodeType.TASK},
+                },
             },
             "workflow_orchestration": {
                 "name": "Dynamic Workflow Orchestration",
                 "description": "Create and manage workflows through natural language",
                 "nodes": {
                     "start": {"type": NodeType.ROUTER, "next": ["intent_analysis"]},
-                    "intent_analysis": {"type": NodeType.TASK, "next": ["workflow_design"]},
-                    "workflow_design": {"type": NodeType.TASK, "next": ["human_review"]},
-                    "human_review": {"type": NodeType.HUMAN_CHECKPOINT, "required": True},
-                    "workflow_creation": {"type": NodeType.TASK, "next": ["validation"]},
+                    "intent_analysis": {
+                        "type": NodeType.TASK,
+                        "next": ["workflow_design"],
+                    },
+                    "workflow_design": {
+                        "type": NodeType.TASK,
+                        "next": ["human_review"],
+                    },
+                    "human_review": {
+                        "type": NodeType.HUMAN_CHECKPOINT,
+                        "required": True,
+                    },
+                    "workflow_creation": {
+                        "type": NodeType.TASK,
+                        "next": ["validation"],
+                    },
                     "validation": {"type": NodeType.TASK, "next": ["deployment"]},
                     "deployment": {"type": NodeType.TASK, "next": ["end"]},
-                    "end": {"type": NodeType.TASK}
-                }
-            }
+                    "end": {"type": NodeType.TASK},
+                },
+            },
         }
 
     async def create_workflow_from_natural_language(
-        self,
-        user_request: str,
-        user_id: str,
-        session_id: str
+        self, user_request: str, user_id: str, session_id: str
     ) -> str:
         """
         Create a workflow from natural language description
@@ -324,8 +367,7 @@ class EnhancedLangGraphOrchestrator:
                 """
 
                 analysis_result = await cortex.complete_text_with_cortex(
-                    prompt=analysis_prompt,
-                    max_tokens=500
+                    prompt=analysis_prompt, max_tokens=500
                 )
 
             # Parse the analysis
@@ -368,7 +410,7 @@ class EnhancedLangGraphOrchestrator:
                 retry_counts={},
                 recovery_actions=[],
                 execution_metrics={},
-                node_timings={}
+                node_timings={},
             )
 
             # Store workflow
@@ -381,8 +423,8 @@ class EnhancedLangGraphOrchestrator:
                 user_id=user_id,
                 details={
                     "workflow_type": workflow_spec.get("type"),
-                    "user_request": user_request
-                }
+                    "user_request": user_request,
+                },
             )
 
             return workflow_id
@@ -392,9 +434,7 @@ class EnhancedLangGraphOrchestrator:
             raise
 
     async def execute_parallel_tasks(
-        self,
-        workflow_id: str,
-        tasks: list[ParallelTask]
+        self, workflow_id: str, tasks: list[ParallelTask]
     ) -> dict[str, Any]:
         """
         Execute multiple tasks in parallel (Map-Reduce pattern)
@@ -415,7 +455,7 @@ class EnhancedLangGraphOrchestrator:
         for task in tasks:
             async_task = asyncio.create_task(
                 self._execute_single_task(workflow_id, task),
-                name=f"{workflow_id}_{task.task_id}"
+                name=f"{workflow_id}_{task.task_id}",
             )
             async_tasks.append((task.task_id, async_task))
 
@@ -426,8 +466,7 @@ class EnhancedLangGraphOrchestrator:
         for task_id, async_task in async_tasks:
             try:
                 result = await asyncio.wait_for(
-                    async_task,
-                    timeout=tasks[0].timeout_minutes * 60
+                    async_task, timeout=tasks[0].timeout_minutes * 60
                 )
                 results[task_id] = result
 
@@ -456,17 +495,13 @@ class EnhancedLangGraphOrchestrator:
                 "tasks_executed": len(tasks),
                 "successful_tasks": len(results),
                 "failed_tasks": len(errors),
-                "execution_time": sum(workflow_state["node_timings"].values())
-            }
+                "execution_time": sum(workflow_state["node_timings"].values()),
+            },
         )
 
         return aggregated_result
 
-    async def _execute_single_task(
-        self,
-        workflow_id: str,
-        task: ParallelTask
-    ) -> Any:
+    async def _execute_single_task(self, workflow_id: str, task: ParallelTask) -> Any:
         """Execute a single task within a parallel execution"""
         start_time = datetime.now()
 
@@ -491,9 +526,7 @@ class EnhancedLangGraphOrchestrator:
             raise
 
     async def create_human_checkpoint(
-        self,
-        workflow_id: str,
-        checkpoint_config: HumanCheckpoint
+        self, workflow_id: str, checkpoint_config: HumanCheckpoint
     ) -> str:
         """
         Create a human-in-the-loop checkpoint
@@ -533,9 +566,10 @@ class EnhancedLangGraphOrchestrator:
                 4. Suggests next actions
                 """
 
-                checkpoint_config.natural_language_prompt = await cortex.complete_text_with_cortex(
-                    prompt=prompt_generation,
-                    max_tokens=300
+                checkpoint_config.natural_language_prompt = (
+                    await cortex.complete_text_with_cortex(
+                        prompt=prompt_generation, max_tokens=300
+                    )
                 )
 
         # Log checkpoint creation
@@ -546,17 +580,14 @@ class EnhancedLangGraphOrchestrator:
             details={
                 "checkpoint_id": checkpoint_config.checkpoint_id,
                 "title": checkpoint_config.title,
-                "required_approval": checkpoint_config.required_approval
-            }
+                "required_approval": checkpoint_config.required_approval,
+            },
         )
 
         return checkpoint_config.checkpoint_id
 
     async def handle_human_response(
-        self,
-        checkpoint_id: str,
-        response: dict[str, Any],
-        user_id: str
+        self, checkpoint_id: str, response: dict[str, Any], user_id: str
     ) -> bool:
         """
         Handle human response to a checkpoint
@@ -590,16 +621,19 @@ class EnhancedLangGraphOrchestrator:
 
         # Store response
         workflow_state["checkpoint_responses"][checkpoint_id] = response
-        workflow_state["human_feedback"].append({
-            "checkpoint_id": checkpoint_id,
-            "user_id": user_id,
-            "response": response,
-            "timestamp": datetime.now()
-        })
+        workflow_state["human_feedback"].append(
+            {
+                "checkpoint_id": checkpoint_id,
+                "user_id": user_id,
+                "response": response,
+                "timestamp": datetime.now(),
+            }
+        )
 
         # Remove from pending
         workflow_state["pending_checkpoints"] = [
-            cp for cp in workflow_state["pending_checkpoints"]
+            cp
+            for cp in workflow_state["pending_checkpoints"]
             if cp.checkpoint_id != checkpoint_id
         ]
         del self.pending_approvals[checkpoint_id]
@@ -609,9 +643,11 @@ class EnhancedLangGraphOrchestrator:
 
         # Create event
         event = WorkflowEvent(
-            event_type=EventType.HUMAN_APPROVED if approved else EventType.HUMAN_REJECTED,
+            event_type=(
+                EventType.HUMAN_APPROVED if approved else EventType.HUMAN_REJECTED
+            ),
             source_node=checkpoint_id,
-            data=response
+            data=response,
         )
 
         # Process event
@@ -625,8 +661,8 @@ class EnhancedLangGraphOrchestrator:
             details={
                 "checkpoint_id": checkpoint_id,
                 "approved": approved,
-                "response": response
-            }
+                "response": response,
+            },
         )
 
         return approved
@@ -651,7 +687,9 @@ class EnhancedLangGraphOrchestrator:
                 logger.error(f"Error in event handler: {e}")
                 workflow_state["error_messages"].append(f"Event handler error: {e}")
 
-    async def _handle_task_completion(self, workflow_id: str, event: WorkflowEvent) -> None:
+    async def _handle_task_completion(
+        self, workflow_id: str, event: WorkflowEvent
+    ) -> None:
         """Handle task completion event"""
         workflow_state = self.active_workflows[workflow_id]
 
@@ -664,7 +702,9 @@ class EnhancedLangGraphOrchestrator:
             # Determine next nodes based on workflow template
             await self._determine_next_nodes(workflow_id, event.source_node)
 
-    async def _handle_task_failure(self, workflow_id: str, event: WorkflowEvent) -> None:
+    async def _handle_task_failure(
+        self, workflow_id: str, event: WorkflowEvent
+    ) -> None:
         """Handle task failure event"""
         workflow_state = self.active_workflows[workflow_id]
 
@@ -681,9 +721,13 @@ class EnhancedLangGraphOrchestrator:
         else:
             # Mark workflow as failed
             workflow_state["status"] = WorkflowStatus.FAILED
-            workflow_state["error_messages"].append(f"Node {event.source_node} failed after 3 retries")
+            workflow_state["error_messages"].append(
+                f"Node {event.source_node} failed after 3 retries"
+            )
 
-    async def _handle_human_approval(self, workflow_id: str, event: WorkflowEvent) -> None:
+    async def _handle_human_approval(
+        self, workflow_id: str, event: WorkflowEvent
+    ) -> None:
         """Handle human approval event"""
         workflow_state = self.active_workflows[workflow_id]
 
@@ -691,7 +735,9 @@ class EnhancedLangGraphOrchestrator:
         workflow_state["status"] = WorkflowStatus.RUNNING
         await self._determine_next_nodes(workflow_id, event.source_node)
 
-    async def _handle_human_rejection(self, workflow_id: str, event: WorkflowEvent) -> None:
+    async def _handle_human_rejection(
+        self, workflow_id: str, event: WorkflowEvent
+    ) -> None:
         """Handle human rejection event"""
         workflow_state = self.active_workflows[workflow_id]
 
@@ -737,7 +783,7 @@ class EnhancedLangGraphOrchestrator:
 
                 Return as JSON.
                 """,
-                max_tokens=300
+                max_tokens=300,
             )
 
         try:
@@ -746,21 +792,27 @@ class EnhancedLangGraphOrchestrator:
 
             # Handle different intents
             if intent == "modify_workflow":
-                await self._modify_workflow_from_input(workflow_id, user_input, analysis)
+                await self._modify_workflow_from_input(
+                    workflow_id, user_input, analysis
+                )
             elif intent == "provide_data":
                 await self._incorporate_user_data(workflow_id, user_input, analysis)
             elif intent in ["approve", "reject"]:
-                await self._handle_approval_input(workflow_id, user_input, intent == "approve")
+                await self._handle_approval_input(
+                    workflow_id, user_input, intent == "approve"
+                )
             elif intent == "question":
                 await self._answer_user_question(workflow_id, user_input, analysis)
 
         except json.JSONDecodeError:
             # Fallback to simple text processing
-            workflow_state["human_feedback"].append({
-                "user_input": user_input,
-                "timestamp": datetime.now(),
-                "processed": False
-            })
+            workflow_state["human_feedback"].append(
+                {
+                    "user_input": user_input,
+                    "timestamp": datetime.now(),
+                    "processed": False,
+                }
+            )
 
     async def get_workflow_status(self, workflow_id: str) -> dict[str, Any]:
         """Get current status of a workflow"""
@@ -774,20 +826,21 @@ class EnhancedLangGraphOrchestrator:
             "current_node": workflow_state["current_node"],
             "progress": {
                 "completed_nodes": len(workflow_state["completed_nodes"]),
-                "total_nodes": len(workflow_state["completed_nodes"]) + len(workflow_state["next_nodes"]),
-                "failed_nodes": len(workflow_state["failed_nodes"])
+                "total_nodes": len(workflow_state["completed_nodes"])
+                + len(workflow_state["next_nodes"]),
+                "failed_nodes": len(workflow_state["failed_nodes"]),
             },
             "pending_checkpoints": [
                 {
                     "checkpoint_id": cp.checkpoint_id,
                     "title": cp.title,
                     "description": cp.description,
-                    "natural_language_prompt": cp.natural_language_prompt
+                    "natural_language_prompt": cp.natural_language_prompt,
                 }
                 for cp in workflow_state["pending_checkpoints"]
             ],
             "execution_metrics": workflow_state["execution_metrics"],
-            "last_updated": workflow_state["updated_at"]
+            "last_updated": workflow_state["updated_at"],
         }
 
     async def get_pending_approvals(self, user_id: str) -> list[dict[str, Any]]:
@@ -796,55 +849,68 @@ class EnhancedLangGraphOrchestrator:
 
         for checkpoint_id, checkpoint in self.pending_approvals.items():
             # Check if user is authorized for this checkpoint
-            if not checkpoint.escalation_users or user_id in checkpoint.escalation_users:
-                pending.append({
-                    "checkpoint_id": checkpoint_id,
-                    "title": checkpoint.title,
-                    "description": checkpoint.description,
-                    "natural_language_prompt": checkpoint.natural_language_prompt,
-                    "context_data": checkpoint.context_data,
-                    "created_at": checkpoint.created_at,
-                    "timeout_at": checkpoint.created_at + timedelta(minutes=checkpoint.timeout_minutes)
-                })
+            if (
+                not checkpoint.escalation_users
+                or user_id in checkpoint.escalation_users
+            ):
+                pending.append(
+                    {
+                        "checkpoint_id": checkpoint_id,
+                        "title": checkpoint.title,
+                        "description": checkpoint.description,
+                        "natural_language_prompt": checkpoint.natural_language_prompt,
+                        "context_data": checkpoint.context_data,
+                        "created_at": checkpoint.created_at,
+                        "timeout_at": checkpoint.created_at
+                        + timedelta(minutes=checkpoint.timeout_minutes),
+                    }
+                )
 
         return pending
 
     # Task implementations for parallel execution
-    async def _task_hubspot_data(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    async def _task_hubspot_data(
+        self, workflow_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Fetch HubSpot data task"""
         # Implementation would connect to HubSpot API
         return {"source": "hubspot", "data": "sample_hubspot_data"}
 
-    async def _task_gong_data(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    async def _task_gong_data(
+        self, workflow_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Fetch Gong data task"""
         # Implementation would connect to Gong API
         return {"source": "gong", "data": "sample_gong_data"}
 
-    async def _task_sales_analysis(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    async def _task_sales_analysis(
+        self, workflow_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Perform sales analysis task"""
         # Implementation would use SalesCoachAgent
         return {"analysis_type": "sales", "insights": "sample_sales_insights"}
 
-    async def _task_call_analysis(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    async def _task_call_analysis(
+        self, workflow_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Perform call analysis task"""
         # Implementation would analyze call data
         return {"analysis_type": "calls", "insights": "sample_call_insights"}
 
     async def _aggregate_parallel_results(
-        self,
-        workflow_id: str,
-        results: dict[str, Any],
-        errors: dict[str, str]
+        self, workflow_id: str, results: dict[str, Any], errors: dict[str, str]
     ) -> dict[str, Any]:
         """Aggregate results from parallel task execution"""
         return {
             "successful_results": results,
             "errors": errors,
             "summary": f"Completed {len(results)} tasks, {len(errors)} errors",
-            "aggregated_at": datetime.now()
+            "aggregated_at": datetime.now(),
         }
 
-    async def _determine_next_nodes(self, workflow_id: str, completed_node: str) -> None:
+    async def _determine_next_nodes(
+        self, workflow_id: str, completed_node: str
+    ) -> None:
         """Determine next nodes to execute based on workflow template"""
         workflow_state = self.active_workflows[workflow_id]
         workflow_type = workflow_state["workflow_type"]
@@ -871,51 +937,43 @@ class EnhancedLangGraphOrchestrator:
         # Implementation would notify escalation users
         pass
 
-    async def _apply_default_timeout_action(self, workflow_id: str, node_id: str) -> None:
+    async def _apply_default_timeout_action(
+        self, workflow_id: str, node_id: str
+    ) -> None:
         """Apply default action when timeout occurs"""
         # Implementation would apply predefined default action
         pass
 
-    async def _handle_rejection_recovery(self, workflow_id: str, event: WorkflowEvent) -> None:
+    async def _handle_rejection_recovery(
+        self, workflow_id: str, event: WorkflowEvent
+    ) -> None:
         """Handle recovery from human rejection"""
         # Implementation would determine alternative workflow path
         pass
 
     async def _modify_workflow_from_input(
-        self,
-        workflow_id: str,
-        user_input: str,
-        analysis: dict[str, Any]
+        self, workflow_id: str, user_input: str, analysis: dict[str, Any]
     ) -> None:
         """Modify workflow based on user input"""
         # Implementation would modify workflow structure
         pass
 
     async def _incorporate_user_data(
-        self,
-        workflow_id: str,
-        user_input: str,
-        analysis: dict[str, Any]
+        self, workflow_id: str, user_input: str, analysis: dict[str, Any]
     ) -> None:
         """Incorporate user-provided data into workflow"""
         # Implementation would add user data to workflow state
         pass
 
     async def _handle_approval_input(
-        self,
-        workflow_id: str,
-        user_input: str,
-        approved: bool
+        self, workflow_id: str, user_input: str, approved: bool
     ) -> None:
         """Handle approval/rejection input"""
         # Implementation would process approval decision
         pass
 
     async def _answer_user_question(
-        self,
-        workflow_id: str,
-        user_input: str,
-        analysis: dict[str, Any]
+        self, workflow_id: str, user_input: str, analysis: dict[str, Any]
     ) -> None:
         """Answer user questions about the workflow"""
         # Implementation would generate answers using Cortex
@@ -924,4 +982,3 @@ class EnhancedLangGraphOrchestrator:
 
 # Global instance
 enhanced_orchestrator = EnhancedLangGraphOrchestrator()
-

@@ -663,8 +663,8 @@ class EnhancedDeploymentTracker:
                 )
             else:
                 # Generic shell command
-                result = subprocess.run(shlex.split(
-                    step), capture_output=True, text=True, timeout=120
+                result = subprocess.run(
+                    shlex.split(step), capture_output=True, text=True, timeout=120
                 )  # SECURITY FIX: Removed shell=True
 
             if result.returncode == 0:

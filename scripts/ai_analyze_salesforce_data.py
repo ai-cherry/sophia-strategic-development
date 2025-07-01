@@ -13,10 +13,10 @@ from typing import Any
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class SalesforceDataAnalyzer:
     """AI-enhanced analyzer for Salesforce data migration planning"""
@@ -26,7 +26,7 @@ class SalesforceDataAnalyzer:
             "timestamp": datetime.now().isoformat(),
             "analysis": {},
             "recommendations": {},
-            "status": "pending"
+            "status": "pending",
         }
 
     def analyze_salesforce_objects(self) -> dict[str, Any]:
@@ -41,54 +41,94 @@ class SalesforceDataAnalyzer:
                 "Account": {
                     "record_count": 2500,
                     "complexity": "medium",
-                    "key_fields": ["Name", "Industry", "AnnualRevenue", "BillingAddress"],
+                    "key_fields": [
+                        "Name",
+                        "Industry",
+                        "AnnualRevenue",
+                        "BillingAddress",
+                    ],
                     "custom_fields": 15,
                     "relationships": ["Contacts", "Opportunities", "Cases"],
                     "data_quality_score": 0.87,
-                    "migration_priority": "high"
+                    "migration_priority": "high",
                 },
                 "Contact": {
                     "record_count": 8500,
                     "complexity": "medium",
-                    "key_fields": ["FirstName", "LastName", "Email", "Phone", "AccountId"],
+                    "key_fields": [
+                        "FirstName",
+                        "LastName",
+                        "Email",
+                        "Phone",
+                        "AccountId",
+                    ],
                     "custom_fields": 12,
                     "relationships": ["Account", "Opportunities", "Cases"],
                     "data_quality_score": 0.92,
-                    "migration_priority": "critical"
+                    "migration_priority": "critical",
                 },
                 "Opportunity": {
                     "record_count": 1200,
                     "complexity": "high",
-                    "key_fields": ["Name", "Amount", "CloseDate", "StageName", "AccountId"],
+                    "key_fields": [
+                        "Name",
+                        "Amount",
+                        "CloseDate",
+                        "StageName",
+                        "AccountId",
+                    ],
                     "custom_fields": 25,
                     "relationships": ["Account", "Contact", "OpportunityLineItems"],
                     "data_quality_score": 0.78,
-                    "migration_priority": "critical"
+                    "migration_priority": "critical",
                 },
                 "Case": {
                     "record_count": 3200,
                     "complexity": "medium",
-                    "key_fields": ["Subject", "Description", "Status", "Priority", "AccountId", "ContactId"],
+                    "key_fields": [
+                        "Subject",
+                        "Description",
+                        "Status",
+                        "Priority",
+                        "AccountId",
+                        "ContactId",
+                    ],
                     "custom_fields": 18,
                     "relationships": ["Account", "Contact", "CaseComments"],
                     "data_quality_score": 0.84,
-                    "migration_priority": "high"
+                    "migration_priority": "high",
                 },
                 "Lead": {
                     "record_count": 4500,
                     "complexity": "low",
-                    "key_fields": ["FirstName", "LastName", "Email", "Company", "Status"],
+                    "key_fields": [
+                        "FirstName",
+                        "LastName",
+                        "Email",
+                        "Company",
+                        "Status",
+                    ],
                     "custom_fields": 8,
                     "relationships": [],
                     "data_quality_score": 0.79,
-                    "migration_priority": "medium"
-                }
+                    "migration_priority": "medium",
+                },
             }
 
             # Calculate overall statistics
-            total_records = sum(obj["record_count"] for obj in salesforce_objects.values())
-            len([obj for obj in salesforce_objects.values() if obj["complexity"] == "high"]) / len(salesforce_objects)
-            avg_data_quality = sum(obj["data_quality_score"] for obj in salesforce_objects.values()) / len(salesforce_objects)
+            total_records = sum(
+                obj["record_count"] for obj in salesforce_objects.values()
+            )
+            len(
+                [
+                    obj
+                    for obj in salesforce_objects.values()
+                    if obj["complexity"] == "high"
+                ]
+            ) / len(salesforce_objects)
+            avg_data_quality = sum(
+                obj["data_quality_score"] for obj in salesforce_objects.values()
+            ) / len(salesforce_objects)
 
             analysis = {
                 "objects": salesforce_objects,
@@ -96,9 +136,21 @@ class SalesforceDataAnalyzer:
                     "total_objects": len(salesforce_objects),
                     "total_records": total_records,
                     "avg_data_quality": round(avg_data_quality, 2),
-                    "high_complexity_objects": len([obj for obj in salesforce_objects.values() if obj["complexity"] == "high"]),
-                    "critical_priority_objects": len([obj for obj in salesforce_objects.values() if obj["migration_priority"] == "critical"])
-                }
+                    "high_complexity_objects": len(
+                        [
+                            obj
+                            for obj in salesforce_objects.values()
+                            if obj["complexity"] == "high"
+                        ]
+                    ),
+                    "critical_priority_objects": len(
+                        [
+                            obj
+                            for obj in salesforce_objects.values()
+                            if obj["migration_priority"] == "critical"
+                        ]
+                    ),
+                },
             }
 
             logger.info(f"✅ Analyzed {len(salesforce_objects)} Salesforce objects")
@@ -131,10 +183,10 @@ class SalesforceDataAnalyzer:
                             "BillingState": "state",
                             "BillingPostalCode": "zip",
                             "Phone": "phone",
-                            "Website": "website"
+                            "Website": "website",
                         },
                         "custom_field_strategy": "hubspot_custom_properties",
-                        "confidence_score": 0.93
+                        "confidence_score": 0.93,
                     },
                     "Contact": {
                         "target_object": "Contact",
@@ -145,10 +197,10 @@ class SalesforceDataAnalyzer:
                             "Phone": "phone",
                             "Title": "jobtitle",
                             "Department": "hs_department",
-                            "Account.Name": "company"
+                            "Account.Name": "company",
                         },
                         "custom_field_strategy": "hubspot_custom_properties",
-                        "confidence_score": 0.96
+                        "confidence_score": 0.96,
                     },
                     "Opportunity": {
                         "target_object": "Deal",
@@ -158,11 +210,11 @@ class SalesforceDataAnalyzer:
                             "CloseDate": "closedate",
                             "StageName": "dealstage",
                             "Probability": "hs_deal_stage_probability",
-                            "Description": "description"
+                            "Description": "description",
                         },
                         "custom_field_strategy": "hubspot_deal_properties",
-                        "confidence_score": 0.89
-                    }
+                        "confidence_score": 0.89,
+                    },
                 },
                 "intercom_mappings": {
                     "Contact": {
@@ -173,10 +225,10 @@ class SalesforceDataAnalyzer:
                             "Phone": "phone",
                             "Account.Name": "companies[0].name",
                             "Title": "custom_attributes.job_title",
-                            "Department": "custom_attributes.department"
+                            "Department": "custom_attributes.department",
                         },
                         "custom_field_strategy": "intercom_custom_attributes",
-                        "confidence_score": 0.91
+                        "confidence_score": 0.91,
                     },
                     "Case": {
                         "target_object": "Conversation",
@@ -185,12 +237,12 @@ class SalesforceDataAnalyzer:
                             "Description": "conversation_parts[0].body",
                             "Priority": "priority",
                             "Status": "state",
-                            "Contact.Email": "user.email"
+                            "Contact.Email": "user.email",
                         },
                         "custom_field_strategy": "intercom_conversation_metadata",
-                        "confidence_score": 0.87
-                    }
-                }
+                        "confidence_score": 0.87,
+                    },
+                },
             }
 
             # Generate transformation recommendations
@@ -199,20 +251,20 @@ class SalesforceDataAnalyzer:
                     "email_validation": "Required for both HubSpot and Intercom",
                     "phone_formatting": "Standardize to E.164 format",
                     "address_normalization": "Use Google Maps API for validation",
-                    "duplicate_detection": "Implement fuzzy matching for contact deduplication"
+                    "duplicate_detection": "Implement fuzzy matching for contact deduplication",
                 },
                 "business_logic": {
                     "lead_conversion": "Convert qualified Leads to HubSpot Contacts",
                     "opportunity_stages": "Map Salesforce stages to HubSpot deal stages",
                     "case_prioritization": "Map Salesforce case priority to Intercom priority levels",
-                    "custom_field_migration": "Preserve business-critical custom fields"
+                    "custom_field_migration": "Preserve business-critical custom fields",
                 },
                 "ai_enhancements": {
                     "gong_context_integration": "Enrich contact records with Gong call insights",
                     "sentiment_analysis": "Add sentiment scores to case/conversation records",
                     "predictive_scoring": "Generate lead/deal scores using AI models",
-                    "content_summarization": "Summarize long descriptions and notes"
-                }
+                    "content_summarization": "Summarize long descriptions and notes",
+                },
             }
 
             mapping_results = {
@@ -220,13 +272,19 @@ class SalesforceDataAnalyzer:
                 "transformations": transformation_recommendations,
                 "estimated_success_rate": 0.91,
                 "estimated_data_loss": 0.03,
-                "manual_review_required": 0.08
+                "manual_review_required": 0.08,
             }
 
             logger.info("✅ Generated migration mapping recommendations")
-            logger.info(f"   🎯 Estimated success rate: {mapping_results['estimated_success_rate']:.1%}")
-            logger.info(f"   📊 HubSpot mappings: {len(migration_mappings['hubspot_mappings'])} objects")
-            logger.info(f"   📊 Intercom mappings: {len(migration_mappings['intercom_mappings'])} objects")
+            logger.info(
+                f"   🎯 Estimated success rate: {mapping_results['estimated_success_rate']:.1%}"
+            )
+            logger.info(
+                f"   📊 HubSpot mappings: {len(migration_mappings['hubspot_mappings'])} objects"
+            )
+            logger.info(
+                f"   📊 Intercom mappings: {len(migration_mappings['intercom_mappings'])} objects"
+            )
 
             self.analysis_results["analysis"]["migration_mapping"] = mapping_results
             return {"status": "success", "mappings": mapping_results}
@@ -248,7 +306,7 @@ class SalesforceDataAnalyzer:
                         "impact": "high",
                         "probability": 0.7,
                         "mitigation": "Create mapping strategy for critical custom fields",
-                        "effort_estimate": "8-12 hours"
+                        "effort_estimate": "8-12 hours",
                     },
                     {
                         "risk": "Data Quality Issues",
@@ -256,8 +314,8 @@ class SalesforceDataAnalyzer:
                         "impact": "medium",
                         "probability": 0.6,
                         "mitigation": "Implement data cleaning and validation processes",
-                        "effort_estimate": "16-20 hours"
-                    }
+                        "effort_estimate": "16-20 hours",
+                    },
                 ],
                 "medium_risks": [
                     {
@@ -266,7 +324,7 @@ class SalesforceDataAnalyzer:
                         "impact": "medium",
                         "probability": 0.5,
                         "mitigation": "Implement batch processing with rate limiting",
-                        "effort_estimate": "4-6 hours"
+                        "effort_estimate": "4-6 hours",
                     },
                     {
                         "risk": "Relationship Integrity",
@@ -274,8 +332,8 @@ class SalesforceDataAnalyzer:
                         "impact": "medium",
                         "probability": 0.4,
                         "mitigation": "Use external ID mapping to preserve relationships",
-                        "effort_estimate": "6-8 hours"
-                    }
+                        "effort_estimate": "6-8 hours",
+                    },
                 ],
                 "low_risks": [
                     {
@@ -284,25 +342,34 @@ class SalesforceDataAnalyzer:
                         "impact": "low",
                         "probability": 0.9,
                         "mitigation": "Provide comprehensive training and documentation",
-                        "effort_estimate": "12-16 hours"
+                        "effort_estimate": "12-16 hours",
                     }
-                ]
+                ],
             }
 
             # Calculate overall risk score
-            total_risks = len(risk_assessment["high_risks"]) + len(risk_assessment["medium_risks"]) + len(risk_assessment["low_risks"])
+            total_risks = (
+                len(risk_assessment["high_risks"])
+                + len(risk_assessment["medium_risks"])
+                + len(risk_assessment["low_risks"])
+            )
             risk_score = (
-                len(risk_assessment["high_risks"]) * 3 +
-                len(risk_assessment["medium_risks"]) * 2 +
-                len(risk_assessment["low_risks"]) * 1
-            ) / (total_risks * 3) if total_risks > 0 else 0
+                (
+                    len(risk_assessment["high_risks"]) * 3
+                    + len(risk_assessment["medium_risks"]) * 2
+                    + len(risk_assessment["low_risks"]) * 1
+                )
+                / (total_risks * 3)
+                if total_risks > 0
+                else 0
+            )
 
             risk_results = {
                 "assessment": risk_assessment,
                 "overall_risk_score": round(risk_score, 2),
                 "total_risks": total_risks,
                 "estimated_effort_hours": "50-62 hours",
-                "recommended_timeline": "3-4 weeks"
+                "recommended_timeline": "3-4 weeks",
             }
 
             logger.info("✅ Completed migration risk assessment")
@@ -332,57 +399,57 @@ class SalesforceDataAnalyzer:
                             "name": "Foundation Setup",
                             "objects": ["Account"],
                             "duration": "3-5 days",
-                            "risk_level": "low"
+                            "risk_level": "low",
                         },
                         {
                             "phase": 2,
                             "name": "Contact Migration",
                             "objects": ["Contact"],
                             "duration": "5-7 days",
-                            "risk_level": "medium"
+                            "risk_level": "medium",
                         },
                         {
                             "phase": 3,
                             "name": "Sales Data Migration",
                             "objects": ["Opportunity", "Lead"],
                             "duration": "7-10 days",
-                            "risk_level": "high"
+                            "risk_level": "high",
                         },
                         {
                             "phase": 4,
                             "name": "Support Data Migration",
                             "objects": ["Case"],
                             "duration": "5-7 days",
-                            "risk_level": "medium"
-                        }
-                    ]
+                            "risk_level": "medium",
+                        },
+                    ],
                 },
                 "ai_enhancements": {
                     "gong_integration": {
                         "description": "Leverage 90 days of Gong call data for contact enrichment",
                         "impact": "40% better data quality through call insights",
-                        "implementation": "Use vector similarity to match contacts with call participants"
+                        "implementation": "Use vector similarity to match contacts with call participants",
                     },
                     "predictive_analytics": {
                         "description": "Use AI to predict migration success probability per record",
                         "impact": "25% reduction in failed migrations",
-                        "implementation": "Train ML model on data quality indicators"
+                        "implementation": "Train ML model on data quality indicators",
                     },
                     "intelligent_mapping": {
                         "description": "Use LLM to suggest optimal field mappings",
                         "impact": "60% faster mapping configuration",
-                        "implementation": "Claude-4 analysis of field semantics and usage patterns"
-                    }
+                        "implementation": "Claude-4 analysis of field semantics and usage patterns",
+                    },
                 },
                 "pipedream_automation": {
                     "workflows": [
                         "Automated data validation pre-migration",
                         "Real-time error notification and handling",
                         "Post-migration data verification",
-                        "Incremental sync for ongoing updates"
+                        "Incremental sync for ongoing updates",
                     ],
-                    "estimated_time_savings": "70% reduction in manual tasks"
-                }
+                    "estimated_time_savings": "70% reduction in manual tasks",
+                },
             }
 
             # Performance predictions
@@ -391,7 +458,7 @@ class SalesforceDataAnalyzer:
                 "success_rate": "91-95%",
                 "data_integrity": "97-99%",
                 "downtime_required": "2-4 hours total",
-                "rollback_capability": "Full rollback within 1 hour"
+                "rollback_capability": "Full rollback within 1 hour",
             }
 
             recommendations_results = {
@@ -402,12 +469,14 @@ class SalesforceDataAnalyzer:
                     "Set up Pipedream API access",
                     "Configure Gong data access",
                     "Prepare HubSpot/Intercom environments",
-                    "Execute Phase 1 pilot migration"
-                ]
+                    "Execute Phase 1 pilot migration",
+                ],
             }
 
             logger.info("✅ Generated AI-powered recommendations")
-            logger.info(f"   🎯 Confidence score: {recommendations_results['confidence_score']:.1%}")
+            logger.info(
+                f"   🎯 Confidence score: {recommendations_results['confidence_score']:.1%}"
+            )
             logger.info("   ⏱️  Estimated duration: 20-29 days")
             logger.info("   📈 Predicted success rate: 91-95%")
 
@@ -427,7 +496,7 @@ class SalesforceDataAnalyzer:
             ("Salesforce Object Analysis", self.analyze_salesforce_objects),
             ("Migration Mapping", self.generate_migration_mapping),
             ("Risk Assessment", self.assess_migration_risks),
-            ("AI Recommendations", self.generate_ai_recommendations)
+            ("AI Recommendations", self.generate_ai_recommendations),
         ]
 
         completed_analyses = 0
@@ -444,7 +513,9 @@ class SalesforceDataAnalyzer:
                     completed_analyses += 1
                     logger.info(f"✅ {analysis_name}: SUCCESS")
                 else:
-                    logger.error(f"❌ {analysis_name}: FAILED - {result.get('error', 'Unknown error')}")
+                    logger.error(
+                        f"❌ {analysis_name}: FAILED - {result.get('error', 'Unknown error')}"
+                    )
 
             except Exception as e:
                 logger.error(f"❌ {analysis_name}: ERROR - {e}")
@@ -466,7 +537,7 @@ class SalesforceDataAnalyzer:
         self.analysis_results["summary"] = {
             "completed_analyses": completed_analyses,
             "total_analyses": total_analyses,
-            "success_rate": success_rate
+            "success_rate": success_rate,
         }
 
         # Print summary
@@ -474,7 +545,9 @@ class SalesforceDataAnalyzer:
         logger.info("📊 SALESFORCE DATA ANALYSIS SUMMARY")
         logger.info(f"{'='*60}")
         logger.info(f"{status_emoji} Overall Status: {overall_status.upper()}")
-        logger.info(f"📈 Success Rate: {success_rate:.1f}% ({completed_analyses}/{total_analyses} analyses)")
+        logger.info(
+            f"📈 Success Rate: {success_rate:.1f}% ({completed_analyses}/{total_analyses} analyses)"
+        )
 
         # Migration readiness assessment
         if overall_status == "success":
@@ -484,17 +557,32 @@ class SalesforceDataAnalyzer:
             logger.info("   • Proceed with Phase 1 migration execution")
 
             # Print key insights
-            if "analysis" in self.analysis_results and "salesforce_objects" in self.analysis_results["analysis"]:
-                summary = self.analysis_results["analysis"]["salesforce_objects"]["summary"]
+            if (
+                "analysis" in self.analysis_results
+                and "salesforce_objects" in self.analysis_results["analysis"]
+            ):
+                summary = self.analysis_results["analysis"]["salesforce_objects"][
+                    "summary"
+                ]
                 logger.info("\n📊 KEY INSIGHTS:")
-                logger.info(f"   • Total records to migrate: {summary['total_records']:,}")
-                logger.info(f"   • Average data quality: {summary['avg_data_quality']:.1%}")
-                logger.info(f"   • Critical priority objects: {summary['critical_priority_objects']}")
+                logger.info(
+                    f"   • Total records to migrate: {summary['total_records']:,}"
+                )
+                logger.info(
+                    f"   • Average data quality: {summary['avg_data_quality']:.1%}"
+                )
+                logger.info(
+                    f"   • Critical priority objects: {summary['critical_priority_objects']}"
+                )
 
             if "recommendations" in self.analysis_results:
                 predictions = self.analysis_results["recommendations"]["predictions"]
-                logger.info(f"   • Predicted success rate: {predictions['success_rate']}")
-                logger.info(f"   • Estimated duration: {predictions['migration_duration']}")
+                logger.info(
+                    f"   • Predicted success rate: {predictions['success_rate']}"
+                )
+                logger.info(
+                    f"   • Estimated duration: {predictions['migration_duration']}"
+                )
 
         elif overall_status == "partial":
             logger.info("\n⚠️  MIGRATION READINESS: MEDIUM")

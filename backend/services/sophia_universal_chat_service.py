@@ -54,6 +54,7 @@ try:
         DataQuality,
         IntelligentDataDiscoveryService,
     )
+
     DATA_DISCOVERY_AVAILABLE = True
 except ImportError:
     DATA_DISCOVERY_AVAILABLE = False
@@ -64,6 +65,7 @@ logger = logging.getLogger(__name__)
 
 class ChatMessageType(Enum):
     """Types of chat messages"""
+
     USER_MESSAGE = "user_message"
     SYSTEM_MESSAGE = "system_message"
     WORKFLOW_UPDATE = "workflow_update"
@@ -75,6 +77,7 @@ class ChatMessageType(Enum):
 
 class IntentType(Enum):
     """Types of user intents"""
+
     CREATE_WORKFLOW = "create_workflow"
     MODIFY_WORKFLOW = "modify_workflow"
     CHECK_STATUS = "check_status"
@@ -105,6 +108,7 @@ class IntentType(Enum):
 @dataclass
 class ChatMessage:
     """Chat message structure"""
+
     message_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     session_id: str = ""
     user_id: str = ""
@@ -121,6 +125,7 @@ class ChatMessage:
 @dataclass
 class ChatSession:
     """Chat session management"""
+
     session_id: str
     user_id: str
     created_at: datetime = field(default_factory=datetime.now)
@@ -151,9 +156,19 @@ class SophiaUniversalChatService:
 
         # NEW: Data staging and discovery services
         self.data_discovery_service: IntelligentDataDiscoveryService | None = None
-        self.staging_directory = Path("/tmp/sophia_staging")  # Configure via environment
+        self.staging_directory = Path(
+            "/tmp/sophia_staging"
+        )  # Configure via environment
         self.max_file_size = 1024 * 1024 * 1024  # 1GB max file size
-        self.supported_file_types = {'.csv', '.xlsx', '.xls', '.json', '.jsonl', '.txt', '.tsv'}
+        self.supported_file_types = {
+            ".csv",
+            ".xlsx",
+            ".xls",
+            ".json",
+            ".jsonl",
+            ".txt",
+            ".tsv",
+        }
 
         # Session management
         self.active_sessions: dict[str, ChatSession] = {}
@@ -166,7 +181,9 @@ class SophiaUniversalChatService:
         self.orchestrator = enhanced_orchestrator
 
         # NEW: Staged files tracking per session
-        self.session_staged_files: dict[str, list[str]] = {}  # session_id -> list of stage_ids
+        self.session_staged_files: dict[str, list[str]] = (
+            {}
+        )  # session_id -> list of stage_ids
 
         self.initialized = False
 
@@ -186,7 +203,9 @@ class SophiaUniversalChatService:
                 self.data_discovery_service = IntelligentDataDiscoveryService()
                 logger.info("✅ Data discovery service initialized")
             else:
-                logger.warning("⚠️ Data discovery service not available - file upload features disabled")
+                logger.warning(
+                    "⚠️ Data discovery service not available - file upload features disabled"
+                )
 
             # NEW: Set up staging directory
             staging_dir = os.getenv("SOPHIA_STAGING_DIR", "/tmp/sophia_staging")
@@ -205,7 +224,9 @@ class SophiaUniversalChatService:
             asyncio.create_task(self._staged_files_cleanup_task())
 
             self.initialized = True
-            logger.info("✅ Sophia Universal Chat Service initialized with data staging capabilities")
+            logger.info(
+                "✅ Sophia Universal Chat Service initialized with data staging capabilities"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize Sophia Universal Chat Service: {e}")
@@ -216,7 +237,7 @@ class SophiaUniversalChatService:
         user_id: str,
         session_id: str,
         message_content: str,
-        message_metadata: dict[str, Any] | None = None
+        message_metadata: dict[str, Any] | None = None,
     ) -> ChatMessage:
         """
         Process incoming chat message and generate response
@@ -243,7 +264,7 @@ class SophiaUniversalChatService:
                 user_id=user_id,
                 message_type=ChatMessageType.USER_MESSAGE,
                 content=message_content,
-                metadata=message_metadata or {}
+                metadata=message_metadata or {},
             )
 
             # Add to session history
@@ -270,7 +291,7 @@ class SophiaUniversalChatService:
                 message_type="user_message",
                 content=message_content,
                 intent=intent.value if intent else "unknown",
-                response_content=response.content
+                response_content=response.content,
             )
 
             return response
@@ -282,13 +303,11 @@ class SophiaUniversalChatService:
                 user_id=user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error processing your message: {str(e)}. Please try again.",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _recognize_intent(
-        self,
-        message_content: str,
-        context_history: list[ChatMessage]
+        self, message_content: str, context_history: list[ChatMessage]
     ) -> tuple[IntentType | None, float]:
         """
         Recognize user intent from message content and context
@@ -311,7 +330,9 @@ class SophiaUniversalChatService:
         for msg in context_history[-5:]:  # Last 5 messages
             recent_context.append(f"{msg.message_type.value}: {msg.content}")
 
-        context_str = "\n".join(recent_context) if recent_context else "No previous context"
+        context_str = (
+            "\n".join(recent_context) if recent_context else "No previous context"
+        )
 
         # Use Cortex for intent recognition
         async with self.cortex_service as cortex:
@@ -343,8 +364,7 @@ class SophiaUniversalChatService:
             """
 
             intent_result = await cortex.complete_text_with_cortex(
-                prompt=intent_prompt,
-                max_tokens=200
+                prompt=intent_prompt, max_tokens=200
             )
 
         try:
@@ -362,7 +382,7 @@ class SophiaUniversalChatService:
                 "create_agent": IntentType.CREATE_AGENT,
                 "general_question": IntentType.GENERAL_QUESTION,
                 "data_analysis": IntentType.DATA_ANALYSIS,
-                "workflow_help": IntentType.WORKFLOW_HELP
+                "workflow_help": IntentType.WORKFLOW_HELP,
             }
 
             intent = intent_mapping.get(intent_name, IntentType.GENERAL_QUESTION)
@@ -382,20 +402,32 @@ class SophiaUniversalChatService:
         content_lower = message_content.lower()
 
         # Keyword mapping
-        if any(word in content_lower for word in ["create", "new", "build", "make", "workflow"]):
+        if any(
+            word in content_lower
+            for word in ["create", "new", "build", "make", "workflow"]
+        ):
             if "agent" in content_lower:
                 return IntentType.CREATE_AGENT
             else:
                 return IntentType.CREATE_WORKFLOW
-        elif any(word in content_lower for word in ["status", "check", "progress", "how is"]):
+        elif any(
+            word in content_lower for word in ["status", "check", "progress", "how is"]
+        ):
             return IntentType.CHECK_STATUS
-        elif any(word in content_lower for word in ["approve", "yes", "accept", "confirm"]):
+        elif any(
+            word in content_lower for word in ["approve", "yes", "accept", "confirm"]
+        ):
             return IntentType.APPROVE_CHECKPOINT
         elif any(word in content_lower for word in ["reject", "no", "deny", "cancel"]):
             return IntentType.REJECT_CHECKPOINT
-        elif any(word in content_lower for word in ["modify", "change", "update", "edit"]):
+        elif any(
+            word in content_lower for word in ["modify", "change", "update", "edit"]
+        ):
             return IntentType.MODIFY_WORKFLOW
-        elif any(word in content_lower for word in ["analyze", "analysis", "data", "insights"]):
+        elif any(
+            word in content_lower
+            for word in ["analyze", "analysis", "data", "insights"]
+        ):
             return IntentType.DATA_ANALYSIS
         elif any(word in content_lower for word in ["help", "how", "what", "explain"]):
             return IntentType.WORKFLOW_HELP
@@ -403,9 +435,7 @@ class SophiaUniversalChatService:
             return IntentType.GENERAL_QUESTION
 
     async def _process_intent(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """
         Process user message based on recognized intent
@@ -470,9 +500,7 @@ class SophiaUniversalChatService:
             return await self._handle_general_question(user_message, session)
 
     async def _handle_create_workflow(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle workflow creation request"""
         try:
@@ -480,7 +508,7 @@ class SophiaUniversalChatService:
             workflow_id = await self.orchestrator.create_workflow_from_natural_language(
                 user_request=user_message.content,
                 user_id=user_message.user_id,
-                session_id=user_message.session_id
+                session_id=user_message.session_id,
             )
 
             # Add to session
@@ -510,8 +538,8 @@ class SophiaUniversalChatService:
                 metadata={
                     "workflow_created": True,
                     "workflow_id": workflow_id,
-                    "workflow_status": workflow_status
-                }
+                    "workflow_status": workflow_status,
+                },
             )
 
         except Exception as e:
@@ -521,13 +549,11 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error creating your workflow: {str(e)}. Please try again with more specific details.",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_check_status(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle status check request"""
         try:
@@ -538,7 +564,9 @@ class SophiaUniversalChatService:
                 workflow_statuses.append(status)
 
             # Get pending approvals
-            pending_approvals = await self.orchestrator.get_pending_approvals(user_message.user_id)
+            pending_approvals = await self.orchestrator.get_pending_approvals(
+                user_message.user_id
+            )
 
             # Build status response
             if not workflow_statuses and not pending_approvals:
@@ -549,7 +577,7 @@ class SophiaUniversalChatService:
                 if workflow_statuses:
                     response_parts.append("**Active Workflows:**")
                     for status in workflow_statuses:
-                        progress = status['progress']
+                        progress = status["progress"]
                         response_parts.append(
                             f"• {status['workflow_id'][:8]}... - {status['status']} "
                             f"({progress['completed_nodes']}/{progress['total_nodes']} steps completed)"
@@ -558,7 +586,9 @@ class SophiaUniversalChatService:
                 if pending_approvals:
                     response_parts.append("\n**Pending Approvals:**")
                     for approval in pending_approvals:
-                        response_parts.append(f"• {approval['title']}: {approval['description']}")
+                        response_parts.append(
+                            f"• {approval['title']}: {approval['description']}"
+                        )
 
                 response_content = "\n".join(response_parts)
 
@@ -569,8 +599,8 @@ class SophiaUniversalChatService:
                 content=response_content,
                 metadata={
                     "workflow_statuses": workflow_statuses,
-                    "pending_approvals": pending_approvals
-                }
+                    "pending_approvals": pending_approvals,
+                },
             )
 
         except Exception as e:
@@ -580,25 +610,25 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error checking your status: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_approve_checkpoint(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle checkpoint approval"""
         try:
             # Get pending approvals for user
-            pending_approvals = await self.orchestrator.get_pending_approvals(user_message.user_id)
+            pending_approvals = await self.orchestrator.get_pending_approvals(
+                user_message.user_id
+            )
 
             if not pending_approvals:
                 return ChatMessage(
                     session_id=user_message.session_id,
                     user_id=user_message.user_id,
                     message_type=ChatMessageType.SYSTEM_MESSAGE,
-                    content="You don't have any pending approvals at the moment."
+                    content="You don't have any pending approvals at the moment.",
                 )
 
             # If only one approval, approve it
@@ -609,17 +639,19 @@ class SophiaUniversalChatService:
                 await self.orchestrator.handle_human_response(
                     checkpoint_id=checkpoint_id,
                     response={"approved": True, "feedback": user_message.content},
-                    user_id=user_message.user_id
+                    user_id=user_message.user_id,
                 )
 
                 response_content = f"✅ Approved! I've processed your approval for '{pending_approvals[0]['title']}'. The workflow will continue."
 
             else:
                 # Multiple approvals - ask for clarification
-                approval_list = "\n".join([
-                    f"{i+1}. {approval['title']}"
-                    for i, approval in enumerate(pending_approvals)
-                ])
+                approval_list = "\n".join(
+                    [
+                        f"{i+1}. {approval['title']}"
+                        for i, approval in enumerate(pending_approvals)
+                    ]
+                )
 
                 response_content = f"""
                 You have multiple pending approvals. Which one would you like to approve?
@@ -634,7 +666,7 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.SYSTEM_MESSAGE,
                 content=response_content,
-                metadata={"pending_approvals": pending_approvals}
+                metadata={"pending_approvals": pending_approvals},
             )
 
         except Exception as e:
@@ -644,25 +676,25 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error processing your approval: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_reject_checkpoint(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle checkpoint rejection"""
         try:
             # Similar logic to approval but with rejection
-            pending_approvals = await self.orchestrator.get_pending_approvals(user_message.user_id)
+            pending_approvals = await self.orchestrator.get_pending_approvals(
+                user_message.user_id
+            )
 
             if not pending_approvals:
                 return ChatMessage(
                     session_id=user_message.session_id,
                     user_id=user_message.user_id,
                     message_type=ChatMessageType.SYSTEM_MESSAGE,
-                    content="You don't have any pending approvals to reject."
+                    content="You don't have any pending approvals to reject.",
                 )
 
             if len(pending_approvals) == 1:
@@ -672,17 +704,19 @@ class SophiaUniversalChatService:
                 await self.orchestrator.handle_human_response(
                     checkpoint_id=checkpoint_id,
                     response={"approved": False, "feedback": user_message.content},
-                    user_id=user_message.user_id
+                    user_id=user_message.user_id,
                 )
 
                 response_content = f"❌ Rejected. I've processed your rejection for '{pending_approvals[0]['title']}'. The workflow will be adjusted accordingly."
 
             else:
                 # Multiple approvals - ask for clarification
-                approval_list = "\n".join([
-                    f"{i+1}. {approval['title']}"
-                    for i, approval in enumerate(pending_approvals)
-                ])
+                approval_list = "\n".join(
+                    [
+                        f"{i+1}. {approval['title']}"
+                        for i, approval in enumerate(pending_approvals)
+                    ]
+                )
 
                 response_content = f"""
                 You have multiple pending approvals. Which one would you like to reject?
@@ -697,7 +731,7 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.SYSTEM_MESSAGE,
                 content=response_content,
-                metadata={"pending_approvals": pending_approvals}
+                metadata={"pending_approvals": pending_approvals},
             )
 
         except Exception as e:
@@ -707,13 +741,11 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error processing your rejection: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_create_agent(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle agent creation request"""
         try:
@@ -737,14 +769,14 @@ class SophiaUniversalChatService:
 
                         Return as JSON with clear structure.
                         """,
-                        max_tokens=400
+                        max_tokens=400,
                     )
 
             # Create workflow for agent creation
             workflow_id = await self.orchestrator.create_workflow_from_natural_language(
                 user_request=f"Create AI agent: {user_message.content}",
                 user_id=user_message.user_id,
-                session_id=user_message.session_id
+                session_id=user_message.session_id,
             )
 
             session.active_workflows.append(workflow_id)
@@ -773,8 +805,8 @@ class SophiaUniversalChatService:
                 metadata={
                     "agent_creation": True,
                     "workflow_id": workflow_id,
-                    "agent_analysis": agent_analysis
-                }
+                    "agent_analysis": agent_analysis,
+                },
             )
 
         except Exception as e:
@@ -784,13 +816,11 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error setting up agent creation: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_data_analysis(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle data analysis request"""
         try:
@@ -798,7 +828,7 @@ class SophiaUniversalChatService:
             workflow_id = await self.orchestrator.create_workflow_from_natural_language(
                 user_request=f"Data analysis: {user_message.content}",
                 user_id=user_message.user_id,
-                session_id=user_message.session_id
+                session_id=user_message.session_id,
             )
 
             session.active_workflows.append(workflow_id)
@@ -824,10 +854,7 @@ class SophiaUniversalChatService:
                 message_type=ChatMessageType.SYSTEM_MESSAGE,
                 content=response_content,
                 workflow_id=workflow_id,
-                metadata={
-                    "data_analysis": True,
-                    "workflow_id": workflow_id
-                }
+                metadata={"data_analysis": True, "workflow_id": workflow_id},
             )
 
         except Exception as e:
@@ -837,13 +864,11 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error setting up data analysis: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_workflow_help(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle workflow help request"""
         help_content = """
@@ -884,13 +909,11 @@ class SophiaUniversalChatService:
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content=help_content,
-            metadata={"help_provided": True}
+            metadata={"help_provided": True},
         )
 
     async def _handle_general_question(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle general questions"""
         try:
@@ -902,9 +925,15 @@ class SophiaUniversalChatService:
                     # Build context from session history
                     context_messages = []
                     for msg in session.context_history[-5:]:
-                        context_messages.append(f"{msg.message_type.value}: {msg.content}")
+                        context_messages.append(
+                            f"{msg.message_type.value}: {msg.content}"
+                        )
 
-                    context_str = "\n".join(context_messages) if context_messages else "No previous context"
+                    context_str = (
+                        "\n".join(context_messages)
+                        if context_messages
+                        else "No previous context"
+                    )
 
                     response_prompt = f"""
                     You are Sophia AI, an intelligent assistant for workflow orchestration and AI agent management.
@@ -921,8 +950,7 @@ class SophiaUniversalChatService:
                     """
 
                     ai_response = await cortex.complete_text_with_cortex(
-                        prompt=response_prompt,
-                        max_tokens=300
+                        prompt=response_prompt, max_tokens=300
                     )
 
             return ChatMessage(
@@ -930,7 +958,7 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.AGENT_RESPONSE,
                 content=ai_response,
-                metadata={"ai_generated": True}
+                metadata={"ai_generated": True},
             )
 
         except Exception as e:
@@ -940,13 +968,11 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.SYSTEM_MESSAGE,
                 content="I'm here to help with workflows, AI agents, and data analysis. What would you like to work on?",
-                metadata={"fallback_response": True}
+                metadata={"fallback_response": True},
             )
 
     async def _handle_modify_workflow(
-        self,
-        user_message: ChatMessage,
-        session: ChatSession
+        self, user_message: ChatMessage, session: ChatSession
     ) -> ChatMessage:
         """Handle workflow modification request"""
         try:
@@ -956,7 +982,7 @@ class SophiaUniversalChatService:
                     session_id=user_message.session_id,
                     user_id=user_message.user_id,
                     message_type=ChatMessageType.SYSTEM_MESSAGE,
-                    content="You don't have any active workflows to modify. Would you like to create a new workflow instead?"
+                    content="You don't have any active workflows to modify. Would you like to create a new workflow instead?",
                 )
 
             # If only one workflow, modify it
@@ -967,7 +993,10 @@ class SophiaUniversalChatService:
                 event = WorkflowEvent(
                     event_type=EventType.USER_INPUT,
                     source_node="user_modification",
-                    data={"user_input": user_message.content, "modification_request": True}
+                    data={
+                        "user_input": user_message.content,
+                        "modification_request": True,
+                    },
                 )
 
                 # Process the modification
@@ -980,7 +1009,9 @@ class SophiaUniversalChatService:
                 workflow_list = []
                 for i, workflow_id in enumerate(session.active_workflows):
                     status = await self.orchestrator.get_workflow_status(workflow_id)
-                    workflow_list.append(f"{i+1}. {workflow_id[:8]}... - {status['status']}")
+                    workflow_list.append(
+                        f"{i+1}. {workflow_id[:8]}... - {status['status']}"
+                    )
 
                 response_content = f"""
                 You have multiple active workflows. Which one would you like to modify?
@@ -995,7 +1026,7 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.SYSTEM_MESSAGE,
                 content=response_content,
-                metadata={"modification_request": True}
+                metadata={"modification_request": True},
             )
 
         except Exception as e:
@@ -1005,10 +1036,12 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content=f"I encountered an error modifying your workflow: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
-    async def _get_or_create_session(self, user_id: str, session_id: str) -> ChatSession:
+    async def _get_or_create_session(
+        self, user_id: str, session_id: str
+    ) -> ChatSession:
         """Get existing session or create new one"""
         if session_id in self.active_sessions:
             session = self.active_sessions[session_id]
@@ -1016,10 +1049,7 @@ class SophiaUniversalChatService:
             return session
 
         # Create new session
-        session = ChatSession(
-            session_id=session_id,
-            user_id=user_id
-        )
+        session = ChatSession(session_id=session_id, user_id=user_id)
 
         self.active_sessions[session_id] = session
         self.session_timeouts[session_id] = datetime.now() + timedelta(hours=24)
@@ -1032,7 +1062,8 @@ class SophiaUniversalChatService:
             try:
                 current_time = datetime.now()
                 expired_sessions = [
-                    session_id for session_id, timeout_time in self.session_timeouts.items()
+                    session_id
+                    for session_id, timeout_time in self.session_timeouts.items()
                     if current_time > timeout_time
                 ]
 
@@ -1055,12 +1086,16 @@ class SophiaUniversalChatService:
             try:
                 # Check all active workflows for status changes
                 for session in self.active_sessions.values():
-                    for workflow_id in session.active_workflows[:]:  # Copy list to avoid modification during iteration
+                    for workflow_id in session.active_workflows[
+                        :
+                    ]:  # Copy list to avoid modification during iteration
                         try:
-                            status = await self.orchestrator.get_workflow_status(workflow_id)
+                            status = await self.orchestrator.get_workflow_status(
+                                workflow_id
+                            )
 
                             # Check for completion or failure
-                            if status['status'] in ['completed', 'failed', 'cancelled']:
+                            if status["status"] in ["completed", "failed", "cancelled"]:
                                 # Send notification to user
                                 notification = ChatMessage(
                                     session_id=session.session_id,
@@ -1068,7 +1103,7 @@ class SophiaUniversalChatService:
                                     message_type=ChatMessageType.WORKFLOW_UPDATE,
                                     content=f"Workflow {workflow_id[:8]}... has {status['status']}.",
                                     workflow_id=workflow_id,
-                                    metadata={"workflow_status": status}
+                                    metadata={"workflow_status": status},
                                 )
 
                                 # Add to session history
@@ -1078,10 +1113,15 @@ class SophiaUniversalChatService:
                                 session.active_workflows.remove(workflow_id)
 
                             # Check for new pending approvals
-                            if status.get('pending_checkpoints'):
-                                for checkpoint in status['pending_checkpoints']:
-                                    if checkpoint['checkpoint_id'] not in session.pending_approvals:
-                                        session.pending_approvals.append(checkpoint['checkpoint_id'])
+                            if status.get("pending_checkpoints"):
+                                for checkpoint in status["pending_checkpoints"]:
+                                    if (
+                                        checkpoint["checkpoint_id"]
+                                        not in session.pending_approvals
+                                    ):
+                                        session.pending_approvals.append(
+                                            checkpoint["checkpoint_id"]
+                                        )
 
                                         # Send approval request
                                         approval_request = ChatMessage(
@@ -1090,14 +1130,16 @@ class SophiaUniversalChatService:
                                             message_type=ChatMessageType.APPROVAL_REQUEST,
                                             content=f"🔔 Approval needed: {checkpoint['title']}\n\n{checkpoint['natural_language_prompt']}",
                                             workflow_id=workflow_id,
-                                            checkpoint_id=checkpoint['checkpoint_id'],
-                                            metadata={"checkpoint": checkpoint}
+                                            checkpoint_id=checkpoint["checkpoint_id"],
+                                            metadata={"checkpoint": checkpoint},
                                         )
 
                                         session.context_history.append(approval_request)
 
                         except Exception as e:
-                            logger.error(f"Error monitoring workflow {workflow_id}: {e}")
+                            logger.error(
+                                f"Error monitoring workflow {workflow_id}: {e}"
+                            )
 
                 # Sleep for 30 seconds before next check
                 await asyncio.sleep(30)
@@ -1106,7 +1148,9 @@ class SophiaUniversalChatService:
                 logger.error(f"Error in workflow monitoring: {e}")
                 await asyncio.sleep(60)  # Sleep 1 minute on error
 
-    async def get_session_history(self, session_id: str, limit: int = 50) -> list[ChatMessage]:
+    async def get_session_history(
+        self, session_id: str, limit: int = 50
+    ) -> list[ChatMessage]:
         """Get chat history for a session"""
         session = self.active_sessions.get(session_id)
         if not session:
@@ -1126,7 +1170,9 @@ class SophiaUniversalChatService:
 
         return workflows
 
-    async def get_pending_approvals_for_user(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_pending_approvals_for_user(
+        self, user_id: str
+    ) -> list[dict[str, Any]]:
         """Get pending approvals for a user"""
         return await self.orchestrator.get_pending_approvals(user_id)
 
@@ -1142,10 +1188,14 @@ class SophiaUniversalChatService:
                     for file_path in self.staging_directory.iterdir():
                         try:
                             if file_path.is_file():
-                                file_mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
+                                file_mtime = datetime.fromtimestamp(
+                                    file_path.stat().st_mtime
+                                )
                                 if file_mtime < cutoff_time:
                                     file_path.unlink()
-                                    logger.info(f"Cleaned up expired staged file: {file_path.name}")
+                                    logger.info(
+                                        f"Cleaned up expired staged file: {file_path.name}"
+                                    )
                         except Exception as e:
                             logger.error(f"Error cleaning up file {file_path}: {e}")
 
@@ -1157,7 +1207,9 @@ class SophiaUniversalChatService:
                 await asyncio.sleep(3600)  # Sleep 1 hour on error
 
     # NEW: Data staging handler methods
-    async def _handle_upload_file(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_upload_file(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle file upload request"""
         if not self.data_discovery_service:
             return ChatMessage(
@@ -1165,7 +1217,7 @@ class SophiaUniversalChatService:
                 user_id=user_message.user_id,
                 message_type=ChatMessageType.ERROR_MESSAGE,
                 content="📁 File upload is not available. Data discovery service is not initialized.",
-                metadata={"error": "service_unavailable"}
+                metadata={"error": "service_unavailable"},
             )
 
         return ChatMessage(
@@ -1181,130 +1233,156 @@ To upload a file for analysis:
 4. You can then explore, validate, and process your data interactively
 
 What file would you like to upload and analyze?""",
-            metadata={"upload_instructions": True}
+            metadata={"upload_instructions": True},
         )
 
-    async def _handle_stage_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_stage_data(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle data staging request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="📊 Data staging functionality - Implementation in progress",
-            metadata={"feature": "staging"}
+            metadata={"feature": "staging"},
         )
 
-    async def _handle_analyze_staged_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_analyze_staged_data(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle staged data analysis request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="🔍 Staged data analysis - Implementation in progress",
-            metadata={"feature": "analysis"}
+            metadata={"feature": "analysis"},
         )
 
-    async def _handle_explore_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_explore_data(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle data exploration request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="🎯 Data exploration - Implementation in progress",
-            metadata={"feature": "exploration"}
+            metadata={"feature": "exploration"},
         )
 
-    async def _handle_map_fields(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_map_fields(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle field mapping request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="🗺️ Field mapping - Implementation in progress",
-            metadata={"feature": "mapping"}
+            metadata={"feature": "mapping"},
         )
 
-    async def _handle_approve_data_processing(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_approve_data_processing(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle data processing approval"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="✅ Data processing approval - Implementation in progress",
-            metadata={"feature": "approval"}
+            metadata={"feature": "approval"},
         )
 
-    async def _handle_reject_data_processing(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_reject_data_processing(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle data processing rejection"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="❌ Data processing rejection - Implementation in progress",
-            metadata={"feature": "rejection"}
+            metadata={"feature": "rejection"},
         )
 
-    async def _handle_process_to_final(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_process_to_final(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle process to final storage request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="🚀 Processing to final storage - Implementation in progress",
-            metadata={"feature": "final_processing"}
+            metadata={"feature": "final_processing"},
         )
 
-    async def _handle_delete_staged_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_delete_staged_data(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle delete staged data request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="🗑️ Delete staged data - Implementation in progress",
-            metadata={"feature": "deletion"}
+            metadata={"feature": "deletion"},
         )
 
-    async def _handle_list_staged_files(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_list_staged_files(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle list staged files request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="📋 List staged files - Implementation in progress",
-            metadata={"feature": "listing"}
+            metadata={"feature": "listing"},
         )
 
-    async def _handle_data_quality_check(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_data_quality_check(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle data quality check request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="🎯 Data quality check - Implementation in progress",
-            metadata={"feature": "quality_check"}
+            metadata={"feature": "quality_check"},
         )
 
-    async def _handle_preview_chunks(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_preview_chunks(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle preview chunks request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="👀 Preview chunks - Implementation in progress",
-            metadata={"feature": "chunk_preview"}
+            metadata={"feature": "chunk_preview"},
         )
 
-    async def _handle_modify_chunking(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_modify_chunking(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle modify chunking strategy request"""
         return ChatMessage(
             session_id=user_message.session_id,
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content="⚙️ Modify chunking - Implementation in progress",
-            metadata={"feature": "chunking_modification"}
+            metadata={"feature": "chunking_modification"},
         )
 
-    async def _handle_data_staging_help(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+    async def _handle_data_staging_help(
+        self, user_message: ChatMessage, session: ChatSession
+    ) -> ChatMessage:
         """Handle data staging help request"""
         help_content = """
         📁 **Sophia AI Data Staging Help**
@@ -1345,10 +1423,9 @@ What file would you like to upload and analyze?""",
             user_id=user_message.user_id,
             message_type=ChatMessageType.SYSTEM_MESSAGE,
             content=help_content,
-            metadata={"help_provided": True, "category": "data_staging"}
+            metadata={"help_provided": True, "category": "data_staging"},
         )
 
 
 # Global instance
 universal_chat_service = SophiaUniversalChatService()
-

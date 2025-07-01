@@ -47,9 +47,7 @@ class SearchHandler(BaseHandler):
             "required": ["query"],
         }
 
-    def search_data(
-        self, arguments: dict[str, Any] | None
-    ) -> list[types.TextContent]:
+    def search_data(self, arguments: dict[str, Any] | None) -> list[types.TextContent]:
         """Search for similar data in stored HubSpot API responses.
 
         Args:

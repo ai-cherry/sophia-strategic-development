@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 def fix_ai_memory_server():
     """Fix abstract method implementations in ai_memory server"""
-    server_file = Path(__file__).parent.parent / "mcp-servers/ai_memory/ai_memory_mcp_server.py"
+    server_file = (
+        Path(__file__).parent.parent / "mcp-servers/ai_memory/ai_memory_mcp_server.py"
+    )
 
     # Abstract methods that need to be implemented
     abstract_methods = '''
@@ -84,7 +86,9 @@ def fix_ai_memory_server():
             content = f.read()
 
         # Find the class definition and add methods before the existing methods
-        class_start = content.find("class StandardizedAiMemoryMCPServer(StandardizedMCPServer):")
+        class_start = content.find(
+            "class StandardizedAiMemoryMCPServer(StandardizedMCPServer):"
+        )
         if class_start == -1:
             logger.error("Could not find StandardizedAiMemoryMCPServer class")
             return False
@@ -98,7 +102,7 @@ def fix_ai_memory_server():
         # Insert abstract methods before sync_data
         new_content = content[:init_end] + abstract_methods + "\n" + content[init_end:]
 
-        with open(server_file, 'w') as f:
+        with open(server_file, "w") as f:
             f.write(new_content)
 
         logger.info("✅ Fixed ai_memory abstract methods")
@@ -169,9 +173,14 @@ def fix_ag_ui_server():
             return False
 
         # Insert abstract methods
-        new_content = content[:insertion_point] + abstract_methods + "\n" + content[insertion_point:]
+        new_content = (
+            content[:insertion_point]
+            + abstract_methods
+            + "\n"
+            + content[insertion_point:]
+        )
 
-        with open(server_file, 'w') as f:
+        with open(server_file, "w") as f:
             f.write(new_content)
 
         logger.info("✅ Fixed ag_ui abstract methods")
@@ -184,7 +193,10 @@ def fix_ag_ui_server():
 
 def fix_performance_monitor_issue():
     """Fix performance monitor track_performance issue"""
-    agent_file = Path(__file__).parent.parent / "backend/agents/specialized/snowflake_admin_agent.py"
+    agent_file = (
+        Path(__file__).parent.parent
+        / "backend/agents/specialized/snowflake_admin_agent.py"
+    )
 
     try:
         with open(agent_file) as f:
@@ -193,10 +205,10 @@ def fix_performance_monitor_issue():
         # Replace the problematic decorator
         content = content.replace(
             "@performance_monitor.track_performance",
-            "# @performance_monitor.track_performance  # Temporarily disabled"
+            "# @performance_monitor.track_performance  # Temporarily disabled",
         )
 
-        with open(agent_file, 'w') as f:
+        with open(agent_file, "w") as f:
             f.write(content)
 
         logger.info("✅ Fixed performance monitor issue")
@@ -214,7 +226,7 @@ def main():
     fixes = [
         ("ai_memory", fix_ai_memory_server),
         ("ag_ui", fix_ag_ui_server),
-        ("performance_monitor", fix_performance_monitor_issue)
+        ("performance_monitor", fix_performance_monitor_issue),
     ]
 
     fixed_count = 0

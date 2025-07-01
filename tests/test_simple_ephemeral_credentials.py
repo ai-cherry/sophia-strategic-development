@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 # Simplified models
 class CredentialScope(str, Enum):
     """Scope of the ephemeral credential."""
+
     API_READ = "api:read"
     API_WRITE = "api:write"
     LLM_ACCESS = "llm:access"
@@ -36,6 +37,7 @@ class CredentialScope(str, Enum):
 
 class CredentialType(str, Enum):
     """Type of ephemeral credential."""
+
     API_KEY = "api_key"
     ACCESS_TOKEN = "access_token"
     SERVICE_TOKEN = "service_token"
@@ -44,6 +46,7 @@ class CredentialType(str, Enum):
 
 class CredentialStatus(str, Enum):
     """Status of ephemeral credential."""
+
     ACTIVE = "active"
     EXPIRED = "expired"
     REVOKED = "revoked"
@@ -79,7 +82,14 @@ class SimpleEphemeralCredentialsService:
         except Exception as e:
             logger.error(f"Failed to save credentials: {e}")
 
-    async def create_credential(self, name: str, credential_type: str, scopes: list[str], ttl_seconds: int, user_id: str | None = None):
+    async def create_credential(
+        self,
+        name: str,
+        credential_type: str,
+        scopes: list[str],
+        ttl_seconds: int,
+        user_id: str | None = None,
+    ):
         """Create a new credential."""
         # Generate ID
         cred_id = str(uuid.uuid4())
@@ -112,7 +122,9 @@ class SimpleEphemeralCredentialsService:
 
         return credential
 
-    async def validate_credential(self, token_value: str, required_scopes: list[str] | None = None):
+    async def validate_credential(
+        self, token_value: str, required_scopes: list[str] | None = None
+    ):
         """Validate a credential."""
         # Find credential by token
         credential = None
@@ -161,14 +173,19 @@ class SimpleEphemeralCredentialsService:
 
         return True
 
-    async def list_credentials(self, include_expired: bool = False, include_revoked: bool = False):
+    async def list_credentials(
+        self, include_expired: bool = False, include_revoked: bool = False
+    ):
         """List credentials."""
         result = []
         now = datetime.now(UTC)
 
         for cred in self.credentials.values():
             # Skip expired credentials
-            if not include_expired and datetime.fromisoformat(cred["expires_at"]) <= now:
+            if (
+                not include_expired
+                and datetime.fromisoformat(cred["expires_at"]) <= now
+            ):
                 continue
 
             # Skip revoked credentials
@@ -281,7 +298,9 @@ async def test_ephemeral_credentials():
     )
 
     logger.info(f"API key invalid validation: {api_key_invalid_validation['valid']}")
-    assert not api_key_invalid_validation["valid"], "API key invalid validation should fail"
+    assert not api_key_invalid_validation[
+        "valid"
+    ], "API key invalid validation should fail"
 
     # Test credential revocation
     logger.info("Testing credential revocation")
@@ -300,7 +319,9 @@ async def test_ephemeral_credentials():
     )
 
     logger.info(f"Revoked API key validation: {api_key_revoked_validation['valid']}")
-    assert not api_key_revoked_validation["valid"], "Revoked API key validation should fail"
+    assert not api_key_revoked_validation[
+        "valid"
+    ], "Revoked API key validation should fail"
 
     # Test credential listing
     logger.info("Testing credential listing")
@@ -352,4 +373,3 @@ async def test_ephemeral_credentials():
 
 if __name__ == "__main__":
     asyncio.run(test_ephemeral_credentials())
-

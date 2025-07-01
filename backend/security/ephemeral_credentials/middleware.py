@@ -50,13 +50,16 @@ class EphemeralCredentialsMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.credentials_service = credentials_service
-        self.exclude_paths = exclude_paths or ["/docs", "/redoc", "/openapi.json", "/api/v1/auth"]
+        self.exclude_paths = exclude_paths or [
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/api/v1/auth",
+        ]
         self.required_scopes_by_path = required_scopes_by_path or {}
         self.logger = logger.bind(component="ephemeral_credentials_middleware")
 
-    async def dispatch(
-        self, request: Request, call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Process the request and authenticate using ephemeral credentials.
 
@@ -248,4 +251,3 @@ def setup_ephemeral_credentials_middleware(
 
     # Log middleware setup
     logger.info("✅ Ephemeral credentials middleware configured")
-

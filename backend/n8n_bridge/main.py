@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Sophia AI N8N Bridge",
     description="Bridge service connecting N8N workflows with MCP orchestration",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -37,15 +37,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Pydantic models
 class N8NWorkflowRequest(BaseModel):
     workflow_id: str
     execution_id: str
     node_name: str
-    mcp_server: str = Field(..., description="Target MCP server (ai_memory, gong_intelligence, etc.)")
-    enhancement_type: str = Field(default="business_intelligence", description="Type of AI enhancement")
+    mcp_server: str = Field(
+        ..., description="Target MCP server (ai_memory, gong_intelligence, etc.)"
+    )
+    enhancement_type: str = Field(
+        default="business_intelligence", description="Type of AI enhancement"
+    )
     data: dict[str, Any] = Field(..., description="Data to process")
-    priority: str = Field(default="standard", description="Processing priority: low, standard, high, executive")
+    priority: str = Field(
+        default="standard",
+        description="Processing priority: low, standard, high, executive",
+    )
+
 
 class N8NResponse(BaseModel):
     success: bool
@@ -55,6 +64,7 @@ class N8NResponse(BaseModel):
     mcp_servers_used: list[str]
     enhancement_applied: str
 
+
 class N8NHealthResponse(BaseModel):
     status: str
     timestamp: str
@@ -62,9 +72,11 @@ class N8NHealthResponse(BaseModel):
     redis_status: str
     active_workflows: int
 
+
 # Global services
 mcp_service: MCPOrchestrationService | None = None
 redis_client: redis.Redis | None = None
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -89,6 +101,7 @@ async def startup_event():
         logger.error(f"Failed to initialize services: {e}")
         raise
 
+
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
@@ -101,6 +114,7 @@ async def shutdown_event():
         await mcp_service.shutdown()
 
     logger.info("N8N Bridge service shut down")
+
 
 @app.get("/health", response_model=N8NHealthResponse)
 async def health_check():
@@ -130,21 +144,25 @@ async def health_check():
             active_workflows = 0
 
         return N8NHealthResponse(
-            status="healthy" if mcp_health == "healthy" and redis_health == "healthy" else "degraded",
+            status=(
+                "healthy"
+                if mcp_health == "healthy" and redis_health == "healthy"
+                else "degraded"
+            ),
             timestamp=datetime.now(UTC).isoformat(),
             mcp_service_status=str(mcp_health),
             redis_status=redis_health,
-            active_workflows=active_workflows
+            active_workflows=active_workflows,
         )
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
+
 @app.post("/api/v1/n8n/process", response_model=N8NResponse)
 async def process_n8n_request(
-    request: N8NWorkflowRequest,
-    background_tasks: BackgroundTasks
+    request: N8NWorkflowRequest, background_tasks: BackgroundTasks
 ):
     """
     Process N8N workflow request through MCP orchestration
@@ -155,7 +173,9 @@ async def process_n8n_request(
     try:
         # Track active workflow
         if redis_client:
-            await redis_client.sadd("active_workflows", f"{request.workflow_id}:{request.execution_id}")
+            await redis_client.sadd(
+                "active_workflows", f"{request.workflow_id}:{request.execution_id}"
+            )
 
         # Route request through MCP orchestration service
         mcp_response = await mcp_service.route_request(
@@ -168,10 +188,10 @@ async def process_n8n_request(
                 "workflow_context": {
                     "workflow_id": request.workflow_id,
                     "execution_id": request.execution_id,
-                    "node_name": request.node_name
-                }
+                    "node_name": request.node_name,
+                },
             },
-            priority=request.priority
+            priority=request.priority,
         )
 
         # Calculate execution time
@@ -179,8 +199,7 @@ async def process_n8n_request(
 
         # Schedule cleanup in background
         background_tasks.add_task(
-            cleanup_workflow_tracking,
-            f"{request.workflow_id}:{request.execution_id}"
+            cleanup_workflow_tracking, f"{request.workflow_id}:{request.execution_id}"
         )
 
         return N8NResponse(
@@ -188,7 +207,7 @@ async def process_n8n_request(
             data=mcp_response.get("data"),
             execution_time_ms=execution_time,
             mcp_servers_used=mcp_response.get("servers_used", [request.mcp_server]),
-            enhancement_applied=request.enhancement_type
+            enhancement_applied=request.enhancement_type,
         )
 
     except Exception as e:
@@ -200,13 +219,13 @@ async def process_n8n_request(
             error=str(e),
             execution_time_ms=execution_time,
             mcp_servers_used=[],
-            enhancement_applied="none"
+            enhancement_applied="none",
         )
+
 
 @app.post("/api/v1/n8n/batch-process")
 async def batch_process_n8n_requests(
-    requests: list[N8NWorkflowRequest],
-    background_tasks: BackgroundTasks
+    requests: list[N8NWorkflowRequest], background_tasks: BackgroundTasks
 ):
     """
     Process multiple N8N requests in parallel for performance
@@ -215,10 +234,7 @@ async def batch_process_n8n_requests(
 
     try:
         # Process requests in parallel
-        tasks = [
-            process_single_request(request)
-            for request in requests
-        ]
+        tasks = [process_single_request(request) for request in requests]
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -226,7 +242,7 @@ async def batch_process_n8n_requests(
         for request in requests:
             background_tasks.add_task(
                 cleanup_workflow_tracking,
-                f"{request.workflow_id}:{request.execution_id}"
+                f"{request.workflow_id}:{request.execution_id}",
             )
 
         execution_time = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
@@ -235,12 +251,13 @@ async def batch_process_n8n_requests(
             "success": True,
             "results": results,
             "total_requests": len(requests),
-            "execution_time_ms": execution_time
+            "execution_time_ms": execution_time,
         }
 
     except Exception as e:
         logger.error(f"Batch processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 async def process_single_request(request: N8NWorkflowRequest) -> dict[str, Any]:
     """Process a single N8N request"""
@@ -251,24 +268,21 @@ async def process_single_request(request: N8NWorkflowRequest) -> dict[str, Any]:
                 "action": "n8n_integration",
                 "enhancement_type": request.enhancement_type,
                 "data": request.data,
-                "priority": request.priority
+                "priority": request.priority,
             },
-            priority=request.priority
+            priority=request.priority,
         )
 
         return {
             "success": True,
             "workflow_id": request.workflow_id,
             "data": mcp_response.get("data"),
-            "servers_used": mcp_response.get("servers_used", [])
+            "servers_used": mcp_response.get("servers_used", []),
         }
 
     except Exception as e:
-        return {
-            "success": False,
-            "workflow_id": request.workflow_id,
-            "error": str(e)
-        }
+        return {"success": False, "workflow_id": request.workflow_id, "error": str(e)}
+
 
 async def cleanup_workflow_tracking(workflow_key: str):
     """Remove workflow from active tracking"""
@@ -277,6 +291,7 @@ async def cleanup_workflow_tracking(workflow_key: str):
             await redis_client.srem("active_workflows", workflow_key)
         except Exception as e:
             logger.warning(f"Failed to cleanup workflow tracking: {e}")
+
 
 @app.get("/api/v1/n8n/servers")
 async def get_available_mcp_servers():
@@ -287,15 +302,12 @@ async def get_available_mcp_servers():
 
         servers = await mcp_service.get_available_servers()
 
-        return {
-            "success": True,
-            "servers": servers,
-            "total_count": len(servers)
-        }
+        return {"success": True, "servers": servers, "total_count": len(servers)}
 
     except Exception as e:
         logger.error(f"Failed to get MCP servers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/v1/n8n/metrics")
 async def get_integration_metrics():
@@ -329,6 +341,7 @@ async def get_integration_metrics():
         logger.error(f"Failed to get metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/api/v1/n8n/webhook/{workflow_id}")
 async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
     """
@@ -341,9 +354,7 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
         # Store webhook data in Redis for processing
         if redis_client:
             await redis_client.setex(
-                f"webhook:{workflow_id}",
-                3600,  # 1 hour TTL
-                str(data)
+                f"webhook:{workflow_id}", 3600, str(data)  # 1 hour TTL
             )
 
         # Route through MCP if needed
@@ -353,8 +364,8 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
                 request_data={
                     "action": "webhook_processing",
                     "workflow_id": workflow_id,
-                    "data": data
-                }
+                    "data": data,
+                },
             )
 
         return {"success": True, "message": f"Webhook processed for {workflow_id}"}
@@ -363,6 +374,8 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
         logger.error(f"Webhook processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=9099)

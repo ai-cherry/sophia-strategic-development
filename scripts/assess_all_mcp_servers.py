@@ -75,21 +75,21 @@ class MCPServerAssessor:
         server_config = self._load_server_config()
 
         # Initialize HTTP session
-        self.session = aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=10)
-        )
+        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10))
 
         assessments = {}
 
         try:
             # Assess each server directory
             for server_dir in self.mcp_servers_path.iterdir():
-                if server_dir.is_dir() and not server_dir.name.startswith('.'):
+                if server_dir.is_dir() and not server_dir.name.startswith("."):
                     server_name = server_dir.name
                     port = server_config.get(server_name, {}).get("port", 0)
 
                     logger.info(f"📊 Assessing {server_name}...")
-                    assessment = await self._assess_server(server_name, server_dir, port)
+                    assessment = await self._assess_server(
+                        server_name, server_dir, port
+                    )
                     assessments[server_name] = assessment
 
         finally:
@@ -115,12 +115,12 @@ class MCPServerAssessor:
             logger.warning(f"Failed to load server config: {e}")
             return {}
 
-    async def _assess_server(self, server_name: str, server_path: Path, port: int) -> MCPServerAssessment:
+    async def _assess_server(
+        self, server_name: str, server_path: Path, port: int
+    ) -> MCPServerAssessment:
         """Assess a single MCP server"""
         assessment = MCPServerAssessment(
-            server_name=server_name,
-            server_path=str(server_path),
-            port=port
+            server_name=server_name, server_path=str(server_path), port=port
         )
 
         # Find main server file
@@ -147,7 +147,7 @@ class MCPServerAssessor:
             f"{server_path.name}_mcp_server.py",
             "mcp_server.py",
             "server.py",
-            "main.py"
+            "main.py",
         ]
 
         for name in possible_names:
@@ -162,14 +162,18 @@ class MCPServerAssessor:
 
         return None
 
-    async def _analyze_code_structure(self, server_file: Path, assessment: MCPServerAssessment):
+    async def _analyze_code_structure(
+        self, server_file: Path, assessment: MCPServerAssessment
+    ):
         """Analyze the code structure of the server file"""
         try:
-            with open(server_file, encoding='utf-8') as f:
+            with open(server_file, encoding="utf-8") as f:
                 content = f.read()
 
             # Count lines of code
-            assessment.lines_of_code = len([line for line in content.split('\n') if line.strip()])
+            assessment.lines_of_code = len(
+                [line for line in content.split("\n") if line.strip()]
+            )
 
             # Parse AST for analysis
             try:
@@ -181,7 +185,9 @@ class MCPServerAssessor:
         except Exception as e:
             assessment.critical_issues.append(f"Failed to read server file: {e}")
 
-    async def _analyze_ast(self, tree: ast.AST, content: str, assessment: MCPServerAssessment):
+    async def _analyze_ast(
+        self, tree: ast.AST, content: str, assessment: MCPServerAssessment
+    ):
         """Analyze the AST for compliance patterns"""
         content_lower = content.lower()
 
@@ -189,10 +195,16 @@ class MCPServerAssessor:
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 for base in node.bases:
-                    if isinstance(base, ast.Name) and base.id == "StandardizedMCPServer":
+                    if (
+                        isinstance(base, ast.Name)
+                        and base.id == "StandardizedMCPServer"
+                    ):
                         assessment.standardized_base = True
                         break
-                    elif isinstance(base, ast.Attribute) and base.attr == "StandardizedMCPServer":
+                    elif (
+                        isinstance(base, ast.Attribute)
+                        and base.attr == "StandardizedMCPServer"
+                    ):
                         assessment.standardized_base = True
                         break
 
@@ -203,52 +215,72 @@ class MCPServerAssessor:
 
         # Check for health checks
         assessment.health_checks = (
-            "health_check" in content_lower or
-            "get_health" in content_lower or
-            "/health" in content
+            "health_check" in content_lower
+            or "get_health" in content_lower
+            or "/health" in content
         )
 
         # Check for metrics
         assessment.metrics = (
-            "prometheus" in content_lower or
-            "metrics" in content_lower or
-            "counter" in content_lower or
-            "gauge" in content_lower
+            "prometheus" in content_lower
+            or "metrics" in content_lower
+            or "counter" in content_lower
+            or "gauge" in content_lower
         )
 
         # Check for Cline v3.18 features
         cline_features = [
-            "webfetch", "self_knowledge", "improved_diff",
-            "ModelProvider", "ServerCapability", "WebFetchResult"
+            "webfetch",
+            "self_knowledge",
+            "improved_diff",
+            "ModelProvider",
+            "ServerCapability",
+            "WebFetchResult",
         ]
         assessment.cline_v3_18 = any(feature in content for feature in cline_features)
 
         # Check for Lambda Labs compatibility
         lambda_patterns = [
-            "lambda_labs", "gpu", "cuda", "nvidia",
-            "kubernetes", "k8s", "container"
+            "lambda_labs",
+            "gpu",
+            "cuda",
+            "nvidia",
+            "kubernetes",
+            "k8s",
+            "container",
         ]
-        assessment.lambda_ready = any(pattern in content_lower for pattern in lambda_patterns)
+        assessment.lambda_ready = any(
+            pattern in content_lower for pattern in lambda_patterns
+        )
 
         # Check for async patterns
-        async_functions = [node for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)]
+        async_functions = [
+            node for node in ast.walk(tree) if isinstance(node, ast.AsyncFunctionDef)
+        ]
         assessment.async_patterns = len(async_functions) > 0
 
         # Check for error handling
-        try_except_count = len([node for node in ast.walk(tree) if isinstance(node, ast.Try)])
+        try_except_count = len(
+            [node for node in ast.walk(tree) if isinstance(node, ast.Try)]
+        )
         assessment.error_handling = try_except_count >= 3  # Reasonable threshold
 
         # Check for documentation
         docstring_count = 0
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
-                if (ast.get_docstring(node)):
+                if ast.get_docstring(node):
                     docstring_count += 1
 
-        total_definitions = len([
-            node for node in ast.walk(tree)
-            if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef)
-        ])
+        total_definitions = len(
+            [
+                node
+                for node in ast.walk(tree)
+                if isinstance(
+                    node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
+                )
+            ]
+        )
 
         assessment.documentation = (
             docstring_count / max(total_definitions, 1)
@@ -383,12 +415,20 @@ class MCPServerAssessor:
         # Calculate statistics
         operational_count = sum(1 for a in assessments.values() if a.is_operational)
         standardized_count = sum(1 for a in assessments.values() if a.standardized_base)
-        avg_compliance = sum(a.compliance_score for a in assessments.values()) / max(total_servers, 1)
+        avg_compliance = sum(a.compliance_score for a in assessments.values()) / max(
+            total_servers, 1
+        )
 
         # Categorize servers
-        excellent = [name for name, a in assessments.items() if a.compliance_score >= 90]
-        good = [name for name, a in assessments.items() if 70 <= a.compliance_score < 90]
-        needs_work = [name for name, a in assessments.items() if 50 <= a.compliance_score < 70]
+        excellent = [
+            name for name, a in assessments.items() if a.compliance_score >= 90
+        ]
+        good = [
+            name for name, a in assessments.items() if 70 <= a.compliance_score < 90
+        ]
+        needs_work = [
+            name for name, a in assessments.items() if 50 <= a.compliance_score < 70
+        ]
         critical = [name for name, a in assessments.items() if a.compliance_score < 50]
 
         # Generate report
@@ -399,41 +439,62 @@ class MCPServerAssessor:
                 "operational_servers": operational_count,
                 "standardized_servers": standardized_count,
                 "average_compliance_score": round(avg_compliance, 1),
-                "operational_percentage": round((operational_count / max(total_servers, 1)) * 100, 1),
-                "standardized_percentage": round((standardized_count / max(total_servers, 1)) * 100, 1)
+                "operational_percentage": round(
+                    (operational_count / max(total_servers, 1)) * 100, 1
+                ),
+                "standardized_percentage": round(
+                    (standardized_count / max(total_servers, 1)) * 100, 1
+                ),
             },
             "categorization": {
                 "excellent_servers": excellent,
                 "good_servers": good,
                 "needs_work": needs_work,
-                "critical_servers": critical
+                "critical_servers": critical,
             },
             "detailed_assessments": {
                 name: asdict(assessment) for name, assessment in assessments.items()
             },
             "recommendations": {
                 "immediate_actions": [
-                    f"Fix critical issues in: {', '.join(critical)}" if critical else None,
-                    f"Standardize servers: {', '.join([name for name, a in assessments.items() if not a.standardized_base])}" if any(not a.standardized_base for a in assessments.values()) else None,
-                    f"Add health checks to: {', '.join([name for name, a in assessments.items() if not a.health_checks])}" if any(not a.health_checks for a in assessments.values()) else None
+                    (
+                        f"Fix critical issues in: {', '.join(critical)}"
+                        if critical
+                        else None
+                    ),
+                    (
+                        f"Standardize servers: {', '.join([name for name, a in assessments.items() if not a.standardized_base])}"
+                        if any(not a.standardized_base for a in assessments.values())
+                        else None
+                    ),
+                    (
+                        f"Add health checks to: {', '.join([name for name, a in assessments.items() if not a.health_checks])}"
+                        if any(not a.health_checks for a in assessments.values())
+                        else None
+                    ),
                 ],
                 "strategic_improvements": [
                     "Implement Cline v3.18 features across all servers",
                     "Add comprehensive monitoring and metrics",
                     "Standardize documentation and testing",
-                    "Optimize for Lambda Labs infrastructure"
-                ]
-            }
+                    "Optimize for Lambda Labs infrastructure",
+                ],
+            },
         }
 
         # Remove None values from immediate actions
         report["recommendations"]["immediate_actions"] = [
-            action for action in report["recommendations"]["immediate_actions"] if action
+            action
+            for action in report["recommendations"]["immediate_actions"]
+            if action
         ]
 
         # Save report
-        report_file = self.base_path / f"MCP_ASSESSMENT_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(report_file, 'w') as f:
+        report_file = (
+            self.base_path
+            / f"MCP_ASSESSMENT_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
         # Print summary to console
@@ -446,25 +507,35 @@ class MCPServerAssessor:
         summary = report["summary"]
         categorization = report["categorization"]
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("🔍 MCP SERVER ASSESSMENT SUMMARY")
-        print("="*70)
+        print("=" * 70)
 
         print("\n📊 OVERVIEW:")
         print(f"   Total Servers: {summary['total_servers']}")
-        print(f"   Operational: {summary['operational_servers']} ({summary['operational_percentage']}%)")
-        print(f"   Standardized: {summary['standardized_servers']} ({summary['standardized_percentage']}%)")
+        print(
+            f"   Operational: {summary['operational_servers']} ({summary['operational_percentage']}%)"
+        )
+        print(
+            f"   Standardized: {summary['standardized_servers']} ({summary['standardized_percentage']}%)"
+        )
         print(f"   Average Compliance: {summary['average_compliance_score']}/100")
 
         print("\n🏆 SERVER CATEGORIES:")
-        if categorization['excellent_servers']:
-            print(f"   ✅ Excellent (90-100): {', '.join(categorization['excellent_servers'])}")
-        if categorization['good_servers']:
+        if categorization["excellent_servers"]:
+            print(
+                f"   ✅ Excellent (90-100): {', '.join(categorization['excellent_servers'])}"
+            )
+        if categorization["good_servers"]:
             print(f"   🟢 Good (70-89): {', '.join(categorization['good_servers'])}")
-        if categorization['needs_work']:
-            print(f"   🟡 Needs Work (50-69): {', '.join(categorization['needs_work'])}")
-        if categorization['critical_servers']:
-            print(f"   🔴 Critical (<50): {', '.join(categorization['critical_servers'])}")
+        if categorization["needs_work"]:
+            print(
+                f"   🟡 Needs Work (50-69): {', '.join(categorization['needs_work'])}"
+            )
+        if categorization["critical_servers"]:
+            print(
+                f"   🔴 Critical (<50): {', '.join(categorization['critical_servers'])}"
+            )
 
         print("\n🎯 IMMEDIATE ACTIONS NEEDED:")
         for action in report["recommendations"]["immediate_actions"]:
@@ -474,7 +545,7 @@ class MCPServerAssessor:
         for improvement in report["recommendations"]["strategic_improvements"]:
             print(f"   • {improvement}")
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
 
 
 async def main():

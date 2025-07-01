@@ -24,57 +24,58 @@ MCP_SERVERS = {
         "port": 9000,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["orchestration", "routing", "load_balancing"]
+        "capabilities": ["orchestration", "routing", "load_balancing"],
     },
     "enhanced_ai_memory": {
         "port": 9001,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["memory", "context", "pattern_learning"]
+        "capabilities": ["memory", "context", "pattern_learning"],
     },
     "portkey_gateway": {
         "port": 9002,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["provider_management", "cost_optimization"]
+        "capabilities": ["provider_management", "cost_optimization"],
     },
     "code_intelligence": {
         "port": 9003,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["code_analysis", "generation", "review"]
+        "capabilities": ["code_analysis", "generation", "review"],
     },
     "business_intelligence": {
         "port": 9004,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["analytics", "insights", "reporting"]
+        "capabilities": ["analytics", "insights", "reporting"],
     },
     "microsoft_playwright_official": {
         "port": 9010,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["browser_automation", "testing", "scraping"]
+        "capabilities": ["browser_automation", "testing", "scraping"],
     },
     "glips_figma_context_official": {
         "port": 9011,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["design_integration", "figma_api", "ui_generation"]
+        "capabilities": ["design_integration", "figma_api", "ui_generation"],
     },
     "portkey_admin_official": {
         "port": 9013,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["cost_analysis", "usage_monitoring", "optimization"]
+        "capabilities": ["cost_analysis", "usage_monitoring", "optimization"],
     },
     "openrouter_search_official": {
         "port": 9014,
         "host": "localhost",
         "health_endpoint": "/health",
-        "capabilities": ["model_search", "provider_diversity", "routing"]
-    }
+        "capabilities": ["model_search", "provider_diversity", "routing"],
+    },
 }
+
 
 # Response Models
 class MCPHealthResponse(BaseModel):
@@ -84,6 +85,7 @@ class MCPHealthResponse(BaseModel):
     timestamp: datetime
     version: str | None = None
 
+
 class MCPServiceStatus(BaseModel):
     service_name: str
     status: str
@@ -91,6 +93,7 @@ class MCPServiceStatus(BaseModel):
     capabilities: list[str]
     last_check: datetime
     error: str | None = None
+
 
 class MCPSystemStatus(BaseModel):
     total_services: int
@@ -100,8 +103,11 @@ class MCPSystemStatus(BaseModel):
     system_health: str
     last_updated: datetime
 
+
 # Utility Functions
-async def check_mcp_service_health(service_name: str, config: dict[str, Any]) -> MCPServiceStatus:
+async def check_mcp_service_health(
+    service_name: str, config: dict[str, Any]
+) -> MCPServiceStatus:
     """Check health of individual MCP service"""
     url = f"http://{config['host']}:{config['port']}{config['health_endpoint']}"
 
@@ -117,7 +123,7 @@ async def check_mcp_service_health(service_name: str, config: dict[str, Any]) ->
                     url=url,
                     capabilities=config["capabilities"],
                     last_check=datetime.utcnow(),
-                    error=None
+                    error=None,
                 )
             else:
                 return MCPServiceStatus(
@@ -126,7 +132,7 @@ async def check_mcp_service_health(service_name: str, config: dict[str, Any]) ->
                     url=url,
                     capabilities=config["capabilities"],
                     last_check=datetime.utcnow(),
-                    error=f"HTTP {response.status_code}"
+                    error=f"HTTP {response.status_code}",
                 )
 
     except Exception as e:
@@ -136,8 +142,9 @@ async def check_mcp_service_health(service_name: str, config: dict[str, Any]) ->
             url=url,
             capabilities=config["capabilities"],
             last_check=datetime.utcnow(),
-            error=str(e)
+            error=str(e),
         )
+
 
 async def get_all_mcp_status() -> MCPSystemStatus:
     """Get status of all MCP services"""
@@ -151,8 +158,11 @@ async def get_all_mcp_status() -> MCPSystemStatus:
     healthy_count = sum(1 for status in service_statuses if status.status == "healthy")
     total_count = len(service_statuses)
 
-    system_health = "healthy" if healthy_count == total_count else \
-                   "degraded" if healthy_count > 0 else "unhealthy"
+    system_health = (
+        "healthy"
+        if healthy_count == total_count
+        else "degraded" if healthy_count > 0 else "unhealthy"
+    )
 
     return MCPSystemStatus(
         total_services=total_count,
@@ -160,10 +170,12 @@ async def get_all_mcp_status() -> MCPSystemStatus:
         unhealthy_services=total_count - healthy_count,
         services=service_statuses,
         system_health=system_health,
-        last_updated=datetime.utcnow()
+        last_updated=datetime.utcnow(),
     )
 
+
 # API Endpoints
+
 
 @router.get("/system/health", response_model=MCPSystemStatus)
 async def get_mcp_system_health() -> MCPSystemStatus:
@@ -172,13 +184,18 @@ async def get_mcp_system_health() -> MCPSystemStatus:
         return await get_all_mcp_status()
     except Exception as e:
         logger.error(f"Failed to get MCP system health: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to check MCP system health: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to check MCP system health: {str(e)}"
+        )
+
 
 @router.get("/{service_name}/health", response_model=MCPHealthResponse)
 async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
     """Get health status of specific MCP service"""
     if service_name not in MCP_SERVERS:
-        raise HTTPException(status_code=404, detail=f"MCP service '{service_name}' not found")
+        raise HTTPException(
+            status_code=404, detail=f"MCP service '{service_name}' not found"
+        )
 
     config = MCP_SERVERS[service_name]
     status = await check_mcp_service_health(service_name, config)
@@ -190,7 +207,7 @@ async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
             service=f"MCP {service_name}",
             capabilities=config["capabilities"],
             timestamp=datetime.utcnow(),
-            version="1.0.0"
+            version="1.0.0",
         )
 
     # If service is actually healthy, return real response
@@ -205,7 +222,7 @@ async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
                 service=health_data.get("service", f"MCP {service_name}"),
                 capabilities=config["capabilities"],
                 timestamp=datetime.utcnow(),
-                version=health_data.get("version", "1.0.0")
+                version=health_data.get("version", "1.0.0"),
             )
     except Exception as e:
         logger.warning(f"Failed to get real health data for {service_name}: {e}")
@@ -215,14 +232,19 @@ async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
             service=f"MCP {service_name}",
             capabilities=config["capabilities"],
             timestamp=datetime.utcnow(),
-            version="1.0.0"
+            version="1.0.0",
         )
 
+
 @router.post("/{service_name}/proxy")
-async def proxy_mcp_request(service_name: str, request_data: dict[str, Any]) -> dict[str, Any]:
+async def proxy_mcp_request(
+    service_name: str, request_data: dict[str, Any]
+) -> dict[str, Any]:
     """Proxy requests to MCP services"""
     if service_name not in MCP_SERVERS:
-        raise HTTPException(status_code=404, detail=f"MCP service '{service_name}' not found")
+        raise HTTPException(
+            status_code=404, detail=f"MCP service '{service_name}' not found"
+        )
 
     config = MCP_SERVERS[service_name]
     base_url = f"http://{config['host']}:{config['port']}"
@@ -241,9 +263,15 @@ async def proxy_mcp_request(service_name: str, request_data: dict[str, Any]) -> 
 
             return {
                 "status_code": response.status_code,
-                "data": response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
+                "data": (
+                    response.json()
+                    if response.headers.get("content-type", "").startswith(
+                        "application/json"
+                    )
+                    else response.text
+                ),
                 "service": service_name,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
     except Exception as e:
@@ -256,13 +284,15 @@ async def proxy_mcp_request(service_name: str, request_data: dict[str, Any]) -> 
                 "message": f"Mock response from {service_name}",
                 "request": payload,
                 "capabilities": config["capabilities"],
-                "note": "This is a development mock response"
+                "note": "This is a development mock response",
             },
             "service": service_name,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
+
 # Enhanced endpoints for specific MCP services
+
 
 @router.get("/portkey_admin_official/cost-analysis")
 async def get_portkey_cost_analysis() -> dict[str, Any]:
@@ -286,17 +316,18 @@ async def get_portkey_cost_analysis() -> dict[str, Any]:
             "top_providers": [
                 {"name": "OpenAI", "cost": 687.45, "percentage": 55.1},
                 {"name": "Anthropic", "cost": 312.18, "percentage": 25.0},
-                {"name": "Google", "cost": 248.20, "percentage": 19.9}
+                {"name": "Google", "cost": 248.20, "percentage": 19.9},
             ],
             "optimization_savings": 156.32,
             "recommendations": [
                 "Switch high-volume requests to OpenRouter for 23% savings",
                 "Use Portkey caching for repeated queries",
-                "Optimize prompt lengths to reduce token usage"
+                "Optimize prompt lengths to reduce token usage",
             ],
             "timestamp": datetime.utcnow().isoformat(),
-            "source": "portkey_admin_mcp"
+            "source": "portkey_admin_mcp",
         }
+
 
 @router.get("/sophia_ai_orchestrator/performance")
 async def get_orchestrator_performance() -> dict[str, Any]:
@@ -323,12 +354,13 @@ async def get_orchestrator_performance() -> dict[str, Any]:
                 "openai": 45.2,
                 "anthropic": 28.1,
                 "google": 15.7,
-                "others": 11.0
+                "others": 11.0,
             },
             "cache_hit_rate": 67.3,
             "timestamp": datetime.utcnow().isoformat(),
-            "source": "sophia_orchestrator_mcp"
+            "source": "sophia_orchestrator_mcp",
         }
+
 
 @router.get("/business_intelligence/insights")
 async def get_business_insights() -> dict[str, Any]:
@@ -351,21 +383,22 @@ async def get_business_insights() -> dict[str, Any]:
                 "revenue_growth": 23.7,
                 "customer_satisfaction": 94.2,
                 "agent_efficiency": 87.5,
-                "cost_per_interaction": 0.12
+                "cost_per_interaction": 0.12,
             },
             "trends": [
                 "AI agent usage increased 45% this quarter",
                 "Customer resolution time improved by 32%",
-                "Cost optimization saved $47K this month"
+                "Cost optimization saved $47K this month",
             ],
             "recommendations": [
                 "Expand Sophia AI deployment to customer service",
                 "Implement predictive analytics for demand forecasting",
-                "Optimize MCP orchestration for peak hours"
+                "Optimize MCP orchestration for peak hours",
             ],
             "timestamp": datetime.utcnow().isoformat(),
-            "source": "business_intelligence_mcp"
+            "source": "business_intelligence_mcp",
         }
+
 
 @router.get("/openrouter_search_official/model-usage")
 async def get_model_usage() -> dict[str, Any]:
@@ -388,15 +421,20 @@ async def get_model_usage() -> dict[str, Any]:
             "models_used_this_month": 23,
             "top_models": [
                 {"name": "GPT-4o", "usage": 45.2, "cost_per_token": 0.00003},
-                {"name": "Claude 3.5 Sonnet", "usage": 28.7, "cost_per_token": 0.000015},
+                {
+                    "name": "Claude 3.5 Sonnet",
+                    "usage": 28.7,
+                    "cost_per_token": 0.000015,
+                },
                 {"name": "Llama 3.1 405B", "usage": 15.1, "cost_per_token": 0.000008},
-                {"name": "Gemini 1.5 Pro", "usage": 11.0, "cost_per_token": 0.0000125}
+                {"name": "Gemini 1.5 Pro", "usage": 11.0, "cost_per_token": 0.0000125},
             ],
             "diversity_score": 8.7,
             "cost_optimization": 34.2,
             "timestamp": datetime.utcnow().isoformat(),
-            "source": "openrouter_mcp"
+            "source": "openrouter_mcp",
         }
+
 
 @router.get("/enhanced_ai_memory/agent-patterns")
 async def get_agent_patterns() -> dict[str, Any]:
@@ -420,28 +458,28 @@ async def get_agent_patterns() -> dict[str, Any]:
                     "Business metrics analysis",
                     "Strategic recommendations",
                     "Cost optimization",
-                    "Performance insights"
+                    "Performance insights",
                 ],
                 "user_behavior": {
                     "peak_hours": "9-11 AM, 2-4 PM",
                     "average_session_length": "12.3 minutes",
-                    "preferred_modes": ["sophia", "executive", "universal"]
+                    "preferred_modes": ["sophia", "executive", "universal"],
                 },
                 "learning_insights": [
                     "Users prefer detailed explanations for complex topics",
                     "Executive mode users focus on high-level summaries",
-                    "Cost analysis requests increased 67% this quarter"
-                ]
+                    "Cost analysis requests increased 67% this quarter",
+                ],
             },
             "memory_efficiency": {
                 "context_retention": 94.7,
                 "pattern_recognition": 89.2,
-                "predictive_accuracy": 87.5
+                "predictive_accuracy": 87.5,
             },
             "timestamp": datetime.utcnow().isoformat(),
-            "source": "enhanced_ai_memory_mcp"
+            "source": "enhanced_ai_memory_mcp",
         }
+
 
 # Export router
 __all__ = ["router"]
-

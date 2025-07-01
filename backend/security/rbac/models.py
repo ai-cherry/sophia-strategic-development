@@ -63,15 +63,15 @@ class ActionType(str, Enum):
 
     # Special operations
     EXECUTE = "execute"  # For tools, agents, etc.
-    MANAGE = "manage"    # Administrative actions
-    SHARE = "share"      # Sharing with others
+    MANAGE = "manage"  # Administrative actions
+    SHARE = "share"  # Sharing with others
     APPROVE = "approve"  # Approval workflows
-    ASSIGN = "assign"    # Assigning to users
+    ASSIGN = "assign"  # Assigning to users
 
     # AI-specific operations
-    TRAIN = "train"      # Training models
-    DEPLOY = "deploy"    # Deploying models
-    PROMPT = "prompt"    # Sending prompts
+    TRAIN = "train"  # Training models
+    DEPLOY = "deploy"  # Deploying models
+    PROMPT = "prompt"  # Sending prompts
 
     # System operations
     CONFIGURE = "configure"
@@ -111,7 +111,9 @@ class Permission(BaseModel):
     class Config:
         use_enum_values = True
 
-    def matches_resource(self, resource_type: ResourceType, resource_id: str | None = None) -> bool:
+    def matches_resource(
+        self, resource_type: ResourceType, resource_id: str | None = None
+    ) -> bool:
         """Check if this permission applies to the given resource"""
         if self.resource_type != resource_type:
             return False
@@ -170,9 +172,11 @@ class Role(BaseModel):
         context = context or {}
 
         for permission in self.permissions:
-            if (permission.matches_resource(resource_type, resource_id) and
-                permission.allows_action(action) and
-                permission.check_condition(context)):
+            if (
+                permission.matches_resource(resource_type, resource_id)
+                and permission.allows_action(action)
+                and permission.check_condition(context)
+            ):
                 return True
 
         return False
@@ -274,6 +278,7 @@ class User(BaseModel):
 
 # System-defined roles with predefined permissions
 
+
 def create_system_admin_role() -> Role:
     """Create the system administrator role with all permissions"""
     permissions = []
@@ -329,35 +334,40 @@ def create_ai_developer_role() -> Role:
             actions=[ActionType.READ, ActionType.EXECUTE, ActionType.PROMPT],
             description="Access and use LLMs",
         ),
-
         # Agent permissions
         Permission(
             resource_type=ResourceType.AGENT,
-            actions=[ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.EXECUTE],
+            actions=[
+                ActionType.CREATE,
+                ActionType.READ,
+                ActionType.UPDATE,
+                ActionType.EXECUTE,
+            ],
             description="Create and manage AI agents",
         ),
-
         # Tool permissions
         Permission(
             resource_type=ResourceType.TOOL,
             actions=[ActionType.READ, ActionType.EXECUTE],
             description="Use AI tools",
         ),
-
         # Prompt permissions
         Permission(
             resource_type=ResourceType.PROMPT,
-            actions=[ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.DELETE],
+            actions=[
+                ActionType.CREATE,
+                ActionType.READ,
+                ActionType.UPDATE,
+                ActionType.DELETE,
+            ],
             description="Create and manage prompts",
         ),
-
         # Knowledge base permissions
         Permission(
             resource_type=ResourceType.KNOWLEDGE_BASE,
             actions=[ActionType.READ],
             description="Read from knowledge bases",
         ),
-
         # Vector DB permissions
         Permission(
             resource_type=ResourceType.VECTOR_DB,
@@ -384,28 +394,29 @@ def create_business_user_role() -> Role:
             actions=[ActionType.EXECUTE, ActionType.PROMPT],
             description="Use LLMs",
         ),
-
         # Agent permissions
         Permission(
             resource_type=ResourceType.AGENT,
             actions=[ActionType.READ, ActionType.EXECUTE],
             description="Use AI agents",
         ),
-
         # Tool permissions
         Permission(
             resource_type=ResourceType.TOOL,
             actions=[ActionType.READ, ActionType.EXECUTE],
             description="Use AI tools",
         ),
-
         # Document permissions
         Permission(
             resource_type=ResourceType.DOCUMENT,
-            actions=[ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.DELETE],
+            actions=[
+                ActionType.CREATE,
+                ActionType.READ,
+                ActionType.UPDATE,
+                ActionType.DELETE,
+            ],
             description="Create and manage documents",
         ),
-
         # Project permissions
         Permission(
             resource_type=ResourceType.PROJECT,
@@ -433,23 +444,32 @@ def create_department_admin_role(department: str) -> Role:
             condition={"department": department},
             description=f"Manage users in the {department} department",
         ),
-
         # Project permissions (limited to department)
         Permission(
             resource_type=ResourceType.PROJECT,
-            actions=[ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.DELETE, ActionType.MANAGE],
+            actions=[
+                ActionType.CREATE,
+                ActionType.READ,
+                ActionType.UPDATE,
+                ActionType.DELETE,
+                ActionType.MANAGE,
+            ],
             condition={"department": department},
             description=f"Manage projects in the {department} department",
         ),
-
         # Document permissions (limited to department)
         Permission(
             resource_type=ResourceType.DOCUMENT,
-            actions=[ActionType.CREATE, ActionType.READ, ActionType.UPDATE, ActionType.DELETE, ActionType.MANAGE],
+            actions=[
+                ActionType.CREATE,
+                ActionType.READ,
+                ActionType.UPDATE,
+                ActionType.DELETE,
+                ActionType.MANAGE,
+            ],
             condition={"department": department},
             description=f"Manage documents in the {department} department",
         ),
-
         # Agent permissions (limited to department)
         Permission(
             resource_type=ResourceType.AGENT,
@@ -478,6 +498,7 @@ SYSTEM_ROLES = {
 
 
 # Permission checking functions
+
 
 def has_permission(
     user: User,
@@ -542,4 +563,3 @@ def has_permission(
 
     # No matching permission found
     return False
-

@@ -211,7 +211,9 @@ class OptimizedMCPClient:
             await network.initialize()
             self.network_layers[server_name] = network
 
-        logger.info(f"Initialized network layers for {len(self.network_layers)} servers")
+        logger.info(
+            f"Initialized network layers for {len(self.network_layers)} servers"
+        )
 
     async def shutdown(self) -> None:
         """Shutdown the client and all network layers."""
@@ -321,7 +323,9 @@ class OptimizedMCPClient:
 
                 # Validate response if enabled
                 if not await self._validate_response(response_data):
-                    raise ValueError(f"Invalid response from MCP server: {response_data}")
+                    raise ValueError(
+                        f"Invalid response from MCP server: {response_data}"
+                    )
 
                 # Update statistics
                 self.requests_sent += 1
@@ -362,7 +366,7 @@ class OptimizedMCPClient:
         # Split into batches
         batch_size = self.client_config.batch_size
         batches = [
-            batch_arguments[i:i+batch_size]
+            batch_arguments[i : i + batch_size]
             for i in range(0, len(batch_arguments), batch_size)
         ]
 
@@ -495,4 +499,3 @@ async def example():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(example())
-

@@ -15,18 +15,12 @@ def fix_remaining_undefined_names() -> int:
 
     # Common undefined name fixes
     undefined_fixes = {
-        'UTC': {
-            'import': 'from datetime import datetime, UTC',
-            'files': []
+        "UTC": {"import": "from datetime import datetime, UTC", "files": []},
+        "shlex": {"import": "import shlex", "files": []},
+        "get_config_value": {
+            "import": "from backend.core.auto_esc_config import get_config_value",
+            "files": [],
         },
-        'shlex': {
-            'import': 'import shlex',
-            'files': []
-        },
-        'get_config_value': {
-            'import': 'from backend.core.auto_esc_config import get_config_value',
-            'files': []
-        }
     }
 
     # Get files with these specific undefined names
@@ -35,21 +29,21 @@ def fix_remaining_undefined_names() -> int:
             ["ruff", "check", ".", "--select=F821"],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
 
-        for line in result.stdout.split('\n'):
-            if 'F821' in line and 'Undefined name' in line:
+        for line in result.stdout.split("\n"):
+            if "F821" in line and "Undefined name" in line:
                 for name in undefined_fixes.keys():
-                    if f'`{name}`' in line:
-                        file_path = line.split(':')[0]
+                    if f"`{name}`" in line:
+                        file_path = line.split(":")[0]
                         if file_path and Path(file_path).exists():
-                            undefined_fixes[name]['files'].append(file_path)
+                            undefined_fixes[name]["files"].append(file_path)
 
         # Apply fixes
         for name, fix_info in undefined_fixes.items():
-            for file_path in fix_info['files']:
-                if fix_undefined_name_in_file(file_path, name, fix_info['import']):
+            for file_path in fix_info["files"]:
+                if fix_undefined_name_in_file(file_path, name, fix_info["import"]):
                     fixes_applied += 1
                     print(f"✅ Fixed {name} in {file_path}")
 
@@ -62,7 +56,7 @@ def fix_remaining_undefined_names() -> int:
 def fix_undefined_name_in_file(file_path: str, name: str, import_line: str) -> bool:
     """Fix a specific undefined name in a file"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Check if name is used but not imported
@@ -73,21 +67,21 @@ def fix_undefined_name_in_file(file_path: str, name: str, import_line: str) -> b
         if import_line in content:
             return False
 
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         # Find the best place to add the import
         import_idx = 0
         for i, line in enumerate(lines):
-            if line.strip().startswith(('import ', 'from ')):
+            if line.strip().startswith(("import ", "from ")):
                 import_idx = i + 1
-            elif line.strip() and not line.strip().startswith('#'):
+            elif line.strip() and not line.strip().startswith("#"):
                 break
 
         lines.insert(import_idx, import_line)
 
         # Write back the file
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lines))
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
 
         return True
 
@@ -105,13 +99,13 @@ def fix_exception_chaining() -> int:
             ["ruff", "check", ".", "--select=B904"],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
 
         files_to_fix = set()
-        for line in result.stdout.split('\n'):
-            if 'B904' in line:
-                file_path = line.split(':')[0]
+        for line in result.stdout.split("\n"):
+            if "B904" in line:
+                file_path = line.split(":")[0]
                 if file_path and Path(file_path).exists():
                     files_to_fix.add(file_path)
 
@@ -129,7 +123,7 @@ def fix_exception_chaining() -> int:
 def fix_exception_chaining_in_file(file_path: str) -> bool:
     """Fix exception chaining in a specific file"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Pattern to find raise statements in except blocks that should chain
@@ -138,10 +132,10 @@ def fix_exception_chaining_in_file(file_path: str) -> bool:
         def replace_raise(match):
             indent = match.group(1)
             raise_stmt = match.group(2)
-            return f'{indent}{raise_stmt} from err'
+            return f"{indent}{raise_stmt} from err"
 
         # Only apply if the except block captures the exception as 'e' or 'err'
-        lines = content.split('\n')
+        lines = content.split("\n")
         new_lines = []
         in_except_block = False
         except_var = None
@@ -150,12 +144,12 @@ def fix_exception_chaining_in_file(file_path: str) -> bool:
             stripped = line.strip()
 
             # Check if we're entering an except block
-            if stripped.startswith('except ') and ' as ' in stripped:
+            if stripped.startswith("except ") and " as " in stripped:
                 in_except_block = True
                 # Extract the exception variable name
-                parts = stripped.split(' as ')
+                parts = stripped.split(" as ")
                 if len(parts) > 1:
-                    except_var = parts[1].rstrip(':').strip()
+                    except_var = parts[1].rstrip(":").strip()
                 new_lines.append(line)
                 continue
 
@@ -165,22 +159,22 @@ def fix_exception_chaining_in_file(file_path: str) -> bool:
                 except_var = None
 
             # Fix raise statements in except blocks
-            if in_except_block and 'raise ' in line and ' from ' not in line:
-                if except_var and (except_var == 'e' or except_var == 'err'):
+            if in_except_block and "raise " in line and " from " not in line:
+                if except_var and (except_var == "e" or except_var == "err"):
                     # Apply the fix
-                    if re.search(r'raise\s+\w+Exception\(', line):
+                    if re.search(r"raise\s+\w+Exception\(", line):
                         line = re.sub(
-                            r'(\s+)(raise\s+\w+Exception\([^)]*\))\s*$',
-                            rf'\1\2 from {except_var}',
-                            line
+                            r"(\s+)(raise\s+\w+Exception\([^)]*\))\s*$",
+                            rf"\1\2 from {except_var}",
+                            line,
                         )
 
             new_lines.append(line)
 
-        new_content = '\n'.join(new_lines)
+        new_content = "\n".join(new_lines)
 
         if new_content != content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             return True
 
@@ -200,12 +194,12 @@ def fix_unused_imports() -> int:
             ["ruff", "check", ".", "--select=F401", "--fix"],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
 
         # Count the fixes from the output
-        for line in result.stdout.split('\n'):
-            if 'Fixed' in line or '✓' in line:
+        for line in result.stdout.split("\n"):
+            if "Fixed" in line or "✓" in line:
                 fixes_applied += 1
 
         print("✅ Removed unused imports automatically")
@@ -219,38 +213,38 @@ def fix_unused_imports() -> int:
 def update_pyproject_toml() -> bool:
     """Update pyproject.toml to use new ruff configuration format"""
     try:
-        pyproject_path = Path('pyproject.toml')
+        pyproject_path = Path("pyproject.toml")
         if not pyproject_path.exists():
             print("⚠️  pyproject.toml not found")
             return False
 
-        with open(pyproject_path, encoding='utf-8') as f:
+        with open(pyproject_path, encoding="utf-8") as f:
             content = f.read()
 
         # Check if already updated
-        if '[tool.ruff.lint]' in content:
+        if "[tool.ruff.lint]" in content:
             print("✅ pyproject.toml already uses new format")
             return True
 
         # Update the configuration
         new_content = content.replace(
-            '[tool.ruff]',
-            '''[tool.ruff]
+            "[tool.ruff]",
+            """[tool.ruff]
 line-length = 88
 target-version = "py311"
 
-[tool.ruff.lint]'''
+[tool.ruff.lint]""",
         )
 
         # Move settings to lint section
         new_content = re.sub(
-            r'select = \[(.*?)\]',
-            r'[tool.ruff.lint]\nselect = [\1]',
+            r"select = \[(.*?)\]",
+            r"[tool.ruff.lint]\nselect = [\1]",
             new_content,
-            flags=re.DOTALL
+            flags=re.DOTALL,
         )
 
-        with open(pyproject_path, 'w', encoding='utf-8') as f:
+        with open(pyproject_path, "w", encoding="utf-8") as f:
             f.write(new_content)
 
         print("✅ Updated pyproject.toml to new ruff format")
@@ -268,13 +262,17 @@ def generate_quality_report() -> dict:
             ["ruff", "check", ".", "--statistics"],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
 
         # Parse the statistics
         stats = {}
-        for line in result.stdout.split('\n'):
-            if line.strip() and not line.startswith('warning:') and not line.startswith('Found'):
+        for line in result.stdout.split("\n"):
+            if (
+                line.strip()
+                and not line.startswith("warning:")
+                and not line.startswith("Found")
+            ):
                 parts = line.strip().split()
                 if len(parts) >= 3:
                     count = parts[0]

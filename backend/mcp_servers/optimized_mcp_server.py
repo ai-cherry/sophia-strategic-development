@@ -268,14 +268,13 @@ class OptimizedMCPServer(ABC):
         # Update metrics if enabled
         if self.config.enable_metrics:
             self.request_duration.labels(
-                method=request.method,
-                endpoint=request.url.path
+                method=request.method, endpoint=request.url.path
             ).observe(duration)
 
             self.request_counter.labels(
                 method=request.method,
                 status=response.status_code,
-                endpoint=request.url.path
+                endpoint=request.url.path,
             ).inc()
 
         return response
@@ -284,6 +283,7 @@ class OptimizedMCPServer(ABC):
         """Set up memory optimization features."""
         if self.config.memory_enable_gc_optimization:
             import gc
+
             # Use generational GC with lower thresholds for more frequent collections
             gc.set_threshold(700, 10, 5)  # Default is (700, 10, 10)
 
@@ -300,10 +300,13 @@ class OptimizedMCPServer(ABC):
     async def _periodic_gc(self):
         """Run garbage collection periodically."""
         import gc
+
         while True:
             await asyncio.sleep(30)  # Run every 30 seconds
             gc.collect()
-            logger.debug(f"Periodic garbage collection completed for {self.server_name}")
+            logger.debug(
+                f"Periodic garbage collection completed for {self.server_name}"
+            )
 
     def _setup_routes(self):
         """Sets up the default API routes for the server."""
@@ -317,7 +320,7 @@ class OptimizedMCPServer(ABC):
             "/performance",
             self.get_performance_endpoint,
             methods=["GET"],
-            summary="Performance Metrics"
+            summary="Performance Metrics",
         )
 
         # Cline v3.18 self-knowledge endpoints
@@ -368,9 +371,12 @@ class OptimizedMCPServer(ABC):
                 "writes": self.io_stats.writes,
                 "bytes_read": self.io_stats.bytes_read,
                 "bytes_written": self.io_stats.bytes_written,
-                "avg_read_time_ms": self.io_stats.read_time_ms / max(self.io_stats.reads, 1),
-                "avg_write_time_ms": self.io_stats.write_time_ms / max(self.io_stats.writes, 1),
-                "cache_hit_ratio": self.io_stats.cache_hits / max(self.io_stats.cache_hits + self.io_stats.cache_misses, 1),
+                "avg_read_time_ms": self.io_stats.read_time_ms
+                / max(self.io_stats.reads, 1),
+                "avg_write_time_ms": self.io_stats.write_time_ms
+                / max(self.io_stats.writes, 1),
+                "cache_hit_ratio": self.io_stats.cache_hits
+                / max(self.io_stats.cache_hits + self.io_stats.cache_misses, 1),
             },
             "memory": memory_usage,
             "response_cache": {
@@ -383,6 +389,7 @@ class OptimizedMCPServer(ABC):
         """Get memory usage statistics."""
         try:
             import psutil
+
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
 
@@ -611,7 +618,9 @@ class OptimizedMCPServer(ABC):
 
             # Initialize network layer
             await self.network.initialize()
-            logger.info(f"✅ Optimized network layer initialized for {self.server_name}")
+            logger.info(
+                f"✅ Optimized network layer initialized for {self.server_name}"
+            )
 
             # Initialize Snowflake Cortex service ONLY if explicitly enabled AND needed
             if self.config.enable_ai_processing:
@@ -626,13 +635,21 @@ class OptimizedMCPServer(ABC):
                     if needs_snowflake:
                         self.cortex_service = SnowflakeCortexService()
                         await self.cortex_service.initialize()
-                        logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
+                        logger.info(
+                            f"✅ Snowflake Cortex initialized for {self.server_name}"
+                        )
                     else:
-                        logger.info(f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)")
+                        logger.info(
+                            f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)"
+                        )
 
                 except Exception as e:
-                    logger.warning(f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}")
-                    logger.info("   Server will continue without Snowflake capabilities")
+                    logger.warning(
+                        f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}"
+                    )
+                    logger.info(
+                        "   Server will continue without Snowflake capabilities"
+                    )
                     self.cortex_service = None
 
             # Initialize server capabilities for self-knowledge
@@ -803,27 +820,28 @@ class OptimizedMCPServer(ABC):
             try:
                 if self.config.io_strategy == IOStrategy.ASYNC:
                     # Use async file I/O
-                    async with aiofiles.open(path, encoding='utf-8') as f:
+                    async with aiofiles.open(path, encoding="utf-8") as f:
                         content = await f.read()
 
                 elif self.config.io_strategy == IOStrategy.MEMORY_MAPPED:
                     # Use memory-mapped files for large data
                     import mmap
+
                     with open(path) as f:
                         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
-                            content = mm.read().decode('utf-8')
+                            content = mm.read().decode("utf-8")
 
                 elif self.config.io_strategy == IOStrategy.STREAMING:
                     # Use streaming for large files
                     content = ""
                     chunk_size = self.config.io_buffer_size
-                    async with aiofiles.open(path, encoding='utf-8') as f:
+                    async with aiofiles.open(path, encoding="utf-8") as f:
                         while chunk := await f.read(chunk_size):
                             content += chunk
 
                 else:
                     # Standard synchronous I/O
-                    with open(path, encoding='utf-8') as f:
+                    with open(path, encoding="utf-8") as f:
                         content = f.read()
 
                 # Update metrics
@@ -843,7 +861,10 @@ class OptimizedMCPServer(ABC):
                     self.response_cache_keys.append(cache_key)
 
                     # Evict oldest items if cache is full
-                    while len(self.response_cache_keys) > self.config.memory_max_response_cache_items:
+                    while (
+                        len(self.response_cache_keys)
+                        > self.config.memory_max_response_cache_items
+                    ):
                         oldest_key = self.response_cache_keys.pop(0)
                         del self.response_cache[oldest_key]
 
@@ -859,7 +880,7 @@ class OptimizedMCPServer(ABC):
 
                 raise
 
-    async def write_file(self, path: str, content: str, mode: str = 'w') -> int:
+    async def write_file(self, path: str, content: str, mode: str = "w") -> int:
         """
         Write file with optimized I/O strategy.
 
@@ -881,19 +902,19 @@ class OptimizedMCPServer(ABC):
 
                 if self.config.io_strategy == IOStrategy.ASYNC:
                     # Use async file I/O
-                    async with aiofiles.open(path, mode=mode, encoding='utf-8') as f:
+                    async with aiofiles.open(path, mode=mode, encoding="utf-8") as f:
                         await f.write(content)
 
                 elif self.config.io_strategy == IOStrategy.STREAMING:
                     # Use streaming for large content
                     chunk_size = self.config.io_buffer_size
-                    async with aiofiles.open(path, mode=mode, encoding='utf-8') as f:
+                    async with aiofiles.open(path, mode=mode, encoding="utf-8") as f:
                         for i in range(0, len(content), chunk_size):
-                            await f.write(content[i:i+chunk_size])
+                            await f.write(content[i : i + chunk_size])
 
                 else:
                     # Standard synchronous I/O
-                    with open(path, mode, encoding='utf-8') as f:
+                    with open(path, mode, encoding="utf-8") as f:
                         f.write(content)
 
                 # Update metrics
@@ -926,7 +947,9 @@ class OptimizedMCPServer(ABC):
 
                 raise
 
-    async def read_json(self, path: str, use_cache: bool = True) -> tuple[dict[str, Any], bool]:
+    async def read_json(
+        self, path: str, use_cache: bool = True
+    ) -> tuple[dict[str, Any], bool]:
         """
         Read and parse JSON file with optimized I/O.
 
@@ -949,7 +972,9 @@ class OptimizedMCPServer(ABC):
             logger.error(f"Error parsing JSON from {path}: {e}")
             raise
 
-    async def write_json(self, path: str, data: dict[str, Any], pretty: bool = True) -> int:
+    async def write_json(
+        self, path: str, data: dict[str, Any], pretty: bool = True
+    ) -> int:
         """
         Write JSON data to file with optimized I/O.
 
@@ -964,7 +989,7 @@ class OptimizedMCPServer(ABC):
         try:
             if self.config.io_use_orjson:
                 options = orjson.OPT_INDENT_2 if pretty else 0
-                content = orjson.dumps(data, option=options).decode('utf-8')
+                content = orjson.dumps(data, option=options).decode("utf-8")
             else:
                 indent = 2 if pretty else None
                 content = json.dumps(data, indent=indent)
@@ -999,9 +1024,15 @@ class OptimizedMCPServer(ABC):
         results.update(server_health)
 
         # Determine overall health
-        critical_count = sum(1 for r in results.values() if r["status"] == HealthStatus.CRITICAL.value)
-        unhealthy_count = sum(1 for r in results.values() if r["status"] == HealthStatus.UNHEALTHY.value)
-        degraded_count = sum(1 for r in results.values() if r["status"] == HealthStatus.DEGRADED.value)
+        critical_count = sum(
+            1 for r in results.values() if r["status"] == HealthStatus.CRITICAL.value
+        )
+        unhealthy_count = sum(
+            1 for r in results.values() if r["status"] == HealthStatus.UNHEALTHY.value
+        )
+        degraded_count = sum(
+            1 for r in results.values() if r["status"] == HealthStatus.DEGRADED.value
+        )
 
         if critical_count > 0:
             overall_status = HealthStatus.CRITICAL.value
@@ -1080,7 +1111,9 @@ class OptimizedMCPServer(ABC):
             # Create a temporary file to test I/O
             test_dir = os.path.join(os.getcwd(), "tmp")
             os.makedirs(test_dir, exist_ok=True)
-            test_file = os.path.join(test_dir, f"io_health_check_{self.server_name}.txt")
+            test_file = os.path.join(
+                test_dir, f"io_health_check_{self.server_name}.txt"
+            )
 
             # Write test data
             test_data = f"Health check at {datetime.now(UTC).isoformat()}"
@@ -1094,7 +1127,9 @@ class OptimizedMCPServer(ABC):
                 raise ValueError("Data integrity check failed")
 
             # Calculate error rate
-            error_rate = self.io_stats.errors / max(self.io_stats.reads + self.io_stats.writes, 1)
+            error_rate = self.io_stats.errors / max(
+                self.io_stats.reads + self.io_stats.writes, 1
+            )
 
             if error_rate > 0.2:  # >20% errors
                 status = HealthStatus.CRITICAL.value
@@ -1113,7 +1148,8 @@ class OptimizedMCPServer(ABC):
                 "reads": self.io_stats.reads,
                 "writes": self.io_stats.writes,
                 "errors": self.io_stats.errors,
-                "cache_hit_ratio": self.io_stats.cache_hits / max(self.io_stats.cache_hits + self.io_stats.cache_misses, 1),
+                "cache_hit_ratio": self.io_stats.cache_hits
+                / max(self.io_stats.cache_hits + self.io_stats.cache_misses, 1),
             }
         except Exception as e:
             logger.error(f"Error checking I/O health: {e}")
@@ -1191,7 +1227,7 @@ class OptimizedMCPServer(ABC):
 
             # Convert to string if bytes
             if isinstance(content, bytes):
-                content = content.decode('utf-8')
+                content = content.decode("utf-8")
 
             # Generate markdown version
             markdown_content = await self._html_to_markdown(content)
@@ -1247,6 +1283,7 @@ class OptimizedMCPServer(ABC):
         try:
             # Use html2text if available
             import html2text
+
             converter = html2text.HTML2Text()
             converter.ignore_links = False
             converter.ignore_images = False
@@ -1257,29 +1294,35 @@ class OptimizedMCPServer(ABC):
             import re
 
             # Remove script and style tags
-            html_content = re.sub(r'<script.*?</script>', '', html_content, flags=re.DOTALL)
-            html_content = re.sub(r'<style.*?</style>', '', html_content, flags=re.DOTALL)
+            html_content = re.sub(
+                r"<script.*?</script>", "", html_content, flags=re.DOTALL
+            )
+            html_content = re.sub(
+                r"<style.*?</style>", "", html_content, flags=re.DOTALL
+            )
 
             # Convert headings
-            html_content = re.sub(r'<h1[^>]*>(.*?)</h1>', r'# \1\n', html_content)
-            html_content = re.sub(r'<h2[^>]*>(.*?)</h2>', r'## \1\n', html_content)
-            html_content = re.sub(r'<h3[^>]*>(.*?)</h3>', r'### \1\n', html_content)
+            html_content = re.sub(r"<h1[^>]*>(.*?)</h1>", r"# \1\n", html_content)
+            html_content = re.sub(r"<h2[^>]*>(.*?)</h2>", r"## \1\n", html_content)
+            html_content = re.sub(r"<h3[^>]*>(.*?)</h3>", r"### \1\n", html_content)
 
             # Convert paragraphs
-            html_content = re.sub(r'<p[^>]*>(.*?)</p>', r'\1\n\n', html_content)
+            html_content = re.sub(r"<p[^>]*>(.*?)</p>", r"\1\n\n", html_content)
 
             # Convert links
-            html_content = re.sub(r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>', r'[\2](\1)', html_content)
+            html_content = re.sub(
+                r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>', r"[\2](\1)", html_content
+            )
 
             # Convert line breaks
-            html_content = re.sub(r'<br[^>]*>', r'\n', html_content)
+            html_content = re.sub(r"<br[^>]*>", r"\n", html_content)
 
             # Remove remaining HTML tags
-            html_content = re.sub(r'<[^>]*>', '', html_content)
+            html_content = re.sub(r"<[^>]*>", "", html_content)
 
             # Decode HTML entities
-            html_content = html_content.replace('&lt;', '<').replace('&gt;', '>')
-            html_content = html_content.replace('&amp;', '&').replace('&quot;', '"')
+            html_content = html_content.replace("&lt;", "<").replace("&gt;", ">")
+            html_content = html_content.replace("&amp;", "&").replace("&quot;", '"')
 
             return html_content
 
@@ -1308,4 +1351,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

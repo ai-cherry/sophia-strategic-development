@@ -53,13 +53,20 @@ class AuditMiddleware(BaseHTTPMiddleware):
         self.log_request_body = log_request_body
         self.log_response_body = log_response_body
         self.log_headers = log_headers
-        self.exclude_headers = [h.lower() for h in (exclude_headers or [
-            "authorization", "cookie", "set-cookie", "x-api-key"
-        ])]
+        self.exclude_headers = [
+            h.lower()
+            for h in (
+                exclude_headers
+                or ["authorization", "cookie", "set-cookie", "x-api-key"]
+            )
+        ]
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         # Skip excluded paths and methods
-        if request.url.path in self.exclude_paths or request.method in self.exclude_methods:
+        if (
+            request.url.path in self.exclude_paths
+            or request.method in self.exclude_methods
+        ):
             return await call_next(request)
 
         # Generate request ID
@@ -356,4 +363,3 @@ class AuditRoute(APIRoute):
 
         # Fall back to direct client address
         return request.client.host if request.client else "unknown"
-

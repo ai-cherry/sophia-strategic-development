@@ -35,31 +35,35 @@ logger = logging.getLogger(__name__)
 
 class ModelTier(Enum):
     """Model tiers based on capability and cost"""
-    SMALL = "small"      # Fast, cheap, simple tasks
-    MEDIUM = "medium"    # Balanced performance and cost
-    LARGE = "large"      # High capability, expensive
+
+    SMALL = "small"  # Fast, cheap, simple tasks
+    MEDIUM = "medium"  # Balanced performance and cost
+    LARGE = "large"  # High capability, expensive
     PREMIUM = "premium"  # Highest capability, most expensive
 
 
 class TaskComplexity(Enum):
     """Task complexity levels"""
-    SIMPLE = "simple"        # Basic Q&A, simple classification
-    MODERATE = "moderate"    # Analysis, summarization
-    COMPLEX = "complex"      # Multi-step reasoning, complex analysis
-    EXPERT = "expert"        # Specialized domain knowledge required
+
+    SIMPLE = "simple"  # Basic Q&A, simple classification
+    MODERATE = "moderate"  # Analysis, summarization
+    COMPLEX = "complex"  # Multi-step reasoning, complex analysis
+    EXPERT = "expert"  # Specialized domain knowledge required
 
 
 class CostOptimizationStrategy(Enum):
     """Cost optimization strategies"""
-    PERFORMANCE_FIRST = "performance_first"    # Prioritize performance over cost
-    BALANCED = "balanced"                       # Balance performance and cost
-    COST_FIRST = "cost_first"                  # Minimize cost, acceptable performance
-    ADAPTIVE = "adaptive"                       # Adapt based on usage patterns
+
+    PERFORMANCE_FIRST = "performance_first"  # Prioritize performance over cost
+    BALANCED = "balanced"  # Balance performance and cost
+    COST_FIRST = "cost_first"  # Minimize cost, acceptable performance
+    ADAPTIVE = "adaptive"  # Adapt based on usage patterns
 
 
 @dataclass
 class ModelConfig:
     """Configuration for a specific model"""
+
     model_id: str
     tier: ModelTier
     cost_per_token: float
@@ -73,6 +77,7 @@ class ModelConfig:
 @dataclass
 class CostMetrics:
     """Cost tracking metrics"""
+
     total_tokens: int = 0
     total_cost: float = 0.0
     request_count: int = 0
@@ -86,6 +91,7 @@ class CostMetrics:
 @dataclass
 class TaskRequest:
     """Request for LLM task processing"""
+
     request_id: str
     user_id: str
     task_type: str
@@ -102,6 +108,7 @@ class TaskRequest:
 @dataclass
 class TaskResponse:
     """Response from LLM task processing"""
+
     request_id: str
     response_text: str
     model_used: str
@@ -191,7 +198,7 @@ class CostEngineeringService:
                 avg_latency_ms=500,
                 quality_score=0.75,
                 capabilities=["text_generation", "simple_qa", "classification"],
-                provider="snowflake_cortex"
+                provider="snowflake_cortex",
             ),
             "mixtral-8x7b": ModelConfig(
                 model_id="mixtral-8x7b",
@@ -200,8 +207,13 @@ class CostEngineeringService:
                 max_tokens=32768,
                 avg_latency_ms=800,
                 quality_score=0.85,
-                capabilities=["text_generation", "analysis", "reasoning", "summarization"],
-                provider="snowflake_cortex"
+                capabilities=[
+                    "text_generation",
+                    "analysis",
+                    "reasoning",
+                    "summarization",
+                ],
+                provider="snowflake_cortex",
             ),
             "llama2-70b-chat": ModelConfig(
                 model_id="llama2-70b-chat",
@@ -210,8 +222,12 @@ class CostEngineeringService:
                 max_tokens=4096,
                 avg_latency_ms=1200,
                 quality_score=0.92,
-                capabilities=["complex_reasoning", "expert_analysis", "creative_writing"],
-                provider="snowflake_cortex"
+                capabilities=[
+                    "complex_reasoning",
+                    "expert_analysis",
+                    "creative_writing",
+                ],
+                provider="snowflake_cortex",
             ),
             "snowflake-arctic": ModelConfig(
                 model_id="snowflake-arctic",
@@ -221,8 +237,8 @@ class CostEngineeringService:
                 avg_latency_ms=1500,
                 quality_score=0.95,
                 capabilities=["expert_reasoning", "specialized_analysis", "research"],
-                provider="snowflake_cortex"
-            )
+                provider="snowflake_cortex",
+            ),
         }
 
     def _initialize_routing_rules(self) -> None:
@@ -231,7 +247,7 @@ class CostEngineeringService:
             TaskComplexity.SIMPLE: ["mistral-7b", "mixtral-8x7b"],
             TaskComplexity.MODERATE: ["mixtral-8x7b", "llama2-70b-chat"],
             TaskComplexity.COMPLEX: ["llama2-70b-chat", "snowflake-arctic"],
-            TaskComplexity.EXPERT: ["snowflake-arctic", "llama2-70b-chat"]
+            TaskComplexity.EXPERT: ["snowflake-arctic", "llama2-70b-chat"],
         }
 
     async def process_task(self, task_request: TaskRequest) -> TaskResponse:
@@ -262,7 +278,7 @@ class CostEngineeringService:
                     tokens_used=0,
                     cost=0.0,
                     latency_ms=(datetime.now() - start_time).total_seconds() * 1000,
-                    cache_hit=True
+                    cache_hit=True,
                 )
 
                 return TaskResponse(
@@ -275,7 +291,7 @@ class CostEngineeringService:
                     quality_score=cache_result.get("quality_score", 0.9),
                     cache_hit=True,
                     optimization_applied=optimization_applied,
-                    metadata=cache_result.get("metadata", {})
+                    metadata=cache_result.get("metadata", {}),
                 )
 
             # Analyze task complexity
@@ -287,7 +303,9 @@ class CostEngineeringService:
             optimization_applied.append(f"model_selection_{selected_model}")
 
             # Optimize prompt for cost efficiency
-            optimized_prompt = await self._optimize_prompt(task_request.prompt, selected_model)
+            optimized_prompt = await self._optimize_prompt(
+                task_request.prompt, selected_model
+            )
             if optimized_prompt != task_request.prompt:
                 optimization_applied.append("prompt_optimization")
 
@@ -296,7 +314,7 @@ class CostEngineeringService:
                 prompt=optimized_prompt,
                 model_id=selected_model,
                 max_tokens=task_request.max_tokens,
-                temperature=task_request.temperature
+                temperature=task_request.temperature,
             )
 
             # Calculate cost
@@ -305,13 +323,13 @@ class CostEngineeringService:
 
             # Calculate quality score
             quality_score = await self._assess_response_quality(
-                task_request.prompt,
-                response_text,
-                task_request.required_quality
+                task_request.prompt, response_text, task_request.required_quality
             )
 
             # Cache the result
-            await self._cache_result(task_request, response_text, selected_model, quality_score)
+            await self._cache_result(
+                task_request, response_text, selected_model, quality_score
+            )
             optimization_applied.append("result_cached")
 
             # Update metrics
@@ -321,7 +339,7 @@ class CostEngineeringService:
                 tokens_used=tokens_used,
                 cost=cost,
                 latency_ms=latency_ms,
-                cache_hit=False
+                cache_hit=False,
             )
 
             # Log the task
@@ -335,8 +353,8 @@ class CostEngineeringService:
                     "task_type": task_request.task_type,
                     "complexity": complexity.value,
                     "optimization_applied": optimization_applied,
-                    "quality_score": quality_score
-                }
+                    "quality_score": quality_score,
+                },
             )
 
             return TaskResponse(
@@ -351,15 +369,17 @@ class CostEngineeringService:
                 optimization_applied=optimization_applied,
                 metadata={
                     "complexity": complexity.value,
-                    "model_tier": model_config.tier.value
-                }
+                    "model_tier": model_config.tier.value,
+                },
             )
 
         except Exception as e:
             logger.error(f"Error processing task: {e}")
             raise
 
-    async def _check_semantic_cache(self, task_request: TaskRequest) -> dict[str, Any] | None:
+    async def _check_semantic_cache(
+        self, task_request: TaskRequest
+    ) -> dict[str, Any] | None:
         """Check semantic cache for similar requests"""
         try:
             # Create cache key based on task content
@@ -375,7 +395,7 @@ class CostEngineeringService:
                 query=task_request.prompt,
                 content_type="llm_response",
                 similarity_threshold=self.semantic_cache_threshold,
-                limit=1
+                limit=1,
             )
 
             if similar_results:
@@ -387,7 +407,9 @@ class CostEngineeringService:
             logger.error(f"Error checking semantic cache: {e}")
             return None
 
-    async def _analyze_task_complexity(self, task_request: TaskRequest) -> TaskComplexity:
+    async def _analyze_task_complexity(
+        self, task_request: TaskRequest
+    ) -> TaskComplexity:
         """Analyze task complexity to determine appropriate model tier"""
         try:
             # Use a simple model to analyze complexity
@@ -410,7 +432,7 @@ class CostEngineeringService:
                 complexity_result = await cortex.complete_text_with_cortex(
                     prompt=complexity_prompt,
                     max_tokens=10,
-                    model="mistral-7b"  # Use small model for analysis
+                    model="mistral-7b",  # Use small model for analysis
                 )
 
                 # Parse result
@@ -425,17 +447,25 @@ class CostEngineeringService:
             logger.error(f"Error analyzing task complexity: {e}")
             return self._heuristic_complexity_analysis(task_request)
 
-    def _heuristic_complexity_analysis(self, task_request: TaskRequest) -> TaskComplexity:
+    def _heuristic_complexity_analysis(
+        self, task_request: TaskRequest
+    ) -> TaskComplexity:
         """Fallback heuristic complexity analysis"""
         prompt_length = len(task_request.prompt)
 
         # Simple heuristics based on prompt characteristics
-        if any(word in task_request.prompt.lower() for word in ["analyze", "compare", "evaluate", "assess"]):
+        if any(
+            word in task_request.prompt.lower()
+            for word in ["analyze", "compare", "evaluate", "assess"]
+        ):
             if prompt_length > 500:
                 return TaskComplexity.COMPLEX
             else:
                 return TaskComplexity.MODERATE
-        elif any(word in task_request.prompt.lower() for word in ["research", "expert", "specialized", "technical"]):
+        elif any(
+            word in task_request.prompt.lower()
+            for word in ["research", "expert", "specialized", "technical"]
+        ):
             return TaskComplexity.EXPERT
         elif prompt_length > 1000:
             return TaskComplexity.COMPLEX
@@ -445,21 +475,23 @@ class CostEngineeringService:
             return TaskComplexity.SIMPLE
 
     async def _select_optimal_model(
-        self,
-        task_request: TaskRequest,
-        complexity: TaskComplexity
+        self, task_request: TaskRequest, complexity: TaskComplexity
     ) -> str:
         """Select the optimal model based on requirements and strategy"""
         try:
             # Get candidate models for this complexity
-            candidate_models = self.model_routing_rules.get(complexity, ["mixtral-8x7b"])
+            candidate_models = self.model_routing_rules.get(
+                complexity, ["mixtral-8x7b"]
+            )
 
             # Filter by budget constraints
             if task_request.max_cost:
                 affordable_models = []
                 for model_id in candidate_models:
                     model_config = self.model_configs[model_id]
-                    estimated_tokens = min(task_request.max_tokens or 500, model_config.max_tokens)
+                    estimated_tokens = min(
+                        task_request.max_tokens or 500, model_config.max_tokens
+                    )
                     estimated_cost = estimated_tokens * model_config.cost_per_token
 
                     if estimated_cost <= task_request.max_cost:
@@ -472,21 +504,25 @@ class CostEngineeringService:
             if self.optimization_strategy == CostOptimizationStrategy.COST_FIRST:
                 # Select cheapest model that meets quality requirements
                 best_model = min(
-                    candidate_models,
-                    key=lambda m: self.model_configs[m].cost_per_token
+                    candidate_models, key=lambda m: self.model_configs[m].cost_per_token
                 )
-            elif self.optimization_strategy == CostOptimizationStrategy.PERFORMANCE_FIRST:
+            elif (
+                self.optimization_strategy == CostOptimizationStrategy.PERFORMANCE_FIRST
+            ):
                 # Select highest quality model
                 best_model = max(
-                    candidate_models,
-                    key=lambda m: self.model_configs[m].quality_score
+                    candidate_models, key=lambda m: self.model_configs[m].quality_score
                 )
             elif self.optimization_strategy == CostOptimizationStrategy.ADAPTIVE:
                 # Use usage patterns to select model
-                best_model = await self._adaptive_model_selection(candidate_models, task_request)
+                best_model = await self._adaptive_model_selection(
+                    candidate_models, task_request
+                )
             else:  # BALANCED
                 # Balance cost and quality
-                best_model = self._balanced_model_selection(candidate_models, task_request)
+                best_model = self._balanced_model_selection(
+                    candidate_models, task_request
+                )
 
             return best_model
 
@@ -495,9 +531,7 @@ class CostEngineeringService:
             return "mixtral-8x7b"  # Fallback to medium model
 
     def _balanced_model_selection(
-        self,
-        candidate_models: list[str],
-        task_request: TaskRequest
+        self, candidate_models: list[str], task_request: TaskRequest
     ) -> str:
         """Select model balancing cost and quality"""
         best_score = -1
@@ -521,9 +555,7 @@ class CostEngineeringService:
         return best_model
 
     async def _adaptive_model_selection(
-        self,
-        candidate_models: list[str],
-        task_request: TaskRequest
+        self, candidate_models: list[str], task_request: TaskRequest
     ) -> str:
         """Adaptive model selection based on usage patterns"""
         try:
@@ -534,13 +566,21 @@ class CostEngineeringService:
 
             # Analyze user's cost vs quality preferences
             if user_metrics.total_cost > 0 and user_metrics.request_count > 10:
-                avg_cost_per_request = user_metrics.total_cost / user_metrics.request_count
+                avg_cost_per_request = (
+                    user_metrics.total_cost / user_metrics.request_count
+                )
 
                 # If user typically uses expensive models, prefer quality
                 if avg_cost_per_request > 0.01:
-                    return max(candidate_models, key=lambda m: self.model_configs[m].quality_score)
+                    return max(
+                        candidate_models,
+                        key=lambda m: self.model_configs[m].quality_score,
+                    )
                 else:
-                    return min(candidate_models, key=lambda m: self.model_configs[m].cost_per_token)
+                    return min(
+                        candidate_models,
+                        key=lambda m: self.model_configs[m].cost_per_token,
+                    )
 
             return self._balanced_model_selection(candidate_models, task_request)
 
@@ -574,7 +614,7 @@ class CostEngineeringService:
                 optimized = await cortex.complete_text_with_cortex(
                     prompt=optimization_prompt,
                     max_tokens=len(prompt) // 2,  # Target 50% reduction
-                    model="mistral-7b"  # Use small model for optimization
+                    model="mistral-7b",  # Use small model for optimization
                 )
 
                 # Only use optimized version if it's significantly shorter
@@ -592,7 +632,7 @@ class CostEngineeringService:
         prompt: str,
         model_id: str,
         max_tokens: int | None = None,
-        temperature: float = 0.7
+        temperature: float = 0.7,
     ) -> tuple[str, int]:
         """Execute the task using the selected model"""
         try:
@@ -601,7 +641,7 @@ class CostEngineeringService:
                     prompt=prompt,
                     max_tokens=max_tokens or 500,
                     temperature=temperature,
-                    model=model_id
+                    model=model_id,
                 )
 
                 # Estimate tokens used (rough approximation)
@@ -614,10 +654,7 @@ class CostEngineeringService:
             raise
 
     async def _assess_response_quality(
-        self,
-        prompt: str,
-        response: str,
-        required_quality: float
+        self, prompt: str, response: str, required_quality: float
     ) -> float:
         """Assess the quality of the response"""
         try:
@@ -629,7 +666,11 @@ class CostEngineeringService:
                 quality_score += 0.2
 
             # Coherence (simple check)
-            if response and not response.startswith("I cannot") and not response.startswith("I don't"):
+            if (
+                response
+                and not response.startswith("I cannot")
+                and not response.startswith("I don't")
+            ):
                 quality_score += 0.2
 
             # Relevance (keyword overlap)
@@ -650,7 +691,7 @@ class CostEngineeringService:
         task_request: TaskRequest,
         response: str,
         model_used: str,
-        quality_score: float
+        quality_score: float,
     ) -> None:
         """Cache the result for future use"""
         try:
@@ -662,15 +703,13 @@ class CostEngineeringService:
                 "timestamp": datetime.now(),
                 "metadata": {
                     "task_type": task_request.task_type,
-                    "user_id": task_request.user_id
-                }
+                    "user_id": task_request.user_id,
+                },
             }
 
             # Cache with TTL
             await self.cache_manager.set(
-                cache_key,
-                cache_data,
-                ttl=self.cache_ttl_hours * 3600
+                cache_key, cache_data, ttl=self.cache_ttl_hours * 3600
             )
 
             # Also store in AI Memory for semantic search
@@ -681,8 +720,8 @@ class CostEngineeringService:
                 metadata={
                     "quality_score": quality_score,
                     "task_type": task_request.task_type,
-                    "cost_optimized": True
-                }
+                    "cost_optimized": True,
+                },
             )
 
         except Exception as e:
@@ -694,7 +733,7 @@ class CostEngineeringService:
         tokens_used: int,
         cost: float,
         latency_ms: float,
-        cache_hit: bool
+        cache_hit: bool,
     ) -> None:
         """Update cost and performance metrics"""
         try:
@@ -716,9 +755,9 @@ class CostEngineeringService:
             # Update average latency
             if user_metrics.request_count > 1:
                 user_metrics.avg_latency_ms = (
-                    (user_metrics.avg_latency_ms * (user_metrics.request_count - 1) + latency_ms) /
-                    user_metrics.request_count
-                )
+                    user_metrics.avg_latency_ms * (user_metrics.request_count - 1)
+                    + latency_ms
+                ) / user_metrics.request_count
             else:
                 user_metrics.avg_latency_ms = latency_ms
 
@@ -738,9 +777,10 @@ class CostEngineeringService:
             # Update global average latency
             if self.global_metrics.request_count > 1:
                 self.global_metrics.avg_latency_ms = (
-                    (self.global_metrics.avg_latency_ms * (self.global_metrics.request_count - 1) + latency_ms) /
-                    self.global_metrics.request_count
-                )
+                    self.global_metrics.avg_latency_ms
+                    * (self.global_metrics.request_count - 1)
+                    + latency_ms
+                ) / self.global_metrics.request_count
             else:
                 self.global_metrics.avg_latency_ms = latency_ms
 
@@ -761,14 +801,22 @@ class CostEngineeringService:
 
             # Calculate cache hit rate
             total_requests = metrics.cache_hits + metrics.cache_misses
-            cache_hit_rate = metrics.cache_hits / total_requests if total_requests > 0 else 0
+            cache_hit_rate = (
+                metrics.cache_hits / total_requests if total_requests > 0 else 0
+            )
 
             # Calculate cost per request
-            cost_per_request = metrics.total_cost / metrics.request_count if metrics.request_count > 0 else 0
+            cost_per_request = (
+                metrics.total_cost / metrics.request_count
+                if metrics.request_count > 0
+                else 0
+            )
 
             # Calculate savings rate
             potential_cost = metrics.total_cost + metrics.cost_savings
-            savings_rate = metrics.cost_savings / potential_cost if potential_cost > 0 else 0
+            savings_rate = (
+                metrics.cost_savings / potential_cost if potential_cost > 0 else 0
+            )
 
             return {
                 "scope": scope,
@@ -781,15 +829,27 @@ class CostEngineeringService:
                     "cache_hit_rate": round(cache_hit_rate, 3),
                     "avg_latency_ms": round(metrics.avg_latency_ms, 2),
                     "cost_per_request": round(cost_per_request, 4),
-                    "savings_rate": round(savings_rate, 3)
+                    "savings_rate": round(savings_rate, 3),
                 },
                 "optimization_summary": {
-                    "cache_effectiveness": "high" if cache_hit_rate > 0.3 else "medium" if cache_hit_rate > 0.1 else "low",
-                    "cost_efficiency": "high" if cost_per_request < 0.01 else "medium" if cost_per_request < 0.05 else "low",
-                    "performance": "fast" if metrics.avg_latency_ms < 1000 else "medium" if metrics.avg_latency_ms < 2000 else "slow"
+                    "cache_effectiveness": (
+                        "high"
+                        if cache_hit_rate > 0.3
+                        else "medium" if cache_hit_rate > 0.1 else "low"
+                    ),
+                    "cost_efficiency": (
+                        "high"
+                        if cost_per_request < 0.01
+                        else "medium" if cost_per_request < 0.05 else "low"
+                    ),
+                    "performance": (
+                        "fast"
+                        if metrics.avg_latency_ms < 1000
+                        else "medium" if metrics.avg_latency_ms < 2000 else "slow"
+                    ),
                 },
                 "recommendations": await self._generate_cost_recommendations(metrics),
-                "last_updated": metrics.timestamp
+                "last_updated": metrics.timestamp,
             }
 
         except Exception as e:
@@ -803,27 +863,43 @@ class CostEngineeringService:
         try:
             # Cache hit rate recommendations
             total_requests = metrics.cache_hits + metrics.cache_misses
-            cache_hit_rate = metrics.cache_hits / total_requests if total_requests > 0 else 0
+            cache_hit_rate = (
+                metrics.cache_hits / total_requests if total_requests > 0 else 0
+            )
 
             if cache_hit_rate < 0.2:
-                recommendations.append("Increase cache TTL or improve semantic similarity threshold to boost cache hit rate")
+                recommendations.append(
+                    "Increase cache TTL or improve semantic similarity threshold to boost cache hit rate"
+                )
 
             # Cost per request recommendations
-            cost_per_request = metrics.total_cost / metrics.request_count if metrics.request_count > 0 else 0
+            cost_per_request = (
+                metrics.total_cost / metrics.request_count
+                if metrics.request_count > 0
+                else 0
+            )
 
             if cost_per_request > 0.05:
-                recommendations.append("Consider using smaller models for simple tasks to reduce cost per request")
+                recommendations.append(
+                    "Consider using smaller models for simple tasks to reduce cost per request"
+                )
 
             # Latency recommendations
             if metrics.avg_latency_ms > 2000:
-                recommendations.append("Optimize prompts or use faster models to improve response times")
+                recommendations.append(
+                    "Optimize prompts or use faster models to improve response times"
+                )
 
             # General recommendations
             if metrics.request_count > 100:
-                recommendations.append("Consider implementing request batching for better cost efficiency")
+                recommendations.append(
+                    "Consider implementing request batching for better cost efficiency"
+                )
 
             if not recommendations:
-                recommendations.append("Cost optimization is performing well - continue current strategy")
+                recommendations.append(
+                    "Cost optimization is performing well - continue current strategy"
+                )
 
             return recommendations
 
@@ -831,16 +907,22 @@ class CostEngineeringService:
             logger.error(f"Error generating recommendations: {e}")
             return ["Unable to generate recommendations due to error"]
 
-    async def set_optimization_strategy(self, strategy: CostOptimizationStrategy) -> None:
+    async def set_optimization_strategy(
+        self, strategy: CostOptimizationStrategy
+    ) -> None:
         """Set the cost optimization strategy"""
         self.optimization_strategy = strategy
         logger.info(f"Cost optimization strategy set to: {strategy.value}")
 
-    async def set_cost_budget(self, daily_budget: float | None = None, monthly_budget: float | None = None) -> None:
+    async def set_cost_budget(
+        self, daily_budget: float | None = None, monthly_budget: float | None = None
+    ) -> None:
         """Set cost budgets"""
         self.cost_budget_daily = daily_budget
         self.cost_budget_monthly = monthly_budget
-        logger.info(f"Cost budgets set - Daily: {daily_budget}, Monthly: {monthly_budget}")
+        logger.info(
+            f"Cost budgets set - Daily: {daily_budget}, Monthly: {monthly_budget}"
+        )
 
     async def _cost_monitoring_task(self) -> None:
         """Background task to monitor costs and send alerts"""
@@ -850,13 +932,17 @@ class CostEngineeringService:
                 if self.cost_budget_daily:
                     today_cost = await self._calculate_daily_cost()
                     if today_cost > self.cost_budget_daily:
-                        await self._send_budget_alert("daily", today_cost, self.cost_budget_daily)
+                        await self._send_budget_alert(
+                            "daily", today_cost, self.cost_budget_daily
+                        )
 
                 # Check monthly budget
                 if self.cost_budget_monthly:
                     month_cost = await self._calculate_monthly_cost()
                     if month_cost > self.cost_budget_monthly:
-                        await self._send_budget_alert("monthly", month_cost, self.cost_budget_monthly)
+                        await self._send_budget_alert(
+                            "monthly", month_cost, self.cost_budget_monthly
+                        )
 
                 # Sleep for 1 hour
                 await asyncio.sleep(3600)
@@ -907,9 +993,13 @@ class CostEngineeringService:
 
         return monthly_cost
 
-    async def _send_budget_alert(self, period: str, actual_cost: float, budget: float) -> None:
+    async def _send_budget_alert(
+        self, period: str, actual_cost: float, budget: float
+    ) -> None:
         """Send budget alert"""
-        logger.warning(f"Budget exceeded - {period}: ${actual_cost:.2f} / ${budget:.2f}")
+        logger.warning(
+            f"Budget exceeded - {period}: ${actual_cost:.2f} / ${budget:.2f}"
+        )
 
         # Log budget alert
         await self.audit_logger.log_system_event(
@@ -918,8 +1008,8 @@ class CostEngineeringService:
                 "period": period,
                 "actual_cost": actual_cost,
                 "budget": budget,
-                "overage": actual_cost - budget
-            }
+                "overage": actual_cost - budget,
+            },
         )
 
     async def _analyze_model_usage_patterns(self) -> None:
@@ -943,4 +1033,3 @@ class CostEngineeringService:
 
 # Global instance
 cost_engineering_service = CostEngineeringService()
-

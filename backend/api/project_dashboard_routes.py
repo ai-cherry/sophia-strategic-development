@@ -122,7 +122,9 @@ async def get_team_performance(
         return performance_data
     except Exception as e:
         logger.error(f"Error fetching team performance: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch team performance") from e
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch team performance"
+        ) from e
 
 
 @router.get("/stats/sprint-velocity", response_model=list[SprintVelocity])
@@ -145,7 +147,9 @@ async def get_sprint_velocity(
         return velocity_data
     except Exception as e:
         logger.error(f"Error fetching sprint velocity: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch sprint velocity") from e
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch sprint velocity"
+        ) from e
 
 
 @router.get("/stats/overview", response_model=dict[str, Any])
@@ -185,7 +189,9 @@ async def get_project_stats_overview(
         return overview_data
     except Exception as e:
         logger.error(f"Error fetching project overview: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch project overview") from e
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch project overview"
+        ) from e
 
 
 @router.post("/{project_id}/tasks")
@@ -278,7 +284,9 @@ async def get_department_okrs(
         return okr_data
     except Exception as e:
         logger.error(f"Error fetching department OKRs: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch department OKRs") from e
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch department OKRs"
+        ) from e
 
 
 @router.get("/cross-functional-insights", response_model=dict[str, Any])

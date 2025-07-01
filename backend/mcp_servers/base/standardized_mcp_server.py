@@ -379,13 +379,21 @@ class StandardizedMCPServer(ABC):
                     if needs_snowflake:
                         self.cortex_service = SnowflakeCortexService()
                         await self.cortex_service.initialize()
-                        logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
+                        logger.info(
+                            f"✅ Snowflake Cortex initialized for {self.server_name}"
+                        )
                     else:
-                        logger.info(f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)")
+                        logger.info(
+                            f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)"
+                        )
 
                 except Exception as e:
-                    logger.warning(f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}")
-                    logger.info("   Server will continue without Snowflake capabilities")
+                    logger.warning(
+                        f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}"
+                    )
+                    logger.info(
+                        "   Server will continue without Snowflake capabilities"
+                    )
                     self.cortex_service = None
 
             # Initialize server capabilities for self-knowledge
@@ -515,6 +523,7 @@ class StandardizedMCPServer(ABC):
             try:
                 # Load SSL configuration if available
                 import ssl
+
                 ssl_context = ssl.create_default_context()
                 ssl_context.check_hostname = False
                 ssl_context.verify_mode = ssl.CERT_NONE

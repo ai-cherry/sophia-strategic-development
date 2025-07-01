@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class CompressionType(str, Enum):
     """Compression types for network optimization."""
+
     NONE = "none"
     GZIP = "gzip"
     BROTLI = "br"  # If brotli library is available
@@ -31,6 +32,7 @@ class CompressionType(str, Enum):
 
 class RetryStrategy(str, Enum):
     """Retry strategies for network resilience."""
+
     NONE = "none"
     LINEAR = "linear"
     EXPONENTIAL = "exponential"
@@ -40,6 +42,7 @@ class RetryStrategy(str, Enum):
 @dataclass
 class NetworkStats:
     """Network statistics for monitoring and optimization."""
+
     bytes_sent: int = 0
     bytes_received: int = 0
     requests_sent: int = 0
@@ -55,6 +58,7 @@ class NetworkStats:
 @dataclass
 class MCPNetworkConfig:
     """Configuration for the optimized MCP network layer."""
+
     # Connection settings
     max_connections: int = 100
     max_connections_per_host: int = 20
@@ -129,38 +133,33 @@ class OptimizedMCPNetwork:
 
         # Request metrics
         self.requests_counter = Counter(
-            f"{prefix}_requests_total",
-            "Total network requests",
-            ["method", "status"]
+            f"{prefix}_requests_total", "Total network requests", ["method", "status"]
         )
         self.request_latency = Histogram(
             f"{prefix}_request_latency_seconds",
             "Request latency in seconds",
-            ["method"]
+            ["method"],
         )
 
         # Retry metrics
         self.retry_counter = Counter(
-            f"{prefix}_retries_total",
-            "Total retry attempts",
-            ["reason"]
+            f"{prefix}_retries_total", "Total retry attempts", ["reason"]
         )
 
         # Connection metrics
         self.active_connections_gauge = Gauge(
-            f"{prefix}_active_connections",
-            "Number of active connections"
+            f"{prefix}_active_connections", "Number of active connections"
         )
         self.connection_errors_counter = Counter(
             f"{prefix}_connection_errors_total",
             "Total connection errors",
-            ["error_type"]
+            ["error_type"],
         )
 
         # Compression metrics
         self.compression_ratio_gauge = Gauge(
             f"{prefix}_compression_ratio",
-            "Compression ratio (uncompressed / compressed)"
+            "Compression ratio (uncompressed / compressed)",
         )
 
         logger.info(f"Metrics initialized for {self.server_name} network layer")
@@ -174,7 +173,11 @@ class OptimizedMCPNetwork:
             enable_cleanup_closed=True,
             force_close=not self.config.enable_keepalive,
             tcp_nodelay=self.config.tcp_nodelay,
-            ttl_dns_cache=self.config.dns_cache_ttl_seconds if self.config.enable_dns_cache else None,
+            ttl_dns_cache=(
+                self.config.dns_cache_ttl_seconds
+                if self.config.enable_dns_cache
+                else None
+            ),
         )
 
         # Configure timeout
@@ -182,7 +185,7 @@ class OptimizedMCPNetwork:
             total=self.config.connection_timeout_seconds,
             connect=min(5.0, self.config.connection_timeout_seconds / 2),
             sock_connect=min(5.0, self.config.connection_timeout_seconds / 2),
-            sock_read=self.config.connection_timeout_seconds
+            sock_read=self.config.connection_timeout_seconds,
         )
 
         # Create session with optimized settings
@@ -193,8 +196,12 @@ class OptimizedMCPNetwork:
             headers={
                 "User-Agent": f"SophiaAI-MCP/{self.server_name}",
                 "Connection": "keep-alive" if self.config.enable_keepalive else "close",
-                "Accept-Encoding": self.config.compression_type.value if self.config.enable_compression else "identity",
-            }
+                "Accept-Encoding": (
+                    self.config.compression_type.value
+                    if self.config.enable_compression
+                    else "identity"
+                ),
+            },
         )
 
         logger.info(f"Network layer initialized for {self.server_name}")
@@ -205,18 +212,27 @@ class OptimizedMCPNetwork:
             await self.session.close()
             logger.info(f"Network layer shut down for {self.server_name}")
 
-    async def _compress_data(self, data: str | bytes | dict[str, Any]) -> tuple[bytes, bool]:
+    async def _compress_data(
+        self, data: str | bytes | dict[str, Any]
+    ) -> tuple[bytes, bool]:
         """Compress data if it exceeds the threshold size."""
         # Convert to bytes if needed
         if isinstance(data, dict):
-            data_bytes = orjson.dumps(data) if self.config.use_orjson else json.dumps(data).encode('utf-8')
+            data_bytes = (
+                orjson.dumps(data)
+                if self.config.use_orjson
+                else json.dumps(data).encode("utf-8")
+            )
         elif isinstance(data, str):
-            data_bytes = data.encode('utf-8')
+            data_bytes = data.encode("utf-8")
         else:
             data_bytes = data
 
         # Check if compression is needed
-        if not self.config.enable_compression or len(data_bytes) < self.config.compression_threshold_bytes:
+        if (
+            not self.config.enable_compression
+            or len(data_bytes) < self.config.compression_threshold_bytes
+        ):
             return data_bytes, False
 
         # Compress based on selected algorithm
@@ -332,20 +348,28 @@ class OptimizedMCPNetwork:
                     # Update metrics
                     request_duration = time.time() - start_time
                     if self.config.enable_metrics:
-                        self.requests_counter.labels(method=method, status=response.status).inc()
-                        self.request_latency.labels(method=method).observe(request_duration)
-                        self.bytes_sent_counter.inc(len(compressed_data) if compressed_data else 0)
+                        self.requests_counter.labels(
+                            method=method, status=response.status
+                        ).inc()
+                        self.request_latency.labels(method=method).observe(
+                            request_duration
+                        )
+                        self.bytes_sent_counter.inc(
+                            len(compressed_data) if compressed_data else 0
+                        )
                         self.bytes_received_counter.inc(len(response_data))
 
                     # Update stats
                     self.stats.requests_sent += 1
                     self.stats.requests_received += 1
-                    self.stats.bytes_sent += len(compressed_data) if compressed_data else 0
+                    self.stats.bytes_sent += (
+                        len(compressed_data) if compressed_data else 0
+                    )
                     self.stats.bytes_received += len(response_data)
                     self.stats.avg_latency_ms = (
-                        (self.stats.avg_latency_ms * (self.stats.requests_received - 1) + request_duration * 1000)
-                        / self.stats.requests_received
-                    )
+                        self.stats.avg_latency_ms * (self.stats.requests_received - 1)
+                        + request_duration * 1000
+                    ) / self.stats.requests_received
 
                     # Check if we need to retry based on status code
                     if response.status in retry_for_statuses and attempt < max_attempts:
@@ -356,7 +380,9 @@ class OptimizedMCPNetwork:
 
                         # Update retry metrics
                         if self.config.enable_metrics:
-                            self.retry_counter.labels(reason=f"status_{response.status}").inc()
+                            self.retry_counter.labels(
+                                reason=f"status_{response.status}"
+                            ).inc()
 
                         self.stats.retried_requests += 1
 
@@ -385,7 +411,11 @@ class OptimizedMCPNetwork:
             except (TimeoutError, aiohttp.ClientError) as e:
                 # Update error metrics
                 if self.config.enable_metrics:
-                    error_type = "timeout" if isinstance(e, asyncio.TimeoutError) else "connection"
+                    error_type = (
+                        "timeout"
+                        if isinstance(e, asyncio.TimeoutError)
+                        else "connection"
+                    )
                     self.connection_errors_counter.labels(error_type=error_type).inc()
 
                 # Update stats
@@ -412,7 +442,9 @@ class OptimizedMCPNetwork:
                     continue
                 else:
                     # Max retries reached, raise the exception
-                    logger.error(f"Request to {url} failed after {max_attempts} attempts: {str(e)}")
+                    logger.error(
+                        f"Request to {url} failed after {max_attempts} attempts: {str(e)}"
+                    )
                     self.stats.failed_requests += 1
                     raise
 
@@ -423,11 +455,15 @@ class OptimizedMCPNetwork:
         """Send a GET request."""
         return await self.request("GET", url, **kwargs)
 
-    async def post(self, url: str, data: dict[str, Any] | str | bytes | None = None, **kwargs) -> tuple[int, Any, dict[str, str]]:
+    async def post(
+        self, url: str, data: dict[str, Any] | str | bytes | None = None, **kwargs
+    ) -> tuple[int, Any, dict[str, str]]:
         """Send a POST request."""
         return await self.request("POST", url, data=data, **kwargs)
 
-    async def put(self, url: str, data: dict[str, Any] | str | bytes | None = None, **kwargs) -> tuple[int, Any, dict[str, str]]:
+    async def put(
+        self, url: str, data: dict[str, Any] | str | bytes | None = None, **kwargs
+    ) -> tuple[int, Any, dict[str, str]]:
         """Send a PUT request."""
         return await self.request("PUT", url, data=data, **kwargs)
 
@@ -443,7 +479,9 @@ class OptimizedMCPNetwork:
         """Send an OPTIONS request."""
         return await self.request("OPTIONS", url, **kwargs)
 
-    async def patch(self, url: str, data: dict[str, Any] | str | bytes | None = None, **kwargs) -> tuple[int, Any, dict[str, str]]:
+    async def patch(
+        self, url: str, data: dict[str, Any] | str | bytes | None = None, **kwargs
+    ) -> tuple[int, Any, dict[str, str]]:
         """Send a PATCH request."""
         return await self.request("PATCH", url, data=data, **kwargs)
 
@@ -490,4 +528,3 @@ async def example():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(example())
-

@@ -188,7 +188,9 @@ def test_performance():
         )
 
     duration = time.time() - start_time
-    logger.info(f"Logged {count} events in {duration:.4f} seconds ({count/duration:.2f} events/sec)")
+    logger.info(
+        f"Logged {count} events in {duration:.4f} seconds ({count/duration:.2f} events/sec)"
+    )
 
     logger.info("✅ Performance test completed")
 
@@ -220,4 +222,3 @@ if __name__ == "__main__":
 
     # Run tests
     asyncio.run(main())
-

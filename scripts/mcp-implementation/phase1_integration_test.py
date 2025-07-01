@@ -19,7 +19,7 @@ class MCPIntegrationTester:
             "SNOWFLAKE_PASSWORD": "test_password",
             "APOLLO_IO_API_KEY": "test_apollo_key",
             "APIFY_TOKEN": "test_apify_token",
-            "FIGMA_ACCESS_TOKEN": "test_figma_token"
+            "FIGMA_ACCESS_TOKEN": "test_figma_token",
         }
 
     def test_playwright_mcp(self) -> dict[str, any]:
@@ -42,15 +42,15 @@ class MCPIntegrationTester:
                     "Click and type actions",
                     "Screenshot capture",
                     "PDF handling",
-                    "JavaScript execution"
+                    "JavaScript execution",
                 ],
-                "business_value": "$500K+ web automation"
+                "business_value": "$500K+ web automation",
             }
         else:
             return {
                 "name": "Microsoft Playwright MCP",
                 "status": "not_found",
-                "error": "Package not found"
+                "error": "Package not found",
             }
 
     def test_snowflake_cortex(self) -> dict[str, any]:
@@ -64,7 +64,7 @@ class MCPIntegrationTester:
                 result = subprocess.run(
                     ["python3", "-m", "py_compile", script_path],
                     capture_output=True,
-                    text=True
+                    text=True,
                 )
 
                 if result.returncode == 0:
@@ -76,27 +76,27 @@ class MCPIntegrationTester:
                             "CORTEX.SENTIMENT - Sentiment analysis",
                             "CORTEX.TRANSLATE - Language translation",
                             "CORTEX.EXTRACT_ANSWER - Q&A extraction",
-                            "CORTEX.SUMMARIZE - Text summarization"
+                            "CORTEX.SUMMARIZE - Text summarization",
                         ],
-                        "business_value": "$300K+ data intelligence"
+                        "business_value": "$300K+ data intelligence",
                     }
                 else:
                     return {
                         "name": "Snowflake Cortex Agent",
                         "status": "syntax_error",
-                        "error": result.stderr
+                        "error": result.stderr,
                     }
             except Exception as e:
                 return {
                     "name": "Snowflake Cortex Agent",
                     "status": "error",
-                    "error": str(e)
+                    "error": str(e),
                 }
         else:
             return {
                 "name": "Snowflake Cortex Agent",
                 "status": "not_found",
-                "error": "Script not found"
+                "error": "Script not found",
             }
 
     def test_apollo_mcp(self) -> dict[str, any]:
@@ -118,15 +118,15 @@ class MCPIntegrationTester:
                     "People search",
                     "Organization search",
                     "Job postings retrieval",
-                    "Email discovery"
+                    "Email discovery",
                 ],
-                "business_value": "$200K+ sales intelligence"
+                "business_value": "$200K+ sales intelligence",
             }
         else:
             return {
                 "name": "Apollo.io MCP",
                 "status": "not_found",
-                "error": "Package not found"
+                "error": "Package not found",
             }
 
     def test_apify_config(self) -> dict[str, any]:
@@ -145,13 +145,13 @@ class MCPIntegrationTester:
                 "url": config_data.get("url", "Unknown"),
                 "capabilities": config_data.get("capabilities", []),
                 "actors": list(config_data.get("actors", {}).keys()),
-                "business_value": "$400K+ automation tools"
+                "business_value": "$400K+ automation tools",
             }
         else:
             return {
                 "name": "Apify Official MCP",
                 "status": "not_configured",
-                "error": "Configuration not found"
+                "error": "Configuration not found",
             }
 
     def test_figma_context(self) -> dict[str, any]:
@@ -161,12 +161,12 @@ class MCPIntegrationTester:
         # Check multiple possible locations
         paths = [
             "mcp-servers/figma_context/figma-context-mcp/package.json",
-            "mcp-servers/figma_context/figma-context-mcp/README.md"
+            "mcp-servers/figma_context/figma-context-mcp/README.md",
         ]
 
         for path in paths:
             if os.path.exists(path):
-                if path.endswith('package.json'):
+                if path.endswith("package.json"):
                     with open(path) as f:
                         package_data = json.load(f)
 
@@ -179,9 +179,9 @@ class MCPIntegrationTester:
                             "Design-to-code context",
                             "Component analysis",
                             "Style extraction",
-                            "Multi-language support (Korean, Japanese, Chinese)"
+                            "Multi-language support (Korean, Japanese, Chinese)",
                         ],
-                        "business_value": "$300K+ design automation"
+                        "business_value": "$300K+ design automation",
                     }
                 else:
                     return {
@@ -189,15 +189,15 @@ class MCPIntegrationTester:
                         "status": "installed",
                         "capabilities": [
                             "Extract Figma layout data",
-                            "Design-to-code context"
+                            "Design-to-code context",
                         ],
-                        "business_value": "$300K+ design automation"
+                        "business_value": "$300K+ design automation",
                     }
 
         return {
             "name": "Figma Context MCP",
             "status": "not_found",
-            "error": "Package not found"
+            "error": "Package not found",
         }
 
     def test_integration_workflow(self) -> dict[str, any]:
@@ -211,43 +211,43 @@ class MCPIntegrationTester:
                     "step": 1,
                     "server": "Figma Context MCP",
                     "action": "Extract design from Figma",
-                    "output": "Design context and layout data"
+                    "output": "Design context and layout data",
                 },
                 {
                     "step": 2,
                     "server": "Snowflake Cortex",
                     "action": "Generate component descriptions",
-                    "output": "AI-generated component specs"
+                    "output": "AI-generated component specs",
                 },
                 {
                     "step": 3,
                     "server": "Microsoft Playwright",
                     "action": "Test generated components",
-                    "output": "Automated test results"
+                    "output": "Automated test results",
                 },
                 {
                     "step": 4,
                     "server": "Apollo.io",
                     "action": "Find beta testers",
-                    "output": "Qualified user list"
+                    "output": "Qualified user list",
                 },
                 {
                     "step": 5,
                     "server": "Apify",
                     "action": "Monitor competitor implementations",
-                    "output": "Competitive analysis"
-                }
+                    "output": "Competitive analysis",
+                },
             ],
-            "total_value": "$1.7M+ automated workflow"
+            "total_value": "$1.7M+ automated workflow",
         }
 
         return workflow
 
     def generate_report(self):
         """Generate integration test report"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🧪 PHASE 1 MCP INTEGRATION TEST REPORT")
-        print("="*60)
+        print("=" * 60)
         print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print()
 
@@ -257,7 +257,7 @@ class MCPIntegrationTester:
             self.test_snowflake_cortex(),
             self.test_apollo_mcp(),
             self.test_apify_config(),
-            self.test_figma_context()
+            self.test_figma_context(),
         ]
 
         # Server Status
@@ -303,7 +303,9 @@ class MCPIntegrationTester:
         print("\n📝 NEXT STEPS:")
         if ready_count < 5:
             print("   1. Install missing Node.js dependencies:")
-            print("      cd mcp-servers/playwright/microsoft-playwright-mcp && npm install")
+            print(
+                "      cd mcp-servers/playwright/microsoft-playwright-mcp && npm install"
+            )
             print("      cd mcp-servers/apollo/apollo-io-mcp && npm install")
             print("      cd mcp-servers/figma_context/figma-context-mcp && npm install")
 
@@ -311,7 +313,8 @@ class MCPIntegrationTester:
         print("   3. Configure Cursor with config/cursor_phase1_mcp_config.json")
         print("   4. Start testing individual servers")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
+
 
 if __name__ == "__main__":
     tester = MCPIntegrationTester()

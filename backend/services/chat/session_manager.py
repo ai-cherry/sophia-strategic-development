@@ -13,6 +13,7 @@ from ...models.chat_models import ChatConfiguration, ChatContext, ChatMode, Chat
 
 logger = logging.getLogger(__name__)
 
+
 class SessionManager:
     """
     Manages chat session lifecycle and state
@@ -21,7 +22,9 @@ class SessionManager:
 
     def __init__(self, session_timeout_minutes: int = 60):
         self.session_timeout_minutes = session_timeout_minutes
-        self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(
+            f"{self.__class__.__module__}.{self.__class__.__name__}"
+        )
 
         # In-memory session storage (replace with Redis/database in production)
         self._sessions: dict[str, ChatSession] = {}
@@ -30,10 +33,13 @@ class SessionManager:
         # Start cleanup task
         self._start_cleanup_task()
 
-        self.logger.info(f"Session manager initialized with {session_timeout_minutes}min timeout")
+        self.logger.info(
+            f"Session manager initialized with {session_timeout_minutes}min timeout"
+        )
 
     def _start_cleanup_task(self):
         """Start background task to clean up expired sessions"""
+
         async def cleanup_expired_sessions():
             while True:
                 try:
@@ -47,9 +53,12 @@ class SessionManager:
 
     async def _cleanup_expired_sessions(self):
         """Remove expired sessions"""
-        cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
+        cutoff_time = datetime.now(UTC) - timedelta(
+            minutes=self.session_timeout_minutes
+        )
         expired_sessions = [
-            session_id for session_id, session in self._sessions.items()
+            session_id
+            for session_id, session in self._sessions.items()
             if session.last_activity < cutoff_time
         ]
 
@@ -60,11 +69,13 @@ class SessionManager:
         if expired_sessions:
             self.logger.info(f"Cleaned up {len(expired_sessions)} expired sessions")
 
-    async def get_or_create_session(self,
-                                  session_id: str,
-                                  mode: ChatMode,
-                                  context: ChatContext | None = None,
-                                  configuration: ChatConfiguration | None = None) -> ChatSession:
+    async def get_or_create_session(
+        self,
+        session_id: str,
+        mode: ChatMode,
+        context: ChatContext | None = None,
+        configuration: ChatConfiguration | None = None,
+    ) -> ChatSession:
         """Get existing session or create a new one"""
 
         # Check if session exists and is valid
@@ -76,7 +87,9 @@ class SessionManager:
 
             # Update mode if different (allows mode switching within session)
             if session.mode != mode:
-                self.logger.info(f"Session {session_id} mode changed: {session.mode.value} -> {mode.value}")
+                self.logger.info(
+                    f"Session {session_id} mode changed: {session.mode.value} -> {mode.value}"
+                )
                 session.mode = mode
 
             return session
@@ -88,7 +101,7 @@ class SessionManager:
             created_at=datetime.now(UTC),
             last_activity=datetime.now(UTC),
             context=context,
-            configuration=configuration
+            configuration=configuration,
         )
 
         self._sessions[session_id] = session
@@ -102,7 +115,9 @@ class SessionManager:
 
         if session:
             # Check if session is expired
-            cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
+            cutoff_time = datetime.now(UTC) - timedelta(
+                minutes=self.session_timeout_minutes
+            )
             if session.last_activity < cutoff_time:
                 await self.delete_session(session_id)
                 return None
@@ -112,15 +127,16 @@ class SessionManager:
 
         return session
 
-    async def update_session_activity(self,
-                                    session_id: str,
-                                    tokens_used: int = 0,
-                                    cost: float = 0.0) -> bool:
+    async def update_session_activity(
+        self, session_id: str, tokens_used: int = 0, cost: float = 0.0
+    ) -> bool:
         """Update session activity and usage metrics"""
         session = self._sessions.get(session_id)
 
         if not session:
-            self.logger.warning(f"Attempted to update non-existent session: {session_id}")
+            self.logger.warning(
+                f"Attempted to update non-existent session: {session_id}"
+            )
             return False
 
         # Update activity and metrics
@@ -129,7 +145,9 @@ class SessionManager:
         session.total_tokens += tokens_used
         session.total_cost += cost
 
-        self.logger.debug(f"Updated session {session_id}: +{tokens_used} tokens, +${cost:.4f}")
+        self.logger.debug(
+            f"Updated session {session_id}: +{tokens_used} tokens, +${cost:.4f}"
+        )
         return True
 
     async def delete_session(self, session_id: str) -> bool:
@@ -141,11 +159,13 @@ class SessionManager:
 
         return False
 
-    async def list_sessions(self,
-                          limit: int = 10,
-                          offset: int = 0,
-                          mode_filter: ChatMode | None = None,
-                          active_only: bool = True) -> list[ChatSession]:
+    async def list_sessions(
+        self,
+        limit: int = 10,
+        offset: int = 0,
+        mode_filter: ChatMode | None = None,
+        active_only: bool = True,
+    ) -> list[ChatSession]:
         """List sessions with optional filtering"""
         sessions = list(self._sessions.values())
 
@@ -155,14 +175,16 @@ class SessionManager:
 
         # Filter active sessions only
         if active_only:
-            cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
+            cutoff_time = datetime.now(UTC) - timedelta(
+                minutes=self.session_timeout_minutes
+            )
             sessions = [s for s in sessions if s.last_activity >= cutoff_time]
 
         # Sort by last activity (most recent first)
         sessions.sort(key=lambda s: s.last_activity, reverse=True)
 
         # Apply pagination
-        return sessions[offset:offset + limit]
+        return sessions[offset : offset + limit]
 
     async def get_session_count(self, mode_filter: ChatMode | None = None) -> int:
         """Get total number of sessions"""
@@ -184,11 +206,13 @@ class SessionManager:
                 "mode_distribution": {},
                 "total_messages": 0,
                 "total_tokens": 0,
-                "total_cost": 0.0
+                "total_cost": 0.0,
             }
 
         # Calculate metrics
-        cutoff_time = datetime.now(UTC) - timedelta(minutes=self.session_timeout_minutes)
+        cutoff_time = datetime.now(UTC) - timedelta(
+            minutes=self.session_timeout_minutes
+        )
         active_sessions = [s for s in sessions if s.last_activity >= cutoff_time]
 
         mode_distribution = {}
@@ -207,8 +231,12 @@ class SessionManager:
             "total_messages": total_messages,
             "total_tokens": total_tokens,
             "total_cost": round(total_cost, 4),
-            "average_messages_per_session": round(total_messages / len(sessions), 2) if sessions else 0,
-            "average_cost_per_session": round(total_cost / len(sessions), 4) if sessions else 0
+            "average_messages_per_session": (
+                round(total_messages / len(sessions), 2) if sessions else 0
+            ),
+            "average_cost_per_session": (
+                round(total_cost / len(sessions), 4) if sessions else 0
+            ),
         }
 
     async def cleanup_all_sessions(self):
@@ -235,4 +263,3 @@ class SessionManager:
     def __contains__(self, session_id: str) -> bool:
         """Check if session exists"""
         return session_id in self._sessions
-

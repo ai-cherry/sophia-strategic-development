@@ -14,9 +14,9 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 # Import required models and services
 try:
+    from backend.core.auto_esc_config import get_config_value
     from backend.models.llm_models import ChatResponse, LLMRequest
     from backend.services.unified_intelligence_service import (
-from backend.core.auto_esc_config import get_config_value
         unified_intelligence_service,
     )
 except ImportError:

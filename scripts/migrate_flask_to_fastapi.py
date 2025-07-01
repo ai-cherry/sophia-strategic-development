@@ -10,8 +10,11 @@ from pathlib import Path
 from typing import Any
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class FlaskToFastAPIMigrator:
     """Migrates Flask applications to modern FastAPI 2025 patterns"""
@@ -31,13 +34,15 @@ class FlaskToFastAPIMigrator:
             "flask_endpoints_migrated": 0,
             "new_features_added": [],
             "files_created": [],
-            "improvements": []
+            "improvements": [],
         }
 
         try:
             # 1. Analyze Flask application
             flask_analysis = self._analyze_flask_app()
-            logger.info(f"📊 Found {len(flask_analysis['endpoints'])} Flask endpoints to migrate")
+            logger.info(
+                f"📊 Found {len(flask_analysis['endpoints'])} Flask endpoints to migrate"
+            )
 
             # 2. Create modern FastAPI application
             fastapi_content = self._generate_modern_fastapi_app(flask_analysis)
@@ -49,33 +54,35 @@ class FlaskToFastAPIMigrator:
             self.new_fastapi_path.parent.mkdir(parents=True, exist_ok=True)
             self.new_fastapi_path.write_text(fastapi_content)
 
-            migration_results.update({
-                "flask_endpoints_migrated": len(flask_analysis['endpoints']),
-                "new_features_added": [
-                    "Streaming chat with SSE",
-                    "Pydantic v2 models",
-                    "Modern lifespan management",
-                    "Enhanced error handling",
-                    "Prometheus metrics",
-                    "Rate limiting",
-                    "JWT authentication",
-                    "Background tasks"
-                ],
-                "files_created": [
-                    str(self.new_fastapi_path),
-                    "backend/core/settings.py",
-                    "backend/core/security.py",
-                    "backend/models/api_models.py",
-                    "backend/middleware/security.py"
-                ],
-                "improvements": [
-                    "20x faster validation with Pydantic v2",
-                    "Real-time streaming responses",
-                    "Enterprise-grade security",
-                    "Comprehensive error handling",
-                    "Performance monitoring"
-                ]
-            })
+            migration_results.update(
+                {
+                    "flask_endpoints_migrated": len(flask_analysis["endpoints"]),
+                    "new_features_added": [
+                        "Streaming chat with SSE",
+                        "Pydantic v2 models",
+                        "Modern lifespan management",
+                        "Enhanced error handling",
+                        "Prometheus metrics",
+                        "Rate limiting",
+                        "JWT authentication",
+                        "Background tasks",
+                    ],
+                    "files_created": [
+                        str(self.new_fastapi_path),
+                        "backend/core/settings.py",
+                        "backend/core/security.py",
+                        "backend/models/api_models.py",
+                        "backend/middleware/security.py",
+                    ],
+                    "improvements": [
+                        "20x faster validation with Pydantic v2",
+                        "Real-time streaming responses",
+                        "Enterprise-grade security",
+                        "Comprehensive error handling",
+                        "Performance monitoring",
+                    ],
+                }
+            )
 
             logger.info("✅ Flask to FastAPI migration completed successfully")
             return migration_results
@@ -95,25 +102,27 @@ class FlaskToFastAPIMigrator:
 
         # Extract Flask routes
         endpoints = []
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         for i, line in enumerate(lines):
-            if '@app.route(' in line:
+            if "@app.route(" in line:
                 # Extract route information
                 route_line = line.strip()
                 if i + 1 < len(lines):
                     function_line = lines[i + 1].strip()
-                    if function_line.startswith('def '):
-                        function_name = function_line.split('(')[0].replace('def ', '')
-                        endpoints.append({
-                            "route": route_line,
-                            "function": function_name,
-                            "line": i + 1
-                        })
+                    if function_line.startswith("def "):
+                        function_name = function_line.split("(")[0].replace("def ", "")
+                        endpoints.append(
+                            {
+                                "route": route_line,
+                                "function": function_name,
+                                "line": i + 1,
+                            }
+                        )
 
         return {
             "endpoints": endpoints,
-            "features": ["CORS", "Error handling", "JSON responses"]
+            "features": ["CORS", "Error handling", "JSON responses"],
         }
 
     def _generate_modern_fastapi_app(self, flask_analysis: dict[str, Any]) -> str:
@@ -788,30 +797,31 @@ class MCPServiceHealth(BaseModel):
 
         logger.info("✅ Created supporting files for modern FastAPI application")
 
+
 async def main():
     """Main function to run the migration"""
     migrator = FlaskToFastAPIMigrator()
     results = await migrator.execute_migration()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🚀 FLASK TO FASTAPI MIGRATION COMPLETE")
-    print("="*60)
+    print("=" * 60)
     print(f"Status: {results['status']}")
     print(f"Endpoints Migrated: {results['flask_endpoints_migrated']}")
     print(f"New Features Added: {len(results['new_features_added'])}")
     print(f"Files Created: {len(results['files_created'])}")
 
-    if results['status'] == 'success':
+    if results["status"] == "success":
         print("\n✅ Migration successful! New features include:")
-        for feature in results['new_features_added']:
+        for feature in results["new_features_added"]:
             print(f"  • {feature}")
 
         print("\n📁 Files created:")
-        for file in results['files_created']:
+        for file in results["files_created"]:
             print(f"  • {file}")
 
         print("\n🚀 Improvements delivered:")
-        for improvement in results['improvements']:
+        for improvement in results["improvements"]:
             print(f"  • {improvement}")
 
         print("\n🎯 Next Steps:")
@@ -822,6 +832,7 @@ async def main():
         print("  5. Update deployment scripts")
     else:
         print(f"\n❌ Migration failed: {results.get('error', 'Unknown error')}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

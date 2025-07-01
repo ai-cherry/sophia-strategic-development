@@ -22,15 +22,19 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class PredictionConfidence(Enum):
     """Prediction confidence levels"""
-    HIGH = "high"      # 80%+ confidence
+
+    HIGH = "high"  # 80%+ confidence
     MEDIUM = "medium"  # 60-80% confidence
-    LOW = "low"        # 40-60% confidence
+    LOW = "low"  # 40-60% confidence
     UNCERTAIN = "uncertain"  # <40% confidence
+
 
 class AutomationAction(Enum):
     """Types of automated actions"""
+
     OPTIMIZE_RESOURCES = "optimize_resources"
     SCALE_INFRASTRUCTURE = "scale_infrastructure"
     NOTIFY_TEAM = "notify_team"
@@ -42,8 +46,10 @@ class AutomationAction(Enum):
     QUALITY_IMPROVEMENT = "quality_improvement"
     SECURITY_HARDENING = "security_hardening"
 
+
 class ProblemCategory(Enum):
     """Categories of problems that can be predicted"""
+
     PERFORMANCE_DEGRADATION = "performance_degradation"
     RESOURCE_EXHAUSTION = "resource_exhaustion"
     COST_OVERRUN = "cost_overrun"
@@ -53,18 +59,22 @@ class ProblemCategory(Enum):
     WORKFLOW_BOTTLENECK = "workflow_bottleneck"
     USER_EXPERIENCE_ISSUE = "user_experience_issue"
 
+
 @dataclass
 class MetricDataPoint:
     """Single metric measurement"""
+
     timestamp: datetime
     value: float
     metric_name: str
     source: str
     metadata: dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class Prediction:
     """Prediction of future issue or optimization opportunity"""
+
     prediction_id: str
     category: ProblemCategory
     confidence: PredictionConfidence
@@ -87,16 +97,20 @@ class Prediction:
             "severity": self.severity,
             "description": self.description,
             "impact_assessment": self.impact_assessment,
-            "recommended_actions": [action.value for action in self.recommended_actions],
+            "recommended_actions": [
+                action.value for action in self.recommended_actions
+            ],
             "created_at": self.created_at.isoformat(),
             "auto_resolve": self.auto_resolve,
             "estimated_cost_impact": self.estimated_cost_impact,
-            "supporting_data_count": len(self.supporting_data)
+            "supporting_data_count": len(self.supporting_data),
         }
+
 
 @dataclass
 class AutomationRule:
     """Rule for automated problem resolution"""
+
     rule_id: str
     name: str
     trigger_conditions: list[str]
@@ -108,9 +122,11 @@ class AutomationRule:
     last_executed: datetime | None = None
     execution_count: int = 0
 
+
 @dataclass
 class LearningPattern:
     """Pattern learned from historical data"""
+
     pattern_id: str
     pattern_type: str
     confidence_score: float
@@ -118,6 +134,7 @@ class LearningPattern:
     last_observed: datetime
     predictive_indicators: list[str]
     success_rate: float = 0.0
+
 
 class PredictiveAutomationService:
     """Service for predictive automation and proactive problem resolution"""
@@ -142,16 +159,16 @@ class PredictiveAutomationService:
                 trigger_conditions=[
                     "daily_cost_increase > 20%",
                     "predicted_monthly_cost > budget * 1.1",
-                    "gpu_utilization < 60% for 2+ hours"
+                    "gpu_utilization < 60% for 2+ hours",
                 ],
                 actions=[
                     AutomationAction.OPTIMIZE_RESOURCES,
                     AutomationAction.COST_OPTIMIZATION,
-                    AutomationAction.NOTIFY_TEAM
+                    AutomationAction.NOTIFY_TEAM,
                 ],
                 auto_execute=True,
                 cooldown_minutes=120,
-                max_executions_per_day=3
+                max_executions_per_day=3,
             ),
             "performance_degradation_prevention": AutomationRule(
                 rule_id="performance_degradation_prevention",
@@ -159,16 +176,16 @@ class PredictiveAutomationService:
                 trigger_conditions=[
                     "response_time_trend_increasing > 50%",
                     "error_rate > 2%",
-                    "memory_usage > 85%"
+                    "memory_usage > 85%",
                 ],
                 actions=[
                     AutomationAction.PREEMPTIVE_SCALING,
                     AutomationAction.OPTIMIZE_RESOURCES,
-                    AutomationAction.NOTIFY_TEAM
+                    AutomationAction.NOTIFY_TEAM,
                 ],
                 auto_execute=True,
                 cooldown_minutes=30,
-                max_executions_per_day=5
+                max_executions_per_day=5,
             ),
             "code_quality_maintenance": AutomationRule(
                 rule_id="code_quality_maintenance",
@@ -176,16 +193,16 @@ class PredictiveAutomationService:
                 trigger_conditions=[
                     "code_quality_score_declining",
                     "security_scan_issues_increasing",
-                    "test_coverage < 80%"
+                    "test_coverage < 80%",
                 ],
                 actions=[
                     AutomationAction.QUALITY_IMPROVEMENT,
                     AutomationAction.SECURITY_HARDENING,
-                    AutomationAction.NOTIFY_TEAM
+                    AutomationAction.NOTIFY_TEAM,
                 ],
                 auto_execute=False,  # Requires approval
                 cooldown_minutes=240,
-                max_executions_per_day=2
+                max_executions_per_day=2,
             ),
             "infrastructure_health_monitoring": AutomationRule(
                 rule_id="infrastructure_health_monitoring",
@@ -193,16 +210,16 @@ class PredictiveAutomationService:
                 trigger_conditions=[
                     "service_health_declining",
                     "disk_space > 90%",
-                    "cpu_sustained_high > 4_hours"
+                    "cpu_sustained_high > 4_hours",
                 ],
                 actions=[
                     AutomationAction.RESTART_SERVICE,
                     AutomationAction.SCALE_INFRASTRUCTURE,
-                    AutomationAction.EXECUTE_BACKUP
+                    AutomationAction.EXECUTE_BACKUP,
                 ],
                 auto_execute=True,
                 cooldown_minutes=60,
-                max_executions_per_day=4
+                max_executions_per_day=4,
             ),
             "user_experience_optimization": AutomationRule(
                 rule_id="user_experience_optimization",
@@ -210,17 +227,17 @@ class PredictiveAutomationService:
                 trigger_conditions=[
                     "user_satisfaction_declining",
                     "page_load_times_increasing",
-                    "accessibility_score_declining"
+                    "accessibility_score_declining",
                 ],
                 actions=[
                     AutomationAction.OPTIMIZE_RESOURCES,
                     AutomationAction.QUALITY_IMPROVEMENT,
-                    AutomationAction.ADJUST_CONFIGURATION
+                    AutomationAction.ADJUST_CONFIGURATION,
                 ],
                 auto_execute=False,
                 cooldown_minutes=180,
-                max_executions_per_day=2
-            )
+                max_executions_per_day=2,
+            ),
         }
 
     def _initialize_learning_patterns(self):
@@ -233,7 +250,7 @@ class PredictiveAutomationService:
                 frequency=7,  # Weekly pattern
                 last_observed=datetime.now(UTC) - timedelta(days=7),
                 predictive_indicators=["gpu_usage_increase", "data_processing_volume"],
-                success_rate=0.78
+                success_rate=0.78,
             ),
             "deployment_performance_impact": LearningPattern(
                 pattern_id="deployment_performance_impact",
@@ -242,7 +259,7 @@ class PredictiveAutomationService:
                 frequency=3,  # Every 3 deployments
                 last_observed=datetime.now(UTC) - timedelta(days=3),
                 predictive_indicators=["deployment_size", "code_complexity_change"],
-                success_rate=0.85
+                success_rate=0.85,
             ),
             "quality_regression_cycle": LearningPattern(
                 pattern_id="quality_regression_cycle",
@@ -250,8 +267,12 @@ class PredictiveAutomationService:
                 confidence_score=0.68,
                 frequency=14,  # Bi-weekly
                 last_observed=datetime.now(UTC) - timedelta(days=5),
-                predictive_indicators=["commit_frequency", "pr_size", "test_coverage_change"],
-                success_rate=0.73
+                predictive_indicators=[
+                    "commit_frequency",
+                    "pr_size",
+                    "test_coverage_change",
+                ],
+                success_rate=0.73,
             ),
             "user_activity_surge": LearningPattern(
                 pattern_id="user_activity_surge",
@@ -259,12 +280,22 @@ class PredictiveAutomationService:
                 confidence_score=0.91,
                 frequency=1,  # Daily during business hours
                 last_observed=datetime.now(UTC) - timedelta(hours=1),
-                predictive_indicators=["time_of_day", "day_of_week", "recent_feature_releases"],
-                success_rate=0.92
-            )
+                predictive_indicators=[
+                    "time_of_day",
+                    "day_of_week",
+                    "recent_feature_releases",
+                ],
+                success_rate=0.92,
+            ),
         }
 
-    async def add_metric_data(self, metric_name: str, value: float, source: str, metadata: dict[str, Any] = None):
+    async def add_metric_data(
+        self,
+        metric_name: str,
+        value: float,
+        source: str,
+        metadata: dict[str, Any] = None,
+    ):
         """Add new metric data point for analysis"""
         if metadata is None:
             metadata = {}
@@ -274,7 +305,7 @@ class PredictiveAutomationService:
             value=value,
             metric_name=metric_name,
             source=source,
-            metadata=metadata
+            metadata=metadata,
         )
 
         self.metrics_history[metric_name].append(data_point)
@@ -330,16 +361,22 @@ class PredictiveAutomationService:
         threshold = 2.0
         return abs(current_value - mean_val) > threshold * std_val
 
-    async def _generate_anomaly_prediction(self, metric_name: str, data_point: MetricDataPoint):
+    async def _generate_anomaly_prediction(
+        self, metric_name: str, data_point: MetricDataPoint
+    ):
         """Generate prediction based on detected anomaly"""
-        prediction_id = hashlib.md5(f"anomaly_{metric_name}_{data_point.timestamp}".encode()).hexdigest()[:8]
+        prediction_id = hashlib.md5(
+            f"anomaly_{metric_name}_{data_point.timestamp}".encode()
+        ).hexdigest()[:8]
 
         # Determine category based on metric name
         category = self._categorize_metric(metric_name)
 
         # Estimate severity and timing
         severity = self._assess_anomaly_severity(metric_name, data_point.value)
-        predicted_occurrence = datetime.now(UTC) + timedelta(minutes=30)  # Predict issue in 30 minutes
+        predicted_occurrence = datetime.now(UTC) + timedelta(
+            minutes=30
+        )  # Predict issue in 30 minutes
 
         prediction = Prediction(
             prediction_id=prediction_id,
@@ -351,7 +388,7 @@ class PredictiveAutomationService:
             impact_assessment=f"Potential {category.value} if trend continues",
             recommended_actions=self._get_recommended_actions(category),
             supporting_data=[data_point],
-            auto_resolve=severity in ["low", "medium"]
+            auto_resolve=severity in ["low", "medium"],
         )
 
         self.predictions[prediction_id] = prediction
@@ -368,17 +405,32 @@ class PredictiveAutomationService:
 
         if any(keyword in metric_lower for keyword in ["cost", "budget", "expense"]):
             return ProblemCategory.COST_OVERRUN
-        elif any(keyword in metric_lower for keyword in ["response_time", "latency", "performance"]):
+        elif any(
+            keyword in metric_lower
+            for keyword in ["response_time", "latency", "performance"]
+        ):
             return ProblemCategory.PERFORMANCE_DEGRADATION
-        elif any(keyword in metric_lower for keyword in ["cpu", "memory", "disk", "resource"]):
+        elif any(
+            keyword in metric_lower for keyword in ["cpu", "memory", "disk", "resource"]
+        ):
             return ProblemCategory.RESOURCE_EXHAUSTION
-        elif any(keyword in metric_lower for keyword in ["quality", "coverage", "complexity"]):
+        elif any(
+            keyword in metric_lower for keyword in ["quality", "coverage", "complexity"]
+        ):
             return ProblemCategory.QUALITY_DECLINE
-        elif any(keyword in metric_lower for keyword in ["security", "vulnerability", "threat"]):
+        elif any(
+            keyword in metric_lower
+            for keyword in ["security", "vulnerability", "threat"]
+        ):
             return ProblemCategory.SECURITY_VULNERABILITY
-        elif any(keyword in metric_lower for keyword in ["availability", "uptime", "failure"]):
+        elif any(
+            keyword in metric_lower for keyword in ["availability", "uptime", "failure"]
+        ):
             return ProblemCategory.INFRASTRUCTURE_FAILURE
-        elif any(keyword in metric_lower for keyword in ["workflow", "throughput", "bottleneck"]):
+        elif any(
+            keyword in metric_lower
+            for keyword in ["workflow", "throughput", "bottleneck"]
+        ):
             return ProblemCategory.WORKFLOW_BOTTLENECK
         else:
             return ProblemCategory.USER_EXPERIENCE_ISSUE
@@ -405,45 +457,47 @@ class PredictiveAutomationService:
         else:
             return "low"
 
-    def _get_recommended_actions(self, category: ProblemCategory) -> list[AutomationAction]:
+    def _get_recommended_actions(
+        self, category: ProblemCategory
+    ) -> list[AutomationAction]:
         """Get recommended actions for problem category"""
         action_mapping = {
             ProblemCategory.COST_OVERRUN: [
                 AutomationAction.COST_OPTIMIZATION,
                 AutomationAction.OPTIMIZE_RESOURCES,
-                AutomationAction.NOTIFY_TEAM
+                AutomationAction.NOTIFY_TEAM,
             ],
             ProblemCategory.PERFORMANCE_DEGRADATION: [
                 AutomationAction.OPTIMIZE_RESOURCES,
                 AutomationAction.PREEMPTIVE_SCALING,
-                AutomationAction.ADJUST_CONFIGURATION
+                AutomationAction.ADJUST_CONFIGURATION,
             ],
             ProblemCategory.RESOURCE_EXHAUSTION: [
                 AutomationAction.SCALE_INFRASTRUCTURE,
                 AutomationAction.OPTIMIZE_RESOURCES,
-                AutomationAction.EXECUTE_BACKUP
+                AutomationAction.EXECUTE_BACKUP,
             ],
             ProblemCategory.QUALITY_DECLINE: [
                 AutomationAction.QUALITY_IMPROVEMENT,
-                AutomationAction.NOTIFY_TEAM
+                AutomationAction.NOTIFY_TEAM,
             ],
             ProblemCategory.SECURITY_VULNERABILITY: [
                 AutomationAction.SECURITY_HARDENING,
-                AutomationAction.NOTIFY_TEAM
+                AutomationAction.NOTIFY_TEAM,
             ],
             ProblemCategory.INFRASTRUCTURE_FAILURE: [
                 AutomationAction.RESTART_SERVICE,
                 AutomationAction.EXECUTE_BACKUP,
-                AutomationAction.NOTIFY_TEAM
+                AutomationAction.NOTIFY_TEAM,
             ],
             ProblemCategory.WORKFLOW_BOTTLENECK: [
                 AutomationAction.OPTIMIZE_RESOURCES,
-                AutomationAction.ADJUST_CONFIGURATION
+                AutomationAction.ADJUST_CONFIGURATION,
             ],
             ProblemCategory.USER_EXPERIENCE_ISSUE: [
                 AutomationAction.OPTIMIZE_RESOURCES,
-                AutomationAction.QUALITY_IMPROVEMENT
-            ]
+                AutomationAction.QUALITY_IMPROVEMENT,
+            ],
         }
 
         return action_mapping.get(category, [AutomationAction.NOTIFY_TEAM])
@@ -453,7 +507,8 @@ class PredictiveAutomationService:
         for action in prediction.recommended_actions:
             # Find automation rule that can handle this action
             applicable_rules = [
-                rule for rule in self.automation_rules.values()
+                rule
+                for rule in self.automation_rules.values()
                 if action in rule.actions and self._can_execute_rule(rule)
             ]
 
@@ -463,7 +518,9 @@ class PredictiveAutomationService:
                 success = await self._execute_automation_rule(best_rule, prediction)
 
                 if success:
-                    logger.info(f"Successfully executed automated resolution for prediction {prediction.prediction_id}")
+                    logger.info(
+                        f"Successfully executed automated resolution for prediction {prediction.prediction_id}"
+                    )
                     break
 
     def _can_execute_rule(self, rule: AutomationRule) -> bool:
@@ -473,7 +530,9 @@ class PredictiveAutomationService:
 
         # Check cooldown
         if rule.last_executed:
-            cooldown_elapsed = (datetime.now(UTC) - rule.last_executed).total_seconds() / 60
+            cooldown_elapsed = (
+                datetime.now(UTC) - rule.last_executed
+            ).total_seconds() / 60
             if cooldown_elapsed < rule.cooldown_minutes:
                 return False
 
@@ -485,7 +544,9 @@ class PredictiveAutomationService:
 
         return True
 
-    async def _execute_automation_rule(self, rule: AutomationRule, prediction: Prediction) -> bool:
+    async def _execute_automation_rule(
+        self, rule: AutomationRule, prediction: Prediction
+    ) -> bool:
         """Execute an automation rule"""
         try:
             logger.info(f"Executing automation rule: {rule.name}")
@@ -505,7 +566,9 @@ class PredictiveAutomationService:
                     return False
 
             # Update success rate
-            rule.success_rate = rule.success_rate * 0.9 + 1.0 * 0.1  # Exponential moving average
+            rule.success_rate = (
+                rule.success_rate * 0.9 + 1.0 * 0.1
+            )  # Exponential moving average
 
             return True
 
@@ -514,7 +577,9 @@ class PredictiveAutomationService:
             rule.success_rate = rule.success_rate * 0.9 + 0.0 * 0.1  # Penalize failure
             return False
 
-    async def _execute_action(self, action: AutomationAction, prediction: Prediction) -> bool:
+    async def _execute_action(
+        self, action: AutomationAction, prediction: Prediction
+    ) -> bool:
         """Execute a specific automation action"""
         try:
             if action == AutomationAction.OPTIMIZE_RESOURCES:
@@ -549,13 +614,17 @@ class PredictiveAutomationService:
 
     async def _notify_team(self, prediction: Prediction) -> bool:
         """Notify team about prediction"""
-        logger.info(f"Notifying team about prediction {prediction.prediction_id}: {prediction.description}")
+        logger.info(
+            f"Notifying team about prediction {prediction.prediction_id}: {prediction.description}"
+        )
         # Placeholder - would implement actual notification
         return True
 
     async def _preemptive_scaling(self, prediction: Prediction) -> bool:
         """Perform preemptive scaling"""
-        logger.info(f"Performing preemptive scaling for prediction {prediction.prediction_id}")
+        logger.info(
+            f"Performing preemptive scaling for prediction {prediction.prediction_id}"
+        )
         # Placeholder - would implement actual scaling
         return True
 
@@ -565,28 +634,45 @@ class PredictiveAutomationService:
         # Placeholder - would implement actual service restart
         return True
 
-    async def _check_predictive_patterns(self, metric_name: str, metric_data: list[MetricDataPoint]):
+    async def _check_predictive_patterns(
+        self, metric_name: str, metric_data: list[MetricDataPoint]
+    ):
         """Check for learned predictive patterns"""
         for pattern in self.learning_patterns.values():
             if await self._pattern_matches(pattern, metric_name, metric_data):
-                await self._generate_pattern_prediction(pattern, metric_name, metric_data[-1])
+                await self._generate_pattern_prediction(
+                    pattern, metric_name, metric_data[-1]
+                )
 
-    async def _pattern_matches(self, pattern: LearningPattern, metric_name: str, metric_data: list[MetricDataPoint]) -> bool:
+    async def _pattern_matches(
+        self,
+        pattern: LearningPattern,
+        metric_name: str,
+        metric_data: list[MetricDataPoint],
+    ) -> bool:
         """Check if current data matches a learned pattern"""
         # Simplified pattern matching - would be more sophisticated in production
         return (
-            len(metric_data) >= pattern.frequency and
-            pattern.confidence_score > 0.6 and
-            any(indicator in metric_name.lower() for indicator in pattern.predictive_indicators)
+            len(metric_data) >= pattern.frequency
+            and pattern.confidence_score > 0.6
+            and any(
+                indicator in metric_name.lower()
+                for indicator in pattern.predictive_indicators
+            )
         )
 
-    async def _generate_pattern_prediction(self, pattern: LearningPattern, metric_name: str, data_point: MetricDataPoint):
+    async def _generate_pattern_prediction(
+        self, pattern: LearningPattern, metric_name: str, data_point: MetricDataPoint
+    ):
         """Generate prediction based on learned pattern"""
-        prediction_id = hashlib.md5(f"pattern_{pattern.pattern_id}_{data_point.timestamp}".encode()).hexdigest()[:8]
+        prediction_id = hashlib.md5(
+            f"pattern_{pattern.pattern_id}_{data_point.timestamp}".encode()
+        ).hexdigest()[:8]
 
         # Skip if we already have a recent prediction for this pattern
         recent_predictions = [
-            p for p in self.predictions.values()
+            p
+            for p in self.predictions.values()
             if (datetime.now(UTC) - p.created_at).seconds < 3600  # Within last hour
         ]
 
@@ -594,19 +680,24 @@ class PredictiveAutomationService:
             return
 
         category = self._categorize_metric(metric_name)
-        confidence = PredictionConfidence.HIGH if pattern.confidence_score > 0.8 else PredictionConfidence.MEDIUM
+        confidence = (
+            PredictionConfidence.HIGH
+            if pattern.confidence_score > 0.8
+            else PredictionConfidence.MEDIUM
+        )
 
         prediction = Prediction(
             prediction_id=prediction_id,
             category=category,
             confidence=confidence,
-            predicted_occurrence=datetime.now(UTC) + timedelta(hours=2),  # Pattern-based prediction
+            predicted_occurrence=datetime.now(UTC)
+            + timedelta(hours=2),  # Pattern-based prediction
             severity="medium",
             description=f"Pattern '{pattern.pattern_type}' detected in {metric_name} with {pattern.confidence_score:.0%} confidence",
             impact_assessment=f"Historical pattern suggests {category.value} likely within 2 hours",
             recommended_actions=self._get_recommended_actions(category),
             supporting_data=[data_point],
-            auto_resolve=pattern.success_rate > 0.8
+            auto_resolve=pattern.success_rate > 0.8,
         )
 
         self.predictions[prediction_id] = prediction
@@ -617,7 +708,8 @@ class PredictiveAutomationService:
         # Filter to recent predictions (last 24 hours)
         cutoff = datetime.now(UTC) - timedelta(hours=24)
         active = [
-            prediction.to_dict() for prediction in self.predictions.values()
+            prediction.to_dict()
+            for prediction in self.predictions.values()
             if prediction.created_at > cutoff
         ]
 
@@ -627,14 +719,19 @@ class PredictiveAutomationService:
 
         return sorted(
             active,
-            key=lambda p: (severity_order.get(p["severity"], 0), confidence_order.get(p["confidence"], 0)),
-            reverse=True
+            key=lambda p: (
+                severity_order.get(p["severity"], 0),
+                confidence_order.get(p["confidence"], 0),
+            ),
+            reverse=True,
         )
 
     def get_automation_status(self) -> dict[str, Any]:
         """Get automation service status"""
         total_predictions = len(self.predictions)
-        successful_automations = sum(1 for rule in self.automation_rules.values() if rule.success_rate > 0.7)
+        successful_automations = sum(
+            1 for rule in self.automation_rules.values() if rule.success_rate > 0.7
+        )
 
         return {
             "service_status": "operational",
@@ -647,8 +744,9 @@ class PredictiveAutomationService:
             "prediction_accuracy": {
                 metric: np.mean(accuracies) if accuracies else 0.0
                 for metric, accuracies in self.prediction_accuracy.items()
-            }
+            },
         }
+
 
 # Global predictive automation service instance
 predictive_service = PredictiveAutomationService()

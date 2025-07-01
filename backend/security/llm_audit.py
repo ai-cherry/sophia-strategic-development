@@ -48,6 +48,7 @@ def audit_llm_operation(
     Returns:
         Decorated function
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs) -> Any:
@@ -99,10 +100,14 @@ def audit_llm_operation(
 
                 # Include response if enabled
                 if include_response:
-                    response_content = _extract_response_content(response, operation_type)
+                    response_content = _extract_response_content(
+                        response, operation_type
+                    )
                     if response_content:
                         response_details["response"] = (
-                            response_content if not redact_pii else _redact_pii(response_content)
+                            response_content
+                            if not redact_pii
+                            else _redact_pii(response_content)
                         )
 
                 # Log the LLM response
@@ -182,10 +187,14 @@ def audit_llm_operation(
 
                 # Include response if enabled
                 if include_response:
-                    response_content = _extract_response_content(response, operation_type)
+                    response_content = _extract_response_content(
+                        response, operation_type
+                    )
                     if response_content:
                         response_details["response"] = (
-                            response_content if not redact_pii else _redact_pii(response_content)
+                            response_content
+                            if not redact_pii
+                            else _redact_pii(response_content)
                         )
 
                 # Log the LLM response
@@ -360,35 +369,24 @@ def _redact_pii(text: str) -> str:
 
     # Redact email addresses
     text = re.sub(
-        r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-        '[EMAIL REDACTED]',
-        text
+        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "[EMAIL REDACTED]", text
     )
 
     # Redact phone numbers
     text = re.sub(
-        r'\b(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b',
-        '[PHONE REDACTED]',
-        text
+        r"\b(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b",
+        "[PHONE REDACTED]",
+        text,
     )
 
     # Redact SSNs
-    text = re.sub(
-        r'\b\d{3}[-]?\d{2}[-]?\d{4}\b',
-        '[SSN REDACTED]',
-        text
-    )
+    text = re.sub(r"\b\d{3}[-]?\d{2}[-]?\d{4}\b", "[SSN REDACTED]", text)
 
     # Redact credit card numbers
-    text = re.sub(
-        r'\b(?:\d{4}[- ]?){3}\d{4}\b',
-        '[CREDIT CARD REDACTED]',
-        text
-    )
+    text = re.sub(r"\b(?:\d{4}[- ]?){3}\d{4}\b", "[CREDIT CARD REDACTED]", text)
 
     return text
 
 
 # Import asyncio at the end to avoid circular imports
 import asyncio
-

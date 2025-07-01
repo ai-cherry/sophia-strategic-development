@@ -45,6 +45,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
 
 logger = logging.getLogger(__name__)
 
+
 class LambdaLabsInstance:
     """Represents a Lambda Labs GPU instance"""
 
@@ -56,7 +57,9 @@ class LambdaLabsInstance:
         self.status = data.get("status")
         self.ip = data.get("ip")
         self.created_at = data.get("created_at")
-        self.cost_per_hour = float(data.get("instance_type", {}).get("price_cents_per_hour", 0)) / 100
+        self.cost_per_hour = (
+            float(data.get("instance_type", {}).get("price_cents_per_hour", 0)) / 100
+        )
 
     def to_dict(self) -> dict:
         return {
@@ -67,8 +70,9 @@ class LambdaLabsInstance:
             "status": self.status,
             "ip": self.ip,
             "created_at": self.created_at,
-            "cost_per_hour": self.cost_per_hour
+            "cost_per_hour": self.cost_per_hour,
         }
+
 
 class LambdaLabsCLIMCPServer(StandardizedMCPServer):
     """MCP server for Lambda Labs CLI operations"""
@@ -104,7 +108,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                     component="lambda_cli",
                     status=HealthStatus.CRITICAL,
                     response_time_ms=0,
-                    error_message="Lambda CLI not available"
+                    error_message="Lambda CLI not available",
                 )
 
             if not self.lambda_auth_configured:
@@ -112,7 +116,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                     component="lambda_auth",
                     status=HealthStatus.UNHEALTHY,
                     response_time_ms=0,
-                    error_message="Lambda CLI authentication not configured"
+                    error_message="Lambda CLI authentication not configured",
                 )
 
             # Test basic CLI functionality
@@ -125,14 +129,14 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                     component="lambda_cli",
                     status=HealthStatus.HEALTHY,
                     response_time_ms=response_time,
-                    last_success=datetime.now(UTC)
+                    last_success=datetime.now(UTC),
                 )
             else:
                 return HealthCheckResult(
                     component="lambda_cli",
                     status=HealthStatus.UNHEALTHY,
                     response_time_ms=response_time,
-                    error_message=result.get("error", "Unknown error")
+                    error_message=result.get("error", "Unknown error"),
                 )
 
         except Exception as e:
@@ -140,7 +144,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 component="lambda_cli",
                 status=HealthStatus.CRITICAL,
                 response_time_ms=0,
-                error_message=str(e)
+                error_message=str(e),
             )
 
     async def check_external_api(self) -> bool:
@@ -160,7 +164,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 category="compute",
                 available=self.lambda_cli_available and self.lambda_auth_configured,
                 version="1.0.0",
-                metadata={"supports": ["launch", "terminate", "list", "status"]}
+                metadata={"supports": ["launch", "terminate", "list", "status"]},
             ),
             ServerCapability(
                 name="cost_optimization",
@@ -168,15 +172,17 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 category="finance",
                 available=True,
                 version="1.0.0",
-                metadata={"features": ["cost_estimation", "recommendations", "monitoring"]}
+                metadata={
+                    "features": ["cost_estimation", "recommendations", "monitoring"]
+                },
             ),
             ServerCapability(
                 name="health_monitoring",
                 description="Monitor instance health and performance",
                 category="monitoring",
                 available=self.lambda_cli_available,
-                version="1.0.0"
-            )
+                version="1.0.0",
+            ),
         ]
 
         return capabilities
@@ -185,7 +191,10 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
         """Sync Lambda Labs instance data"""
         try:
             if not self.lambda_cli_available or not self.lambda_auth_configured:
-                return {"synced": False, "reason": "CLI not available or not authenticated"}
+                return {
+                    "synced": False,
+                    "reason": "CLI not available or not authenticated",
+                }
 
             # Get current instances
             instances_result = await self.list_instances()
@@ -195,19 +204,21 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 return {
                     "synced": True,
                     "instances_synced": instance_count,
-                    "sync_time": datetime.now(UTC).isoformat()
+                    "sync_time": datetime.now(UTC).isoformat(),
                 }
             else:
                 return {
                     "synced": False,
-                    "error": instances_result.get("error", "Unknown error")
+                    "error": instances_result.get("error", "Unknown error"),
                 }
 
         except Exception as e:
             logger.error(f"Failed to sync Lambda Labs data: {e}")
             return {"synced": False, "error": str(e)}
 
-    async def process_with_ai(self, data: Any, model: ModelProvider | None = None) -> Any:
+    async def process_with_ai(
+        self, data: Any, model: ModelProvider | None = None
+    ) -> Any:
         """Process Lambda Labs data with AI"""
         # For now, return the data as-is
         # Could be enhanced with AI-powered cost optimization recommendations
@@ -243,9 +254,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
 
             # Run the command
             process = await asyncio.create_subprocess_exec(
-                *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
             )
 
             stdout, stderr = await process.communicate()
@@ -280,8 +289,12 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                     "success": True,
                     "instances": [inst.to_dict() for inst in instances],
                     "total_count": len(instances),
-                    "running_count": len([i for i in instances if i.status == "running"]),
-                    "total_hourly_cost": sum(i.cost_per_hour for i in instances if i.status == "running")
+                    "running_count": len(
+                        [i for i in instances if i.status == "running"]
+                    ),
+                    "total_hourly_cost": sum(
+                        i.cost_per_hour for i in instances if i.status == "running"
+                    ),
                 }
             else:
                 return {"success": False, "error": result["error"]}
@@ -290,8 +303,9 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
             logger.error(f"Failed to list instances: {e}")
             return {"success": False, "error": str(e)}
 
-    async def launch_instance(self, instance_type: str, region: str | None = None,
-                            name: str | None = None) -> dict[str, Any]:
+    async def launch_instance(
+        self, instance_type: str, region: str | None = None, name: str | None = None
+    ) -> dict[str, Any]:
         """Launch a new Lambda Labs instance"""
         try:
             args = ["up", "--instance-type", instance_type]
@@ -308,7 +322,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 return {
                     "success": True,
                     "message": "Instance launched successfully",
-                    "instance_data": result["data"]
+                    "instance_data": result["data"],
                 }
             else:
                 return {"success": False, "error": result["error"]}
@@ -325,7 +339,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
             if result["success"]:
                 return {
                     "success": True,
-                    "message": f"Instance {instance_id} terminated successfully"
+                    "message": f"Instance {instance_id} terminated successfully",
                 }
             else:
                 return {"success": False, "error": result["error"]}
@@ -345,7 +359,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 return {
                     "success": True,
                     "instance_types": catalog,
-                    "total_types": len(catalog)
+                    "total_types": len(catalog),
                 }
             else:
                 return {"success": False, "error": result["error"]}
@@ -354,7 +368,9 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
             logger.error(f"Failed to get instance types: {e}")
             return {"success": False, "error": str(e)}
 
-    async def estimate_costs(self, instance_type: str, hours: int = 24) -> dict[str, Any]:
+    async def estimate_costs(
+        self, instance_type: str, hours: int = 24
+    ) -> dict[str, Any]:
         """Estimate costs for running an instance"""
         try:
             # Get catalog to find pricing
@@ -371,7 +387,10 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                     break
 
             if not instance_info:
-                return {"success": False, "error": f"Instance type {instance_type} not found"}
+                return {
+                    "success": False,
+                    "error": f"Instance type {instance_type} not found",
+                }
 
             hourly_cost = float(instance_info.get("price_cents_per_hour", 0)) / 100
             total_cost = hourly_cost * hours
@@ -383,24 +402,32 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
                 "hours": hours,
                 "estimated_total_cost": total_cost,
                 "currency": "USD",
-                "recommendations": self._generate_cost_recommendations(hourly_cost, hours)
+                "recommendations": self._generate_cost_recommendations(
+                    hourly_cost, hours
+                ),
             }
 
         except Exception as e:
             logger.error(f"Failed to estimate costs: {e}")
             return {"success": False, "error": str(e)}
 
-    def _generate_cost_recommendations(self, hourly_cost: float, hours: int) -> list[str]:
+    def _generate_cost_recommendations(
+        self, hourly_cost: float, hours: int
+    ) -> list[str]:
         """Generate cost optimization recommendations"""
         recommendations = []
 
         total_cost = hourly_cost * hours
 
         if total_cost > 100:
-            recommendations.append("Consider using spot instances for non-critical workloads")
+            recommendations.append(
+                "Consider using spot instances for non-critical workloads"
+            )
 
         if hours > 24:
-            recommendations.append("For long-running jobs, consider batch processing to reduce total time")
+            recommendations.append(
+                "For long-running jobs, consider batch processing to reduce total time"
+            )
 
         if hourly_cost > 5:
             recommendations.append("High-cost instance - ensure maximum utilization")
@@ -408,6 +435,7 @@ class LambdaLabsCLIMCPServer(StandardizedMCPServer):
         recommendations.append("Monitor usage regularly to avoid unnecessary costs")
 
         return recommendations
+
 
 # FastAPI route setup
 def setup_lambda_labs_routes(app, server: LambdaLabsCLIMCPServer):
@@ -422,7 +450,7 @@ def setup_lambda_labs_routes(app, server: LambdaLabsCLIMCPServer):
         return await server.launch_instance(
             instance_type=request["instance_type"],
             region=request.get("region"),
-            name=request.get("name")
+            name=request.get("name"),
         )
 
     @app.delete("/lambda-labs/instances/{instance_id}")
@@ -436,9 +464,9 @@ def setup_lambda_labs_routes(app, server: LambdaLabsCLIMCPServer):
     @app.post("/lambda-labs/estimate-costs")
     async def estimate_costs(request: dict):
         return await server.estimate_costs(
-            instance_type=request["instance_type"],
-            hours=request.get("hours", 24)
+            instance_type=request["instance_type"], hours=request.get("hours", 24)
         )
+
 
 async def main():
     """Main function to run the Lambda Labs CLI MCP Server"""
@@ -452,7 +480,7 @@ async def main():
         enable_webfetch=False,  # Not needed for CLI operations
         enable_self_knowledge=True,
         enable_improved_diff=False,  # Not needed for CLI operations
-        preferred_model=ModelProvider.CLAUDE_4
+        preferred_model=ModelProvider.CLAUDE_4,
     )
 
     server = LambdaLabsCLIMCPServer(config)
@@ -462,6 +490,7 @@ async def main():
 
     # Start the server
     await server.start()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

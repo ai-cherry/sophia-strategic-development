@@ -74,7 +74,9 @@ class EnhancedUIUXAgentSystemManager:
             logger.warning(f"⚠️  Pulumi ESC integration check failed: {e}")
 
         # Check other credentials
-        figma_token = get_config_value("figma_pat") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
+        figma_token = get_config_value("figma_pat") or os.getenv(
+            "FIGMA_PERSONAL_ACCESS_TOKEN"
+        )
         openai_key = get_config_value("openai_api_key")
         openrouter_key = get_config_value("openrouter_api_key")
 

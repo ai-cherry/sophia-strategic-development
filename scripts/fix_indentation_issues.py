@@ -18,30 +18,32 @@ def fix_indentation_in_file(file_path: Path) -> bool:
             content = f.read()
 
         # Split into lines
-        lines = content.split('\n')
+        lines = content.split("\n")
         fixed_lines = []
 
         for _i, line in enumerate(lines):
             # Check for common indentation issues
-            if line.strip().startswith('async def ') or line.strip().startswith('def '):
+            if line.strip().startswith("async def ") or line.strip().startswith("def "):
                 # Ensure proper indentation for methods (4 spaces inside class)
-                if not line.startswith('    ') and line.strip():
-                    line = '    ' + line.strip()
+                if not line.startswith("    ") and line.strip():
+                    line = "    " + line.strip()
 
             # Fix lines that start with extra spaces
-            if line.startswith('        ') and line.strip().startswith(('async def ', 'def ')):
-                line = '    ' + line.strip()
+            if line.startswith("        ") and line.strip().startswith(
+                ("async def ", "def ")
+            ):
+                line = "    " + line.strip()
 
             fixed_lines.append(line)
 
         # Write back
-        fixed_content = '\n'.join(fixed_lines)
+        fixed_content = "\n".join(fixed_lines)
 
         # Try to compile to check syntax
         try:
-            compile(fixed_content, str(file_path), 'exec')
+            compile(fixed_content, str(file_path), "exec")
 
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 f.write(fixed_content)
 
             logger.info(f"✅ Fixed indentation in {file_path.name}")
@@ -58,7 +60,9 @@ def fix_indentation_in_file(file_path: Path) -> bool:
 
 def fix_missing_logging_import():
     """Fix the missing backend.utils.logging import in codacy"""
-    codacy_file = Path(__file__).parent.parent / "mcp-servers/codacy/codacy_mcp_server.py"
+    codacy_file = (
+        Path(__file__).parent.parent / "mcp-servers/codacy/codacy_mcp_server.py"
+    )
 
     try:
         with open(codacy_file) as f:
@@ -67,16 +71,13 @@ def fix_missing_logging_import():
         # Replace the problematic import
         content = content.replace(
             "from backend.utils.logging import get_logger",
-            "import logging\n# from backend.utils.logging import get_logger"
+            "import logging\n# from backend.utils.logging import get_logger",
         )
 
         # Also replace any usage of get_logger
-        content = content.replace(
-            "get_logger(__name__)",
-            "logging.getLogger(__name__)"
-        )
+        content = content.replace("get_logger(__name__)", "logging.getLogger(__name__)")
 
-        with open(codacy_file, 'w') as f:
+        with open(codacy_file, "w") as f:
             f.write(content)
 
         logger.info("✅ Fixed codacy logging import")
@@ -94,7 +95,7 @@ def main():
     # Files to fix
     files_to_fix = [
         Path(__file__).parent.parent / "mcp-servers/ai_memory/ai_memory_mcp_server.py",
-        Path(__file__).parent.parent / "mcp-servers/ag_ui/ag_ui_mcp_server.py"
+        Path(__file__).parent.parent / "mcp-servers/ag_ui/ag_ui_mcp_server.py",
     ]
 
     fixed_count = 0
