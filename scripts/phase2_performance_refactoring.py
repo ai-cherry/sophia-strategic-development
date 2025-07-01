@@ -79,6 +79,83 @@ class Phase2PerformanceRefactorer:
             ],
         }
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                with open(file_path, encoding="utf-8") as f:
+                    content = f.read()
+
+                # Check if already refactored
+                if "_create_data_validation_procedures" in content:
+                    logger.info("create_transformation_procedures already refactored")
+                    return True
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                logger.info("Creating NetSuite transformation procedures...")
+
+                # Execute transformation procedure creation in logical order
+                await self._create_data_validation_procedures()
+                await self._create_enrichment_procedures()
+                await self._create_aggregation_procedures()
+                await self._create_quality_check_procedures()
+                await self._create_monitoring_procedures()
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                await self._execute_procedure_creation(procedure_sql)
+
+        async def _create_enrichment_procedures(self) -> None:
+            """Create data enrichment and transformation procedures"""
+            logger.info("Creating data enrichment procedures...")
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                await self._execute_procedure_creation(procedure_sql)
+
+        async def _create_aggregation_procedures(self) -> None:
+            """Create data aggregation and summary procedures"""
+            logger.info("Creating data aggregation procedures...")
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                await self._execute_procedure_creation(procedure_sql)
+
+        async def _create_quality_check_procedures(self) -> None:
+            """Create data quality monitoring procedures"""
+            logger.info("Creating data quality check procedures...")
+
+
+    def _iteration_6(self):
+        """Extracted iteration logic"""
+                await self._execute_procedure_creation(procedure_sql)
+
+        async def _create_monitoring_procedures(self) -> None:
+            """Create monitoring and alerting procedures"""
+            logger.info("Creating monitoring procedures...")
+
+
+    def _iteration_7(self):
+        """Extracted iteration logic"""
+                await self._execute_procedure_creation(procedure_sql)
+
+        def _create_customer_validation_procedure(self) -> str:
+            """Generate customer validation procedure SQL"""
+            return """
+            CREATE OR REPLACE PROCEDURE VALIDATE_CUSTOMER_DATA()
+            RETURNS STRING
+            LANGUAGE SQL
+            AS
+            $$
+            BEGIN
+                -- Customer data validation logic
+                RETURN 'Customer validation completed';
+            END;
+            $$
+
     def refactor_create_transformation_procedures(self) -> bool:
         """Refactor the 246-line create_transformation_procedures method"""
         file_path = "backend/etl/netsuite/estuary_netsuite_setup.py"
@@ -87,15 +164,7 @@ class Phase2PerformanceRefactorer:
             logger.warning(f"File not found: {file_path}")
             return False
 
-        try:
-            with open(file_path, encoding="utf-8") as f:
-                content = f.read()
-
-            # Check if already refactored
-            if "_create_data_validation_procedures" in content:
-                logger.info("create_transformation_procedures already refactored")
-                return True
-
+        self._error_handling_1()
             # Create backup
             backup_path = f"{file_path}.backup"
             shutil.copy2(file_path, backup_path)
@@ -108,16 +177,7 @@ class Phase2PerformanceRefactorer:
         """
         Create all transformation procedures using Template Method pattern
         """
-        try:
-            logger.info("Creating NetSuite transformation procedures...")
-
-            # Execute transformation procedure creation in logical order
-            await self._create_data_validation_procedures()
-            await self._create_enrichment_procedures()
-            await self._create_aggregation_procedures()
-            await self._create_quality_check_procedures()
-            await self._create_monitoring_procedures()
-
+        self._error_handling_2()
             logger.info("✅ All transformation procedures created successfully")
 
         except Exception as e:
@@ -135,13 +195,7 @@ class Phase2PerformanceRefactorer:
             self._create_financial_validation_procedure()
         ]
 
-        for procedure_sql in validation_procedures:
-            await self._execute_procedure_creation(procedure_sql)
-
-    async def _create_enrichment_procedures(self) -> None:
-        """Create data enrichment and transformation procedures"""
-        logger.info("Creating data enrichment procedures...")
-
+        self._iteration_3()
         enrichment_procedures = [
             self._create_customer_enrichment_procedure(),
             self._create_sales_enrichment_procedure(),
@@ -149,13 +203,7 @@ class Phase2PerformanceRefactorer:
             self._create_inventory_enrichment_procedure()
         ]
 
-        for procedure_sql in enrichment_procedures:
-            await self._execute_procedure_creation(procedure_sql)
-
-    async def _create_aggregation_procedures(self) -> None:
-        """Create data aggregation and summary procedures"""
-        logger.info("Creating data aggregation procedures...")
-
+        self._iteration_4()
         aggregation_procedures = [
             self._create_daily_sales_aggregation(),
             self._create_monthly_financial_aggregation(),
@@ -163,13 +211,7 @@ class Phase2PerformanceRefactorer:
             self._create_product_performance_aggregation()
         ]
 
-        for procedure_sql in aggregation_procedures:
-            await self._execute_procedure_creation(procedure_sql)
-
-    async def _create_quality_check_procedures(self) -> None:
-        """Create data quality monitoring procedures"""
-        logger.info("Creating data quality check procedures...")
-
+        self._iteration_5()
         quality_procedures = [
             self._create_data_completeness_check(),
             self._create_data_consistency_check(),
@@ -177,13 +219,7 @@ class Phase2PerformanceRefactorer:
             self._create_data_timeliness_check()
         ]
 
-        for procedure_sql in quality_procedures:
-            await self._execute_procedure_creation(procedure_sql)
-
-    async def _create_monitoring_procedures(self) -> None:
-        """Create monitoring and alerting procedures"""
-        logger.info("Creating monitoring procedures...")
-
+        self._iteration_6()
         monitoring_procedures = [
             self._create_pipeline_health_monitor(),
             self._create_performance_monitor(),
@@ -191,22 +227,7 @@ class Phase2PerformanceRefactorer:
             self._create_usage_analytics_procedure()
         ]
 
-        for procedure_sql in monitoring_procedures:
-            await self._execute_procedure_creation(procedure_sql)
-
-    def _create_customer_validation_procedure(self) -> str:
-        """Generate customer validation procedure SQL"""
-        return """
-        CREATE OR REPLACE PROCEDURE VALIDATE_CUSTOMER_DATA()
-        RETURNS STRING
-        LANGUAGE SQL
-        AS
-        $$
-        BEGIN
-            -- Customer data validation logic
-            RETURN 'Customer validation completed';
-        END;
-        $$
+        self._iteration_7()
         """
 
     def _create_transaction_validation_procedure(self) -> str:

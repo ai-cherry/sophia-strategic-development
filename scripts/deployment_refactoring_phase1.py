@@ -85,6 +85,124 @@ class DeploymentRefactoringPhase1:
 
         return results
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+        import snowflake.connector
+        SNOWFLAKE_AVAILABLE = True
+    except ImportError:
+        SNOWFLAKE_AVAILABLE = False
+
+
+    def _iteration_2(self):
+        """Extracted iteration logic"""
+                connection = await self._create_connection()
+                if connection:
+                    self.pool.append(connection)
+
+            # Start health check loop
+            asyncio.create_task(self._health_check_loop())
+
+
+    def _error_handling_3(self):
+        """Extracted error_handling logic"""
+                yield connection
+                self.circuit_breaker.record_success()
+            except Exception as e:
+                self.circuit_breaker.record_failure()
+                logger.error(f"Connection error for {self.connection_type}: {e}")
+                raise
+            finally:
+                await self._return_connection_to_pool(connection)
+
+
+    def _error_handling_4(self):
+        """Extracted error_handling logic"""
+                if self.connection_type == ConnectionType.SNOWFLAKE:
+                    return await self._create_snowflake_connection()
+                elif self.connection_type == ConnectionType.POSTGRES:
+                    return await self._create_postgres_connection()
+                elif self.connection_type == ConnectionType.REDIS:
+                    return await self._create_redis_connection()
+            except Exception as e:
+                logger.error(f"Failed to create {self.connection_type} connection: {e}")
+                return None
+
+
+    def _error_handling_5(self):
+        """Extracted error_handling logic"""
+                if self.connection_type == ConnectionType.SNOWFLAKE:
+                    def _sync_health_check():
+                        cursor = connection.cursor()
+                        cursor.execute("SELECT 1")
+                        cursor.close()
+                        return True
+                    return await asyncio.to_thread(_sync_health_check)
+                elif self.connection_type == ConnectionType.POSTGRES:
+                    await connection.execute("SELECT 1")
+                    return True
+                elif self.connection_type == ConnectionType.REDIS:
+                    await connection.ping()
+                    return True
+            except Exception:
+                return False
+
+    def _error_handling_6(self):
+        """Extracted error_handling logic"""
+                if self.connection_type == ConnectionType.SNOWFLAKE:
+                    def _sync_close():
+                        connection.close()
+                    await asyncio.to_thread(_sync_close)
+                elif self.connection_type == ConnectionType.POSTGRES:
+                    await connection.close()
+                elif self.connection_type == ConnectionType.REDIS:
+                    await connection.close()
+            except Exception as e:
+                logger.error(f"Error closing {self.connection_type} connection: {e}")
+
+
+    def _error_handling_7(self):
+        """Extracted error_handling logic"""
+                    await asyncio.sleep(self.config.health_check_interval)
+                    await self._perform_health_check()
+                except Exception as e:
+                    logger.error(f"Health check error for {self.connection_type}: {e}")
+
+
+    def _error_handling_8(self):
+        """Extracted error_handling logic"""
+                # Test a connection from the pool
+                async with self.get_connection() as conn:
+                    await self._is_connection_healthy(conn)
+
+                response_time = (time.time() - start_time) * 1000
+                self.health_status = HealthStatus.HEALTHY
+                self.last_health_check = datetime.now(UTC)
+
+
+    def _error_handling_9(self):
+        """Extracted error_handling logic"""
+                    result = await pool._perform_health_check()
+                    results[connection_type.value] = result
+                except Exception as e:
+                    results[connection_type.value] = HealthCheckResult(
+                        service=connection_type.value,
+                        status=HealthStatus.UNHEALTHY,
+                        response_time_ms=0,
+                        error_message=str(e)
+                    )
+
+
+    def _iteration_10(self):
+        """Extracted iteration logic"""
+                pool_metrics[connection_type.value] = {
+                    "active_connections": len(pool.active_connections),
+                    "idle_connections": len(pool.pool),
+                    "health_status": pool.health_status.value,
+                    "circuit_breaker_state": pool.circuit_breaker.state,
+                    "last_health_check": pool.last_health_check.isoformat() if pool.last_health_check else None
+                }
+
+
     async def _create_unified_connection_manager(self):
         """Create unified connection manager"""
         logger.info("📊 Creating unified connection manager...")
@@ -108,12 +226,7 @@ import redis.asyncio as redis
 import asyncpg
 
 # Try to import optional dependencies
-try:
-    import snowflake.connector
-    SNOWFLAKE_AVAILABLE = True
-except ImportError:
-    SNOWFLAKE_AVAILABLE = False
-
+self._error_handling_1()
 logger = logging.getLogger(__name__)
 
 
@@ -215,14 +328,7 @@ class ConnectionPool:
         logger.info(f"Initializing {self.connection_type} connection pool...")
 
         # Create minimum connections
-        for _ in range(self.config.min_connections):
-            connection = await self._create_connection()
-            if connection:
-                self.pool.append(connection)
-
-        # Start health check loop
-        asyncio.create_task(self._health_check_loop())
-
+        self._iteration_2()
         logger.info(f"✅ {self.connection_type} pool initialized with {len(self.pool)} connections")
 
     @asynccontextmanager
@@ -233,29 +339,10 @@ class ConnectionPool:
 
         connection = await self._get_connection_from_pool()
 
-        try:
-            yield connection
-            self.circuit_breaker.record_success()
-        except Exception as e:
-            self.circuit_breaker.record_failure()
-            logger.error(f"Connection error for {self.connection_type}: {e}")
-            raise
-        finally:
-            await self._return_connection_to_pool(connection)
-
+        self._error_handling_3()
     async def _create_connection(self):
         """Create new connection based on type"""
-        try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
-                return await self._create_snowflake_connection()
-            elif self.connection_type == ConnectionType.POSTGRES:
-                return await self._create_postgres_connection()
-            elif self.connection_type == ConnectionType.REDIS:
-                return await self._create_redis_connection()
-        except Exception as e:
-            logger.error(f"Failed to create {self.connection_type} connection: {e}")
-            return None
-
+        self._error_handling_4()
     async def _create_snowflake_connection(self):
         """Create Snowflake connection"""
         if not SNOWFLAKE_AVAILABLE:
@@ -331,60 +418,20 @@ class ConnectionPool:
 
     async def _is_connection_healthy(self, connection) -> bool:
         """Check if connection is healthy"""
-        try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
-                def _sync_health_check():
-                    cursor = connection.cursor()
-                    cursor.execute("SELECT 1")
-                    cursor.close()
-                    return True
-                return await asyncio.to_thread(_sync_health_check)
-            elif self.connection_type == ConnectionType.POSTGRES:
-                await connection.execute("SELECT 1")
-                return True
-            elif self.connection_type == ConnectionType.REDIS:
-                await connection.ping()
-                return True
-        except Exception:
-            return False
+        self._error_handling_5()
         return True
 
     async def _close_connection(self, connection):
         """Close connection"""
-        try:
-            if self.connection_type == ConnectionType.SNOWFLAKE:
-                def _sync_close():
-                    connection.close()
-                await asyncio.to_thread(_sync_close)
-            elif self.connection_type == ConnectionType.POSTGRES:
-                await connection.close()
-            elif self.connection_type == ConnectionType.REDIS:
-                await connection.close()
-        except Exception as e:
-            logger.error(f"Error closing {self.connection_type} connection: {e}")
-
+        self._error_handling_6()
     async def _health_check_loop(self):
         """Background health check loop"""
-        while True:
-            try:
-                await asyncio.sleep(self.config.health_check_interval)
-                await self._perform_health_check()
-            except Exception as e:
-                logger.error(f"Health check error for {self.connection_type}: {e}")
-
+            self._error_handling_7()
     async def _perform_health_check(self) -> HealthCheckResult:
         """Perform health check"""
         start_time = time.time()
 
-        try:
-            # Test a connection from the pool
-            async with self.get_connection() as conn:
-                await self._is_connection_healthy(conn)
-
-            response_time = (time.time() - start_time) * 1000
-            self.health_status = HealthStatus.HEALTHY
-            self.last_health_check = datetime.now(UTC)
-
+        self._error_handling_8()
             return HealthCheckResult(
                 service=self.connection_type.value,
                 status=HealthStatus.HEALTHY,
@@ -477,33 +524,14 @@ class UnifiedConnectionManager:
         """Perform health check on all pools"""
         results = {}
 
-        for connection_type, pool in self.pools.items():
-            try:
-                result = await pool._perform_health_check()
-                results[connection_type.value] = result
-            except Exception as e:
-                results[connection_type.value] = HealthCheckResult(
-                    service=connection_type.value,
-                    status=HealthStatus.UNHEALTHY,
-                    response_time_ms=0,
-                    error_message=str(e)
-                )
-
+            self._error_handling_9()
         return results
 
     async def get_metrics(self) -> Dict[str, Any]:
         """Get connection manager metrics"""
         pool_metrics = {}
 
-        for connection_type, pool in self.pools.items():
-            pool_metrics[connection_type.value] = {
-                "active_connections": len(pool.active_connections),
-                "idle_connections": len(pool.pool),
-                "health_status": pool.health_status.value,
-                "circuit_breaker_state": pool.circuit_breaker.state,
-                "last_health_check": pool.last_health_check.isoformat() if pool.last_health_check else None
-            }
-
+        self._iteration_10()
         return {
             "global_metrics": self.metrics,
             "pool_metrics": pool_metrics,

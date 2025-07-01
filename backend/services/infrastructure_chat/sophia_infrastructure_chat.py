@@ -5,15 +5,18 @@ Natural language interface for AI-driven infrastructure management
 
 import asyncio
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
 
+# Define UTC for compatibility
+UTC = UTC
+
 from backend.agents.infrastructure.sophia_infrastructure_agent import (
-from backend.core.auto_esc_config import get_config_value
     SophiaInfrastructureAgent,
 )
+from backend.core.auto_esc_config import get_config_value
 
 
 class SophiaInfrastructureChatInterface:

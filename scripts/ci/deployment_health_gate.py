@@ -3,12 +3,12 @@
 Runs in CI to validate that critical environment and service health checks pass.
 Fails (exit 1) if any required check fails.
 """
+import json
 import os
 import sys
-import json
-import requests
-import asyncio
 from pathlib import Path
+
+import requests
 
 # Add backend to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "backend"))
@@ -19,14 +19,14 @@ try:
 except ImportError:
     print("⚠️ Pulumi ESC integration not available, falling back to environment variables")
     ESC_AVAILABLE = False
-    
+
     # Create a dummy function to avoid linter errors
     def get_config_value(key: str, default=None) -> str:
         return default or ""
 
 REQUIRED_SECRETS = [
     "openai_api_key",
-    "anthropic_api_key", 
+    "anthropic_api_key",
     "pinecone_api_key",
     "gong_access_key",
     "snowflake_password"
@@ -34,7 +34,7 @@ REQUIRED_SECRETS = [
 
 CRITICAL_SERVICES = [
     "snowflake",
-    "openai", 
+    "openai",
     "anthropic",
     "pinecone"
 ]
@@ -54,9 +54,9 @@ def check_secrets():
     if ESC_AVAILABLE:
         try:
             # Test ESC connectivity
-            test_secret = get_config_value("openai_api_key")
+            get_config_value("openai_api_key")
             REPORT["esc_status"] = "connected"
-            
+
             for secret in REQUIRED_SECRETS:
                 try:
                     value = get_config_value(secret)
@@ -64,7 +64,7 @@ def check_secrets():
                         REPORT["missing_secrets"].append(secret)
                 except Exception as e:
                     REPORT["missing_secrets"].append(f"{secret} (ESC error: {str(e)})")
-                    
+
         except Exception as e:
             REPORT["esc_status"] = f"failed: {str(e)}"
             # Fallback to environment variables
@@ -85,7 +85,7 @@ def check_service_health(service_name: str) -> bool:
     """Check if a service is healthy via configuration"""
     if not ESC_AVAILABLE:
         return False
-        
+
     try:
         # Check if service configuration is available
         if service_name == "snowflake":
@@ -115,7 +115,7 @@ def check_backend_health():
         r = requests.get(url, timeout=10)
         REPORT["health_checks"].append({
             "service": "backend",
-            "url": url, 
+            "url": url,
             "status": r.status_code,
             "response_time_ms": r.elapsed.total_seconds() * 1000
         })
@@ -123,7 +123,7 @@ def check_backend_health():
     except Exception as e:
         REPORT["health_checks"].append({
             "service": "backend",
-            "url": url, 
+            "url": url,
             "error": str(e)
         })
         return False
@@ -136,7 +136,7 @@ def check_mcp_servers():
         ("snowflake_admin", 9011),
         ("ui_ux_agent", 9002)
     ]
-    
+
     mcp_results = []
     for name, port in critical_mcp_servers:
         url = f"http://localhost:{port}/health"
@@ -155,7 +155,7 @@ def check_mcp_servers():
                 "error": str(e),
                 "healthy": False
             })
-    
+
     REPORT["mcp_servers"] = mcp_results
     return all(result.get("healthy", False) for result in mcp_results)
 
@@ -163,10 +163,10 @@ def check_mcp_servers():
 def main():
     """Main health gate validation"""
     print("🏥 Running Deployment Health Gate...")
-    
+
     # Check secrets
     check_secrets()
-    
+
     # Check service configurations
     service_checks = []
     for service in CRITICAL_SERVICES:
@@ -174,43 +174,43 @@ def main():
         service_checks.append(healthy)
         if not healthy:
             REPORT["failed_services"].append(service)
-    
+
     # Check backend health
     backend_ok = check_backend_health()
-    
+
     # Check MCP servers (non-blocking for CI)
     mcp_ok = check_mcp_servers()
-    
+
     # Save comprehensive report
     out = Path("health_gate_report.json")
     out.write_text(json.dumps(REPORT, indent=2))
-    
+
     # Print results
     print(f"📊 ESC Status: {REPORT['esc_status']}")
-    
+
     if REPORT["missing_secrets"]:
         print(f"❌ Missing secrets ({len(REPORT['missing_secrets'])}): {REPORT['missing_secrets']}")
     else:
         print("✅ All required secrets available")
-        
+
     if REPORT["failed_services"]:
         print(f"❌ Failed services ({len(REPORT['failed_services'])}): {REPORT['failed_services']}")
     else:
         print("✅ All critical services configured")
-        
+
     if not backend_ok:
         print("⚠️ Backend health check failed (may be expected in CI)")
     else:
         print("✅ Backend health check passed")
-        
+
     if not mcp_ok:
         print("⚠️ Some MCP servers not accessible (may be expected in CI)")
     else:
         print("✅ All critical MCP servers accessible")
-    
+
     # Determine overall status
     critical_failures = REPORT["missing_secrets"] or REPORT["failed_services"]
-    
+
     if critical_failures:
         print("❌ Health gate failed - critical issues found")
         sys.exit(1)
@@ -219,4 +219,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

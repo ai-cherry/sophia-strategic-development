@@ -401,8 +401,15 @@ class HuggingFaceAIMCPServer:
     async def _classify_text(self, text: str, model_name: str, labels: list[str]) -> dict[str, Any]:
         """Classify text using transformers"""
         try:
-            from transformers import pipeline
-from backend.core.auto_esc_config import get_config_value
+    from transformers import pipeline
+    from backend.core.auto_esc_config import get_config_value
+    
+    # Transformers available
+    transformers_available = True
+except ImportError:
+    # Transformers not available
+    transformers_available = False
+    logger.warning("Transformers library not available")
 
             if labels:
                 # Zero-shot classification

@@ -161,6 +161,108 @@ override_snowflake_config()
 
         return {"status": "override_created", "file": str(override_file)}
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    if not self.connection_manager:
+                        await self._initialize_connection()
+
+                    # Get connection
+                    connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
+
+
+    def _conditional_2(self):
+        """Extracted conditional logic"""
+                        return {"error": "No Snowflake connection available"}
+
+                    # Execute query
+                    cursor = connection.cursor()
+                    cursor.execute(f"SELECT * FROM ({query}) LIMIT {limit}")
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                        formatted_results.append(dict(zip(columns, row)))
+
+                    cursor.close()
+
+                    return {
+                        "success": True,
+                        "results": formatted_results,
+                        "row_count": len(formatted_results),
+                        "columns": columns
+                    }
+
+
+    def _error_handling_4(self):
+        """Extracted error_handling logic"""
+                    if not self.connection_manager:
+                        await self._initialize_connection()
+
+                    connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
+
+
+    def _conditional_5(self):
+        """Extracted conditional logic"""
+                        return {"error": "No Snowflake connection available"}
+
+                    cursor = connection.cursor()
+
+                    # Get table schema
+                    cursor.execute(f"""
+                        SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT
+                        FROM INFORMATION_SCHEMA.COLUMNS
+                        WHERE TABLE_SCHEMA = '{schema}' AND TABLE_NAME = '{table_name}'
+                        ORDER BY ORDINAL_POSITION
+                    """)
+
+
+    def _iteration_6(self):
+        """Extracted iteration logic"""
+                        ]
+                    }
+
+                except Exception as e:
+                    logger.error(f"Table info failed: {e}")
+                    return {"error": str(e)}
+
+
+    def _error_handling_7(self):
+        """Extracted error_handling logic"""
+                    if not self.connection_manager:
+                        await self._initialize_connection()
+
+                    connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
+
+
+    def _conditional_8(self):
+        """Extracted conditional logic"""
+                        return {"healthy": False, "error": "No connection available"}
+
+                    # Test query
+                    cursor = connection.cursor()
+                    cursor.execute("SELECT CURRENT_VERSION()")
+                    version = cursor.fetchone()[0]
+                    cursor.close()
+
+
+    def _error_handling_9(self):
+        """Extracted error_handling logic"""
+                    if not self.connection_manager:
+                        await self._initialize_connection()
+
+                    connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
+
+
+    def _conditional_10(self):
+        """Extracted conditional logic"""
+                        return []
+
+                    cursor = connection.cursor()
+                    cursor.execute("SHOW SCHEMAS IN DATABASE SOPHIA_AI")
+                    schemas = cursor.fetchall()
+                    cursor.close()
+
+
     async def implement_snowflake_mcp(self):
         """Implement Snowflake MCP Server"""
 
@@ -208,38 +310,15 @@ class SnowflakeMCPServer:
         @self.mcp_server.tool("execute_query")
         async def execute_query(query: str, limit: int = 100) -> Dict[str, Any]:
             """Execute a SQL query on Snowflake"""
-            try:
-                if not self.connection_manager:
-                    await self._initialize_connection()
-
-                # Get connection
-                connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-
-                if not connection:
-                    return {"error": "No Snowflake connection available"}
-
-                # Execute query
-                cursor = connection.cursor()
-                cursor.execute(f"SELECT * FROM ({query}) LIMIT {limit}")
-
+            self._error_handling_1()
+                self._conditional_2()
                 # Fetch results
                 results = cursor.fetchall()
                 columns = [desc[0] for desc in cursor.description]
 
                 # Format results
                 formatted_results = []
-                for row in results:
-                    formatted_results.append(dict(zip(columns, row)))
-
-                cursor.close()
-
-                return {
-                    "success": True,
-                    "results": formatted_results,
-                    "row_count": len(formatted_results),
-                    "columns": columns
-                }
-
+                self._iteration_3()
             except Exception as e:
                 logger.error(f"Query execution failed: {e}")
                 return {"error": str(e)}
@@ -247,25 +326,8 @@ class SnowflakeMCPServer:
         @self.mcp_server.tool("get_table_info")
         async def get_table_info(table_name: str, schema: str = "PROCESSED_AI") -> Dict[str, Any]:
             """Get information about a Snowflake table"""
-            try:
-                if not self.connection_manager:
-                    await self._initialize_connection()
-
-                connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-
-                if not connection:
-                    return {"error": "No Snowflake connection available"}
-
-                cursor = connection.cursor()
-
-                # Get table schema
-                cursor.execute(f"""
-                    SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT
-                    FROM INFORMATION_SCHEMA.COLUMNS
-                    WHERE TABLE_SCHEMA = '{schema}' AND TABLE_NAME = '{table_name}'
-                    ORDER BY ORDINAL_POSITION
-                """)
-
+            self._error_handling_4()
+                self._conditional_5()
                 columns = cursor.fetchall()
 
                 # Get row count
@@ -286,32 +348,12 @@ class SnowflakeMCPServer:
                             "nullable": col[2],
                             "default": col[3]
                         }
-                        for col in columns
-                    ]
-                }
-
-            except Exception as e:
-                logger.error(f"Table info failed: {e}")
-                return {"error": str(e)}
-
+                        self._iteration_6()
         @self.mcp_server.tool("health_check")
         async def health_check() -> Dict[str, Any]:
             """Check Snowflake connection health"""
-            try:
-                if not self.connection_manager:
-                    await self._initialize_connection()
-
-                connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-
-                if not connection:
-                    return {"healthy": False, "error": "No connection available"}
-
-                # Test query
-                cursor = connection.cursor()
-                cursor.execute("SELECT CURRENT_VERSION()")
-                version = cursor.fetchone()[0]
-                cursor.close()
-
+            self._error_handling_7()
+                self._conditional_8()
                 return {
                     "healthy": True,
                     "snowflake_version": version,
@@ -328,20 +370,8 @@ class SnowflakeMCPServer:
         @self.mcp_server.resource("schemas")
         async def get_schemas() -> List[Dict[str, Any]]:
             """Get available schemas"""
-            try:
-                if not self.connection_manager:
-                    await self._initialize_connection()
-
-                connection = await self.connection_manager.get_connection(ConnectionType.SNOWFLAKE)
-
-                if not connection:
-                    return []
-
-                cursor = connection.cursor()
-                cursor.execute("SHOW SCHEMAS IN DATABASE SOPHIA_AI")
-                schemas = cursor.fetchall()
-                cursor.close()
-
+            self._error_handling_9()
+                self._conditional_10()
                 return [{"name": schema[1]} for schema in schemas]
 
             except Exception as e:

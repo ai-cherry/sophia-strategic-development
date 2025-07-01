@@ -19,7 +19,6 @@ class SlackMCPServer:
     """Slack MCP Server for team communication"""
 
     def __init__(self, port: int = 9102):
-port = 9005
         self.name = "slack"
         self.version = "1.0.0"
 

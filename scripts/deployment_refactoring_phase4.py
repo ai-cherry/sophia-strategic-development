@@ -69,6 +69,71 @@ class DeploymentRefactoringPhase4:
 
         return results
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    # Collect all health metrics
+                    health_data = await self.collect_all_metrics()
+
+                    # Store metrics history
+                    await self._store_metrics_history(health_data)
+
+
+    def _iteration_2(self):
+        """Extracted iteration logic"""
+                if metric_name not in self.metrics_history:
+                    self.metrics_history[metric_name] = []
+
+                self.metrics_history[metric_name].append(metric)
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                if metric.status == HealthStatus.CRITICAL:
+                    critical_metrics.append(metric)
+                elif metric.status == HealthStatus.WARNING:
+                    warning_metrics.append(metric)
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                logger.warning(f"   • {metric.name}: {metric.value}{metric.unit}")
+
+        def get_health_summary(self) -> Dict[str, Any]:
+            """Get overall health summary"""
+            if not self.metrics_history:
+                return {"status": "unknown", "message": "No metrics available"}
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                if history:
+                    latest_metrics[metric_name] = history[-1]
+
+            # Determine overall status
+            critical_count = sum(1 for m in latest_metrics.values() if m.status == HealthStatus.CRITICAL)
+            warning_count = sum(1 for m in latest_metrics.values() if m.status == HealthStatus.WARNING)
+
+
+    def _conditional_6(self):
+        """Extracted conditional logic"""
+                overall_status = HealthStatus.CRITICAL
+            elif warning_count > 0:
+                overall_status = HealthStatus.WARNING
+            else:
+                overall_status = HealthStatus.HEALTHY
+
+
+    def _iteration_7(self):
+        """Extracted iteration logic"""
+                }
+            }
+
+
+    # Global instance
+    comprehensive_health_monitor = ComprehensiveHealthMonitor()
+    '''
+
+
     async def _create_comprehensive_health_monitoring(self):
         """Create comprehensive health monitoring system"""
         logger.info("🏥 Creating comprehensive health monitoring...")
@@ -129,14 +194,7 @@ class ComprehensiveHealthMonitor:
         """Start continuous health monitoring"""
         logger.info("🚀 Starting comprehensive health monitoring")
 
-        while self.monitoring_enabled:
-            try:
-                # Collect all health metrics
-                health_data = await self.collect_all_metrics()
-
-                # Store metrics history
-                await self._store_metrics_history(health_data)
-
+            self._error_handling_1()
                 # Check for alerts
                 await self._check_alerts(health_data)
 
@@ -264,12 +322,7 @@ class ComprehensiveHealthMonitor:
 
     async def _store_metrics_history(self, metrics: Dict[str, HealthMetric]):
         """Store metrics for trend analysis"""
-        for metric_name, metric in metrics.items():
-            if metric_name not in self.metrics_history:
-                self.metrics_history[metric_name] = []
-
-            self.metrics_history[metric_name].append(metric)
-
+        self._iteration_2()
             # Keep only last 24 hours of data
             cutoff_time = datetime.now() - timedelta(hours=24)
             self.metrics_history[metric_name] = [
@@ -282,12 +335,7 @@ class ComprehensiveHealthMonitor:
         critical_metrics = []
         warning_metrics = []
 
-        for metric_name, metric in metrics.items():
-            if metric.status == HealthStatus.CRITICAL:
-                critical_metrics.append(metric)
-            elif metric.status == HealthStatus.WARNING:
-                warning_metrics.append(metric)
-
+        self._iteration_3()
         # Send alerts
         if critical_metrics:
             await self._send_critical_alert(critical_metrics)
@@ -298,37 +346,11 @@ class ComprehensiveHealthMonitor:
     async def _send_critical_alert(self, metrics: List[HealthMetric]):
         """Send critical alert"""
         logger.critical(f"🚨 CRITICAL ALERT: {len(metrics)} metrics in critical state")
-        for metric in metrics:
-            logger.critical(f"   • {metric.name}: {metric.value}{metric.unit}")
-
-    async def _send_warning_alert(self, metrics: List[HealthMetric]):
-        """Send warning alert"""
-        logger.warning(f"⚠️ WARNING: {len(metrics)} metrics in warning state")
-        for metric in metrics:
-            logger.warning(f"   • {metric.name}: {metric.value}{metric.unit}")
-
-    def get_health_summary(self) -> Dict[str, Any]:
-        """Get overall health summary"""
-        if not self.metrics_history:
-            return {"status": "unknown", "message": "No metrics available"}
-
+        self._iteration_4()
         # Get latest metrics
         latest_metrics = {}
-        for metric_name, history in self.metrics_history.items():
-            if history:
-                latest_metrics[metric_name] = history[-1]
-
-        # Determine overall status
-        critical_count = sum(1 for m in latest_metrics.values() if m.status == HealthStatus.CRITICAL)
-        warning_count = sum(1 for m in latest_metrics.values() if m.status == HealthStatus.WARNING)
-
-        if critical_count > 0:
-            overall_status = HealthStatus.CRITICAL
-        elif warning_count > 0:
-            overall_status = HealthStatus.WARNING
-        else:
-            overall_status = HealthStatus.HEALTHY
-
+        self._iteration_5()
+        self._conditional_6()
         return {
             "overall_status": overall_status.value,
             "critical_metrics": critical_count,
@@ -341,15 +363,82 @@ class ComprehensiveHealthMonitor:
                     "unit": metric.unit,
                     "status": metric.status.value
                 }
-                for name, metric in latest_metrics.items()
+    def _iteration_1(self):
+        """Extracted iteration logic"""
+                # Get previous value from history
+                previous_value = self._get_previous_value(metric_name)
+                target_value = self.sla_targets.get(metric_name, 0)
+
+                metric = PerformanceMetric(
+                    name=metric_name,
+                    current_value=current_value,
+                    previous_value=previous_value,
+                    target_value=target_value,
+                    unit=self._get_metric_unit(metric_name),
+                    timestamp=now
+                )
+
+
+    def _iteration_2(self):
+        """Extracted iteration logic"""
+                },
+                "trends": trends,
+                "optimization_recommendations": recommendations,
+                "next_review": (datetime.now() + timedelta(hours=24)).isoformat()
             }
-        }
 
 
-# Global instance
-comprehensive_health_monitor = ComprehensiveHealthMonitor()
-'''
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                # Calculate individual metric score
+                if metric.target_value > 0:
+                    if "error_rate" in metric.name.lower():
+                        # Lower is better for error rates
+                        score = max(0, 100 - (metric.current_value / metric.target_value) * 100)
+                    elif "response_time" in metric.name.lower() or "query_time" in metric.name.lower():
+                        # Lower is better for response times
+                        score = max(0, 100 - ((metric.current_value - metric.target_value) / metric.target_value) * 100)
+                    else:
+                        # Higher is better for most metrics
+                        score = min(100, (metric.current_value / metric.target_value) * 100)
 
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                if "error_rate" in name.lower():
+                    compliance[name] = metric.current_value <= metric.target_value
+                elif "response_time" in name.lower() or "query_time" in name.lower():
+                    compliance[name] = metric.current_value <= metric.target_value
+                else:
+                    compliance[name] = metric.current_value >= metric.target_value
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                if abs(metric.trend_percentage) < 1:
+                    trends[name] = "stable"
+                elif metric.trend_percentage > 5:
+                    trends[name] = "improving" if "error_rate" not in name.lower() and "time" not in name.lower() else "degrading"
+                elif metric.trend_percentage < -5:
+                    trends[name] = "degrading" if "error_rate" not in name.lower() and "time" not in name.lower() else "improving"
+                else:
+                    trends[name] = "slight_change"
+
+
+    def _iteration_6(self):
+        """Extracted iteration logic"""
+                if metric.target_achievement < 80:  # Below 80% of target
+                    if "response_time" in name.lower():
+                        recommendations.append(f"Optimize {name}: Consider implementing caching or query optimization")
+                    elif "cache_hit_rate" in name.lower():
+                        recommendations.append(f"Improve {name}: Review cache strategy and TTL settings")
+                    elif "error_rate" in name.lower():
+                        recommendations.append(f"Reduce {name}: Investigate and fix recurring error patterns")
+                    elif "uptime" in name.lower():
+                        recommendations.append(f"Improve {name}: Review infrastructure reliability and monitoring")
+
+
+                self._iteration_7()
         # Write comprehensive health monitoring
         health_file = (
             self.project_root
@@ -432,20 +521,7 @@ class PerformanceAnalytics:
         metrics = {}
         now = datetime.now()
 
-        for metric_name, current_value in current_data.items():
-            # Get previous value from history
-            previous_value = self._get_previous_value(metric_name)
-            target_value = self.sla_targets.get(metric_name, 0)
-
-            metric = PerformanceMetric(
-                name=metric_name,
-                current_value=current_value,
-                previous_value=previous_value,
-                target_value=target_value,
-                unit=self._get_metric_unit(metric_name),
-                timestamp=now
-            )
-
+        self._iteration_1()
             metrics[metric_name] = metric
 
             # Store in history
@@ -516,31 +592,13 @@ class PerformanceAnalytics:
                     "target_achievement": metric.target_achievement,
                     "unit": metric.unit
                 }
-                for name, metric in metrics.items()
-            },
-            "trends": trends,
-            "optimization_recommendations": recommendations,
-            "next_review": (datetime.now() + timedelta(hours=24)).isoformat()
-        }
-
+                self._iteration_2()
     def _calculate_performance_score(self, metrics: Dict[str, PerformanceMetric]) -> float:
         """Calculate overall performance score (0-100)"""
         total_score = 0
         metric_count = 0
 
-        for metric in metrics.values():
-            # Calculate individual metric score
-            if metric.target_value > 0:
-                if "error_rate" in metric.name.lower():
-                    # Lower is better for error rates
-                    score = max(0, 100 - (metric.current_value / metric.target_value) * 100)
-                elif "response_time" in metric.name.lower() or "query_time" in metric.name.lower():
-                    # Lower is better for response times
-                    score = max(0, 100 - ((metric.current_value - metric.target_value) / metric.target_value) * 100)
-                else:
-                    # Higher is better for most metrics
-                    score = min(100, (metric.current_value / metric.target_value) * 100)
-
+        self._iteration_3()
                 total_score += score
                 metric_count += 1
 
@@ -550,47 +608,21 @@ class PerformanceAnalytics:
         """Check SLA compliance for all metrics"""
         compliance = {}
 
-        for name, metric in metrics.items():
-            if "error_rate" in name.lower():
-                compliance[name] = metric.current_value <= metric.target_value
-            elif "response_time" in name.lower() or "query_time" in name.lower():
-                compliance[name] = metric.current_value <= metric.target_value
-            else:
-                compliance[name] = metric.current_value >= metric.target_value
-
+        self._iteration_4()
         return compliance
 
     def _analyze_performance_trends(self, metrics: Dict[str, PerformanceMetric]) -> Dict[str, str]:
         """Analyze performance trends"""
         trends = {}
 
-        for name, metric in metrics.items():
-            if abs(metric.trend_percentage) < 1:
-                trends[name] = "stable"
-            elif metric.trend_percentage > 5:
-                trends[name] = "improving" if "error_rate" not in name.lower() and "time" not in name.lower() else "degrading"
-            elif metric.trend_percentage < -5:
-                trends[name] = "degrading" if "error_rate" not in name.lower() and "time" not in name.lower() else "improving"
-            else:
-                trends[name] = "slight_change"
-
+        self._iteration_5()
         return trends
 
     def _generate_optimization_recommendations(self, metrics: Dict[str, PerformanceMetric]) -> List[str]:
         """Generate optimization recommendations"""
         recommendations = []
 
-        for name, metric in metrics.items():
-            if metric.target_achievement < 80:  # Below 80% of target
-                if "response_time" in name.lower():
-                    recommendations.append(f"Optimize {name}: Consider implementing caching or query optimization")
-                elif "cache_hit_rate" in name.lower():
-                    recommendations.append(f"Improve {name}: Review cache strategy and TTL settings")
-                elif "error_rate" in name.lower():
-                    recommendations.append(f"Reduce {name}: Investigate and fix recurring error patterns")
-                elif "uptime" in name.lower():
-                    recommendations.append(f"Improve {name}: Review infrastructure reliability and monitoring")
-
+        self._iteration_6()
         if not recommendations:
             recommendations.append("All metrics are performing well. Continue monitoring for optimization opportunities.")
 
@@ -609,6 +641,82 @@ performance_analytics = PerformanceAnalytics()
         self.files_created.append(str(analytics_file))
 
         logger.info("✅ Performance analytics created")
+
+    def _iteration_1(self):
+        """Extracted iteration logic"""
+                if (alert.source == source and
+                    alert.status == AlertStatus.ACTIVE and
+                    self._calculate_similarity(alert.title, title) > 0.8):
+                    return alert
+            return None
+
+
+    def _iteration_2(self):
+        """Extracted iteration logic"""
+                if alert.status != AlertStatus.ACTIVE:
+                    continue
+
+                escalation_rule = self.escalation_rules.get(alert.severity)
+                if not escalation_rule:
+                    continue
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                severity_counts[severity.value] = sum(
+                    1 for alert in self.active_alerts.values()
+                    if alert.severity == severity and alert.status == AlertStatus.ACTIVE
+                )
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                source_counts[alert.source] = source_counts.get(alert.source, 0) + 1
+
+            top_sources = sorted(source_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "active_alerts": {
+                    "total": len(self.active_alerts),
+                    "by_severity": severity_counts,
+                    "unacknowledged": sum(
+                        1 for alert in self.active_alerts.values()
+                        if alert.status == AlertStatus.ACTIVE
+                    )
+                },
+                "alert_trends": {
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+            )
+
+            return total_time / len(resolved_alerts)
+
+        def _calculate_escalation_rate(self) -> float:
+            """Calculate escalation rate percentage"""
+            recent_alerts = [
+                alert for alert in self.alert_history + list(self.active_alerts.values())
+                if alert.timestamp > datetime.now() - timedelta(days=7)
+            ]
+
+
+    def _conditional_6(self):
+        """Extracted conditional logic"""
+                return 0.0
+
+            escalated_alerts = sum(1 for alert in recent_alerts if alert.escalation_count > 0)
+            return (escalated_alerts / len(recent_alerts)) * 100
+
+
+    def _error_handling_7(self):
+        """Extracted error_handling logic"""
+                await intelligent_alerting_system.check_escalations()
+                await asyncio.sleep(300)  # Check every 5 minutes
+            except Exception as e:
+                logger.error(f"Escalation check error: {e}")
+                await asyncio.sleep(60)
+
 
     async def _create_alerting_system(self):
         """Create intelligent alerting system"""
@@ -712,13 +820,7 @@ class IntelligentAlertingSystem:
 
     def _find_similar_alert(self, title: str, source: str) -> Optional[Alert]:
         """Find similar active alert for deduplication"""
-        for alert in self.active_alerts.values():
-            if (alert.source == source and
-                alert.status == AlertStatus.ACTIVE and
-                self._calculate_similarity(alert.title, title) > 0.8):
-                return alert
-        return None
-
+        self._iteration_1()
     def _calculate_similarity(self, text1: str, text2: str) -> float:
         """Calculate text similarity (simplified)"""
         words1 = set(text1.lower().split())
@@ -765,14 +867,7 @@ class IntelligentAlertingSystem:
         """Check for alerts that need escalation"""
         current_time = datetime.now()
 
-        for alert in self.active_alerts.values():
-            if alert.status != AlertStatus.ACTIVE:
-                continue
-
-            escalation_rule = self.escalation_rules.get(alert.severity)
-            if not escalation_rule:
-                continue
-
+        self._iteration_2()
             # Check if escalation is needed
             minutes_since_created = (current_time - alert.timestamp).total_seconds() / 60
             escalate_after = escalation_rule["escalate_after_minutes"]
@@ -814,12 +909,7 @@ class IntelligentAlertingSystem:
 
         # Count alerts by severity
         severity_counts = {}
-        for severity in AlertSeverity:
-            severity_counts[severity.value] = sum(
-                1 for alert in self.active_alerts.values()
-                if alert.severity == severity and alert.status == AlertStatus.ACTIVE
-            )
-
+        self._iteration_3()
         # Calculate alert trends
         recent_alerts = [
             alert for alert in self.alert_history
@@ -828,22 +918,7 @@ class IntelligentAlertingSystem:
 
         # Top alert sources
         source_counts = {}
-        for alert in list(self.active_alerts.values()) + recent_alerts:
-            source_counts[alert.source] = source_counts.get(alert.source, 0) + 1
-
-        top_sources = sorted(source_counts.items(), key=lambda x: x[1], reverse=True)[:5]
-
-        return {
-            "timestamp": datetime.now().isoformat(),
-            "active_alerts": {
-                "total": len(self.active_alerts),
-                "by_severity": severity_counts,
-                "unacknowledged": sum(
-                    1 for alert in self.active_alerts.values()
-                    if alert.status == AlertStatus.ACTIVE
-                )
-            },
-            "alert_trends": {
+        self._iteration_4()
                 "last_24h": len(recent_alerts),
                 "avg_resolution_time_minutes": self._calculate_avg_resolution_time(),
                 "escalation_rate": self._calculate_escalation_rate()
@@ -870,39 +945,70 @@ class IntelligentAlertingSystem:
 
         total_time = sum(
             (alert.resolved_at - alert.timestamp).total_seconds() / 60
-            for alert in resolved_alerts
-        )
-
-        return total_time / len(resolved_alerts)
-
-    def _calculate_escalation_rate(self) -> float:
-        """Calculate escalation rate percentage"""
-        recent_alerts = [
-            alert for alert in self.alert_history + list(self.active_alerts.values())
-            if alert.timestamp > datetime.now() - timedelta(days=7)
-        ]
-
-        if not recent_alerts:
-            return 0.0
-
-        escalated_alerts = sum(1 for alert in recent_alerts if alert.escalation_count > 0)
-        return (escalated_alerts / len(recent_alerts)) * 100
-
+            self._iteration_5()
+        self._conditional_6()
 
 # Global instance
 intelligent_alerting_system = IntelligentAlertingSystem()
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    # Collect current metrics
+                    metrics = await self._collect_deployment_metrics()
+
+                    # Check health thresholds
+                    health_check = await self._check_deployment_health(metrics)
+
+
+    def _conditional_2(self):
+        """Extracted conditional logic"""
+                        logger.error(f"🚨 Deployment health check failed: {health_check['issues']}")
+
+                        # Trigger rollback if critical issues
+                        if health_check["critical"]:
+                            await self._trigger_rollback(health_check["issues"])
+                            break
+
+
+    def _error_handling_3(self):
+        """Extracted error_handling logic"""
+                # Execute rollback procedure
+                await self._execute_rollback()
+
+                self.current_deployment["status"] = DeploymentStatus.ROLLED_BACK
+                logger.info(f"✅ Rollback completed for deployment {deployment_id}")
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                logger.info(f"   • {step}...")
+                await asyncio.sleep(2)  # Simulate step execution time
+
+            logger.info("✅ Rollback procedure completed")
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                )
+                avg_duration = total_duration / len(completed_deployments)
+
+            return {
+                "total_deployments": total,
+                "success_rate": (successful / total) * 100 if total > 0 else 0,
+                "rollback_rate": (rollbacks / total) * 100 if total > 0 else 0,
+                "average_duration_minutes": avg_duration,
+                "last_deployment": self.deployment_history[-1].deployment_id if self.deployment_history else None,
+                "recent_deployments": [
+                    {
+                        "id": d.deployment_id,
+                        "start_time": d.start_time.isoformat(),
+                        "duration_minutes": (d.end_time - d.start_time).total_seconds() / 60 if d.end_time else None,
+                        "rollback_triggered": d.rollback_triggered
+
 # Background escalation check task
 async def escalation_check_task():
     """Background task for checking escalations"""
-    while True:
-        try:
-            await intelligent_alerting_system.check_escalations()
-            await asyncio.sleep(300)  # Check every 5 minutes
-        except Exception as e:
-            logger.error(f"Escalation check error: {e}")
-            await asyncio.sleep(60)
-
+        self._error_handling_7()
 # Start escalation check task
 asyncio.create_task(escalation_check_task())
 '''
@@ -997,22 +1103,8 @@ class DeploymentStatusMonitor:
     async def _monitor_deployment_health(self):
         """Monitor deployment health continuously"""
 
-        while self.monitoring_enabled and self.current_deployment:
-            try:
-                # Collect current metrics
-                metrics = await self._collect_deployment_metrics()
-
-                # Check health thresholds
-                health_check = await self._check_deployment_health(metrics)
-
-                if not health_check["healthy"]:
-                    logger.error(f"🚨 Deployment health check failed: {health_check['issues']}")
-
-                    # Trigger rollback if critical issues
-                    if health_check["critical"]:
-                        await self._trigger_rollback(health_check["issues"])
-                        break
-
+            self._error_handling_1()
+                self._conditional_2()
                 # Wait before next check
                 await asyncio.sleep(30)  # Check every 30 seconds
 
@@ -1076,13 +1168,7 @@ class DeploymentStatusMonitor:
         self.current_deployment["status"] = DeploymentStatus.ROLLING_BACK
         self.current_deployment["metrics"].rollback_triggered = True
 
-        try:
-            # Execute rollback procedure
-            await self._execute_rollback()
-
-            self.current_deployment["status"] = DeploymentStatus.ROLLED_BACK
-            logger.info(f"✅ Rollback completed for deployment {deployment_id}")
-
+        self._error_handling_3()
         except Exception as e:
             logger.error(f"❌ Rollback failed for deployment {deployment_id}: {e}")
             self.current_deployment["status"] = DeploymentStatus.FAILED
@@ -1104,12 +1190,7 @@ class DeploymentStatusMonitor:
             "Restoring traffic routing"
         ]
 
-        for step in rollback_steps:
-            logger.info(f"   • {step}...")
-            await asyncio.sleep(2)  # Simulate step execution time
-
-        logger.info("✅ Rollback procedure completed")
-
+        self._iteration_4()
     async def mark_deployment_success(self):
         """Mark current deployment as successful"""
         if not self.current_deployment:
@@ -1185,22 +1266,7 @@ class DeploymentStatusMonitor:
         if completed_deployments:
             total_duration = sum(
                 (d.end_time - d.start_time).total_seconds() / 60
-                for d in completed_deployments
-            )
-            avg_duration = total_duration / len(completed_deployments)
-
-        return {
-            "total_deployments": total,
-            "success_rate": (successful / total) * 100 if total > 0 else 0,
-            "rollback_rate": (rollbacks / total) * 100 if total > 0 else 0,
-            "average_duration_minutes": avg_duration,
-            "last_deployment": self.deployment_history[-1].deployment_id if self.deployment_history else None,
-            "recent_deployments": [
-                {
-                    "id": d.deployment_id,
-                    "start_time": d.start_time.isoformat(),
-                    "duration_minutes": (d.end_time - d.start_time).total_seconds() / 60 if d.end_time else None,
-                    "rollback_triggered": d.rollback_triggered
+                self._iteration_5()
                 }
                 for d in self.deployment_history[-10:]  # Last 10 deployments
             ]

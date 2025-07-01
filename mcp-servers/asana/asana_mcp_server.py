@@ -59,6 +59,24 @@ class AsanaMCPServer:
         # Setup MCP server handlers
         self.setup_handlers()
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    if name == "get_projects":
+                        result = await self.get_projects(**arguments)
+                    elif name == "get_project_details":
+                        result = await self.get_project_details(**arguments)
+                    elif name == "get_project_tasks":
+                        result = await self.get_project_tasks(**arguments)
+                    elif name == "get_task_details":
+                        result = await self.get_task_details(**arguments)
+                    elif name == "get_teams":
+                        result = await self.get_teams(**arguments)
+                    elif name == "get_team_projects":
+                        result = await self.get_team_projects(**arguments)
+                    elif name == "get_project_status_updates":
+                        result = await self.get_project_status_updates(**arguments)
+                    elif name == "search_tasks":
+
     def setup_handlers(self):
         """Setup MCP server request handlers."""
 
@@ -271,22 +289,7 @@ class AsanaMCPServer:
         @self.server.call_tool()
         async def handle_call_tool(name: str, arguments: dict) -> CallToolResult:
             """Handle tool calls."""
-            try:
-                if name == "get_projects":
-                    result = await self.get_projects(**arguments)
-                elif name == "get_project_details":
-                    result = await self.get_project_details(**arguments)
-                elif name == "get_project_tasks":
-                    result = await self.get_project_tasks(**arguments)
-                elif name == "get_task_details":
-                    result = await self.get_task_details(**arguments)
-                elif name == "get_teams":
-                    result = await self.get_teams(**arguments)
-                elif name == "get_team_projects":
-                    result = await self.get_team_projects(**arguments)
-                elif name == "get_project_status_updates":
-                    result = await self.get_project_status_updates(**arguments)
-                elif name == "search_tasks":
+            self._error_handling_1()
                     result = await self.search_tasks(**arguments)
                 elif name == "get_user_tasks":
                     result = await self.get_user_tasks(**arguments)

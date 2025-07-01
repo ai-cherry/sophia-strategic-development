@@ -4,26 +4,24 @@ Consolidated, high-performance API with n8n integration and MCP server capabilit
 Optimized for Vercel serverless deployment.
 """
 
-import os
-import json
 import logging
-import asyncio
-from datetime import datetime
-from typing import Dict, Any, Optional
-from flask import Flask, request, jsonify, g
-from flask_cors import CORS
+import os
 import sys
+from datetime import datetime
+
+from flask import Flask, g, jsonify, request
+from flask_cors import CORS
 
 # Add the current directory to Python path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
     from config.performance import (
-        performance_optimizer, 
-        cached, 
-        rate_limited, 
         PerformanceMonitor,
-        SessionManager
+        SessionManager,
+        cached,
+        performance_optimizer,
+        rate_limited,
     )
 except ImportError:
     # Fallback if performance module is not available
@@ -50,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, 
+CORS(app,
      origins=os.getenv('CORS_ORIGINS', '*'),
      methods=os.getenv('CORS_METHODS', 'GET,POST,PUT,DELETE,OPTIONS,PATCH').split(','),
      allow_headers=os.getenv('CORS_HEADERS', 'Content-Type,Authorization,X-Requested-With,Accept,Origin,Cache-Control,X-API-Key').split(','))
@@ -66,15 +64,15 @@ if performance_optimizer:
 
 class SophiaAIAPI:
     """Consolidated Sophia AI API with integrated n8n and MCP capabilities."""
-    
+
     def __init__(self):
         self.version = "2.1.0"
         self.startup_time = datetime.utcnow()
-        
+
         # Initialize components
         self.n8n_processor = self._init_n8n_processor()
         self.mcp_server = self._init_mcp_server()
-        
+
     def _init_n8n_processor(self):
         """Initialize n8n webhook processor."""
         try:
@@ -84,7 +82,7 @@ class SophiaAIAPI:
         except ImportError:
             logger.warning("n8n webhook processor not available, using fallback")
             return self._create_fallback_n8n_processor()
-    
+
     def _init_mcp_server(self):
         """Initialize MCP server."""
         try:
@@ -94,7 +92,7 @@ class SophiaAIAPI:
         except ImportError:
             logger.warning("MCP server not available, using fallback")
             return self._create_fallback_mcp_server()
-    
+
     def _create_fallback_n8n_processor(self):
         """Create fallback n8n processor."""
         class FallbackN8NProcessor:
@@ -105,21 +103,21 @@ class SophiaAIAPI:
                     'data_sync': self.process_data_sync,
                     'lead_enrichment': self.process_lead_enrichment
                 }
-            
+
             def process_salesforce_to_hubspot(self, data):
                 return {'status': 'success', 'message': 'Fallback processor - Salesforce to HubSpot'}
-            
+
             def process_salesforce_to_intercom(self, data):
                 return {'status': 'success', 'message': 'Fallback processor - Salesforce to Intercom'}
-            
+
             def process_data_sync(self, data):
                 return {'status': 'success', 'message': 'Fallback processor - Data sync'}
-            
+
             def process_lead_enrichment(self, data):
                 return {'status': 'success', 'message': 'Fallback processor - Lead enrichment'}
-        
+
         return FallbackN8NProcessor()
-    
+
     def _create_fallback_mcp_server(self):
         """Create fallback MCP server."""
         class FallbackMCPServer:
@@ -131,22 +129,22 @@ class SophiaAIAPI:
                     'business_intelligence': self.handle_business_intelligence,
                     'workflow_automation': self.handle_workflow_automation
                 }
-            
+
             def handle_data_analysis(self, context):
                 return {'status': 'success', 'message': 'Fallback MCP - Data analysis'}
-            
+
             def handle_code_generation(self, context):
                 return {'status': 'success', 'message': 'Fallback MCP - Code generation'}
-            
+
             def handle_text_processing(self, context):
                 return {'status': 'success', 'message': 'Fallback MCP - Text processing'}
-            
+
             def handle_business_intelligence(self, context):
                 return {'status': 'success', 'message': 'Fallback MCP - Business intelligence'}
-            
+
             def handle_workflow_automation(self, context):
                 return {'status': 'success', 'message': 'Fallback MCP - Workflow automation'}
-        
+
         return FallbackMCPServer()
 
 # Initialize API
@@ -157,11 +155,11 @@ sophia_api = SophiaAIAPI()
 def before_request():
     """Pre-request middleware."""
     g.start_time = datetime.utcnow()
-    
+
     # Check memory threshold
     if performance_optimizer:
         PerformanceMonitor.check_memory_threshold()
-    
+
     # Rate limiting (if enabled)
     if performance_optimizer and hasattr(request, 'remote_addr'):
         if not performance_optimizer.check_rate_limit(request.remote_addr):
@@ -177,10 +175,10 @@ def after_request(response):
     if hasattr(g, 'start_time'):
         duration = (datetime.utcnow() - g.start_time).total_seconds()
         response.headers['X-Response-Time'] = f"{duration:.3f}s"
-    
+
     response.headers['X-Sophia-Version'] = sophia_api.version
     response.headers['X-Environment'] = SOPHIA_ENV
-    
+
     return response
 
 # Health check endpoints
@@ -189,7 +187,7 @@ def after_request(response):
 def health_check():
     """Main health check endpoint."""
     uptime = (datetime.utcnow() - sophia_api.startup_time).total_seconds()
-    
+
     health_data = {
         'status': 'healthy',
         'service': 'sophia-ai-api',
@@ -203,10 +201,10 @@ def health_check():
             'performance_optimizer': 'available' if performance_optimizer else 'fallback'
         }
     }
-    
+
     if performance_optimizer:
         health_data['performance'] = performance_optimizer.get_performance_metrics()
-    
+
     return jsonify(health_data)
 
 @app.route('/api/status', methods=['GET'])
@@ -232,11 +230,11 @@ def status_check():
 @app.route('/api/n8n/webhook', methods=['POST', 'GET'])
 @app.route('/api/n8n/webhook/<path:workflow_type>', methods=['POST', 'GET'])
 @rate_limited(lambda *args, **kwargs: request.remote_addr if hasattr(request, 'remote_addr') else 'unknown')
-def handle_n8n_webhook(workflow_type: Optional[str] = None):
+def handle_n8n_webhook(workflow_type: str | None = None):
     """Handle n8n webhook requests."""
     try:
         logger.info(f"n8n webhook request: {request.method} {workflow_type}")
-        
+
         if request.method == 'GET':
             return jsonify({
                 'status': 'ready',
@@ -245,24 +243,24 @@ def handle_n8n_webhook(workflow_type: Optional[str] = None):
                 'supported_workflows': list(sophia_api.n8n_processor.supported_workflows.keys()),
                 'timestamp': datetime.utcnow().isoformat()
             })
-        
+
         # Parse request data
         if request.is_json:
             data = request.get_json()
         else:
             data = request.form.to_dict()
-        
+
         if not data:
             return jsonify({
                 'status': 'error',
                 'error': 'No data provided',
                 'timestamp': datetime.utcnow().isoformat()
             }), 400
-        
+
         # Determine workflow type
         if not workflow_type:
             workflow_type = data.get('workflow_type', 'data_sync')
-        
+
         # Process the webhook
         if workflow_type in sophia_api.n8n_processor.supported_workflows:
             result = sophia_api.n8n_processor.supported_workflows[workflow_type](data)
@@ -273,14 +271,14 @@ def handle_n8n_webhook(workflow_type: Optional[str] = None):
                 'supported_workflows': list(sophia_api.n8n_processor.supported_workflows.keys()),
                 'timestamp': datetime.utcnow().isoformat()
             }
-        
+
         # Optimize response
         if performance_optimizer:
             result = performance_optimizer.optimize_response(result)
-        
+
         status_code = 200 if result.get('status') == 'success' else 400
         return jsonify(result), status_code
-        
+
     except Exception as e:
         logger.error(f"Error handling n8n webhook: {str(e)}")
         return jsonify({
@@ -304,11 +302,11 @@ def n8n_health_check():
 @app.route('/api/mcp', methods=['POST', 'GET'])
 @app.route('/api/mcp/<path:tool_name>', methods=['POST', 'GET'])
 @rate_limited(lambda *args, **kwargs: request.remote_addr if hasattr(request, 'remote_addr') else 'unknown')
-def handle_mcp_request(tool_name: Optional[str] = None):
+def handle_mcp_request(tool_name: str | None = None):
     """Handle MCP requests."""
     try:
         logger.info(f"MCP request: {request.method} {tool_name}")
-        
+
         if request.method == 'GET':
             return jsonify({
                 'status': 'ready',
@@ -317,24 +315,24 @@ def handle_mcp_request(tool_name: Optional[str] = None):
                 'supported_tools': list(sophia_api.mcp_server.supported_tools.keys()),
                 'timestamp': datetime.utcnow().isoformat()
             })
-        
+
         # Parse request data
         if request.is_json:
             context = request.get_json()
         else:
             context = request.form.to_dict()
-        
+
         if not context:
             return jsonify({
                 'status': 'error',
                 'error': 'No context provided',
                 'timestamp': datetime.utcnow().isoformat()
             }), 400
-        
+
         # Determine tool
         if not tool_name:
             tool_name = context.get('tool', 'text_processing')
-        
+
         # Process the request
         if tool_name in sophia_api.mcp_server.supported_tools:
             result = sophia_api.mcp_server.supported_tools[tool_name](context)
@@ -345,14 +343,14 @@ def handle_mcp_request(tool_name: Optional[str] = None):
                 'supported_tools': list(sophia_api.mcp_server.supported_tools.keys()),
                 'timestamp': datetime.utcnow().isoformat()
             }
-        
+
         # Optimize response
         if performance_optimizer:
             result = performance_optimizer.optimize_response(result)
-        
+
         status_code = 200 if result.get('status') == 'success' else 400
         return jsonify(result), status_code
-        
+
     except Exception as e:
         logger.error(f"Error handling MCP request: {str(e)}")
         return jsonify({
@@ -382,7 +380,7 @@ def performance_metrics():
             'message': 'Performance monitoring not available',
             'timestamp': datetime.utcnow().isoformat()
         }), 503
-    
+
     metrics = performance_optimizer.get_performance_metrics()
     return jsonify(metrics)
 
@@ -394,7 +392,7 @@ def clear_cache():
             'status': 'unavailable',
             'message': 'Performance monitoring not available'
         }), 503
-    
+
     performance_optimizer.cache_clear()
     return jsonify({
         'status': 'success',

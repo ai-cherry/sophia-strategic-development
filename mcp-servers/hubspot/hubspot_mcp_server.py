@@ -19,7 +19,6 @@ class HubSpotMCPServer:
     """HubSpot MCP Server for CRM operations"""
 
     def __init__(self, port: int = 9101):
-port = 9003
         self.name = "hubspot"
         self.version = "1.0.0"
 

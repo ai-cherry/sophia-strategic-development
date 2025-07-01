@@ -56,6 +56,24 @@ class LinearMCPServer:
         # Setup MCP server handlers
         self.setup_handlers()
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    if name == "get_projects":
+                        result = await self.get_projects(**arguments)
+                    elif name == "get_project_details":
+                        result = await self.get_project_details(**arguments)
+                    elif name == "get_issues":
+                        result = await self.get_issues(**arguments)
+                    elif name == "get_issue_details":
+                        result = await self.get_issue_details(**arguments)
+                    elif name == "get_teams":
+                        result = await self.get_teams(**arguments)
+                    elif name == "get_team_members":
+                        result = await self.get_team_members(**arguments)
+                    elif name == "get_milestones":
+                        result = await self.get_milestones(**arguments)
+                    elif name == "search_issues":
+
     def setup_handlers(self):
         """Setup MCP server request handlers."""
 
@@ -268,22 +286,7 @@ class LinearMCPServer:
         @self.server.call_tool()
         async def handle_call_tool(name: str, arguments: dict) -> CallToolResult:
             """Handle tool calls."""
-            try:
-                if name == "get_projects":
-                    result = await self.get_projects(**arguments)
-                elif name == "get_project_details":
-                    result = await self.get_project_details(**arguments)
-                elif name == "get_issues":
-                    result = await self.get_issues(**arguments)
-                elif name == "get_issue_details":
-                    result = await self.get_issue_details(**arguments)
-                elif name == "get_teams":
-                    result = await self.get_teams(**arguments)
-                elif name == "get_team_members":
-                    result = await self.get_team_members(**arguments)
-                elif name == "get_milestones":
-                    result = await self.get_milestones(**arguments)
-                elif name == "search_issues":
+            self._error_handling_1()
                     result = await self.search_issues(**arguments)
                 elif name == "get_user_issues":
                     result = await self.get_user_issues(**arguments)

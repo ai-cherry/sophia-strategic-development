@@ -656,7 +656,7 @@ class EnhancedAiMemoryMCPServer:
 
         return await self.store_memory(
             content=content,
-            category=MemoryCategory.SALES_CALL_INSIGHT,
+            category='SALES_CALL_INSIGHT',
             tags=memory_tags,
             importance_score=importance_score,
             metadata=metadata,

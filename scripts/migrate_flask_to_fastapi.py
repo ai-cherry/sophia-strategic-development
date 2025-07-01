@@ -125,6 +125,16 @@ class FlaskToFastAPIMigrator:
             "features": ["CORS", "Error handling", "JSON responses"],
         }
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+            # Initialize AI services
+            chat_service = EnhancedChatService(settings)
+            await chat_service.initialize()
+
+            streaming_service = StreamingService(settings)
+            await streaming_service.initialize()
+
+
     def _generate_modern_fastapi_app(self, flask_analysis: dict[str, Any]) -> str:
         """Generate modern FastAPI application with 2025 best practices"""
         return '''#!/usr/bin/env python3
@@ -212,14 +222,7 @@ async def lifespan(app: FastAPI):
 
     global chat_service, streaming_service
 
-    try:
-        # Initialize AI services
-        chat_service = EnhancedChatService(settings)
-        await chat_service.initialize()
-
-        streaming_service = StreamingService(settings)
-        await streaming_service.initialize()
-
+    self._error_handling_1()
         logger.info("✅ All services initialized successfully")
         yield
 

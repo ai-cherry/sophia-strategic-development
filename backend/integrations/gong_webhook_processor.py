@@ -55,6 +55,74 @@ class WebhookProcessor:
         await self.redis.disconnect()
         self.snowflake.close()
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    await self.snowflake.store_raw_webhook(
+                        {
+                            "webhook_id": webhook_id,
+                            "event_type": "call",
+                            "object_id": call_id,
+                            "object_type": "call",
+                            **webhook_data,
+                        }
+                    )
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                    enhanced_data = await self.gong_api.enhance_call_data(call_id)
+                    enhanced_data["webhook_id"] = webhook_id
+
+                    processing_result["stages"]["api_enhancement"] = {
+                        "status": "success",
+                        "duration_ms": int((time.time() - stage_start) * 1000),
+                        "data_quality": self._calculate_data_quality(enhanced_data),
+                    }
+
+
+    def _error_handling_3(self):
+        """Extracted error_handling logic"""
+                        await self.snowflake.store_enhanced_call_data(enhanced_data)
+
+                        processing_result["stages"]["enhanced_storage"] = {
+                            "status": "success",
+                            "duration_ms": int((time.time() - stage_start) * 1000),
+                        }
+
+
+    def _error_handling_4(self):
+        """Extracted error_handling logic"""
+                    # Prepare notification data
+                    call_data = enhanced_data.get("call_data", {}) if enhanced_data else {}
+                    analytics = enhanced_data.get("analytics", {}) if enhanced_data else {}
+
+                    processed_call = ProcessedCallData(
+                        call_id=call_id,
+                        webhook_id=webhook_id,
+                        title=call_data.get("title", "Unknown Call"),
+                        duration_seconds=call_data.get("duration", 0),
+                        participants=call_data.get("participants", []),
+                        summary=call_data.get("summary"),
+                        insights=self._extract_insights(enhanced_data),
+                        action_items=call_data.get("action_items", []),
+                        sentiment_score=analytics.get("sentiment_score"),
+                        talk_ratio=analytics.get("talk_ratio"),
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                        if insight.get("type") in [
+                            "competitor_mention",
+                            "churn_risk",
+                            "upsell_opportunity",
+                        ]:
+                            await self.redis.notify_insight_detected(
+                                webhook_id,
+                                insight["type"],
+                                insight,
+                                NotificationPriority.HIGH,
+                            )
+
+
     async def process_call_webhook(
         self, webhook_id: str, webhook_data: dict[str, Any]
     ) -> dict[str, Any]:
@@ -69,20 +137,7 @@ class WebhookProcessor:
             "stages": {},
         }
 
-        try:
-            # Stage 1: Store raw webhook data
-            stage_start = time.time()
-            try:
-                await self.snowflake.store_raw_webhook(
-                    {
-                        "webhook_id": webhook_id,
-                        "event_type": "call",
-                        "object_id": call_id,
-                        "object_type": "call",
-                        **webhook_data,
-                    }
-                )
-
+            self._error_handling_1()
                 processing_result["stages"]["raw_storage"] = {
                     "status": "success",
                     "duration_ms": int((time.time() - stage_start) * 1000),
@@ -109,16 +164,7 @@ class WebhookProcessor:
             stage_start = time.time()
             enhanced_data = None
 
-            try:
-                enhanced_data = await self.gong_api.enhance_call_data(call_id)
-                enhanced_data["webhook_id"] = webhook_id
-
-                processing_result["stages"]["api_enhancement"] = {
-                    "status": "success",
-                    "duration_ms": int((time.time() - stage_start) * 1000),
-                    "data_quality": self._calculate_data_quality(enhanced_data),
-                }
-
+            self._error_handling_2()
                 await self.snowflake.log_processing_stage(
                     webhook_id,
                     "call",
@@ -145,14 +191,7 @@ class WebhookProcessor:
             # Stage 3: Store enhanced data
             if enhanced_data:
                 stage_start = time.time()
-                try:
-                    await self.snowflake.store_enhanced_call_data(enhanced_data)
-
-                    processing_result["stages"]["enhanced_storage"] = {
-                        "status": "success",
-                        "duration_ms": int((time.time() - stage_start) * 1000),
-                    }
-
+                self._error_handling_3()
                     await self.snowflake.log_processing_stage(
                         webhook_id,
                         "call",
@@ -173,22 +212,7 @@ class WebhookProcessor:
 
             # Stage 4: Notify Sophia agents
             stage_start = time.time()
-            try:
-                # Prepare notification data
-                call_data = enhanced_data.get("call_data", {}) if enhanced_data else {}
-                analytics = enhanced_data.get("analytics", {}) if enhanced_data else {}
-
-                processed_call = ProcessedCallData(
-                    call_id=call_id,
-                    webhook_id=webhook_id,
-                    title=call_data.get("title", "Unknown Call"),
-                    duration_seconds=call_data.get("duration", 0),
-                    participants=call_data.get("participants", []),
-                    summary=call_data.get("summary"),
-                    insights=self._extract_insights(enhanced_data),
-                    action_items=call_data.get("action_items", []),
-                    sentiment_score=analytics.get("sentiment_score"),
-                    talk_ratio=analytics.get("talk_ratio"),
+            self._error_handling_4()
                     next_steps=self._determine_next_steps(enhanced_data),
                 )
 
@@ -200,19 +224,7 @@ class WebhookProcessor:
 
                 # Check for special insights
                 insights = self._extract_insights(enhanced_data)
-                for insight in insights:
-                    if insight.get("type") in [
-                        "competitor_mention",
-                        "churn_risk",
-                        "upsell_opportunity",
-                    ]:
-                        await self.redis.notify_insight_detected(
-                            webhook_id,
-                            insight["type"],
-                            insight,
-                            NotificationPriority.HIGH,
-                        )
-
+                self._iteration_5()
                 processing_result["stages"]["notification"] = {
                     "status": "success",
                     "duration_ms": int((time.time() - stage_start) * 1000),

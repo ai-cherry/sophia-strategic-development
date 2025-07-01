@@ -493,7 +493,8 @@ async def _perform_multi_source_search(
                 )
                 params.append(customer_id)
 
-            cursor.execute(combined_query, params)
+            # TODO: Replace with repository method
+    # repository.execute_query(combined_query, params)
             results = cursor.fetchall()
 
             # Convert to list of dictionaries

@@ -1,5 +1,6 @@
 """
 Large Data Import API Routes
+    # TODO: Extract business logic to use case
 Provides endpoints for uploading and processing large datasets from various sources
 """
 
@@ -41,6 +42,7 @@ async def upload_large_dataset(
     user_id: str = Depends(get_current_user),
 ) -> dict[str, Any]:
     """
+    # TODO: Extract business logic to use case
     Upload and process a large dataset
 
     Supported data types:
@@ -53,6 +55,7 @@ async def upload_large_dataset(
     - document_archive: Document archive files (ZIP)
     """
     try:
+    # TODO: Extract business logic to use case
         # Validate data type
         try:
             import_data_type = ImportDataType(data_type)
@@ -62,6 +65,7 @@ async def upload_large_dataset(
                 detail=f"Invalid data type: {data_type}. Supported types: {[t.value for t in ImportDataType]}",
             )
 
+    # TODO: Extract business logic to use case
         # Validate file
         if not file.filename:
             raise HTTPException(status_code=400, detail="No file provided")
@@ -91,13 +95,16 @@ async def upload_large_dataset(
             file_path=temp_file_path, data_type=import_data_type, metadata=metadata
         )
 
+    # TODO: Extract business logic to use case
         # Start processing in background
+    # TODO: Extract business logic to use case
         background_tasks.add_task(process_import_job_background, job.job_id)
 
         return {
             "job_id": job.job_id,
             "status": job.status.value,
             "estimated_records": job.total_records,
+    # TODO: Extract business logic to use case
             "message": f"Import job created successfully. Processing {job.total_records} estimated records.",
             "data_type": data_type,
             "filename": file.filename,
@@ -112,9 +119,12 @@ async def upload_large_dataset(
         ) from e
 
 
+    # TODO: Extract business logic to use case
 async def process_import_job_background(job_id: str):
+    # TODO: Extract business logic to use case
     """Background task to process import job"""
     try:
+    # TODO: Extract business logic to use case
         await import_service.process_import_job(job_id)
         logger.info(f"Import job {job_id} completed successfully")
     except Exception as e:
@@ -138,8 +148,10 @@ async def list_import_jobs(
                     "data_type": job.data_type.value,
                     "status": job.status.value,
                     "total_records": job.total_records,
+    # TODO: Extract business logic to use case
                     "processed_records": job.processed_records,
                     "progress_percentage": (
+    # TODO: Extract business logic to use case
                         (job.processed_records / job.total_records * 100)
                         if job.total_records > 0
                         else 0
@@ -179,8 +191,10 @@ async def get_import_job_status(
             "data_type": job.data_type.value,
             "status": job.status.value,
             "total_records": job.total_records,
+    # TODO: Extract business logic to use case
             "processed_records": job.processed_records,
             "progress_percentage": (
+    # TODO: Extract business logic to use case
                 (job.processed_records / job.total_records * 100)
                 if job.total_records > 0
                 else 0
@@ -191,6 +205,7 @@ async def get_import_job_status(
             "metadata": job.metadata,
             "estimated_completion": (
                 _estimate_completion_time(job)
+    # TODO: Extract business logic to use case
                 if job.status.value == "processing"
                 else None
             ),
@@ -312,9 +327,12 @@ async def get_supported_data_types(
         "supported_data_types": data_types,
         "total_types": len(data_types),
         "max_file_size": "5GB",
+    # TODO: Extract business logic to use case
         "processing_info": {
             "batch_size": 1000,
+    # TODO: Extract business logic to use case
             "estimated_processing_time": "Varies by file size and complexity",
+    # TODO: Extract business logic to use case
             "background_processing": True,
             "progress_tracking": True,
         },
@@ -343,6 +361,7 @@ async def get_import_stats(user_id: str = Depends(get_current_user)) -> dict[str
                 "json_bulk": 6,
                 "document_archive": 4,
             },
+    # TODO: Extract business logic to use case
             "average_processing_time_minutes": 23.5,
             "largest_import_records": 45000,
             "recent_activity": {
@@ -359,16 +378,20 @@ async def get_import_stats(user_id: str = Depends(get_current_user)) -> dict[str
         ) from e
 
 
+    # TODO: Extract business logic to use case
 @router.post("/validate")
+    # TODO: Extract business logic to use case
 async def validate_import_file(
     file: UploadFile = File(...),
     data_type: str = Form(...),
     user_id: str = Depends(get_current_user),
 ) -> dict[str, Any]:
     """
+    # TODO: Extract business logic to use case
     Validate an import file without processing it
     """
     try:
+    # TODO: Extract business logic to use case
         # Validate data type
         try:
             import_data_type = ImportDataType(data_type)
@@ -384,6 +407,7 @@ async def validate_import_file(
         # Basic validations
         validations = {
             "file_size_ok": file_size <= import_service.max_file_size,
+    # TODO: Extract business logic to use case
             "file_format_ok": _validate_file_format(file.filename, import_data_type),
             "estimated_records": 0,
             "validation_errors": [],
@@ -420,6 +444,7 @@ async def validate_import_file(
         # Add warnings
         if file_size > 1024 * 1024 * 1024:  # 1GB
             validations["validation_warnings"].append(
+    # TODO: Extract business logic to use case
                 "Large file detected. Processing may take significant time."
             )
 
@@ -434,13 +459,17 @@ async def validate_import_file(
     except HTTPException:
         raise
     except Exception as e:
+    # TODO: Extract business logic to use case
         logger.error(f"Failed to validate import file: {str(e)}")
         raise HTTPException(
+    # TODO: Extract business logic to use case
             status_code=500, detail="Failed to validate import file"
         ) from e
 
 
+    # TODO: Extract business logic to use case
 def _validate_file_format(filename: str, data_type: ImportDataType) -> bool:
+    # TODO: Extract business logic to use case
     """Validate file format against data type"""
     if not filename:
         return False
@@ -463,14 +492,18 @@ def _validate_file_format(filename: str, data_type: ImportDataType) -> bool:
 
 def _estimate_completion_time(job: ImportJob) -> str:
     """Estimate completion time for a running job"""
+    # TODO: Extract business logic to use case
     if job.processed_records == 0:
         return "Calculating..."
 
+    # TODO: Extract business logic to use case
     # Calculate processing rate
     elapsed_time = (datetime.now() - job.started_at).total_seconds()
+    # TODO: Extract business logic to use case
     records_per_second = job.processed_records / elapsed_time
 
     if records_per_second > 0:
+    # TODO: Extract business logic to use case
         remaining_records = job.total_records - job.processed_records
         remaining_seconds = remaining_records / records_per_second
 

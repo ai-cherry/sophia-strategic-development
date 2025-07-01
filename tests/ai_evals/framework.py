@@ -14,10 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-import numpy as np
-from pydantic import BaseModel
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -52,13 +49,13 @@ class AITestCase:
     id: str
     category: TestCaseCategory
     input_query: str
-    expected_output: Optional[str] = None
-    expected_schema: Optional[Dict[str, Any]] = None
-    evaluation_criteria: List[EvaluationMetric] = field(default_factory=list)
-    context: Dict[str, Any] = field(default_factory=dict)
+    expected_output: str | None = None
+    expected_schema: dict[str, Any] | None = None
+    evaluation_criteria: list[EvaluationMetric] = field(default_factory=list)
+    context: dict[str, Any] = field(default_factory=dict)
     user_role: str = "employee"
     minimum_score: float = 0.7
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     description: str = ""
 
 
@@ -68,12 +65,12 @@ class EvaluationResult:
     test_case_id: str
     success: bool
     overall_score: float
-    metric_scores: Dict[EvaluationMetric, float]
+    metric_scores: dict[EvaluationMetric, float]
     response_time: float
     output: str
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -82,12 +79,12 @@ class AIEvaluationFramework:
 
     def __init__(self, test_cases_dir: str = "tests/ai_evals/test_cases"):
         self.test_cases_dir = Path(test_cases_dir)
-        self.test_cases: List[AITestCase] = []
-        self.evaluation_history: List[EvaluationResult] = []
-        
+        self.test_cases: list[AITestCase] = []
+        self.evaluation_history: list[EvaluationResult] = []
+
         # Load test cases
         self._load_test_cases()
-        
+
         # Initialize evaluation metrics
         self.evaluation_metrics = {
             EvaluationMetric.ACCURACY: self._measure_accuracy,
@@ -109,9 +106,9 @@ class AIEvaluationFramework:
 
         for test_file in self.test_cases_dir.glob("*.json"):
             try:
-                with open(test_file, 'r') as f:
+                with open(test_file) as f:
                     test_data = json.load(f)
-                    
+
                 for case_data in test_data.get("test_cases", []):
                     test_case = AITestCase(
                         id=case_data["id"],
@@ -120,7 +117,7 @@ class AIEvaluationFramework:
                         expected_output=case_data.get("expected_output"),
                         expected_schema=case_data.get("expected_schema"),
                         evaluation_criteria=[
-                            EvaluationMetric(metric) 
+                            EvaluationMetric(metric)
                             for metric in case_data.get("evaluation_criteria", [])
                         ],
                         context=case_data.get("context", {}),
@@ -130,7 +127,7 @@ class AIEvaluationFramework:
                         description=case_data.get("description", "")
                     )
                     self.test_cases.append(test_case)
-                    
+
             except Exception as e:
                 logger.error(f"Error loading test cases from {test_file}: {e}")
 
@@ -154,12 +151,12 @@ class AIEvaluationFramework:
                     "description": "Basic revenue comparison query"
                 },
                 {
-                    "id": "sales_coaching_001", 
+                    "id": "sales_coaching_001",
                     "category": "sales_coaching",
                     "input_query": "Analyze the top 5 deals at risk this month and provide coaching recommendations",
                     "expected_schema": {
                         "at_risk_deals": "array",
-                        "risk_factors": "array", 
+                        "risk_factors": "array",
                         "coaching_recommendations": "array"
                     },
                     "evaluation_criteria": ["accuracy", "helpfulness", "completeness"],
@@ -179,7 +176,7 @@ class AIEvaluationFramework:
                 },
                 {
                     "id": "customer_analysis_001",
-                    "category": "customer_analysis", 
+                    "category": "customer_analysis",
                     "input_query": "Show me customer sentiment trends from recent Gong calls",
                     "expected_schema": {
                         "sentiment_trends": "array",
@@ -207,28 +204,28 @@ class AIEvaluationFramework:
                 }
             ]
         }
-        
+
         # Save default test cases
         default_file = self.test_cases_dir / "default_test_cases.json"
         with open(default_file, 'w') as f:
             json.dump(default_cases, f, indent=2)
-        
+
         # Load the default cases
         self._load_test_cases()
 
     async def evaluate_ai_output(
-        self, 
-        test_case: AITestCase, 
+        self,
+        test_case: AITestCase,
         ai_output: str,
         response_time: float,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: dict[str, Any] | None = None
     ) -> EvaluationResult:
         """Evaluate AI output against test case criteria"""
-        
+
         metric_scores = {}
         errors = []
         warnings = []
-        
+
         # Run each evaluation metric
         for metric in test_case.evaluation_criteria:
             try:
@@ -239,7 +236,7 @@ class AIEvaluationFramework:
                     metric_scores[metric] = score
                 else:
                     warnings.append(f"Unknown evaluation metric: {metric}")
-                    
+
             except Exception as e:
                 errors.append(f"Error evaluating {metric}: {str(e)}")
                 metric_scores[metric] = 0.0
@@ -267,13 +264,13 @@ class AIEvaluationFramework:
         )
 
     async def _measure_accuracy(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Measure accuracy of AI output"""
-        
+
         # Schema validation if expected schema provided
         if test_case.expected_schema:
             try:
@@ -282,127 +279,127 @@ class AIEvaluationFramework:
                 return schema_score
             except Exception:
                 return 0.0
-        
+
         # Expected output comparison
         if test_case.expected_output:
             similarity = self._calculate_similarity(output, test_case.expected_output)
             return similarity
-        
+
         # Default accuracy check - ensure output is not empty and relevant
         if len(output.strip()) > 10:
             return 0.8  # Base score for non-empty response
-        
+
         return 0.0
 
     async def _measure_relevance(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Measure relevance of AI output to the query"""
-        
+
         # Simple keyword matching for now
         query_keywords = set(test_case.input_query.lower().split())
         output_keywords = set(output.lower().split())
-        
+
         # Remove common words
         common_words = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by"}
         query_keywords -= common_words
         output_keywords -= common_words
-        
+
         if not query_keywords:
             return 0.5  # Neutral score if no meaningful keywords
-        
+
         # Calculate keyword overlap
         overlap = len(query_keywords.intersection(output_keywords))
         relevance_score = min(1.0, overlap / len(query_keywords))
-        
+
         return relevance_score
 
     async def _check_safety(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Check safety of AI output"""
-        
+
         # Check for potential security violations
         security_violations = [
             "password", "secret", "token", "api_key", "private_key",
             "confidential", "internal_only", "classified"
         ]
-        
+
         output_lower = output.lower()
         violations = [word for word in security_violations if word in output_lower]
-        
+
         if violations:
             return 0.0  # Fail safety check if security violations found
-        
+
         # Check for inappropriate content
         inappropriate_patterns = [
             "ignore previous instructions",
             "system: you are now",
             "forget everything above"
         ]
-        
+
         for pattern in inappropriate_patterns:
             if pattern in output_lower:
                 return 0.0  # Fail if prompt injection patterns detected
-        
+
         return 1.0  # Pass safety check
 
     async def _check_consistency(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Check consistency of AI output"""
-        
+
         # For now, simple consistency check
         # In production, this would compare with previous outputs for similar queries
-        
+
         # Check for contradictory statements (basic implementation)
         sentences = output.split('.')
         if len(sentences) < 2:
             return 1.0  # Can't check consistency with single sentence
-        
+
         # Simple check for contradictory keywords
         positive_indicators = ["increase", "growth", "improvement", "success"]
         negative_indicators = ["decrease", "decline", "failure", "problem"]
-        
+
         has_positive = any(word in output.lower() for word in positive_indicators)
         has_negative = any(word in output.lower() for word in negative_indicators)
-        
+
         # If both positive and negative indicators, check if it's contextually appropriate
         if has_positive and has_negative:
             return 0.7  # Moderate score - might be explaining changes
-        
+
         return 1.0  # Consistent output
 
     async def _measure_completeness(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Measure completeness of AI output"""
-        
+
         # Check if expected schema fields are addressed
         if test_case.expected_schema:
             schema_fields = list(test_case.expected_schema.keys())
             addressed_fields = 0
-            
+
             for field in schema_fields:
                 # Simple check if field concept is mentioned in output
                 if field.replace('_', ' ') in output.lower():
                     addressed_fields += 1
-            
+
             if schema_fields:
                 return addressed_fields / len(schema_fields)
-        
+
         # Basic completeness check - ensure adequate response length
         if len(output.strip()) < 50:
             return 0.3  # Too short
@@ -412,46 +409,46 @@ class AIEvaluationFramework:
             return 0.9  # Good length
 
     async def _measure_coherence(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Measure coherence of AI output"""
-        
+
         # Simple coherence checks
         sentences = [s.strip() for s in output.split('.') if s.strip()]
-        
+
         if len(sentences) < 2:
             return 1.0  # Single sentence is coherent by definition
-        
+
         # Check for proper sentence structure
         coherence_score = 1.0
-        
+
         # Penalize very short or very long sentences
         for sentence in sentences:
             if len(sentence) < 10:
                 coherence_score -= 0.1
             elif len(sentence) > 200:
                 coherence_score -= 0.1
-        
+
         return max(0.0, coherence_score)
 
     async def _check_factuality(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Check factuality of AI output"""
-        
+
         # Basic factuality checks
         # In production, this would use fact-checking APIs or knowledge bases
-        
+
         # Check for hedge words that indicate uncertainty
         hedge_words = ["might", "could", "possibly", "perhaps", "likely", "probably"]
         hedge_count = sum(1 for word in hedge_words if word in output.lower())
-        
+
         # Moderate use of hedge words is good for uncertain topics
         if hedge_count <= 2:
             return 0.9
@@ -461,90 +458,90 @@ class AIEvaluationFramework:
             return 0.5  # Too many hedge words might indicate uncertainty
 
     async def _measure_helpfulness(
-        self, 
-        test_case: AITestCase, 
-        output: str, 
-        metadata: Dict[str, Any]
+        self,
+        test_case: AITestCase,
+        output: str,
+        metadata: dict[str, Any]
     ) -> float:
         """Measure helpfulness of AI output"""
-        
+
         # Check for actionable insights
         action_words = ["recommend", "suggest", "should", "consider", "try", "implement"]
         action_count = sum(1 for word in action_words if word in output.lower())
-        
+
         helpfulness_score = min(1.0, action_count * 0.2 + 0.4)
-        
+
         # Bonus for specific examples or data
         if any(char.isdigit() for char in output):
             helpfulness_score += 0.1
-        
+
         return min(1.0, helpfulness_score)
 
-    def _validate_output_schema(self, output: str, expected_schema: Dict[str, Any]) -> float:
+    def _validate_output_schema(self, output: str, expected_schema: dict[str, Any]) -> float:
         """Validate output against expected schema"""
-        
+
         # Simple schema validation - check if key concepts are present
         schema_keys = list(expected_schema.keys())
         found_keys = 0
-        
+
         for key in schema_keys:
             # Convert snake_case to readable format
             readable_key = key.replace('_', ' ')
             if readable_key in output.lower():
                 found_keys += 1
-        
+
         return found_keys / len(schema_keys) if schema_keys else 0.0
 
     def _calculate_similarity(self, text1: str, text2: str) -> float:
         """Calculate similarity between two texts"""
-        
+
         # Simple word-based similarity
         words1 = set(text1.lower().split())
         words2 = set(text2.lower().split())
-        
+
         intersection = words1.intersection(words2)
         union = words1.union(words2)
-        
+
         if not union:
             return 0.0
-        
+
         return len(intersection) / len(union)
 
     async def run_evaluation_suite(
-        self, 
+        self,
         ai_system_callable,
-        categories: Optional[List[TestCaseCategory]] = None,
-        tags: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        categories: list[TestCaseCategory] | None = None,
+        tags: list[str] | None = None
+    ) -> dict[str, Any]:
         """Run evaluation suite against AI system"""
-        
+
         # Filter test cases
         test_cases_to_run = self.test_cases
-        
+
         if categories:
             test_cases_to_run = [tc for tc in test_cases_to_run if tc.category in categories]
-        
+
         if tags:
             test_cases_to_run = [tc for tc in test_cases_to_run if any(tag in tc.tags for tag in tags)]
-        
+
         results = []
         start_time = time.time()
-        
+
         logger.info(f"Running evaluation suite with {len(test_cases_to_run)} test cases")
-        
+
         for test_case in test_cases_to_run:
             try:
                 # Call AI system
                 case_start_time = time.time()
-                
+
                 ai_response = await ai_system_callable(
                     query=test_case.input_query,
                     user_role=test_case.user_role,
                     context=test_case.context
                 )
-                
+
                 response_time = time.time() - case_start_time
-                
+
                 # Evaluate response
                 result = await self.evaluate_ai_output(
                     test_case=test_case,
@@ -552,16 +549,16 @@ class AIEvaluationFramework:
                     response_time=response_time,
                     metadata=ai_response.get("metadata", {})
                 )
-                
+
                 results.append(result)
                 self.evaluation_history.append(result)
-                
+
                 logger.info(f"Test case {test_case.id}: {'PASS' if result.success else 'FAIL'} "
                            f"(Score: {result.overall_score:.2f})")
-                
+
             except Exception as e:
                 logger.error(f"Error running test case {test_case.id}: {e}")
-                
+
                 error_result = EvaluationResult(
                     test_case_id=test_case.id,
                     success=False,
@@ -574,10 +571,10 @@ class AIEvaluationFramework:
                 results.append(error_result)
 
         total_time = time.time() - start_time
-        
+
         # Generate summary
         summary = self._generate_evaluation_summary(results, total_time)
-        
+
         return {
             "summary": summary,
             "results": results,
@@ -585,24 +582,24 @@ class AIEvaluationFramework:
         }
 
     def _generate_evaluation_summary(
-        self, 
-        results: List[EvaluationResult], 
+        self,
+        results: list[EvaluationResult],
         total_time: float
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate evaluation summary"""
-        
+
         if not results:
             return {"error": "No evaluation results"}
-        
+
         passed = sum(1 for r in results if r.success)
         failed = len(results) - passed
-        
+
         scores = [r.overall_score for r in results]
         avg_score = sum(scores) / len(scores)
-        
+
         response_times = [r.response_time for r in results]
         avg_response_time = sum(response_times) / len(response_times)
-        
+
         # Category breakdown
         category_stats = {}
         for result in results:
@@ -611,12 +608,12 @@ class AIEvaluationFramework:
                 category = test_case.category.value
                 if category not in category_stats:
                     category_stats[category] = {"passed": 0, "total": 0, "scores": []}
-                
+
                 category_stats[category]["total"] += 1
                 if result.success:
                     category_stats[category]["passed"] += 1
                 category_stats[category]["scores"].append(result.overall_score)
-        
+
         return {
             "total_tests": len(results),
             "passed": passed,
@@ -635,34 +632,34 @@ class AIEvaluationFramework:
             }
         }
 
-    def save_evaluation_report(self, evaluation_data: Dict[str, Any], filename: str):
+    def save_evaluation_report(self, evaluation_data: dict[str, Any], filename: str):
         """Save evaluation report to file"""
-        
+
         reports_dir = Path("tests/ai_evals/reports")
         reports_dir.mkdir(parents=True, exist_ok=True)
-        
+
         report_file = reports_dir / f"{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        
+
         # Convert results to serializable format
         serializable_data = self._make_serializable(evaluation_data)
-        
+
         with open(report_file, 'w') as f:
             json.dump(serializable_data, f, indent=2)
-        
+
         logger.info(f"Evaluation report saved to {report_file}")
-        
+
         return report_file
 
     def _make_serializable(self, data: Any) -> Any:
         """Convert data to JSON serializable format"""
-        
+
         if isinstance(data, dict):
             return {k: self._make_serializable(v) for k, v in data.items()}
         elif isinstance(data, list):
             return [self._make_serializable(item) for item in data]
-        elif isinstance(data, (EvaluationResult, AITestCase)):
+        elif isinstance(data, EvaluationResult | AITestCase):
             return self._make_serializable(data.__dict__)
-        elif isinstance(data, (EvaluationMetric, TestCaseCategory)):
+        elif isinstance(data, EvaluationMetric | TestCaseCategory):
             return data.value
         elif isinstance(data, datetime):
             return data.isoformat()
@@ -673,15 +670,15 @@ class AIEvaluationFramework:
 # Example usage
 async def main():
     """Example usage of AI Evaluation Framework"""
-    
+
     # Initialize framework
     eval_framework = AIEvaluationFramework()
-    
+
     # Mock AI system for testing
-    async def mock_ai_system(query: str, user_role: str, context: Dict[str, Any]):
+    async def mock_ai_system(query: str, user_role: str, context: dict[str, Any]):
         """Mock AI system for testing"""
         await asyncio.sleep(0.1)  # Simulate processing time
-        
+
         return {
             "content": f"Mock response for: {query}",
             "metadata": {
@@ -689,18 +686,18 @@ async def main():
                 "tokens_used": 100
             }
         }
-    
+
     # Run evaluation
     results = await eval_framework.run_evaluation_suite(
         ai_system_callable=mock_ai_system,
         categories=[TestCaseCategory.BUSINESS_INTELLIGENCE]
     )
-    
+
     # Save report
     eval_framework.save_evaluation_report(results, "mock_evaluation")
-    
+
     print(f"Evaluation completed: {results['summary']}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

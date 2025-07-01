@@ -14,6 +14,8 @@ import httpx
 from mcp.server import Server
 from mcp.types import TextContent, Tool
 
+from backend.core.auto_esc_config import get_config_value
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -422,6 +424,7 @@ class ApifyIntelligenceMCPServer:
             # Wait for completion (with timeout)
             max_wait_time = 300  # 5 minutes
             wait_time = 0
+            run_status = None
 
             while wait_time < max_wait_time:
                 status_response = await self.http_client.get(
@@ -438,7 +441,7 @@ class ApifyIntelligenceMCPServer:
                 wait_time += 10
 
             # Get results
-            if run_status["status"] == "SUCCEEDED":
+            if run_status and run_status["status"] == "SUCCEEDED":
                 results_response = await self.http_client.get(
                     f"https://api.apify.com/v2/datasets/{run_status['defaultDatasetId']}/items"
                 )
@@ -453,7 +456,7 @@ class ApifyIntelligenceMCPServer:
 
             return {
                 "status": "failed",
-                "error": f"Actor run failed with status: {run_status['status']}",
+                "error": f"Actor run failed with status: {run_status['status'] if run_status else 'unknown'}",
                 "run_id": run_id
             }
 
@@ -666,7 +669,6 @@ First few results:
 
         # Return most common themes
         from collections import Counter
-from backend.core.auto_esc_config import get_config_value
         return [theme for theme, count in Counter(themes).most_common(5)]
 
     def _analyze_sentiment_basic(self, posts: list[dict]) -> str:

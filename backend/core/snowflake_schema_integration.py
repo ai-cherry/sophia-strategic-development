@@ -112,7 +112,8 @@ class SnowflakeSchemaIntegration:
     async def connect(self):
         """Connect to Snowflake with comprehensive configuration"""
         try:
-            self.connection = snowflake.connector.connect(
+            self.connection = # TODO: Replace with repository injection
+    # repository.get_connection(
                 account=self.credentials.account,
                 user=self.credentials.user,
                 password=self.credentials.password,
@@ -141,9 +142,11 @@ class SnowflakeSchemaIntegration:
 
                 # Use parameterized query for USE SCHEMA to prevent SQL injection
                 use_schema_query = "USE SCHEMA " + schema.value
-                cursor.execute(use_schema_query)
+                # TODO: Replace with repository method
+    # repository.execute_query(use_schema_query)
 
-            cursor.execute(query, params or ())
+            # TODO: Replace with repository method
+    # repository.execute_query(query, params or ())
             results = cursor.fetchall()
             cursor.close()
             return results

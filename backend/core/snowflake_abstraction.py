@@ -198,18 +198,22 @@ class SecureSnowflakeExecutor(SnowflakeAbstraction):
             try:
                 # Set query timeout if specified
                 if timeout:
-                    cursor.execute(
+                    # TODO: Replace with repository method
+    # repository.execute_query(
                         f"ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = {timeout}"
                     )
 
                 # Execute query with parameters
                 if params:
                     if isinstance(params, dict):
-                        cursor.execute(query, params)
+                        # TODO: Replace with repository method
+    # repository.execute_query(query, params)
                     else:
-                        cursor.execute(query, params)
+                        # TODO: Replace with repository method
+    # repository.execute_query(query, params)
                 else:
-                    cursor.execute(query)
+                    # TODO: Replace with repository method
+    # repository.execute_query(query)
 
                 # Get query ID for tracking
                 query_id = cursor.sfqid if hasattr(cursor, "sfqid") else None
@@ -274,14 +278,17 @@ class SecureSnowflakeExecutor(SnowflakeAbstraction):
 
             try:
                 if transaction:
-                    cursor.execute("BEGIN TRANSACTION")
+                    # TODO: Replace with repository method
+    # repository.execute_query("BEGIN TRANSACTION")
 
                 for query, params in queries:
                     try:
                         if params:
-                            cursor.execute(query, params)
+                            # TODO: Replace with repository method
+    # repository.execute_query(query, params)
                         else:
-                            cursor.execute(query)
+                            # TODO: Replace with repository method
+    # repository.execute_query(query)
 
                         results.append(
                             QueryResult(
@@ -299,16 +306,19 @@ class SecureSnowflakeExecutor(SnowflakeAbstraction):
 
                         if stop_on_error:
                             if transaction:
-                                cursor.execute("ROLLBACK")
+                                # TODO: Replace with repository method
+    # repository.execute_query("ROLLBACK")
                             raise
 
                 if transaction:
-                    cursor.execute("COMMIT")
+                    # TODO: Replace with repository method
+    # repository.execute_query("COMMIT")
 
             except Exception:
                 if transaction:
                     try:
-                        cursor.execute("ROLLBACK")
+                        # TODO: Replace with repository method
+    # repository.execute_query("ROLLBACK")
                     except Exception:
                         pass
 
@@ -358,9 +368,11 @@ class SecureSnowflakeExecutor(SnowflakeAbstraction):
 
             try:
                 if params:
-                    cursor.execute(query, params)
+                    # TODO: Replace with repository method
+    # repository.execute_query(query, params)
                 else:
-                    cursor.execute(query)
+                    # TODO: Replace with repository method
+    # repository.execute_query(query)
 
                 columns = (
                     [desc[0] for desc in cursor.description]

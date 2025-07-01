@@ -19,7 +19,6 @@ class NotionMCPServer:
     """Notion MCP Server for knowledge management"""
 
     def __init__(self, port: int = 9104):
-port = 9017
         self.name = "notion"
         self.version = "1.0.0"
 

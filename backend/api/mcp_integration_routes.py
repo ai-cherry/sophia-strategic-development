@@ -483,3 +483,219 @@ async def get_agent_patterns() -> dict[str, Any]:
 
 # Export router
 __all__ = ["router"]
+
+
+# Group-Aware Enhancement Endpoints
+# These endpoints integrate with the GroupAwareOrchestrationEnhancement
+
+class GroupAwareTaskRequest(BaseModel):
+    """Request model for group-aware task execution"""
+    task_type: str
+    description: str
+    required_capabilities: list[str] = []
+    priority: str = "medium"
+    context_data: dict[str, Any] = {}
+    requires_synthesis: bool = True
+
+
+class ExecutiveQuery(BaseModel):
+    """Request model for executive intelligence queries"""
+    query: str
+    context: dict[str, Any] = {}
+
+
+class GroupHealthResponse(BaseModel):
+    """Response model for group health status"""
+    timestamp: datetime
+    overall_health: str
+    groups: dict[str, Any]
+    alerts: list[dict[str, Any]]
+    recommendations: list[str]
+
+
+@router.post("/execute-group-aware-task")
+async def execute_group_aware_task(task_request: GroupAwareTaskRequest) -> dict[str, Any]:
+    """
+    Execute business task with group-aware intelligence.
+    Leverages existing MCPOrchestrationService with group enhancements.
+    """
+    try:
+        # Import here to avoid circular dependencies
+        from backend.services.mcp_orchestration_service import (
+            orchestration_service,
+            BusinessTask,
+            TaskPriority
+        )
+        from backend.services.group_aware_orchestration_enhancement import (
+            GroupAwareOrchestrationEnhancement
+        )
+        
+        # Create enhanced orchestrator
+        enhanced_orchestrator = GroupAwareOrchestrationEnhancement(orchestration_service)
+        
+        # Convert request to business task
+        priority_map = {
+            "critical": TaskPriority.CRITICAL,
+            "high": TaskPriority.HIGH,
+            "medium": TaskPriority.MEDIUM,
+            "low": TaskPriority.LOW
+        }
+        
+        task = BusinessTask(
+            task_id=f"api_{datetime.utcnow().timestamp()}",
+            task_type=task_request.task_type,
+            description=task_request.description,
+            required_capabilities=task_request.required_capabilities,
+            priority=priority_map.get(task_request.priority, TaskPriority.MEDIUM),
+            context_data=task_request.context_data,
+            requires_synthesis=task_request.requires_synthesis
+        )
+        
+        # Execute with group-aware enhancement
+        result = await enhanced_orchestrator.enhance_business_task_execution(task)
+        
+        return {
+            "task_id": result.task_id,
+            "success": result.success,
+            "execution_time_ms": result.execution_time_ms,
+            "results": result.results,
+            "servers_used": result.servers_used,
+            "metadata": result.metadata,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to execute group-aware task: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to execute group-aware task: {str(e)}"
+        )
+
+
+@router.get("/group-health-dashboard", response_model=GroupHealthResponse)
+async def get_group_health_dashboard() -> GroupHealthResponse:
+    """
+    Get group-level health monitoring dashboard.
+    Provides real-time health status for all server groups.
+    """
+    try:
+        from backend.services.mcp_orchestration_service import orchestration_service
+        from backend.services.group_aware_orchestration_enhancement import (
+            GroupAwareOrchestrationEnhancement
+        )
+        
+        # Create enhanced orchestrator
+        enhanced_orchestrator = GroupAwareOrchestrationEnhancement(orchestration_service)
+        
+        # Get group health dashboard
+        dashboard = await enhanced_orchestrator.get_group_health_dashboard()
+        
+        return GroupHealthResponse(
+            timestamp=datetime.utcnow(),
+            overall_health=dashboard["overall_health"],
+            groups=dashboard["groups"],
+            alerts=dashboard["alerts"],
+            recommendations=dashboard["recommendations"]
+        )
+        
+    except Exception as e:
+        logger.error(f"Failed to get group health dashboard: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get group health dashboard: {str(e)}"
+        )
+
+
+@router.post("/executive-intelligence")
+async def execute_executive_intelligence(query: ExecutiveQuery) -> dict[str, Any]:
+    """
+    Execute CEO dashboard query across all groups.
+    Provides cross-group synthesis for executive decision support.
+    """
+    try:
+        from backend.services.mcp_orchestration_service import orchestration_service
+        from backend.services.group_aware_orchestration_enhancement import (
+            GroupAwareOrchestrationEnhancement
+        )
+        
+        # Create enhanced orchestrator
+        enhanced_orchestrator = GroupAwareOrchestrationEnhancement(orchestration_service)
+        
+        # Execute executive intelligence query
+        result = await enhanced_orchestrator.execute_executive_intelligence_task(
+            query.query
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Failed to execute executive intelligence query: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to execute executive intelligence query: {str(e)}"
+        )
+
+
+@router.get("/group-performance-optimization")
+async def get_group_performance_optimization() -> dict[str, Any]:
+    """
+    Get performance optimization recommendations for server groups.
+    Analyzes group performance and provides actionable insights.
+    """
+    try:
+        from backend.services.mcp_orchestration_service import orchestration_service
+        from backend.services.group_aware_orchestration_enhancement import (
+            GroupAwareOrchestrationEnhancement
+        )
+        
+        # Create enhanced orchestrator
+        enhanced_orchestrator = GroupAwareOrchestrationEnhancement(orchestration_service)
+        
+        # Get optimization recommendations
+        optimizations = await enhanced_orchestrator.optimize_group_performance()
+        
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "optimizations": optimizations,
+            "total_recommendations": len(optimizations)
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get performance optimization: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get performance optimization: {str(e)}"
+        )
+
+
+@router.get("/predict-group-failures")
+async def predict_group_failures() -> dict[str, Any]:
+    """
+    Predict potential group failures based on trends.
+    Provides proactive monitoring and risk assessment.
+    """
+    try:
+        from backend.services.mcp_orchestration_service import orchestration_service
+        from backend.services.group_aware_orchestration_enhancement import (
+            GroupAwareOrchestrationEnhancement
+        )
+        
+        # Create enhanced orchestrator
+        enhanced_orchestrator = GroupAwareOrchestrationEnhancement(orchestration_service)
+        
+        # Get failure predictions
+        predictions = await enhanced_orchestrator.predict_group_failures()
+        
+        return {
+            "timestamp": datetime.utcnow().isoformat(),
+            "predictions": predictions,
+            "high_risk_count": sum(1 for p in predictions if p.get("risk_level") == "high"),
+            "medium_risk_count": sum(1 for p in predictions if p.get("risk_level") == "medium")
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to predict group failures: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to predict group failures: {str(e)}"
+        )

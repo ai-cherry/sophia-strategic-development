@@ -6,24 +6,30 @@ Enterprise-grade connection pooling with circuit breakers and health monitoring
 
 import asyncio
 import logging
+import os
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, AsyncContextManager
 
 import asyncpg
 import redis.asyncio as redis
 
+# Define UTC for compatibility
+UTC = UTC
+
 # Try to import optional dependencies
 try:
     import snowflake.connector
-from backend.core.auto_esc_config import get_config_value
 
+    from backend.core.auto_esc_config import get_config_value
     SNOWFLAKE_AVAILABLE = True
 except ImportError:
     SNOWFLAKE_AVAILABLE = False
+    def get_config_value(key):
+        return os.getenv(key.upper())
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +71,7 @@ class HealthCheckResult:
     status: HealthStatus
     response_time_ms: float
     error_message: str | None = None
-    timestamp: datetime = None
+    timestamp: datetime | None = None
 
     def __post_init__(self):
         if self.timestamp is None:

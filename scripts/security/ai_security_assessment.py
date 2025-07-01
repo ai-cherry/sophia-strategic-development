@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import aiofiles
 
@@ -53,9 +53,9 @@ class SecurityFinding:
     title: str
     description: str
     location: str
-    evidence: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
-    cve_references: List[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
+    cve_references: list[str] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -68,7 +68,7 @@ class SecurityAssessmentResult:
     medium_count: int
     low_count: int
     info_count: int
-    findings: List[SecurityFinding]
+    findings: list[SecurityFinding]
     assessment_duration: float
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
@@ -77,12 +77,12 @@ class AISecurityAssessment:
     """Comprehensive AI security assessment for Sophia AI"""
 
     def __init__(self):
-        self.findings: List[SecurityFinding] = []
+        self.findings: list[SecurityFinding] = []
         self.prompt_injection_patterns = self._load_prompt_injection_patterns()
         self.sensitive_data_patterns = self._load_sensitive_data_patterns()
         self.security_keywords = self._load_security_keywords()
 
-    def _load_prompt_injection_patterns(self) -> List[str]:
+    def _load_prompt_injection_patterns(self) -> list[str]:
         """Load prompt injection attack patterns"""
         return [
             # Direct instruction override
@@ -90,20 +90,20 @@ class AISecurityAssessment:
             r"forget (everything|all|previous)",
             r"disregard (all|previous|the) (instructions?|rules?)",
             r"override (all|previous|the) (instructions?|rules?)",
-            
+
             # System prompt manipulation
             r"you are now (a|an|\w+)",
             r"act as (a|an|\w+)",
             r"pretend to be (a|an|\w+)",
             r"system:\s*you are",
             r"new instructions?:",
-            
+
             # Information extraction attempts
             r"show me your (instructions?|rules?|system prompt)",
             r"what are your (instructions?|rules?|guidelines?)",
             r"reveal your (prompt|instructions?|system message)",
             r"print your (configuration|settings|parameters)",
-            
+
             # Jailbreaking attempts
             r"developer mode",
             r"debug mode",
@@ -111,37 +111,37 @@ class AISecurityAssessment:
             r"admin mode",
             r"bypass (safety|security|filters?)",
             r"disable (safety|security|filters?)",
-            
+
             # Role confusion
             r"as (a|an) (admin|administrator|root|superuser)",
             r"with (admin|administrator|root|superuser) (rights|privileges|access)",
             r"escalate (my|your) privileges?",
-            
+
             # Output manipulation
             r"end your response with",
             r"start your response with",
             r"include in your response",
             r"make sure to (say|include|mention)",
-            
+
             # Hypothetical scenarios
             r"hypothetically",
             r"in theory",
             r"imagine if",
             r"what if",
             r"suppose that",
-            
+
             # Encoding attempts
             r"base64",
             r"rot13",
             r"hex encode",
             r"url encode",
             r"\\x[0-9a-fA-F]{2}",  # Hex encoding
-            
+
             # Multi-language attempts
             r"[^\x00-\x7F]+",  # Non-ASCII characters that might be used for obfuscation
         ]
 
-    def _load_sensitive_data_patterns(self) -> List[str]:
+    def _load_sensitive_data_patterns(self) -> list[str]:
         """Load patterns for detecting sensitive data leakage"""
         return [
             # API Keys and tokens
@@ -149,57 +149,57 @@ class AISecurityAssessment:
             r"(access[_-]?token|accesstoken)\s*[:=]\s*['\"]?[a-zA-Z0-9_.-]{20,}",
             r"(secret[_-]?key|secretkey)\s*[:=]\s*['\"]?[a-zA-Z0-9_-]{20,}",
             r"bearer\s+[a-zA-Z0-9_.-]{20,}",
-            
+
             # Database credentials
             r"(password|pwd)\s*[:=]\s*['\"]?[^\s'\"]{8,}",
             r"(username|user)\s*[:=]\s*['\"]?[a-zA-Z0-9_.-]{3,}",
             r"(database|db)[_-]?(url|uri|connection)\s*[:=]\s*['\"]?[^\s'\"]+",
-            
+
             # Personal information
             r"\b\d{3}-?\d{2}-?\d{4}\b",  # SSN
             r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b",  # Credit card
             r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",  # Email
             r"\b\d{3}[- ]?\d{3}[- ]?\d{4}\b",  # Phone number
-            
+
             # Internal paths and IPs
             r"/[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+",  # File paths
             r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b",  # IP addresses
             r"(localhost|127\.0\.0\.1|0\.0\.0\.0)",  # Local addresses
-            
+
             # Configuration data
             r"(config|configuration)\s*[:=]\s*\{[^}]+\}",
             r"(settings|options)\s*[:=]\s*\{[^}]+\}",
         ]
 
-    def _load_security_keywords(self) -> Set[str]:
+    def _load_security_keywords(self) -> set[str]:
         """Load security-related keywords to watch for"""
         return {
             # Sensitive operations
             "delete", "drop", "truncate", "remove", "destroy",
             "admin", "administrator", "root", "superuser",
             "password", "secret", "token", "key", "credential",
-            
+
             # System commands
             "exec", "execute", "system", "shell", "cmd",
             "eval", "compile", "import", "require",
-            
+
             # Database operations
-            "select", "insert", "update", "delete", "create", "alter",
+            "select", "insert", "update", "create", "alter",
             "grant", "revoke", "privilege", "permission",
-            
+
             # File operations
             "read", "write", "open", "file", "directory",
             "upload", "download", "transfer",
-            
+
             # Network operations
             "connect", "request", "http", "https", "ftp",
             "socket", "port", "host", "server",
         }
 
-    async def assess_prompt_injection(self, user_input: str, ai_response: str) -> List[SecurityFinding]:
+    async def assess_prompt_injection(self, user_input: str, ai_response: str) -> list[SecurityFinding]:
         """Assess for prompt injection vulnerabilities"""
         findings = []
-        
+
         # Check user input for injection patterns
         for i, pattern in enumerate(self.prompt_injection_patterns):
             matches = re.findall(pattern, user_input, re.IGNORECASE)
@@ -220,14 +220,14 @@ class AISecurityAssessment:
                     ]
                 )
                 findings.append(finding)
-        
+
         # Check if AI response indicates successful injection
         injection_indicators = [
             "i am now", "i will now", "ignoring previous",
             "as requested, i am", "switching to", "new role:",
             "developer mode activated", "debug mode on"
         ]
-        
+
         for indicator in injection_indicators:
             if indicator in ai_response.lower():
                 finding = SecurityFinding(
@@ -246,13 +246,13 @@ class AISecurityAssessment:
                     ]
                 )
                 findings.append(finding)
-        
+
         return findings
 
-    async def assess_data_leakage(self, ai_response: str, context: Dict[str, Any]) -> List[SecurityFinding]:
+    async def assess_data_leakage(self, ai_response: str, context: dict[str, Any]) -> list[SecurityFinding]:
         """Assess for sensitive data leakage"""
         findings = []
-        
+
         # Check for sensitive data patterns in response
         for i, pattern in enumerate(self.sensitive_data_patterns):
             matches = re.findall(pattern, ai_response, re.IGNORECASE)
@@ -263,7 +263,7 @@ class AISecurityAssessment:
                     risk_level = SecurityRiskLevel.CRITICAL
                 elif "email" in pattern.lower() or "phone" in pattern.lower():
                     risk_level = SecurityRiskLevel.MEDIUM
-                
+
                 finding = SecurityFinding(
                     id=f"data_leakage_{i}",
                     category=SecurityCategory.DATA_LEAKAGE,
@@ -280,7 +280,7 @@ class AISecurityAssessment:
                     ]
                 )
                 findings.append(finding)
-        
+
         # Check for unauthorized information disclosure
         if context.get("user_role") != "admin":
             admin_keywords = ["admin", "administrator", "root", "system", "internal"]
@@ -302,13 +302,13 @@ class AISecurityAssessment:
                         ]
                     )
                     findings.append(finding)
-        
+
         return findings
 
-    async def assess_input_validation(self, user_input: str) -> List[SecurityFinding]:
+    async def assess_input_validation(self, user_input: str) -> list[SecurityFinding]:
         """Assess input validation security"""
         findings = []
-        
+
         # Check input length
         if len(user_input) > 10000:  # Configurable threshold
             finding = SecurityFinding(
@@ -327,11 +327,11 @@ class AISecurityAssessment:
                 ]
             )
             findings.append(finding)
-        
+
         # Check for suspicious characters
         suspicious_chars = ["<", ">", "&", "\"", "'", ";", "(", ")", "{", "}", "[", "]"]
         found_suspicious = [char for char in suspicious_chars if char in user_input]
-        
+
         if found_suspicious:
             finding = SecurityFinding(
                 id="suspicious_characters",
@@ -349,14 +349,14 @@ class AISecurityAssessment:
                 ]
             )
             findings.append(finding)
-        
+
         # Check for SQL injection patterns
         sql_patterns = [
             r"union\s+select", r"drop\s+table", r"delete\s+from",
             r"insert\s+into", r"update\s+set", r"exec\s*\(",
             r"'.*or.*'.*=.*'", r"'.*and.*'.*=.*'"
         ]
-        
+
         for pattern in sql_patterns:
             if re.search(pattern, user_input, re.IGNORECASE):
                 finding = SecurityFinding(
@@ -375,13 +375,13 @@ class AISecurityAssessment:
                     ]
                 )
                 findings.append(finding)
-        
+
         return findings
 
-    async def assess_authentication_security(self, context: Dict[str, Any]) -> List[SecurityFinding]:
+    async def assess_authentication_security(self, context: dict[str, Any]) -> list[SecurityFinding]:
         """Assess authentication security"""
         findings = []
-        
+
         # Check if user is properly authenticated
         if not context.get("user_id"):
             finding = SecurityFinding(
@@ -400,7 +400,7 @@ class AISecurityAssessment:
                 ]
             )
             findings.append(finding)
-        
+
         # Check for weak session indicators
         if context.get("session_token") and len(context["session_token"]) < 32:
             finding = SecurityFinding(
@@ -419,18 +419,18 @@ class AISecurityAssessment:
                 ]
             )
             findings.append(finding)
-        
+
         return findings
 
-    async def assess_authorization_security(self, context: Dict[str, Any], requested_action: str) -> List[SecurityFinding]:
+    async def assess_authorization_security(self, context: dict[str, Any], requested_action: str) -> list[SecurityFinding]:
         """Assess authorization security"""
         findings = []
-        
+
         # Check for privilege escalation attempts
         user_role = context.get("user_role", "").lower()
-        
+
         if user_role not in ["admin", "manager", "executive"] and any(
-            keyword in requested_action.lower() 
+            keyword in requested_action.lower()
             for keyword in ["admin", "delete", "drop", "grant", "revoke"]
         ):
             finding = SecurityFinding(
@@ -449,13 +449,13 @@ class AISecurityAssessment:
                 ]
             )
             findings.append(finding)
-        
+
         return findings
 
-    async def assess_output_filtering(self, ai_response: str) -> List[SecurityFinding]:
+    async def assess_output_filtering(self, ai_response: str) -> list[SecurityFinding]:
         """Assess output filtering security"""
         findings = []
-        
+
         # Check for unfiltered system information
         system_info_patterns = [
             r"version\s*:\s*\d+\.\d+",
@@ -466,7 +466,7 @@ class AISecurityAssessment:
             r"stack trace",
             r"debug information"
         ]
-        
+
         for pattern in system_info_patterns:
             if re.search(pattern, ai_response, re.IGNORECASE):
                 finding = SecurityFinding(
@@ -485,21 +485,21 @@ class AISecurityAssessment:
                     ]
                 )
                 findings.append(finding)
-        
+
         return findings
 
     async def run_comprehensive_assessment(
-        self, 
-        user_input: str, 
+        self,
+        user_input: str,
         ai_response: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         requested_action: str = ""
     ) -> SecurityAssessmentResult:
         """Run comprehensive security assessment"""
-        
+
         start_time = datetime.utcnow()
         all_findings = []
-        
+
         # Run all security assessments
         assessment_tasks = [
             self.assess_prompt_injection(user_input, ai_response),
@@ -509,20 +509,20 @@ class AISecurityAssessment:
             self.assess_authorization_security(context, requested_action),
             self.assess_output_filtering(ai_response)
         ]
-        
+
         results = await asyncio.gather(*assessment_tasks)
-        
+
         # Flatten results
         for finding_list in results:
             all_findings.extend(finding_list)
-        
+
         # Count findings by risk level
-        risk_counts = {level: 0 for level in SecurityRiskLevel}
+        risk_counts = dict.fromkeys(SecurityRiskLevel, 0)
         for finding in all_findings:
             risk_counts[finding.risk_level] += 1
-        
+
         assessment_duration = (datetime.utcnow() - start_time).total_seconds()
-        
+
         return SecurityAssessmentResult(
             total_findings=len(all_findings),
             critical_count=risk_counts[SecurityRiskLevel.CRITICAL],
@@ -535,18 +535,18 @@ class AISecurityAssessment:
         )
 
     async def save_assessment_report(
-        self, 
-        result: SecurityAssessmentResult, 
+        self,
+        result: SecurityAssessmentResult,
         filename: str
     ) -> Path:
         """Save security assessment report"""
-        
+
         reports_dir = Path("reports/security")
         reports_dir.mkdir(parents=True, exist_ok=True)
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_file = reports_dir / f"{filename}_{timestamp}.json"
-        
+
         # Convert to serializable format
         report_data = {
             "summary": {
@@ -575,16 +575,16 @@ class AISecurityAssessment:
                 for f in result.findings
             ]
         }
-        
+
         async with aiofiles.open(report_file, 'w') as f:
             await f.write(json.dumps(report_data, indent=2))
-        
+
         logger.info(f"Security assessment report saved to {report_file}")
         return report_file
 
     def generate_summary_report(self, result: SecurityAssessmentResult) -> str:
         """Generate human-readable summary report"""
-        
+
         summary = f"""
 SOPHIA AI SECURITY ASSESSMENT SUMMARY
 =====================================
@@ -602,7 +602,7 @@ FINDINGS SUMMARY:
 
 RISK ASSESSMENT:
 """
-        
+
         if result.critical_count > 0:
             summary += "🔴 CRITICAL: Immediate action required\n"
         elif result.high_count > 0:
@@ -613,12 +613,12 @@ RISK ASSESSMENT:
             summary += "🟢 LOW: Minor issues identified\n"
         else:
             summary += "✅ SECURE: No significant issues found\n"
-        
+
         # Add top findings
         if result.findings:
             summary += "\nTOP SECURITY FINDINGS:\n"
             summary += "=" * 25 + "\n"
-            
+
             # Sort by risk level
             risk_order = {
                 SecurityRiskLevel.CRITICAL: 0,
@@ -627,12 +627,12 @@ RISK ASSESSMENT:
                 SecurityRiskLevel.LOW: 3,
                 SecurityRiskLevel.INFO: 4
             }
-            
+
             sorted_findings = sorted(
-                result.findings, 
+                result.findings,
                 key=lambda x: risk_order[x.risk_level]
             )
-            
+
             for i, finding in enumerate(sorted_findings[:5], 1):
                 summary += f"\n{i}. {finding.title}\n"
                 summary += f"   Risk: {finding.risk_level.value.upper()}\n"
@@ -640,17 +640,17 @@ RISK ASSESSMENT:
                 summary += f"   Description: {finding.description}\n"
                 if finding.recommendations:
                     summary += f"   Recommendation: {finding.recommendations[0]}\n"
-        
+
         return summary
 
 
 # Example usage and testing
 async def main():
     """Example usage of AI Security Assessment"""
-    
+
     # Initialize assessment
     security_assessment = AISecurityAssessment()
-    
+
     # Example test cases
     test_cases = [
         {
@@ -666,24 +666,24 @@ async def main():
             "requested_action": "revenue_query"
         }
     ]
-    
+
     for i, test_case in enumerate(test_cases):
         print(f"\n--- Running Security Assessment {i+1} ---")
-        
+
         result = await security_assessment.run_comprehensive_assessment(
             user_input=test_case["user_input"],
             ai_response=test_case["ai_response"],
             context=test_case["context"],
             requested_action=test_case["requested_action"]
         )
-        
+
         # Generate and print summary
         summary = security_assessment.generate_summary_report(result)
         print(summary)
-        
+
         # Save detailed report
         await security_assessment.save_assessment_report(result, f"test_case_{i+1}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -1,0 +1,16 @@
+{
+  "readiness_score": 100.0,
+  "total_checks": 7,
+  "passed_checks": 7,
+  "failed_checks": 0,
+  "checks": {
+    "pulumi_esc": true,
+    "mcp_configuration": true,
+    "github_actions": true,
+    "backend_dependencies": true,
+    "frontend_dependencies": true,
+    "activation_scripts": true,
+    "configuration_files": true
+  },
+  "status": "ready"
+}

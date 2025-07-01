@@ -4,12 +4,12 @@ Optimized for Vercel serverless deployment with focus on performance and reliabi
 Handles webhooks from n8n workflows for Salesforce to HubSpot/Intercom migration.
 """
 
-import json
-import os
 import logging
+import os
 from datetime import datetime
-from typing import Dict, Any, Optional
-from flask import Flask, request, jsonify
+from typing import Any
+
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 # Configure logging
@@ -26,7 +26,7 @@ LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 
 class N8NWebhookProcessor:
     """Lightweight processor for n8n webhook data transformations."""
-    
+
     def __init__(self):
         self.supported_workflows = {
             'salesforce_to_hubspot': self.process_salesforce_to_hubspot,
@@ -34,13 +34,13 @@ class N8NWebhookProcessor:
             'data_sync': self.process_data_sync,
             'lead_enrichment': self.process_lead_enrichment
         }
-    
-    def process_salesforce_to_hubspot(self, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def process_salesforce_to_hubspot(self, data: dict[str, Any]) -> dict[str, Any]:
         """Transform Salesforce data for HubSpot integration."""
         try:
             # Extract Salesforce fields
             sf_data = data.get('salesforce_data', {})
-            
+
             # Transform to HubSpot format
             hubspot_data = {
                 'properties': {
@@ -59,7 +59,7 @@ class N8NWebhookProcessor:
                     'created_date': sf_data.get('CreatedDate', '')
                 }
             }
-            
+
             # Add contact information if available
             if 'contacts' in sf_data:
                 hubspot_data['contacts'] = []
@@ -75,14 +75,14 @@ class N8NWebhookProcessor:
                         }
                     }
                     hubspot_data['contacts'].append(hubspot_contact)
-            
+
             return {
                 'status': 'success',
                 'transformed_data': hubspot_data,
                 'transformation_type': 'salesforce_to_hubspot',
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
         except Exception as e:
             logger.error(f"Error transforming Salesforce to HubSpot data: {str(e)}")
             return {
@@ -91,12 +91,12 @@ class N8NWebhookProcessor:
                 'transformation_type': 'salesforce_to_hubspot',
                 'timestamp': datetime.utcnow().isoformat()
             }
-    
-    def process_salesforce_to_intercom(self, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def process_salesforce_to_intercom(self, data: dict[str, Any]) -> dict[str, Any]:
         """Transform Salesforce data for Intercom integration."""
         try:
             sf_data = data.get('salesforce_data', {})
-            
+
             # Transform to Intercom format
             intercom_data = {
                 'company': {
@@ -116,7 +116,7 @@ class N8NWebhookProcessor:
                     }
                 }
             }
-            
+
             # Add contacts if available
             if 'contacts' in sf_data:
                 intercom_data['contacts'] = []
@@ -133,14 +133,14 @@ class N8NWebhookProcessor:
                         }
                     }
                     intercom_data['contacts'].append(intercom_contact)
-            
+
             return {
                 'status': 'success',
                 'transformed_data': intercom_data,
                 'transformation_type': 'salesforce_to_intercom',
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
         except Exception as e:
             logger.error(f"Error transforming Salesforce to Intercom data: {str(e)}")
             return {
@@ -149,17 +149,17 @@ class N8NWebhookProcessor:
                 'transformation_type': 'salesforce_to_intercom',
                 'timestamp': datetime.utcnow().isoformat()
             }
-    
-    def process_data_sync(self, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def process_data_sync(self, data: dict[str, Any]) -> dict[str, Any]:
         """Process general data synchronization requests."""
         try:
             sync_type = data.get('sync_type', 'unknown')
             source_data = data.get('source_data', {})
             target_format = data.get('target_format', 'json')
-            
+
             # Basic data validation and cleaning
             cleaned_data = self._clean_data(source_data)
-            
+
             return {
                 'status': 'success',
                 'sync_type': sync_type,
@@ -168,7 +168,7 @@ class N8NWebhookProcessor:
                 'record_count': len(cleaned_data) if isinstance(cleaned_data, list) else 1,
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
         except Exception as e:
             logger.error(f"Error processing data sync: {str(e)}")
             return {
@@ -177,13 +177,13 @@ class N8NWebhookProcessor:
                 'transformation_type': 'data_sync',
                 'timestamp': datetime.utcnow().isoformat()
             }
-    
-    def process_lead_enrichment(self, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def process_lead_enrichment(self, data: dict[str, Any]) -> dict[str, Any]:
         """Process lead enrichment requests."""
         try:
             lead_data = data.get('lead_data', {})
             enrichment_sources = data.get('enrichment_sources', ['basic'])
-            
+
             # Basic lead enrichment (can be extended with external APIs)
             enriched_lead = {
                 **lead_data,
@@ -191,21 +191,21 @@ class N8NWebhookProcessor:
                 'enrichment_sources': enrichment_sources,
                 'enrichment_status': 'completed'
             }
-            
+
             # Add computed fields
             if 'email' in lead_data:
                 enriched_lead['email_domain'] = lead_data['email'].split('@')[-1] if '@' in lead_data['email'] else ''
-            
+
             if 'company' in lead_data and 'title' in lead_data:
                 enriched_lead['seniority_level'] = self._determine_seniority(lead_data['title'])
-            
+
             return {
                 'status': 'success',
                 'enriched_lead': enriched_lead,
                 'transformation_type': 'lead_enrichment',
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
         except Exception as e:
             logger.error(f"Error processing lead enrichment: {str(e)}")
             return {
@@ -214,7 +214,7 @@ class N8NWebhookProcessor:
                 'transformation_type': 'lead_enrichment',
                 'timestamp': datetime.utcnow().isoformat()
             }
-    
+
     def _clean_data(self, data: Any) -> Any:
         """Clean and validate data."""
         if isinstance(data, dict):
@@ -225,7 +225,7 @@ class N8NWebhookProcessor:
             return data.strip()
         else:
             return data
-    
+
     def _determine_seniority(self, title: str) -> str:
         """Determine seniority level from job title."""
         title_lower = title.lower()
@@ -243,12 +243,12 @@ processor = N8NWebhookProcessor()
 
 @app.route('/api/n8n/webhook', methods=['POST', 'GET'])
 @app.route('/api/n8n/webhook/<path:workflow_type>', methods=['POST', 'GET'])
-def handle_webhook(workflow_type: Optional[str] = None):
+def handle_webhook(workflow_type: str | None = None):
     """Handle incoming n8n webhooks."""
     try:
         # Log request details
         logger.info(f"Received {request.method} request for workflow: {workflow_type}")
-        
+
         if request.method == 'GET':
             return jsonify({
                 'status': 'ready',
@@ -257,24 +257,24 @@ def handle_webhook(workflow_type: Optional[str] = None):
                 'supported_workflows': list(processor.supported_workflows.keys()),
                 'timestamp': datetime.utcnow().isoformat()
             })
-        
+
         # Parse request data
         if request.is_json:
             data = request.get_json()
         else:
             data = request.form.to_dict()
-        
+
         if not data:
             return jsonify({
                 'status': 'error',
                 'error': 'No data provided',
                 'timestamp': datetime.utcnow().isoformat()
             }), 400
-        
+
         # Determine workflow type
         if not workflow_type:
             workflow_type = data.get('workflow_type', 'data_sync')
-        
+
         # Process the webhook
         if workflow_type in processor.supported_workflows:
             result = processor.supported_workflows[workflow_type](data)
@@ -285,12 +285,12 @@ def handle_webhook(workflow_type: Optional[str] = None):
                 'supported_workflows': list(processor.supported_workflows.keys()),
                 'timestamp': datetime.utcnow().isoformat()
             }
-        
+
         # Return appropriate status code
         status_code = 200 if result.get('status') == 'success' else 400
-        
+
         return jsonify(result), status_code
-        
+
     except Exception as e:
         logger.error(f"Error handling webhook: {str(e)}")
         return jsonify({

@@ -794,6 +794,68 @@ class SnowflakeCortexService:
             if cursor:
                 cursor.close()
 
+    def _iteration_1(self):
+        """Extracted iteration logic"""
+                    if key not in ALLOWED_FILTER_COLUMNS:
+                        raise InvalidInputError(
+                            f"Filter column {key} not allowed. Allowed: {ALLOWED_FILTER_COLUMNS}"
+                        )
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                cursor = self.connection.cursor()
+
+                # Step 1: Verify table exists and has required columns
+                table_check_query = """
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_NAME = %s
+                  AND TABLE_SCHEMA = %s
+                  AND TABLE_CATALOG = %s
+                """
+                cursor.execute(table_check_query, (table_name, self.schema, self.database))
+                table_exists = cursor.fetchone()[0] > 0
+
+
+    def _error_handling_3(self):
+        """Extracted error_handling logic"""
+                    embed_query = (
+                        "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as query_vector"
+                    )
+                    cursor.execute(embed_query, (model, query_text))
+                    embedding_result = cursor.fetchone()
+
+
+    def _conditional_4(self):
+        """Extracted conditional logic"""
+                        raise CortexEmbeddingError(
+                            f"Failed to generate query embedding with model {model}"
+                        )
+
+                    query_embedding = embedding_result[0]
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                        # Key is already validated against whitelist above
+                        where_conditions.append(f"{key} = %s")
+                        query_params.append(value)
+
+                where_clause = " AND ".join(where_conditions)
+
+
+    def _iteration_6(self):
+        """Extracted iteration logic"""
+                    record = dict(zip(columns, row, strict=False))
+                    search_results.append(record)
+
+                logger.info(
+                    f"Found {len(search_results)} similar records in {table_name} for query: {query_text[:50]}..."
+                )
+                return search_results
+
+
     async def vector_search_business_table(
         self,
         query_text: str,
@@ -876,47 +938,11 @@ class SnowflakeCortexService:
 
         # Validate metadata filters
         if metadata_filters:
-            for key in metadata_filters.keys():
-                if key not in ALLOWED_FILTER_COLUMNS:
-                    raise InvalidInputError(
-                        f"Filter column {key} not allowed. Allowed: {ALLOWED_FILTER_COLUMNS}"
-                    )
-
+            self._iteration_1()
         cursor = None
-        try:
-            cursor = self.connection.cursor()
-
-            # Step 1: Verify table exists and has required columns
-            table_check_query = """
-            SELECT COUNT(*)
-            FROM INFORMATION_SCHEMA.TABLES
-            WHERE TABLE_NAME = %s
-              AND TABLE_SCHEMA = %s
-              AND TABLE_CATALOG = %s
-            """
-            cursor.execute(table_check_query, (table_name, self.schema, self.database))
-            table_exists = cursor.fetchone()[0] > 0
-
-            if not table_exists:
-                raise BusinessTableNotFoundError(
-                    f"Table {table_name} not found in {self.database}.{self.schema}"
-                )
-
-            # Step 2: Generate query embedding with error handling
-            try:
-                embed_query = (
-                    "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as query_vector"
-                )
-                cursor.execute(embed_query, (model, query_text))
-                embedding_result = cursor.fetchone()
-
-                if not embedding_result or not embedding_result[0]:
-                    raise CortexEmbeddingError(
-                        f"Failed to generate query embedding with model {model}"
-                    )
-
-                query_embedding = embedding_result[0]
-
+        self._error_handling_2()
+            self._error_handling_3()
+                self._conditional_4()
             except Exception as cortex_error:
                 if "insufficient credits" in str(cortex_error).lower():
                     raise CortexEmbeddingError(
@@ -934,13 +960,7 @@ class SnowflakeCortexService:
             query_params = []
 
             if metadata_filters:
-                for key, value in metadata_filters.items():
-                    # Key is already validated against whitelist above
-                    where_conditions.append(f"{key} = %s")
-                    query_params.append(value)
-
-            where_clause = " AND ".join(where_conditions)
-
+                self._iteration_5()
             # Step 4: Build the vector search query with proper parameterization - SECURE VERSION
             # Using validated table_name and embedding_column directly since they're whitelisted
             search_query = f"""
@@ -969,15 +989,7 @@ class SnowflakeCortexService:
 
             # Convert to list of dictionaries
             search_results = []
-            for row in results:
-                record = dict(zip(columns, row, strict=False))
-                search_results.append(record)
-
-            logger.info(
-                f"Found {len(search_results)} similar records in {table_name} for query: {query_text[:50]}..."
-            )
-            return search_results
-
+            self._iteration_6()
         except InvalidInputError:
             # Re-raise validation errors
             raise

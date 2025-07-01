@@ -45,8 +45,8 @@ except ImportError:
 # Base class and configs
 import logging
 
-from backend.mcp_servers.base.standardized_mcp_server import (
 from backend.core.auto_esc_config import get_config_value
+from backend.mcp_servers.base.standardized_mcp_server import (
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,

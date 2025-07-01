@@ -11,6 +11,53 @@ import os
 import re
 
 
+    def _iteration_1(self):
+        """Extracted iteration logic"""
+            os.environ[key] = value
+            print(f"   ✅ {key} = {value}")
+
+        # 2. Create absolute override file
+        override_content = '''"""
+    ABSOLUTE SNOWFLAKE OVERRIDE - DO NOT MODIFY
+    This file provides the FINAL, ABSOLUTE override for Snowflake configuration
+    """
+
+
+    def _iteration_2(self):
+        """Extracted iteration logic"""
+                if line.startswith("import ") or line.startswith("from "):
+                    import_idx = i + 1
+
+            lines.insert(
+                import_idx,
+                "from backend.core.absolute_snowflake_override import get_snowflake_connection_params",
+            )
+            content = "\n".join(lines)
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                if line.startswith("from backend."):
+                    lines.insert(
+                        i,
+                        "import backend.core.absolute_snowflake_override  # ABSOLUTE OVERRIDE",
+                    )
+                    break
+
+
+    def _error_handling_4(self):
+        """Extracted error_handling logic"""
+        from backend.core.absolute_snowflake_override import get_snowflake_connection_params
+        params = get_snowflake_connection_params()
+        print(f"✅ VERIFIED: Snowflake account is {params['account']}")
+
+        if params['account'] == 'ZNB04675':
+            print("🎉 ABSOLUTE FIX SUCCESSFUL - Ready to start Sophia AI!")
+        else:
+            print(f"❌ ABSOLUTE FIX FAILED - account is {params['account']}")
+            sys.exit(1)
+
+
 def apply_ultimate_snowflake_fix():
     """Apply the most comprehensive Snowflake fix possible"""
     print("🔧 APPLYING ULTIMATE SNOWFLAKE FIX")
@@ -27,16 +74,7 @@ def apply_ultimate_snowflake_fix():
     }
 
     print("1. Setting environment variables...")
-    for key, value in correct_config.items():
-        os.environ[key] = value
-        print(f"   ✅ {key} = {value}")
-
-    # 2. Create absolute override file
-    override_content = '''"""
-ABSOLUTE SNOWFLAKE OVERRIDE - DO NOT MODIFY
-This file provides the FINAL, ABSOLUTE override for Snowflake configuration
-"""
-
+    self._iteration_1()
 def get_snowflake_connection_params():
     """Get ABSOLUTE Snowflake connection parameters - CANNOT BE OVERRIDDEN"""
     return {
@@ -84,16 +122,7 @@ print("🔧 ABSOLUTE Snowflake override applied - Account: ZNB04675")
 
         # Find import section
         import_idx = 0
-        for i, line in enumerate(lines):
-            if line.startswith("import ") or line.startswith("from "):
-                import_idx = i + 1
-
-        lines.insert(
-            import_idx,
-            "from backend.core.absolute_snowflake_override import get_snowflake_connection_params",
-        )
-        content = "\n".join(lines)
-
+        self._iteration_2()
     # Replace the _create_snowflake_connection method completely
     new_method = '''    async def _create_snowflake_connection(self):
         """Create Snowflake connection with ABSOLUTE override"""
@@ -131,14 +160,7 @@ print("🔧 ABSOLUTE Snowflake override applied - Account: ZNB04675")
         lines = content.split("\n")
 
         # Find a good place to add the import
-        for i, line in enumerate(lines):
-            if line.startswith("from backend."):
-                lines.insert(
-                    i,
-                    "import backend.core.absolute_snowflake_override  # ABSOLUTE OVERRIDE",
-                )
-                break
-
+        self._iteration_3()
         content = "\n".join(lines)
 
         with open(fastapi_file, "w") as f:
@@ -173,17 +195,7 @@ print("🔧 ABSOLUTE Snowflake environment configured")
 import backend.core.absolute_snowflake_override
 
 # Test the fix
-try:
-    from backend.core.absolute_snowflake_override import get_snowflake_connection_params
-    params = get_snowflake_connection_params()
-    print(f"✅ VERIFIED: Snowflake account is {params['account']}")
-
-    if params['account'] == 'ZNB04675':
-        print("🎉 ABSOLUTE FIX SUCCESSFUL - Ready to start Sophia AI!")
-    else:
-        print(f"❌ ABSOLUTE FIX FAILED - account is {params['account']}")
-        sys.exit(1)
-
+self._error_handling_4()
 except Exception as e:
     print(f"❌ ABSOLUTE FIX ERROR: {e}")
     sys.exit(1)

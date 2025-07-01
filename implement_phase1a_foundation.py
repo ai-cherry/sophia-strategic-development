@@ -154,6 +154,28 @@ npm start
             "startup_script": str(startup_script),
         }
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+        from mcp import Server, Tool, Resource
+        from mcp.types import TextContent, ImageContent
+        MCP_AVAILABLE = True
+    except ImportError:
+        MCP_AVAILABLE = False
+        # Create mock classes for development
+        class Server:
+            def __init__(self, name: str, version: str = "1.0.0"):
+                self.name = name
+                self.version = version
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                # Authenticate request
+                if not await self.authenticate(request):
+                    self.metrics["failed_requests"] += 1
+                    raise Exception("Authentication failed")
+
+
     async def create_sophia_mcp_base(self):
         """Create Sophia MCP Base Class"""
         base_class_content = '''"""
@@ -169,18 +191,7 @@ from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from datetime import datetime
 
-try:
-    from mcp import Server, Tool, Resource
-    from mcp.types import TextContent, ImageContent
-    MCP_AVAILABLE = True
-except ImportError:
-    MCP_AVAILABLE = False
-    # Create mock classes for development
-    class Server:
-        def __init__(self, name: str, version: str = "1.0.0"):
-            self.name = name
-            self.version = version
-
+self._error_handling_1()
     class Tool:
         pass
 
@@ -306,12 +317,7 @@ class SophiaMCPServer(ABC):
         self.metrics["total_requests"] += 1
         self.metrics["last_request_time"] = datetime.now()
 
-        try:
-            # Authenticate request
-            if not await self.authenticate(request):
-                self.metrics["failed_requests"] += 1
-                raise Exception("Authentication failed")
-
+        self._error_handling_2()
             # Process request
             result = await self.process_request(request)
 

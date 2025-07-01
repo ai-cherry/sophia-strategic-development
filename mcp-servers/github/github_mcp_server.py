@@ -19,7 +19,6 @@ class GitHubMCPServer:
     """GitHub MCP Server for repository operations"""
 
     def __init__(self, port: int = 9103):
-port = 9016
         self.name = "github"
         self.version = "1.0.0"
 

@@ -7,7 +7,6 @@ Standardise MCP Servers Script
 - Inserts /health endpoints if missing
 - Generates a validation report
 """
-import os
 import json
 import logging
 from pathlib import Path
@@ -53,7 +52,7 @@ def insert_health_endpoint(py_file):
 def update_ports_and_health():
     registry = load_port_registry()
     port_map = {}
-    for category, servers in registry['port_allocation'].items():
+    for _category, servers in registry['port_allocation'].items():
         for name, port in servers.items():
             port_map[name] = port
     report = {"updated_ports": [], "added_inits": [], "added_health": []}
@@ -95,4 +94,4 @@ def update_ports_and_health():
     logging.info(f"Standardisation complete. Report: {REPORT_PATH}")
 
 if __name__ == "__main__":
-    update_ports_and_health() 
+    update_ports_and_health()

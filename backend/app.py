@@ -14,6 +14,24 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                data = request.get_json()
+
+                # Extract request parameters
+                message = data.get("message", "")
+                mode = data.get("mode", "universal")
+                session_id = data.get("session_id", "default")
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                data = request.get_json()
+                message = data.get("message", "")
+                mode = data.get("mode", "universal")
+                session_id = data.get("session_id", "default")
+
+
 def create_app():
     """Create and configure the Flask application"""
     app = Flask(__name__)
@@ -36,14 +54,7 @@ def create_app():
     @app.route("/api/v1/chat", methods=["POST"])
     def unified_chat():
         """Unified chat endpoint supporting all modes"""
-        try:
-            data = request.get_json()
-
-            # Extract request parameters
-            message = data.get("message", "")
-            mode = data.get("mode", "universal")
-            session_id = data.get("session_id", "default")
-
+        self._error_handling_1()
             # Mock response for deployment testing
             # In production, this would integrate with the actual chat services
             response_map = {
@@ -250,12 +261,7 @@ def create_app():
     @app.route("/api/v1/chat/mcp-enhanced", methods=["POST"])
     def mcp_enhanced_chat():
         """MCP-enhanced chat endpoint"""
-        try:
-            data = request.get_json()
-            message = data.get("message", "")
-            mode = data.get("mode", "universal")
-            session_id = data.get("session_id", "default")
-
+        self._error_handling_2()
             # Enhanced response with MCP integration
             response = {
                 "response": f"MCP-Enhanced {mode.title()} Response: {message}",

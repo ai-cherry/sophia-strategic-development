@@ -154,6 +154,18 @@ class MCPOrchestrationOptimizer:
 
             self.log_action("Updated .cursorrules Claude references")
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    result = await self.tools[tool_name](**request.parameters, context=request.context)
+                    return MCPResponse(
+                        result=result,
+                        metadata={"tool": tool_name, "model_used": result.get("model_used", "unknown")},
+                        timestamp=datetime.now().isoformat()
+                    )
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=str(e))
+
+
     def enhance_sophia_intelligence_mcp(self):
         """Enhance Sophia AI Intelligence MCP with Claude integration"""
         print("\n🚀 Phase 2: Enhancing Sophia AI Intelligence MCP...")
@@ -229,16 +241,7 @@ class EnhancedSophiaAIIntelligenceMCP:
             if tool_name not in self.tools:
                 raise HTTPException(status_code=404, detail=f"Tool {tool_name} not found")
 
-            try:
-                result = await self.tools[tool_name](**request.parameters, context=request.context)
-                return MCPResponse(
-                    result=result,
-                    metadata={"tool": tool_name, "model_used": result.get("model_used", "unknown")},
-                    timestamp=datetime.now().isoformat()
-                )
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=str(e))
-
+            self._error_handling_1()
         @self.app.get("/health")
         async def health_check():
             """Health check endpoint"""

@@ -263,6 +263,110 @@ optimized_dashboard_service = OptimizedDashboardService()
 
         logger.info("✅ Optimized dashboard service created")
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                await websocket.accept()
+
+                connection_info = WebSocketConnection(
+                    websocket=websocket,
+                    client_id=client_id,
+                    connected_at=datetime.now(UTC),
+                    last_ping=datetime.now(UTC),
+                    state=WebSocketState.CONNECTED
+                )
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                if client_id in self.connections:
+                    del self.connections[client_id]
+                    self.stats["active_connections"] = len(self.connections)
+
+                # Cancel monitoring task
+                if client_id in self.monitoring_tasks:
+                    self.monitoring_tasks[client_id].cancel()
+                    del self.monitoring_tasks[client_id]
+
+
+    def _error_handling_3(self):
+        """Extracted error_handling logic"""
+                    await websocket.close()
+                except:
+                    pass  # Already closed
+
+                logger.info(f"🔌 WebSocket disconnected: {client_id}")
+
+
+    def _error_handling_4(self):
+        """Extracted error_handling logic"""
+                await connection.websocket.send_json(message)
+                connection.message_count += 1
+                connection.last_ping = datetime.now(UTC)
+                self.stats["messages_sent"] += 1
+                return True
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                if client_id not in exclude_clients:
+                    task = asyncio.create_task(self.send_message(client_id, message))
+                    tasks.append(task)
+
+            if tasks:
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                successful_sends = sum(1 for result in results if result is True)
+                logger.info(f"Broadcast message sent to {successful_sends}/{len(tasks)} clients")
+
+
+    def _error_handling_6(self):
+        """Extracted error_handling logic"""
+                    connection = self.connections[client_id]
+
+                    # Send ping to check connection
+                    ping_message = {
+                        "type": "ping",
+                        "timestamp": datetime.now(UTC).isoformat()
+                    }
+
+
+    def _error_handling_7(self):
+        """Extracted error_handling logic"""
+                        await connection.websocket.send_json(ping_message)
+                        connection.last_ping = datetime.now(UTC)
+                    except:
+                        # Connection is dead, remove it
+                        await self.disconnect(connection.websocket, client_id)
+                        break
+
+
+    def _iteration_8(self):
+        """Extracted iteration logic"""
+                            await self.message_queue.enqueue(client_id, remaining_msg["message"])
+                        break
+
+        async def get_connection_stats(self) -> Dict[str, Any]:
+            """Get WebSocket connection statistics"""
+            return {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "stats": self.stats,
+                "active_connections": {
+                    client_id: {
+                        "connected_at": conn.connected_at.isoformat(),
+                        "last_ping": conn.last_ping.isoformat(),
+                        "message_count": conn.message_count,
+                        "state": conn.state.value
+                    }
+
+    def _iteration_9(self):
+        """Extracted iteration logic"""
+                },
+                "queue_status": {
+                    "clients_with_queued_messages": len(self.message_queue.queues),
+                    "total_queued_messages": sum(len(queue) for queue in self.message_queue.queues.values())
+                }
+            }
+
+
     async def _create_resilient_websocket_manager(self):
         """Create resilient WebSocket manager"""
         logger.info("🔌 Creating resilient WebSocket manager...")
@@ -356,17 +460,7 @@ class ResilientWebSocketManager:
 
     async def connect(self, websocket: WebSocket, client_id: str):
         """Connect WebSocket with comprehensive error handling"""
-        try:
-            await websocket.accept()
-
-            connection_info = WebSocketConnection(
-                websocket=websocket,
-                client_id=client_id,
-                connected_at=datetime.now(UTC),
-                last_ping=datetime.now(UTC),
-                state=WebSocketState.CONNECTED
-            )
-
+        self._error_handling_1()
             self.connections[client_id] = connection_info
             self.stats["total_connections"] += 1
             self.stats["active_connections"] = len(self.connections)
@@ -386,24 +480,9 @@ class ResilientWebSocketManager:
 
     async def disconnect(self, websocket: WebSocket, client_id: str):
         """Disconnect WebSocket with cleanup"""
-        try:
-            if client_id in self.connections:
-                del self.connections[client_id]
-                self.stats["active_connections"] = len(self.connections)
-
-            # Cancel monitoring task
-            if client_id in self.monitoring_tasks:
-                self.monitoring_tasks[client_id].cancel()
-                del self.monitoring_tasks[client_id]
-
+        self._error_handling_2()
             # Close WebSocket if still open
-            try:
-                await websocket.close()
-            except:
-                pass  # Already closed
-
-            logger.info(f"🔌 WebSocket disconnected: {client_id}")
-
+            self._error_handling_3()
         except Exception as e:
             logger.error(f"Error during WebSocket disconnect for {client_id}: {e}")
 
@@ -417,13 +496,7 @@ class ResilientWebSocketManager:
             self.stats["messages_queued"] += 1
             return False
 
-        try:
-            await connection.websocket.send_json(message)
-            connection.message_count += 1
-            connection.last_ping = datetime.now(UTC)
-            self.stats["messages_sent"] += 1
-            return True
-
+        self._error_handling_4()
         except WebSocketDisconnect:
             await self.disconnect(connection.websocket, client_id)
             await self.message_queue.enqueue(client_id, message)
@@ -440,36 +513,11 @@ class ResilientWebSocketManager:
         exclude_clients = exclude_clients or []
 
         tasks = []
-        for client_id in self.connections:
-            if client_id not in exclude_clients:
-                task = asyncio.create_task(self.send_message(client_id, message))
-                tasks.append(task)
-
-        if tasks:
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            successful_sends = sum(1 for result in results if result is True)
-            logger.info(f"Broadcast message sent to {successful_sends}/{len(tasks)} clients")
-
+        self._iteration_5()
     async def _monitor_connection(self, client_id: str):
         """Monitor connection health with automatic recovery"""
-        while client_id in self.connections:
-            try:
-                connection = self.connections[client_id]
-
-                # Send ping to check connection
-                ping_message = {
-                    "type": "ping",
-                    "timestamp": datetime.now(UTC).isoformat()
-                }
-
-                try:
-                    await connection.websocket.send_json(ping_message)
-                    connection.last_ping = datetime.now(UTC)
-                except:
-                    # Connection is dead, remove it
-                    await self.disconnect(connection.websocket, client_id)
-                    break
-
+            self._error_handling_6()
+                self._error_handling_7()
                 # Check for stale connections (5 minutes without activity)
                 if (datetime.now(UTC) - connection.last_ping).seconds > 300:
                     logger.warning(f"Stale WebSocket connection detected: {client_id}")
@@ -491,39 +539,8 @@ class ResilientWebSocketManager:
         if queued_messages:
             logger.info(f"Sending {len(queued_messages)} queued messages to {client_id}")
 
-            for queued_msg in queued_messages:
-                message = queued_msg["message"]
-                message["_queued_at"] = queued_msg["queued_at"]
-                message["_delivery_attempt"] = queued_msg["attempts"] + 1
-
-                success = await self.send_message(client_id, message)
-                if not success:
-                    # If sending fails, re-queue remaining messages
-                    remaining_messages = queued_messages[queued_messages.index(queued_msg):]
-                    for remaining_msg in remaining_messages:
-                        await self.message_queue.enqueue(client_id, remaining_msg["message"])
-                    break
-
-    async def get_connection_stats(self) -> Dict[str, Any]:
-        """Get WebSocket connection statistics"""
-        return {
-            "timestamp": datetime.now(UTC).isoformat(),
-            "stats": self.stats,
-            "active_connections": {
-                client_id: {
-                    "connected_at": conn.connected_at.isoformat(),
-                    "last_ping": conn.last_ping.isoformat(),
-                    "message_count": conn.message_count,
-                    "state": conn.state.value
-                }
-                for client_id, conn in self.connections.items()
-            },
-            "queue_status": {
-                "clients_with_queued_messages": len(self.message_queue.queues),
-                "total_queued_messages": sum(len(queue) for queue in self.message_queue.queues.values())
-            }
-        }
-
+                    self._iteration_8()
+                self._iteration_9()
 
 # Global instance
 resilient_websocket_manager = ResilientWebSocketManager()
@@ -765,6 +782,124 @@ asyncio.create_task(cache_cleanup_task())
 
         logger.info("✅ Intelligent caching system created")
 
+    def _iteration_1(self):
+        """Extracted iteration logic"""
+                group_results = await self._execute_query_group(query_type, query_group)
+                results.extend(group_results)
+
+            self.stats["batch_executions"] += 1
+            self.stats["queries_optimized"] += len(queries)
+
+
+    def _iteration_2(self):
+        """Extracted iteration logic"""
+                query_type = self._classify_query_type(query.query_text)
+
+                if query_type not in groups:
+                    groups[query_type] = []
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                if len(query_list) > 1:
+                    # Convert to IN clause for batch execution
+                    batch_result = await self._convert_to_in_clause(query_list)
+                    results.extend(batch_result)
+                    self.stats["n1_patterns_eliminated"] += len(query_list) - 1
+                else:
+                    # Single query execution
+                    single_result = await self._execute_single_query(query_list[0])
+                    results.append(single_result)
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                # Extract base pattern (remove WHERE clause specifics)
+                base_pattern = self._extract_base_pattern(query.query_text)
+
+                if base_pattern not in groups:
+                    groups[base_pattern] = []
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+                if query.parameters:
+                    param_value = query.parameters[0]  # Assume first parameter is the filter value
+                    in_values.append(param_value)
+                    query_map[param_value] = query.query_id
+
+
+    def _error_handling_6(self):
+        """Extracted error_handling logic"""
+                # Simulate batch query execution
+                await asyncio.sleep(0.05)  # Simulate database call
+                batch_data = [{"id": val, "data": f"result_{val}"} for val in in_values]
+
+                execution_time = (datetime.now() - start_time).total_seconds() * 1000
+
+
+    def _iteration_7(self):
+        """Extracted iteration logic"""
+                    query_id = query_map.get(item["id"])
+                    if query_id:
+                        results.append(BatchQueryResult(
+                            query_id=query_id,
+                            success=True,
+                            result=item,
+                            execution_time_ms=execution_time / len(batch_data)
+                        ))
+
+
+    def _iteration_8(self):
+        """Extracted iteration logic"""
+                table_name = self._extract_table_name(query.query_text)
+                if table_name not in table_groups:
+                    table_groups[table_name] = []
+                table_groups[table_name].append(query)
+
+
+    def _iteration_9(self):
+        """Extracted iteration logic"""
+                batch_results = await self._execute_bulk_insert(table_name, table_queries)
+                results.extend(batch_results)
+
+            return results
+
+
+    def _error_handling_10(self):
+        """Extracted error_handling logic"""
+                # Simulate bulk insert
+                await asyncio.sleep(0.02 * len(queries))  # Simulate database operation
+
+                execution_time = (datetime.now() - start_time).total_seconds() * 1000
+
+
+    def _iteration_11(self):
+        """Extracted iteration logic"""
+                    results.append(BatchQueryResult(
+                        query_id=query.query_id,
+                        success=True,
+                        result={"inserted": True, "table": table_name},
+                        execution_time_ms=execution_time / len(queries)
+                    ))
+
+
+    def _iteration_12(self):
+        """Extracted iteration logic"""
+                result = await self._execute_single_query(query)
+                results.append(result)
+
+            return results
+
+
+    def _error_handling_13(self):
+        """Extracted error_handling logic"""
+                # Simulate query execution
+                await asyncio.sleep(0.01)  # Simulate database call
+
+                execution_time = (datetime.now() - start_time).total_seconds() * 1000
+
+
     async def _create_query_optimization_framework(self):
         """Create query optimization framework"""
         logger.info("⚡ Creating query optimization framework...")
@@ -830,25 +965,14 @@ class QueryOptimizer:
 
         # Execute groups in parallel
         results = []
-        for query_type, query_group in grouped_queries.items():
-            group_results = await self._execute_query_group(query_type, query_group)
-            results.extend(group_results)
-
-        self.stats["batch_executions"] += 1
-        self.stats["queries_optimized"] += len(queries)
-
+        self._iteration_1()
         return results
 
     def _group_queries_by_type(self, queries: List[QueryPlan]) -> Dict[str, List[QueryPlan]]:
         """Group queries by type for batch optimization"""
         groups = {}
 
-        for query in queries:
-            query_type = self._classify_query_type(query.query_text)
-
-            if query_type not in groups:
-                groups[query_type] = []
-
+        self._iteration_2()
             groups[query_type].append(query)
 
         return groups
@@ -890,30 +1014,14 @@ class QueryOptimizer:
         # Group by base query pattern
         query_groups = self._group_by_base_pattern(queries)
 
-        for base_pattern, query_list in query_groups.items():
-            if len(query_list) > 1:
-                # Convert to IN clause for batch execution
-                batch_result = await self._convert_to_in_clause(query_list)
-                results.extend(batch_result)
-                self.stats["n1_patterns_eliminated"] += len(query_list) - 1
-            else:
-                # Single query execution
-                single_result = await self._execute_single_query(query_list[0])
-                results.append(single_result)
-
+        self._iteration_3()
         return results
 
     def _group_by_base_pattern(self, queries: List[QueryPlan]) -> Dict[str, List[QueryPlan]]:
         """Group queries by base pattern for IN clause optimization"""
         groups = {}
 
-        for query in queries:
-            # Extract base pattern (remove WHERE clause specifics)
-            base_pattern = self._extract_base_pattern(query.query_text)
-
-            if base_pattern not in groups:
-                groups[base_pattern] = []
-
+        self._iteration_4()
             groups[base_pattern].append(query)
 
         return groups
@@ -936,37 +1044,17 @@ class QueryOptimizer:
         in_values = []
         query_map = {}
 
-        for query in queries:
-            if query.parameters:
-                param_value = query.parameters[0]  # Assume first parameter is the filter value
-                in_values.append(param_value)
-                query_map[param_value] = query.query_id
-
+        self._iteration_5()
         # Create batch query with IN clause
         base_query = queries[0].query_text
         batch_query = base_query.replace("= ?", f"IN ({','.join(['?'] * len(in_values))})")
 
         # Execute batch query
         start_time = datetime.now()
-        try:
-            # Simulate batch query execution
-            await asyncio.sleep(0.05)  # Simulate database call
-            batch_data = [{"id": val, "data": f"result_{val}"} for val in in_values]
-
-            execution_time = (datetime.now() - start_time).total_seconds() * 1000
-
+        self._error_handling_6()
             # Create results for each original query
             results = []
-            for item in batch_data:
-                query_id = query_map.get(item["id"])
-                if query_id:
-                    results.append(BatchQueryResult(
-                        query_id=query_id,
-                        success=True,
-                        result=item,
-                        execution_time_ms=execution_time / len(batch_data)
-                    ))
-
+            self._iteration_7()
             logger.info(f"Batch executed {len(queries)} queries in {execution_time:.2f}ms")
             return results
 
@@ -981,19 +1069,9 @@ class QueryOptimizer:
 
         # Group inserts by table
         table_groups = {}
-        for query in queries:
-            table_name = self._extract_table_name(query.query_text)
-            if table_name not in table_groups:
-                table_groups[table_name] = []
-            table_groups[table_name].append(query)
-
+        self._iteration_8()
         # Execute batch inserts for each table
-        for table_name, table_queries in table_groups.items():
-            batch_results = await self._execute_bulk_insert(table_name, table_queries)
-            results.extend(batch_results)
-
-        return results
-
+        self._iteration_9()
     def _extract_table_name(self, query_text: str) -> str:
         """Extract table name from INSERT query"""
         # Simplified table name extraction
@@ -1007,21 +1085,9 @@ class QueryOptimizer:
         """Execute bulk insert for a table"""
         start_time = datetime.now()
 
-        try:
-            # Simulate bulk insert
-            await asyncio.sleep(0.02 * len(queries))  # Simulate database operation
-
-            execution_time = (datetime.now() - start_time).total_seconds() * 1000
-
+        self._error_handling_10()
             results = []
-            for query in queries:
-                results.append(BatchQueryResult(
-                    query_id=query.query_id,
-                    success=True,
-                    result={"inserted": True, "table": table_name},
-                    execution_time_ms=execution_time / len(queries)
-                ))
-
+            self._iteration_11()
             logger.info(f"Bulk inserted {len(queries)} records into {table_name} in {execution_time:.2f}ms")
             return results
 
@@ -1033,22 +1099,12 @@ class QueryOptimizer:
         """Execute queries sequentially as fallback"""
         results = []
 
-        for query in queries:
-            result = await self._execute_single_query(query)
-            results.append(result)
-
-        return results
-
+        self._iteration_12()
     async def _execute_single_query(self, query: QueryPlan) -> BatchQueryResult:
         """Execute a single query"""
         start_time = datetime.now()
 
-        try:
-            # Simulate query execution
-            await asyncio.sleep(0.01)  # Simulate database call
-
-            execution_time = (datetime.now() - start_time).total_seconds() * 1000
-
+        self._error_handling_13()
             return BatchQueryResult(
                 query_id=query.query_id,
                 success=True,

@@ -9,6 +9,81 @@ import json
 import subprocess
 
 
+    def _iteration_1(self):
+        """Extracted iteration logic"""
+            print(f"   🎯 {task_type}: Using {model}")
+
+        # 3. Generate enhanced React component
+        print("\n💻 **3. Enhanced Code Generation with Business Context**")
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+            print("   🔄 Generating component with latest Claude Sonnet 4...")
+            result = subprocess.run(
+                ["./claude-cli-integration/claude", "chat", enhanced_prompt],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+
+
+    def _iteration_3(self):
+        """Extracted iteration logic"""
+                    print(f"      {line}")
+                print("      ... (complete implementation generated)")
+            else:
+                print("   ⚠️ Using fallback generation...")
+                print("   ✅ LoginForm component template created")
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+            print(f"   {status} {platform}: {description}")
+
+        # 5. Demonstrate workflow automation
+        print("\n🤖 **5. Automated Workflow Orchestration**")
+
+
+    def _iteration_5(self):
+        """Extracted iteration logic"""
+            print(f"   ✅ {workflow}: {status}")
+
+        # 6. Compare advantages
+        print("\n🏆 **6. Sophia AI Advantages Over Competitors**")
+
+
+    def _iteration_6(self):
+        """Extracted iteration logic"""
+            print(f"\n   🎯 **{feature}:**")
+            print(f"      ✅ Sophia AI: {sophia}")
+            print(f"      {zencoder}")
+            print(f"      {cursor}")
+
+
+    def _error_handling_7(self):
+        """Extracted error_handling logic"""
+            print("   🔄 Analyzing business impact...")
+            result = subprocess.run(
+                [
+                    "python",
+                    "unified_ai_assistant.py",
+                    "Analyze business impact of implementing new login security features",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+
+    def _conditional_8(self):
+        """Extracted conditional logic"""
+                print("   ✅ Business analysis completed")
+                print("   📊 Key insights: Revenue protection, customer trust, compliance")
+            else:
+                print("   ✅ Business intelligence system ready")
+
+
 async def demo_enhanced_workflow():
     """Demonstrate enhanced coding workflow capabilities"""
     print("🚀 **Sophia AI Enhanced Coding Workflow Demo**")
@@ -44,12 +119,7 @@ async def demo_enhanced_workflow():
         ),
     ]
 
-    for task_type, _query, model in queries:
-        print(f"   🎯 {task_type}: Using {model}")
-
-    # 3. Generate enhanced React component
-    print("\n💻 **3. Enhanced Code Generation with Business Context**")
-
+    self._iteration_1()
     # Create enhanced prompt with all context
     enhanced_prompt = f"""
 Generate a React component with the following requirements:
@@ -82,27 +152,8 @@ Requirements:
 - Include unit test structure
 """
 
-    try:
-        print("   🔄 Generating component with latest Claude Sonnet 4...")
-        result = subprocess.run(
-            ["./claude-cli-integration/claude", "chat", enhanced_prompt],
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-
-        if result.returncode == 0 and result.stdout:
-            print("   ✅ Component generated successfully!")
-            print("\n📋 **Generated Code Preview:**")
-            # Show first few lines
-            lines = result.stdout.split("\n")[:15]
-            for line in lines:
-                print(f"      {line}")
-            print("      ... (complete implementation generated)")
-        else:
-            print("   ⚠️ Using fallback generation...")
-            print("   ✅ LoginForm component template created")
-
+    self._error_handling_2()
+            self._iteration_3()
     except Exception as e:
         print(f"   ⚠️ Direct generation unavailable: {e}")
         print("   ✅ Fallback: Component template ready")
@@ -133,12 +184,7 @@ Requirements:
         ),
     ]
 
-    for platform, description, status in platform_contexts:
-        print(f"   {status} {platform}: {description}")
-
-    # 5. Demonstrate workflow automation
-    print("\n🤖 **5. Automated Workflow Orchestration**")
-
+    self._iteration_4()
     workflows = [
         ("Issue Analysis", "Business impact assessment completed"),
         ("Code Generation", "React component with TS types generated"),
@@ -148,12 +194,7 @@ Requirements:
         ("Business Review", "Executive requirements satisfied"),
     ]
 
-    for workflow, status in workflows:
-        print(f"   ✅ {workflow}: {status}")
-
-    # 6. Compare advantages
-    print("\n🏆 **6. Sophia AI Advantages Over Competitors**")
-
+    self._iteration_5()
     advantages = [
         (
             "Latest AI Models",
@@ -199,34 +240,12 @@ Requirements:
         ),
     ]
 
-    for feature, sophia, zencoder, cursor in advantages:
-        print(f"\n   🎯 **{feature}:**")
-        print(f"      ✅ Sophia AI: {sophia}")
-        print(f"      {zencoder}")
-        print(f"      {cursor}")
-
+    self._iteration_6()
     # 7. Show unique business capabilities
     print("\n💼 **7. Unique Business Intelligence Integration**")
 
-    try:
-        print("   🔄 Analyzing business impact...")
-        result = subprocess.run(
-            [
-                "python",
-                "unified_ai_assistant.py",
-                "Analyze business impact of implementing new login security features",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-
-        if result.returncode == 0:
-            print("   ✅ Business analysis completed")
-            print("   📊 Key insights: Revenue protection, customer trust, compliance")
-        else:
-            print("   ✅ Business intelligence system ready")
-
+    self._error_handling_7()
+        self._conditional_8()
     except Exception:
         print("   ✅ Business intelligence capabilities available")
 

@@ -12,6 +12,57 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+    def _error_handling_1(self):
+        """Extracted error_handling logic"""
+                    with open(file_path) as f:
+                        content = f.read()
+
+                    if re.search(pattern, content):
+                        content = re.sub(pattern, replacement, content)
+
+
+    def _error_handling_2(self):
+        """Extracted error_handling logic"""
+                    with open(file_path) as f:
+                        content = f.read()
+
+                    original_content = content
+
+
+    def _error_handling_3(self):
+        """Extracted error_handling logic"""
+                    with open(file_path) as f:
+                        content = f.read()
+
+                    original_content = content
+
+
+    def _iteration_4(self):
+        """Extracted iteration logic"""
+                        content = re.sub(pattern, replacement, content)
+
+                    # Add import if needed
+                    if "os.getenv" in content and "import os" not in content:
+                        content = "import os\n" + content
+
+
+    def _conditional_5(self):
+        """Extracted conditional logic"""
+                        with open(file_path, "w") as f:
+                            f.write(content)
+
+                        fixes_applied += 1
+                        logger.info(f"✅ Fixed hardcoded secrets in {file_path}")
+
+
+    def _error_handling_6(self):
+        """Extracted error_handling logic"""
+                    with open(file_path) as f:
+                        content = f.read()
+
+                    original_content = content
+
+
 def fix_all_critical_vulnerabilities():
     """Fix all critical vulnerabilities comprehensively"""
     fixes_applied = 0
@@ -56,15 +107,7 @@ def fix_all_critical_vulnerabilities():
         ),
     ]
 
-    for file_path, pattern, replacement in sql_injection_fixes:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path) as f:
-                    content = f.read()
-
-                if re.search(pattern, content):
-                    content = re.sub(pattern, replacement, content)
-
+            self._error_handling_1()
                     # Add validation methods if not present
                     if (
                         "_validate_schema_name" not in content
@@ -163,14 +206,7 @@ def fix_all_critical_vulnerabilities():
         "backend/mcp_servers/mixins/cline_v3_18_features.py",
     ]
 
-    for file_path in command_injection_files:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path) as f:
-                    content = f.read()
-
-                original_content = content
-
+            self._error_handling_2()
                 # Fix subprocess.run with shell=True
                 content = re.sub(
                     r"subprocess\.run\s*\(([^,]+),\s*shell\s*=\s*True([^)]*)\)",
@@ -208,14 +244,7 @@ def fix_all_critical_vulnerabilities():
         "backend/core/security_config.py",
     ]
 
-    for file_path in secret_files:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path) as f:
-                    content = f.read()
-
-                original_content = content
-
+            self._error_handling_3()
                 # Replace hardcoded secrets
                 secret_patterns = [
                     (r'"database_password"', 'os.getenv("DATABASE_PASSWORD")'),
@@ -225,20 +254,8 @@ def fix_all_critical_vulnerabilities():
                     (r'"secret_[^"]*"', 'os.getenv("SECRET_KEY")'),
                 ]
 
-                for pattern, replacement in secret_patterns:
-                    content = re.sub(pattern, replacement, content)
-
-                # Add import if needed
-                if "os.getenv" in content and "import os" not in content:
-                    content = "import os\n" + content
-
-                if content != original_content:
-                    with open(file_path, "w") as f:
-                        f.write(content)
-
-                    fixes_applied += 1
-                    logger.info(f"✅ Fixed hardcoded secrets in {file_path}")
-
+                self._iteration_4()
+                self._conditional_5()
             except Exception as e:
                 logger.error(f"❌ Error fixing {file_path}: {e}")
 
@@ -250,14 +267,7 @@ def fix_all_critical_vulnerabilities():
         "ultimate_snowflake_fix.py",
     ]
 
-    for file_path in permission_files:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path) as f:
-                    content = f.read()
-
-                original_content = content
-
+            self._error_handling_6()
                 # Replace 0o755 with 0o644
                 content = re.sub(
                     r"os\.chmod\s*\([^,]+,\s*0o755\s*\)",
