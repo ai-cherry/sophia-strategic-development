@@ -31,7 +31,7 @@ on:
       - '.github/workflows/lambda-labs-deployment.yml'
 
 env:
-  LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+  LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
   LAMBDA_SSH_PRIVATE_KEY: ${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}
   LAMBDA_IP_ADDRESS: ${{ secrets.LAMBDA_IP_ADDRESS }}
   DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
