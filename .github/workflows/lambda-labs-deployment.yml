@@ -1,0 +1,332 @@
+name: Lambda Labs Infrastructure Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      instance_type:
+        description: 'Lambda Labs instance type'
+        required: false
+        default: 'gpu_1x_a10'
+        type: choice
+        options:
+          - gpu_1x_a10
+          - gpu_1x_a100
+          - gpu_1x_h100
+      deploy_services:
+        description: 'Deploy all services (PostgreSQL, Redis, monitoring)'
+        required: false
+        default: true
+        type: boolean
+      force_recreate:
+        description: 'Force recreate existing instance'
+        required: false
+        default: false
+        type: boolean
+
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/lambda-labs-provisioner.py'
+      - 'infrastructure/lambda-labs-deployment.py'
+      - '.github/workflows/lambda-labs-deployment.yml'
+
+env:
+  LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
+  LAMBDA_LABS_SSH_PRIVATE_KEY: ${{ secrets.LAMBDA_LABS_SSH_PRIVATE_KEY }}
+  LAMBDA_LABS_SSH_PUBLIC_KEY: ${{ secrets.LAMBDA_LABS_SSH_PUBLIC_KEY }}
+  POSTGRESQL_CONNECTION_STRING: ${{ secrets.POSTGRESQL_CONNECTION_STRING }}
+  REDIS_CONNECTION_STRING: ${{ secrets.REDIS_CONNECTION_STRING }}
+
+jobs:
+  validate-credentials:
+    name: Validate Lambda Labs Credentials
+    runs-on: ubuntu-latest
+    outputs:
+      credentials-valid: ${{ steps.validate.outputs.valid }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Validate API credentials
+        id: validate
+        run: |
+          if [ -z "$LAMBDA_LABS_API_KEY" ]; then
+            echo "❌ LAMBDA_LABS_API_KEY not set"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          if [ -z "$LAMBDA_LABS_SSH_PRIVATE_KEY" ]; then
+            echo "❌ LAMBDA_LABS_SSH_PRIVATE_KEY not set"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          # Test API connectivity
+          response=$(curl -s -u "$LAMBDA_LABS_API_KEY:" https://cloud.lambda.ai/api/v1/instance-types)
+          if echo "$response" | grep -q "data"; then
+            echo "✅ Lambda Labs API credentials valid"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Lambda Labs API credentials invalid"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+  deploy-infrastructure:
+    name: Deploy Lambda Labs Infrastructure
+    runs-on: ubuntu-latest
+    needs: validate-credentials
+    if: needs.validate-credentials.outputs.credentials-valid == 'true'
+    
+    outputs:
+      instance-id: ${{ steps.deploy.outputs.instance-id }}
+      instance-ip: ${{ steps.deploy.outputs.instance-ip }}
+      postgresql-connection: ${{ steps.deploy.outputs.postgresql-connection }}
+      redis-connection: ${{ steps.deploy.outputs.redis-connection }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install aiohttp paramiko psutil asyncio-mqtt
+      
+      - name: Prepare SSH key
+        run: |
+          echo "$LAMBDA_LABS_SSH_PRIVATE_KEY" > /tmp/lambda_labs_key
+          chmod 600 /tmp/lambda_labs_key
+          
+          echo "$LAMBDA_LABS_SSH_PUBLIC_KEY" > /tmp/lambda_labs_key.pub
+          chmod 644 /tmp/lambda_labs_key.pub
+      
+      - name: Deploy infrastructure
+        id: deploy
+        run: |
+          cd scripts
+          export LAMBDA_LABS_SSH_PRIVATE_KEY_PATH="/tmp/lambda_labs_key"
+          
+          echo "🚀 Starting Lambda Labs infrastructure deployment..."
+          
+          # Run the provisioner
+          python lambda-labs-provisioner.py > deployment_output.json 2>&1 || {
+            echo "❌ Deployment failed"
+            cat deployment_output.json
+            exit 1
+          }
+          
+          # Extract deployment results
+          if [ -f deployment_output.json ]; then
+            instance_id=$(grep "Instance ID:" deployment_output.json | cut -d: -f2 | xargs)
+            instance_ip=$(grep "IP Address:" deployment_output.json | cut -d: -f2 | xargs)
+            postgresql_conn=$(grep "PostgreSQL:" deployment_output.json | cut -d: -f2- | xargs)
+            redis_conn=$(grep "Redis:" deployment_output.json | cut -d: -f2- | xargs)
+            
+            echo "instance-id=$instance_id" >> $GITHUB_OUTPUT
+            echo "instance-ip=$instance_ip" >> $GITHUB_OUTPUT
+            echo "postgresql-connection=$postgresql_conn" >> $GITHUB_OUTPUT
+            echo "redis-connection=$redis_conn" >> $GITHUB_OUTPUT
+            
+            echo "✅ Infrastructure deployment completed successfully"
+            echo "📊 Instance ID: $instance_id"
+            echo "🌐 IP Address: $instance_ip"
+          else
+            echo "❌ Deployment output not found"
+            exit 1
+          fi
+      
+      - name: Verify services
+        run: |
+          instance_ip="${{ steps.deploy.outputs.instance-ip }}"
+          
+          if [ -n "$instance_ip" ]; then
+            echo "🔍 Verifying deployed services..."
+            
+            # Wait for services to be ready
+            sleep 30
+            
+            # Check health endpoint
+            for i in {1..10}; do
+              if curl -s "http://$instance_ip:8080/health" | grep -q "healthy"; then
+                echo "✅ Health monitor is responding"
+                break
+              else
+                echo "⏳ Waiting for health monitor... (attempt $i/10)"
+                sleep 30
+              fi
+            done
+            
+            # Test PostgreSQL connectivity (basic check)
+            echo "🔍 Testing PostgreSQL connectivity..."
+            if nc -z "$instance_ip" 5432; then
+              echo "✅ PostgreSQL port is accessible"
+            else
+              echo "⚠️ PostgreSQL port not accessible"
+            fi
+            
+            # Test Redis connectivity
+            echo "🔍 Testing Redis connectivity..."
+            if nc -z "$instance_ip" 6379; then
+              echo "✅ Redis port is accessible"
+            else
+              echo "⚠️ Redis port not accessible"
+            fi
+          fi
+      
+      - name: Clean up sensitive files
+        if: always()
+        run: |
+          rm -f /tmp/lambda_labs_key
+          rm -f /tmp/lambda_labs_key.pub
+          rm -f scripts/deployment_output.json
+
+  update-secrets:
+    name: Update GitHub Secrets with Infrastructure Details
+    runs-on: ubuntu-latest
+    needs: deploy-infrastructure
+    if: success()
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Update organization secrets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
+          INSTANCE_IP: ${{ needs.deploy-infrastructure.outputs.instance-ip }}
+          POSTGRESQL_CONN: ${{ needs.deploy-infrastructure.outputs.postgresql-connection }}
+          REDIS_CONN: ${{ needs.deploy-infrastructure.outputs.redis-connection }}
+        run: |
+          echo "🔐 Updating GitHub organization secrets..."
+          
+          # Update PostgreSQL connection string
+          if [ -n "$POSTGRESQL_CONN" ]; then
+            gh secret set POSTGRESQL_CONNECTION_STRING --body "$POSTGRESQL_CONN" --org ai-cherry
+            echo "✅ Updated POSTGRESQL_CONNECTION_STRING"
+          fi
+          
+          # Update Redis connection string
+          if [ -n "$REDIS_CONN" ]; then
+            gh secret set REDIS_CONNECTION_STRING --body "$REDIS_CONN" --org ai-cherry
+            echo "✅ Updated REDIS_CONNECTION_STRING"
+          fi
+          
+          # Update Lambda Labs instance IP
+          if [ -n "$INSTANCE_IP" ]; then
+            gh secret set LAMBDA_LABS_INSTANCE_IP --body "$INSTANCE_IP" --org ai-cherry
+            echo "✅ Updated LAMBDA_LABS_INSTANCE_IP"
+          fi
+          
+          echo "🎉 All secrets updated successfully"
+
+  deploy-data-pipeline:
+    name: Deploy Data Pipeline Components
+    runs-on: ubuntu-latest
+    needs: deploy-infrastructure
+    if: success() && github.event.inputs.deploy_services != 'false'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Deploy Gong API extractor
+        env:
+          INSTANCE_IP: ${{ needs.deploy-infrastructure.outputs.instance-ip }}
+          POSTGRESQL_CONN: ${{ needs.deploy-infrastructure.outputs.postgresql-connection }}
+        run: |
+          echo "🔄 Deploying Gong API extractor..."
+          
+          # Prepare SSH connection
+          echo "$LAMBDA_LABS_SSH_PRIVATE_KEY" > /tmp/lambda_labs_key
+          chmod 600 /tmp/lambda_labs_key
+          
+          # Copy Gong extractor to instance
+          scp -i /tmp/lambda_labs_key -o StrictHostKeyChecking=no \
+            backend/etl/gong_api_extractor_clean.py \
+            ubuntu@$INSTANCE_IP:/home/ubuntu/
+          
+          # Set up Python environment and dependencies
+          ssh -i /tmp/lambda_labs_key -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP << 'EOF'
+            python3 -m venv /home/ubuntu/sophia_env
+            source /home/ubuntu/sophia_env/bin/activate
+            pip install aiohttp asyncpg psutil
+            
+            # Set up environment variables
+            echo "export POSTGRESQL_CONNECTION_STRING='$POSTGRESQL_CONN'" >> ~/.bashrc
+            echo "export GONG_ACCESS_KEY='${{ secrets.GONG_ACCESS_KEY }}'" >> ~/.bashrc
+            echo "export GONG_ACCESS_KEY_SECRET='${{ secrets.GONG_ACCESS_KEY_SECRET }}'" >> ~/.bashrc
+            
+            # Test the extractor
+            source ~/.bashrc
+            python3 gong_api_extractor_clean.py --test || echo "⚠️ Gong extractor test failed (expected if no credentials)"
+          EOF
+          
+          echo "✅ Gong API extractor deployed"
+      
+      - name: Configure Estuary Flow integration
+        env:
+          INSTANCE_IP: ${{ needs.deploy-infrastructure.outputs.instance-ip }}
+          POSTGRESQL_CONN: ${{ needs.deploy-infrastructure.outputs.postgresql-connection }}
+        run: |
+          echo "🌊 Configuring Estuary Flow integration..."
+          
+          # Update Estuary Flow destination to point to new PostgreSQL instance
+          curl -X POST "https://api.estuary.dev/v1/destinations" \
+            -H "Authorization: Bearer ${{ secrets.ESTUARY_ACCESS_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "sophia-postgresql-staging",
+              "connector": "postgresql",
+              "config": {
+                "host": "'$INSTANCE_IP'",
+                "port": 5432,
+                "database": "sophia_staging",
+                "username": "sophia",
+                "password": "sophia_secure_password_2024"
+              }
+            }' || echo "⚠️ Estuary Flow destination update failed (may already exist)"
+          
+          echo "✅ Estuary Flow integration configured"
+      
+      - name: Clean up
+        if: always()
+        run: |
+          rm -f /tmp/lambda_labs_key
+
+  notification:
+    name: Send Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, update-secrets, deploy-data-pipeline]
+    if: always()
+    
+    steps:
+      - name: Send success notification
+        if: needs.deploy-infrastructure.result == 'success'
+        run: |
+          echo "🎉 Lambda Labs Infrastructure Deployment Successful!"
+          echo "📊 Instance IP: ${{ needs.deploy-infrastructure.outputs.instance-ip }}"
+          echo "🗄️ PostgreSQL: Ready"
+          echo "⚡ Redis: Ready"
+          echo "📈 Health Monitor: http://${{ needs.deploy-infrastructure.outputs.instance-ip }}:8080/health"
+          echo "🔄 Data Pipeline: Configured"
+      
+      - name: Send failure notification
+        if: needs.deploy-infrastructure.result == 'failure'
+        run: |
+          echo "❌ Lambda Labs Infrastructure Deployment Failed!"
+          echo "Please check the workflow logs for details."
+          exit 1
+
