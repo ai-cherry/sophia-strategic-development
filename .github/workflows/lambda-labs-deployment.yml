@@ -55,8 +55,8 @@ jobs:
       - name: Validate API credentials
         id: validate
         run: |
-          if [ -z "$LAMBDA_API_KEY" ]; then
-            echo "❌ LAMBDA_API_KEY not set"
+          if [ -z "$LAMBDA_LABS_API_KEY" ]; then
+            echo "❌ LAMBDA_LABS_API_KEY not set"
             echo "valid=false" >> $GITHUB_OUTPUT
             exit 1
           fi
@@ -68,7 +68,7 @@ jobs:
           fi
           
           # Test API connectivity
-          response=$(curl -s -u "$LAMBDA_API_KEY:" https://cloud.lambda.ai/api/v1/instance-types)
+          response=$(curl -s -u "$LAMBDA_LABS_API_KEY:" https://cloud.lambda.ai/api/v1/instance-types)
           if echo "$response" | grep -q "data"; then
             echo "✅ Lambda Labs API credentials valid"
             echo "valid=true" >> $GITHUB_OUTPUT
