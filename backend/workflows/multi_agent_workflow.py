@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI - Multi-Agent Workflow Framework
 Orchestrates collaboration between multiple AI agents for complex business intelligence workflows
@@ -21,7 +23,6 @@ import logging
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

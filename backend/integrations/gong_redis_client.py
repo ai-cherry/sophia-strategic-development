@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Redis Notification Client for Gong Webhook Processing.
 
@@ -7,7 +9,6 @@ Handles real-time notifications to Sophia agents via Redis pub/sub.
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

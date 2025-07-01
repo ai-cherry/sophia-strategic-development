@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Enhanced Estuary Integration Test Suite for Sophia AI
@@ -20,7 +22,6 @@ import asyncio
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

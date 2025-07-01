@@ -25,6 +25,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.tools import BaseTool
 from langchain_openai import ChatOpenAI
 
+from backend.core.auto_esc_config import get_config_value
 from backend.infrastructure.adapters.apollo_adapter import ApolloAdapter
 from backend.infrastructure.adapters.asana_adapter import AsanaAdapter
 from backend.infrastructure.adapters.estuary_adapter import EstuaryAdapter
@@ -47,7 +48,6 @@ from backend.infrastructure.core.policy_engine import PolicyEngine
 # Core infrastructure components
 from backend.infrastructure.core.state_manager import InfrastructureStateManager
 from backend.infrastructure.core.webhook_router import WebhookRouter
-from backend.core.auto_esc_config import get_config_value
 
 
 class PlatformType(Enum):

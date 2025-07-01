@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Resilient WebSocket Manager for Sophia AI
@@ -7,7 +9,6 @@ Production-grade WebSocket management with auto-reconnection and message queuing
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

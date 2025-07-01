@@ -1,10 +1,11 @@
+from datetime import UTC, datetime
+
 """
 Unified Chat Service - Phase 2B Implementation
 Main orchestrator for all chat modes with dependency injection
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 
 from ...models.chat_models import (

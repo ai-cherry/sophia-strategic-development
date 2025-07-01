@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Enhanced Unified Intelligence Service for Sophia AI
 
@@ -7,7 +9,6 @@ Estuary Flow, and the complete ecosystem to provide a seamless experience.
 
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 from backend.services.unified_intelligence_service import (

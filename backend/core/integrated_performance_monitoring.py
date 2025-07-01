@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 SOPHIA AI PERFORMANCE MONITORING INTEGRATION
@@ -34,7 +36,7 @@ import json
 import logging
 import time
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 
 import psutil

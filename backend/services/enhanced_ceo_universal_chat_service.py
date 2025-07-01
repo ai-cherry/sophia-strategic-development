@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Enhanced CEO Universal Chat Service for Sophia AI
 CEO-level capabilities: deep web research, MCP integration, AI coding agents
@@ -5,7 +7,6 @@ CEO-level capabilities: deep web research, MCP integration, AI coding agents
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

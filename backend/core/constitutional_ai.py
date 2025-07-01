@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI Constitutional AI Framework
 =====================================
@@ -5,7 +7,6 @@ Ensures all AI operations comply with ethical principles and business constraint
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)

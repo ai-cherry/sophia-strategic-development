@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Gong Pipeline Integration Script
@@ -16,7 +18,6 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

@@ -335,7 +335,7 @@ async def update_foundational_record(
         raise
     except Exception as e:
         logger.error(f"Failed to update foundational record: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to update record")
+        raise HTTPException(status_code=500, detail="Failed to update record") from e
 
 
 @router.get("/context/{context_type}")

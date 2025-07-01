@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Gong Data Integration with Sophia Agent System.
 
@@ -22,7 +24,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4

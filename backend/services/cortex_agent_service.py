@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Snowflake Cortex Agent Service for Sophia AI
 Manages AI agents with JWT authentication and tool execution
@@ -7,7 +9,7 @@ import asyncio
 import json
 import logging
 from collections.abc import AsyncGenerator
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Any
 

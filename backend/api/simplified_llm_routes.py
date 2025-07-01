@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Simplified LLM API Routes for Sophia AI
 100% Portkey with Virtual Keys - Replaces all complex multi-provider routes
@@ -8,7 +10,6 @@ using Portkey virtual keys for simplified management and enhanced reliability.
 
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException

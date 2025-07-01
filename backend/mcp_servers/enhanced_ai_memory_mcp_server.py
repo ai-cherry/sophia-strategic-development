@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Enhanced AI Memory MCP Server
@@ -8,7 +10,7 @@ import asyncio
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from typing import Any
 

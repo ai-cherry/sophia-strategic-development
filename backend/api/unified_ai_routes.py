@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Unified AI API Routes
 Comprehensive API endpoints for Sophia AI Platform with advanced Cortex Agents integration
@@ -6,7 +8,6 @@ Comprehensive API endpoints for Sophia AI Platform with advanced Cortex Agents i
 import asyncio
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException

@@ -1,9 +1,9 @@
+import asyncio
 from typing import Any
 
 import aiohttp
 
 from backend.utils.logging import get_logger
-import asyncio
 
 logger = get_logger(__name__)
 

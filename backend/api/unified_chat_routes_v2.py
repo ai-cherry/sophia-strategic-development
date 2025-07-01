@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Unified Chat API Routes - Phase 2A Implementation
 Consolidates sophia_universal_chat_routes.py, universal_chat_routes.py, and enhanced_ceo_chat_routes.py
@@ -5,7 +7,6 @@ Consolidates sophia_universal_chat_routes.py, universal_chat_routes.py, and enha
 
 import logging
 import uuid
-from datetime import datetime
 from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Sophia AI - MCP Ecosystem Optimization Implementation Script
@@ -14,7 +16,6 @@ This script showcases:
 import asyncio
 import logging
 import time
-from datetime import datetime
 from typing import Any
 
 # Import our new optimization components

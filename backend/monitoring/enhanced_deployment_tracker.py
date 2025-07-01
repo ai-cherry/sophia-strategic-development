@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI - Enhanced Deployment Tracking & Monitoring System
 Provides real-time deployment monitoring, tracking, and automated rollback capabilities
@@ -6,7 +8,6 @@ Provides real-time deployment monitoring, tracking, and automated rollback capab
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

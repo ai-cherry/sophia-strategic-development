@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI Unified Intelligence Service
 ======================================
@@ -7,7 +9,6 @@ with constitutional AI constraints and self-optimization.
 
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 # Setup logging first

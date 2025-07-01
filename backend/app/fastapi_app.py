@@ -9,7 +9,6 @@ import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import List
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,16 +33,16 @@ class Settings(BaseSettings):
     app_version: str = "3.0.0"
     environment: str = "production"
     debug: bool = False
-    
+
     # Security
     secret_key: str = "change-me-in-production"
-    allowed_origins: List[str] = ["*"]
-    
+    allowed_origins: list[str] = ["*"]
+
     # API Configuration
     api_prefix: str = "/api/v3"
     docs_url: str = "/docs"
     redoc_url: str = "/redoc"
-    
+
     class Config:
         env_prefix = "SOPHIA_"
         case_sensitive = False
@@ -111,7 +110,7 @@ def create_fastapi_app() -> FastAPI:
     # Enhanced middleware stack
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(
-        TrustedHostMiddleware, 
+        TrustedHostMiddleware,
         allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai"]
     )
 
@@ -130,31 +129,31 @@ def create_fastapi_app() -> FastAPI:
         start_time = time.time()
         response = await call_next(request)
         duration = time.time() - start_time
-        
+
         REQUEST_COUNT.labels(
             method=request.method,
             endpoint=request.url.path,
             status=response.status_code
         ).inc()
         REQUEST_DURATION.observe(duration)
-        
+
         return response
 
     @app.middleware("http")
     async def add_request_tracking(request: Request, call_next):
         start_time = time.time()
-        
+
         # Add correlation ID
         correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
-        
+
         # Process request
         response = await call_next(request)
-        
+
         # Add response headers
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
         response.headers["X-Correlation-ID"] = correlation_id
-        
+
         return response
 
     # Enhanced error handling
@@ -162,9 +161,9 @@ def create_fastapi_app() -> FastAPI:
     async def global_exception_handler(request: Request, exc: Exception):
         """Global exception handler with structured logging"""
         correlation_id = request.headers.get("X-Correlation-ID", "unknown")
-        
+
         logger.error(
-            f"Unhandled exception", 
+            "Unhandled exception",
             extra={
                 "correlation_id": correlation_id,
                 "path": request.url.path,
@@ -173,7 +172,7 @@ def create_fastapi_app() -> FastAPI:
             },
             exc_info=True
         )
-        
+
         return JSONResponse(
             status_code=500,
             content={

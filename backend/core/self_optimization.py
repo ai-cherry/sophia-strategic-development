@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI Self-Optimization Engine
 ==================================
@@ -7,7 +9,6 @@ Continuously learns and optimizes performance within constitutional constraints.
 import asyncio
 import logging
 from collections import defaultdict
-from datetime import datetime
 from typing import Any
 
 from backend.core.constitutional_ai import SophiaConstitutionalFramework

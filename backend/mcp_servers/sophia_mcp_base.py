@@ -1,4 +1,5 @@
 import os
+
 """
 Sophia MCP Base Class
 Unified base class for all Sophia AI MCP servers

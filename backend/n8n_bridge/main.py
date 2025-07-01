@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 N8N Bridge Service for Sophia AI MCP Integration
 Provides seamless integration between N8N workflows and MCP orchestration service
@@ -6,7 +8,6 @@ Provides seamless integration between N8N workflows and MCP orchestration servic
 import asyncio
 import logging
 import os
-from datetime import datetime
 from typing import Any
 
 import redis.asyncio as redis

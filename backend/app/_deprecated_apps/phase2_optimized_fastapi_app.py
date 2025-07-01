@@ -304,7 +304,7 @@ async def get_performance_metrics():
 
     except Exception as e:
         logger.error(f"Performance metrics failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Performance metrics error: {e}")
+        raise HTTPException(status_code=500, detail=f"Performance metrics error: {e}") from e
 
 
 # Optimized Cortex service endpoints
@@ -359,7 +359,7 @@ async def analyze_with_cortex(request: CortexAnalysisRequest):
 
     except Exception as e:
         logger.error(f"Cortex analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cortex analysis error: {e}")
+        raise HTTPException(status_code=500, detail=f"Cortex analysis error: {e}") from e
 
 
 # Optimized Gong integration endpoints
@@ -422,7 +422,7 @@ async def execute_gong_workflow(request: WorkflowRequest):
 
     except Exception as e:
         logger.error(f"Gong workflow failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Gong workflow error: {e}")
+        raise HTTPException(status_code=500, detail=f"Gong workflow error: {e}") from e
 
 
 # Cache management endpoints
@@ -441,7 +441,7 @@ async def get_cache_stats():
 
     except Exception as e:
         logger.error(f"Cache stats failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache stats error: {e}")
+        raise HTTPException(status_code=500, detail=f"Cache stats error: {e}") from e
 
 
 @app.post("/api/cache/warm")
@@ -466,7 +466,7 @@ async def warm_cache(request: dict[str, Any]):
 
     except Exception as e:
         logger.error(f"Cache warming failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache warming error: {e}")
+        raise HTTPException(status_code=500, detail=f"Cache warming error: {e}") from e
 
 
 @app.delete("/api/cache/clear")
@@ -495,7 +495,7 @@ async def clear_cache(cache_level: str | None = None):
 
     except Exception as e:
         logger.error(f"Cache clear failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Cache clear error: {e}")
+        raise HTTPException(status_code=500, detail=f"Cache clear error: {e}") from e
 
 
 # Configuration endpoints
@@ -514,7 +514,7 @@ async def get_config_status():
 
     except Exception as e:
         logger.error(f"Config status failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Config status error: {e}")
+        raise HTTPException(status_code=500, detail=f"Config status error: {e}") from e
 
 
 # Background task endpoints
@@ -539,7 +539,7 @@ async def optimize_system(background_tasks: BackgroundTasks):
 
     except Exception as e:
         logger.error(f"System optimization failed: {e}")
-        raise HTTPException(status_code=500, detail=f"System optimization error: {e}")
+        raise HTTPException(status_code=500, detail=f"System optimization error: {e}") from e
 
 
 async def run_optimization_tasks():

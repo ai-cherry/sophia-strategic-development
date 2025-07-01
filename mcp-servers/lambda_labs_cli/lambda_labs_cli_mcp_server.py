@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Lambda Labs CLI MCP Server
@@ -24,7 +26,6 @@ import asyncio
 import json
 import logging
 import sys
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 

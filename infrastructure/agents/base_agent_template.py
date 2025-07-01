@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Base Agent Template
@@ -6,7 +8,6 @@ Implements expert-recommended standards for all Sophia AI agents
 
 import asyncio
 from abc import ABC, abstractmethod
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

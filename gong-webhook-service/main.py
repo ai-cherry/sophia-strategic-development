@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Simplified Gong Webhook Server for immediate deployment.
@@ -6,7 +8,6 @@ Designed to pass Gong's webhook test and be production-ready.
 
 import logging
 import os
-from datetime import datetime
 
 import uvicorn
 from fastapi import FastAPI, Request

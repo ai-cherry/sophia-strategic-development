@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI Unified Intelligence API Routes
 =========================================
@@ -5,7 +7,6 @@ FastAPI routes for unified intelligence queries with constitutional AI.
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status

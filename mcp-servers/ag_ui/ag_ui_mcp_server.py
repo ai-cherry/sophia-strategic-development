@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 
 """
@@ -19,7 +21,6 @@ import asyncio
 import json
 import uuid
 from dataclasses import asdict, dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

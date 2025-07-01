@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Gemini CLI Provider for Sophia AI
@@ -9,7 +11,6 @@ import json
 import logging
 import os
 import subprocess
-from datetime import datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)

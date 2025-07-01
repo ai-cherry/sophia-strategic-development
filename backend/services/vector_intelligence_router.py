@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI Vector Intelligence Router
 ====================================
@@ -6,7 +8,6 @@ Intelligently routes vector searches to the optimal database based on query char
 
 import asyncio
 import logging
-from datetime import datetime
 from typing import Any
 
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer

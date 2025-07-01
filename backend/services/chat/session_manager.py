@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Session Manager - Phase 2B Implementation
 Manages chat session state and persistence
@@ -5,7 +7,7 @@ Manages chat session state and persistence
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from ...models.chat_models import ChatConfiguration, ChatContext, ChatMode, ChatSession
 

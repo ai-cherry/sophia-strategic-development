@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Simplified Unified Intelligence Service for Sophia AI
 
@@ -6,7 +8,6 @@ services without relying on methods that don't exist yet.
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 
 # Setup logging

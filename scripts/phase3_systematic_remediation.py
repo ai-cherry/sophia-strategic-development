@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Phase 3 Systematic Complexity Remediation
@@ -13,7 +15,6 @@ import os
 import re
 import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 

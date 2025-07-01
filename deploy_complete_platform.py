@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from datetime import UTC, datetime
+
 from backend.core.auto_esc_config import get_config_value
 
 """
@@ -11,7 +13,6 @@ import json
 import logging
 import os
 import subprocess
-from datetime import datetime
 from typing import Any
 
 # Configure logging

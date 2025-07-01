@@ -84,7 +84,7 @@ async def get_slack_stats(
 
     except Exception as e:
         logger.error(f"Error fetching Slack stats: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch Slack statistics")
+        raise HTTPException(status_code=500, detail="Failed to fetch Slack statistics") from e
 
 
 @router.get("/slack/conversations")
@@ -239,7 +239,7 @@ async def get_slack_insights(
 
     except Exception as e:
         logger.error(f"Error fetching Slack insights: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch Slack insights")
+        raise HTTPException(status_code=500, detail="Failed to fetch Slack insights") from e
 
 
 @router.get("/slack/search")
@@ -270,7 +270,7 @@ async def search_slack_knowledge(
 
     except Exception as e:
         logger.error(f"Error searching Slack knowledge: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to search Slack knowledge")
+        raise HTTPException(status_code=500, detail="Failed to search Slack knowledge") from e
 
 
 @router.post("/slack/sync")
@@ -314,7 +314,7 @@ async def sync_slack_data(
 
     except Exception as e:
         logger.error(f"Slack sync failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to sync Slack data")
+        raise HTTPException(status_code=500, detail="Failed to sync Slack data") from e
 
 
 # =====================================================================
@@ -427,7 +427,7 @@ async def get_linear_stats(
 
     except Exception as e:
         logger.error(f"Error fetching Linear stats: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch Linear statistics")
+        raise HTTPException(status_code=500, detail="Failed to fetch Linear statistics") from e
 
 
 @router.get("/linear/issues")
@@ -517,7 +517,7 @@ async def get_linear_issues(
 
     except Exception as e:
         logger.error(f"Error fetching Linear issues: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch Linear issues")
+        raise HTTPException(status_code=500, detail="Failed to fetch Linear issues") from e
 
 
 @router.get("/linear/insights")
@@ -608,7 +608,7 @@ async def get_linear_insights(
 
     except Exception as e:
         logger.error(f"Error fetching Linear insights: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch Linear insights")
+        raise HTTPException(status_code=500, detail="Failed to fetch Linear insights") from e
 
 
 @router.get("/linear/search")
@@ -641,7 +641,7 @@ async def search_linear_knowledge(
 
     except Exception as e:
         logger.error(f"Error searching Linear knowledge: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to search Linear knowledge")
+        raise HTTPException(status_code=500, detail="Failed to search Linear knowledge") from e
 
 
 @router.post("/linear/sync")
@@ -683,7 +683,7 @@ async def sync_linear_data(
 
     except Exception as e:
         logger.error(f"Linear sync failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to sync Linear data")
+        raise HTTPException(status_code=500, detail="Failed to sync Linear data") from e
 
 
 # =====================================================================

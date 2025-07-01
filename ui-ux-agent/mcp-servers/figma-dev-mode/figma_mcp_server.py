@@ -138,7 +138,7 @@ class FigmaAPIClient:
             return response.json()
         except requests.RequestException as e:
             logger.error(f"Failed to get file metadata: {e}")
-            raise HTTPException(status_code=500, detail=f"Figma API error: {e}")
+            raise HTTPException(status_code=500, detail=f"Figma API error: {e}") from e
 
 
 class FigmaDevModeMCPServer:

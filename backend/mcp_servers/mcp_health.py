@@ -1,4 +1,4 @@
-from typing import Optional
+
 """
 MCP Services Health Monitoring
 Comprehensive health checks and monitoring for all MCP servers
@@ -21,7 +21,7 @@ class ServiceHealth:
     status: str  # healthy, degraded, unhealthy
     response_time_ms: float
     last_check: datetime
-    error_message: Optional[str] = None
+    error_message: str | None = None
     uptime_percentage: float = 100.0
 
 

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Portkey AI Gateway Service for Sophia AI
 Intelligent multi-model routing with streaming and cost optimization
@@ -8,7 +10,6 @@ import json
 import logging
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

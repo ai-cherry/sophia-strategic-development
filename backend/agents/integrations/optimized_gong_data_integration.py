@@ -1,4 +1,5 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Optimized Gong Data Integration for Sophia AI

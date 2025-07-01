@@ -1,4 +1,5 @@
 import shlex
+from datetime import UTC, datetime
 
 """
 Sophia AI - Enhanced Deployment Tracking & Monitoring System
@@ -23,7 +24,6 @@ import logging
 import os
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Enhanced CEO Chat Routes for Sophia AI
 Leverages 11-provider Portkey orchestrator with intelligent routing
@@ -12,7 +14,6 @@ Features:
 
 import json
 import logging
-from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect

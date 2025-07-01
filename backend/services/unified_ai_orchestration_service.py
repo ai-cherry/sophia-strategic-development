@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from backend.core.auto_esc_config import get_config_value
 
 """
@@ -8,7 +10,6 @@ Integrates Snowflake Cortex Agents, Estuary Flow, and multi-source data processi
 import json
 import logging
 import os
-from datetime import datetime
 from typing import Any
 
 import httpx

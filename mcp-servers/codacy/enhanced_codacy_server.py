@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Enhanced Codacy MCP Server with Cline v3.18 Features
 Implements WebFetch, Self-Knowledge, Improved Diff, and Model Routing
@@ -22,7 +24,6 @@ import os
 
 # Import the standardized base class
 import sys
-from datetime import datetime
 from typing import Any
 
 from fastapi import HTTPException

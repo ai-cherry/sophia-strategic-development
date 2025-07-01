@@ -53,7 +53,7 @@ async def get_projects(
         return cached_data
     except Exception as e:
         logger.error(f"Error fetching projects: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch projects")
+        raise HTTPException(status_code=500, detail="Failed to fetch projects") from e
 
 
 @router.get("/tasks", response_model=list[Task])
@@ -92,7 +92,7 @@ async def get_tasks(
         return tasks
     except Exception as e:
         logger.error(f"Error fetching tasks: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch tasks")
+        raise HTTPException(status_code=500, detail="Failed to fetch tasks") from e
 
 
 @router.get("/team/performance", response_model=list[TeamMember])
@@ -122,7 +122,7 @@ async def get_team_performance(
         return performance_data
     except Exception as e:
         logger.error(f"Error fetching team performance: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch team performance")
+        raise HTTPException(status_code=500, detail="Failed to fetch team performance") from e
 
 
 @router.get("/stats/sprint-velocity", response_model=list[SprintVelocity])
@@ -145,7 +145,7 @@ async def get_sprint_velocity(
         return velocity_data
     except Exception as e:
         logger.error(f"Error fetching sprint velocity: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch sprint velocity")
+        raise HTTPException(status_code=500, detail="Failed to fetch sprint velocity") from e
 
 
 @router.get("/stats/overview", response_model=dict[str, Any])
@@ -185,7 +185,7 @@ async def get_project_stats_overview(
         return overview_data
     except Exception as e:
         logger.error(f"Error fetching project overview: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch project overview")
+        raise HTTPException(status_code=500, detail="Failed to fetch project overview") from e
 
 
 @router.post("/{project_id}/tasks")
@@ -221,7 +221,7 @@ async def create_task(
         raise
     except Exception as e:
         logger.error(f"Error creating task: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create task")
+        raise HTTPException(status_code=500, detail="Failed to create task") from e
 
 
 @router.put("/tasks/{task_id}")
@@ -255,7 +255,7 @@ async def update_task(
         raise
     except Exception as e:
         logger.error(f"Error updating task: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to update task")
+        raise HTTPException(status_code=500, detail="Failed to update task") from e
 
 
 @router.get("/department-okrs", response_model=dict[str, Any])
@@ -278,7 +278,7 @@ async def get_department_okrs(
         return okr_data
     except Exception as e:
         logger.error(f"Error fetching department OKRs: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to fetch department OKRs")
+        raise HTTPException(status_code=500, detail="Failed to fetch department OKRs") from e
 
 
 @router.get("/cross-functional-insights", response_model=dict[str, Any])

@@ -7,6 +7,7 @@ from typing import Any
 from backend.agents.enhanced.data_models import MemoryRecord
 from backend.core.hierarchical_cache import HierarchicalCache
 from backend.utils.enhanced_snowflake_cortex_service import (
+from datetime import datetime, UTC
     EnhancedSnowflakeCortexService,
 )
 

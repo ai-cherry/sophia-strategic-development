@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Optimized Dashboard Service for Sophia AI
@@ -7,7 +9,7 @@ High-performance dashboard with intelligent caching and parallel data collection
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 
 logger = logging.getLogger(__name__)

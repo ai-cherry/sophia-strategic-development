@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI - Enhanced Snowflake Cortex Service
 Unified AI processing using pure Snowflake Cortex for embeddings, LLM, and analytics
@@ -6,7 +8,6 @@ Unified AI processing using pure Snowflake Cortex for embeddings, LLM, and analy
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

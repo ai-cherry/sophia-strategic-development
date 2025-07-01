@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI - MCP Metrics Collector
 Comprehensive metrics collection and monitoring for all MCP servers
@@ -21,7 +23,7 @@ import logging
 from collections import defaultdict, deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from typing import Any
 

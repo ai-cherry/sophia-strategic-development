@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Estuary Gong Integration Setup Script
@@ -38,7 +40,6 @@ import logging
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

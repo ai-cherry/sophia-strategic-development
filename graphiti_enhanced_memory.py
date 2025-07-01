@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 """
 Graphiti Enhanced Memory for Sophia AI
 Enhances existing AI Memory MCP server with temporal knowledge graphs
@@ -9,7 +11,6 @@ Enhances existing AI Memory MCP server with temporal knowledge graphs
 import asyncio
 import uuid
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any
 
 import structlog

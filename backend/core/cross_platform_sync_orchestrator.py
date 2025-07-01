@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 """
 Sophia AI - Cross-Platform Sync Orchestrator
 Orchestrates data synchronization across all MCP servers with priority-based scheduling
@@ -21,7 +23,7 @@ import logging
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from typing import Any
 

@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 #!/usr/bin/env python3
 """
 Enhanced Estuary Configuration Manager for Sophia AI Platform
@@ -24,7 +26,6 @@ import asyncio
 import random
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
 from enum import Enum
 from typing import Any
 

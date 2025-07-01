@@ -107,7 +107,7 @@ async def upload_large_dataset(
         raise
     except Exception as e:
         logger.error(f"Failed to create import job: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create import job")
+        raise HTTPException(status_code=500, detail="Failed to create import job") from e
 
 
 async def process_import_job_background(job_id: str):
@@ -156,7 +156,7 @@ async def list_import_jobs(
 
     except Exception as e:
         logger.error(f"Failed to list import jobs: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to list import jobs")
+        raise HTTPException(status_code=500, detail="Failed to list import jobs") from e
 
 
 @router.get("/jobs/{job_id}")
@@ -198,7 +198,7 @@ async def get_import_job_status(
         raise
     except Exception as e:
         logger.error(f"Failed to get import job status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get import job status")
+        raise HTTPException(status_code=500, detail="Failed to get import job status") from e
 
 
 @router.post("/jobs/{job_id}/cancel")
@@ -226,7 +226,7 @@ async def cancel_import_job(
         raise
     except Exception as e:
         logger.error(f"Failed to cancel import job: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to cancel import job")
+        raise HTTPException(status_code=500, detail="Failed to cancel import job") from e
 
 
 @router.get("/data-types")
@@ -348,7 +348,7 @@ async def get_import_stats(user_id: str = Depends(get_current_user)) -> dict[str
 
     except Exception as e:
         logger.error(f"Failed to get import stats: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get import statistics")
+        raise HTTPException(status_code=500, detail="Failed to get import statistics") from e
 
 
 @router.post("/validate")
@@ -427,7 +427,7 @@ async def validate_import_file(
         raise
     except Exception as e:
         logger.error(f"Failed to validate import file: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to validate import file")
+        raise HTTPException(status_code=500, detail="Failed to validate import file") from e
 
 
 def _validate_file_format(filename: str, data_type: ImportDataType) -> bool:
