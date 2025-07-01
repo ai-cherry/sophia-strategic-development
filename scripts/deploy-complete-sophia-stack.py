@@ -59,7 +59,6 @@ class DeploymentConfig:
     
     # Data pipeline
     estuary_enabled: bool = True
-    airbyte_fallback: bool = True
     
     # Monitoring
     monitoring_enabled: bool = True

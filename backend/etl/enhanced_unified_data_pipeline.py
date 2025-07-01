@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Enhanced Unified Data Pipeline for Sophia AI
-Comprehensive data pipeline orchestrator with Estuary Flow primary and Airbyte fallback
+Pure Estuary Flow Data Pipeline for Sophia AI
+Comprehensive data pipeline orchestrator using only Estuary Flow
 Implements robust ELT pattern: Sources → PostgreSQL → Redis → Snowflake → Vector DBs
 """
 
@@ -20,18 +20,11 @@ import snowflake.connector
 from dataclasses import dataclass, field
 
 from backend.core.auto_esc_config import get_config_value
-from backend.core.secure_snowflake_config import SecureSnowflakeConfig
+from backend.core.aligned_snowflake_config import aligned_snowflake_config
 from backend.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
-
-
-class PipelineEngine(Enum):
-    """Data pipeline engine options"""
-    ESTUARY_FLOW = "estuary_flow"
-    AIRBYTE = "airbyte"
-    HYBRID = "hybrid"
 
 
 class DataSource(Enum):
@@ -43,47 +36,55 @@ class DataSource(Enum):
     ZENDESK = "zendesk"
 
 
+class FlowStatus(Enum):
+    """Estuary Flow status"""
+    ACTIVE = "active"
+    PAUSED = "paused"
+    FAILED = "failed"
+    INITIALIZING = "initializing"
+
+
 @dataclass
-class PipelineConfig:
-    """Configuration for the unified data pipeline"""
-    engine: PipelineEngine = PipelineEngine.HYBRID
+class EstuaryPipelineConfig:
+    """Configuration for the pure Estuary Flow pipeline"""
     sources: List[DataSource] = field(default_factory=lambda: [DataSource.HUBSPOT, DataSource.GONG])
     postgresql_config: Dict[str, Any] = field(default_factory=dict)
     redis_config: Dict[str, Any] = field(default_factory=dict)
     snowflake_config: Dict[str, Any] = field(default_factory=dict)
     estuary_config: Dict[str, Any] = field(default_factory=dict)
-    airbyte_config: Dict[str, Any] = field(default_factory=dict)
     monitoring_enabled: bool = True
     auto_retry: bool = True
     max_retries: int = 3
+    flow_prefix: str = "sophia_ai"
 
 
 @dataclass
 class PipelineStatus:
-    """Status of the data pipeline"""
-    engine: str
-    sources_active: Dict[str, bool] = field(default_factory=dict)
-    destinations_active: Dict[str, bool] = field(default_factory=dict)
+    """Status of the Estuary Flow pipeline"""
+    sources_active: Dict[str, FlowStatus] = field(default_factory=dict)
+    destinations_active: Dict[str, FlowStatus] = field(default_factory=dict)
+    flows_active: Dict[str, FlowStatus] = field(default_factory=dict)
     last_sync: Optional[datetime] = None
     errors: List[str] = field(default_factory=list)
     metrics: Dict[str, Any] = field(default_factory=dict)
+    total_records_processed: int = 0
+    data_freshness_minutes: int = 0
 
 
-class EnhancedUnifiedDataPipeline:
+class PureEstuaryDataPipeline:
     """
-    Enhanced unified data pipeline orchestrator
-    Manages data flow from multiple sources to multiple destinations
-    Supports both Estuary Flow and Airbyte with intelligent fallback
+    Pure Estuary Flow data pipeline orchestrator
+    Manages data flow from multiple sources to multiple destinations using only Estuary Flow
+    Provides enterprise-grade reliability, monitoring, and performance
     """
     
-    def __init__(self, config: Optional[PipelineConfig] = None):
-        self.config = config or PipelineConfig()
+    def __init__(self, config: Optional[EstuaryPipelineConfig] = None):
+        self.config = config or EstuaryPipelineConfig()
         self.estuary_orchestrator: Optional[EstuaryFlowOrchestrator] = None
-        self.airbyte_client: Optional[aiohttp.ClientSession] = None
         self.postgresql_pool: Optional[asyncpg.Pool] = None
         self.redis_client: Optional[redis.Redis] = None
         self.snowflake_service: Optional[SnowflakeCortexService] = None
-        self.status = PipelineStatus(engine=self.config.engine.value)
+        self.status = PipelineStatus()
         
         # Initialize configurations
         self._initialize_configs()
@@ -113,15 +114,12 @@ class EnhancedUnifiedDataPipeline:
         self.config.estuary_config = {
             "api_url": get_config_value("estuary_flow_api_url", "https://api.estuary.dev"),
             "access_token": get_config_value("estuary_access_token"),
-            "tenant": get_config_value("estuary_flow_tenant", "sophia-ai")
+            "tenant": get_config_value("estuary_flow_tenant", "sophia-ai"),
+            "namespace": get_config_value("estuary_namespace", "sophia/ai")
         }
         
-        # Airbyte configuration (fallback)
-        self.config.airbyte_config = {
-            "api_url": get_config_value("airbyte_api_url", "http://localhost:8001/api/v1"),
-            "client_id": get_config_value("airbyte_client_id", "9630134c-359d-4c9c-aa97-95ab3a2ff8f5"),
-            "client_secret": get_config_value("airbyte_client_secret", "NfwyhFUjemKlC66h7iECE9Tjedo6SGFh")
-        }
+        # Snowflake configuration (aligned with actual setup)
+        self.config.snowflake_config = aligned_snowflake_config.get_connection_params()
     
     async def __aenter__(self):
         """Async context manager entry"""
@@ -134,7 +132,7 @@ class EnhancedUnifiedDataPipeline:
     
     async def _initialize_connections(self):
         """Initialize all database and service connections"""
-        logger.info("🔌 Initializing pipeline connections...")
+        logger.info("🔌 Initializing pure Estuary Flow pipeline connections...")
         
         try:
             # Initialize PostgreSQL connection pool
@@ -150,49 +148,14 @@ class EnhancedUnifiedDataPipeline:
             self.snowflake_service = SnowflakeCortexService()
             logger.info("✅ Snowflake service initialized")
             
-            # Initialize pipeline engines based on configuration
-            if self.config.engine in [PipelineEngine.ESTUARY_FLOW, PipelineEngine.HYBRID]:
-                try:
-                    self.estuary_orchestrator = EstuaryFlowOrchestrator()
-                    await self.estuary_orchestrator.__aenter__()
-                    logger.info("✅ Estuary Flow orchestrator initialized")
-                except Exception as e:
-                    logger.warning(f"⚠️ Estuary Flow initialization failed: {e}")
-                    if self.config.engine == PipelineEngine.ESTUARY_FLOW:
-                        raise
-            
-            if self.config.engine in [PipelineEngine.AIRBYTE, PipelineEngine.HYBRID]:
-                try:
-                    await self._initialize_airbyte()
-                    logger.info("✅ Airbyte client initialized")
-                except Exception as e:
-                    logger.warning(f"⚠️ Airbyte initialization failed: {e}")
-                    if self.config.engine == PipelineEngine.AIRBYTE:
-                        raise
+            # Initialize Estuary Flow orchestrator
+            self.estuary_orchestrator = EstuaryFlowOrchestrator()
+            await self.estuary_orchestrator.__aenter__()
+            logger.info("✅ Estuary Flow orchestrator initialized")
             
         except Exception as e:
             logger.error(f"❌ Connection initialization failed: {e}")
             await self._cleanup_connections()
-            raise
-    
-    async def _initialize_airbyte(self):
-        """Initialize Airbyte client"""
-        self.airbyte_client = aiohttp.ClientSession(
-            headers={"Content-Type": "application/json"}
-        )
-        
-        # Test Airbyte connectivity
-        try:
-            async with self.airbyte_client.get(f"{self.config.airbyte_config['api_url']}/health") as response:
-                if response.status == 200:
-                    logger.info("✅ Airbyte health check passed")
-                else:
-                    raise Exception(f"Airbyte health check failed: {response.status}")
-        except Exception as e:
-            logger.warning(f"⚠️ Airbyte connectivity test failed: {e}")
-            if self.airbyte_client:
-                await self.airbyte_client.close()
-                self.airbyte_client = None
             raise
     
     async def _cleanup_connections(self):
@@ -204,12 +167,6 @@ class EnhancedUnifiedDataPipeline:
                 await self.estuary_orchestrator.__aexit__(None, None, None)
             except Exception as e:
                 logger.warning(f"⚠️ Estuary Flow cleanup error: {e}")
-        
-        if self.airbyte_client:
-            try:
-                await self.airbyte_client.close()
-            except Exception as e:
-                logger.warning(f"⚠️ Airbyte client cleanup error: {e}")
         
         if self.postgresql_pool:
             try:
@@ -225,35 +182,30 @@ class EnhancedUnifiedDataPipeline:
     
     async def setup_complete_pipeline(self) -> Dict[str, Any]:
         """
-        Set up the complete data pipeline with intelligent engine selection
+        Set up the complete data pipeline using pure Estuary Flow
         """
-        logger.info("🚀 Setting up complete Sophia AI data pipeline...")
+        logger.info("🚀 Setting up complete Sophia AI data pipeline with pure Estuary Flow...")
         
         results = {
-            "engine_used": None,
+            "engine_used": "estuary_flow",
             "sources_configured": [],
             "destinations_configured": [],
             "flows_created": [],
+            "collections_created": [],
             "errors": []
         }
         
         try:
-            # Determine which engine to use
-            engine_to_use = await self._select_optimal_engine()
-            results["engine_used"] = engine_to_use.value
-            
             # Set up database schemas
             await self._setup_database_schemas()
             results["destinations_configured"].append("postgresql_schemas")
             
-            # Configure data sources based on engine
-            if engine_to_use == PipelineEngine.ESTUARY_FLOW:
-                source_results = await self._setup_estuary_sources()
-            elif engine_to_use == PipelineEngine.AIRBYTE:
-                source_results = await self._setup_airbyte_sources()
-            else:  # HYBRID
-                source_results = await self._setup_hybrid_sources()
+            # Set up Estuary Flow collections
+            collections = await self._setup_estuary_collections()
+            results["collections_created"] = collections
             
+            # Configure data sources
+            source_results = await self._setup_estuary_sources()
             results.update(source_results)
             
             # Set up data transformations
@@ -278,9 +230,8 @@ class EnhancedUnifiedDataPipeline:
             
             # Update status
             self.status.last_sync = datetime.now(timezone.utc)
-            self.status.engine = engine_to_use.value
             
-            logger.info("✅ Complete data pipeline setup successful!")
+            logger.info("✅ Complete pure Estuary Flow pipeline setup successful!")
             return results
             
         except Exception as e:
@@ -288,386 +239,643 @@ class EnhancedUnifiedDataPipeline:
             results["errors"].append(str(e))
             raise
     
-    async def _select_optimal_engine(self) -> PipelineEngine:
-        """Select the optimal pipeline engine based on availability and configuration"""
-        if self.config.engine == PipelineEngine.ESTUARY_FLOW:
-            if self.estuary_orchestrator:
-                return PipelineEngine.ESTUARY_FLOW
-            else:
-                raise Exception("Estuary Flow requested but not available")
+    async def _setup_estuary_collections(self) -> List[str]:
+        """Set up Estuary Flow collections for all data sources"""
+        logger.info("📊 Setting up Estuary Flow collections...")
         
-        elif self.config.engine == PipelineEngine.AIRBYTE:
-            if self.airbyte_client:
-                return PipelineEngine.AIRBYTE
-            else:
-                raise Exception("Airbyte requested but not available")
+        collections = []
         
-        else:  # HYBRID mode
-            # Prefer Estuary Flow, fallback to Airbyte
-            if self.estuary_orchestrator:
-                logger.info("🎯 Using Estuary Flow as primary engine")
-                return PipelineEngine.ESTUARY_FLOW
-            elif self.airbyte_client:
-                logger.info("🎯 Using Airbyte as fallback engine")
-                return PipelineEngine.AIRBYTE
-            else:
-                raise Exception("No pipeline engines available")
-    
-    async def _setup_database_schemas(self):
-        """Set up PostgreSQL database schemas for data staging and processing"""
-        logger.info("🗄️ Setting up database schemas...")
+        # Define collection schemas for each data source
+        collection_configs = {
+            "hubspot_contacts": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string"},
+                        "email": {"type": "string"},
+                        "firstname": {"type": "string"},
+                        "lastname": {"type": "string"},
+                        "company": {"type": "string"},
+                        "phone": {"type": "string"},
+                        "created_at": {"type": "string", "format": "date-time"},
+                        "updated_at": {"type": "string", "format": "date-time"},
+                        "properties": {"type": "object"}
+                    },
+                    "required": ["id", "email"]
+                },
+                "key": ["/id"]
+            },
+            "hubspot_deals": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string"},
+                        "dealname": {"type": "string"},
+                        "amount": {"type": "number"},
+                        "dealstage": {"type": "string"},
+                        "pipeline": {"type": "string"},
+                        "closedate": {"type": "string", "format": "date-time"},
+                        "created_at": {"type": "string", "format": "date-time"},
+                        "updated_at": {"type": "string", "format": "date-time"},
+                        "properties": {"type": "object"}
+                    },
+                    "required": ["id", "dealname"]
+                },
+                "key": ["/id"]
+            },
+            "gong_calls": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string"},
+                        "title": {"type": "string"},
+                        "url": {"type": "string"},
+                        "started": {"type": "string", "format": "date-time"},
+                        "duration": {"type": "integer"},
+                        "participants": {"type": "array"},
+                        "transcript": {"type": "string"},
+                        "summary": {"type": "string"},
+                        "sentiment": {"type": "string"},
+                        "topics": {"type": "array"},
+                        "created_at": {"type": "string", "format": "date-time"}
+                    },
+                    "required": ["id", "title"]
+                },
+                "key": ["/id"]
+            },
+            "slack_messages": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "ts": {"type": "string"},
+                        "channel": {"type": "string"},
+                        "user": {"type": "string"},
+                        "text": {"type": "string"},
+                        "thread_ts": {"type": "string"},
+                        "reply_count": {"type": "integer"},
+                        "created_at": {"type": "string", "format": "date-time"}
+                    },
+                    "required": ["ts", "channel", "user"]
+                },
+                "key": ["/ts", "/channel"]
+            }
+        }
         
-        schemas = [
-            "estuary_staging",
-            "airbyte_staging", 
-            "processed_data",
-            "analytics",
-            "hubspot_raw",
-            "gong_raw",
-            "slack_raw",
-            "vector_embeddings"
-        ]
-        
-        async with self.postgresql_pool.acquire() as conn:
-            for schema in schemas:
-                await conn.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
-                logger.info(f"✅ Schema created: {schema}")
-            
-            # Create core tables
-            await self._create_core_tables(conn)
-    
-    async def _create_core_tables(self, conn: asyncpg.Connection):
-        """Create core tables for data processing"""
-        tables_sql = [
-            # HubSpot tables
-            """
-            CREATE TABLE IF NOT EXISTS hubspot_raw.contacts (
-                id SERIAL PRIMARY KEY,
-                hubspot_id VARCHAR(255) UNIQUE NOT NULL,
-                email VARCHAR(255),
-                firstname VARCHAR(255),
-                lastname VARCHAR(255),
-                company VARCHAR(255),
-                phone VARCHAR(255),
-                lifecyclestage VARCHAR(100),
-                properties JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                _estuary_ingested_at TIMESTAMP,
-                _source_system VARCHAR(50) DEFAULT 'hubspot'
-            )
-            """,
-            
-            # Gong tables
-            """
-            CREATE TABLE IF NOT EXISTS gong_raw.calls (
-                id SERIAL PRIMARY KEY,
-                gong_call_id VARCHAR(255) UNIQUE NOT NULL,
-                title VARCHAR(500),
-                url VARCHAR(500),
-                duration INTEGER,
-                actual_start TIMESTAMP,
-                actual_end TIMESTAMP,
-                participants JSONB,
-                transcript TEXT,
-                custom_data JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                _estuary_ingested_at TIMESTAMP,
-                _source_system VARCHAR(50) DEFAULT 'gong'
-            )
-            """,
-            
-            # Processed data tables
-            """
-            CREATE TABLE IF NOT EXISTS processed_data.unified_contacts (
-                id SERIAL PRIMARY KEY,
-                source_system VARCHAR(50) NOT NULL,
-                source_id VARCHAR(255) NOT NULL,
-                email VARCHAR(255),
-                full_name VARCHAR(500),
-                company VARCHAR(255),
-                phone VARCHAR(255),
-                properties JSONB,
-                enrichment_data JSONB,
-                vector_embedding VECTOR(1536),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(source_system, source_id)
-            )
-            """,
-            
-            # Analytics tables
-            """
-            CREATE TABLE IF NOT EXISTS analytics.pipeline_metrics (
-                id SERIAL PRIMARY KEY,
-                metric_name VARCHAR(255) NOT NULL,
-                metric_value NUMERIC,
-                metric_metadata JSONB,
-                source_system VARCHAR(50),
-                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        ]
-        
-        for table_sql in tables_sql:
+        # Create collections in Estuary Flow
+        for collection_name, config in collection_configs.items():
             try:
-                await conn.execute(table_sql)
-                logger.info("✅ Core table created successfully")
+                full_collection_name = f"{self.config.flow_prefix}/{collection_name}"
+                
+                collection_spec = {
+                    "schema": config["schema"],
+                    "key": config["key"],
+                    "projections": {
+                        "id": {
+                            "location": "/id",
+                            "partition": True
+                        },
+                        "created_at": {
+                            "location": "/created_at"
+                        }
+                    }
+                }
+                
+                await self.estuary_orchestrator.create_collection(
+                    collection_name=full_collection_name,
+                    schema=collection_spec
+                )
+                
+                collections.append(full_collection_name)
+                logger.info(f"✅ Created Estuary collection: {full_collection_name}")
+                
             except Exception as e:
-                logger.warning(f"⚠️ Table creation warning: {e}")
+                logger.error(f"❌ Failed to create collection {collection_name}: {e}")
+                self.status.errors.append(f"Collection creation failed: {collection_name} - {e}")
+        
+        return collections
     
     async def _setup_estuary_sources(self) -> Dict[str, Any]:
-        """Set up data sources using Estuary Flow"""
-        logger.info("🌊 Setting up Estuary Flow data sources...")
+        """Set up Estuary Flow sources for all configured data sources"""
+        logger.info("🔌 Setting up Estuary Flow sources...")
         
         results = {
             "sources_configured": [],
             "flows_created": []
         }
         
-        if not self.estuary_orchestrator:
-            raise Exception("Estuary Flow orchestrator not available")
-        
-        # Set up each configured source
-        for source in self.config.sources:
+        # HubSpot source configuration
+        if DataSource.HUBSPOT in self.config.sources:
             try:
-                if source == DataSource.HUBSPOT:
-                    flow_result = await self.estuary_orchestrator.create_hubspot_flow()
-                    results["flows_created"].append("hubspot-to-postgresql")
-                    results["sources_configured"].append("hubspot")
+                hubspot_config = {
+                    "start_date": "2024-01-01T00:00:00Z",
+                    "credentials": {
+                        "credentials_title": "Private App Credentials",
+                        "access_token": get_config_value("hubspot_access_token")
+                    }
+                }
                 
-                elif source == DataSource.GONG:
-                    flow_result = await self.estuary_orchestrator.create_gong_flow()
-                    results["flows_created"].append("gong-to-postgresql")
-                    results["sources_configured"].append("gong")
+                # Create HubSpot captures
+                hubspot_captures = [
+                    {
+                        "name": f"{self.config.flow_prefix}/hubspot_contacts_capture",
+                        "endpoint": {
+                            "connector": {
+                                "image": "ghcr.io/estuary/source-hubspot:dev",
+                                "config": hubspot_config
+                            }
+                        },
+                        "bindings": [
+                            {
+                                "resource": {"stream": "contacts", "syncMode": "incremental"},
+                                "target": f"{self.config.flow_prefix}/hubspot_contacts"
+                            }
+                        ]
+                    },
+                    {
+                        "name": f"{self.config.flow_prefix}/hubspot_deals_capture",
+                        "endpoint": {
+                            "connector": {
+                                "image": "ghcr.io/estuary/source-hubspot:dev",
+                                "config": hubspot_config
+                            }
+                        },
+                        "bindings": [
+                            {
+                                "resource": {"stream": "deals", "syncMode": "incremental"},
+                                "target": f"{self.config.flow_prefix}/hubspot_deals"
+                            }
+                        ]
+                    }
+                ]
                 
-                elif source == DataSource.SLACK:
-                    flow_result = await self.estuary_orchestrator.create_slack_flow()
-                    results["flows_created"].append("slack-to-postgresql")
-                    results["sources_configured"].append("slack")
+                for capture in hubspot_captures:
+                    await self.estuary_orchestrator.create_capture(capture)
+                    results["flows_created"].append(capture["name"])
                 
-                logger.info(f"✅ {source.value} source configured via Estuary Flow")
+                results["sources_configured"].append("hubspot")
+                self.status.sources_active["hubspot"] = FlowStatus.ACTIVE
                 
             except Exception as e:
-                logger.error(f"❌ Failed to configure {source.value} source: {e}")
-                results.setdefault("errors", []).append(f"{source.value}: {str(e)}")
+                logger.error(f"❌ HubSpot source setup failed: {e}")
+                self.status.errors.append(f"HubSpot setup failed: {e}")
+                self.status.sources_active["hubspot"] = FlowStatus.FAILED
+        
+        # Gong source configuration
+        if DataSource.GONG in self.config.sources:
+            try:
+                gong_config = {
+                    "access_key": get_config_value("gong_access_key"),
+                    "access_key_secret": get_config_value("gong_access_key_secret"),
+                    "start_date": "2024-01-01T00:00:00Z"
+                }
+                
+                gong_capture = {
+                    "name": f"{self.config.flow_prefix}/gong_calls_capture",
+                    "endpoint": {
+                        "connector": {
+                            "image": "ghcr.io/estuary/source-gong:dev",
+                            "config": gong_config
+                        }
+                    },
+                    "bindings": [
+                        {
+                            "resource": {"stream": "calls", "syncMode": "incremental"},
+                            "target": f"{self.config.flow_prefix}/gong_calls"
+                        }
+                    ]
+                }
+                
+                await self.estuary_orchestrator.create_capture(gong_capture)
+                results["flows_created"].append(gong_capture["name"])
+                results["sources_configured"].append("gong")
+                self.status.sources_active["gong"] = FlowStatus.ACTIVE
+                
+            except Exception as e:
+                logger.error(f"❌ Gong source setup failed: {e}")
+                self.status.errors.append(f"Gong setup failed: {e}")
+                self.status.sources_active["gong"] = FlowStatus.FAILED
+        
+        # Slack source configuration
+        if DataSource.SLACK in self.config.sources:
+            try:
+                slack_config = {
+                    "api_token": get_config_value("slack_bot_token"),
+                    "start_date": "2024-01-01T00:00:00Z",
+                    "lookback_window": 7,
+                    "join_channels": True
+                }
+                
+                slack_capture = {
+                    "name": f"{self.config.flow_prefix}/slack_messages_capture",
+                    "endpoint": {
+                        "connector": {
+                            "image": "ghcr.io/estuary/source-slack:dev",
+                            "config": slack_config
+                        }
+                    },
+                    "bindings": [
+                        {
+                            "resource": {"stream": "messages", "syncMode": "incremental"},
+                            "target": f"{self.config.flow_prefix}/slack_messages"
+                        }
+                    ]
+                }
+                
+                await self.estuary_orchestrator.create_capture(slack_capture)
+                results["flows_created"].append(slack_capture["name"])
+                results["sources_configured"].append("slack")
+                self.status.sources_active["slack"] = FlowStatus.ACTIVE
+                
+            except Exception as e:
+                logger.error(f"❌ Slack source setup failed: {e}")
+                self.status.errors.append(f"Slack setup failed: {e}")
+                self.status.sources_active["slack"] = FlowStatus.FAILED
         
         return results
     
-    async def _setup_airbyte_sources(self) -> Dict[str, Any]:
-        """Set up data sources using Airbyte"""
-        logger.info("🔄 Setting up Airbyte data sources...")
+    async def _setup_database_schemas(self):
+        """Set up PostgreSQL database schemas for staging data"""
+        logger.info("🗄️ Setting up PostgreSQL database schemas...")
         
-        results = {
-            "sources_configured": [],
-            "flows_created": []
-        }
+        schema_sql = """
+        -- Create schemas for different data sources
+        CREATE SCHEMA IF NOT EXISTS estuary_raw;
+        CREATE SCHEMA IF NOT EXISTS estuary_staging;
+        CREATE SCHEMA IF NOT EXISTS estuary_processed;
         
-        if not self.airbyte_client:
-            raise Exception("Airbyte client not available")
+        -- HubSpot tables
+        CREATE TABLE IF NOT EXISTS estuary_raw.hubspot_contacts (
+            id VARCHAR PRIMARY KEY,
+            email VARCHAR,
+            firstname VARCHAR,
+            lastname VARCHAR,
+            company VARCHAR,
+            phone VARCHAR,
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP,
+            properties JSONB,
+            _estuary_flow_document JSONB,
+            _estuary_flow_published_at TIMESTAMP DEFAULT NOW()
+        );
         
-        # Implementation for Airbyte source configuration
-        # This would involve creating Airbyte connections and syncs
-        logger.info("⚠️ Airbyte source setup - implementation pending")
+        CREATE TABLE IF NOT EXISTS estuary_raw.hubspot_deals (
+            id VARCHAR PRIMARY KEY,
+            dealname VARCHAR,
+            amount DECIMAL,
+            dealstage VARCHAR,
+            pipeline VARCHAR,
+            closedate TIMESTAMP,
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP,
+            properties JSONB,
+            _estuary_flow_document JSONB,
+            _estuary_flow_published_at TIMESTAMP DEFAULT NOW()
+        );
         
-        return results
-    
-    async def _setup_hybrid_sources(self) -> Dict[str, Any]:
-        """Set up data sources using hybrid approach"""
-        logger.info("🔀 Setting up hybrid data sources...")
+        -- Gong tables
+        CREATE TABLE IF NOT EXISTS estuary_raw.gong_calls (
+            id VARCHAR PRIMARY KEY,
+            title VARCHAR,
+            url VARCHAR,
+            started TIMESTAMP,
+            duration INTEGER,
+            participants JSONB,
+            transcript TEXT,
+            summary TEXT,
+            sentiment VARCHAR,
+            topics JSONB,
+            created_at TIMESTAMP,
+            _estuary_flow_document JSONB,
+            _estuary_flow_published_at TIMESTAMP DEFAULT NOW()
+        );
         
-        # Try Estuary Flow first, fallback to Airbyte for failed sources
-        estuary_results = await self._setup_estuary_sources()
+        -- Slack tables
+        CREATE TABLE IF NOT EXISTS estuary_raw.slack_messages (
+            ts VARCHAR,
+            channel VARCHAR,
+            user_id VARCHAR,
+            text TEXT,
+            thread_ts VARCHAR,
+            reply_count INTEGER,
+            created_at TIMESTAMP,
+            _estuary_flow_document JSONB,
+            _estuary_flow_published_at TIMESTAMP DEFAULT NOW(),
+            PRIMARY KEY (ts, channel)
+        );
         
-        # If some sources failed with Estuary, try with Airbyte
-        if "errors" in estuary_results and self.airbyte_client:
-            logger.info("🔄 Attempting failed sources with Airbyte fallback...")
-            # Implementation for selective Airbyte fallback
-        
-        return estuary_results
-    
-    async def _setup_data_transformations(self):
-        """Set up data transformation pipelines"""
-        logger.info("🔄 Setting up data transformations...")
-        
-        # Create transformation functions in PostgreSQL
-        transformations = [
-            # Contact enrichment transformation
-            """
-            CREATE OR REPLACE FUNCTION enrich_contact_data()
-            RETURNS TRIGGER AS $$
-            BEGIN
-                -- Add enrichment logic here
-                NEW.full_name := COALESCE(NEW.firstname, '') || ' ' || COALESCE(NEW.lastname, '');
-                NEW.updated_at := CURRENT_TIMESTAMP;
-                RETURN NEW;
-            END;
-            $$ LANGUAGE plpgsql;
-            """,
-            
-            # Call analytics transformation
-            """
-            CREATE OR REPLACE FUNCTION analyze_call_data()
-            RETURNS TRIGGER AS $$
-            BEGIN
-                -- Add call analysis logic here
-                NEW.duration_minutes := NEW.duration / 60;
-                NEW.updated_at := CURRENT_TIMESTAMP;
-                RETURN NEW;
-            END;
-            $$ LANGUAGE plpgsql;
-            """
-        ]
+        -- Create indexes for performance
+        CREATE INDEX IF NOT EXISTS idx_hubspot_contacts_email ON estuary_raw.hubspot_contacts(email);
+        CREATE INDEX IF NOT EXISTS idx_hubspot_contacts_updated ON estuary_raw.hubspot_contacts(updated_at);
+        CREATE INDEX IF NOT EXISTS idx_hubspot_deals_stage ON estuary_raw.hubspot_deals(dealstage);
+        CREATE INDEX IF NOT EXISTS idx_hubspot_deals_updated ON estuary_raw.hubspot_deals(updated_at);
+        CREATE INDEX IF NOT EXISTS idx_gong_calls_started ON estuary_raw.gong_calls(started);
+        CREATE INDEX IF NOT EXISTS idx_slack_messages_channel ON estuary_raw.slack_messages(channel);
+        CREATE INDEX IF NOT EXISTS idx_slack_messages_created ON estuary_raw.slack_messages(created_at);
+        """
         
         async with self.postgresql_pool.acquire() as conn:
-            for transformation in transformations:
-                try:
-                    await conn.execute(transformation)
-                    logger.info("✅ Transformation function created")
-                except Exception as e:
-                    logger.warning(f"⚠️ Transformation creation warning: {e}")
+            await conn.execute(schema_sql)
+        
+        logger.info("✅ PostgreSQL schemas created successfully")
+    
+    async def _setup_data_transformations(self):
+        """Set up Estuary Flow derivations for data transformations"""
+        logger.info("🔄 Setting up Estuary Flow data transformations...")
+        
+        # Create unified contact derivation
+        unified_contacts_derivation = {
+            "name": f"{self.config.flow_prefix}/unified_contacts",
+            "endpoint": {
+                "connector": {
+                    "image": "ghcr.io/estuary/materialize-sql:dev",
+                    "config": {
+                        "driver": "postgres",
+                        "host": self.config.postgresql_config["host"],
+                        "port": self.config.postgresql_config["port"],
+                        "database": self.config.postgresql_config["database"],
+                        "user": self.config.postgresql_config["user"],
+                        "password": self.config.postgresql_config["password"]
+                    }
+                }
+            },
+            "bindings": [
+                {
+                    "source": f"{self.config.flow_prefix}/hubspot_contacts",
+                    "target": "estuary_staging.unified_contacts"
+                }
+            ],
+            "transforms": {
+                "unify_contacts": {
+                    "source": f"{self.config.flow_prefix}/hubspot_contacts",
+                    "shuffle": "any",
+                    "lambda": """
+                    SELECT 
+                        id as contact_id,
+                        'hubspot' as source_system,
+                        email,
+                        firstname,
+                        lastname,
+                        company,
+                        phone,
+                        created_at,
+                        updated_at,
+                        properties,
+                        NOW() as processed_at
+                    FROM source
+                    """
+                }
+            }
+        }
+        
+        await self.estuary_orchestrator.create_derivation(unified_contacts_derivation)
+        
+        # Create deal intelligence derivation
+        deal_intelligence_derivation = {
+            "name": f"{self.config.flow_prefix}/deal_intelligence",
+            "endpoint": {
+                "connector": {
+                    "image": "ghcr.io/estuary/materialize-sql:dev",
+                    "config": {
+                        "driver": "postgres",
+                        "host": self.config.postgresql_config["host"],
+                        "port": self.config.postgresql_config["port"],
+                        "database": self.config.postgresql_config["database"],
+                        "user": self.config.postgresql_config["user"],
+                        "password": self.config.postgresql_config["password"]
+                    }
+                }
+            },
+            "bindings": [
+                {
+                    "source": f"{self.config.flow_prefix}/hubspot_deals",
+                    "target": "estuary_staging.deal_intelligence"
+                }
+            ],
+            "transforms": {
+                "enrich_deals": {
+                    "source": f"{self.config.flow_prefix}/hubspot_deals",
+                    "shuffle": "any",
+                    "lambda": """
+                    SELECT 
+                        id as deal_id,
+                        dealname,
+                        amount,
+                        dealstage,
+                        pipeline,
+                        closedate,
+                        CASE 
+                            WHEN amount > 100000 THEN 'high_value'
+                            WHEN amount > 50000 THEN 'medium_value'
+                            ELSE 'low_value'
+                        END as deal_tier,
+                        CASE 
+                            WHEN dealstage IN ('closedwon', 'closed-won') THEN 'won'
+                            WHEN dealstage IN ('closedlost', 'closed-lost') THEN 'lost'
+                            ELSE 'active'
+                        END as deal_status,
+                        created_at,
+                        updated_at,
+                        properties,
+                        NOW() as processed_at
+                    FROM source
+                    """
+                }
+            }
+        }
+        
+        await self.estuary_orchestrator.create_derivation(deal_intelligence_derivation)
+        
+        logger.info("✅ Data transformations configured successfully")
     
     async def _setup_snowflake_integration(self):
-        """Set up Snowflake integration for analytics"""
+        """Set up Estuary Flow materialization to Snowflake"""
         logger.info("❄️ Setting up Snowflake integration...")
         
-        if not self.snowflake_service:
-            logger.warning("⚠️ Snowflake service not available")
-            return
+        # Use aligned Snowflake configuration
+        snowflake_materialization = aligned_snowflake_config.get_estuary_materialization_config()
+        snowflake_materialization["name"] = f"{self.config.flow_prefix}/snowflake_materialization"
         
-        try:
-            # Test Snowflake connection
-            await self.snowflake_service.test_connection()
-            
-            # Create Snowflake schemas and tables
-            await self._create_snowflake_schemas()
-            
-            # Set up data sharing if available
-            await self._setup_snowflake_data_sharing()
-            
-            logger.info("✅ Snowflake integration configured")
-            
-        except Exception as e:
-            logger.warning(f"⚠️ Snowflake integration failed: {e}")
-    
-    async def _create_snowflake_schemas(self):
-        """Create Snowflake schemas for analytics"""
-        schemas = [
-            "RAW_DATA",
-            "PROCESSED_DATA", 
-            "ANALYTICS",
-            "GONG_DATA_SHARE"
-        ]
+        await self.estuary_orchestrator.create_materialization(snowflake_materialization)
         
-        # Implementation would use Snowflake connector
-        logger.info("✅ Snowflake schemas configured")
-    
-    async def _setup_snowflake_data_sharing(self):
-        """Set up Snowflake data sharing for Gong and other sources"""
-        logger.info("🔗 Setting up Snowflake data sharing...")
-        # Implementation for data sharing setup
-        logger.info("✅ Snowflake data sharing configured")
+        self.status.destinations_active["snowflake"] = FlowStatus.ACTIVE
+        logger.info("✅ Snowflake integration configured successfully")
     
     async def _setup_redis_caching(self):
         """Set up Redis caching for real-time data access"""
-        logger.info("🔴 Setting up Redis caching...")
+        logger.info("🔄 Setting up Redis caching...")
         
-        if not self.redis_client:
-            logger.warning("⚠️ Redis client not available")
-            return
+        # Set up Redis streams for real-time data
+        await self.redis_client.xgroup_create("contacts_stream", "sophia_ai", id="0", mkstream=True)
+        await self.redis_client.xgroup_create("deals_stream", "sophia_ai", id="0", mkstream=True)
+        await self.redis_client.xgroup_create("calls_stream", "sophia_ai", id="0", mkstream=True)
         
-        try:
-            # Set up Redis data structures for caching
-            await self.redis_client.set("pipeline:status", "active")
-            await self.redis_client.expire("pipeline:status", 3600)
-            
-            logger.info("✅ Redis caching configured")
-            
-        except Exception as e:
-            logger.warning(f"⚠️ Redis caching setup failed: {e}")
+        self.status.destinations_active["redis"] = FlowStatus.ACTIVE
+        logger.info("✅ Redis caching configured successfully")
     
     async def _setup_monitoring(self):
-        """Set up pipeline monitoring and alerting"""
+        """Set up monitoring and alerting for the pipeline"""
         logger.info("📊 Setting up pipeline monitoring...")
         
-        # Create monitoring tables
-        async with self.postgresql_pool.acquire() as conn:
-            await conn.execute("""
-                CREATE TABLE IF NOT EXISTS monitoring.pipeline_health (
-                    id SERIAL PRIMARY KEY,
-                    component VARCHAR(255) NOT NULL,
-                    status VARCHAR(50) NOT NULL,
-                    metrics JSONB,
-                    checked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
+        # Create monitoring collection
+        monitoring_collection = {
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "timestamp": {"type": "string", "format": "date-time"},
+                    "flow_name": {"type": "string"},
+                    "status": {"type": "string"},
+                    "records_processed": {"type": "integer"},
+                    "errors": {"type": "array"},
+                    "metrics": {"type": "object"}
+                },
+                "required": ["timestamp", "flow_name", "status"]
+            },
+            "key": ["/timestamp", "/flow_name"]
+        }
         
-        logger.info("✅ Pipeline monitoring configured")
+        await self.estuary_orchestrator.create_collection(
+            collection_name=f"{self.config.flow_prefix}/monitoring",
+            schema=monitoring_collection
+        )
+        
+        logger.info("✅ Monitoring configured successfully")
     
     async def _start_all_flows(self):
-        """Start all configured data flows"""
-        logger.info("▶️ Starting all data flows...")
+        """Start all Estuary Flow captures, derivations, and materializations"""
+        logger.info("▶️ Starting all Estuary Flow flows...")
         
-        if self.estuary_orchestrator:
+        # Enable all flows
+        flows_to_enable = [
+            f"{self.config.flow_prefix}/hubspot_contacts_capture",
+            f"{self.config.flow_prefix}/hubspot_deals_capture",
+            f"{self.config.flow_prefix}/gong_calls_capture",
+            f"{self.config.flow_prefix}/slack_messages_capture",
+            f"{self.config.flow_prefix}/unified_contacts",
+            f"{self.config.flow_prefix}/deal_intelligence",
+            f"{self.config.flow_prefix}/snowflake_materialization"
+        ]
+        
+        for flow_name in flows_to_enable:
             try:
-                flows = ["hubspot-to-postgresql", "gong-to-postgresql", "slack-to-postgresql"]
-                for flow in flows:
-                    try:
-                        await self.estuary_orchestrator.start_flow(flow)
-                        self.status.sources_active[flow] = True
-                        logger.info(f"✅ Started flow: {flow}")
-                    except Exception as e:
-                        logger.warning(f"⚠️ Failed to start flow {flow}: {e}")
-                        self.status.sources_active[flow] = False
+                await self.estuary_orchestrator.enable_flow(flow_name)
+                self.status.flows_active[flow_name] = FlowStatus.ACTIVE
+                logger.info(f"✅ Started flow: {flow_name}")
             except Exception as e:
-                logger.warning(f"⚠️ Flow startup issues: {e}")
+                logger.error(f"❌ Failed to start flow {flow_name}: {e}")
+                self.status.flows_active[flow_name] = FlowStatus.FAILED
+                self.status.errors.append(f"Flow start failed: {flow_name} - {e}")
+        
+        logger.info("✅ All flows started successfully")
     
     async def get_pipeline_status(self) -> PipelineStatus:
-        """Get current pipeline status"""
-        # Update status with current metrics
-        if self.redis_client:
-            try:
-                pipeline_status = await self.redis_client.get("pipeline:status")
-                if pipeline_status:
-                    self.status.metrics["redis_status"] = pipeline_status.decode()
-            except Exception as e:
-                logger.warning(f"⚠️ Status check warning: {e}")
+        """Get current pipeline status and metrics"""
+        logger.info("📊 Getting pipeline status...")
         
-        return self.status
+        try:
+            # Update metrics from Estuary Flow
+            if self.estuary_orchestrator:
+                flow_stats = await self.estuary_orchestrator.get_flow_stats()
+                
+                # Calculate total records processed
+                total_records = sum(
+                    stats.get("records_processed", 0) 
+                    for stats in flow_stats.values()
+                )
+                self.status.total_records_processed = total_records
+                
+                # Calculate data freshness
+                latest_sync = max(
+                    (stats.get("last_sync") for stats in flow_stats.values() if stats.get("last_sync")),
+                    default=None
+                )
+                
+                if latest_sync:
+                    freshness = (datetime.now(timezone.utc) - latest_sync).total_seconds() / 60
+                    self.status.data_freshness_minutes = int(freshness)
+                
+                self.status.metrics = {
+                    "flow_stats": flow_stats,
+                    "total_flows": len(self.status.flows_active),
+                    "active_flows": len([s for s in self.status.flows_active.values() if s == FlowStatus.ACTIVE]),
+                    "failed_flows": len([s for s in self.status.flows_active.values() if s == FlowStatus.FAILED])
+                }
+            
+            return self.status
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to get pipeline status: {e}")
+            self.status.errors.append(f"Status check failed: {e}")
+            return self.status
     
-    async def sync_data_sources(self, sources: Optional[List[DataSource]] = None):
-        """Manually trigger data synchronization for specified sources"""
-        sources_to_sync = sources or self.config.sources
+    async def pause_pipeline(self):
+        """Pause all pipeline flows"""
+        logger.info("⏸️ Pausing pipeline...")
         
-        logger.info(f"🔄 Triggering manual sync for sources: {[s.value for s in sources_to_sync]}")
-        
-        for source in sources_to_sync:
+        for flow_name in self.status.flows_active.keys():
             try:
-                # Trigger sync based on engine
-                if self.estuary_orchestrator:
-                    flow_name = f"{source.value}-to-postgresql"
-                    await self.estuary_orchestrator.start_flow(flow_name)
-                    logger.info(f"✅ Triggered sync for {source.value}")
+                await self.estuary_orchestrator.disable_flow(flow_name)
+                self.status.flows_active[flow_name] = FlowStatus.PAUSED
             except Exception as e:
-                logger.error(f"❌ Sync failed for {source.value}: {e}")
+                logger.error(f"❌ Failed to pause flow {flow_name}: {e}")
+    
+    async def resume_pipeline(self):
+        """Resume all pipeline flows"""
+        logger.info("▶️ Resuming pipeline...")
+        
+        for flow_name in self.status.flows_active.keys():
+            try:
+                await self.estuary_orchestrator.enable_flow(flow_name)
+                self.status.flows_active[flow_name] = FlowStatus.ACTIVE
+            except Exception as e:
+                logger.error(f"❌ Failed to resume flow {flow_name}: {e}")
 
 
-# Convenience functions for easy integration
-async def setup_sophia_data_pipeline(config: Optional[PipelineConfig] = None) -> Dict[str, Any]:
+# Convenience functions for easy pipeline management
+async def setup_sophia_data_pipeline(config: Optional[EstuaryPipelineConfig] = None) -> Dict[str, Any]:
     """Set up the complete Sophia AI data pipeline"""
-    async with EnhancedUnifiedDataPipeline(config) as pipeline:
+    async with PureEstuaryDataPipeline(config) as pipeline:
         return await pipeline.setup_complete_pipeline()
 
 
-async def get_sophia_pipeline_status() -> PipelineStatus:
-    """Get Sophia AI pipeline status"""
-    async with EnhancedUnifiedDataPipeline() as pipeline:
+async def get_sophia_pipeline_status(config: Optional[EstuaryPipelineConfig] = None) -> PipelineStatus:
+    """Get the current status of the Sophia AI data pipeline"""
+    async with PureEstuaryDataPipeline(config) as pipeline:
         return await pipeline.get_pipeline_status()
 
 
-async def sync_sophia_data(sources: Optional[List[DataSource]] = None):
-    """Manually sync Sophia AI data sources"""
-    async with EnhancedUnifiedDataPipeline() as pipeline:
-        await pipeline.sync_data_sources(sources)
+async def pause_sophia_pipeline(config: Optional[EstuaryPipelineConfig] = None):
+    """Pause the Sophia AI data pipeline"""
+    async with PureEstuaryDataPipeline(config) as pipeline:
+        await pipeline.pause_pipeline()
+
+
+async def resume_sophia_pipeline(config: Optional[EstuaryPipelineConfig] = None):
+    """Resume the Sophia AI data pipeline"""
+    async with PureEstuaryDataPipeline(config) as pipeline:
+        await pipeline.resume_pipeline()
+
+
+if __name__ == "__main__":
+    # Example usage
+    async def main():
+        logger.info("🚀 Starting Sophia AI Pure Estuary Flow Data Pipeline...")
+        
+        config = EstuaryPipelineConfig(
+            sources=[DataSource.HUBSPOT, DataSource.GONG, DataSource.SLACK],
+            monitoring_enabled=True
+        )
+        
+        try:
+            result = await setup_sophia_data_pipeline(config)
+            logger.info(f"✅ Pipeline setup completed: {result}")
+            
+            # Get status
+            status = await get_sophia_pipeline_status(config)
+            logger.info(f"📊 Pipeline status: {status}")
+            
+        except Exception as e:
+            logger.error(f"❌ Pipeline setup failed: {e}")
+            raise
+    
+    asyncio.run(main())
 
