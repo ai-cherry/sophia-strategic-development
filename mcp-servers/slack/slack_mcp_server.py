@@ -19,7 +19,7 @@ class SlackMCPServer:
     """Slack MCP Server for team communication"""
 
     def __init__(self, port: int = 9102):
-        self.port = port
+port = 9005
         self.name = "slack"
         self.version = "1.0.0"
 
@@ -119,3 +119,14 @@ slack_server = SlackMCPServer()
 
 if __name__ == "__main__":
     asyncio.run(slack_server.start())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

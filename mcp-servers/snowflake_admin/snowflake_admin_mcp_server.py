@@ -121,3 +121,14 @@ def safe_execute(func):
             return {"error": str(e), "function": func.__name__}
 
     return wrapper
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

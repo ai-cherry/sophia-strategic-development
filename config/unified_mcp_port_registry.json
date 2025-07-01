@@ -1,0 +1,40 @@
+{
+  "port_allocation": {
+    "ai_core": {
+      "ai_memory": 9000,
+      "ai_orchestrator": 9001
+    },
+    "business_intelligence": {
+      "ui_ux_agent": 9002,
+      "hubspot": 9003,
+      "gong": 9004,
+      "slack": 9005,
+      "linear": 9006,
+      "asana": 9007
+    },
+    "data_infrastructure": {
+      "snowflake": 9010,
+      "snowflake_admin": 9011,
+      "snowflake_cortex": 9012,
+      "postgres": 9013
+    },
+    "development_tools": {
+      "portkey_admin": 9014,
+      "codacy": 9015,
+      "github": 9016,
+      "notion": 9017,
+      "figma_context": 9018
+    },
+    "infrastructure": {
+      "lambda_labs_cli": 9020,
+      "pulumi": 9021,
+      "vercel": 9022,
+      "docker": 9023
+    }
+  },
+  "reserved_ranges": {
+    "production": "9000-9099",
+    "development": "9100-9199",
+    "testing": "9200-9299"
+  }
+} 

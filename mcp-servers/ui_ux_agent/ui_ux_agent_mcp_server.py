@@ -581,3 +581,14 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("UI/UX Agent MCP Server stopped by user.")
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

@@ -19,7 +19,7 @@ class NotionMCPServer:
     """Notion MCP Server for knowledge management"""
 
     def __init__(self, port: int = 9104):
-        self.port = port
+port = 9017
         self.name = "notion"
         self.version = "1.0.0"
 
@@ -127,3 +127,14 @@ notion_server = NotionMCPServer()
 
 if __name__ == "__main__":
     asyncio.run(notion_server.start())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

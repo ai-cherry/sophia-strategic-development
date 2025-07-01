@@ -1,0 +1,89 @@
+{
+  "updated_ports": [
+    {
+      "file": "mcp-servers/snowflake/snowflake_mcp_server.py",
+      "port": 9010
+    },
+    {
+      "file": "mcp-servers/snowflake/production_snowflake_mcp_server.py",
+      "port": 9010
+    },
+    {
+      "file": "mcp-servers/snowflake/enhanced_snowflake_mcp_server.py",
+      "port": 9010
+    },
+    {
+      "file": "mcp-servers/notion/notion_mcp_server.py",
+      "port": 9017
+    },
+    {
+      "file": "mcp-servers/hubspot/hubspot_mcp_server.py",
+      "port": 9003
+    },
+    {
+      "file": "mcp-servers/github/github_mcp_server.py",
+      "port": 9016
+    },
+    {
+      "file": "mcp-servers/slack/slack_mcp_server.py",
+      "port": 9005
+    }
+  ],
+  "added_inits": [
+    "mcp-servers/sophia_business_intelligence/__init__.py",
+    "mcp-servers/docker/__init__.py",
+    "mcp-servers/lambda_labs_cli/__init__.py",
+    "mcp-servers/overlays/__init__.py",
+    "mcp-servers/linear/__init__.py",
+    "mcp-servers/snowflake_admin/__init__.py",
+    "mcp-servers/snowflake/__init__.py",
+    "mcp-servers/__pycache__/__init__.py",
+    "mcp-servers/playwright/__init__.py",
+    "mcp-servers/sophia_infrastructure/__init__.py",
+    "mcp-servers/graphiti/__init__.py",
+    "mcp-servers/notion/__init__.py",
+    "mcp-servers/ui_ux_agent/__init__.py",
+    "mcp-servers/hubspot/__init__.py",
+    "mcp-servers/apify_intelligence/__init__.py",
+    "mcp-servers/postgres/__init__.py",
+    "mcp-servers/github/__init__.py",
+    "mcp-servers/apollo/__init__.py",
+    "mcp-servers/sophia_data_intelligence/__init__.py",
+    "mcp-servers/ai_memory/__init__.py",
+    "mcp-servers/huggingface_ai/__init__.py",
+    "mcp-servers/ag_ui/__init__.py",
+    "mcp-servers/bright_data/__init__.py",
+    "mcp-servers/portkey_admin/__init__.py",
+    "mcp-servers/codacy/__init__.py",
+    "mcp-servers/slack/__init__.py",
+    "mcp-servers/sophia_ai_intelligence/__init__.py",
+    "mcp-servers/pulumi/__init__.py",
+    "mcp-servers/snowflake_cli_enhanced/__init__.py",
+    "mcp-servers/asana/__init__.py",
+    "mcp-servers/figma_context/__init__.py",
+    "mcp-servers/snowflake_cortex/__init__.py"
+  ],
+  "added_health": [
+    "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py",
+    "mcp-servers/linear/linear_mcp_server.py",
+    "mcp-servers/snowflake_admin/snowflake_admin_mcp_server.py",
+    "mcp-servers/snowflake/snowflake_mcp_server.py",
+    "mcp-servers/snowflake/production_snowflake_mcp_server.py",
+    "mcp-servers/snowflake/enhanced_snowflake_mcp_server.py",
+    "mcp-servers/graphiti/graphiti_mcp_server.py",
+    "mcp-servers/notion/notion_mcp_server.py",
+    "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py",
+    "mcp-servers/hubspot/hubspot_mcp_server.py",
+    "mcp-servers/apify_intelligence/apify_intelligence_mcp_server.py",
+    "mcp-servers/github/github_mcp_server.py",
+    "mcp-servers/ai_memory/ai_memory_mcp_server.py",
+    "mcp-servers/huggingface_ai/huggingface_ai_mcp_server.py",
+    "mcp-servers/bright_data/bright_data_mcp_server.py",
+    "mcp-servers/portkey_admin/portkey_admin_mcp_server.py",
+    "mcp-servers/codacy/codacy_mcp_server.py",
+    "mcp-servers/slack/slack_mcp_server.py",
+    "mcp-servers/snowflake_cli_enhanced/snowflake_cli_enhanced_mcp_server.py",
+    "mcp-servers/asana/asana_mcp_server.py",
+    "mcp-servers/snowflake_cortex/snowflake_cortex_mcp_server.py"
+  ]
+}

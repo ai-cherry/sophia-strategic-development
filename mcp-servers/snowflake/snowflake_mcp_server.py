@@ -22,7 +22,7 @@ class SnowflakeMCPServer:
     """Snowflake MCP Server for data warehouse operations"""
 
     def __init__(self, port: int = 9100):
-        self.port = port
+port = 9010
         self.name = "snowflake"
         self.version = "1.0.0"
 
@@ -231,3 +231,14 @@ snowflake_server = SnowflakeMCPServer()
 
 if __name__ == "__main__":
     asyncio.run(snowflake_server.start())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

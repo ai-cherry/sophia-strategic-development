@@ -19,7 +19,7 @@ class HubSpotMCPServer:
     """HubSpot MCP Server for CRM operations"""
 
     def __init__(self, port: int = 9101):
-        self.port = port
+port = 9003
         self.name = "hubspot"
         self.version = "1.0.0"
 
@@ -131,3 +131,14 @@ hubspot_server = HubSpotMCPServer()
 
 if __name__ == "__main__":
     asyncio.run(hubspot_server.start())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

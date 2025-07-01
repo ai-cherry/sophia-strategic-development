@@ -1,0 +1,22 @@
+name: Deployment Health Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  health-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps (backend only)
+        run: |
+          pip install uv
+          uv pip install -r backend/requirements.txt
+      - name: Run Health Gate
+        run: python scripts/ci/deployment_health_gate.py 

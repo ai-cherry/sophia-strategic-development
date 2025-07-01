@@ -110,3 +110,14 @@ if __name__ == "__main__":
     print("✅ Snowflake Cortex MCP Server ready!")
     # In production, this would start the actual MCP server
     asyncio.run(asyncio.sleep(1))
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

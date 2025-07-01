@@ -19,7 +19,7 @@ class GitHubMCPServer:
     """GitHub MCP Server for repository operations"""
 
     def __init__(self, port: int = 9103):
-        self.port = port
+port = 9016
         self.name = "github"
         self.version = "1.0.0"
 
@@ -129,3 +129,14 @@ github_server = GitHubMCPServer()
 
 if __name__ == "__main__":
     asyncio.run(github_server.start())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

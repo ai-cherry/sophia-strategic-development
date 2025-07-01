@@ -21,7 +21,7 @@ class EnhancedSnowflakeMCPServer:
     """Enhanced Snowflake MCP Server using official SDK patterns"""
 
     def __init__(self, port: int = 9100, allow_write: bool = False):
-        self.port = port
+port = 9010
         self.allow_write = allow_write
         self.connection_manager = None
         self.insights_memo = []
@@ -194,3 +194,14 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass

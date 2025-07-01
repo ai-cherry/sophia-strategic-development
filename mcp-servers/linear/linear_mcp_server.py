@@ -1083,3 +1083,14 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok"}
+except ImportError:
+    pass
