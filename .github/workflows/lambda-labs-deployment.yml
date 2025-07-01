@@ -31,11 +31,15 @@ on:
       - '.github/workflows/lambda-labs-deployment.yml'
 
 env:
-  LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
-  LAMBDA_LABS_SSH_PRIVATE_KEY: ${{ secrets.LAMBDA_LABS_SSH_PRIVATE_KEY }}
-  LAMBDA_LABS_SSH_PUBLIC_KEY: ${{ secrets.LAMBDA_LABS_SSH_PUBLIC_KEY }}
-  POSTGRESQL_CONNECTION_STRING: ${{ secrets.POSTGRESQL_CONNECTION_STRING }}
-  REDIS_CONNECTION_STRING: ${{ secrets.REDIS_CONNECTION_STRING }}
+  LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+  LAMBDA_SSH_PRIVATE_KEY: ${{ secrets.LAMBDA_SSH_PRIVATE_KEY }}
+  LAMBDA_IP_ADDRESS: ${{ secrets.LAMBDA_IP_ADDRESS }}
+  DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  ESTUARY_ACCESS_TOKEN: ${{ secrets.ESTUARY_ACCESS_TOKEN }}
+  GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
+  GONG_ACCESS_KEY_SECRET: ${{ secrets.GONG_ACCESS_KEY_SECRET }}
+  HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
 
 jobs:
   validate-credentials:
@@ -51,20 +55,20 @@ jobs:
       - name: Validate API credentials
         id: validate
         run: |
-          if [ -z "$LAMBDA_LABS_API_KEY" ]; then
-            echo "❌ LAMBDA_LABS_API_KEY not set"
+          if [ -z "$LAMBDA_API_KEY" ]; then
+            echo "❌ LAMBDA_API_KEY not set"
             echo "valid=false" >> $GITHUB_OUTPUT
             exit 1
           fi
           
-          if [ -z "$LAMBDA_LABS_SSH_PRIVATE_KEY" ]; then
-            echo "❌ LAMBDA_LABS_SSH_PRIVATE_KEY not set"
+          if [ -z "$LAMBDA_SSH_PRIVATE_KEY" ]; then
+            echo "❌ LAMBDA_SSH_PRIVATE_KEY not set"
             echo "valid=false" >> $GITHUB_OUTPUT
             exit 1
           fi
           
           # Test API connectivity
-          response=$(curl -s -u "$LAMBDA_LABS_API_KEY:" https://cloud.lambda.ai/api/v1/instance-types)
+          response=$(curl -s -u "$LAMBDA_API_KEY:" https://cloud.lambda.ai/api/v1/instance-types)
           if echo "$response" | grep -q "data"; then
             echo "✅ Lambda Labs API credentials valid"
             echo "valid=true" >> $GITHUB_OUTPUT
@@ -102,11 +106,8 @@ jobs:
       
       - name: Prepare SSH key
         run: |
-          echo "$LAMBDA_LABS_SSH_PRIVATE_KEY" > /tmp/lambda_labs_key
+          echo "$LAMBDA_SSH_PRIVATE_KEY" > /tmp/lambda_labs_key
           chmod 600 /tmp/lambda_labs_key
-          
-          echo "$LAMBDA_LABS_SSH_PUBLIC_KEY" > /tmp/lambda_labs_key.pub
-          chmod 644 /tmp/lambda_labs_key.pub
       
       - name: Deploy infrastructure
         id: deploy
