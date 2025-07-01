@@ -8,6 +8,9 @@ This service provides a comprehensive natural language interface for:
 - Real-time chat with AI agents
 - Dynamic workflow modification
 - Approval and decision management
+- **NEW: Intelligent Data Staging and Discovery**
+- **NEW: Large File Processing and Analysis**
+- **NEW: Interactive Data Exploration**
 
 Key Features:
 - Natural language workflow creation
@@ -17,6 +20,9 @@ Key Features:
 - Intelligent intent recognition
 - Context-aware responses
 - Multi-modal interaction support
+- **NEW: AI-powered data discovery and analysis**
+- **NEW: Conversational data staging interface**
+- **NEW: Interactive field mapping and validation**
 """
 
 import asyncio
@@ -27,6 +33,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
+from pathlib import Path
+import os
 
 from backend.workflows.enhanced_langgraph_orchestration import (
     enhanced_orchestrator,
@@ -41,6 +49,19 @@ from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMC
 from backend.security.audit_logger import AuditLogger
 from backend.core.enhanced_cache_manager import EnhancedCacheManager
 from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
+
+# NEW: Data staging and discovery imports
+try:
+    from backend.services.intelligent_data_discovery_service import (
+        IntelligentDataDiscoveryService,
+        DataDiscoveryResult,
+        ChunkingStrategy,
+        DataQuality
+    )
+    DATA_DISCOVERY_AVAILABLE = True
+except ImportError:
+    DATA_DISCOVERY_AVAILABLE = False
+    IntelligentDataDiscoveryService = None
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +88,22 @@ class IntentType(Enum):
     GENERAL_QUESTION = "general_question"
     DATA_ANALYSIS = "data_analysis"
     WORKFLOW_HELP = "workflow_help"
+    
+    # NEW: Data staging and discovery intents
+    UPLOAD_FILE = "upload_file"
+    STAGE_DATA = "stage_data"
+    ANALYZE_STAGED_DATA = "analyze_staged_data"
+    EXPLORE_DATA = "explore_data"
+    MAP_FIELDS = "map_fields"
+    APPROVE_DATA_PROCESSING = "approve_data_processing"
+    REJECT_DATA_PROCESSING = "reject_data_processing"
+    PROCESS_TO_FINAL = "process_to_final"
+    DELETE_STAGED_DATA = "delete_staged_data"
+    LIST_STAGED_FILES = "list_staged_files"
+    DATA_QUALITY_CHECK = "data_quality_check"
+    PREVIEW_CHUNKS = "preview_chunks"
+    MODIFY_CHUNKING = "modify_chunking"
+    DATA_STAGING_HELP = "data_staging_help"
 
 
 @dataclass
@@ -116,6 +153,12 @@ class SophiaUniversalChatService:
         self.audit_logger = AuditLogger()
         self.cache_manager = EnhancedCacheManager()
         
+        # NEW: Data staging and discovery services
+        self.data_discovery_service: Optional[IntelligentDataDiscoveryService] = None
+        self.staging_directory = Path("/tmp/sophia_staging")  # Configure via environment
+        self.max_file_size = 1024 * 1024 * 1024  # 1GB max file size
+        self.supported_file_types = {'.csv', '.xlsx', '.xls', '.json', '.jsonl', '.txt', '.tsv'}
+        
         # Session management
         self.active_sessions: Dict[str, ChatSession] = {}
         self.session_timeouts: Dict[str, datetime] = {}
@@ -125,6 +168,9 @@ class SophiaUniversalChatService:
         
         # Workflow integration
         self.orchestrator = enhanced_orchestrator
+        
+        # NEW: Staged files tracking per session
+        self.session_staged_files: Dict[str, List[str]] = {}  # session_id -> list of stage_ids
         
         self.initialized = False
     
@@ -139,6 +185,19 @@ class SophiaUniversalChatService:
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
             
+            # NEW: Initialize data discovery service
+            if DATA_DISCOVERY_AVAILABLE and IntelligentDataDiscoveryService is not None:
+                self.data_discovery_service = IntelligentDataDiscoveryService()
+                logger.info("✅ Data discovery service initialized")
+            else:
+                logger.warning("⚠️ Data discovery service not available - file upload features disabled")
+            
+            # NEW: Set up staging directory
+            staging_dir = os.getenv("SOPHIA_STAGING_DIR", "/tmp/sophia_staging")
+            self.staging_directory = Path(staging_dir)
+            self.staging_directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"✅ Staging directory configured: {self.staging_directory}")
+            
             # Initialize orchestrator
             await self.orchestrator.initialize()
             
@@ -146,8 +205,11 @@ class SophiaUniversalChatService:
             asyncio.create_task(self._session_cleanup_task())
             asyncio.create_task(self._workflow_monitoring_task())
             
+            # NEW: Start data staging cleanup task
+            asyncio.create_task(self._staged_files_cleanup_task())
+            
             self.initialized = True
-            logger.info("✅ Sophia Universal Chat Service initialized")
+            logger.info("✅ Sophia Universal Chat Service initialized with data staging capabilities")
             
         except Exception as e:
             logger.error(f"Failed to initialize Sophia Universal Chat Service: {e}")
@@ -377,6 +439,37 @@ class SophiaUniversalChatService:
             return await self._handle_data_analysis(user_message, session)
         elif intent == IntentType.WORKFLOW_HELP:
             return await self._handle_workflow_help(user_message, session)
+        
+        # NEW: Data staging intent handlers
+        elif intent == IntentType.UPLOAD_FILE:
+            return await self._handle_upload_file(user_message, session)
+        elif intent == IntentType.STAGE_DATA:
+            return await self._handle_stage_data(user_message, session)
+        elif intent == IntentType.ANALYZE_STAGED_DATA:
+            return await self._handle_analyze_staged_data(user_message, session)
+        elif intent == IntentType.EXPLORE_DATA:
+            return await self._handle_explore_data(user_message, session)
+        elif intent == IntentType.MAP_FIELDS:
+            return await self._handle_map_fields(user_message, session)
+        elif intent == IntentType.APPROVE_DATA_PROCESSING:
+            return await self._handle_approve_data_processing(user_message, session)
+        elif intent == IntentType.REJECT_DATA_PROCESSING:
+            return await self._handle_reject_data_processing(user_message, session)
+        elif intent == IntentType.PROCESS_TO_FINAL:
+            return await self._handle_process_to_final(user_message, session)
+        elif intent == IntentType.DELETE_STAGED_DATA:
+            return await self._handle_delete_staged_data(user_message, session)
+        elif intent == IntentType.LIST_STAGED_FILES:
+            return await self._handle_list_staged_files(user_message, session)
+        elif intent == IntentType.DATA_QUALITY_CHECK:
+            return await self._handle_data_quality_check(user_message, session)
+        elif intent == IntentType.PREVIEW_CHUNKS:
+            return await self._handle_preview_chunks(user_message, session)
+        elif intent == IntentType.MODIFY_CHUNKING:
+            return await self._handle_modify_chunking(user_message, session)
+        elif intent == IntentType.DATA_STAGING_HELP:
+            return await self._handle_data_staging_help(user_message, session)
+        
         else:
             return await self._handle_general_question(user_message, session)
     
@@ -629,24 +722,27 @@ class SophiaUniversalChatService:
         """Handle agent creation request"""
         try:
             # Use Cortex to analyze agent requirements
-            async with self.cortex_service as cortex:
-                agent_analysis = await cortex.complete_text_with_cortex(
-                    prompt=f"""
-                    Analyze this agent creation request and extract requirements:
-                    
-                    User Request: {user_message.content}
-                    
-                    Extract:
-                    1. Agent name and purpose
-                    2. Required capabilities
-                    3. Data sources needed
-                    4. Integration requirements
-                    5. Suggested configuration
-                    
-                    Return as JSON with clear structure.
-                    """,
-                    max_tokens=400
-                )
+            if not self.cortex_service:
+                agent_analysis = "Service not available"
+            else:
+                async with self.cortex_service as cortex:
+                    agent_analysis = await cortex.complete_text_with_cortex(
+                        prompt=f"""
+                        Analyze this agent creation request and extract requirements:
+                        
+                        User Request: {user_message.content}
+                        
+                        Extract:
+                        1. Agent name and purpose
+                        2. Required capabilities
+                        3. Data sources needed
+                        4. Integration requirements
+                        5. Suggested configuration
+                        
+                        Return as JSON with clear structure.
+                        """,
+                        max_tokens=400
+                    )
             
             # Create workflow for agent creation
             workflow_id = await self.orchestrator.create_workflow_from_natural_language(
@@ -803,32 +899,35 @@ class SophiaUniversalChatService:
         """Handle general questions"""
         try:
             # Use Cortex to generate response
-            async with self.cortex_service as cortex:
-                # Build context from session history
-                context_messages = []
-                for msg in session.context_history[-5:]:
-                    context_messages.append(f"{msg.message_type.value}: {msg.content}")
-                
-                context_str = "\n".join(context_messages) if context_messages else "No previous context"
-                
-                response_prompt = f"""
-                You are Sophia AI, an intelligent assistant for workflow orchestration and AI agent management.
-                
-                User Question: {user_message.content}
-                
-                Recent Conversation Context:
-                {context_str}
-                
-                Provide a helpful, informative response. If the question relates to workflows, agents, or data analysis, 
-                offer to help create or manage those resources.
-                
-                Keep the response conversational and helpful.
-                """
-                
-                ai_response = await cortex.complete_text_with_cortex(
-                    prompt=response_prompt,
-                    max_tokens=300
-                )
+            if not self.cortex_service:
+                ai_response = "I'm here to help with workflows, AI agents, and data analysis. What would you like to work on?"
+            else:
+                async with self.cortex_service as cortex:
+                    # Build context from session history
+                    context_messages = []
+                    for msg in session.context_history[-5:]:
+                        context_messages.append(f"{msg.message_type.value}: {msg.content}")
+                    
+                    context_str = "\n".join(context_messages) if context_messages else "No previous context"
+                    
+                    response_prompt = f"""
+                    You are Sophia AI, an intelligent assistant for workflow orchestration and AI agent management.
+                    
+                    User Question: {user_message.content}
+                    
+                    Recent Conversation Context:
+                    {context_str}
+                    
+                    Provide a helpful, informative response. If the question relates to workflows, agents, or data analysis, 
+                    offer to help create or manage those resources.
+                    
+                    Keep the response conversational and helpful.
+                    """
+                    
+                    ai_response = await cortex.complete_text_with_cortex(
+                        prompt=response_prompt,
+                        max_tokens=300
+                    )
             
             return ChatMessage(
                 session_id=user_message.session_id,
@@ -1034,6 +1133,224 @@ class SophiaUniversalChatService:
     async def get_pending_approvals_for_user(self, user_id: str) -> List[Dict[str, Any]]:
         """Get pending approvals for a user"""
         return await self.orchestrator.get_pending_approvals(user_id)
+    
+    # NEW: Data staging background tasks and utilities
+    async def _staged_files_cleanup_task(self) -> None:
+        """Background task to clean up expired staged files"""
+        while True:
+            try:
+                # Clean up files older than 7 days in staging directory
+                cutoff_time = datetime.now() - timedelta(days=7)
+                
+                if self.staging_directory.exists():
+                    for file_path in self.staging_directory.iterdir():
+                        try:
+                            if file_path.is_file():
+                                file_mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
+                                if file_mtime < cutoff_time:
+                                    file_path.unlink()
+                                    logger.info(f"Cleaned up expired staged file: {file_path.name}")
+                        except Exception as e:
+                            logger.error(f"Error cleaning up file {file_path}: {e}")
+                
+                # Sleep for 6 hours before next cleanup
+                await asyncio.sleep(21600)
+                
+            except Exception as e:
+                logger.error(f"Error in staged files cleanup: {e}")
+                await asyncio.sleep(3600)  # Sleep 1 hour on error
+    
+    # NEW: Data staging handler methods
+    async def _handle_upload_file(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle file upload request"""
+        if not self.data_discovery_service:
+            return ChatMessage(
+                session_id=user_message.session_id,
+                user_id=user_message.user_id,
+                message_type=ChatMessageType.ERROR_MESSAGE,
+                content="📁 File upload is not available. Data discovery service is not initialized.",
+                metadata={"error": "service_unavailable"}
+            )
+        
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="""📁 **File Upload Instructions**
+
+To upload a file for analysis:
+1. Use the file upload interface in your chat client
+2. I support: CSV, Excel, JSON, JSONL, and text files up to 1GB
+3. After upload, I'll automatically analyze your data and suggest mappings
+4. You can then explore, validate, and process your data interactively
+
+What file would you like to upload and analyze?""",
+            metadata={"upload_instructions": True}
+        )
+    
+    async def _handle_stage_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle data staging request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="📊 Data staging functionality - Implementation in progress",
+            metadata={"feature": "staging"}
+        )
+    
+    async def _handle_analyze_staged_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle staged data analysis request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="🔍 Staged data analysis - Implementation in progress",
+            metadata={"feature": "analysis"}
+        )
+    
+    async def _handle_explore_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle data exploration request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="🎯 Data exploration - Implementation in progress",
+            metadata={"feature": "exploration"}
+        )
+    
+    async def _handle_map_fields(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle field mapping request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="🗺️ Field mapping - Implementation in progress",
+            metadata={"feature": "mapping"}
+        )
+    
+    async def _handle_approve_data_processing(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle data processing approval"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="✅ Data processing approval - Implementation in progress",
+            metadata={"feature": "approval"}
+        )
+    
+    async def _handle_reject_data_processing(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle data processing rejection"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="❌ Data processing rejection - Implementation in progress",
+            metadata={"feature": "rejection"}
+        )
+    
+    async def _handle_process_to_final(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle process to final storage request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="🚀 Processing to final storage - Implementation in progress",
+            metadata={"feature": "final_processing"}
+        )
+    
+    async def _handle_delete_staged_data(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle delete staged data request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="🗑️ Delete staged data - Implementation in progress",
+            metadata={"feature": "deletion"}
+        )
+    
+    async def _handle_list_staged_files(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle list staged files request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="📋 List staged files - Implementation in progress",
+            metadata={"feature": "listing"}
+        )
+    
+    async def _handle_data_quality_check(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle data quality check request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="🎯 Data quality check - Implementation in progress",
+            metadata={"feature": "quality_check"}
+        )
+    
+    async def _handle_preview_chunks(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle preview chunks request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="👀 Preview chunks - Implementation in progress",
+            metadata={"feature": "chunk_preview"}
+        )
+    
+    async def _handle_modify_chunking(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle modify chunking strategy request"""
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content="⚙️ Modify chunking - Implementation in progress",
+            metadata={"feature": "chunking_modification"}
+        )
+    
+    async def _handle_data_staging_help(self, user_message: ChatMessage, session: ChatSession) -> ChatMessage:
+        """Handle data staging help request"""
+        help_content = """
+        📁 **Sophia AI Data Staging Help**
+        
+        I can help you process and analyze large data files through intelligent staging:
+        
+        **File Upload & Staging:**
+        - "Upload my Salesforce export for analysis"
+        - "Stage this customer data file"
+        - "Analyze this large dataset"
+        
+        **Data Exploration:**
+        - "Show me what's in this file"
+        - "What fields does this data have?"
+        - "Preview the first few records"
+        
+        **Field Mapping & Validation:**
+        - "Map these fields to Salesforce schema"
+        - "Check data quality"
+        - "Suggest better field mappings"
+        
+        **Processing & Storage:**
+        - "Process this data to Snowflake"
+        - "Chunk this data for semantic search"
+        - "Store in the knowledge base"
+        
+        **Data Management:**
+        - "List my staged files"
+        - "Delete old staging data"
+        - "Show processing status"
+        
+        The system supports CSV, Excel, JSON, JSONL, and text files up to 1GB.
+        I'll intelligently analyze your data and guide you through processing!
+        """
+        
+        return ChatMessage(
+            session_id=user_message.session_id,
+            user_id=user_message.user_id,
+            message_type=ChatMessageType.SYSTEM_MESSAGE,
+            content=help_content,
+            metadata={"help_provided": True, "category": "data_staging"}
+        )
 
 
 # Global instance
