@@ -1,0 +1,30 @@
+{
+  "name": "sophia-ai-phase2",
+  "version": "2.0.0",
+  "description": "Sophia AI Phase 2 - Advanced AI automation platform with natural language interaction",
+  "main": "api/index.py",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "ai",
+    "automation",
+    "langgraph",
+    "chat",
+    "workflows",
+    "cost-engineering",
+    "snowflake-cortex"
+  ],
+  "author": "Sophia AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-cherry/sophia-main.git"
+  }
+}
+
