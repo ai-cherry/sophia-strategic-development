@@ -6,11 +6,12 @@ Extends the existing knowledge base system with Pay Ready's foundational busines
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.auth import get_current_user
-from backend.core.cache_manager import DashboardCacheManager
+from backend.core.cache_manager import EnhancedCacheManager
+from backend.core.dependencies import get_request_cache_manager
 from backend.core.database import get_session
 from backend.core.logger import logger
 from backend.services.foundational_knowledge_service import (
@@ -24,13 +25,14 @@ router = APIRouter(
 
 # Initialize services
 foundational_service = FoundationalKnowledgeService()
-cache_manager = DashboardCacheManager()
 
 
 @router.post("/sync")
 async def sync_foundational_data(
+    request: Request,
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
+    cache_manager: EnhancedCacheManager = Depends(get_request_cache_manager),
 ) -> dict[str, Any]:
     """
     Sync foundational Pay Ready data from Snowflake to knowledge base
@@ -74,8 +76,10 @@ async def sync_foundational_data(
 
 @router.get("/stats")
 async def get_foundational_stats(
+    request: Request,
     user_id: str = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
+    cache_manager: EnhancedCacheManager = Depends(get_request_cache_manager),
 ) -> dict[str, Any]:
     """
     Get statistics about foundational knowledge in the knowledge base
@@ -93,6 +97,7 @@ async def get_foundational_stats(
             cache_key,
             fetch_stats,
             ttl=300,  # 5 minutes cache
+            cache_type="dashboard_data",
         )
 
         return stats

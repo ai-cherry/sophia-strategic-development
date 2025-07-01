@@ -27,6 +27,12 @@ from backend.api import (
     sophia_universal_chat_routes,
 )
 
+# Import RBAC routes
+from backend.security.rbac.routes import router as rbac_router
+
+# Import ephemeral credentials routes
+from backend.security.ephemeral_credentials.routes import router as ephemeral_credentials_router
+
 
 def _setup_core_routes(router: APIRouter) -> None:
     """Setup core AI and chat routes"""
@@ -96,6 +102,18 @@ def _setup_admin_routes(router: APIRouter) -> None:
     )
 
 
+def _setup_security_routes(router: APIRouter) -> None:
+    """Setup security and access control routes"""
+    router.include_router(
+        rbac_router,
+        tags=["security", "rbac", "access-control"],
+    )
+    router.include_router(
+        ephemeral_credentials_router,
+        tags=["security", "credentials", "access-control"],
+    )
+
+
 def create_application_router() -> APIRouter:
     """
     Create and configure the main application router with all endpoints
@@ -110,6 +128,7 @@ def create_application_router() -> APIRouter:
     _setup_integration_routes(router)
     _setup_data_routes(router)
     _setup_admin_routes(router)
+    _setup_security_routes(router)  # Add security routes
 
     logger.info("✅ Application router created with all endpoints")
     return router

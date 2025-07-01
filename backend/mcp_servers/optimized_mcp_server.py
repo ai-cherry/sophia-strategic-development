@@ -1,0 +1,1315 @@
+"""
+Sophia AI - Optimized MCP Server Base Class
+Provides high-performance foundation for all MCP servers with optimized networking,
+I/O operations, and memory management.
+"""
+
+import asyncio
+import hashlib
+import json
+import logging
+import os
+import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from urllib.parse import urlparse
+
+import aiofiles
+import aiohttp
+import orjson
+import uvicorn
+from fastapi import APIRouter, FastAPI, Request, Response
+from fastapi.middleware.gzip import GZipMiddleware
+from prometheus_client import Counter, Gauge, Histogram, Info
+
+from backend.mcp_servers.optimized_network import (
+    MCPNetworkConfig,
+    OptimizedMCPNetwork,
+    RetryStrategy,
+)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+
+# Import Gemini CLI provider
+try:
+    from gemini_cli_integration.gemini_cli_provider import (
+        GeminiCLIModelRouter,
+        GeminiCLIProvider,
+    )
+
+    GEMINI_CLI_AVAILABLE = True
+except ImportError:
+    GEMINI_CLI_AVAILABLE = False
+    GeminiCLIProvider = None
+    GeminiCLIModelRouter = None
+
+logger = logging.getLogger(__name__)
+
+
+class SyncPriority(Enum):
+    """Data synchronization priority levels."""
+
+    REAL_TIME = "real_time"  # <1 minute
+    HIGH = "high"  # <5 minutes
+    MEDIUM = "medium"  # <30 minutes
+    LOW = "low"  # <24 hours
+
+
+class HealthStatus(Enum):
+    """Health status enumeration."""
+
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+    CRITICAL = "critical"
+
+
+class ModelProvider(Enum):
+    """AI model providers for intelligent routing."""
+
+    CLAUDE_4 = "claude_4"
+    GEMINI_25_PRO = "gemini_2.5_pro"
+    OPENAI_GPT4 = "openai_gpt4"
+    SNOWFLAKE_CORTEX = "snowflake_cortex"
+
+
+class IOStrategy(Enum):
+    """I/O operation strategies for optimized performance."""
+    
+    STANDARD = "standard"  # Regular synchronous I/O
+    ASYNC = "async"  # Asynchronous I/O with aiofiles
+    MEMORY_MAPPED = "memory_mapped"  # Memory-mapped files for large data
+    STREAMING = "streaming"  # Streaming I/O for large files
+    BATCHED = "batched"  # Batched operations for multiple small files
+
+
+@dataclass
+class OptimizedMCPServerConfig:
+    """Configuration for optimized MCP servers."""
+
+    server_name: str
+    port: int
+    sync_priority: SyncPriority = SyncPriority.MEDIUM
+    sync_interval_minutes: int = 30
+    batch_size: int = 100
+    retry_attempts: int = 3
+    timeout_seconds: int = 300
+    enable_ai_processing: bool = True
+    enable_metrics: bool = True
+    health_check_interval: int = 60
+    
+    # Network optimization
+    network_max_connections: int = 100
+    network_keepalive: bool = True
+    network_compression: bool = True
+    network_retry_strategy: RetryStrategy = RetryStrategy.EXPONENTIAL
+    
+    # I/O optimization
+    io_strategy: IOStrategy = IOStrategy.ASYNC
+    io_buffer_size: int = 8192  # 8KB buffer
+    io_max_concurrent: int = 20
+    io_use_orjson: bool = True
+    
+    # Memory optimization
+    memory_cache_size_mb: int = 100
+    memory_enable_gc_optimization: bool = True
+    memory_max_response_cache_items: int = 1000
+    
+    # Cline v3.18 features
+    enable_webfetch: bool = True
+    enable_self_knowledge: bool = True
+    enable_improved_diff: bool = True
+    preferred_model: ModelProvider = ModelProvider.CLAUDE_4
+
+
+@dataclass
+class HealthCheckResult:
+    """Health check result data structure."""
+
+    component: str
+    status: HealthStatus
+    response_time_ms: float
+    error_message: str | None = None
+    last_success: datetime | None = None
+    metadata: dict[str, Any] | None = None
+
+
+@dataclass
+class WebFetchResult:
+    """Result from WebFetch operation."""
+
+    url: str
+    content: str
+    markdown_content: str
+    fetch_time_ms: float
+    cached: bool = False
+    error: str | None = None
+
+
+@dataclass
+class ServerCapability:
+    """Server capability definition for self-knowledge."""
+
+    name: str
+    description: str
+    category: str
+    available: bool = True
+    version: str = "1.0.0"
+    metadata: dict[str, Any] | None = None
+
+
+@dataclass
+class IOStats:
+    """Statistics for I/O operations."""
+    
+    reads: int = 0
+    writes: int = 0
+    bytes_read: int = 0
+    bytes_written: int = 0
+    read_time_ms: float = 0.0
+    write_time_ms: float = 0.0
+    cache_hits: int = 0
+    cache_misses: int = 0
+    errors: int = 0
+
+
+class OptimizedMCPServer(ABC):
+    """
+    High-performance base class for all Sophia AI MCP servers.
+
+    Provides:
+    - Optimized network layer with connection pooling, keepalive, and compression
+    - Efficient I/O operations with async file handling and memory mapping
+    - Memory optimization with intelligent caching and garbage collection
+    - Snowflake Cortex AI integration
+    - Prometheus metrics collection
+    - Health monitoring and checks
+    - Standardized error handling
+    - Cross-platform sync coordination
+    - AI-powered data processing
+    - Cline v3.18 features: WebFetch, self-knowledge, improved diff handling
+    """
+
+    def __init__(self, config: OptimizedMCPServerConfig):
+        self.config = config
+
+        # Load port from centralized config
+        self._load_port_from_config()
+
+        self.server_name = config.server_name
+        self.cortex_service: SnowflakeCortexService | None = None
+        
+        # Initialize optimized network layer
+        self.network = OptimizedMCPNetwork(
+            MCPNetworkConfig(
+                max_connections=config.network_max_connections,
+                enable_keepalive=config.network_keepalive,
+                enable_compression=config.network_compression,
+                retry_strategy=config.network_retry_strategy,
+                max_retries=config.retry_attempts,
+                connection_timeout_seconds=config.timeout_seconds,
+                use_orjson=config.io_use_orjson,
+            ),
+            server_name=config.server_name,
+        )
+
+        # Health tracking
+        self.last_health_check = datetime.now(UTC)
+        self.health_results: dict[str, HealthCheckResult] = {}
+        self.is_healthy = False
+
+        # Performance tracking
+        self.last_sync_time: datetime | None = None
+        self.sync_success_count = 0
+        self.sync_error_count = 0
+        
+        # I/O tracking
+        self.io_stats = IOStats()
+        self.io_semaphore = asyncio.Semaphore(config.io_max_concurrent)
+        
+        # Memory optimization
+        self._setup_memory_optimization()
+
+        # Cline v3.18 features
+        self.webfetch_cache: dict[str, WebFetchResult] = {}
+        self.server_capabilities: list[ServerCapability] = []
+        self.diff_success_rate = 1.0
+
+        # Initialize metrics if enabled
+        if config.enable_metrics:
+            self._initialize_metrics()
+
+        self.app = FastAPI(
+            title=f"{self.server_name.replace('_', ' ').title()} MCP Server",
+            version="3.18.0",  # Updated for Cline v3.18
+            description="Enhanced with Cline v3.18 features and performance optimizations",
+        )
+        
+        # Add GZip middleware for response compression
+        self.app.add_middleware(
+            GZipMiddleware,
+            minimum_size=1000,  # Only compress responses larger than 1KB
+        )
+        
+        # Add custom middleware for request/response optimization
+        self.app.middleware("http")(self._optimization_middleware)
+        
+        self._setup_routes()
+
+    async def _optimization_middleware(self, request: Request, call_next):
+        """Custom middleware for request/response optimization."""
+        start_time = time.time()
+        
+        # Process the request
+        response = await call_next(request)
+        
+        # Track request duration
+        duration = time.time() - start_time
+        
+        # Update metrics if enabled
+        if self.config.enable_metrics:
+            self.request_duration.labels(
+                method=request.method, 
+                endpoint=request.url.path
+            ).observe(duration)
+            
+            self.request_counter.labels(
+                method=request.method,
+                status=response.status_code,
+                endpoint=request.url.path
+            ).inc()
+        
+        return response
+
+    def _setup_memory_optimization(self):
+        """Set up memory optimization features."""
+        if self.config.memory_enable_gc_optimization:
+            import gc
+            # Use generational GC with lower thresholds for more frequent collections
+            gc.set_threshold(700, 10, 5)  # Default is (700, 10, 10)
+            
+            # Disable automatic garbage collection for manual control
+            gc.disable()
+            
+            # Schedule periodic garbage collection
+            asyncio.create_task(self._periodic_gc())
+        
+        # Initialize response cache with LRU eviction
+        self.response_cache = {}
+        self.response_cache_keys = []  # LRU tracking
+    
+    async def _periodic_gc(self):
+        """Run garbage collection periodically."""
+        import gc
+        while True:
+            await asyncio.sleep(30)  # Run every 30 seconds
+            gc.collect()
+            logger.debug(f"Periodic garbage collection completed for {self.server_name}")
+
+    def _setup_routes(self):
+        """Sets up the default API routes for the server."""
+        router = APIRouter()
+        router.add_api_route(
+            "/health", self.get_health_endpoint, methods=["GET"], summary="Health Check"
+        )
+        
+        # Performance monitoring endpoint
+        router.add_api_route(
+            "/performance", 
+            self.get_performance_endpoint, 
+            methods=["GET"], 
+            summary="Performance Metrics"
+        )
+
+        # Cline v3.18 self-knowledge endpoints
+        if self.config.enable_self_knowledge:
+            router.add_api_route(
+                "/capabilities",
+                self.get_capabilities_endpoint,
+                methods=["GET"],
+                summary="Get Server Capabilities",
+            )
+            router.add_api_route(
+                "/features",
+                self.get_features_endpoint,
+                methods=["GET"],
+                summary="Get Available Features",
+            )
+
+        self.app.include_router(router)
+
+    async def get_health_endpoint(self) -> dict[str, Any]:
+        """The FastAPI endpoint for health checks."""
+        return await self.comprehensive_health_check()
+    
+    async def get_performance_endpoint(self) -> dict[str, Any]:
+        """The FastAPI endpoint for performance metrics."""
+        # Get network stats
+        network_stats = self.network.get_stats()
+        
+        # Get memory usage
+        memory_usage = self._get_memory_usage()
+        
+        return {
+            "server_name": self.server_name,
+            "timestamp": datetime.now(UTC).isoformat(),
+            "uptime_seconds": time.time() - self.start_time,
+            "network": {
+                "requests_sent": network_stats.requests_sent,
+                "requests_received": network_stats.requests_received,
+                "bytes_sent": network_stats.bytes_sent,
+                "bytes_received": network_stats.bytes_received,
+                "avg_latency_ms": network_stats.avg_latency_ms,
+                "compression_ratio": network_stats.compression_ratio,
+                "failed_requests": network_stats.failed_requests,
+                "retried_requests": network_stats.retried_requests,
+            },
+            "io": {
+                "reads": self.io_stats.reads,
+                "writes": self.io_stats.writes,
+                "bytes_read": self.io_stats.bytes_read,
+                "bytes_written": self.io_stats.bytes_written,
+                "avg_read_time_ms": self.io_stats.read_time_ms / max(self.io_stats.reads, 1),
+                "avg_write_time_ms": self.io_stats.write_time_ms / max(self.io_stats.writes, 1),
+                "cache_hit_ratio": self.io_stats.cache_hits / max(self.io_stats.cache_hits + self.io_stats.cache_misses, 1),
+            },
+            "memory": memory_usage,
+            "response_cache": {
+                "size": len(self.response_cache),
+                "max_size": self.config.memory_max_response_cache_items,
+            },
+        }
+
+    def _get_memory_usage(self) -> dict[str, Any]:
+        """Get memory usage statistics."""
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            memory_info = process.memory_info()
+            
+            return {
+                "rss_bytes": memory_info.rss,  # Resident Set Size
+                "vms_bytes": memory_info.vms,  # Virtual Memory Size
+                "percent": process.memory_percent(),
+                "gc_enabled": gc.isenabled() if "gc" in globals() else False,
+            }
+        except ImportError:
+            return {
+                "error": "psutil not available",
+            }
+
+    async def get_capabilities_endpoint(self) -> dict[str, Any]:
+        """Get server capabilities for self-knowledge."""
+        return {
+            "server_name": self.server_name,
+            "version": "3.18.0",
+            "capabilities": [cap.__dict__ for cap in self.server_capabilities],
+            "features": {
+                "webfetch": self.config.enable_webfetch,
+                "self_knowledge": self.config.enable_self_knowledge,
+                "improved_diff": self.config.enable_improved_diff,
+                "ai_processing": self.config.enable_ai_processing,
+                "preferred_model": self.config.preferred_model.value,
+                "optimized_network": True,
+                "optimized_io": True,
+                "memory_optimization": self.config.memory_enable_gc_optimization,
+            },
+        }
+
+    async def get_features_endpoint(self) -> dict[str, Any]:
+        """Get detailed feature information."""
+        return {
+            "webfetch": {
+                "enabled": self.config.enable_webfetch,
+                "cache_size": len(self.webfetch_cache),
+                "supported_formats": ["html", "markdown", "text"],
+            },
+            "models": {
+                "preferred": self.config.preferred_model.value,
+                "available": [m.value for m in ModelProvider],
+                "routing_enabled": True,
+            },
+            "diff_editing": {
+                "enabled": self.config.enable_improved_diff,
+                "success_rate": self.diff_success_rate,
+                "strategies": ["exact_match", "fuzzy_match", "context_aware"],
+            },
+            "network_optimization": {
+                "connection_pooling": True,
+                "keepalive": self.config.network_keepalive,
+                "compression": self.config.network_compression,
+                "retry_strategy": self.config.network_retry_strategy.value,
+                "max_connections": self.config.network_max_connections,
+            },
+            "io_optimization": {
+                "strategy": self.config.io_strategy.value,
+                "buffer_size": self.config.io_buffer_size,
+                "max_concurrent": self.config.io_max_concurrent,
+                "use_orjson": self.config.io_use_orjson,
+            },
+        }
+
+    async def start(self):
+        """Starts the MCP server using uvicorn."""
+        self.start_time = time.time()
+        logger.info(
+            f"Starting optimized {self.server_name} server (v3.18) on port {self.config.port}..."
+        )
+
+        # Ensure server is initialized before starting
+        await self.initialize()
+
+        uvicorn_config = uvicorn.Config(
+            self.app, 
+            host="0.0.0.0", 
+            port=self.config.port, 
+            log_level="info",
+            loop="uvloop",  # Use uvloop for better performance
+            http="httptools",  # Use httptools for better performance
+            limit_concurrency=1000,  # Limit concurrent connections
+            limit_max_requests=10000,  # Limit max requests per worker
+        )
+        server = uvicorn.Server(uvicorn_config)
+        await server.serve()
+
+    def _initialize_metrics(self) -> None:
+        """Initialize Prometheus metrics for monitoring."""
+        try:
+            # Request metrics
+            self.request_counter = Counter(
+                f"mcp_{self.server_name}_requests_total",
+                "Total requests to MCP server",
+                ["method", "status", "endpoint"],
+            )
+
+            self.request_duration = Histogram(
+                f"mcp_{self.server_name}_request_duration_seconds",
+                "Request duration in seconds",
+                ["method", "endpoint"],
+            )
+
+            # Health metrics
+            self.health_gauge = Gauge(
+                f"mcp_{self.server_name}_health_status",
+                "Health status of MCP server (1=healthy, 0=unhealthy)",
+            )
+
+            # Sync metrics
+            self.sync_success_rate = Gauge(
+                f"mcp_{self.server_name}_sync_success_rate",
+                "Success rate of data synchronization",
+            )
+
+            self.data_freshness = Gauge(
+                f"mcp_{self.server_name}_data_freshness_seconds",
+                "Age of the most recent data in seconds",
+            )
+
+            self.records_processed = Counter(
+                f"mcp_{self.server_name}_records_processed_total",
+                "Total records processed",
+                ["operation", "status"],
+            )
+
+            # AI processing metrics
+            self.ai_processing_duration = Histogram(
+                f"mcp_{self.server_name}_ai_processing_duration_seconds",
+                "Duration of AI processing operations",
+                ["operation", "model"],
+            )
+
+            self.ai_accuracy_score = Gauge(
+                f"mcp_{self.server_name}_ai_accuracy_score",
+                "AI processing accuracy score",
+            )
+
+            # Cline v3.18 specific metrics
+            self.webfetch_counter = Counter(
+                f"mcp_{self.server_name}_webfetch_total",
+                "Total WebFetch operations",
+                ["status", "cached"],
+            )
+
+            self.webfetch_duration = Histogram(
+                f"mcp_{self.server_name}_webfetch_duration_seconds",
+                "WebFetch operation duration",
+            )
+
+            self.diff_success_gauge = Gauge(
+                f"mcp_{self.server_name}_diff_success_rate",
+                "Success rate of diff operations",
+            )
+            
+            # I/O metrics
+            self.io_read_counter = Counter(
+                f"mcp_{self.server_name}_io_reads_total",
+                "Total I/O read operations",
+                ["status"],
+            )
+            
+            self.io_write_counter = Counter(
+                f"mcp_{self.server_name}_io_writes_total",
+                "Total I/O write operations",
+                ["status"],
+            )
+            
+            self.io_read_bytes = Counter(
+                f"mcp_{self.server_name}_io_read_bytes_total",
+                "Total bytes read from I/O operations",
+            )
+            
+            self.io_write_bytes = Counter(
+                f"mcp_{self.server_name}_io_write_bytes_total",
+                "Total bytes written in I/O operations",
+            )
+            
+            self.io_duration = Histogram(
+                f"mcp_{self.server_name}_io_duration_seconds",
+                "Duration of I/O operations",
+                ["operation"],
+            )
+            
+            self.io_cache_hits = Counter(
+                f"mcp_{self.server_name}_io_cache_hits_total",
+                "Total I/O cache hits",
+            )
+            
+            self.io_cache_misses = Counter(
+                f"mcp_{self.server_name}_io_cache_misses_total",
+                "Total I/O cache misses",
+            )
+
+            # Server info
+            self.server_info = Info(
+                f"mcp_{self.server_name}_info", "MCP server information"
+            )
+
+            # Set server info
+            self.server_info.info(
+                {
+                    "version": "3.18.0",
+                    "server_name": self.server_name,
+                    "sync_priority": self.config.sync_priority.value,
+                    "ai_enabled": str(self.config.enable_ai_processing),
+                    "cline_v3_18": "true",
+                    "webfetch_enabled": str(self.config.enable_webfetch),
+                    "self_knowledge_enabled": str(self.config.enable_self_knowledge),
+                    "optimized_network": "true",
+                    "optimized_io": "true",
+                    "io_strategy": self.config.io_strategy.value,
+                }
+            )
+
+            logger.info(f"✅ Metrics initialized for {self.server_name} (v3.18)")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize metrics for {self.server_name}: {e}")
+
+    async def initialize(self) -> None:
+        """Initialize MCP server with all dependencies."""
+        try:
+            logger.info(f"🚀 Initializing {self.server_name} MCP server (v3.18)...")
+
+            # Initialize network layer
+            await self.network.initialize()
+            logger.info(f"✅ Optimized network layer initialized for {self.server_name}")
+
+            # Initialize Snowflake Cortex service ONLY if explicitly enabled AND needed
+            if self.config.enable_ai_processing:
+                try:
+                    # Check if server actually needs Snowflake
+                    server_capabilities = await self.get_server_capabilities()
+                    needs_snowflake = any(
+                        cap.category in ["ai", "data", "analytics"]
+                        for cap in server_capabilities
+                    )
+
+                    if needs_snowflake:
+                        self.cortex_service = SnowflakeCortexService()
+                        await self.cortex_service.initialize()
+                        logger.info(f"✅ Snowflake Cortex initialized for {self.server_name}")
+                    else:
+                        logger.info(f"⚠️ Snowflake Cortex skipped for {self.server_name} (not needed)")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ Snowflake Cortex initialization failed for {self.server_name}: {e}")
+                    logger.info("   Server will continue without Snowflake capabilities")
+                    self.cortex_service = None
+
+            # Initialize server capabilities for self-knowledge
+            if self.config.enable_self_knowledge:
+                await self._initialize_capabilities()
+
+            # Server-specific initialization
+            await self.server_specific_init()
+
+            # Perform initial health check
+            await self.comprehensive_health_check()
+
+            # Update health status
+            if self.config.enable_metrics:
+                self.health_gauge.set(1 if self.is_healthy else 0)
+
+            logger.info(
+                f"✅ {self.server_name} MCP server (v3.18) initialized successfully"
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize {self.server_name}: {e}")
+            if self.config.enable_metrics:
+                self.health_gauge.set(0)
+            # Don't raise - allow server to start without full capabilities
+            logger.info(f"   {self.server_name} starting with limited capabilities")
+
+    async def _initialize_capabilities(self) -> None:
+        """Initialize server capabilities for self-knowledge feature."""
+        # Base capabilities all servers have
+        base_capabilities = [
+            ServerCapability(
+                name="health_check",
+                description="Monitor server health and component status",
+                category="monitoring",
+                available=True,
+                version="3.18.0",
+            ),
+            ServerCapability(
+                name="sync_data",
+                description="Synchronize data with external platforms",
+                category="data_sync",
+                available=True,
+                version="3.18.0",
+            ),
+            ServerCapability(
+                name="ai_processing",
+                description="Process data with AI models",
+                category="ai",
+                available=self.config.enable_ai_processing,
+                version="3.18.0",
+                metadata={"preferred_model": self.config.preferred_model.value},
+            ),
+            ServerCapability(
+                name="optimized_network",
+                description="High-performance network operations with connection pooling and compression",
+                category="performance",
+                available=True,
+                version="1.0.0",
+                metadata={
+                    "max_connections": self.config.network_max_connections,
+                    "keepalive": self.config.network_keepalive,
+                    "compression": self.config.network_compression,
+                },
+            ),
+            ServerCapability(
+                name="optimized_io",
+                description="High-performance I/O operations with async file handling",
+                category="performance",
+                available=True,
+                version="1.0.0",
+                metadata={
+                    "strategy": self.config.io_strategy.value,
+                    "buffer_size": self.config.io_buffer_size,
+                    "max_concurrent": self.config.io_max_concurrent,
+                },
+            ),
+        ]
+
+        # Add WebFetch capability if enabled
+        if self.config.enable_webfetch:
+            base_capabilities.append(
+                ServerCapability(
+                    name="webfetch",
+                    description="Fetch and process web content",
+                    category="data_acquisition",
+                    available=True,
+                    version="3.18.0",
+                    metadata={"cache_enabled": True, "formats": ["html", "markdown"]},
+                )
+            )
+
+        # Add improved diff capability
+        if self.config.enable_improved_diff:
+            base_capabilities.append(
+                ServerCapability(
+                    name="improved_diff",
+                    description="Enhanced diff editing with multiple strategies",
+                    category="file_operations",
+                    available=True,
+                    version="3.18.0",
+                    metadata={"strategies": ["exact", "fuzzy", "context_aware"]},
+                )
+            )
+        
+        # Add server-specific capabilities
+        server_capabilities = await self.get_server_capabilities()
+        
+        # Combine capabilities
+        self.server_capabilities = base_capabilities + server_capabilities
+        
+        logger.info(f"✅ Server capabilities initialized for {self.server_name}")
+
+    @abstractmethod
+    async def get_server_capabilities(self) -> list[ServerCapability]:
+        """Get server-specific capabilities."""
+        return []
+
+    @abstractmethod
+    async def server_specific_init(self) -> None:
+        """Server-specific initialization."""
+        pass
+
+    def _load_port_from_config(self) -> None:
+        """Load port from centralized configuration."""
+        # Default implementation uses the port from the config
+        # Subclasses can override to load from environment or other sources
+        pass
+    
+    async def read_file(self, path: str, use_cache: bool = True) -> Tuple[str, bool]:
+        """
+        Read file with optimized I/O strategy.
+        
+        Args:
+            path: Path to the file
+            use_cache: Whether to use cache
+            
+        Returns:
+            Tuple of (content, from_cache)
+        """
+        start_time = time.time()
+        cache_key = f"file_read:{path}"
+        from_cache = False
+        
+        # Check cache first if enabled
+        if use_cache and cache_key in self.response_cache:
+            # Update LRU tracking
+            self.response_cache_keys.remove(cache_key)
+            self.response_cache_keys.append(cache_key)
+            
+            # Update metrics
+            self.io_stats.cache_hits += 1
+            if self.config.enable_metrics:
+                self.io_cache_hits.inc()
+                
+            from_cache = True
+            content = self.response_cache[cache_key]
+            return content, from_cache
+        
+        # Cache miss
+        if use_cache:
+            self.io_stats.cache_misses += 1
+            if self.config.enable_metrics:
+                self.io_cache_misses.inc()
+        
+        # Acquire semaphore to limit concurrent I/O operations
+        async with self.io_semaphore:
+            try:
+                if self.config.io_strategy == IOStrategy.ASYNC:
+                    # Use async file I/O
+                    async with aiofiles.open(path, mode='r', encoding='utf-8') as f:
+                        content = await f.read()
+                
+                elif self.config.io_strategy == IOStrategy.MEMORY_MAPPED:
+                    # Use memory-mapped files for large data
+                    import mmap
+                    with open(path, 'r') as f:
+                        with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+                            content = mm.read().decode('utf-8')
+                
+                elif self.config.io_strategy == IOStrategy.STREAMING:
+                    # Use streaming for large files
+                    content = ""
+                    chunk_size = self.config.io_buffer_size
+                    async with aiofiles.open(path, mode='r', encoding='utf-8') as f:
+                        while chunk := await f.read(chunk_size):
+                            content += chunk
+                
+                else:
+                    # Standard synchronous I/O
+                    with open(path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                
+                # Update metrics
+                elapsed_time = time.time() - start_time
+                self.io_stats.reads += 1
+                self.io_stats.bytes_read += len(content)
+                self.io_stats.read_time_ms += elapsed_time * 1000
+                
+                if self.config.enable_metrics:
+                    self.io_read_counter.labels(status="success").inc()
+                    self.io_read_bytes.inc(len(content))
+                    self.io_duration.labels(operation="read").observe(elapsed_time)
+                
+                # Cache the result if caching is enabled
+                if use_cache:
+                    self.response_cache[cache_key] = content
+                    self.response_cache_keys.append(cache_key)
+                    
+                    # Evict oldest items if cache is full
+                    while len(self.response_cache_keys) > self.config.memory_max_response_cache_items:
+                        oldest_key = self.response_cache_keys.pop(0)
+                        del self.response_cache[oldest_key]
+                
+                return content, from_cache
+                
+            except Exception as e:
+                logger.error(f"Error reading file {path}: {e}")
+                
+                # Update error metrics
+                self.io_stats.errors += 1
+                if self.config.enable_metrics:
+                    self.io_read_counter.labels(status="error").inc()
+                
+                raise
+    
+    async def write_file(self, path: str, content: str, mode: str = 'w') -> int:
+        """
+        Write file with optimized I/O strategy.
+        
+        Args:
+            path: Path to the file
+            content: Content to write
+            mode: File mode ('w' for overwrite, 'a' for append)
+            
+        Returns:
+            Number of bytes written
+        """
+        start_time = time.time()
+        
+        # Acquire semaphore to limit concurrent I/O operations
+        async with self.io_semaphore:
+            try:
+                # Ensure directory exists
+                os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+                
+                if self.config.io_strategy == IOStrategy.ASYNC:
+                    # Use async file I/O
+                    async with aiofiles.open(path, mode=mode, encoding='utf-8') as f:
+                        await f.write(content)
+                
+                elif self.config.io_strategy == IOStrategy.STREAMING:
+                    # Use streaming for large content
+                    chunk_size = self.config.io_buffer_size
+                    async with aiofiles.open(path, mode=mode, encoding='utf-8') as f:
+                        for i in range(0, len(content), chunk_size):
+                            await f.write(content[i:i+chunk_size])
+                
+                else:
+                    # Standard synchronous I/O
+                    with open(path, mode, encoding='utf-8') as f:
+                        f.write(content)
+                
+                # Update metrics
+                elapsed_time = time.time() - start_time
+                self.io_stats.writes += 1
+                self.io_stats.bytes_written += len(content)
+                self.io_stats.write_time_ms += elapsed_time * 1000
+                
+                if self.config.enable_metrics:
+                    self.io_write_counter.labels(status="success").inc()
+                    self.io_write_bytes.inc(len(content))
+                    self.io_duration.labels(operation="write").observe(elapsed_time)
+                
+                # Invalidate cache if exists
+                cache_key = f"file_read:{path}"
+                if cache_key in self.response_cache:
+                    del self.response_cache[cache_key]
+                    if cache_key in self.response_cache_keys:
+                        self.response_cache_keys.remove(cache_key)
+                
+                return len(content)
+                
+            except Exception as e:
+                logger.error(f"Error writing file {path}: {e}")
+                
+                # Update error metrics
+                self.io_stats.errors += 1
+                if self.config.enable_metrics:
+                    self.io_write_counter.labels(status="error").inc()
+                
+                raise
+    
+    async def read_json(self, path: str, use_cache: bool = True) -> Tuple[Dict[str, Any], bool]:
+        """
+        Read and parse JSON file with optimized I/O.
+        
+        Args:
+            path: Path to the JSON file
+            use_cache: Whether to use cache
+            
+        Returns:
+            Tuple of (parsed_json, from_cache)
+        """
+        content, from_cache = await self.read_file(path, use_cache)
+        
+        try:
+            if self.config.io_use_orjson:
+                data = orjson.loads(content)
+            else:
+                data = json.loads(content)
+            return data, from_cache
+        except Exception as e:
+            logger.error(f"Error parsing JSON from {path}: {e}")
+            raise
+    
+    async def write_json(self, path: str, data: Dict[str, Any], pretty: bool = True) -> int:
+        """
+        Write JSON data to file with optimized I/O.
+        
+        Args:
+            path: Path to the JSON file
+            data: Data to write
+            pretty: Whether to format JSON with indentation
+            
+        Returns:
+            Number of bytes written
+        """
+        try:
+            if self.config.io_use_orjson:
+                options = orjson.OPT_INDENT_2 if pretty else 0
+                content = orjson.dumps(data, option=options).decode('utf-8')
+            else:
+                indent = 2 if pretty else None
+                content = json.dumps(data, indent=indent)
+            
+            return await self.write_file(path, content)
+        except Exception as e:
+            logger.error(f"Error writing JSON to {path}: {e}")
+            raise
+    
+    async def comprehensive_health_check(self) -> dict[str, Any]:
+        """Perform a comprehensive health check of all components."""
+        start_time = time.time()
+        
+        # Check core components
+        results = {}
+        
+        # Check network health
+        network_health = await self._check_network_health()
+        results["network"] = network_health
+        
+        # Check I/O health
+        io_health = await self._check_io_health()
+        results["io"] = io_health
+        
+        # Check Snowflake Cortex if enabled
+        if self.config.enable_ai_processing and self.cortex_service:
+            cortex_health = await self._check_cortex_health()
+            results["cortex"] = cortex_health
+        
+        # Check server-specific components
+        server_health = await self.check_server_health()
+        results.update(server_health)
+        
+        # Determine overall health
+        critical_count = sum(1 for r in results.values() if r["status"] == HealthStatus.CRITICAL.value)
+        unhealthy_count = sum(1 for r in results.values() if r["status"] == HealthStatus.UNHEALTHY.value)
+        degraded_count = sum(1 for r in results.values() if r["status"] == HealthStatus.DEGRADED.value)
+        
+        if critical_count > 0:
+            overall_status = HealthStatus.CRITICAL.value
+        elif unhealthy_count > 0:
+            overall_status = HealthStatus.UNHEALTHY.value
+        elif degraded_count > 0:
+            overall_status = HealthStatus.DEGRADED.value
+        else:
+            overall_status = HealthStatus.HEALTHY.value
+        
+        # Update server health status
+        self.is_healthy = overall_status == HealthStatus.HEALTHY.value
+        self.last_health_check = datetime.now(UTC)
+        
+        # Update metrics
+        if self.config.enable_metrics:
+            self.health_gauge.set(1 if self.is_healthy else 0)
+        
+        # Calculate response time
+        response_time_ms = (time.time() - start_time) * 1000
+        
+        return {
+            "server_name": self.server_name,
+            "version": "3.18.0",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "status": overall_status,
+            "response_time_ms": response_time_ms,
+            "uptime_seconds": time.time() - self.start_time,
+            "components": results,
+        }
+    
+    async def _check_network_health(self) -> dict[str, Any]:
+        """Check network health."""
+        start_time = time.time()
+        
+        try:
+            # Get network stats
+            stats = self.network.get_stats()
+            
+            # Determine status based on error rate
+            error_rate = stats.failed_requests / max(stats.requests_sent, 1)
+            
+            if error_rate > 0.5:  # >50% errors
+                status = HealthStatus.CRITICAL.value
+            elif error_rate > 0.2:  # >20% errors
+                status = HealthStatus.UNHEALTHY.value
+            elif error_rate > 0.05:  # >5% errors
+                status = HealthStatus.DEGRADED.value
+            else:
+                status = HealthStatus.HEALTHY.value
+            
+            return {
+                "component": "network",
+                "status": status,
+                "response_time_ms": (time.time() - start_time) * 1000,
+                "error_rate": error_rate,
+                "requests_sent": stats.requests_sent,
+                "requests_received": stats.requests_received,
+                "failed_requests": stats.failed_requests,
+                "avg_latency_ms": stats.avg_latency_ms,
+            }
+        except Exception as e:
+            logger.error(f"Error checking network health: {e}")
+            return {
+                "component": "network",
+                "status": HealthStatus.CRITICAL.value,
+                "response_time_ms": (time.time() - start_time) * 1000,
+                "error_message": str(e),
+            }
+    
+    async def _check_io_health(self) -> dict[str, Any]:
+        """Check I/O health."""
+        start_time = time.time()
+        
+        try:
+            # Create a temporary file to test I/O
+            test_dir = os.path.join(os.getcwd(), "tmp")
+            os.makedirs(test_dir, exist_ok=True)
+            test_file = os.path.join(test_dir, f"io_health_check_{self.server_name}.txt")
+            
+            # Write test data
+            test_data = f"Health check at {datetime.now(UTC).isoformat()}"
+            await self.write_file(test_file, test_data)
+            
+            # Read test data
+            read_data, _ = await self.read_file(test_file, use_cache=False)
+            
+            # Verify data integrity
+            if read_data != test_data:
+                raise ValueError("Data integrity check failed")
+            
+            # Calculate error rate
+            error_rate = self.io_stats.errors / max(self.io_stats.reads + self.io_stats.writes, 1)
+            
+            if error_rate > 0.2:  # >20% errors
+                status = HealthStatus.CRITICAL.value
+            elif error_rate > 0.1:  # >10% errors
+                status = HealthStatus.UNHEALTHY.value
+            elif error_rate > 0.01:  # >1% errors
+                status = HealthStatus.DEGRADED.value
+            else:
+                status = HealthStatus.HEALTHY.value
+            
+            return {
+                "component": "io",
+                "status": status,
+                "response_time_ms": (time.time() - start_time) * 1000,
+                "error_rate": error_rate,
+                "reads": self.io_stats.reads,
+                "writes": self.io_stats.writes,
+                "errors": self.io_stats.errors,
+                "cache_hit_ratio": self.io_stats.cache_hits / max(self.io_stats.cache_hits + self.io_stats.cache_misses, 1),
+            }
+        except Exception as e:
+            logger.error(f"Error checking I/O health: {e}")
+            return {
+                "component": "io",
+                "status": HealthStatus.CRITICAL.value,
+                "response_time_ms": (time.time() - start_time) * 1000,
+                "error_message": str(e),
+            }
+    
+    async def _check_cortex_health(self) -> dict[str, Any]:
+        """Check Snowflake Cortex health."""
+        start_time = time.time()
+        
+        try:
+            # Check if Cortex service is initialized
+            if not self.cortex_service:
+                return {
+                    "component": "cortex",
+                    "status": HealthStatus.UNHEALTHY.value,
+                    "response_time_ms": (time.time() - start_time) * 1000,
+                    "error_message": "Cortex service not initialized",
+                }
+            
+            # Check Cortex service health
+            cortex_health = await self.cortex_service.health_check()
+            
+            return {
+                "component": "cortex",
+                "status": cortex_health["status"],
+                "response_time_ms": (time.time() - start_time) * 1000,
+                "last_success": cortex_health.get("last_success"),
+                "metadata": cortex_health.get("metadata"),
+            }
+        except Exception as e:
+            logger.error(f"Error checking Cortex health: {e}")
+            return {
+                "component": "cortex",
+                "status": HealthStatus.CRITICAL.value,
+                "response_time_ms": (time.time() - start_time) * 1000,
+                "error_message": str(e),
+            }
+    
+    @abstractmethod
+    async def check_server_health(self) -> dict[str, dict[str, Any]]:
+        """Check server-specific health components."""
+        return {}
+    
+    async def webfetch(self, url: str, use_cache: bool = True) -> WebFetchResult:
+        """
+        Fetch web content with optimized networking.
+        
+        Args:
+            url: URL to fetch
+            use_cache: Whether to use cache
+            
+        Returns:
+            WebFetchResult with content and metadata
+        """
+        start_time = time.time()
+        
+        # Check cache first if enabled
+        if use_cache and url in self.webfetch_cache:
+            if self.config.enable_metrics:
+                self.webfetch_counter.labels(status="success", cached="true").inc()
+            
+            return self.webfetch_cache[url]
+        
+        try:
+            # Fetch content using optimized network layer
+            status, content, headers = await self.network.get(url)
+            
+            if status != 200:
+                raise ValueError(f"HTTP error {status}")
+            
+            # Convert to string if bytes
+            if isinstance(content, bytes):
+                content = content.decode('utf-8')
+            
+            # Generate markdown version
+            markdown_content = await self._html_to_markdown(content)
+            
+            # Calculate fetch time
+            fetch_time_ms = (time.time() - start_time) * 1000
+            
+            # Create result
+            result = WebFetchResult(
+                url=url,
+                content=content,
+                markdown_content=markdown_content,
+                fetch_time_ms=fetch_time_ms,
+                cached=False,
+            )
+            
+            # Update cache
+            if use_cache:
+                self.webfetch_cache[url] = result
+                
+                # Limit cache size
+                if len(self.webfetch_cache) > 100:
+                    # Remove oldest entry (simple LRU)
+                    oldest_url = next(iter(self.webfetch_cache))
+                    del self.webfetch_cache[oldest_url]
+            
+            # Update metrics
+            if self.config.enable_metrics:
+                self.webfetch_counter.labels(status="success", cached="false").inc()
+                self.webfetch_duration.observe(fetch_time_ms / 1000)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error fetching URL {url}: {e}")
+            
+            # Update metrics
+            if self.config.enable_metrics:
+                self.webfetch_counter.labels(status="error", cached="false").inc()
+            
+            # Return error result
+            return WebFetchResult(
+                url=url,
+                content="",
+                markdown_content="",
+                fetch_time_ms=(time.time() - start_time) * 1000,
+                cached=False,
+                error=str(e),
+            )
+    
+    async def _html_to_markdown(self, html_content: str) -> str:
+        """Convert HTML to Markdown."""
+        try:
+            # Use html2text if available
+            import html2text
+            converter = html2text.HTML2Text()
+            converter.ignore_links = False
+            converter.ignore_images = False
+            converter.ignore_tables = False
+            return converter.handle(html_content)
+        except ImportError:
+            # Fallback to simple regex-based conversion
+            import re
+            
+            # Remove script and style tags
+            html_content = re.sub(r'<script.*?</script>', '', html_content, flags=re.DOTALL)
+            html_content = re.sub(r'<style.*?</style>', '', html_content, flags=re.DOTALL)
+            
+            # Convert headings
+            html_content = re.sub(r'<h1[^>]*>(.*?)</h1>', r'# \1\n', html_content)
+            html_content = re.sub(r'<h2[^>]*>(.*?)</h2>', r'## \1\n', html_content)
+            html_content = re.sub(r'<h3[^>]*>(.*?)</h3>', r'### \1\n', html_content)
+            
+            # Convert paragraphs
+            html_content = re.sub(r'<p[^>]*>(.*?)</p>', r'\1\n\n', html_content)
+            
+            # Convert links
+            html_content = re.sub(r'<a[^>]*href="([^"]*)"[^>]*>(.*?)</a>', r'[\2](\1)', html_content)
+            
+            # Convert line breaks
+            html_content = re.sub(r'<br[^>]*>', r'\n', html_content)
+            
+            # Remove remaining HTML tags
+            html_content = re.sub(r'<[^>]*>', '', html_content)
+            
+            # Decode HTML entities
+            html_content = html_content.replace('&lt;', '<').replace('&gt;', '>')
+            html_content = html_content.replace('&amp;', '&').replace('&quot;', '"')
+            
+            return html_content
+
+
+# Factory function for creating optimized MCP servers
+def create_optimized_mcp_server(server_type: str, **kwargs) -> OptimizedMCPServer:
+    """Factory function to create optimized MCP servers."""
+    # Import server implementations dynamically to avoid circular imports
+    from importlib import import_module
+    
+    try:
+        module = import_module(f"backend.mcp_servers.{server_type}_mcp_server")
+        server_class = getattr(module, f"{server_type.title()}MCPServer")
+        return server_class(**kwargs)
+    except (ImportError, AttributeError) as e:
+        logger.error(f"Failed to create server of type {server_type}: {e}")
+        raise ValueError(f"Unknown server type: {server_type}")
+
+
+# Main function for testing
+async def main():
+    """Main function for testing."""
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Optimized MCP server framework ready")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+

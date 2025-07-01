@@ -92,3 +92,34 @@ async def get_chat_service_dependency():
 def get_request_chat_service(request):
     """FastAPI dependency that gets chat service from request app state"""
     return get_chat_service_from_app_state(request)
+
+# Cache Manager Dependencies
+
+# Import the cache manager
+from backend.core.cache_manager import EnhancedCacheManager, get_cache_manager
+
+
+def get_cache_manager_from_app_state(request):
+    """
+    Get cache manager from FastAPI app state.
+
+    This is used in routes to access the cache manager instance
+    that was initialized during app startup.
+    """
+    if hasattr(request.app.state, "cache_manager"):
+        return request.app.state.cache_manager
+    else:
+        # Fallback to creating a new instance
+        return asyncio.create_task(get_cache_manager())
+
+
+# Dependency functions for FastAPI injection
+async def get_cache_manager_dependency():
+    """FastAPI dependency for cache manager"""
+    return await get_cache_manager()
+
+
+def get_request_cache_manager(request):
+    """FastAPI dependency that gets cache manager from request app state"""
+    return get_cache_manager_from_app_state(request)
+

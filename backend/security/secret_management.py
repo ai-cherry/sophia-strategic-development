@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 """Enhanced Security and Secret Management for Sophia AI Platform.
@@ -18,8 +20,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import hashlib
 import logging

@@ -1,0 +1,933 @@
+{
+  "roles": [
+    {
+      "id": "role_system_admin",
+      "name": "System Administrator",
+      "permissions": [
+        {
+          "id": "82280586-3b90-4e9e-88b0-ec0bc781b807",
+          "resource_type": "system",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.SYSTEM resources"
+        },
+        {
+          "id": "5a337452-e50d-48ad-9089-737f39c9694d",
+          "resource_type": "user",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.USER resources"
+        },
+        {
+          "id": "47c0cb30-c10e-4432-a2bf-7dc1701019b7",
+          "resource_type": "role",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.ROLE resources"
+        },
+        {
+          "id": "c8369938-d8f0-44eb-a0ae-52da387eaf0f",
+          "resource_type": "llm",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.LLM resources"
+        },
+        {
+          "id": "87dc818d-3213-49fe-8241-508b5c715faa",
+          "resource_type": "agent",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.AGENT resources"
+        },
+        {
+          "id": "915b5708-ca58-4be1-b7ce-06549ba5050c",
+          "resource_type": "tool",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.TOOL resources"
+        },
+        {
+          "id": "4ddbf281-00a0-4680-8e29-85d46581d6ad",
+          "resource_type": "prompt",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.PROMPT resources"
+        },
+        {
+          "id": "c1f63e08-e5bb-4ea7-94d1-60fd0772e51d",
+          "resource_type": "document",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.DOCUMENT resources"
+        },
+        {
+          "id": "22ea866b-39a0-4da4-a935-aacea561e643",
+          "resource_type": "vector_db",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.VECTOR_DB resources"
+        },
+        {
+          "id": "1d70e282-d0b8-492a-8819-24648dc6ddc5",
+          "resource_type": "knowledge_base",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.KNOWLEDGE_BASE resources"
+        },
+        {
+          "id": "19f31d20-bfb6-4ac3-8c24-f958b0be88c8",
+          "resource_type": "mcp",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.MCP resources"
+        },
+        {
+          "id": "97b18c2f-496d-4c83-b30d-2135f82297d3",
+          "resource_type": "api",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.API resources"
+        },
+        {
+          "id": "79fc6530-19fd-4688-98ed-612378b381ff",
+          "resource_type": "integration",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.INTEGRATION resources"
+        },
+        {
+          "id": "905c0b29-3d34-4add-b3e8-3c96ce36a27f",
+          "resource_type": "project",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.PROJECT resources"
+        },
+        {
+          "id": "ace808e9-1f36-4947-a54e-054ac2722caa",
+          "resource_type": "organization",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.ORGANIZATION resources"
+        },
+        {
+          "id": "7a780132-822b-451c-ad3a-856e4eff5b34",
+          "resource_type": "department",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.DEPARTMENT resources"
+        },
+        {
+          "id": "ef594688-a2bd-4b2c-bc44-464c94b982a1",
+          "resource_type": "custom",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete",
+            "execute",
+            "manage",
+            "share",
+            "approve",
+            "assign",
+            "train",
+            "deploy",
+            "prompt",
+            "configure",
+            "monitor",
+            "audit",
+            "custom"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Full access to all ResourceType.CUSTOM resources"
+        }
+      ],
+      "description": "Full access to all system resources and actions",
+      "is_system_role": true,
+      "created_at": "2025-07-01 00:52:32.643379",
+      "updated_at": "2025-07-01 00:52:32.643388"
+    },
+    {
+      "id": "role_read_only",
+      "name": "Read Only",
+      "permissions": [
+        {
+          "id": "c3fd2c2d-2f51-489a-a31a-3b78934035c9",
+          "resource_type": "system",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.SYSTEM resources"
+        },
+        {
+          "id": "99db57c3-83ab-40fe-8f50-0036b51283ad",
+          "resource_type": "user",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.USER resources"
+        },
+        {
+          "id": "27ea5afe-b9c8-4339-8339-bc56a1a31e74",
+          "resource_type": "role",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.ROLE resources"
+        },
+        {
+          "id": "bb385bca-a890-49b3-b265-1d45349d508b",
+          "resource_type": "llm",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.LLM resources"
+        },
+        {
+          "id": "4d9528a2-0896-4b9b-bd5f-10a64bcda2d0",
+          "resource_type": "agent",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.AGENT resources"
+        },
+        {
+          "id": "5d004fbc-22c9-4dcc-b4b1-66295cd24c37",
+          "resource_type": "tool",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.TOOL resources"
+        },
+        {
+          "id": "d3084b1b-5d1e-4a9f-88ec-cabb1a3b7147",
+          "resource_type": "prompt",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.PROMPT resources"
+        },
+        {
+          "id": "a8467c71-6010-4919-8980-e1db469778c1",
+          "resource_type": "document",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.DOCUMENT resources"
+        },
+        {
+          "id": "bdf761eb-6efd-4409-9b5a-f03e4c870bc1",
+          "resource_type": "vector_db",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.VECTOR_DB resources"
+        },
+        {
+          "id": "f0ac27ff-a2e9-4c9e-9a3d-324448b439a4",
+          "resource_type": "knowledge_base",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.KNOWLEDGE_BASE resources"
+        },
+        {
+          "id": "152d9ea8-de34-49e0-b7e4-65a67319a7c6",
+          "resource_type": "mcp",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.MCP resources"
+        },
+        {
+          "id": "02ba4330-9c98-4341-9a61-7bd69c4a1fa1",
+          "resource_type": "api",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.API resources"
+        },
+        {
+          "id": "8b4454ac-1af2-4450-b887-571b5c52f0fa",
+          "resource_type": "integration",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.INTEGRATION resources"
+        },
+        {
+          "id": "fafadf08-5786-4f4f-8dd6-1c04c7c4f941",
+          "resource_type": "project",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.PROJECT resources"
+        },
+        {
+          "id": "196e01eb-408c-463d-a2a2-f50fbcea6474",
+          "resource_type": "organization",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.ORGANIZATION resources"
+        },
+        {
+          "id": "da3a95eb-9fcb-4d92-862f-94282c7d31e2",
+          "resource_type": "department",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.DEPARTMENT resources"
+        },
+        {
+          "id": "81c769a1-f6ac-4d44-ab01-c698b460da12",
+          "resource_type": "custom",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read access to all ResourceType.CUSTOM resources"
+        }
+      ],
+      "description": "Read-only access to all system resources",
+      "is_system_role": true,
+      "created_at": "2025-07-01 00:52:32.643522",
+      "updated_at": "2025-07-01 00:52:32.643522"
+    },
+    {
+      "id": "role_ai_developer",
+      "name": "AI Developer",
+      "permissions": [
+        {
+          "id": "b56c1da3-7f81-44b6-9097-1d5c83e89928",
+          "resource_type": "llm",
+          "actions": [
+            "read",
+            "execute",
+            "prompt"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Access and use LLMs"
+        },
+        {
+          "id": "c7d7b1a9-f584-43db-9508-93505f87927f",
+          "resource_type": "agent",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "execute"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Create and manage AI agents"
+        },
+        {
+          "id": "e434ea4a-1644-4dc3-b9ac-7171b9b11ce4",
+          "resource_type": "tool",
+          "actions": [
+            "read",
+            "execute"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Use AI tools"
+        },
+        {
+          "id": "043962f0-07c0-4deb-8923-08218310bec9",
+          "resource_type": "prompt",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Create and manage prompts"
+        },
+        {
+          "id": "e4a48df1-43b7-47b4-8035-7725c2604f49",
+          "resource_type": "knowledge_base",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read from knowledge bases"
+        },
+        {
+          "id": "08bc685d-c382-4d5a-9e0c-7894fc55f780",
+          "resource_type": "vector_db",
+          "actions": [
+            "read"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Read from vector databases"
+        }
+      ],
+      "description": "Role for AI developers with permissions to create and manage AI components",
+      "is_system_role": true,
+      "created_at": "2025-07-01 00:52:32.643575",
+      "updated_at": "2025-07-01 00:52:32.643575"
+    },
+    {
+      "id": "role_business_user",
+      "name": "Business User",
+      "permissions": [
+        {
+          "id": "336ce958-d44c-4356-b2d1-75357033098c",
+          "resource_type": "llm",
+          "actions": [
+            "execute",
+            "prompt"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Use LLMs"
+        },
+        {
+          "id": "b1d67553-c86d-4a11-8ff2-8fbe94fb3c58",
+          "resource_type": "agent",
+          "actions": [
+            "read",
+            "execute"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Use AI agents"
+        },
+        {
+          "id": "831ba6a5-b0f6-4378-a95e-0861d783afd1",
+          "resource_type": "tool",
+          "actions": [
+            "read",
+            "execute"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Use AI tools"
+        },
+        {
+          "id": "f75f6d1f-6718-4172-a1ff-1b2bd720b95b",
+          "resource_type": "document",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Create and manage documents"
+        },
+        {
+          "id": "1edb1941-54c4-452b-b823-d35d83a8d125",
+          "resource_type": "project",
+          "actions": [
+            "create",
+            "read",
+            "update"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Create and manage projects"
+        }
+      ],
+      "description": "Role for business users with permissions to use the system",
+      "is_system_role": true,
+      "created_at": "2025-07-01 00:52:32.643614",
+      "updated_at": "2025-07-01 00:52:32.643614"
+    },
+    {
+      "id": "87607e4a-d257-42fe-a89f-c114ab3341d5",
+      "name": "Project Manager",
+      "permissions": [
+        {
+          "id": "86a01b61-e78b-423c-a13a-b1ff173f50c9",
+          "resource_type": "project",
+          "actions": [
+            "read",
+            "update",
+            "manage"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Manage projects"
+        },
+        {
+          "id": "971f7177-7299-49bf-88fc-8c8ce17f18f0",
+          "resource_type": "document",
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Work with documents"
+        }
+      ],
+      "description": "Role for project managers",
+      "is_system_role": false,
+      "created_at": "2025-07-01 00:53:57.577241",
+      "updated_at": "2025-07-01 00:53:57.577242"
+    },
+    {
+      "id": "a566cafc-b28e-439c-bb91-9e421d9395b9",
+      "name": "Project Manager",
+      "permissions": [
+        {
+          "id": "494d4a7a-31f5-437c-b0c5-6addfa8d8f09",
+          "resource_type": "project",
+          "actions": [
+            "read",
+            "update",
+            "manage"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Manage projects"
+        },
+        {
+          "id": "138773da-6ac8-4bd8-ac7b-8818051d85e1",
+          "resource_type": "document",
+          "actions": [
+            "read",
+            "create",
+            "update"
+          ],
+          "resource_id": null,
+          "attributes": null,
+          "condition": null,
+          "description": "Work with documents"
+        }
+      ],
+      "description": "Role for project managers",
+      "is_system_role": false,
+      "created_at": "2025-07-01 00:54:27.692286",
+      "updated_at": "2025-07-01 00:54:27.692287"
+    }
+  ],
+  "role_assignments": [
+    {
+      "id": "2d348675-de7a-4056-a77b-5ce0e58dbd95",
+      "user_id": "user123",
+      "role_id": "role_read_only",
+      "scope_type": null,
+      "scope_id": null,
+      "constraints": null,
+      "created_at": "2025-07-01 00:54:27.693510",
+      "expires_at": null,
+      "created_by": "admin123"
+    },
+    {
+      "id": "2b36e5df-a5ae-4ef5-99b5-fb68b52d8c14",
+      "user_id": "user123",
+      "role_id": "a566cafc-b28e-439c-bb91-9e421d9395b9",
+      "scope_type": "project",
+      "scope_id": "project123",
+      "constraints": {
+        "department": "Product"
+      },
+      "created_at": "2025-07-01 00:54:27.694895",
+      "expires_at": "2025-07-31 00:54:27.694853",
+      "created_by": "admin123"
+    }
+  ],
+  "users": [
+    {
+      "id": "admin123",
+      "email": "admin@example.com",
+      "name": "Admin User",
+      "department": null,
+      "is_active": true,
+      "is_system_admin": true,
+      "created_at": "2025-07-01 00:54:27.688538",
+      "updated_at": "2025-07-01 00:54:27.688539",
+      "last_login": null
+    },
+    {
+      "id": "user123",
+      "email": "user@example.com",
+      "name": "Updated User",
+      "department": "Product",
+      "is_active": true,
+      "is_system_admin": false,
+      "created_at": "2025-07-01 00:54:27.689729",
+      "updated_at": "2025-07-01 00:54:27.690993",
+      "last_login": null
+    }
+  ]
+}

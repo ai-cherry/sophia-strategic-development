@@ -32,6 +32,15 @@ from backend.core.dependencies import get_chat_service
 # Core imports
 from backend.core.simple_config import get_config_value
 
+# Security imports
+from backend.security.audit_middleware import setup_audit_middleware
+from backend.security.audit_logger import AuditEventType, info, configure_from_env
+from backend.security.rbac import setup_rbac, initialize_rbac_service
+from backend.security.ephemeral_credentials import (
+    EphemeralCredentialsService,
+    setup_ephemeral_credentials_middleware,
+)
+
 # Route imports - no circular dependencies
 from backend.presentation.api.router import create_application_router
 
@@ -50,6 +59,43 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Sophia AI Unified Ecosystem...")
 
     try:
+        # Configure audit logger from environment
+        configure_from_env()
+        logger.info("✅ Audit Logger configured")
+        
+        # Log system startup
+        info(
+            AuditEventType.SYSTEM_START,
+            "Sophia AI Unified Ecosystem starting",
+            {"app_name": "sophia"}
+        )
+        
+        # Initialize the RBAC system
+        rbac_storage_path = os.path.join(os.getcwd(), "data", "rbac.json")
+        initialize_rbac_service(
+            storage_path=rbac_storage_path,
+            load_system_roles=True,
+            auto_save=True,
+        )
+        logger.info("✅ RBAC System initialized")
+        
+        # Initialize the ephemeral credentials system
+        ephemeral_credentials_service = EphemeralCredentialsService(
+            storage_path=os.path.join(os.getcwd(), "data", "ephemeral_credentials.json"),
+            auto_save=True,
+        )
+        await ephemeral_credentials_service.initialize()
+        app.state.ephemeral_credentials_service = ephemeral_credentials_service
+        logger.info("✅ Ephemeral Credentials System initialized")
+        
+        # Initialize the cache system
+        from backend.core.cache_manager import initialize_cache_system, get_cache_manager
+        
+        await initialize_cache_system()
+        cache_manager = await get_cache_manager()
+        app.state.cache_manager = cache_manager
+        logger.info("✅ Enhanced Cache System initialized")
+        
         # Initialize the simplified unified intelligence service
         from backend.services.simplified_unified_intelligence_service import (
             get_simplified_unified_intelligence_service,
@@ -84,6 +130,33 @@ async def lifespan(app: FastAPI):
     finally:
         # Shutdown
         logger.info("🛑 Shutting down Sophia AI Unified Ecosystem...")
+
+        # Log system shutdown
+        info(
+            AuditEventType.SYSTEM_STOP,
+            "Sophia AI Unified Ecosystem shutting down",
+            {"app_name": "sophia"}
+        )
+
+        # Cleanup cache system if it exists
+        if hasattr(app.state, "cache_manager"):
+            try:
+                # Clean up cache resources
+                await app.state.cache_manager.clear()
+                delattr(app.state, "cache_manager")
+                logger.info("✅ Cache system cleaned up")
+            except Exception as e:
+                logger.error(f"⚠️ Error during cache system cleanup: {e}")
+        
+        # Cleanup ephemeral credentials system if it exists
+        if hasattr(app.state, "ephemeral_credentials_service"):
+            try:
+                # Clean up ephemeral credentials resources
+                await app.state.ephemeral_credentials_service.shutdown()
+                delattr(app.state, "ephemeral_credentials_service")
+                logger.info("✅ Ephemeral credentials system cleaned up")
+            except Exception as e:
+                logger.error(f"⚠️ Error during ephemeral credentials system cleanup: {e}")
 
         # Cleanup services if they exist
         for service_name in ["unified_intelligence", "chat_service_instance"]:
@@ -157,6 +230,38 @@ app.add_middleware(
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+
+# Set up audit middleware
+setup_audit_middleware(app)
+
+# Log middleware setup
+logger.info("✅ Audit middleware configured")
+
+# Set up RBAC
+setup_rbac(
+    app=app,
+    storage_path=os.path.join(os.getcwd(), "data", "rbac.json"),
+    load_system_roles=True,
+    auto_save=True,
+    default_resource_type=None,  # No default resource type
+    exclude_paths=["/docs", "/redoc", "/openapi.json", "/api/v3/auth"],
+    use_middleware=False,  # Use dependencies instead of middleware for fine-grained control
+)
+
+# Log RBAC setup
+logger.info("✅ RBAC middleware configured")
+
+# Set up ephemeral credentials middleware
+setup_ephemeral_credentials_middleware(
+    app=app,
+    exclude_paths=["/docs", "/redoc", "/openapi.json", "/api/v3/auth", "/api/v3/health"],
+)
+
+# Log ephemeral credentials middleware setup
+logger.info("✅ Ephemeral credentials middleware configured")
+
+# Log RBAC setup
+logger.info("✅ RBAC system configured")
 
 # Rate limiting
 limiter = Limiter(key_func=get_remote_address)
