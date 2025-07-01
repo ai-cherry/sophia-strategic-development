@@ -218,3 +218,5 @@ ipython_config.py
 github_pat_*
 *.token
 .env.github
+health_gate_report.json
+scripts/standardise_mcp_report.json
