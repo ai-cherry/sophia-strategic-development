@@ -1,0 +1,141 @@
+imports:
+  - type: github-secrets
+    github:
+      organization: ai-cherry
+      repository: sophia-main
+
+values:
+  # Infrastructure Configuration
+  infrastructure:
+    lambda_labs:
+      api_key: ${LAMBDA_API_KEY}
+      ip_address: ${LAMBDA_IP_ADDRESS}
+      ssh_private_key: ${LAMBDA_SSH_PRIVATE_KEY}
+    
+  # Data Pipeline Integration
+  data_pipeline:
+    estuary_flow:
+      access_token: ${ESTUARY_ACCESS_TOKEN}
+      refresh_token: ${ESTUARY_REFRESH_TOKEN}
+    
+    gong:
+      access_key: ${GONG_ACCESS_KEY}
+      access_key_secret: ${GONG_ACCESS_KEY_SECRET}
+      base_url: ${GONG_BASE_URL}
+      client_access_key: ${GONG_CLIENT_ACCESS_KEY}
+      client_secret: ${GONG_CLIENT_SECRET}
+    
+    hubspot:
+      access_token: ${HUBSPOT_ACCESS_TOKEN}
+      client_secret: ${HUBSPOT_CLIENT_SECRET}
+  
+  # AI Services
+  ai_services:
+    anthropic:
+      api_key: ${ANTHROPIC_API_KEY}
+    
+    groq:
+      api_key: ${GROQ_API_KEY}
+      virtual_key: ${GROQ_VIRTUAL_KEY}
+    
+    mistral:
+      api_key: ${MISTRAL_API_KEY}
+      virtual_key: ${MISTRAL_VIRTUAL_KEY}
+    
+    cohere:
+      api_key: ${COHERE_API_KEY}
+      virtual_key: ${COHERE_VIRTUAL_KEY}
+    
+    huggingface:
+      api_token: ${HUGGINGFACE_API_TOKEN}
+    
+    langchain:
+      api_key: ${LANGCHAIN_API_KEY}
+      langsmith_api_key: ${LANGSMITH_API_KEY}
+      langsmith_org_id: ${LANGSMITH_ORG_ID}
+  
+  # Development & Deployment
+  development:
+    github:
+      token: ${GITHUB_TOKEN}
+      pat: ${GITHUB_PAT}
+    
+    vercel:
+      token: ${VERCEL_TOKEN}
+      org_id: ${VERCEL_ORG_ID}
+      project_id: ${VERCEL_PROJECT_ID}
+  
+  # Database & Storage
+  database:
+    postgresql:
+      host: ${POSTGRESQL_HOST}
+      port: ${POSTGRESQL_PORT}
+      database: ${POSTGRESQL_DATABASE}
+      username: ${POSTGRESQL_USERNAME}
+      password: ${POSTGRESQL_PASSWORD}
+    
+    redis:
+      url: ${REDIS_URL}
+      password: ${REDIS_PASSWORD}
+    
+    snowflake:
+      account: ${SNOWFLAKE_ACCOUNT}
+      username: ${SNOWFLAKE_USERNAME}
+      password: ${SNOWFLAKE_PASSWORD}
+      warehouse: ${SNOWFLAKE_WAREHOUSE}
+      database: ${SNOWFLAKE_DATABASE}
+      schema: ${SNOWFLAKE_SCHEMA}
+
+# Environment variables for applications
+environmentVariables:
+  # Infrastructure
+  LAMBDA_API_KEY: ${infrastructure.lambda_labs.api_key}
+  LAMBDA_IP_ADDRESS: ${infrastructure.lambda_labs.ip_address}
+  LAMBDA_SSH_PRIVATE_KEY: ${infrastructure.lambda_labs.ssh_private_key}
+  
+  # Data Pipeline
+  ESTUARY_ACCESS_TOKEN: ${data_pipeline.estuary_flow.access_token}
+  ESTUARY_REFRESH_TOKEN: ${data_pipeline.estuary_flow.refresh_token}
+  GONG_ACCESS_KEY: ${data_pipeline.gong.access_key}
+  GONG_ACCESS_KEY_SECRET: ${data_pipeline.gong.access_key_secret}
+  GONG_BASE_URL: ${data_pipeline.gong.base_url}
+  GONG_CLIENT_ACCESS_KEY: ${data_pipeline.gong.client_access_key}
+  GONG_CLIENT_SECRET: ${data_pipeline.gong.client_secret}
+  HUBSPOT_ACCESS_TOKEN: ${data_pipeline.hubspot.access_token}
+  HUBSPOT_CLIENT_SECRET: ${data_pipeline.hubspot.client_secret}
+  
+  # AI Services
+  ANTHROPIC_API_KEY: ${ai_services.anthropic.api_key}
+  GROQ_API_KEY: ${ai_services.groq.api_key}
+  GROQ_VIRTUAL_KEY: ${ai_services.groq.virtual_key}
+  MISTRAL_API_KEY: ${ai_services.mistral.api_key}
+  MISTRAL_VIRTUAL_KEY: ${ai_services.mistral.virtual_key}
+  COHERE_API_KEY: ${ai_services.cohere.api_key}
+  COHERE_VIRTUAL_KEY: ${ai_services.cohere.virtual_key}
+  HUGGINGFACE_API_TOKEN: ${ai_services.huggingface.api_token}
+  LANGCHAIN_API_KEY: ${ai_services.langchain.api_key}
+  LANGSMITH_API_KEY: ${ai_services.langchain.langsmith_api_key}
+  LANGSMITH_ORG_ID: ${ai_services.langchain.langsmith_org_id}
+  
+  # Development
+  GITHUB_TOKEN: ${development.github.token}
+  GITHUB_PAT: ${development.github.pat}
+  VERCEL_TOKEN: ${development.vercel.token}
+  VERCEL_ORG_ID: ${development.vercel.org_id}
+  VERCEL_PROJECT_ID: ${development.vercel.project_id}
+  
+  # Database
+  POSTGRESQL_HOST: ${database.postgresql.host}
+  POSTGRESQL_PORT: ${database.postgresql.port}
+  POSTGRESQL_DATABASE: ${database.postgresql.database}
+  POSTGRESQL_USERNAME: ${database.postgresql.username}
+  POSTGRESQL_PASSWORD: ${database.postgresql.password}
+  REDIS_URL: ${database.redis.url}
+  REDIS_PASSWORD: ${database.redis.password}
+  SNOWFLAKE_ACCOUNT: ${database.snowflake.account}
+  SNOWFLAKE_USERNAME: ${database.snowflake.username}
+  SNOWFLAKE_PASSWORD: ${database.snowflake.password}
+  SNOWFLAKE_WAREHOUSE: ${database.snowflake.warehouse}
+  SNOWFLAKE_DATABASE: ${database.snowflake.database}
+  SNOWFLAKE_SCHEMA: ${database.snowflake.schema}
+
