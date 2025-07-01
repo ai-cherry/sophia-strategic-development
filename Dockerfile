@@ -1,128 +1,43 @@
-# SOPHIA AI System - Multi-stage Dockerfile
-# This Dockerfile builds the SOPHIA AI system with optimized layers
-
-# -----------------------------------------------------------------------------
-# Base stage with common dependencies
-# -----------------------------------------------------------------------------
-FROM python:3.12-slim AS builder
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+# Sophia AI Phase 2 Production Dockerfile
+FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONFAULTHANDLER=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    POETRY_VERSION=1.5.1 \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_CREATE=false
+    PYTHONPATH=/app \
+    PORT=8000
+
+# Set work directory
+WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
     curl \
-    git \
-    libpq-dev \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy requirements files
-COPY pyproject.toml uv.lock ./
-
-# -----------------------------------------------------------------------------
-# Development stage
-# -----------------------------------------------------------------------------
-FROM base AS development
-
-# Install development dependencies
-COPY requirements-dev.txt .
-RUN pip install --no-cache-dir -r requirements-dev.txt
-
-# Copy the entire project
+# Copy application code
 COPY . .
-
-# Expose ports
-EXPOSE 8000 8002
-
-# Set default command
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-
-# -----------------------------------------------------------------------------
-# Production build stage
-# -----------------------------------------------------------------------------
-FROM base AS build
-
-# Install production dependencies
-RUN uv sync --frozen --no-cache
-
-# Copy the entire project
-COPY . .
-
-# -----------------------------------------------------------------------------
-# Production stage
-# -----------------------------------------------------------------------------
-FROM python:3.12-slim AS builder
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv AS production
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONFAULTHANDLER=1 \
-    ENVIRONMENT=production
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /app
-
-# Copy built artifacts from the build stage
-COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=build /app /app
 
 # Create non-root user
-RUN useradd -m sophia && \
+RUN useradd --create-home --shell /bin/bash sophia && \
     chown -R sophia:sophia /app
-
-# Create necessary directories with proper permissions
-RUN mkdir -p /app/logs /app/data && \
-    chown -R sophia:sophia /app/logs /app/data
-
-# Switch to non-root user
 USER sophia
 
-# Expose ports
-EXPOSE 8000 8002
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
 
-# Set default command
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Expose port
+EXPOSE ${PORT}
 
-# -----------------------------------------------------------------------------
-# MCP Server stage
-# -----------------------------------------------------------------------------
-FROM production AS mcp-server
+# Run the application
+CMD ["python", "-m", "backend.app.main"]
 
-# Set environment variables
-ENV MCP_SERVER_PORT=8002
-
-# Expose MCP server port
-EXPOSE 8002
-
-# Set default command to run MCP server
-CMD ["python", "-m", "backend.mcp.server"]
