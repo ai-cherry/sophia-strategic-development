@@ -83,7 +83,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
         try:
             # Simple health check
             return await self.codacy_client.health_check()
-        except:
+        except Exception:
             return False
 
     async def get_server_capabilities(self) -> list[ServerCapability]:
@@ -212,7 +212,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             # Parse AI response
             try:
                 analysis_result = json.loads(ai_analysis.get("response", "{}"))
-            except:
+            except Exception:
                 analysis_result = {
                     "issues": [],
                     "summary": "Analysis completed",
@@ -401,7 +401,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
             # Parse results
             try:
                 vulnerabilities = json.loads(security_analysis.get("response", "[]"))
-            except:
+            except Exception:
                 vulnerabilities = []
 
             # Enhance with Codacy security checks
@@ -588,7 +588,7 @@ class EnhancedCodacyServer(StandardizedMCPServer):
                 "size": len(code),
                 "has_syntax_errors": False,  # Would run actual syntax check
             }
-        except:
+        except Exception:
             return {"error": "Could not analyze file"}
 
     def _setup_routes(self):

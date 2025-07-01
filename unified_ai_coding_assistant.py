@@ -174,7 +174,7 @@ class UnifiedAICodingAssistant:
             if os.path.exists("claude-cli-integration/claude"):
                 return True
             return False
-        except:
+        except Exception:
             return False
 
     async def _check_gemini_cli(self) -> bool:
@@ -183,7 +183,7 @@ class UnifiedAICodingAssistant:
             if os.path.exists("gemini-cli-integration/gemini_mcp_integration.py"):
                 return True
             return False
-        except:
+        except Exception:
             return False
 
     async def _check_service_health_port(self, port: int) -> bool:

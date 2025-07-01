@@ -120,7 +120,7 @@ class ConnectionManager:
             for connection in self.active_connections[user_id]:
                 try:
                     await connection.send_text(message)
-                except:
+                except Exception:
                     # Remove dead connections
                     self.active_connections[user_id].remove(connection)
 
@@ -130,7 +130,7 @@ class ConnectionManager:
             for connection in self.active_connections[user_id]:
                 try:
                     await connection.send_text(message_str)
-                except:
+                except Exception:
                     # Remove dead connections
                     self.active_connections[user_id].remove(connection)
 

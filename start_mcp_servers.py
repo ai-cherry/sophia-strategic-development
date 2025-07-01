@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
             response = requests.get(f"http://localhost:{port}/health", timeout=3)
             return response.status_code == 200
-        except:
+        except Exception:
             return False
 
     def monitor_servers(self):

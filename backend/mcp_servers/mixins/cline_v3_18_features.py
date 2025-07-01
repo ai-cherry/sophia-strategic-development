@@ -23,7 +23,7 @@ class GeminiCLIMixin:
 
             result = subprocess.run(["gemini", "--version"], capture_output=True)
             return result.returncode == 0
-        except:
+        except Exception:
             return False
 
     async def process_with_gemini(self, content: str, prompt: str) -> str:

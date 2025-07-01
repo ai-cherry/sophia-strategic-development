@@ -19,6 +19,7 @@ import redis.asyncio as redis
 # Try to import optional dependencies
 try:
     import snowflake.connector
+from backend.core.auto_esc_config import get_config_value
 
     SNOWFLAKE_AVAILABLE = True
 except ImportError:

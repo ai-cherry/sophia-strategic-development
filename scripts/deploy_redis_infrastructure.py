@@ -291,7 +291,7 @@ class RedisDeploymentManager:
                 info = await self.redis_client.info("server")
                 return info.get("redis_version", "unknown")
             return "unknown"
-        except:
+        except Exception:
             return "unknown"
 
     async def _get_memory_usage(self) -> dict[str, Any]:
@@ -306,7 +306,7 @@ class RedisDeploymentManager:
                     "used_memory_peak_human": info.get("used_memory_peak_human", "0B"),
                 }
             return {}
-        except:
+        except Exception:
             return {}
 
     async def _get_connection_count(self) -> int:
@@ -316,7 +316,7 @@ class RedisDeploymentManager:
                 info = await self.redis_client.info("clients")
                 return info.get("connected_clients", 0)
             return 0
-        except:
+        except Exception:
             return 0
 
     async def get_redis_health_status(self) -> dict[str, Any]:

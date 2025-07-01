@@ -245,7 +245,7 @@ class PortkeyAdminMCPServer(StandardizedMCPServer):
                 # Evaluate context size conditions
                 try:
                     return eval(condition.replace("context_size", str(context_size)))
-                except:
+                except Exception:
                     continue
             else:
                 # Check for keyword matches

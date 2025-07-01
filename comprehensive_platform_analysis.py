@@ -103,7 +103,7 @@ class SophiaAIPlatformAnalyzer:
             try:
                 with open(file, encoding="utf-8") as f:
                     total_lines += len(f.readlines())
-            except:
+            except Exception:
                 continue
         quality_results["lines_of_code"] = total_lines
 

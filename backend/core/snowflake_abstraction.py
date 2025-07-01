@@ -309,7 +309,7 @@ class SecureSnowflakeExecutor(SnowflakeAbstraction):
                 if transaction:
                     try:
                         cursor.execute("ROLLBACK")
-                    except:
+                    except Exception:
                         pass
 
                 # Fill remaining results with errors

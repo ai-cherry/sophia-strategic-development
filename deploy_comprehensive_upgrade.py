@@ -377,7 +377,7 @@ class SophiaAIComprehensiveUpgrade:
                 value = get_config_value(var)
                 if not value:
                     missing_vars.append(var)
-            except:
+            except Exception:
                 missing_vars.append(var)
 
         if missing_vars:
@@ -390,7 +390,7 @@ class SophiaAIComprehensiveUpgrade:
                 value = get_config_value(var)
                 if not value:
                     missing_optional.append(var)
-            except:
+            except Exception:
                 missing_optional.append(var)
 
         if missing_optional:

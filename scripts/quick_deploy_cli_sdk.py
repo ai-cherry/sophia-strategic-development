@@ -89,7 +89,7 @@ class QuickCLISDKDeployer:
         for req in requirements:
             try:
                 subprocess.run(req.split(), check=False, capture_output=True)
-            except:
+            except Exception:
                 pass
 
     async def _create_simple_server(self, server_name: str, port: int, server_dir: Path):

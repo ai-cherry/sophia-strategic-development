@@ -8,6 +8,11 @@ import os
 from pathlib import Path
 
 
+def get_config_value(key: str) -> str:
+    """Get configuration value from environment"""
+    return os.getenv(key.upper()) or os.getenv(f"SOPHIA_{key.upper()}")
+
+
 def setup_claude_api():
     """Setup Claude API with latest models"""
     print("🚀 Claude API Setup for Sophia AI")
@@ -84,7 +89,7 @@ def setup_claude_api():
         print(f"✅ Created {zshrc} with API key")
 
     # Set for current session
-    get_config_value("anthropic_api_key") = api_key
+    os.environ["ANTHROPIC_API_KEY"] = api_key
     print("✅ API key set for current session")
 
     return test_api_connection()

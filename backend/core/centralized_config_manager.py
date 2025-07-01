@@ -254,7 +254,7 @@ class CentralizedConfigManager:
             value = get_config_value(config_key)
             if value:
                 return value
-        except:
+        except Exception:
             pass
 
         # Try environment variables
@@ -282,7 +282,7 @@ class CentralizedConfigManager:
             value = get_config_value(config_key)
             if value:
                 return ConfigurationSource.PULUMI_ESC
-        except:
+        except Exception:
             pass
 
         # Check environment variables

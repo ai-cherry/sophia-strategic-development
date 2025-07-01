@@ -402,6 +402,7 @@ class HuggingFaceAIMCPServer:
         """Classify text using transformers"""
         try:
             from transformers import pipeline
+from backend.core.auto_esc_config import get_config_value
 
             if labels:
                 # Zero-shot classification

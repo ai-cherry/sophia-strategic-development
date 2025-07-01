@@ -19,6 +19,7 @@ project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from backend.infrastructure.sophia_iac_orchestrator import (
+from backend.core.auto_esc_config import get_config_value
     PlatformAdapter,
     PlatformStatus,
     PlatformType,

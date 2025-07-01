@@ -15,6 +15,7 @@ from .clients.contact_client import ContactClient
 from .clients.conversation_client import ConversationClient
 from .clients.ticket_client import TicketClient
 from .core.storage import ThreadStorage
+from backend.core.auto_esc_config import get_config_value
 
 # Re-export ApiException
 __all__ = ["HubSpotClient", "ApiException"]

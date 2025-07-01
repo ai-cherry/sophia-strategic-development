@@ -515,7 +515,7 @@ if __name__ == '__main__':
                 "version": python_version,
                 "executable": sys.executable
             }
-        except:
+        except Exception:
             return {"valid": False, "error": "Python check failed"}
 
     async def _check_nodejs_environment(self) -> dict[str, Any]:
@@ -530,7 +530,7 @@ if __name__ == '__main__':
                 }
             else:
                 return {"valid": False, "error": "Node.js not found"}
-        except:
+        except Exception:
             return {"valid": False, "error": "Node.js check failed"}
 
     async def _check_mcp_infrastructure(self) -> dict[str, Any]:
@@ -564,7 +564,7 @@ if __name__ == '__main__':
                         available_ports.append(port)
                     else:
                         occupied_ports.append(port)
-            except:
+            except Exception:
                 occupied_ports.append(port)
 
         return {

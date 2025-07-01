@@ -117,7 +117,7 @@ async def health_check():
         if redis_client:
             try:
                 await redis_client.ping()
-            except:
+            except Exception:
                 redis_health = "unavailable"
         else:
             redis_health = "unavailable"

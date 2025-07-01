@@ -120,7 +120,7 @@ class LRUCache:
             # Calculate size
             try:
                 size_bytes = len(json.dumps(value, default=str).encode("utf-8"))
-            except:
+            except Exception:
                 size_bytes = 1024  # Default estimate
 
             entry = CacheEntry(

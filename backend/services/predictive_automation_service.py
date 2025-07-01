@@ -312,7 +312,7 @@ class PredictiveAutomationService:
         try:
             slope, _ = np.polyfit(x, y, 1)
             return slope
-        except:
+        except Exception:
             return 0.0
 
     def _detect_anomaly(self, metric_name: str, current_value: float) -> bool:

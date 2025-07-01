@@ -302,6 +302,7 @@ jobs:
 
             content_encoded = json.dumps(workflow_content).encode("utf-8")
             import base64
+from backend.core.auto_esc_config import get_config_value
 
             content_b64 = base64.b64encode(content_encoded).decode("utf-8")
 

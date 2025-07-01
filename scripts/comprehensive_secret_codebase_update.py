@@ -264,7 +264,7 @@ class SecretCodebaseUpdater:
                         with open(file_path, encoding='utf-8') as f:
                             content = f.read()
                         self._detect_hardcoded_secrets(content, file_path)
-                    except:
+                    except Exception:
                         pass
 
     def generate_report(self) -> str:

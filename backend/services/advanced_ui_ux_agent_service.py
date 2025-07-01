@@ -278,7 +278,7 @@ class AdvancedUIUXAgentService:
 
         try:
             return json.loads(response)
-        except:
+        except Exception:
             return {
                 "design_type": "component",
                 "requirements": [request],

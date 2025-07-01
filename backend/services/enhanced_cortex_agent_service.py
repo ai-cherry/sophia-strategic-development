@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 """
 Enhanced Snowflake Cortex Agent Service for Sophia AI
 Advanced multimodal processing with AI-powered business intelligence

@@ -321,7 +321,7 @@ class TechnicalDebtAnalyzer:
         try:
             timestamp = os.path.getmtime(file_path)
             return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-        except:
+        except Exception:
             return "unknown"
 
     def _generate_report(self, file_metrics: list[FileMetrics]) -> TechnicalDebtReport:

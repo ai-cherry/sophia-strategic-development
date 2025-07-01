@@ -264,7 +264,7 @@ class FocusAreaValidator:
                                     webfetch_status = data["components"]["webfetch"]["status"]
                                     if webfetch_status == "healthy":
                                         healthy_servers.append(server_name)
-                    except:
+                    except Exception:
                         pass
 
             return {
@@ -297,7 +297,7 @@ class FocusAreaValidator:
                                 # If server is healthy, it started without Snowflake dependency issues
                                 if data.get("status") in ["healthy", "degraded"]:
                                     servers_without_snowflake_errors.append(server_name)
-                    except:
+                    except Exception:
                         pass
 
             return {
@@ -413,7 +413,7 @@ class FocusAreaValidator:
                     async with self.session.get(f"{endpoint}/health", timeout=aiohttp.ClientTimeout(total=3)) as response:
                         if response.status == 200:
                             reachable_servers.append(server_name)
-                except:
+                except Exception:
                     pass
 
             return {

@@ -181,7 +181,7 @@ def main():
             if EXPOSED_SNOWFLAKE_PASSWORD in content or EXPOSED_GONG_KEY in content:
                 if fix_file_secrets(py_file):
                     fixed_count += 1
-        except:
+        except Exception:
             continue
 
     print(f"\n✅ Fixed {fixed_count} files")

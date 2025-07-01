@@ -265,7 +265,7 @@ class EnhancedMicrosoftGongIntegration:
                     response_times.append(
                         (curr_time - prev_time).total_seconds() / 3600
                     )
-                except:
+                except Exception:
                     pass
 
             if response_times:

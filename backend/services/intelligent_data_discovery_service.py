@@ -351,7 +351,7 @@ class IntelligentDataDiscoveryService:
                         min_val = min(numeric_values)
                         max_val = max(numeric_values)
                         mean_val = sum(numeric_values) / len(numeric_values)
-                except:
+                except Exception:
                     pass
 
             # Pattern analysis
@@ -724,7 +724,7 @@ class IntelligentDataDiscoveryService:
                 return "integer"
             else:
                 return "float"
-        except:
+        except Exception:
             pass
 
         # Check for boolean

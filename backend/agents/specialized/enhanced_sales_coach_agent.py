@@ -444,7 +444,7 @@ class EnhancedSalesCoachAgent(BaseAgent):
                             scores.append(score)
                             dates.append(insight.get("timestamp", ""))
                             break
-                        except:
+                        except Exception:
                             pass
 
         if len(scores) < 2:

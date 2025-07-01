@@ -279,7 +279,7 @@ class MCPServerAssessor:
                             # Extract additional health metrics
                             status = health_data.get("status", "unknown")
                             assessment.health_status = status
-                    except:
+                    except Exception:
                         pass  # JSON parsing failed, but server responded
                 else:
                     assessment.health_status = f"unhealthy (HTTP {response.status})"

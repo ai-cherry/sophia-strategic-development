@@ -70,7 +70,7 @@ def _load_esc_environment() -> dict[str, Any]:
                                 key = parts[0].strip()
                                 value = parts[1].strip()
                                 esc_data[key] = value
-                        except:
+                        except Exception:
                             continue
 
             _esc_cache = esc_data
@@ -233,7 +233,7 @@ def get_config_value(key: str, default: Any = None) -> Any:
                                 secret_value = value_part.strip('"')
                                 _config_cache[key] = secret_value
                                 return secret_value
-                            except:
+                            except Exception:
                                 continue
         except Exception as e:
             logger.debug(f"Failed to get secret {esc_key}: {e}")

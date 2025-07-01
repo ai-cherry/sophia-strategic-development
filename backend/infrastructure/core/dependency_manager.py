@@ -1,3 +1,4 @@
+from typing import Any
 #!/usr/bin/env python3
 """
 Sophia AI - Dependency Manager

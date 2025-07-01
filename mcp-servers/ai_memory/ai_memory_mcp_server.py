@@ -440,7 +440,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                     input="test", model="text-embedding-3-small"
                 )
             return True
-        except:
+        except Exception:
             return False
 
     async def process_with_ai(self, data: dict) -> dict:

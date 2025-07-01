@@ -216,7 +216,7 @@ class Phase1MCPServerStarter:
             async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.get(f"http://localhost:{port}/health") as response:
                     return response.status == 200
-        except:
+        except Exception:
             return False
 
     async def perform_health_check(self, port: int) -> dict:

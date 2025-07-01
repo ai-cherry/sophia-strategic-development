@@ -23,7 +23,7 @@ class MCPHealthChecker:
             result = subprocess.run(['node', '--version'], capture_output=True, text=True)
             version = result.stdout.strip()
             checks.append(("Node.js", True, f"Version: {version}"))
-        except:
+        except Exception:
             checks.append(("Node.js", False, "Not installed"))
 
         # Python check
@@ -31,7 +31,7 @@ class MCPHealthChecker:
             result = subprocess.run(['python3', '--version'], capture_output=True, text=True)
             version = result.stdout.strip()
             checks.append(("Python", True, f"Version: {version}"))
-        except:
+        except Exception:
             checks.append(("Python", False, "Not installed"))
 
         # Git check
@@ -39,7 +39,7 @@ class MCPHealthChecker:
             result = subprocess.run(['git', '--version'], capture_output=True, text=True)
             version = result.stdout.strip()
             checks.append(("Git", True, f"Version: {version}"))
-        except:
+        except Exception:
             checks.append(("Git", False, "Not installed"))
 
         return checks
@@ -142,7 +142,7 @@ class MCPHealthChecker:
                 value_str = server['value'].replace('$', '').replace('K+', '000').replace(' ', '')
                 try:
                     total_value += int(value_str.split()[0])
-                except:
+                except Exception:
                     pass
         print()
         print(f"  💰 Total Business Value: ${total_value:,}+")

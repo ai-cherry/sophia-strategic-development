@@ -1154,7 +1154,7 @@ class EnhancedGongAPIClient:
 
         try:
             return datetime.fromisoformat(datetime_str.replace("Z", "+00:00"))
-        except:
+        except Exception:
             return datetime.now(UTC)
 
     def _calculate_quality_score(self, enhanced_data: EnhancedCallData) -> float:

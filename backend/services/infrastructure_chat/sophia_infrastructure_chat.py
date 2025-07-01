@@ -11,6 +11,7 @@ from typing import Any
 import httpx
 
 from backend.agents.infrastructure.sophia_infrastructure_agent import (
+from backend.core.auto_esc_config import get_config_value
     SophiaInfrastructureAgent,
 )
 

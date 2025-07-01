@@ -230,7 +230,7 @@ class EnhancedMCPServerManager:
                     f"http://localhost:{port}/health", timeout=3
                 ) as response:
                     return response.status == 200
-        except:
+        except Exception:
             return False
 
     async def monitor_servers(self):

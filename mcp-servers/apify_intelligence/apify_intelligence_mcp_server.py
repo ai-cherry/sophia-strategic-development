@@ -666,6 +666,7 @@ First few results:
 
         # Return most common themes
         from collections import Counter
+from backend.core.auto_esc_config import get_config_value
         return [theme for theme, count in Counter(themes).most_common(5)]
 
     def _analyze_sentiment_basic(self, posts: list[dict]) -> str:

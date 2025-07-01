@@ -46,6 +46,7 @@ except ImportError:
 import logging
 
 from backend.mcp_servers.base.standardized_mcp_server import (
+from backend.core.auto_esc_config import get_config_value
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,

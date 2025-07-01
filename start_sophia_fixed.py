@@ -56,7 +56,7 @@ def apply_permanent_snowflake_fix():
             check=False,
         )
         print("   ✅ Cleared Python cache")
-    except:
+    except Exception:
         pass
 
     print("🎉 Permanent Snowflake fix applied!")

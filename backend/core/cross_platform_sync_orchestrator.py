@@ -300,7 +300,7 @@ class DataConflictResolver:
                     # Simple freshness calculation
                     freshness = 0.9
                     break
-                except:
+                except Exception:
                     pass
 
         score += freshness * 0.2

@@ -13,6 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 # Import HubSpot client
 from mcp_server_hubspot.hubspot_client import HubSpotClient
+from backend.core.auto_esc_config import get_config_value
 
 # Configure logging
 logging.basicConfig(

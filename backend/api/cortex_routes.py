@@ -108,7 +108,7 @@ async def invoke_agent(
             try:
                 credentials = await verify_jwt_token()
                 jwt_token = credentials
-            except:
+            except Exception:
                 # JWT not provided, will fail if agent requires it
                 pass
 

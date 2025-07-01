@@ -233,7 +233,7 @@ class MemoryCache(CacheBackend):
             # Calculate size
             try:
                 size_bytes = len(pickle.dumps(value))
-            except:
+            except Exception:
                 size_bytes = 1024  # Default estimate
 
             # Check if we need to evict

@@ -644,7 +644,7 @@ class GongDataQualityMonitor:
                 return 1.0 - (delay - 300) / 3300
             else:
                 return 0.0
-        except:
+        except Exception:
             return 0.5
 
     def _calculate_consistency_score(self, data: dict[str, Any]) -> float:
@@ -661,7 +661,7 @@ class GongDataQualityMonitor:
                 calculated_duration = (end - start).total_seconds()
                 if abs(calculated_duration - data["duration_seconds"]) > 60:
                     inconsistencies += 1
-            except:
+            except Exception:
                 inconsistencies += 1
 
         # Check participant count consistency
@@ -1285,7 +1285,7 @@ class QualityRuleEngine:
                             actual_value=started,
                         )
                     )
-            except:
+            except Exception:
                 pass
 
         return results
@@ -1325,7 +1325,7 @@ class QualityRuleEngine:
                             field_name=field,
                         )
                     )
-                except:
+                except Exception:
                     results.append(
                         ValidationResult(
                             rule_name=f"datetime_format_{field}",

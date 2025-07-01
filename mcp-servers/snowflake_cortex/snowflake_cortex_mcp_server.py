@@ -11,6 +11,7 @@ from typing import Any
 
 try:
     from mcp.server.fastmcp import FastMCP
+from backend.core.auto_esc_config import get_config_value
 except ImportError:
     # Fallback implementation for testing
     class FastMCP:

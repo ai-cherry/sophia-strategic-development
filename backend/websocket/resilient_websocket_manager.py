@@ -134,7 +134,7 @@ class ResilientWebSocketManager:
             # Close WebSocket if still open
             try:
                 await websocket.close()
-            except:
+            except Exception:
                 pass  # Already closed
 
             logger.info(f"🔌 WebSocket disconnected: {client_id}")
@@ -204,7 +204,7 @@ class ResilientWebSocketManager:
                 try:
                     await connection.websocket.send_json(ping_message)
                     connection.last_ping = datetime.now(UTC)
-                except:
+                except Exception:
                     # Connection is dead, remove it
                     await self.disconnect(connection.websocket, client_id)
                     break

@@ -423,7 +423,7 @@ async def get_team_performance():
                             "needs_coaching": len(result.get("action_items", [])) > 2,
                         }
                     )
-            except:
+            except Exception:
                 # If individual analysis fails, add placeholder
                 team_results.append(
                     {

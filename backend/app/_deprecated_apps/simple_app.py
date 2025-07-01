@@ -57,13 +57,13 @@ async def api_health_check():
         try:
             openai_key = get_config_value("openai_api_key")
             has_openai = bool(openai_key and len(openai_key) > 10)
-        except:
+        except Exception:
             has_openai = False
 
         try:
             gong_key = get_config_value("gong_access_key")
             has_gong = bool(gong_key and len(gong_key) > 10)
-        except:
+        except Exception:
             has_gong = False
 
         # Determine overall status

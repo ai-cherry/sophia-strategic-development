@@ -458,7 +458,7 @@ class SnowflakeConfigManager:
                         status["tables"].extend(
                             [f"{schema}.{row['name']}" for row in table_result]
                         )
-                except:
+                except Exception:
                     pass  # Schema might not exist yet
 
             # Views
@@ -466,7 +466,7 @@ class SnowflakeConfigManager:
                 view_result = self.execute_query("SHOW VIEWS")
                 if view_result:
                     status["views"] = [row["name"] for row in view_result]
-            except:
+            except Exception:
                 pass
 
             # Data statistics
@@ -495,7 +495,7 @@ class SnowflakeConfigManager:
                     )
                     if count_result:
                         status["data_stats"][table] = count_result[0]["COUNT"]
-                except:
+                except Exception:
                     status["data_stats"][table] = "N/A"
 
         except Exception as e:

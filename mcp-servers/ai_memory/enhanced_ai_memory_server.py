@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 """
 Enhanced AI Memory MCP Server with Cline v3.18 Features
 Implements WebFetch, Self-Knowledge, Improved Diff, and Model Routing
@@ -67,7 +71,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             if hasattr(self.memory_service, "vector_store"):
                 return await self.memory_service.vector_store.health_check()
             return True
-        except:
+        except Exception:
             return False
 
     async def get_server_capabilities(self) -> list[ServerCapability]:
@@ -198,7 +202,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             # Parse AI response
             try:
                 ai_analysis = json.loads(categorization.get("response", "{}"))
-            except:
+            except Exception:
                 ai_analysis = {
                     "category": "other",
                     "topics": [],
@@ -337,7 +341,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
 
             ranked_memories = json.loads(ranking_result.get("response", "[]"))
             return ranked_memories[: query_context["limit"]]
-        except:
+        except Exception:
             return memories[: query_context["limit"]]
 
     def _format_recall_response(
