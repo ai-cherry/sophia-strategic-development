@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 try:
-    from mcp.server.fastmcp import FastMCP
+    from backend.mcp_servers.server.fastmcp import FastMCP
     import snowflake.connector
     from snowflake.connector import DictCursor
 except ImportError:

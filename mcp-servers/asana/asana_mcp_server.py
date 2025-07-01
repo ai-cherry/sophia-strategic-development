@@ -26,10 +26,10 @@ from datetime import datetime
 from typing import Any
 
 import aiohttp
-from mcp.server import NotificationOptions, Server
-from mcp.server.models import InitializationOptions
-from mcp.server.stdio import stdio_server
-from mcp.types import CallToolResult, ListToolsResult, TextContent, Tool
+from backend.mcp_servers.server import NotificationOptions, Server
+from backend.mcp_servers.server.models import InitializationOptions
+from backend.mcp_servers.server.stdio import stdio_server
+from backend.mcp_servers.types import CallToolResult, ListToolsResult, TextContent, Tool
 
 from backend.core.auto_esc_config import get_config_value
 

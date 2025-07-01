@@ -11,9 +11,9 @@ from typing import Any
 import mcp.server.stdio
 import mcp.types as types
 from dotenv import load_dotenv
-from mcp.server import Server
-from mcp.server.lowlevel import NotificationOptions
-from mcp.server.models import InitializationOptions
+from backend.mcp_servers.server import Server
+from backend.mcp_servers.server.lowlevel import NotificationOptions
+from backend.mcp_servers.server.models import InitializationOptions
 from pydantic import AnyUrl
 from sentence_transformers import SentenceTransformer
 

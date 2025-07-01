@@ -35,7 +35,7 @@ sys.path.append(
 from codacy_api_client import CodacyAPIClient
 
 from backend.core.auto_esc_config import config
-from backend.mcp.base.standardized_mcp_server import (
+from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
     ModelProvider,
     ServerCapability,

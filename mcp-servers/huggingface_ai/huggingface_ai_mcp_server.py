@@ -9,8 +9,8 @@ import asyncio
 import logging
 from typing import Any
 
-from mcp.server import Server
-from mcp.types import TextContent, Tool
+from backend.mcp_servers.server import Server
+from backend.mcp_servers.types import TextContent, Tool
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

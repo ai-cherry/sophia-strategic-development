@@ -10,7 +10,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from mcp.server.fastmcp import FastMCP
+from backend.mcp_servers.server.fastmcp import FastMCP
 
 from backend.core.auto_esc_config import get_config_value
 

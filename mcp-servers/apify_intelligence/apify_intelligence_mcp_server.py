@@ -11,8 +11,8 @@ import logging
 from typing import Any
 
 import httpx
-from mcp.server import Server
-from mcp.types import TextContent, Tool
+from backend.mcp_servers.server import Server
+from backend.mcp_servers.types import TextContent, Tool
 
 from backend.core.auto_esc_config import get_config_value
 

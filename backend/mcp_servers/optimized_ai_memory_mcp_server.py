@@ -26,9 +26,9 @@ from enum import Enum
 from typing import Any
 
 # MCP imports
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from backend.mcp_servers.server import Server
+from backend.mcp_servers.server.stdio import stdio_server
+from backend.mcp_servers.types import TextContent, Tool
 
 # Optimized imports
 from backend.core.optimized_connection_manager import connection_manager

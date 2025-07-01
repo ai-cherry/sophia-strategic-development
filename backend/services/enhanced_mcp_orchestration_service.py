@@ -1,562 +1,749 @@
 #!/usr/bin/env python3
 """
-Enhanced MCP Orchestration Service for Sophia AI CLI/SDK Integration
-Builds upon existing MCP orchestration to include new CLI/SDK enhanced servers
+Enhanced MCP Orchestration Service
+==================================
+
+Centralized orchestration system for all MCP servers in the Sophia AI platform.
+Provides intelligent task distribution, health monitoring, and performance optimization.
 """
 
 import asyncio
 import json
 import logging
-import os
-from datetime import datetime
-from pathlib import Path
-from typing import Any
+import time
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Dict, List, Optional, Set, Callable
 
+import aiohttp
 import httpx
-from pydantic import BaseModel
+from prometheus_client import Counter, Gauge, Histogram
 
-# Import existing orchestration service as base
+from backend.core.auto_esc_config import get_config_value
 from backend.services.mcp_orchestration_service import (
     MCPOrchestrationService,
-    MCPServerConfig,
+    BusinessTask,
+    OrchestrationResult,
+    TaskPriority,
+    ServerStatus
 )
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class CLISDKEnhancement(BaseModel):
-    """Configuration for CLI/SDK enhanced servers"""
+class ServerGroup(Enum):
+    """MCP Server groups for intelligent routing"""
+    CORE_AI = "core_ai"
+    BUSINESS_INTELLIGENCE = "business_intelligence"
+    DATA_INFRASTRUCTURE = "data_infrastructure"
+    INTEGRATIONS = "integrations"
+    QUALITY_SECURITY = "quality_security"
 
+
+@dataclass
+class ServerPerformanceMetrics:
+    """Performance metrics for an MCP server"""
+    server_name: str
+    avg_response_time_ms: float
+    success_rate: float
+    requests_per_minute: float
+    last_failure_time: Optional[datetime] = None
+    consecutive_failures: int = 0
+    health_score: float = 100.0
+
+
+@dataclass
+class OrchestrationPolicy:
+    """Policy for orchestrating tasks across servers"""
     name: str
-    cli_command: str | None = None
-    sdk_package: str | None = None
-    installation_method: str = "pip"  # pip, npm, homebrew, etc.
-    required_env_vars: list[str] = []
-    capabilities: list[str] = []
-    business_value: str = ""
-    implementation_phase: str = "phase_1"
+    description: str
+    server_groups: List[ServerGroup]
+    execution_mode: str  # "parallel", "sequential", "failover"
+    timeout_seconds: int = 300
+    retry_count: int = 3
+    cache_results: bool = True
+    priority_boost: int = 0
 
 
 class EnhancedMCPOrchestrationService(MCPOrchestrationService):
-    """Enhanced MCP orchestration service with CLI/SDK integration"""
-
+    """
+    Enhanced orchestration service with performance optimization,
+    intelligent routing, and comprehensive monitoring.
+    """
+    
     def __init__(self):
         super().__init__()
-        self.cli_sdk_enhancements = {}
-        self.enhanced_config_path = Path("config/enhanced_mcp_ports.json")
-        self.phase_1_servers = []
-        self.phase_2_servers = []
-
-        # Load enhanced configuration
-        self._load_enhanced_configuration()
-
-    def _load_enhanced_configuration(self):
-        """Load enhanced MCP configuration with CLI/SDK servers"""
-        try:
-            if self.enhanced_config_path.exists():
-                with open(self.enhanced_config_path) as f:
-                    enhanced_config = json.load(f)
-
-                # Load phase information
-                deployment_req = enhanced_config.get("deployment_requirements", {})
-                self.phase_1_servers = deployment_req.get("phase_1_servers", [])
-                self.phase_2_servers = deployment_req.get("phase_2_servers", [])
-
-                # Load CLI/SDK enhanced servers
-                servers = enhanced_config.get("servers", {})
-                for name, config in servers.items():
-                    if isinstance(config, dict) and "port" in config:
-                        # This is an enhanced server configuration
-                        self._register_enhanced_server(name, config)
-
-                logger.info(
-                    f"✅ Loaded enhanced configuration with {len(self.cli_sdk_enhancements)} CLI/SDK servers"
-                )
-
-            else:
-                logger.warning(
-                    f"Enhanced configuration not found: {self.enhanced_config_path}"
-                )
-
-        except Exception as e:
-            logger.error(f"❌ Failed to load enhanced configuration: {e}")
-
-    def _register_enhanced_server(self, name: str, config: dict[str, Any]):
-        """Register a CLI/SDK enhanced server"""
-        try:
-            # Create enhanced server configuration
-            enhancement = CLISDKEnhancement(
-                name=name,
-                required_env_vars=self._get_required_env_vars(name),
-                capabilities=config.get("capabilities", []),
-                business_value=config.get("business_value", ""),
-                implementation_phase=config.get("implementation_phase", "phase_1"),
-            )
-
-            # Create standard MCP server config
-            server_config = MCPServerConfig(
-                name=name,
-                port=config["port"],
-                command="uv",
-                args=["run", "python", f"mcp-servers/{name}/{name}_mcp_server.py"],
-                env={
-                    "ENVIRONMENT": "prod",
-                    "PULUMI_ORG": "scoobyjava-org",
-                    "MCP_SERVER_PORT": str(config["port"]),
-                },
-                capabilities=config.get("capabilities", []),
-                auto_start=True,
-            )
-
-            # Add environment variables
-            for env_var in enhancement.required_env_vars:
-                server_config.env[env_var] = f"${{{env_var}}}"
-
-            # Register both configurations
-            self.cli_sdk_enhancements[name] = enhancement
-            self.servers[name] = server_config
-
-            logger.info(
-                f"✅ Registered enhanced server: {name} (Port: {config['port']})"
-            )
-
-        except Exception as e:
-            logger.error(f"❌ Failed to register enhanced server {name}: {e}")
-
-    def _get_required_env_vars(self, server_name: str) -> list[str]:
-        """Get required environment variables for a server"""
-        env_var_mapping = {
-            "apify_intelligence": ["APIFY_API_TOKEN"],
-            "huggingface_ai": ["HF_TOKEN"],
-            "weaviate_primary": ["WEAVIATE_URL", "WEAVIATE_API_KEY"],
-            "arize_phoenix": ["PHOENIX_API_KEY"],
-            "n8n_workflow_cli": ["N8N_URL", "N8N_USER", "N8N_PASSWORD"],
-        }
-
-        return env_var_mapping.get(server_name, [])
-
-    async def initialize_enhanced_servers(self) -> dict[str, Any]:
-        """Initialize CLI/SDK enhanced servers"""
-        logger.info("🚀 Initializing CLI/SDK enhanced servers...")
-
-        results = {
-            "phase_1_results": {},
-            "phase_2_results": {},
-            "overall_success": True,
-            "timestamp": datetime.now().isoformat(),
-        }
-
-        # Initialize Phase 1 servers first
-        logger.info("📦 Initializing Phase 1 servers...")
-        for server_name in self.phase_1_servers:
-            if server_name in self.cli_sdk_enhancements:
-                result = await self._initialize_enhanced_server(server_name)
-                results["phase_1_results"][server_name] = result
-
-                if not result["success"]:
-                    results["overall_success"] = False
-
-        # Initialize Phase 2 servers if Phase 1 successful
-        if results["overall_success"]:
-            logger.info("📦 Initializing Phase 2 servers...")
-            for server_name in self.phase_2_servers:
-                if server_name in self.cli_sdk_enhancements:
-                    result = await self._initialize_enhanced_server(server_name)
-                    results["phase_2_results"][server_name] = result
-
-                    if not result["success"]:
-                        results["overall_success"] = False
-        else:
-            logger.warning("⚠️ Skipping Phase 2 due to Phase 1 failures")
-
-        # Summary
-        total_servers = len(self.phase_1_servers) + len(self.phase_2_servers)
-        successful_servers = sum(
-            1
-            for phase_results in [
-                results["phase_1_results"],
-                results["phase_2_results"],
-            ]
-            for result in phase_results.values()
-            if result["success"]
-        )
-
-        logger.info(
-            f"📊 Enhanced server initialization complete: {successful_servers}/{total_servers} successful"
-        )
-
-        return results
-
-    async def _initialize_enhanced_server(self, server_name: str) -> dict[str, Any]:
-        """Initialize a single enhanced server"""
-        logger.info(f"🚀 Initializing enhanced server: {server_name}")
-
-        try:
-            enhancement = self.cli_sdk_enhancements[server_name]
-            server_config = self.servers[server_name]
-
-            # Check environment variables
-            missing_env_vars = []
-            for env_var in enhancement.required_env_vars:
-                if not os.getenv(env_var):
-                    missing_env_vars.append(env_var)
-
-            if missing_env_vars:
-                logger.warning(
-                    f"⚠️ Missing environment variables for {server_name}: {missing_env_vars}"
-                )
-
-            # Attempt to start server
-            start_result = await self._start_enhanced_server(server_name, server_config)
-
-            if start_result["success"]:
-                # Verify server health
-                health_result = await self._check_enhanced_server_health(
-                    server_name, server_config.port
-                )
-
-                return {
-                    "success": health_result["healthy"],
-                    "server_name": server_name,
-                    "port": server_config.port,
-                    "capabilities": enhancement.capabilities,
-                    "business_value": enhancement.business_value,
-                    "health_status": health_result,
-                    "missing_env_vars": missing_env_vars,
-                    "timestamp": datetime.now().isoformat(),
-                }
-            else:
-                return {
-                    "success": False,
-                    "server_name": server_name,
-                    "error": start_result.get("error", "Unknown error"),
-                    "missing_env_vars": missing_env_vars,
-                    "timestamp": datetime.now().isoformat(),
-                }
-
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize {server_name}: {e}")
-            return {
-                "success": False,
-                "server_name": server_name,
-                "error": str(e),
-                "timestamp": datetime.now().isoformat(),
-            }
-
-    async def _start_enhanced_server(
-        self, server_name: str, config: MCPServerConfig
-    ) -> dict[str, Any]:
-        """Start an enhanced server with CLI/SDK capabilities"""
-        try:
-            # Use existing server starting logic from parent class
-            # This would call the actual server startup process
-
-            # For now, simulate server startup
-            logger.info(f"🚀 Starting {server_name} on port {config.port}")
-
-            # In a real implementation, this would:
-            # 1. Check if server script exists
-            # 2. Start the server process
-            # 3. Wait for startup confirmation
-
-            return {
-                "success": True,
-                "server_name": server_name,
-                "port": config.port,
-                "process_id": f"simulated_pid_{config.port}",
-            }
-
-        except Exception as e:
-            logger.error(f"❌ Failed to start {server_name}: {e}")
-            return {"success": False, "server_name": server_name, "error": str(e)}
-
-    async def _check_enhanced_server_health(
-        self, server_name: str, port: int
-    ) -> dict[str, Any]:
-        """Check health of an enhanced server"""
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.get(f"http://localhost:{port}/health")
-
-                if response.status_code == 200:
-                    health_data = response.json()
-                    return {
-                        "healthy": True,
-                        "server_name": server_name,
-                        "port": port,
-                        "response_time_ms": response.elapsed.total_seconds() * 1000,
-                        "health_data": health_data,
-                        "timestamp": datetime.now().isoformat(),
-                    }
-                else:
-                    return {
-                        "healthy": False,
-                        "server_name": server_name,
-                        "port": port,
-                        "error": f"HTTP {response.status_code}",
-                        "timestamp": datetime.now().isoformat(),
-                    }
-
-        except Exception as e:
-            return {
-                "healthy": False,
-                "server_name": server_name,
-                "port": port,
-                "error": str(e),
-                "timestamp": datetime.now().isoformat(),
-            }
-
-    async def route_enhanced_request(
-        self, server_type: str, request_data: dict[str, Any], priority: str = "standard"
-    ) -> dict[str, Any]:
-        """Route request through enhanced MCP servers with CLI/SDK capabilities"""
-
-        try:
-            # Check if this is an enhanced server
-            if server_type in self.cli_sdk_enhancements:
-                enhancement = self.cli_sdk_enhancements[server_type]
-
-                logger.info(f"🎯 Routing enhanced request to {server_type}")
-
-                # Add enhancement context to request
-                enhanced_request = {
-                    **request_data,
-                    "enhancement_info": {
-                        "capabilities": enhancement.capabilities,
-                        "business_value": enhancement.business_value,
-                        "implementation_phase": enhancement.implementation_phase,
-                    },
-                }
-
-                # Route through existing orchestration with enhancements
-                result = await super().route_request(
-                    server_type, enhanced_request, priority
-                )
-
-                # Add enhancement metadata to response
-                if "enhancement_applied" not in result:
-                    result["enhancement_applied"] = {
-                        "server": server_type,
-                        "capabilities_used": enhancement.capabilities,
-                        "business_value": enhancement.business_value,
-                    }
-
-                return result
-            else:
-                # Route through standard orchestration
-                return await super().route_request(server_type, request_data, priority)
-
-        except Exception as e:
-            logger.error(f"❌ Enhanced routing failed for {server_type}: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "server_type": server_type,
-                "timestamp": datetime.now().isoformat(),
-            }
-
-    async def get_enhanced_server_status(self) -> dict[str, Any]:
-        """Get comprehensive status of all enhanced servers"""
-
-        status = {
-            "enhanced_servers": {},
-            "phase_1_servers": [],
-            "phase_2_servers": [],
-            "overall_health": "unknown",
-            "timestamp": datetime.now().isoformat(),
-        }
-
-        healthy_servers = 0
-        total_enhanced_servers = len(self.cli_sdk_enhancements)
-
-        # Check each enhanced server
-        for server_name, enhancement in self.cli_sdk_enhancements.items():
-            if server_name in self.servers:
-                server_config = self.servers[server_name]
-                health_result = await self._check_enhanced_server_health(
-                    server_name, server_config.port
-                )
-
-                status["enhanced_servers"][server_name] = {
-                    "health": health_result,
-                    "capabilities": enhancement.capabilities,
-                    "business_value": enhancement.business_value,
-                    "implementation_phase": enhancement.implementation_phase,
-                    "port": server_config.port,
-                }
-
-                if health_result["healthy"]:
-                    healthy_servers += 1
-
-                # Categorize by phase
-                if enhancement.implementation_phase == "phase_1":
-                    status["phase_1_servers"].append(server_name)
-                else:
-                    status["phase_2_servers"].append(server_name)
-
-        # Determine overall health
-        if healthy_servers == total_enhanced_servers:
-            status["overall_health"] = "healthy"
-        elif healthy_servers > 0:
-            status["overall_health"] = "degraded"
-        else:
-            status["overall_health"] = "unhealthy"
-
-        status["health_summary"] = {
-            "healthy_servers": healthy_servers,
-            "total_enhanced_servers": total_enhanced_servers,
-            "health_percentage": (
-                (healthy_servers / total_enhanced_servers * 100)
-                if total_enhanced_servers > 0
-                else 0
-            ),
-        }
-
-        return status
-
-    async def validate_cli_sdk_requirements(self) -> dict[str, Any]:
-        """Validate CLI/SDK requirements for enhanced servers"""
-
-        validation_results = {
-            "requirements_met": {},
-            "missing_requirements": {},
-            "installation_commands": {},
-            "overall_ready": True,
-            "timestamp": datetime.now().isoformat(),
-        }
-
-        for server_name, enhancement in self.cli_sdk_enhancements.items():
-            server_validation = {
-                "env_vars_present": [],
-                "env_vars_missing": [],
-                "cli_available": False,
-                "sdk_available": False,
-            }
-
-            # Check environment variables
-            for env_var in enhancement.required_env_vars:
-                if os.getenv(env_var):
-                    server_validation["env_vars_present"].append(env_var)
-                else:
-                    server_validation["env_vars_missing"].append(env_var)
-                    validation_results["overall_ready"] = False
-
-            # Check CLI availability (simplified check)
-            if enhancement.cli_command:
-                cli_check = await self._check_cli_availability(enhancement.cli_command)
-                server_validation["cli_available"] = cli_check
-
-                if not cli_check:
-                    validation_results["overall_ready"] = False
-
-            # Store results
-            validation_results["requirements_met"][server_name] = server_validation
-
-            # Generate installation commands if needed
-            if server_validation["env_vars_missing"] or not server_validation.get(
-                "cli_available", True
-            ):
-                validation_results["installation_commands"][server_name] = (
-                    self._generate_installation_commands(server_name, enhancement)
-                )
-
-        return validation_results
-
-    async def _check_cli_availability(self, cli_command: str) -> bool:
-        """Check if a CLI command is available"""
-        try:
-            process = await asyncio.create_subprocess_exec(
-                "which",
-                cli_command,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-
-            await process.wait()
-            return process.returncode == 0
-
-        except Exception:
-            return False
-
-    def _generate_installation_commands(
-        self, server_name: str, enhancement: CLISDKEnhancement
-    ) -> list[str]:
-        """Generate installation commands for a server's requirements"""
-        commands = []
-
-        # CLI installation commands
-        cli_installations = {
-            "apify_intelligence": ["npm install -g apify-cli"],
-            "huggingface_ai": ["pip install transformers sentence-transformers"],
-            "weaviate_primary": [
-                "brew install weaviate-cli",
-                "pip install weaviate-client",
-            ],
-            "arize_phoenix": ["pip install arize-phoenix"],
-            "n8n_workflow_cli": ["npm install -g n8n"],
-        }
-
-        if server_name in cli_installations:
-            commands.extend(cli_installations[server_name])
-
-        # Environment variable setup
-        if enhancement.required_env_vars:
-            commands.append(
-                f"# Set environment variables: {', '.join(enhancement.required_env_vars)}"
-            )
-
-        return commands
-
-
-# Convenience functions for integration
-async def initialize_enhanced_mcp_system() -> dict[str, Any]:
-    """Initialize the complete enhanced MCP system"""
-    logger.info("🚀 Initializing Enhanced MCP System with CLI/SDK integrations...")
-
-    orchestrator = EnhancedMCPOrchestrationService()
-
-    # Validate requirements first
-    validation = await orchestrator.validate_cli_sdk_requirements()
-
-    if not validation["overall_ready"]:
-        logger.warning("⚠️ Some CLI/SDK requirements not met")
+        
+        # Performance tracking
+        self.performance_metrics: Dict[str, ServerPerformanceMetrics] = {}
+        self.orchestration_policies: Dict[str, OrchestrationPolicy] = {}
+        
+        # Enhanced metrics
+        self.metrics_enhanced = self._initialize_enhanced_metrics()
+        
+        # Server groups
+        self.server_groups = self._initialize_server_groups()
+        
+        # Cache for orchestration results
+        self.result_cache: Dict[str, OrchestrationResult] = {}
+        self.cache_timestamps: Dict[str, float] = {}
+        
+        # Initialize policies
+        self._initialize_orchestration_policies()
+        
+    def _initialize_enhanced_metrics(self):
+        """Initialize enhanced Prometheus metrics"""
         return {
-            "success": False,
-            "error": "Requirements validation failed",
-            "validation_results": validation,
+            "orchestration_latency": Histogram(
+                "mcp_orchestration_latency_seconds",
+                "Orchestration latency by task type",
+                ["task_type"]
+            ),
+            "server_utilization": Gauge(
+                "mcp_server_utilization_percent",
+                "Server utilization percentage",
+                ["server_name"]
+            ),
+            "cache_efficiency": Gauge(
+                "mcp_cache_efficiency_percent",
+                "Cache hit rate for orchestration results"
+            ),
+            "policy_executions": Counter(
+                "mcp_policy_executions_total",
+                "Total policy executions",
+                ["policy_name", "status"]
+            ),
+            "intelligent_routing": Counter(
+                "mcp_intelligent_routing_total",
+                "Intelligent routing decisions",
+                ["from_server", "to_server", "reason"]
+            )
         }
-
-    # Initialize enhanced servers
-    initialization_results = await orchestrator.initialize_enhanced_servers()
-
-    return {
-        "success": initialization_results["overall_success"],
-        "initialization_results": initialization_results,
-        "validation_results": validation,
-        "timestamp": datetime.now().isoformat(),
-    }
-
-
-async def get_enhanced_system_status() -> dict[str, Any]:
-    """Get comprehensive status of enhanced MCP system"""
-    orchestrator = EnhancedMCPOrchestrationService()
-    return await orchestrator.get_enhanced_server_status()
-
-
-# Main execution for testing
-async def main():
-    """Main function for testing enhanced orchestration"""
-
-    # Initialize system
-    init_result = await initialize_enhanced_mcp_system()
-    print(f"Initialization result: {json.dumps(init_result, indent=2)}")
-
-    # Get status
-    status_result = await get_enhanced_system_status()
-    print(f"System status: {json.dumps(status_result, indent=2)}")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+    
+    def _initialize_server_groups(self) -> Dict[ServerGroup, List[str]]:
+        """Initialize server groups for intelligent routing"""
+        return {
+            ServerGroup.CORE_AI: [
+                "ai_memory",
+                "enhanced_ai_memory",
+                "sophia_ai_orchestrator",
+                "code_intelligence"
+            ],
+            ServerGroup.BUSINESS_INTELLIGENCE: [
+                "business_intelligence",
+                "portkey_admin_official",
+                "openrouter_search_official",
+                "hubspot",
+                "gong"
+            ],
+            ServerGroup.DATA_INFRASTRUCTURE: [
+                "snowflake",
+                "snowflake_cortex",
+                "snowflake_admin",
+                "postgres",
+                "redis"
+            ],
+            ServerGroup.INTEGRATIONS: [
+                "slack",
+                "linear",
+                "notion",
+                "github",
+                "asana"
+            ],
+            ServerGroup.QUALITY_SECURITY: [
+                "codacy",
+                "bright_data",
+                "apollo"
+            ]
+        }
+    
+    def _initialize_orchestration_policies(self):
+        """Initialize intelligent orchestration policies"""
+        policies = [
+            OrchestrationPolicy(
+                name="executive_intelligence",
+                description="High-priority executive queries with parallel execution",
+                server_groups=[ServerGroup.BUSINESS_INTELLIGENCE, ServerGroup.CORE_AI],
+                execution_mode="parallel",
+                timeout_seconds=60,
+                priority_boost=10
+            ),
+            OrchestrationPolicy(
+                name="data_pipeline",
+                description="Sequential data processing pipeline",
+                server_groups=[ServerGroup.DATA_INFRASTRUCTURE],
+                execution_mode="sequential",
+                timeout_seconds=600,
+                cache_results=False
+            ),
+            OrchestrationPolicy(
+                name="code_quality",
+                description="Code analysis with failover support",
+                server_groups=[ServerGroup.QUALITY_SECURITY],
+                execution_mode="failover",
+                timeout_seconds=120,
+                retry_count=2
+            ),
+            OrchestrationPolicy(
+                name="integration_sync",
+                description="Synchronize data across integrations",
+                server_groups=[ServerGroup.INTEGRATIONS],
+                execution_mode="parallel",
+                timeout_seconds=300,
+                cache_results=True
+            ),
+            OrchestrationPolicy(
+                name="ai_synthesis",
+                description="AI-powered synthesis across all data sources",
+                server_groups=[
+                    ServerGroup.CORE_AI,
+                    ServerGroup.BUSINESS_INTELLIGENCE,
+                    ServerGroup.DATA_INFRASTRUCTURE
+                ],
+                execution_mode="parallel",
+                timeout_seconds=180,
+                priority_boost=5
+            )
+        ]
+        
+        for policy in policies:
+            self.orchestration_policies[policy.name] = policy
+    
+    async def start_all_servers(self) -> Dict[str, Any]:
+        """Start all MCP servers with health monitoring"""
+        logger.info("🚀 Starting all MCP servers with enhanced orchestration...")
+        
+        start_results = {
+            "started": [],
+            "failed": [],
+            "already_running": [],
+            "total_time_ms": 0
+        }
+        
+        start_time = time.time()
+        
+        # Group servers by priority
+        priority_groups = {
+            "critical": ["ai_memory", "snowflake", "snowflake_cortex"],
+            "high": ["business_intelligence", "hubspot", "gong", "slack"],
+            "medium": ["linear", "notion", "asana", "github"],
+            "low": ["codacy", "bright_data", "apollo"]
+        }
+        
+        # Start servers by priority
+        for priority, servers in priority_groups.items():
+            logger.info(f"Starting {priority} priority servers...")
+            
+            tasks = []
+            for server_name in servers:
+                if server_name in self.servers:
+                    tasks.append(self._start_and_monitor_server(server_name))
+            
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            for i, result in enumerate(results):
+                server_name = servers[i] if i < len(servers) else "unknown"
+                
+                if isinstance(result, Exception):
+                    start_results["failed"].append({
+                        "server": server_name,
+                        "error": str(result)
+                    })
+                elif result == "already_running":
+                    start_results["already_running"].append(server_name)
+                else:
+                    start_results["started"].append(server_name)
+        
+        # Update metrics
+        total_servers = len(self.servers)
+        started_count = len(start_results["started"]) + len(start_results["already_running"])
+        
+        if self.metrics:
+            self.metrics.health_status.set(started_count / max(total_servers, 1))
+        
+        start_results["total_time_ms"] = (time.time() - start_time) * 1000
+        start_results["success_rate"] = (started_count / max(total_servers, 1)) * 100
+        
+        logger.info(f"✅ Server startup complete: {started_count}/{total_servers} servers running")
+        
+        return start_results
+    
+    async def _start_and_monitor_server(self, server_name: str) -> str:
+        """Start a server and monitor its health"""
+        try:
+            # Check if already running
+            if await self._check_server_health(server_name):
+                return "already_running"
+            
+            # Start the server
+            success = await self._start_mcp_server(server_name)
+            
+            if success:
+                # Initialize performance metrics
+                self.performance_metrics[server_name] = ServerPerformanceMetrics(
+                    server_name=server_name,
+                    avg_response_time_ms=0,
+                    success_rate=100.0,
+                    requests_per_minute=0
+                )
+                
+                return "started"
+            else:
+                return "failed"
+                
+        except Exception as e:
+            logger.error(f"Failed to start {server_name}: {e}")
+            raise
+    
+    async def execute_with_policy(
+        self,
+        task: BusinessTask,
+        policy_name: str
+    ) -> OrchestrationResult:
+        """Execute a task using a specific orchestration policy"""
+        start_time = time.time()
+        
+        # Check cache first
+        cache_key = f"{policy_name}:{task.task_id}:{hash(str(task.context_data))}"
+        cached_result = self._get_cached_result(cache_key)
+        if cached_result:
+            logger.info(f"Cache hit for task {task.task_id}")
+            if self.metrics_enhanced:
+                self.metrics_enhanced["cache_efficiency"].set(
+                    self._calculate_cache_efficiency()
+                )
+            return cached_result
+        
+        # Get policy
+        policy = self.orchestration_policies.get(policy_name)
+        if not policy:
+            return OrchestrationResult(
+                task_id=task.task_id,
+                success=False,
+                results={},
+                execution_time_ms=0,
+                servers_used=[],
+                error_message=f"Unknown policy: {policy_name}"
+            )
+        
+        # Apply priority boost
+        task.priority = TaskPriority(
+            min(TaskPriority.CRITICAL.value, task.priority.value + policy.priority_boost)
+        )
+        
+        # Get relevant servers
+        relevant_servers = self._get_servers_for_groups(policy.server_groups)
+        
+        # Execute based on policy mode
+        try:
+            if policy.execution_mode == "parallel":
+                results = await self._execute_parallel_with_monitoring(
+                    relevant_servers, task, policy
+                )
+            elif policy.execution_mode == "sequential":
+                results = await self._execute_sequential_with_monitoring(
+                    relevant_servers, task, policy
+                )
+            elif policy.execution_mode == "failover":
+                results = await self._execute_failover_with_monitoring(
+                    relevant_servers, task, policy
+                )
+            else:
+                raise ValueError(f"Unknown execution mode: {policy.execution_mode}")
+            
+            # Create orchestration result
+            execution_time = (time.time() - start_time) * 1000
+            
+            result = OrchestrationResult(
+                task_id=task.task_id,
+                success=True,
+                results=results,
+                execution_time_ms=execution_time,
+                servers_used=list(results.keys()),
+                synthesis_applied=task.requires_synthesis,
+                metadata={
+                    "policy": policy_name,
+                    "cache_key": cache_key
+                }
+            )
+            
+            # Cache result if policy allows
+            if policy.cache_results:
+                self._cache_result(cache_key, result)
+            
+            # Update metrics
+            if self.metrics_enhanced:
+                self.metrics_enhanced["orchestration_latency"].labels(
+                    task_type=task.task_type
+                ).observe(execution_time / 1000)
+                
+                self.metrics_enhanced["policy_executions"].labels(
+                    policy_name=policy_name,
+                    status="success"
+                ).inc()
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Policy execution failed: {e}")
+            
+            if self.metrics_enhanced:
+                self.metrics_enhanced["policy_executions"].labels(
+                    policy_name=policy_name,
+                    status="failure"
+                ).inc()
+            
+            return OrchestrationResult(
+                task_id=task.task_id,
+                success=False,
+                results={},
+                execution_time_ms=(time.time() - start_time) * 1000,
+                servers_used=[],
+                error_message=str(e)
+            )
+    
+    def _get_servers_for_groups(self, groups: List[ServerGroup]) -> Dict[str, Any]:
+        """Get servers belonging to specified groups"""
+        relevant_servers = {}
+        
+        for group in groups:
+            server_names = self.server_groups.get(group, [])
+            for server_name in server_names:
+                if server_name in self.servers:
+                    relevant_servers[server_name] = self.servers[server_name]
+        
+        return relevant_servers
+    
+    async def _execute_parallel_with_monitoring(
+        self,
+        servers: Dict[str, Any],
+        task: BusinessTask,
+        policy: OrchestrationPolicy
+    ) -> Dict[str, Any]:
+        """Execute task in parallel with performance monitoring"""
+        tasks = []
+        
+        for server_name, server in servers.items():
+            # Check server health and performance
+            if self._should_use_server(server_name):
+                tasks.append(
+                    self._execute_with_timeout(
+                        server_name, server, task, policy.timeout_seconds
+                    )
+                )
+        
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Process results
+        processed_results = {}
+        for i, result in enumerate(results):
+            server_name = list(servers.keys())[i]
+            
+            if isinstance(result, Exception):
+                logger.error(f"Server {server_name} failed: {result}")
+                self._update_server_metrics(server_name, success=False)
+            else:
+                processed_results[server_name] = result
+                self._update_server_metrics(server_name, success=True)
+        
+        return processed_results
+    
+    async def _execute_sequential_with_monitoring(
+        self,
+        servers: Dict[str, Any],
+        task: BusinessTask,
+        policy: OrchestrationPolicy
+    ) -> Dict[str, Any]:
+        """Execute task sequentially with monitoring"""
+        results = {}
+        
+        for server_name, server in servers.items():
+            if not self._should_use_server(server_name):
+                continue
+            
+            try:
+                result = await self._execute_with_timeout(
+                    server_name, server, task, policy.timeout_seconds
+                )
+                results[server_name] = result
+                self._update_server_metrics(server_name, success=True)
+                
+                # Pass result to next server in context
+                task.context_data[f"{server_name}_result"] = result
+                
+            except Exception as e:
+                logger.error(f"Sequential execution failed at {server_name}: {e}")
+                self._update_server_metrics(server_name, success=False)
+                
+                if policy.retry_count > 0:
+                    # Retry logic
+                    for retry in range(policy.retry_count):
+                        try:
+                            result = await self._execute_with_timeout(
+                                server_name, server, task, policy.timeout_seconds
+                            )
+                            results[server_name] = result
+                            self._update_server_metrics(server_name, success=True)
+                            break
+                        except Exception:
+                            if retry == policy.retry_count - 1:
+                                raise
+        
+        return results
+    
+    async def _execute_failover_with_monitoring(
+        self,
+        servers: Dict[str, Any],
+        task: BusinessTask,
+        policy: OrchestrationPolicy
+    ) -> Dict[str, Any]:
+        """Execute task with failover support"""
+        # Sort servers by health score
+        sorted_servers = sorted(
+            servers.items(),
+            key=lambda x: self._get_server_health_score(x[0]),
+            reverse=True
+        )
+        
+        for server_name, server in sorted_servers:
+            try:
+                result = await self._execute_with_timeout(
+                    server_name, server, task, policy.timeout_seconds
+                )
+                
+                self._update_server_metrics(server_name, success=True)
+                
+                # Log intelligent routing decision
+                if self.metrics_enhanced and server_name != sorted_servers[0][0]:
+                    self.metrics_enhanced["intelligent_routing"].labels(
+                        from_server=sorted_servers[0][0],
+                        to_server=server_name,
+                        reason="failover"
+                    ).inc()
+                
+                return {server_name: result}
+                
+            except Exception as e:
+                logger.warning(f"Server {server_name} failed, trying next: {e}")
+                self._update_server_metrics(server_name, success=False)
+                continue
+        
+        raise RuntimeError("All servers failed in failover execution")
+    
+    async def _execute_with_timeout(
+        self,
+        server_name: str,
+        server: Any,
+        task: BusinessTask,
+        timeout: int
+    ) -> Any:
+        """Execute task with timeout"""
+        try:
+            return await asyncio.wait_for(
+                self._execute_on_server(server_name, server, task),
+                timeout=timeout
+            )
+        except asyncio.TimeoutError:
+            raise TimeoutError(f"Server {server_name} timed out after {timeout}s")
+    
+    def _should_use_server(self, server_name: str) -> bool:
+        """Determine if server should be used based on health"""
+        metrics = self.performance_metrics.get(server_name)
+        if not metrics:
+            return True  # Use by default if no metrics
+        
+        # Don't use if too many consecutive failures
+        if metrics.consecutive_failures > 3:
+            return False
+        
+        # Don't use if health score too low
+        if metrics.health_score < 50:
+            return False
+        
+        return True
+    
+    def _get_server_health_score(self, server_name: str) -> float:
+        """Get health score for a server"""
+        metrics = self.performance_metrics.get(server_name)
+        return metrics.health_score if metrics else 75.0  # Default score
+    
+    def _update_server_metrics(self, server_name: str, success: bool, response_time_ms: float = 0):
+        """Update server performance metrics"""
+        if server_name not in self.performance_metrics:
+            self.performance_metrics[server_name] = ServerPerformanceMetrics(
+                server_name=server_name,
+                avg_response_time_ms=0,
+                success_rate=100.0,
+                requests_per_minute=0
+            )
+        
+        metrics = self.performance_metrics[server_name]
+        
+        if success:
+            metrics.consecutive_failures = 0
+            # Update rolling average response time
+            metrics.avg_response_time_ms = (
+                metrics.avg_response_time_ms * 0.9 + response_time_ms * 0.1
+            )
+        else:
+            metrics.consecutive_failures += 1
+            metrics.last_failure_time = datetime.now(timezone.utc)
+        
+        # Update success rate (rolling average)
+        current_rate = 100.0 if success else 0.0
+        metrics.success_rate = metrics.success_rate * 0.95 + current_rate * 0.05
+        
+        # Calculate health score
+        metrics.health_score = self._calculate_health_score(metrics)
+        
+        # Update Prometheus metrics
+        if self.metrics_enhanced:
+            self.metrics_enhanced["server_utilization"].labels(
+                server_name=server_name
+            ).set(100 - metrics.health_score)  # Inverse for utilization
+    
+    def _calculate_health_score(self, metrics: ServerPerformanceMetrics) -> float:
+        """Calculate health score for a server"""
+        score = 100.0
+        
+        # Penalize for low success rate
+        score *= (metrics.success_rate / 100.0)
+        
+        # Penalize for consecutive failures
+        score *= (1.0 - min(metrics.consecutive_failures * 0.1, 0.5))
+        
+        # Penalize for slow response times
+        if metrics.avg_response_time_ms > 1000:
+            score *= 0.8
+        elif metrics.avg_response_time_ms > 500:
+            score *= 0.9
+        
+        return max(0.0, min(100.0, score))
+    
+    def _get_cached_result(self, cache_key: str) -> Optional[OrchestrationResult]:
+        """Get cached orchestration result"""
+        if cache_key in self.result_cache:
+            # Check if cache is still valid (5 minutes)
+            if time.time() - self.cache_timestamps[cache_key] < 300:
+                return self.result_cache[cache_key]
+            else:
+                # Expired
+                del self.result_cache[cache_key]
+                del self.cache_timestamps[cache_key]
+        
+        return None
+    
+    def _cache_result(self, cache_key: str, result: OrchestrationResult):
+        """Cache orchestration result"""
+        self.result_cache[cache_key] = result
+        self.cache_timestamps[cache_key] = time.time()
+        
+        # Limit cache size
+        if len(self.result_cache) > 1000:
+            # Remove oldest entries
+            oldest_keys = sorted(
+                self.cache_timestamps.keys(),
+                key=lambda k: self.cache_timestamps[k]
+            )[:100]
+            
+            for key in oldest_keys:
+                del self.result_cache[key]
+                del self.cache_timestamps[key]
+    
+    def _calculate_cache_efficiency(self) -> float:
+        """Calculate cache hit rate"""
+        # This would need actual tracking of hits/misses
+        # For now, return estimate based on cache size
+        if not self.result_cache:
+            return 0.0
+        
+        return min(len(self.result_cache) / 10.0, 100.0)
+    
+    async def get_performance_dashboard(self) -> Dict[str, Any]:
+        """Get comprehensive performance dashboard"""
+        dashboard = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "overall_health": self._calculate_overall_health(),
+            "server_groups": {},
+            "performance_metrics": {},
+            "orchestration_policies": {},
+            "recommendations": []
+        }
+        
+        # Server group health
+        for group in ServerGroup:
+            servers_in_group = self.server_groups.get(group, [])
+            group_health = []
+            
+            for server in servers_in_group:
+                if server in self.performance_metrics:
+                    metrics = self.performance_metrics[server]
+                    group_health.append(metrics.health_score)
+            
+            dashboard["server_groups"][group.value] = {
+                "servers": servers_in_group,
+                "average_health": sum(group_health) / len(group_health) if group_health else 0,
+                "operational_count": len(group_health)
+            }
+        
+        # Individual server metrics
+        for server_name, metrics in self.performance_metrics.items():
+            dashboard["performance_metrics"][server_name] = {
+                "health_score": metrics.health_score,
+                "avg_response_time_ms": metrics.avg_response_time_ms,
+                "success_rate": metrics.success_rate,
+                "consecutive_failures": metrics.consecutive_failures,
+                "last_failure": metrics.last_failure_time.isoformat() if metrics.last_failure_time else None
+            }
+        
+        # Policy execution stats
+        for policy_name, policy in self.orchestration_policies.items():
+            dashboard["orchestration_policies"][policy_name] = {
+                "description": policy.description,
+                "execution_mode": policy.execution_mode,
+                "timeout_seconds": policy.timeout_seconds
+            }
+        
+        # Generate recommendations
+        dashboard["recommendations"] = self._generate_performance_recommendations()
+        
+        return dashboard
+    
+    def _generate_performance_recommendations(self) -> List[str]:
+        """Generate performance optimization recommendations"""
+        recommendations = []
+        
+        # Check for unhealthy servers
+        for server_name, metrics in self.performance_metrics.items():
+            if metrics.health_score < 70:
+                recommendations.append(
+                    f"Consider restarting {server_name} (health: {metrics.health_score:.1f}%)"
+                )
+            
+            if metrics.avg_response_time_ms > 1000:
+                recommendations.append(
+                    f"Optimize {server_name} performance (avg response: {metrics.avg_response_time_ms:.0f}ms)"
+                )
+        
+        # Check cache efficiency
+        cache_efficiency = self._calculate_cache_efficiency()
+        if cache_efficiency < 50:
+            recommendations.append(
+                f"Consider increasing cache size (current efficiency: {cache_efficiency:.1f}%)"
+            )
+        
+        # Check server group balance
+        for group in ServerGroup:
+            servers_in_group = self.server_groups.get(group, [])
+            operational_count = sum(
+                1 for s in servers_in_group
+                if s in self.performance_metrics and self.performance_metrics[s].health_score > 50
+            )
+            
+            if operational_count < len(servers_in_group) * 0.5:
+                recommendations.append(
+                    f"Critical: Less than 50% of {group.value} servers are healthy"
+                )
+        
+        return recommendations

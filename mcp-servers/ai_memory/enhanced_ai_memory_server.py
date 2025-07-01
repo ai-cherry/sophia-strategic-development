@@ -21,7 +21,7 @@ from fastapi import HTTPException
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-from backend.mcp.base.standardized_mcp_server import (
+from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
