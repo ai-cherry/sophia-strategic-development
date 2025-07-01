@@ -89,7 +89,7 @@ cchardet==2.1.7
 chardet==5.2.0
 idna==3.6
 urllib3==2.1.0
-certifi==2023.11.17
+certifi==2024.7.4
 six==1.16.0
 setuptools==69.0.2
 wheel==0.42.0
