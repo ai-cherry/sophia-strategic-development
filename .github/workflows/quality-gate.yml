@@ -1,27 +1,27 @@
 name: Code Quality Gate
 
-on:
-  pull_request:
+on
+  pull_request
     branches: [ main ]
-  push:
+  push
     branches: [ main ]
 
-jobs:
-  lint-and-format:
+jobs
+  lint-and-format
     runs-on: ubuntu-latest
-    steps:
+    steps
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
-        with:
+        with
           python-version: '3.11'
 
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
           pip install pre-commit
 
       - name: Run pre-commit hooks

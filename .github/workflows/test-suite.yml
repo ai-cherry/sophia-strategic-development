@@ -1,21 +1,21 @@
 name: test-suite
 
-on:
-  pull_request:
+on
+  pull_request
     branches: [ main ]
-  push:
+  push
     branches: [ main ]
 
-jobs:
-  test-suite:
+jobs
+  test-suite
     runs-on: ubuntu-latest
     
-    steps:
+    steps
     - uses: actions/checkout@v4
     
     - name: Set up Python
       uses: actions/setup-python@v4
-      with:
+      with
         python-version: '3.12'
     
     - name: Install UV

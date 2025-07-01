@@ -1,52 +1,52 @@
 name: Sophia AI Production Deployment
 
-on:
-  push:
+on
+  push
     branches: [main]
-  pull_request:
+  pull_request
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      environment:
+  workflow_dispatch
+    inputs
+      environment
         description: 'Environment to deploy to'
         required: true
         default: 'production'
         type: choice
-        options:
-          - production:
-      deploy_infrastructure:
+        options
+          - production
+      deploy_infrastructure
         description: 'Deploy infrastructure'
         required: false
         default: false
         type: boolean
-      deploy_backend:
+      deploy_backend
         description: 'Deploy backend'
         required: false
         default: true
         type: boolean
-      deploy_frontend:
+      deploy_frontend
         description: 'Deploy frontend'
         required: false
         default: true
         type: boolean
-      rotate_secrets:
+      rotate_secrets
         description: 'Rotate secrets'
         required: false
         default: false
         type: boolean
-      service_to_rotate:
+      service_to_rotate
         description: 'Service to rotate secrets for (leave empty for all)'
         required: false
         type: string
 
-env:
+env
   NODE_VERSION: '20'
   PYTHON_VERSION: '3.11'
 
-jobs:
-  initialize:
+jobs
+  initialize
     runs-on: ubuntu-latest
-    outputs:
+    outputs
       environment: ${{ steps.set-env.outputs.environment }}
       deploy_infrastructure: ${{ steps.set-env.outputs.deploy_infrastructure }}
       deploy_backend: ${{ steps.set-env.outputs.deploy_backend }}
@@ -54,10 +54,10 @@ jobs:
       rotate_secrets: ${{ steps.set-env.outputs.rotate_secrets }}
       service_to_rotate: ${{ steps.set-env.outputs.service_to_rotate }}
 
-    steps:
+    steps
       - name: Set environment variables
         id: set-env
-        env:
+        env
           EVENT_NAME: ${{ github.event_name }}
           INPUT_ENV: ${{ github.event.inputs.environment }}
           INPUT_DEPLOY_INFRASTRUCTURE: ${{ github.event.inputs.deploy_infrastructure }}
@@ -66,7 +66,7 @@ jobs:
           INPUT_ROTATE_SECRETS: ${{ github.event.inputs.rotate_secrets }}
           INPUT_SERVICE_TO_ROTATE: ${{ github.event.inputs.service_to_rotate }}
         run: |
-          # Set environment (production only as per user preference):
+          # Set environment (production only as per user preference)
           if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
             ENVIRONMENT="$INPUT_ENV"
             DEPLOY_INFRASTRUCTURE="$INPUT_DEPLOY_INFRASTRUCTURE"
@@ -74,8 +74,8 @@ jobs:
             DEPLOY_FRONTEND="$INPUT_DEPLOY_FRONTEND"
             ROTATE_SECRETS="$INPUT_ROTATE_SECRETS"
             SERVICE_TO_ROTATE="$INPUT_SERVICE_TO_ROTATE"
-          else:
-            # Default values for push/PR events - always production:
+          else
+            # Default values for push/PR events - always production
             ENVIRONMENT="production"
             DEPLOY_INFRASTRUCTURE="false"
             DEPLOY_BACKEND="true"
@@ -98,259 +98,259 @@ jobs:
           echo "Rotate Secrets: $ROTATE_SECRETS"
           echo "Service to Rotate: $SERVICE_TO_ROTATE"
 
-  security-scan:
+  security-scan
     runs-on: ubuntu-latest
     needs: initialize
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        with
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Run Security Scan
         run: |
-          # Python security scan:
-          uv sync --group security:
-          bandit -r backend/ || true:
+          # Python security scan
+          uv sync --group security
+          bandit -r backend/ || true
           uv run safety check || true
 
-          # JavaScript security scan:
+          # JavaScript security scan
           cd frontend && npm audit --audit-level moderate || true
 
-  setup-pulumi-esc:
+  setup-pulumi-esc
     needs: [initialize, security-scan]
     runs-on: ubuntu-latest
-    outputs:
+    outputs
       esc_initialized: ${{ steps.init-esc.outputs.initialized }}
 
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        with
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
           uv add pulumi requests
 
       - name: Setup Pulumi ESC
         id: init-esc
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          # Setup Pulumi ESC environment:
-          cd infrastructure/esc:
-          chmod +x setup_esc.sh:
+          # Setup Pulumi ESC environment
+          cd infrastructure/esc
+          chmod +x setup_esc.sh
           ./setup_esc.sh --environment ${{ needs.initialize.outputs.environment }}
 
-          if [ $? -eq 0 ]; then:
+          if [ $? -eq 0 ]; then
             echo "initialized=true" >> $GITHUB_OUTPUT
-          else:
+          else
             echo "initialized=false" >> $GITHUB_OUTPUT
-            exit 1:
+            exit 1
           fi
 
-  test-backend:
+  test-backend
     needs: [initialize, setup-pulumi-esc]
     runs-on: ubuntu-latest
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        with
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
-          uv sync:
+          uv sync
           uv sync --group test pytest-cov
 
       - name: Inject secrets from Pulumi ESC
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          cd infrastructure/esc:
-          chmod +x inject_secrets.sh:
+          cd infrastructure/esc
+          chmod +x inject_secrets.sh
           ./inject_secrets.sh --environment ${{ needs.initialize.outputs.environment }} --service backend
 
       - name: Run backend tests
         run: |
-          # Create basic test structure if not exists:
-          mkdir -p backend/tests:
-          echo "# Basic test placeholder" > backend/tests/__init__.py:
+          # Create basic test structure if not exists
+          mkdir -p backend/tests
+          echo "# Basic test placeholder" > backend/tests/__init__.py
           echo "def test_basic(): assert True" > backend/tests/test_basic.py
           pytest backend/tests/ -v --cov=backend --cov-report=xml || true
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
-        with:
+        with
           file: ./coverage.xml
           flags: backend
           name: backend-coverage
 
-  test-frontend:
+  test-frontend
     needs: initialize
     runs-on: ubuntu-latest
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
-        with:
+        with
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
         run: |
-          cd frontend:
+          cd frontend
           npm ci
 
       - name: Run frontend tests
         run: |
-          cd frontend:
+          cd frontend
           npm test -- --coverage --watchAll=false || true
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
-        with:
+        with
           file: ./frontend/coverage/lcov.info
           flags: frontend
           name: frontend-coverage
 
-  rotate-secrets:
+  rotate-secrets
     needs: [initialize, setup-pulumi-esc]
     runs-on: ubuntu-latest
     if: needs.initialize.outputs.rotate_secrets == 'true'
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        with
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH:
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
           uv add requests pulumi
 
       - name: Rotate secrets
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd infrastructure/esc:
-          python secret_rotation_framework.py \:
-            --environment ${{ needs.initialize.outputs.environment }} \:
+          cd infrastructure/esc
+          python secret_rotation_framework.py \
+            --environment ${{ needs.initialize.outputs.environment }} \
             --service "${{ needs.initialize.outputs.service_to_rotate }}"
 
-  deploy-infrastructure:
+  deploy-infrastructure
     needs: [initialize, setup-pulumi-esc, test-backend]
     runs-on: ubuntu-latest
     if: needs.initialize.outputs.deploy_infrastructure == 'true'
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        with
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Pulumi CLI
         uses: pulumi/actions@v4
 
       - name: Deploy infrastructure
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          cd infrastructure:
-          pulumi stack select ${{ needs.initialize.outputs.environment }} || pulumi stack init ${{ needs.initialize.outputs.environment }}:
+          cd infrastructure
+          pulumi stack select ${{ needs.initialize.outputs.environment }} || pulumi stack init ${{ needs.initialize.outputs.environment }}
           pulumi up --yes
 
-  deploy-backend:
+  deploy-backend
     needs: [initialize, setup-pulumi-esc, test-backend]
     runs-on: ubuntu-latest
     if: needs.initialize.outputs.deploy_backend == 'true'
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
-        with:
+        with
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Inject secrets from Pulumi ESC
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
-          cd infrastructure/esc:
-          chmod +x inject_secrets.sh:
+          cd infrastructure/esc
+          chmod +x inject_secrets.sh
           ./inject_secrets.sh --environment ${{ needs.initialize.outputs.environment }} --service backend
 
       - name: Deploy to Lambda Labs
-        env:
+        env
           LAMBDA_LABS_API_KEY: ${{ env.LAMBDA_LABS_API_KEY }}
         run: |
-          # Deploy backend to Lambda Labs:
-          echo "Deploying backend to Lambda Labs...":
+          # Deploy backend to Lambda Labs
+          echo "Deploying backend to Lambda Labs..."
           # Add actual deployment commands here
 
-  deploy-frontend:
+  deploy-frontend
     needs: [initialize, test-frontend]
     runs-on: ubuntu-latest
     if: needs.initialize.outputs.deploy_frontend == 'true'
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
-        with:
+        with
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: |
-          cd frontend:
+          cd frontend
           npm ci
 
       - name: Build frontend
         run: |
-          cd frontend:
+          cd frontend
           npm run build
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
-        with:
+        with
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: frontend
           vercel-args: '--prod'
 
-  notify-completion:
+  notify-completion
     needs: [deploy-infrastructure, deploy-backend, deploy-frontend, rotate-secrets]
     runs-on: ubuntu-latest
     if: always()
-    steps:
+    steps
       - name: Notify deployment status
         run: |
           echo "Deployment completed with status: ${{ job.status }}"

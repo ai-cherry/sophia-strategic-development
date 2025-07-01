@@ -1,23 +1,23 @@
 name: Sophia AI UV CI/CD Pipeline
 
-on:
-  push:
+on
+  push
     branches: [ main, develop ]
-  pull_request:
+  pull_request
     branches: [ main ]
 
-env:
+env
   ENVIRONMENT: prod
   PULUMI_ORG: scoobyjava-org
 
-jobs:
-  test:
+jobs
+  test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
+    strategy
+      matrix
         python-version: ["3.11", "3.12"]
     
-    steps:
+    steps
       - name: Checkout code
         uses: actions/checkout@v4
       
@@ -32,13 +32,12 @@ jobs:
       
       - name: Cache UV dependencies
         uses: actions/cache@v4
-        with:
+        with
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
-            uv-${{ runner.os }}-${{ matrix.python-version }}-:
-            uv-${{ runner.os }}-:
-      
+            uv-${{ runner.os }}-${{ matrix.python-version }}-
+            uv-${{ runner.os }}-
       - name: Install dependencies
         run: uv sync --group dev --group test
       
@@ -54,12 +53,12 @@ jobs:
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
+        with
           file: ./coverage.xml
 
-  security:
+  security
     runs-on: ubuntu-latest
-    steps:
+    steps
       - name: Checkout code
         uses: actions/checkout@v4
       
@@ -78,12 +77,12 @@ jobs:
       - name: Run pip-audit
         run: uv run pip-audit
 
-  build-and-deploy:
+  build-and-deploy
     needs: [test, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
-    steps:
+    steps
       - name: Checkout code
         uses: actions/checkout@v4
       
@@ -98,40 +97,38 @@ jobs:
       
       - name: Build Docker image with UV
         run: |
-          docker buildx build \:
-            --platform linux/amd64,linux/arm64 \:
-            -f Dockerfile.uv \:
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -f Dockerfile.uv \
             -t sophia-ai:latest \
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
-            .:
-      
+            .
       - name: Install Pulumi dependencies
         run: uv sync --group prod-stack
       
       - name: Configure Pulumi
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         run: |
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
-          pulumi login:
-      
+          pulumi login
       - name: Deploy infrastructure with Pulumi
-        env:
+        env
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         run: |
           export PATH=$PATH:$HOME/.pulumi/bin
           uv run pulumi up --yes --stack sophia-ai-production
 
-  performance-test:
+  performance-test
     needs: [build-and-deploy]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
-    steps:
+    steps
       - name: Checkout code
         uses: actions/checkout@v4
       

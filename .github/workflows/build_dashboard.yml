@@ -1,34 +1,34 @@
 # .github/workflows/build_dashboard.yml
 name: Build Sophia Dashboard Frontend
 
-on:
-  push:
-    branches:
-      - main:
-    paths:
+on
+  push
+    branches
+      - main
+    paths
       - 'sophia-dashboard/**'
 
-jobs:
-  build-and-upload:
+jobs
+  build-and-upload
     runs-on: ubuntu-latest
 
-    permissions:
+    permissions
       id-token: write # Required for OIDC authentication with AWS
       contents: read
 
-    steps:
+    steps
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
-        with:
+        with
           role-to-assume: arn:aws:iam::{YOUR_AWS_ACCOUNT_ID}:role/GitHubAction-Dashboard-Build-Role # Replace with a real IAM role ARN
           aws-region: us-west-2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
+        with
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: sophia-dashboard/package-lock.json
@@ -44,5 +44,5 @@ jobs:
       - name: Upload Artifacts to S3
         run: |
           aws s3 sync ./sophia-dashboard/dist/ s3://sophia-dashboard-build-artifacts/
-        env:
+        env
           AWS_REGION: us-west-2

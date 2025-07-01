@@ -1,29 +1,29 @@
 name: Unified Sophia AI Deployment
 
-on:
-  push:
+on
+  push
     branches: [main, develop]
-  pull_request:
+  pull_request
     types: [opened, synchronize, reopened, ready_for_review]
-  workflow_dispatch:
-    inputs:
-      environment:
+  workflow_dispatch
+    inputs
+      environment
         description: 'Deployment environment'
         required: true
-        default: 'staging'
+        default: 'prod'
         type: choice
         options: ['staging', 'production']
 
-jobs:
-  determine-environment:
+jobs
+  determine-environment
     runs-on: ubuntu-latest
-    outputs:
+    outputs
       environment: ${{ steps.env-detect.outputs.environment }}
       is_production: ${{ steps.env-detect.outputs.is_production }}
-    steps:
+    steps
       - name: Detect Environment
         id: env-detect
-        env:
+        env
           EVENT_NAME: ${{ github.event_name }}
           INPUT_ENV: ${{ github.event.inputs.environment }}
           REF: ${{ github.ref }}
@@ -33,31 +33,29 @@ jobs:
           elif [[ "$REF" == "refs/heads/main" ]]; then
             ENVIRONMENT="production"
           elif [[ "$REF" == "refs/heads/develop" ]]; then
-            ENVIRONMENT="staging"
+            ENVIRONMENT="prod"
           elif [[ "$EVENT_NAME" == "pull_request" ]]; then
             ENVIRONMENT="preview"
-          fi:
-          
+          fi
           IS_PRODUCTION="false"
           if [[ "$ENVIRONMENT" == "production" ]]; then
             IS_PRODUCTION="true"
-          fi:
-          
+          fi
           echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
           echo "is_production=${IS_PRODUCTION}" >> $GITHUB_OUTPUT
           echo "🎯 Environment: ${ENVIRONMENT}"
 
-  deploy-platform:
+  deploy-platform
     uses: ./.github/workflows/reusable-deploy-platform.yml
     needs: determine-environment
-    with:
+    with
       environment: ${{ needs.determine-environment.outputs.environment }}
       is_production: ${{ needs.determine-environment.outputs.is_production }}
     secrets: inherit
 
-  deploy-mcp-servers:
+  deploy-mcp-servers
     uses: ./.github/workflows/reusable-deploy-mcp.yml
     needs: determine-environment
-    with:
+    with
       environment: ${{ needs.determine-environment.outputs.environment }}
     secrets: inherit 
