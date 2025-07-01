@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Enhanced Sales Coach Agent with Snowflake Cortex Integration
 
@@ -18,8 +20,6 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
-from __future__ import annotations
-
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -29,7 +29,7 @@ from typing import Any
 from backend.agents.core.base_agent import BaseAgent
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
-    MemoryCategory,
+    EnhancedMemoryCategory,
 )
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector

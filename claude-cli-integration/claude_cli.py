@@ -107,6 +107,9 @@ class ClaudeMCPIntegration:
         if server_name not in self.config.get("mcpServers", {}):
             return {"status": "error", "message": f"Unknown server: {server_name}"}
 
+        if not self.session:
+            await self.start_session()
+
         server_config = self.config["mcpServers"][server_name]
         url = server_config.get("url", "http://localhost:9001")
 
@@ -126,6 +129,9 @@ class ClaudeMCPIntegration:
         """Query a specific MCP server endpoint"""
         if server_name not in self.config.get("mcpServers", {}):
             return {"error": f"Unknown server: {server_name}"}
+
+        if not self.session:
+            await self.start_session()
 
         server_config = self.config["mcpServers"][server_name]
         url = server_config.get("url", "http://localhost:9001")
@@ -183,6 +189,9 @@ Always provide practical, actionable responses that leverage the available MCP c
             "system": system_prompt,
             "messages": [{"role": "user", "content": message}],
         }
+
+        if not self.session:
+            await self.start_session()
 
         try:
             async with self.session.post(
@@ -349,8 +358,8 @@ Always provide practical, actionable responses that leverage the available MCP c
             print("-" * 50)
 
 
-def main():
-    """Main entry point for Claude CLI"""
+async def main_async():
+    """Async main entry point for Claude CLI"""
     parser = argparse.ArgumentParser(description="Enhanced Claude CLI for Sophia AI")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -373,7 +382,7 @@ def main():
     args = parser.parse_args()
 
     claude_mcp = ClaudeMCPIntegration()
-    asyncio.run(claude_mcp.start_session())
+    await claude_mcp.start_session()
 
     try:
         if args.command == "chat":
@@ -425,6 +434,11 @@ def main():
 
     finally:
         await claude_mcp.close_session()
+
+
+def main():
+    """Main entry point for Claude CLI"""
+    asyncio.run(main_async())
 
 
 if __name__ == "__main__":
