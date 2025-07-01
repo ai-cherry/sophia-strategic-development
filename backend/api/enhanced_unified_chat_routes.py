@@ -22,21 +22,18 @@ import asyncio
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from backend.core.dependencies import get_audit_logger, get_current_user
+from backend.security.audit_logger import AuditLogger
 from backend.services.sophia_universal_chat_service import (
     universal_chat_service,
-    ChatMessage,
-    ChatMessageType,
-    IntentType
 )
 from backend.workflows.enhanced_langgraph_orchestration import enhanced_orchestrator
-from backend.security.audit_logger import AuditLogger
-from backend.core.dependencies import get_current_user, get_audit_logger
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +45,7 @@ class ChatRequest(BaseModel):
     """Chat message request"""
     message: str = Field(..., description="Chat message content")
     session_id: str = Field(..., description="Session identifier")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class ChatResponse(BaseModel):
@@ -57,19 +54,19 @@ class ChatResponse(BaseModel):
     session_id: str
     message_type: str
     content: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     timestamp: datetime
-    workflow_id: Optional[str] = None
-    checkpoint_id: Optional[str] = None
-    intent: Optional[str] = None
-    confidence: Optional[float] = None
+    workflow_id: str | None = None
+    checkpoint_id: str | None = None
+    intent: str | None = None
+    confidence: float | None = None
 
 
 class WorkflowCreateRequest(BaseModel):
     """Workflow creation request"""
     description: str = Field(..., description="Natural language description of the workflow")
-    workflow_type: Optional[str] = Field(default="custom", description="Type of workflow")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+    workflow_type: str | None = Field(default="custom", description="Type of workflow")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class WorkflowResponse(BaseModel):
@@ -77,9 +74,9 @@ class WorkflowResponse(BaseModel):
     workflow_id: str
     status: str
     current_node: str
-    progress: Dict[str, Any]
-    pending_checkpoints: List[Dict[str, Any]]
-    execution_metrics: Dict[str, Any]
+    progress: dict[str, Any]
+    pending_checkpoints: list[dict[str, Any]]
+    execution_metrics: dict[str, Any]
     last_updated: datetime
 
 
@@ -87,8 +84,8 @@ class ApprovalRequest(BaseModel):
     """Approval request"""
     checkpoint_id: str = Field(..., description="Checkpoint identifier")
     approved: bool = Field(..., description="Approval decision")
-    feedback: Optional[str] = Field(default=None, description="Optional feedback")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+    feedback: str | None = Field(default=None, description="Optional feedback")
+    metadata: dict[str, Any] | None = Field(default=None, description="Optional metadata")
 
 
 class ApprovalResponse(BaseModel):
@@ -102,22 +99,22 @@ class ApprovalResponse(BaseModel):
 # WebSocket connection manager
 class ConnectionManager:
     """Manage WebSocket connections for real-time updates"""
-    
+
     def __init__(self):
-        self.active_connections: Dict[str, List[WebSocket]] = {}
-    
+        self.active_connections: dict[str, list[WebSocket]] = {}
+
     async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
         if user_id not in self.active_connections:
             self.active_connections[user_id] = []
         self.active_connections[user_id].append(websocket)
-    
+
     def disconnect(self, websocket: WebSocket, user_id: str):
         if user_id in self.active_connections:
             self.active_connections[user_id].remove(websocket)
             if not self.active_connections[user_id]:
                 del self.active_connections[user_id]
-    
+
     async def send_personal_message(self, message: str, user_id: str):
         if user_id in self.active_connections:
             for connection in self.active_connections[user_id]:
@@ -126,8 +123,8 @@ class ConnectionManager:
                 except:
                     # Remove dead connections
                     self.active_connections[user_id].remove(connection)
-    
-    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
+
+    async def broadcast_to_user(self, message: dict[str, Any], user_id: str):
         if user_id in self.active_connections:
             message_str = json.dumps(message, default=str)
             for connection in self.active_connections[user_id]:
@@ -145,12 +142,12 @@ manager = ConnectionManager()
 @router.post("/message", response_model=ChatResponse)
 async def send_chat_message(
     request: ChatRequest,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: dict[str, Any] = Depends(get_current_user),
     audit_logger: AuditLogger = Depends(get_audit_logger)
 ):
     """
     Send a chat message and get AI response
-    
+
     This endpoint processes natural language messages and can:
     - Create and manage workflows
     - Handle approvals and decisions
@@ -160,11 +157,11 @@ async def send_chat_message(
     """
     try:
         user_id = current_user.get("user_id", "anonymous")
-        
+
         # Initialize chat service if needed
         if not universal_chat_service.initialized:
             await universal_chat_service.initialize()
-        
+
         # Process the message
         response_message = await universal_chat_service.process_message(
             user_id=user_id,
@@ -172,7 +169,7 @@ async def send_chat_message(
             message_content=request.message,
             message_metadata=request.metadata
         )
-        
+
         # Convert to response model
         response = ChatResponse(
             message_id=response_message.message_id,
@@ -186,7 +183,7 @@ async def send_chat_message(
             intent=response_message.intent.value if response_message.intent else None,
             confidence=response_message.confidence
         )
-        
+
         # Send real-time update via WebSocket
         await manager.broadcast_to_user(
             {
@@ -195,7 +192,7 @@ async def send_chat_message(
             },
             user_id
         )
-        
+
         # Log the interaction
         await audit_logger.log_chat_interaction(
             user_id=user_id,
@@ -205,9 +202,9 @@ async def send_chat_message(
             intent=response.intent,
             response_content=response.content
         )
-        
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error processing chat message: {e}")
         raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")
@@ -217,19 +214,19 @@ async def send_chat_message(
 async def get_chat_history(
     session_id: str,
     limit: int = 50,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: dict[str, Any] = Depends(get_current_user)
 ):
     """Get chat history for a session"""
     try:
-        user_id = current_user.get("user_id", "anonymous")
-        
+        current_user.get("user_id", "anonymous")
+
         # Initialize chat service if needed
         if not universal_chat_service.initialized:
             await universal_chat_service.initialize()
-        
+
         # Get session history
         history = await universal_chat_service.get_session_history(session_id, limit)
-        
+
         # Convert to response format
         history_response = []
         for message in history:
@@ -246,9 +243,9 @@ async def get_chat_history(
                 "intent": message.intent.value if message.intent else None,
                 "confidence": message.confidence
             })
-        
+
         return {"session_id": session_id, "history": history_response}
-        
+
     except Exception as e:
         logger.error(f"Error getting chat history: {e}")
         raise HTTPException(status_code=500, detail=f"Error getting chat history: {str(e)}")
@@ -257,28 +254,28 @@ async def get_chat_history(
 @router.post("/workflow/create", response_model=WorkflowResponse)
 async def create_workflow(
     request: WorkflowCreateRequest,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: dict[str, Any] = Depends(get_current_user),
     audit_logger: AuditLogger = Depends(get_audit_logger)
 ):
     """Create a new workflow from natural language description"""
     try:
         user_id = current_user.get("user_id", "anonymous")
         session_id = f"api_session_{user_id}_{datetime.now().timestamp()}"
-        
+
         # Initialize orchestrator if needed
         if not enhanced_orchestrator.initialized:
             await enhanced_orchestrator.initialize()
-        
+
         # Create workflow
         workflow_id = await enhanced_orchestrator.create_workflow_from_natural_language(
             user_request=request.description,
             user_id=user_id,
             session_id=session_id
         )
-        
+
         # Get workflow status
         status = await enhanced_orchestrator.get_workflow_status(workflow_id)
-        
+
         # Convert to response model
         response = WorkflowResponse(
             workflow_id=workflow_id,
@@ -289,7 +286,7 @@ async def create_workflow(
             execution_metrics=status["execution_metrics"],
             last_updated=status["last_updated"]
         )
-        
+
         # Send real-time update via WebSocket
         await manager.broadcast_to_user(
             {
@@ -298,7 +295,7 @@ async def create_workflow(
             },
             user_id
         )
-        
+
         # Log workflow creation
         await audit_logger.log_workflow_event(
             workflow_id=workflow_id,
@@ -309,9 +306,9 @@ async def create_workflow(
                 "workflow_type": request.workflow_type
             }
         )
-        
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error creating workflow: {e}")
         raise HTTPException(status_code=500, detail=f"Error creating workflow: {str(e)}")
@@ -320,20 +317,20 @@ async def create_workflow(
 @router.get("/workflow/{workflow_id}", response_model=WorkflowResponse)
 async def get_workflow_status(
     workflow_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: dict[str, Any] = Depends(get_current_user)
 ):
     """Get status of a specific workflow"""
     try:
         # Initialize orchestrator if needed
         if not enhanced_orchestrator.initialized:
             await enhanced_orchestrator.initialize()
-        
+
         # Get workflow status
         status = await enhanced_orchestrator.get_workflow_status(workflow_id)
-        
+
         if "error" in status:
             raise HTTPException(status_code=404, detail=status["error"])
-        
+
         # Convert to response model
         response = WorkflowResponse(
             workflow_id=workflow_id,
@@ -344,9 +341,9 @@ async def get_workflow_status(
             execution_metrics=status["execution_metrics"],
             last_updated=status["last_updated"]
         )
-        
+
         return response
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -356,21 +353,21 @@ async def get_workflow_status(
 
 @router.get("/workflows")
 async def get_user_workflows(
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: dict[str, Any] = Depends(get_current_user)
 ):
     """Get all active workflows for the current user"""
     try:
         user_id = current_user.get("user_id", "anonymous")
-        
+
         # Initialize chat service if needed
         if not universal_chat_service.initialized:
             await universal_chat_service.initialize()
-        
+
         # Get active workflows
         workflows = await universal_chat_service.get_active_workflows(user_id)
-        
+
         return {"user_id": user_id, "workflows": workflows}
-        
+
     except Exception as e:
         logger.error(f"Error getting user workflows: {e}")
         raise HTTPException(status_code=500, detail=f"Error getting workflows: {str(e)}")
@@ -380,17 +377,17 @@ async def get_user_workflows(
 async def handle_approval(
     checkpoint_id: str,
     request: ApprovalRequest,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: dict[str, Any] = Depends(get_current_user),
     audit_logger: AuditLogger = Depends(get_audit_logger)
 ):
     """Handle human approval for a checkpoint"""
     try:
         user_id = current_user.get("user_id", "anonymous")
-        
+
         # Initialize orchestrator if needed
         if not enhanced_orchestrator.initialized:
             await enhanced_orchestrator.initialize()
-        
+
         # Process approval
         workflow_continued = await enhanced_orchestrator.handle_human_response(
             checkpoint_id=checkpoint_id,
@@ -401,7 +398,7 @@ async def handle_approval(
             },
             user_id=user_id
         )
-        
+
         # Create response
         response = ApprovalResponse(
             checkpoint_id=checkpoint_id,
@@ -409,7 +406,7 @@ async def handle_approval(
             workflow_continued=workflow_continued,
             message=f"Checkpoint {'approved' if request.approved else 'rejected'} successfully"
         )
-        
+
         # Send real-time update via WebSocket
         await manager.broadcast_to_user(
             {
@@ -418,7 +415,7 @@ async def handle_approval(
             },
             user_id
         )
-        
+
         # Log approval
         await audit_logger.log_workflow_event(
             workflow_id="unknown",  # Would need to track this
@@ -430,9 +427,9 @@ async def handle_approval(
                 "feedback": request.feedback
             }
         )
-        
+
         return response
-        
+
     except Exception as e:
         logger.error(f"Error handling approval: {e}")
         raise HTTPException(status_code=500, detail=f"Error handling approval: {str(e)}")
@@ -440,21 +437,21 @@ async def handle_approval(
 
 @router.get("/approvals")
 async def get_pending_approvals(
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: dict[str, Any] = Depends(get_current_user)
 ):
     """Get pending approvals for the current user"""
     try:
         user_id = current_user.get("user_id", "anonymous")
-        
+
         # Initialize chat service if needed
         if not universal_chat_service.initialized:
             await universal_chat_service.initialize()
-        
+
         # Get pending approvals
         approvals = await universal_chat_service.get_pending_approvals_for_user(user_id)
-        
+
         return {"user_id": user_id, "pending_approvals": approvals}
-        
+
     except Exception as e:
         logger.error(f"Error getting pending approvals: {e}")
         raise HTTPException(status_code=500, detail=f"Error getting approvals: {str(e)}")
@@ -468,32 +465,32 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         while True:
             # Keep connection alive and handle incoming messages
             data = await websocket.receive_text()
-            
+
             try:
                 message_data = json.loads(data)
                 message_type = message_data.get("type")
-                
+
                 if message_type == "ping":
                     # Respond to ping with pong
                     await websocket.send_text(json.dumps({"type": "pong", "timestamp": datetime.now().isoformat()}))
-                
+
                 elif message_type == "chat_message":
                     # Process chat message via WebSocket
                     session_id = message_data.get("session_id", f"ws_session_{user_id}")
                     message_content = message_data.get("message", "")
-                    
+
                     if message_content:
                         # Initialize chat service if needed
                         if not universal_chat_service.initialized:
                             await universal_chat_service.initialize()
-                        
+
                         # Process the message
                         response_message = await universal_chat_service.process_message(
                             user_id=user_id,
                             session_id=session_id,
                             message_content=message_content
                         )
-                        
+
                         # Send response back
                         response_data = {
                             "type": "chat_response",
@@ -510,17 +507,17 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                                 "confidence": response_message.confidence
                             }
                         }
-                        
+
                         await websocket.send_text(json.dumps(response_data, default=str))
-                
+
                 elif message_type == "status_request":
                     # Send current status
                     if not universal_chat_service.initialized:
                         await universal_chat_service.initialize()
-                    
+
                     workflows = await universal_chat_service.get_active_workflows(user_id)
                     approvals = await universal_chat_service.get_pending_approvals_for_user(user_id)
-                    
+
                     status_data = {
                         "type": "status_update",
                         "data": {
@@ -529,9 +526,9 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                             "timestamp": datetime.now().isoformat()
                         }
                     }
-                    
+
                     await websocket.send_text(json.dumps(status_data, default=str))
-                
+
             except json.JSONDecodeError:
                 # Invalid JSON, ignore
                 pass
@@ -543,7 +540,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                     "timestamp": datetime.now().isoformat()
                 }
                 await websocket.send_text(json.dumps(error_response))
-    
+
     except WebSocketDisconnect:
         manager.disconnect(websocket, user_id)
     except Exception as e:
@@ -554,18 +551,18 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 @router.post("/agent/create")
 async def create_agent_via_api(
     request: WorkflowCreateRequest,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    current_user: dict[str, Any] = Depends(get_current_user),
     audit_logger: AuditLogger = Depends(get_audit_logger)
 ):
     """Create a new AI agent through natural language description"""
     try:
         user_id = current_user.get("user_id", "anonymous")
         session_id = f"agent_creation_{user_id}_{datetime.now().timestamp()}"
-        
+
         # Initialize chat service if needed
         if not universal_chat_service.initialized:
             await universal_chat_service.initialize()
-        
+
         # Process as agent creation message
         response_message = await universal_chat_service.process_message(
             user_id=user_id,
@@ -573,7 +570,7 @@ async def create_agent_via_api(
             message_content=f"Create an AI agent: {request.description}",
             message_metadata={"api_request": True, "agent_creation": True}
         )
-        
+
         # Send real-time update via WebSocket
         await manager.broadcast_to_user(
             {
@@ -586,7 +583,7 @@ async def create_agent_via_api(
             },
             user_id
         )
-        
+
         # Log agent creation request
         await audit_logger.log_workflow_event(
             workflow_id=response_message.workflow_id or "unknown",
@@ -597,14 +594,14 @@ async def create_agent_via_api(
                 "session_id": session_id
             }
         )
-        
+
         return {
             "message": "Agent creation workflow started",
             "session_id": session_id,
             "workflow_id": response_message.workflow_id,
             "response": response_message.content
         }
-        
+
     except Exception as e:
         logger.error(f"Error creating agent: {e}")
         raise HTTPException(status_code=500, detail=f"Error creating agent: {str(e)}")
@@ -617,7 +614,7 @@ async def health_check():
         # Check if services are initialized
         chat_initialized = universal_chat_service.initialized
         orchestrator_initialized = enhanced_orchestrator.initialized
-        
+
         return {
             "status": "healthy",
             "services": {
@@ -626,7 +623,7 @@ async def health_check():
             },
             "timestamp": datetime.now().isoformat()
         }
-        
+
     except Exception as e:
         logger.error(f"Health check error: {e}")
         return JSONResponse(
@@ -646,17 +643,17 @@ async def periodic_status_updates():
         try:
             # Send updates every 30 seconds
             await asyncio.sleep(30)
-            
+
             # Get all connected users
             for user_id in list(manager.active_connections.keys()):
                 try:
                     if not universal_chat_service.initialized:
                         continue
-                    
+
                     # Get user's workflows and approvals
                     workflows = await universal_chat_service.get_active_workflows(user_id)
                     approvals = await universal_chat_service.get_pending_approvals_for_user(user_id)
-                    
+
                     # Only send if there are active items
                     if workflows or approvals:
                         status_update = {
@@ -667,12 +664,12 @@ async def periodic_status_updates():
                                 "timestamp": datetime.now().isoformat()
                             }
                         }
-                        
+
                         await manager.broadcast_to_user(status_update, user_id)
-                
+
                 except Exception as e:
                     logger.error(f"Error sending periodic update to user {user_id}: {e}")
-        
+
         except Exception as e:
             logger.error(f"Error in periodic status updates: {e}")
 

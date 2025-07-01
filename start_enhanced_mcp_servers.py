@@ -7,13 +7,14 @@ Starts MCP servers with full tool execution capabilities
 import asyncio
 import logging
 import os
-from backend.core.auto_esc_config import get_config_value
 import subprocess
 import sys
 import time
 from pathlib import Path
 
 from aiohttp import web
+
+from backend.core.auto_esc_config import get_config_value
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

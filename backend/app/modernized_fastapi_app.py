@@ -7,34 +7,28 @@ Migrated from Flask with enterprise-grade features and AI capabilities
 import asyncio
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
 
-from fastapi import (
-    BackgroundTasks, 
-    Depends, 
-    FastAPI, 
-    HTTPException, 
-    Request,
-    status
-)
+import structlog
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse, Response
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, Field
-from pydantic_settings import BaseSettings
+from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.security import HTTPBearer
 from prometheus_client import Counter, Histogram, generate_latest
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
-import structlog
+
+from backend.core.security import get_current_user
 
 # Import core components
 from backend.core.settings import Settings
-from backend.core.security import verify_jwt_token, get_current_user
 from backend.models.api_models import (
-    ChatRequest, ChatResponse, ChatStreamChunk,
-    DashboardMetrics, HealthResponse, ErrorResponse
+    ChatRequest,
+    ChatResponse,
+    DashboardMetrics,
+    ErrorResponse,
+    HealthResponse,
 )
 from backend.services.chat.unified_chat_service import UnifiedChatService
 from backend.services.smart_ai_service import SmartAIService
@@ -72,45 +66,45 @@ limiter = Limiter(key_func=get_remote_address)
 security = HTTPBearer()
 
 # Global services
-chat_service: Optional[UnifiedChatService] = None
-ai_service: Optional[SmartAIService] = None
+chat_service: UnifiedChatService | None = None
+ai_service: SmartAIService | None = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Modern lifespan management with service initialization"""
     # Startup
     logger.info("🚀 Starting Sophia AI Platform v3.0...")
-    
+
     global chat_service, streaming_service
-    
+
     try:
         # Initialize AI services
         chat_service = EnhancedChatService(settings)
         await chat_service.initialize()
-        
+
         streaming_service = StreamingService(settings)
         await streaming_service.initialize()
-        
+
         logger.info("✅ All services initialized successfully")
         yield
-        
+
     except Exception as e:
         logger.error(f"❌ Service initialization failed: {e}")
         raise
     finally:
         # Shutdown
         logger.info("🛑 Shutting down Sophia AI Platform...")
-        
+
         if chat_service:
             await chat_service.cleanup()
         if streaming_service:
             await streaming_service.cleanup()
-            
+
         logger.info("✅ Shutdown complete")
 
 def create_application() -> FastAPI:
     """Create modern FastAPI application with 2025 best practices"""
-    
+
     app = FastAPI(
         title="Sophia AI Platform",
         description="AI-powered business intelligence with streaming capabilities",
@@ -120,11 +114,11 @@ def create_application() -> FastAPI:
         redoc_url="/redoc" if settings.debug else None,
         openapi_url="/openapi.json" if settings.debug else None,
     )
-    
+
     # Add rate limiting
     app.state.limiter = limiter
     app.add_exception_handler(429, _rate_limit_exceeded_handler)
-    
+
     # Enhanced middleware stack
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(
@@ -134,32 +128,32 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Metrics middleware
     @app.middleware("http")
     async def add_metrics_middleware(request: Request, call_next):
         start_time = time.time()
-        
+
         # Add correlation ID
         correlation_id = request.headers.get("X-Correlation-ID", f"req_{int(time.time())}")
-        
+
         with structlog.contextvars.bound_contextvars(correlation_id=correlation_id):
             response = await call_next(request)
-            
+
             duration = time.time() - start_time
-            
+
             REQUEST_COUNT.labels(
                 method=request.method,
                 endpoint=request.url.path,
                 status=response.status_code
             ).inc()
             REQUEST_DURATION.observe(duration)
-            
+
             response.headers["X-Correlation-ID"] = correlation_id
             response.headers["X-Response-Time"] = f"{duration:.3f}s"
-            
+
             return response
-    
+
     # Global exception handler
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
@@ -172,7 +166,7 @@ def create_application() -> FastAPI:
                 correlation_id=request.headers.get("X-Correlation-ID")
             ).model_dump()
         )
-    
+
     return app
 
 # Create application instance
@@ -244,16 +238,16 @@ async def chat_endpoint(
     current_user: dict = Depends(get_current_user)
 ):
     """Modern chat endpoint with streaming support"""
-    
+
     if not chat_service:
         raise HTTPException(status_code=503, detail="Chat service not available")
-    
+
     # Log request
     logger.info(f"Chat request from user {current_user.get('username', 'unknown')}")
-    
+
     # Track AI usage
     AI_REQUESTS.labels(service="chat", model=chat_request.model).inc()
-    
+
     if chat_request.stream:
         # Return streaming response
         return StreamingResponse(
@@ -268,15 +262,15 @@ async def chat_endpoint(
     else:
         # Return complete response
         response = await chat_service.generate_response(chat_request)
-        
+
         # Log response for analytics
         background_tasks.add_task(
-            chat_service.log_chat_interaction, 
-            chat_request, 
-            response, 
+            chat_service.log_chat_interaction,
+            chat_request,
+            response,
             current_user
         )
-        
+
         return response
 
 @app.post("/api/v3/chat/stream", tags=["AI Chat"])
@@ -287,17 +281,17 @@ async def stream_chat(
     current_user: dict = Depends(get_current_user)
 ):
     """Dedicated streaming chat endpoint"""
-    
+
     if not streaming_service:
         raise HTTPException(status_code=503, detail="Streaming service not available")
-    
+
     logger.info(f"Streaming chat request from user {current_user.get('username', 'unknown')}")
-    
+
     async def generate_stream():
         async for chunk in streaming_service.stream_chat_response(chat_request):
             yield f"data: {chunk}\n\n"
         yield "data: [DONE]\n\n"
-    
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/event-stream",
@@ -363,13 +357,13 @@ async def upload_knowledge(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge file upload with background processing"""
-    
+
     # TODO: Implement actual file upload logic
     file_id = f"kb_{int(time.time())}"
-    
+
     # Process file in background
     background_tasks.add_task(process_knowledge_file, file_id)
-    
+
     return {
         "status": "accepted",
         "message": "File uploaded and processing started",
@@ -384,12 +378,12 @@ async def sync_knowledge(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge source synchronization"""
-    
+
     sync_id = f"sync_{int(time.time())}"
-    
+
     # Start sync in background
     background_tasks.add_task(sync_knowledge_sources, sync_id)
-    
+
     return {
         "status": "started",
         "message": "Knowledge synchronization started",
@@ -408,7 +402,7 @@ async def mcp_service_health(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced MCP service health check"""
-    
+
     # TODO: Implement actual MCP service health checking
     return {
         "status": "healthy",
@@ -458,7 +452,7 @@ async def sync_knowledge_sources(sync_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "modernized_fastapi_app:app",
         host="0.0.0.0",

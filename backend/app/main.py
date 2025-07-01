@@ -1,8 +1,9 @@
 import os
 import sys
-from pydantic_settings import BaseSettings
-from prometheus_client import Counter, Histogram, generate_latest
+
 from fastapi.responses import PlainTextResponse
+from prometheus_client import Counter, Histogram, generate_latest
+from pydantic_settings import BaseSettings
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 
@@ -32,17 +33,17 @@ from backend.core.dependencies import get_chat_service
 # Core imports
 from backend.core.simple_config import get_config_value
 
+# Route imports - no circular dependencies
+from backend.presentation.api.router import create_application_router
+from backend.security.audit_logger import AuditEventType, configure_from_env, info
+
 # Security imports
 from backend.security.audit_middleware import setup_audit_middleware
-from backend.security.audit_logger import AuditEventType, info, configure_from_env
-from backend.security.rbac import setup_rbac, initialize_rbac_service
 from backend.security.ephemeral_credentials import (
     EphemeralCredentialsService,
     setup_ephemeral_credentials_middleware,
 )
-
-# Route imports - no circular dependencies
-from backend.presentation.api.router import create_application_router
+from backend.security.rbac import initialize_rbac_service, setup_rbac
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -62,14 +63,14 @@ async def lifespan(app: FastAPI):
         # Configure audit logger from environment
         configure_from_env()
         logger.info("✅ Audit Logger configured")
-        
+
         # Log system startup
         info(
             AuditEventType.SYSTEM_START,
             "Sophia AI Unified Ecosystem starting",
             {"app_name": "sophia"}
         )
-        
+
         # Initialize the RBAC system
         rbac_storage_path = os.path.join(os.getcwd(), "data", "rbac.json")
         initialize_rbac_service(
@@ -78,7 +79,7 @@ async def lifespan(app: FastAPI):
             auto_save=True,
         )
         logger.info("✅ RBAC System initialized")
-        
+
         # Initialize the ephemeral credentials system
         ephemeral_credentials_service = EphemeralCredentialsService(
             storage_path=os.path.join(os.getcwd(), "data", "ephemeral_credentials.json"),
@@ -87,15 +88,18 @@ async def lifespan(app: FastAPI):
         await ephemeral_credentials_service.initialize()
         app.state.ephemeral_credentials_service = ephemeral_credentials_service
         logger.info("✅ Ephemeral Credentials System initialized")
-        
+
         # Initialize the cache system
-        from backend.core.cache_manager import initialize_cache_system, get_cache_manager
-        
+        from backend.core.cache_manager import (
+            get_cache_manager,
+            initialize_cache_system,
+        )
+
         await initialize_cache_system()
         cache_manager = await get_cache_manager()
         app.state.cache_manager = cache_manager
         logger.info("✅ Enhanced Cache System initialized")
-        
+
         # Initialize the simplified unified intelligence service
         from backend.services.simplified_unified_intelligence_service import (
             get_simplified_unified_intelligence_service,
@@ -147,7 +151,7 @@ async def lifespan(app: FastAPI):
                 logger.info("✅ Cache system cleaned up")
             except Exception as e:
                 logger.error(f"⚠️ Error during cache system cleanup: {e}")
-        
+
         # Cleanup ephemeral credentials system if it exists
         if hasattr(app.state, "ephemeral_credentials_service"):
             try:
@@ -172,8 +176,7 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app with lifespan
 
-from pydantic_settings import BaseSettings
-from typing import List
+
 
 class Settings(BaseSettings):
     """Application settings with Pydantic v2"""
@@ -181,16 +184,16 @@ class Settings(BaseSettings):
     app_version: str = "3.0.0"
     environment: str = "production"
     debug: bool = False
-    
+
     # Security
     secret_key: str = "change-me-in-production"
-    allowed_origins: List[str] = ["*"]
-    
+    allowed_origins: list[str] = ["*"]
+
     # API Configuration
     api_prefix: str = "/api/v3"
     docs_url: str = "/docs"
     redoc_url: str = "/redoc"
-    
+
     class Config:
         env_prefix = "SOPHIA_"
         case_sensitive = False
@@ -215,20 +218,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import time
 import uuid
+
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 # Enhanced middleware stack
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
-    TrustedHostMiddleware, 
+    TrustedHostMiddleware,
     allowed_hosts=["*"] if settings.debug else ["app.sophia-intel.ai"]
 )
 
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 # Set up audit middleware
@@ -273,9 +275,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 async def global_exception_handler(request: Request, exc: Exception):
     """Global exception handler with structured logging"""
     correlation_id = request.headers.get("X-Correlation-ID", "unknown")
-    
+
     logger.error(
-        f"Unhandled exception", 
+        "Unhandled exception",
         extra={
             "correlation_id": correlation_id,
             "path": request.url.path,
@@ -284,7 +286,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         },
         exc_info=True
     )
-    
+
     return JSONResponse(
         status_code=500,
         content={
@@ -297,8 +299,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Request tracking middleware
 
-from prometheus_client import Counter, Histogram, generate_latest
-from fastapi.responses import PlainTextResponse
 
 # Metrics
 REQUEST_COUNT = Counter('sophia_requests_total', 'Total requests', ['method', 'endpoint', 'status'])
@@ -315,31 +315,31 @@ async def add_metrics(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     duration = time.time() - start_time
-    
+
     REQUEST_COUNT.labels(
         method=request.method,
         endpoint=request.url.path,
         status=response.status_code
     ).inc()
     REQUEST_DURATION.observe(duration)
-    
+
     return response
 
 @app.middleware("http")
 async def add_request_tracking(request: Request, call_next):
     start_time = time.time()
-    
+
     # Add correlation ID
     correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
-    
+
     # Process request
     response = await call_next(request)
-    
+
     # Add response headers
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     response.headers["X-Correlation-ID"] = correlation_id
-    
+
     return response
 
 

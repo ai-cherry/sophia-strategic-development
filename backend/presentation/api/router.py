@@ -27,11 +27,13 @@ from backend.api import (
     sophia_universal_chat_routes,
 )
 
+# Import ephemeral credentials routes
+from backend.security.ephemeral_credentials.routes import (
+    router as ephemeral_credentials_router,
+)
+
 # Import RBAC routes
 from backend.security.rbac.routes import router as rbac_router
-
-# Import ephemeral credentials routes
-from backend.security.ephemeral_credentials.routes import router as ephemeral_credentials_router
 
 
 def _setup_core_routes(router: APIRouter) -> None:

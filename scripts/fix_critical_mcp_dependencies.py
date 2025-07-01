@@ -335,7 +335,7 @@ class MCPDependencyFixer:
             async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
                 # Test with a simple endpoint
                 async with session.get("https://httpbin.org/json") as response:
-                    data = await response.json()
+                    await response.json()
                     return {
                         "success": True,
                         "status_code": response.status,
@@ -428,7 +428,7 @@ Applied {len(self.fixes_applied)} critical dependency fixes to the Sophia AI MCP
 - **Status**: {'✅ Success' if results['ssl_certificates']['success'] else '❌ Failed'}
 - **Message**: {results['ssl_certificates'].get('message', 'N/A')}
 
-### DateTime Deprecation Fixes  
+### DateTime Deprecation Fixes
 - **Status**: {'✅ Success' if results['datetime_deprecations']['success'] else '❌ Failed'}
 - **Files Fixed**: {results['datetime_deprecations'].get('files_fixed', 0)}
 
@@ -440,7 +440,7 @@ Applied {len(self.fixes_applied)} critical dependency fixes to the Sophia AI MCP
 - **Status**: {'✅ Success' if results['webfetch_functionality']['success'] else '❌ Failed'}
 - **Test Result**: {results['webfetch_functionality'].get('test_result', {}).get('message', 'N/A')}
 
-### Error Handling Standardization  
+### Error Handling Standardization
 - **Status**: {'✅ Success' if results['error_handling']['success'] else '❌ Failed'}
 
 ## Next Steps
@@ -459,7 +459,7 @@ Applied {len(self.fixes_applied)} critical dependency fixes to the Sophia AI MCP
 ## Impact Assessment
 These fixes address the top 5 critical issues identified in the comprehensive MCP ecosystem review:
 1. ✅ Snowflake connection cascade failures
-2. ✅ SSL certificate verification issues  
+2. ✅ SSL certificate verification issues
 3. ✅ Port configuration fragmentation
 4. ✅ DateTime deprecation warnings
 5. ✅ Inconsistent error handling

@@ -409,7 +409,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         self.preloaded_knowledge = True
         logger.info("✅ AI coding knowledge base pre-loaded successfully")
 
-    
+
     async def server_specific_init(self) -> None:
         """Initialize AI Memory server specific components"""
         await self._initialize_openai()
@@ -447,7 +447,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         """Process data with AI capabilities"""
         content = data.get("content", "")
         analysis = self.conversation_analyzer.analyze_conversation(content)
-        
+
         if analysis["should_auto_store"]:
             result = await self.store_memory(
                 content=content,
@@ -457,7 +457,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
                 auto_detected=True
             )
             return {"auto_stored": True, "memory_id": result.get("memory_id")}
-        
+
         return {"auto_stored": False, "analysis": analysis}
 
     def get_server_capabilities(self) -> dict:

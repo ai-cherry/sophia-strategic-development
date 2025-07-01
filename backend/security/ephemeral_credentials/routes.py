@@ -8,9 +8,8 @@ which are short-lived access tokens for API and service authentication.
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, Security
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 
 from backend.security.audit_logger import AuditEventType, info
@@ -18,17 +17,12 @@ from backend.security.ephemeral_credentials.models import (
     CredentialRequest,
     CredentialResponse,
     CredentialRevocationRequest,
-    CredentialScope,
-    CredentialStatus,
-    CredentialType,
     CredentialValidationRequest,
     CredentialValidationResponse,
-    EphemeralCredential,
     TokenMetadata,
 )
 from backend.security.ephemeral_credentials.service import EphemeralCredentialsService
 from backend.security.rbac.dependencies import (
-    RBACDependency,
     get_current_user,
     require_permission,
 )
@@ -50,7 +44,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 async def get_credentials_service() -> EphemeralCredentialsService:
     """
     Get the ephemeral credentials service.
-    
+
     Returns:
         EphemeralCredentialsService instance
     """
@@ -69,17 +63,17 @@ async def get_credentials_service() -> EphemeralCredentialsService:
 async def create_credential(
     request: CredentialRequest,
     credentials_service: EphemeralCredentialsService = Depends(get_credentials_service),
-    current_user: Dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission(ResourceType.SYSTEM, ActionType.MANAGE)),
 ) -> CredentialResponse:
     """
     Create a new ephemeral credential.
-    
+
     Args:
         request: Credential request
         credentials_service: Ephemeral credentials service
         current_user: Current authenticated user
-    
+
     Returns:
         Credential response with token value
     """
@@ -88,13 +82,13 @@ async def create_credential(
         request.metadata = TokenMetadata(user_id=current_user.get("id"))
     elif request.metadata.user_id is None:
         request.metadata.user_id = current_user.get("id")
-    
+
     # Create credential
     response = await credentials_service.create_credential(
         request=request,
         created_by=current_user.get("id"),
     )
-    
+
     # Log credential creation
     info(
         AuditEventType.ADMIN_ACTION,
@@ -106,7 +100,7 @@ async def create_credential(
             "ttl_seconds": request.ttl_seconds,
         },
     )
-    
+
     return response
 
 
@@ -119,23 +113,23 @@ async def create_credential(
 async def validate_credential(
     request: CredentialValidationRequest,
     credentials_service: EphemeralCredentialsService = Depends(get_credentials_service),
-    current_user: Dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission(ResourceType.SYSTEM, ActionType.READ)),
 ) -> CredentialValidationResponse:
     """
     Validate an ephemeral credential.
-    
+
     Args:
         request: Validation request
         credentials_service: Ephemeral credentials service
         current_user: Current authenticated user
-    
+
     Returns:
         Validation response
     """
     # Validate credential
     response = await credentials_service.validate_credential(request=request)
-    
+
     # Log validation
     info(
         AuditEventType.ACCESS_GRANTED if response.valid else AuditEventType.ACCESS_DENIED,
@@ -146,7 +140,7 @@ async def validate_credential(
             "error": response.error,
         },
     )
-    
+
     return response
 
 
@@ -158,17 +152,17 @@ async def validate_credential(
 async def revoke_credential(
     request: CredentialRevocationRequest,
     credentials_service: EphemeralCredentialsService = Depends(get_credentials_service),
-    current_user: Dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission(ResourceType.SYSTEM, ActionType.MANAGE)),
-) -> Dict[str, bool]:
+) -> dict[str, bool]:
     """
     Revoke an ephemeral credential.
-    
+
     Args:
         request: Revocation request
         credentials_service: Ephemeral credentials service
         current_user: Current authenticated user
-    
+
     Returns:
         Success status
     """
@@ -177,14 +171,14 @@ async def revoke_credential(
         request=request,
         revoked_by=current_user.get("id"),
     )
-    
+
     # If credential not found
     if not success:
         raise HTTPException(
             status_code=404,
             detail=f"Credential with ID {request.credential_id} not found",
         )
-    
+
     # Log revocation
     info(
         AuditEventType.ADMIN_ACTION,
@@ -194,13 +188,13 @@ async def revoke_credential(
             "reason": request.reason,
         },
     )
-    
+
     return {"success": success}
 
 
 @router.get(
     "/",
-    response_model=List[Dict],
+    response_model=list[dict],
     summary="List ephemeral credentials",
     description="List all ephemeral credentials with optional filters.",
 )
@@ -208,18 +202,18 @@ async def list_credentials(
     include_expired: bool = Query(False, description="Include expired credentials"),
     include_revoked: bool = Query(False, description="Include revoked credentials"),
     credentials_service: EphemeralCredentialsService = Depends(get_credentials_service),
-    current_user: Dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission(ResourceType.SYSTEM, ActionType.READ)),
-) -> List[Dict]:
+) -> list[dict]:
     """
     List all ephemeral credentials.
-    
+
     Args:
         include_expired: Whether to include expired credentials
         include_revoked: Whether to include revoked credentials
         credentials_service: Ephemeral credentials service
         current_user: Current authenticated user
-    
+
     Returns:
         List of credentials
     """
@@ -228,44 +222,44 @@ async def list_credentials(
         include_expired=include_expired,
         include_revoked=include_revoked,
     )
-    
+
     # Convert to response format
     return [cred.to_response_dict() for cred in credentials]
 
 
 @router.get(
     "/{credential_id}",
-    response_model=Dict,
+    response_model=dict,
     summary="Get ephemeral credential",
     description="Get an ephemeral credential by ID.",
 )
 async def get_credential(
     credential_id: str = Path(..., description="ID of the credential"),
     credentials_service: EphemeralCredentialsService = Depends(get_credentials_service),
-    current_user: Dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission(ResourceType.SYSTEM, ActionType.READ)),
-) -> Dict:
+) -> dict:
     """
     Get an ephemeral credential by ID.
-    
+
     Args:
         credential_id: ID of the credential
         credentials_service: Ephemeral credentials service
         current_user: Current authenticated user
-    
+
     Returns:
         Credential details
     """
     # Get credential
     credential = await credentials_service.get_credential(credential_id=credential_id)
-    
+
     # If credential not found
     if not credential:
         raise HTTPException(
             status_code=404,
             detail=f"Credential with ID {credential_id} not found",
         )
-    
+
     # Convert to response format
     return credential.to_response_dict()
 
@@ -277,29 +271,29 @@ async def get_credential(
 )
 async def cleanup_credentials(
     credentials_service: EphemeralCredentialsService = Depends(get_credentials_service),
-    current_user: Dict = Depends(get_current_user),
+    current_user: dict = Depends(get_current_user),
     _: bool = Depends(require_permission(ResourceType.SYSTEM, ActionType.MANAGE)),
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Clean up expired credentials.
-    
+
     Args:
         credentials_service: Ephemeral credentials service
         current_user: Current authenticated user
-    
+
     Returns:
         Number of credentials removed
     """
     # Clean up expired credentials
     removed_count = await credentials_service.cleanup_expired_credentials()
-    
+
     # Log cleanup
     info(
         AuditEventType.ADMIN_ACTION,
         f"Cleaned up {removed_count} expired credentials",
         {"removed_count": removed_count},
     )
-    
+
     return {"removed_count": removed_count}
 
 
@@ -308,35 +302,35 @@ async def cleanup_credentials(
 async def authenticate_request(request: Request, call_next):
     """
     Authenticate requests using ephemeral credentials.
-    
+
     Args:
         request: FastAPI request
         call_next: Next middleware or route handler
-    
+
     Returns:
         Response from next middleware or route handler
     """
     # Get credentials service
     credentials_service = await get_credentials_service()
-    
+
     # Try to get token from header
     token = request.headers.get("Authorization")
     if token and token.startswith("Bearer "):
         token = token[7:]  # Remove "Bearer " prefix
     else:
         token = request.headers.get("X-API-Key")
-    
+
     # If token found, validate it
     if token:
         validation_result = await credentials_service.validate_credential(
             request=CredentialValidationRequest(token_value=token)
         )
-        
+
         if validation_result.valid:
             # Add credential info to request state
             request.state.credential_id = validation_result.credential_id
             request.state.credential_scopes = validation_result.scopes
-    
+
     # Continue with request
     return await call_next(request)
 

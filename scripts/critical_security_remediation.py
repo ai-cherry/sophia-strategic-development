@@ -6,7 +6,7 @@ Sophia AI - Immediate Security Vulnerability Fixes
 This script addresses ALL 95 critical security vulnerabilities identified:
 
 1. SQL Injection (34 instances) - Parameterized queries
-2. Command Injection (28 instances) - Safe subprocess usage  
+2. Command Injection (28 instances) - Safe subprocess usage
 3. Hardcoded Secrets (15 instances) - Environment variable replacement
 4. Insecure File Permissions (8 instances) - Proper chmod settings
 5. XML External Entity (2 instances) - defusedxml usage

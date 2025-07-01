@@ -2,10 +2,10 @@
 Sophia AI Phase 2 - Vercel Serverless Function
 """
 
+from datetime import datetime
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-import json
-from datetime import datetime
 
 # Create Flask application for Vercel
 app = Flask(__name__)
@@ -50,8 +50,8 @@ def health_check():
 def api_health_check():
     """API v2 health check"""
     return jsonify({
-        "status": "healthy", 
-        "api_version": "2.0", 
+        "status": "healthy",
+        "api_version": "2.0",
         "features": ["phase2"],
         "platform": "Vercel"
     })
@@ -64,7 +64,7 @@ def get_features():
         "platform": "Vercel Serverless",
         "features": [
             "Enhanced LangGraph Orchestration",
-            "Universal Chat Service", 
+            "Universal Chat Service",
             "Cost Engineering & Model Routing",
             "Enhanced Snowflake Cortex Integration",
             "Human-in-the-Loop Workflows",
@@ -84,17 +84,17 @@ def process_chat_message():
     """Process chat message with Phase 2 capabilities"""
     try:
         data = request.get_json()
-        
+
         if not data or 'message' not in data:
             return jsonify({"error": "Message is required"}), 400
-        
+
         message = data['message']
         user_id = data.get('user_id', 'anonymous')
-        session_id = data.get('session_id', 'default')
-        
+        data.get('session_id', 'default')
+
         # Mock chat processing with enhanced responses
         response_text = f"🤖 Sophia AI Phase 2 here! I understand: '{message}'. "
-        
+
         # Enhanced intent recognition
         if "workflow" in message.lower():
             intent = "create_workflow"
@@ -121,7 +121,7 @@ def process_chat_message():
             confidence = 0.75
             response_text += "🎯 How can I assist you with Sophia AI's advanced capabilities today?"
             workflow_id = None
-        
+
         return jsonify({
             "response": response_text,
             "intent": intent,
@@ -130,7 +130,7 @@ def process_chat_message():
             "platform": "Vercel",
             "timestamp": datetime.now().isoformat()
         })
-        
+
     except Exception as e:
         return jsonify({"error": f"Processing error: {str(e)}"}), 500
 
@@ -139,16 +139,16 @@ def create_workflow():
     """Create a new workflow from natural language description"""
     try:
         data = request.get_json()
-        
+
         if not data or 'description' not in data:
             return jsonify({"error": "Description is required"}), 400
-        
+
         user_id = data.get('user_id', 'anonymous')
         description = data['description']
-        
+
         # Enhanced workflow creation
         workflow_id = f"wf_{user_id}_{abs(hash(description)) % 100000}"
-        
+
         return jsonify({
             "workflow_id": workflow_id,
             "status": "created",
@@ -158,7 +158,7 @@ def create_workflow():
             "features": ["human-in-the-loop", "cost-optimization", "real-time-monitoring"],
             "created_at": datetime.now().isoformat()
         })
-        
+
     except Exception as e:
         return jsonify({"error": f"Workflow creation error: {str(e)}"}), 500
 
@@ -201,8 +201,8 @@ def get_cost_report():
 def cortex_search():
     """Enhanced Cortex search"""
     query = request.args.get('query', '')
-    limit = int(request.args.get('limit', 10))
-    
+    int(request.args.get('limit', 10))
+
     return jsonify({
         "query": query,
         "results": [
@@ -213,7 +213,7 @@ def cortex_search():
                 "relevance": "high"
             },
             {
-                "content": f"📊 Data-driven insights for '{query}' - Pattern Recognition", 
+                "content": f"📊 Data-driven insights for '{query}' - Pattern Recognition",
                 "similarity_score": 0.89,
                 "source": "cortex_enhanced",
                 "relevance": "high"

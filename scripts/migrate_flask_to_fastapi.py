@@ -6,10 +6,8 @@ Migrates backend/app.py Flask application to modern FastAPI with streaming, auth
 
 import asyncio
 import logging
-import os
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -23,11 +21,11 @@ class FlaskToFastAPIMigrator:
         self.backend_path = self.project_root / "backend"
         self.flask_app_path = self.backend_path / "app.py"
         self.new_fastapi_path = self.backend_path / "app" / "modernized_fastapi_app.py"
-        
-    async def execute_migration(self) -> Dict[str, Any]:
+
+    async def execute_migration(self) -> dict[str, Any]:
         """Execute the complete Flask to FastAPI migration"""
         logger.info("🚀 Starting Flask to FastAPI migration with 2025 best practices")
-        
+
         migration_results = {
             "status": "success",
             "flask_endpoints_migrated": 0,
@@ -35,22 +33,22 @@ class FlaskToFastAPIMigrator:
             "files_created": [],
             "improvements": []
         }
-        
+
         try:
             # 1. Analyze Flask application
             flask_analysis = self._analyze_flask_app()
             logger.info(f"📊 Found {len(flask_analysis['endpoints'])} Flask endpoints to migrate")
-            
+
             # 2. Create modern FastAPI application
             fastapi_content = self._generate_modern_fastapi_app(flask_analysis)
-            
+
             # 3. Create supporting files
             self._create_supporting_files()
-            
+
             # 4. Write the new FastAPI application
             self.new_fastapi_path.parent.mkdir(parents=True, exist_ok=True)
             self.new_fastapi_path.write_text(fastapi_content)
-            
+
             migration_results.update({
                 "flask_endpoints_migrated": len(flask_analysis['endpoints']),
                 "new_features_added": [
@@ -78,27 +76,27 @@ class FlaskToFastAPIMigrator:
                     "Performance monitoring"
                 ]
             })
-            
+
             logger.info("✅ Flask to FastAPI migration completed successfully")
             return migration_results
-            
+
         except Exception as e:
             logger.error(f"❌ Migration failed: {e}")
             migration_results["status"] = "failed"
             migration_results["error"] = str(e)
             return migration_results
-    
-    def _analyze_flask_app(self) -> Dict[str, Any]:
+
+    def _analyze_flask_app(self) -> dict[str, Any]:
         """Analyze the existing Flask application"""
         if not self.flask_app_path.exists():
             return {"endpoints": [], "features": []}
-        
+
         content = self.flask_app_path.read_text()
-        
+
         # Extract Flask routes
         endpoints = []
         lines = content.split('\n')
-        
+
         for i, line in enumerate(lines):
             if '@app.route(' in line:
                 # Extract route information
@@ -112,13 +110,13 @@ class FlaskToFastAPIMigrator:
                             "function": function_name,
                             "line": i + 1
                         })
-        
+
         return {
             "endpoints": endpoints,
             "features": ["CORS", "Error handling", "JSON responses"]
         }
-    
-    def _generate_modern_fastapi_app(self, flask_analysis: Dict[str, Any]) -> str:
+
+    def _generate_modern_fastapi_app(self, flask_analysis: dict[str, Any]) -> str:
         """Generate modern FastAPI application with 2025 best practices"""
         return '''#!/usr/bin/env python3
 """
@@ -133,10 +131,10 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from fastapi import (
-    BackgroundTasks, 
-    Depends, 
-    FastAPI, 
-    HTTPException, 
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    HTTPException,
     Request,
     status
 )
@@ -202,37 +200,37 @@ async def lifespan(app: FastAPI):
     """Modern lifespan management with service initialization"""
     # Startup
     logger.info("🚀 Starting Sophia AI Platform v3.0...")
-    
+
     global chat_service, streaming_service
-    
+
     try:
         # Initialize AI services
         chat_service = EnhancedChatService(settings)
         await chat_service.initialize()
-        
+
         streaming_service = StreamingService(settings)
         await streaming_service.initialize()
-        
+
         logger.info("✅ All services initialized successfully")
         yield
-        
+
     except Exception as e:
         logger.error(f"❌ Service initialization failed: {e}")
         raise
     finally:
         # Shutdown
         logger.info("🛑 Shutting down Sophia AI Platform...")
-        
+
         if chat_service:
             await chat_service.cleanup()
         if streaming_service:
             await streaming_service.cleanup()
-            
+
         logger.info("✅ Shutdown complete")
 
 def create_application() -> FastAPI:
     """Create modern FastAPI application with 2025 best practices"""
-    
+
     app = FastAPI(
         title="Sophia AI Platform",
         description="AI-powered business intelligence with streaming capabilities",
@@ -242,11 +240,11 @@ def create_application() -> FastAPI:
         redoc_url="/redoc" if settings.debug else None,
         openapi_url="/openapi.json" if settings.debug else None,
     )
-    
+
     # Add rate limiting
     app.state.limiter = limiter
     app.add_exception_handler(429, _rate_limit_exceeded_handler)
-    
+
     # Enhanced middleware stack
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(
@@ -256,32 +254,32 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Metrics middleware
     @app.middleware("http")
     async def add_metrics_middleware(request: Request, call_next):
         start_time = time.time()
-        
+
         # Add correlation ID
         correlation_id = request.headers.get("X-Correlation-ID", f"req_{int(time.time())}")
-        
+
         with structlog.contextvars.bound_contextvars(correlation_id=correlation_id):
             response = await call_next(request)
-            
+
             duration = time.time() - start_time
-            
+
             REQUEST_COUNT.labels(
                 method=request.method,
                 endpoint=request.url.path,
                 status=response.status_code
             ).inc()
             REQUEST_DURATION.observe(duration)
-            
+
             response.headers["X-Correlation-ID"] = correlation_id
             response.headers["X-Response-Time"] = f"{duration:.3f}s"
-            
+
             return response
-    
+
     # Global exception handler
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
@@ -294,7 +292,7 @@ def create_application() -> FastAPI:
                 correlation_id=request.headers.get("X-Correlation-ID")
             ).model_dump()
         )
-    
+
     return app
 
 # Create application instance
@@ -366,16 +364,16 @@ async def chat_endpoint(
     current_user: dict = Depends(get_current_user)
 ):
     """Modern chat endpoint with streaming support"""
-    
+
     if not chat_service:
         raise HTTPException(status_code=503, detail="Chat service not available")
-    
+
     # Log request
     logger.info(f"Chat request from user {current_user.get('username', 'unknown')}")
-    
+
     # Track AI usage
     AI_REQUESTS.labels(service="chat", model=chat_request.model).inc()
-    
+
     if chat_request.stream:
         # Return streaming response
         return StreamingResponse(
@@ -390,15 +388,15 @@ async def chat_endpoint(
     else:
         # Return complete response
         response = await chat_service.generate_response(chat_request)
-        
+
         # Log response for analytics
         background_tasks.add_task(
-            chat_service.log_chat_interaction, 
-            chat_request, 
-            response, 
+            chat_service.log_chat_interaction,
+            chat_request,
+            response,
             current_user
         )
-        
+
         return response
 
 @app.post("/api/v3/chat/stream", tags=["AI Chat"])
@@ -409,17 +407,17 @@ async def stream_chat(
     current_user: dict = Depends(get_current_user)
 ):
     """Dedicated streaming chat endpoint"""
-    
+
     if not streaming_service:
         raise HTTPException(status_code=503, detail="Streaming service not available")
-    
+
     logger.info(f"Streaming chat request from user {current_user.get('username', 'unknown')}")
-    
+
     async def generate_stream():
         async for chunk in streaming_service.stream_chat_response(chat_request):
             yield f"data: {chunk}\\n\\n"
         yield "data: [DONE]\\n\\n"
-    
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/event-stream",
@@ -485,13 +483,13 @@ async def upload_knowledge(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge file upload with background processing"""
-    
+
     # TODO: Implement actual file upload logic
     file_id = f"kb_{int(time.time())}"
-    
+
     # Process file in background
     background_tasks.add_task(process_knowledge_file, file_id)
-    
+
     return {
         "status": "accepted",
         "message": "File uploaded and processing started",
@@ -506,12 +504,12 @@ async def sync_knowledge(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge source synchronization"""
-    
+
     sync_id = f"sync_{int(time.time())}"
-    
+
     # Start sync in background
     background_tasks.add_task(sync_knowledge_sources, sync_id)
-    
+
     return {
         "status": "started",
         "message": "Knowledge synchronization started",
@@ -530,7 +528,7 @@ async def mcp_service_health(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced MCP service health check"""
-    
+
     # TODO: Implement actual MCP service health checking
     return {
         "status": "healthy",
@@ -580,7 +578,7 @@ async def sync_knowledge_sources(sync_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "modernized_fastapi_app:app",
         host="0.0.0.0",
@@ -591,10 +589,10 @@ if __name__ == "__main__":
         workers=1 if settings.debug else 4
     )
 '''
-    
+
     def _create_supporting_files(self):
         """Create supporting files for the modern FastAPI application"""
-        
+
         # 1. Enhanced Settings
         settings_content = '''"""
 Enhanced Settings for Sophia AI Platform - 2025 Best Practices
@@ -605,47 +603,47 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Modern settings with Pydantic v2"""
-    
+
     # Application
     app_name: str = "Sophia AI Platform"
     app_version: str = "3.0.0"
     environment: str = "production"
     debug: bool = False
-    
+
     # Security
     secret_key: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     allowed_origins: List[str] = ["*"]
-    
+
     # Database
     database_url: str = "sqlite:///./sophia_ai.db"
     redis_url: str = "redis://localhost:6379"
-    
+
     # AI Services
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     pinecone_api_key: str = ""
-    
+
     # Snowflake
     snowflake_account: str = ""
     snowflake_user: str = ""
     snowflake_password: str = ""
     snowflake_database: str = "SOPHIA_AI"
-    
+
     # Rate Limiting
     rate_limit_per_minute: int = 60
-    
+
     class Config:
         env_prefix = "SOPHIA_"
         case_sensitive = False
         env_file = ".env"
 '''
-        
+
         settings_path = self.backend_path / "core" / "settings.py"
         settings_path.parent.mkdir(parents=True, exist_ok=True)
         settings_path.write_text(settings_content)
-        
+
         # 2. Security Module
         security_content = '''"""
 Security module for Sophia AI Platform - OAuth2 + JWT
@@ -666,13 +664,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """Create JWT access token"""
     settings = Settings()
-    
+
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
-    
+
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.jwt_algorithm)
     return encoded_jwt
@@ -680,7 +678,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 def verify_jwt_token(token: str) -> dict:
     """Verify JWT token and return payload"""
     settings = Settings()
-    
+
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
         return payload
@@ -694,7 +692,7 @@ def verify_jwt_token(token: str) -> dict:
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current user from JWT token"""
     payload = verify_jwt_token(credentials.credentials)
-    
+
     username: str = payload.get("sub")
     if username is None:
         raise HTTPException(
@@ -702,7 +700,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # TODO: Get user from database
     return {"username": username, "is_active": True}
 
@@ -714,10 +712,10 @@ def get_password_hash(password: str) -> str:
     """Hash password"""
     return pwd_context.hash(password)
 '''
-        
+
         security_path = self.backend_path / "core" / "security.py"
         security_path.write_text(security_content)
-        
+
         # 3. API Models
         models_content = '''"""
 API Models for Sophia AI Platform - Pydantic v2
@@ -783,18 +781,18 @@ class MCPServiceHealth(BaseModel):
     response_time: str
     uptime: str
 '''
-        
+
         models_path = self.backend_path / "models" / "api_models.py"
         models_path.parent.mkdir(parents=True, exist_ok=True)
         models_path.write_text(models_content)
-        
+
         logger.info("✅ Created supporting files for modern FastAPI application")
 
 async def main():
     """Main function to run the migration"""
     migrator = FlaskToFastAPIMigrator()
     results = await migrator.execute_migration()
-    
+
     print("\n" + "="*60)
     print("🚀 FLASK TO FASTAPI MIGRATION COMPLETE")
     print("="*60)
@@ -802,20 +800,20 @@ async def main():
     print(f"Endpoints Migrated: {results['flask_endpoints_migrated']}")
     print(f"New Features Added: {len(results['new_features_added'])}")
     print(f"Files Created: {len(results['files_created'])}")
-    
+
     if results['status'] == 'success':
         print("\n✅ Migration successful! New features include:")
         for feature in results['new_features_added']:
             print(f"  • {feature}")
-        
+
         print("\n📁 Files created:")
         for file in results['files_created']:
             print(f"  • {file}")
-            
+
         print("\n🚀 Improvements delivered:")
         for improvement in results['improvements']:
             print(f"  • {improvement}")
-            
+
         print("\n🎯 Next Steps:")
         print("  1. Review the generated files")
         print("  2. Update import statements in other modules")
@@ -826,4 +824,4 @@ async def main():
         print(f"\n❌ Migration failed: {results.get('error', 'Unknown error')}")
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

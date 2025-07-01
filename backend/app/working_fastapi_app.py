@@ -5,57 +5,56 @@ Production-ready FastAPI app using existing Sophia AI services
 """
 
 import asyncio
-import time
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel
 import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+
+from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.services.smart_ai_service import SmartAIService
 
 # Import existing Sophia AI services
 from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
-from backend.services.smart_ai_service import SmartAIService
-from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
-from backend.core.auto_esc_config import get_config_value
+
 
 # Pydantic models
 class ChatRequest(BaseModel):
     message: str
-    context: Optional[str] = None
+    context: str | None = None
     stream: bool = False
 
 class ChatResponse(BaseModel):
     response: str
     timestamp: str
-    model_used: Optional[str] = None
+    model_used: str | None = None
 
 class HealthResponse(BaseModel):
     status: str
     timestamp: str
-    services: Dict[str, bool]
+    services: dict[str, bool]
 
 # Global services
-chat_service: Optional[SophiaUniversalChatService] = None
-ai_service: Optional[SmartAIService] = None
-knowledge_service: Optional[FoundationalKnowledgeService] = None
+chat_service: SophiaUniversalChatService | None = None
+ai_service: SmartAIService | None = None
+knowledge_service: FoundationalKnowledgeService | None = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize and cleanup services"""
     global chat_service, ai_service, knowledge_service
-    
+
     print("🚀 Starting Sophia AI FastAPI Platform...")
-    
+
     try:
         # Initialize services
         chat_service = SophiaUniversalChatService()
         ai_service = SmartAIService()
         knowledge_service = FoundationalKnowledgeService()
-        
+
         print("✅ Services initialized successfully")
         yield
     except Exception as e:
@@ -115,10 +114,10 @@ async def root():
 @app.post("/api/v3/chat", response_model=ChatResponse)
 async def chat_endpoint(chat_request: ChatRequest):
     """Main chat endpoint"""
-    
+
     if not chat_service:
         raise HTTPException(status_code=503, detail="Chat service not available")
-    
+
     try:
         # Use the existing chat service
         response = await chat_service.process_chat_message(
@@ -126,23 +125,23 @@ async def chat_endpoint(chat_request: ChatRequest):
             user_id="ceo",
             context={"dashboard": chat_request.context}
         )
-        
+
         return ChatResponse(
             response=response.content,
             timestamp=datetime.utcnow().isoformat(),
             model_used="sophia-ai"
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
 
 @app.post("/api/v3/chat/stream")
 async def stream_chat(chat_request: ChatRequest):
     """Streaming chat endpoint"""
-    
+
     if not chat_service:
         raise HTTPException(status_code=503, detail="Chat service not available")
-    
+
     async def generate_stream():
         try:
             # For now, simulate streaming - can be enhanced later
@@ -151,7 +150,7 @@ async def stream_chat(chat_request: ChatRequest):
                 user_id="ceo",
                 context={"dashboard": chat_request.context}
             )
-            
+
             # Split response into chunks for streaming effect
             words = response.content.split()
             for i, word in enumerate(words):
@@ -162,16 +161,16 @@ async def stream_chat(chat_request: ChatRequest):
                 }
                 yield f"data: {chunk}\n\n"
                 await asyncio.sleep(0.05)  # Small delay for streaming effect
-                
+
             yield "data: [DONE]\n\n"
-            
+
         except Exception as e:
             error_chunk = {
                 "error": str(e),
                 "timestamp": datetime.utcnow().isoformat()
             }
             yield f"data: {error_chunk}\n\n"
-    
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/event-stream",
@@ -188,22 +187,22 @@ async def stream_chat(chat_request: ChatRequest):
 @app.post("/api/v3/knowledge/query")
 async def query_knowledge(query: dict):
     """Query the knowledge base"""
-    
+
     if not knowledge_service:
         raise HTTPException(status_code=503, detail="Knowledge service not available")
-    
+
     try:
         result = await knowledge_service.search_foundational_knowledge(
             query=query.get("query", ""),
             limit=query.get("limit", 10)
         )
-        
+
         return {
             "results": result,
             "timestamp": datetime.utcnow().isoformat(),
             "query": query.get("query", "")
         }
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Knowledge query failed: {str(e)}")
 
@@ -216,7 +215,7 @@ async def get_dashboard_metrics():
     """Get dashboard metrics"""
     return {
         "revenue": {"value": 2100000, "change": 3.2, "trend": "up"},
-        "agents": {"value": 48, "change": 5, "trend": "up"}, 
+        "agents": {"value": 48, "change": 5, "trend": "up"},
         "success_rate": {"value": 94.2, "change": -0.5, "trend": "down"},
         "api_calls": {"value": 1200000000, "change": 12, "trend": "up"},
         "timestamp": datetime.utcnow().isoformat()
@@ -269,4 +268,4 @@ if __name__ == "__main__":
         port=8000,
         reload=True,
         log_level="info"
-    ) 
+    )

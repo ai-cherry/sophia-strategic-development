@@ -4,15 +4,14 @@ Bridges frontend MCPIntegrationService with actual MCP servers
 Addresses critical gap identified in system analysis
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, List, Any, Union
-import logging
 import asyncio
-import httpx
-import json
+import logging
 from datetime import datetime
-import os
+from typing import Any
+
+import httpx
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +28,14 @@ MCP_SERVERS = {
     },
     "enhanced_ai_memory": {
         "port": 9001,
-        "host": "localhost", 
+        "host": "localhost",
         "health_endpoint": "/health",
         "capabilities": ["memory", "context", "pattern_learning"]
     },
     "portkey_gateway": {
         "port": 9002,
         "host": "localhost",
-        "health_endpoint": "/health", 
+        "health_endpoint": "/health",
         "capabilities": ["provider_management", "cost_optimization"]
     },
     "code_intelligence": {
@@ -81,37 +80,37 @@ MCP_SERVERS = {
 class MCPHealthResponse(BaseModel):
     status: str
     service: str
-    capabilities: List[str]
+    capabilities: list[str]
     timestamp: datetime
-    version: Optional[str] = None
+    version: str | None = None
 
 class MCPServiceStatus(BaseModel):
     service_name: str
     status: str
     url: str
-    capabilities: List[str]
+    capabilities: list[str]
     last_check: datetime
-    error: Optional[str] = None
+    error: str | None = None
 
 class MCPSystemStatus(BaseModel):
     total_services: int
     healthy_services: int
     unhealthy_services: int
-    services: List[MCPServiceStatus]
+    services: list[MCPServiceStatus]
     system_health: str
     last_updated: datetime
 
 # Utility Functions
-async def check_mcp_service_health(service_name: str, config: Dict[str, Any]) -> MCPServiceStatus:
+async def check_mcp_service_health(service_name: str, config: dict[str, Any]) -> MCPServiceStatus:
     """Check health of individual MCP service"""
     url = f"http://{config['host']}:{config['port']}{config['health_endpoint']}"
-    
+
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
-            
+
             if response.status_code == 200:
-                health_data = response.json()
+                response.json()
                 return MCPServiceStatus(
                     service_name=service_name,
                     status="healthy",
@@ -129,7 +128,7 @@ async def check_mcp_service_health(service_name: str, config: Dict[str, Any]) ->
                     last_check=datetime.utcnow(),
                     error=f"HTTP {response.status_code}"
                 )
-                
+
     except Exception as e:
         return MCPServiceStatus(
             service_name=service_name,
@@ -146,15 +145,15 @@ async def get_all_mcp_status() -> MCPSystemStatus:
         check_mcp_service_health(service_name, config)
         for service_name, config in MCP_SERVERS.items()
     ]
-    
+
     service_statuses = await asyncio.gather(*tasks)
-    
+
     healthy_count = sum(1 for status in service_statuses if status.status == "healthy")
     total_count = len(service_statuses)
-    
+
     system_health = "healthy" if healthy_count == total_count else \
                    "degraded" if healthy_count > 0 else "unhealthy"
-    
+
     return MCPSystemStatus(
         total_services=total_count,
         healthy_services=healthy_count,
@@ -180,10 +179,10 @@ async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
     """Get health status of specific MCP service"""
     if service_name not in MCP_SERVERS:
         raise HTTPException(status_code=404, detail=f"MCP service '{service_name}' not found")
-    
+
     config = MCP_SERVERS[service_name]
     status = await check_mcp_service_health(service_name, config)
-    
+
     if status.status != "healthy":
         # Return mock healthy response for development
         return MCPHealthResponse(
@@ -193,14 +192,14 @@ async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
             timestamp=datetime.utcnow(),
             version="1.0.0"
         )
-    
+
     # If service is actually healthy, return real response
     url = f"http://{config['host']}:{config['port']}{config['health_endpoint']}"
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(url)
             health_data = response.json()
-            
+
             return MCPHealthResponse(
                 status=health_data.get("status", "healthy"),
                 service=health_data.get("service", f"MCP {service_name}"),
@@ -220,36 +219,36 @@ async def get_mcp_service_health(service_name: str) -> MCPHealthResponse:
         )
 
 @router.post("/{service_name}/proxy")
-async def proxy_mcp_request(service_name: str, request_data: Dict[str, Any]) -> Dict[str, Any]:
+async def proxy_mcp_request(service_name: str, request_data: dict[str, Any]) -> dict[str, Any]:
     """Proxy requests to MCP services"""
     if service_name not in MCP_SERVERS:
         raise HTTPException(status_code=404, detail=f"MCP service '{service_name}' not found")
-    
+
     config = MCP_SERVERS[service_name]
     base_url = f"http://{config['host']}:{config['port']}"
-    
+
     # Extract endpoint from request
     endpoint = request_data.get("endpoint", "/")
     method = request_data.get("method", "POST")
     payload = request_data.get("payload", {})
-    
+
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             if method.upper() == "GET":
                 response = await client.get(f"{base_url}{endpoint}")
             else:
                 response = await client.post(f"{base_url}{endpoint}", json=payload)
-            
+
             return {
                 "status_code": response.status_code,
                 "data": response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text,
                 "service": service_name,
                 "timestamp": datetime.utcnow().isoformat()
             }
-            
+
     except Exception as e:
         logger.error(f"Failed to proxy request to {service_name}: {e}")
-        
+
         # Return mock response for development
         return {
             "status_code": 200,
@@ -266,20 +265,20 @@ async def proxy_mcp_request(service_name: str, request_data: Dict[str, Any]) -> 
 # Enhanced endpoints for specific MCP services
 
 @router.get("/portkey_admin_official/cost-analysis")
-async def get_portkey_cost_analysis() -> Dict[str, Any]:
+async def get_portkey_cost_analysis() -> dict[str, Any]:
     """Get cost analysis from Portkey Admin MCP"""
     try:
         # Try to get real data from MCP service
         config = MCP_SERVERS["portkey_admin_official"]
         url = f"http://{config['host']}:{config['port']}/cost-analysis"
-        
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url)
             return response.json()
-            
+
     except Exception as e:
         logger.warning(f"Failed to get real cost analysis: {e}")
-        
+
         # Return mock data for development
         return {
             "total_cost": 1247.83,
@@ -300,20 +299,20 @@ async def get_portkey_cost_analysis() -> Dict[str, Any]:
         }
 
 @router.get("/sophia_ai_orchestrator/performance")
-async def get_orchestrator_performance() -> Dict[str, Any]:
+async def get_orchestrator_performance() -> dict[str, Any]:
     """Get performance metrics from Sophia AI Orchestrator"""
     try:
         # Try to get real data from MCP service
         config = MCP_SERVERS["sophia_ai_orchestrator"]
         url = f"http://{config['host']}:{config['port']}/performance"
-        
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url)
             return response.json()
-            
+
     except Exception as e:
         logger.warning(f"Failed to get real orchestrator performance: {e}")
-        
+
         # Return mock data for development
         return {
             "requests_per_minute": 847,
@@ -332,20 +331,20 @@ async def get_orchestrator_performance() -> Dict[str, Any]:
         }
 
 @router.get("/business_intelligence/insights")
-async def get_business_insights() -> Dict[str, Any]:
+async def get_business_insights() -> dict[str, Any]:
     """Get business intelligence insights"""
     try:
         # Try to get real data from MCP service
         config = MCP_SERVERS["business_intelligence"]
         url = f"http://{config['host']}:{config['port']}/insights"
-        
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url)
             return response.json()
-            
+
     except Exception as e:
         logger.warning(f"Failed to get real business insights: {e}")
-        
+
         # Return mock data for development
         return {
             "key_metrics": {
@@ -369,20 +368,20 @@ async def get_business_insights() -> Dict[str, Any]:
         }
 
 @router.get("/openrouter_search_official/model-usage")
-async def get_model_usage() -> Dict[str, Any]:
+async def get_model_usage() -> dict[str, Any]:
     """Get model usage statistics from OpenRouter"""
     try:
         # Try to get real data from MCP service
         config = MCP_SERVERS["openrouter_search_official"]
         url = f"http://{config['host']}:{config['port']}/model-usage"
-        
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url)
             return response.json()
-            
+
     except Exception as e:
         logger.warning(f"Failed to get real model usage: {e}")
-        
+
         # Return mock data for development
         return {
             "total_models_available": 247,
@@ -400,26 +399,26 @@ async def get_model_usage() -> Dict[str, Any]:
         }
 
 @router.get("/enhanced_ai_memory/agent-patterns")
-async def get_agent_patterns() -> Dict[str, Any]:
+async def get_agent_patterns() -> dict[str, Any]:
     """Get agent memory patterns and insights"""
     try:
         # Try to get real data from MCP service
         config = MCP_SERVERS["enhanced_ai_memory"]
         url = f"http://{config['host']}:{config['port']}/agent-patterns"
-        
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(url)
             return response.json()
-            
+
     except Exception as e:
         logger.warning(f"Failed to get real agent patterns: {e}")
-        
+
         # Return mock data for development
         return {
             "pattern_analysis": {
                 "common_queries": [
                     "Business metrics analysis",
-                    "Strategic recommendations", 
+                    "Strategic recommendations",
                     "Cost optimization",
                     "Performance insights"
                 ],

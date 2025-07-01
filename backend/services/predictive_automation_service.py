@@ -291,7 +291,7 @@ class PredictiveAutomationService:
 
         # Calculate trends and patterns
         recent_values = [dp.value for dp in metric_data[-10:]]
-        trend = self._calculate_trend(recent_values)
+        self._calculate_trend(recent_values)
 
         # Check for anomalies
         if self._detect_anomaly(metric_name, recent_values[-1]):

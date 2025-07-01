@@ -703,7 +703,7 @@ if __name__ == '__main__':
 ## Phase 1 Results
 {json.dumps(self.deployment_results.get('phase_1', {}), indent=2)}
 
-## Phase 2 Results  
+## Phase 2 Results
 {json.dumps(self.deployment_results.get('phase_2', {}), indent=2)}
 
 ## Validation Results
@@ -716,7 +716,7 @@ if __name__ == '__main__':
 
 ## Enhanced Servers
 - **N8N Workflow CLI**: http://localhost:9019/health
-- **Apify Intelligence**: http://localhost:9015/health  
+- **Apify Intelligence**: http://localhost:9015/health
 - **Hugging Face AI**: http://localhost:9016/health
 - **Weaviate Primary**: http://localhost:9017/health
 - **Arize Phoenix**: http://localhost:9018/health

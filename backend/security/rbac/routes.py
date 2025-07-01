@@ -11,10 +11,10 @@ These routes allow administrators to manage the RBAC system through a REST API.
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from backend.security.audit_logger import AuditEventType, info
 from backend.security.rbac.dependencies import require_permission, require_system_admin
@@ -37,33 +37,33 @@ router = APIRouter(prefix="/api/v3/rbac", tags=["RBAC"])
 class PermissionCreate(BaseModel):
     """Model for creating a permission"""
     resource_type: ResourceType
-    actions: List[ActionType]
-    resource_id: Optional[str] = None
-    attributes: Optional[List[str]] = None
-    condition: Optional[Dict[str, Any]] = None
-    description: Optional[str] = None
+    actions: list[ActionType]
+    resource_id: str | None = None
+    attributes: list[str] | None = None
+    condition: dict[str, Any] | None = None
+    description: str | None = None
 
 
 class RoleCreate(BaseModel):
     """Model for creating a role"""
     name: str
-    permissions: List[PermissionCreate]
-    description: Optional[str] = None
+    permissions: list[PermissionCreate]
+    description: str | None = None
 
 
 class RoleUpdate(BaseModel):
     """Model for updating a role"""
-    name: Optional[str] = None
-    permissions: Optional[List[PermissionCreate]] = None
-    description: Optional[str] = None
+    name: str | None = None
+    permissions: list[PermissionCreate] | None = None
+    description: str | None = None
 
 
 class RoleResponse(BaseModel):
     """Model for role response"""
     id: str
     name: str
-    permissions: List[Permission]
-    description: Optional[str] = None
+    permissions: list[Permission]
+    description: str | None = None
     is_system_role: bool
     created_at: datetime
     updated_at: datetime
@@ -73,27 +73,27 @@ class UserCreate(BaseModel):
     """Model for creating a user"""
     id: str
     email: str
-    name: Optional[str] = None
-    department: Optional[str] = None
+    name: str | None = None
+    department: str | None = None
     is_active: bool = True
     is_system_admin: bool = False
 
 
 class UserUpdate(BaseModel):
     """Model for updating a user"""
-    email: Optional[str] = None
-    name: Optional[str] = None
-    department: Optional[str] = None
-    is_active: Optional[bool] = None
-    is_system_admin: Optional[bool] = None
+    email: str | None = None
+    name: str | None = None
+    department: str | None = None
+    is_active: bool | None = None
+    is_system_admin: bool | None = None
 
 
 class UserResponse(BaseModel):
     """Model for user response"""
     id: str
     email: str
-    name: Optional[str] = None
-    department: Optional[str] = None
+    name: str | None = None
+    department: str | None = None
     is_active: bool
     is_system_admin: bool
     created_at: datetime
@@ -104,18 +104,18 @@ class RoleAssignmentCreate(BaseModel):
     """Model for creating a role assignment"""
     user_id: str
     role_id: str
-    scope_type: Optional[ResourceType] = None
-    scope_id: Optional[str] = None
-    constraints: Optional[Dict[str, Any]] = None
-    expires_at: Optional[datetime] = None
+    scope_type: ResourceType | None = None
+    scope_id: str | None = None
+    constraints: dict[str, Any] | None = None
+    expires_at: datetime | None = None
 
 
 class RoleAssignmentUpdate(BaseModel):
     """Model for updating a role assignment"""
-    scope_type: Optional[ResourceType] = None
-    scope_id: Optional[str] = None
-    constraints: Optional[Dict[str, Any]] = None
-    expires_at: Optional[datetime] = None
+    scope_type: ResourceType | None = None
+    scope_id: str | None = None
+    constraints: dict[str, Any] | None = None
+    expires_at: datetime | None = None
 
 
 class RoleAssignmentResponse(BaseModel):
@@ -123,12 +123,12 @@ class RoleAssignmentResponse(BaseModel):
     id: str
     user_id: str
     role_id: str
-    scope_type: Optional[ResourceType] = None
-    scope_id: Optional[str] = None
-    constraints: Optional[Dict[str, Any]] = None
+    scope_type: ResourceType | None = None
+    scope_id: str | None = None
+    constraints: dict[str, Any] | None = None
     created_at: datetime
-    expires_at: Optional[datetime] = None
-    created_by: Optional[str] = None
+    expires_at: datetime | None = None
+    created_by: str | None = None
 
 
 class PermissionCheckRequest(BaseModel):
@@ -136,8 +136,8 @@ class PermissionCheckRequest(BaseModel):
     user_id: str
     resource_type: ResourceType
     action: ActionType
-    resource_id: Optional[str] = None
-    context: Optional[Dict[str, Any]] = None
+    resource_id: str | None = None
+    context: dict[str, Any] | None = None
 
 
 class PermissionCheckResponse(BaseModel):
@@ -146,19 +146,19 @@ class PermissionCheckResponse(BaseModel):
     user_id: str
     resource_type: ResourceType
     action: ActionType
-    resource_id: Optional[str] = None
-    context: Optional[Dict[str, Any]] = None
+    resource_id: str | None = None
+    context: dict[str, Any] | None = None
 
 
 # Role routes
 
-@router.get("/roles", response_model=List[RoleResponse])
+@router.get("/roles", response_model=list[RoleResponse])
 async def get_roles(
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
-) -> List[Role]:
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
+) -> list[Role]:
     """
     Get all roles.
-    
+
     Returns:
         List of roles
     """
@@ -169,48 +169,48 @@ async def get_roles(
 @router.get("/roles/{role_id}", response_model=RoleResponse)
 async def get_role(
     role_id: str = Path(..., description="ID of the role to get"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
 ) -> Role:
     """
     Get a role by ID.
-    
+
     Args:
         role_id: ID of the role to get
-    
+
     Returns:
         Role
-    
+
     Raises:
         HTTPException: If the role is not found
     """
     rbac_service = get_rbac_service()
     role = rbac_service.get_role(role_id)
-    
+
     if not role:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role not found: {role_id}",
         )
-    
+
     return role
 
 
 @router.post("/roles", response_model=RoleResponse, status_code=status.HTTP_201_CREATED)
 async def create_role(
     role_create: RoleCreate,
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.CREATE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.CREATE)),
 ) -> Role:
     """
     Create a new role.
-    
+
     Args:
         role_create: Role creation data
-    
+
     Returns:
         Created role
     """
     rbac_service = get_rbac_service()
-    
+
     # Convert permissions
     permissions = [
         Permission(
@@ -223,14 +223,14 @@ async def create_role(
         )
         for p in role_create.permissions
     ]
-    
+
     # Create the role
     role = rbac_service.create_role(
         name=role_create.name,
         permissions=permissions,
         description=role_create.description,
     )
-    
+
     return role
 
 
@@ -238,23 +238,23 @@ async def create_role(
 async def update_role(
     role_update: RoleUpdate,
     role_id: str = Path(..., description="ID of the role to update"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.UPDATE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.UPDATE)),
 ) -> Role:
     """
     Update a role.
-    
+
     Args:
         role_update: Role update data
         role_id: ID of the role to update
-    
+
     Returns:
         Updated role
-    
+
     Raises:
         HTTPException: If the role is not found or is a system role
     """
     rbac_service = get_rbac_service()
-    
+
     # Check if the role exists
     role = rbac_service.get_role(role_id)
     if not role:
@@ -262,14 +262,14 @@ async def update_role(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role not found: {role_id}",
         )
-    
+
     # Check if the role is a system role
     if role.is_system_role:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Cannot update system role: {role.name}",
         )
-    
+
     # Convert permissions if provided
     permissions = None
     if role_update.permissions is not None:
@@ -284,7 +284,7 @@ async def update_role(
             )
             for p in role_update.permissions
         ]
-    
+
     # Update the role
     updated_role = rbac_service.update_role(
         role_id=role_id,
@@ -292,32 +292,32 @@ async def update_role(
         permissions=permissions,
         description=role_update.description,
     )
-    
+
     if not updated_role:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role not found: {role_id}",
         )
-    
+
     return updated_role
 
 
 @router.delete("/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role(
     role_id: str = Path(..., description="ID of the role to delete"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.DELETE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.DELETE)),
 ) -> None:
     """
     Delete a role.
-    
+
     Args:
         role_id: ID of the role to delete
-    
+
     Raises:
         HTTPException: If the role is not found or is a system role
     """
     rbac_service = get_rbac_service()
-    
+
     # Check if the role exists
     role = rbac_service.get_role(role_id)
     if not role:
@@ -325,17 +325,17 @@ async def delete_role(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role not found: {role_id}",
         )
-    
+
     # Check if the role is a system role
     if role.is_system_role:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Cannot delete system role: {role.name}",
         )
-    
+
     # Delete the role
     success = rbac_service.delete_role(role_id)
-    
+
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -345,13 +345,13 @@ async def delete_role(
 
 # User routes
 
-@router.get("/users", response_model=List[UserResponse])
+@router.get("/users", response_model=list[UserResponse])
 async def get_users(
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.READ)),
-) -> List[User]:
+    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.READ)),
+) -> list[User]:
     """
     Get all users.
-    
+
     Returns:
         List of users
     """
@@ -362,48 +362,48 @@ async def get_users(
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: str = Path(..., description="ID of the user to get"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.READ)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.READ)),
 ) -> User:
     """
     Get a user by ID.
-    
+
     Args:
         user_id: ID of the user to get
-    
+
     Returns:
         User
-    
+
     Raises:
         HTTPException: If the user is not found
     """
     rbac_service = get_rbac_service()
     user = rbac_service.get_user(user_id)
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User not found: {user_id}",
         )
-    
+
     return user
 
 
 @router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_create: UserCreate,
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.CREATE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.CREATE)),
 ) -> User:
     """
     Create a new user.
-    
+
     Args:
         user_create: User creation data
-    
+
     Returns:
         Created user
     """
     rbac_service = get_rbac_service()
-    
+
     # Create the user
     user = rbac_service.create_user(
         user_id=user_create.id,
@@ -413,7 +413,7 @@ async def create_user(
         is_active=user_create.is_active,
         is_system_admin=user_create.is_system_admin,
     )
-    
+
     return user
 
 
@@ -421,23 +421,23 @@ async def create_user(
 async def update_user(
     user_update: UserUpdate,
     user_id: str = Path(..., description="ID of the user to update"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.UPDATE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.UPDATE)),
 ) -> User:
     """
     Update a user.
-    
+
     Args:
         user_update: User update data
         user_id: ID of the user to update
-    
+
     Returns:
         Updated user
-    
+
     Raises:
         HTTPException: If the user is not found
     """
     rbac_service = get_rbac_service()
-    
+
     # Update the user
     updated_user = rbac_service.update_user(
         user_id=user_id,
@@ -447,35 +447,35 @@ async def update_user(
         is_active=user_update.is_active,
         is_system_admin=user_update.is_system_admin,
     )
-    
+
     if not updated_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User not found: {user_id}",
         )
-    
+
     return updated_user
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: str = Path(..., description="ID of the user to delete"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.DELETE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.USER, ActionType.DELETE)),
 ) -> None:
     """
     Delete a user.
-    
+
     Args:
         user_id: ID of the user to delete
-    
+
     Raises:
         HTTPException: If the user is not found
     """
     rbac_service = get_rbac_service()
-    
+
     # Delete the user
     success = rbac_service.delete_user(user_id)
-    
+
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -485,19 +485,19 @@ async def delete_user(
 
 # Role assignment routes
 
-@router.get("/assignments", response_model=List[RoleAssignmentResponse])
+@router.get("/assignments", response_model=list[RoleAssignmentResponse])
 async def get_role_assignments(
-    user_id: Optional[str] = Query(None, description="Filter by user ID"),
-    role_id: Optional[str] = Query(None, description="Filter by role ID"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
-) -> List[RoleAssignment]:
+    user_id: str | None = Query(None, description="Filter by user ID"),
+    role_id: str | None = Query(None, description="Filter by role ID"),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
+) -> list[RoleAssignment]:
     """
     Get role assignments, optionally filtered by user or role.
-    
+
     Args:
         user_id: Filter by user ID
         role_id: Filter by role ID
-    
+
     Returns:
         List of role assignments
     """
@@ -508,29 +508,29 @@ async def get_role_assignments(
 @router.get("/assignments/{assignment_id}", response_model=RoleAssignmentResponse)
 async def get_role_assignment(
     assignment_id: str = Path(..., description="ID of the role assignment to get"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.READ)),
 ) -> RoleAssignment:
     """
     Get a role assignment by ID.
-    
+
     Args:
         assignment_id: ID of the role assignment to get
-    
+
     Returns:
         Role assignment
-    
+
     Raises:
         HTTPException: If the role assignment is not found
     """
     rbac_service = get_rbac_service()
     assignment = rbac_service.get_role_assignment(assignment_id)
-    
+
     if not assignment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role assignment not found: {assignment_id}",
         )
-    
+
     return assignment
 
 
@@ -541,25 +541,25 @@ async def get_role_assignment(
 )
 async def create_role_assignment(
     assignment_create: RoleAssignmentCreate,
-    auth_context: Dict[str, Any] = Depends(
+    auth_context: dict[str, Any] = Depends(
         require_permission(ResourceType.ROLE, ActionType.ASSIGN)
     ),
 ) -> RoleAssignment:
     """
     Create a new role assignment.
-    
+
     Args:
         assignment_create: Role assignment creation data
         auth_context: Authentication context
-    
+
     Returns:
         Created role assignment
-    
+
     Raises:
         HTTPException: If the user or role is not found
     """
     rbac_service = get_rbac_service()
-    
+
     # Check if the user exists
     user = rbac_service.get_user(assignment_create.user_id)
     if not user:
@@ -567,7 +567,7 @@ async def create_role_assignment(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User not found: {assignment_create.user_id}",
         )
-    
+
     # Check if the role exists
     role = rbac_service.get_role(assignment_create.role_id)
     if not role:
@@ -575,7 +575,7 @@ async def create_role_assignment(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role not found: {assignment_create.role_id}",
         )
-    
+
     # Create the role assignment
     assignment = rbac_service.assign_role(
         user_id=assignment_create.user_id,
@@ -586,13 +586,13 @@ async def create_role_assignment(
         expires_at=assignment_create.expires_at,
         created_by=auth_context["user"].id,
     )
-    
+
     if not assignment:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to create role assignment",
         )
-    
+
     return assignment
 
 
@@ -600,23 +600,23 @@ async def create_role_assignment(
 async def update_role_assignment(
     assignment_update: RoleAssignmentUpdate,
     assignment_id: str = Path(..., description="ID of the role assignment to update"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.UPDATE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.UPDATE)),
 ) -> RoleAssignment:
     """
     Update a role assignment.
-    
+
     Args:
         assignment_update: Role assignment update data
         assignment_id: ID of the role assignment to update
-    
+
     Returns:
         Updated role assignment
-    
+
     Raises:
         HTTPException: If the role assignment is not found
     """
     rbac_service = get_rbac_service()
-    
+
     # Update the role assignment
     updated_assignment = rbac_service.update_role_assignment(
         assignment_id=assignment_id,
@@ -625,35 +625,35 @@ async def update_role_assignment(
         constraints=assignment_update.constraints,
         expires_at=assignment_update.expires_at,
     )
-    
+
     if not updated_assignment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Role assignment not found: {assignment_id}",
         )
-    
+
     return updated_assignment
 
 
 @router.delete("/assignments/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_role_assignment(
     assignment_id: str = Path(..., description="ID of the role assignment to delete"),
-    _: Dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.DELETE)),
+    _: dict[str, Any] = Depends(require_permission(ResourceType.ROLE, ActionType.DELETE)),
 ) -> None:
     """
     Delete a role assignment.
-    
+
     Args:
         assignment_id: ID of the role assignment to delete
-    
+
     Raises:
         HTTPException: If the role assignment is not found
     """
     rbac_service = get_rbac_service()
-    
+
     # Delete the role assignment
     success = rbac_service.remove_role_assignment(assignment_id)
-    
+
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -666,19 +666,19 @@ async def delete_role_assignment(
 @router.post("/check", response_model=PermissionCheckResponse)
 async def check_permission(
     check_request: PermissionCheckRequest,
-    _: Dict[str, Any] = Depends(require_system_admin),
+    _: dict[str, Any] = Depends(require_system_admin),
 ) -> PermissionCheckResponse:
     """
     Check if a user has permission to perform an action on a resource.
-    
+
     Args:
         check_request: Permission check request
-    
+
     Returns:
         Permission check response
     """
     rbac_service = get_rbac_service()
-    
+
     # Check permission
     has_permission = rbac_service.check_permission(
         user_id=check_request.user_id,
@@ -687,7 +687,7 @@ async def check_permission(
         resource_id=check_request.resource_id,
         context=check_request.context,
     )
-    
+
     # Log the permission check
     info(
         AuditEventType.CUSTOM,
@@ -700,7 +700,7 @@ async def check_permission(
             "has_permission": has_permission,
         },
     )
-    
+
     # Return the result
     return PermissionCheckResponse(
         has_permission=has_permission,

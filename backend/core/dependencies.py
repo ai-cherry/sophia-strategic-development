@@ -96,7 +96,7 @@ def get_request_chat_service(request):
 # Cache Manager Dependencies
 
 # Import the cache manager
-from backend.core.cache_manager import EnhancedCacheManager, get_cache_manager
+from backend.core.cache_manager import get_cache_manager
 
 
 def get_cache_manager_from_app_state(request):

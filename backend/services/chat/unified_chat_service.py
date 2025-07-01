@@ -60,7 +60,7 @@ class UnifiedChatService:
         """
         try:
             # Get or create session
-            session = await self.session_manager.get_or_create_session(
+            await self.session_manager.get_or_create_session(
                 session_id=request.session_id,
                 mode=request.mode
             )

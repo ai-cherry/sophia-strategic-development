@@ -11,23 +11,6 @@ Key components:
 - Routes: API routes for managing RBAC components
 """
 
-from backend.security.rbac.models import (
-    ActionType,
-    Permission,
-    ResourceType,
-    Role,
-    RoleAssignment,
-    User,
-    SYSTEM_ROLES,
-    has_permission,
-)
-
-from backend.security.rbac.service import (
-    RBACService,
-    initialize_rbac_service,
-    get_rbac_service,
-)
-
 from backend.security.rbac.dependencies import (
     get_current_user,
     get_optional_user,
@@ -36,6 +19,21 @@ from backend.security.rbac.dependencies import (
     requires_permission,
     requires_system_admin,
     setup_rbac,
+)
+from backend.security.rbac.models import (
+    SYSTEM_ROLES,
+    ActionType,
+    Permission,
+    ResourceType,
+    Role,
+    RoleAssignment,
+    User,
+    has_permission,
+)
+from backend.security.rbac.service import (
+    RBACService,
+    get_rbac_service,
+    initialize_rbac_service,
 )
 
 __all__ = [
@@ -48,12 +46,12 @@ __all__ = [
     "User",
     "SYSTEM_ROLES",
     "has_permission",
-    
+
     # Service
     "RBACService",
     "initialize_rbac_service",
     "get_rbac_service",
-    
+
     # Dependencies
     "get_current_user",
     "get_optional_user",

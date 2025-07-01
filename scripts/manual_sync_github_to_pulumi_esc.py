@@ -61,7 +61,7 @@ def sync_single_secret(secret_name: str, placeholder_value: str) -> bool:
             "--secret"
         ]
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
         logger.info(f"✅ Synced: {secret_name}")
         return True
 

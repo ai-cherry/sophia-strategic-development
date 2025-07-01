@@ -111,12 +111,12 @@ class {server_name.replace('_', '').title()}Server:
         self.port = port
         self.app = web.Application()
         self._setup_routes()
-    
+
     def _setup_routes(self):
         self.app.router.add_get('/health', self.health_check)
         self.app.router.add_get('/capabilities', self.get_capabilities)
         self.app.router.add_post('/process', self.process_request)
-    
+
     async def health_check(self, request):
         return web.json_response({{
             "status": "healthy",
@@ -125,7 +125,7 @@ class {server_name.replace('_', '').title()}Server:
             "timestamp": datetime.now().isoformat(),
             "enhanced": True
         }})
-    
+
     async def get_capabilities(self, request):
         capabilities = {{
             "n8n_workflow_cli": ["workflow_export", "workflow_import", "monitoring"],
@@ -134,17 +134,17 @@ class {server_name.replace('_', '').title()}Server:
             "weaviate_primary": ["vector_storage", "semantic_search"],
             "arize_phoenix": ["ai_monitoring", "performance_tracking"]
         }}
-        
+
         return web.json_response({{
             "capabilities": capabilities.get("{server_name}", ["basic_functionality"]),
             "server": "{server_name}",
             "enhanced": True
         }})
-    
+
     async def process_request(self, request):
         try:
             data = await request.json()
-            
+
             # Simple processing logic
             result = {{
                 "server": "{server_name}",
@@ -153,9 +153,9 @@ class {server_name.replace('_', '').title()}Server:
                 "timestamp": datetime.now().isoformat(),
                 "message": f"Processed by {server_name} - CLI/SDK enhanced server"
             }}
-            
+
             return web.json_response(result)
-            
+
         except Exception as e:
             return web.json_response({{
                 "error": str(e),
@@ -164,17 +164,17 @@ class {server_name.replace('_', '').title()}Server:
 
 async def main():
     server = {server_name.replace('_', '').title()}Server()
-    
+
     print(f"🚀 Starting {{server.app}} on port {{server.port}}")
-    
+
     runner = web.AppRunner(server.app)
     await runner.setup()
-    
+
     site = web.TCPSite(runner, 'localhost', server.port)
     await site.start()
-    
+
     print(f"✅ {server_name} running on http://localhost:{{server.port}}")
-    
+
     # Keep running
     try:
         await asyncio.Future()  # run forever

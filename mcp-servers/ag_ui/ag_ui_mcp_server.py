@@ -14,6 +14,7 @@ Features:
 """
 
 from __future__ import annotations
+
 import asyncio
 import json
 import uuid
@@ -337,7 +338,7 @@ class AGUIMCPServer(StandardizedMCPServer):
         ]
 
     # MCP Tool Methods
-    
+
     async def server_specific_init(self) -> None:
         """Initialize AG UI server specific components"""
         pass

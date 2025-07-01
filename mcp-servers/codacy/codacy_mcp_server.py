@@ -43,6 +43,8 @@ except ImportError:
     RADON_AVAILABLE = False
 
 # Base class and configs
+import logging
+
 from backend.mcp_servers.base.standardized_mcp_server import (
     HealthCheckResult,
     HealthStatus,
@@ -50,9 +52,8 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     StandardizedMCPServer,
     SyncPriority,
 )
-import logging
-# from backend.utils.logging import get_logger
 
+# from backend.utils.logging import get_logger
 # The client for the external API
 from .codacy_api_client import CodacyAPIClient
 

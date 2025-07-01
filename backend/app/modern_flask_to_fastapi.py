@@ -14,33 +14,25 @@ This application replaces backend/app.py Flask application with:
 """
 
 import asyncio
-import json
 import time
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any
 
-from fastapi import (
-    BackgroundTasks,
-    Depends,
-    FastAPI,
-    HTTPException,
-    Request,
-    status
-)
+import structlog
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse, PlainTextResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from prometheus_client import Counter, Histogram, generate_latest
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
-from prometheus_client import Counter, Histogram, generate_latest
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-import structlog
+from slowapi.util import get_remote_address
 
 # Configure structured logging
 structlog.configure(
@@ -72,26 +64,26 @@ class Settings(BaseSettings):
     app_version: str = "3.0.0"
     environment: str = "production"
     debug: bool = False
-    
+
     # Security
     secret_key: str = "change-me-in-production-use-pulumi-esc"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-    allowed_origins: List[str] = ["*"]
-    
+    allowed_origins: list[str] = ["*"]
+
     # API Configuration
     api_prefix: str = "/api/v3"
     docs_url: str = "/docs"
     redoc_url: str = "/redoc"
-    
+
     # Rate Limiting
     rate_limit_per_minute: int = 60
     chat_rate_limit_per_minute: int = 10
-    
+
     # AI Services (will be loaded from Pulumi ESC in production)
     openai_api_key: str = ""
     anthropic_api_key: str = ""
-    
+
     class Config:
         env_prefix = "SOPHIA_"
         case_sensitive = False
@@ -133,13 +125,13 @@ class ChatResponse(BaseModel):
     mode: str = Field(..., description="Chat mode used")
     session_id: str = Field(..., description="Session ID")
     timestamp: str = Field(..., description="Response timestamp")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
 
 class ChatStreamChunk(BaseModel):
     """Streaming chat chunk model"""
     content: str = Field(..., description="Chunk content")
     finished: bool = Field(default=False, description="Is this the final chunk")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Chunk metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Chunk metadata")
 
 class HealthResponse(BaseModel):
     """Health check response model"""
@@ -147,29 +139,29 @@ class HealthResponse(BaseModel):
     service: str = Field(..., description="Service name")
     version: str = Field(..., description="Service version")
     timestamp: str = Field(..., description="Health check timestamp")
-    services: Dict[str, bool] = Field(default_factory=dict, description="Individual service health")
+    services: dict[str, bool] = Field(default_factory=dict, description="Individual service health")
     uptime: str = Field(default="unknown", description="Service uptime")
 
 class DashboardMetrics(BaseModel):
     """Dashboard metrics response model"""
-    revenue: Dict[str, Any] = Field(..., description="Revenue metrics")
-    agents: Dict[str, Any] = Field(..., description="Agent metrics")
-    success_rate: Dict[str, Any] = Field(..., description="Success rate metrics")
-    api_calls: Dict[str, Any] = Field(..., description="API call metrics")
+    revenue: dict[str, Any] = Field(..., description="Revenue metrics")
+    agents: dict[str, Any] = Field(..., description="Agent metrics")
+    success_rate: dict[str, Any] = Field(..., description="Success rate metrics")
+    api_calls: dict[str, Any] = Field(..., description="API call metrics")
     timestamp: str = Field(..., description="Metrics timestamp")
 
 class ErrorResponse(BaseModel):
     """Error response model"""
     error: str = Field(..., description="Error type")
     message: str = Field(..., description="Error message")
-    correlation_id: Optional[str] = Field(None, description="Request correlation ID")
+    correlation_id: str | None = Field(None, description="Request correlation ID")
     timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Error timestamp")
 
 class MCPServiceHealth(BaseModel):
     """MCP service health model"""
     status: str = Field(..., description="Service status")
     service: str = Field(..., description="Service name")
-    capabilities: List[str] = Field(default_factory=list, description="Service capabilities")
+    capabilities: list[str] = Field(default_factory=list, description="Service capabilities")
     timestamp: str = Field(..., description="Health check timestamp")
     version: str = Field(..., description="Service version")
     response_time: str = Field(default="unknown", description="Response time")
@@ -193,13 +185,13 @@ async def lifespan(app: FastAPI):
     """Modern lifespan management for startup and shutdown events"""
     # Startup
     logger.info("🚀 Starting Sophia AI Platform v3.0...")
-    
+
     try:
         # Initialize services
         await initialize_services()
         logger.info("✅ All services initialized successfully")
         yield
-        
+
     except Exception as e:
         logger.error(f"❌ Service initialization failed: {e}")
         raise
@@ -235,7 +227,7 @@ async def cleanup_services():
 
 def create_application() -> FastAPI:
     """Create modern FastAPI application with 2025 best practices"""
-    
+
     app = FastAPI(
         title=settings.app_name,
         description="AI-powered business intelligence with streaming capabilities and enterprise security",
@@ -252,11 +244,11 @@ def create_application() -> FastAPI:
             "name": "MIT",
         },
     )
-    
+
     # Configure rate limiting
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-    
+
     # Enhanced middleware stack
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(
@@ -271,16 +263,16 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
         expose_headers=["X-Process-Time", "X-Correlation-ID", "X-Request-ID"]
     )
-    
+
     # Request tracking middleware
     @app.middleware("http")
     async def add_request_tracking(request: Request, call_next):
         start_time = time.time()
-        
+
         # Generate correlation ID
         correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
         request.state.correlation_id = correlation_id
-        
+
         # Bind correlation ID to logger context
         with structlog.contextvars.bound_contextvars(correlation_id=correlation_id):
             # Log request
@@ -291,13 +283,13 @@ def create_application() -> FastAPI:
                 query_params=str(request.query_params),
                 user_agent=request.headers.get("User-Agent", "unknown")
             )
-            
+
             # Process request
             response = await call_next(request)
-            
+
             # Calculate duration
             duration = time.time() - start_time
-            
+
             # Update metrics
             REQUEST_COUNT.labels(
                 method=request.method,
@@ -305,12 +297,12 @@ def create_application() -> FastAPI:
                 status=response.status_code
             ).inc()
             REQUEST_DURATION.observe(duration)
-            
+
             # Add response headers
             response.headers["X-Process-Time"] = f"{duration:.3f}s"
             response.headers["X-Correlation-ID"] = correlation_id
             response.headers["X-Request-ID"] = correlation_id
-            
+
             # Log response
             logger.info(
                 "Request completed",
@@ -319,21 +311,21 @@ def create_application() -> FastAPI:
                 status_code=response.status_code,
                 duration=duration
             )
-            
+
             return response
-    
+
     # Global exception handler
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         """Global exception handler with structured logging"""
         correlation_id = getattr(request.state, 'correlation_id', 'unknown')
-        
+
         # Count error
         ERROR_COUNT.labels(
             error_type=type(exc).__name__,
             endpoint=request.url.path
         ).inc()
-        
+
         # Log error with full context
         logger.error(
             "Unhandled exception",
@@ -344,7 +336,7 @@ def create_application() -> FastAPI:
             error_message=str(exc),
             exc_info=True
         )
-        
+
         return JSONResponse(
             status_code=500,
             content=ErrorResponse(
@@ -353,13 +345,13 @@ def create_application() -> FastAPI:
                 correlation_id=correlation_id
             ).model_dump()
         )
-    
+
     # HTTP exception handler
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
         """Handle HTTP exceptions with proper logging"""
         correlation_id = getattr(request.state, 'correlation_id', 'unknown')
-        
+
         logger.warning(
             "HTTP exception",
             correlation_id=correlation_id,
@@ -368,7 +360,7 @@ def create_application() -> FastAPI:
             status_code=exc.status_code,
             detail=exc.detail
         )
-        
+
         return JSONResponse(
             status_code=exc.status_code,
             content=ErrorResponse(
@@ -377,7 +369,7 @@ def create_application() -> FastAPI:
                 correlation_id=correlation_id
             ).model_dump()
         )
-    
+
     return app
 
 # Create application instance
@@ -387,19 +379,19 @@ app = create_application()
 # AUTHENTICATION AND SECURITY
 # ==============================================================================
 
-async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+async def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(security)):
     """Get current user from JWT token (optional for demo)"""
     if not credentials:
         # For demo purposes, return a default user
         return {"username": "demo_user", "is_active": True, "roles": ["user"]}
-    
+
     # TODO: Implement actual JWT verification
     # In production, this would:
     # 1. Verify JWT token
     # 2. Check token expiration
     # 3. Load user from database
     # 4. Check user permissions
-    
+
     return {"username": "authenticated_user", "is_active": True, "roles": ["user", "admin"]}
 
 # ==============================================================================
@@ -410,7 +402,7 @@ async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] =
 async def root():
     """Root endpoint with enhanced API information"""
     uptime = datetime.utcnow() - app_start_time
-    
+
     return {
         "message": "Welcome to Sophia AI Platform v3.0",
         "version": settings.app_version,
@@ -436,7 +428,7 @@ async def root():
 async def health_check():
     """Enhanced health check with detailed service status"""
     uptime = datetime.utcnow() - app_start_time
-    
+
     return HealthResponse(
         status="healthy" if all(service_health.values()) else "degraded",
         service=settings.app_name,
@@ -479,10 +471,10 @@ async def unified_chat(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced unified chat endpoint with streaming support"""
-    
+
     # Track chat request
     CHAT_REQUESTS.labels(mode=chat_request.mode, stream=chat_request.stream).inc()
-    
+
     logger.info(
         "Chat request received",
         user=current_user.get("username"),
@@ -491,7 +483,7 @@ async def unified_chat(
         model=chat_request.model,
         session_id=chat_request.session_id
     )
-    
+
     if chat_request.stream:
         # Return streaming response
         return StreamingResponse(
@@ -506,7 +498,7 @@ async def unified_chat(
     else:
         # Generate complete response
         response_content = await generate_chat_response(chat_request, current_user)
-        
+
         response = ChatResponse(
             response=response_content,
             mode=chat_request.mode,
@@ -518,7 +510,7 @@ async def unified_chat(
                 "processing_time": "simulated"
             }
         )
-        
+
         # Log chat interaction in background
         background_tasks.add_task(
             log_chat_interaction,
@@ -526,12 +518,12 @@ async def unified_chat(
             response,
             current_user
         )
-        
+
         return response
 
 async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
     """Generate streaming chat response with SSE"""
-    
+
     # Simulate streaming response (in production, this would connect to actual AI services)
     response_parts = [
         f"Enhanced {chat_request.mode.title()} Response: ",
@@ -541,7 +533,7 @@ async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
         "enterprise security, and comprehensive monitoring. ",
         f"Session: {chat_request.session_id}"
     ]
-    
+
     for i, part in enumerate(response_parts):
         chunk = ChatStreamChunk(
             content=part,
@@ -552,26 +544,26 @@ async def stream_chat_response(chat_request: ChatRequest, current_user: dict):
                 "timestamp": datetime.utcnow().isoformat()
             }
         )
-        
+
         yield f"data: {chunk.model_dump_json()}\n\n"
         await asyncio.sleep(0.1)  # Simulate streaming delay
-    
+
     # Send completion signal
     yield "data: [DONE]\n\n"
 
 async def generate_chat_response(chat_request: ChatRequest, current_user: dict) -> str:
     """Generate complete chat response"""
-    
+
     # Simulate AI response generation (in production, integrate with actual AI services)
     response_templates = {
         "universal": f"Universal Chat Response: {chat_request.message}",
         "sophia": f"Sophia AI Enhanced Response: Analyzing '{chat_request.message}' with comprehensive business intelligence context, real-time data integration, and strategic insights.",
         "executive": f"Executive Assistant Response: Providing strategic analysis for '{chat_request.message}' with market intelligence, competitive analysis, and actionable recommendations."
     }
-    
+
     # Simulate processing time
     await asyncio.sleep(0.5)
-    
+
     return response_templates.get(chat_request.mode, response_templates["universal"])
 
 # ==============================================================================
@@ -584,12 +576,12 @@ async def get_dashboard_metrics(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced dashboard KPI metrics with real-time data"""
-    
+
     logger.info(
         "Dashboard metrics requested",
         user=current_user.get("username")
     )
-    
+
     return DashboardMetrics(
         revenue={
             "value": 2100000,
@@ -628,7 +620,7 @@ async def get_agno_metrics(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced Agno performance metrics with detailed insights"""
-    
+
     return {
         "avg_instantiation": 0.85,
         "pool_size": 12,
@@ -644,12 +636,12 @@ async def get_agno_metrics(
     }
 
 @app.get(f"{settings.api_prefix}/dashboard/cost-analysis", tags=["Dashboard"])
-@limiter.limit("30/minute") 
+@limiter.limit("30/minute")
 async def get_cost_analysis(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced LLM cost analysis with optimization insights"""
-    
+
     return {
         "providers": [
             {
@@ -702,22 +694,22 @@ async def upload_knowledge(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge file upload with background processing and validation"""
-    
+
     file_id = f"kb_{int(time.time())}_{uuid.uuid4().hex[:8]}"
-    
+
     logger.info(
         "Knowledge upload started",
         file_id=file_id,
         user=current_user.get("username")
     )
-    
+
     # Process file in background with comprehensive workflow
     background_tasks.add_task(
         process_knowledge_file,
         file_id,
         current_user
     )
-    
+
     return {
         "status": "accepted",
         "message": "File uploaded and processing started",
@@ -741,22 +733,22 @@ async def sync_knowledge(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced knowledge source synchronization with progress tracking"""
-    
+
     sync_id = f"sync_{int(time.time())}_{uuid.uuid4().hex[:8]}"
-    
+
     logger.info(
         "Knowledge sync started",
         sync_id=sync_id,
         user=current_user.get("username")
     )
-    
+
     # Start comprehensive sync in background
     background_tasks.add_task(
         sync_knowledge_sources,
         sync_id,
         current_user
     )
-    
+
     return {
         "status": "started",
         "message": "Knowledge synchronization started",
@@ -769,7 +761,7 @@ async def sync_knowledge(
             },
             {
                 "name": "sharepoint",
-                "type": "documents", 
+                "type": "documents",
                 "estimated_items": 890
             },
             {
@@ -799,10 +791,10 @@ async def mcp_service_health(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced MCP service health check with detailed diagnostics"""
-    
+
     # TODO: Implement actual MCP service health checking
     # This would ping the actual MCP service and get real status
-    
+
     return MCPServiceHealth(
         status="healthy",
         service=f"MCP {service_name}",
@@ -824,7 +816,7 @@ async def mcp_system_health(
     current_user: dict = Depends(get_current_user)
 ):
     """Enhanced MCP system health overview with comprehensive metrics"""
-    
+
     return {
         "total_services": 15,
         "healthy_services": 15,
@@ -854,16 +846,16 @@ async def execute_mcp_service(
     current_user: dict = Depends(get_current_user)
 ):
     """Execute MCP service operation with background processing"""
-    
+
     execution_id = f"exec_{int(time.time())}_{uuid.uuid4().hex[:8]}"
-    
+
     logger.info(
         "MCP service execution started",
         service_name=service_name,
         execution_id=execution_id,
         user=current_user.get("username")
     )
-    
+
     # Execute MCP service in background
     background_tasks.add_task(
         execute_mcp_operation,
@@ -872,7 +864,7 @@ async def execute_mcp_service(
         execution_id,
         current_user
     )
-    
+
     return {
         "status": "accepted",
         "execution_id": execution_id,
@@ -892,7 +884,7 @@ async def log_chat_interaction(
     user: dict
 ):
     """Log chat interaction for analytics"""
-    
+
     logger.info(
         "Chat interaction logged",
         session_id=chat_request.session_id,
@@ -900,48 +892,48 @@ async def log_chat_interaction(
         user=user.get("username"),
         response_length=len(chat_response.response)
     )
-    
+
     # TODO: Store in database for analytics
     await asyncio.sleep(0.1)
 
 async def process_knowledge_file(file_id: str, user: dict):
     """Background task to process uploaded knowledge files"""
-    
+
     logger.info(f"Processing knowledge file {file_id}")
-    
+
     try:
         # Simulate comprehensive file processing
         stages = [
             "File validation",
-            "Content extraction", 
+            "Content extraction",
             "AI enhancement",
             "Vector embedding",
             "Index integration"
         ]
-        
+
         for stage in stages:
             logger.info(f"Knowledge file {file_id}: {stage}")
             await asyncio.sleep(1)  # Simulate processing time
-        
+
         logger.info(f"Knowledge file {file_id} processed successfully")
-        
+
     except Exception as e:
         logger.error(f"Knowledge file {file_id} processing failed: {e}")
 
 async def sync_knowledge_sources(sync_id: str, user: dict):
     """Background task to sync knowledge sources"""
-    
+
     logger.info(f"Starting knowledge sync {sync_id}")
-    
+
     try:
         sources = ["confluence", "sharepoint", "gdrive", "notion"]
-        
+
         for source in sources:
             logger.info(f"Knowledge sync {sync_id}: syncing {source}")
             await asyncio.sleep(2)  # Simulate sync time
-        
+
         logger.info(f"Knowledge sync {sync_id} completed successfully")
-        
+
     except Exception as e:
         logger.error(f"Knowledge sync {sync_id} failed: {e}")
 
@@ -952,15 +944,15 @@ async def execute_mcp_operation(
     user: dict
 ):
     """Background task to execute MCP service operations"""
-    
+
     logger.info(f"Executing MCP operation {execution_id} on {service_name}")
-    
+
     try:
         # Simulate MCP service execution
         await asyncio.sleep(3)  # Simulate processing time
-        
+
         logger.info(f"MCP operation {execution_id} completed successfully")
-        
+
     except Exception as e:
         logger.error(f"MCP operation {execution_id} failed: {e}")
 
@@ -970,7 +962,7 @@ async def execute_mcp_operation(
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     # Production-ready configuration
     uvicorn.run(
         "modern_flask_to_fastapi:app",
@@ -983,4 +975,4 @@ if __name__ == "__main__":
         loop="uvloop" if not settings.debug else "asyncio",
         http="h11",
         ws="websockets"
-    ) 
+    )

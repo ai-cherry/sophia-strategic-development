@@ -11,7 +11,7 @@ import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -30,11 +30,11 @@ class ReadinessValidator:
             "recommendations": []
         }
 
-    async def validate_full_readiness(self) -> Dict[str, Any]:
+    async def validate_full_readiness(self) -> dict[str, Any]:
         """Perform comprehensive readiness validation"""
-        
+
         logger.info("🔍 Starting N8N Enterprise Enhancement Readiness Validation")
-        
+
         validation_categories = [
             ("infrastructure", "Infrastructure & Dependencies", self.validate_infrastructure),
             ("existing_n8n", "Existing N8N Integration", self.validate_existing_n8n),
@@ -44,28 +44,28 @@ class ReadinessValidator:
             ("ai_integration", "AI Integration", self.validate_ai_integration),
             ("monitoring", "Monitoring Capabilities", self.validate_monitoring)
         ]
-        
+
         total_score = 0
         max_score = 0
-        
+
         for category_key, category_name, validator_func in validation_categories:
             logger.info(f"\n📋 Validating: {category_name}")
-            
+
             try:
                 category_result = await validator_func()
                 self.validation_results["categories"][category_key] = category_result
-                
+
                 category_score = category_result.get("score", 0)
                 category_max = category_result.get("max_score", 100)
-                
+
                 total_score += category_score
                 max_score += category_max
-                
+
                 if category_score >= category_max * 0.8:
                     logger.info(f"✅ {category_name}: {category_score}/{category_max} (Ready)")
                 else:
                     logger.warning(f"⚠️  {category_name}: {category_score}/{category_max} (Needs Attention)")
-                    
+
             except Exception as e:
                 logger.error(f"❌ {category_name}: Validation failed - {e}")
                 self.validation_results["categories"][category_key] = {
@@ -74,38 +74,38 @@ class ReadinessValidator:
                     "status": "failed",
                     "error": str(e)
                 }
-        
+
         # Calculate overall readiness
         if max_score > 0:
             overall_score = int((total_score / max_score) * 100)
         else:
             overall_score = 0
-            
+
         self.validation_results["readiness_score"] = overall_score
         self.validation_results["overall_ready"] = overall_score >= 80
-        
+
         # Generate recommendations
         self.generate_recommendations()
-        
+
         # Save validation report
         await self.save_validation_report()
-        
+
         logger.info(f"\n🎯 Overall Readiness Score: {overall_score}/100")
-        
+
         if self.validation_results["overall_ready"]:
             logger.info("🎉 System is READY for N8N Enterprise Enhancement!")
         else:
             logger.warning("⚠️  System needs improvements before deployment")
-            
+
         return self.validation_results
 
-    async def validate_infrastructure(self) -> Dict[str, Any]:
+    async def validate_infrastructure(self) -> dict[str, Any]:
         """Validate basic infrastructure readiness"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check Python version
         try:
             python_version = subprocess.check_output(['python3', '--version'], text=True).strip()
@@ -117,7 +117,7 @@ class ReadinessValidator:
                 score += 10
         except Exception as e:
             checks.append({"check": "Python Version", "status": "❌", "details": f"Failed: {e}"})
-        
+
         # Check Docker
         try:
             docker_version = subprocess.check_output(['docker', '--version'], text=True).strip()
@@ -125,7 +125,7 @@ class ReadinessValidator:
             score += 20
         except Exception as e:
             checks.append({"check": "Docker", "status": "❌", "details": f"Docker not found: {e}"})
-        
+
         # Check kubectl
         try:
             kubectl_version = subprocess.check_output(['kubectl', 'version', '--client', '--short'], text=True).strip()
@@ -134,7 +134,7 @@ class ReadinessValidator:
         except Exception as e:
             checks.append({"check": "Kubectl", "status": "⚠️", "details": f"Kubectl not found: {e}"})
             score += 10
-        
+
         # Check Helm
         try:
             helm_version = subprocess.check_output(['helm', 'version', '--short'], text=True).strip()
@@ -143,12 +143,12 @@ class ReadinessValidator:
         except Exception as e:
             checks.append({"check": "Helm", "status": "⚠️", "details": f"Helm not found: {e}"})
             score += 10
-        
+
         # Check required Python packages
         required_packages = ['httpx', 'pydantic', 'PyYAML', 'kubernetes']
         for package in required_packages:
             try:
-                result = subprocess.run(['python3', '-c', f'import {package}'], 
+                result = subprocess.run(['python3', '-c', f'import {package}'],
                                       capture_output=True, text=True)
                 if result.returncode == 0:
                     checks.append({"check": f"Python {package}", "status": "✅", "details": "Available"})
@@ -157,7 +157,7 @@ class ReadinessValidator:
                     checks.append({"check": f"Python {package}", "status": "❌", "details": "Not installed"})
             except Exception as e:
                 checks.append({"check": f"Python {package}", "status": "❌", "details": f"Check failed: {e}"})
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -165,19 +165,19 @@ class ReadinessValidator:
             "checks": checks
         }
 
-    async def validate_existing_n8n(self) -> Dict[str, Any]:
+    async def validate_existing_n8n(self) -> dict[str, Any]:
         """Validate existing N8N integration"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check N8N directory structure
         n8n_dir = self.project_root / "n8n-integration"
         if n8n_dir.exists():
             checks.append({"check": "N8N Directory", "status": "✅", "details": str(n8n_dir)})
             score += 20
-            
+
             # Check docker-compose.yml
             docker_compose = n8n_dir / "docker-compose.yml"
             if docker_compose.exists():
@@ -186,7 +186,7 @@ class ReadinessValidator:
             else:
                 checks.append({"check": "Docker Compose", "status": "⚠️", "details": "No docker-compose.yml found"})
                 score += 5
-            
+
             # Check workflows directory
             workflows_dir = n8n_dir / "workflows"
             if workflows_dir.exists():
@@ -198,7 +198,7 @@ class ReadinessValidator:
                 score += 5
         else:
             checks.append({"check": "N8N Directory", "status": "❌", "details": "N8N integration not found"})
-        
+
         # Check N8N bridge service
         bridge_service = self.project_root / "backend" / "n8n_bridge" / "main.py"
         if bridge_service.exists():
@@ -207,7 +207,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "N8N Bridge Service", "status": "⚠️", "details": "Bridge service not found"})
             score += 10
-        
+
         # Check enhanced CLI manager
         cli_manager = self.project_root / "n8n-integration" / "enhanced_n8n_cli_manager.py"
         if cli_manager.exists():
@@ -216,7 +216,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Enhanced CLI Manager", "status": "⚠️", "details": "CLI manager not found"})
             score += 10
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -224,13 +224,13 @@ class ReadinessValidator:
             "checks": checks
         }
 
-    async def validate_mcp_ecosystem(self) -> Dict[str, Any]:
+    async def validate_mcp_ecosystem(self) -> dict[str, Any]:
         """Validate MCP ecosystem readiness"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check MCP servers directory
         mcp_dir = self.project_root / "mcp-servers"
         if mcp_dir.exists():
@@ -239,7 +239,7 @@ class ReadinessValidator:
             score += 30
         else:
             checks.append({"check": "MCP Servers", "status": "❌", "details": "MCP servers directory not found"})
-        
+
         # Check MCP orchestration service
         orchestration_service = self.project_root / "backend" / "services" / "mcp_orchestration_service.py"
         if orchestration_service.exists():
@@ -248,7 +248,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "MCP Orchestration", "status": "⚠️", "details": "Orchestration service not found"})
             score += 10
-        
+
         # Check MCP configuration
         mcp_config = self.project_root / "config" / "cursor_enhanced_mcp_config.json"
         if mcp_config.exists():
@@ -264,7 +264,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "MCP Configuration", "status": "⚠️", "details": "MCP config not found"})
             score += 10
-        
+
         # Check AI Memory MCP server
         ai_memory_server = self.project_root / "mcp-servers" / "ai_memory"
         if ai_memory_server.exists():
@@ -273,7 +273,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "AI Memory Server", "status": "⚠️", "details": "AI Memory server not found"})
             score += 5
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -281,13 +281,13 @@ class ReadinessValidator:
             "checks": checks
         }
 
-    async def validate_secrets_management(self) -> Dict[str, Any]:
+    async def validate_secrets_management(self) -> dict[str, Any]:
         """Validate secrets management readiness"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check Pulumi ESC configuration
         auto_esc_config = self.project_root / "backend" / "core" / "auto_esc_config.py"
         if auto_esc_config.exists():
@@ -295,7 +295,7 @@ class ReadinessValidator:
             score += 30
         else:
             checks.append({"check": "Auto ESC Config", "status": "❌", "details": "ESC config not found"})
-        
+
         # Check environment variables
         required_env_vars = ['ENVIRONMENT', 'PULUMI_ORG']
         for var in required_env_vars:
@@ -305,7 +305,7 @@ class ReadinessValidator:
             else:
                 checks.append({"check": f"ENV {var}", "status": "⚠️", "details": f"{var} not set"})
                 score += 5
-        
+
         # Check ESC infrastructure
         esc_dir = self.project_root / "infrastructure" / "esc"
         if esc_dir.exists():
@@ -315,7 +315,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "ESC Infrastructure", "status": "⚠️", "details": "ESC infrastructure not found"})
             score += 10
-        
+
         # Check secret sync scripts
         sync_script = self.project_root / "scripts" / "ci" / "sync_from_gh_to_pulumi.py"
         if sync_script.exists():
@@ -324,7 +324,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Secret Sync Script", "status": "⚠️", "details": "Sync script not found"})
             score += 5
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -332,13 +332,13 @@ class ReadinessValidator:
             "checks": checks
         }
 
-    async def validate_kubernetes(self) -> Dict[str, Any]:
+    async def validate_kubernetes(self) -> dict[str, Any]:
         """Validate Kubernetes readiness"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check Kubernetes infrastructure directory
         k8s_dir = self.project_root / "infrastructure" / "kubernetes"
         if k8s_dir.exists():
@@ -348,7 +348,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "K8s Infrastructure", "status": "⚠️", "details": "K8s directory not found"})
             score += 5
-        
+
         # Check charts directory
         charts_dir = self.project_root / "charts"
         if charts_dir.exists():
@@ -358,10 +358,10 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Helm Charts", "status": "⚠️", "details": "Charts directory not found"})
             score += 5
-        
+
         # Check kubectl connectivity
         try:
-            result = subprocess.run(['kubectl', 'cluster-info'], 
+            result = subprocess.run(['kubectl', 'cluster-info'],
                                   capture_output=True, text=True, timeout=10)
             if result.returncode == 0:
                 checks.append({"check": "K8s Connectivity", "status": "✅", "details": "Cluster accessible"})
@@ -372,10 +372,10 @@ class ReadinessValidator:
         except Exception as e:
             checks.append({"check": "K8s Connectivity", "status": "⚠️", "details": f"Cannot check: {e}"})
             score += 10
-        
+
         # Check namespace
         try:
-            result = subprocess.run(['kubectl', 'get', 'namespace', 'sophia-ai'], 
+            result = subprocess.run(['kubectl', 'get', 'namespace', 'sophia-ai'],
                                   capture_output=True, text=True, timeout=10)
             if result.returncode == 0:
                 checks.append({"check": "Sophia AI Namespace", "status": "✅", "details": "Namespace exists"})
@@ -386,10 +386,10 @@ class ReadinessValidator:
         except Exception as e:
             checks.append({"check": "Sophia AI Namespace", "status": "⚠️", "details": f"Cannot check: {e}"})
             score += 5
-        
+
         # Check storage class
         try:
-            result = subprocess.run(['kubectl', 'get', 'storageclass'], 
+            result = subprocess.run(['kubectl', 'get', 'storageclass'],
                                   capture_output=True, text=True, timeout=10)
             if result.returncode == 0:
                 checks.append({"check": "Storage Classes", "status": "✅", "details": "Storage available"})
@@ -400,7 +400,7 @@ class ReadinessValidator:
         except Exception as e:
             checks.append({"check": "Storage Classes", "status": "⚠️", "details": f"Cannot check: {e}"})
             score += 5
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -408,13 +408,13 @@ class ReadinessValidator:
             "checks": checks
         }
 
-    async def validate_ai_integration(self) -> Dict[str, Any]:
+    async def validate_ai_integration(self) -> dict[str, Any]:
         """Validate AI integration readiness"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check Portkey gateway service
         portkey_service = self.project_root / "backend" / "services" / "portkey_ai_gateway.py"
         if portkey_service.exists():
@@ -423,7 +423,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Portkey Gateway Service", "status": "⚠️", "details": "Service not implemented"})
             score += 10
-        
+
         # Check AI cost optimization config
         cost_config = self.project_root / "config" / "ai_cost_optimization.json"
         if cost_config.exists():
@@ -432,7 +432,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Cost Optimization Config", "status": "⚠️", "details": "Cost config not found"})
             score += 5
-        
+
         # Check Snowflake Cortex integration
         cortex_service = self.project_root / "backend" / "services" / "snowflake_cortex_service.py"
         if cortex_service.exists():
@@ -441,7 +441,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Snowflake Cortex", "status": "⚠️", "details": "Cortex service not found"})
             score += 10
-        
+
         # Check executive intelligence workflows
         executive_workflow = self.project_root / "n8n-integration" / "workflows" / "executive_intelligence_enhanced.json"
         if executive_workflow.exists():
@@ -450,7 +450,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Executive Workflows", "status": "⚠️", "details": "Executive workflows not found"})
             score += 10
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -458,13 +458,13 @@ class ReadinessValidator:
             "checks": checks
         }
 
-    async def validate_monitoring(self) -> Dict[str, Any]:
+    async def validate_monitoring(self) -> dict[str, Any]:
         """Validate monitoring capabilities"""
-        
+
         checks = []
         score = 0
         max_score = 100
-        
+
         # Check monitoring configuration
         monitoring_dir = self.project_root / "monitoring"
         if monitoring_dir.exists():
@@ -474,7 +474,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Monitoring Config", "status": "⚠️", "details": "Monitoring directory not found"})
             score += 10
-        
+
         # Check Grafana dashboards
         dashboards_dir = self.project_root / "monitoring" / "dashboards"
         if dashboards_dir.exists():
@@ -484,7 +484,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Grafana Dashboards", "status": "⚠️", "details": "Dashboards not found"})
             score += 10
-        
+
         # Check performance monitoring
         perf_monitor = self.project_root / "backend" / "monitoring"
         if perf_monitor.exists():
@@ -494,7 +494,7 @@ class ReadinessValidator:
         else:
             checks.append({"check": "Performance Monitoring", "status": "⚠️", "details": "Performance monitoring not found"})
             score += 10
-        
+
         # Check health check endpoints
         health_checks = []
         for service_dir in ["backend/app", "backend/services", "mcp-servers"]:
@@ -502,14 +502,14 @@ class ReadinessValidator:
             if service_path.exists():
                 health_files = list(service_path.rglob("*health*"))
                 health_checks.extend(health_files)
-        
+
         if health_checks:
             checks.append({"check": "Health Checks", "status": "✅", "details": f"{len(health_checks)} health check implementations"})
             score += 25
         else:
             checks.append({"check": "Health Checks", "status": "⚠️", "details": "Health checks not found"})
             score += 10
-        
+
         return {
             "score": min(score, max_score),
             "max_score": max_score,
@@ -519,12 +519,12 @@ class ReadinessValidator:
 
     def generate_recommendations(self):
         """Generate actionable recommendations based on validation results"""
-        
+
         recommendations = []
-        
+
         for category_key, category_data in self.validation_results["categories"].items():
             if category_data.get("score", 0) < category_data.get("max_score", 100) * 0.8:
-                
+
                 if category_key == "infrastructure":
                     recommendations.append({
                         "priority": "high",
@@ -532,7 +532,7 @@ class ReadinessValidator:
                         "action": "Install missing dependencies",
                         "details": "Run: pip install httpx pydantic PyYAML kubernetes && install kubectl helm"
                     })
-                
+
                 elif category_key == "kubernetes":
                     recommendations.append({
                         "priority": "high",
@@ -540,7 +540,7 @@ class ReadinessValidator:
                         "action": "Setup Kubernetes cluster access",
                         "details": "Configure kubectl and create sophia-ai namespace: kubectl create namespace sophia-ai"
                     })
-                
+
                 elif category_key == "existing_n8n":
                     recommendations.append({
                         "priority": "medium",
@@ -548,7 +548,7 @@ class ReadinessValidator:
                         "action": "Deploy basic N8N integration",
                         "details": "Run: cd n8n-integration && ./quick_deploy_n8n.sh"
                     })
-                
+
                 elif category_key == "secrets_management":
                     recommendations.append({
                         "priority": "high",
@@ -556,7 +556,7 @@ class ReadinessValidator:
                         "action": "Configure secret management",
                         "details": "Set ENVIRONMENT=prod and PULUMI_ORG=scoobyjava-org environment variables"
                     })
-                
+
                 elif category_key == "ai_integration":
                     recommendations.append({
                         "priority": "medium",
@@ -564,7 +564,7 @@ class ReadinessValidator:
                         "action": "Setup AI gateway services",
                         "details": "Configure Portkey credentials and deploy AI gateway components"
                     })
-                
+
                 elif category_key == "monitoring":
                     recommendations.append({
                         "priority": "low",
@@ -572,7 +572,7 @@ class ReadinessValidator:
                         "action": "Deploy monitoring stack",
                         "details": "Setup Prometheus and Grafana for comprehensive monitoring"
                     })
-        
+
         # Add general recommendations
         if self.validation_results["readiness_score"] < 60:
             recommendations.insert(0, {
@@ -581,49 +581,49 @@ class ReadinessValidator:
                 "action": "Address critical infrastructure gaps",
                 "details": "Focus on infrastructure, Kubernetes, and secrets management first"
             })
-        
+
         self.validation_results["recommendations"] = recommendations
 
     async def save_validation_report(self):
         """Save validation report to file"""
-        
+
         report_file = self.project_root / f"N8N_ENTERPRISE_READINESS_REPORT_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        
+
         with open(report_file, "w") as f:
             json.dump(self.validation_results, f, indent=2)
-        
+
         logger.info(f"📄 Validation report saved: {report_file}")
 
     def print_summary(self):
         """Print validation summary"""
-        
+
         print("\n" + "="*80)
         print("🔍 N8N ENTERPRISE ENHANCEMENT READINESS VALIDATION SUMMARY")
         print("="*80)
-        
+
         print(f"\n📊 Overall Readiness Score: {self.validation_results['readiness_score']}/100")
-        
+
         if self.validation_results["overall_ready"]:
             print("🎉 Status: READY FOR DEPLOYMENT")
         else:
             print("⚠️  Status: NEEDS ATTENTION BEFORE DEPLOYMENT")
-        
+
         print("\n📋 Category Breakdown:")
         for category_key, category_data in self.validation_results["categories"].items():
             score = category_data.get("score", 0)
             max_score = category_data.get("max_score", 100)
             status = category_data.get("status", "unknown")
-            
+
             status_emoji = "✅" if status == "ready" else "⚠️" if status == "needs_attention" else "❌"
             print(f"  {status_emoji} {category_key.replace('_', ' ').title()}: {score}/{max_score}")
-        
+
         if self.validation_results["recommendations"]:
             print("\n🎯 Recommendations:")
             for i, rec in enumerate(self.validation_results["recommendations"][:5], 1):
                 priority_emoji = "🔴" if rec["priority"] == "critical" else "🟡" if rec["priority"] == "high" else "🟢"
                 print(f"  {i}. {priority_emoji} {rec['action']}")
                 print(f"     {rec['details']}")
-        
+
         print("\n🚀 Next Steps:")
         if self.validation_results["overall_ready"]:
             print("  1. Run: python scripts/deploy_n8n_enterprise_enhancement.py")
@@ -633,20 +633,20 @@ class ReadinessValidator:
             print("  1. Address high-priority recommendations")
             print("  2. Re-run validation: python scripts/validate_n8n_enterprise_readiness.py")
             print("  3. Proceed with deployment when ready")
-        
+
         print("\n" + "="*80)
 
 async def main():
     """Main validation function"""
-    
+
     validator = ReadinessValidator()
-    
+
     # Run comprehensive validation
     results = await validator.validate_full_readiness()
-    
+
     # Print summary
     validator.print_summary()
-    
+
     return results
 
 if __name__ == "__main__":

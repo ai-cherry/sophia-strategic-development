@@ -339,7 +339,7 @@ class MCPPulumiESCValidator:
 
         secret_results = self.test_results["secret_mappings"]
         total_secrets = len(secret_results)
-        accessible_secrets = sum(1 for r in secret_results.values() if r["accessible"])
+        sum(1 for r in secret_results.values() if r["accessible"])
         valid_secrets = sum(1 for r in secret_results.values() if r.get("has_value", False))
 
         mcp_server_results = self.test_results["mcp_server_secrets"]

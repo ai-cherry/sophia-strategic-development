@@ -23,17 +23,18 @@ import asyncio
 import json
 import logging
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, TypedDict, Union
+from typing import Any, TypedDict
 
 # LangGraph imports
 try:
     from langgraph.checkpoint.sqlite import SqliteSaver
     from langgraph.graph import END, StateGraph
-    from langgraph.prebuilt import ToolExecutor
     from langgraph.graph.message import add_messages
+    from langgraph.prebuilt import ToolExecutor
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
@@ -41,11 +42,10 @@ except ImportError:
     StateGraph = None
     END = None
 
-from backend.agents.specialized.sales_coach_agent import SalesCoachAgent
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.security.audit_logger import AuditLogger
 from backend.core.enhanced_cache_manager import EnhancedCacheManager
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.security.audit_logger import AuditLogger
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -87,8 +87,8 @@ class WorkflowEvent:
     """Event that can trigger workflow state changes"""
     event_type: EventType
     source_node: str
-    target_node: Optional[str] = None
-    data: Dict[str, Any] = field(default_factory=dict)
+    target_node: str | None = None
+    data: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
@@ -101,8 +101,8 @@ class HumanCheckpoint:
     description: str
     required_approval: bool = True
     timeout_minutes: int = 60
-    escalation_users: List[str] = field(default_factory=list)
-    context_data: Dict[str, Any] = field(default_factory=dict)
+    escalation_users: list[str] = field(default_factory=list)
+    context_data: dict[str, Any] = field(default_factory=dict)
     natural_language_prompt: str = ""
     created_at: datetime = field(default_factory=datetime.now)
 
@@ -113,15 +113,15 @@ class ParallelTask:
     task_id: str
     task_name: str
     task_function: str
-    input_data: Dict[str, Any] = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
+    input_data: dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
     timeout_minutes: int = 30
     retry_count: int = 3
 
 
 class EnhancedWorkflowState(TypedDict):
     """Enhanced state for complex workflows"""
-    
+
     # Core workflow metadata
     workflow_id: str
     workflow_name: str
@@ -129,108 +129,108 @@ class EnhancedWorkflowState(TypedDict):
     status: WorkflowStatus
     created_at: datetime
     updated_at: datetime
-    
+
     # User and session context
     user_id: str
     session_id: str
     user_request: str
     natural_language_context: str
-    
+
     # Workflow execution state
     current_node: str
-    previous_node: Optional[str]
-    next_nodes: List[str]
-    completed_nodes: List[str]
-    failed_nodes: List[str]
-    
+    previous_node: str | None
+    next_nodes: list[str]
+    completed_nodes: list[str]
+    failed_nodes: list[str]
+
     # Data and results
-    input_data: Dict[str, Any]
-    node_results: Dict[str, Any]
-    aggregated_results: Dict[str, Any]
-    final_output: Optional[Dict[str, Any]]
-    
+    input_data: dict[str, Any]
+    node_results: dict[str, Any]
+    aggregated_results: dict[str, Any]
+    final_output: dict[str, Any] | None
+
     # Parallel execution tracking
-    parallel_tasks: Dict[str, ParallelTask]
-    parallel_results: Dict[str, Any]
-    parallel_errors: Dict[str, str]
-    
+    parallel_tasks: dict[str, ParallelTask]
+    parallel_results: dict[str, Any]
+    parallel_errors: dict[str, str]
+
     # Human-in-the-loop state
-    pending_checkpoints: List[HumanCheckpoint]
-    checkpoint_responses: Dict[str, Any]
-    human_feedback: List[Dict[str, Any]]
-    
+    pending_checkpoints: list[HumanCheckpoint]
+    checkpoint_responses: dict[str, Any]
+    human_feedback: list[dict[str, Any]]
+
     # Event handling
-    event_queue: List[WorkflowEvent]
-    event_handlers: Dict[str, str]
-    
+    event_queue: list[WorkflowEvent]
+    event_handlers: dict[str, str]
+
     # Error handling and recovery
-    error_messages: List[str]
-    retry_counts: Dict[str, int]
-    recovery_actions: List[str]
-    
+    error_messages: list[str]
+    retry_counts: dict[str, int]
+    recovery_actions: list[str]
+
     # Performance metrics
-    execution_metrics: Dict[str, Any]
-    node_timings: Dict[str, float]
+    execution_metrics: dict[str, Any]
+    node_timings: dict[str, float]
 
 
 class EnhancedLangGraphOrchestrator:
     """
     Enhanced LangGraph orchestrator with advanced patterns
-    
+
     Implements:
     - Parallel sub-graphs (Map-Reduce pattern)
     - Event-driven routing (Behavior tree pattern)
     - Human-in-the-loop checkpoints
     - Natural language workflow management
     """
-    
+
     def __init__(self):
-        self.graph: Optional[StateGraph] = None
-        self.checkpointer: Optional[SqliteSaver] = None
+        self.graph: StateGraph | None = None
+        self.checkpointer: SqliteSaver | None = None
         self.audit_logger = AuditLogger()
         self.cache_manager = EnhancedCacheManager()
-        self.cortex_service: Optional[SnowflakeCortexService] = None
-        self.ai_memory: Optional[EnhancedAiMemoryMCPServer] = None
-        
+        self.cortex_service: SnowflakeCortexService | None = None
+        self.ai_memory: EnhancedAiMemoryMCPServer | None = None
+
         # Workflow registry
-        self.workflow_templates: Dict[str, Dict[str, Any]] = {}
-        self.active_workflows: Dict[str, EnhancedWorkflowState] = {}
-        self.event_handlers: Dict[EventType, List[Callable]] = {}
-        
+        self.workflow_templates: dict[str, dict[str, Any]] = {}
+        self.active_workflows: dict[str, EnhancedWorkflowState] = {}
+        self.event_handlers: dict[EventType, list[Callable]] = {}
+
         # Human-in-the-loop management
-        self.pending_approvals: Dict[str, HumanCheckpoint] = {}
-        self.approval_callbacks: Dict[str, Callable] = {}
-        
+        self.pending_approvals: dict[str, HumanCheckpoint] = {}
+        self.approval_callbacks: dict[str, Callable] = {}
+
         self.initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize the enhanced orchestrator"""
         if self.initialized:
             return
-        
+
         try:
             # Initialize services
             self.cortex_service = SnowflakeCortexService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
-            
+
             # Initialize checkpointer for state persistence
             if LANGGRAPH_AVAILABLE:
                 self.checkpointer = SqliteSaver.from_conn_string(":memory:")
-            
+
             # Register default event handlers
             self._register_default_event_handlers()
-            
+
             # Load workflow templates
             await self._load_workflow_templates()
-            
+
             self.initialized = True
             logger.info("✅ Enhanced LangGraph Orchestrator initialized")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Enhanced LangGraph Orchestrator: {e}")
             raise
-    
+
     def _register_default_event_handlers(self) -> None:
         """Register default event handlers"""
         self.event_handlers[EventType.TASK_COMPLETED] = [self._handle_task_completion]
@@ -239,7 +239,7 @@ class EnhancedLangGraphOrchestrator:
         self.event_handlers[EventType.HUMAN_REJECTED] = [self._handle_human_rejection]
         self.event_handlers[EventType.TIMEOUT] = [self._handle_timeout]
         self.event_handlers[EventType.USER_INPUT] = [self._handle_user_input]
-    
+
     async def _load_workflow_templates(self) -> None:
         """Load predefined workflow templates"""
         self.workflow_templates = {
@@ -284,34 +284,34 @@ class EnhancedLangGraphOrchestrator:
                 }
             }
         }
-    
+
     async def create_workflow_from_natural_language(
-        self, 
-        user_request: str, 
-        user_id: str, 
+        self,
+        user_request: str,
+        user_id: str,
         session_id: str
     ) -> str:
         """
         Create a workflow from natural language description
-        
+
         Args:
             user_request: Natural language description of the workflow
             user_id: User requesting the workflow
             session_id: Session identifier
-            
+
         Returns:
             Workflow ID
         """
         workflow_id = str(uuid.uuid4())
-        
+
         try:
             # Analyze the user request using Cortex
             async with self.cortex_service as cortex:
                 analysis_prompt = f"""
                 Analyze this workflow request and extract key information:
-                
+
                 User Request: {user_request}
-                
+
                 Extract:
                 1. Workflow type (deal_analysis, agent_creation, workflow_orchestration, custom)
                 2. Required data sources
@@ -319,22 +319,22 @@ class EnhancedLangGraphOrchestrator:
                 4. Human approval points
                 5. Expected outputs
                 6. Parallel processing opportunities
-                
+
                 Return as JSON with clear structure.
                 """
-                
+
                 analysis_result = await cortex.complete_text_with_cortex(
                     prompt=analysis_prompt,
                     max_tokens=500
                 )
-            
+
             # Parse the analysis
             try:
                 workflow_spec = json.loads(analysis_result)
             except json.JSONDecodeError:
                 # Fallback to text parsing
                 workflow_spec = {"type": "custom", "description": user_request}
-            
+
             # Create workflow state
             workflow_state = EnhancedWorkflowState(
                 workflow_id=workflow_id,
@@ -370,10 +370,10 @@ class EnhancedLangGraphOrchestrator:
                 execution_metrics={},
                 node_timings={}
             )
-            
+
             # Store workflow
             self.active_workflows[workflow_id] = workflow_state
-            
+
             # Log workflow creation
             await self.audit_logger.log_workflow_event(
                 workflow_id=workflow_id,
@@ -384,32 +384,32 @@ class EnhancedLangGraphOrchestrator:
                     "user_request": user_request
                 }
             )
-            
+
             return workflow_id
-            
+
         except Exception as e:
             logger.error(f"Error creating workflow from natural language: {e}")
             raise
-    
+
     async def execute_parallel_tasks(
-        self, 
-        workflow_id: str, 
-        tasks: List[ParallelTask]
-    ) -> Dict[str, Any]:
+        self,
+        workflow_id: str,
+        tasks: list[ParallelTask]
+    ) -> dict[str, Any]:
         """
         Execute multiple tasks in parallel (Map-Reduce pattern)
-        
+
         Args:
             workflow_id: Workflow identifier
             tasks: List of tasks to execute in parallel
-            
+
         Returns:
             Aggregated results from all tasks
         """
         workflow_state = self.active_workflows.get(workflow_id)
         if not workflow_state:
             raise ValueError(f"Workflow {workflow_id} not found")
-        
+
         # Create async tasks
         async_tasks = []
         for task in tasks:
@@ -418,35 +418,35 @@ class EnhancedLangGraphOrchestrator:
                 name=f"{workflow_id}_{task.task_id}"
             )
             async_tasks.append((task.task_id, async_task))
-        
+
         # Execute tasks concurrently
         results = {}
         errors = {}
-        
+
         for task_id, async_task in async_tasks:
             try:
                 result = await asyncio.wait_for(
-                    async_task, 
+                    async_task,
                     timeout=tasks[0].timeout_minutes * 60
                 )
                 results[task_id] = result
-                
+
                 # Update workflow state
                 workflow_state["parallel_results"][task_id] = result
-                
-            except asyncio.TimeoutError:
+
+            except TimeoutError:
                 errors[task_id] = "Task timed out"
                 workflow_state["parallel_errors"][task_id] = "Task timed out"
-                
+
             except Exception as e:
                 errors[task_id] = str(e)
                 workflow_state["parallel_errors"][task_id] = str(e)
-        
+
         # Aggregate results
         aggregated_result = await self._aggregate_parallel_results(
             workflow_id, results, errors
         )
-        
+
         # Log parallel execution
         await self.audit_logger.log_workflow_event(
             workflow_id=workflow_id,
@@ -459,85 +459,85 @@ class EnhancedLangGraphOrchestrator:
                 "execution_time": sum(workflow_state["node_timings"].values())
             }
         )
-        
+
         return aggregated_result
-    
+
     async def _execute_single_task(
-        self, 
-        workflow_id: str, 
+        self,
+        workflow_id: str,
         task: ParallelTask
     ) -> Any:
         """Execute a single task within a parallel execution"""
         start_time = datetime.now()
-        
+
         try:
             # Get task function
             task_function = getattr(self, f"_task_{task.task_function}", None)
             if not task_function:
                 raise ValueError(f"Task function {task.task_function} not found")
-            
+
             # Execute task
             result = await task_function(workflow_id, task.input_data)
-            
+
             # Record timing
             execution_time = (datetime.now() - start_time).total_seconds()
             workflow_state = self.active_workflows[workflow_id]
             workflow_state["node_timings"][task.task_id] = execution_time
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error executing task {task.task_id}: {e}")
             raise
-    
+
     async def create_human_checkpoint(
-        self, 
-        workflow_id: str, 
+        self,
+        workflow_id: str,
         checkpoint_config: HumanCheckpoint
     ) -> str:
         """
         Create a human-in-the-loop checkpoint
-        
+
         Args:
             workflow_id: Workflow identifier
             checkpoint_config: Checkpoint configuration
-            
+
         Returns:
             Checkpoint ID
         """
         workflow_state = self.active_workflows.get(workflow_id)
         if not workflow_state:
             raise ValueError(f"Workflow {workflow_id} not found")
-        
+
         # Update workflow status
         workflow_state["status"] = WorkflowStatus.WAITING_HUMAN
         workflow_state["pending_checkpoints"].append(checkpoint_config)
-        
+
         # Store checkpoint for external access
         self.pending_approvals[checkpoint_config.checkpoint_id] = checkpoint_config
-        
+
         # Generate natural language prompt for the checkpoint
         if not checkpoint_config.natural_language_prompt:
             async with self.cortex_service as cortex:
                 prompt_generation = f"""
                 Generate a clear, natural language prompt for human review:
-                
+
                 Checkpoint: {checkpoint_config.title}
                 Description: {checkpoint_config.description}
                 Context: {json.dumps(checkpoint_config.context_data, indent=2)}
-                
+
                 Create a prompt that:
                 1. Clearly explains what needs review
                 2. Provides relevant context
                 3. Asks for specific approval/feedback
                 4. Suggests next actions
                 """
-                
+
                 checkpoint_config.natural_language_prompt = await cortex.complete_text_with_cortex(
                     prompt=prompt_generation,
                     max_tokens=300
                 )
-        
+
         # Log checkpoint creation
         await self.audit_logger.log_workflow_event(
             workflow_id=workflow_id,
@@ -549,30 +549,30 @@ class EnhancedLangGraphOrchestrator:
                 "required_approval": checkpoint_config.required_approval
             }
         )
-        
+
         return checkpoint_config.checkpoint_id
-    
+
     async def handle_human_response(
-        self, 
-        checkpoint_id: str, 
-        response: Dict[str, Any], 
+        self,
+        checkpoint_id: str,
+        response: dict[str, Any],
         user_id: str
     ) -> bool:
         """
         Handle human response to a checkpoint
-        
+
         Args:
             checkpoint_id: Checkpoint identifier
             response: Human response data
             user_id: User providing the response
-            
+
         Returns:
             True if workflow should continue, False if rejected
         """
         checkpoint = self.pending_approvals.get(checkpoint_id)
         if not checkpoint:
             raise ValueError(f"Checkpoint {checkpoint_id} not found")
-        
+
         # Find associated workflow
         workflow_id = None
         for wf_id, state in self.active_workflows.items():
@@ -582,12 +582,12 @@ class EnhancedLangGraphOrchestrator:
                     break
             if workflow_id:
                 break
-        
+
         if not workflow_id:
             raise ValueError(f"Workflow for checkpoint {checkpoint_id} not found")
-        
+
         workflow_state = self.active_workflows[workflow_id]
-        
+
         # Store response
         workflow_state["checkpoint_responses"][checkpoint_id] = response
         workflow_state["human_feedback"].append({
@@ -596,27 +596,27 @@ class EnhancedLangGraphOrchestrator:
             "response": response,
             "timestamp": datetime.now()
         })
-        
+
         # Remove from pending
         workflow_state["pending_checkpoints"] = [
-            cp for cp in workflow_state["pending_checkpoints"] 
+            cp for cp in workflow_state["pending_checkpoints"]
             if cp.checkpoint_id != checkpoint_id
         ]
         del self.pending_approvals[checkpoint_id]
-        
+
         # Determine if approved
         approved = response.get("approved", False)
-        
+
         # Create event
         event = WorkflowEvent(
             event_type=EventType.HUMAN_APPROVED if approved else EventType.HUMAN_REJECTED,
             source_node=checkpoint_id,
             data=response
         )
-        
+
         # Process event
         await self._process_event(workflow_id, event)
-        
+
         # Log response
         await self.audit_logger.log_workflow_event(
             workflow_id=workflow_id,
@@ -628,21 +628,21 @@ class EnhancedLangGraphOrchestrator:
                 "response": response
             }
         )
-        
+
         return approved
-    
+
     async def _process_event(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Process workflow events using event-driven routing"""
         workflow_state = self.active_workflows.get(workflow_id)
         if not workflow_state:
             return
-        
+
         # Add event to queue
         workflow_state["event_queue"].append(event)
-        
+
         # Get event handlers
         handlers = self.event_handlers.get(event.event_type, [])
-        
+
         # Execute handlers
         for handler in handlers:
             try:
@@ -650,28 +650,28 @@ class EnhancedLangGraphOrchestrator:
             except Exception as e:
                 logger.error(f"Error in event handler: {e}")
                 workflow_state["error_messages"].append(f"Event handler error: {e}")
-    
+
     async def _handle_task_completion(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle task completion event"""
         workflow_state = self.active_workflows[workflow_id]
-        
+
         # Mark node as completed
         if event.source_node not in workflow_state["completed_nodes"]:
             workflow_state["completed_nodes"].append(event.source_node)
-        
+
         # Update workflow status
         if workflow_state["status"] == WorkflowStatus.RUNNING:
             # Determine next nodes based on workflow template
             await self._determine_next_nodes(workflow_id, event.source_node)
-    
+
     async def _handle_task_failure(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle task failure event"""
         workflow_state = self.active_workflows[workflow_id]
-        
+
         # Mark node as failed
         if event.source_node not in workflow_state["failed_nodes"]:
             workflow_state["failed_nodes"].append(event.source_node)
-        
+
         # Implement retry logic
         retry_count = workflow_state["retry_counts"].get(event.source_node, 0)
         if retry_count < 3:  # Max 3 retries
@@ -682,19 +682,19 @@ class EnhancedLangGraphOrchestrator:
             # Mark workflow as failed
             workflow_state["status"] = WorkflowStatus.FAILED
             workflow_state["error_messages"].append(f"Node {event.source_node} failed after 3 retries")
-    
+
     async def _handle_human_approval(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle human approval event"""
         workflow_state = self.active_workflows[workflow_id]
-        
+
         # Continue workflow
         workflow_state["status"] = WorkflowStatus.RUNNING
         await self._determine_next_nodes(workflow_id, event.source_node)
-    
+
     async def _handle_human_rejection(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle human rejection event"""
         workflow_state = self.active_workflows[workflow_id]
-        
+
         # Check if rejection requires workflow termination
         rejection_data = event.data
         if rejection_data.get("terminate_workflow", False):
@@ -702,11 +702,11 @@ class EnhancedLangGraphOrchestrator:
         else:
             # Return to previous node or implement alternative path
             await self._handle_rejection_recovery(workflow_id, event)
-    
+
     async def _handle_timeout(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle timeout event"""
-        workflow_state = self.active_workflows[workflow_id]
-        
+        self.active_workflows[workflow_id]
+
         # Implement escalation or default action
         timeout_data = event.data
         if timeout_data.get("escalate", False):
@@ -714,36 +714,36 @@ class EnhancedLangGraphOrchestrator:
         else:
             # Use default action
             await self._apply_default_timeout_action(workflow_id, event.source_node)
-    
+
     async def _handle_user_input(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle user input event for natural language interaction"""
         workflow_state = self.active_workflows[workflow_id]
         user_input = event.data.get("user_input", "")
-        
+
         # Process user input using Cortex
         async with self.cortex_service as cortex:
             input_analysis = await cortex.complete_text_with_cortex(
                 prompt=f"""
                 Analyze this user input in the context of the current workflow:
-                
+
                 User Input: {user_input}
                 Current Node: {workflow_state['current_node']}
                 Workflow Type: {workflow_state['workflow_type']}
-                
+
                 Determine:
                 1. Intent (modify_workflow, provide_data, approve, reject, question)
                 2. Required actions
                 3. Next steps
-                
+
                 Return as JSON.
                 """,
                 max_tokens=300
             )
-        
+
         try:
             analysis = json.loads(input_analysis)
             intent = analysis.get("intent", "unknown")
-            
+
             # Handle different intents
             if intent == "modify_workflow":
                 await self._modify_workflow_from_input(workflow_id, user_input, analysis)
@@ -753,7 +753,7 @@ class EnhancedLangGraphOrchestrator:
                 await self._handle_approval_input(workflow_id, user_input, intent == "approve")
             elif intent == "question":
                 await self._answer_user_question(workflow_id, user_input, analysis)
-                
+
         except json.JSONDecodeError:
             # Fallback to simple text processing
             workflow_state["human_feedback"].append({
@@ -761,13 +761,13 @@ class EnhancedLangGraphOrchestrator:
                 "timestamp": datetime.now(),
                 "processed": False
             })
-    
-    async def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
+
+    async def get_workflow_status(self, workflow_id: str) -> dict[str, Any]:
         """Get current status of a workflow"""
         workflow_state = self.active_workflows.get(workflow_id)
         if not workflow_state:
             return {"error": "Workflow not found"}
-        
+
         return {
             "workflow_id": workflow_id,
             "status": workflow_state["status"].value,
@@ -789,11 +789,11 @@ class EnhancedLangGraphOrchestrator:
             "execution_metrics": workflow_state["execution_metrics"],
             "last_updated": workflow_state["updated_at"]
         }
-    
-    async def get_pending_approvals(self, user_id: str) -> List[Dict[str, Any]]:
+
+    async def get_pending_approvals(self, user_id: str) -> list[dict[str, Any]]:
         """Get pending approvals for a user"""
         pending = []
-        
+
         for checkpoint_id, checkpoint in self.pending_approvals.items():
             # Check if user is authorized for this checkpoint
             if not checkpoint.escalation_users or user_id in checkpoint.escalation_users:
@@ -806,36 +806,36 @@ class EnhancedLangGraphOrchestrator:
                     "created_at": checkpoint.created_at,
                     "timeout_at": checkpoint.created_at + timedelta(minutes=checkpoint.timeout_minutes)
                 })
-        
+
         return pending
-    
+
     # Task implementations for parallel execution
-    async def _task_hubspot_data(self, workflow_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _task_hubspot_data(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Fetch HubSpot data task"""
         # Implementation would connect to HubSpot API
         return {"source": "hubspot", "data": "sample_hubspot_data"}
-    
-    async def _task_gong_data(self, workflow_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _task_gong_data(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Fetch Gong data task"""
         # Implementation would connect to Gong API
         return {"source": "gong", "data": "sample_gong_data"}
-    
-    async def _task_sales_analysis(self, workflow_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _task_sales_analysis(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Perform sales analysis task"""
         # Implementation would use SalesCoachAgent
         return {"analysis_type": "sales", "insights": "sample_sales_insights"}
-    
-    async def _task_call_analysis(self, workflow_id: str, input_data: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _task_call_analysis(self, workflow_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Perform call analysis task"""
         # Implementation would analyze call data
         return {"analysis_type": "calls", "insights": "sample_call_insights"}
-    
+
     async def _aggregate_parallel_results(
-        self, 
-        workflow_id: str, 
-        results: Dict[str, Any], 
-        errors: Dict[str, str]
-    ) -> Dict[str, Any]:
+        self,
+        workflow_id: str,
+        results: dict[str, Any],
+        errors: dict[str, str]
+    ) -> dict[str, Any]:
         """Aggregate results from parallel task execution"""
         return {
             "successful_results": results,
@@ -843,79 +843,79 @@ class EnhancedLangGraphOrchestrator:
             "summary": f"Completed {len(results)} tasks, {len(errors)} errors",
             "aggregated_at": datetime.now()
         }
-    
+
     async def _determine_next_nodes(self, workflow_id: str, completed_node: str) -> None:
         """Determine next nodes to execute based on workflow template"""
         workflow_state = self.active_workflows[workflow_id]
         workflow_type = workflow_state["workflow_type"]
-        
+
         # Get workflow template
         template = self.workflow_templates.get(workflow_type, {})
         nodes = template.get("nodes", {})
-        
+
         # Simple next node determination (can be enhanced with complex routing logic)
         current_node_config = nodes.get(completed_node, {})
         next_nodes = current_node_config.get("next", [])
-        
+
         workflow_state["next_nodes"] = next_nodes
         if next_nodes:
             workflow_state["current_node"] = next_nodes[0]
-    
+
     async def _schedule_node_retry(self, workflow_id: str, node_id: str) -> None:
         """Schedule a node for retry"""
         # Implementation would schedule the node for re-execution
         pass
-    
+
     async def _escalate_timeout(self, workflow_id: str, node_id: str) -> None:
         """Escalate a timeout to higher authority"""
         # Implementation would notify escalation users
         pass
-    
+
     async def _apply_default_timeout_action(self, workflow_id: str, node_id: str) -> None:
         """Apply default action when timeout occurs"""
         # Implementation would apply predefined default action
         pass
-    
+
     async def _handle_rejection_recovery(self, workflow_id: str, event: WorkflowEvent) -> None:
         """Handle recovery from human rejection"""
         # Implementation would determine alternative workflow path
         pass
-    
+
     async def _modify_workflow_from_input(
-        self, 
-        workflow_id: str, 
-        user_input: str, 
-        analysis: Dict[str, Any]
+        self,
+        workflow_id: str,
+        user_input: str,
+        analysis: dict[str, Any]
     ) -> None:
         """Modify workflow based on user input"""
         # Implementation would modify workflow structure
         pass
-    
+
     async def _incorporate_user_data(
-        self, 
-        workflow_id: str, 
-        user_input: str, 
-        analysis: Dict[str, Any]
+        self,
+        workflow_id: str,
+        user_input: str,
+        analysis: dict[str, Any]
     ) -> None:
         """Incorporate user-provided data into workflow"""
         # Implementation would add user data to workflow state
         pass
-    
+
     async def _handle_approval_input(
-        self, 
-        workflow_id: str, 
-        user_input: str, 
+        self,
+        workflow_id: str,
+        user_input: str,
         approved: bool
     ) -> None:
         """Handle approval/rejection input"""
         # Implementation would process approval decision
         pass
-    
+
     async def _answer_user_question(
-        self, 
-        workflow_id: str, 
-        user_input: str, 
-        analysis: Dict[str, Any]
+        self,
+        workflow_id: str,
+        user_input: str,
+        analysis: dict[str, Any]
     ) -> None:
         """Answer user questions about the workflow"""
         # Implementation would generate answers using Cortex

@@ -205,12 +205,12 @@ async def handle_executive_chat(request: ChatRequest) -> ChatResponse:
 async def unified_chat(request: ChatRequest) -> ChatResponse:
     """
     Unified chat endpoint supporting multiple modes and providers
-    
+
     Modes:
     - universal: Basic chat functionality
     - sophia: Full Sophia AI capabilities with business intelligence
     - executive: CEO/executive-focused chat with strategic insights
-    
+
     Providers:
     - openai: OpenAI GPT models
     - portkey: Portkey AI gateway (recommended for executive mode)

@@ -408,7 +408,7 @@ class MCPEcosystemValidator:
             timeout = aiohttp.ClientTimeout(total=10)
 
             async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.get(f"http://localhost:{port}/health") as response:
+                async with session.get(f"http://localhost:{port}/health"):
                     end_time = time.time()
                     return (end_time - start_time) * 1000
 

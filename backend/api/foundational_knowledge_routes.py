@@ -11,8 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.auth import get_current_user
 from backend.core.cache_manager import EnhancedCacheManager
-from backend.core.dependencies import get_request_cache_manager
 from backend.core.database import get_session
+from backend.core.dependencies import get_request_cache_manager
 from backend.core.logger import logger
 from backend.services.foundational_knowledge_service import (
     FoundationalDataType,

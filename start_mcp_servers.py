@@ -5,12 +5,13 @@ Starts essential MCP servers with proper error handling
 """
 
 import os
-from backend.core.auto_esc_config import get_config_value
 import signal
 import subprocess
 import sys
 import time
 from pathlib import Path
+
+from backend.core.auto_esc_config import get_config_value
 
 
 class MCPServerManager:

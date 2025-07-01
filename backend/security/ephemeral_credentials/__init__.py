@@ -5,6 +5,10 @@ This package provides functionality for managing ephemeral credentials,
 which are short-lived access tokens for API and service authentication.
 """
 
+from backend.security.ephemeral_credentials.middleware import (
+    EphemeralCredentialsMiddleware,
+    setup_ephemeral_credentials_middleware,
+)
 from backend.security.ephemeral_credentials.models import (
     CredentialRequest,
     CredentialResponse,
@@ -18,10 +22,6 @@ from backend.security.ephemeral_credentials.models import (
     TokenMetadata,
 )
 from backend.security.ephemeral_credentials.service import EphemeralCredentialsService
-from backend.security.ephemeral_credentials.middleware import (
-    EphemeralCredentialsMiddleware,
-    setup_ephemeral_credentials_middleware,
-)
 
 __all__ = [
     "CredentialRequest",

@@ -347,7 +347,7 @@ class UIUXAgentMCPServer(StandardizedMCPServer):
         request_lower = design_request.lower()
         suggested_patterns = []
 
-        for pattern_name, pattern in self.design_patterns.items():
+        for _pattern_name, pattern in self.design_patterns.items():
             if any(keyword in request_lower for keyword in pattern.automation_rules):
                 suggested_patterns.append(pattern.to_dict())
 

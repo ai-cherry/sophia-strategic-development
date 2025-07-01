@@ -10,12 +10,10 @@ Usage:
 """
 
 import asyncio
-import json
 import logging
 import os
 import sys
 import time
-from datetime import datetime
 
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -23,15 +21,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 # Import audit logger
 from backend.security.audit_logger import (
     AuditEventType,
-    AuditLogLevel,
     AuditLogger,
-    set_request_context,
-    info,
-    warning,
-    error,
+    AuditLogLevel,
+    audit_decorator,
     critical,
     debug,
-    audit_decorator,
+    error,
+    info,
+    set_request_context,
+    warning,
 )
 
 # Configure logging
@@ -69,7 +67,7 @@ async def test_async_function(a, b):
 def test_basic_logging():
     """Test basic logging functionality"""
     logger.info("Testing basic logging...")
-    
+
     # Set request context
     set_request_context(
         user_id="test_user",
@@ -78,21 +76,21 @@ def test_basic_logging():
         ip_address="127.0.0.1",
         user_agent="Test Agent",
     )
-    
+
     # Log events at different levels
     debug(AuditEventType.CUSTOM, "Debug test message", {"test": "debug"})
     info(AuditEventType.CUSTOM, "Info test message", {"test": "info"})
     warning(AuditEventType.CUSTOM, "Warning test message", {"test": "warning"})
     error(AuditEventType.CUSTOM, "Error test message", {"test": "error"})
     critical(AuditEventType.CUSTOM, "Critical test message", {"test": "critical"})
-    
+
     logger.info("✅ Basic logging test completed")
 
 
 def test_sensitive_data_redaction():
     """Test sensitive data redaction"""
     logger.info("Testing sensitive data redaction...")
-    
+
     # Log events with sensitive data
     info(
         AuditEventType.CUSTOM,
@@ -106,36 +104,36 @@ def test_sensitive_data_redaction():
             "safe_data": "This is safe",
         },
     )
-    
+
     logger.info("✅ Sensitive data redaction test completed")
 
 
 def test_audit_decorator():
     """Test audit decorator"""
     logger.info("Testing audit decorator...")
-    
+
     # Call decorated function
     result = test_function(1, 2, c="test")
     logger.info(f"Function returned: {result}")
-    
+
     logger.info("✅ Audit decorator test completed")
 
 
 async def test_async_audit_decorator():
     """Test async audit decorator"""
     logger.info("Testing async audit decorator...")
-    
+
     # Call decorated async function
     result = await test_async_function(3, 4)
     logger.info(f"Async function returned: {result}")
-    
+
     logger.info("✅ Async audit decorator test completed")
 
 
 def test_error_logging():
     """Test error logging"""
     logger.info("Testing error logging...")
-    
+
     try:
         # Raise an exception
         raise ValueError("Test error")
@@ -145,14 +143,14 @@ def test_error_logging():
             f"Test error occurred: {str(e)}",
             {"error_type": "ValueError"},
         )
-    
+
     logger.info("✅ Error logging test completed")
 
 
 def test_custom_audit_logger():
     """Test custom audit logger instance"""
     logger.info("Testing custom audit logger...")
-    
+
     # Create custom audit logger
     custom_logger = AuditLogger(
         app_name="test_app",
@@ -163,42 +161,42 @@ def test_custom_audit_logger():
         enable_sentry=False,
         redact_sensitive_data=True,
     )
-    
+
     # Log events with custom logger
     custom_logger.info(
         AuditEventType.CUSTOM,
         "Custom logger test message",
         {"test": "custom"},
     )
-    
+
     logger.info("✅ Custom audit logger test completed")
 
 
 def test_performance():
     """Test logging performance"""
     logger.info("Testing logging performance...")
-    
+
     # Log multiple events and measure time
     count = 1000
     start_time = time.time()
-    
+
     for i in range(count):
         info(
             AuditEventType.CUSTOM,
             f"Performance test message {i}",
             {"iteration": i},
         )
-    
+
     duration = time.time() - start_time
     logger.info(f"Logged {count} events in {duration:.4f} seconds ({count/duration:.2f} events/sec)")
-    
+
     logger.info("✅ Performance test completed")
 
 
 async def main():
     """Main test function"""
     logger.info("Starting audit logging tests...")
-    
+
     try:
         # Run tests
         test_basic_logging()
@@ -208,9 +206,9 @@ async def main():
         test_error_logging()
         test_custom_audit_logger()
         test_performance()
-        
+
         logger.info("✅ All tests completed successfully!")
-        
+
     except Exception as e:
         logger.error(f"❌ Test failed: {e}")
         sys.exit(1)
@@ -219,7 +217,7 @@ async def main():
 if __name__ == "__main__":
     # Create logs directory if it doesn't exist
     os.makedirs("logs", exist_ok=True)
-    
+
     # Run tests
     asyncio.run(main())
 

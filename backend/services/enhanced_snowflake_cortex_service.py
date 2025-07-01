@@ -24,18 +24,20 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
-import pandas as pd
 import snowflake.connector
 from snowflake.connector import DictCursor
 
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.security.audit_logger import AuditLogger
 from backend.core.enhanced_cache_manager import EnhancedCacheManager
-from backend.services.cost_engineering_service import cost_engineering_service, TaskRequest
+from backend.security.audit_logger import AuditLogger
+from backend.services.cost_engineering_service import (
+    TaskRequest,
+    cost_engineering_service,
+)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -75,18 +77,18 @@ class CortexSearchConfig:
     similarity_threshold: float = 0.7
     rerank_top_k: int = 5
     include_metadata: bool = True
-    filter_conditions: Optional[Dict[str, Any]] = None
+    filter_conditions: dict[str, Any] | None = None
 
 
 @dataclass
 class DataPipelineConfig:
     """Configuration for data processing pipelines"""
     pipeline_id: str
-    source_tables: List[str]
+    source_tables: list[str]
     target_table: str
     processing_mode: DataProcessingMode
-    ai_functions: List[AIFunctionType]
-    schedule_cron: Optional[str] = None
+    ai_functions: list[AIFunctionType]
+    schedule_cron: str | None = None
     batch_size: int = 1000
     quality_checks: bool = True
     cost_optimization: bool = True
@@ -97,53 +99,53 @@ class AIProcessingResult:
     """Result from AI processing operation"""
     operation_id: str
     function_type: AIFunctionType
-    input_data: Dict[str, Any]
-    output_data: Dict[str, Any]
+    input_data: dict[str, Any]
+    output_data: dict[str, Any]
     processing_time_ms: float
     cost: float
     quality_score: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
 
 
 class EnhancedSnowflakeCortexService:
     """
     Enhanced Snowflake Cortex service with advanced AI capabilities
-    
+
     Provides comprehensive AI processing, data analytics, and pipeline
     management using Snowflake Cortex functions and custom implementations.
     """
-    
+
     def __init__(self):
         self.base_service = SnowflakeCortexService()
         self.audit_logger = AuditLogger()
         self.cache_manager = EnhancedCacheManager()
-        
+
         # Connection management
-        self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
-        self.connection_params: Dict[str, Any] = {}
-        
+        self.connection: snowflake.connector.SnowflakeConnection | None = None
+        self.connection_params: dict[str, Any] = {}
+
         # Pipeline management
-        self.active_pipelines: Dict[str, DataPipelineConfig] = {}
-        self.pipeline_results: Dict[str, List[AIProcessingResult]] = {}
-        
+        self.active_pipelines: dict[str, DataPipelineConfig] = {}
+        self.pipeline_results: dict[str, list[AIProcessingResult]] = {}
+
         # Custom AI functions
-        self.custom_functions: Dict[str, str] = {}
-        
+        self.custom_functions: dict[str, str] = {}
+
         # Performance tracking
-        self.operation_metrics: Dict[str, List[float]] = {}
-        
+        self.operation_metrics: dict[str, list[float]] = {}
+
         self.initialized = False
-    
+
     async def initialize(self) -> None:
         """Initialize the enhanced Cortex service"""
         if self.initialized:
             return
-        
+
         try:
             # Initialize base service
             await self.base_service.initialize()
-            
+
             # Set up connection parameters
             self.connection_params = {
                 "account": self.base_service.account,
@@ -153,33 +155,33 @@ class EnhancedSnowflakeCortexService:
                 "database": self.base_service.database,
                 "schema": self.base_service.schema
             }
-            
+
             # Initialize custom AI functions
             await self._initialize_custom_functions()
-            
+
             # Start background tasks
             asyncio.create_task(self._pipeline_monitoring_task())
             asyncio.create_task(self._performance_optimization_task())
-            
+
             self.initialized = True
             logger.info("✅ Enhanced Snowflake Cortex Service initialized")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Enhanced Snowflake Cortex Service: {e}")
             raise
-    
+
     async def _get_connection(self) -> snowflake.connector.SnowflakeConnection:
         """Get or create Snowflake connection"""
         if not self.connection or self.connection.is_closed():
             self.connection = snowflake.connector.connect(**self.connection_params)
         return self.connection
-    
+
     async def _initialize_custom_functions(self) -> None:
         """Initialize custom AI functions in Snowflake"""
         try:
             conn = await self._get_connection()
             cursor = conn.cursor()
-            
+
             # Create custom summarization function
             summarization_sql = """
             CREATE OR REPLACE FUNCTION SOPHIA_AI_SUMMARIZE(text STRING, max_length INT)
@@ -190,7 +192,7 @@ class EnhancedSnowflakeCortexService:
                 SELECT SNOWFLAKE.CORTEX.SUMMARIZE(text, max_length)
             $$;
             """
-            
+
             # Create custom sentiment analysis function
             sentiment_sql = """
             CREATE OR REPLACE FUNCTION SOPHIA_AI_SENTIMENT(text STRING)
@@ -201,8 +203,8 @@ class EnhancedSnowflakeCortexService:
                 SELECT OBJECT_CONSTRUCT(
                     'sentiment', SNOWFLAKE.CORTEX.SENTIMENT(text),
                     'confidence', ABS(SNOWFLAKE.CORTEX.SENTIMENT(text)),
-                    'classification', 
-                        CASE 
+                    'classification',
+                        CASE
                             WHEN SNOWFLAKE.CORTEX.SENTIMENT(text) > 0.3 THEN 'positive'
                             WHEN SNOWFLAKE.CORTEX.SENTIMENT(text) < -0.3 THEN 'negative'
                             ELSE 'neutral'
@@ -210,7 +212,7 @@ class EnhancedSnowflakeCortexService:
                 )
             $$;
             """
-            
+
             # Create custom entity extraction function
             entity_sql = """
             CREATE OR REPLACE FUNCTION SOPHIA_AI_EXTRACT_ENTITIES(text STRING)
@@ -221,7 +223,7 @@ class EnhancedSnowflakeCortexService:
                 SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(text, 'Extract all named entities (people, organizations, locations) from this text. Return as JSON array.')
             $$;
             """
-            
+
             # Create custom classification function
             classification_sql = """
             CREATE OR REPLACE FUNCTION SOPHIA_AI_CLASSIFY(text STRING, categories ARRAY)
@@ -232,7 +234,7 @@ class EnhancedSnowflakeCortexService:
                 SELECT SNOWFLAKE.CORTEX.CLASSIFY_TEXT(text, categories)
             $$;
             """
-            
+
             # Execute function creation
             for func_name, func_sql in [
                 ("SOPHIA_AI_SUMMARIZE", summarization_sql),
@@ -246,41 +248,41 @@ class EnhancedSnowflakeCortexService:
                     logger.info(f"Created custom function: {func_name}")
                 except Exception as e:
                     logger.warning(f"Failed to create function {func_name}: {e}")
-            
+
             cursor.close()
-            
+
         except Exception as e:
             logger.error(f"Error initializing custom functions: {e}")
-    
+
     async def advanced_cortex_search(
-        self, 
-        query: str, 
+        self,
+        query: str,
         search_service: str,
-        config: Optional[CortexSearchConfig] = None
-    ) -> Dict[str, Any]:
+        config: CortexSearchConfig | None = None
+    ) -> dict[str, Any]:
         """
         Perform advanced Cortex Search with multiple modes and optimization
-        
+
         Args:
             query: Search query
             search_service: Cortex Search service name
             config: Search configuration
-            
+
         Returns:
             Search results with metadata and performance metrics
         """
         if not self.initialized:
             await self.initialize()
-        
+
         if not config:
             config = CortexSearchConfig()
-        
+
         start_time = datetime.now()
-        
+
         try:
             conn = await self._get_connection()
             cursor = conn.cursor(DictCursor)
-            
+
             # Build search query based on mode
             if config.search_mode == CortexSearchMode.SEMANTIC:
                 search_sql = f"""
@@ -293,7 +295,7 @@ class EnhancedSnowflakeCortexService:
                 WHERE similarity_score >= {config.similarity_threshold}
                 ORDER BY similarity_score DESC
                 """
-            
+
             elif config.search_mode == CortexSearchMode.HYBRID:
                 search_sql = f"""
                 WITH semantic_results AS (
@@ -320,7 +322,7 @@ class EnhancedSnowflakeCortexService:
                 ORDER BY similarity_score DESC
                 LIMIT {config.max_results}
                 """
-            
+
             elif config.search_mode == CortexSearchMode.RERANKED:
                 search_sql = f"""
                 WITH initial_results AS (
@@ -344,7 +346,7 @@ class EnhancedSnowflakeCortexService:
                 ORDER BY CAST(rerank_score AS FLOAT) DESC
                 LIMIT {config.max_results}
                 """
-            
+
             else:  # KEYWORD mode
                 search_sql = f"""
                 SELECT *
@@ -355,7 +357,7 @@ class EnhancedSnowflakeCortexService:
                 ))
                 ORDER BY similarity_score DESC
                 """
-            
+
             # Add filter conditions if specified
             if config.filter_conditions:
                 filter_clauses = []
@@ -367,20 +369,20 @@ class EnhancedSnowflakeCortexService:
                         filter_clauses.append(f"{field} IN ('{value_str}')")
                     else:
                         filter_clauses.append(f"{field} = {value}")
-                
+
                 if filter_clauses:
                     search_sql = search_sql.replace(
-                        "ORDER BY", 
+                        "ORDER BY",
                         f"WHERE {' AND '.join(filter_clauses)} ORDER BY"
                     )
-            
+
             # Execute search
             cursor.execute(search_sql)
             results = cursor.fetchall()
-            
+
             # Calculate performance metrics
             processing_time = (datetime.now() - start_time).total_seconds() * 1000
-            
+
             # Enhance results with metadata if requested
             if config.include_metadata:
                 for result in results:
@@ -390,9 +392,9 @@ class EnhancedSnowflakeCortexService:
                         'query_hash': hash(query),
                         'timestamp': datetime.now()
                     }
-            
+
             cursor.close()
-            
+
             # Log search operation
             await self.audit_logger.log_data_operation(
                 operation_type="cortex_search",
@@ -404,7 +406,7 @@ class EnhancedSnowflakeCortexService:
                     "processing_time_ms": processing_time
                 }
             )
-            
+
             return {
                 "results": results,
                 "metadata": {
@@ -415,31 +417,31 @@ class EnhancedSnowflakeCortexService:
                     "search_service": search_service
                 }
             }
-            
+
         except Exception as e:
             logger.error(f"Error in advanced Cortex search: {e}")
             raise
-    
+
     async def create_data_pipeline(self, config: DataPipelineConfig) -> str:
         """
         Create an AI-powered data processing pipeline
-        
+
         Args:
             config: Pipeline configuration
-            
+
         Returns:
             Pipeline execution ID
         """
         if not self.initialized:
             await self.initialize()
-        
+
         execution_id = str(uuid.uuid4())
-        
+
         try:
             # Store pipeline configuration
             self.active_pipelines[execution_id] = config
             self.pipeline_results[execution_id] = []
-            
+
             # Start pipeline execution based on mode
             if config.processing_mode == DataProcessingMode.REAL_TIME:
                 asyncio.create_task(self._execute_realtime_pipeline(execution_id, config))
@@ -449,7 +451,7 @@ class EnhancedSnowflakeCortexService:
                 asyncio.create_task(self._schedule_pipeline(execution_id, config))
             else:  # BATCH
                 asyncio.create_task(self._execute_batch_pipeline(execution_id, config))
-            
+
             # Log pipeline creation
             await self.audit_logger.log_workflow_event(
                 workflow_id=execution_id,
@@ -462,19 +464,19 @@ class EnhancedSnowflakeCortexService:
                     "source_tables": config.source_tables
                 }
             )
-            
+
             return execution_id
-            
+
         except Exception as e:
             logger.error(f"Error creating data pipeline: {e}")
             raise
-    
+
     async def _execute_batch_pipeline(self, execution_id: str, config: DataPipelineConfig) -> None:
         """Execute batch data processing pipeline"""
         try:
             conn = await self._get_connection()
             cursor = conn.cursor(DictCursor)
-            
+
             # Process each source table
             for source_table in config.source_tables:
                 # Get data in batches
@@ -487,47 +489,47 @@ class EnhancedSnowflakeCortexService:
                     LIMIT {config.batch_size}
                     OFFSET {offset}
                     """
-                    
+
                     cursor.execute(batch_sql)
                     batch_data = cursor.fetchall()
-                    
+
                     if not batch_data:
                         break
-                    
+
                     # Process batch with AI functions
                     processed_results = await self._process_batch_with_ai(
                         batch_data, config.ai_functions, execution_id
                     )
-                    
+
                     # Insert processed results
                     if processed_results:
                         await self._insert_processed_data(
                             processed_results, config.target_table, cursor
                         )
-                    
+
                     offset += config.batch_size
-            
+
             cursor.close()
-            
+
             # Mark pipeline as completed
             await self._complete_pipeline(execution_id, "batch_completed")
-            
+
         except Exception as e:
             logger.error(f"Error in batch pipeline execution: {e}")
             await self._fail_pipeline(execution_id, str(e))
-    
+
     async def _process_batch_with_ai(
-        self, 
-        batch_data: List[Dict[str, Any]], 
-        ai_functions: List[AIFunctionType],
+        self,
+        batch_data: list[dict[str, Any]],
+        ai_functions: list[AIFunctionType],
         execution_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Process batch data with AI functions"""
         processed_results = []
-        
+
         for row in batch_data:
             processed_row = row.copy()
-            
+
             for ai_function in ai_functions:
                 try:
                     # Apply AI function based on type
@@ -545,28 +547,28 @@ class EnhancedSnowflakeCortexService:
                         result = await self._apply_question_answering(row, execution_id)
                     else:
                         result = await self._apply_custom_analysis(row, execution_id)
-                    
+
                     # Merge results
                     processed_row.update(result.output_data)
-                    
+
                     # Store processing result
                     self.pipeline_results[execution_id].append(result)
-                    
+
                 except Exception as e:
                     logger.error(f"Error applying AI function {ai_function}: {e}")
                     processed_row[f"{ai_function.value}_error"] = str(e)
-            
+
             processed_results.append(processed_row)
-        
+
         return processed_results
-    
-    async def _apply_summarization(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_summarization(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply summarization AI function"""
         start_time = datetime.now()
-        
+
         # Find text fields to summarize
         text_fields = [k for k, v in row.items() if isinstance(v, str) and len(v) > 100]
-        
+
         if not text_fields:
             return AIProcessingResult(
                 operation_id=str(uuid.uuid4()),
@@ -577,7 +579,7 @@ class EnhancedSnowflakeCortexService:
                 cost=0,
                 quality_score=0.5
             )
-        
+
         # Use cost engineering service for optimization
         task_request = TaskRequest(
             request_id=str(uuid.uuid4()),
@@ -586,11 +588,11 @@ class EnhancedSnowflakeCortexService:
             prompt=f"Summarize this content: {row[text_fields[0]][:1000]}",
             max_tokens=200
         )
-        
+
         response = await cost_engineering_service.process_task(task_request)
-        
+
         processing_time = (datetime.now() - start_time).total_seconds() * 1000
-        
+
         return AIProcessingResult(
             operation_id=task_request.request_id,
             function_type=AIFunctionType.SUMMARIZATION,
@@ -600,14 +602,14 @@ class EnhancedSnowflakeCortexService:
             cost=response.cost,
             quality_score=response.quality_score
         )
-    
-    async def _apply_sentiment_analysis(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_sentiment_analysis(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply sentiment analysis AI function"""
         start_time = datetime.now()
-        
+
         # Find text fields for sentiment analysis
         text_fields = [k for k, v in row.items() if isinstance(v, str) and len(v) > 10]
-        
+
         if not text_fields:
             return AIProcessingResult(
                 operation_id=str(uuid.uuid4()),
@@ -618,26 +620,26 @@ class EnhancedSnowflakeCortexService:
                 cost=0,
                 quality_score=0.5
             )
-        
+
         try:
             conn = await self._get_connection()
             cursor = conn.cursor()
-            
+
             # Use custom sentiment function
             sentiment_sql = f"SELECT SOPHIA_AI_SENTIMENT('{row[text_fields[0]][:500]}')"
             cursor.execute(sentiment_sql)
             result = cursor.fetchone()
-            
+
             sentiment_data = json.loads(result[0]) if result and result[0] else {
                 "sentiment": 0.0,
                 "confidence": 0.0,
                 "classification": "neutral"
             }
-            
+
             cursor.close()
-            
+
             processing_time = (datetime.now() - start_time).total_seconds() * 1000
-            
+
             return AIProcessingResult(
                 operation_id=str(uuid.uuid4()),
                 function_type=AIFunctionType.SENTIMENT_ANALYSIS,
@@ -651,7 +653,7 @@ class EnhancedSnowflakeCortexService:
                 cost=0.001,  # Estimated cost for Cortex function
                 quality_score=0.85
             )
-            
+
         except Exception as e:
             logger.error(f"Error in sentiment analysis: {e}")
             return AIProcessingResult(
@@ -663,11 +665,11 @@ class EnhancedSnowflakeCortexService:
                 cost=0,
                 quality_score=0.0
             )
-    
-    async def _apply_classification(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_classification(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply classification AI function"""
         start_time = datetime.now()
-        
+
         # Use cost engineering service for classification
         task_request = TaskRequest(
             request_id=str(uuid.uuid4()),
@@ -676,11 +678,11 @@ class EnhancedSnowflakeCortexService:
             prompt=f"Classify this content into categories: {json.dumps(row)[:500]}",
             max_tokens=50
         )
-        
+
         response = await cost_engineering_service.process_task(task_request)
-        
+
         processing_time = (datetime.now() - start_time).total_seconds() * 1000
-        
+
         return AIProcessingResult(
             operation_id=task_request.request_id,
             function_type=AIFunctionType.CLASSIFICATION,
@@ -690,14 +692,14 @@ class EnhancedSnowflakeCortexService:
             cost=response.cost,
             quality_score=response.quality_score
         )
-    
-    async def _apply_entity_extraction(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_entity_extraction(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply entity extraction AI function"""
         start_time = datetime.now()
-        
+
         # Find text fields for entity extraction
         text_fields = [k for k, v in row.items() if isinstance(v, str) and len(v) > 20]
-        
+
         if not text_fields:
             return AIProcessingResult(
                 operation_id=str(uuid.uuid4()),
@@ -708,7 +710,7 @@ class EnhancedSnowflakeCortexService:
                 cost=0,
                 quality_score=0.5
             )
-        
+
         # Use cost engineering service for entity extraction
         task_request = TaskRequest(
             request_id=str(uuid.uuid4()),
@@ -717,11 +719,11 @@ class EnhancedSnowflakeCortexService:
             prompt=f"Extract named entities (people, organizations, locations) from: {row[text_fields[0]][:500]}",
             max_tokens=100
         )
-        
+
         response = await cost_engineering_service.process_task(task_request)
-        
+
         processing_time = (datetime.now() - start_time).total_seconds() * 1000
-        
+
         # Parse entities from response
         try:
             entities = json.loads(response.response_text)
@@ -729,7 +731,7 @@ class EnhancedSnowflakeCortexService:
                 entities = [response.response_text]
         except json.JSONDecodeError:
             entities = [response.response_text]
-        
+
         return AIProcessingResult(
             operation_id=task_request.request_id,
             function_type=AIFunctionType.ENTITY_EXTRACTION,
@@ -739,8 +741,8 @@ class EnhancedSnowflakeCortexService:
             cost=response.cost,
             quality_score=response.quality_score
         )
-    
-    async def _apply_translation(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_translation(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply translation AI function"""
         # Implementation would use Cortex translation functions
         return AIProcessingResult(
@@ -752,8 +754,8 @@ class EnhancedSnowflakeCortexService:
             cost=0,
             quality_score=0.5
         )
-    
-    async def _apply_question_answering(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_question_answering(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply question answering AI function"""
         # Implementation would use Cortex Q&A functions
         return AIProcessingResult(
@@ -765,8 +767,8 @@ class EnhancedSnowflakeCortexService:
             cost=0,
             quality_score=0.5
         )
-    
-    async def _apply_custom_analysis(self, row: Dict[str, Any], execution_id: str) -> AIProcessingResult:
+
+    async def _apply_custom_analysis(self, row: dict[str, Any], execution_id: str) -> AIProcessingResult:
         """Apply custom analysis AI function"""
         # Implementation would use custom Cortex functions
         return AIProcessingResult(
@@ -778,10 +780,10 @@ class EnhancedSnowflakeCortexService:
             cost=0,
             quality_score=0.5
         )
-    
+
     async def _insert_processed_data(
-        self, 
-        processed_results: List[Dict[str, Any]], 
+        self,
+        processed_results: list[dict[str, Any]],
         target_table: str,
         cursor
     ) -> None:
@@ -789,49 +791,49 @@ class EnhancedSnowflakeCortexService:
         try:
             if not processed_results:
                 return
-            
+
             # Create insert statement
             columns = list(processed_results[0].keys())
             placeholders = ", ".join(["%s"] * len(columns))
-            
+
             insert_sql = f"""
             INSERT INTO {target_table} ({", ".join(columns)})
             VALUES ({placeholders})
             """
-            
+
             # Prepare data for insertion
             insert_data = []
             for result in processed_results:
                 row_data = []
                 for col in columns:
                     value = result.get(col)
-                    if isinstance(value, (dict, list)):
+                    if isinstance(value, dict | list):
                         value = json.dumps(value)
                     row_data.append(value)
                 insert_data.append(row_data)
-            
+
             # Execute batch insert
             cursor.executemany(insert_sql, insert_data)
-            
+
         except Exception as e:
             logger.error(f"Error inserting processed data: {e}")
             raise
-    
+
     async def _execute_realtime_pipeline(self, execution_id: str, config: DataPipelineConfig) -> None:
         """Execute real-time data processing pipeline"""
         # Implementation would set up real-time data streaming
         pass
-    
+
     async def _execute_streaming_pipeline(self, execution_id: str, config: DataPipelineConfig) -> None:
         """Execute streaming data processing pipeline"""
         # Implementation would set up streaming data processing
         pass
-    
+
     async def _schedule_pipeline(self, execution_id: str, config: DataPipelineConfig) -> None:
         """Schedule pipeline execution"""
         # Implementation would set up scheduled execution
         pass
-    
+
     async def _complete_pipeline(self, execution_id: str, status: str) -> None:
         """Mark pipeline as completed"""
         await self.audit_logger.log_workflow_event(
@@ -840,7 +842,7 @@ class EnhancedSnowflakeCortexService:
             user_id="system",
             details={"status": status, "results_count": len(self.pipeline_results.get(execution_id, []))}
         )
-    
+
     async def _fail_pipeline(self, execution_id: str, error: str) -> None:
         """Mark pipeline as failed"""
         await self.audit_logger.log_workflow_event(
@@ -849,21 +851,21 @@ class EnhancedSnowflakeCortexService:
             user_id="system",
             details={"error": error}
         )
-    
-    async def get_pipeline_status(self, execution_id: str) -> Dict[str, Any]:
+
+    async def get_pipeline_status(self, execution_id: str) -> dict[str, Any]:
         """Get status of a data pipeline"""
         if execution_id not in self.active_pipelines:
             return {"error": "Pipeline not found"}
-        
+
         config = self.active_pipelines[execution_id]
         results = self.pipeline_results.get(execution_id, [])
-        
+
         # Calculate metrics
         total_operations = len(results)
         total_cost = sum(r.cost for r in results)
         avg_quality = sum(r.quality_score for r in results) / total_operations if total_operations > 0 else 0
         avg_processing_time = sum(r.processing_time_ms for r in results) / total_operations if total_operations > 0 else 0
-        
+
         return {
             "execution_id": execution_id,
             "pipeline_id": config.pipeline_id,
@@ -877,24 +879,24 @@ class EnhancedSnowflakeCortexService:
             },
             "recent_results": results[-10:] if results else []
         }
-    
+
     async def create_cortex_search_service(
-        self, 
-        service_name: str, 
+        self,
+        service_name: str,
         source_table: str,
-        text_columns: List[str],
-        metadata_columns: Optional[List[str]] = None
+        text_columns: list[str],
+        metadata_columns: list[str] | None = None
     ) -> str:
         """Create a new Cortex Search service"""
         try:
             conn = await self._get_connection()
             cursor = conn.cursor()
-            
+
             # Build column specification
             columns_spec = ", ".join(text_columns)
             if metadata_columns:
                 columns_spec += ", " + ", ".join(metadata_columns)
-            
+
             # Create Cortex Search service
             create_sql = f"""
             CREATE CORTEX SEARCH SERVICE {service_name}
@@ -907,10 +909,10 @@ class EnhancedSnowflakeCortexService:
                 FROM {source_table}
             )
             """
-            
+
             cursor.execute(create_sql)
             cursor.close()
-            
+
             # Log service creation
             await self.audit_logger.log_system_event(
                 event_type="cortex_search_service_created",
@@ -921,124 +923,124 @@ class EnhancedSnowflakeCortexService:
                     "metadata_columns": metadata_columns
                 }
             )
-            
+
             return service_name
-            
+
         except Exception as e:
             logger.error(f"Error creating Cortex Search service: {e}")
             raise
-    
-    async def analyze_data_quality(self, table_name: str) -> Dict[str, Any]:
+
+    async def analyze_data_quality(self, table_name: str) -> dict[str, Any]:
         """Analyze data quality using AI"""
         try:
             conn = await self._get_connection()
             cursor = conn.cursor(DictCursor)
-            
+
             # Get table schema
             schema_sql = f"DESCRIBE TABLE {table_name}"
             cursor.execute(schema_sql)
             schema_info = cursor.fetchall()
-            
+
             # Analyze data quality
             quality_checks = []
-            
+
             for column in schema_info:
                 col_name = column['name']
                 col_type = column['type']
-                
+
                 # Check for null values
                 null_check_sql = f"""
-                SELECT 
+                SELECT
                     COUNT(*) as total_rows,
                     COUNT({col_name}) as non_null_rows,
                     (COUNT(*) - COUNT({col_name})) as null_rows,
                     (COUNT(*) - COUNT({col_name})) / COUNT(*) * 100 as null_percentage
                 FROM {table_name}
                 """
-                
+
                 cursor.execute(null_check_sql)
                 null_stats = cursor.fetchone()
-                
+
                 quality_checks.append({
                     "column": col_name,
                     "type": col_type,
                     "null_percentage": null_stats['null_percentage'],
                     "completeness_score": 100 - null_stats['null_percentage']
                 })
-            
+
             # Calculate overall quality score
             avg_completeness = sum(check['completeness_score'] for check in quality_checks) / len(quality_checks)
-            
+
             cursor.close()
-            
+
             return {
                 "table_name": table_name,
                 "overall_quality_score": avg_completeness,
                 "column_quality": quality_checks,
                 "recommendations": await self._generate_quality_recommendations(quality_checks)
             }
-            
+
         except Exception as e:
             logger.error(f"Error analyzing data quality: {e}")
             raise
-    
-    async def _generate_quality_recommendations(self, quality_checks: List[Dict[str, Any]]) -> List[str]:
+
+    async def _generate_quality_recommendations(self, quality_checks: list[dict[str, Any]]) -> list[str]:
         """Generate data quality improvement recommendations"""
         recommendations = []
-        
+
         for check in quality_checks:
             if check['null_percentage'] > 20:
                 recommendations.append(f"Column '{check['column']}' has high null percentage ({check['null_percentage']:.1f}%) - consider data validation or default values")
             elif check['null_percentage'] > 10:
                 recommendations.append(f"Column '{check['column']}' has moderate null percentage ({check['null_percentage']:.1f}%) - monitor data sources")
-        
+
         if not recommendations:
             recommendations.append("Data quality is good - no immediate issues detected")
-        
+
         return recommendations
-    
+
     async def _pipeline_monitoring_task(self) -> None:
         """Background task to monitor pipeline performance"""
         while True:
             try:
                 # Monitor active pipelines
-                for execution_id, config in self.active_pipelines.items():
+                for execution_id, _config in self.active_pipelines.items():
                     results = self.pipeline_results.get(execution_id, [])
-                    
+
                     # Check for performance issues
                     if results:
                         recent_results = results[-10:]
                         avg_processing_time = sum(r.processing_time_ms for r in recent_results) / len(recent_results)
                         avg_cost = sum(r.cost for r in recent_results) / len(recent_results)
-                        
+
                         # Alert on performance degradation
                         if avg_processing_time > 5000:  # 5 seconds
                             logger.warning(f"Pipeline {execution_id} showing slow processing times: {avg_processing_time:.2f}ms")
-                        
+
                         if avg_cost > 0.1:  # $0.10 per operation
                             logger.warning(f"Pipeline {execution_id} showing high costs: ${avg_cost:.4f} per operation")
-                
+
                 # Sleep for 5 minutes
                 await asyncio.sleep(300)
-                
+
             except Exception as e:
                 logger.error(f"Error in pipeline monitoring: {e}")
                 await asyncio.sleep(60)
-    
+
     async def _performance_optimization_task(self) -> None:
         """Background task to optimize performance"""
         while True:
             try:
                 # Analyze performance metrics every hour
                 await asyncio.sleep(3600)
-                
+
                 # Optimize based on usage patterns
                 await self._optimize_pipeline_performance()
-                
+
             except Exception as e:
                 logger.error(f"Error in performance optimization: {e}")
                 await asyncio.sleep(1800)
-    
+
     async def _optimize_pipeline_performance(self) -> None:
         """Optimize pipeline performance based on metrics"""
         # Implementation would analyze performance data and adjust parameters

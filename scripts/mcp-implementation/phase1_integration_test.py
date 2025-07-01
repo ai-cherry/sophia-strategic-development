@@ -262,7 +262,6 @@ class MCPIntegrationTester:
 
         # Server Status
         print("📊 SERVER STATUS:")
-        total_value = 0
         ready_count = 0
 
         for server in servers:

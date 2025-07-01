@@ -10,18 +10,19 @@ Migration from placeholder to active caching implementation.
 from backend.core.enhanced_cache_manager import (
     EnhancedCacheManager,
     get_cache_manager,
-    initialize_cache_system
+    initialize_cache_system,
 )
+
 
 # Backward compatibility - maintain the same interface
 class DashboardCacheManager(EnhancedCacheManager):
     """
     Enhanced Dashboard Cache Manager that replaces the placeholder implementation.
-    
+
     This class maintains backward compatibility while providing active caching
     functionality through the hierarchical cache system.
     """
-    
+
     def __init__(self):
         # Initialize with default settings for backward compatibility
         super().__init__(
@@ -35,7 +36,7 @@ class DashboardCacheManager(EnhancedCacheManager):
     def get(self, key: str, cache_type: str = "dashboard_data", *args, **kwargs):
         """
         Synchronous get method for backward compatibility.
-        
+
         Note: This creates an event loop for async operation.
         For new code, use the async methods directly.
         """
@@ -48,7 +49,7 @@ class DashboardCacheManager(EnhancedCacheManager):
                 import warnings
                 warnings.warn(
                     "Synchronous cache access from async context. Use async methods instead.",
-                    DeprecationWarning
+                    DeprecationWarning, stacklevel=2
                 )
                 return None
             else:
@@ -60,7 +61,7 @@ class DashboardCacheManager(EnhancedCacheManager):
     def set(self, key: str, value, cache_type: str = "dashboard_data", ttl=None, *args, **kwargs):
         """
         Synchronous set method for backward compatibility.
-        
+
         Note: This creates an event loop for async operation.
         For new code, use the async methods directly.
         """
@@ -72,7 +73,7 @@ class DashboardCacheManager(EnhancedCacheManager):
                 import warnings
                 warnings.warn(
                     "Synchronous cache access from async context. Use async methods instead.",
-                    DeprecationWarning
+                    DeprecationWarning, stacklevel=2
                 )
                 return False
             else:
@@ -113,7 +114,7 @@ class DashboardCacheManager(EnhancedCacheManager):
 # Export the enhanced cache manager for new code
 __all__ = [
     'DashboardCacheManager',
-    'EnhancedCacheManager', 
+    'EnhancedCacheManager',
     'get_cache_manager',
     'initialize_cache_system'
 ]

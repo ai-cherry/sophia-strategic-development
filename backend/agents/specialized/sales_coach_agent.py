@@ -29,7 +29,6 @@ from typing import Any
 from backend.agents.core.base_agent import BaseAgent
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
-    EnhancedMemoryCategory,
 )
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector

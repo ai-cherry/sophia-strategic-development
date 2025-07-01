@@ -23,8 +23,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from backend.core.performance_monitor import performance_monitor
-
 # LangChain imports
 try:
     import langchain

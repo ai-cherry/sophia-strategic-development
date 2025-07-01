@@ -6,7 +6,7 @@ Modern FastAPI with streaming chat support
 
 import asyncio
 import logging
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -72,7 +72,7 @@ async def generate_ai_response(message: str, user_id: str) -> AsyncGenerator[str
         "The system is working perfectly with FastAPI 2025 best practices. ",
         "Thank you for using Sophia AI!"
     ]
-    
+
     for part in response_parts:
         await asyncio.sleep(0.2)  # Simulate processing
         yield part
@@ -87,7 +87,7 @@ async def chat_endpoint(request: ChatRequest):
                 async for token in generate_ai_response(request.message, request.user_id):
                     yield f"data: {token}\n\n"
                 yield "data: [DONE]\n\n"
-            
+
             return StreamingResponse(
                 stream_response(),
                 media_type="text/event-stream",
@@ -101,12 +101,12 @@ async def chat_endpoint(request: ChatRequest):
             full_response = ""
             async for token in generate_ai_response(request.message, request.user_id):
                 full_response += token
-            
+
             return ChatResponse(
                 content=full_response,
                 user_id=request.user_id
             )
-            
+
     except Exception as e:
         logger.error(f"Chat endpoint error: {e}")
         raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")

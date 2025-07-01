@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def fix_ai_memory_server():
     """Fix abstract method implementations in ai_memory server"""
     server_file = Path(__file__).parent.parent / "mcp-servers/ai_memory/ai_memory_mcp_server.py"
-    
+
     # Abstract methods that need to be implemented
     abstract_methods = '''
     async def server_specific_init(self) -> None:
@@ -54,7 +54,7 @@ def fix_ai_memory_server():
         """Process data with AI capabilities"""
         content = data.get("content", "")
         analysis = self.conversation_analyzer.analyze_conversation(content)
-        
+
         if analysis["should_auto_store"]:
             result = await self.store_memory(
                 content=content,
@@ -64,7 +64,7 @@ def fix_ai_memory_server():
                 auto_detected=True
             )
             return {"auto_stored": True, "memory_id": result.get("memory_id")}
-        
+
         return {"auto_stored": False, "analysis": analysis}
 
     def get_server_capabilities(self) -> dict:
@@ -80,30 +80,30 @@ def fix_ai_memory_server():
 '''
 
     try:
-        with open(server_file, 'r') as f:
+        with open(server_file) as f:
             content = f.read()
-        
+
         # Find the class definition and add methods before the existing methods
         class_start = content.find("class StandardizedAiMemoryMCPServer(StandardizedMCPServer):")
         if class_start == -1:
             logger.error("Could not find StandardizedAiMemoryMCPServer class")
             return False
-        
+
         # Find the end of __init__ method
         init_end = content.find("async def sync_data(self)", class_start)
         if init_end == -1:
             logger.error("Could not find sync_data method")
             return False
-        
+
         # Insert abstract methods before sync_data
         new_content = content[:init_end] + abstract_methods + "\n" + content[init_end:]
-        
+
         with open(server_file, 'w') as f:
             f.write(new_content)
-        
+
         logger.info("✅ Fixed ai_memory abstract methods")
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to fix ai_memory: {e}")
         return False
@@ -112,7 +112,7 @@ def fix_ai_memory_server():
 def fix_ag_ui_server():
     """Fix abstract method implementations in ag_ui server"""
     server_file = Path(__file__).parent.parent / "mcp-servers/ag_ui/ag_ui_mcp_server.py"
-    
+
     abstract_methods = '''
     async def server_specific_init(self) -> None:
         """Initialize AG UI server specific components"""
@@ -150,33 +150,33 @@ def fix_ag_ui_server():
 '''
 
     try:
-        with open(server_file, 'r') as f:
+        with open(server_file) as f:
             content = f.read()
-        
+
         # Find the class definition
         class_start = content.find("class AGUIMCPServer(StandardizedMCPServer):")
         if class_start == -1:
             logger.error("Could not find AGUIMCPServer class")
             return False
-        
+
         # Find a good insertion point (before existing methods)
         insertion_point = content.find("def get_mcp_tools(self)", class_start)
         if insertion_point == -1:
             insertion_point = content.find("async def", class_start)
-        
+
         if insertion_point == -1:
             logger.error("Could not find insertion point in ag_ui")
             return False
-        
+
         # Insert abstract methods
         new_content = content[:insertion_point] + abstract_methods + "\n" + content[insertion_point:]
-        
+
         with open(server_file, 'w') as f:
             f.write(new_content)
-        
+
         logger.info("✅ Fixed ag_ui abstract methods")
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to fix ag_ui: {e}")
         return False
@@ -185,23 +185,23 @@ def fix_ag_ui_server():
 def fix_performance_monitor_issue():
     """Fix performance monitor track_performance issue"""
     agent_file = Path(__file__).parent.parent / "backend/agents/specialized/snowflake_admin_agent.py"
-    
+
     try:
-        with open(agent_file, 'r') as f:
+        with open(agent_file) as f:
             content = f.read()
-        
+
         # Replace the problematic decorator
         content = content.replace(
             "@performance_monitor.track_performance",
             "# @performance_monitor.track_performance  # Temporarily disabled"
         )
-        
+
         with open(agent_file, 'w') as f:
             f.write(content)
-        
+
         logger.info("✅ Fixed performance monitor issue")
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to fix performance monitor: {e}")
         return False
@@ -210,13 +210,13 @@ def fix_performance_monitor_issue():
 def main():
     """Fix all abstract class implementation issues"""
     logger.info("🔧 Fixing Abstract Class Implementation Issues...")
-    
+
     fixes = [
         ("ai_memory", fix_ai_memory_server),
-        ("ag_ui", fix_ag_ui_server), 
+        ("ag_ui", fix_ag_ui_server),
         ("performance_monitor", fix_performance_monitor_issue)
     ]
-    
+
     fixed_count = 0
     for name, fix_func in fixes:
         logger.info(f"🔄 Fixing {name}...")
@@ -224,10 +224,10 @@ def main():
             fixed_count += 1
         else:
             logger.error(f"❌ Failed to fix {name}")
-    
-    logger.info(f"\n🎯 ABSTRACT CLASS FIX SUMMARY:")
+
+    logger.info("\n🎯 ABSTRACT CLASS FIX SUMMARY:")
     logger.info(f"   Fixed: {fixed_count}/{len(fixes)}")
-    
+
     if fixed_count == len(fixes):
         logger.info("   🎉 All abstract class issues fixed!")
         return True
@@ -238,4 +238,4 @@ def main():
 
 if __name__ == "__main__":
     success = main()
-    exit(0 if success else 1) 
+    exit(0 if success else 1)

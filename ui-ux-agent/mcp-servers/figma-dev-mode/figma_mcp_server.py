@@ -8,7 +8,7 @@ Uses Pulumi ESC integration for secure credential management
 import logging
 import os
 from dataclasses import asdict, dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import requests

@@ -17,17 +17,17 @@ import logging
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any
 
-from backend.security.audit_logger import AuditEventType, info, error
+from backend.security.audit_logger import AuditEventType, error, info
 from backend.security.rbac.models import (
+    SYSTEM_ROLES,
     ActionType,
     Permission,
     ResourceType,
     Role,
     RoleAssignment,
     User,
-    SYSTEM_ROLES,
     has_permission,
 )
 
@@ -37,23 +37,23 @@ logger = logging.getLogger(__name__)
 class RBACService:
     """
     RBAC Service for managing roles, permissions, and role assignments.
-    
+
     This service provides methods for:
     - Managing roles and permissions
     - Assigning roles to users
     - Checking permissions
     - Persisting RBAC data
     """
-    
+
     def __init__(
         self,
-        storage_path: Optional[str] = None,
+        storage_path: str | None = None,
         load_system_roles: bool = True,
         auto_save: bool = True,
     ):
         """
         Initialize the RBAC service.
-        
+
         Args:
             storage_path: Path to store RBAC data (if None, data is only in memory)
             load_system_roles: Whether to load system-defined roles
@@ -61,64 +61,64 @@ class RBACService:
         """
         self.storage_path = storage_path
         self.auto_save = auto_save
-        
+
         # Initialize data stores
-        self.roles: Dict[str, Role] = {}
-        self.role_assignments: Dict[str, RoleAssignment] = {}
-        self.users: Dict[str, User] = {}
-        
+        self.roles: dict[str, Role] = {}
+        self.role_assignments: dict[str, RoleAssignment] = {}
+        self.users: dict[str, User] = {}
+
         # Load system roles if requested
         if load_system_roles:
             self._load_system_roles()
-        
+
         # Load data from storage if available
         if storage_path:
             self._ensure_storage_dir()
             self._load_from_storage()
-    
+
     def _load_system_roles(self):
         """Load system-defined roles"""
-        for role_id, role in SYSTEM_ROLES.items():
+        for _role_id, role in SYSTEM_ROLES.items():
             self.roles[role.id] = role
-        
+
         logger.info(f"Loaded {len(SYSTEM_ROLES)} system roles")
-    
+
     def _ensure_storage_dir(self):
         """Ensure the storage directory exists"""
         if self.storage_path:
             os.makedirs(os.path.dirname(self.storage_path), exist_ok=True)
-    
+
     def _load_from_storage(self):
         """Load RBAC data from storage"""
         if not self.storage_path or not os.path.exists(self.storage_path):
             return
-        
+
         try:
-            with open(self.storage_path, "r") as f:
+            with open(self.storage_path) as f:
                 data = json.load(f)
-            
+
             # Load roles
             for role_data in data.get("roles", []):
                 role = Role(**role_data)
                 self.roles[role.id] = role
-            
+
             # Load role assignments
             for assignment_data in data.get("role_assignments", []):
                 assignment = RoleAssignment(**assignment_data)
                 self.role_assignments[assignment.id] = assignment
-            
+
             # Load users
             for user_data in data.get("users", []):
                 user = User(**user_data)
                 self.users[user.id] = user
-            
+
             logger.info(
                 f"Loaded RBAC data from {self.storage_path}: "
                 f"{len(self.roles)} roles, "
                 f"{len(self.role_assignments)} role assignments, "
                 f"{len(self.users)} users"
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to load RBAC data from {self.storage_path}: {e}")
             error(
@@ -126,24 +126,24 @@ class RBACService:
                 f"Failed to load RBAC data: {e}",
                 {"storage_path": self.storage_path},
             )
-    
+
     def save_to_storage(self):
         """Save RBAC data to storage"""
         if not self.storage_path:
             return
-        
+
         try:
             data = {
                 "roles": [role.dict() for role in self.roles.values()],
                 "role_assignments": [assignment.dict() for assignment in self.role_assignments.values()],
                 "users": [user.dict() for user in self.users.values()],
             }
-            
+
             with open(self.storage_path, "w") as f:
                 json.dump(data, f, default=str, indent=2)
-            
+
             logger.info(f"Saved RBAC data to {self.storage_path}")
-            
+
         except Exception as e:
             logger.error(f"Failed to save RBAC data to {self.storage_path}: {e}")
             error(
@@ -151,35 +151,35 @@ class RBACService:
                 f"Failed to save RBAC data: {e}",
                 {"storage_path": self.storage_path},
             )
-    
+
     # Role management
-    
-    def get_role(self, role_id: str) -> Optional[Role]:
+
+    def get_role(self, role_id: str) -> Role | None:
         """Get a role by ID"""
         return self.roles.get(role_id)
-    
-    def get_roles(self) -> List[Role]:
+
+    def get_roles(self) -> list[Role]:
         """Get all roles"""
         return list(self.roles.values())
-    
+
     def create_role(
         self,
         name: str,
-        permissions: List[Permission],
-        description: Optional[str] = None,
+        permissions: list[Permission],
+        description: str | None = None,
         is_system_role: bool = False,
-        role_id: Optional[str] = None,
+        role_id: str | None = None,
     ) -> Role:
         """
         Create a new role.
-        
+
         Args:
             name: Name of the role
             permissions: List of permissions for the role
             description: Optional description of the role
             is_system_role: Whether this is a system role
             role_id: Optional ID for the role (generated if not provided)
-        
+
         Returns:
             The created role
         """
@@ -190,103 +190,103 @@ class RBACService:
             description=description,
             is_system_role=is_system_role,
         )
-        
+
         self.roles[role.id] = role
-        
+
         info(
             AuditEventType.ROLE_CHANGE,
             f"Created role: {name}",
             {"role_id": role.id, "is_system_role": is_system_role},
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return role
-    
+
     def update_role(
         self,
         role_id: str,
-        name: Optional[str] = None,
-        permissions: Optional[List[Permission]] = None,
-        description: Optional[str] = None,
-    ) -> Optional[Role]:
+        name: str | None = None,
+        permissions: list[Permission] | None = None,
+        description: str | None = None,
+    ) -> Role | None:
         """
         Update an existing role.
-        
+
         Args:
             role_id: ID of the role to update
             name: New name for the role (if provided)
             permissions: New permissions for the role (if provided)
             description: New description for the role (if provided)
-        
+
         Returns:
             The updated role, or None if the role was not found
         """
         role = self.roles.get(role_id)
         if not role:
             return None
-        
+
         # Don't allow updating system roles
         if role.is_system_role:
             logger.warning(f"Cannot update system role: {role.name}")
             return role
-        
+
         # Update role attributes
         if name is not None:
             role.name = name
-        
+
         if permissions is not None:
             role.permissions = permissions
-        
+
         if description is not None:
             role.description = description
-        
+
         role.updated_at = datetime.utcnow()
-        
+
         info(
             AuditEventType.ROLE_CHANGE,
             f"Updated role: {role.name}",
             {"role_id": role.id},
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return role
-    
+
     def delete_role(self, role_id: str) -> bool:
         """
         Delete a role.
-        
+
         Args:
             role_id: ID of the role to delete
-        
+
         Returns:
             True if the role was deleted, False otherwise
         """
         role = self.roles.get(role_id)
         if not role:
             return False
-        
+
         # Don't allow deleting system roles
         if role.is_system_role:
             logger.warning(f"Cannot delete system role: {role.name}")
             return False
-        
+
         # Delete the role
         del self.roles[role_id]
-        
+
         # Delete all role assignments for this role
         assignments_to_delete = [
             assignment_id
             for assignment_id, assignment in self.role_assignments.items()
             if assignment.role_id == role_id
         ]
-        
+
         for assignment_id in assignments_to_delete:
             del self.role_assignments[assignment_id]
-        
+
         info(
             AuditEventType.ROLE_CHANGE,
             f"Deleted role: {role.name}",
@@ -295,34 +295,34 @@ class RBACService:
                 "assignments_deleted": len(assignments_to_delete),
             },
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return True
-    
+
     # User management
-    
-    def get_user(self, user_id: str) -> Optional[User]:
+
+    def get_user(self, user_id: str) -> User | None:
         """Get a user by ID"""
         return self.users.get(user_id)
-    
-    def get_users(self) -> List[User]:
+
+    def get_users(self) -> list[User]:
         """Get all users"""
         return list(self.users.values())
-    
+
     def create_user(
         self,
         user_id: str,
         email: str,
-        name: Optional[str] = None,
-        department: Optional[str] = None,
+        name: str | None = None,
+        department: str | None = None,
         is_active: bool = True,
         is_system_admin: bool = False,
     ) -> User:
         """
         Create a new user.
-        
+
         Args:
             user_id: ID of the user
             email: Email of the user
@@ -330,7 +330,7 @@ class RBACService:
             department: Department of the user
             is_active: Whether the user is active
             is_system_admin: Whether the user is a system administrator
-        
+
         Returns:
             The created user
         """
@@ -342,9 +342,9 @@ class RBACService:
             is_active=is_active,
             is_system_admin=is_system_admin,
         )
-        
+
         self.users[user_id] = user
-        
+
         info(
             AuditEventType.USER_CREATION,
             f"Created user: {email}",
@@ -354,24 +354,24 @@ class RBACService:
                 "department": department,
             },
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return user
-    
+
     def update_user(
         self,
         user_id: str,
-        email: Optional[str] = None,
-        name: Optional[str] = None,
-        department: Optional[str] = None,
-        is_active: Optional[bool] = None,
-        is_system_admin: Optional[bool] = None,
-    ) -> Optional[User]:
+        email: str | None = None,
+        name: str | None = None,
+        department: str | None = None,
+        is_active: bool | None = None,
+        is_system_admin: bool | None = None,
+    ) -> User | None:
         """
         Update an existing user.
-        
+
         Args:
             user_id: ID of the user to update
             email: New email for the user (if provided)
@@ -379,70 +379,70 @@ class RBACService:
             department: New department for the user (if provided)
             is_active: New active status for the user (if provided)
             is_system_admin: New system admin status for the user (if provided)
-        
+
         Returns:
             The updated user, or None if the user was not found
         """
         user = self.users.get(user_id)
         if not user:
             return None
-        
+
         # Update user attributes
         if email is not None:
             user.email = email
-        
+
         if name is not None:
             user.name = name
-        
+
         if department is not None:
             user.department = department
-        
+
         if is_active is not None:
             user.is_active = is_active
-        
+
         if is_system_admin is not None:
             user.is_system_admin = is_system_admin
-        
+
         user.updated_at = datetime.utcnow()
-        
+
         info(
             AuditEventType.USER_UPDATE,
             f"Updated user: {user.email}",
             {"user_id": user_id},
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return user
-    
+
     def delete_user(self, user_id: str) -> bool:
         """
         Delete a user.
-        
+
         Args:
             user_id: ID of the user to delete
-        
+
         Returns:
             True if the user was deleted, False otherwise
         """
         user = self.users.get(user_id)
         if not user:
             return False
-        
+
         # Delete the user
         del self.users[user_id]
-        
+
         # Delete all role assignments for this user
         assignments_to_delete = [
             assignment_id
             for assignment_id, assignment in self.role_assignments.items()
             if assignment.user_id == user_id
         ]
-        
+
         for assignment_id in assignments_to_delete:
             del self.role_assignments[assignment_id]
-        
+
         info(
             AuditEventType.USER_DELETION,
             f"Deleted user: {user.email}",
@@ -451,57 +451,57 @@ class RBACService:
                 "assignments_deleted": len(assignments_to_delete),
             },
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return True
-    
+
     # Role assignment management
-    
-    def get_role_assignment(self, assignment_id: str) -> Optional[RoleAssignment]:
+
+    def get_role_assignment(self, assignment_id: str) -> RoleAssignment | None:
         """Get a role assignment by ID"""
         return self.role_assignments.get(assignment_id)
-    
+
     def get_role_assignments(
         self,
-        user_id: Optional[str] = None,
-        role_id: Optional[str] = None,
-    ) -> List[RoleAssignment]:
+        user_id: str | None = None,
+        role_id: str | None = None,
+    ) -> list[RoleAssignment]:
         """
         Get role assignments, optionally filtered by user or role.
-        
+
         Args:
             user_id: Filter by user ID (if provided)
             role_id: Filter by role ID (if provided)
-        
+
         Returns:
             List of matching role assignments
         """
         assignments = list(self.role_assignments.values())
-        
+
         if user_id:
             assignments = [a for a in assignments if a.user_id == user_id]
-        
+
         if role_id:
             assignments = [a for a in assignments if a.role_id == role_id]
-        
+
         return assignments
-    
+
     def assign_role(
         self,
         user_id: str,
         role_id: str,
-        scope_type: Optional[ResourceType] = None,
-        scope_id: Optional[str] = None,
-        constraints: Optional[Dict[str, Any]] = None,
-        expires_at: Optional[datetime] = None,
-        created_by: Optional[str] = None,
-        assignment_id: Optional[str] = None,
-    ) -> Optional[RoleAssignment]:
+        scope_type: ResourceType | None = None,
+        scope_id: str | None = None,
+        constraints: dict[str, Any] | None = None,
+        expires_at: datetime | None = None,
+        created_by: str | None = None,
+        assignment_id: str | None = None,
+    ) -> RoleAssignment | None:
         """
         Assign a role to a user.
-        
+
         Args:
             user_id: ID of the user
             role_id: ID of the role
@@ -511,17 +511,17 @@ class RBACService:
             expires_at: Expiration date for the assignment (if any)
             created_by: ID of the user who created the assignment
             assignment_id: Optional ID for the assignment (generated if not provided)
-        
+
         Returns:
             The created role assignment, or None if the user or role was not found
         """
         # Check if the user and role exist
         user = self.users.get(user_id)
         role = self.roles.get(role_id)
-        
+
         if not user or not role:
             return None
-        
+
         # Create the role assignment
         assignment = RoleAssignment(
             id=assignment_id or str(uuid.uuid4()),
@@ -533,9 +533,9 @@ class RBACService:
             expires_at=expires_at,
             created_by=created_by,
         )
-        
+
         self.role_assignments[assignment.id] = assignment
-        
+
         info(
             AuditEventType.ROLE_CHANGE,
             f"Assigned role {role.name} to user {user.email}",
@@ -547,117 +547,117 @@ class RBACService:
                 "scope_id": scope_id,
             },
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return assignment
-    
+
     def update_role_assignment(
         self,
         assignment_id: str,
-        scope_type: Optional[ResourceType] = None,
-        scope_id: Optional[str] = None,
-        constraints: Optional[Dict[str, Any]] = None,
-        expires_at: Optional[datetime] = None,
-    ) -> Optional[RoleAssignment]:
+        scope_type: ResourceType | None = None,
+        scope_id: str | None = None,
+        constraints: dict[str, Any] | None = None,
+        expires_at: datetime | None = None,
+    ) -> RoleAssignment | None:
         """
         Update a role assignment.
-        
+
         Args:
             assignment_id: ID of the assignment to update
             scope_type: New scope type for the assignment (if provided)
             scope_id: New scope ID for the assignment (if provided)
             constraints: New constraints for the assignment (if provided)
             expires_at: New expiration date for the assignment (if provided)
-        
+
         Returns:
             The updated role assignment, or None if the assignment was not found
         """
         assignment = self.role_assignments.get(assignment_id)
         if not assignment:
             return None
-        
+
         # Update assignment attributes
         if scope_type is not None:
             assignment.scope_type = scope_type
-        
+
         if scope_id is not None:
             assignment.scope_id = scope_id
-        
+
         if constraints is not None:
             assignment.constraints = constraints
-        
+
         if expires_at is not None:
             assignment.expires_at = expires_at
-        
+
         info(
             AuditEventType.ROLE_CHANGE,
-            f"Updated role assignment",
+            "Updated role assignment",
             {
                 "assignment_id": assignment_id,
                 "user_id": assignment.user_id,
                 "role_id": assignment.role_id,
             },
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return assignment
-    
+
     def remove_role_assignment(self, assignment_id: str) -> bool:
         """
         Remove a role assignment.
-        
+
         Args:
             assignment_id: ID of the assignment to remove
-        
+
         Returns:
             True if the assignment was removed, False otherwise
         """
         assignment = self.role_assignments.get(assignment_id)
         if not assignment:
             return False
-        
+
         # Remove the assignment
         del self.role_assignments[assignment_id]
-        
+
         info(
             AuditEventType.ROLE_CHANGE,
-            f"Removed role assignment",
+            "Removed role assignment",
             {
                 "assignment_id": assignment_id,
                 "user_id": assignment.user_id,
                 "role_id": assignment.role_id,
             },
         )
-        
+
         if self.auto_save:
             self.save_to_storage()
-        
+
         return True
-    
+
     # Permission checking
-    
+
     def check_permission(
         self,
         user_id: str,
         resource_type: ResourceType,
         action: ActionType,
-        resource_id: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        resource_id: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Check if a user has permission to perform an action on a resource.
-        
+
         Args:
             user_id: ID of the user to check
             resource_type: Type of resource to check
             action: Action to check
             resource_id: Optional ID of the specific resource instance
             context: Optional context for conditional permissions
-        
+
         Returns:
             True if the user has permission, False otherwise
         """
@@ -665,18 +665,18 @@ class RBACService:
         user = self.users.get(user_id)
         if not user:
             return False
-        
+
         # System admins have all permissions
         if user.is_system_admin:
             return True
-        
+
         # Inactive users have no permissions
         if not user.is_active:
             return False
-        
+
         # Get role assignments for the user
         assignments = self.get_role_assignments(user_id=user_id)
-        
+
         # Check if any role assignment grants the permission
         return has_permission(
             user=user,
@@ -690,36 +690,36 @@ class RBACService:
 
 
 # Global RBAC service instance
-_rbac_service: Optional[RBACService] = None
+_rbac_service: RBACService | None = None
 
 
 def initialize_rbac_service(
-    storage_path: Optional[str] = None,
+    storage_path: str | None = None,
     load_system_roles: bool = True,
     auto_save: bool = True,
 ) -> RBACService:
     """
     Initialize the global RBAC service.
-    
+
     Args:
         storage_path: Path to store RBAC data (if None, data is only in memory)
         load_system_roles: Whether to load system-defined roles
         auto_save: Whether to automatically save changes to storage
-    
+
     Returns:
         The initialized RBAC service
     """
     global _rbac_service
-    
+
     if _rbac_service is None:
         _rbac_service = RBACService(
             storage_path=storage_path,
             load_system_roles=load_system_roles,
             auto_save=auto_save,
         )
-        
+
         logger.info("Initialized RBAC service")
-        
+
         info(
             AuditEventType.SYSTEM_START,
             "Initialized RBAC service",
@@ -729,24 +729,24 @@ def initialize_rbac_service(
                 "auto_save": auto_save,
             },
         )
-    
+
     return _rbac_service
 
 
 def get_rbac_service() -> RBACService:
     """
     Get the global RBAC service.
-    
+
     Returns:
         The global RBAC service
-    
+
     Raises:
         RuntimeError: If the RBAC service has not been initialized
     """
     global _rbac_service
-    
+
     if _rbac_service is None:
         raise RuntimeError("RBAC service has not been initialized")
-    
+
     return _rbac_service
 

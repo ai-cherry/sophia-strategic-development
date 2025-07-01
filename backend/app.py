@@ -129,7 +129,7 @@ def create_app():
             'timestamp': '2025-06-30T15:00:00Z',
             'version': '1.0.0'
         })
-    
+
     @app.route('/api/mcp/system/health', methods=['GET'])
     def mcp_system_health():
         """MCP system health overview"""
@@ -140,7 +140,7 @@ def create_app():
             'system_health': 'healthy',
             'last_updated': '2025-06-30T15:00:00Z'
         })
-    
+
     @app.route('/api/mcp/portkey_admin_official/cost-analysis', methods=['GET'])
     def mcp_cost_analysis():
         """Portkey cost analysis via MCP"""
@@ -155,7 +155,7 @@ def create_app():
             'optimization_savings': 156.32,
             'source': 'portkey_admin_mcp'
         })
-    
+
     @app.route('/api/mcp/sophia_ai_orchestrator/performance', methods=['GET'])
     def mcp_orchestrator_performance():
         """Orchestrator performance via MCP"""
@@ -167,7 +167,7 @@ def create_app():
             'cache_hit_rate': 67.3,
             'source': 'sophia_orchestrator_mcp'
         })
-    
+
     @app.route('/api/mcp/business_intelligence/insights', methods=['GET'])
     def mcp_business_insights():
         """Business intelligence insights via MCP"""
@@ -183,7 +183,7 @@ def create_app():
             ],
             'source': 'business_intelligence_mcp'
         })
-    
+
     @app.route('/api/mcp/openrouter_search_official/model-usage', methods=['GET'])
     def mcp_model_usage():
         """Model usage statistics via MCP"""
@@ -197,7 +197,7 @@ def create_app():
             'diversity_score': 8.7,
             'source': 'openrouter_mcp'
         })
-    
+
     @app.route('/api/mcp/enhanced_ai_memory/agent-patterns', methods=['GET'])
     def mcp_agent_patterns():
         """Agent memory patterns via MCP"""
@@ -218,7 +218,7 @@ def create_app():
             },
             'source': 'enhanced_ai_memory_mcp'
         })
-    
+
     @app.route('/api/v1/chat/mcp-enhanced', methods=['POST'])
     def mcp_enhanced_chat():
         """MCP-enhanced chat endpoint"""
@@ -227,7 +227,7 @@ def create_app():
             message = data.get('message', '')
             mode = data.get('mode', 'universal')
             session_id = data.get('session_id', 'default')
-            
+
             # Enhanced response with MCP integration
             response = {
                 'response': f"MCP-Enhanced {mode.title()} Response: {message}",
@@ -240,9 +240,9 @@ def create_app():
                 },
                 'timestamp': '2025-06-30T15:00:00Z'
             }
-            
+
             return jsonify(response)
-            
+
         except Exception as e:
             logger.error(f"MCP Enhanced Chat error: {str(e)}")
             return jsonify({'error': str(e)}), 500

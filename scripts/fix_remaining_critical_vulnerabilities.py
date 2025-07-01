@@ -5,7 +5,7 @@ Sophia AI Platform - Immediate Fix for Remaining Critical Issues
 
 This script addresses the remaining 87 critical vulnerabilities:
 - 32 SQL Injection instances in Snowflake services
-- 24 Command Injection instances in deployment scripts  
+- 24 Command Injection instances in deployment scripts
 - 13 Hardcoded Secret instances in configuration files
 - 8 File Permission issues with 0o755 settings
 - 10 Additional vulnerabilities (XML, Pickle, XSS, Crypto)
@@ -277,7 +277,8 @@ class RemainingVulnerabilityFixer:
 
             # Replace 0o755 with 0o644
             permission_pattern = r'os\.chmod\s*\([^,]+,\s*0o755\s*\)'
-            replacement = lambda m: m.group(0).replace('0o755', '0o644') + '  # SECURITY FIX: Reduced permissions'
+            def replacement(m):
+                return m.group(0).replace('0o755', '0o644') + '  # SECURITY FIX: Reduced permissions'
 
             if re.search(permission_pattern, content):
                 content = re.sub(permission_pattern, replacement, content)

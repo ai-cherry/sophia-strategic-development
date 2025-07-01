@@ -37,12 +37,6 @@ class SnowflakeCortexMCPServer:
         """
         Use Snowflake Cortex COMPLETE function for AI text generation
         """
-        query = f"""
-        SELECT SNOWFLAKE.CORTEX.COMPLETE(
-            '{model}',
-            '{prompt}'
-        ) as response
-        """
 
         return {
             "status": "success",
@@ -57,9 +51,6 @@ class SnowflakeCortexMCPServer:
         """
         Analyze sentiment using Snowflake Cortex
         """
-        query = f"""
-        SELECT SNOWFLAKE.CORTEX.SENTIMENT('{text}') as sentiment_score
-        """
 
         return {
             "status": "success",
@@ -73,13 +64,6 @@ class SnowflakeCortexMCPServer:
     async def cortex_translate(self, text: str, source_lang: str, target_lang: str) -> dict[str, Any]:
         """
         Translate text using Snowflake Cortex
-        """
-        query = f"""
-        SELECT SNOWFLAKE.CORTEX.TRANSLATE(
-            '{text}',
-            '{source_lang}',
-            '{target_lang}'
-        ) as translated_text
         """
 
         return {
@@ -96,12 +80,6 @@ class SnowflakeCortexMCPServer:
         """
         Extract answer from text using Snowflake Cortex
         """
-        query = f"""
-        SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
-            '{text}',
-            '{question}'
-        ) as answer
-        """
 
         return {
             "status": "success",
@@ -115,9 +93,6 @@ class SnowflakeCortexMCPServer:
     async def cortex_summarize(self, text: str, max_length: int = 100) -> dict[str, Any]:
         """
         Summarize text using Snowflake Cortex
-        """
-        query = f"""
-        SELECT SNOWFLAKE.CORTEX.SUMMARIZE('{text}') as summary
         """
 
         return {

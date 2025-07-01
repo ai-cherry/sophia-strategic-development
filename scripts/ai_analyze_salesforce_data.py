@@ -4,13 +4,12 @@ AI-Enhanced Salesforce Data Analysis Script
 Analyzes Salesforce data using AI for migration planning to HubSpot/Intercom
 """
 
-import os
-import sys
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class SalesforceDataAnalyzer:
     """AI-enhanced analyzer for Salesforce data migration planning"""
-    
+
     def __init__(self):
         self.analysis_results = {
             "timestamp": datetime.now().isoformat(),
@@ -29,15 +28,15 @@ class SalesforceDataAnalyzer:
             "recommendations": {},
             "status": "pending"
         }
-        
-    def analyze_salesforce_objects(self) -> Dict[str, Any]:
+
+    def analyze_salesforce_objects(self) -> dict[str, Any]:
         """Analyze Salesforce object structure for migration"""
         logger.info("🔍 Analyzing Salesforce object structure...")
-        
+
         try:
             # Simulated Salesforce object analysis
             # In real implementation, this would connect to Salesforce API
-            
+
             salesforce_objects = {
                 "Account": {
                     "record_count": 2500,
@@ -85,12 +84,12 @@ class SalesforceDataAnalyzer:
                     "migration_priority": "medium"
                 }
             }
-            
+
             # Calculate overall statistics
             total_records = sum(obj["record_count"] for obj in salesforce_objects.values())
-            avg_complexity = len([obj for obj in salesforce_objects.values() if obj["complexity"] == "high"]) / len(salesforce_objects)
+            len([obj for obj in salesforce_objects.values() if obj["complexity"] == "high"]) / len(salesforce_objects)
             avg_data_quality = sum(obj["data_quality_score"] for obj in salesforce_objects.values()) / len(salesforce_objects)
-            
+
             analysis = {
                 "objects": salesforce_objects,
                 "summary": {
@@ -101,22 +100,22 @@ class SalesforceDataAnalyzer:
                     "critical_priority_objects": len([obj for obj in salesforce_objects.values() if obj["migration_priority"] == "critical"])
                 }
             }
-            
+
             logger.info(f"✅ Analyzed {len(salesforce_objects)} Salesforce objects")
             logger.info(f"   📊 Total records: {total_records:,}")
             logger.info(f"   🎯 Average data quality: {avg_data_quality:.1%}")
-            
+
             self.analysis_results["analysis"]["salesforce_objects"] = analysis
             return {"status": "success", "analysis": analysis}
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to analyze Salesforce objects: {e}")
             return {"status": "failed", "error": str(e)}
-    
-    def generate_migration_mapping(self) -> Dict[str, Any]:
+
+    def generate_migration_mapping(self) -> dict[str, Any]:
         """Generate AI-enhanced migration mapping recommendations"""
         logger.info("🗺️  Generating migration mapping recommendations...")
-        
+
         try:
             # AI-enhanced field mapping recommendations
             migration_mappings = {
@@ -193,7 +192,7 @@ class SalesforceDataAnalyzer:
                     }
                 }
             }
-            
+
             # Generate transformation recommendations
             transformation_recommendations = {
                 "data_cleaning": {
@@ -215,7 +214,7 @@ class SalesforceDataAnalyzer:
                     "content_summarization": "Summarize long descriptions and notes"
                 }
             }
-            
+
             mapping_results = {
                 "mappings": migration_mappings,
                 "transformations": transformation_recommendations,
@@ -223,23 +222,23 @@ class SalesforceDataAnalyzer:
                 "estimated_data_loss": 0.03,
                 "manual_review_required": 0.08
             }
-            
+
             logger.info("✅ Generated migration mapping recommendations")
             logger.info(f"   🎯 Estimated success rate: {mapping_results['estimated_success_rate']:.1%}")
             logger.info(f"   📊 HubSpot mappings: {len(migration_mappings['hubspot_mappings'])} objects")
             logger.info(f"   📊 Intercom mappings: {len(migration_mappings['intercom_mappings'])} objects")
-            
+
             self.analysis_results["analysis"]["migration_mapping"] = mapping_results
             return {"status": "success", "mappings": mapping_results}
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to generate migration mapping: {e}")
             return {"status": "failed", "error": str(e)}
-    
-    def assess_migration_risks(self) -> Dict[str, Any]:
+
+    def assess_migration_risks(self) -> dict[str, Any]:
         """Assess potential migration risks and mitigation strategies"""
         logger.info("⚠️  Assessing migration risks...")
-        
+
         try:
             risk_assessment = {
                 "high_risks": [
@@ -289,15 +288,15 @@ class SalesforceDataAnalyzer:
                     }
                 ]
             }
-            
+
             # Calculate overall risk score
             total_risks = len(risk_assessment["high_risks"]) + len(risk_assessment["medium_risks"]) + len(risk_assessment["low_risks"])
             risk_score = (
-                len(risk_assessment["high_risks"]) * 3 + 
-                len(risk_assessment["medium_risks"]) * 2 + 
+                len(risk_assessment["high_risks"]) * 3 +
+                len(risk_assessment["medium_risks"]) * 2 +
                 len(risk_assessment["low_risks"]) * 1
             ) / (total_risks * 3) if total_risks > 0 else 0
-            
+
             risk_results = {
                 "assessment": risk_assessment,
                 "overall_risk_score": round(risk_score, 2),
@@ -305,23 +304,23 @@ class SalesforceDataAnalyzer:
                 "estimated_effort_hours": "50-62 hours",
                 "recommended_timeline": "3-4 weeks"
             }
-            
+
             logger.info("✅ Completed migration risk assessment")
             logger.info(f"   ⚠️  Overall risk score: {risk_score:.1%}")
             logger.info(f"   📊 Total risks identified: {total_risks}")
-            logger.info(f"   ⏱️  Estimated effort: 50-62 hours")
-            
+            logger.info("   ⏱️  Estimated effort: 50-62 hours")
+
             self.analysis_results["analysis"]["risk_assessment"] = risk_results
             return {"status": "success", "risks": risk_results}
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to assess migration risks: {e}")
             return {"status": "failed", "error": str(e)}
-    
-    def generate_ai_recommendations(self) -> Dict[str, Any]:
+
+    def generate_ai_recommendations(self) -> dict[str, Any]:
         """Generate AI-powered recommendations for optimal migration strategy"""
         logger.info("🤖 Generating AI-powered migration recommendations...")
-        
+
         try:
             ai_recommendations = {
                 "migration_strategy": {
@@ -385,7 +384,7 @@ class SalesforceDataAnalyzer:
                     "estimated_time_savings": "70% reduction in manual tasks"
                 }
             }
-            
+
             # Performance predictions
             performance_predictions = {
                 "migration_duration": "20-29 days total",
@@ -394,7 +393,7 @@ class SalesforceDataAnalyzer:
                 "downtime_required": "2-4 hours total",
                 "rollback_capability": "Full rollback within 1 hour"
             }
-            
+
             recommendations_results = {
                 "recommendations": ai_recommendations,
                 "predictions": performance_predictions,
@@ -406,23 +405,23 @@ class SalesforceDataAnalyzer:
                     "Execute Phase 1 pilot migration"
                 ]
             }
-            
+
             logger.info("✅ Generated AI-powered recommendations")
             logger.info(f"   🎯 Confidence score: {recommendations_results['confidence_score']:.1%}")
-            logger.info(f"   ⏱️  Estimated duration: 20-29 days")
-            logger.info(f"   📈 Predicted success rate: 91-95%")
-            
+            logger.info("   ⏱️  Estimated duration: 20-29 days")
+            logger.info("   📈 Predicted success rate: 91-95%")
+
             self.analysis_results["recommendations"] = recommendations_results
             return {"status": "success", "recommendations": recommendations_results}
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to generate AI recommendations: {e}")
             return {"status": "failed", "error": str(e)}
-    
-    def run_comprehensive_analysis(self) -> Dict[str, Any]:
+
+    def run_comprehensive_analysis(self) -> dict[str, Any]:
         """Run comprehensive AI-enhanced Salesforce analysis"""
         logger.info("🚀 Starting comprehensive Salesforce data analysis...")
-        
+
         # Analysis components
         analyses = [
             ("Salesforce Object Analysis", self.analyze_salesforce_objects),
@@ -430,15 +429,15 @@ class SalesforceDataAnalyzer:
             ("Risk Assessment", self.assess_migration_risks),
             ("AI Recommendations", self.generate_ai_recommendations)
         ]
-        
+
         completed_analyses = 0
         total_analyses = len(analyses)
-        
+
         for analysis_name, analysis_func in analyses:
             logger.info(f"\n{'='*60}")
             logger.info(f"🔍 Running: {analysis_name}")
             logger.info(f"{'='*60}")
-            
+
             try:
                 result = analysis_func()
                 if result["status"] == "success":
@@ -446,13 +445,13 @@ class SalesforceDataAnalyzer:
                     logger.info(f"✅ {analysis_name}: SUCCESS")
                 else:
                     logger.error(f"❌ {analysis_name}: FAILED - {result.get('error', 'Unknown error')}")
-                    
+
             except Exception as e:
                 logger.error(f"❌ {analysis_name}: ERROR - {e}")
-        
+
         # Calculate success rate
         success_rate = (completed_analyses / total_analyses) * 100
-        
+
         if success_rate >= 80:
             overall_status = "success"
             status_emoji = "✅"
@@ -462,71 +461,71 @@ class SalesforceDataAnalyzer:
         else:
             overall_status = "failed"
             status_emoji = "❌"
-        
+
         self.analysis_results["status"] = overall_status
         self.analysis_results["summary"] = {
             "completed_analyses": completed_analyses,
             "total_analyses": total_analyses,
             "success_rate": success_rate
         }
-        
+
         # Print summary
         logger.info(f"\n{'='*60}")
-        logger.info(f"📊 SALESFORCE DATA ANALYSIS SUMMARY")
+        logger.info("📊 SALESFORCE DATA ANALYSIS SUMMARY")
         logger.info(f"{'='*60}")
         logger.info(f"{status_emoji} Overall Status: {overall_status.upper()}")
         logger.info(f"📈 Success Rate: {success_rate:.1f}% ({completed_analyses}/{total_analyses} analyses)")
-        
+
         # Migration readiness assessment
         if overall_status == "success":
-            logger.info(f"\n🚀 MIGRATION READINESS: HIGH")
-            logger.info(f"   • All critical analyses completed successfully")
-            logger.info(f"   • AI-enhanced migration strategy ready")
-            logger.info(f"   • Proceed with Phase 1 migration execution")
-            
+            logger.info("\n🚀 MIGRATION READINESS: HIGH")
+            logger.info("   • All critical analyses completed successfully")
+            logger.info("   • AI-enhanced migration strategy ready")
+            logger.info("   • Proceed with Phase 1 migration execution")
+
             # Print key insights
             if "analysis" in self.analysis_results and "salesforce_objects" in self.analysis_results["analysis"]:
                 summary = self.analysis_results["analysis"]["salesforce_objects"]["summary"]
-                logger.info(f"\n📊 KEY INSIGHTS:")
+                logger.info("\n📊 KEY INSIGHTS:")
                 logger.info(f"   • Total records to migrate: {summary['total_records']:,}")
                 logger.info(f"   • Average data quality: {summary['avg_data_quality']:.1%}")
                 logger.info(f"   • Critical priority objects: {summary['critical_priority_objects']}")
-            
+
             if "recommendations" in self.analysis_results:
                 predictions = self.analysis_results["recommendations"]["predictions"]
                 logger.info(f"   • Predicted success rate: {predictions['success_rate']}")
                 logger.info(f"   • Estimated duration: {predictions['migration_duration']}")
-            
+
         elif overall_status == "partial":
-            logger.info(f"\n⚠️  MIGRATION READINESS: MEDIUM")
-            logger.info(f"   • Some analyses completed with issues")
-            logger.info(f"   • Review failed analyses before proceeding")
-            logger.info(f"   • Consider additional data preparation")
-            
+            logger.info("\n⚠️  MIGRATION READINESS: MEDIUM")
+            logger.info("   • Some analyses completed with issues")
+            logger.info("   • Review failed analyses before proceeding")
+            logger.info("   • Consider additional data preparation")
+
         else:
-            logger.info(f"\n❌ MIGRATION READINESS: LOW")
-            logger.info(f"   • Critical analyses failed")
-            logger.info(f"   • Resolve data access and configuration issues")
-            logger.info(f"   • Not ready for migration execution")
-        
+            logger.info("\n❌ MIGRATION READINESS: LOW")
+            logger.info("   • Critical analyses failed")
+            logger.info("   • Resolve data access and configuration issues")
+            logger.info("   • Not ready for migration execution")
+
         return self.analysis_results
 
 
 def main():
     """Main function to run Salesforce data analysis"""
     analyzer = SalesforceDataAnalyzer()
-    
+
     try:
         # Run comprehensive analysis
         results = analyzer.run_comprehensive_analysis()
-        
+
         # Save results to file
         results_file = Path("salesforce_analysis_results.json")
         with open(results_file, "w") as f:
             json.dump(results, f, indent=2)
-        
+
         logger.info(f"\n💾 Analysis results saved to: {results_file}")
-        
+
         # Return appropriate exit code
         if results["status"] == "success":
             return 0
@@ -534,11 +533,11 @@ def main():
             return 1
         else:
             return 2
-            
+
     except KeyboardInterrupt:
         logger.info("\n🛑 Analysis interrupted by user")
         return 130
-        
+
     except Exception as e:
         logger.error(f"\n💥 Analysis failed with unexpected error: {e}")
         return 1
@@ -546,4 +545,4 @@ def main():
 
 if __name__ == "__main__":
     exit_code = main()
-    sys.exit(exit_code) 
+    sys.exit(exit_code)

@@ -8,7 +8,7 @@ Ensures seamless dashboard updates and production deployment
 import asyncio
 import logging
 import subprocess
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
