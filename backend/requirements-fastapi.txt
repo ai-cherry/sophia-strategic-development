@@ -9,7 +9,7 @@ pydantic-settings==2.6.1
 
 # ASGI server and middleware (compatible with FastAPI 0.115.0)
 starlette>=0.37.2,<0.39.0
-python-multipart==0.0.12
+python-multipart==0.0.18
 
 # HTTP client for external API calls
 httpx==0.28.1
