@@ -1,57 +1,103 @@
+# Pre-commit hooks for Sophia AI
+# Ensures code quality and consistency across all commits
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-      - id: trailing-whitespace
-        exclude: architecture_consistency_report.md
-      - id: end-of-file-fixer
-        exclude: architecture_consistency_report.md
-      - id: check-yaml
-      - id: check-added-large-files
-
+  # Python code formatting
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 23.12.1
     hooks:
       - id: black
+        language_version: python3.12
         args: [--line-length=88]
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        name: isort (python)
-        args: ["--profile", "black", "--filter-files"]
-
+  # Python linting and code quality
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.4
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.9
-    hooks:
-      - id: bandit
-        args: ["-c", "pyproject.toml"]
-        additional_dependencies: ["toml"]
-
+  # Type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
+    rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [
-          "types-requests",
-          "types-redis",
-          "types-psycopg2"
-        ]
+        additional_dependencies: [types-all]
+        args: [--ignore-missing-imports, --check-untyped-defs]
 
-  - repo: local
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
     hooks:
-      - id: python-syntax-validator
-        name: Python Syntax Validator
-        entry: python scripts/python_syntax_validator.py
-        language: system
-        types: [python]
-        pass_filenames: false
-        args: ["--severity", "error"]
+      - id: bandit
+        args: [--severity-level, medium]
+        exclude: ^tests/
+
+  # General code quality
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: detect-private-key
+
+  # Python import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black, --line-length, "88"]
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]
+
+  # YAML formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types: [yaml]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+
+  # Commit message formatting
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # Python docstring formatting
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args: [--convention=google]
+        exclude: ^tests/
+
+# Configuration for specific tools
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

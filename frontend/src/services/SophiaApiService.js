@@ -16,20 +16,15 @@ class SophiaApiService {
   }
 
   getApiBaseUrl() {
-    // React environment variables for production deployment
-    const apiUrl = process.env.REACT_APP_API_URL || 
-                   process.env.VITE_API_URL ||
-                   'http://localhost:8000';
+    // Vite environment variables for production deployment
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
     return apiUrl;
   }
 
   getWebSocketUrl() {
     // WebSocket URL configuration
-    const wsUrl = process.env.REACT_APP_WS_URL || 
-                  process.env.VITE_WS_URL;
-    
+    const wsUrl = import.meta.env.VITE_WS_URL;
     if (wsUrl) return wsUrl;
-    
     // Convert HTTP URL to WebSocket URL
     const baseUrl = this.getApiBaseUrl();
     return baseUrl.replace(/^https?:/, baseUrl.startsWith('https:') ? 'wss:' : 'ws:');

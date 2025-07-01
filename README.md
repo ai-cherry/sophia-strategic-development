@@ -1,4 +1,10 @@
-# Sophia AI Phase 2 - Vercel Deployment
+# Sophia AI Platform
+
+> **User Base:**
+> - Initial deployment: 5–10 users
+> - Maximum supported: 100 users
+>
+> **Note:** All performance, monitoring, and security decisions are based on this user base assumption. The system is optimized for this scale and can be tuned as the user base grows.
 
 🚀 **Advanced AI automation platform with natural language interaction, deployed on Vercel serverless infrastructure.**
 

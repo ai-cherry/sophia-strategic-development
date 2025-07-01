@@ -1,5 +1,16 @@
 # Sophia AI Clean Architecture Guide
 
+> **User Base Assumption:**
+> - **Initial deployment:** 5–10 users
+> - **Maximum supported:** 100 users
+>
+> **Design Impact:**
+> - All performance, scalability, and resource allocation decisions are optimized for this range.
+> - Database, cache, and background worker pools are sized for up to 100 concurrent users.
+> - Load testing, monitoring, and security controls are validated for this scale.
+> - System is designed for easy scaling within this range, but not over-engineered for thousands of users.
+> - Early user feedback (from first 5–10 users) will drive workflow and UX refinements.
+
 ## Overview
 
 This guide establishes the architectural principles and patterns for the Sophia AI platform modernization. We are transitioning from a monolithic, fragile architecture to a robust, scalable system based on **Clean Architecture** principles combined with **Domain-Driven Design (DDD)**.

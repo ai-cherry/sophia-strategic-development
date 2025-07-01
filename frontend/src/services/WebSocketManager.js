@@ -1,10 +1,9 @@
 // Environment-aware WebSocket URL configuration
 const getWebSocketUrl = () => {
-  // React environment variables (prefixed with REACT_APP_) for Vercel compatibility
-  // Also support Vite environment variables (prefixed with VITE_) for local development
-  const wsUrl = process.env.REACT_APP_WS_URL || import.meta.env.VITE_WS_URL;
-  const apiUrl = process.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL;
-  const environment = process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV;
+  // Vite environment variables (prefixed with VITE_) for Vercel compatibility
+  const wsUrl = import.meta.env.VITE_WS_URL;
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const environment = import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV;
   
   if (wsUrl) {
     return wsUrl;

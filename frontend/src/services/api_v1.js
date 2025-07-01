@@ -1,9 +1,8 @@
 // Environment-aware API URL configuration
 const getApiUrl = () => {
-  // React environment variables (prefixed with REACT_APP_) for Vercel compatibility
-  // Also support Vite environment variables (prefixed with VITE_) for local development
-  const apiUrl = process.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL;
-  const environment = process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV;
+  // Vite environment variables (prefixed with VITE_) for Vercel compatibility
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const environment = import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV;
   
   if (apiUrl) {
     return `${apiUrl}/api/v1`;
@@ -25,14 +24,14 @@ const getApiUrl = () => {
 };
 
 const API_BASE_URL = getApiUrl();
-const API_KEY = process.env.REACT_APP_API_KEY || import.meta.env.VITE_API_KEY || 'sophia-dashboard-dev-key'; // Environment-specific API key
+const API_KEY = import.meta.env.VITE_API_KEY || 'sophia-dashboard-dev-key'; // Environment-specific API key
 
 const request = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = {
         'Content-Type': 'application/json',
         'X-API-KEY': API_KEY,
-        'X-Environment': process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV,
+        'X-Environment': import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV,
         ...options.headers,
     };
 
@@ -51,7 +50,7 @@ const request = async (endpoint, options = {}) => {
         console.error('API call failed:', {
             url,
             error: error.message,
-            environment: process.env.REACT_APP_ENVIRONMENT || import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV
+            environment: import.meta.env.VITE_ENVIRONMENT || import.meta.env.MODE || process.env.NODE_ENV
         });
         throw error;
     }
