@@ -471,7 +471,7 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
             "conversation_analysis": True
         }
 
-async def sync_data(self) -> dict[str, Any]:
+    async def sync_data(self) -> dict[str, Any]:
         """Sync memory data with external systems"""
         try:
             sync_results = {

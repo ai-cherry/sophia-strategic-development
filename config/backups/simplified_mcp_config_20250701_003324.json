@@ -1,0 +1,172 @@
+{
+  "version": "2.0",
+  "description": "Simplified Sophia AI MCP Configuration - Portkey-First Architecture",
+  "simplified_setup": true,
+  "focus": "100% Portkey with Virtual Keys + Essential Context Providers",
+  
+  "environment": {
+    "ENVIRONMENT": "prod",
+    "PORTKEY_VIRTUAL_KEY_PROD": "${PORTKEY_VIRTUAL_KEY_PROD}",
+    "SNOWFLAKE_ACCOUNT": "${SNOWFLAKE_ACCOUNT}",
+    "SNOWFLAKE_USER": "${SNOWFLAKE_USER}",
+    "PULUMI_ORG": "scoobyjava-org"
+  },
+  
+  "servers": {
+    "portkey_llm": {
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.services.simplified_portkey_service"
+      ],
+      "env": {
+        "PORTKEY_VIRTUAL_KEY_PROD": "${PORTKEY_VIRTUAL_KEY_PROD}",
+        "SERVICE_NAME": "portkey_llm"
+      },
+      "capabilities": {
+        "llm_completion": true,
+        "streaming": true,
+        "cost_tracking": true,
+        "intelligent_routing": true,
+        "semantic_caching": true
+      },
+      "description": "100% Portkey LLM Gateway with Virtual Keys",
+      "priority": 1,
+      "essential": true
+    },
+    
+    "ai_memory": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.ai_memory.ai_memory_mcp_server"
+      ],
+      "env": {
+        "PORTKEY_VIRTUAL_KEY_PROD": "${PORTKEY_VIRTUAL_KEY_PROD}",
+        "SERVICE_NAME": "ai_memory"
+      },
+      "capabilities": {
+        "context_storage": true,
+        "semantic_search": true,
+        "conversation_memory": true,
+        "development_context": true
+      },
+      "description": "AI Memory for persistent context and learning",
+      "priority": 2,
+      "essential": true
+    },
+    
+    "snowflake_cortex": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp-servers.snowflake_admin.snowflake_admin_mcp_server"
+      ],
+      "env": {
+        "SNOWFLAKE_ACCOUNT": "${SNOWFLAKE_ACCOUNT}",
+        "SNOWFLAKE_USER": "${SNOWFLAKE_USER}",
+        "SERVICE_NAME": "snowflake_cortex"
+      },
+      "capabilities": {
+        "data_querying": true,
+        "cortex_ai": true,
+        "business_intelligence": true,
+        "vector_search": true
+      },
+      "description": "Snowflake Cortex AI for data intelligence",
+      "priority": 3,
+      "essential": true
+    },
+    
+    "business_context": {
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.mcp_servers.business_context_mcp_server"
+      ],
+      "env": {
+        "PORTKEY_VIRTUAL_KEY_PROD": "${PORTKEY_VIRTUAL_KEY_PROD}",
+        "SERVICE_NAME": "business_context"
+      },
+      "capabilities": {
+        "customer_data": true,
+        "sales_intelligence": true,
+        "market_analysis": true,
+        "competitive_insights": true
+      },
+      "description": "Business context aggregation (Gong, HubSpot, Linear)",
+      "priority": 4,
+      "essential": true
+    }
+  },
+  
+  "routing": {
+    "default_llm": "portkey_llm",
+    "context_providers": ["ai_memory", "snowflake_cortex", "business_context"],
+    "intelligent_routing": {
+      "ceo_queries": {
+        "llm": "portkey_llm",
+        "task_type": "ceo_insights",
+        "context": ["snowflake_cortex", "business_context", "ai_memory"]
+      },
+      "code_queries": {
+        "llm": "portkey_llm", 
+        "task_type": "code_generation",
+        "context": ["ai_memory"]
+      },
+      "business_queries": {
+        "llm": "portkey_llm",
+        "task_type": "business_analysis",
+        "context": ["snowflake_cortex", "business_context"]
+      },
+      "general_chat": {
+        "llm": "portkey_llm",
+        "task_type": "chat_general",
+        "context": ["ai_memory"]
+      }
+    }
+  },
+  
+  "monitoring": {
+    "health_checks": {
+      "enabled": true,
+      "interval_seconds": 30
+    },
+    "cost_tracking": {
+      "enabled": true,
+      "portkey_dashboard": true,
+      "budget_alerts": true
+    },
+    "performance_metrics": {
+      "response_time": true,
+      "success_rate": true,
+      "token_usage": true
+    }
+  },
+  
+  "benefits": {
+    "complexity_reduction": "90%",
+    "single_api_key": "Portkey Virtual Key Only",
+    "unified_cost_tracking": "All LLM costs in one dashboard",
+    "enhanced_reliability": "Built-in fallbacks and load balancing",
+    "simplified_debugging": "Single point of LLM operations",
+    "intelligent_caching": "Semantic caching reduces costs by 40-60%"
+  },
+  
+  "migration_notes": {
+    "removed_complexity": [
+      "12+ direct LLM provider integrations",
+      "Multiple API key management",
+      "Complex routing logic",
+      "Fragmented cost tracking",
+      "Provider-specific error handling"
+    ],
+    "simplified_to": [
+      "Single Portkey virtual key",
+      "4 essential MCP servers",
+      "Unified LLM interface",
+      "Centralized cost tracking",
+      "Intelligent routing via Portkey"
+    ]
+  }
+} 

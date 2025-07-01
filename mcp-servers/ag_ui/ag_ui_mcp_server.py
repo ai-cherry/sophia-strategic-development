@@ -372,7 +372,7 @@ class AGUIMCPServer(StandardizedMCPServer):
         """Sync UI data"""
         return {"synced": True}
 
-def get_mcp_tools(self) -> list[dict[str, Any]]:
+    def get_mcp_tools(self) -> list[dict[str, Any]]:
         """Get available MCP tools for AG-UI"""
         return [
             {

@@ -1,0 +1,73 @@
+{
+  "version": "4.0",
+  "description": "Unified MCP Server Port Configuration - Single Source of Truth",
+  "last_updated": "2025-07-01T00:33:24.164737",
+  "port_ranges": {
+    "core_intelligence": "9000-9019",
+    "strategic_enhancements": "9020-9029",
+    "business_intelligence": "9100-9119",
+    "data_integrations": "9200-9219",
+    "development_tools": "9300-9319"
+  },
+  "active_servers": {
+    "ai_memory": 9000,
+    "figma_context": 9001,
+    "ui_ux_agent": 9002,
+    "codacy": 9003,
+    "asana": 9004,
+    "notion": 9005,
+    "linear": 9006,
+    "github": 9007,
+    "slack": 9008,
+    "postgres": 9009,
+    "sophia_data_intelligence": 9010,
+    "sophia_infrastructure": 9011,
+    "snowflake_admin": 9012,
+    "portkey_admin": 9013,
+    "openrouter_search": 9014,
+    "sophia_business_intelligence": 9015,
+    "sophia_ai_intelligence": 9016,
+    "apify_intelligence": 9017,
+    "bright_data": 9018,
+    "graphiti": 9019,
+    "lambda_labs_cli": 9020,
+    "snowflake_cli_enhanced": 9021,
+    "estuary_flow_cli": 9022,
+    "pulumi": 9023,
+    "docker": 9024,
+    "hubspot": 9100,
+    "gong": 9101,
+    "apollo_io": 9102,
+    "snowflake": 9200,
+    "snowflake_cortex": 9201,
+    "estuary": 9202
+  },
+  "server_status": {
+    "operational": [
+      "ai_memory",
+      "lambda_labs_cli",
+      "snowflake_cli_enhanced",
+      "ui_ux_agent",
+      "portkey_admin"
+    ],
+    "development": [
+      "linear",
+      "asana",
+      "notion",
+      "github",
+      "slack",
+      "codacy"
+    ],
+    "planned": [
+      "estuary_flow_cli",
+      "apollo_io",
+      "bright_data",
+      "graphiti"
+    ]
+  },
+  "configuration_hierarchy": {
+    "primary": "config/unified_mcp_ports.json",
+    "cursor_integration": "config/cursor_enhanced_mcp_config.json",
+    "deployment": "config/deployment_mcp_config.json"
+  }
+}
