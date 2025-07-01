@@ -1,524 +1,682 @@
 """
-Enhanced Unified Chat Routes - Phase 1 Critical Implementation
-Replaces mock implementations with real MCP integration
+Enhanced Unified Chat API Routes - Phase 2
+
+This module provides comprehensive API endpoints for:
+- Natural language chat interface
+- Workflow orchestration and management
+- Human-in-the-loop interactions
+- Agent creation and management
+- Real-time status updates
+- Approval and decision management
+
+Key Features:
+- RESTful API for chat interactions
+- WebSocket support for real-time updates
+- Workflow management endpoints
+- Human approval checkpoint handling
+- Agent creation through natural language
+- Comprehensive error handling and validation
 """
 
+import asyncio
+import json
 import logging
-import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from backend.services.mcp_orchestration_service import (
-    MCPOrchestrationService,
-    get_mcp_service,
+from backend.services.sophia_universal_chat_service import (
+    universal_chat_service,
+    ChatMessage,
+    ChatMessageType,
+    IntentType
 )
+from backend.workflows.enhanced_langgraph_orchestration import enhanced_orchestrator
+from backend.security.audit_logger import AuditLogger
+from backend.core.dependencies import get_current_user, get_audit_logger
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1", tags=["enhanced-chat"])
+# Create router
+router = APIRouter(prefix="/api/v1/chat", tags=["Enhanced Chat"])
 
-# Request/Response Models
-class MCPChatRequest(BaseModel):
-    message: str = Field(..., description="User's chat message")
-    mode: str = Field(default="universal", description="Chat mode: universal, sophia, executive")
-    session_id: str | None = Field(default=None, description="Session identifier")
-    user_id: str | None = Field(default="default_user", description="User identifier")
-    context: dict[str, Any] | None = Field(default_factory=dict, description="Additional context")
-    mcpServices: dict[str, bool] | None = Field(default_factory=dict, description="Available MCP services")
-    enhancedFeatures: dict[str, bool] | None = Field(default_factory=dict, description="Enhanced features")
-
-class MCPMetrics(BaseModel):
-    servicesUsed: list[str] = Field(default_factory=list)
-    performance: dict[str, Any] = Field(default_factory=dict)
-    cost: dict[str, Any] = Field(default_factory=dict)
-    routing: dict[str, Any] = Field(default_factory=dict)
-
-class MCPChatResponse(BaseModel):
-    response: str = Field(..., description="AI response content")
+# Pydantic models for request/response
+class ChatRequest(BaseModel):
+    """Chat message request"""
+    message: str = Field(..., description="Chat message content")
     session_id: str = Field(..., description="Session identifier")
-    mode: str = Field(..., description="Chat mode used")
-    timestamp: str = Field(..., description="Response timestamp")
-    mcpMetrics: MCPMetrics | None = Field(default=None, description="MCP usage metrics")
-    metadata: dict[str, Any] | None = Field(default_factory=dict, description="Additional metadata")
-    suggestions: list[str] | None = Field(default_factory=list, description="Suggested follow-up questions")
-
-class EnhancedDashboardMetrics(BaseModel):
-    standard: dict[str, Any] = Field(default_factory=dict)
-    mcpEnhanced: dict[str, Any] = Field(default_factory=dict)
-
-# Enhanced Chat Processing Service
-class EnhancedChatProcessor:
-    """Processes chat requests with MCP integration"""
-
-    def __init__(self, mcp_service: MCPOrchestrationService):
-        self.mcp_service = mcp_service
-
-    async def process_enhanced_chat(self, request: MCPChatRequest) -> MCPChatResponse:
-        """Process chat request with MCP enhancement"""
-        start_time = datetime.now()
-
-        # Generate session ID if not provided
-        if not request.session_id:
-            request.session_id = f"session_{uuid.uuid4().hex[:8]}_{int(start_time.timestamp())}"
-
-        try:
-            # Route based on chat mode
-            if request.mode == "executive":
-                result = await self._process_executive_chat(request)
-            elif request.mode == "sophia":
-                result = await self._process_sophia_chat(request)
-            else:  # universal
-                result = await self._process_universal_chat(request)
-
-            # Calculate processing time
-            processing_time = (datetime.now() - start_time).total_seconds() * 1000
-
-            # Add performance metrics
-            if result.mcpMetrics:
-                result.mcpMetrics.performance["processingTimeMs"] = processing_time
-                result.mcpMetrics.performance["responseTime"] = processing_time
-
-            return result
-
-        except Exception as e:
-            logger.error(f"Enhanced chat processing failed: {e}")
-
-            # Return error response with fallback
-            return MCPChatResponse(
-                response=f"I apologize, but I encountered an error processing your request: {str(e)}. Please try again.",
-                session_id=request.session_id or f"error_{uuid.uuid4().hex[:8]}",
-                mode=request.mode,
-                timestamp=datetime.now().isoformat(),
-                metadata={"error": str(e), "fallback_used": True}
-            )
-
-    async def _process_executive_chat(self, request: MCPChatRequest) -> MCPChatResponse:
-        """Process executive/CEO chat with premium MCP services"""
-        logger.info(f"Processing executive chat: {request.message[:50]}...")
-
-        mcp_metrics = MCPMetrics()
-        services_used = []
-
-        # Ensure mcpServices is not None
-        mcp_services = request.mcpServices or {}
-        enhanced_features = request.enhancedFeatures or {}
-
-        try:
-            # Use business intelligence MCP service for executive insights
-            if mcp_services.get("businessIntel", False):
-                bi_result = await self.mcp_service.route_to_mcp(
-                    server="business_intelligence",
-                    tool="generate_insights",
-                    params={
-                        "query": request.message,
-                        "mode": "executive",
-                        "context": request.context
-                    },
-                    user_id=request.user_id
-                )
-
-                if bi_result.success:
-                    services_used.append("business_intelligence")
-                    mcp_metrics.performance["business_intelligence_ms"] = bi_result.response_time_ms
-
-                    # Use cost optimization if available
-                    if enhanced_features.get("costOptimized", False):
-                        cost_result = await self.mcp_service.route_to_mcp(
-                            server="portkey_admin_official",
-                            tool="cost_analysis",
-                            params={"timeframe": "current_month"},
-                            user_id=request.user_id
-                        )
-
-                        if cost_result.success:
-                            services_used.append("portkey_admin_official")
-                            mcp_metrics.cost = cost_result.data
-
-            # Enhanced response with MCP data
-            response_content = self._generate_executive_response(request.message, services_used)
-
-            mcp_metrics.servicesUsed = services_used
-            mcp_metrics.routing = {"strategy": "executive_premium", "fallback_used": False}
-
-            return MCPChatResponse(
-                response=response_content,
-                session_id=request.session_id or f"exec_{uuid.uuid4().hex[:8]}",
-                mode="executive",
-                timestamp=datetime.now().isoformat(),
-                mcpMetrics=mcp_metrics,
-                suggestions=self._get_executive_suggestions()
-            )
-
-        except Exception as e:
-            logger.error(f"Executive chat processing failed: {e}")
-            return await self._fallback_response(request, f"Executive processing error: {e}")
-
-    async def _process_sophia_chat(self, request: MCPChatRequest) -> MCPChatResponse:
-        """Process Sophia AI chat with business intelligence"""
-        logger.info(f"Processing Sophia chat: {request.message[:50]}...")
-
-        mcp_metrics = MCPMetrics()
-        services_used = []
-
-        # Ensure mcpServices is not None
-        mcp_services = request.mcpServices or {}
-
-        try:
-            # Use AI memory for context
-            if mcp_services.get("memory", False):
-                memory_result = await self.mcp_service.route_to_mcp(
-                    server="enhanced_ai_memory",
-                    tool="recall_memory",
-                    params={
-                        "query": request.message,
-                        "user_id": request.user_id,
-                        "category": "business_context"
-                    },
-                    user_id=request.user_id
-                )
-
-                if memory_result.success:
-                    services_used.append("enhanced_ai_memory")
-                    mcp_metrics.performance["ai_memory_ms"] = memory_result.response_time_ms
-
-            # Use orchestrator for intelligent routing
-            if mcp_services.get("orchestrator", False):
-                orchestrator_result = await self.mcp_service.route_to_mcp(
-                    server="sophia_ai_orchestrator",
-                    tool="process_query",
-                    params={
-                        "message": request.message,
-                        "context": request.context,
-                        "available_services": list(mcp_services.keys())
-                    },
-                    user_id=request.user_id
-                )
-
-                if orchestrator_result.success:
-                    services_used.append("sophia_ai_orchestrator")
-                    mcp_metrics.performance["orchestrator_ms"] = orchestrator_result.response_time_ms
-
-            # Generate enhanced response
-            response_content = self._generate_sophia_response(request.message, services_used)
-
-            mcp_metrics.servicesUsed = services_used
-            mcp_metrics.routing = {"strategy": "sophia_intelligent", "fallback_used": False}
-
-            return MCPChatResponse(
-                response=response_content,
-                session_id=request.session_id or f"sophia_{uuid.uuid4().hex[:8]}",
-                mode="sophia",
-                timestamp=datetime.now().isoformat(),
-                mcpMetrics=mcp_metrics,
-                suggestions=self._get_sophia_suggestions(request.message)
-            )
-
-        except Exception as e:
-            logger.error(f"Sophia chat processing failed: {e}")
-            return await self._fallback_response(request, f"Sophia processing error: {e}")
-
-    async def _process_universal_chat(self, request: MCPChatRequest) -> MCPChatResponse:
-        """Process universal chat with basic MCP services"""
-        logger.info(f"Processing universal chat: {request.message[:50]}...")
-
-        mcp_metrics = MCPMetrics()
-        services_used = []
-
-        # Ensure mcpServices is not None
-        mcp_services = request.mcpServices or {}
-
-        try:
-            # Basic AI memory for context if available
-            if mcp_services.get("memory", False):
-                memory_result = await self.mcp_service.route_to_mcp(
-                    server="ai_memory",
-                    tool="recall_memory",
-                    params={
-                        "query": request.message,
-                        "user_id": request.user_id
-                    },
-                    user_id=request.user_id
-                )
-
-                if memory_result.success:
-                    services_used.append("ai_memory")
-                    mcp_metrics.performance["ai_memory_ms"] = memory_result.response_time_ms
-
-            # Generate basic response
-            response_content = self._generate_universal_response(request.message, services_used)
-
-            mcp_metrics.servicesUsed = services_used
-            mcp_metrics.routing = {"strategy": "universal_basic", "fallback_used": False}
-
-            return MCPChatResponse(
-                response=response_content,
-                session_id=request.session_id or f"universal_{uuid.uuid4().hex[:8]}",
-                mode="universal",
-                timestamp=datetime.now().isoformat(),
-                mcpMetrics=mcp_metrics,
-                suggestions=self._get_universal_suggestions()
-            )
-
-        except Exception as e:
-            logger.error(f"Universal chat processing failed: {e}")
-            return await self._fallback_response(request, f"Universal processing error: {e}")
-
-    async def _fallback_response(self, request: MCPChatRequest, error_context: str) -> MCPChatResponse:
-        """Generate fallback response when MCP services fail"""
-        logger.warning(f"Using fallback response due to: {error_context}")
-
-        fallback_responses = {
-            "executive": "I'm here to provide executive insights and strategic analysis. How can I assist with your business decisions today?",
-            "sophia": "I'm Sophia AI, your business intelligence assistant. I can help analyze data, generate insights, and support strategic decisions.",
-            "universal": "I'm your AI assistant. I can help with general questions and tasks. What would you like to know?"
-        }
-
-        return MCPChatResponse(
-            response=fallback_responses.get(request.mode, fallback_responses["universal"]),
-            session_id=request.session_id or f"fallback_{uuid.uuid4().hex[:8]}",
-            mode=request.mode,
-            timestamp=datetime.now().isoformat(),
-            metadata={"fallback_used": True, "error_context": error_context}
-        )
-
-    def _generate_executive_response(self, message: str, services_used: list[str]) -> str:
-        """Generate executive-level response"""
-        service_context = f" (Enhanced with {', '.join(services_used)})" if services_used else ""
-
-        return f"""**Executive Intelligence Response{service_context}**
-
-Analyzing your request: "{message}"
-
-Based on current business intelligence and strategic context, here are key insights:
-
-• **Strategic Analysis**: Your query relates to executive decision-making and requires comprehensive business context
-• **Data Integration**: Leveraging real-time business metrics and performance indicators
-• **Recommendations**: Strategic recommendations will be provided based on current market conditions and business performance
-
-How can I provide more specific strategic guidance for your executive needs?"""
-
-    def _generate_sophia_response(self, message: str, services_used: list[str]) -> str:
-        """Generate Sophia AI response"""
-        service_context = f" (Powered by {', '.join(services_used)})" if services_used else ""
-
-        return f"""**Sophia AI Business Intelligence{service_context}**
-
-Processing your query: "{message}"
-
-I'm analyzing this request using advanced business intelligence capabilities:
-
-• **Context Understanding**: Reviewing relevant business context and historical patterns
-• **Data Analysis**: Integrating multiple data sources for comprehensive insights
-• **Intelligent Recommendations**: Providing actionable insights based on current business metrics
-
-What specific business intelligence or strategic analysis would be most valuable for your needs?"""
-
-    def _generate_universal_response(self, message: str, services_used: list[str]) -> str:
-        """Generate universal response"""
-        service_context = f" (Enhanced by {', '.join(services_used)})" if services_used else ""
-
-        return f"""**AI Assistant Response{service_context}**
-
-I understand you're asking about: "{message}"
-
-I'm here to help with a wide range of questions and tasks. I can assist with:
-
-• General information and explanations
-• Problem-solving and analysis  
-• Recommendations and guidance
-• Research and data insights
-
-How can I provide more specific assistance with your request?"""
-
-    def _get_executive_suggestions(self) -> list[str]:
-        """Get executive-specific suggestions"""
-        return [
-            "Show me this quarter's performance metrics",
-            "Analyze our competitive positioning",
-            "Generate board presentation summary",
-            "What are our top strategic priorities?"
-        ]
-
-    def _get_sophia_suggestions(self, message: str) -> list[str]:
-        """Get Sophia AI suggestions based on message context"""
-        # Simple keyword-based suggestion logic
-        if any(word in message.lower() for word in ["cost", "expense", "budget"]):
-            return [
-                "Analyze cost optimization opportunities",
-                "Show detailed expense breakdown",
-                "Compare costs vs. industry benchmarks"
-            ]
-        elif any(word in message.lower() for word in ["performance", "metrics", "kpi"]):
-            return [
-                "Generate performance dashboard",
-                "Analyze key performance indicators",
-                "Show trend analysis for key metrics"
-            ]
-        else:
-            return [
-                "Analyze our business performance trends",
-                "Show me cost optimization insights",
-                "Generate strategic recommendations"
-            ]
-
-    def _get_universal_suggestions(self) -> list[str]:
-        """Get universal suggestions"""
-        return [
-            "Tell me about your capabilities",
-            "How can you help with business analysis?",
-            "What types of questions can you answer?"
-        ]
-
-# API Endpoints
-
-@router.post("/chat/mcp-enhanced", response_model=MCPChatResponse)
-async def mcp_enhanced_chat(
-    request: MCPChatRequest,
-    mcp_service: MCPOrchestrationService = Depends(get_mcp_service)
-) -> MCPChatResponse:
-    """
-    Enhanced chat endpoint with full MCP integration
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+
+
+class ChatResponse(BaseModel):
+    """Chat message response"""
+    message_id: str
+    session_id: str
+    message_type: str
+    content: str
+    metadata: Dict[str, Any]
+    timestamp: datetime
+    workflow_id: Optional[str] = None
+    checkpoint_id: Optional[str] = None
+    intent: Optional[str] = None
+    confidence: Optional[float] = None
+
+
+class WorkflowCreateRequest(BaseModel):
+    """Workflow creation request"""
+    description: str = Field(..., description="Natural language description of the workflow")
+    workflow_type: Optional[str] = Field(default="custom", description="Type of workflow")
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+
+
+class WorkflowResponse(BaseModel):
+    """Workflow response"""
+    workflow_id: str
+    status: str
+    current_node: str
+    progress: Dict[str, Any]
+    pending_checkpoints: List[Dict[str, Any]]
+    execution_metrics: Dict[str, Any]
+    last_updated: datetime
+
+
+class ApprovalRequest(BaseModel):
+    """Approval request"""
+    checkpoint_id: str = Field(..., description="Checkpoint identifier")
+    approved: bool = Field(..., description="Approval decision")
+    feedback: Optional[str] = Field(default=None, description="Optional feedback")
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Optional metadata")
+
+
+class ApprovalResponse(BaseModel):
+    """Approval response"""
+    checkpoint_id: str
+    processed: bool
+    workflow_continued: bool
+    message: str
+
+
+# WebSocket connection manager
+class ConnectionManager:
+    """Manage WebSocket connections for real-time updates"""
     
-    This endpoint provides the real MCP-enhanced chat functionality that the frontend expects.
-    It replaces the mock implementation with actual MCP server communication.
+    def __init__(self):
+        self.active_connections: Dict[str, List[WebSocket]] = {}
+    
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = []
+        self.active_connections[user_id].append(websocket)
+    
+    def disconnect(self, websocket: WebSocket, user_id: str):
+        if user_id in self.active_connections:
+            self.active_connections[user_id].remove(websocket)
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
+    
+    async def send_personal_message(self, message: str, user_id: str):
+        if user_id in self.active_connections:
+            for connection in self.active_connections[user_id]:
+                try:
+                    await connection.send_text(message)
+                except:
+                    # Remove dead connections
+                    self.active_connections[user_id].remove(connection)
+    
+    async def broadcast_to_user(self, message: Dict[str, Any], user_id: str):
+        if user_id in self.active_connections:
+            message_str = json.dumps(message, default=str)
+            for connection in self.active_connections[user_id]:
+                try:
+                    await connection.send_text(message_str)
+                except:
+                    # Remove dead connections
+                    self.active_connections[user_id].remove(connection)
+
+
+# Global connection manager
+manager = ConnectionManager()
+
+
+@router.post("/message", response_model=ChatResponse)
+async def send_chat_message(
+    request: ChatRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    audit_logger: AuditLogger = Depends(get_audit_logger)
+):
+    """
+    Send a chat message and get AI response
+    
+    This endpoint processes natural language messages and can:
+    - Create and manage workflows
+    - Handle approvals and decisions
+    - Create AI agents
+    - Provide status updates
+    - Answer general questions
     """
     try:
-        # Initialize chat processor with MCP service
-        processor = EnhancedChatProcessor(mcp_service)
-
-        # Process the chat request
-        response = await processor.process_enhanced_chat(request)
-
-        logger.info(f"MCP chat processed: mode={request.mode}, services={response.mcpMetrics.servicesUsed if response.mcpMetrics else []}")
-
+        user_id = current_user.get("user_id", "anonymous")
+        
+        # Initialize chat service if needed
+        if not universal_chat_service.initialized:
+            await universal_chat_service.initialize()
+        
+        # Process the message
+        response_message = await universal_chat_service.process_message(
+            user_id=user_id,
+            session_id=request.session_id,
+            message_content=request.message,
+            message_metadata=request.metadata
+        )
+        
+        # Convert to response model
+        response = ChatResponse(
+            message_id=response_message.message_id,
+            session_id=response_message.session_id,
+            message_type=response_message.message_type.value,
+            content=response_message.content,
+            metadata=response_message.metadata,
+            timestamp=response_message.timestamp,
+            workflow_id=response_message.workflow_id,
+            checkpoint_id=response_message.checkpoint_id,
+            intent=response_message.intent.value if response_message.intent else None,
+            confidence=response_message.confidence
+        )
+        
+        # Send real-time update via WebSocket
+        await manager.broadcast_to_user(
+            {
+                "type": "chat_response",
+                "data": response.dict()
+            },
+            user_id
+        )
+        
+        # Log the interaction
+        await audit_logger.log_chat_interaction(
+            user_id=user_id,
+            session_id=request.session_id,
+            message_type="api_request",
+            content=request.message,
+            intent=response.intent,
+            response_content=response.content
+        )
+        
         return response
-
+        
     except Exception as e:
-        logger.error(f"MCP-enhanced chat endpoint failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        logger.error(f"Error processing chat message: {e}")
+        raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")
 
-@router.get("/dashboard/enhanced-metrics", response_model=EnhancedDashboardMetrics)
-async def get_enhanced_dashboard_metrics(
-    mcp_service: MCPOrchestrationService = Depends(get_mcp_service)
-) -> EnhancedDashboardMetrics:
-    """
-    Get dashboard metrics enhanced with MCP data
-    
-    Provides real dashboard metrics by collecting data from multiple MCP servers.
-    """
+
+@router.get("/history/{session_id}")
+async def get_chat_history(
+    session_id: str,
+    limit: int = 50,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Get chat history for a session"""
     try:
-        # Get standard metrics (mock for now)
-        standard_metrics = {
-            "revenue": {"value": 2100000, "change": 3.2},
-            "agents": {"value": 48, "change": 5},
-            "success_rate": {"value": 94.2, "change": -0.5},
-            "api_calls": {"value": 1200000000, "change": 12}
+        user_id = current_user.get("user_id", "anonymous")
+        
+        # Initialize chat service if needed
+        if not universal_chat_service.initialized:
+            await universal_chat_service.initialize()
+        
+        # Get session history
+        history = await universal_chat_service.get_session_history(session_id, limit)
+        
+        # Convert to response format
+        history_response = []
+        for message in history:
+            history_response.append({
+                "message_id": message.message_id,
+                "session_id": message.session_id,
+                "user_id": message.user_id,
+                "message_type": message.message_type.value,
+                "content": message.content,
+                "metadata": message.metadata,
+                "timestamp": message.timestamp,
+                "workflow_id": message.workflow_id,
+                "checkpoint_id": message.checkpoint_id,
+                "intent": message.intent.value if message.intent else None,
+                "confidence": message.confidence
+            })
+        
+        return {"session_id": session_id, "history": history_response}
+        
+    except Exception as e:
+        logger.error(f"Error getting chat history: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting chat history: {str(e)}")
+
+
+@router.post("/workflow/create", response_model=WorkflowResponse)
+async def create_workflow(
+    request: WorkflowCreateRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    audit_logger: AuditLogger = Depends(get_audit_logger)
+):
+    """Create a new workflow from natural language description"""
+    try:
+        user_id = current_user.get("user_id", "anonymous")
+        session_id = f"api_session_{user_id}_{datetime.now().timestamp()}"
+        
+        # Initialize orchestrator if needed
+        if not enhanced_orchestrator.initialized:
+            await enhanced_orchestrator.initialize()
+        
+        # Create workflow
+        workflow_id = await enhanced_orchestrator.create_workflow_from_natural_language(
+            user_request=request.description,
+            user_id=user_id,
+            session_id=session_id
+        )
+        
+        # Get workflow status
+        status = await enhanced_orchestrator.get_workflow_status(workflow_id)
+        
+        # Convert to response model
+        response = WorkflowResponse(
+            workflow_id=workflow_id,
+            status=status["status"],
+            current_node=status["current_node"],
+            progress=status["progress"],
+            pending_checkpoints=status["pending_checkpoints"],
+            execution_metrics=status["execution_metrics"],
+            last_updated=status["last_updated"]
+        )
+        
+        # Send real-time update via WebSocket
+        await manager.broadcast_to_user(
+            {
+                "type": "workflow_created",
+                "data": response.dict()
+            },
+            user_id
+        )
+        
+        # Log workflow creation
+        await audit_logger.log_workflow_event(
+            workflow_id=workflow_id,
+            event_type="workflow_created_via_api",
+            user_id=user_id,
+            details={
+                "description": request.description,
+                "workflow_type": request.workflow_type
+            }
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error creating workflow: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating workflow: {str(e)}")
+
+
+@router.get("/workflow/{workflow_id}", response_model=WorkflowResponse)
+async def get_workflow_status(
+    workflow_id: str,
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Get status of a specific workflow"""
+    try:
+        # Initialize orchestrator if needed
+        if not enhanced_orchestrator.initialized:
+            await enhanced_orchestrator.initialize()
+        
+        # Get workflow status
+        status = await enhanced_orchestrator.get_workflow_status(workflow_id)
+        
+        if "error" in status:
+            raise HTTPException(status_code=404, detail=status["error"])
+        
+        # Convert to response model
+        response = WorkflowResponse(
+            workflow_id=workflow_id,
+            status=status["status"],
+            current_node=status["current_node"],
+            progress=status["progress"],
+            pending_checkpoints=status["pending_checkpoints"],
+            execution_metrics=status["execution_metrics"],
+            last_updated=status["last_updated"]
+        )
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting workflow status: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting workflow status: {str(e)}")
+
+
+@router.get("/workflows")
+async def get_user_workflows(
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Get all active workflows for the current user"""
+    try:
+        user_id = current_user.get("user_id", "anonymous")
+        
+        # Initialize chat service if needed
+        if not universal_chat_service.initialized:
+            await universal_chat_service.initialize()
+        
+        # Get active workflows
+        workflows = await universal_chat_service.get_active_workflows(user_id)
+        
+        return {"user_id": user_id, "workflows": workflows}
+        
+    except Exception as e:
+        logger.error(f"Error getting user workflows: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting workflows: {str(e)}")
+
+
+@router.post("/approval/{checkpoint_id}", response_model=ApprovalResponse)
+async def handle_approval(
+    checkpoint_id: str,
+    request: ApprovalRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    audit_logger: AuditLogger = Depends(get_audit_logger)
+):
+    """Handle human approval for a checkpoint"""
+    try:
+        user_id = current_user.get("user_id", "anonymous")
+        
+        # Initialize orchestrator if needed
+        if not enhanced_orchestrator.initialized:
+            await enhanced_orchestrator.initialize()
+        
+        # Process approval
+        workflow_continued = await enhanced_orchestrator.handle_human_response(
+            checkpoint_id=checkpoint_id,
+            response={
+                "approved": request.approved,
+                "feedback": request.feedback,
+                "metadata": request.metadata
+            },
+            user_id=user_id
+        )
+        
+        # Create response
+        response = ApprovalResponse(
+            checkpoint_id=checkpoint_id,
+            processed=True,
+            workflow_continued=workflow_continued,
+            message=f"Checkpoint {'approved' if request.approved else 'rejected'} successfully"
+        )
+        
+        # Send real-time update via WebSocket
+        await manager.broadcast_to_user(
+            {
+                "type": "approval_processed",
+                "data": response.dict()
+            },
+            user_id
+        )
+        
+        # Log approval
+        await audit_logger.log_workflow_event(
+            workflow_id="unknown",  # Would need to track this
+            event_type="approval_processed_via_api",
+            user_id=user_id,
+            details={
+                "checkpoint_id": checkpoint_id,
+                "approved": request.approved,
+                "feedback": request.feedback
+            }
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error handling approval: {e}")
+        raise HTTPException(status_code=500, detail=f"Error handling approval: {str(e)}")
+
+
+@router.get("/approvals")
+async def get_pending_approvals(
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """Get pending approvals for the current user"""
+    try:
+        user_id = current_user.get("user_id", "anonymous")
+        
+        # Initialize chat service if needed
+        if not universal_chat_service.initialized:
+            await universal_chat_service.initialize()
+        
+        # Get pending approvals
+        approvals = await universal_chat_service.get_pending_approvals_for_user(user_id)
+        
+        return {"user_id": user_id, "pending_approvals": approvals}
+        
+    except Exception as e:
+        logger.error(f"Error getting pending approvals: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting approvals: {str(e)}")
+
+
+@router.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    """WebSocket endpoint for real-time updates"""
+    await manager.connect(websocket, user_id)
+    try:
+        while True:
+            # Keep connection alive and handle incoming messages
+            data = await websocket.receive_text()
+            
+            try:
+                message_data = json.loads(data)
+                message_type = message_data.get("type")
+                
+                if message_type == "ping":
+                    # Respond to ping with pong
+                    await websocket.send_text(json.dumps({"type": "pong", "timestamp": datetime.now().isoformat()}))
+                
+                elif message_type == "chat_message":
+                    # Process chat message via WebSocket
+                    session_id = message_data.get("session_id", f"ws_session_{user_id}")
+                    message_content = message_data.get("message", "")
+                    
+                    if message_content:
+                        # Initialize chat service if needed
+                        if not universal_chat_service.initialized:
+                            await universal_chat_service.initialize()
+                        
+                        # Process the message
+                        response_message = await universal_chat_service.process_message(
+                            user_id=user_id,
+                            session_id=session_id,
+                            message_content=message_content
+                        )
+                        
+                        # Send response back
+                        response_data = {
+                            "type": "chat_response",
+                            "data": {
+                                "message_id": response_message.message_id,
+                                "session_id": response_message.session_id,
+                                "message_type": response_message.message_type.value,
+                                "content": response_message.content,
+                                "metadata": response_message.metadata,
+                                "timestamp": response_message.timestamp.isoformat(),
+                                "workflow_id": response_message.workflow_id,
+                                "checkpoint_id": response_message.checkpoint_id,
+                                "intent": response_message.intent.value if response_message.intent else None,
+                                "confidence": response_message.confidence
+                            }
+                        }
+                        
+                        await websocket.send_text(json.dumps(response_data, default=str))
+                
+                elif message_type == "status_request":
+                    # Send current status
+                    if not universal_chat_service.initialized:
+                        await universal_chat_service.initialize()
+                    
+                    workflows = await universal_chat_service.get_active_workflows(user_id)
+                    approvals = await universal_chat_service.get_pending_approvals_for_user(user_id)
+                    
+                    status_data = {
+                        "type": "status_update",
+                        "data": {
+                            "workflows": workflows,
+                            "pending_approvals": approvals,
+                            "timestamp": datetime.now().isoformat()
+                        }
+                    }
+                    
+                    await websocket.send_text(json.dumps(status_data, default=str))
+                
+            except json.JSONDecodeError:
+                # Invalid JSON, ignore
+                pass
+            except Exception as e:
+                logger.error(f"Error processing WebSocket message: {e}")
+                error_response = {
+                    "type": "error",
+                    "message": f"Error processing message: {str(e)}",
+                    "timestamp": datetime.now().isoformat()
+                }
+                await websocket.send_text(json.dumps(error_response))
+    
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, user_id)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        manager.disconnect(websocket, user_id)
+
+
+@router.post("/agent/create")
+async def create_agent_via_api(
+    request: WorkflowCreateRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    audit_logger: AuditLogger = Depends(get_audit_logger)
+):
+    """Create a new AI agent through natural language description"""
+    try:
+        user_id = current_user.get("user_id", "anonymous")
+        session_id = f"agent_creation_{user_id}_{datetime.now().timestamp()}"
+        
+        # Initialize chat service if needed
+        if not universal_chat_service.initialized:
+            await universal_chat_service.initialize()
+        
+        # Process as agent creation message
+        response_message = await universal_chat_service.process_message(
+            user_id=user_id,
+            session_id=session_id,
+            message_content=f"Create an AI agent: {request.description}",
+            message_metadata={"api_request": True, "agent_creation": True}
+        )
+        
+        # Send real-time update via WebSocket
+        await manager.broadcast_to_user(
+            {
+                "type": "agent_creation_started",
+                "data": {
+                    "session_id": session_id,
+                    "workflow_id": response_message.workflow_id,
+                    "description": request.description
+                }
+            },
+            user_id
+        )
+        
+        # Log agent creation request
+        await audit_logger.log_workflow_event(
+            workflow_id=response_message.workflow_id or "unknown",
+            event_type="agent_creation_requested_via_api",
+            user_id=user_id,
+            details={
+                "description": request.description,
+                "session_id": session_id
+            }
+        )
+        
+        return {
+            "message": "Agent creation workflow started",
+            "session_id": session_id,
+            "workflow_id": response_message.workflow_id,
+            "response": response_message.content
         }
+        
+    except Exception as e:
+        logger.error(f"Error creating agent: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating agent: {str(e)}")
 
-        # Get enhanced metrics from MCP services
-        enhanced_metrics = {}
 
-        try:
-            # Get cost optimization data from Portkey Admin
-            cost_result = await mcp_service.route_to_mcp(
-                server="portkey_admin_official",
-                tool="cost_analysis",
-                params={"timeframe": "current_month"}
-            )
-
-            if cost_result.success:
-                enhanced_metrics["costOptimization"] = cost_result.data
-
-        except Exception as e:
-            logger.warning(f"Cost optimization data unavailable: {e}")
-            enhanced_metrics["costOptimization"] = {"error": "Service unavailable"}
-
-        try:
-            # Get performance metrics from orchestrator
-            perf_result = await mcp_service.route_to_mcp(
-                server="sophia_ai_orchestrator",
-                tool="performance_metrics",
-                params={}
-            )
-
-            if perf_result.success:
-                enhanced_metrics["orchestratorMetrics"] = perf_result.data
-
-        except Exception as e:
-            logger.warning(f"Orchestrator metrics unavailable: {e}")
-            enhanced_metrics["orchestratorMetrics"] = {"error": "Service unavailable"}
-
-        try:
-            # Get model usage from OpenRouter
-            model_result = await mcp_service.route_to_mcp(
-                server="openrouter_search_official",
-                tool="model_usage",
-                params={}
-            )
-
-            if model_result.success:
-                enhanced_metrics["modelDiversity"] = model_result.data
-
-        except Exception as e:
-            logger.warning(f"Model diversity data unavailable: {e}")
-            enhanced_metrics["modelDiversity"] = {"error": "Service unavailable"}
-
-        return EnhancedDashboardMetrics(
-            standard=standard_metrics,
-            mcpEnhanced=enhanced_metrics
+@router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    try:
+        # Check if services are initialized
+        chat_initialized = universal_chat_service.initialized
+        orchestrator_initialized = enhanced_orchestrator.initialized
+        
+        return {
+            "status": "healthy",
+            "services": {
+                "chat_service": "initialized" if chat_initialized else "not_initialized",
+                "orchestrator": "initialized" if orchestrator_initialized else "not_initialized"
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
         )
 
-    except Exception as e:
-        logger.error(f"Enhanced dashboard metrics failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get enhanced metrics: {str(e)}")
 
-@router.get("/mcp/health", response_model=dict[str, Any])
-async def get_mcp_health_status(
-    mcp_service: MCPOrchestrationService = Depends(get_mcp_service)
-) -> dict[str, Any]:
-    """
-    Get comprehensive MCP ecosystem health status
-    
-    Provides detailed health information for all MCP servers.
-    """
-    try:
-        health_status = await mcp_service.get_mcp_health_status()
-        return health_status
+# Background task to send periodic updates
+async def periodic_status_updates():
+    """Send periodic status updates to connected clients"""
+    while True:
+        try:
+            # Send updates every 30 seconds
+            await asyncio.sleep(30)
+            
+            # Get all connected users
+            for user_id in list(manager.active_connections.keys()):
+                try:
+                    if not universal_chat_service.initialized:
+                        continue
+                    
+                    # Get user's workflows and approvals
+                    workflows = await universal_chat_service.get_active_workflows(user_id)
+                    approvals = await universal_chat_service.get_pending_approvals_for_user(user_id)
+                    
+                    # Only send if there are active items
+                    if workflows or approvals:
+                        status_update = {
+                            "type": "periodic_status_update",
+                            "data": {
+                                "workflows": workflows,
+                                "pending_approvals": approvals,
+                                "timestamp": datetime.now().isoformat()
+                            }
+                        }
+                        
+                        await manager.broadcast_to_user(status_update, user_id)
+                
+                except Exception as e:
+                    logger.error(f"Error sending periodic update to user {user_id}: {e}")
+        
+        except Exception as e:
+            logger.error(f"Error in periodic status updates: {e}")
 
-    except Exception as e:
-        logger.error(f"MCP health check failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
-@router.get("/mcp/capabilities/{server_name}")
-async def get_mcp_server_capabilities(
-    server_name: str,
-    mcp_service: MCPOrchestrationService = Depends(get_mcp_service)
-) -> dict[str, Any]:
-    """Get capabilities of specific MCP server"""
-    try:
-        capabilities = await mcp_service.get_server_capabilities(server_name)
+# Start background task when module is imported
+asyncio.create_task(periodic_status_updates())
 
-        return {
-            "server": server_name,
-            "capabilities": capabilities,
-            "available": server_name in mcp_service.running_servers
-        }
-
-    except Exception as e:
-        logger.error(f"Failed to get capabilities for {server_name}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get capabilities: {str(e)}")
-
-# Health check endpoint
-@router.get("/enhanced-chat/health")
-async def enhanced_chat_health() -> dict[str, Any]:
-    """Health check for enhanced chat services"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "service": "enhanced-unified-chat",
-        "version": "1.0.0",
-        "features": ["mcp_integration", "intelligent_routing", "fallback_handling"]
-    }
