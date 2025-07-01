@@ -409,7 +409,69 @@ class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
         self.preloaded_knowledge = True
         logger.info("✅ AI coding knowledge base pre-loaded successfully")
 
-    async def sync_data(self) -> dict[str, Any]:
+    
+    async def server_specific_init(self) -> None:
+        """Initialize AI Memory server specific components"""
+        await self._initialize_openai()
+        await self._initialize_pinecone()
+        await self._initialize_snowflake_cortex()
+        await self._preload_ai_coding_knowledge()
+
+    async def server_specific_cleanup(self) -> None:
+        """Cleanup AI Memory server specific resources"""
+        if self.openai_client:
+            await self.openai_client.close()
+        await self.cache.clear()
+
+    async def server_specific_health_check(self) -> dict:
+        """Perform AI Memory specific health checks"""
+        return {
+            "openai_available": self.openai_client is not None,
+            "pinecone_available": self.pinecone_index is not None,
+            "cortex_available": self.cortex_service is not None,
+            "memory_count": len(await self.recall_memory("", limit=1))
+        }
+
+    async def check_external_api(self) -> bool:
+        """Check external API connectivity"""
+        try:
+            if self.openai_client:
+                await self.openai_client.embeddings.create(
+                    input="test", model="text-embedding-3-small"
+                )
+            return True
+        except:
+            return False
+
+    async def process_with_ai(self, data: dict) -> dict:
+        """Process data with AI capabilities"""
+        content = data.get("content", "")
+        analysis = self.conversation_analyzer.analyze_conversation(content)
+        
+        if analysis["should_auto_store"]:
+            result = await self.store_memory(
+                content=content,
+                category=analysis["category"],
+                tags=analysis["tags"],
+                importance_score=analysis["importance_score"],
+                auto_detected=True
+            )
+            return {"auto_stored": True, "memory_id": result.get("memory_id")}
+        
+        return {"auto_stored": False, "analysis": analysis}
+
+    def get_server_capabilities(self) -> dict:
+        """Get AI Memory server capabilities"""
+        return {
+            "memory_storage": True,
+            "semantic_search": self.openai_client is not None,
+            "vector_search": self.pinecone_index is not None,
+            "cortex_integration": self.cortex_service is not None,
+            "auto_discovery": True,
+            "conversation_analysis": True
+        }
+
+async def sync_data(self) -> dict[str, Any]:
         """Sync memory data with external systems"""
         try:
             sync_results = {

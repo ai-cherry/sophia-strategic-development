@@ -192,7 +192,7 @@ class SnowflakeAdminAgent:
             r"\bGRANT\s+USAGE\s+ON\s+(?:SCHEMA|WAREHOUSE)\b",
         ]
 
-    @performance_monitor.track_performance
+    # @performance_monitor.track_performance  # Temporarily disabled
     async def initialize(self):
         """Initialize the Snowflake admin agent"""
         if self.initialized:
@@ -421,7 +421,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
 
         return False
 
-    @performance_monitor.track_performance
+    # @performance_monitor.track_performance  # Temporarily disabled
     async def execute_admin_task(self, request: AdminTaskRequest) -> AdminTaskResponse:
         """
         Execute a Snowflake admin task based on natural language request
@@ -633,7 +633,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 execution_time=asyncio.get_event_loop().time() - start_time,
             )
 
-    @performance_monitor.track_performance
+    # @performance_monitor.track_performance  # Temporarily disabled
     async def get_environment_info(
         self, environment: SnowflakeEnvironment
     ) -> dict[str, Any]:

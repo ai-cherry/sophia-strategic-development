@@ -50,12 +50,13 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     StandardizedMCPServer,
     SyncPriority,
 )
-from backend.utils.logging import get_logger
+import logging
+# from backend.utils.logging import get_logger
 
 # The client for the external API
 from .codacy_api_client import CodacyAPIClient
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class SeverityLevel(Enum):
