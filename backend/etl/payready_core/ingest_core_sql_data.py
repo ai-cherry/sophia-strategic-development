@@ -53,7 +53,7 @@ class PayReadyCoreDataIngestor:
                     "account": await get_config_value("snowflake_account"),
                     "user": await get_config_value("snowflake_user"),
                     "password": await get_config_value("snowflake_password"),
-                    "database": "SOPHIA_AI_DEV",
+                    "database": "SOPHIA_AI",
                     "schema": "PAYREADY_CORE_SQL",
                     "warehouse": "WH_SOPHIA_AI_PROCESSING",
                 },

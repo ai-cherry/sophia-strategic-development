@@ -13,6 +13,12 @@ Business Value:
 import asyncio
 import logging
 import sys
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -27,7 +33,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -64,7 +70,7 @@ class AIModelRoute:
         }
 
 
-class PortkeyAdminMCPServer(StandardizedMCPServer):
+class PortkeyAdminMCPServer(EnhancedStandardizedMCPServer):
     """MCP server for Portkey AI gateway administration"""
 
     def __init__(self, config: MCPServerConfig):

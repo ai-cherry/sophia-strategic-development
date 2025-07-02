@@ -85,7 +85,7 @@ class WebhookServerConfig(BaseSettings):
     SNOWFLAKE_ACCOUNT: str = Field(..., env="SNOWFLAKE_ACCOUNT")
     SNOWFLAKE_USER: str = Field(..., env="SNOWFLAKE_USER")
     SNOWFLAKE_PASSWORD: str = Field(..., env="SNOWFLAKE_PASSWORD")
-    SNOWFLAKE_WAREHOUSE: str = Field(default="COMPUTE_WH", env="SNOWFLAKE_WAREHOUSE")
+    SNOWFLAKE_WAREHOUSE: str = Field(default="SOPHIA_AI_WH", env="SNOWFLAKE_WAREHOUSE")
     SNOWFLAKE_DATABASE: str = Field(default="SOPHIA_AI", env="SNOWFLAKE_DATABASE")
     SNOWFLAKE_SCHEMA: str = Field(default="GONG_WEBHOOKS", env="SNOWFLAKE_SCHEMA")
 

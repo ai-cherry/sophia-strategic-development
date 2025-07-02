@@ -78,7 +78,7 @@ class SnowflakeGongConnector:
         self.connection = None
         self.database = config.get("snowflake_database", "SOPHIA_AI")
         self.gong_schema = "GONG_DATA"
-        self.warehouse = config.get("snowflake_warehouse", "COMPUTE_WH")
+        self.warehouse = config.get("snowflake_warehouse", "SOPHIA_AI_WH")
         self.initialized = False
 
         # Common table references

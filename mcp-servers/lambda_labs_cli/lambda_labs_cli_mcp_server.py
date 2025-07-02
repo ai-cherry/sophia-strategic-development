@@ -1,6 +1,12 @@
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 """
 Lambda Labs CLI MCP Server
 Strategic Enhancement - Phase 1 of CLI/SDK Integration
@@ -39,7 +45,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -74,7 +80,7 @@ class LambdaLabsInstance:
         }
 
 
-class LambdaLabsCLIMCPServer(StandardizedMCPServer):
+class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
     """MCP server for Lambda Labs CLI operations"""
 
     def __init__(self, config: MCPServerConfig):

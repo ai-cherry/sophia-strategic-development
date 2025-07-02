@@ -106,7 +106,7 @@ class EstuaryNetSuiteOrchestrator:
                     + ".snowflakecomputing.com",
                     "role": "ACCOUNTADMIN",
                     "warehouse": "WH_SOPHIA_AI_PROCESSING",
-                    "database": "SOPHIA_AI_DEV",
+                    "database": "SOPHIA_AI",
                     "schema": "RAW_ESTUARY",
                     "username": await get_config_value("snowflake_user"),
                     "password": await get_config_value("snowflake_password"),

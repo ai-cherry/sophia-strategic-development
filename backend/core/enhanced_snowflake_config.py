@@ -28,11 +28,11 @@ class EnhancedSnowflakeConfig:
     """Enhanced Snowflake configuration supporting all schemas"""
 
     # Production credentials from schema breakdown
-    account: str = "ZNB04675"
+    account: str = "ZNB04675.us-east-1"
     user: str = "SCOOBYJAVA15"
     password: str = get_config_value("snowflake_password")
     role: str = "ACCOUNTADMIN"
-    database: str = "SOPHIA_AI_PROD"
+    database: str = "SOPHIA_AI"
     warehouse: str = "SOPHIA_AI_WH"
     default_schema: str = "UNIVERSAL_CHAT"
 

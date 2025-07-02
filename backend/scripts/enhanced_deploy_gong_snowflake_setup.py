@@ -459,7 +459,7 @@ class EnhancedGongSnowflakeDeployer:
 
             # Replace database placeholder if needed
             procedures_sql = procedures_sql.replace(
-                "SOPHIA_AI_DEV", self.config.database
+                "SOPHIA_AI", self.config.database
             )
 
             # Execute the procedures

@@ -200,7 +200,7 @@ class MCPOrchestrationService:
                     port = self._extract_port_from_config(server_config, name)
 
                     self.servers[name] = MCPServerEndpoint(
-                        name=name,
+                        server_name=name,
                         port=port,
                         capabilities=server_config.get("capabilities", []),
                     )
@@ -248,12 +248,12 @@ class MCPOrchestrationService:
         """Load default MCP server configuration as fallback"""
         default_servers = {
             "ai_memory": MCPServerEndpoint(
-                name="ai_memory",
+                server_name="ai_memory",
                 port=9000,
                 capabilities=["memory_storage", "context_recall"],
             ),
             "codacy": MCPServerEndpoint(
-                name="codacy",
+                server_name="codacy",
                 port=3008,
                 capabilities=["code_analysis", "security_scan"],
             ),

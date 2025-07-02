@@ -8,6 +8,12 @@ Natural language interface for Snowflake administration through LangChain SQL Ag
 import asyncio
 import logging
 import os
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 
 # MCP imports
 # Snowflake Admin Agent
@@ -21,13 +27,13 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
 )
 
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeAdminMCPServer(StandardizedMCPServer):
+class SnowflakeAdminMCPServer(EnhancedStandardizedMCPServer):
     def __init__(self, config: MCPServerConfig | None = None):
         if config is None:
             config = MCPServerConfig(

@@ -149,7 +149,7 @@ class CentralizedConfigManager:
                 "sensitive": False,
                 "description": "Snowflake warehouse",
                 "env_vars": ["SNOWFLAKE_WAREHOUSE"],
-                "default": "COMPUTE_WH",
+                "default": "SOPHIA_AI_WH",
             },
             "snowflake_database": {
                 "required": False,

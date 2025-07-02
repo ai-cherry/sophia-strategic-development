@@ -391,7 +391,7 @@ async def search_knowledge_base(
 @router.post("/optimize-sql")
 async def optimize_sql_query(
     query: str,
-    warehouse: str = "COMPUTE_WH",
+    warehouse: str = "SOPHIA_AI_WH",
     cortex_service: CortexAgentService = Depends(get_cortex_agent_service),
 ) -> dict[str, Any]:
     """

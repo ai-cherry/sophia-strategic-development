@@ -20,6 +20,12 @@ TODO: Implement file decomposition
 import ast
 import asyncio
 import os
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 import re
 import tempfile
 from dataclasses import dataclass
@@ -50,7 +56,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -857,7 +863,7 @@ class EnhancedCodacyAnalyzer:
         return suggestions[:5]  # Limit to top 5 suggestions
 
 
-class CodacyMCPServer(StandardizedMCPServer):
+class CodacyMCPServer(EnhancedStandardizedMCPServer):
     """
     An MCP server to act as a bridge to the Codacy API.
     """

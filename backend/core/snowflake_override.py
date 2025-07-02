@@ -1,7 +1,7 @@
 """
 Snowflake Connection Override - PERMANENT FIX
 Forces correct Snowflake account configuration
-This permanently resolves the scoobyjava-vw02766 → ZNB04675 issue
+This permanently resolves the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue
 """
 
 import logging
@@ -17,7 +17,7 @@ def override_snowflake_config():
 
     # PERMANENT CONFIGURATION - CANNOT BE OVERRIDDEN
     correct_config = {
-        "SNOWFLAKE_ACCOUNT": "ZNB04675",
+        "SNOWFLAKE_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
         "SNOWFLAKE_USER": "SCOOBYJAVA15",
         "SNOWFLAKE_DATABASE": "SOPHIA_AI",
         "SNOWFLAKE_WAREHOUSE": "SOPHIA_AI_WH",
@@ -38,7 +38,7 @@ def get_snowflake_connection_params():
 
     # THESE VALUES ARE PERMANENT AND CORRECT
     params = {
-        "account": "ZNB04675",  # CORRECT ACCOUNT
+        "account": "ZNB04675.us-east-1.us-east-1.us-east-1",  # CORRECT ACCOUNT
         "user": "SCOOBYJAVA15",
         "password": get_config_value("snowflake.password", ""),
         "database": "SOPHIA_AI",

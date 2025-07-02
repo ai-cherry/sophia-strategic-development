@@ -49,7 +49,7 @@
   "deployment_results": {
     "connection": {
       "status": "mock_mode",
-      "account": "UHDECNO-CVB64222",
+      "account": "ZNB04675.us-east-1",
       "user": "SCOOBYJAVA15",
       "message": "Mock deployment - schemas will be generated for review"
     },

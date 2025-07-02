@@ -36,11 +36,11 @@ values:
   snowflake:
     account:
       fn::secret: "${SNOWFLAKE_ACCOUNT}"
-    user: "PROGRAMMATIC_SERVICE_USER" 
+    user: "SCOOBYJAVA15" 
     password:
       fn::secret: "${SNOWFLAKE_PASSWORD}"
     database: "GONG_ANALYTICS"
-    warehouse: "COMPUTE_WH"
+    warehouse: "SOPHIA_AI_WH"
     schema: "RAW"
     role: "ACCOUNTADMIN"
     # OAuth configuration for enhanced security

@@ -414,7 +414,7 @@ class EstuaryFlowManager:
             "user": snowflake_config["user"],
             "password": snowflake_config["password"],
             "role": snowflake_config.get("role", "ACCOUNTADMIN"),
-            "warehouse": snowflake_config.get("warehouse", "CORTEX_COMPUTE_WH"),
+            "warehouse": snowflake_config.get("warehouse", "CORTEX_SOPHIA_AI_WH"),
             "database": snowflake_config.get("database", "SOPHIA_AI"),
             "schema": snowflake_config.get("schema", "ESTUARY_STAGING"),
             "advanced": {
@@ -638,11 +638,11 @@ class EstuaryFlowManager:
         try:
             # Create Snowflake materialization (configuration only, requires credentials)
             snowflake_config = {
-                "account": "UHDECNO-CVB64222",
+                "account": "ZNB04675.us-east-1",
                 "user": "SCOOBYJAVA15",
                 "password": "${SNOWFLAKE_PAT_TOKEN}",  # Will be replaced with actual token
                 "role": "ACCOUNTADMIN",
-                "warehouse": "CORTEX_COMPUTE_WH",
+                "warehouse": "CORTEX_SOPHIA_AI_WH",
                 "database": "SOPHIA_AI",
                 "schema": "ESTUARY_STAGING",
             }

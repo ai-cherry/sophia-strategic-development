@@ -2,8 +2,14 @@
 from __future__ import annotations
 
 """
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 Standardized AI Memory MCP Server for persistent development context
-Built on the StandardizedMCPServer base class with Snowflake Cortex integration
+Built on the EnhancedStandardizedMCPServer base class with Snowflake Cortex integration
 """
 
 """
@@ -55,7 +61,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -225,10 +231,10 @@ class ConversationAnalyzer:
         return "; ".join(reasons) if reasons else "Standard content analysis"
 
 
-class StandardizedAiMemoryMCPServer(StandardizedMCPServer):
+class StandardizedAiMemoryMCPServer(EnhancedStandardizedMCPServer):
     """
     Standardized AI Memory MCP Server with enhanced Snowflake Cortex integration
-    Built on the StandardizedMCPServer base class for consistency and monitoring
+    Built on the EnhancedStandardizedMCPServer base class for consistency and monitoring
     """
 
     def __init__(self, config: MCPServerConfig | None = None):

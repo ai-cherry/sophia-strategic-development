@@ -13,6 +13,12 @@ Business Value:
 import asyncio
 import hashlib
 import logging
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -28,7 +34,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -97,7 +103,7 @@ class DesignPattern:
         }
 
 
-class UIUXAgentMCPServer(StandardizedMCPServer):
+class UIUXAgentMCPServer(EnhancedStandardizedMCPServer):
     """MCP server for UI/UX design automation and optimization"""
 
     def __init__(self, config: MCPServerConfig):

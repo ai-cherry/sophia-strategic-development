@@ -54,7 +54,7 @@ class PoolConfig:
         )
     )
     database: str = field(
-        default_factory=lambda: esc_config.get("snowflake_database", "SOPHIA_AI_DEV")
+        default_factory=lambda: esc_config.get("snowflake_database", "SOPHIA_AI")
     )
     schema: str = field(
         default_factory=lambda: esc_config.get("snowflake_schema", "CORE")

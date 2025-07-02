@@ -9,9 +9,9 @@ from backend.core.auto_esc_config import get_config_value
 
 # Correct Snowflake configuration
 CORRECT_SNOWFLAKE_CONFIG = {
-    "account": "ZNB04675",
+    "account": "ZNB04675.us-east-1",
     "user": "SCOOBYJAVA15",
-    "database": "SOPHIA_AI_PROD",
+    "database": "SOPHIA_AI",
     "warehouse": "SOPHIA_AI_WH",
     "role": "ACCOUNTADMIN",
     "schema": "PROCESSED_AI",

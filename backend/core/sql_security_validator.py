@@ -68,7 +68,7 @@ class SQLSecurityValidator:
         "CONVERSATION_SESSIONS",
     }
 
-    SAFE_WAREHOUSES = {"AI_COMPUTE_WH", "COMPUTE_WH", "ANALYTICS_WH", "SOPHIA_AI_WH"}
+    SAFE_WAREHOUSES = {"AI_SOPHIA_AI_WH", "SOPHIA_AI_WH", "ANALYTICS_WH", "SOPHIA_AI_WH"}
 
     SAFE_COLUMNS = {
         "ai_memory_embedding",
@@ -431,7 +431,7 @@ if __name__ == "__main__":
         # Valid cases
         schema = SQLSecurityValidator.validate_schema("SOPHIA_AI_ADVANCED")
         table = SQLSecurityValidator.validate_table("ENRICHED_GONG_CALLS")
-        warehouse = SQLSecurityValidator.validate_warehouse("AI_COMPUTE_WH")
+        warehouse = SQLSecurityValidator.validate_warehouse("AI_SOPHIA_AI_WH")
 
         print("✅ All validations passed")
 

@@ -119,7 +119,7 @@ class SnowflakeDestinationConfig:
     host: str
     role: str = "ROLE_SOPHIA_ESTUARY_INGEST"
     warehouse: str = "WH_SOPHIA_ETL_TRANSFORM"
-    database: str = "SOPHIA_AI_DEV"
+    database: str = "SOPHIA_AI"
     schema: str = "RAW_ESTUARY"
     username: str = "SCOOBYJAVA15"
     password: str = ""
@@ -179,7 +179,7 @@ class EstuaryGongOrchestrator:
                 warehouse=get_config_value(
                     "snowflake_warehouse", "WH_SOPHIA_ETL_TRANSFORM"
                 ),
-                database=get_config_value("snowflake_database", "SOPHIA_AI_DEV"),
+                database=get_config_value("snowflake_database", "SOPHIA_AI"),
                 schema="RAW_ESTUARY",
             )
 

@@ -5,7 +5,7 @@
     "environment_validation"
   ],
   "errors": [
-    "Phase 1: Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: UHDECNO-CVB64222.snowflakecomputing.com:443. Programmatic access token is invalid."
+    "Phase 1: Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: ZNB04675.us-east-1.snowflakecomputing.com:443. Programmatic access token is invalid."
   ],
   "warnings": [
     "Optional variables missing: ['gong_access_key', 'slack_bot_token', 'hubspot_access_token']"
@@ -13,5 +13,5 @@
   "start_time": "2025-06-27T18:55:17.884703",
   "components_deployed": {},
   "end_time": "2025-06-27T18:55:18.284931",
-  "failure_reason": "Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: UHDECNO-CVB64222.snowflakecomputing.com:443. Programmatic access token is invalid."
+  "failure_reason": "Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: ZNB04675.us-east-1.snowflakecomputing.com:443. Programmatic access token is invalid."
 }

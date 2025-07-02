@@ -12,6 +12,12 @@ Business Value:
 import asyncio
 import logging
 import sys
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -27,7 +33,7 @@ from backend.mcp_servers.base.standardized_mcp_server import (
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
-    StandardizedMCPServer,
+    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -55,7 +61,7 @@ class SnowflakeQueryResult:
         }
 
 
-class EnhancedSnowflakeCLIMCPServer(StandardizedMCPServer):
+class EnhancedSnowflakeCLIMCPServer(EnhancedStandardizedMCPServer):
     """Enhanced MCP server for Snowflake CLI operations"""
 
     def __init__(self, config: MCPServerConfig):

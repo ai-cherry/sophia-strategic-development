@@ -300,7 +300,7 @@ materializations:
         image: ghcr.io/estuary/materialize-snowflake:dev
         config:
           account: "${SNOWFLAKE_ACCOUNT}"
-          user: "PROGRAMMATIC_SERVICE_USER"
+          user: "SCOOBYJAVA15"
           password: "${SOPHIA_AI_TOKEN}"
           role: "${SNOWFLAKE_ROLE}"
           warehouse: "${SNOWFLAKE_WAREHOUSE}"

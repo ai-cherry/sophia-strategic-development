@@ -1,7 +1,7 @@
 {
   "snowflake_configuration": {
-    "account_locator": "UHDECNO-CVB64222",
-    "actual_account": "ZNB04675",
+    "account_locator": "ZNB04675.us-east-1.us-east-1.us-east-1",
+    "actual_account": "ZNB04675.us-east-1.us-east-1",
     "user": "SCOOBYJAVA15",
     "role": "ACCOUNTADMIN",
     "authentication": "PAT (Programmatic Access Token)",
@@ -11,8 +11,8 @@
     "default_schema": "PROCESSED_AI"
   },
   "connection_details": {
-    "url": "https://UHDECNO-CVB64222.snowflakecomputing.com",
-    "resolved_url": "https://ZNB04675.snowflakecomputing.com",
+    "url": "https://ZNB04675.us-east-1.us-east-1.us-east-1.snowflakecomputing.com",
+    "resolved_url": "https://ZNB04675.us-east-1.us-east-1.snowflakecomputing.com",
     "port": 443,
     "protocol": "HTTPS"
   },

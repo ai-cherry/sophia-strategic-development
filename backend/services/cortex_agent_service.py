@@ -35,7 +35,7 @@ JWT_EXPIRATION_HOURS = 24
 class AgentRequest(BaseModel):
     def _validate_warehouse(self, warehouse_name: str) -> str:
         """Validate warehouse name against whitelist"""
-        safe_warehouses = {"AI_COMPUTE_WH", "COMPUTE_WH", "ANALYTICS_WH"}
+        safe_warehouses = {"AI_SOPHIA_AI_WH", "SOPHIA_AI_WH", "ANALYTICS_WH"}
         if warehouse_name not in safe_warehouses:
             raise ValueError(f"Invalid warehouse name: {warehouse_name}")
         return warehouse_name
@@ -386,7 +386,7 @@ class CortexAgentService:
     async def _execute_query_tool(self, params: dict, context: dict) -> Any:
         """Execute SQL query tool"""
         query = params.get("query", "")
-        warehouse = params.get("warehouse", "COMPUTE_WH")
+        warehouse = params.get("warehouse", "SOPHIA_AI_WH")
 
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)

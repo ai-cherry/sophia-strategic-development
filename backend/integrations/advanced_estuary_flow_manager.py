@@ -249,7 +249,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "user": get_config_value("snowflake_user"),
                         "password": get_config_value("snowflake_password"),
                         "role": "ACCOUNTADMIN",
-                        "warehouse": "AI_COMPUTE_WH",
+                        "warehouse": "AI_SOPHIA_AI_WH",
                         "database": self.advanced_database,
                         "schema": self.multimodal_schema,
                         "advanced": {
@@ -347,7 +347,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                         "user": get_config_value("snowflake_user"),
                         "password": get_config_value("snowflake_password"),
                         "role": "ACCOUNTADMIN",
-                        "warehouse": "AI_COMPUTE_WH",
+                        "warehouse": "AI_SOPHIA_AI_WH",
                         "database": self.advanced_database,
                         "schema": "COMPLIANCE_MONITORING",
                         "advanced": {
@@ -852,7 +852,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 optimizations["warehouse_scaling"].append(
                     {
                         "action": "scale_up_warehouse",
-                        "target": "AI_COMPUTE_WH",
+                        "target": "AI_SOPHIA_AI_WH",
                         "recommendation": "Increase to LARGE for better performance",
                     }
                 )

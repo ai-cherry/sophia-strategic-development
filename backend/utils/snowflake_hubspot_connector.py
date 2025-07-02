@@ -90,7 +90,7 @@ class SnowflakeHubSpotConnector:
                 user=config.get("snowflake_user"),
                 password=config.get("snowflake_password"),
                 account=config.get("snowflake_account"),
-                warehouse=config.get("snowflake_warehouse", "COMPUTE_WH"),
+                warehouse=config.get("snowflake_warehouse", "SOPHIA_AI_WH"),
                 database=self.hubspot_database,
                 schema=self.hubspot_schema,
                 role=config.get("snowflake_role", "ACCOUNTADMIN"),

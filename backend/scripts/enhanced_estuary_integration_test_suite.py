@@ -482,7 +482,7 @@ class EstuaryIntegrationTestSuite:
 
         try:
             # Check for recent data in RAW_ESTUARY tables
-            database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
+            database = get_config_value("snowflake_database", "SOPHIA_AI")
 
             quality_query = f"""
             SELECT
@@ -571,7 +571,7 @@ class EstuaryIntegrationTestSuite:
         start_time = time.time()
 
         try:
-            database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
+            database = get_config_value("snowflake_database", "SOPHIA_AI")
 
             freshness_query = f"""
             SELECT
@@ -640,7 +640,7 @@ class EstuaryIntegrationTestSuite:
         start_time = time.time()
 
         try:
-            database = get_config_value("snowflake_database", "SOPHIA_AI_DEV")
+            database = get_config_value("snowflake_database", "SOPHIA_AI")
 
             # Test if transformation procedures exist
             procedure_query = f"""

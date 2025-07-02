@@ -5,7 +5,7 @@
   "available_services": {
     "snowflake": {
       "config_available": true,
-      "account": "UHDECNO-CVB64222",
+      "account": "ZNB04675.us-east-1",
       "user": "SCOOBYJAVA15",
       "needs_password": true,
       "ready_for_testing": true

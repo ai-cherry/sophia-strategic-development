@@ -52,7 +52,7 @@ spec:
               name: sophia-snowflake-secrets
               key: account
         - name: SNOWFLAKE_DATABASE
-          value: "SOPHIA_AI_PROD"
+          value: "SOPHIA_AI"
         - name: PORTKEY_API_KEY
           valueFrom:
             secretKeyRef:

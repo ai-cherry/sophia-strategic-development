@@ -56,7 +56,7 @@ class MCPHealthMonitor:
                 )
 
                 params = get_snowflake_connection_params()
-                status = "healthy" if params["account"] == "ZNB04675" else "unhealthy"
+                status = "healthy" if params["account"] == "ZNB04675.us-east-1" else "unhealthy"
                 error_msg = None if status == "healthy" else "Wrong account configured"
 
             elif service_name == "hubspot":

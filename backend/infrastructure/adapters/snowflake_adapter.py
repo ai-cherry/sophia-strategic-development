@@ -129,7 +129,7 @@ class SnowflakeAdapter(PlatformAdapter):
 
             # Get configuration info
             configuration = {
-                "account": os.getenv("SNOWFLAKE_ACCOUNT", "UHDECNO-CVB64222"),
+                "account": os.getenv("SNOWFLAKE_ACCOUNT", "ZNB04675.us-east-1"),
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",

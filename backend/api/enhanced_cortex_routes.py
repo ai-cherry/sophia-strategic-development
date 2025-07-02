@@ -502,7 +502,7 @@ async def get_system_health(
                 "snowflake_warehouses": {
                     "status": "healthy",
                     "active_warehouses": [
-                        "AI_COMPUTE_WH",
+                        "AI_SOPHIA_AI_WH",
                         "EMBEDDING_WH",
                         "REALTIME_ANALYTICS_WH",
                     ],
@@ -786,7 +786,7 @@ async def get_current_configuration(
                 "snowflake": {
                     "database": "SOPHIA_AI_ADVANCED",
                     "warehouses": [
-                        "AI_COMPUTE_WH",
+                        "AI_SOPHIA_AI_WH",
                         "EMBEDDING_WH",
                         "REALTIME_ANALYTICS_WH",
                     ],

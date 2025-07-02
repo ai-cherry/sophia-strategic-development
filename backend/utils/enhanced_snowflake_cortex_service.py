@@ -110,12 +110,12 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
         """Create tables for AI processing and caching."""
         try:
             # Create schema if it doesn't exist
-            schema_ddl = "CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_PROD.AI_PROCESSING"
+            schema_ddl = "CREATE SCHEMA IF NOT EXISTS SOPHIA_AI.AI_PROCESSING"
             await self.execute_query(schema_ddl)
 
             # Embedding cache table
             embedding_cache_ddl = """
-            CREATE TABLE IF NOT EXISTS SOPHIA_AI_PROD.AI_PROCESSING.EMBEDDING_CACHE (
+            CREATE TABLE IF NOT EXISTS SOPHIA_AI.AI_PROCESSING.EMBEDDING_CACHE (
                 cache_key VARCHAR(255) PRIMARY KEY,
                 text_content TEXT NOT NULL,
                 embedding VECTOR(FLOAT, 768) NOT NULL,
@@ -128,7 +128,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             # AI insights cache table
             insights_cache_ddl = """
-            CREATE TABLE IF NOT EXISTS SOPHIA_AI_PROD.AI_PROCESSING.INSIGHTS_CACHE (
+            CREATE TABLE IF NOT EXISTS SOPHIA_AI.AI_PROCESSING.INSIGHTS_CACHE (
                 cache_key VARCHAR(255),
                 insight_type VARCHAR(100),
                 content TEXT NOT NULL,
@@ -143,7 +143,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             # Semantic search index table
             search_index_ddl = """
-            CREATE TABLE IF NOT EXISTS SOPHIA_AI_PROD.AI_PROCESSING.SEMANTIC_SEARCH_INDEX (
+            CREATE TABLE IF NOT EXISTS SOPHIA_AI.AI_PROCESSING.SEMANTIC_SEARCH_INDEX (
                 index_id VARCHAR(255) PRIMARY KEY,
                 source_table VARCHAR(100) NOT NULL,
                 record_id VARCHAR(255) NOT NULL,
@@ -270,7 +270,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                 record_id,
                 metadata,
                 VECTOR_COSINE_SIMILARITY(content_embedding, {query_embedding}) as similarity_score
-            FROM SOPHIA_AI_PROD.AI_PROCESSING.SEMANTIC_SEARCH_INDEX
+            FROM SOPHIA_AI.AI_PROCESSING.SEMANTIC_SEARCH_INDEX
             {where_clause}
             ORDER BY similarity_score DESC
             LIMIT {limit}
@@ -480,7 +480,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
 
             # Insert into search index
             index_query = f"""
-            MERGE INTO SOPHIA_AI_PROD.AI_PROCESSING.SEMANTIC_SEARCH_INDEX AS target
+            MERGE INTO SOPHIA_AI.AI_PROCESSING.SEMANTIC_SEARCH_INDEX AS target
             USING (
                 SELECT
                     '{index_id}' as index_id,

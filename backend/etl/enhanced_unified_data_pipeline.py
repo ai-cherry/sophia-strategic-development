@@ -12,6 +12,12 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from enum import Enum
+from backend.core.optimized_database_manager import (
+    OptimizedDatabaseManager,
+    BatchOperation,
+    ConnectionType
+)
+
 
 import aiohttp
 import asyncpg

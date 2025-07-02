@@ -243,7 +243,7 @@ class SnowflakeConfigManager:
 
         # Connection details
         self.connection = None
-        self.database = esc_config.get("snowflake_database", "SOPHIA_AI_DEV")
+        self.database = esc_config.get("snowflake_database", "SOPHIA_AI")
         self.warehouse = esc_config.get("snowflake_warehouse", "WH_SOPHIA_AGENT_QUERY")
 
         # Caches

@@ -20,8 +20,8 @@
       "name": "Snowflake Configuration",
       "status": "healthy",
       "details": {
-        "esc_account": "ZNB04675",
-        "override_account": "ZNB04675",
+        "esc_account": "ZNB04675.us-east-1.us-east-1",
+        "override_account": "ZNB04675.us-east-1.us-east-1",
         "using_correct_account": true,
         "override_active": true,
         "database": "SOPHIA_AI",

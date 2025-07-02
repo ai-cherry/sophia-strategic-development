@@ -108,7 +108,7 @@ class EnhancedGongPipelineTestSuite:
     def __init__(self, environment: TestEnvironment = TestEnvironment.DEV):
         self.environment = environment
         self.database = (
-            "SOPHIA_AI_DEV"
+            "SOPHIA_AI"
             if environment == TestEnvironment.DEV
             else "SOPHIA_AI_STAGING"
         )

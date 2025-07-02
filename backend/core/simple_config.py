@@ -200,14 +200,14 @@ class SophiaConfig:
         """Get Snowflake configuration."""
         return {
             "account": self.get(
-                "values_sophia_infrastructure_snowflake_account", "UHDECNO-CVB64222"
+                "values_sophia_infrastructure_snowflake_account", "ZNB04675.us-east-1"
             ),
             "user": self.get(
                 "values_sophia_infrastructure_snowflake_user", "SCOOBYJAVA15"
             ),
             "password": self.get("values_sophia_infrastructure_snowflake_password"),
             "role": "ACCOUNTADMIN",
-            "warehouse": "AI_COMPUTE_WH",
+            "warehouse": "AI_SOPHIA_AI_WH",
             "database": "SOPHIA_AI_ADVANCED",
             "schema": "PROCESSED_AI",
         }

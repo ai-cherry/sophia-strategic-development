@@ -470,14 +470,14 @@ class DeploymentValidator:
 
             # Ensure production database
             database = get_config_value("snowflake_database", "")
-            if database != "SOPHIA_AI_PROD":
+            if database != "SOPHIA_AI":
                 self.validation_results.append(
                     ValidationResult(
                         service=ServiceType.SNOWFLAKE,
                         check_name="production_database_check",
                         severity=ValidationSeverity.WARNING,
                         status="FAIL",
-                        message=f"Expected SOPHIA_AI_PROD database, found: {database}",
+                        message=f"Expected SOPHIA_AI database, found: {database}",
                     )
                 )
 

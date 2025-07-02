@@ -143,9 +143,9 @@ service_user:
   permissions:
     dev:
       - "USAGE ON WAREHOUSE DEV_*"
-      - "CREATE SCHEMA ON DATABASE SOPHIA_AI_DEV"
-      - "USAGE ON DATABASE SOPHIA_AI_DEV"
-      - "ALL ON SCHEMA SOPHIA_AI_DEV.*"
+      - "CREATE SCHEMA ON DATABASE SOPHIA_AI"
+      - "USAGE ON DATABASE SOPHIA_AI"
+      - "ALL ON SCHEMA SOPHIA_AI.*"
       - "MONITOR ON ACCOUNT"
     
     stg:
@@ -157,8 +157,8 @@ service_user:
     
     prod:
       - "USAGE ON WAREHOUSE PROD_READ_ONLY"
-      - "USAGE ON DATABASE SOPHIA_AI_PROD"
-      - "USAGE ON SCHEMA SOPHIA_AI_PROD.*"
+      - "USAGE ON DATABASE SOPHIA_AI"
+      - "USAGE ON SCHEMA SOPHIA_AI.*"
       - "MONITOR ON ACCOUNT"
 
 # Monitoring and Logging

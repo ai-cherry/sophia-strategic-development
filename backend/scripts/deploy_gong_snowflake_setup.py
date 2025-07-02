@@ -93,7 +93,7 @@ class GongSnowflakeDeployer:
                 user=get_config_value("snowflake_user"),
                 password=get_config_value("snowflake_password"),
                 warehouse="WH_SOPHIA_ETL_TRANSFORM",
-                database="SOPHIA_AI_DEV",
+                database="SOPHIA_AI",
                 role="ROLE_SOPHIA_ESTUARY_INGEST",
             )
         elif self.env == DeploymentEnvironment.PROD:
@@ -102,7 +102,7 @@ class GongSnowflakeDeployer:
                 user=get_config_value("snowflake_user"),
                 password=get_config_value("snowflake_password"),
                 warehouse="WH_SOPHIA_PRODUCTION",
-                database="SOPHIA_AI_PROD",
+                database="SOPHIA_AI",
                 role="ROLE_SOPHIA_PRODUCTION",
             )
         else:

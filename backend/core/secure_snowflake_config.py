@@ -58,10 +58,10 @@ class SecureSnowflakeConfig:
         if self._credentials is None:
             self._credentials = SnowflakeCredentials(
                 account=get_config_value("snowflake_account"),
-                user="PROGRAMMATIC_SERVICE_USER",  # From knowledge base
+                user="SCOOBYJAVA15",  # From knowledge base
                 password=get_config_value("sophia_ai_token"),  # Secure token
                 role=get_config_value("snowflake_role", "SYSADMIN"),
-                warehouse=get_config_value("snowflake_warehouse", "COMPUTE_WH"),
+                warehouse=get_config_value("snowflake_warehouse", "SOPHIA_AI_WH"),
                 database=get_config_value("snowflake_database", "SOPHIA_AI"),
                 schema=get_config_value("snowflake_schema", "PUBLIC")
             )

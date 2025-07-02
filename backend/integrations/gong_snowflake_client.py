@@ -25,7 +25,7 @@ class SnowflakeWebhookClient:
         account: str,
         user: str,
         password: str,
-        warehouse: str = "COMPUTE_WH",
+        warehouse: str = "SOPHIA_AI_WH",
         database: str = "SOPHIA_AI",
         schema: str = "GONG_WEBHOOKS",
         pool_size: int = 5,

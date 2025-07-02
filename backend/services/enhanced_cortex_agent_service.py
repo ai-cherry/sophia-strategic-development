@@ -144,7 +144,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             "user": get_config_value("snowflake_user"),
             "password": get_config_value("snowflake_password"),  # PAT token as password
             "role": "ACCOUNTADMIN",
-            "warehouse": "AI_COMPUTE_WH",
+            "warehouse": "AI_SOPHIA_AI_WH",
             "database": self.advanced_database,
             "schema": self.processed_schema,
         }

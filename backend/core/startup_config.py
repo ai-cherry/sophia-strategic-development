@@ -1,7 +1,7 @@
 """
 Sophia AI Startup Configuration - PERMANENT SNOWFLAKE FIX
 Ensures correct configuration is loaded at application startup
-This file permanently fixes the scoobyjava-vw02766 → ZNB04675 issue
+This file permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue
 """
 
 import logging
@@ -15,7 +15,7 @@ def configure_snowflake_environment():
 
     # PERMANENT SNOWFLAKE CONFIGURATION - DO NOT MODIFY
     correct_config = {
-        "SNOWFLAKE_ACCOUNT": "ZNB04675",
+        "SNOWFLAKE_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
         "SNOWFLAKE_USER": "SCOOBYJAVA15",
         "SNOWFLAKE_DATABASE": "SOPHIA_AI",
         "SNOWFLAKE_WAREHOUSE": "SOPHIA_AI_WH",
@@ -28,7 +28,7 @@ def configure_snowflake_environment():
         logger.info(f"✅ PERMANENT FIX: Set {key}: {value}")
 
     logger.info("🔧 PERMANENT Snowflake environment configuration applied")
-    logger.info("   This permanently fixes the scoobyjava-vw02766 → ZNB04675 issue")
+    logger.info("   This permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue")
 
 
 def apply_startup_configuration():

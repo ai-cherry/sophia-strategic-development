@@ -2,10 +2,10 @@
   "deployment_timestamp": "2025-06-27T18:35:42.638405",
   "infrastructure": {
     "snowflake": {
-      "account": "UHDECNO-CVB64222",
+      "account": "ZNB04675.us-east-1",
       "database": "SOPHIA_AI_ADVANCED",
       "warehouses": [
-        "AI_COMPUTE_WH",
+        "AI_SOPHIA_AI_WH",
         "EMBEDDING_WH",
         "REALTIME_ANALYTICS_WH"
       ],

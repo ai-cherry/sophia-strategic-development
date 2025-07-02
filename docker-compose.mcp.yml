@@ -1,0 +1,31 @@
+networks:
+  sophia-network:
+    driver: bridge
+services:
+  grafana:
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: sophia-admin
+    image: grafana/grafana:latest
+    networks:
+    - sophia-network
+    ports:
+    - 3001:3000
+    restart: unless-stopped
+    volumes:
+    - grafana-data:/var/lib/grafana
+    - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+  prometheus:
+    image: prom/prometheus:latest
+    networks:
+    - sophia-network
+    ports:
+    - 9090:9090
+    restart: unless-stopped
+    volumes:
+    - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    - prometheus-data:/prometheus
+version: '3.8'
+volumes:
+  grafana-data: {}
+  prometheus-data: {}

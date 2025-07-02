@@ -271,7 +271,7 @@ class SnowflakeDataLoader:
         self.account = get_config_value("snowflake_account")
         self.user = get_config_value("snowflake_user")
         self.password = get_config_value("snowflake_password")
-        self.database = "SOPHIA_AI_DEV"  # Use DEV environment as specified
+        self.database = "SOPHIA_AI"  # Use DEV environment as specified
         self.warehouse = "WH_SOPHIA_ETL_TRANSFORM"
         self.role = "ROLE_SOPHIA_ESTUARY_INGEST"
 

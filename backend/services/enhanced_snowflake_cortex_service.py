@@ -155,7 +155,7 @@ class EnhancedSnowflakeCortexService:
             # Set up connection parameters
             self.connection_params = {
                 "account": self.base_service.account,
-                "user": "PROGRAMMATIC_SERVICE_USER",
+                "user": "SCOOBYJAVA15",
                 "password": "eyJraWQiOiIxNzAwMTAwMDk2OSIsImFsZyI6IkVTMjU2In0.eyJwIjoiNjY0MTAwNjg6MTcwMDA5NTYyOTMiLCJpc3MiOiJTRjozMDAxIiwiZXhwIjoxNzU4MzkyMDc4fQ.HPlaOkJGlckJ8W8-GWt8lw0t8kIyvO6UctKrrv7d-kwjCOd5kveyKMspcFGIyuzKzS8X26BtDQQctk2LybXJOQ.",
                 "warehouse": self.base_service.warehouse,
                 "database": self.base_service.database,

@@ -183,10 +183,10 @@ class SecurityConfig:
     # Non-secret configuration values
     NON_SECRET_CONFIG: dict[str, str] = {
         # Snowflake Connection Details
-        "snowflake_account": "UHDECNO-CVB64222",
+        "snowflake_account": "ZNB04675.us-east-1",
         "snowflake_user": "SCOOBYJAVA15",
         "snowflake_role": "ACCOUNTADMIN",
-        "snowflake_warehouse": "COMPUTE_WH",
+        "snowflake_warehouse": "SOPHIA_AI_WH",
         "snowflake_database": "SOPHIA_AI",
         "snowflake_schema": "PROCESSED_AI",
         # Redis Configuration

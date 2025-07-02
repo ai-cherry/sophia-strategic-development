@@ -6,6 +6,12 @@ Provides repository management functionality
 import asyncio
 import logging
 from datetime import datetime
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+    HealthCheckLevel
+)
+
 from typing import Any
 
 from mcp import Server
@@ -139,3 +145,24 @@ try:
         return {"status": "ok"}
 except ImportError:
     pass
+
+    async def server_specific_init(self):
+        """Server-specific initialization"""
+        # TODO: Add server-specific initialization
+        pass
+        
+    def _setup_server_routes(self):
+        """Setup server-specific routes"""
+        # Existing routes should be moved here
+        pass
+        
+    async def check_server_health(self) -> bool:
+        """Check server health"""
+        # TODO: Implement health check
+        return True
+        
+    async def server_specific_shutdown(self):
+        """Server-specific shutdown"""
+        # TODO: Add cleanup logic
+        pass
+

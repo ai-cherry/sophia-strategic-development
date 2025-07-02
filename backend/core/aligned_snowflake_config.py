@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SnowflakeCredentials:
     """Aligned Snowflake credentials from actual setup"""
-    account: str = "UHDECNO-CVB64222"
+    account: str = "ZNB04675.us-east-1"
     user: str = "SCOOBYJAVA15"
     password: str = "eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A"
     role: str = "ACCOUNTADMIN"

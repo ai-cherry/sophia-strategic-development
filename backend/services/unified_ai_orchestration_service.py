@@ -56,11 +56,11 @@ class UnifiedAIOrchestrationService:
         """Initialize Snowflake connection with advanced configuration"""
         try:
             self.snowflake_conn = snowflake.connector.connect(
-                account="UHDECNO-CVB64222",
+                account="ZNB04675.us-east-1",
                 user="SCOOBYJAVA15",
                 password=get_config_value("snowflake_password"),
                 role="ACCOUNTADMIN",
-                warehouse="AI_COMPUTE_WH",
+                warehouse="AI_SOPHIA_AI_WH",
                 database="SOPHIA_AI_ADVANCED",
                 schema="PROCESSED_AI",
             )
