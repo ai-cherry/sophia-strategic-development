@@ -1,7 +1,10 @@
 version: '3.8'
 
+# This Docker Compose file is configured for N8N's high-performance Queue Mode,
+# which is essential for enterprise-grade scalability and reliability.
+
 services:
-  n8n:
+  n8n-main:
     image: n8nio/n8n:latest
     ports:
       - "5678:5678"
@@ -9,47 +12,98 @@ services:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=sophia_admin
       - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-sophia_secure_password}
-      - N8N_HOST=0.0.0.0
-      - N8N_PROTOCOL=http
-      - N8N_PORT=5678
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-sophia_encryption_key_32_chars}
       - WEBHOOK_URL=http://localhost:5678
       - EXECUTIONS_DATA_PRUNE=true
-      - EXECUTIONS_DATA_MAX_AGE=168  # 7 days
+      - EXECUTIONS_DATA_MAX_AGE=168 # 7 days
+      # --- Queue Mode Configuration ---
+      - EXECUTIONS_MODE=queue
+      - EXECUTIONS_PROCESS=main
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - N8N_PAYMENT_WEBHOOK_URL=  # Disable payment webhook in self-hosted
     volumes:
-      - ./n8n_data:/home/node/.n8n
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - ./n8n_data:/home/node/.n8n
       - ./workflows:/workflows:ro
       - ./custom-nodes:/home/node/.n8n/nodes:ro
     restart: unless-stopped
-    networks:
-      - sophia-network
-
-  sophia-mcp-bridge:
-    build: 
-      context: ../backend
-      dockerfile: Dockerfile.n8n-bridge
-    ports:
-      - "9099:9099"
-    environment:
-      - ENVIRONMENT=prod
-      - N8N_INTEGRATION=true
-      - PULUMI_ORG=scoobyjava-org
-      - MCP_ORCHESTRATION_PORT=9000
-    volumes:
-      - ../backend:/app
-    restart: unless-stopped
-    networks:
-      - sophia-network
     depends_on:
-      - n8n
+      - redis
+    networks:
+      - sophia-network
 
-  redis-cache:
+  n8n-worker:
+    image: n8nio/n8n:latest
+    environment:
+      # --- Worker Configuration ---
+      - EXECUTIONS_MODE=queue
+      - EXECUTIONS_PROCESS=worker
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-sophia_encryption_key_32_chars}
+    volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - ./n8n_data:/home/node/.n8n
+      - ./workflows:/workflows:ro
+      - ./custom-nodes:/home/node/.n8n/nodes:ro
+    # Use 'deploy.replicas' in a swarm to scale workers
+    # For local testing, you can manually duplicate this service block.
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - n8n-main
+    networks:
+      - sophia-network
+
+  redis: # Renamed from redis-cache for clarity
     image: redis:7-alpine
     ports:
       - "6379:6379"
     command: redis-server --appendonly yes
     volumes:
-      - redis_data:/data
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+    volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - ./config/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  grafana:
+    image: grafana/grafana-oss:9.5.1
+    ports:
+      - "3000:3000"
+    volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     networks:
       - sophia-network
@@ -60,5 +114,49 @@ networks:
     name: sophia-ai-network
 
 volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local  n8n_data:
+    driver: local
   redis_data:
-    driver: local 
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+    volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - ./config/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  grafana:
+    image: grafana/grafana-oss:9.5.1
+    ports:
+      - "3000:3000"
+    volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    networks:
+      - sophia-network
+

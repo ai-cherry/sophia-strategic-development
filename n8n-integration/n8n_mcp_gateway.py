@@ -32,7 +32,7 @@ LINEAR_CREATE_ISSUE_URL = f"{N8N_BASE_URL}/webhook/linear-create-issue"
 ASANA_CREATE_TASK_URL = f"{N8N_BASE_URL}/webhook/asana-create-task"
 NOTION_CREATE_PAGE_URL = f"{N8N_BASE_URL}/webhook/notion-create-page"
 SLACK_POST_MESSAGE_URL = f"{N8N_BASE_URL}/webhook/slack-post-message"
-
+SUBMIT_TRAINING_DATA_URL = f"{N8N_BASE_URL}/webhook/submit-training-data"
 
 # --- Tool Definitions ---
 
@@ -141,13 +141,30 @@ async def post_slack_message(channel: str, text: str) -> dict:
         async with httpx.AsyncClient(timeout=30.0) as client:
             payload = {"channel": channel, "text": text}
             response = await client.post(SLACK_POST_MESSAGE_URL = f"{N8N_BASE_URL}/webhook/slack-post-message"
-            response.raise_for_status()
+SUBMIT_TRAINING_DATA_URL = f"{N8N_BASE_URL}/webhook/submit-training-data"            response.raise_for_status()
             return response.json().get('data', {})
     except Exception as e:
         logger.error(f"Error in post_slack_message: {e}")
         return {"error": str(e)}
 
 
+@mcp.tool()
+async def submit_training_data(user_id: str, topic: str, content: str) -> dict:
+    """
+    Submits an authoritative piece of knowledge to the AIs memory.
+    Used for correcting the AI or providing definitive information.
+    The users CEO-assigned impact score will be applied automatically.
+    """
+    logger.info(f"Gateway: Received request to submit training data for topic {topic} from user {user_id}")
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            payload = {"user_id": user_id, "topic": topic, "content": content}
+            response = await client.post(SUBMIT_TRAINING_DATA_URL, json=payload)
+            response.raise_for_status()
+            return response.json().get(data, {})
+    except Exception as e:
+        logger.error(f"Error in submit_training_data: {e}")
+        return {"error": str(e)}
 # --- FastAPI App for Health Check ---
 app = FastAPI(title="N8N MCP Gateway", version="1.0.0")
 
@@ -197,5 +214,26 @@ async def recommend_repository_pattern(query: str) -> dict:
             return {"status": "success", "recommendation_count": len(result), "recommendations": result}
     except Exception as e:
         logger.error(f"Error in recommend_repository_pattern: {e}")
+        return {"error": str(e)}
+
+
+SUBMIT_TRAINING_DATA_URL = f"{N8N_BASE_URL}/webhook/submit-training-data"
+
+@mcp.tool()
+async def submit_training_data(user_id: str, topic: str, content: str) -> dict:
+    """
+    Submits an authoritative piece of knowledge to the AI's memory.
+    Used for correcting the AI or providing definitive information.
+    The user's CEO-assigned impact score will be applied automatically.
+    """
+    logger.info(f"Gateway: Received request to submit training data for topic '{topic}' from user '{user_id}'")
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            payload = {"user_id": user_id, "topic": topic, "content": content}
+            response = await client.post(SUBMIT_TRAINING_DATA_URL, json=payload)
+            response.raise_for_status()
+            return response.json().get('data', {})
+    except Exception as e:
+        logger.error(f"Error in submit_training_data: {e}")
         return {"error": str(e)}
 

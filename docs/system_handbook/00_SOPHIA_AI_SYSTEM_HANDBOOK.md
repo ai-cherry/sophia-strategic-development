@@ -129,13 +129,27 @@ graph TD
 ### 4.1. Dashboard & Universal Chat Interface
 *(Description of the UI, role-based access, and the central chat experience to be added)*
 
-### 4.2. Business Intelligence & Analytics
+### 4.2. AI Training & Curation Dashboard
+
+The platform includes a dedicated, CEO-controlled dashboard for managing the AI's intelligence. This interface is the command center for our **Interactive Training Loop**.
+
+**Access:** This dashboard tab is only visible to users with a high `training_impact_score` (e.g., > 0.7), ensuring that only authorized curators can shape the AI's core knowledge.
+
+**Key Components:**
+1.  **Live Knowledge Feed:** A real-time view of all authoritative knowledge being submitted to the system, showing the content, the source user, and their impact score.
+2.  **User Impact Management:** An interface for the CEO to view and directly edit the `training_impact_score` (from 0.0 to 1.0) for every user on the platform.
+3.  **Knowledge Gap Analysis:** An automated tool that analyzes user queries to identify important topics where the AI lacks authoritative knowledge, presenting them as a prioritized list for a curator to define.
+4.  **Topic Explorer:** A searchable and editable view of the entire `authoritative_knowledge` database, allowing for direct management of the AI's learned facts.
+
+This dashboard transforms AI training from a backend developer task into a strategic business function controlled by the company's leadership.
+
+### 4.3. Business Intelligence & Analytics
 *(How we leverage the data stack to provide insights to be added)*
 
-### 4.3. Project Management Ecosystem
+### 4.4. Project Management Ecosystem
 *(How Linear, Asana, Notion, and Slack are unified to be added)*
 
-### 4.4. Code Quality & Security Automation
+### 4.5. Code Quality & Security Automation
 
 #### **The Automated Guardian: Codacy Tool**
 

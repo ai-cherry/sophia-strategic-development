@@ -162,67 +162,10 @@ This is a revolutionary feature that allows Sophia AI to be continuously trained
     ```
 -   **Continuous Improvement:** This creates a powerful, self-correcting feedback loop that makes the entire platform smarter and more accurate with every user interaction.
 
----
+## 7. Management & Curation
 
-## 4. Ingestion Methods: How Knowledge Enters the System
+The entire interactive training process, including the management of `authoritative_knowledge` and user `training_impact_score` values, is overseen through the **AI Training & Curation Dashboard**. This provides a dedicated, CEO-controlled interface to ensure the quality and integrity of the AI's learned knowledge base.
 
-Knowledge is not static; it is constantly ingested into the Sophia AI ecosystem from multiple sources.
+## 7. Management & Curation
 
-### 4.1. Interactive Ingestion via Universal Chat
--   **Mechanism:** Authorized users (especially those with high training impact) can directly teach Sophia.
--   **Example Command:** `> @sophia ingest and index this document for our Q3 planning: [link]`
--   **Process:** The AI uses a WebFetch tool to retrieve the content, then automatically triggers the chunking, meta-tagging, and embedding pipeline.
-
-### 4.2. UI-Based Ingestion via Knowledge Base Tab
--   **Mechanism:** A dedicated "Knowledge Base" tab in the dashboard will provide a user-friendly interface for uploading files (PDFs, DOCX, etc.).
--   **Process:** Uploading a file will trigger the same robust ingestion pipeline, making the document's contents available for semantic search.
-
-### 4.3. Automated Ingestion via Integrations
--   **Mechanism:** N8N workflows run on schedules to automatically pull data from our key platforms.
--   **Examples:**
-    -   **Gong:** Ingests new call transcripts daily.
-    -   **Slack:** Ingests conversations from key channels (e.g., `#sales-wins`, `#product-feedback`).
-    -   **Linear/Asana:** Ingests completed tasks and project summaries weekly.
-
-## 5. The Ingestion Pipeline: From Raw Data to Actionable Intelligence
-
-Once data is ingested, it goes through a sophisticated processing pipeline to make it useful.
-
-1.  **Chunking:** Large documents and conversations are broken down into smaller, semantically coherent chunks. We use a content-aware chunking strategy that respects paragraphs, lists, and tables to maintain context.
-2.  **Meta-Tagging:** Each chunk is automatically tagged with rich metadata, including:
-    -   `source`: (e.g., "Gong", "Slack", "Manual Upload")
-    -   `author`: The user who created the content or uploaded the document.
-    -   `timestamp`: The original creation date.
-    -   `security_level`: (e.g., "Public", "Internal", "Confidential", "CEO-Only")
-    -   `document_id`: A unique ID to group all chunks from the same source.
-3.  **Embedding & Semantic Search:** Each chunk is converted into a vector embedding using state-of-the-art models and stored in our vector database (Pinecone/Weaviate) for fast, accurate semantic search.
-
-## 6. The Training Loop: Interactive & Weighted Fine-Tuning
-
-This is a revolutionary feature that allows Sophia AI to be continuously trained and corrected by its users, with a system of weighted impact ensuring that expert knowledge is prioritized.
-
-### 6.1. Natural Language Interaction
--   **Mechanism:** An authorized user can correct or teach Sophia directly within the Universal Chat Interface.
--   **Correction Example:** `> @sophia that's not quite right. The lead for 'Project Titan' is actually Maria, not Michael.`
--   **Teaching Example:** `> @sophia let's establish a core definition. 'Customer Health Score' is a metric from 0-100 calculated based on product usage, NPS, and support ticket volume.`
-
-### 6.2. The Weighting System
--   **CEO-Controlled User Impact:** In the user setup, the CEO can assign a **Training Impact Score (0.0 to 1.0)** to each user.
-    -   `CEO`: 1.0 (100% impact)
-    -   `Department Head`: 0.8 (80% impact)
-    -   `Customer Service Rep`: 0.1 (10% impact)
--   **How it Works:** When a user provides a correction or definition, the "truth" of that statement is recorded with a confidence score equal to their Training Impact Score. When conflicting information exists, the information from the user with the highest impact score is prioritized by the LLM during prompt synthesis.
--   **Future Vision (By Business Area):** This system is designed to evolve. In the future, a user's Training Impact can be scoped to specific business areas. For example, the Head of Sales would have a 1.0 impact score on sales-related topics, but a lower score on engineering topics.
-
-### 6.3. How Training Data is Used
--   **Priority Context:** When Sophia synthesizes a prompt for the LLM, it will explicitly include a section called `<AuthoritativeKnowledge>` containing any user-provided definitions or corrections relevant to the query, noting the impact score.
--   **Example Prompt Snippet:**
-    ```
-    ...
-    <AuthoritativeKnowledge>
-    - Definition for 'Customer Health Score' provided by CEO (Impact: 1.0): [Definition Here]
-    - Correction for 'Project Titan' lead provided by Engineering Lead (Impact: 0.9): [Correction Here]
-    </AuthoritativeKnowledge>
-    ...
-    ```
--   **Continuous Improvement:** This creates a powerful, self-correcting feedback loop that makes the entire platform smarter and more accurate with every user interaction.
+The entire interactive training process, including the management of `authoritative_knowledge` and user `training_impact_score` values, is overseen through the **AI Training & Curation Dashboard**. This provides a dedicated, CEO-controlled interface to ensure the quality and integrity of the AI's learned knowledge base.
