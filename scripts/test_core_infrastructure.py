@@ -9,7 +9,7 @@ async def test_infrastructure():
     """Test all core components."""
     tests = [
         ("API Gateway", "http://localhost:8000/health"),
-        ("AI Memory MCP", "http://localhost:9000/health"),
+        ("AI Memory MCP", "http://localhost:9001/health"),
         ("Codacy MCP", "http://localhost:3008/health"),
         ("GitHub MCP", "http://localhost:9003/health"),
         ("Linear MCP", "http://localhost:9004/health"),
