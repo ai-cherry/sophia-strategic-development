@@ -1,298 +1,422 @@
 #!/usr/bin/env python3
-"""Simple GitHub MCP Server for repository integration."""
+"""
+Simple GitHub MCP Server
+Provides repository management functionality
+"""
 
 import asyncio
+import json
 import logging
-import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Any
-
-# Add backend to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-# Basic FastAPI setup
-try:
-    import uvicorn
-    from fastapi import FastAPI, HTTPException
-    from fastapi.middleware.cors import CORSMiddleware
-except ImportError:
-    print("FastAPI not available. Install with: pip install fastapi uvicorn")
-    sys.exit(1)
+from typing import Any, Dict, List
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-class SimpleGitHubManager:
-    """Simple GitHub integration without external API calls."""
-
+class SimpleGitHubServer:
     def __init__(self):
-        self.mock_repos = [
-            {
-                "name": "sophia-main",
-                "stars": 15,
-                "language": "Python",
-                "status": "active",
-            },
-            {
-                "name": "ai-cherry-tools",
-                "stars": 8,
-                "language": "TypeScript",
-                "status": "active",
-            },
-            {
-                "name": "mcp-servers",
-                "stars": 12,
-                "language": "Python",
-                "status": "archived",
-            },
-        ]
+        self.app = FastAPI(title="Simple GitHub MCP Server", version="1.0.0")
+        self.access_token = os.getenv("GITHUB_TOKEN", "")
+        self.setup_routes()
+        self.setup_middleware()
 
-        self.mock_issues = [
-            {
-                "id": 1,
-                "title": "Deploy MCP servers",
-                "status": "closed",
-                "priority": "high",
-            },
-            {
-                "id": 2,
-                "title": "Fix code quality issues",
-                "status": "open",
-                "priority": "medium",
-            },
-            {
-                "id": 3,
-                "title": "Add documentation",
-                "status": "open",
-                "priority": "low",
-            },
-        ]
+    def setup_middleware(self):
+        """Setup CORS middleware"""
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
-        self.mock_prs = [
-            {
-                "id": 101,
-                "title": "feat: Add AI Memory MCP server",
-                "status": "merged",
-                "author": "sophia-ai",
-            },
-            {
-                "id": 102,
-                "title": "fix: Resolve deployment issues",
-                "status": "open",
-                "author": "sophia-ai",
-            },
-        ]
+    def setup_routes(self):
+        """Setup API routes"""
 
-    async def get_repository_info(self, repo_name: str) -> dict[str, Any]:
-        """Get repository information."""
-        repo = next((r for r in self.mock_repos if r["name"] == repo_name), None)
-        if not repo:
-            return {"error": f"Repository {repo_name} not found"}
+        @self.app.get("/")
+        async def root():
+            return {
+                "name": "Simple GitHub MCP Server",
+                "version": "1.0.0",
+                "status": "running",
+                "capabilities": ["get_repository", "get_pull_requests", "get_issues"],
+                "has_access_token": bool(self.access_token)
+            }
 
-        return {
-            "name": repo["name"],
-            "stars": repo["stars"],
-            "language": repo["language"],
-            "status": repo["status"],
-            "last_updated": datetime.now().isoformat(),
-            "health_score": 85 if repo["status"] == "active" else 60,
-        }
+        @self.app.get("/health")
+        async def health():
+            return {
+                "status": "healthy",
+                "has_access_token": bool(self.access_token),
+                "timestamp": datetime.now().isoformat()
+            }
 
-    async def list_repositories(self) -> list[dict[str, Any]]:
-        """List all repositories."""
-        return self.mock_repos
+        @self.app.post("/api/get_repository")
+        async def get_repository(request: Dict[str, Any]):
+            """Get GitHub repository information"""
+            try:
+                owner = request.get("owner", "")
+                repo = request.get("repo", "")
+                
+                if not owner or not repo:
+                    raise HTTPException(status_code=400, detail="Owner and repo are required")
+                
+                # Mock repository data for demo
+                repository_info = {
+                    "name": repo,
+                    "full_name": f"{owner}/{repo}",
+                    "owner": {
+                        "login": owner,
+                        "type": "Organization"
+                    },
+                    "description": "Sophia AI - AI assistant orchestrator for Pay Ready",
+                    "private": True,
+                    "html_url": f"https://github.com/{owner}/{repo}",
+                    "clone_url": f"https://github.com/{owner}/{repo}.git",
+                    "ssh_url": f"git@github.com:{owner}/{repo}.git",
+                    "stargazers_count": 42,
+                    "watchers_count": 15,
+                    "forks_count": 5,
+                    "open_issues_count": 8,
+                    "default_branch": "main",
+                    "created_at": "2024-01-15T10:30:00Z",
+                    "updated_at": datetime.now().isoformat(),
+                    "pushed_at": datetime.now().isoformat(),
+                    "language": "Python",
+                    "languages": {
+                        "Python": 75.2,
+                        "TypeScript": 18.5,
+                        "JavaScript": 4.1,
+                        "Shell": 1.8,
+                        "Dockerfile": 0.4
+                    },
+                    "topics": ["ai", "mcp", "orchestrator", "business-intelligence", "automation"],
+                    "license": {
+                        "name": "MIT License",
+                        "spdx_id": "MIT"
+                    }
+                }
+                
+                logger.info(f"Retrieved repository info for {owner}/{repo}")
+                
+                return {
+                    "success": True,
+                    "repository": repository_info,
+                    "has_access_token": bool(self.access_token)
+                }
+                
+            except Exception as e:
+                logger.error(f"Error getting repository: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
 
-    async def get_issues(self, status: str = None) -> list[dict[str, Any]]:
-        """Get issues, optionally filtered by status."""
-        if status:
-            return [issue for issue in self.mock_issues if issue["status"] == status]
-        return self.mock_issues
+        @self.app.post("/api/get_pull_requests")
+        async def get_pull_requests(request: Dict[str, Any]):
+            """Get GitHub pull requests"""
+            try:
+                owner = request.get("owner", "")
+                repo = request.get("repo", "")
+                state = request.get("state", "open")
+                
+                if not owner or not repo:
+                    raise HTTPException(status_code=400, detail="Owner and repo are required")
+                
+                # Mock pull request data
+                pull_requests = [
+                    {
+                        "number": 47,
+                        "title": "🔒 Complete Security Vulnerability Resolution",
+                        "body": "Resolved all 264 GitHub security vulnerabilities including critical and high-severity issues.",
+                        "state": "open",
+                        "user": {
+                            "login": "ai-developer",
+                            "avatar_url": "https://github.com/identicons/ai-developer.png"
+                        },
+                        "created_at": "2025-07-02T18:00:00Z",
+                        "updated_at": datetime.now().isoformat(),
+                        "head": {
+                            "ref": "security-fixes",
+                            "sha": "3162c507"
+                        },
+                        "base": {
+                            "ref": "main",
+                            "sha": "236172b5"
+                        },
+                        "mergeable": True,
+                        "mergeable_state": "clean",
+                        "draft": False,
+                        "labels": [
+                            {"name": "security", "color": "d73a4a"},
+                            {"name": "critical", "color": "b60205"}
+                        ],
+                        "requested_reviewers": [
+                            {"login": "security-team"}
+                        ],
+                        "assignees": [
+                            {"login": "ai-developer"}
+                        ]
+                    },
+                    {
+                        "number": 46,
+                        "title": "📖 Comprehensive Coding MCP Servers Documentation",
+                        "body": "Added comprehensive documentation and testing framework for all coding-focused MCP servers.",
+                        "state": "merged",
+                        "user": {
+                            "login": "ai-developer",
+                            "avatar_url": "https://github.com/identicons/ai-developer.png"
+                        },
+                        "created_at": "2025-07-02T17:30:00Z",
+                        "updated_at": "2025-07-02T17:45:00Z",
+                        "merged_at": "2025-07-02T17:45:00Z",
+                        "head": {
+                            "ref": "mcp-documentation",
+                            "sha": "236172b5"
+                        },
+                        "base": {
+                            "ref": "main",
+                            "sha": "3efc1b05"
+                        },
+                        "mergeable": None,
+                        "mergeable_state": "clean",
+                        "draft": False,
+                        "labels": [
+                            {"name": "documentation", "color": "0075ca"},
+                            {"name": "enhancement", "color": "a2eeef"}
+                        ]
+                    },
+                    {
+                        "number": 45,
+                        "title": "🚀 Comprehensive Remodel Complete",
+                        "body": "Research-validated architecture transformation with 39× performance improvements.",
+                        "state": "merged",
+                        "user": {
+                            "login": "ai-developer",
+                            "avatar_url": "https://github.com/identicons/ai-developer.png"
+                        },
+                        "created_at": "2025-07-02T12:00:00Z",
+                        "updated_at": "2025-07-02T15:00:00Z",
+                        "merged_at": "2025-07-02T15:00:00Z",
+                        "head": {
+                            "ref": "comprehensive-remodel",
+                            "sha": "7f51015d"
+                        },
+                        "base": {
+                            "ref": "main",
+                            "sha": "adaac35d"
+                        },
+                        "labels": [
+                            {"name": "infrastructure", "color": "1d76db"},
+                            {"name": "performance", "color": "fbca04"}
+                        ]
+                    }
+                ]
+                
+                # Filter by state
+                filtered_prs = [pr for pr in pull_requests if pr["state"] == state]
+                
+                logger.info(f"Retrieved {len(filtered_prs)} pull requests for {owner}/{repo} (state: {state})")
+                
+                return {
+                    "success": True,
+                    "pull_requests": filtered_prs,
+                    "total_count": len(filtered_prs),
+                    "state": state
+                }
+                
+            except Exception as e:
+                logger.error(f"Error getting pull requests: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
 
-    async def create_issue(
-        self, title: str, description: str, priority: str = "medium"
-    ) -> dict[str, Any]:
-        """Create a new issue."""
-        new_issue = {
-            "id": len(self.mock_issues) + 1,
-            "title": title,
-            "description": description,
-            "status": "open",
-            "priority": priority,
-            "created_at": datetime.now().isoformat(),
-            "author": "sophia-ai",
-        }
+        @self.app.post("/api/get_issues")
+        async def get_issues(request: Dict[str, Any]):
+            """Get GitHub issues"""
+            try:
+                owner = request.get("owner", "")
+                repo = request.get("repo", "")
+                state = request.get("state", "open")
+                labels = request.get("labels", [])
+                
+                if not owner or not repo:
+                    raise HTTPException(status_code=400, detail="Owner and repo are required")
+                
+                # Mock issues data
+                issues = [
+                    {
+                        "number": 15,
+                        "title": "Enhance MCP server auto-discovery",
+                        "body": "Implement automatic discovery and registration of new MCP servers in the ecosystem.",
+                        "state": "open",
+                        "user": {
+                            "login": "product-manager",
+                            "avatar_url": "https://github.com/identicons/product-manager.png"
+                        },
+                        "labels": [
+                            {"name": "enhancement", "color": "a2eeef"},
+                            {"name": "mcp", "color": "7057ff"}
+                        ],
+                        "assignees": [
+                            {"login": "ai-developer"}
+                        ],
+                        "milestone": {
+                            "title": "Q3 2025 Features",
+                            "number": 3
+                        },
+                        "created_at": "2025-07-01T14:00:00Z",
+                        "updated_at": datetime.now().isoformat(),
+                        "comments": 3
+                    },
+                    {
+                        "number": 14,
+                        "title": "Add real-time collaboration features",
+                        "body": "Enable real-time collaboration between multiple developers using the AI Memory system.",
+                        "state": "open",
+                        "user": {
+                            "login": "tech-lead",
+                            "avatar_url": "https://github.com/identicons/tech-lead.png"
+                        },
+                        "labels": [
+                            {"name": "feature", "color": "0052cc"},
+                            {"name": "collaboration", "color": "5319e7"}
+                        ],
+                        "assignees": [],
+                        "created_at": "2025-06-30T16:30:00Z",
+                        "updated_at": "2025-07-02T10:15:00Z",
+                        "comments": 7
+                    },
+                    {
+                        "number": 13,
+                        "title": "Improve Codacy integration performance",
+                        "body": "Optimize the Codacy MCP server for faster code analysis and reduced memory usage.",
+                        "state": "closed",
+                        "user": {
+                            "login": "performance-engineer",
+                            "avatar_url": "https://github.com/identicons/performance-engineer.png"
+                        },
+                        "labels": [
+                            {"name": "performance", "color": "fbca04"},
+                            {"name": "codacy", "color": "d4c5f9"}
+                        ],
+                        "assignees": [
+                            {"login": "ai-developer"}
+                        ],
+                        "closed_at": "2025-07-02T16:00:00Z",
+                        "created_at": "2025-06-28T09:00:00Z",
+                        "updated_at": "2025-07-02T16:00:00Z",
+                        "comments": 12
+                    }
+                ]
+                
+                # Filter by state and labels
+                filtered_issues = [issue for issue in issues if issue["state"] == state]
+                if labels:
+                    filtered_issues = [
+                        issue for issue in filtered_issues
+                        if any(label["name"] in labels for label in issue["labels"])
+                    ]
+                
+                logger.info(f"Retrieved {len(filtered_issues)} issues for {owner}/{repo}")
+                
+                return {
+                    "success": True,
+                    "issues": filtered_issues,
+                    "total_count": len(filtered_issues),
+                    "state": state,
+                    "labels": labels
+                }
+                
+            except Exception as e:
+                logger.error(f"Error getting issues: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
 
-        self.mock_issues.append(new_issue)
-        logger.info(f"Created issue: {title}")
+        @self.app.post("/api/get_commits")
+        async def get_commits(request: Dict[str, Any]):
+            """Get recent commits"""
+            try:
+                owner = request.get("owner", "")
+                repo = request.get("repo", "")
+                branch = request.get("branch", "main")
+                limit = request.get("limit", 10)
+                
+                # Mock commits data
+                commits = [
+                    {
+                        "sha": "236172b5",
+                        "commit": {
+                            "author": {
+                                "name": "AI Developer",
+                                "email": "ai@sophia.dev",
+                                "date": datetime.now().isoformat()
+                            },
+                            "message": "Add comprehensive coding MCP servers documentation and testing framework",
+                            "tree": {"sha": "abc123"},
+                            "comment_count": 0
+                        },
+                        "author": {
+                            "login": "ai-developer",
+                            "avatar_url": "https://github.com/identicons/ai-developer.png"
+                        },
+                        "html_url": f"https://github.com/{owner}/{repo}/commit/236172b5"
+                    },
+                    {
+                        "sha": "3162c507",
+                        "commit": {
+                            "author": {
+                                "name": "AI Developer", 
+                                "email": "ai@sophia.dev",
+                                "date": "2025-07-02T18:00:00Z"
+                            },
+                            "message": "🔒 COMPLETE SECURITY VULNERABILITY RESOLUTION",
+                            "tree": {"sha": "def456"},
+                            "comment_count": 2
+                        },
+                        "author": {
+                            "login": "ai-developer",
+                            "avatar_url": "https://github.com/identicons/ai-developer.png"
+                        },
+                        "html_url": f"https://github.com/{owner}/{repo}/commit/3162c507"
+                    }
+                ]
+                
+                result_commits = commits[:limit]
+                
+                return {
+                    "success": True,
+                    "commits": result_commits,
+                    "branch": branch,
+                    "total_count": len(result_commits)
+                }
+                
+            except Exception as e:
+                logger.error(f"Error getting commits: {e}")
+                raise HTTPException(status_code=500, detail=str(e))
 
-        return new_issue
-
-    async def get_pull_requests(self, status: str = None) -> list[dict[str, Any]]:
-        """Get pull requests."""
-        if status:
-            return [pr for pr in self.mock_prs if pr["status"] == status]
-        return self.mock_prs
-
-    async def get_repository_stats(self) -> dict[str, Any]:
-        """Get overall repository statistics."""
-        active_repos = len([r for r in self.mock_repos if r["status"] == "active"])
-        total_stars = sum(r["stars"] for r in self.mock_repos)
-        open_issues = len([i for i in self.mock_issues if i["status"] == "open"])
-
-        return {
-            "total_repositories": len(self.mock_repos),
-            "active_repositories": active_repos,
-            "total_stars": total_stars,
-            "open_issues": open_issues,
-            "open_pull_requests": len(
-                [pr for pr in self.mock_prs if pr["status"] == "open"]
-            ),
-            "languages": list({r["language"] for r in self.mock_repos}),
-        }
-
-
-# Create FastAPI app
-app = FastAPI(title="Simple GitHub MCP Server", version="1.0.0")
-
-# Add CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Create GitHub manager
-github_manager = SimpleGitHubManager()
-
-
-@app.get("/")
-async def root():
-    return {
-        "name": "Simple GitHub MCP Server",
-        "version": "1.0.0",
-        "status": "running",
-        "capabilities": [
-            "repository_info",
-            "issue_management",
-            "pull_request_tracking",
-        ],
-    }
-
-
-@app.get("/health")
-async def health():
-    stats = await github_manager.get_repository_stats()
-    return {
-        "status": "healthy",
-        "service": "github_mcp",
-        "timestamp": datetime.now().isoformat(),
-        "stats": stats,
-    }
-
-
-@app.get("/api/v1/repositories")
-async def list_repositories():
-    """List all repositories."""
-    try:
-        repos = await github_manager.list_repositories()
-        return {"repositories": repos, "count": len(repos)}
-    except Exception as e:
-        logger.error(f"Error listing repositories: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/v1/repositories/{repo_name}")
-async def get_repository(repo_name: str):
-    """Get specific repository information."""
-    try:
-        repo_info = await github_manager.get_repository_info(repo_name)
-        return repo_info
-    except Exception as e:
-        logger.error(f"Error getting repository {repo_name}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/v1/issues")
-async def get_issues(status: str = None):
-    """Get issues, optionally filtered by status."""
-    try:
-        issues = await github_manager.get_issues(status)
-        return {"issues": issues, "count": len(issues)}
-    except Exception as e:
-        logger.error(f"Error getting issues: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/v1/issues")
-async def create_issue(data: dict[str, Any]):
-    """Create a new issue."""
-    try:
-        title = data.get("title")
-        if not title:
-            raise HTTPException(status_code=400, detail="Title is required")
-
-        description = data.get("description", "")
-        priority = data.get("priority", "medium")
-
-        issue = await github_manager.create_issue(title, description, priority)
-        return issue
-    except Exception as e:
-        logger.error(f"Error creating issue: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/v1/pull-requests")
-async def get_pull_requests(status: str = None):
-    """Get pull requests."""
-    try:
-        prs = await github_manager.get_pull_requests(status)
-        return {"pull_requests": prs, "count": len(prs)}
-    except Exception as e:
-        logger.error(f"Error getting pull requests: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/v1/stats")
-async def get_stats():
-    """Get repository statistics."""
-    try:
-        return await github_manager.get_repository_stats()
-    except Exception as e:
-        logger.error(f"Error getting stats: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-async def main():
-    """Run the server."""
-    logger.info("Starting Simple GitHub MCP Server on port 9003...")
-
-    try:
-        # Try to load ESC config if available
-        try:
-            from backend.core.auto_esc_config import get_config_value
-
-            github_token = get_config_value("github_token")
-            if github_token:
-                logger.info("✅ GitHub token available")
-            else:
-                logger.warning("GitHub token not found - using mock data")
-        except Exception as e:
-            logger.warning(f"Pulumi ESC not available: {e}")
-
-        # Start server
-        config = uvicorn.Config(app=app, host="0.0.0.0", port=9003, log_level="info")
+    async def start_server(self, port: int = 9003):
+        """Start the GitHub MCP server"""
+        logger.info(f"📁 Starting Simple GitHub MCP Server on port {port}")
+        
+        config = uvicorn.Config(
+            app=self.app,
+            host="0.0.0.0",
+            port=port,
+            log_level="info"
+        )
         server = uvicorn.Server(config)
         await server.serve()
 
+def main():
+    """Main function to run the server"""
+    server = SimpleGitHubServer()
+    
+    try:
+        asyncio.run(server.start_server(port=9003))
+    except KeyboardInterrupt:
+        logger.info("Server stopped by user")
     except Exception as e:
-        logger.error(f"Failed to start server: {e}")
-        raise
-
+        logger.error(f"Server error: {e}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
