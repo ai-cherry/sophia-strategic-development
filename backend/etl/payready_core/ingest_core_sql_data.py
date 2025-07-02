@@ -28,6 +28,7 @@ class PayReadyDataIngestionConfig:
     source_db_connection: str
     snowflake_connection: dict[str, str]
     batch_size: int = 1000
+    chunk_size: int = 5000  # Add configurable chunk size for streaming
     max_retries: int = 3
     sync_window_hours: int = 24
 
@@ -80,7 +81,7 @@ class PayReadyCoreDataIngestor:
     async def extract_payment_transactions(
         self, since_date: datetime | None = None
     ) -> pd.DataFrame:
-        """Extract payment transactions from operational database"""
+        """Extract payment transactions from operational database with chunked reading"""
         try:
             if since_date is None:
                 since_date = datetime.now() - timedelta(
@@ -120,14 +121,39 @@ class PayReadyCoreDataIngestor:
             ORDER BY processing_date DESC
             """
 
-            df = pd.read_sql_query(
-                text(query), self.source_engine, params={"since_date": since_date}
-            )
+            # Use chunked reading for large datasets
+            all_chunks = []
+            chunk_count = 0
+            total_records = 0
+            
+            logger.info(f"📊 Starting chunked extraction with chunk size: {self.config.chunk_size}")
+            
+            for chunk_df in pd.read_sql_query(
+                text(query), 
+                self.source_engine, 
+                params={"since_date": since_date},
+                chunksize=self.config.chunk_size
+            ):
+                chunk_count += 1
+                chunk_size = len(chunk_df)
+                total_records += chunk_size
+                
+                logger.info(f"📦 Processing chunk {chunk_count}: {chunk_size} records")
+                
+                # Process chunk (you can add transformation logic here)
+                all_chunks.append(chunk_df)
+                
+                # Log progress
+                logger.info(f"✅ Chunk {chunk_count} processed successfully ({total_records} total records)")
 
-            logger.info(
-                f"📊 Extracted {len(df)} payment transactions since {since_date}"
-            )
-            return df
+            # Combine all chunks
+            if all_chunks:
+                df = pd.concat(all_chunks, ignore_index=True)
+                logger.info(f"📊 Extracted {len(df)} payment transactions in {chunk_count} chunks")
+                return df
+            else:
+                logger.info("No payment transactions found")
+                return pd.DataFrame()
 
         except Exception as e:
             logger.error(f"❌ Failed to extract payment transactions: {e}")
@@ -136,7 +162,7 @@ class PayReadyCoreDataIngestor:
     async def extract_customer_features(
         self, since_date: datetime | None = None
     ) -> pd.DataFrame:
-        """Extract customer features from operational database"""
+        """Extract customer features from operational database with chunked reading"""
         try:
             if since_date is None:
                 since_date = datetime.now() - timedelta(
@@ -172,12 +198,39 @@ class PayReadyCoreDataIngestor:
             ORDER BY created_at DESC
             """
 
-            df = pd.read_sql_query(
-                text(query), self.source_engine, params={"since_date": since_date}
-            )
+            # Use chunked reading for large datasets
+            all_chunks = []
+            chunk_count = 0
+            total_records = 0
+            
+            logger.info(f"📊 Starting chunked customer features extraction with chunk size: {self.config.chunk_size}")
+            
+            for chunk_df in pd.read_sql_query(
+                text(query), 
+                self.source_engine, 
+                params={"since_date": since_date},
+                chunksize=self.config.chunk_size
+            ):
+                chunk_count += 1
+                chunk_size = len(chunk_df)
+                total_records += chunk_size
+                
+                logger.info(f"📦 Processing customer features chunk {chunk_count}: {chunk_size} records")
+                
+                # Process chunk (you can add transformation logic here)
+                all_chunks.append(chunk_df)
+                
+                # Log progress
+                logger.info(f"✅ Customer features chunk {chunk_count} processed successfully ({total_records} total records)")
 
-            logger.info(f"📊 Extracted {len(df)} customer features since {since_date}")
-            return df
+            # Combine all chunks
+            if all_chunks:
+                df = pd.concat(all_chunks, ignore_index=True)
+                logger.info(f"📊 Extracted {len(df)} customer features in {chunk_count} chunks")
+                return df
+            else:
+                logger.info("No customer features found")
+                return pd.DataFrame()
 
         except Exception as e:
             logger.error(f"❌ Failed to extract customer features: {e}")

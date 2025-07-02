@@ -66,6 +66,7 @@ class SnowflakeConnectionPool:
         self._active_connections: Dict[int, PooledConnection] = {}
         self._pool_lock = threading.RLock()
         self._shutdown = False
+        self._shutdown_event = threading.Event()  # Add shutdown event
         
         # Statistics
         self._stats = {
@@ -139,10 +140,17 @@ class SnowflakeConnectionPool:
             try:
                 self._cleanup_expired_connections()
                 self._ensure_minimum_connections()
-                time.sleep(self.config.health_check_interval)
+                
+                # Use event.wait() instead of time.sleep() for interruptible waiting
+                if self._shutdown_event.wait(timeout=self.config.health_check_interval):
+                    # Shutdown event was set, exit immediately
+                    break
+                    
             except Exception as e:
                 logger.error(f"Health check worker error: {e}")
-                time.sleep(5)  # Brief pause on error
+                # Brief pause on error, also interruptible
+                if self._shutdown_event.wait(timeout=5):
+                    break
     
     def _cleanup_expired_connections(self):
         """Remove expired connections from pool"""
@@ -347,6 +355,11 @@ class SnowflakeConnectionPool:
         """Shutdown the connection pool"""
         logger.info("Shutting down Snowflake connection pool...")
         self._shutdown = True
+        self._shutdown_event.set()  # Signal shutdown to health check worker
+        
+        # Wait for health check thread to finish (with timeout)
+        if self._health_check_thread.is_alive():
+            self._health_check_thread.join(timeout=5)
         
         # Close all active connections
         with self._pool_lock:

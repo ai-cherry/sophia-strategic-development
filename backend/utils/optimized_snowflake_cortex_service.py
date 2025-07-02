@@ -40,8 +40,6 @@ import asyncio
 import hashlib
 import logging
 import time
-from dataclasses import dataclass
-from enum import Enum
 from typing import Any
 
 # Database and AI libraries
@@ -49,67 +47,18 @@ from typing import Any
 from backend.core.optimized_connection_manager import ConnectionType, connection_manager
 from backend.core.performance_monitor import performance_monitor
 
+# Import decomposed modules
+from .optimized_snowflake_cortex_service_models import (
+    CortexOperation,
+    ProcessingMode,
+    CortexResult,
+    BatchCortexRequest,
+    CortexPerformanceMetrics,
+    CortexConfig,
+)
+from .optimized_snowflake_cortex_service_utils import CortexUtils
+
 logger = logging.getLogger(__name__)
-
-
-class CortexOperation(str, Enum):
-    """Snowflake Cortex operation types"""
-
-    SENTIMENT_ANALYSIS = "sentiment_analysis"
-    TEXT_SUMMARIZATION = "text_summarization"
-    EMBEDDING_GENERATION = "embedding_generation"
-    VECTOR_SEARCH = "vector_search"
-    TRANSLATE = "translate"
-    COMPLETE = "complete"
-
-
-class ProcessingMode(str, Enum):
-    """Processing mode for batch operations"""
-
-    SEQUENTIAL = "sequential"
-    BATCH = "batch"
-    CONCURRENT = "concurrent"
-    ADAPTIVE = "adaptive"
-
-
-@dataclass
-class CortexResult:
-    """Cortex operation result"""
-
-    operation: CortexOperation
-    success: bool
-    result: Any | None = None
-    error: str | None = None
-    execution_time_ms: float = 0.0
-    tokens_processed: int = 0
-    cost_estimate: float = 0.0
-
-
-@dataclass
-class BatchCortexRequest:
-    """Batch Cortex operation request"""
-
-    operation: CortexOperation
-    texts: list[str]
-    model: str | None = None
-    parameters: dict[str, Any] | None = None
-    request_id: str | None = None
-
-
-@dataclass
-class CortexPerformanceMetrics:
-    """Performance metrics for Cortex operations"""
-
-    total_operations: int = 0
-    batch_operations: int = 0
-    avg_batch_size: float = 0.0
-    total_execution_time_ms: float = 0.0
-    avg_execution_time_ms: float = 0.0
-    total_tokens_processed: int = 0
-    total_cost_estimate: float = 0.0
-    cache_hits: int = 0
-    cache_misses: int = 0
-    error_count: int = 0
 
 
 class OptimizedSnowflakeCortexService:
@@ -130,7 +79,8 @@ class OptimizedSnowflakeCortexService:
     - Adds comprehensive performance monitoring
     """
 
-    def __init__(self):
+    def __init__(self, config: CortexConfig = None):
+        self.config = config or CortexConfig()
         self.initialized = False
         self.embedding_model = None
 
