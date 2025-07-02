@@ -30,25 +30,25 @@
     "/home/ubuntu/sophia-main/comprehensive_alignment_report.md",
     "/home/ubuntu/sophia-main/README_backup.md",
     "/home/ubuntu/sophia-main/sophia_ai_technical_debt_analysis.json",
-    "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-    "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
+    "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+    "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
     "/home/ubuntu/sophia-main/.github/workflows/gong_deployment_pipeline.yml",
     "/home/ubuntu/sophia-main/.github/workflows/sync_secrets.yml",
     "/home/ubuntu/sophia-main/.github/workflows/unified-secret-sync.yml",
-    "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
+    "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
     "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
     "/home/ubuntu/sophia-main/backend/api/asana_integration_routes.py",
     "/home/ubuntu/sophia-main/backend/core/config_validator.py",
     "/home/ubuntu/sophia-main/backend/core/data_flow_manager.py",
     "/home/ubuntu/sophia-main/backend/core/centralized_config_manager.py",
     "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-    "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
+    "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
     "/home/ubuntu/sophia-main/backend/etl/gong/README.md",
-    "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
+    "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
     "/home/ubuntu/sophia-main/backend/integrations/estuary_flow_manager.py",
-    "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
+    "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
     "/home/ubuntu/sophia-main/backend/scripts/deploy_gong_snowflake_setup.py",
-    "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
+    "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
     "/home/ubuntu/sophia-main/backend/scripts/enhanced_deploy_gong_snowflake_setup.py",
     "/home/ubuntu/sophia-main/backend/scripts/enhanced_gong_pipeline_test_suite.py",
     "/home/ubuntu/sophia-main/backend/scripts/integrate_gong_pipeline.py",
@@ -63,7 +63,7 @@
     "/home/ubuntu/sophia-main/backend/infrastructure/sophia_iac_orchestrator.py",
     "/home/ubuntu/sophia-main/backend/infrastructure/core/dependency_manager.py",
     "/home/ubuntu/sophia-main/backend/infrastructure/adapters/snowflake_adapter.py",
-    "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
+    "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
     "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
     "/home/ubuntu/sophia-main/config/webhook_router_config.json",
     "/home/ubuntu/sophia-main/docs/ARCHITECTURE_MASTER_GUIDE.md",
@@ -73,7 +73,7 @@
     "/home/ubuntu/sophia-main/docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md",
     "/home/ubuntu/sophia-main/docs/SOPHIA_AI_ENHANCED_LLM_STRATEGY_SUMMARY.md",
     "/home/ubuntu/sophia-main/docs/SOPHIA_AI_TECHNICAL_REVIEW.md",
-    "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_AIRBYTE_SETUP.md",
+    "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_estuary_SETUP.md",
     "/home/ubuntu/sophia-main/docs/PLATFORM_INTEGRATION_MATRIX.json",
     "/home/ubuntu/sophia-main/docs/AI_CODER_REFERENCE.md",
     "/home/ubuntu/sophia-main/docs/README_DOCUMENTATION_INDEX.md",
@@ -85,7 +85,7 @@
     "/home/ubuntu/sophia-main/scripts/test_gong_deployment_readiness.py",
     "/home/ubuntu/sophia-main/scripts/github_actions_consolidation.py",
     "/home/ubuntu/sophia-main/scripts/snowflake_config_manager.py",
-    "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
+    "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
     "/home/ubuntu/sophia-main/scripts/deploy_comprehensive_iac.py",
     "/home/ubuntu/sophia-main/scripts/test_integration_matrix.py",
     "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
@@ -95,2144 +95,2144 @@
     "/home/ubuntu/sophia-main/scripts/automated_platform_integration.py",
     "/home/ubuntu/sophia-main/scripts/ci/sync_from_gh_to_pulumi.py",
     "/home/ubuntu/sophia-main/logs/webhook_deployment_results.json",
-    "/home/ubuntu/sophia-main/airbyte_integration_results.json",
-    "/home/ubuntu/sophia-main/airbyte_integration_status.json",
-    "/home/ubuntu/sophia-main/scripts/replace_airbyte_with_estuary.py",
-    "/home/ubuntu/sophia-main/backend/etl/airbyte"
+    "/home/ubuntu/sophia-main/estuary_integration_results.json",
+    "/home/ubuntu/sophia-main/estuary_integration_status.json",
+    "/home/ubuntu/sophia-main/scripts/replace_estuary_with_estuary.py",
+    "/home/ubuntu/sophia-main/backend/etl/estuary"
   ],
   "changes_by_type": {
-    "AIRBYTE_ACCESS_TOKEN": 13,
-    "airbyte_": 28,
-    "Airbyte": 64,
-    "AIRBYTE": 38,
-    "airbyte_integration": 12,
-    "airbyte_config": 14,
-    "airbyte-": 8,
-    "airbyte": 38,
-    "api.airbyte.com": 5,
-    "Airbyte API": 7,
-    "AirbyteManager": 7,
-    "Airbyte connector": 5,
-    "AIRBYTE_CLIENT_SECRET": 8,
-    "AIRBYTE_CLIENT_ID": 8,
-    "airbyte_client": 4,
-    "airbyte_manager": 3,
-    "airbyte connection": 1,
-    "airbyte.com": 2,
-    "AirbyteConfig": 4,
-    "AirbyteIntegration": 3,
-    "airbyte_sync": 3,
-    "airbyte_api": 1,
-    "airbyte_setup": 3,
-    "airbyte_webhook": 2,
-    "Airbyte documentation": 1,
-    "AIRBYTE_WORKSPACE_ID": 1,
-    "cloud.airbyte.com": 1,
-    "Airbyte Cloud": 2,
-    "airbyte_integration_results.json": 1,
-    "airbyte_integration_status.json": 1,
-    "airbyte-deployment.yml": 1,
-    "airbyte-monitoring.yml": 1,
-    "airbyte-asana-deployment.yml": 1,
-    "airbyte_configuration_manager.py": 1,
-    "airbyte_netsuite_setup.py": 1,
-    "airbyte_gong_setup.py": 1,
-    "enhanced_airbyte_integration_test_suite.py": 1,
-    "airbyte_adapter.py": 1,
-    "MANUS_AI_SNOWFLAKE_AIRBYTE_SETUP.md": 1,
-    "airbyte_integration_manager.py": 1,
-    "replace_airbyte_with_estuary.py": 1
+    "ESTUARY_ACCESS_TOKEN": 13,
+    "estuary_": 28,
+    "estuary": 64,
+    "estuary": 38,
+    "estuary_integration": 12,
+    "estuary_config": 14,
+    "estuary-": 8,
+    "estuary": 38,
+    "api.estuary.com": 5,
+    "estuary API": 7,
+    "EstuaryManager": 7,
+    "estuary connector": 5,
+    "ESTUARY_CLIENT_SECRET": 8,
+    "ESTUARY_CLIENT_ID": 8,
+    "estuary_client": 4,
+    "estuary_manager": 3,
+    "estuary connection": 1,
+    "estuary.com": 2,
+    "EstuaryConfig": 4,
+    "EstuaryIntegration": 3,
+    "estuary_sync": 3,
+    "estuary_api": 1,
+    "estuary_setup": 3,
+    "estuary_webhook": 2,
+    "estuary documentation": 1,
+    "ESTUARY_WORKSPACE_ID": 1,
+    "cloud.estuary.com": 1,
+    "estuary Cloud": 2,
+    "estuary_integration_results.json": 1,
+    "estuary_integration_status.json": 1,
+    "estuary-deployment.yml": 1,
+    "estuary-monitoring.yml": 1,
+    "estuary-asana-deployment.yml": 1,
+    "estuary_configuration_manager.py": 1,
+    "estuary_netsuite_setup.py": 1,
+    "estuary_gong_setup.py": 1,
+    "enhanced_estuary_integration_test_suite.py": 1,
+    "estuary_adapter.py": 1,
+    "MANUS_AI_SNOWFLAKE_estuary_SETUP.md": 1,
+    "estuary_integration_manager.py": 1,
+    "replace_estuary_with_estuary.py": 1
   },
   "detailed_changes": [
     {
       "file": "/home/ubuntu/sophia-main/COMPREHENSIVE_GITHUB_ACTIONS_REVIEW_SUMMARY.md",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.059676"
     },
     {
       "file": "/home/ubuntu/sophia-main/COMPREHENSIVE_NEW_SCHEMAS_IMPLEMENTATION_SUMMARY.md",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.061984"
     },
     {
       "file": "/home/ubuntu/sophia-main/COMPREHENSIVE_NEW_SCHEMAS_IMPLEMENTATION_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.061997"
     },
     {
       "file": "/home/ubuntu/sophia-main/DEPLOYMENT_PLAN_DEV_ENVIRONMENT.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064022"
     },
     {
       "file": "/home/ubuntu/sophia-main/DEPLOYMENT_PLAN_DEV_ENVIRONMENT.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064033"
     },
     {
       "file": "/home/ubuntu/sophia-main/ENHANCED_GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064904"
     },
     {
       "file": "/home/ubuntu/sophia-main/ENHANCED_GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064915"
     },
     {
       "file": "/home/ubuntu/sophia-main/ENHANCED_GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "airbyte-",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064918"
     },
     {
       "file": "/home/ubuntu/sophia-main/ENHANCED_GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064921"
     },
     {
       "file": "/home/ubuntu/sophia-main/ENHANCED_GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.064923"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_DEPLOYMENT_READINESS_REPORT.md",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.066347"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_DEPLOYMENT_READINESS_REPORT.md",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.066357"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_DEPLOYMENT_READINESS_REPORT.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.066359"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_DEPLOYMENT_READINESS_REPORT.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.066361"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_PIPELINE_IMPLEMENTATION_STATUS_REPORT.md",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.067709"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_PIPELINE_IMPLEMENTATION_STATUS_REPORT.md",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.067717"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_PIPELINE_IMPLEMENTATION_STATUS_REPORT.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.067719"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_PIPELINE_IMPLEMENTATION_STATUS_REPORT.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.067721"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.068301"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_PIPELINE_IMPLEMENTATION_SUMMARY.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.068309"
     },
     {
       "file": "/home/ubuntu/sophia-main/GONG_SNOWFLAKE_INTEGRATION_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.070008"
     },
     {
       "file": "/home/ubuntu/sophia-main/INTEGRATION_IMPLEMENTATION_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.071568"
     },
     {
       "file": "/home/ubuntu/sophia-main/README.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.073286"
     },
     {
       "file": "/home/ubuntu/sophia-main/README.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.073295"
     },
     {
       "file": "/home/ubuntu/sophia-main/SNOWFLAKE_HUBSPOT_INTEGRATION_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.074492"
     },
     {
       "file": "/home/ubuntu/sophia-main/SOPHIA_AI_JUNE_2025_ENHANCEMENT_SUCCESS.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.076528"
     },
     {
       "file": "/home/ubuntu/sophia-main/gong_deployment_status.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.091515"
     },
     {
       "file": "/home/ubuntu/sophia-main/gong_deployment_status.json",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.091535"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_analysis_report.json",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.136344"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_analysis_report.json",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.136369"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_analysis_report.json",
-      "old": "airbyte-",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.136372"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_analysis_report.json",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.136374"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_analysis_report.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.136376"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_analysis_report.json",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.136380"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_migration_plan.json",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.138537"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_standardization_plan.json",
-      "old": "airbyte-",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.141502"
     },
     {
       "file": "/home/ubuntu/sophia-main/secret_standardization_plan.json",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.141514"
     },
     {
       "file": "/home/ubuntu/sophia-main/sophia-ai-compliance-integration-recommendations.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.165794"
     },
     {
       "file": "/home/ubuntu/sophia-main/sophia-ai-compliance-integration-strategy.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.169377"
     },
     {
       "file": "/home/ubuntu/sophia-main/fix_alignment_issues.py",
-      "old": "api.airbyte.com",
+      "old": "api.estuary.com",
       "new": "api.estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.174058"
     },
     {
       "file": "/home/ubuntu/sophia-main/fix_alignment_issues.py",
-      "old": "Airbyte API",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.174072"
     },
     {
       "file": "/home/ubuntu/sophia-main/fix_alignment_issues.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.174075"
     },
     {
       "file": "/home/ubuntu/sophia-main/fix_alignment_issues.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.174078"
     },
     {
       "file": "/home/ubuntu/sophia-main/fix_alignment_issues.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.174080"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_analysis_and_fix.py",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.175657"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_analysis_and_fix.py",
-      "old": "api.airbyte.com",
+      "old": "api.estuary.com",
       "new": "api.estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.175667"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_analysis_and_fix.py",
-      "old": "Airbyte API",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.175669"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_analysis_and_fix.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.175671"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_analysis_and_fix.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.175673"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_analysis_and_fix.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.175675"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_report.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.176120"
     },
     {
       "file": "/home/ubuntu/sophia-main/comprehensive_alignment_report.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.176127"
     },
     {
       "file": "/home/ubuntu/sophia-main/README_backup.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.176955"
     },
     {
       "file": "/home/ubuntu/sophia-main/sophia_ai_technical_debt_analysis.json",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.179476"
     },
     {
       "file": "/home/ubuntu/sophia-main/sophia_ai_technical_debt_analysis.json",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.179486"
     },
     {
       "file": "/home/ubuntu/sophia-main/sophia_ai_technical_debt_analysis.json",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.179488"
     },
     {
       "file": "/home/ubuntu/sophia-main/sophia_ai_technical_debt_analysis.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.179490"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "airbyte_integration",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.209500"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.209519"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "AirbyteManager",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.209521"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "airbyte-",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.209523"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.209525"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.209527"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "Airbyte connector",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "estuary connector",
       "new": "Estuary Flow connector",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.210685"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.210697"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "AirbyteManager",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.210700"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.210702"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.210704"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.210706"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/gong_deployment_pipeline.yml",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.214313"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/gong_deployment_pipeline.yml",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.214326"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/sync_secrets.yml",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.215907"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/unified-secret-sync.yml",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.216506"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.218165"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "AirbyteManager",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.218174"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "airbyte-",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.218176"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.218178"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.218180"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.218182"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.219612"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.219620"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
-      "old": "AIRBYTE_CLIENT_ID",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.219622"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
-      "old": "airbyte_client",
+      "old": "estuary_client",
       "new": "estuary_client",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.219624"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.219626"
     },
     {
       "file": "/home/ubuntu/sophia-main/.github/workflows/automated-infrastructure-deployment.yml",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.219628"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/api/asana_integration_routes.py",
-      "old": "airbyte_manager",
+      "old": "estuary_manager",
       "new": "estuary_manager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.228305"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/api/asana_integration_routes.py",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.228317"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/api/asana_integration_routes.py",
-      "old": "AirbyteManager",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.228320"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/api/asana_integration_routes.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.228322"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/api/asana_integration_routes.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.228324"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/config_validator.py",
-      "old": "Airbyte API",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.232626"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/config_validator.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.232639"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/config_validator.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.232641"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/config_validator.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.232644"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/config_validator.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.232646"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/data_flow_manager.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.233662"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/centralized_config_manager.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.237142"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/centralized_config_manager.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.237152"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/core/centralized_config_manager.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.237155"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-      "old": "airbyte connection",
+      "old": "estuary connection",
       "new": "estuary materialization",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.238084"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-      "old": "airbyte_manager",
+      "old": "estuary_manager",
       "new": "estuary_manager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.238092"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.238095"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-      "old": "AirbyteManager",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.238097"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.238099"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/enhanced_ingestion_service.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.238101"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "Airbyte connector",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary connector",
       "new": "Estuary Flow connector",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240186"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240196"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "AirbyteManager",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240199"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "airbyte.com",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary.com",
       "new": "estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240201"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "Airbyte API",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240204"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "airbyte_",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240206"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240208"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240210"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.240212"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/gong/README.md",
-      "old": "Airbyte connector",
+      "old": "estuary connector",
       "new": "Estuary Flow connector",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.243317"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/gong/README.md",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.243326"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/etl/gong/README.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.243329"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.244785"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
-      "old": "AirbyteConfig",
+      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
+      "old": "EstuaryConfig",
       "new": "EstuaryConfig",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.244797"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.244800"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.244804"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.244806"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/integrations/estuary_flow_manager.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.247362"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250951"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "AirbyteConfig",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "EstuaryConfig",
       "new": "EstuaryConfig",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250962"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "Airbyte API",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250965"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "airbyte-",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250967"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "airbyte_",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250969"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250971"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250974"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.250976"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/deploy_gong_snowflake_setup.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.251939"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "airbyte_integration",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254815"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "AirbyteIntegration",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "EstuaryIntegration",
       "new": "EstuaryIntegration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254826"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "airbyte_config",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254828"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "AirbyteConfig",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "EstuaryConfig",
       "new": "EstuaryConfig",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254830"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "airbyte_sync",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary_sync",
       "new": "estuary_sync",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254832"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "airbyte_api",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary_api",
       "new": "estuary_api",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254835"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "Airbyte API",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254837"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "airbyte_",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254839"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254841"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.254843"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_deploy_gong_snowflake_setup.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.256301"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_deploy_gong_snowflake_setup.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.256310"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_deploy_gong_snowflake_setup.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.256313"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_gong_pipeline_test_suite.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.257586"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/integrate_gong_pipeline.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.258595"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/integrate_gong_pipeline.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.258604"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.259971"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.259980"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.259982"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_credentials.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.261059"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262726"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "AirbyteIntegration",
+      "old": "EstuaryIntegration",
       "new": "EstuaryIntegration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262737"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262761"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "airbyte_setup",
+      "old": "estuary_setup",
       "new": "estuary_setup",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262764"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "AirbyteConfig",
+      "old": "EstuaryConfig",
       "new": "EstuaryConfig",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262766"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262768"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262770"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262772"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_deployment.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.262775"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_pipeline.py",
-      "old": "airbyte_sync",
+      "old": "estuary_sync",
       "new": "estuary_sync",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.264419"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_pipeline.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.264428"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_pipeline.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.264431"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_pipeline.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.264433"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/test_gong_pipeline.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.264441"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/transform_slack_linear_data.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.265345"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/deploy_asana_snowflake_setup.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.266917"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "airbyte_manager",
+      "old": "estuary_manager",
       "new": "estuary_manager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.268998"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "airbyte_config",
+      "old": "estuary_config",
       "new": "estuary_config",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269007"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "AirbyteManager",
+      "old": "EstuaryManager",
       "new": "EstuaryManager",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269009"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "airbyte_setup",
+      "old": "estuary_setup",
       "new": "estuary_setup",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269011"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269014"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269016"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269018"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.269021"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/snowflake_setup/sample_developer_queries.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.279249"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/sophia_iac_orchestrator.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.284209"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/sophia_iac_orchestrator.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.284228"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/sophia_iac_orchestrator.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.284230"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/core/dependency_manager.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.285346"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/core/dependency_manager.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.285357"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/snowflake_adapter.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.286235"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/snowflake_adapter.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.286244"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287388"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287396"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "AIRBYTE_CLIENT_ID",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287398"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "api.airbyte.com",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "api.estuary.com",
       "new": "api.estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287401"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "Airbyte API",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "estuary API",
       "new": "Estuary Flow API",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287403"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287405"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287407"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.287410"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.289046"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
-      "old": "airbyte_setup",
+      "old": "estuary_setup",
       "new": "estuary_setup",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.289056"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
-      "old": "airbyte_sync",
+      "old": "estuary_sync",
       "new": "estuary_sync",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.289058"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.289061"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.289063"
     },
     {
       "file": "/home/ubuntu/sophia-main/backend/mcp_servers/snowflake_admin_mcp_server.py",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.289065"
     },
     {
       "file": "/home/ubuntu/sophia-main/config/webhook_router_config.json",
-      "old": "airbyte_webhook",
+      "old": "estuary_webhook",
       "new": "estuary_webhook",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.291521"
     },
     {
       "file": "/home/ubuntu/sophia-main/config/webhook_router_config.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.291531"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/ARCHITECTURE_MASTER_GUIDE.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.295134"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/DEPLOYMENT_MASTER_GUIDE.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.298475"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/DEPLOYMENT_MASTER_GUIDE.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.298489"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317543"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "Airbyte documentation",
+      "old": "estuary documentation",
       "new": "Estuary Flow documentation",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317593"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317597"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "AIRBYTE_WORKSPACE_ID",
+      "old": "ESTUARY_WORKSPACE_ID",
       "new": "ESTUARY_WORKSPACE_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317601"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317604"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "AIRBYTE_CLIENT_ID",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317606"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "cloud.airbyte.com",
+      "old": "cloud.estuary.com",
       "new": "dashboard.estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317609"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "Airbyte Cloud",
+      "old": "estuary Cloud",
       "new": "Estuary Flow",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317612"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "airbyte.com",
+      "old": "estuary.com",
       "new": "estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317615"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "airbyte-",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317617"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317619"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317622"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/INTEGRATION_MASTER_GUIDE.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.317624"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SECRET_MANAGEMENT_GUIDE.md",
-      "old": "airbyte-",
+      "old": "estuary-",
       "new": "estuary-",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.328601"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SECRET_MANAGEMENT_GUIDE.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.328627"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md",
-      "old": "Airbyte connector",
+      "old": "estuary connector",
       "new": "Estuary Flow connector",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.330207"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.330223"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.330225"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SOPHIA_AI_COMPREHENSIVE_DATA_MANAGEMENT_STRATEGY.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.330228"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SOPHIA_AI_ENHANCED_LLM_STRATEGY_SUMMARY.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.331738"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/SOPHIA_AI_TECHNICAL_REVIEW.md",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.337010"
     },
     {
-      "file": "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_AIRBYTE_SETUP.md",
-      "old": "Airbyte connector",
+      "file": "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_estuary_SETUP.md",
+      "old": "estuary connector",
       "new": "Estuary Flow connector",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.339444"
     },
     {
-      "file": "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_AIRBYTE_SETUP.md",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_estuary_SETUP.md",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.339457"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/PLATFORM_INTEGRATION_MATRIX.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.340255"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/PLATFORM_INTEGRATION_MATRIX.json",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.340266"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/AI_CODER_REFERENCE.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.341379"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/README_DOCUMENTATION_INDEX.md",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.342608"
     },
     {
       "file": "/home/ubuntu/sophia-main/docs/README_DOCUMENTATION_INDEX.md",
-      "old": "AIRBYTE",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:20.342618"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/integration_registry.json",
-      "old": "Airbyte Cloud",
+      "old": "estuary Cloud",
       "new": "Estuary Flow",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.178389"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/integration_registry.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.178417"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/service_registry.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.182098"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/service_registry.json",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.182118"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/pulumi-esc-config.json",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.183223"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/pulumi-esc-config.json",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.183235"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/pulumi-esc-config.json",
-      "old": "AIRBYTE_CLIENT_ID",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.183238"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/pulumi-esc-config.json",
-      "old": "airbyte_client",
+      "old": "estuary_client",
       "new": "estuary_client",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.183241"
     },
     {
       "file": "/home/ubuntu/sophia-main/infrastructure/pulumi-esc-config.json",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:24.183244"
     },
     {
       "file": "/home/ubuntu/sophia-main/mcp-config/unified_mcp_servers.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.428087"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/fix_targeted_syntax_errors.py",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.445012"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/test_gong_deployment_readiness.py",
-      "old": "airbyte_integration",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.453320"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/test_gong_deployment_readiness.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.453347"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/test_gong_deployment_readiness.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.453350"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/github_actions_consolidation.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.456799"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/snowflake_config_manager.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.459366"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/snowflake_config_manager.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.459388"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460557"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460576"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "airbyte_integration",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "estuary_integration",
       "new": "estuary_integration",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460581"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "AirbyteIntegration",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "EstuaryIntegration",
       "new": "EstuaryIntegration",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460586"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "AIRBYTE_CLIENT_ID",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460591"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "api.airbyte.com",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "api.estuary.com",
       "new": "api.estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460625"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "Airbyte",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460630"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "AIRBYTE",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "estuary",
       "new": "ESTUARY",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.460634"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/deploy_comprehensive_iac.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.461910"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/deploy_comprehensive_iac.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.461926"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/test_integration_matrix.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.463044"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/test_integration_matrix.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.463055"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464335"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464345"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "AIRBYTE_CLIENT_ID",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464348"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "airbyte_client",
+      "old": "estuary_client",
       "new": "estuary_client",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464351"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464354"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464356"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_pulumi_esc_deployment.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.464359"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465371"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465381"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "AIRBYTE_CLIENT_ID",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465385"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "airbyte_webhook",
+      "old": "estuary_webhook",
       "new": "estuary_webhook",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465387"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "api.airbyte.com",
+      "old": "api.estuary.com",
       "new": "api.estuary.dev",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465390"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465393"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_manager.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465395"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_credential_sync.sh",
-      "old": "AIRBYTE_CLIENT_SECRET",
+      "old": "ESTUARY_CLIENT_SECRET",
       "new": "ESTUARY_CLIENT_SECRET",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465835"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_credential_sync.sh",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465844"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_credential_sync.sh",
-      "old": "AIRBYTE_CLIENT_ID",
+      "old": "ESTUARY_CLIENT_ID",
       "new": "ESTUARY_CLIENT_ID",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465847"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_credential_sync.sh",
-      "old": "airbyte_client",
+      "old": "estuary_client",
       "new": "estuary_client",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465850"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_credential_sync.sh",
-      "old": "airbyte_",
+      "old": "estuary_",
       "new": "estuary_",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.465852"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_webhook_deployment.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.466323"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/automated_platform_integration.py",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.466752"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/ci/sync_from_gh_to_pulumi.py",
-      "old": "AIRBYTE_ACCESS_TOKEN",
+      "old": "ESTUARY_ACCESS_TOKEN",
       "new": "ESTUARY_ACCESS_TOKEN",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.469022"
     },
     {
       "file": "/home/ubuntu/sophia-main/scripts/ci/sync_from_gh_to_pulumi.py",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.469031"
     },
     {
       "file": "/home/ubuntu/sophia-main/logs/webhook_deployment_results.json",
-      "old": "airbyte",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.482922"
     },
     {
       "file": "/home/ubuntu/sophia-main/logs/webhook_deployment_results.json",
-      "old": "Airbyte",
+      "old": "estuary",
       "new": "Estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.482943"
     },
     {
-      "file": "/home/ubuntu/sophia-main/airbyte_integration_results.json",
-      "old": "airbyte_integration_results.json",
+      "file": "/home/ubuntu/sophia-main/estuary_integration_results.json",
+      "old": "estuary_integration_results.json",
       "new": "estuary_integration_results.json",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.644645"
     },
     {
-      "file": "/home/ubuntu/sophia-main/airbyte_integration_status.json",
-      "old": "airbyte_integration_status.json",
+      "file": "/home/ubuntu/sophia-main/estuary_integration_status.json",
+      "old": "estuary_integration_status.json",
       "new": "estuary_integration_status.json",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.644983"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-deployment.yml",
-      "old": "airbyte-deployment.yml",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-deployment.yml",
+      "old": "estuary-deployment.yml",
       "new": "estuary-deployment.yml",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.645397"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-monitoring.yml",
-      "old": "airbyte-monitoring.yml",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-monitoring.yml",
+      "old": "estuary-monitoring.yml",
       "new": "estuary-monitoring.yml",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.645776"
     },
     {
-      "file": "/home/ubuntu/sophia-main/.github/workflows/airbyte-asana-deployment.yml",
-      "old": "airbyte-asana-deployment.yml",
+      "file": "/home/ubuntu/sophia-main/.github/workflows/estuary-asana-deployment.yml",
+      "old": "estuary-asana-deployment.yml",
       "new": "estuary-asana-deployment.yml",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.646141"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte/airbyte_configuration_manager.py",
-      "old": "airbyte_configuration_manager.py",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary/estuary_configuration_manager.py",
+      "old": "estuary_configuration_manager.py",
       "new": "estuary_configuration_manager.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.646560"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/airbyte_netsuite_setup.py",
-      "old": "airbyte_netsuite_setup.py",
+      "file": "/home/ubuntu/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py",
+      "old": "estuary_netsuite_setup.py",
       "new": "estuary_netsuite_setup.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.647173"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/airbyte_gong_setup.py",
-      "old": "airbyte_gong_setup.py",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/estuary_gong_setup.py",
+      "old": "estuary_gong_setup.py",
       "new": "estuary_gong_setup.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.647610"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_airbyte_integration_test_suite.py",
-      "old": "enhanced_airbyte_integration_test_suite.py",
+      "file": "/home/ubuntu/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py",
+      "old": "enhanced_estuary_integration_test_suite.py",
       "new": "enhanced_estuary_integration_test_suite.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.648047"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/airbyte_adapter.py",
-      "old": "airbyte_adapter.py",
+      "file": "/home/ubuntu/sophia-main/backend/infrastructure/adapters/estuary_adapter.py",
+      "old": "estuary_adapter.py",
       "new": "estuary_adapter.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.648436"
     },
     {
-      "file": "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_AIRBYTE_SETUP.md",
-      "old": "MANUS_AI_SNOWFLAKE_AIRBYTE_SETUP.md",
+      "file": "/home/ubuntu/sophia-main/docs/MANUS_AI_SNOWFLAKE_estuary_SETUP.md",
+      "old": "MANUS_AI_SNOWFLAKE_estuary_SETUP.md",
       "new": "MANUS_AI_SNOWFLAKE_ESTUARY_SETUP.md",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.648773"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/airbyte_integration_manager.py",
-      "old": "airbyte_integration_manager.py",
+      "file": "/home/ubuntu/sophia-main/scripts/estuary_integration_manager.py",
+      "old": "estuary_integration_manager.py",
       "new": "estuary_integration_manager.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.649122"
     },
     {
-      "file": "/home/ubuntu/sophia-main/scripts/replace_airbyte_with_estuary.py",
-      "old": "replace_airbyte_with_estuary.py",
+      "file": "/home/ubuntu/sophia-main/scripts/replace_estuary_with_estuary.py",
+      "old": "replace_estuary_with_estuary.py",
       "new": "replace_estuary_with_estuary.py",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.649466"
     },
     {
-      "file": "/home/ubuntu/sophia-main/backend/etl/airbyte",
-      "old": "airbyte",
+      "file": "/home/ubuntu/sophia-main/backend/etl/estuary",
+      "old": "estuary",
       "new": "estuary",
       "line": null,
       "timestamp": "2025-06-27T17:23:25.649779"
@@ -2248,6 +2248,6 @@
   "rollback_instructions": [
     "Restore files from backup directory: /home/ubuntu/sophia-main/migration_backup/20250627_172320",
     "Run: git checkout . (if using git)",
-    "Reinstall Airbyte dependencies if needed"
+    "Reinstall estuary dependencies if needed"
   ]
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Replace Airbyte with Estuary Flow throughout Sophia AI codebase
-Comprehensive migration script for complete Airbyte -> Estuary transition
+Replace estuary with Estuary Flow throughout Sophia AI codebase
+Comprehensive migration script for complete estuary -> Estuary transition
 """
 
 import json
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class AirbyteToEstuaryMigrator:
-    """Comprehensive migrator from Airbyte to Estuary Flow"""
+    """Comprehensive migrator from estuary to Estuary Flow"""
 
     def __init__(self, project_root: str = None):
         self.project_root = (
@@ -34,62 +34,62 @@ class AirbyteToEstuaryMigrator:
         )
         self.backup_dir.mkdir(parents=True, exist_ok=True)
 
-        # Mapping of Airbyte terms to Estuary equivalents
+        # Mapping of estuary terms to Estuary equivalents
         self.term_mappings = {
             # Core concepts
-            "airbyte": "estuary",
-            "Airbyte": "Estuary",
-            "AIRBYTE": "ESTUARY",
-            "airbyte-": "estuary-",
-            "airbyte_": "estuary_",
+            "estuary": "estuary",
+            "estuary": "Estuary",
+            "estuary": "ESTUARY",
+            "estuary-": "estuary-",
+            "estuary_": "estuary_",
             # Technical terms
-            "airbyte_api": "estuary_api",
-            "airbyte_client": "estuary_client",
-            "airbyte_config": "estuary_config",
-            "airbyte_connector": "estuary_connector",
-            "airbyte_integration": "estuary_integration",
-            "airbyte_manager": "estuary_manager",
-            "airbyte_service": "estuary_service",
-            "airbyte_setup": "estuary_setup",
-            "airbyte_sync": "estuary_sync",
-            "airbyte_webhook": "estuary_webhook",
+            "estuary_api": "estuary_api",
+            "estuary_client": "estuary_client",
+            "estuary_config": "estuary_config",
+            "estuary_connector": "estuary_connector",
+            "estuary_integration": "estuary_integration",
+            "estuary_manager": "estuary_manager",
+            "estuary_service": "estuary_service",
+            "estuary_setup": "estuary_setup",
+            "estuary_sync": "estuary_sync",
+            "estuary_webhook": "estuary_webhook",
             # File and class names
             "AirbyteAPI": "EstuaryAPI",
-            "AirbyteClient": "EstuaryClient",
-            "AirbyteConfig": "EstuaryConfig",
+            "EstuaryClient": "EstuaryClient",
+            "EstuaryConfig": "EstuaryConfig",
             "AirbyteConnector": "EstuaryConnector",
-            "AirbyteIntegration": "EstuaryIntegration",
-            "AirbyteManager": "EstuaryManager",
-            "AirbyteService": "EstuaryService",
+            "EstuaryIntegration": "EstuaryIntegration",
+            "EstuaryManager": "EstuaryManager",
+            "EstuaryService": "EstuaryService",
             "AirbyteSetup": "EstuarySetup",
             "AirbyteSync": "EstuarySync",
             "AirbyteWebhook": "EstuaryWebhook",
             # Environment variables
-            "AIRBYTE_ACCESS_TOKEN": "ESTUARY_ACCESS_TOKEN",
-            "AIRBYTE_CLIENT_ID": "ESTUARY_CLIENT_ID",
-            "AIRBYTE_CLIENT_SECRET": "ESTUARY_CLIENT_SECRET",
-            "AIRBYTE_REFRESH_TOKEN": "ESTUARY_REFRESH_TOKEN",
-            "AIRBYTE_API_URL": "ESTUARY_API_URL",
-            "AIRBYTE_WORKSPACE_ID": "ESTUARY_WORKSPACE_ID",
+            "ESTUARY_ACCESS_TOKEN": "ESTUARY_ACCESS_TOKEN",
+            "ESTUARY_CLIENT_ID": "ESTUARY_CLIENT_ID",
+            "ESTUARY_CLIENT_SECRET": "ESTUARY_CLIENT_SECRET",
+            "ESTUARY_REFRESH_TOKEN": "ESTUARY_REFRESH_TOKEN",
+            "ESTUARY_API_URL": "ESTUARY_API_URL",
+            "ESTUARY_WORKSPACE_ID": "ESTUARY_WORKSPACE_ID",
             # URLs and endpoints
-            "api.airbyte.com": "api.estuary.dev",
-            "cloud.airbyte.com": "dashboard.estuary.dev",
-            "airbyte.com": "estuary.dev",
+            "api.estuary.com": "api.estuary.dev",
+            "cloud.estuary.com": "dashboard.estuary.dev",
+            "estuary.com": "estuary.dev",
             # Documentation references
-            "Airbyte Cloud": "Estuary Flow",
-            "Airbyte Open Source": "Estuary Flow Open Source",
-            "Airbyte documentation": "Estuary Flow documentation",
-            "Airbyte connector": "Estuary Flow connector",
-            "Airbyte API": "Estuary Flow API",
+            "estuary Cloud": "Estuary Flow",
+            "estuary Open Source": "Estuary Flow Open Source",
+            "estuary documentation": "Estuary Flow documentation",
+            "estuary connector": "Estuary Flow connector",
+            "estuary API": "Estuary Flow API",
             # Technical concepts
-            "airbyte sync": "estuary flow",
-            "airbyte connection": "estuary materialization",
-            "airbyte source": "estuary capture",
-            "airbyte destination": "estuary materialization",
-            "airbyte workspace": "estuary tenant",
+            "estuary sync": "estuary flow",
+            "estuary connection": "estuary materialization",
+            "estuary source": "estuary capture",
+            "estuary destination": "estuary materialization",
+            "estuary workspace": "estuary tenant",
             # CLI tools
-            "airbyte-cli": "flowctl",
-            "airbyte_cli": "flowctl",
+            "estuary-cli": "flowctl",
+            "estuary_cli": "flowctl",
         }
 
         # File extensions to process
@@ -120,7 +120,7 @@ class AirbyteToEstuaryMigrator:
 
         # Files to skip
         self.skip_files = {
-            "replace_airbyte_with_estuary.py",  # This script itself
+            "replace_estuary_with_estuary.py",  # This script itself
             ".gitignore",
             "LICENSE",
         }
@@ -167,7 +167,7 @@ class AirbyteToEstuaryMigrator:
         return file_path.suffix in self.file_extensions
 
     def replace_in_text(self, text: str, file_path: str) -> tuple[str, list[dict]]:
-        """Replace Airbyte references in text content"""
+        """Replace estuary references in text content"""
         modified_text = text
         changes = []
 
@@ -190,14 +190,14 @@ class AirbyteToEstuaryMigrator:
         return modified_text, changes
 
     def process_file(self, file_path: Path) -> bool:
-        """Process a single file for Airbyte -> Estuary migration"""
+        """Process a single file for estuary -> Estuary migration"""
         try:
             # Read file content
             with open(file_path, encoding="utf-8", errors="ignore") as f:
                 original_content = f.read()
 
-            # Skip if no Airbyte references
-            if "airbyte" not in original_content.lower():
+            # Skip if no estuary references
+            if "estuary" not in original_content.lower():
                 return False
 
             # Backup file
@@ -229,7 +229,7 @@ class AirbyteToEstuaryMigrator:
             return False
 
     def rename_files_and_directories(self):
-        """Rename files and directories containing 'airbyte'"""
+        """Rename files and directories containing 'estuary'"""
         logger.info("📝 Renaming files and directories...")
 
         # Collect all paths that need renaming (files first, then directories)
@@ -244,7 +244,7 @@ class AirbyteToEstuaryMigrator:
 
             # Collect files to rename
             for file in files:
-                if "airbyte" in file.lower():
+                if "estuary" in file.lower():
                     file_path = root_path / file
                     new_name = file
                     for old_term, new_term in self.term_mappings.items():
@@ -258,7 +258,7 @@ class AirbyteToEstuaryMigrator:
 
             # Collect directories to rename
             for dir_name in dirs:
-                if "airbyte" in dir_name.lower():
+                if "estuary" in dir_name.lower():
                     dir_path = root_path / dir_name
                     new_name = dir_name
                     for old_term, new_term in self.term_mappings.items():
@@ -425,7 +425,7 @@ SNOWFLAKE_SCHEMA=ESTUARY_STAGING
                 with open(config_file) as f:
                     content = f.read()
 
-                # Replace Airbyte references in Pulumi config
+                # Replace estuary references in Pulumi config
                 modified_content, changes = self.replace_in_text(
                     content, str(config_file)
                 )
@@ -499,7 +499,7 @@ SNOWFLAKE_SCHEMA=ESTUARY_STAGING
             "rollback_instructions": [
                 f"Restore files from backup directory: {self.backup_dir}",
                 "Run: git checkout . (if using git)",
-                "Reinstall Airbyte dependencies if needed",
+                "Reinstall estuary dependencies if needed",
             ],
         }
 
@@ -522,8 +522,8 @@ SNOWFLAKE_SCHEMA=ESTUARY_STAGING
         return str(report_file)
 
     def run_migration(self) -> bool:
-        """Execute complete Airbyte to Estuary migration"""
-        logger.info("🚀 Starting Airbyte to Estuary migration...")
+        """Execute complete estuary to Estuary migration"""
+        logger.info("🚀 Starting estuary to Estuary migration...")
 
         try:
             # Step 1: Process all files for text replacements
@@ -569,7 +569,7 @@ if __name__ == "__main__":
     success = migrator.run_migration()
 
     if success:
-        print("\n🎉 AIRBYTE TO ESTUARY MIGRATION COMPLETED!")
+        print("\n🎉 estuary TO ESTUARY MIGRATION COMPLETED!")
         print("=" * 60)
         print(f"📁 Files modified: {len(migrator.files_modified)}")
         print(f"🔄 Total changes: {len(migrator.migration_log)}")

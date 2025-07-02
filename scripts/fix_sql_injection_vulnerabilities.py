@@ -182,7 +182,7 @@ class SQLInjectionRemediator:
     def _validate_schema(self, schema_name: str) -> str:
         """Validate schema name against whitelist"""
         safe_schemas = {
-            'SOPHIA_AI_ADVANCED', 'STG_TRANSFORMED', 'RAW_AIRBYTE', 'AI_MEMORY',
+            'SOPHIA_AI_ADVANCED', 'STG_TRANSFORMED', 'RAW_estuary', 'AI_MEMORY',
             'OPS_MONITORING', 'UNIVERSAL_CHAT', 'CEO_INTELLIGENCE', 'NETSUITE_DATA',
             'PROPERTY_ASSETS', 'AI_WEB_RESEARCH', 'PAYREADY_CORE_SQL'
         }

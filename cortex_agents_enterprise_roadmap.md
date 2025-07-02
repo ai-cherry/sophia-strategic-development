@@ -145,7 +145,7 @@ FROM unified_embeddings
 - **Conversation analytics** with topic extraction and coaching recommendations
 
 ### **Slack Integration**
-- **Airbyte connector** for comprehensive message extraction
+- **estuary connector** for comprehensive message extraction
 - **Channel metadata** with user activity patterns
 - **File attachments** processing with multimodal analysis
 - **Thread context** preservation for conversation continuity

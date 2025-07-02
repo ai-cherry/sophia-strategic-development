@@ -170,20 +170,20 @@ snowflake_unified_mcp_server/
 ### 1. Implement Recommended Data Pipeline
 
 **Current State:** Direct Snowflake access with inconsistent patterns
-**Target Architecture:** Airbyte → PostgreSQL → Redis → Vector DBs → Snowflake
+**Target Architecture:** estuary → PostgreSQL → Redis → Vector DBs → Snowflake
 
 **Implementation Phases:**
 
-#### Phase 1: Airbyte Integration Setup
+#### Phase 1: estuary Integration Setup
 ```python
-# backend/etl/airbyte_orchestrator.py
-from airbyte_api import AirbyteAPI
+# backend/etl/estuary_orchestrator.py
+from estuary_api import AirbyteAPI
 
 class AirbyteOrchestrator:
     def __init__(self):
         self.client = AirbyteAPI(
             client_id="9630134c-359d-4c9c-aa97-95ab3a2ff8f5",
-            client_secret=get_config_value("airbyte_client_secret")
+            client_secret=get_config_value("estuary_client_secret")
         )
     
     def setup_hubspot_connector(self):
@@ -406,7 +406,7 @@ class TestSnowflakeIntegration:
     
     def test_data_pipeline(self):
         """Test end-to-end data pipeline"""
-        # Implementation for testing Airbyte → PostgreSQL → Snowflake
+        # Implementation for testing estuary → PostgreSQL → Snowflake
         pass
 ```
 
@@ -427,7 +427,7 @@ class TestSnowflakeIntegration:
 - [ ] Deploy enhanced MCP servers
 
 ### Week 3: Data Pipeline Foundation
-- [ ] Set up Airbyte integration
+- [ ] Set up estuary integration
 - [ ] Implement PostgreSQL staging layer
 - [ ] Configure Redis caching
 - [ ] Test data pipeline flows

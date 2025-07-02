@@ -17,7 +17,7 @@
 - **ESC Integration:** Full integration with Pulumi ESC for credential management
 
 #### 2. **DATA PIPELINE MODERNIZATION** ✅
-- **Estuary Flow Orchestrator:** Complete replacement of Airbyte with Estuary Flow
+- **Estuary Flow Orchestrator:** Complete replacement of estuary with Estuary Flow
 - **PostgreSQL Staging Manager:** New staging layer with comprehensive schema management
 - **ELT Architecture:** Implemented Estuary Flow → PostgreSQL → Redis → Snowflake pipeline
 - **Real-time CDC:** Change Data Capture for continuous data synchronization
@@ -32,9 +32,9 @@
 
 ## 🔄 UPDATED ARCHITECTURE: ESTUARY FLOW INTEGRATION
 
-### **Previous Architecture (Airbyte-based)**
+### **Previous Architecture (estuary-based)**
 ```
-HubSpot/Gong/Slack → Airbyte → PostgreSQL → Snowflake
+HubSpot/Gong/Slack → estuary → PostgreSQL → Snowflake
 ```
 
 ### **New Architecture (Estuary Flow-based)** ✅
@@ -51,7 +51,7 @@ HubSpot/Gong/Slack → Estuary Flow → PostgreSQL Staging → Redis Cache → S
 - **Change Data Capture:** Automatic detection and propagation of data changes
 - **Schema Evolution:** Automatic handling of source schema changes
 - **Better Performance:** Reduced latency and improved throughput
-- **Cost Efficiency:** Pay-per-use model vs. fixed Airbyte infrastructure
+- **Cost Efficiency:** Pay-per-use model vs. fixed estuary infrastructure
 
 ---
 
@@ -213,7 +213,7 @@ FROM hubspot_raw.contacts
 ## 💰 BUSINESS IMPACT
 
 ### **Cost Optimization**
-- **Estuary Flow:** Pay-per-use vs. fixed Airbyte infrastructure (-60% ETL costs)
+- **Estuary Flow:** Pay-per-use vs. fixed estuary infrastructure (-60% ETL costs)
 - **Connection Pooling:** Reduced Snowflake compute usage (-40% warehouse costs)
 - **Real-time Processing:** Eliminated batch processing delays (+95% data freshness)
 

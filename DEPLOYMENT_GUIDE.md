@@ -226,11 +226,11 @@ PORTKEY_CONFIG=your-portkey-config-id
 
 Configuration for data integration services that connect with external systems:
 
-**Airbyte Configuration**
+**estuary Configuration**
 ```bash
-AIRBYTE_CLIENT_ID=9630134c-359d-4c9c-aa97-95ab3a2ff8f5
-AIRBYTE_CLIENT_SECRET=NfwyhFUjemKlC66h7iECE9Tjedo6SGFh
-AIRBYTE_SERVER_URL=https://cloud.airbyte.com
+ESTUARY_CLIENT_ID=9630134c-359d-4c9c-aa97-95ab3a2ff8f5
+ESTUARY_CLIENT_SECRET=NfwyhFUjemKlC66h7iECE9Tjedo6SGFh
+estuary_SERVER_URL=https://cloud.estuary.com
 ```
 
 **Snowflake Configuration**

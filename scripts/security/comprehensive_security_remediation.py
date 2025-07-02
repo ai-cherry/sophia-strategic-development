@@ -328,8 +328,8 @@ class SecurityRemediator:
         }
 
         # Check for specific patterns
-        if "airbyte" in secret_value.lower():
-            return "airbyte_access_token"
+        if "estuary" in secret_value.lower():
+            return "estuary_access_token"
         elif "estuary" in secret_value.lower():
             return "estuary_access_token"
 

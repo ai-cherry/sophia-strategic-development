@@ -26,7 +26,7 @@ Lambda Labs    Lambda Labs    Snowflake Cortex
 
 ### **Platform:** [Estuary Flow](https://estuary.dev)
 ### **Purpose:** Real-time data streaming and CDC pipeline
-### **Replaces:** Airbyte (for better real-time performance)
+### **Replaces:** estuary (for better real-time performance)
 
 #### **Account Setup Checklist:**
 

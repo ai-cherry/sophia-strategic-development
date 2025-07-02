@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Enhanced Unified Data Pipeline for Sophia AI
-Comprehensive data pipeline orchestrator with Estuary Flow primary and Airbyte fallback
+Comprehensive data pipeline orchestrator with Estuary Flow primary and estuary fallback
 Implements robust ELT pattern: Sources → PostgreSQL → Redis → Snowflake → Vector DBs
 """
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class PipelineEngine(Enum):
     """Data pipeline engine options"""
     ESTUARY_FLOW = "estuary_flow"
-    AIRBYTE = "airbyte"
+    estuary = "estuary"
     HYBRID = "hybrid"
 
 
@@ -52,7 +52,7 @@ class PipelineConfig:
     redis_config: Dict[str, Any] = field(default_factory=dict)
     snowflake_config: Dict[str, Any] = field(default_factory=dict)
     estuary_config: Dict[str, Any] = field(default_factory=dict)
-    airbyte_config: Dict[str, Any] = field(default_factory=dict)
+    estuary_config: Dict[str, Any] = field(default_factory=dict)
     monitoring_enabled: bool = True
     auto_retry: bool = True
     max_retries: int = 3
@@ -73,13 +73,13 @@ class EnhancedUnifiedDataPipeline:
     """
     Enhanced unified data pipeline orchestrator
     Manages data flow from multiple sources to multiple destinations
-    Supports both Estuary Flow and Airbyte with intelligent fallback
+    Supports both Estuary Flow and estuary with intelligent fallback
     """
     
     def __init__(self, config: Optional[PipelineConfig] = None):
         self.config = config or PipelineConfig()
         self.estuary_orchestrator: Optional[EstuaryFlowOrchestrator] = None
-        self.airbyte_client: Optional[aiohttp.ClientSession] = None
+        self.estuary_client: Optional[aiohttp.ClientSession] = None
         self.postgresql_pool: Optional[asyncpg.Pool] = None
         self.redis_client: Optional[redis.Redis] = None
         self.snowflake_service: Optional[SnowflakeCortexService] = None
@@ -116,11 +116,11 @@ class EnhancedUnifiedDataPipeline:
             "tenant": get_config_value("estuary_flow_tenant", "sophia-ai")
         }
         
-        # Airbyte configuration (fallback)
-        self.config.airbyte_config = {
-            "api_url": get_config_value("airbyte_api_url", "http://localhost:8001/api/v1"),
-            "client_id": get_config_value("airbyte_client_id", "9630134c-359d-4c9c-aa97-95ab3a2ff8f5"),
-            "client_secret": get_config_value("airbyte_client_secret", "NfwyhFUjemKlC66h7iECE9Tjedo6SGFh")
+        # estuary configuration (fallback)
+        self.config.estuary_config = {
+            "api_url": get_config_value("estuary_api_url", "http://localhost:8001/api/v1"),
+            "client_id": get_config_value("estuary_client_id", "9630134c-359d-4c9c-aa97-95ab3a2ff8f5"),
+            "client_secret": get_config_value("estuary_client_secret", "NfwyhFUjemKlC66h7iECE9Tjedo6SGFh")
         }
     
     async def __aenter__(self):
@@ -161,13 +161,13 @@ class EnhancedUnifiedDataPipeline:
                     if self.config.engine == PipelineEngine.ESTUARY_FLOW:
                         raise
             
-            if self.config.engine in [PipelineEngine.AIRBYTE, PipelineEngine.HYBRID]:
+            if self.config.engine in [PipelineEngine.estuary, PipelineEngine.HYBRID]:
                 try:
-                    await self._initialize_airbyte()
-                    logger.info("✅ Airbyte client initialized")
+                    await self._initialize_estuary()
+                    logger.info("✅ estuary client initialized")
                 except Exception as e:
-                    logger.warning(f"⚠️ Airbyte initialization failed: {e}")
-                    if self.config.engine == PipelineEngine.AIRBYTE:
+                    logger.warning(f"⚠️ estuary initialization failed: {e}")
+                    if self.config.engine == PipelineEngine.estuary:
                         raise
             
         except Exception as e:
@@ -175,24 +175,24 @@ class EnhancedUnifiedDataPipeline:
             await self._cleanup_connections()
             raise
     
-    async def _initialize_airbyte(self):
-        """Initialize Airbyte client"""
-        self.airbyte_client = aiohttp.ClientSession(
+    async def _initialize_estuary(self):
+        """Initialize estuary client"""
+        self.estuary_client = aiohttp.ClientSession(
             headers={"Content-Type": "application/json"}
         )
         
-        # Test Airbyte connectivity
+        # Test estuary connectivity
         try:
-            async with self.airbyte_client.get(f"{self.config.airbyte_config['api_url']}/health") as response:
+            async with self.estuary_client.get(f"{self.config.estuary_config['api_url']}/health") as response:
                 if response.status == 200:
-                    logger.info("✅ Airbyte health check passed")
+                    logger.info("✅ estuary health check passed")
                 else:
-                    raise Exception(f"Airbyte health check failed: {response.status}")
+                    raise Exception(f"estuary health check failed: {response.status}")
         except Exception as e:
-            logger.warning(f"⚠️ Airbyte connectivity test failed: {e}")
-            if self.airbyte_client:
-                await self.airbyte_client.close()
-                self.airbyte_client = None
+            logger.warning(f"⚠️ estuary connectivity test failed: {e}")
+            if self.estuary_client:
+                await self.estuary_client.close()
+                self.estuary_client = None
             raise
     
     async def _cleanup_connections(self):
@@ -205,11 +205,11 @@ class EnhancedUnifiedDataPipeline:
             except Exception as e:
                 logger.warning(f"⚠️ Estuary Flow cleanup error: {e}")
         
-        if self.airbyte_client:
+        if self.estuary_client:
             try:
-                await self.airbyte_client.close()
+                await self.estuary_client.close()
             except Exception as e:
-                logger.warning(f"⚠️ Airbyte client cleanup error: {e}")
+                logger.warning(f"⚠️ estuary client cleanup error: {e}")
         
         if self.postgresql_pool:
             try:
@@ -249,8 +249,8 @@ class EnhancedUnifiedDataPipeline:
             # Configure data sources based on engine
             if engine_to_use == PipelineEngine.ESTUARY_FLOW:
                 source_results = await self._setup_estuary_sources()
-            elif engine_to_use == PipelineEngine.AIRBYTE:
-                source_results = await self._setup_airbyte_sources()
+            elif engine_to_use == PipelineEngine.estuary:
+                source_results = await self._setup_estuary_sources()
             else:  # HYBRID
                 source_results = await self._setup_hybrid_sources()
             
@@ -296,20 +296,20 @@ class EnhancedUnifiedDataPipeline:
             else:
                 raise Exception("Estuary Flow requested but not available")
         
-        elif self.config.engine == PipelineEngine.AIRBYTE:
-            if self.airbyte_client:
-                return PipelineEngine.AIRBYTE
+        elif self.config.engine == PipelineEngine.estuary:
+            if self.estuary_client:
+                return PipelineEngine.estuary
             else:
-                raise Exception("Airbyte requested but not available")
+                raise Exception("estuary requested but not available")
         
         else:  # HYBRID mode
-            # Prefer Estuary Flow, fallback to Airbyte
+            # Prefer Estuary Flow, fallback to estuary
             if self.estuary_orchestrator:
                 logger.info("🎯 Using Estuary Flow as primary engine")
                 return PipelineEngine.ESTUARY_FLOW
-            elif self.airbyte_client:
-                logger.info("🎯 Using Airbyte as fallback engine")
-                return PipelineEngine.AIRBYTE
+            elif self.estuary_client:
+                logger.info("🎯 Using estuary as fallback engine")
+                return PipelineEngine.estuary
             else:
                 raise Exception("No pipeline engines available")
     
@@ -319,7 +319,7 @@ class EnhancedUnifiedDataPipeline:
         
         schemas = [
             "estuary_staging",
-            "airbyte_staging", 
+            "estuary_staging", 
             "processed_data",
             "analytics",
             "hubspot_raw",
@@ -455,21 +455,21 @@ class EnhancedUnifiedDataPipeline:
         
         return results
     
-    async def _setup_airbyte_sources(self) -> Dict[str, Any]:
-        """Set up data sources using Airbyte"""
-        logger.info("🔄 Setting up Airbyte data sources...")
+    async def _setup_estuary_sources(self) -> Dict[str, Any]:
+        """Set up data sources using estuary"""
+        logger.info("🔄 Setting up estuary data sources...")
         
         results = {
             "sources_configured": [],
             "flows_created": []
         }
         
-        if not self.airbyte_client:
-            raise Exception("Airbyte client not available")
+        if not self.estuary_client:
+            raise Exception("estuary client not available")
         
-        # Implementation for Airbyte source configuration
-        # This would involve creating Airbyte connections and syncs
-        logger.info("⚠️ Airbyte source setup - implementation pending")
+        # Implementation for estuary source configuration
+        # This would involve creating estuary connections and syncs
+        logger.info("⚠️ estuary source setup - implementation pending")
         
         return results
     
@@ -477,13 +477,13 @@ class EnhancedUnifiedDataPipeline:
         """Set up data sources using hybrid approach"""
         logger.info("🔀 Setting up hybrid data sources...")
         
-        # Try Estuary Flow first, fallback to Airbyte for failed sources
+        # Try Estuary Flow first, fallback to estuary for failed sources
         estuary_results = await self._setup_estuary_sources()
         
-        # If some sources failed with Estuary, try with Airbyte
-        if "errors" in estuary_results and self.airbyte_client:
-            logger.info("🔄 Attempting failed sources with Airbyte fallback...")
-            # Implementation for selective Airbyte fallback
+        # If some sources failed with Estuary, try with estuary
+        if "errors" in estuary_results and self.estuary_client:
+            logger.info("🔄 Attempting failed sources with estuary fallback...")
+            # Implementation for selective estuary fallback
         
         return estuary_results
     

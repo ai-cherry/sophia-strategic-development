@@ -12,7 +12,7 @@ This document outlines the comprehensive migration plan for modernizing Sophia A
 
 | Component | Current State | Target State | Status | ETA |
 |-----------|--------------|--------------|---------|-----|
-| Data Pipeline | Airbyte + Redis | Estuary + Snowflake | 🟡 In Progress | Week 1-2 |
+| Data Pipeline | estuary + Redis | Estuary + Snowflake | 🟡 In Progress | Week 1-2 |
 | AI Agents | MCP Servers | Cortex Agents | 🔴 Not Started | Week 2-3 |
 | Vector Search | Pinecone | Cortex Search | 🔴 Not Started | Week 2 |
 | LLM Gateway | Direct API | Portkey Gateway | 🔴 Not Started | Week 3 |
@@ -27,7 +27,7 @@ graph TB
         A1[FastAPI Backend] --> A2[MCP Servers]
         A2 --> A3[Pinecone Vectors]
         A2 --> A4[Redis Cache]
-        A5[Airbyte] --> A6[PostgreSQL]
+        A5[estuary] --> A6[PostgreSQL]
         A7[Direct LLM APIs] --> A2
     end
     

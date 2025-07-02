@@ -53,7 +53,7 @@ secrets_ref:          73 occurrences (7%)   ⚠️  In workflows
 ### 5. Secrets Not in Mapping (Top 10)
 1. AGENT_COMMUNICATION_SECRET
 2. AGNO_API_KEY
-3. AIRBYTE_ACCESS_TOKEN
+3. ESTUARY_ACCESS_TOKEN
 4. ANALYTICS_ID
 5. API_BASE_URL
 6. AUTH0_CLIENT_ID

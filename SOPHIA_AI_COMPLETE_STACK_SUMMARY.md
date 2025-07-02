@@ -15,7 +15,7 @@ Successfully implemented a **complete, production-ready Sophia AI stack** that i
 - **🖥️ Lambda Labs Infrastructure**: GPU-optimized compute with automated provisioning
 - **🌊 Estuary Flow Pipeline**: Real-time data ingestion from HubSpot, Gong, Slack
 - **❄️ Snowflake Integration**: Complete schema with AI-powered analytics
-- **🔄 Hybrid Architecture**: Estuary Flow primary, Airbyte fallback
+- **🔄 Hybrid Architecture**: Estuary Flow primary, estuary fallback
 - **📊 Monitoring & Health Checks**: Comprehensive validation and alerting
 - **🔐 Security**: Pulumi ESC + GitHub Secrets integration
 
@@ -25,7 +25,7 @@ Successfully implemented a **complete, production-ready Sophia AI stack** that i
 
 ### 1. **Enhanced Unified Data Pipeline** 
 **File:** `backend/etl/enhanced_unified_data_pipeline.py`
-- **Hybrid Engine Support**: Estuary Flow primary, Airbyte fallback
+- **Hybrid Engine Support**: Estuary Flow primary, estuary fallback
 - **Real-time Processing**: Live data from HubSpot, Gong, Slack
 - **AI-Powered Insights**: Contact enrichment, deal intelligence
 - **Vector Embeddings**: Semantic search capabilities
@@ -161,7 +161,7 @@ Successfully implemented a **complete, production-ready Sophia AI stack** that i
 ### **✅ Completed Components**
 1. **Infrastructure Code**: All scripts and configurations ready
 2. **Database Schemas**: Complete Snowflake and PostgreSQL setup
-3. **Data Pipeline**: Estuary Flow + Airbyte hybrid architecture
+3. **Data Pipeline**: Estuary Flow + estuary hybrid architecture
 4. **CI/CD Workflows**: Production-ready GitHub Actions
 5. **Monitoring**: Health checks and alerting systems
 6. **Documentation**: Comprehensive guides and runbooks

@@ -126,7 +126,7 @@ class BatchProcessingImplementer:
         for call in calls:
             operations.append(BatchOperation(
                 query="""
-                INSERT INTO RAW_AIRBYTE.GONG_CALLS (
+                INSERT INTO RAW_estuary.GONG_CALLS (
                     CALL_ID, TITLE, SCHEDULED_START, DURATION,
                     PARTICIPANTS, TRANSCRIPT_URL, CREATED_AT
                 ) VALUES (%(call_id)s, %(title)s, %(scheduled_start)s,

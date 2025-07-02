@@ -46,7 +46,7 @@ class SophiaAIMigrator:
         }
 
     async def migrate_data_pipeline(self):
-        """Phase 1: Migrate data pipeline from Airbyte to Estuary"""
+        """Phase 1: Migrate data pipeline from estuary to Estuary"""
         logger.info("🚀 Starting Phase 1: Data Pipeline Migration")
         self.migration_status["phase"] = "data_pipeline"
 

@@ -184,15 +184,15 @@ External Sources → MCP Servers → Snowflake → AI Processing → Universal C
 
 #### **1. Data Ingestion**
 ```
-Gong.io (Sales Calls) → Gong MCP Server → RAW_AIRBYTE.GONG_CALLS
-HubSpot (CRM) → HubSpot MCP Server → RAW_AIRBYTE.HUBSPOT_DEALS  
-Slack (Communications) → Slack MCP Server → RAW_AIRBYTE.SLACK_MESSAGES
-Linear (Projects) → Linear MCP Server → RAW_AIRBYTE.LINEAR_ISSUES
+Gong.io (Sales Calls) → Gong MCP Server → RAW_estuary.GONG_CALLS
+HubSpot (CRM) → HubSpot MCP Server → RAW_estuary.HUBSPOT_DEALS  
+Slack (Communications) → Slack MCP Server → RAW_estuary.SLACK_MESSAGES
+Linear (Projects) → Linear MCP Server → RAW_estuary.LINEAR_ISSUES
 ```
 
 #### **2. Data Transformation**
 ```
-RAW_AIRBYTE → STG_TRANSFORMED (Cleaning & Validation) → PROCESSED_AI (Business Logic)
+RAW_estuary → STG_TRANSFORMED (Cleaning & Validation) → PROCESSED_AI (Business Logic)
 ```
 
 #### **3. AI Enhancement**

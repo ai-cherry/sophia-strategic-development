@@ -10,9 +10,9 @@
 - `ENCRYPTION_KEY` - last month
 
 ### Data Pipeline & ETL
-- `AIRBYTE_ACCESS_TOKEN` - 4 days ago
-- `AIRBYTE_CLIENT_ID` - last week
-- `AIRBYTE_CLIENT_SECRET` - last week
+- `ESTUARY_ACCESS_TOKEN` - 4 days ago
+- `ESTUARY_CLIENT_ID` - last week
+- `ESTUARY_CLIENT_SECRET` - last week
 - `ESTUARY_ACCESS_TOKEN` - 2 weeks ago ✅ FOUND
 - `ESTUARY_REFRESH_TOKEN` - 4 days ago ✅ FOUND
 

@@ -40,7 +40,7 @@ class SQLSecurityValidator:
     SAFE_SCHEMAS = {
         "SOPHIA_AI_ADVANCED",
         "STG_TRANSFORMED",
-        "RAW_AIRBYTE",
+        "RAW_estuary",
         "AI_MEMORY",
         "OPS_MONITORING",
         "UNIVERSAL_CHAT",

@@ -100,11 +100,11 @@ return {
 - Multiple Snowflake service implementations
 - Inconsistent data ingestion patterns
 - No unified data pipeline orchestration
-- Missing Airbyte integration
+- Missing estuary integration
 
 **Required Architecture (from knowledge base):**
 ```
-Airbyte → PostgreSQL → Redis → Vector DBs
+estuary → PostgreSQL → Redis → Vector DBs
 ```
 
 **Current Implementation:**
@@ -216,7 +216,7 @@ SNOWFLAKE_PASSWORD = "eyJraWQiOiIxNzAwMTAwMDk2OSIsImFsZyI6IkVTMjU2In0..."
 ```
 Data Sources (HubSpot, Gong, Slack) 
     ↓
-Airbyte (ETL/ELT)
+estuary (ETL/ELT)
     ↓
 PostgreSQL (Structured Data)
     ↓
@@ -228,7 +228,7 @@ Snowflake (Analytics/AI)
 ```
 
 **Current Implementation Gaps:**
-- ❌ No Airbyte integration
+- ❌ No estuary integration
 - ❌ No PostgreSQL staging layer
 - ❌ No Redis caching layer
 - ❌ Direct Snowflake access without proper data pipeline
@@ -238,7 +238,7 @@ Snowflake (Analytics/AI)
 **HubSpot Integration:**
 - ✅ MCP server exists (`hubspot`)
 - ❌ No Snowflake schema alignment
-- ❌ No Airbyte connector configuration
+- ❌ No estuary connector configuration
 
 **Gong Integration:**
 - ✅ Schema exists (`gong_integration_schema.sql`)
@@ -306,7 +306,7 @@ snowflake_unified_mcp_server/
 
 ### Short-term Improvements (Next 2 Weeks)
 
-1. **Data Pipeline Implementation:** Airbyte → PostgreSQL → Snowflake
+1. **Data Pipeline Implementation:** estuary → PostgreSQL → Snowflake
 2. **Schema Consolidation:** Unified schema management system
 3. **MCP Server Enhancement:** Real Cortex AI integration
 4. **Testing Framework:** Comprehensive integration testing

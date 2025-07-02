@@ -67,10 +67,10 @@ class ComprehensivePulumiESCUpdater:
                     "access_token": "${HUBSPOT_ACCESS_TOKEN}",
                     "client_secret": "${HUBSPOT_CLIENT_SECRET}"
                 },
-                "airbyte": {
-                    "access_token": "${AIRBYTE_ACCESS_TOKEN}",
-                    "client_id": "${AIRBYTE_CLIENT_ID}",
-                    "client_secret": "${AIRBYTE_CLIENT_SECRET}"
+                "estuary": {
+                    "access_token": "${ESTUARY_ACCESS_TOKEN}",
+                    "client_id": "${ESTUARY_CLIENT_ID}",
+                    "client_secret": "${ESTUARY_CLIENT_SECRET}"
                 }
             },
             

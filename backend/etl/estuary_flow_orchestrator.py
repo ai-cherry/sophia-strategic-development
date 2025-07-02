@@ -1,6 +1,6 @@
 """
 Estuary Flow Orchestrator for Sophia AI
-Replaces Airbyte with Estuary Flow for real-time data pipeline management
+Replaces estuary with Estuary Flow for real-time data pipeline management
 Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → Snowflake
 """
 
