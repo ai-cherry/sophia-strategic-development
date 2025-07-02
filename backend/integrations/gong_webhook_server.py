@@ -103,8 +103,16 @@ class WebhookServerConfig(BaseSettings):
         case_sensitive = True
 
 
-# Initialize configuration
-server_config = WebhookServerConfig()
+# Global configuration instance for lazy initialization
+_server_config: WebhookServerConfig | None = None
+
+
+def get_server_config() -> WebhookServerConfig:
+    """Get the global server configuration instance with lazy initialization"""
+    global _server_config
+    if _server_config is None:
+        _server_config = WebhookServerConfig()
+    return _server_config
 
 
 # Pydantic models for webhook data
@@ -420,27 +428,74 @@ async def log_requests(request: Request, call_next):
 
 
 # Initialize components
-webhook_verifier = GongWebhookVerifier(server_config.GONG_WEBHOOK_SECRETS)
-rate_limiter = AsyncRateLimiter(
-    server_config.GONG_API_RATE_LIMIT, burst_limit=server_config.GONG_API_BURST_LIMIT
-)
-retry_manager = RetryManager()
-data_validator = DataValidator()
+# webhook_verifier will be initialized lazily
+# rate_limiter will be initialized lazily
+# retry_manager will be initialized lazily
+# data_validator will be initialized lazily
 
 # Initialize webhook processor
-webhook_processor = WebhookProcessor(
-    gong_api_key=server_config.GONG_API_KEY,
-    snowflake_config={
-        "account": server_config.SNOWFLAKE_ACCOUNT,
-        "user": server_config.SNOWFLAKE_USER,
-        "password": server_config.SNOWFLAKE_PASSWORD,
-        "warehouse": server_config.SNOWFLAKE_WAREHOUSE,
-        "database": server_config.SNOWFLAKE_DATABASE,
-        "schema": server_config.SNOWFLAKE_SCHEMA,
-    },
-    redis_url=server_config.REDIS_URL,
-)
+# webhook_processor will be initialized lazily
 
+
+
+
+# Lazy initialization for components
+_webhook_verifier: GongWebhookVerifier | None = None
+_rate_limiter: AsyncRateLimiter | None = None  
+_retry_manager: RetryManager | None = None
+_data_validator: DataValidator | None = None
+_webhook_processor: WebhookProcessor | None = None
+
+
+def get_webhook_verifier() -> GongWebhookVerifier:
+    global _webhook_verifier
+    if _webhook_verifier is None:
+        config = get_server_config()
+        _webhook_verifier = GongWebhookVerifier(config.GONG_WEBHOOK_SECRETS)
+    return _webhook_verifier
+
+
+def get_rate_limiter() -> AsyncRateLimiter:
+    global _rate_limiter
+    if _rate_limiter is None:
+        config = get_server_config()
+        _rate_limiter = AsyncRateLimiter(
+            config.GONG_API_RATE_LIMIT, burst_limit=config.GONG_API_BURST_LIMIT
+        )
+    return _rate_limiter
+
+
+def get_retry_manager() -> RetryManager:
+    global _retry_manager
+    if _retry_manager is None:
+        _retry_manager = RetryManager()
+    return _retry_manager
+
+
+def get_data_validator() -> DataValidator:
+    global _data_validator
+    if _data_validator is None:
+        _data_validator = DataValidator()
+    return _data_validator
+
+
+def get_webhook_processor() -> WebhookProcessor:
+    global _webhook_processor
+    if _webhook_processor is None:
+        config = get_server_config()
+        _webhook_processor = WebhookProcessor(
+            gong_api_key=config.GONG_API_KEY,
+            snowflake_config={
+                "account": config.SNOWFLAKE_ACCOUNT,
+                "user": config.SNOWFLAKE_USER,
+                "password": config.SNOWFLAKE_PASSWORD,
+                "warehouse": config.SNOWFLAKE_WAREHOUSE,
+                "database": config.SNOWFLAKE_DATABASE,
+                "schema": config.SNOWFLAKE_SCHEMA,
+            },
+            redis_url=config.REDIS_URL,
+        )
+    return _webhook_processor
 
 # Health check endpoint
 @app.get("/health")
@@ -474,7 +529,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
     with webhook_processing_duration.time():
         try:
             # Verify webhook signature
-            await webhook_verifier.verify_signature(request)
+            await get_webhook_verifier().verify_signature(request)
 
             # Parse webhook data
             webhook_data = await request.json()
@@ -496,7 +551,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
 
             # Queue background processing
             background_tasks.add_task(
-                process_call_webhook, webhook.webhook_id, webhook_data
+                process_call_webhook_background, webhook.webhook_id, webhook_data
             )
             active_background_tasks.inc()
 
@@ -524,10 +579,19 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
 
-async def process_call_webhook(webhook_id: str, webhook_data: dict[str, Any]):
+async def process_call_webhook_background(webhook_id: str, webhook_data: dict[str, Any]):
     """Process call webhook in the background."""
     async with webhook_processor:
-        await webhook_processor.process_call_webhook(webhook_id, webhook_data)
+        await webhook_processor.process_call_webhook_background(webhook_id, webhook_data)
+
+
+
+
+async def process_call_webhook_background(webhook_id: str, webhook_data: dict[str, Any]):
+    """Process call webhook in the background."""
+    processor = get_webhook_processor()
+    async with processor:
+        await processor.process_call_webhook(webhook_id, webhook_data)
 
 
 if __name__ == "__main__":
@@ -535,9 +599,9 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "backend.integrations.gong_webhook_server:app",
-        host=server_config.HOST,
-        port=server_config.PORT,
-        workers=server_config.WORKERS,
+        host=get_server_config().HOST,
+        port=get_server_config().PORT,
+        workers=get_server_config().WORKERS,
         log_config={
             "version": 1,
             "disable_existing_loggers": False,

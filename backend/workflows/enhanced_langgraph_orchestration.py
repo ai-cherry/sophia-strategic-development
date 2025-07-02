@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 """
 Enhanced LangGraph Agent Orchestration for Sophia AI - Phase 2
 
@@ -11,7 +14,7 @@ This module implements advanced LangGraph patterns including:
 Key Features:
 - Map-Reduce pattern for parallel processing
 - Behavior tree pattern for event-driven routing
-- Human approval checkpoints with natural language interaction
+- Human-in-the-loop checkpoints with natural language interaction
 - Dynamic workflow creation and modification
 - Advanced error handling and recovery
 - Comprehensive audit logging
@@ -29,8 +32,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import asyncio
 import json
@@ -993,5 +994,13 @@ class EnhancedLangGraphOrchestrator:
         pass
 
 
-# Global instance
-enhanced_orchestrator = EnhancedLangGraphOrchestrator()
+# Global instance with lazy initialization
+_enhanced_orchestrator: EnhancedLangGraphOrchestrator | None = None
+
+
+def get_enhanced_orchestrator() -> EnhancedLangGraphOrchestrator:
+    """Get the global enhanced orchestrator instance with lazy initialization"""
+    global _enhanced_orchestrator
+    if _enhanced_orchestrator is None:
+        _enhanced_orchestrator = EnhancedLangGraphOrchestrator()
+    return _enhanced_orchestrator

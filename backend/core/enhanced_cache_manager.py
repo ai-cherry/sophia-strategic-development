@@ -52,8 +52,8 @@ class EnhancedCacheManager:
             compression_threshold=1024,  # 1KB compression threshold
         )
 
-        # Initialize the cache system
-        asyncio.create_task(self._cache.initialize())
+        # Cache initialization flag for lazy initialization
+        self._cache_initialized = False
 
         # Cache type configurations
         self._cache_configs = {
@@ -90,6 +90,11 @@ class EnhancedCacheManager:
         }
 
         logger.info("✅ Enhanced Cache Manager initialized with hierarchical caching")
+    async def _ensure_cache_initialized(self):
+        """Ensure cache is initialized (lazy initialization)"""
+        if not self._cache_initialized:
+            await self._cache.initialize()
+            self._cache_initialized = True
 
     async def get(self, key: str, cache_type: str = "default") -> Any:
         """
@@ -105,6 +110,9 @@ class EnhancedCacheManager:
         start_time = time.time()
 
         try:
+            # Ensure cache is initialized
+            await self._ensure_cache_initialized()
+            
             # Generate cache key with type prefix
             cache_key = self._generate_cache_key(key, cache_type)
 
@@ -148,6 +156,9 @@ class EnhancedCacheManager:
             True if successfully cached
         """
         try:
+            # Ensure cache is initialized
+            await self._ensure_cache_initialized()
+            
             # Generate cache key with type prefix
             cache_key = self._generate_cache_key(key, cache_type)
 
@@ -451,3 +462,22 @@ class EnhancedCacheManager:
         self._performance_metrics["avg_response_time_ms"] = (
             current_avg * (total_requests - 1) + response_time
         ) / total_requests
+
+
+# Global cache manager instance for backward compatibility
+_global_cache_manager: EnhancedCacheManager | None = None
+
+
+def get_cache_manager() -> EnhancedCacheManager:
+    """Get the global cache manager instance with lazy initialization"""
+    global _global_cache_manager
+    if _global_cache_manager is None:
+        _global_cache_manager = EnhancedCacheManager()
+    return _global_cache_manager
+
+
+async def initialize_cache_system():
+    """Initialize the global cache system"""
+    cache_manager = get_cache_manager()
+    await cache_manager._ensure_cache_initialized()
+    return cache_manager

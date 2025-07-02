@@ -338,28 +338,10 @@ class MCPOrchestrationService:
                 logger.info(f"MCP server {server_name} already running")
                 return True
 
-            # Prepare environment
-            env = os.environ.copy()
-            env.update(config.env)
-
-            # Start server process (for Python/UV servers)
-            if config.command in ["uv", "python"]:
-                logger.info(f"Starting Python MCP server: {server_name}")
-                # For now, we'll mark as started but not actually start subprocess
-                # In production, this would start the actual process
-                return True
-
-            # For Node.js servers
-            elif config.command in ["node", "npx"]:
-                logger.info(f"Starting Node.js MCP server: {server_name}")
-                # For now, we'll mark as started
-                return True
-
-            else:
-                logger.warning(
-                    f"Unknown command type for {server_name}: {config.command}"
-                )
-                return False
+            # For now, just mark as started since we don't have subprocess management
+            # In production, this would actually start the MCP server process
+            logger.info(f"MCP server {server_name} marked as started (port {config.port})")
+            return True
 
         except Exception as e:
             logger.error(f"Failed to start MCP server {server_name}: {e}")

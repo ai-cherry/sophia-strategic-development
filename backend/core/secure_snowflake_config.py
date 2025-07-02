@@ -108,8 +108,22 @@ class SecureSnowflakeConfig:
             return False
 
 
-# Global instance for application use
-secure_snowflake_config = SecureSnowflakeConfig()
+# Global instance for application use - using lazy initialization
+_secure_snowflake_config: SecureSnowflakeConfig | None = None
+
+
+def get_secure_snowflake_config() -> SecureSnowflakeConfig:
+    """Get the global secure Snowflake configuration instance with lazy initialization"""
+    global _secure_snowflake_config
+    if _secure_snowflake_config is None:
+        _secure_snowflake_config = SecureSnowflakeConfig()
+    return _secure_snowflake_config
+
+
+# Backward compatibility - create a module-level callable that acts like a property
+def secure_snowflake_config() -> SecureSnowflakeConfig:
+    """Backward compatibility function for secure_snowflake_config"""
+    return get_secure_snowflake_config()
 
 
 def get_secure_snowflake_connection():
@@ -122,9 +136,8 @@ def get_secure_snowflake_connection():
     try:
         import snowflake.connector
 
-        return snowflake.connector.connect(
-            **secure_snowflake_config.get_connection_params()
-        )
+        config = get_secure_snowflake_config()
+        return snowflake.connector.connect(**config.get_connection_params())
     except ImportError:
         logger.error("snowflake-connector-python not installed")
         raise
@@ -140,4 +153,5 @@ def get_secure_connection_string() -> str:
     Returns:
         str: SQLAlchemy-compatible connection string
     """
-    return secure_snowflake_config.get_connection_string()
+    config = get_secure_snowflake_config()
+    return config.get_connection_string()

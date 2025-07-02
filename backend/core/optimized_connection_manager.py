@@ -64,7 +64,7 @@ except ImportError:
 # Configuration and monitoring
 from backend.core.auto_esc_config import get_config_value
 from backend.core.performance_monitor import performance_monitor
-from backend.core.secure_snowflake_config import secure_snowflake_config
+from backend.core.secure_snowflake_config import get_secure_snowflake_config
 
 # Import Snowflake configuration override for correct connectivity
 
@@ -290,8 +290,9 @@ class OptimizedConnectionPool:
     async def _create_snowflake_connection(self):
         """Create Snowflake connection with secure configuration"""
 
-        # Get secure connection parameters
-        connection_params = secure_snowflake_config.get_connection_params()
+        # Get secure connection parameters using lazy initialization
+        config = get_secure_snowflake_config()
+        connection_params = config.get_connection_params()
         connection_params["timeout"] = self.connection_timeout
 
         # Force log the correct account

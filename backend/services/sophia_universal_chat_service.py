@@ -46,6 +46,14 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
+
+class SearchContext(Enum):
+    """Search context options for Sophia AI"""
+    INTERNAL_ONLY = "internal_only"
+    INTERNET_ONLY = "internet_only"
+    BLENDED_INTELLIGENCE = "blended_intelligence"
+    CEO_DEEP_RESEARCH = "ceo_deep_research"
+
 from pathlib import Path
 from typing import Any
 
@@ -56,7 +64,7 @@ from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.workflows.enhanced_langgraph_orchestration import (
     EventType,
     WorkflowEvent,
-    enhanced_orchestrator,
+    get_enhanced_orchestrator,
 )
 
 # NEW: Data staging and discovery imports
@@ -191,7 +199,7 @@ class SophiaUniversalChatService:
         self.intent_cache: dict[str, IntentType] = {}
 
         # Workflow integration
-        self.orchestrator = enhanced_orchestrator
+        self.orchestrator = get_enhanced_orchestrator()
 
         # NEW: Staged files tracking per session
         self.session_staged_files: dict[str, list[str]] = (

@@ -46,7 +46,7 @@ from backend.security.audit_logger import AuditLogger
 from backend.services.sophia_universal_chat_service import (
     universal_chat_service,
 )
-from backend.workflows.enhanced_langgraph_orchestration import enhanced_orchestrator
+from backend.workflows.enhanced_langgraph_orchestration import get_enhanced_orchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -293,16 +293,16 @@ async def create_workflow(
         session_id = f"api_session_{user_id}_{datetime.now().timestamp()}"
 
         # Initialize orchestrator if needed
-        if not enhanced_orchestrator.initialized:
-            await enhanced_orchestrator.initialize()
+        if not get_enhanced_orchestrator().initialized:
+            await get_enhanced_orchestrator().initialize()
 
         # Create workflow
-        workflow_id = await enhanced_orchestrator.create_workflow_from_natural_language(
+        workflow_id = await get_enhanced_orchestrator().create_workflow_from_natural_language(
             user_request=request.description, user_id=user_id, session_id=session_id
         )
 
         # Get workflow status
-        status = await enhanced_orchestrator.get_workflow_status(workflow_id)
+        status = await get_enhanced_orchestrator().get_workflow_status(workflow_id)
 
         # Convert to response model
         response = WorkflowResponse(
@@ -347,11 +347,11 @@ async def get_workflow_status(
     """Get status of a specific workflow"""
     try:
         # Initialize orchestrator if needed
-        if not enhanced_orchestrator.initialized:
-            await enhanced_orchestrator.initialize()
+        if not get_enhanced_orchestrator().initialized:
+            await get_enhanced_orchestrator().initialize()
 
         # Get workflow status
-        status = await enhanced_orchestrator.get_workflow_status(workflow_id)
+        status = await get_enhanced_orchestrator().get_workflow_status(workflow_id)
 
         if "error" in status:
             raise HTTPException(status_code=404, detail=status["error"])
@@ -412,11 +412,11 @@ async def handle_approval(
         user_id = current_user.get("user_id", "anonymous")
 
         # Initialize orchestrator if needed
-        if not enhanced_orchestrator.initialized:
-            await enhanced_orchestrator.initialize()
+        if not get_enhanced_orchestrator().initialized:
+            await get_enhanced_orchestrator().initialize()
 
         # Process approval
-        workflow_continued = await enhanced_orchestrator.handle_human_response(
+        workflow_continued = await get_enhanced_orchestrator().handle_human_response(
             checkpoint_id=checkpoint_id,
             response={
                 "approved": request.approved,
@@ -653,7 +653,7 @@ async def health_check():
     try:
         # Check if services are initialized
         chat_initialized = universal_chat_service.initialized
-        orchestrator_initialized = enhanced_orchestrator.initialized
+        orchestrator_initialized = get_enhanced_orchestrator().initialized
 
         return {
             "status": "healthy",
