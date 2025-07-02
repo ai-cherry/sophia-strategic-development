@@ -7,9 +7,3 @@
 [submodule "external/anthropic-mcp-inspector"]
 	path = external/anthropic-mcp-inspector
 	url = https://github.com/modelcontextprotocol/inspector.git
-[submodule "external/notion-mcp-server"]
-	path = external/notion-mcp-server
-	url = https://github.com/ai-cherry/notion-mcp-server.git
-[submodule "external/slack-mcp-server"]
-	path = external/slack-mcp-server
-	url = https://github.com/ai-cherry/slack-mcp-server.git
