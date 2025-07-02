@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 from backend.api import (
     asana_integration_routes,
+    ceo_dashboard_routes,
     codacy_integration_routes,
     enhanced_cortex_routes,
     kb_management_routes,
@@ -46,6 +47,10 @@ def _setup_core_routes(router: APIRouter) -> None:
     )
     router.include_router(
         llm_strategy_routes.router, prefix="/api/v1/llm", tags=["llm", "ai"]
+    )
+    # Add CEO Dashboard routes
+    router.include_router(
+        ceo_dashboard_routes.router, tags=["ceo", "dashboard", "executive"]
     )
 
 

@@ -54,6 +54,23 @@ class SearchContext(Enum):
     BLENDED_INTELLIGENCE = "blended_intelligence"
     CEO_DEEP_RESEARCH = "ceo_deep_research"
 
+class SophiaPersonality(Enum):
+    """Sophia AI personality types"""
+    FRIENDLY_ASSISTANT = "friendly_assistant"
+    PROFESSIONAL_ADVISOR = "professional_advisor"
+    TECHNICAL_EXPERT = "technical_expert"
+    CREATIVE_COLLABORATOR = "creative_collaborator"
+    ANALYTICAL_RESEARCHER = "analytical_researcher"
+    EXECUTIVE_COACH = "executive_coach"
+
+class UserAccessLevel(Enum):
+    """User access levels for the platform"""
+    CEO = "ceo"
+    EXECUTIVE = "executive"
+    MANAGER = "manager"
+    EMPLOYEE = "employee"
+    GUEST = "guest"
+
 from pathlib import Path
 from typing import Any
 
