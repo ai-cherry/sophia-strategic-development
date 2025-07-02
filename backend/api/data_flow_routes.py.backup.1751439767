@@ -366,7 +366,7 @@ async def batch_operation(
     operations: List[BatchRequest],
     db_manager: OptimizedDatabaseManager = Depends(get_db_manager)
 ):
-    """Execute multiple operations in batch for improved performance""":
+    """Execute multiple operations in batch for improved performance"""
     try:
         # Convert to BatchOperation objects
         batch_ops = []

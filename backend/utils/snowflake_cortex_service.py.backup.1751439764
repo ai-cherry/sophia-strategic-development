@@ -815,7 +815,7 @@ class SnowflakeCortexService:
             "contact_id",
         }
         for key in metadata_filters:
-        if key not in ALLOWED_FILTER_COLUMNS:
+            if key not in ALLOWED_FILTER_COLUMNS:
                 raise InvalidInputError(
                     f"Filter column {key} not allowed. Allowed: {ALLOWED_FILTER_COLUMNS}"
                 )
