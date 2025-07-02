@@ -26,31 +26,41 @@ class Phase1FoundationSetup:
         self.builder_name = f"{self.docker_user}/sophia-ai-builder"
         
     async def setup_docker_build_cloud(self) -> bool:
-        """Setup Docker Build Cloud for 39x performance improvement"""
-        logger.info("🚀 Setting up Docker Build Cloud...")
+        """Setup Docker Buildx with multi-platform support for performance improvement"""
+        logger.info("🚀 Setting up Docker Buildx multi-platform builder...")
         
         try:
-            # Create cloud builder
+            # Create multi-platform builder
             cmd = [
                 'docker', 'buildx', 'create',
-                '--driver', 'cloud',
                 '--name', 'sophia-ai-builder',
-                self.builder_name
+                '--driver', 'docker-container',
+                '--use'
             ]
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.returncode != 0:
-                logger.error(f"Failed to create cloud builder: {result.stderr}")
-                return False
+                # Builder might already exist, try to use it
+                logger.info("Builder exists, attempting to use existing builder...")
+                use_cmd = ['docker', 'buildx', 'use', 'sophia-ai-builder']
+                use_result = subprocess.run(use_cmd, capture_output=True, text=True)
                 
-            # Set as current builder
-            subprocess.run(['docker', 'buildx', 'use', 'sophia-ai-builder'], check=True)
+                if use_result.returncode != 0:
+                    logger.error(f"Failed to use builder: {use_result.stderr}")
+                    return False
+                
+            # Bootstrap the builder
+            bootstrap_result = subprocess.run(['docker', 'buildx', 'inspect', '--bootstrap'], 
+                                            capture_output=True, text=True)
             
-            logger.info("✅ Docker Build Cloud configured successfully")
+            if bootstrap_result.returncode != 0:
+                logger.warning(f"Bootstrap warning: {bootstrap_result.stderr}")
+            
+            logger.info("✅ Docker Buildx multi-platform builder configured successfully")
             return True
             
         except Exception as e:
-            logger.error(f"Docker Build Cloud setup failed: {e}")
+            logger.error(f"Docker Buildx setup failed: {e}")
             return False
     
     def create_optimized_dockerfile(self) -> None:
@@ -185,10 +195,10 @@ CMD ["uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8
         }
         
         # Write pyproject.toml
-        import tomli_w
+        import toml
         pyproject_path = self.project_root / "pyproject.toml"
-        with open(pyproject_path, 'wb') as f:
-            tomli_w.dump(pyproject_content, f)
+        with open(pyproject_path, 'w') as f:
+            toml.dump(pyproject_content, f)
             
         logger.info(f"✅ Enterprise pyproject.toml created: {pyproject_path}")
     
@@ -379,8 +389,8 @@ CMD ["uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8
                             "name": "Set up Docker Buildx",
                             "uses": "docker/setup-buildx-action@v3",
                             "with": {
-                                "driver": "cloud",
-                                "endpoint": f"{self.docker_user}/sophia-ai-builder"
+                                "driver": "docker-container",
+                                "buildkitd-flags": "--allow-insecure-entitlement security.insecure --allow-insecure-entitlement network.host"
                             }
                         },
                         {

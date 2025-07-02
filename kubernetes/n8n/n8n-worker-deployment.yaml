@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: n8n-worker
+  name: n8n-worker
+  namespace: sophia-ai
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: n8n-worker
+  template:
+    metadata:
+      labels:
+        app: n8n-worker
+    spec:
+      containers:
+      - command:
+        - n8n
+        - worker
+        env:
+        - name: EXECUTIONS_MODE
+          value: queue
+        - name: QUEUE_BULL_REDIS_HOST
+          value: redis-cluster.sophia-ai.svc.cluster.local
+        - name: N8N_WORKERS_COUNT
+          value: '4'
+        - name: DB_TYPE
+          value: postgresdb
+        - name: DB_POSTGRESDB_HOST
+          value: postgresql.sophia-ai.svc.cluster.local
+        - name: DB_POSTGRESDB_DATABASE
+          value: n8n
+        - name: DB_POSTGRESDB_USER
+          valueFrom:
+            secretKeyRef:
+              key: db-user
+              name: n8n-secrets
+        - name: DB_POSTGRESDB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: db-password
+              name: n8n-secrets
+        - name: N8N_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              key: encryption-key
+              name: n8n-secrets
+        image: n8nio/n8n:latest
+        name: n8n-worker
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi

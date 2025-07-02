@@ -1,0 +1,90 @@
+environmentVariables:
+  ANTHROPIC_API_KEY: ${sophia_ai.secrets.ai_services.anthropic}
+  DOCKER_BUILDER_NAME: ${sophia_ai.infrastructure.docker_cloud.builder_name}
+  GRAFANA_ADMIN_PASSWORD: ${sophia_ai.infrastructure.monitoring.grafana.admin_password}
+  LAMBDA_LABS_API_KEY: ${sophia_ai.infrastructure.lambda_labs.api_key}
+  OPENAI_API_KEY: ${sophia_ai.secrets.ai_services.openai}
+  PINECONE_API_KEY: ${sophia_ai.secrets.ai_services.pinecone}
+  PINECONE_ENVIRONMENT: ${sophia_ai.secrets.vector_databases.pinecone.environment}
+  POSTGRESQL_PASSWORD: ${sophia_ai.secrets.database.postgresql}
+  REDIS_PASSWORD: ${sophia_ai.secrets.database.redis}
+  WEAVIATE_API_KEY: ${sophia_ai.secrets.vector_databases.weaviate.api_key}
+  WEAVIATE_URL: ${sophia_ai.secrets.vector_databases.weaviate.url}
+values:
+  sophia_ai:
+    infrastructure:
+      docker_cloud:
+        build_timeout: 30m
+        builder_name: scoobyjava15/sophia-ai-builder
+        cache_strategy: shared
+        platforms:
+        - linux/amd64
+        - linux/arm64
+      lambda_labs:
+        api_key: ${LAMBDA_LABS_API_KEY}
+        auto_scaling:
+          enabled: true
+          max_instances: 10
+          min_instances: 2
+          scale_down_cooldown: 15m
+          scale_up_cooldown: 5m
+          target_gpu_utilization: 75
+        instance_types:
+          fallback: gpu_1x_rtx6000
+          primary: gpu_1x_a100
+      monitoring:
+        grafana:
+          admin_password:
+            fn::secret:
+              ciphertext: ${GRAFANA_ADMIN_PASSWORD_ENCRYPTED}
+          enabled: true
+        prometheus:
+          enabled: true
+          retention: 30d
+    secrets:
+      ai_services:
+        anthropic:
+          fn::secret:
+            ciphertext: ${ANTHROPIC_API_KEY_ENCRYPTED}
+            rotation:
+              manual: true
+              notification:
+                message: Anthropic API key requires manual rotation
+                webhook: ${SLACK_WEBHOOK_URL}
+        openai:
+          fn::secret:
+            ciphertext: ${OPENAI_API_KEY_ENCRYPTED}
+            rotation:
+              manual: true
+              notification:
+                message: OpenAI API key requires manual rotation
+                webhook: ${SLACK_WEBHOOK_URL}
+        pinecone:
+          fn::secret:
+            ciphertext: ${PINECONE_API_KEY_ENCRYPTED}
+            rotation:
+              manual: true
+      database:
+        postgresql:
+          fn::secret:
+            ciphertext: ${POSTGRESQL_PASSWORD_ENCRYPTED}
+            rotation:
+              retention: 30d
+              schedule: 0 2 * * 0
+              strategy: two-secret
+        redis:
+          fn::secret:
+            ciphertext: ${REDIS_PASSWORD_ENCRYPTED}
+            rotation:
+              retention: 30d
+              schedule: 0 3 * * 0
+              strategy: two-secret
+      vector_databases:
+        pinecone:
+          environment: ${PINECONE_ENVIRONMENT}
+          index_name: sophia-conversations
+        weaviate:
+          api_key:
+            fn::secret:
+              ciphertext: ${WEAVIATE_API_KEY_ENCRYPTED}
+          url: ${WEAVIATE_URL}

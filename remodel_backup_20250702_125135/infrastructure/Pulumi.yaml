@@ -1,0 +1,9 @@
+name: sophia-infra
+runtime: python
+description: The complete infrastructure for the Sophia AI platform, including the K8s cluster and all application services.
+
+# Associate this Pulumi project with our central ESC environment.
+# This ensures that all secrets and configurations are automatically
+# available to our Pulumi programs without needing to specify them manually.
+environment:
+  - scoobyjava-org/default/sophia-ai-production

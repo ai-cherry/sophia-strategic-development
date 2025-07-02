@@ -1,0 +1,30 @@
+{
+  "environments": {
+    "production": {
+      "imports": [
+        "scoobyjava-org/default/sophia-ai-production"
+      ],
+      "values": {
+        "aws": {
+          "region": "us-east-1"
+        },
+        "kubernetes": {
+          "namespace": "sophia-production"
+        }
+      }
+    },
+    "development": {
+      "imports": [
+        "scoobyjava-org/default/sophia-ai-development"
+      ],
+      "values": {
+        "aws": {
+          "region": "us-east-1"
+        },
+        "kubernetes": {
+          "namespace": "sophia-dev"
+        }
+      }
+    }
+  }
+}

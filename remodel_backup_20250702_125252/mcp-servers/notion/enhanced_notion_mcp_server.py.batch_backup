@@ -1,0 +1,714 @@
+"""
+Enhanced Notion MCP Server for Sophia AI
+Provides real Notion API integration with project management capabilities
+Designed for CEO project oversight and Salesforce migration tracking
+"""
+
+import asyncio
+import json
+import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
+from mcp import Server
+from notion_client import Client as NotionClient
+from notion_client.errors import APIResponseError
+
+from backend.core.auto_esc_config import get_config_value
+
+logger = logging.getLogger(__name__)
+
+
+class EnhancedNotionMCPServer:
+    """Enhanced Notion MCP Server with real API integration"""
+
+    def __init__(self, port: int = 9005):
+        self.port = port
+        self.name = "enhanced_notion"
+        self.version = "2.0.0"
+
+        # Initialize MCP server
+        self.mcp_server = Server(self.name, self.version)
+
+        # Load API token from Pulumi ESC
+        self.api_token = get_config_value("notion_api_token", "")
+        if not self.api_token:
+            self.api_token = get_config_value("notion.api_token", "")
+
+        # Initialize Notion client
+        self.notion_client = None
+        if self.api_token:
+            self.notion_client = NotionClient(auth=self.api_token)
+
+        # Project management database IDs (will be created/discovered)
+        self.project_db_id = None
+        self.task_db_id = None
+        self.status_db_id = None
+
+        # Register tools and resources
+        self._register_tools()
+        self._register_resources()
+
+    def _register_tools(self):
+        """Register enhanced Notion MCP tools"""
+
+        @self.mcp_server.tool("health_check")
+        async def health_check() -> Dict[str, Any]:
+            """Enhanced health check with API validation"""
+            try:
+                if not self.notion_client:
+                    return {
+                        "healthy": False,
+                        "error": "Notion client not initialized - API token missing",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+
+                # Test API connection by listing users
+                users = self.notion_client.users.list()
+                user_count = len(users.get("results", []))
+
+                return {
+                    "healthy": True,
+                    "api_token_configured": True,
+                    "user_count": user_count,
+                    "client_version": "2.2.1",
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+            except APIResponseError as e:
+                logger.error(f"Notion API error in health check: {e}")
+                return {
+                    "healthy": False,
+                    "error": f"API Error: {e.body}",
+                    "status_code": e.status,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            except Exception as e:
+                logger.error(f"Health check failed: {e}")
+                return {
+                    "healthy": False,
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+        @self.mcp_server.tool("create_salesforce_migration_workspace")
+        async def create_salesforce_migration_workspace() -> Dict[str, Any]:
+            """Create complete Salesforce migration project workspace in Notion"""
+            try:
+                if not self.notion_client:
+                    return {"error": "Notion client not initialized"}
+
+                # Create parent page for Salesforce Migration Project
+                parent_page = self.notion_client.pages.create(
+                    **{
+                        "parent": {"type": "page_id", "page_id": ""},  # Will use workspace
+                        "properties": {
+                            "title": {
+                                "title": [
+                                    {
+                                        "text": {
+                                            "content": "🚀 Salesforce → HubSpot/Intercom Migration Project"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "children": [
+                            {
+                                "object": "block",
+                                "type": "heading_1",
+                                "heading_1": {
+                                    "rich_text": [
+                                        {
+                                            "type": "text",
+                                            "text": {"content": "Project Overview"},
+                                        }
+                                    ]
+                                },
+                            },
+                            {
+                                "object": "block",
+                                "type": "paragraph",
+                                "paragraph": {
+                                    "rich_text": [
+                                        {
+                                            "type": "text",
+                                            "text": {
+                                                "content": "Strategic migration project leveraging Sophia AI's orchestration capabilities. Expected timeline: 2-3 weeks with 3,400% ROI."
+                                            },
+                                        }
+                                    ]
+                                },
+                            },
+                        ],
+                    }
+                )
+
+                parent_id = parent_page["id"]
+
+                # Create Project Database
+                project_db = self.notion_client.databases.create(
+                    **{
+                        "parent": {"type": "page_id", "page_id": parent_id},
+                        "title": [
+                            {"type": "text", "text": {"content": "Migration Projects"}}
+                        ],
+                        "properties": {
+                            "Name": {"title": {}},
+                            "Status": {
+                                "select": {
+                                    "options": [
+                                        {"name": "Planning", "color": "blue"},
+                                        {"name": "In Progress", "color": "yellow"},
+                                        {"name": "Review", "color": "orange"},
+                                        {"name": "Complete", "color": "green"},
+                                        {"name": "Blocked", "color": "red"},
+                                    ]
+                                }
+                            },
+                            "Priority": {
+                                "select": {
+                                    "options": [
+                                        {"name": "Critical", "color": "red"},
+                                        {"name": "High", "color": "orange"},
+                                        {"name": "Medium", "color": "yellow"},
+                                        {"name": "Low", "color": "gray"},
+                                    ]
+                                }
+                            },
+                            "Assignee": {"people": {}},
+                            "Start Date": {"date": {}},
+                            "End Date": {"date": {}},
+                            "Progress": {"number": {"format": "percent"}},
+                            "Budget": {"number": {"format": "dollar"}},
+                            "ROI": {"number": {"format": "percent"}},
+                            "Risk Level": {
+                                "select": {
+                                    "options": [
+                                        {"name": "Low", "color": "green"},
+                                        {"name": "Medium", "color": "yellow"},
+                                        {"name": "High", "color": "red"},
+                                    ]
+                                }
+                            },
+                            "Dependencies": {"multi_select": {"options": []}},
+                            "Notes": {"rich_text": {}},
+                        },
+                    }
+                )
+
+                self.project_db_id = project_db["id"]
+
+                # Create Tasks Database
+                task_db = self.notion_client.databases.create(
+                    **{
+                        "parent": {"type": "page_id", "page_id": parent_id},
+                        "title": [{"type": "text", "text": {"content": "Migration Tasks"}}],
+                        "properties": {
+                            "Task": {"title": {}},
+                            "Project": {
+                                "relation": {"database_id": self.project_db_id}
+                            },
+                            "Status": {
+                                "select": {
+                                    "options": [
+                                        {"name": "Not Started", "color": "gray"},
+                                        {"name": "In Progress", "color": "blue"},
+                                        {"name": "Testing", "color": "yellow"},
+                                        {"name": "Complete", "color": "green"},
+                                        {"name": "Blocked", "color": "red"},
+                                    ]
+                                }
+                            },
+                            "Assignee": {"people": {}},
+                            "Due Date": {"date": {}},
+                            "Effort": {
+                                "select": {
+                                    "options": [
+                                        {"name": "XS (0.5d)", "color": "green"},
+                                        {"name": "S (1d)", "color": "blue"},
+                                        {"name": "M (2-3d)", "color": "yellow"},
+                                        {"name": "L (1w)", "color": "orange"},
+                                        {"name": "XL (2w+)", "color": "red"},
+                                    ]
+                                }
+                            },
+                            "Technical Area": {
+                                "multi_select": {
+                                    "options": [
+                                        {"name": "Salesforce API", "color": "blue"},
+                                        {"name": "HubSpot API", "color": "orange"},
+                                        {"name": "Intercom API", "color": "green"},
+                                        {"name": "Data Mapping", "color": "yellow"},
+                                        {"name": "N8N Workflows", "color": "purple"},
+                                        {"name": "MCP Servers", "color": "red"},
+                                        {"name": "AI Memory", "color": "gray"},
+                                        {"name": "Testing", "color": "pink"},
+                                    ]
+                                }
+                            },
+                            "Complexity": {
+                                "select": {
+                                    "options": [
+                                        {"name": "Simple", "color": "green"},
+                                        {"name": "Medium", "color": "yellow"},
+                                        {"name": "Complex", "color": "red"},
+                                    ]
+                                }
+                            },
+                            "Notes": {"rich_text": {}},
+                        },
+                    }
+                )
+
+                self.task_db_id = task_db["id"]
+
+                # Create Executive Status Database
+                status_db = self.notion_client.databases.create(
+                    **{
+                        "parent": {"type": "page_id", "page_id": parent_id},
+                        "title": [
+                            {"type": "text", "text": {"content": "Executive Status Updates"}}
+                        ],
+                        "properties": {
+                            "Update": {"title": {}},
+                            "Date": {"date": {}},
+                            "Overall Progress": {"number": {"format": "percent"}},
+                            "Status": {
+                                "select": {
+                                    "options": [
+                                        {"name": "On Track", "color": "green"},
+                                        {"name": "At Risk", "color": "yellow"},
+                                        {"name": "Blocked", "color": "red"},
+                                        {"name": "Complete", "color": "blue"},
+                                    ]
+                                }
+                            },
+                            "Key Achievements": {"rich_text": {}},
+                            "Next Steps": {"rich_text": {}},
+                            "Risks & Blockers": {"rich_text": {}},
+                            "Budget Status": {"rich_text": {}},
+                            "AI Insights": {"rich_text": {}},
+                        },
+                    }
+                )
+
+                self.status_db_id = status_db["id"]
+
+                # Create initial project entries
+                await self._create_initial_project_structure()
+
+                return {
+                    "success": True,
+                    "parent_page_id": parent_id,
+                    "project_db_id": self.project_db_id,
+                    "task_db_id": self.task_db_id,
+                    "status_db_id": self.status_db_id,
+                    "workspace_url": f"https://notion.so/{parent_id}",
+                    "message": "Salesforce migration workspace created successfully",
+                }
+
+            except APIResponseError as e:
+                logger.error(f"Notion API error creating workspace: {e}")
+                return {"error": f"API Error: {e.body}", "status_code": e.status}
+            except Exception as e:
+                logger.error(f"Error creating workspace: {e}")
+                return {"error": str(e)}
+
+        @self.mcp_server.tool("get_project_status")
+        async def get_project_status(project_name: str = "") -> Dict[str, Any]:
+            """Get comprehensive project status for CEO dashboard"""
+            try:
+                if not self.notion_client or not self.project_db_id:
+                    return {"error": "Project workspace not initialized"}
+
+                # Query projects
+                filter_param = {}
+                if project_name:
+                    filter_param = {
+                        "filter": {
+                            "property": "Name",
+                            "title": {"contains": project_name},
+                        }
+                    }
+
+                projects = self.notion_client.databases.query(
+                    database_id=self.project_db_id, **filter_param
+                )
+
+                # Query tasks for progress calculation
+                tasks = self.notion_client.databases.query(database_id=self.task_db_id)
+
+                # Process project data
+                project_status = []
+                for project in projects["results"]:
+                    props = project["properties"]
+                    
+                    project_info = {
+                        "id": project["id"],
+                        "name": self._get_title_text(props.get("Name", {})),
+                        "status": self._get_select_value(props.get("Status", {})),
+                        "priority": self._get_select_value(props.get("Priority", {})),
+                        "progress": props.get("Progress", {}).get("number", 0) or 0,
+                        "budget": props.get("Budget", {}).get("number", 0) or 0,
+                        "roi": props.get("ROI", {}).get("number", 0) or 0,
+                        "risk_level": self._get_select_value(props.get("Risk Level", {})),
+                        "start_date": self._get_date_value(props.get("Start Date", {})),
+                        "end_date": self._get_date_value(props.get("End Date", {})),
+                        "assignee": self._get_people_names(props.get("Assignee", {})),
+                        "url": project["url"],
+                    }
+
+                    # Calculate task statistics for this project
+                    project_tasks = [
+                        task for task in tasks["results"]
+                        if self._is_task_in_project(task, project["id"])
+                    ]
+                    
+                    project_info["task_stats"] = self._calculate_task_stats(project_tasks)
+                    project_status.append(project_info)
+
+                return {
+                    "success": True,
+                    "projects": project_status,
+                    "total_projects": len(project_status),
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+            except Exception as e:
+                logger.error(f"Error getting project status: {e}")
+                return {"error": str(e)}
+
+        @self.mcp_server.tool("create_status_update")
+        async def create_status_update(
+            update_title: str,
+            progress: float,
+            status: str,
+            achievements: str,
+            next_steps: str,
+            risks: str = "",
+            ai_insights: str = "",
+        ) -> Dict[str, Any]:
+            """Create executive status update with AI insights"""
+            try:
+                if not self.notion_client or not self.status_db_id:
+                    return {"error": "Status workspace not initialized"}
+
+                # Create status update page
+                status_page = self.notion_client.pages.create(
+                    **{
+                        "parent": {"database_id": self.status_db_id},
+                        "properties": {
+                            "Update": {
+                                "title": [
+                                    {"type": "text", "text": {"content": update_title}}
+                                ]
+                            },
+                            "Date": {"date": {"start": datetime.now().isodate()}},
+                            "Overall Progress": {"number": progress},
+                            "Status": {"select": {"name": status}},
+                            "Key Achievements": {
+                                "rich_text": [
+                                    {"type": "text", "text": {"content": achievements}}
+                                ]
+                            },
+                            "Next Steps": {
+                                "rich_text": [
+                                    {"type": "text", "text": {"content": next_steps}}
+                                ]
+                            },
+                            "Risks & Blockers": {
+                                "rich_text": [
+                                    {"type": "text", "text": {"content": risks}}
+                                ]
+                            },
+                            "AI Insights": {
+                                "rich_text": [
+                                    {"type": "text", "text": {"content": ai_insights}}
+                                ]
+                            },
+                        },
+                    }
+                )
+
+                return {
+                    "success": True,
+                    "status_page_id": status_page["id"],
+                    "url": status_page["url"],
+                    "message": "Executive status update created successfully",
+                }
+
+            except Exception as e:
+                logger.error(f"Error creating status update: {e}")
+                return {"error": str(e)}
+
+        @self.mcp_server.tool("get_executive_dashboard_data")
+        async def get_executive_dashboard_data() -> Dict[str, Any]:
+            """Get comprehensive data for CEO executive dashboard"""
+            try:
+                if not self.notion_client:
+                    return {"error": "Notion client not initialized"}
+
+                # Get all workspace data
+                project_data = await get_project_status()
+                
+                # Get recent status updates
+                recent_updates = []
+                if self.status_db_id:
+                    updates = self.notion_client.databases.query(
+                        database_id=self.status_db_id,
+                        sorts=[{"property": "Date", "direction": "descending"}],
+                        page_size=5,
+                    )
+                    
+                    for update in updates["results"]:
+                        props = update["properties"]
+                        recent_updates.append({
+                            "title": self._get_title_text(props.get("Update", {})),
+                            "date": self._get_date_value(props.get("Date", {})),
+                            "progress": props.get("Overall Progress", {}).get("number", 0),
+                            "status": self._get_select_value(props.get("Status", {})),
+                            "url": update["url"],
+                        })
+
+                # Calculate executive summary
+                projects = project_data.get("projects", [])
+                total_progress = sum(p["progress"] for p in projects) / len(projects) if projects else 0
+                on_track_count = len([p for p in projects if p["status"] in ["Planning", "In Progress"]])
+                completed_count = len([p for p in projects if p["status"] == "Complete"])
+                blocked_count = len([p for p in projects if p["status"] == "Blocked"])
+
+                return {
+                    "success": True,
+                    "executive_summary": {
+                        "total_projects": len(projects),
+                        "overall_progress": round(total_progress, 1),
+                        "on_track": on_track_count,
+                        "completed": completed_count,
+                        "blocked": blocked_count,
+                        "last_updated": datetime.now().isoformat(),
+                    },
+                    "projects": projects,
+                    "recent_updates": recent_updates,
+                    "ai_recommendations": await self._generate_ai_recommendations(projects),
+                }
+
+            except Exception as e:
+                logger.error(f"Error getting executive dashboard data: {e}")
+                return {"error": str(e)}
+
+    async def _create_initial_project_structure(self):
+        """Create initial project structure for Salesforce migration"""
+        try:
+            # Main migration phases as projects
+            projects = [
+                {
+                    "name": "Phase 1: Infrastructure Enhancement",
+                    "status": "Planning",
+                    "priority": "Critical",
+                    "progress": 0.1,
+                    "budget": 15000,
+                    "roi": 34.0,
+                    "risk_level": "Medium",
+                    "start_date": datetime.now().isodate(),
+                    "end_date": (datetime.now() + timedelta(days=7)).isodate(),
+                },
+                {
+                    "name": "Phase 2: Migration Execution",
+                    "status": "Planning",
+                    "priority": "Critical",
+                    "progress": 0.0,
+                    "budget": 25000,
+                    "roi": 34.0,
+                    "risk_level": "High",
+                    "start_date": (datetime.now() + timedelta(days=7)).isodate(),
+                    "end_date": (datetime.now() + timedelta(days=14)).isodate(),
+                },
+                {
+                    "name": "Phase 3: Business Intelligence Integration",
+                    "status": "Planning",
+                    "priority": "High",
+                    "progress": 0.0,
+                    "budget": 10000,
+                    "roi": 34.0,
+                    "risk_level": "Low",
+                    "start_date": (datetime.now() + timedelta(days=14)).isodate(),
+                    "end_date": (datetime.now() + timedelta(days=21)).isodate(),
+                },
+            ]
+
+            for project in projects:
+                self.notion_client.pages.create(
+                    **{
+                        "parent": {"database_id": self.project_db_id},
+                        "properties": {
+                            "Name": {
+                                "title": [
+                                    {"type": "text", "text": {"content": project["name"]}}
+                                ]
+                            },
+                            "Status": {"select": {"name": project["status"]}},
+                            "Priority": {"select": {"name": project["priority"]}},
+                            "Progress": {"number": project["progress"]},
+                            "Budget": {"number": project["budget"]},
+                            "ROI": {"number": project["roi"]},
+                            "Risk Level": {"select": {"name": project["risk_level"]}},
+                            "Start Date": {"date": {"start": project["start_date"]}},
+                            "End Date": {"date": {"start": project["end_date"]}},
+                        },
+                    }
+                )
+
+        except Exception as e:
+            logger.error(f"Error creating initial project structure: {e}")
+
+    def _get_title_text(self, title_prop: Dict) -> str:
+        """Extract text from title property"""
+        if not title_prop or "title" not in title_prop:
+            return ""
+        titles = title_prop["title"]
+        return "".join([t["text"]["content"] for t in titles if "text" in t])
+
+    def _get_select_value(self, select_prop: Dict) -> str:
+        """Extract value from select property"""
+        if not select_prop or "select" not in select_prop:
+            return ""
+        select = select_prop["select"]
+        return select["name"] if select else ""
+
+    def _get_date_value(self, date_prop: Dict) -> Optional[str]:
+        """Extract date value from date property"""
+        if not date_prop or "date" not in date_prop:
+            return None
+        date = date_prop["date"]
+        return date["start"] if date else None
+
+    def _get_people_names(self, people_prop: Dict) -> List[str]:
+        """Extract names from people property"""
+        if not people_prop or "people" not in people_prop:
+            return []
+        people = people_prop["people"]
+        return [person.get("name", "") for person in people]
+
+    def _is_task_in_project(self, task: Dict, project_id: str) -> bool:
+        """Check if task belongs to project"""
+        project_prop = task["properties"].get("Project", {})
+        if "relation" in project_prop:
+            relations = project_prop["relation"]
+            return any(rel["id"] == project_id for rel in relations)
+        return False
+
+    def _calculate_task_stats(self, tasks: List[Dict]) -> Dict[str, Any]:
+        """Calculate task statistics"""
+        if not tasks:
+            return {"total": 0, "completed": 0, "in_progress": 0, "blocked": 0}
+
+        total = len(tasks)
+        completed = len([t for t in tasks if self._get_task_status(t) == "Complete"])
+        in_progress = len([t for t in tasks if self._get_task_status(t) == "In Progress"])
+        blocked = len([t for t in tasks if self._get_task_status(t) == "Blocked"])
+
+        return {
+            "total": total,
+            "completed": completed,
+            "in_progress": in_progress,
+            "blocked": blocked,
+            "completion_rate": round((completed / total) * 100, 1) if total > 0 else 0,
+        }
+
+    def _get_task_status(self, task: Dict) -> str:
+        """Get task status"""
+        return self._get_select_value(task["properties"].get("Status", {}))
+
+    async def _generate_ai_recommendations(self, projects: List[Dict]) -> List[str]:
+        """Generate AI-powered recommendations based on project data"""
+        recommendations = []
+        
+        # Analyze project health
+        blocked_projects = [p for p in projects if p["status"] == "Blocked"]
+        if blocked_projects:
+            recommendations.append(f"🚨 {len(blocked_projects)} projects are blocked - immediate attention required")
+
+        high_risk_projects = [p for p in projects if p["risk_level"] == "High"]
+        if high_risk_projects:
+            recommendations.append(f"⚠️ {len(high_risk_projects)} high-risk projects need additional monitoring")
+
+        # Progress analysis
+        low_progress_projects = [p for p in projects if p["progress"] < 0.2 and p["status"] != "Planning"]
+        if low_progress_projects:
+            recommendations.append(f"📈 {len(low_progress_projects)} projects showing slow progress - consider resource reallocation")
+
+        # Budget analysis
+        total_budget = sum(p["budget"] for p in projects)
+        if total_budget > 0:
+            recommendations.append(f"💰 Total project budget: ${total_budget:,} with expected 3,400% ROI")
+
+        return recommendations
+
+    def _register_resources(self):
+        """Register Notion MCP resources"""
+
+        @self.mcp_server.resource("databases")
+        async def get_databases() -> List[Dict[str, Any]]:
+            """Get Notion databases"""
+            try:
+                if not self.notion_client:
+                    return []
+
+                # Search for databases
+                search_results = self.notion_client.search(
+                    filter={"property": "object", "value": "database"}
+                )
+
+                databases = []
+                for result in search_results["results"]:
+                    databases.append({
+                        "id": result["id"],
+                        "title": self._get_title_text(result.get("title", {})),
+                        "url": result.get("url", ""),
+                        "created_time": result.get("created_time", ""),
+                    })
+
+                return databases
+
+            except Exception as e:
+                logger.error(f"Error getting databases: {e}")
+                return []
+
+    async def start(self):
+        """Start the enhanced Notion MCP server"""
+        logger.info(f"🚀 Starting Enhanced Notion MCP Server on port {self.port}")
+
+        # Test connection
+        health = await self.mcp_server.call_tool("health_check", {})
+        logger.info(f"   Health check: {health}")
+
+        if health.get("healthy"):
+            logger.info("✅ Enhanced Notion MCP Server started successfully")
+            logger.info("   📋 Project management capabilities enabled")
+            logger.info("   🎯 Executive dashboard integration ready")
+            logger.info("   🤖 AI-powered insights activated")
+        else:
+            logger.warning("⚠️ Notion MCP Server started with limited functionality")
+
+    async def stop(self):
+        """Stop the enhanced Notion MCP server"""
+        logger.info("🛑 Stopping Enhanced Notion MCP Server")
+
+
+# Create server instance
+enhanced_notion_server = EnhancedNotionMCPServer()
+
+if __name__ == "__main__":
+    asyncio.run(enhanced_notion_server.start())
+
+
+# --- Auto-inserted health endpoint ---
+try:
+    from fastapi import APIRouter
+    router = APIRouter()
+    @router.get("/health")
+    async def health():
+        return {"status": "ok", "version": "2.0.0", "features": ["project_management", "executive_dashboard", "ai_insights"]}
+except ImportError:
+    pass

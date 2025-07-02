@@ -1,0 +1,94 @@
+name: Deployment Health Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  PULUMI_ORG: scoobyjava-org
+  ENVIRONMENT: prod
+
+jobs:
+  health-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          
+      - name: Install dependencies
+        run: |
+          uv sync
+          
+      - name: Set up environment
+        run: |
+          echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+          echo "PULUMI_ORG=scoobyjava-org" >> $GITHUB_ENV
+          
+      - name: Run Enhanced Health Gate
+        run: |
+          uv run python scripts/ci/deployment_health_gate.py
+          
+      - name: Upload health report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: health-gate-report
+          path: health_gate_report.json
+          retention-days: 30
+          
+      - name: Comment PR with health status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let report = {};
+            try {
+              report = JSON.parse(fs.readFileSync('health_gate_report.json', 'utf8'));
+            } catch (e) {
+              console.log('Could not read health report:', e);
+              return;
+            }
+            
+            const secretsOk = report.missing_secrets?.length === 0;
+            const servicesOk = report.failed_services?.length === 0;
+            const overallStatus = secretsOk && servicesOk ? '✅ PASSED' : '❌ FAILED';
+            
+            const comment = `## 🏥 Deployment Health Gate Report
+            
+            **Overall Status:** ${overallStatus}
+            **ESC Status:** ${report.esc_status || 'unknown'}
+            
+            ### Secrets Check
+            ${secretsOk ? '✅ All required secrets available' : `❌ Missing: ${report.missing_secrets?.join(', ')}`}
+            
+            ### Services Check  
+            ${servicesOk ? '✅ All critical services configured' : `❌ Failed: ${report.failed_services?.join(', ')}`}
+            
+            ### Backend Health
+            ${report.health_checks?.find(h => h.service === 'backend')?.status === 200 ? '✅ Backend responsive' : '⚠️ Backend not accessible (expected in CI)'}
+            
+            ### MCP Servers
+            ${report.mcp_servers ? `${report.mcp_servers.filter(s => s.healthy).length}/${report.mcp_servers.length} servers accessible` : 'Not checked'}
+            
+            ${overallStatus.includes('FAILED') ? '**❌ Deployment blocked - fix critical issues before merging**' : '**✅ Ready for deployment**'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            }); 

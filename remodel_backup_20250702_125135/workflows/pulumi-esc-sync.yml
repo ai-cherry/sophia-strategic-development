@@ -1,0 +1,155 @@
+name: Sophia AI Pulumi ESC Synchronization
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      dry_run:
+        description: 'Perform dry run (no changes)'
+        required: false
+        default: true
+        type: boolean
+      audit_only:
+        description: 'Generate audit report only'
+        required: false
+        default: false
+        type: boolean
+
+  schedule:
+    # Run audit every day at 6 AM UTC
+    - cron: '0 6 * * *'
+
+  push:
+    branches: [main]
+    paths:
+      - 'pulumi-esc-configuration.yaml'
+      - 'scripts/pulumi-esc-sync.py'
+      - '.github/workflows/pulumi-esc-sync.yml'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  pulumi-esc-sync:
+    name: Synchronize Pulumi ESC Configuration
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pyyaml
+      
+      - name: Validate Environment Variables
+        run: |
+          echo "Validating required environment variables..."
+          
+          # Check for required secrets
+          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+            echo "❌ GITHUB_TOKEN is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.PULUMI_ACCESS_TOKEN }}" ]; then
+            echo "❌ PULUMI_ACCESS_TOKEN is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "❌ VERCEL_TOKEN is missing"
+            exit 1
+          fi
+          
+          echo "✅ All required environment variables are present"
+      
+      - name: Run Pulumi ESC Synchronization (Audit Only)
+        if: github.event_name == 'schedule' || inputs.audit_only == true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Running audit-only synchronization..."
+          python3 scripts/pulumi-esc-sync.py \
+            --environment ${{ inputs.environment || 'production' }} \
+            --audit-only
+      
+      - name: Run Pulumi ESC Synchronization (Dry Run)
+        if: inputs.dry_run == true && inputs.audit_only != true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Running dry-run synchronization..."
+          python3 scripts/pulumi-esc-sync.py \
+            --environment ${{ inputs.environment || 'production' }} \
+            --dry-run
+      
+      - name: Run Pulumi ESC Synchronization (Apply Changes)
+        if: inputs.dry_run != true && inputs.audit_only != true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Applying synchronization changes..."
+          python3 scripts/pulumi-esc-sync.py \
+            --environment ${{ inputs.environment || 'production' }} \
+            --apply
+      
+      - name: Upload Audit Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pulumi-esc-audit-report-${{ github.run_number }}
+          path: audit-report-*.md
+          retention-days: 30
+      
+      - name: Security Scan
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PYTHON: true
+          VALIDATE_YAML: true
+          VALIDATE_JSON: true
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ Pulumi ESC synchronization failed!"
+          echo "Check the logs for details and ensure all secrets are properly configured."
+          exit 1
+      
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ Pulumi ESC synchronization completed successfully!"
+          echo "Environment: ${{ inputs.environment || 'production' }}"
+          echo "Mode: ${{ inputs.dry_run == true && 'Dry Run' || inputs.audit_only == true && 'Audit Only' || 'Apply Changes' }}"
+
