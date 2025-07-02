@@ -241,10 +241,12 @@ class MCPOrchestrationService:
         """Load default MCP server configuration as fallback"""
         default_servers = {
             "ai_memory": MCPServerEndpoint(
+                server_name="ai_memory",
                 port=9000,
                 capabilities=["memory_storage", "context_recall"],
             ),
             "codacy": MCPServerEndpoint(
+                server_name="codacy",
                 port=3008,
                 capabilities=["code_analysis", "security_scan"],
             ),
