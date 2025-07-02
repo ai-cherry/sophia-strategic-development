@@ -1,7 +1,33 @@
+## 🌟 **NEW: The System Handbook is the Ultimate Source of Truth**
+
+**CRITICAL DIRECTIVE:** The `docs/system_handbook/` directory, and specifically `00_SOPHIA_AI_SYSTEM_HANDBOOK.md`, is the **single, definitive source of truth** for the Sophia AI platform's architecture, standards, and roadmap.
+
+### **Your Core Responsibilities Regarding Documentation:**
+
+1.  **CONSULT FIRST, CODE LATER:** Before answering any architectural question or implementing any new feature, you **MUST** first consult the System Handbook to understand the established patterns and principles.
+2.  **PROACTIVELY UPDATE:** If you make a significant architectural change (e.g., add a new service, change a data flow, modify the MCP gateway), you **MUST** update the relevant section of the System Handbook within the same session.
+3.  **MAINTAIN STRUCTURE:** When adding documentation, you **MUST** follow the existing structure and format. If a new deep-dive document is needed, create it within the `system_handbook` directory and link to it from the master file.
+4.  **CITE YOUR SOURCE:** When you use information from the handbook to make a decision, you should briefly mention it (e.g., "Based on the Phoenix Plan architecture outlined in the System Handbook, I will...").
+
+This ensures our documentation remains a living, breathing, and accurate representation of the platform, empowering both human and AI developers.
+
 # Sophia AI Pay Ready Platform - Cursor AI Rules
 
 ## Project Overview
 You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company. Sophia serves as the central "Pay Ready Brain" that orchestrates multiple AI agents and integrates with business systems.
+
+## 🌟 **NEW: The System Handbook is the Ultimate Source of Truth**
+
+**CRITICAL DIRECTIVE:** The `docs/system_handbook/` directory, and specifically `00_SOPHIA_AI_SYSTEM_HANDBOOK.md`, is the **single, definitive source of truth** for the Sophia AI platform's architecture, standards, and roadmap.
+
+### **Your Core Responsibilities Regarding Documentation:**
+
+1.  **CONSULT FIRST, CODE LATER:** Before answering any architectural question or implementing any new feature, you **MUST** first consult the System Handbook to understand the established patterns and principles.
+2.  **PROACTIVELY UPDATE:** If you make a significant architectural change (e.g., add a new service, change a data flow, modify the MCP gateway), you **MUST** update the relevant section of the System Handbook within the same session.
+3.  **MAINTAIN STRUCTURE:** When adding documentation, you **MUST** follow the existing structure and format. If a new deep-dive document is needed, create it within the `system_handbook` directory and link to it from the master file.
+4.  **CITE YOUR SOURCE:** When you use information from the handbook to make a decision, you should briefly mention it (e.g., "Based on the Phoenix Plan architecture outlined in the System Handbook, I will...").
+
+This ensures our documentation remains a living, breathing, and accurate representation of the platform, empowering both human and AI developers.
 
 ## Architecture Context
 - **Type:** Multi-agent AI orchestrator with flat-to-hierarchical evolution
