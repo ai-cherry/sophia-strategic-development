@@ -98,19 +98,26 @@ class MCPResponse:
     fallback_used: bool = False
 
 
-@dataclass
 class MCPServerEndpoint:
-    """MCP server endpoint configuration"""
+    """MCP server endpoint configuration with backward compatibility"""
 
-    server_name: str
-    host: str = "localhost"
-    port: int = 9000
-    health_endpoint: str = "/health"
-    base_path: str = ""
-    capabilities: list[str] = field(default_factory=list)
-    last_health_check: datetime | None = None
-    status: ServerStatus = ServerStatus.OFFLINE
-    response_time_ms: float = 0.0
+    def __init__(self, server_name: str = None, name: str = None, **kwargs):
+        """Initialize with backward compatibility for 'name' parameter"""
+        # Handle backward compatibility
+        if server_name is None and name is not None:
+            server_name = name
+        elif server_name is None and name is None:
+            raise ValueError("Either 'server_name' or 'name' parameter must be provided")
+        
+        self.server_name = server_name
+        self.host = kwargs.get('host', 'localhost')
+        self.port = kwargs.get('port', 9000)
+        self.health_endpoint = kwargs.get('health_endpoint', '/health')
+        self.base_path = kwargs.get('base_path', '')
+        self.capabilities = kwargs.get('capabilities', [])
+        self.last_health_check = kwargs.get('last_health_check', None)
+        self.status = kwargs.get('status', ServerStatus.OFFLINE)
+        self.response_time_ms = kwargs.get('response_time_ms', 0.0)
 
     @property
     def base_url(self) -> str:
@@ -161,42 +168,64 @@ class MCPOrchestrationService:
     """
 
     def __init__(self):
+        """Initialize MCP orchestration service with resilient configuration loading"""
         self.servers: dict[str, MCPServerEndpoint] = {}
         self.health_status: dict[str, MCPServerHealth] = {}
-        self.server_processes: dict[str, subprocess.Popen] = {}
-        self.client = httpx.AsyncClient(timeout=30.0)
-        self.last_health_check = None
-        self.health_check_interval = 60  # seconds
         self.running_servers: set[str] = set()
+        self.orchestration_rules: list[dict[str, Any]] = []
         self.active_tasks: dict[str, BusinessTask] = {}
         self.task_history: list[OrchestrationResult] = []
+        self.server_processes: dict[str, Any] = {}
         self.session: aiohttp.ClientSession | None = None
-        self.orchestration_rules: list[dict[str, Any]] = []
+        self.last_health_check: datetime | None = None
+        self.health_check_interval = 30  # seconds
+        self.client = httpx.AsyncClient(timeout=30.0)
 
-        # Load configuration
-        self._load_mcp_configuration()
-        self._initialize_known_servers()
+        # Initialize with resilient configuration loading
+        try:
+            self._load_mcp_configuration()
+        except Exception as e:
+            logger.error(f"Failed to load MCP configuration during initialization: {e}")
+            # Continue with minimal configuration to prevent total failure
+            self._load_minimal_configuration()
+
         self._initialize_orchestration_rules()
 
+    def _load_minimal_configuration(self):
+        """Load minimal configuration to prevent total failure"""
+        logger.info("Loading minimal MCP configuration as fallback")
+        self.servers = {
+            "ai_memory": MCPServerEndpoint(
+                server_name="ai_memory",
+                port=9000,
+                capabilities=["memory_storage", "context_recall"],
+            ),
+        }
+
     def _load_mcp_configuration(self):
-        """Load MCP server configuration from JSON file"""
+        """Load MCP server configuration from JSON file with enhanced error handling"""
         try:
             config_path = Path("cursor_enhanced_mcp_config.json")
             if config_path.exists():
                 with open(config_path) as f:
                     config = json.load(f)
 
-                # Load server configurations
+                # Load server configurations with enhanced error handling
                 for name, server_config in config.get("mcpServers", {}).items():
                     if not server_config.get("disabled", False):
-                        # Extract port from configuration
-                        port = self._extract_port_from_config(server_config, name)
+                        try:
+                            # Extract port from configuration
+                            port = self._extract_port_from_config(server_config, name)
 
-                        self.servers[name] = MCPServerEndpoint(
-                            server_name=name,
-                            port=port,
-                            capabilities=server_config.get("capabilities", []),
-                        )
+                            # Create server endpoint with robust parameter handling
+                            self.servers[name] = MCPServerEndpoint(
+                                server_name=name,
+                                port=port,
+                                capabilities=server_config.get("capabilities", []),
+                            )
+                        except Exception as server_error:
+                            logger.error(f"Failed to configure server {name}: {server_error}")
+                            # Continue with other servers
 
                 logger.info(f"Loaded configuration for {len(self.servers)} MCP servers")
             else:
@@ -1311,5 +1340,12 @@ class MCPOrchestrationService:
         }
 
 
-# Global orchestration service instance
-orchestration_service = MCPOrchestrationService()
+# Global orchestration service instance - lazy initialization
+orchestration_service = None
+
+def get_orchestration_service() -> MCPOrchestrationService:
+    """Get or create the global orchestration service instance"""
+    global orchestration_service
+    if orchestration_service is None:
+        orchestration_service = MCPOrchestrationService()
+    return orchestration_service
