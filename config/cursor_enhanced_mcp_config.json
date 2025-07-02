@@ -1,112 +1,26 @@
 {
   "mcpServers": {
-    "ai_memory": {
+    "n8n_gateway": {
       "command": "python",
       "args": [
-        "mcp-servers/ai-memory/ai_memory_mcp_server.py",
-        "--port",
-        "9000"
+        "n8n-integration/n8n_mcp_gateway.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
+        "PULUMI_ORG": "scoobyjava-org",
+        "PYTHONPATH": "."
       },
       "disabled": false,
       "alwaysAllow": [
         "*"
       ],
       "initializationOptions": {
-        "port": 9000,
         "auto_start": true,
-        "health_check": true
-      }
-    },
-    "lambda_labs_cli": {
-      "command": "python",
-      "args": [
-        "mcp-servers/lambda-labs-cli/lambda_labs_cli_mcp_server.py",
-        "--port",
-        "9020"
-      ],
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
-      },
-      "disabled": false,
-      "alwaysAllow": [
-        "*"
-      ],
-      "initializationOptions": {
-        "port": 9020,
-        "auto_start": true,
-        "health_check": true
-      }
-    },
-    "snowflake_cli_enhanced": {
-      "command": "python",
-      "args": [
-        "mcp-servers/snowflake-cli-enhanced/snowflake_cli_enhanced_mcp_server.py",
-        "--port",
-        "9021"
-      ],
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
-      },
-      "disabled": false,
-      "alwaysAllow": [
-        "*"
-      ],
-      "initializationOptions": {
-        "port": 9021,
-        "auto_start": true,
-        "health_check": true
-      }
-    },
-    "ui_ux_agent": {
-      "command": "python",
-      "args": [
-        "mcp-servers/ui-ux-agent/ui_ux_agent_mcp_server.py",
-        "--port",
-        "9002"
-      ],
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
-      },
-      "disabled": false,
-      "alwaysAllow": [
-        "*"
-      ],
-      "initializationOptions": {
-        "port": 9002,
-        "auto_start": true,
-        "health_check": true
-      }
-    },
-    "portkey_admin": {
-      "command": "python",
-      "args": [
-        "mcp-servers/portkey-admin/portkey_admin_mcp_server.py",
-        "--port",
-        "9013"
-      ],
-      "env": {
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org"
-      },
-      "disabled": false,
-      "alwaysAllow": [
-        "*"
-      ],
-      "initializationOptions": {
-        "port": 9013,
-        "auto_start": true,
-        "health_check": true
+        "health_check_url": "http://localhost:8100/health"
       }
     }
   },
-  "version": "3.18",
-  "description": "Cursor IDE MCP Configuration - Aligned with Unified Ports",
-  "last_updated": "2025-07-01T00:33:24.164856"
+  "version": "4.0-phoenix",
+  "description": "Cursor IDE MCP Configuration - Unified N8N Gateway",
+  "last_updated": "2024-07-02T12:00:00.000000Z"
 }
