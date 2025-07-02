@@ -1,0 +1,629 @@
+#!/usr/bin/env python3
+"""
+Server-Sent Events Progress Streaming Service for Sophia AI
+Phase 3: User Experience Implementation (August 2025)
+
+Implements real-time progress streaming with WCAG-compliant UI
+and hybrid WebSocket/SSE architecture for maximum compatibility.
+"""
+
+import asyncio
+import json
+import logging
+import time
+from collections.abc import AsyncGenerator
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
+from uuid import uuid4
+
+from fastapi import Request
+from sse_starlette import EventSourceResponse
+
+from backend.services.event_driven_ingestion_service import (
+    EventDrivenIngestionService,
+    EventType,
+    IngestionEvent,
+)
+from backend.websocket.resilient_websocket_manager import ResilientWebSocketManager
+
+logger = logging.getLogger(__name__)
+
+
+class ProgressEventType(str, Enum):
+    """Types of progress events"""
+
+    JOB_STARTED = "job_started"
+    PROCESSING_UPDATE = "processing_update"
+    METADATA_REQUEST = "metadata_request"
+    CHUNKING_PROGRESS = "chunking_progress"
+    EMBEDDING_PROGRESS = "embedding_progress"
+    JOB_COMPLETED = "job_completed"
+    JOB_FAILED = "job_failed"
+    HEALTH_CHECK = "health_check"
+
+
+@dataclass
+class ProgressEvent:
+    """Progress event data structure"""
+
+    event_id: str
+    event_type: ProgressEventType
+    job_id: str
+    user_id: str
+    timestamp: datetime
+    progress_percentage: float  # 0.0 to 100.0
+    current_step: str
+    total_steps: int
+    current_step_index: int
+    message: str
+    details: dict[str, Any] = None
+    metadata: dict[str, Any] = None
+
+    def to_sse_data(self) -> dict[str, Any]:
+        """Convert to SSE-compatible data"""
+        return {
+            "id": self.event_id,
+            "type": self.event_type.value,
+            "jobId": self.job_id,
+            "userId": self.user_id,
+            "timestamp": self.timestamp.isoformat(),
+            "progress": {
+                "percentage": self.progress_percentage,
+                "currentStep": self.current_step,
+                "totalSteps": self.total_steps,
+                "currentStepIndex": self.current_step_index,
+                "message": self.message,
+            },
+            "details": self.details or {},
+            "metadata": self.metadata or {},
+        }
+
+
+class WCAGProgressFormatter:
+    """WCAG-compliant progress message formatter"""
+
+    @staticmethod
+    def format_progress_message(event: ProgressEvent) -> dict[str, str]:
+        """Format progress message for accessibility"""
+        # Main message for screen readers
+        aria_label = f"Processing step {event.current_step_index + 1} of {event.total_steps}: {event.current_step}"
+
+        # Detailed description
+        aria_description = (
+            f"{event.message}. Progress: {event.progress_percentage:.1f}% complete."
+        )
+
+        # Live region update for screen readers
+        live_region = f"Step {event.current_step_index + 1}: {event.current_step} - {event.progress_percentage:.1f}% complete"
+
+        # Status for assistive technology
+        status = "polite" if event.progress_percentage < 100 else "assertive"
+
+        return {
+            "ariaLabel": aria_label,
+            "ariaDescription": aria_description,
+            "liveRegion": live_region,
+            "ariaLive": status,
+            "role": "progressbar",
+            "ariaValueNow": str(int(event.progress_percentage)),
+            "ariaValueMin": "0",
+            "ariaValueMax": "100",
+            "ariaValueText": f"{event.progress_percentage:.1f}% complete",
+        }
+
+
+class SSEProgressStreamer:
+    """Server-Sent Events progress streamer"""
+
+    def __init__(self):
+        # Active SSE connections
+        self.active_connections: dict[str, set[str]] = (
+            {}
+        )  # user_id -> set of connection_ids
+        self.connection_queues: dict[str, asyncio.Queue] = (
+            {}
+        )  # connection_id -> event queue
+        self.connection_metadata: dict[str, dict[str, Any]] = (
+            {}
+        )  # connection_id -> metadata
+
+        # Metrics
+        self.metrics = {
+            "total_connections": 0,
+            "active_connections": 0,
+            "events_sent": 0,
+            "connection_errors": 0,
+            "last_event_time": None,
+        }
+
+    async def create_sse_stream(
+        self, user_id: str, job_ids: list[str] = None, request: Request = None
+    ) -> EventSourceResponse:
+        """Create SSE stream for user"""
+        connection_id = str(uuid4())
+
+        # Initialize connection
+        self.connection_queues[connection_id] = asyncio.Queue()
+        self.connection_metadata[connection_id] = {
+            "user_id": user_id,
+            "job_ids": job_ids or [],
+            "created_at": datetime.now(),
+            "user_agent": request.headers.get("user-agent", "") if request else "",
+            "client_ip": request.client.host if request else "",
+        }
+
+        # Track user connections
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = set()
+        self.active_connections[user_id].add(connection_id)
+
+        self.metrics["total_connections"] += 1
+        self.metrics["active_connections"] = len(self.connection_queues)
+
+        logger.info(
+            f"📡 Created SSE stream for user {user_id} (connection {connection_id})"
+        )
+
+        # Return EventSourceResponse
+        return EventSourceResponse(
+            self._sse_generator(connection_id),
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Cache-Control",
+            },
+        )
+
+    async def _sse_generator(self, connection_id: str) -> AsyncGenerator[str, None]:
+        """SSE event generator"""
+        try:
+            queue = self.connection_queues[connection_id]
+            metadata = self.connection_metadata[connection_id]
+
+            # Send initial connection event
+            initial_event = {
+                "id": str(uuid4()),
+                "type": "connection_established",
+                "data": {
+                    "connectionId": connection_id,
+                    "userId": metadata["user_id"],
+                    "timestamp": datetime.now().isoformat(),
+                    "message": "Progress streaming connected",
+                },
+            }
+
+            yield f"id: {initial_event['id']}\n"
+            yield f"event: {initial_event['type']}\n"
+            yield f"data: {json.dumps(initial_event['data'])}\n\n"
+
+            # Send periodic heartbeat and handle events
+            heartbeat_interval = 30  # seconds
+            last_heartbeat = time.time()
+
+            while True:
+                try:
+                    # Check for events with timeout
+                    event = await asyncio.wait_for(queue.get(), timeout=1.0)
+
+                    # Format event for SSE
+                    sse_data = event.to_sse_data()
+
+                    # Add WCAG accessibility data
+                    sse_data["accessibility"] = (
+                        WCAGProgressFormatter.format_progress_message(event)
+                    )
+
+                    yield f"id: {event.event_id}\n"
+                    yield f"event: {event.event_type.value}\n"
+                    yield f"data: {json.dumps(sse_data)}\n\n"
+
+                    self.metrics["events_sent"] += 1
+                    self.metrics["last_event_time"] = datetime.now()
+
+                except TimeoutError:
+                    # Send heartbeat if needed
+                    current_time = time.time()
+                    if current_time - last_heartbeat >= heartbeat_interval:
+                        heartbeat_event = {
+                            "id": str(uuid4()),
+                            "type": "heartbeat",
+                            "data": {
+                                "timestamp": datetime.now().isoformat(),
+                                "connectionId": connection_id,
+                            },
+                        }
+
+                        yield f"id: {heartbeat_event['id']}\n"
+                        yield "event: heartbeat\n"
+                        yield f"data: {json.dumps(heartbeat_event['data'])}\n\n"
+
+                        last_heartbeat = current_time
+
+                except Exception as e:
+                    logger.error(f"❌ SSE generator error: {e}")
+                    self.metrics["connection_errors"] += 1
+                    break
+
+        except Exception as e:
+            logger.error(f"❌ SSE connection error for {connection_id}: {e}")
+            self.metrics["connection_errors"] += 1
+        finally:
+            # Cleanup connection
+            await self._cleanup_connection(connection_id)
+
+    async def _cleanup_connection(self, connection_id: str):
+        """Clean up SSE connection"""
+        try:
+            if connection_id in self.connection_metadata:
+                user_id = self.connection_metadata[connection_id]["user_id"]
+
+                # Remove from user connections
+                if user_id in self.active_connections:
+                    self.active_connections[user_id].discard(connection_id)
+                    if not self.active_connections[user_id]:
+                        del self.active_connections[user_id]
+
+                # Remove connection data
+                del self.connection_metadata[connection_id]
+
+            if connection_id in self.connection_queues:
+                del self.connection_queues[connection_id]
+
+            self.metrics["active_connections"] = len(self.connection_queues)
+
+            logger.info(f"🧹 Cleaned up SSE connection {connection_id}")
+
+        except Exception as e:
+            logger.error(f"❌ Error cleaning up SSE connection: {e}")
+
+    async def broadcast_progress_event(self, event: ProgressEvent):
+        """Broadcast progress event to relevant connections"""
+        try:
+            # Find connections for this user/job
+            target_connections = []
+
+            # Get user connections
+            if event.user_id in self.active_connections:
+                for connection_id in self.active_connections[event.user_id]:
+                    metadata = self.connection_metadata.get(connection_id, {})
+                    job_ids = metadata.get("job_ids", [])
+
+                    # Send to connections monitoring this job or all jobs
+                    if not job_ids or event.job_id in job_ids:
+                        target_connections.append(connection_id)
+
+            # Send event to target connections
+            for connection_id in target_connections:
+                if connection_id in self.connection_queues:
+                    try:
+                        await self.connection_queues[connection_id].put(event)
+                    except Exception as e:
+                        logger.error(
+                            f"❌ Failed to send event to connection {connection_id}: {e}"
+                        )
+
+            logger.debug(
+                f"📡 Broadcasted progress event to {len(target_connections)} connections"
+            )
+
+        except Exception as e:
+            logger.error(f"❌ Failed to broadcast progress event: {e}")
+
+
+class HybridProgressStreamingService:
+    """
+    Hybrid WebSocket/SSE progress streaming service
+    Provides both WebSocket and SSE endpoints for maximum compatibility
+    """
+
+    def __init__(self, ingestion_service: EventDrivenIngestionService):
+        self.ingestion_service = ingestion_service
+        self.sse_streamer = SSEProgressStreamer()
+        self.websocket_manager = ResilientWebSocketManager()
+
+        # Progress tracking
+        self.job_progress: dict[str, dict[str, Any]] = {}
+
+        # Metrics
+        self.metrics = {
+            "sse_connections": 0,
+            "websocket_connections": 0,
+            "progress_events_processed": 0,
+            "hybrid_events_sent": 0,
+        }
+
+    async def initialize(self):
+        """Initialize the service"""
+        # Subscribe to ingestion events for progress tracking
+        await self.ingestion_service.event_bus.subscribe(
+            "ingestion.*", self._handle_ingestion_event
+        )
+
+        await self.ingestion_service.event_bus.subscribe(
+            "progress.*", self._handle_progress_event
+        )
+
+        logger.info("✅ Hybrid progress streaming service initialized")
+
+    async def _handle_ingestion_event(self, ingestion_event: IngestionEvent):
+        """Handle ingestion events and convert to progress events"""
+        try:
+            progress_event = await self._convert_ingestion_to_progress(ingestion_event)
+            if progress_event:
+                await self._broadcast_to_all_channels(progress_event)
+                self.metrics["progress_events_processed"] += 1
+
+        except Exception as e:
+            logger.error(f"❌ Error handling ingestion event: {e}")
+
+    async def _handle_progress_event(self, ingestion_event: IngestionEvent):
+        """Handle direct progress events"""
+        try:
+            if ingestion_event.event_type == EventType.PROGRESS_UPDATE:
+                progress_data = ingestion_event.payload
+
+                progress_event = ProgressEvent(
+                    event_id=ingestion_event.event_id,
+                    event_type=ProgressEventType.PROCESSING_UPDATE,
+                    job_id=ingestion_event.job_id,
+                    user_id=ingestion_event.user_id,
+                    timestamp=ingestion_event.timestamp,
+                    progress_percentage=progress_data.get("progress_percentage", 0.0),
+                    current_step=progress_data.get("current_step", "Processing"),
+                    total_steps=progress_data.get("total_steps", 5),
+                    current_step_index=progress_data.get("current_step_index", 0),
+                    message=progress_data.get("message", "Processing document"),
+                    details=progress_data.get("details", {}),
+                    metadata=ingestion_event.metadata,
+                )
+
+                await self._broadcast_to_all_channels(progress_event)
+
+        except Exception as e:
+            logger.error(f"❌ Error handling progress event: {e}")
+
+    async def _convert_ingestion_to_progress(
+        self, ingestion_event: IngestionEvent
+    ) -> ProgressEvent | None:
+        """Convert ingestion event to progress event"""
+        event_mapping = {
+            EventType.INGESTION_INITIATED: (
+                ProgressEventType.JOB_STARTED,
+                0.0,
+                "Starting",
+                "Document ingestion started",
+            ),
+            EventType.PROCESSING_STARTED: (
+                ProgressEventType.PROCESSING_UPDATE,
+                10.0,
+                "Processing",
+                "Analyzing document content",
+            ),
+            EventType.METADATA_REQUESTED: (
+                ProgressEventType.METADATA_REQUEST,
+                25.0,
+                "Metadata Collection",
+                "Requesting document metadata",
+            ),
+            EventType.CHUNKING_STARTED: (
+                ProgressEventType.CHUNKING_PROGRESS,
+                50.0,
+                "Chunking",
+                "Breaking document into chunks",
+            ),
+            EventType.EMBEDDING_STARTED: (
+                ProgressEventType.EMBEDDING_PROGRESS,
+                75.0,
+                "Embedding",
+                "Generating embeddings",
+            ),
+            EventType.INGESTION_COMPLETED: (
+                ProgressEventType.JOB_COMPLETED,
+                100.0,
+                "Completed",
+                "Document processing completed",
+            ),
+            EventType.INGESTION_FAILED: (
+                ProgressEventType.JOB_FAILED,
+                0.0,
+                "Failed",
+                "Document processing failed",
+            ),
+        }
+
+        if ingestion_event.event_type not in event_mapping:
+            return None
+
+        progress_type, percentage, step, message = event_mapping[
+            ingestion_event.event_type
+        ]
+
+        # Update job progress tracking
+        if ingestion_event.job_id not in self.job_progress:
+            self.job_progress[ingestion_event.job_id] = {
+                "total_steps": 5,
+                "current_step_index": 0,
+                "steps": [
+                    "Starting",
+                    "Processing",
+                    "Metadata Collection",
+                    "Chunking",
+                    "Embedding",
+                    "Completed",
+                ],
+            }
+
+        job_progress = self.job_progress[ingestion_event.job_id]
+
+        # Update current step index based on progress
+        if percentage >= 75:
+            job_progress["current_step_index"] = 4
+        elif percentage >= 50:
+            job_progress["current_step_index"] = 3
+        elif percentage >= 25:
+            job_progress["current_step_index"] = 2
+        elif percentage >= 10:
+            job_progress["current_step_index"] = 1
+        else:
+            job_progress["current_step_index"] = 0
+
+        return ProgressEvent(
+            event_id=ingestion_event.event_id,
+            event_type=progress_type,
+            job_id=ingestion_event.job_id,
+            user_id=ingestion_event.user_id,
+            timestamp=ingestion_event.timestamp,
+            progress_percentage=percentage,
+            current_step=step,
+            total_steps=job_progress["total_steps"],
+            current_step_index=job_progress["current_step_index"],
+            message=message,
+            details=ingestion_event.payload,
+            metadata=ingestion_event.metadata,
+        )
+
+    async def _broadcast_to_all_channels(self, progress_event: ProgressEvent):
+        """Broadcast progress event to both SSE and WebSocket channels"""
+        try:
+            # Broadcast to SSE connections
+            await self.sse_streamer.broadcast_progress_event(progress_event)
+
+            # Broadcast to WebSocket connections
+            websocket_data = {
+                "type": "progress_update",
+                "data": progress_event.to_sse_data(),
+            }
+
+            await self.websocket_manager.broadcast_to_user(
+                progress_event.user_id, json.dumps(websocket_data)
+            )
+
+            self.metrics["hybrid_events_sent"] += 1
+
+        except Exception as e:
+            logger.error(f"❌ Failed to broadcast to all channels: {e}")
+
+    # SSE Endpoints
+
+    async def create_sse_stream(
+        self, user_id: str, job_ids: list[str] = None, request: Request = None
+    ) -> EventSourceResponse:
+        """Create SSE stream (public interface)"""
+        self.metrics["sse_connections"] += 1
+        return await self.sse_streamer.create_sse_stream(user_id, job_ids, request)
+
+    # WebSocket Endpoints
+
+    async def handle_websocket_connection(self, websocket, user_id: str):
+        """Handle WebSocket connection"""
+        self.metrics["websocket_connections"] += 1
+        await self.websocket_manager.connect(websocket, user_id)
+
+    # Manual Progress Updates
+
+    async def update_job_progress(
+        self,
+        job_id: str,
+        user_id: str,
+        progress_percentage: float,
+        current_step: str,
+        message: str,
+        details: dict[str, Any] = None,
+    ):
+        """Manually update job progress"""
+        try:
+            progress_event = ProgressEvent(
+                event_id=str(uuid4()),
+                event_type=ProgressEventType.PROCESSING_UPDATE,
+                job_id=job_id,
+                user_id=user_id,
+                timestamp=datetime.now(),
+                progress_percentage=progress_percentage,
+                current_step=current_step,
+                total_steps=self.job_progress.get(job_id, {}).get("total_steps", 5),
+                current_step_index=int(progress_percentage / 20),  # Rough calculation
+                message=message,
+                details=details or {},
+            )
+
+            await self._broadcast_to_all_channels(progress_event)
+
+        except Exception as e:
+            logger.error(f"❌ Failed to update job progress: {e}")
+
+    async def get_service_metrics(self) -> dict[str, Any]:
+        """Get service metrics"""
+        sse_metrics = self.sse_streamer.metrics
+
+        return {
+            "service_type": "hybrid_progress_streaming",
+            "sse_connections_active": sse_metrics["active_connections"],
+            "sse_connections_total": sse_metrics["total_connections"],
+            "sse_events_sent": sse_metrics["events_sent"],
+            "sse_connection_errors": sse_metrics["connection_errors"],
+            "websocket_connections": self.metrics["websocket_connections"],
+            "progress_events_processed": self.metrics["progress_events_processed"],
+            "hybrid_events_sent": self.metrics["hybrid_events_sent"],
+            "active_jobs": len(self.job_progress),
+            "last_event_time": sse_metrics["last_event_time"],
+        }
+
+
+# Convenience functions
+
+
+async def create_hybrid_progress_streaming_service(
+    ingestion_service: EventDrivenIngestionService,
+) -> HybridProgressStreamingService:
+    """Create and initialize hybrid progress streaming service"""
+    service = HybridProgressStreamingService(ingestion_service)
+    await service.initialize()
+    return service
+
+
+if __name__ == "__main__":
+    # Test the service
+    async def main():
+        from backend.services.event_driven_ingestion_service import (
+            create_event_driven_ingestion_service,
+        )
+
+        logger.info("🧪 Testing hybrid progress streaming service...")
+
+        # Create ingestion service
+        ingestion_service = await create_event_driven_ingestion_service()
+
+        # Create progress streaming service
+        streaming_service = await create_hybrid_progress_streaming_service(
+            ingestion_service
+        )
+
+        try:
+            # Test manual progress update
+            await streaming_service.update_job_progress(
+                job_id="test_job_123",
+                user_id="test_user",
+                progress_percentage=45.0,
+                current_step="Processing",
+                message="Analyzing document content",
+                details={"step_details": "Extracting text and metadata"},
+            )
+
+            logger.info("✅ Manual progress update sent")
+
+            # Get metrics
+            metrics = await streaming_service.get_service_metrics()
+            logger.info(f"📊 Service metrics: {metrics}")
+
+            print("✅ Hybrid progress streaming service test PASSED")
+
+        except Exception as e:
+            logger.error(f"❌ Test failed: {e}")
+            print("❌ Hybrid progress streaming service test FAILED")
+        finally:
+            await ingestion_service.shutdown()
+
+    asyncio.run(main())

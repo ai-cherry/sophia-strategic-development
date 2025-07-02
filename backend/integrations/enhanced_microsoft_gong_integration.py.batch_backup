@@ -1,0 +1,729 @@
+#!/usr/bin/env python3
+"""
+Enhanced Microsoft + Gong Integration for Sophia AI Sales Coach
+Emails originate from Microsoft but flow through Gong.io into our system
+"""
+
+import logging
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
+
+from backend.services.enhanced_sentiment_analyzer import (
+    EnhancedSentimentAnalyzer,
+    SentimentChannel,
+)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
+
+logger = logging.getLogger(__name__)
+
+
+class EmailSource(str, Enum):
+    """Email source types"""
+
+    OUTLOOK = "outlook"
+    GMAIL = "gmail"
+    OTHER = "other"
+
+
+class CoachingPriority(str, Enum):
+    """Coaching priority levels"""
+
+    CRITICAL = "critical"
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+@dataclass
+class EmailThreadAnalysis:
+    """Enhanced email thread analysis from Gong"""
+
+    thread_id: str
+    subject: str
+    participants: list[str]
+    email_count: int
+    sentiment_progression: list[float]
+    response_time_hours: float
+    personalization_score: float
+    cta_effectiveness: float
+    source: EmailSource
+    gong_conversation_id: str | None = None
+
+
+@dataclass
+class RealTimeCoachingInsight:
+    """Real-time coaching insight"""
+
+    insight_type: str
+    priority: CoachingPriority
+    message: str
+    action_required: bool
+    timestamp: datetime
+    context: dict[str, Any]
+
+
+class EnhancedMicrosoftGongIntegration:
+    """
+    Enhanced integration layer that processes Microsoft emails through Gong.io
+    with advanced coaching analytics and real-time insights
+    """
+
+    def __init__(self):
+        self.gong_connector = SnowflakeGongConnector()
+        self.cortex_service = SnowflakeCortexService()
+        self.sentiment_analyzer = EnhancedSentimentAnalyzer()
+        self.initialized = False
+
+    async def initialize(self):
+        """Initialize all components"""
+        if not self.initialized:
+            await self.gong_connector.initialize()
+            await self.cortex_service.initialize()
+            self.initialized = True
+            logger.info("✅ Enhanced Microsoft+Gong integration initialized")
+
+    async def analyze_sales_rep_performance(
+        self, sales_rep: str, days: int = 7
+    ) -> dict[str, Any]:
+        """
+        Comprehensive sales rep performance analysis with Microsoft email intelligence
+        """
+        if not self.initialized:
+            await self.initialize()
+
+        try:
+            # Get Gong data (includes Microsoft emails)
+            gong_data = await self._get_gong_comprehensive_data(sales_rep, days)
+
+            # Analyze email threads from Microsoft via Gong
+            email_analysis = await self._analyze_email_threads(
+                gong_data.get("emails", [])
+            )
+
+            # Analyze call performance
+            call_analysis = await self._analyze_call_performance(
+                gong_data.get("calls", [])
+            )
+
+            # Generate real-time coaching insights
+            coaching_insights = await self._generate_coaching_insights(
+                email_analysis, call_analysis, sales_rep
+            )
+
+            # Competitive intelligence analysis
+            competitive_analysis = await self._analyze_competitive_mentions(
+                gong_data.get("calls", [])
+            )
+
+            return {
+                "sales_rep": sales_rep,
+                "analysis_period_days": days,
+                "email_intelligence": email_analysis,
+                "call_performance": call_analysis,
+                "coaching_insights": coaching_insights,
+                "competitive_intelligence": competitive_analysis,
+                "overall_score": self._calculate_overall_score(
+                    email_analysis, call_analysis
+                ),
+                "improvement_recommendations": await self._generate_improvement_plan(
+                    email_analysis, call_analysis, coaching_insights
+                ),
+                "timestamp": datetime.now().isoformat(),
+            }
+
+        except Exception as e:
+            logger.error(f"Error analyzing sales rep performance: {e}")
+            return {"error": str(e), "sales_rep": sales_rep}
+
+    async def _get_gong_comprehensive_data(
+        self, sales_rep: str, days: int
+    ) -> dict[str, Any]:
+        """Get comprehensive data from Gong including Microsoft emails"""
+
+        # Get calls data
+        async with self.gong_connector as connector:
+            calls_data = await connector.get_calls_for_coaching(
+                sales_rep=sales_rep,
+                date_range_days=days,
+                sentiment_threshold=0.3,
+                limit=20,
+            )
+
+            # Get email data (Microsoft emails via Gong)
+            emails_data = await connector.get_sales_emails(
+                sales_rep=sales_rep, date_range_days=days
+            )
+
+            # Get performance metrics
+            performance_data = await connector.get_sales_rep_performance(
+                sales_rep=sales_rep, date_range_days=days
+            )
+
+        return {
+            "calls": calls_data,
+            "emails": emails_data,
+            "performance": performance_data,
+        }
+
+    async def _analyze_email_threads(
+        self, emails_data: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Analyze email threads with enhanced Microsoft intelligence"""
+
+        if not emails_data:
+            return {
+                "thread_count": 0,
+                "threads": [],
+                "summary": "No email data available",
+            }
+
+        # Group emails by thread
+        threads = {}
+        for email in emails_data:
+            thread_id = email.get("thread_id", email.get("email_id"))
+            if thread_id not in threads:
+                threads[thread_id] = []
+            threads[thread_id].append(email)
+
+        # Analyze each thread
+        thread_analyses = []
+        total_response_rate = 0
+        total_personalization = 0
+
+        for thread_id, thread_emails in threads.items():
+            if len(thread_emails) > 0:
+                analysis = await self._analyze_single_thread(thread_id, thread_emails)
+                thread_analyses.append(analysis)
+
+                if analysis.response_time_hours > 0:
+                    total_response_rate += 1
+                total_personalization += analysis.personalization_score
+
+        # Calculate summary metrics
+        response_rate = (total_response_rate / len(threads)) * 100 if threads else 0
+        avg_personalization = total_personalization / len(threads) if threads else 0
+
+        return {
+            "thread_count": len(threads),
+            "threads": thread_analyses,
+            "summary": {
+                "response_rate": response_rate,
+                "avg_personalization_score": avg_personalization,
+                "total_emails_sent": len(emails_data),
+                "threads_with_responses": total_response_rate,
+            },
+        }
+
+    async def _analyze_single_thread(
+        self, thread_id: str, thread_emails: list[dict[str, Any]]
+    ) -> EmailThreadAnalysis:
+        """Analyze a single email thread for coaching insights"""
+
+        # Sort emails by timestamp
+        sorted_emails = sorted(thread_emails, key=lambda x: x.get("sent_time", ""))
+
+        # Extract thread metadata
+        first_email = sorted_emails[0]
+        subject = first_email.get("subject", "")
+        participants = list(
+            set(
+                [email.get("sender", "") for email in sorted_emails]
+                + [email.get("recipient", "") for email in sorted_emails]
+            )
+        )
+
+        # Analyze sentiment progression
+        sentiment_progression = []
+        for email in sorted_emails:
+            content = email.get("body", "") or email.get("content", "")
+            if content:
+                sentiment_result = await self.sentiment_analyzer.analyze_sentiment(
+                    text=content,
+                    channel=SentimentChannel.HUBSPOT_EMAILS,
+                    context={"thread_id": thread_id},
+                )
+                sentiment_progression.append(sentiment_result.primary_sentiment)
+            else:
+                sentiment_progression.append(0.0)
+
+        # Calculate response time (if there are responses)
+        response_time_hours = 0.0
+        if len(sorted_emails) > 1:
+            # Calculate average response time between emails
+            response_times = []
+            for i in range(1, len(sorted_emails)):
+                try:
+                    prev_time = datetime.fromisoformat(
+                        sorted_emails[i - 1].get("sent_time", "")
+                    )
+                    curr_time = datetime.fromisoformat(
+                        sorted_emails[i].get("sent_time", "")
+                    )
+                    response_times.append(
+                        (curr_time - prev_time).total_seconds() / 3600
+                    )
+                except Exception:
+                    pass
+
+            if response_times:
+                response_time_hours = sum(response_times) / len(response_times)
+
+        # Analyze personalization score
+        personalization_score = await self._calculate_personalization_score(first_email)
+
+        # Analyze CTA effectiveness
+        cta_effectiveness = await self._analyze_cta_effectiveness(sorted_emails)
+
+        # Determine email source (Microsoft via Gong)
+        email_source = (
+            EmailSource.OUTLOOK
+        )  # Default since emails originate from Microsoft
+
+        return EmailThreadAnalysis(
+            thread_id=thread_id,
+            subject=subject,
+            participants=participants,
+            email_count=len(sorted_emails),
+            sentiment_progression=sentiment_progression,
+            response_time_hours=response_time_hours,
+            personalization_score=personalization_score,
+            cta_effectiveness=cta_effectiveness,
+            source=email_source,
+            gong_conversation_id=first_email.get("gong_conversation_id"),
+        )
+
+    async def _calculate_personalization_score(self, email: dict[str, Any]) -> float:
+        """Calculate email personalization score"""
+
+        content = email.get("body", "") or email.get("content", "")
+        subject = email.get("subject", "")
+
+        if not content:
+            return 0.0
+
+        score = 0.0
+        content_lower = content.lower()
+        subject_lower = subject.lower()
+
+        # Check for personalization indicators
+        personalization_indicators = {
+            "company_name": 0.3,  # Mentions company name
+            "specific_industry": 0.2,  # Industry-specific terms
+            "recent_news": 0.3,  # References recent company news
+            "mutual_connections": 0.2,  # Mentions mutual connections
+            "specific_pain_points": 0.3,  # Addresses specific challenges
+            "custom_subject": 0.2,  # Non-generic subject line
+        }
+
+        # Check for generic template indicators (negative score)
+        generic_indicators = [
+            "following up on our conversation",
+            "wanted to circle back",
+            "hope you're doing well",
+            "just checking in",
+        ]
+
+        # Calculate positive score
+        if "[company]" not in content_lower and "company name" not in content_lower:
+            score += personalization_indicators["company_name"]
+
+        if any(
+            industry in content_lower
+            for industry in ["fintech", "payments", "financial services", "banking"]
+        ):
+            score += personalization_indicators["specific_industry"]
+
+        if any(
+            news in content_lower
+            for news in ["expansion", "funding", "partnership", "acquisition", "launch"]
+        ):
+            score += personalization_indicators["recent_news"]
+
+        if "following up on our conversation" not in subject_lower:
+            score += personalization_indicators["custom_subject"]
+
+        # Subtract for generic content
+        for generic in generic_indicators:
+            if generic in content_lower:
+                score -= 0.2
+
+        return max(0.0, min(1.0, score))
+
+    async def _analyze_cta_effectiveness(self, emails: list[dict[str, Any]]) -> float:
+        """Analyze call-to-action effectiveness"""
+
+        if not emails:
+            return 0.0
+
+        # Analyze the first email's CTA
+        first_email = emails[0]
+        content = first_email.get("body", "") or first_email.get("content", "")
+
+        if not content:
+            return 0.0
+
+        content_lower = content.lower()
+        score = 0.0
+
+        # Strong CTA indicators
+        strong_ctas = [
+            "are you free for a brief call",
+            "would tuesday or wednesday work",
+            "let's schedule 15 minutes",
+            "when would be a good time",
+        ]
+
+        # Weak CTA indicators
+        weak_ctas = [
+            "let me know if you'd like to see a demo",
+            "feel free to reach out",
+            "let me know your thoughts",
+            "hope to hear from you soon",
+        ]
+
+        # Check for strong CTAs
+        for cta in strong_ctas:
+            if cta in content_lower:
+                score += 0.3
+
+        # Check for weak CTAs (negative impact)
+        for cta in weak_ctas:
+            if cta in content_lower:
+                score -= 0.2
+
+        # Check if there are specific time options
+        if any(
+            time in content_lower
+            for time in [
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "2 pm",
+                "10 am",
+                "morning",
+                "afternoon",
+            ]
+        ):
+            score += 0.2
+
+        # Check for value proposition in CTA
+        if any(
+            value in content_lower
+            for value in ["5-minute insight", "quick case study", "relevant example"]
+        ):
+            score += 0.2
+
+        return max(0.0, min(1.0, score))
+
+    async def _analyze_call_performance(
+        self, calls_data: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Analyze call performance with enhanced metrics"""
+
+        if not calls_data:
+            return {"call_count": 0, "summary": "No call data available"}
+
+        # Analyze each call
+        call_analyses = []
+        total_sentiment = 0
+        total_talk_ratio = 0
+
+        for call in calls_data:
+            analysis = await self._analyze_single_call(call)
+            call_analyses.append(analysis)
+            total_sentiment += analysis.get("sentiment_score", 0)
+            total_talk_ratio += analysis.get("talk_ratio", 0)
+
+        # Calculate averages
+        avg_sentiment = total_sentiment / len(calls_data) if calls_data else 0
+        avg_talk_ratio = total_talk_ratio / len(calls_data) if calls_data else 0
+
+        return {
+            "call_count": len(calls_data),
+            "calls": call_analyses,
+            "summary": {
+                "avg_sentiment": avg_sentiment,
+                "avg_talk_ratio": avg_talk_ratio,
+                "calls_needing_coaching": len(
+                    [
+                        c
+                        for c in call_analyses
+                        if c.get("sentiment_score", 0) < 0.5
+                        or c.get("talk_ratio", 0) > 0.7
+                    ]
+                ),
+            },
+        }
+
+    async def _analyze_single_call(self, call: dict[str, Any]) -> dict[str, Any]:
+        """Analyze a single call for coaching insights"""
+
+        return {
+            "call_id": call.get("call_id", ""),
+            "title": call.get("title", ""),
+            "duration_minutes": call.get("duration_seconds", 0) / 60,
+            "sentiment_score": call.get("sentiment_score", 0),
+            "talk_ratio": call.get("talk_ratio", 0),
+            "participants": call.get("participants", []),
+            "key_topics": call.get("key_topics", []),
+            "coaching_needed": (
+                call.get("sentiment_score", 0) < 0.5 or call.get("talk_ratio", 0) > 0.7
+            ),
+        }
+
+    async def _generate_coaching_insights(
+        self,
+        email_analysis: dict[str, Any],
+        call_analysis: dict[str, Any],
+        sales_rep: str,
+    ) -> list[RealTimeCoachingInsight]:
+        """Generate real-time coaching insights"""
+
+        insights = []
+
+        # Email coaching insights
+        email_summary = email_analysis.get("summary", {})
+        response_rate = email_summary.get("response_rate", 0)
+        personalization = email_summary.get("avg_personalization_score", 0)
+
+        if response_rate < 35:
+            insights.append(
+                RealTimeCoachingInsight(
+                    insight_type="email_response_rate",
+                    priority=CoachingPriority.HIGH,
+                    message=f"Email response rate at {response_rate:.1f}% - below 35% threshold",
+                    action_required=True,
+                    timestamp=datetime.now(),
+                    context={
+                        "current_rate": response_rate,
+                        "target_rate": 40,
+                        "improvement_needed": 40 - response_rate,
+                    },
+                )
+            )
+
+        if personalization < 0.4:
+            insights.append(
+                RealTimeCoachingInsight(
+                    insight_type="email_personalization",
+                    priority=CoachingPriority.MEDIUM,
+                    message=f"Email personalization score at {personalization:.2f} - increase company research",
+                    action_required=True,
+                    timestamp=datetime.now(),
+                    context={
+                        "current_score": personalization,
+                        "target_score": 0.7,
+                        "improvement_areas": [
+                            "company_research",
+                            "industry_insights",
+                            "custom_subject_lines",
+                        ],
+                    },
+                )
+            )
+
+        # Call coaching insights
+        call_summary = call_analysis.get("summary", {})
+        avg_sentiment = call_summary.get("avg_sentiment", 0)
+        avg_talk_ratio = call_summary.get("avg_talk_ratio", 0)
+
+        if avg_sentiment < 0.5:
+            insights.append(
+                RealTimeCoachingInsight(
+                    insight_type="call_sentiment",
+                    priority=CoachingPriority.CRITICAL,
+                    message=f"Call sentiment at {avg_sentiment:.2f} - focus on rapport building",
+                    action_required=True,
+                    timestamp=datetime.now(),
+                    context={
+                        "current_sentiment": avg_sentiment,
+                        "target_sentiment": 0.6,
+                        "coaching_focus": "active_listening",
+                    },
+                )
+            )
+
+        if avg_talk_ratio > 0.7:
+            insights.append(
+                RealTimeCoachingInsight(
+                    insight_type="talk_ratio",
+                    priority=CoachingPriority.HIGH,
+                    message=f"Talk ratio at {avg_talk_ratio:.1%} - ask more discovery questions",
+                    action_required=True,
+                    timestamp=datetime.now(),
+                    context={
+                        "current_ratio": avg_talk_ratio,
+                        "target_ratio": 0.6,
+                        "coaching_focus": "discovery_questions",
+                    },
+                )
+            )
+
+        return insights
+
+    async def _analyze_competitive_mentions(
+        self, calls_data: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Analyze competitive mentions and provide coaching"""
+
+        competitors = {
+            "stripe": {"mentions": 0, "context": []},
+            "square": {"mentions": 0, "context": []},
+            "paypal": {"mentions": 0, "context": []},
+            "adyen": {"mentions": 0, "context": []},
+        }
+
+        for call in calls_data:
+            transcript = call.get("transcript", "").lower()
+
+            for competitor in competitors.keys():
+                if competitor in transcript:
+                    competitors[competitor]["mentions"] += 1
+                    competitors[competitor]["context"].append(
+                        {
+                            "call_id": call.get("call_id"),
+                            "title": call.get("title", ""),
+                            "sentiment": call.get("sentiment_score", 0),
+                        }
+                    )
+
+        # Generate battle card recommendations
+        battle_cards = []
+        for competitor, data in competitors.items():
+            if data["mentions"] > 0:
+                battle_cards.append(
+                    {
+                        "competitor": competitor,
+                        "mentions": data["mentions"],
+                        "recommended_response": self._get_battle_card_response(
+                            competitor
+                        ),
+                        "calls": data["context"],
+                    }
+                )
+
+        return {
+            "competitive_mentions": competitors,
+            "battle_cards": battle_cards,
+            "total_competitive_calls": len(
+                [
+                    call
+                    for call in calls_data
+                    if any(
+                        comp in call.get("transcript", "").lower()
+                        for comp in competitors.keys()
+                    )
+                ]
+            ),
+        }
+
+    def _get_battle_card_response(self, competitor: str) -> str:
+        """Get battle card response for competitor"""
+
+        battle_cards = {
+            "stripe": "Emphasize our superior customer service, faster onboarding, and enterprise-grade compliance",
+            "square": "Highlight our advanced fraud protection, better international support, and lower total cost of ownership",
+            "paypal": "Focus on our white-label solutions, better API flexibility, and dedicated account management",
+            "adyen": "Emphasize our easier integration, better documentation, and more responsive support team",
+        }
+
+        return battle_cards.get(
+            competitor,
+            "Focus on our unique value proposition and customer success stories",
+        )
+
+    def _calculate_overall_score(
+        self, email_analysis: dict[str, Any], call_analysis: dict[str, Any]
+    ) -> float:
+        """Calculate overall performance score"""
+
+        email_score = 0.0
+        call_score = 0.0
+
+        # Email score (40% of total)
+        email_summary = email_analysis.get("summary", {})
+        response_rate = email_summary.get("response_rate", 0) / 100
+        personalization = email_summary.get("avg_personalization_score", 0)
+        email_score = (response_rate * 0.6 + personalization * 0.4) * 0.4
+
+        # Call score (60% of total)
+        call_summary = call_analysis.get("summary", {})
+        sentiment = call_summary.get("avg_sentiment", 0)
+        talk_ratio_score = max(
+            0, 1 - abs(call_summary.get("avg_talk_ratio", 0.7) - 0.6)
+        )
+        call_score = (sentiment * 0.7 + talk_ratio_score * 0.3) * 0.6
+
+        return email_score + call_score
+
+    async def _generate_improvement_plan(
+        self,
+        email_analysis: dict[str, Any],
+        call_analysis: dict[str, Any],
+        coaching_insights: list[RealTimeCoachingInsight],
+    ) -> dict[str, Any]:
+        """Generate comprehensive improvement plan"""
+
+        # Priority insights
+        critical_insights = [
+            i for i in coaching_insights if i.priority == CoachingPriority.CRITICAL
+        ]
+        high_insights = [
+            i for i in coaching_insights if i.priority == CoachingPriority.HIGH
+        ]
+
+        # Generate action items
+        action_items = []
+
+        for insight in critical_insights + high_insights:
+            if insight.insight_type == "email_response_rate":
+                action_items.append(
+                    {
+                        "priority": "immediate",
+                        "action": "Rewrite email templates with company-specific insights",
+                        "timeline": "This week",
+                        "success_metric": "40% response rate",
+                    }
+                )
+
+            elif insight.insight_type == "call_sentiment":
+                action_items.append(
+                    {
+                        "priority": "immediate",
+                        "action": "Practice active listening and rapport building techniques",
+                        "timeline": "Next 3 calls",
+                        "success_metric": "0.6+ sentiment score",
+                    }
+                )
+
+            elif insight.insight_type == "talk_ratio":
+                action_items.append(
+                    {
+                        "priority": "high",
+                        "action": "Prepare 8+ discovery questions for each call",
+                        "timeline": "Starting tomorrow",
+                        "success_metric": "60% talk ratio or less",
+                    }
+                )
+
+        return {
+            "action_items": action_items,
+            "weekly_goals": {
+                "email_response_rate": "40%",
+                "call_sentiment": "0.6+",
+                "talk_ratio": "60% or less",
+                "personalization_score": "0.7+",
+            },
+            "coaching_focus": [
+                insight.insight_type for insight in critical_insights + high_insights
+            ],
+            "next_review": (datetime.now() + timedelta(days=7)).isoformat(),
+        }
+
+
+# Global instance
+enhanced_microsoft_gong_integration = EnhancedMicrosoftGongIntegration()
