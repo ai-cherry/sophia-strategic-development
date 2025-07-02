@@ -18,6 +18,42 @@
         "auto_start": true,
         "health_check_url": "http://localhost:8100/health"
       }
+    },
+    "snowflake_unified": {
+      "command": "python",
+      "args": [
+        "mcp-servers/snowflake_unified/unified_snowflake_server.py"
+      ],
+      "env": {
+        "PORT": "9030"
+      }
+    },
+    "slack_unified": {
+      "command": "python",
+      "args": [
+        "mcp-servers/slack_unified/slack_integration_server.py"
+      ],
+      "env": {
+        "PORT": "9031"
+      }
+    },
+    "sophia_intelligence_unified": {
+      "command": "python",
+      "args": [
+        "mcp-servers/sophia_intelligence_unified/unified_sophia_intelligence_server.py"
+      ],
+      "env": {
+        "PORT": "9032"
+      }
+    },
+    "hubspot_unified": {
+      "command": "python",
+      "args": [
+        "mcp-servers/hubspot_unified/hubspot_server.py"
+      ],
+      "env": {
+        "PORT": "9033"
+      }
     }
   },
   "version": "4.0-phoenix",
