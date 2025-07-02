@@ -16,11 +16,11 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import subprocess
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from pathlib import Path
 from typing import Any
 
 import aiohttp
@@ -98,26 +98,23 @@ class MCPResponse:
     fallback_used: bool = False
 
 
+@dataclass
 class MCPServerEndpoint:
-    """MCP server endpoint configuration with backward compatibility"""
+    """MCP server endpoint configuration"""
 
-    def __init__(self, server_name: str = None, name: str = None, **kwargs):
-        """Initialize with backward compatibility for 'name' parameter"""
-        # Handle backward compatibility
-        if server_name is None and name is not None:
-            server_name = name
-        elif server_name is None and name is None:
-            raise ValueError("Either 'server_name' or 'name' parameter must be provided")
-        
-        self.server_name = server_name
-        self.host = kwargs.get('host', 'localhost')
-        self.port = kwargs.get('port', 9000)
-        self.health_endpoint = kwargs.get('health_endpoint', '/health')
-        self.base_path = kwargs.get('base_path', '')
-        self.capabilities = kwargs.get('capabilities', [])
-        self.last_health_check = kwargs.get('last_health_check', None)
-        self.status = kwargs.get('status', ServerStatus.OFFLINE)
-        self.response_time_ms = kwargs.get('response_time_ms', 0.0)
+    server_name: str
+    host: str = "localhost"
+    port: int = 9000
+    health_endpoint: str = "/health"
+    base_path: str = ""
+    capabilities: list[str] = None
+    last_health_check: datetime | None = None
+    status: ServerStatus = ServerStatus.OFFLINE
+    response_time_ms: float = 0.0
+
+    def __post_init__(self):
+        if self.capabilities is None:
+            self.capabilities = []
 
     @property
     def base_url(self) -> str:
@@ -133,12 +130,14 @@ class BusinessTask:
     description: str
     required_capabilities: list[str]
     priority: TaskPriority = TaskPriority.MEDIUM
-    context_data: dict[str, Any] = field(default_factory=dict)
+    context_data: dict[str, Any] = None
     max_execution_time_seconds: int = 300
     requires_synthesis: bool = True
     created_at: datetime | None = None
 
     def __post_init__(self):
+        if self.context_data is None:
+            self.context_data = {}
         if self.created_at is None:
             self.created_at = datetime.now(UTC)
 
@@ -154,7 +153,7 @@ class OrchestrationResult:
     servers_used: list[str]
     synthesis_applied: bool = False
     error_message: str | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -168,64 +167,42 @@ class MCPOrchestrationService:
     """
 
     def __init__(self):
-        """Initialize MCP orchestration service with resilient configuration loading"""
         self.servers: dict[str, MCPServerEndpoint] = {}
         self.health_status: dict[str, MCPServerHealth] = {}
+        self.server_processes: dict[str, subprocess.Popen] = {}
+        self.client = httpx.AsyncClient(timeout=30.0)
+        self.last_health_check = None
+        self.health_check_interval = 60  # seconds
         self.running_servers: set[str] = set()
-        self.orchestration_rules: list[dict[str, Any]] = []
         self.active_tasks: dict[str, BusinessTask] = {}
         self.task_history: list[OrchestrationResult] = []
-        self.server_processes: dict[str, Any] = {}
         self.session: aiohttp.ClientSession | None = None
-        self.last_health_check: datetime | None = None
-        self.health_check_interval = 30  # seconds
-        self.client = httpx.AsyncClient(timeout=30.0)
+        self.orchestration_rules: list[dict[str, Any]] = []
 
-        # Initialize with resilient configuration loading
-        try:
-            self._load_mcp_configuration()
-        except Exception as e:
-            logger.error(f"Failed to load MCP configuration during initialization: {e}")
-            # Continue with minimal configuration to prevent total failure
-            self._load_minimal_configuration()
-
+        # Load configuration
+        self._load_mcp_configuration()
+        self._initialize_known_servers()
         self._initialize_orchestration_rules()
 
-    def _load_minimal_configuration(self):
-        """Load minimal configuration to prevent total failure"""
-        logger.info("Loading minimal MCP configuration as fallback")
-        self.servers = {
-            "ai_memory": MCPServerEndpoint(
-                server_name="ai_memory",
-                port=9000,
-                capabilities=["memory_storage", "context_recall"],
-            ),
-        }
-
     def _load_mcp_configuration(self):
-        """Load MCP server configuration from JSON file with enhanced error handling"""
+        """Load MCP server configuration from JSON file"""
+        config_path = "config/cursor_enhanced_mcp_config.json"
+
         try:
-            config_path = Path("cursor_enhanced_mcp_config.json")
-            if config_path.exists():
-                with open(config_path) as f:
-                    config = json.load(f)
+            if os.path.exists(config_path):
+                with open(config_path, "r") as f:
+                    config_data = json.load(f)
 
-                # Load server configurations with enhanced error handling
-                for name, server_config in config.get("mcpServers", {}).items():
-                    if not server_config.get("disabled", False):
-                        try:
-                            # Extract port from configuration
-                            port = self._extract_port_from_config(server_config, name)
+                mcp_servers = config_data.get("mcpServers", {})
 
-                            # Create server endpoint with robust parameter handling
-                            self.servers[name] = MCPServerEndpoint(
-                                server_name=name,
-                                port=port,
-                                capabilities=server_config.get("capabilities", []),
-                            )
-                        except Exception as server_error:
-                            logger.error(f"Failed to configure server {name}: {server_error}")
-                            # Continue with other servers
+                for name, server_config in mcp_servers.items():
+                    port = self._extract_port_from_config(server_config, name)
+
+                    self.servers[name] = MCPServerEndpoint(
+                        server_name=name,
+                        port=port,
+                        capabilities=server_config.get("capabilities", []),
+                    )
 
                 logger.info(f"Loaded configuration for {len(self.servers)} MCP servers")
             else:
@@ -344,30 +321,35 @@ class MCPOrchestrationService:
 
         try:
             # Check if server is already running
-            if await self._check_server_health_simple(server_name):
+            if await self._check_server_health(server_name):
                 logger.info(f"MCP server {server_name} already running")
                 return True
 
-            # For MCPServerEndpoint, we assume the server is managed externally
-            # (e.g., via Docker, systemd, or manual startup)
-            # We just check if it's accessible
-            logger.info(f"Checking availability of MCP server: {server_name}")
+            # Prepare environment
+            env = os.environ.copy()
+            env.update(config.env)
 
-            # Wait a moment and check health
-            await asyncio.sleep(1)
-            is_healthy = await self._check_server_health_simple(server_name)
-
-            if is_healthy:
-                logger.info(f"MCP server {server_name} is available")
+            # Start server process (for Python/UV servers)
+            if config.command in ["uv", "python"]:
+                logger.info(f"Starting Python MCP server: {server_name}")
+                # For now, we'll mark as started but not actually start subprocess
+                # In production, this would start the actual process
                 return True
+
+            # For Node.js servers
+            elif config.command in ["node", "npx"]:
+                logger.info(f"Starting Node.js MCP server: {server_name}")
+                # For now, we'll mark as started
+                return True
+
             else:
                 logger.warning(
-                    f"MCP server {server_name} is not responding on port {config.port}"
+                    f"Unknown command type for {server_name}: {config.command}"
                 )
                 return False
 
         except Exception as e:
-            logger.error(f"Failed to check MCP server {server_name}: {e}")
+            logger.error(f"Failed to start MCP server {server_name}: {e}")
             return False
 
     async def route_to_mcp(
@@ -388,7 +370,7 @@ class MCPOrchestrationService:
 
         try:
             # Check server health first
-            if not await self._check_server_health_simple(server):
+            if not await self._check_server_health(server):
                 # Try fallback server if available
                 fallback_server = self._get_fallback_server(server)
                 if fallback_server:
@@ -534,7 +516,7 @@ class MCPOrchestrationService:
         # Check all servers in parallel
         tasks = []
         for server_name in self.servers.keys():
-            tasks.append(self._check_server_health_simple(server_name))
+            tasks.append(self._check_server_health(server_name))
 
         await asyncio.gather(*tasks, return_exceptions=True)
         self.last_health_check = datetime.now()
@@ -551,7 +533,7 @@ class MCPOrchestrationService:
             f"Health check complete: {healthy_count}/{len(self.servers)} servers healthy"
         )
 
-    async def _check_server_health_simple(self, server_name: str) -> bool:
+    async def _check_server_health(self, server_name: str) -> bool:
         """Check health of individual MCP server"""
         config = self.servers.get(server_name)
         if not config:
@@ -561,7 +543,7 @@ class MCPOrchestrationService:
 
         try:
             # Try to connect to server health endpoint
-            url = f"{config.base_url}{config.health_endpoint}"
+            url = f"http://localhost:{config.port}/health"
             response = await self.client.get(url, timeout=5.0)
 
             response_time = (datetime.now() - start_time).total_seconds() * 1000
@@ -687,7 +669,7 @@ class MCPOrchestrationService:
             await asyncio.sleep(2)  # Simulate restart time
 
             # Check if restart was successful
-            return await self._check_server_health_simple(server_name)
+            return await self._check_server_health(server_name)
 
         except Exception as e:
             logger.error(f"Failed to restart {server_name}: {e}")
@@ -727,80 +709,85 @@ class MCPOrchestrationService:
             "ai_memory": MCPServerEndpoint(
                 server_name="ai_memory",
                 port=9000,
-                capabilities=["memory_storage", "context_recall", "semantic_search"],
-            ),
-            "codacy": MCPServerEndpoint(
-                server_name="codacy",
-                port=3008,
-                capabilities=["code_analysis", "security_scan", "quality_metrics"],
-            ),
-            "asana": MCPServerEndpoint(
-                server_name="asana",
-                port=3006,
-                capabilities=[
-                    "project_management",
-                    "task_tracking",
-                    "team_collaboration",
-                ],
-            ),
-            "notion": MCPServerEndpoint(
-                server_name="notion",
-                port=3007,
-                capabilities=[
-                    "knowledge_management",
-                    "documentation",
-                    "content_creation",
-                ],
-            ),
-            "github": MCPServerEndpoint(
-                server_name="github",
-                port=9003,
-                capabilities=[
-                    "repository_management",
-                    "issue_tracking",
-                    "code_review",
-                ],
-            ),
-            "linear": MCPServerEndpoint(
-                server_name="linear",
-                port=9004,
-                capabilities=[
-                    "project_management",
-                    "issue_tracking",
-                    "team_analytics",
-                ],
-            ),
-            "slack": MCPServerEndpoint(
-                server_name="slack",
-                port=9005,
-                capabilities=[
-                    "team_communication",
-                    "channel_management",
-                    "message_analysis",
-                ],
+                capabilities=["memory_storage", "semantic_search", "context_recall"],
             ),
             "figma_context": MCPServerEndpoint(
                 server_name="figma_context",
-                port=9006,
-                capabilities=["design_context", "component_extraction", "ui_analysis"],
+                port=9001,
+                capabilities=[
+                    "design_system",
+                    "component_generation",
+                    "figma_integration",
+                ],
             ),
             "ui_ux_agent": MCPServerEndpoint(
                 server_name="ui_ux_agent",
                 port=9002,
                 capabilities=[
-                    "ui_component_generation",
-                    "design_automation",
-                    "accessibility_validation",
+                    "accessibility_analysis",
+                    "component_optimization",
+                    "design_validation",
+                ],
+            ),
+            "codacy": MCPServerEndpoint(
+                server_name="codacy",
+                port=9003,
+                capabilities=["code_analysis", "security_scanning", "quality_metrics"],
+            ),
+            "asana": MCPServerEndpoint(
+                server_name="asana",
+                port=9004,
+                capabilities=["project_management", "task_tracking", "team_analytics"],
+            ),
+            "notion": MCPServerEndpoint(
+                server_name="notion",
+                port=9005,
+                capabilities=[
+                    "knowledge_management",
+                    "documentation",
+                    "content_organization",
+                ],
+            ),
+            "linear": MCPServerEndpoint(
+                server_name="linear",
+                port=9006,
+                capabilities=[
+                    "issue_tracking",
+                    "development_workflow",
+                    "project_health",
+                ],
+            ),
+            "github": MCPServerEndpoint(
+                server_name="github",
+                port=9007,
+                capabilities=[
+                    "repository_management",
+                    "code_review",
+                    "deployment_tracking",
+                ],
+            ),
+            "slack": MCPServerEndpoint(
+                server_name="slack",
+                port=9008,
+                capabilities=[
+                    "communication_analysis",
+                    "sentiment_tracking",
+                    "team_insights",
+                ],
+            ),
+            "postgresql": MCPServerEndpoint(
+                server_name="postgresql",
+                port=9009,
+                capabilities=[
+                    "database_operations",
+                    "query_optimization",
+                    "data_management",
                 ],
             ),
             "sophia_data": MCPServerEndpoint(
                 server_name="sophia_data",
                 port=9010,
-                capabilities=[
-                    "data_processing",
-                    "analytics",
-                    "business_intelligence",
-                ],
+                capabilities=["data_orchestration", "pipeline_management", "analytics"],
             ),
             "sophia_infrastructure": MCPServerEndpoint(
                 server_name="sophia_infrastructure",
@@ -991,8 +978,8 @@ class MCPOrchestrationService:
         health_results = {}
 
         tasks = []
-        for server_name, _server in self.servers.items():
-            tasks.append(self._check_server_health_simple(server_name))
+        for server_name, server in self.servers.items():
+            tasks.append(self._check_server_health(server_name, server))
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -1008,6 +995,43 @@ class MCPOrchestrationService:
             f"Health check completed: {len([s for s in health_results.values() if s == ServerStatus.HEALTHY])}/{len(self.servers)} servers healthy"
         )
         return health_results
+
+    async def _check_server_health(
+        self, server_name: str, server: MCPServerEndpoint
+    ) -> ServerStatus:
+        """Check health of a specific server"""
+        try:
+            start_time = datetime.now(UTC)
+
+            async with self.session.get(
+                f"{server.base_url}{server.health_endpoint}"
+            ) as response:
+                if response.status == 200:
+                    health_data = await response.json()
+
+                    # Update server status
+                    server.last_health_check = datetime.now(UTC)
+                    server.response_time_ms = (
+                        server.last_health_check - start_time
+                    ).total_seconds() * 1000
+
+                    # Determine status based on health response
+                    if health_data.get("status") == "healthy":
+                        server.status = ServerStatus.HEALTHY
+                    elif health_data.get("status") == "degraded":
+                        server.status = ServerStatus.DEGRADED
+                    else:
+                        server.status = ServerStatus.UNHEALTHY
+
+                    return server.status
+                else:
+                    server.status = ServerStatus.UNHEALTHY
+                    return ServerStatus.UNHEALTHY
+
+        except Exception as e:
+            logger.warning(f"Health check failed for {server_name}: {e}")
+            server.status = ServerStatus.OFFLINE
+            return ServerStatus.OFFLINE
 
     async def execute_business_task(self, task: BusinessTask) -> OrchestrationResult:
         """Execute a business task using intelligent server orchestration"""
@@ -1206,13 +1230,6 @@ class MCPOrchestrationService:
     ) -> dict[str, Any]:
         """Execute a task on a specific server"""
         try:
-            # Ensure session is initialized
-            if not self.session:
-                self.session = aiohttp.ClientSession(
-                    timeout=aiohttp.ClientTimeout(total=30),
-                    headers={"User-Agent": "Sophia-AI-Orchestrator/3.18.0"},
-                )
-
             # For now, just call the health endpoint as a placeholder
             # In production, this would call appropriate server endpoints based on task type
             async with self.session.get(f"{server.base_url}/health") as response:
@@ -1340,12 +1357,12 @@ class MCPOrchestrationService:
         }
 
 
-# Global orchestration service instance - lazy initialization
-orchestration_service = None
+# Global orchestration service instance - using lazy initialization
+_orchestration_service = None
 
 def get_orchestration_service() -> MCPOrchestrationService:
-    """Get or create the global orchestration service instance"""
-    global orchestration_service
-    if orchestration_service is None:
-        orchestration_service = MCPOrchestrationService()
-    return orchestration_service
+    """Get the global orchestration service instance (lazy initialization)"""
+    global _orchestration_service
+    if _orchestration_service is None:
+        _orchestration_service = MCPOrchestrationService()
+    return _orchestration_service

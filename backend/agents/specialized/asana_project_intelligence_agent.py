@@ -27,6 +27,7 @@ from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMC
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
 from backend.services.smart_ai_service import SmartAIService
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 
