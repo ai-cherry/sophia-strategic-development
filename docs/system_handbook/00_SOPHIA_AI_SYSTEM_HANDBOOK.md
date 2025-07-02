@@ -41,6 +41,12 @@ Sophia AI is the central "Pay Ready Brain," an AI-native orchestration platform 
 - **In-Memory Cache:** **Redis**
 - **Database:** **PostgreSQL**
 
+### 2.3. Deployment
+
+For automated, production-grade deployments—including Lambda Labs one-click deployment—see the [Lambda Labs Quick Deployment Guide](../04-deployment/LAMBDA_LABS_DEPLOYMENT_GUIDE.md).
+
+For a full, research-validated integration roadmap, see the [Comprehensive Integration Plan V2.0](../04-deployment/COMPREHENSIVE_INTEGRATION_PLAN_V2.0.md).
+
 ---
 
 ## 3. The Sophia AI Architecture

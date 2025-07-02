@@ -168,3 +168,23 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 **Sophia AI** - Transforming business operations through intelligent AI orchestration. 🚀
+
+# Sophia AI
+
+Sophia AI is the central orchestration platform for Pay Ready, providing unified AI-driven business intelligence, automation, and development assistance.
+
+## Getting Started
+
+See the [Getting Started Guide](docs/01-getting-started/README.md).
+
+## Development
+
+See the [Development Guide](docs/02-development/README.md).
+
+## Deployment
+
+See the [Deployment Guides](docs/04-deployment/README.md).
+
+## System Handbook
+
+See the [System Handbook](docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md).

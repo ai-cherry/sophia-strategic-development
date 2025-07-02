@@ -169,6 +169,10 @@ $ python -c "from backend.app.fastapi_app import app; print('Success!')"
 Success!
 ```
 
+## Remote Deployment
+
+For one-click deployment on Lambda Labs, see the [Lambda Labs Quick Deployment Guide](../04-deployment/LAMBDA_LABS_DEPLOYMENT_GUIDE.md).
+
 ---
 
 **🚀 Welcome to the future of AI development with Sophia AI!**
