@@ -1,0 +1,183 @@
+{
+  "assessment_summary": {
+    "timestamp": "2024-01-15",
+    "total_components": 10,
+    "healthy_components": 4,
+    "critical_issues": []
+  },
+  "detailed_results": {
+    "pulumi_esc": {
+      "status": "disconnected",
+      "details": {
+        "total_secrets": 0,
+        "critical_secrets": {
+          "openai_api_key": true,
+          "anthropic_api_key": true,
+          "github_token": false,
+          "snowflake_account": true,
+          "snowflake_user": true,
+          "snowflake_password": true,
+          "lambda_labs_api_key": false,
+          "vercel_token": false,
+          "estuary_access_token": false
+        },
+        "missing_critical": [
+          "github_token",
+          "lambda_labs_api_key",
+          "vercel_token",
+          "estuary_access_token"
+        ]
+      }
+    },
+    "github_secrets": {
+      "status": "unknown",
+      "details": {}
+    },
+    "docker": {
+      "status": "available",
+      "details": {
+        "docker_version": " Version:           28.2.2",
+        "compose_available": true
+      }
+    },
+    "kubernetes": {
+      "status": "disconnected",
+      "details": {
+        "error": "E0701 22:47:39.787024   45975 memcache.go:265] \"Unhandled Error\" err=\"couldn't get current server API group list: Get \\\"http://localhost:8080/api?timeout=32s\\\": dial tcp [::1]:8080: connect: connection refused\"\nE0701 22:47:39.788737   45975 memcache.go:265] \"Unhandled Error\" err=\"couldn't get current server API group list: Get \\\"http://localhost:8080/api?timeout=32s\\\": dial tcp [::1]:8080: connect: connection refused\"\nE0701 22:47:39.790336   45975 memcache.go:265] \"Unhandled Error\" err=\"couldn't get current server API group list: Get \\\"http://localhost:8080/api?timeout=32s\\\": dial tcp [::1]:8080: connect: connection refused\"\nE0701 22:47:39.791874   45975 memcache.go:265] \"Unhandled Error\" err=\"couldn't get current server API group list: Get \\\"http://localhost:8080/api?timeout=32s\\\": dial tcp [::1]:8080: connect: connection refused\"\nE0701 22:47:39.793568   45975 memcache.go:265] \"Unhandled Error\" err=\"couldn't get current server API group list: Get \\\"http://localhost:8080/api?timeout=32s\\\": dial tcp [::1]:8080: connect: connection refused\"\nThe connection to the server localhost:8080 was refused - did you specify the right host or port?\n"
+      }
+    },
+    "lambda_labs": {
+      "status": "no_credentials",
+      "details": {
+        "error": "Missing API key"
+      }
+    },
+    "vercel": {
+      "status": "no_credentials",
+      "details": {
+        "error": "Missing token"
+      }
+    },
+    "snowflake": {
+      "status": "connected",
+      "details": {
+        "version": "9.17.2",
+        "all_config_present": true
+      }
+    },
+    "estuary": {
+      "status": "unknown",
+      "details": {}
+    },
+    "mcp_servers": {
+      "status": "assessed",
+      "details": {
+        "total_critical_servers": 7,
+        "working_servers": 6,
+        "server_status": {
+          "ai_memory": {
+            "directory_exists": true,
+            "server_file_exists": true,
+            "server_file": "mcp-servers/ai_memory/ai_memory_mcp_server.py"
+          },
+          "codacy": {
+            "directory_exists": true,
+            "server_file_exists": true,
+            "server_file": "mcp-servers/codacy/codacy_mcp_server.py"
+          },
+          "github": {
+            "directory_exists": true,
+            "server_file_exists": true,
+            "server_file": "mcp-servers/github/github_mcp_server.py"
+          },
+          "linear": {
+            "directory_exists": true,
+            "server_file_exists": true,
+            "server_file": "mcp-servers/linear/linear_mcp_server.py"
+          },
+          "notion": {
+            "directory_exists": true,
+            "server_file_exists": true,
+            "server_file": "mcp-servers/notion/notion_mcp_server.py"
+          },
+          "snowflake": {
+            "directory_exists": true,
+            "server_file_exists": true,
+            "server_file": "mcp-servers/snowflake/snowflake_mcp_server.py"
+          },
+          "sophia_ai_intelligence": {
+            "directory_exists": true,
+            "server_file_exists": false
+          }
+        }
+      }
+    },
+    "code_protection": {
+      "status": "assessed",
+      "details": {
+        "github_workflows": [
+          "mcp-security-audit.yml",
+          "sophia-complete-stack-deployment.yml",
+          "lambda-labs-deployment.yml",
+          "deploy-sophia-platform-fixed.yml",
+          "quality-gate.yml",
+          "deploy-phase2.yml",
+          "vercel-deployment.yml",
+          "automated-infrastructure-deployment.yml",
+          "reusable-deploy-mcp.yml",
+          "build_dashboard.yml",
+          "test_integrations.yml",
+          "estuary-asana-deployment.yml",
+          "sophia-release-management.yml",
+          "sync_secrets.yml",
+          "deployment-monitoring.yml",
+          "deploy_infrastructure.yml",
+          "estuary-monitoring.yml",
+          "production-deployment.yml",
+          "infrastructure-tests.yml",
+          "master-deployment-workflow.yml",
+          "force-vercel-deployment.yml",
+          "cursor-integration.yml",
+          "pulumi-esc-sync.yml",
+          "infrastructure-deploy.yml",
+          "reusable-deploy-platform.yml",
+          "deployment_health_gate.yml",
+          "dashboard-deployment-automation.yml",
+          "sophia_secrets_export.yml",
+          "sophia_ai_infrastructure.yml",
+          "mcp-ci-cd.yml",
+          "dependabot-auto-merge.yml",
+          "documentation-quality.yml",
+          "sophia-master-deployment.yml",
+          "mcp-integration-test.yml",
+          "ai-infrastructure-orchestrator.yml",
+          "enhanced-deployment-oversight.yml",
+          "deploy-sophia-dns.yml",
+          "test-suite.yml",
+          "sophia-main.yml",
+          "production_deployment.yml",
+          "uv-ci-enhanced.yml",
+          "simplified-vercel-deployment.yml",
+          "fix-vercel-deployment.yml",
+          "gong_deployment_pipeline.yml",
+          "codebase-ingestion.yml",
+          "estuary-deployment.yml",
+          "sync-mcp-submodules.yml",
+          "unified-secret-sync.yml",
+          "uv-ci-cd.yml",
+          "deploy_platform.yml",
+          "deploy-sophia-platform.yml"
+        ],
+        "precommit_hooks": true,
+        "quality_tools": {
+          "ruff": true,
+          "black": true,
+          "mypy": true
+        }
+      }
+    }
+  },
+  "recommendations": [
+    "CRITICAL: Fix Pulumi ESC connectivity - all secrets depend on this"
+  ]
+}
