@@ -1,0 +1,107 @@
+{
+  "name": "MCP Tool: Snowflake Query Executor",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "snowflake-query",
+        "options": {}
+      },
+      "name": "Webhook Trigger (Snowflake)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "webhookId": "mcp-snowflake-query"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{$json.body.query}}",
+        "options": {}
+      },
+      "name": "Execute Snowflake Query",
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        640,
+        300
+      ],
+      "credentials": {
+        "snowflake": {
+          "id": "sophia-snowflake-prod",
+          "name": "Sophia Snowflake Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "responseFor": "webhook",
+        "webhookId": "mcp-snowflake-query",
+        "responseData": "={{$json}}",
+        "responseFormat": "json"
+      },
+      "name": "Return Query Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        840,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Webhook Trigger (Snowflake)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger (Snowflake)": {
+      "main": [
+        [
+          {
+            "node": "Execute Snowflake Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Snowflake Query": {
+      "main": [
+        [
+          {
+            "node": "Return Query Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "snowflake-query-tool"
+}
