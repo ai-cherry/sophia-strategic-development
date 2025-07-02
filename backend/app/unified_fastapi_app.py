@@ -44,9 +44,6 @@ from backend.api import (
 )
 from backend.core.auto_esc_config import get_config_value
 from backend.core.config_validator import DeploymentValidator
-from backend.services.enhanced_mcp_orchestration_service import (
-    EnhancedMCPOrchestrationService,
-)
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 from backend.services.smart_ai_service import SmartAIService
@@ -142,9 +139,18 @@ class UnifiedFastAPIApp:
         """Initialize all platform services"""
         logger.info("🔧 Initializing services...")
 
-        # MCP Orchestration
-        self.services["mcp_orchestration"] = EnhancedMCPOrchestrationService()
-        await self.services["mcp_orchestration"].initialize()
+        # MCP Orchestration - use lazy import to prevent constructor execution at module load
+        try:
+            from backend.services.enhanced_mcp_orchestration_service import (
+                EnhancedMCPOrchestrationService,
+            )
+            self.services["mcp_orchestration"] = EnhancedMCPOrchestrationService()
+            await self.services["mcp_orchestration"].initialize()
+        except Exception as e:
+            logger.error(f"Failed to initialize MCP orchestration: {e}")
+            # Fallback to basic orchestration
+            from backend.services.mcp_orchestration_service import get_orchestration_service
+            self.services["mcp_orchestration"] = get_orchestration_service()
 
         # Chat Service
         self.services["chat"] = EnhancedUnifiedChatService()
