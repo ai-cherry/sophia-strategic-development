@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import UnifiedChatInterface from './components/chat/UnifiedChatInterface';
+import CEOUniversalChatDashboard from './components/dashboard/CEOUniversalChatDashboard';
 import './App.css';
 
 // Simplified UnifiedDashboard with integrated chat
@@ -157,7 +158,7 @@ const HomePage = () => {
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '40px' }}>
           <button 
-            onClick={() => navigate('/dashboard/unified')}
+            onClick={() => navigate('/dashboard/ceo')}
             style={{ 
               padding: '20px', 
               backgroundColor: '#8b5cf6', 
@@ -172,7 +173,26 @@ const HomePage = () => {
             onMouseOver={(e) => e.target.style.backgroundColor = '#7c3aed'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#8b5cf6'}
           >
-            🚀 Launch Unified Dashboard
+            🎯 CEO Universal Dashboard
+          </button>
+          
+          <button 
+            onClick={() => navigate('/dashboard/unified')}
+            style={{ 
+              padding: '20px', 
+              backgroundColor: '#6b7280', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontSize: '16px', 
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+          >
+            🚀 Legacy Dashboard
           </button>
           
           <button 
@@ -272,6 +292,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/test" element={<TestPage />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/dashboard/ceo" element={<CEOUniversalChatDashboard />} />
             <Route path="/dashboard/unified" element={<SimpleUnifiedDashboard />} />
           </Routes>
         </div>
