@@ -413,7 +413,7 @@ class SnowflakeCortexService:
         """
 
         try:
-        cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
             cursor.execute(query)
 
             results = []
@@ -478,7 +478,7 @@ class SnowflakeCortexService:
         """
 
         try:
-        cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
             cursor.execute(query)
 
             result = cursor.fetchone()
@@ -536,7 +536,7 @@ class SnowflakeCortexService:
             query += f" WHERE {conditions}"
 
         try:
-        cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
             cursor.execute(query)
 
             columns = [desc[0] for desc in cursor.description]
@@ -576,7 +576,7 @@ class SnowflakeCortexService:
             """
 
             try:
-        cursor = self.connection.cursor()
+                cursor = self.connection.cursor()
                 cursor.execute(create_query)
                 logger.debug(f"Ensured vector table {table_name} exists")
             except Exception as e:
@@ -616,7 +616,7 @@ class SnowflakeCortexService:
         """
 
         try:
-        cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
             cursor.executemany(insert_query, insert_data)
             logger.info(f"Stored {len(insert_data)} embeddings in {vector_table}")
         except Exception as e:
@@ -691,7 +691,7 @@ class SnowflakeCortexService:
 
         cursor = None
         try:
-        cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
 
             # Step 1: Verify record exists
             check_query = f"SELECT 1 FROM {table_name} WHERE id = %s"
@@ -807,16 +807,16 @@ class SnowflakeCortexService:
         """Extracted error_handling logic"""
         cursor = self.connection.cursor()
 
-                # Step 1: Verify table exists and has required columns
-                table_check_query = """
-                SELECT COUNT(*)
-                FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_NAME = %s
-                  AND TABLE_SCHEMA = %s
-                  AND TABLE_CATALOG = %s
-                """
-                cursor.execute(table_check_query, (table_name, self.schema, self.database))
-                table_exists = cursor.fetchone()[0] > 0
+        # Step 1: Verify table exists and has required columns
+        table_check_query = """
+        SELECT COUNT(*)
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_NAME = %s
+          AND TABLE_SCHEMA = %s
+          AND TABLE_CATALOG = %s
+        """
+        cursor.execute(table_check_query, (table_name, self.schema, self.database))
+        table_exists = cursor.fetchone()[0] > 0
 
 
     def _error_handling_3(self):
@@ -1039,7 +1039,7 @@ class SnowflakeCortexService:
 
         cursor = None
         try:
-        cursor = self.connection.cursor()
+            cursor = self.connection.cursor()
 
             # Use IF NOT EXISTS for safe concurrent execution
             alter_statements = [

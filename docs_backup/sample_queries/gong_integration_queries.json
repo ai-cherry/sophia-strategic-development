@@ -1,0 +1,37 @@
+{
+  "gong_call_analysis": [
+    "Show me all calls with Acme Corp from last month",
+    "Find calls with sentiment score below -0.5",
+    "Get calls where talk ratio is less than 40%",
+    "Show high-value calls (>$100k) with positive sentiment",
+    "Find calls with risk indicators mentioned"
+  ],
+  "gong_executive_queries": [
+    "Give me an executive summary of this week's call performance",
+    "What are the trending topics in customer conversations?",
+    "Show me the sentiment analysis across all teams",
+    "Which deals have the highest risk based on call data?",
+    "What coaching insights can improve our close rate?"
+  ],
+  "gong_transcript_search": [
+    "What did customers say about our pricing?",
+    "Find mentions of competitors in call transcripts",
+    "Show transcript segments where customers asked questions",
+    "Get all mentions of 'implementation timeline'",
+    "Find objections raised in recent calls"
+  ],
+  "gong_account_insights": [
+    "Analyze call sentiment trends for Enterprise Corp",
+    "Show account health based on Gong data for top 10 accounts",
+    "Find accounts with declining call sentiment",
+    "Get expansion opportunities based on call topics",
+    "Identify at-risk accounts from Gong insights"
+  ],
+  "gong_coaching_insights": [
+    "Show coaching opportunities for John Smith",
+    "Find reps with low talk ratios who need coaching",
+    "Get sentiment improvement recommendations",
+    "Analyze question-asking patterns by rep",
+    "Show best practices from top-performing calls"
+  ]
+} 

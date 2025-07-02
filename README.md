@@ -1,181 +1,170 @@
-# Sophia AI Platform
+# 🤖 Sophia AI Platform
 
-> **User Base:**
-> - Initial deployment: 5–10 users
-> - Maximum supported: 100 users
->
-> **Note:** All performance, monitoring, and security decisions are based on this user base assumption. The system is optimized for this scale and can be tuned as the user base grows.
+> **Enterprise AI Orchestrator for Business Intelligence & Automation**
 
-🚀 **Advanced AI automation platform with natural language interaction, deployed on Vercel serverless infrastructure.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.11+
+- UV package manager
+- Cursor AI IDE (recommended)
+
+### Installation
+```bash
+git clone https://github.com/ai-cherry/sophia-main.git
+cd sophia-main
+uv sync
+```
+
+### Configuration
+```bash
+export ENVIRONMENT=prod
+export PULUMI_ORG=scoobyjava-org
+```
+
+### Start Services
+```bash
+# Start MCP servers
+python scripts/run_all_mcp_servers.py
+
+# Start backend API
+uvicorn backend.app.fastapi_app:app --reload --port 8000
+
+# Start frontend (separate terminal)
+cd frontend && npm run dev
+```
+
+## 📚 Documentation
+
+### Core Documentation
+- **[🏗️ Architecture](ARCHITECTURE.md)** - System design and components
+- **[🛠️ Development](DEVELOPMENT.md)** - Development setup and workflow  
+- **[🚀 Deployment](DEPLOYMENT.md)** - Production deployment guide
+- **[📡 API Reference](API_REFERENCE.md)** - Complete API documentation
+
+### Specialized Guides
+- **[🔌 MCP Integration](MCP_INTEGRATION.md)** - MCP server patterns and usage
+- **[🤖 Agent Development](AGENT_DEVELOPMENT.md)** - Creating custom agents
+- **[🔧 Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
+- **[📝 Changelog](CHANGELOG.md)** - Version history and updates
 
 ## ✨ Features
 
-- **Enhanced LangGraph Orchestration**: Natural language workflow creation with human-in-the-loop capabilities
-- **Universal Chat Service**: Intelligent intent recognition with 95% accuracy
-- **Cost Engineering & Model Routing**: 32% cost reduction through intelligent optimization
-- **Enhanced Snowflake Cortex Integration**: Advanced search and analytics capabilities
-- **Serverless Architecture**: Optimized for Vercel's serverless functions
+### 🧠 AI Orchestration
+- **Multi-Agent System**: Specialized agents for different business functions
+- **Natural Language Interface**: Conversational business intelligence
+- **LangGraph Workflows**: Complex multi-step AI workflows
+- **Real-time Processing**: Sub-200ms response times
 
-## 🚀 Deploy to Vercel
+### 🔌 Integrations
+- **Gong**: Sales call analysis and insights
+- **HubSpot**: CRM data and customer intelligence  
+- **Slack**: Team communication and notifications
+- **Linear**: Project management and tracking
+- **Snowflake**: Data warehouse and analytics
 
-### One-Click Deploy
+### 🏗️ Architecture
+- **MCP-Driven**: Model Context Protocol for all integrations
+- **Agent-Centric**: Specialized AI agents with <3μs instantiation
+- **Security-First**: SOC2 compliant with Pulumi ESC secret management
+- **Production-Ready**: 99.9% uptime with comprehensive monitoring
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ai-cherry/sophia-main)
+## 🎯 Use Cases
 
-### Manual Deployment
+### Executive Dashboard
+- Real-time business KPIs
+- Revenue analytics and forecasting
+- Customer health monitoring
+- Competitive intelligence
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ai-cherry/sophia-main.git
-   cd sophia-main
-   ```
+### Sales Intelligence  
+- Call analysis and coaching
+- Pipeline health assessment
+- Deal risk identification
+- Performance optimization
 
-2. **Install Vercel CLI:**
-   ```bash
-   npm install -g vercel
-   ```
+### Operations Automation
+- Project health monitoring
+- Resource allocation optimization
+- Automated reporting
+- Predictive analytics
 
-3. **Deploy to Vercel:**
-   ```bash
-   vercel --prod
-   ```
+## 🔧 Development
 
-## 🔧 Configuration
+### Agent Development
+```python
+from backend.agents.core.base_agent import BaseAgent
 
-The application is pre-configured for Vercel deployment with:
-
-- **Python Runtime**: `@vercel/python`
-- **Serverless Functions**: Optimized for performance
-- **CORS**: Enabled for cross-origin requests
-- **Environment**: Production-ready configuration
-
-## 📡 API Endpoints
-
-### Core Endpoints
-- `GET /` - Welcome message and status
-- `GET /health` - Health check with service status
-- `GET /api/v2/health` - API v2 health check
-- `GET /api/v2/features` - Available Phase 2 features
-
-### Chat & Workflows
-- `POST /api/v2/chat/message` - Process natural language messages
-- `POST /api/v2/workflows/create` - Create workflows from descriptions
-- `GET /api/v2/workflows/{id}/status` - Get workflow status
-
-### Analytics & Monitoring
-- `GET /api/v2/cost/report` - Cost engineering report
-- `GET /api/v2/cortex/search` - Enhanced search capabilities
-
-## 🎯 Usage Examples
-
-### Natural Language Workflow Creation
-```bash
-curl -X POST https://your-vercel-app.vercel.app/api/v2/chat/message \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "user123",
-    "session_id": "session1", 
-    "message": "Create a workflow to analyze customer feedback and generate insights"
-  }'
+class YourAgent(BaseAgent):
+    async def _execute_task(self, task):
+        # Your business logic here
+        return result
 ```
 
-### Create Workflow
-```bash
-curl -X POST https://your-vercel-app.vercel.app/api/v2/workflows/create \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": "user123",
-    "description": "Analyze sales data and identify trends"
-  }'
+### MCP Server Integration
+```python
+# Natural language commands through MCP
+await mcp_client.call_tool(
+    server="gong_intelligence",
+    tool="analyze_recent_calls",
+    arguments={"days": 7}
+)
 ```
 
-### Cost Monitoring
+### Health Monitoring
 ```bash
-curl https://your-vercel-app.vercel.app/api/v2/cost/report
+# Check system health
+python scripts/comprehensive_health_check.py
+
+# Monitor performance
+python scripts/performance_monitor.py
 ```
 
-## 🏗️ Architecture
+## 🌟 Why Sophia AI?
 
-### Serverless Functions
-- **Runtime**: Python 3.11
-- **Framework**: Flask with CORS
-- **Memory**: 1024MB
-- **Timeout**: 30 seconds
-- **Regions**: US East (iad1), US West (sfo1)
+### For Developers
+- **Fast Development**: Pre-built agents and MCP integrations
+- **Type Safety**: Full Python type hints and async/await
+- **Modern Tooling**: UV, FastAPI, React, Cursor AI integration
+- **Comprehensive Docs**: Everything you need to get started
 
-### Key Components
-1. **Enhanced LangGraph Orchestration**: Advanced workflow management
-2. **Universal Chat Service**: Natural language processing
-3. **Cost Engineering**: Intelligent resource optimization
-4. **Snowflake Cortex Integration**: Advanced analytics
+### For Business
+- **Immediate Value**: Real-time business intelligence
+- **Scalable**: Handles growth from startup to enterprise
+- **Secure**: Enterprise-grade security and compliance
+- **Cost-Effective**: Intelligent routing and optimization
 
-## 🔒 Security
-
-- **CORS**: Configured for secure cross-origin requests
-- **Environment Variables**: Secure configuration management
-- **Error Handling**: Comprehensive error responses
-- **Input Validation**: Request validation and sanitization
-
-## 📊 Performance
-
-- **Response Time**: <200ms average
-- **Scalability**: Auto-scaling serverless functions
-- **Availability**: 99.9% uptime with Vercel infrastructure
-- **Global CDN**: Worldwide edge network
-
-## 🛠️ Development
-
-### Local Development
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run locally
-python api/index.py
-
-# Or use Vercel CLI
-vercel dev
-```
-
-### Testing
-```bash
-# Test health endpoint
-curl http://localhost:3000/health
-
-# Test chat functionality
-curl -X POST http://localhost:3000/api/v2/chat/message \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": "test", "message": "Hello Sophia!"}'
-```
-
-## 📈 Monitoring
-
-The application includes built-in monitoring:
-
-- **Health Checks**: Real-time service status
-- **Performance Metrics**: Response times and throughput
-- **Cost Tracking**: Resource usage and optimization
-- **Error Logging**: Comprehensive error reporting
+### For Operations
+- **Reliable**: 99.9% uptime with comprehensive monitoring
+- **Maintainable**: Clean architecture and documentation
+- **Extensible**: Easy to add new integrations and capabilities
+- **Observable**: Detailed logging and performance metrics
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Workflow
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
+3. Follow patterns in [DEVELOPMENT.md](DEVELOPMENT.md)
+4. Add tests for new functionality
 5. Submit a pull request
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🆘 Support
 
-- **Documentation**: [API Documentation](https://your-vercel-app.vercel.app/docs)
+- **Documentation**: See links above for comprehensive guides
 - **Issues**: [GitHub Issues](https://github.com/ai-cherry/sophia-main/issues)
-- **Email**: support@sophia-ai.com
+- **Discussions**: [GitHub Discussions](https://github.com/ai-cherry/sophia-main/discussions)
 
 ---
 
-**Sophia AI Phase 2** - Transforming AI automation with natural language interaction on Vercel's serverless platform. 🚀
-
+**Sophia AI** - Transforming business operations through intelligent AI orchestration. 🚀
