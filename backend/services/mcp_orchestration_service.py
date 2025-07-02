@@ -696,90 +696,85 @@ class MCPOrchestrationService:
         """Initialize known MCP server endpoints"""
         self.servers = {
             "ai_memory": MCPServerEndpoint(
-                "ai_memory",
+                server_name="ai_memory",
                 port=9000,
-                capabilities=["memory_storage", "semantic_search", "context_recall"],
-            ),
-            "figma_context": MCPServerEndpoint(
-                "figma_context",
-                port=9001,
-                capabilities=[
-                    "design_system",
-                    "component_generation",
-                    "figma_integration",
-                ],
-            ),
-            "ui_ux_agent": MCPServerEndpoint(
-                "ui_ux_agent",
-                port=9002,
-                capabilities=[
-                    "accessibility_analysis",
-                    "component_optimization",
-                    "design_validation",
-                ],
+                capabilities=["memory_storage", "context_recall", "semantic_search"],
             ),
             "codacy": MCPServerEndpoint(
-                "codacy",
-                port=9003,
-                capabilities=["code_analysis", "security_scanning", "quality_metrics"],
+                server_name="codacy",
+                port=3008,
+                capabilities=["code_analysis", "security_scan", "quality_metrics"],
             ),
             "asana": MCPServerEndpoint(
-                "asana",
-                port=9004,
-                capabilities=["project_management", "task_tracking", "team_analytics"],
+                server_name="asana",
+                port=3006,
+                capabilities=[
+                    "project_management",
+                    "task_tracking",
+                    "team_collaboration",
+                ],
             ),
             "notion": MCPServerEndpoint(
-                "notion",
-                port=9005,
+                server_name="notion",
+                port=3007,
                 capabilities=[
                     "knowledge_management",
                     "documentation",
-                    "content_organization",
-                ],
-            ),
-            "linear": MCPServerEndpoint(
-                "linear",
-                port=9006,
-                capabilities=[
-                    "issue_tracking",
-                    "development_workflow",
-                    "project_health",
+                    "content_creation",
                 ],
             ),
             "github": MCPServerEndpoint(
-                "github",
-                port=9007,
+                server_name="github",
+                port=9003,
                 capabilities=[
                     "repository_management",
+                    "issue_tracking",
                     "code_review",
-                    "deployment_tracking",
+                ],
+            ),
+            "linear": MCPServerEndpoint(
+                server_name="linear",
+                port=9004,
+                capabilities=[
+                    "project_management",
+                    "issue_tracking",
+                    "team_analytics",
                 ],
             ),
             "slack": MCPServerEndpoint(
-                "slack",
-                port=9008,
+                server_name="slack",
+                port=9005,
                 capabilities=[
-                    "communication_analysis",
-                    "sentiment_tracking",
-                    "team_insights",
+                    "team_communication",
+                    "channel_management",
+                    "message_analysis",
                 ],
             ),
-            "postgresql": MCPServerEndpoint(
-                "postgresql",
-                port=9009,
+            "figma_context": MCPServerEndpoint(
+                server_name="figma_context",
+                port=9006,
+                capabilities=["design_context", "component_extraction", "ui_analysis"],
+            ),
+            "ui_ux_agent": MCPServerEndpoint(
+                server_name="ui_ux_agent",
+                port=9002,
                 capabilities=[
-                    "database_operations",
-                    "query_optimization",
-                    "data_management",
+                    "ui_component_generation",
+                    "design_automation",
+                    "accessibility_validation",
                 ],
             ),
             "sophia_data": MCPServerEndpoint(
-                "sophia_data",
+                server_name="sophia_data",
                 port=9010,
-                capabilities=["data_orchestration", "pipeline_management", "analytics"],
+                capabilities=[
+                    "data_processing",
+                    "analytics",
+                    "business_intelligence",
+                ],
             ),
             "sophia_infrastructure": MCPServerEndpoint(
-                "sophia_infrastructure",
+                server_name="sophia_infrastructure",
                 port=9011,
                 capabilities=[
                     "infrastructure_management",
@@ -788,7 +783,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "snowflake_admin": MCPServerEndpoint(
-                "snowflake_admin",
+                server_name="snowflake_admin",
                 port=9012,
                 capabilities=[
                     "database_administration",
@@ -797,7 +792,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "portkey_admin": MCPServerEndpoint(
-                "portkey_admin",
+                server_name="portkey_admin",
                 port=9013,
                 capabilities=[
                     "ai_model_routing",
@@ -806,7 +801,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "openrouter_search": MCPServerEndpoint(
-                "openrouter_search",
+                server_name="openrouter_search",
                 port=9014,
                 capabilities=[
                     "model_discovery",
@@ -815,7 +810,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "lambda_labs_cli": MCPServerEndpoint(
-                "lambda_labs_cli",
+                server_name="lambda_labs_cli",
                 port=9020,
                 capabilities=[
                     "gpu_management",
@@ -824,7 +819,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "snowflake_cli_enhanced": MCPServerEndpoint(
-                "snowflake_cli_enhanced",
+                server_name="snowflake_cli_enhanced",
                 port=9021,
                 capabilities=[
                     "advanced_snowflake_ops",
@@ -833,7 +828,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "estuary_flow": MCPServerEndpoint(
-                "estuary_flow",
+                server_name="estuary_flow",
                 port=9022,
                 capabilities=[
                     "data_pipeline_management",

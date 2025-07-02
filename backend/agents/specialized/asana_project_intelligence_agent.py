@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
-from mcp_servers.ai_memory.ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
 from backend.services.smart_ai_service import SmartAIService
