@@ -1,0 +1,165 @@
+# Auto-generated requirements from dependency audit
+# Review and update versions as needed
+
+PyPDF2  # MISSING - needs installation
+agents  # MISSING - needs installation
+ai_service  # MISSING - needs installation
+aiofiles
+aiohttp
+aiomysql  # MISSING - needs installation
+aioredis
+analyze_call_sentiment  # MISSING - needs installation
+annotated_types
+anyio
+astor  # MISSING - needs installation
+asyncpg
+auto_esc_config  # MISSING - needs installation
+backend
+backoff  # MISSING - needs installation
+bandit  # MISSING - needs installation
+base  # MISSING - needs installation
+base_chat_service  # MISSING - needs installation
+base_handler  # MISSING - needs installation
+bs4
+call  # MISSING - needs installation
+call_participant  # MISSING - needs installation
+call_repository  # MISSING - needs installation
+cli  # MISSING - needs installation
+click
+client  # MISSING - needs installation
+clients  # MISSING - needs installation
+cline_v3_18_features  # MISSING - needs installation
+codacy_api_client  # MISSING - needs installation
+comprehensive_memory_manager  # MISSING - needs installation
+config
+contact  # MISSING - needs installation
+contact_repository  # MISSING - needs installation
+context_manager  # MISSING - needs installation
+core  # MISSING - needs installation
+cryptography
+dateutil
+db_client  # MISSING - needs installation
+deal  # MISSING - needs installation
+deal_repository  # MISSING - needs installation
+docker  # MISSING - needs installation
+docx
+event_store  # MISSING - needs installation
+examples  # MISSING - needs installation
+execute_strategic_plan
+executive_chat_service  # MISSING - needs installation
+faiss  # MISSING - needs installation
+faiss_manager  # MISSING - needs installation
+fastapi
+fastmcp
+flask  # MISSING - needs installation
+flask_cors  # MISSING - needs installation
+freezegun  # MISSING - needs installation
+gemini_cli_integration  # MISSING - needs installation
+get_closed_ticket_conversations  # MISSING - needs installation
+git  # MISSING - needs installation
+gong_data_quality  # MISSING - needs installation
+graphiti  # MISSING - needs installation
+graphiti_mcp_server  # MISSING - needs installation
+handlers  # MISSING - needs installation
+html2text  # MISSING - needs installation
+httpx
+httpx_sse
+hubspot
+hubspot_client  # MISSING - needs installation
+inline_snapshot  # MISSING - needs installation
+jinja2
+jose
+jsonschema
+lambda_labs_provisioner  # MISSING - needs installation
+langchain
+langchain_openai  # MISSING - needs installation
+langgraph  # MISSING - needs installation
+lowlevel  # MISSING - needs installation
+manager  # MISSING - needs installation
+markdownify
+mcp
+mcp_server_fetch  # MISSING - needs installation
+mcp_server_git  # MISSING - needs installation
+mcp_server_hubspot  # MISSING - needs installation
+mcp_server_snowflake  # MISSING - needs installation
+mcp_server_time  # MISSING - needs installation
+mcp_servers  # MISSING - needs installation
+mcp_simple_auth  # MISSING - needs installation
+models  # MISSING - needs installation
+money  # MISSING - needs installation
+msgpack  # MISSING - needs installation
+n8n  # MISSING - needs installation
+numpy
+openai
+openpyxl  # MISSING - needs installation
+opentelemetry  # MISSING - needs installation
+orjson
+pandas
+paramiko  # MISSING - needs installation
+passlib
+pgvector  # MISSING - needs installation
+pinecone
+pptx
+prometheus-client
+protego  # MISSING - needs installation
+providers  # MISSING - needs installation
+psutil
+psycopg2-binary
+pyautogui  # MISSING - needs installation
+pydantic
+pydantic_ai  # MISSING - needs installation
+pydantic_core
+pydantic_settings
+pyjwt
+pytest_examples  # MISSING - needs installation
+python-dotenv
+pyyaml
+qualify_deal  # MISSING - needs installation
+radon  # MISSING - needs installation
+readabilipy  # MISSING - needs installation
+redis
+requests
+resource_manager  # MISSING - needs installation
+rich
+router  # MISSING - needs installation
+sentence_transformers
+sentiment  # MISSING - needs installation
+sentry_sdk
+server  # MISSING - needs installation
+services  # MISSING - needs installation
+session_manager  # MISSING - needs installation
+settings  # MISSING - needs installation
+shared  # MISSING - needs installation
+simple_auth_provider  # MISSING - needs installation
+slack_sdk
+slowapi
+snowflake-connector-python
+snowflake_call_repository  # MISSING - needs installation
+snowflake_mcp_server  # MISSING - needs installation
+sophia_chat_service  # MISSING - needs installation
+sophia_mcp_base  # MISSING - needs installation
+sophia_universal_chat_service  # MISSING - needs installation
+sqlalchemy
+sqlglot  # MISSING - needs installation
+sqlparse  # MISSING - needs installation
+sse_starlette
+starlette
+structlog
+templates  # MISSING - needs installation
+token_verifier  # MISSING - needs installation
+tomlkit
+tool_manager  # MISSING - needs installation
+tqdm
+typer
+typing_extensions
+tzlocal  # MISSING - needs installation
+unified_chat_service  # MISSING - needs installation
+universal_chat_service  # MISSING - needs installation
+user  # MISSING - needs installation
+utilities  # MISSING - needs installation
+utils  # MISSING - needs installation
+uvicorn
+websockets  # MISSING - needs installation
+werkzeug  # MISSING - needs installation
+win32  # MISSING - needs installation
+write_detector  # MISSING - needs installation

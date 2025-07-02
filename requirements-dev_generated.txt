@@ -1,0 +1,4 @@
+# Auto-generated dev requirements from dependency audit
+
+prometheus-client
+pytest
