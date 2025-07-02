@@ -46,6 +46,7 @@ UNDEFINED_NAME_FIXES = {
     },
 }
 
+
 def fix_undefined_names():
     """Fix undefined names in Python files."""
     print("🔍 Fixing undefined names in Sophia AI core code...")
@@ -58,8 +59,17 @@ def fix_undefined_names():
         "backend/mcp_servers/enhanced_ai_memory_mcp_server.py": ["MemoryCategory"],
         "backend/mcp_servers/optimized_mcp_server.py": ["gc"],
         "backend/scripts/batch_embed_data.py": ["query_params"],
-        "backend/services/comprehensive_memory_service.py": ["IntegratedConversationRecord"],
-        "backend/services/cortex_agent_service.py": ["Cortex", "model", "text_content", "query_embedding", "similarity_threshold", "top_k"],
+        "backend/services/comprehensive_memory_service.py": [
+            "IntegratedConversationRecord"
+        ],
+        "backend/services/cortex_agent_service.py": [
+            "Cortex",
+            "model",
+            "text_content",
+            "query_embedding",
+            "similarity_threshold",
+            "top_k",
+        ],
         "implement_phase1b_services.py": ["datetime"],
         "scripts/security_fixes_examples.py": ["shlex"],
         "ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py": ["get_config_value"],
@@ -78,7 +88,7 @@ def fix_undefined_names():
         print(f"\n📝 Fixing {filepath}...")
 
         try:
-            with open(full_path, encoding='utf-8') as f:
+            with open(full_path, encoding="utf-8") as f:
                 content = f.read()
 
             original_content = content
@@ -95,45 +105,70 @@ def fix_undefined_names():
                         imports_to_add.append(fix_info["import"])
 
                     # Apply specific fixes
-                    if name == "connection_manager" and "self.connection_manager" not in content:
+                    if (
+                        name == "connection_manager"
+                        and "self.connection_manager" not in content
+                    ):
                         # Replace connection_manager with self.connection_manager
-                        content = re.sub(r'\bconnection_manager\b', 'self.connection_manager', content)
+                        content = re.sub(
+                            r"\bconnection_manager\b",
+                            "self.connection_manager",
+                            content,
+                        )
                         print(f"  ✓ Fixed {name} -> self.{name}")
 
-                    elif name == "cache_manager" and "self.cache_manager" not in content:
+                    elif (
+                        name == "cache_manager" and "self.cache_manager" not in content
+                    ):
                         # Replace cache_manager with self.cache_manager
-                        content = re.sub(r'\bcache_manager\b', 'self.cache_manager', content)
+                        content = re.sub(
+                            r"\bcache_manager\b", "self.cache_manager", content
+                        )
                         print(f"  ✓ Fixed {name} -> self.{name}")
 
                     elif name == "MemoryCategory":
                         # Replace MemoryCategory.SALES_CALL_INSIGHT with string literal
-                        content = re.sub(r'MemoryCategory\.SALES_CALL_INSIGHT', "'SALES_CALL_INSIGHT'", content)
+                        content = re.sub(
+                            r"MemoryCategory\.SALES_CALL_INSIGHT",
+                            "'SALES_CALL_INSIGHT'",
+                            content,
+                        )
                         print(f"  ✓ Fixed {name} enum to string literal")
 
                     elif name == "query_params":
                         # Fix the conditional expression
                         content = re.sub(
                             r'query_params if "query_params" in locals\(\) else \(\)',
-                            '()',
-                            content
+                            "()",
+                            content,
                         )
                         print(f"  ✓ Fixed {name} conditional")
 
-                    elif name in ["model", "text_content", "query_embedding", "similarity_threshold", "top_k"]:
+                    elif name in [
+                        "model",
+                        "text_content",
+                        "query_embedding",
+                        "similarity_threshold",
+                        "top_k",
+                    ]:
                         # These are likely function parameters that need to be defined
-                        print(f"  ⚠️  {name} needs manual review - likely missing function parameter")
+                        print(
+                            f"  ⚠️  {name} needs manual review - likely missing function parameter"
+                        )
 
             # Add imports after the shebang and module docstring
             if imports_to_add:
-                lines = content.split('\n')
+                lines = content.split("\n")
                 insert_pos = 0
 
                 # Skip shebang
-                if lines[0].startswith('#!'):
+                if lines[0].startswith("#!"):
                     insert_pos = 1
 
                 # Skip module docstring
-                if insert_pos < len(lines) and lines[insert_pos].strip().startswith('"""'):
+                if insert_pos < len(lines) and lines[insert_pos].strip().startswith(
+                    '"""'
+                ):
                     for i in range(insert_pos + 1, len(lines)):
                         if lines[i].strip().endswith('"""'):
                             insert_pos = i + 1
@@ -141,10 +176,10 @@ def fix_undefined_names():
 
                 # Find the first import statement
                 for i in range(insert_pos, len(lines)):
-                    if lines[i].strip().startswith(('import ', 'from ')):
+                    if lines[i].strip().startswith(("import ", "from ")):
                         insert_pos = i
                         break
-                    elif lines[i].strip() and not lines[i].strip().startswith('#'):
+                    elif lines[i].strip() and not lines[i].strip().startswith("#"):
                         # If we hit non-import code, insert before it
                         insert_pos = i
                         break
@@ -155,11 +190,11 @@ def fix_undefined_names():
                     print(f"  ✓ Added import: {imp}")
                     insert_pos += 1
 
-                content = '\n'.join(lines)
+                content = "\n".join(lines)
 
             # Write back if changed
             if content != original_content:
-                with open(full_path, 'w', encoding='utf-8') as f:
+                with open(full_path, "w", encoding="utf-8") as f:
                     f.write(content)
                 fixed_count += 1
                 print(f"  ✅ Fixed {filepath}")
@@ -171,6 +206,7 @@ def fix_undefined_names():
 
     print(f"\n✅ Fixed {fixed_count} files")
     return fixed_count
+
 
 if __name__ == "__main__":
     fix_undefined_names()

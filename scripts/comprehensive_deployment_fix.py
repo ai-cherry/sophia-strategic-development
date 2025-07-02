@@ -6,18 +6,19 @@ Addresses all critical deployment blockers and implements enhanced monitoring
 
 import asyncio
 import logging
-import os
 import re
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class ComprehensiveDeploymentFix:
     def __init__(self):
@@ -25,78 +26,90 @@ class ComprehensiveDeploymentFix:
         self.fixes_applied = []
         self.backup_files = []
         self.start_time = time.time()
-        
+
     def backup_file(self, file_path: Path) -> Path:
         """Create backup of file before modification"""
-        backup_path = file_path.with_suffix(f"{file_path.suffix}.backup.{int(time.time())}")
+        backup_path = file_path.with_suffix(
+            f"{file_path.suffix}.backup.{int(time.time())}"
+        )
         if file_path.exists():
             backup_path.write_text(file_path.read_text())
             self.backup_files.append(backup_path)
             logger.info(f"📁 Created backup: {backup_path}")
         return backup_path
-    
+
     def fix_snowflake_indentation_errors(self) -> bool:
         """Fix all indentation errors in snowflake_cortex_service.py"""
         try:
             logger.info("🔧 Fixing Snowflake Cortex Service indentation errors...")
-            
-            file_path = self.project_root / "backend" / "utils" / "snowflake_cortex_service.py"
+
+            file_path = (
+                self.project_root / "backend" / "utils" / "snowflake_cortex_service.py"
+            )
             if not file_path.exists():
                 logger.warning(f"⚠️ File not found: {file_path}")
                 return False
-            
+
             self.backup_file(file_path)
             content = file_path.read_text()
-            lines = content.split('\n')
+            lines = content.split("\n")
             fixed_lines = []
-            
+
             for i, line in enumerate(lines):
                 # Fix specific problematic lines
-                if line.strip() == 'cursor = self.connection.cursor()' and i > 0:
+                if line.strip() == "cursor = self.connection.cursor()" and i > 0:
                     # Check if previous line is a try statement
-                    prev_line = lines[i-1].strip()
-                    if prev_line.endswith('try:'):
-                        line = '            ' + line.strip()
-                    elif not line.startswith('        '):
-                        line = '        ' + line.strip()
-                
+                    prev_line = lines[i - 1].strip()
+                    if prev_line.endswith("try:"):
+                        line = "            " + line.strip()
+                    elif not line.startswith("        "):
+                        line = "        " + line.strip()
+
                 # Fix try blocks without proper indentation
-                elif 'try:' in line and i < len(lines) - 1:
+                elif "try:" in line and i < len(lines) - 1:
                     next_line = lines[i + 1] if i + 1 < len(lines) else ""
-                    if next_line.strip() and not next_line.startswith(' ' * (len(line) - len(line.lstrip()) + 4)):
+                    if next_line.strip() and not next_line.startswith(
+                        " " * (len(line) - len(line.lstrip()) + 4)
+                    ):
                         # Next line needs proper indentation
                         pass  # Will be handled in next iteration
-                
+
                 # Fix general cursor assignment issues
-                elif 'cursor = self.connection.cursor()' in line and not line.startswith('        '):
-                    line = '        ' + line.strip()
-                
+                elif (
+                    "cursor = self.connection.cursor()" in line
+                    and not line.startswith("        ")
+                ):
+                    line = "        " + line.strip()
+
                 # Fix filter column validation
-                elif line.strip() == 'if key not in ALLOWED_FILTER_COLUMNS:' and not line.startswith('        '):
-                    line = '        ' + line.strip()
-                
+                elif (
+                    line.strip() == "if key not in ALLOWED_FILTER_COLUMNS:"
+                    and not line.startswith("        ")
+                ):
+                    line = "        " + line.strip()
+
                 fixed_lines.append(line)
-            
+
             # Write fixed content
-            file_path.write_text('\n'.join(fixed_lines))
+            file_path.write_text("\n".join(fixed_lines))
             logger.info("✅ Fixed Snowflake indentation errors")
             self.fixes_applied.append("Snowflake indentation errors")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to fix Snowflake indentation: {e}")
             return False
-    
+
     def fix_missing_mcp_server_module(self) -> bool:
         """Create missing backend.mcp_servers.server module"""
         try:
             logger.info("🔧 Creating missing MCP server module...")
-            
+
             server_dir = self.project_root / "backend" / "mcp_servers"
             server_dir.mkdir(parents=True, exist_ok=True)
-            
+
             server_file = server_dir / "server.py"
-            
+
             if not server_file.exists():
                 server_content = '''"""
 Base MCP Server Module
@@ -112,22 +125,22 @@ logger = logging.getLogger(__name__)
 
 class Server(ABC):
     """Base MCP Server class"""
-    
+
     def __init__(self, name: str, port: int):
         self.name = name
         self.port = port
         self.running = False
-        
+
     @abstractmethod
     async def start(self):
         """Start the server"""
         pass
-        
+
     @abstractmethod
     async def stop(self):
         """Stop the server"""
         pass
-        
+
     async def health_check(self) -> Dict[str, Any]:
         """Basic health check"""
         return {
@@ -138,16 +151,16 @@ class Server(ABC):
 
 class MCPServer(Server):
     """Enhanced MCP Server with additional capabilities"""
-    
+
     def __init__(self, name: str, port: int, config: Optional[Dict] = None):
         super().__init__(name, port)
         self.config = config or {}
-        
+
     async def start(self):
         """Start the MCP server"""
         logger.info(f"Starting MCP server {self.name} on port {self.port}")
         self.running = True
-        
+
     async def stop(self):
         """Stop the MCP server"""
         logger.info(f"Stopping MCP server {self.name}")
@@ -160,129 +173,142 @@ class MCPServer(Server):
             else:
                 logger.info("📝 MCP server module already exists")
                 return True
-                
+
         except Exception as e:
             logger.error(f"❌ Failed to create MCP server module: {e}")
             return False
-    
+
     def fix_mcp_configuration_errors(self) -> bool:
         """Fix MCPServerEndpoint configuration errors"""
         try:
             logger.info("🔧 Fixing MCP configuration errors...")
-            
+
             mcp_files = [
-                self.project_root / "backend" / "services" / "mcp_orchestration_service.py",
-                self.project_root / "backend" / "services" / "enhanced_mcp_orchestration_service.py"
+                self.project_root
+                / "backend"
+                / "services"
+                / "mcp_orchestration_service.py",
+                self.project_root
+                / "backend"
+                / "services"
+                / "enhanced_mcp_orchestration_service.py",
             ]
-            
+
             for file_path in mcp_files:
                 if not file_path.exists():
                     continue
-                    
+
                 self.backup_file(file_path)
                 content = file_path.read_text()
-                
+
                 # Fix MCPServerEndpoint calls that have invalid 'name' parameter
                 # Look for MCPServerEndpoint constructor calls and remove 'name' parameter
                 pattern = r'MCPServerEndpoint\([^)]*name\s*=\s*["\'][^"\']*["\'][^)]*\)'
-                
+
                 def fix_endpoint_call(match):
                     call = match.group(0)
                     # Remove the name parameter
-                    fixed_call = re.sub(r',?\s*name\s*=\s*["\'][^"\']*["\']', '', call)
+                    fixed_call = re.sub(r',?\s*name\s*=\s*["\'][^"\']*["\']', "", call)
                     return fixed_call
-                
+
                 fixed_content = re.sub(pattern, fix_endpoint_call, content)
-                
+
                 if fixed_content != content:
                     file_path.write_text(fixed_content)
                     logger.info(f"✅ Fixed MCP configuration in {file_path.name}")
                     self.fixes_applied.append(f"MCP configuration in {file_path.name}")
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to fix MCP configuration: {e}")
             return False
-    
+
     def install_missing_dependencies(self) -> bool:
         """Install missing dependencies"""
         try:
             logger.info("🔧 Installing missing dependencies...")
-            
+
             missing_deps = [
                 "slowapi",
-                "aiomysql", 
+                "aiomysql",
                 "snowflake-connector-python",
                 "aioredis",
-                "httpx[http2]"
+                "httpx[http2]",
             ]
-            
+
             for dep in missing_deps:
                 try:
-                    result = subprocess.run([
-                        sys.executable, "-m", "pip", "install", dep
-                    ], capture_output=True, text=True, timeout=60)
-                    
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "install", dep],
+                        capture_output=True,
+                        text=True,
+                        timeout=60,
+                    )
+
                     if result.returncode == 0:
                         logger.info(f"✅ Installed {dep}")
                     else:
                         logger.warning(f"⚠️ Failed to install {dep}: {result.stderr}")
-                        
+
                 except subprocess.TimeoutExpired:
                     logger.warning(f"⚠️ Timeout installing {dep}")
                 except Exception as e:
                     logger.warning(f"⚠️ Error installing {dep}: {e}")
-            
+
             self.fixes_applied.append("Missing dependencies")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to install dependencies: {e}")
             return False
-    
+
     def fix_port_conflicts(self) -> bool:
         """Fix port conflicts by finding available ports"""
         try:
             logger.info("🔧 Checking for port conflicts...")
-            
+
             import socket
-            
+
             def is_port_available(port):
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                     try:
-                        sock.bind(('localhost', port))
+                        sock.bind(("localhost", port))
                         return True
                     except OSError:
                         return False
-            
+
             # Check common ports used by Sophia AI
             ports_to_check = [8000, 9000, 9001, 9002, 9003, 9004, 3008]
             conflicts = []
-            
+
             for port in ports_to_check:
                 if not is_port_available(port):
                     conflicts.append(port)
-            
+
             if conflicts:
                 logger.warning(f"⚠️ Port conflicts detected on: {conflicts}")
-                logger.info("💡 Consider stopping conflicting services or using different ports")
+                logger.info(
+                    "💡 Consider stopping conflicting services or using different ports"
+                )
             else:
                 logger.info("✅ No port conflicts detected")
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to check port conflicts: {e}")
             return False
-    
+
     def create_enhanced_monitoring_script(self) -> bool:
         """Create enhanced monitoring and testing script"""
         try:
             logger.info("🔧 Creating enhanced monitoring script...")
-            
-            monitoring_script = self.project_root / "scripts" / "enhanced_comprehensive_monitoring.py"
-            
+
+            monitoring_script = (
+                self.project_root / "scripts" / "enhanced_comprehensive_monitoring.py"
+            )
+
             monitoring_content = '''#!/usr/bin/env python3
 """
 Enhanced Comprehensive Monitoring for Sophia AI
@@ -317,7 +343,7 @@ class EnhancedMonitoringService:
             "error_rate": 0.1,      # 10%
             "consecutive_failures": 3
         }
-        
+
     async def run_comprehensive_health_check(self) -> Dict[str, Any]:
         """Run comprehensive health check with performance metrics"""
         start_time = time.time()
@@ -328,21 +354,21 @@ class EnhancedMonitoringService:
             "performance_summary": {},
             "alerts": []
         }
-        
+
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
             tasks = []
             for service_id, service_info in self.services.items():
                 task = self.check_service_health(session, service_id, service_info)
                 tasks.append(task)
-            
+
             service_results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             healthy_count = 0
             total_response_time = 0
-            
+
             for i, (service_id, service_info) in enumerate(self.services.items()):
                 result = service_results[i]
-                
+
                 if isinstance(result, Exception):
                     results["services"][service_id] = {
                         "status": "error",
@@ -355,19 +381,19 @@ class EnhancedMonitoringService:
                     if result["status"] == "healthy":
                         healthy_count += 1
                         total_response_time += result["response_time"]
-        
+
         # Calculate performance metrics
         execution_time = (time.time() - start_time) * 1000
         health_percentage = (healthy_count / len(self.services)) * 100
         avg_response_time = total_response_time / max(healthy_count, 1)
-        
+
         results["performance_summary"] = {
             "execution_time_ms": round(execution_time, 2),
             "health_percentage": round(health_percentage, 1),
             "average_response_time_ms": round(avg_response_time, 2),
             "services_healthy": f"{healthy_count}/{len(self.services)}"
         }
-        
+
         # Store performance history
         self.performance_history.append({
             "timestamp": results["timestamp"],
@@ -375,24 +401,24 @@ class EnhancedMonitoringService:
             "avg_response_time": avg_response_time,
             "execution_time": execution_time
         })
-        
+
         # Keep only last 100 entries
         if len(self.performance_history) > 100:
             self.performance_history = self.performance_history[-100:]
-        
+
         # Check for alerts
         self.check_alerts(results)
-        
+
         return results
-    
+
     async def check_service_health(self, session: aiohttp.ClientSession, service_id: str, service_info: Dict) -> Dict[str, Any]:
         """Check individual service health with detailed metrics"""
         start_time = time.time()
-        
+
         try:
             async with session.get(service_info["url"]) as response:
                 response_time = (time.time() - start_time) * 1000
-                
+
                 if response.status == 200:
                     try:
                         data = await response.json()
@@ -416,7 +442,7 @@ class EnhancedMonitoringService:
                         "status_code": response.status,
                         "error": f"HTTP {response.status}"
                     }
-                    
+
         except asyncio.TimeoutError:
             return {
                 "status": "timeout",
@@ -429,11 +455,11 @@ class EnhancedMonitoringService:
                 "response_time": None,
                 "error": str(e)
             }
-    
+
     def check_alerts(self, results: Dict[str, Any]):
         """Check for alert conditions"""
         alerts = []
-        
+
         # Check response time alerts
         avg_response_time = results["performance_summary"]["avg_response_time_ms"]
         if avg_response_time > self.alert_thresholds["response_time"]:
@@ -442,7 +468,7 @@ class EnhancedMonitoringService:
                 "severity": "warning",
                 "message": f"High average response time: {avg_response_time}ms"
             })
-        
+
         # Check error rate
         healthy_services = results["performance_summary"]["services_healthy"].split("/")
         error_rate = 1 - (int(healthy_services[0]) / int(healthy_services[1]))
@@ -452,13 +478,13 @@ class EnhancedMonitoringService:
                 "severity": "critical",
                 "message": f"High error rate: {error_rate*100:.1f}%"
             })
-        
+
         results["alerts"] = alerts
-    
+
     async def run_performance_test(self, concurrent_requests: int = 10, test_duration: int = 30) -> Dict[str, Any]:
         """Run performance test with concurrent requests"""
         logger.info(f"🚀 Starting performance test: {concurrent_requests} concurrent requests for {test_duration}s")
-        
+
         start_time = time.time()
         end_time = start_time + test_duration
         results = {
@@ -469,11 +495,11 @@ class EnhancedMonitoringService:
             "metrics": {},
             "errors": []
         }
-        
+
         async def make_requests():
             request_times = []
             errors = []
-            
+
             async with aiohttp.ClientSession() as session:
                 while time.time() < end_time:
                     tasks = []
@@ -481,21 +507,21 @@ class EnhancedMonitoringService:
                         # Test main health endpoint
                         task = self.time_request(session, "http://localhost:8000/health")
                         tasks.append(task)
-                    
+
                     batch_results = await asyncio.gather(*tasks, return_exceptions=True)
-                    
+
                     for result in batch_results:
                         if isinstance(result, Exception):
                             errors.append(str(result))
                         else:
                             request_times.append(result)
-                    
+
                     await asyncio.sleep(0.1)  # Small delay between batches
-            
+
             return request_times, errors
-        
+
         request_times, errors = await make_requests()
-        
+
         if request_times:
             results["metrics"] = {
                 "total_requests": len(request_times),
@@ -508,29 +534,29 @@ class EnhancedMonitoringService:
                 "requests_per_second": round(len(request_times) / test_duration, 2),
                 "error_rate": round(len(errors) / (len(request_times) + len(errors)), 4)
             }
-        
+
         results["errors"] = errors[:10]  # Keep first 10 errors
-        
+
         logger.info(f"✅ Performance test completed: {len(request_times)} successful requests")
         return results
-    
+
     async def time_request(self, session: aiohttp.ClientSession, url: str) -> float:
         """Time a single request"""
         start_time = time.time()
         async with session.get(url) as response:
             await response.read()  # Ensure full response is received
             return (time.time() - start_time) * 1000
-    
+
     def generate_performance_report(self) -> str:
         """Generate a comprehensive performance report"""
         if not self.performance_history:
             return "No performance data available"
-        
+
         recent_data = self.performance_history[-10:]  # Last 10 measurements
-        
+
         avg_health = statistics.mean([d["health_percentage"] for d in recent_data])
         avg_response_time = statistics.mean([d["avg_response_time"] for d in recent_data])
-        
+
         report = f"""
 📊 SOPHIA AI PERFORMANCE REPORT
 {'='*50}
@@ -558,33 +584,33 @@ class EnhancedMonitoringService:
 async def main():
     """Main monitoring function"""
     monitor = EnhancedMonitoringService()
-    
+
     print("🔍 Enhanced Sophia AI Monitoring System")
     print("="*50)
-    
+
     try:
         # Run comprehensive health check
         health_results = await monitor.run_comprehensive_health_check()
-        
+
         print(f"\n📊 Health Check Results:")
         print(f"   Overall Health: {'✅ HEALTHY' if health_results['overall_health'] else '❌ ISSUES DETECTED'}")
         print(f"   Services: {health_results['performance_summary']['services_healthy']}")
         print(f"   Avg Response Time: {health_results['performance_summary']['average_response_time_ms']}ms")
-        
+
         # Run performance test
         print(f"\n🚀 Running Performance Test...")
         perf_results = await monitor.run_performance_test(concurrent_requests=5, test_duration=10)
-        
+
         print(f"   Total Requests: {perf_results['metrics']['total_requests']}")
         print(f"   Success Rate: {100 - perf_results['metrics']['error_rate']*100:.1f}%")
         print(f"   Avg Response: {perf_results['metrics']['avg_response_time_ms']}ms")
         print(f"   Requests/sec: {perf_results['metrics']['requests_per_second']}")
-        
+
         # Generate report
         print(monitor.generate_performance_report())
-        
+
         return 0
-        
+
     except Exception as e:
         logger.error(f"Monitoring failed: {e}")
         return 1
@@ -592,24 +618,24 @@ async def main():
 if __name__ == "__main__":
     exit(asyncio.run(main()))
 '''
-            
+
             monitoring_script.write_text(monitoring_content)
             monitoring_script.chmod(0o755)
             logger.info("✅ Created enhanced monitoring script")
             self.fixes_applied.append("Enhanced monitoring script")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create monitoring script: {e}")
             return False
-    
+
     def create_automated_testing_suite(self) -> bool:
         """Create automated testing suite"""
         try:
             logger.info("🔧 Creating automated testing suite...")
-            
+
             test_script = self.project_root / "scripts" / "automated_testing_suite.py"
-            
+
             test_content = '''#!/usr/bin/env python3
 """
 Automated Testing Suite for Sophia AI
@@ -638,37 +664,37 @@ class AutomatedTestingSuite:
             "performance_tests": [],
             "summary": {}
         }
-        
+
     async def run_all_tests(self) -> Dict[str, Any]:
         """Run complete test suite"""
         logger.info("🧪 Starting Automated Testing Suite")
         start_time = time.time()
-        
+
         # Run unit tests
         await self.run_unit_tests()
-        
+
         # Run integration tests
         await self.run_integration_tests()
-        
+
         # Run performance tests
         await self.run_performance_tests()
-        
+
         # Generate summary
         execution_time = time.time() - start_time
         self.generate_test_summary(execution_time)
-        
+
         return self.test_results
-    
+
     async def run_unit_tests(self):
         """Run unit tests for core components"""
         logger.info("🔬 Running unit tests...")
-        
+
         tests = [
             {"name": "Config Manager", "function": self.test_config_manager},
             {"name": "Connection Pool", "function": self.test_connection_pool},
             {"name": "MCP Server Base", "function": self.test_mcp_server_base}
         ]
-        
+
         for test in tests:
             try:
                 result = await test["function"]()
@@ -683,61 +709,61 @@ class AutomatedTestingSuite:
                     "status": "error",
                     "error": str(e)
                 })
-    
+
     async def test_config_manager(self) -> bool:
         """Test configuration manager"""
         try:
             # Test ESC config loading
             from backend.core.auto_esc_config import get_config_value
-            
+
             # This should not raise an exception
             config_value = await get_config_value("test_key", "default_value")
             return True
         except Exception as e:
             logger.error(f"Config manager test failed: {e}")
             return False
-    
+
     async def test_connection_pool(self) -> bool:
         """Test connection pool functionality"""
         try:
             # Basic connection pool test
             from backend.core.optimized_connection_manager import connection_manager
-            
+
             # Test initialization
             await connection_manager.initialize()
             return True
         except Exception as e:
             logger.error(f"Connection pool test failed: {e}")
             return False
-    
+
     async def test_mcp_server_base(self) -> bool:
         """Test MCP server base functionality"""
         try:
             from backend.mcp_servers.server import MCPServer
-            
+
             # Create test server
             server = MCPServer("test", 9999)
-            
+
             # Test basic functionality
             await server.start()
             health = await server.health_check()
             await server.stop()
-            
+
             return health["status"] == "healthy"
         except Exception as e:
             logger.error(f"MCP server base test failed: {e}")
             return False
-    
+
     async def run_integration_tests(self):
         """Run integration tests"""
         logger.info("🔗 Running integration tests...")
-        
+
         tests = [
             {"name": "API Gateway Health", "function": self.test_api_gateway},
             {"name": "MCP Server Communication", "function": self.test_mcp_communication},
             {"name": "Service Dependencies", "function": self.test_service_dependencies}
         ]
-        
+
         for test in tests:
             try:
                 result = await test["function"]()
@@ -752,7 +778,7 @@ class AutomatedTestingSuite:
                     "status": "error",
                     "error": str(e)
                 })
-    
+
     async def test_api_gateway(self) -> bool:
         """Test API Gateway connectivity"""
         try:
@@ -762,7 +788,7 @@ class AutomatedTestingSuite:
         except Exception as e:
             logger.error(f"API Gateway test failed: {e}")
             return False
-    
+
     async def test_mcp_communication(self) -> bool:
         """Test MCP server communication"""
         try:
@@ -772,27 +798,27 @@ class AutomatedTestingSuite:
                 "http://localhost:9003/health",  # GitHub
                 "http://localhost:9004/health"   # Linear
             ]
-            
+
             async with aiohttp.ClientSession() as session:
                 tasks = []
                 for url in services:
                     task = session.get(url)
                     tasks.append(task)
-                
+
                 responses = await asyncio.gather(*tasks, return_exceptions=True)
-                
+
                 success_count = 0
                 for response in responses:
                     if not isinstance(response, Exception) and response.status == 200:
                         success_count += 1
                     if not isinstance(response, Exception):
                         response.close()
-                
+
                 return success_count >= len(services) * 0.8  # 80% success rate
         except Exception as e:
             logger.error(f"MCP communication test failed: {e}")
             return False
-    
+
     async def test_service_dependencies(self) -> bool:
         """Test service dependencies"""
         try:
@@ -800,22 +826,22 @@ class AutomatedTestingSuite:
             import backend.core.auto_esc_config
             import backend.core.optimized_connection_manager
             import backend.mcp_servers.server
-            
+
             return True
         except Exception as e:
             logger.error(f"Service dependencies test failed: {e}")
             return False
-    
+
     async def run_performance_tests(self):
         """Run performance tests"""
         logger.info("⚡ Running performance tests...")
-        
+
         tests = [
             {"name": "Response Time", "function": self.test_response_time},
             {"name": "Concurrent Load", "function": self.test_concurrent_load},
             {"name": "Memory Usage", "function": self.test_memory_usage}
         ]
-        
+
         for test in tests:
             try:
                 result = await test["function"]()
@@ -830,7 +856,7 @@ class AutomatedTestingSuite:
                     "status": "error",
                     "error": str(e)
                 })
-    
+
     async def test_response_time(self) -> Dict[str, Any]:
         """Test response time performance"""
         try:
@@ -839,7 +865,7 @@ class AutomatedTestingSuite:
                 async with session.get("http://localhost:8000/health") as response:
                     await response.read()
                     response_time = (time.time() - start_time) * 1000
-                
+
                 return {
                     "passed": response_time < 1000,  # 1 second threshold
                     "response_time_ms": response_time,
@@ -847,32 +873,32 @@ class AutomatedTestingSuite:
                 }
         except Exception as e:
             return {"passed": False, "error": str(e)}
-    
+
     async def test_concurrent_load(self) -> Dict[str, Any]:
         """Test concurrent load handling"""
         try:
             concurrent_requests = 10
-            
+
             async with aiohttp.ClientSession() as session:
                 start_time = time.time()
-                
+
                 tasks = []
                 for _ in range(concurrent_requests):
                     task = session.get("http://localhost:8000/health")
                     tasks.append(task)
-                
+
                 responses = await asyncio.gather(*tasks, return_exceptions=True)
-                
+
                 total_time = time.time() - start_time
                 success_count = sum(1 for r in responses if not isinstance(r, Exception) and r.status == 200)
-                
+
                 # Close responses
                 for response in responses:
                     if not isinstance(response, Exception):
                         response.close()
-                
+
                 success_rate = success_count / concurrent_requests
-                
+
                 return {
                     "passed": success_rate >= 0.9,  # 90% success rate
                     "success_rate": success_rate,
@@ -881,16 +907,16 @@ class AutomatedTestingSuite:
                 }
         except Exception as e:
             return {"passed": False, "error": str(e)}
-    
+
     async def test_memory_usage(self) -> Dict[str, Any]:
         """Test memory usage"""
         try:
             import psutil
             import os
-            
+
             process = psutil.Process(os.getpid())
             memory_mb = process.memory_info().rss / 1024 / 1024
-            
+
             return {
                 "passed": memory_mb < 500,  # 500MB threshold
                 "memory_usage_mb": memory_mb,
@@ -898,21 +924,21 @@ class AutomatedTestingSuite:
             }
         except Exception as e:
             return {"passed": False, "error": str(e)}
-    
+
     def generate_test_summary(self, execution_time: float):
         """Generate test summary"""
         unit_passed = sum(1 for t in self.test_results["unit_tests"] if t["status"] == "passed")
         unit_total = len(self.test_results["unit_tests"])
-        
+
         integration_passed = sum(1 for t in self.test_results["integration_tests"] if t["status"] == "passed")
         integration_total = len(self.test_results["integration_tests"])
-        
+
         performance_passed = sum(1 for t in self.test_results["performance_tests"] if t["status"] == "passed")
         performance_total = len(self.test_results["performance_tests"])
-        
+
         total_passed = unit_passed + integration_passed + performance_passed
         total_tests = unit_total + integration_total + performance_total
-        
+
         self.test_results["summary"] = {
             "execution_time_s": round(execution_time, 2),
             "total_tests": total_tests,
@@ -923,11 +949,11 @@ class AutomatedTestingSuite:
             "performance_tests": f"{performance_passed}/{performance_total}",
             "overall_status": "PASSED" if total_passed == total_tests else "FAILED"
         }
-    
+
     def print_test_report(self):
         """Print comprehensive test report"""
         summary = self.test_results["summary"]
-        
+
         print(f"""
 🧪 AUTOMATED TESTING SUITE REPORT
 {'='*50}
@@ -943,7 +969,7 @@ class AutomatedTestingSuite:
 
 🔍 DETAILED RESULTS:
 """)
-        
+
         for category in ["unit_tests", "integration_tests", "performance_tests"]:
             print(f"\n{category.replace('_', ' ').title()}:")
             for test in self.test_results[category]:
@@ -953,14 +979,14 @@ class AutomatedTestingSuite:
 async def main():
     """Main testing function"""
     suite = AutomatedTestingSuite()
-    
+
     try:
         results = await suite.run_all_tests()
         suite.print_test_report()
-        
+
         # Return appropriate exit code
         return 0 if results["summary"]["overall_status"] == "PASSED" else 1
-        
+
     except Exception as e:
         logger.error(f"Test suite failed: {e}")
         return 1
@@ -968,29 +994,29 @@ async def main():
 if __name__ == "__main__":
     exit(asyncio.run(main()))
 '''
-            
+
             test_script.write_text(test_content)
             test_script.chmod(0o755)
             logger.info("✅ Created automated testing suite")
             self.fixes_applied.append("Automated testing suite")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to create testing suite: {e}")
             return False
-    
-    async def run_comprehensive_fix(self) -> Dict[str, Any]:
+
+    async def run_comprehensive_fix(self) -> dict[str, Any]:
         """Run all fixes and enhancements"""
         logger.info("🚀 Starting Comprehensive Deployment Fix & Enhancement")
-        
+
         results = {
             "start_time": datetime.now().isoformat(),
             "fixes_applied": [],
             "enhancements_added": [],
             "success_rate": 0,
-            "execution_time": 0
+            "execution_time": 0,
         }
-        
+
         # Run all fixes
         fixes = [
             ("Snowflake indentation errors", self.fix_snowflake_indentation_errors),
@@ -999,11 +1025,11 @@ if __name__ == "__main__":
             ("Missing dependencies", self.install_missing_dependencies),
             ("Port conflicts check", self.fix_port_conflicts),
             ("Enhanced monitoring script", self.create_enhanced_monitoring_script),
-            ("Automated testing suite", self.create_automated_testing_suite)
+            ("Automated testing suite", self.create_automated_testing_suite),
         ]
-        
+
         successful_fixes = 0
-        
+
         for fix_name, fix_function in fixes:
             logger.info(f"📋 Executing: {fix_name}")
             try:
@@ -1015,15 +1041,15 @@ if __name__ == "__main__":
                     logger.warning(f"⚠️ {fix_name} completed with warnings")
             except Exception as e:
                 logger.error(f"❌ {fix_name} failed: {e}")
-        
+
         # Calculate results
         results["success_rate"] = successful_fixes / len(fixes)
         results["execution_time"] = time.time() - self.start_time
         results["enhancements_added"] = self.fixes_applied
-        
+
         return results
-    
-    def generate_final_report(self, results: Dict[str, Any]) -> str:
+
+    def generate_final_report(self, results: dict[str, Any]) -> str:
         """Generate final deployment report"""
         return f"""
 🎉 COMPREHENSIVE DEPLOYMENT FIX & ENHANCEMENT REPORT
@@ -1054,26 +1080,28 @@ if __name__ == "__main__":
 🚀 DEPLOYMENT STATUS: {'✅ READY FOR PRODUCTION' if results['success_rate'] > 0.8 else '⚠️ NEEDS ATTENTION' if results['success_rate'] > 0.5 else '❌ CRITICAL ISSUES REMAIN'}
 """
 
+
 async def main():
     """Main execution function"""
     fixer = ComprehensiveDeploymentFix()
-    
+
     try:
         results = await fixer.run_comprehensive_fix()
         report = fixer.generate_final_report(results)
-        
+
         print(report)
-        
+
         # Save report
         report_path = fixer.project_root / "COMPREHENSIVE_DEPLOYMENT_FIX_REPORT.md"
         report_path.write_text(report)
         logger.info(f"📄 Report saved to: {report_path}")
-        
+
         return 0 if results["success_rate"] > 0.8 else 1
-        
+
     except Exception as e:
         logger.error(f"💥 Comprehensive fix failed: {e}")
         return 1
 
+
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main())) 
+    sys.exit(asyncio.run(main()))

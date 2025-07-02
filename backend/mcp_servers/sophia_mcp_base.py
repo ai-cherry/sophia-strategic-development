@@ -14,6 +14,7 @@ from typing import Any
 
 try:
     from mcp import Resource, Server, Tool
+
     from backend.mcp_servers.types import ImageContent, TextContent
 
     MCP_AVAILABLE = True

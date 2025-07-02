@@ -8,26 +8,25 @@ Natural language interface for Snowflake administration through LangChain SQL Ag
 import asyncio
 import logging
 import os
-from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
-    EnhancedStandardizedMCPServer,
-    MCPServerConfig,
-    HealthCheckLevel
-)
-
 
 # MCP imports
 # Snowflake Admin Agent
 import sys
 from typing import Any
 
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+)
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from backend.agents.specialized.snowflake_admin_agent import SnowflakeAdminAgent
 from backend.mcp_servers.base.standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
-    EnhancedStandardizedMCPServer,
 )
 
 logger = logging.getLogger(__name__)
@@ -132,9 +131,12 @@ def safe_execute(func):
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {"status": "ok"}
+
 except ImportError:
     pass

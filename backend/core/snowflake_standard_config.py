@@ -30,14 +30,15 @@ SNOWFLAKE_ENV_CONFIG = {
         "database": "SOPHIA_AI",
         "warehouse": "SOPHIA_AI_WH_DEV",
         "role": "SOPHIA_AI_ROLE_DEV",
-    }
+    },
 }
+
 
 def get_snowflake_config(environment: str = "production") -> dict:
     """Get Snowflake configuration for the specified environment"""
     config = SNOWFLAKE_CONFIG.copy()
-    
+
     if environment in SNOWFLAKE_ENV_CONFIG:
         config.update(SNOWFLAKE_ENV_CONFIG[environment])
-    
+
     return config

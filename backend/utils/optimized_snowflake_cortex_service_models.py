@@ -78,13 +78,13 @@ class CortexConfig:
     batch_timeout_ms: int = 5000
     cache_enabled: bool = True
     cache_ttl_seconds: int = 3600
-    
+
     # Model configuration
     default_models: dict[CortexOperation, str] = None
-    
+
     # Cost tracking (estimated costs per operation)
     operation_costs: dict[CortexOperation, float] = None
-    
+
     def __post_init__(self):
         if self.default_models is None:
             self.default_models = {
@@ -94,7 +94,7 @@ class CortexConfig:
                 CortexOperation.TRANSLATE: "snowflake-arctic-translate",
                 CortexOperation.COMPLETE: "snowflake-arctic",
             }
-        
+
         if self.operation_costs is None:
             self.operation_costs = {
                 CortexOperation.SENTIMENT_ANALYSIS: 0.001,
@@ -103,4 +103,4 @@ class CortexConfig:
                 CortexOperation.VECTOR_SEARCH: 0.001,
                 CortexOperation.TRANSLATE: 0.003,
                 CortexOperation.COMPLETE: 0.010,
-            } 
+            }

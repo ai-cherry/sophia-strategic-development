@@ -16,6 +16,7 @@ SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 DEPLOYMENT_LOG_DIR = PROJECT_ROOT / "logs" / "deployments"
 
+
 class SophiaProductionDeployment:
     def __init__(self, environment: str = "production"):
         self.environment = environment
@@ -25,7 +26,7 @@ class SophiaProductionDeployment:
             "deployment_id": self.deployment_id,
             "environment": environment,
             "started_at": datetime.utcnow().isoformat(),
-            "phases": {}
+            "phases": {},
         }
 
         # Ensure log directory exists
@@ -40,7 +41,9 @@ class SophiaProductionDeployment:
         with open(self.log_file, "a") as f:
             f.write(log_entry + "\n")
 
-    async def run_command(self, command: list[str], cwd: Path | None = None, timeout: int = 300) -> tuple[bool, str, str]:
+    async def run_command(
+        self, command: list[str], cwd: Path | None = None, timeout: int = 300
+    ) -> tuple[bool, str, str]:
         """Run a command with timeout and logging"""
         self.log(f"Running command: {' '.join(command)}")
 
@@ -49,10 +52,12 @@ class SophiaProductionDeployment:
                 *command,
                 cwd=cwd or PROJECT_ROOT,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=timeout
+            )
 
             success = process.returncode == 0
             stdout_str = stdout.decode() if stdout else ""
@@ -63,7 +68,10 @@ class SophiaProductionDeployment:
                 if stdout_str:
                     self.log(f"STDOUT: {stdout_str[:500]}...")
             else:
-                self.log(f"Command failed: {command[0]} (exit code: {process.returncode})", "ERROR")
+                self.log(
+                    f"Command failed: {command[0]} (exit code: {process.returncode})",
+                    "ERROR",
+                )
                 if stderr_str:
                     self.log(f"STDERR: {stderr_str[:500]}...", "ERROR")
 
@@ -85,7 +93,7 @@ class SophiaProductionDeployment:
             ("Pulumi access", self._check_pulumi_access),
             ("Docker availability", self._check_docker),
             ("UV installation", self._check_uv),
-            ("Git status", self._check_git_status)
+            ("Git status", self._check_git_status),
         ]
 
         all_passed = True
@@ -126,7 +134,9 @@ class SophiaProductionDeployment:
 
     async def _check_git_status(self) -> bool:
         """Check git status"""
-        success, stdout, _ = await self.run_command(["git", "status", "--porcelain"], timeout=10)
+        success, stdout, _ = await self.run_command(
+            ["git", "status", "--porcelain"], timeout=10
+        )
         return success and not stdout.strip()  # No uncommitted changes
 
     async def deploy_infrastructure(self) -> bool:
@@ -145,9 +155,7 @@ class SophiaProductionDeployment:
         # Deploy with Pulumi
         stack_name = f"sophia-ai-{self.environment}"
         success, _, _ = await self.run_command(
-            ["pulumi", "up", "--yes", "--stack", stack_name],
-            cwd=infra_dir,
-            timeout=600
+            ["pulumi", "up", "--yes", "--stack", stack_name], cwd=infra_dir, timeout=600
         )
 
         if success:
@@ -169,12 +177,10 @@ class SophiaProductionDeployment:
 
         # Build Docker image
         image_tag = f"sophia-backend:{self.deployment_id}"
-        success, _, _ = await self.run_command([
-            "docker", "build",
-            "-f", "Dockerfile.production",
-            "-t", image_tag,
-            "."
-        ], timeout=600)
+        success, _, _ = await self.run_command(
+            ["docker", "build", "-f", "Dockerfile.production", "-t", image_tag, "."],
+            timeout=600,
+        )
 
         if not success:
             self.log("Failed to build backend Docker image", "ERROR")
@@ -197,7 +203,9 @@ class SophiaProductionDeployment:
             return False
 
         # Build frontend
-        success, _, _ = await self.run_command(["npm", "run", "build"], cwd=frontend_dir, timeout=300)
+        success, _, _ = await self.run_command(
+            ["npm", "run", "build"], cwd=frontend_dir, timeout=300
+        )
         if not success:
             self.log("Failed to build frontend", "ERROR")
             return False
@@ -205,9 +213,11 @@ class SophiaProductionDeployment:
         # Deploy to Vercel (if configured)
         vercel_token = os.getenv("VERCEL_TOKEN")
         if vercel_token:
-            success, _, _ = await self.run_command([
-                "npx", "vercel", "--prod", "--token", vercel_token
-            ], cwd=frontend_dir, timeout=300)
+            success, _, _ = await self.run_command(
+                ["npx", "vercel", "--prod", "--token", vercel_token],
+                cwd=frontend_dir,
+                timeout=300,
+            )
 
             if success:
                 self.log("✅ Frontend deployed to Vercel")
@@ -231,9 +241,9 @@ class SophiaProductionDeployment:
             return False
 
         # Start MCP servers (this would be adapted for production deployment)
-        success, _, _ = await self.run_command([
-            "python", str(orchestrator_script)
-        ], timeout=120)
+        success, _, _ = await self.run_command(
+            ["python", str(orchestrator_script)], timeout=120
+        )
 
         if success:
             self.log("✅ MCP servers deployment completed")
@@ -249,9 +259,9 @@ class SophiaProductionDeployment:
         # Use the enhanced health gate script
         health_script = SCRIPT_DIR / "ci" / "deployment_health_gate.py"
 
-        success, _, _ = await self.run_command([
-            "python", str(health_script)
-        ], timeout=60)
+        success, _, _ = await self.run_command(
+            ["python", str(health_script)], timeout=60
+        )
 
         if success:
             self.log("✅ All health checks passed")
@@ -265,9 +275,7 @@ class SophiaProductionDeployment:
         self.log("🔥 Running smoke tests...")
 
         # Run basic smoke tests
-        test_commands = [
-            ["python", "-m", "pytest", "tests/smoke/", "-v", "--tb=short"]
-        ]
+        test_commands = [["python", "-m", "pytest", "tests/smoke/", "-v", "--tb=short"]]
 
         for command in test_commands:
             success, _, _ = await self.run_command(command, timeout=120)
@@ -283,8 +291,8 @@ class SophiaProductionDeployment:
         self.status["completed_at"] = datetime.utcnow().isoformat()
         self.status["success"] = success
         self.status["duration_seconds"] = (
-            datetime.fromisoformat(self.status["completed_at"]) -
-            datetime.fromisoformat(self.status["started_at"])
+            datetime.fromisoformat(self.status["completed_at"])
+            - datetime.fromisoformat(self.status["started_at"])
         ).total_seconds()
 
         report_file = DEPLOYMENT_LOG_DIR / f"{self.deployment_id}-report.json"
@@ -294,16 +302,16 @@ class SophiaProductionDeployment:
         self.log(f"📊 Deployment report saved: {report_file}")
 
         # Print summary
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🚀 SOPHIA AI DEPLOYMENT SUMMARY")
-        print("="*60)
+        print("=" * 60)
         print(f"Deployment ID: {self.deployment_id}")
         print(f"Environment: {self.environment}")
         print(f"Status: {'✅ SUCCESS' if success else '❌ FAILED'}")
         print(f"Duration: {self.status['duration_seconds']:.1f} seconds")
         print(f"Log file: {self.log_file}")
         print(f"Report file: {report_file}")
-        print("="*60)
+        print("=" * 60)
 
     async def rollback_deployment(self):
         """Rollback deployment in case of failure"""
@@ -320,7 +328,9 @@ class SophiaProductionDeployment:
             self.log(f"🎬 Starting Sophia AI deployment to {self.environment}")
 
             # Phase 1: Prerequisites
-            self.status["phases"]["prerequisites"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["prerequisites"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.validate_prerequisites():
                 self.status["phases"]["prerequisites"]["success"] = False
                 self.log("❌ Prerequisites validation failed", "ERROR")
@@ -328,7 +338,9 @@ class SophiaProductionDeployment:
             self.status["phases"]["prerequisites"]["success"] = True
 
             # Phase 2: Infrastructure
-            self.status["phases"]["infrastructure"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["infrastructure"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.deploy_infrastructure():
                 self.status["phases"]["infrastructure"]["success"] = False
                 self.log("❌ Infrastructure deployment failed", "ERROR")
@@ -337,7 +349,9 @@ class SophiaProductionDeployment:
             self.status["phases"]["infrastructure"]["success"] = True
 
             # Phase 3: Backend
-            self.status["phases"]["backend"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["backend"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.build_and_deploy_backend():
                 self.status["phases"]["backend"]["success"] = False
                 self.log("❌ Backend deployment failed", "ERROR")
@@ -346,7 +360,9 @@ class SophiaProductionDeployment:
             self.status["phases"]["backend"]["success"] = True
 
             # Phase 4: Frontend
-            self.status["phases"]["frontend"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["frontend"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.deploy_frontend():
                 self.status["phases"]["frontend"]["success"] = False
                 self.log("❌ Frontend deployment failed", "ERROR")
@@ -355,7 +371,9 @@ class SophiaProductionDeployment:
             self.status["phases"]["frontend"]["success"] = True
 
             # Phase 5: MCP Servers
-            self.status["phases"]["mcp_servers"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["mcp_servers"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.deploy_mcp_servers():
                 self.status["phases"]["mcp_servers"]["success"] = False
                 self.log("❌ MCP servers deployment failed", "ERROR")
@@ -365,7 +383,9 @@ class SophiaProductionDeployment:
                 self.status["phases"]["mcp_servers"]["success"] = True
 
             # Phase 6: Health Checks
-            self.status["phases"]["health_checks"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["health_checks"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.run_health_checks():
                 self.status["phases"]["health_checks"]["success"] = False
                 self.log("❌ Health checks failed", "ERROR")
@@ -374,7 +394,9 @@ class SophiaProductionDeployment:
             self.status["phases"]["health_checks"]["success"] = True
 
             # Phase 7: Smoke Tests
-            self.status["phases"]["smoke_tests"] = {"started_at": datetime.utcnow().isoformat()}
+            self.status["phases"]["smoke_tests"] = {
+                "started_at": datetime.utcnow().isoformat()
+            }
             if not await self.run_smoke_tests():
                 self.status["phases"]["smoke_tests"]["success"] = False
                 self.log("❌ Smoke tests failed", "ERROR")
@@ -397,8 +419,12 @@ async def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Deploy Sophia AI to production")
-    parser.add_argument("--environment", default="production", help="Target environment")
-    parser.add_argument("--dry-run", action="store_true", help="Validate without deploying")
+    parser.add_argument(
+        "--environment", default="production", help="Target environment"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Validate without deploying"
+    )
 
     args = parser.parse_args()
 

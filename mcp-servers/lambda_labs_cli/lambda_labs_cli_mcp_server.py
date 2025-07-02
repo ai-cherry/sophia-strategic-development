@@ -4,7 +4,6 @@ from datetime import UTC, datetime
 from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
     EnhancedStandardizedMCPServer,
     MCPServerConfig,
-    HealthCheckLevel
 )
 
 """
@@ -40,12 +39,12 @@ backend_path = Path(__file__).parent.parent.parent / "backend"
 sys.path.append(str(backend_path))
 
 from backend.mcp_servers.base.standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
-    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -509,9 +508,12 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {"status": "ok"}
+
 except ImportError:
     pass

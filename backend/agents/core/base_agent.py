@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 """
 Base Agent class for Sophia AI Agent framework
 Provides foundational capabilities for all agents
@@ -9,6 +7,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 

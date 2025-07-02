@@ -125,31 +125,37 @@ class PayReadyCoreDataIngestor:
             all_chunks = []
             chunk_count = 0
             total_records = 0
-            
-            logger.info(f"📊 Starting chunked extraction with chunk size: {self.config.chunk_size}")
-            
+
+            logger.info(
+                f"📊 Starting chunked extraction with chunk size: {self.config.chunk_size}"
+            )
+
             for chunk_df in pd.read_sql_query(
-                text(query), 
-                self.source_engine, 
+                text(query),
+                self.source_engine,
                 params={"since_date": since_date},
-                chunksize=self.config.chunk_size
+                chunksize=self.config.chunk_size,
             ):
                 chunk_count += 1
                 chunk_size = len(chunk_df)
                 total_records += chunk_size
-                
+
                 logger.info(f"📦 Processing chunk {chunk_count}: {chunk_size} records")
-                
+
                 # Process chunk (you can add transformation logic here)
                 all_chunks.append(chunk_df)
-                
+
                 # Log progress
-                logger.info(f"✅ Chunk {chunk_count} processed successfully ({total_records} total records)")
+                logger.info(
+                    f"✅ Chunk {chunk_count} processed successfully ({total_records} total records)"
+                )
 
             # Combine all chunks
             if all_chunks:
                 df = pd.concat(all_chunks, ignore_index=True)
-                logger.info(f"📊 Extracted {len(df)} payment transactions in {chunk_count} chunks")
+                logger.info(
+                    f"📊 Extracted {len(df)} payment transactions in {chunk_count} chunks"
+                )
                 return df
             else:
                 logger.info("No payment transactions found")
@@ -202,31 +208,39 @@ class PayReadyCoreDataIngestor:
             all_chunks = []
             chunk_count = 0
             total_records = 0
-            
-            logger.info(f"📊 Starting chunked customer features extraction with chunk size: {self.config.chunk_size}")
-            
+
+            logger.info(
+                f"📊 Starting chunked customer features extraction with chunk size: {self.config.chunk_size}"
+            )
+
             for chunk_df in pd.read_sql_query(
-                text(query), 
-                self.source_engine, 
+                text(query),
+                self.source_engine,
                 params={"since_date": since_date},
-                chunksize=self.config.chunk_size
+                chunksize=self.config.chunk_size,
             ):
                 chunk_count += 1
                 chunk_size = len(chunk_df)
                 total_records += chunk_size
-                
-                logger.info(f"📦 Processing customer features chunk {chunk_count}: {chunk_size} records")
-                
+
+                logger.info(
+                    f"📦 Processing customer features chunk {chunk_count}: {chunk_size} records"
+                )
+
                 # Process chunk (you can add transformation logic here)
                 all_chunks.append(chunk_df)
-                
+
                 # Log progress
-                logger.info(f"✅ Customer features chunk {chunk_count} processed successfully ({total_records} total records)")
+                logger.info(
+                    f"✅ Customer features chunk {chunk_count} processed successfully ({total_records} total records)"
+                )
 
             # Combine all chunks
             if all_chunks:
                 df = pd.concat(all_chunks, ignore_index=True)
-                logger.info(f"📊 Extracted {len(df)} customer features in {chunk_count} chunks")
+                logger.info(
+                    f"📊 Extracted {len(df)} customer features in {chunk_count} chunks"
+                )
                 return df
             else:
                 logger.info("No customer features found")

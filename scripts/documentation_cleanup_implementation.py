@@ -4,26 +4,26 @@ Sophia AI Documentation Cleanup Implementation Script
 Automated implementation of documentation audit recommendations
 """
 
-import os
-import shutil
 import json
-import glob
-from pathlib import Path
-from typing import List, Dict, Set
 import logging
+import shutil
+from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class DocumentationCleanup:
     """Implements comprehensive documentation cleanup for Sophia AI"""
-    
+
     def __init__(self, base_path: str = "."):
         self.base_path = Path(base_path)
         self.docs_path = self.base_path / "docs"
         self.backup_path = self.base_path / "docs_backup"
-        
+
         # Files to delete (outdated/duplicate/conflicting)
         self.files_to_delete = [
             # Phase implementation summaries (outdated)
@@ -32,75 +32,63 @@ class DocumentationCleanup:
             "docs/phase*_cache_activation_summary.md",
             "docs/phase*_ephemeral_credentials_summary.md",
             "docs/phase*_mcp_optimization_summary.md",
-            
             # Duplicate architecture guides
             "docs/ARCHITECTURE_PATTERNS_AND_STANDARDS.md",
             "docs/ARCHITECTURE_MASTER_GUIDE.md",
             "docs/ARCHITECTURAL_ANALYSIS_SUMMARY.md",
             "docs/ARCHITECTURAL_ENHANCEMENT_IMPLEMENTATION.md",
-            
             # Obsolete integration guides
             "docs/ESTUARY_INTEGRATION_GUIDE.md",
             "docs/SIMPLIFIED_PORTKEY_MIGRATION_GUIDE.md",
             "docs/ENHANCED_PORTKEY_IMPLEMENTATION_GUIDE.md",
             "docs/MANUS_AI_SNOWFLAKE_ESTUARY_SETUP.md",
-            
             # Conflicting best practices
             "docs/PYTHON_SYNTAX_BEST_PRACTICES.md",
             "docs/PYTHON_SYNTAX_CLEANUP_SUMMARY.md",
             "docs/QUICK_START_SYNTAX_FIX.md",
-            
             # Multiple master indices
             "docs/SOPHIA_AI_DOCUMENTATION_MASTER_INDEX.md",
             "docs/README_DOCUMENTATION_INDEX.md",
             "docs/DOCUMENTATION_CLEANUP_GUIDE.md",
-            
             # Outdated deployment guides
             "docs/DEPLOYMENT_MASTER_GUIDE.md",
             "docs/INFRASTRUCTURE_QUICK_START.md",
             "docs/INFRASTRUCTURE_MANAGEMENT_ARCHITECTURE.md",
             "docs/INFRASTRUCTURE_MODERNIZATION_*.md",
-            
             # Implementation reports (outdated)
             "docs/SOPHIA_AI_*_IMPLEMENTATION_*.md",
             "docs/SOPHIA_AI_*_SUMMARY.md",
             "docs/SOPHIA_AI_*_REPORT.md",
             "docs/CLEAN_*_IMPLEMENTATION*.md",
             "docs/CODEBASE_*_SUMMARY.md",
-            
             # Obsolete guides
             "docs/CURSOR_AI_CODING_SETUP.md",
             "docs/CLINE_AND_COGNEE_SETUP_GUIDE.md",
             "docs/CLINE_V3_18_*.md",
             "docs/CODACY_CURSOR_QUICK_REFERENCE.md",
-            
             # User guides (to be consolidated)
             "docs/phase2_user_guide.md",
             "docs/AI_DEVELOPER_ONBOARDING.md",
-            
             # Specific status/planning docs
             "docs/SOPHIA_AI_HOLISTIC_OPTIMIZATION_PLAN.md",
             "docs/SOPHIA_AI_COMPLETE_IMPLEMENTATION_ROADMAP.md",
             "docs/SOPHIA_AI_MCP_ORCHESTRATION_*.md",
             "docs/SOPHIA_AI_ENHANCED_LLM_STRATEGY_SUMMARY.md",
-            
             # Performance docs (to be consolidated)
             "docs/PERFORMANCE_OPTIMIZATION_*.md",
             "docs/PERFORMANCE_PLAYBOOK.md",
             "docs/CODEX_PERFORMANCE_OPTIMIZATION_PROMPT.md",
-            
             # Project management docs (obsolete)
             "docs/CROSS_PLATFORM_PROJECT_MANAGEMENT_DASHBOARD.md",
             "docs/COSTAR_PROJECT_IMPLEMENTATION_GUIDE.md",
             "docs/PROJECT_MANAGEMENT_STRUCTURE.md",
-            
             # Misc outdated docs
             "docs/CHANGELOG.md",  # Will create new one
             "docs/FEATURE_FLAGS_AND_ROLLOUT.md",
             "docs/GITHUB_ACTIONS_WORKFLOW_FIXES.md",
             "docs/AUTOMATION_API_WORKFLOW.md",
         ]
-        
+
         # Files to preserve and update
         self.files_to_update = [
             "docs/AI_CODER_REFERENCE.md",
@@ -111,11 +99,11 @@ class DocumentationCleanup:
             "docs/NATURAL_LANGUAGE_CONTROL_GUIDE.md",
             "README.md",
         ]
-        
+
         # New files to create
         self.files_to_create = [
             "ARCHITECTURE.md",
-            "DEVELOPMENT.md", 
+            "DEVELOPMENT.md",
             "DEPLOYMENT.md",
             "API_REFERENCE.md",
             "MCP_INTEGRATION.md",
@@ -127,14 +115,14 @@ class DocumentationCleanup:
     def create_backup(self):
         """Create backup of current documentation"""
         logger.info("Creating backup of current documentation...")
-        
+
         if self.backup_path.exists():
             shutil.rmtree(self.backup_path)
-        
+
         shutil.copytree(self.docs_path, self.backup_path)
         logger.info(f"Backup created at {self.backup_path}")
 
-    def get_files_matching_patterns(self, patterns: List[str]) -> Set[Path]:
+    def get_files_matching_patterns(self, patterns: list[str]) -> set[Path]:
         """Get all files matching the given glob patterns"""
         files = set()
         for pattern in patterns:
@@ -144,10 +132,10 @@ class DocumentationCleanup:
     def delete_obsolete_files(self):
         """Delete obsolete and duplicate documentation files"""
         logger.info("Deleting obsolete documentation files...")
-        
+
         files_to_delete = self.get_files_matching_patterns(self.files_to_delete)
         deleted_count = 0
-        
+
         for file_path in files_to_delete:
             if file_path.exists():
                 logger.info(f"Deleting: {file_path}")
@@ -155,13 +143,13 @@ class DocumentationCleanup:
                 deleted_count += 1
             else:
                 logger.warning(f"File not found: {file_path}")
-        
+
         logger.info(f"Deleted {deleted_count} obsolete files")
 
-    def analyze_current_structure(self) -> Dict:
+    def analyze_current_structure(self) -> dict:
         """Analyze current documentation structure"""
         logger.info("Analyzing current documentation structure...")
-        
+
         analysis = {
             "total_files": 0,
             "md_files": 0,
@@ -171,15 +159,15 @@ class DocumentationCleanup:
                 "architecture": [],
                 "guides": [],
                 "summaries": [],
-                "other": []
-            }
+                "other": [],
+            },
         }
-        
+
         for file_path in self.docs_path.rglob("*.md"):
             analysis["total_files"] += 1
             analysis["md_files"] += 1
             analysis["file_sizes"][str(file_path)] = file_path.stat().st_size
-            
+
             # Categorize files
             filename = file_path.name.lower()
             if "implementation" in filename or "summary" in filename:
@@ -192,34 +180,34 @@ class DocumentationCleanup:
                 analysis["categories"]["summaries"].append(str(file_path))
             else:
                 analysis["categories"]["other"].append(str(file_path))
-        
+
         return analysis
 
     def create_new_documentation_structure(self):
         """Create new consolidated documentation files"""
         logger.info("Creating new documentation structure...")
-        
+
         # Create ARCHITECTURE.md
         self.create_architecture_doc()
-        
+
         # Create DEVELOPMENT.md
         self.create_development_doc()
-        
+
         # Create DEPLOYMENT.md
         self.create_deployment_doc()
-        
+
         # Create API_REFERENCE.md
         self.create_api_reference_doc()
-        
+
         # Create MCP_INTEGRATION.md
         self.create_mcp_integration_doc()
-        
+
         # Create AGENT_DEVELOPMENT.md
         self.create_agent_development_doc()
-        
+
         # Create TROUBLESHOOTING.md
         self.create_troubleshooting_doc()
-        
+
         # Create new CHANGELOG.md
         self.create_changelog_doc()
 
@@ -294,7 +282,7 @@ Model Context Protocol servers handle all external integrations:
 
 For detailed implementation patterns, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) and [MCP_INTEGRATION.md](MCP_INTEGRATION.md).
 """
-        
+
         with open("ARCHITECTURE.md", "w") as f:
             f.write(content)
         logger.info("Created ARCHITECTURE.md")
@@ -343,11 +331,11 @@ class YourAgent(BaseAgent):
             "name": "your_agent",
             "capabilities": ["your_capability"]
         })
-    
+
     async def _agent_initialize(self):
         # Your initialization logic
         pass
-    
+
     async def _execute_task(self, task: Task) -> Any:
         # Your task execution logic
         pass
@@ -415,7 +403,7 @@ Update `.cursor/mcp_servers.json`:
 
 For troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 """
-        
+
         with open("DEVELOPMENT.md", "w") as f:
             f.write(content)
         logger.info("Created DEVELOPMENT.md")
@@ -464,11 +452,11 @@ class YourAgent(BaseAgent):
             "name": "your_agent",
             "capabilities": ["your_capability"]
         })
-    
+
     async def _agent_initialize(self):
         # Your initialization logic
         pass
-    
+
     async def _execute_task(self, task: Task) -> Any:
         # Your task execution logic
         pass
@@ -536,7 +524,7 @@ Update `.cursor/mcp_servers.json`:
 
 For troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 """
-        
+
         with open("DEPLOYMENT.md", "w") as f:
             f.write(content)
         logger.info("Created DEPLOYMENT.md")
@@ -617,7 +605,7 @@ Update `.cursor/mcp_servers.json`:
 
 For troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 """
-        
+
         with open("API_REFERENCE.md", "w") as f:
             f.write(content)
         logger.info("Created API_REFERENCE.md")
@@ -698,7 +686,7 @@ Update `.cursor/mcp_servers.json`:
 
 For troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 """
-        
+
         with open("MCP_INTEGRATION.md", "w") as f:
             f.write(content)
         logger.info("Created MCP_INTEGRATION.md")
@@ -791,7 +779,7 @@ Update `.cursor/mcp_servers.json`:
 
 For troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 """
-        
+
         with open("AGENT_DEVELOPMENT.md", "w") as f:
             f.write(content)
         logger.info("Created AGENT_DEVELOPMENT.md")
@@ -861,7 +849,7 @@ Update `.cursor/mcp_servers.json`:
 
 For more detailed troubleshooting, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) and [MCP_INTEGRATION.md](MCP_INTEGRATION.md).
 """
-        
+
         with open("TROUBLESHOOTING.md", "w") as f:
             f.write(content)
         logger.info("Created TROUBLESHOOTING.md")
@@ -941,7 +929,7 @@ Update `.cursor/mcp_servers.json`:
 
 For more detailed CHANGELOG, see [AGENT_DEVELOPMENT.md](AGENT_DEVELOPMENT.md) and [MCP_INTEGRATION.md](MCP_INTEGRATION.md).
 """
-        
+
         with open("CHANGELOG.md", "w") as f:
             f.write(content)
         logger.info("Created CHANGELOG.md")
@@ -992,7 +980,7 @@ cd frontend && npm run dev
 
 ### Core Documentation
 - **[🏗️ Architecture](ARCHITECTURE.md)** - System design and components
-- **[🛠️ Development](DEVELOPMENT.md)** - Development setup and workflow  
+- **[🛠️ Development](DEVELOPMENT.md)** - Development setup and workflow
 - **[🚀 Deployment](DEPLOYMENT.md)** - Production deployment guide
 - **[📡 API Reference](API_REFERENCE.md)** - Complete API documentation
 
@@ -1012,7 +1000,7 @@ cd frontend && npm run dev
 
 ### 🔌 Integrations
 - **Gong**: Sales call analysis and insights
-- **HubSpot**: CRM data and customer intelligence  
+- **HubSpot**: CRM data and customer intelligence
 - **Slack**: Team communication and notifications
 - **Linear**: Project management and tracking
 - **Snowflake**: Data warehouse and analytics
@@ -1031,7 +1019,7 @@ cd frontend && npm run dev
 - Customer health monitoring
 - Competitive intelligence
 
-### Sales Intelligence  
+### Sales Intelligence
 - Call analysis and coaching
 - Pipeline health assessment
 - Deal risk identification
@@ -1119,74 +1107,79 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 **Sophia AI** - Transforming business operations through intelligent AI orchestration. 🚀
 """
-        
+
         with open("README.md", "w") as f:
             f.write(content)
         logger.info("Updated README.md")
 
-    def generate_cleanup_report(self, initial_analysis: Dict) -> Dict:
+    def generate_cleanup_report(self, initial_analysis: dict) -> dict:
         """Generate cleanup report"""
         final_analysis = self.analyze_current_structure()
-        
+
         report = {
             "initial_state": initial_analysis,
             "final_state": final_analysis,
-            "files_deleted": initial_analysis["total_files"] - final_analysis["total_files"],
-            "size_reduction": sum(initial_analysis["file_sizes"].values()) - sum(final_analysis["file_sizes"].values()),
+            "files_deleted": initial_analysis["total_files"]
+            - final_analysis["total_files"],
+            "size_reduction": sum(initial_analysis["file_sizes"].values())
+            - sum(final_analysis["file_sizes"].values()),
             "created_files": len(self.files_to_create),
-            "updated_files": len(self.files_to_update)
+            "updated_files": len(self.files_to_update),
         }
-        
+
         return report
 
     def run_cleanup(self, dry_run: bool = False):
         """Run the complete documentation cleanup process"""
         logger.info("Starting Sophia AI documentation cleanup...")
-        
+
         if dry_run:
             logger.info("DRY RUN MODE - No files will be modified")
-        
+
         # Analyze current state
         initial_analysis = self.analyze_current_structure()
         logger.info(f"Initial state: {initial_analysis['total_files']} files")
-        
+
         if not dry_run:
             # Create backup
             self.create_backup()
-            
+
             # Delete obsolete files
             self.delete_obsolete_files()
-            
-            # Create new documentation structure  
+
+            # Create new documentation structure
             self.create_new_documentation_structure()
-            
+
             # Update README
             self.update_readme()
-        
+
         # Generate report
         if dry_run:
-            final_analysis = initial_analysis  # No changes in dry run
+            pass  # No changes in dry run
         else:
-            final_analysis = self.analyze_current_structure()
-        
+            self.analyze_current_structure()
+
         report = self.generate_cleanup_report(initial_analysis)
-        
+
         # Save report
         report_file = "documentation_cleanup_report.json"
         with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
-        
+
         logger.info(f"Cleanup complete! Report saved to {report_file}")
         logger.info(f"Files deleted: {report['files_deleted']}")
         logger.info(f"Files created: {report['created_files']}")
         logger.info(f"Size reduction: {report['size_reduction'] / 1024:.1f} KB")
 
+
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Sophia AI Documentation Cleanup")
-    parser.add_argument("--dry-run", action="store_true", help="Run without making changes")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Run without making changes"
+    )
     args = parser.parse_args()
-    
+
     cleanup = DocumentationCleanup()
-    cleanup.run_cleanup(dry_run=args.dry_run) 
+    cleanup.run_cleanup(dry_run=args.dry_run)

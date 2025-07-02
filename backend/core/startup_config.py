@@ -28,7 +28,9 @@ def configure_snowflake_environment():
         logger.info(f"✅ PERMANENT FIX: Set {key}: {value}")
 
     logger.info("🔧 PERMANENT Snowflake environment configuration applied")
-    logger.info("   This permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue")
+    logger.info(
+        "   This permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue"
+    )
 
 
 def apply_startup_configuration():

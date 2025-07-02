@@ -1,27 +1,26 @@
 """
 Unified dependencies for Sophia AI platform
 """
+
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from backend.app.core.config import settings
-from backend.services.mcp_orchestration_service import MCPOrchestrationService
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
-
+from backend.services.mcp_orchestration_service import MCPOrchestrationService
 
 # Security
 security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)]
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
 ) -> dict:
     """Get current user from token"""
     if not credentials:
         return {"user_id": "anonymous", "role": "guest"}
-    
+
     # TODO: Implement actual token validation
     return {"user_id": "user123", "role": "user"}
 
@@ -44,6 +43,7 @@ async def get_chat_service() -> EnhancedUnifiedChatService:
     global _chat_service
     if _chat_service is None:
         from backend.core.config_manager import ConfigManager
+
         config_manager = ConfigManager()
         _chat_service = EnhancedUnifiedChatService(config_manager)
         await _chat_service.initialize()

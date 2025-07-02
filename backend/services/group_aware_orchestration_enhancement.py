@@ -18,16 +18,17 @@ import asyncio
 import logging
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional
-import yaml
 from pathlib import Path
+from typing import Any
+
+import yaml
 
 from backend.services.mcp_orchestration_service import (
-    MCPOrchestrationService,
     BusinessTask,
+    MCPOrchestrationService,
     OrchestrationResult,
-    TaskPriority,
     ServerStatus,
+    TaskPriority,
 )
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 class ServerGroup(Enum):
     """Server group classifications"""
+
     CORE_AI = "core_ai"
     BUSINESS_INTELLIGENCE = "business_intelligence"
     DATA_INFRASTRUCTURE = "data_infrastructure"
@@ -44,6 +46,7 @@ class ServerGroup(Enum):
 
 class GroupHealthStatus(Enum):
     """Health status for server groups"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     CRITICAL = "critical"
@@ -59,14 +62,16 @@ class GroupAwareOrchestrationEnhancement:
     def __init__(self, base_orchestrator: MCPOrchestrationService):
         self.base_orchestrator = base_orchestrator
         self.server_groups = self._load_group_configuration()
-        self.group_health_cache: Dict[str, List[Dict[str, Any]]] = {}
-        self.group_performance_metrics: Dict[str, List[float]] = {}
+        self.group_health_cache: dict[str, list[dict[str, Any]]] = {}
+        self.group_performance_metrics: dict[str, list[float]] = {}
         self.executive_query_patterns = self._initialize_executive_patterns()
-        
-    def _load_group_configuration(self) -> Dict[str, List[str]]:
+
+    def _load_group_configuration(self) -> dict[str, list[str]]:
         """Load server group configuration from YAML"""
         try:
-            config_path = Path("infrastructure/mcp/orchestration/orchestration-config.yaml")
+            config_path = Path(
+                "infrastructure/mcp/orchestration/orchestration-config.yaml"
+            )
             if config_path.exists():
                 with open(config_path) as f:
                     config = yaml.safe_load(f)
@@ -77,79 +82,102 @@ class GroupAwareOrchestrationEnhancement:
         except Exception as e:
             logger.warning(f"Failed to load group configuration: {e}, using defaults")
             return self._get_default_groups()
-    
-    def _get_default_groups(self) -> Dict[str, List[str]]:
+
+    def _get_default_groups(self) -> dict[str, list[str]]:
         """Default server groups based on existing infrastructure"""
         return {
             "core_ai": ["ai_memory", "sophia_ai_intelligence"],
-            "business_intelligence": ["sophia_business_intelligence", "sophia_data_intelligence", "hubspot"],
-            "data_infrastructure": ["snowflake_admin", "snowflake_cli_enhanced", "postgres", "pulumi"],
+            "business_intelligence": [
+                "sophia_business_intelligence",
+                "sophia_data_intelligence",
+                "hubspot",
+            ],
+            "data_infrastructure": [
+                "snowflake_admin",
+                "snowflake_cli_enhanced",
+                "postgres",
+                "pulumi",
+            ],
             "integrations": ["asana", "linear", "notion", "slack", "github"],
-            "quality_security": ["codacy"]
+            "quality_security": ["codacy"],
         }
-    
-    def _initialize_executive_patterns(self) -> Dict[str, Dict[str, Any]]:
+
+    def _initialize_executive_patterns(self) -> dict[str, dict[str, Any]]:
         """Initialize patterns for executive intelligence queries"""
         return {
             "business_health": {
-                "required_groups": ["business_intelligence", "data_infrastructure", "integrations"],
+                "required_groups": [
+                    "business_intelligence",
+                    "data_infrastructure",
+                    "integrations",
+                ],
                 "synthesis_type": "executive_business_health",
-                "priority": TaskPriority.CRITICAL
+                "priority": TaskPriority.CRITICAL,
             },
             "deal_risk_analysis": {
                 "required_groups": ["business_intelligence", "core_ai", "integrations"],
                 "synthesis_type": "deal_risk_assessment",
-                "priority": TaskPriority.CRITICAL
+                "priority": TaskPriority.CRITICAL,
             },
             "team_performance": {
                 "required_groups": ["integrations", "core_ai", "quality_security"],
                 "synthesis_type": "team_performance_analysis",
-                "priority": TaskPriority.HIGH
+                "priority": TaskPriority.HIGH,
             },
             "cost_optimization": {
-                "required_groups": ["data_infrastructure", "core_ai", "business_intelligence"],
+                "required_groups": [
+                    "data_infrastructure",
+                    "core_ai",
+                    "business_intelligence",
+                ],
                 "synthesis_type": "cost_optimization_strategy",
-                "priority": TaskPriority.HIGH
-            }
+                "priority": TaskPriority.HIGH,
+            },
         }
-    
-    async def enhance_business_task_execution(self, task: BusinessTask) -> OrchestrationResult:
+
+    async def enhance_business_task_execution(
+        self, task: BusinessTask
+    ) -> OrchestrationResult:
         """
         Enhance existing business task execution with group awareness.
         Routes to groups based on priority and capabilities while preserving existing functionality.
         """
         # Check if this is an executive intelligence query
         executive_pattern = self._identify_executive_pattern(task)
-        
+
         if executive_pattern:
             # Execute with group-aware routing for executive queries
-            return await self._execute_executive_intelligence_task(task, executive_pattern)
+            return await self._execute_executive_intelligence_task(
+                task, executive_pattern
+            )
         else:
             # Fall back to enhanced standard execution
             return await self._execute_with_group_optimization(task)
-    
-    def _identify_executive_pattern(self, task: BusinessTask) -> Optional[Dict[str, Any]]:
+
+    def _identify_executive_pattern(self, task: BusinessTask) -> dict[str, Any] | None:
         """Identify if task matches an executive intelligence pattern"""
         task_keywords = task.description.lower() if task.description else ""
-        
+
         for pattern_name, pattern_config in self.executive_query_patterns.items():
             if any(keyword in task_keywords for keyword in pattern_name.split("_")):
                 return pattern_config
-        
+
         # Check for explicit executive task types
-        if task.task_type in ["executive_dashboard", "business_insights", "strategic_analysis"]:
+        if task.task_type in [
+            "executive_dashboard",
+            "business_insights",
+            "strategic_analysis",
+        ]:
             return self.executive_query_patterns.get("business_health")
-        
+
         return None
-    
+
     async def _execute_executive_intelligence_task(
-        self, 
-        task: BusinessTask, 
-        pattern: Dict[str, Any]
+        self, task: BusinessTask, pattern: dict[str, Any]
     ) -> OrchestrationResult:
         """Execute executive intelligence task with cross-group synthesis"""
         start_time = datetime.now(UTC)
-        
+
         # Get servers from required groups
         group_servers = {}
         for group_name in pattern["required_groups"]:
@@ -158,41 +186,45 @@ class GroupAwareOrchestrationEnhancement:
                 for server_name in self.server_groups[group_name]:
                     if server_name in self.base_orchestrator.servers:
                         server = self.base_orchestrator.servers[server_name]
-                        if server.status in [ServerStatus.HEALTHY, ServerStatus.DEGRADED]:
+                        if server.status in [
+                            ServerStatus.HEALTHY,
+                            ServerStatus.DEGRADED,
+                        ]:
                             group_servers[group_name].append((server_name, server))
-        
+
         # Execute across groups in parallel
         group_results = {}
         tasks = []
-        
+
         for group_name, servers in group_servers.items():
             if servers:
                 tasks.append(self._execute_group_task(group_name, servers, task))
-        
+
         if tasks:
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             for i, (group_name, _) in enumerate(group_servers.items()):
                 if i < len(results) and not isinstance(results[i], Exception):
                     group_results[group_name] = results[i]
                 else:
-                    group_results[group_name] = {"error": str(results[i]) if i < len(results) else "No result"}
-        
+                    group_results[group_name] = {
+                        "error": str(results[i]) if i < len(results) else "No result"
+                    }
+
         # Synthesize cross-group results
         synthesized_result = await self._synthesize_executive_intelligence(
-            group_results, 
-            pattern["synthesis_type"]
+            group_results, pattern["synthesis_type"]
         )
-        
+
         execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
-        
+
         return OrchestrationResult(
             task_id=task.task_id or f"exec_{datetime.now(UTC).timestamp()}",
             success=True,
             results={
                 "group_results": group_results,
                 "synthesized_result": synthesized_result,
-                "pattern_used": pattern["synthesis_type"]
+                "pattern_used": pattern["synthesis_type"],
             },
             execution_time_ms=execution_time,
             servers_used=self._extract_servers_used(group_results),
@@ -200,105 +232,108 @@ class GroupAwareOrchestrationEnhancement:
             metadata={
                 "execution_type": "executive_intelligence",
                 "groups_involved": list(group_results.keys()),
-                "pattern": pattern["synthesis_type"]
-            }
+                "pattern": pattern["synthesis_type"],
+            },
         )
-    
-    async def _execute_with_group_optimization(self, task: BusinessTask) -> OrchestrationResult:
+
+    async def _execute_with_group_optimization(
+        self, task: BusinessTask
+    ) -> OrchestrationResult:
         """Execute task with group-based optimization"""
         # Identify which groups are best suited for this task
         relevant_groups = self._identify_relevant_groups(task)
-        
+
         if relevant_groups:
             # Add group context to the task
             task.context_data = task.context_data or {}
             task.context_data["group_optimization"] = {
                 "relevant_groups": relevant_groups,
-                "group_health": await self.get_group_health_dashboard()
+                "group_health": await self.get_group_health_dashboard(),
             }
-        
+
         # Execute using base orchestrator with enhanced context
         result = await self.base_orchestrator.execute_business_task(task)
-        
+
         # Enhance result with group metrics
         if result.metadata is None:
             result.metadata = {}
-        
+
         result.metadata["group_optimization"] = {
             "groups_used": relevant_groups,
-            "group_performance": self._calculate_group_performance(result.servers_used)
+            "group_performance": self._calculate_group_performance(result.servers_used),
         }
-        
+
         return result
-    
-    def _identify_relevant_groups(self, task: BusinessTask) -> List[str]:
+
+    def _identify_relevant_groups(self, task: BusinessTask) -> list[str]:
         """Identify which server groups are relevant for a task"""
         relevant_groups = []
-        
+
         # Check each group for servers with required capabilities
         for group_name, server_names in self.server_groups.items():
             group_has_capability = False
-            
+
             for server_name in server_names:
                 if server_name in self.base_orchestrator.servers:
                     server = self.base_orchestrator.servers[server_name]
-                    if any(cap in server.capabilities for cap in task.required_capabilities):
+                    if any(
+                        cap in server.capabilities for cap in task.required_capabilities
+                    ):
                         group_has_capability = True
                         break
-            
+
             if group_has_capability:
                 relevant_groups.append(group_name)
-        
+
         return relevant_groups
-    
+
     async def _execute_group_task(
-        self, 
-        group_name: str, 
-        servers: List[tuple], 
-        task: BusinessTask
-    ) -> Dict[str, Any]:
+        self, group_name: str, servers: list[tuple], task: BusinessTask
+    ) -> dict[str, Any]:
         """Execute task on servers within a group"""
         group_results = {
             "group_name": group_name,
             "servers_used": [],
             "results": {},
-            "group_success_rate": 0.0
+            "group_success_rate": 0.0,
         }
-        
+
         # Execute on each server in the group
         tasks = []
         for server_name, server in servers:
             tasks.append(
                 self.base_orchestrator._execute_on_server(server_name, server, task)
             )
-        
+
         if tasks:
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             successful = 0
             for i, (server_name, _) in enumerate(servers):
                 if i < len(results):
                     if isinstance(results[i], Exception):
                         group_results["results"][server_name] = {
                             "error": str(results[i]),
-                            "success": False
+                            "success": False,
                         }
                     else:
                         group_results["results"][server_name] = results[i]
-                        if isinstance(results[i], dict) and results[i].get("success", False):
+                        if isinstance(results[i], dict) and results[i].get(
+                            "success", False
+                        ):
                             successful += 1
-                    
+
                     group_results["servers_used"].append(server_name)
-            
-            group_results["group_success_rate"] = successful / len(servers) if servers else 0.0
-        
+
+            group_results["group_success_rate"] = (
+                successful / len(servers) if servers else 0.0
+            )
+
         return group_results
-    
+
     async def _synthesize_executive_intelligence(
-        self, 
-        group_results: Dict[str, Any], 
-        synthesis_type: str
-    ) -> Dict[str, Any]:
+        self, group_results: dict[str, Any], synthesis_type: str
+    ) -> dict[str, Any]:
         """Synthesize results across groups for executive intelligence"""
         synthesis = {
             "synthesis_type": synthesis_type,
@@ -308,148 +343,177 @@ class GroupAwareOrchestrationEnhancement:
             "key_insights": [],
             "recommendations": [],
             "risk_factors": [],
-            "opportunities": []
+            "opportunities": [],
         }
-        
+
         if synthesis_type == "executive_business_health":
-            synthesis["executive_summary"] = self._generate_business_health_summary(group_results)
+            synthesis["executive_summary"] = self._generate_business_health_summary(
+                group_results
+            )
             synthesis["key_insights"] = [
                 "Cross-functional business health analyzed across all critical systems",
                 f"System reliability: {self._calculate_overall_reliability(group_results):.1f}%",
-                "Real-time data synthesis from business intelligence and operational systems"
+                "Real-time data synthesis from business intelligence and operational systems",
             ]
             synthesis["recommendations"] = [
                 "Focus on systems showing degraded performance",
                 "Implement predictive monitoring for critical business functions",
-                "Optimize cross-system data flow for faster insights"
+                "Optimize cross-system data flow for faster insights",
             ]
-            
+
         elif synthesis_type == "deal_risk_assessment":
-            synthesis["executive_summary"] = "Deal risk analysis compiled from CRM, communication, and AI insights"
+            synthesis["executive_summary"] = (
+                "Deal risk analysis compiled from CRM, communication, and AI insights"
+            )
             synthesis["risk_factors"] = self._identify_deal_risks(group_results)
             synthesis["opportunities"] = [
                 "Leverage AI insights for predictive deal scoring",
-                "Integrate communication sentiment with deal probability"
+                "Integrate communication sentiment with deal probability",
             ]
-            
+
         elif synthesis_type == "team_performance_analysis":
-            synthesis["executive_summary"] = "Team performance metrics synthesized across project management and communication platforms"
+            synthesis["executive_summary"] = (
+                "Team performance metrics synthesized across project management and communication platforms"
+            )
             synthesis["key_insights"] = self._analyze_team_performance(group_results)
-            
+
         elif synthesis_type == "cost_optimization_strategy":
-            synthesis["executive_summary"] = "Cost optimization opportunities identified across infrastructure and services"
-            synthesis["recommendations"] = self._generate_cost_recommendations(group_results)
-        
+            synthesis["executive_summary"] = (
+                "Cost optimization opportunities identified across infrastructure and services"
+            )
+            synthesis["recommendations"] = self._generate_cost_recommendations(
+                group_results
+            )
+
         return synthesis
-    
-    def _generate_business_health_summary(self, group_results: Dict[str, Any]) -> str:
+
+    def _generate_business_health_summary(self, group_results: dict[str, Any]) -> str:
         """Generate executive summary for business health"""
         total_groups = len(group_results)
         healthy_groups = sum(
-            1 for result in group_results.values() 
+            1
+            for result in group_results.values()
             if result.get("group_success_rate", 0) > 0.8
         )
-        
-        health_percentage = (healthy_groups / total_groups * 100) if total_groups > 0 else 0
-        
+
+        health_percentage = (
+            (healthy_groups / total_groups * 100) if total_groups > 0 else 0
+        )
+
         return (
             f"Business health assessment across {total_groups} operational groups shows "
             f"{health_percentage:.0f}% systems operating at optimal levels. "
             f"Critical business functions are {'stable' if health_percentage > 80 else 'requiring attention'}."
         )
-    
-    def _calculate_overall_reliability(self, group_results: Dict[str, Any]) -> float:
+
+    def _calculate_overall_reliability(self, group_results: dict[str, Any]) -> float:
         """Calculate overall system reliability percentage"""
         total_servers = 0
         successful_servers = 0
-        
+
         for group_result in group_results.values():
             if isinstance(group_result, dict) and "results" in group_result:
                 for server_result in group_result["results"].values():
                     total_servers += 1
                     if server_result.get("success", False):
                         successful_servers += 1
-        
+
         return (successful_servers / total_servers * 100) if total_servers > 0 else 0.0
-    
-    def _identify_deal_risks(self, group_results: Dict[str, Any]) -> List[str]:
+
+    def _identify_deal_risks(self, group_results: dict[str, Any]) -> list[str]:
         """Identify risk factors from deal analysis"""
         risks = []
-        
+
         # Analyze business intelligence group results
         bi_results = group_results.get("business_intelligence", {})
         if bi_results.get("group_success_rate", 0) < 0.7:
-            risks.append("Limited visibility into deal pipeline due to system availability")
-        
+            risks.append(
+                "Limited visibility into deal pipeline due to system availability"
+            )
+
         # Analyze integration results
         integration_results = group_results.get("integrations", {})
         if integration_results.get("group_success_rate", 0) < 0.8:
-            risks.append("Communication platform integration showing degraded performance")
-        
+            risks.append(
+                "Communication platform integration showing degraded performance"
+            )
+
         # Always include some strategic risks
-        risks.extend([
-            "Market volatility affecting deal closure timelines",
-            "Competitor activity requiring enhanced value proposition"
-        ])
-        
+        risks.extend(
+            [
+                "Market volatility affecting deal closure timelines",
+                "Competitor activity requiring enhanced value proposition",
+            ]
+        )
+
         return risks
-    
-    def _analyze_team_performance(self, group_results: Dict[str, Any]) -> List[str]:
+
+    def _analyze_team_performance(self, group_results: dict[str, Any]) -> list[str]:
         """Analyze team performance from group results"""
         insights = []
-        
-        integration_health = group_results.get("integrations", {}).get("group_success_rate", 0)
+
+        integration_health = group_results.get("integrations", {}).get(
+            "group_success_rate", 0
+        )
         if integration_health > 0.9:
             insights.append("Team collaboration tools operating at peak efficiency")
         else:
             insights.append("Team collaboration platforms showing intermittent issues")
-        
-        insights.extend([
-            "Cross-functional team velocity within expected parameters",
-            "Knowledge sharing patterns indicate healthy team dynamics"
-        ])
-        
+
+        insights.extend(
+            [
+                "Cross-functional team velocity within expected parameters",
+                "Knowledge sharing patterns indicate healthy team dynamics",
+            ]
+        )
+
         return insights
-    
-    def _generate_cost_recommendations(self, group_results: Dict[str, Any]) -> List[str]:
+
+    def _generate_cost_recommendations(
+        self, group_results: dict[str, Any]
+    ) -> list[str]:
         """Generate cost optimization recommendations"""
         recommendations = []
-        
+
         # Analyze infrastructure group
-        infra_health = group_results.get("data_infrastructure", {}).get("group_success_rate", 0)
+        infra_health = group_results.get("data_infrastructure", {}).get(
+            "group_success_rate", 0
+        )
         if infra_health < 1.0:
             recommendations.append("Consolidate underutilized infrastructure resources")
-        
-        recommendations.extend([
-            "Implement automated resource scaling based on demand patterns",
-            "Optimize data pipeline scheduling to reduce compute costs",
-            "Consider reserved capacity for predictable workloads"
-        ])
-        
+
+        recommendations.extend(
+            [
+                "Implement automated resource scaling based on demand patterns",
+                "Optimize data pipeline scheduling to reduce compute costs",
+                "Consider reserved capacity for predictable workloads",
+            ]
+        )
+
         return recommendations
-    
-    def _extract_servers_used(self, group_results: Dict[str, Any]) -> List[str]:
+
+    def _extract_servers_used(self, group_results: dict[str, Any]) -> list[str]:
         """Extract all servers used from group results"""
         servers = []
         for group_result in group_results.values():
             if isinstance(group_result, dict) and "servers_used" in group_result:
                 servers.extend(group_result["servers_used"])
         return servers
-    
-    def _calculate_group_performance(self, servers_used: List[str]) -> Dict[str, float]:
+
+    def _calculate_group_performance(self, servers_used: list[str]) -> dict[str, float]:
         """Calculate performance metrics for groups based on servers used"""
         group_performance = {}
-        
+
         for group_name, server_names in self.server_groups.items():
             group_servers_used = [s for s in servers_used if s in server_names]
             if group_servers_used:
                 # Calculate what percentage of the group was utilized
                 utilization = len(group_servers_used) / len(server_names) * 100
                 group_performance[group_name] = utilization
-        
+
         return group_performance
-    
-    async def execute_executive_intelligence_task(self, query: str) -> Dict[str, Any]:
+
+    async def execute_executive_intelligence_task(self, query: str) -> dict[str, Any]:
         """
         New capability: Execute executive intelligence query across all groups.
         This is the primary interface for CEO dashboard queries.
@@ -464,13 +528,13 @@ class GroupAwareOrchestrationEnhancement:
             requires_synthesis=True,
             context_data={
                 "query_source": "executive_dashboard",
-                "natural_language_query": query
-            }
+                "natural_language_query": query,
+            },
         )
-        
+
         # Execute with group-aware enhancement
         result = await self.enhance_business_task_execution(task)
-        
+
         # Format for executive consumption
         return {
             "query": query,
@@ -480,23 +544,23 @@ class GroupAwareOrchestrationEnhancement:
             "data_sources": result.servers_used,
             "confidence_score": self._calculate_confidence_score(result),
             "status": "success" if result.success else "partial",
-            "raw_results": result.results if result.success else None
+            "raw_results": result.results if result.success else None,
         }
-    
+
     def _calculate_confidence_score(self, result: OrchestrationResult) -> float:
         """Calculate confidence score based on data completeness"""
         if not result.success:
             return 0.0
-        
+
         # Base confidence on number of successful servers
         servers_planned = len(result.metadata.get("groups_involved", []))
         servers_succeeded = len(result.servers_used)
-        
+
         if servers_planned > 0:
             return min(servers_succeeded / servers_planned * 100, 100.0)
         return 50.0  # Default confidence if no group data
-    
-    async def get_group_health_dashboard(self) -> Dict[str, Any]:
+
+    async def get_group_health_dashboard(self) -> dict[str, Any]:
         """
         New capability: Get real-time health monitoring for all server groups.
         Provides group-level health with different monitoring intervals per group.
@@ -506,26 +570,28 @@ class GroupAwareOrchestrationEnhancement:
             "overall_health": "healthy",
             "groups": {},
             "alerts": [],
-            "recommendations": []
+            "recommendations": [],
         }
-        
+
         unhealthy_groups = 0
-        
+
         for group_name, server_names in self.server_groups.items():
             group_health = await self._calculate_group_health(group_name, server_names)
             dashboard["groups"][group_name] = group_health
-            
+
             if group_health["status"] != GroupHealthStatus.HEALTHY.value:
                 unhealthy_groups += 1
-                
+
                 if group_health["status"] == GroupHealthStatus.CRITICAL.value:
-                    dashboard["alerts"].append({
-                        "severity": "critical",
-                        "group": group_name,
-                        "message": f"Group {group_name} is in critical state",
-                        "timestamp": datetime.now(UTC).isoformat()
-                    })
-        
+                    dashboard["alerts"].append(
+                        {
+                            "severity": "critical",
+                            "group": group_name,
+                            "message": f"Group {group_name} is in critical state",
+                            "timestamp": datetime.now(UTC).isoformat(),
+                        }
+                    )
+
         # Determine overall health
         if unhealthy_groups == 0:
             dashboard["overall_health"] = "healthy"
@@ -533,32 +599,36 @@ class GroupAwareOrchestrationEnhancement:
             dashboard["overall_health"] = "degraded"
         else:
             dashboard["overall_health"] = "critical"
-        
+
         # Add recommendations
         dashboard["recommendations"] = self._generate_health_recommendations(dashboard)
-        
+
         return dashboard
-    
-    async def _calculate_group_health(self, group_name: str, server_names: List[str]) -> Dict[str, Any]:
+
+    async def _calculate_group_health(
+        self, group_name: str, server_names: list[str]
+    ) -> dict[str, Any]:
         """Calculate health for a specific group"""
         total_servers = len(server_names)
         healthy_servers = 0
         degraded_servers = 0
         server_statuses = {}
-        
+
         for server_name in server_names:
             if server_name in self.base_orchestrator.servers:
                 server = self.base_orchestrator.servers[server_name]
                 server_statuses[server_name] = server.status.value
-                
+
                 if server.status == ServerStatus.HEALTHY:
                     healthy_servers += 1
                 elif server.status == ServerStatus.DEGRADED:
                     degraded_servers += 1
-        
+
         # Calculate group health status
-        health_percentage = (healthy_servers / total_servers * 100) if total_servers > 0 else 0
-        
+        health_percentage = (
+            (healthy_servers / total_servers * 100) if total_servers > 0 else 0
+        )
+
         if health_percentage >= 80:
             status = GroupHealthStatus.HEALTHY
         elif health_percentage >= 50:
@@ -567,24 +637,24 @@ class GroupAwareOrchestrationEnhancement:
             status = GroupHealthStatus.CRITICAL
         else:
             status = GroupHealthStatus.OFFLINE
-        
+
         # Check cache for performance trends
         cache_key = f"{group_name}_health"
         if cache_key not in self.group_health_cache:
             self.group_health_cache[cache_key] = []
-        
-        self.group_health_cache[cache_key].append({
-            "timestamp": datetime.now(UTC),
-            "health_percentage": health_percentage
-        })
-        
+
+        self.group_health_cache[cache_key].append(
+            {"timestamp": datetime.now(UTC), "health_percentage": health_percentage}
+        )
+
         # Keep only last hour of data
         cutoff_time = datetime.now(UTC) - timedelta(hours=1)
         self.group_health_cache[cache_key] = [
-            entry for entry in self.group_health_cache[cache_key]
+            entry
+            for entry in self.group_health_cache[cache_key]
             if entry["timestamp"] > cutoff_time
         ]
-        
+
         return {
             "group_name": group_name,
             "status": status.value,
@@ -595,144 +665,176 @@ class GroupAwareOrchestrationEnhancement:
             "offline_servers": total_servers - healthy_servers - degraded_servers,
             "server_statuses": server_statuses,
             "trend": self._calculate_health_trend(self.group_health_cache[cache_key]),
-            "last_check": datetime.now(UTC).isoformat()
+            "last_check": datetime.now(UTC).isoformat(),
         }
-    
-    def _calculate_health_trend(self, health_history: List[Dict[str, Any]]) -> str:
+
+    def _calculate_health_trend(self, health_history: list[dict[str, Any]]) -> str:
         """Calculate health trend from historical data"""
         if len(health_history) < 2:
             return "stable"
-        
+
         # Compare recent average to older average
         mid_point = len(health_history) // 2
-        recent_avg = sum(h["health_percentage"] for h in health_history[mid_point:]) / len(health_history[mid_point:])
-        older_avg = sum(h["health_percentage"] for h in health_history[:mid_point]) / len(health_history[:mid_point])
-        
+        recent_avg = sum(
+            h["health_percentage"] for h in health_history[mid_point:]
+        ) / len(health_history[mid_point:])
+        older_avg = sum(
+            h["health_percentage"] for h in health_history[:mid_point]
+        ) / len(health_history[:mid_point])
+
         if recent_avg > older_avg + 5:
             return "improving"
         elif recent_avg < older_avg - 5:
             return "degrading"
         else:
             return "stable"
-    
-    def _generate_health_recommendations(self, dashboard: Dict[str, Any]) -> List[str]:
+
+    def _generate_health_recommendations(self, dashboard: dict[str, Any]) -> list[str]:
         """Generate recommendations based on health dashboard"""
         recommendations = []
-        
+
         # Check for critical groups
         critical_groups = [
-            group_name for group_name, health in dashboard["groups"].items()
+            group_name
+            for group_name, health in dashboard["groups"].items()
             if health["status"] == GroupHealthStatus.CRITICAL.value
         ]
-        
+
         if critical_groups:
             recommendations.append(
                 f"Immediate attention required for critical groups: {', '.join(critical_groups)}"
             )
-        
+
         # Check for degrading trends
         degrading_groups = [
-            group_name for group_name, health in dashboard["groups"].items()
+            group_name
+            for group_name, health in dashboard["groups"].items()
             if health.get("trend") == "degrading"
         ]
-        
+
         if degrading_groups:
             recommendations.append(
                 f"Monitor degrading groups closely: {', '.join(degrading_groups)}"
             )
-        
+
         # General recommendations
         if dashboard["overall_health"] == "healthy":
-            recommendations.append("System operating optimally. Continue routine monitoring.")
+            recommendations.append(
+                "System operating optimally. Continue routine monitoring."
+            )
         else:
-            recommendations.append("Consider scaling resources for groups under stress.")
-            recommendations.append("Review recent changes that may have impacted system health.")
-        
+            recommendations.append(
+                "Consider scaling resources for groups under stress."
+            )
+            recommendations.append(
+                "Review recent changes that may have impacted system health."
+            )
+
         return recommendations
-    
-    async def predict_group_failures(self) -> List[Dict[str, Any]]:
+
+    async def predict_group_failures(self) -> list[dict[str, Any]]:
         """Predict potential group failures based on trends and patterns"""
         predictions = []
-        
+
         for group_name, health_history in self.group_health_cache.items():
             if len(health_history) >= 5:  # Need enough data for prediction
                 # Simple trend analysis
                 recent_values = [h["health_percentage"] for h in health_history[-5:]]
-                
+
                 # Check for consistent decline
                 declining = all(
-                    recent_values[i] <= recent_values[i-1] 
+                    recent_values[i] <= recent_values[i - 1]
                     for i in range(1, len(recent_values))
                 )
-                
+
                 if declining and recent_values[-1] < 70:
-                    predictions.append({
-                        "group": group_name.replace("_health", ""),
-                        "risk_level": "high" if recent_values[-1] < 50 else "medium",
-                        "predicted_failure_window": "1-2 hours" if recent_values[-1] < 50 else "2-4 hours",
-                        "current_health": recent_values[-1],
-                        "recommendation": "Proactive intervention recommended"
-                    })
-        
+                    predictions.append(
+                        {
+                            "group": group_name.replace("_health", ""),
+                            "risk_level": (
+                                "high" if recent_values[-1] < 50 else "medium"
+                            ),
+                            "predicted_failure_window": (
+                                "1-2 hours" if recent_values[-1] < 50 else "2-4 hours"
+                            ),
+                            "current_health": recent_values[-1],
+                            "recommendation": "Proactive intervention recommended",
+                        }
+                    )
+
         return predictions
-    
-    async def optimize_group_performance(self) -> List[Dict[str, Any]]:
+
+    async def optimize_group_performance(self) -> list[dict[str, Any]]:
         """Generate performance optimization recommendations for groups"""
         optimizations = []
-        
+
         # Analyze each group's performance
         for group_name, server_names in self.server_groups.items():
-            group_metrics = await self._analyze_group_performance(group_name, server_names)
-            
+            group_metrics = await self._analyze_group_performance(
+                group_name, server_names
+            )
+
             if group_metrics["optimization_potential"] > 20:
-                optimizations.append({
-                    "group": group_name,
-                    "current_efficiency": group_metrics["efficiency"],
-                    "optimization_potential": group_metrics["optimization_potential"],
-                    "recommendations": group_metrics["recommendations"],
-                    "expected_improvement": f"{group_metrics['optimization_potential']:.0f}%"
-                })
-        
+                optimizations.append(
+                    {
+                        "group": group_name,
+                        "current_efficiency": group_metrics["efficiency"],
+                        "optimization_potential": group_metrics[
+                            "optimization_potential"
+                        ],
+                        "recommendations": group_metrics["recommendations"],
+                        "expected_improvement": f"{group_metrics['optimization_potential']:.0f}%",
+                    }
+                )
+
         # Sort by optimization potential
         optimizations.sort(key=lambda x: x["optimization_potential"], reverse=True)
-        
+
         return optimizations
-    
-    async def _analyze_group_performance(self, group_name: str, server_names: List[str]) -> Dict[str, Any]:
+
+    async def _analyze_group_performance(
+        self, group_name: str, server_names: list[str]
+    ) -> dict[str, Any]:
         """Analyze performance metrics for a group"""
         total_response_time = 0
         server_count = 0
-        
+
         for server_name in server_names:
             if server_name in self.base_orchestrator.servers:
                 server = self.base_orchestrator.servers[server_name]
                 if server.response_time_ms > 0:
                     total_response_time += server.response_time_ms
                     server_count += 1
-        
-        avg_response_time = total_response_time / server_count if server_count > 0 else 0
-        
+
+        avg_response_time = (
+            total_response_time / server_count if server_count > 0 else 0
+        )
+
         # Calculate efficiency (inverse of response time, normalized)
         target_response_time = 100  # Target 100ms response time
-        efficiency = min(target_response_time / avg_response_time * 100, 100) if avg_response_time > 0 else 100
-        
+        efficiency = (
+            min(target_response_time / avg_response_time * 100, 100)
+            if avg_response_time > 0
+            else 100
+        )
+
         # Calculate optimization potential
         optimization_potential = 100 - efficiency
-        
+
         # Generate recommendations
         recommendations = []
         if avg_response_time > 200:
             recommendations.append("Consider caching frequently accessed data")
             recommendations.append("Optimize database queries for better performance")
-        
+
         if server_count < len(server_names):
             recommendations.append("Some servers in group are not responding")
             recommendations.append("Review server health and restart if necessary")
-        
+
         return {
             "group_name": group_name,
             "avg_response_time": avg_response_time,
             "efficiency": efficiency,
             "optimization_potential": optimization_potential,
-            "recommendations": recommendations
-        } 
+            "recommendations": recommendations,
+        }

@@ -1,4 +1,5 @@
 """Snowflake pooled connection helper for Sophia AI."""
+
 import logging
 from contextlib import asynccontextmanager
 from queue import Empty, Full, Queue
@@ -8,6 +9,7 @@ import snowflake.connector
 from snowflake.connector import SnowflakeConnection
 
 logger = logging.getLogger(__name__)
+
 
 class SnowflakeConnectionPool:
     """Thread-safe connection pool for Snowflake."""
@@ -24,7 +26,9 @@ class SnowflakeConnectionPool:
         if self._initialized:
             return
 
-        logger.info(f"Initializing Snowflake connection pool with {self.size} connections")
+        logger.info(
+            f"Initializing Snowflake connection pool with {self.size} connections"
+        )
 
         for i in range(self.size):
             try:
@@ -97,8 +101,10 @@ class SnowflakeConnectionPool:
         self._all_connections.clear()
         self._initialized = False
 
+
 # Global pool instance
 _pool: SnowflakeConnectionPool | None = None
+
 
 async def init_pool(connection_kwargs: dict[str, Any]) -> None:
     """Initialize the global connection pool."""
@@ -107,11 +113,13 @@ async def init_pool(connection_kwargs: dict[str, Any]) -> None:
         _pool = SnowflakeConnectionPool(**connection_kwargs)
         await _pool.initialize()
 
+
 async def get_connection():
     """Get a connection from the global pool."""
     if _pool is None:
         raise RuntimeError("Connection pool not initialized")
     return await _pool.get_connection()
+
 
 async def release_connection(conn):
     """Release a connection back to the global pool."""

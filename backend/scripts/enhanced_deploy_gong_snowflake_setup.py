@@ -458,9 +458,7 @@ class EnhancedGongSnowflakeDeployer:
                 procedures_sql = f.read()
 
             # Replace database placeholder if needed
-            procedures_sql = procedures_sql.replace(
-                "SOPHIA_AI", self.config.database
-            )
+            procedures_sql = procedures_sql.replace("SOPHIA_AI", self.config.database)
 
             # Execute the procedures
             await self._execute_sql("deploy_transformation_procedures", procedures_sql)

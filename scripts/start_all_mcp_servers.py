@@ -17,6 +17,7 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 MCP_SERVERS_DIR = PROJECT_ROOT / "mcp-servers"
 PORT_REGISTRY_PATH = PROJECT_ROOT / "config" / "unified_mcp_port_registry.json"
 
+
 class MCPServerOrchestrator:
     def __init__(self):
         self.servers: dict[str, dict] = {}
@@ -42,84 +43,92 @@ class MCPServerOrchestrator:
                 "priority": 1,
                 "dependencies": [],
                 "startup_command": ["python", "ai_memory_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             # Data infrastructure (start second)
             "snowflake_admin": {
                 "path": "snowflake_admin",
-                "port": self.port_registry["port_allocation"]["data_infrastructure"]["snowflake_admin"],
+                "port": self.port_registry["port_allocation"]["data_infrastructure"][
+                    "snowflake_admin"
+                ],
                 "priority": 2,
                 "dependencies": [],
                 "startup_command": ["python", "snowflake_admin_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             # Business intelligence (start third)
             "ui_ux_agent": {
                 "path": "ui_ux_agent",
-                "port": self.port_registry["port_allocation"]["business_intelligence"]["ui_ux_agent"],
+                "port": self.port_registry["port_allocation"]["business_intelligence"][
+                    "ui_ux_agent"
+                ],
                 "priority": 3,
                 "dependencies": ["ai_memory"],
                 "startup_command": ["python", "ui_ux_agent_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             "hubspot": {
                 "path": "hubspot",
-                "port": self.port_registry["port_allocation"]["business_intelligence"]["hubspot"],
+                "port": self.port_registry["port_allocation"]["business_intelligence"][
+                    "hubspot"
+                ],
                 "priority": 3,
                 "dependencies": ["snowflake_admin"],
                 "startup_command": ["python", "hubspot_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             "linear": {
                 "path": "linear",
-                "port": self.port_registry["port_allocation"]["business_intelligence"]["linear"],
+                "port": self.port_registry["port_allocation"]["business_intelligence"][
+                    "linear"
+                ],
                 "priority": 3,
                 "dependencies": ["ai_memory"],
                 "startup_command": ["python", "linear_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             "asana": {
                 "path": "asana",
-                "port": self.port_registry["port_allocation"]["business_intelligence"]["asana"],
+                "port": self.port_registry["port_allocation"]["business_intelligence"][
+                    "asana"
+                ],
                 "priority": 3,
                 "dependencies": ["ai_memory"],
                 "startup_command": ["python", "asana_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             # Development tools (start fourth)
             "codacy": {
                 "path": "codacy",
-                "port": self.port_registry["port_allocation"]["development_tools"]["codacy"],
+                "port": self.port_registry["port_allocation"]["development_tools"][
+                    "codacy"
+                ],
                 "priority": 4,
                 "dependencies": [],
                 "startup_command": ["python", "codacy_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             "github": {
                 "path": "github",
-                "port": self.port_registry["port_allocation"]["development_tools"]["github"],
+                "port": self.port_registry["port_allocation"]["development_tools"][
+                    "github"
+                ],
                 "priority": 4,
                 "dependencies": [],
                 "startup_command": ["python", "github_mcp_server.py"],
-                "health_endpoint": "/health"
+                "health_endpoint": "/health",
             },
-
             # Infrastructure (start last)
             "lambda_labs_cli": {
                 "path": "lambda_labs_cli",
-                "port": self.port_registry["port_allocation"]["infrastructure"]["lambda_labs_cli"],
+                "port": self.port_registry["port_allocation"]["infrastructure"][
+                    "lambda_labs_cli"
+                ],
                 "priority": 5,
                 "dependencies": [],
                 "startup_command": ["python", "lambda_labs_cli_mcp_server.py"],
-                "health_endpoint": "/health"
-            }
+                "health_endpoint": "/health",
+            },
         }
 
     async def check_health(self, server_name: str, port: int, timeout: int = 5) -> bool:
@@ -148,7 +157,7 @@ class MCPServerOrchestrator:
                 cwd=server_dir,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True
+                text=True,
             )
 
             self.processes[server_name] = process
@@ -157,7 +166,9 @@ class MCPServerOrchestrator:
             for _attempt in range(10):
                 await asyncio.sleep(1)
                 if await self.check_health(server_name, config["port"]):
-                    print(f"✅ {server_name} started successfully on port {config['port']}")
+                    print(
+                        f"✅ {server_name} started successfully on port {config['port']}"
+                    )
                     return True
 
             print(f"❌ {server_name} failed to start or become healthy")
@@ -221,7 +232,11 @@ class MCPServerOrchestrator:
                 group_results = await asyncio.gather(*tasks, return_exceptions=True)
                 for i, (server_name, _) in enumerate(priority_groups[priority]):
                     if i < len(group_results):
-                        results[server_name] = group_results[i] if not isinstance(group_results[i], Exception) else False
+                        results[server_name] = (
+                            group_results[i]
+                            if not isinstance(group_results[i], Exception)
+                            else False
+                        )
 
         return results
 
@@ -230,7 +245,9 @@ class MCPServerOrchestrator:
         health_results = {}
 
         for server_name, config in self.servers.items():
-            health_results[server_name] = await self.check_health(server_name, config["port"])
+            health_results[server_name] = await self.check_health(
+                server_name, config["port"]
+            )
 
         return health_results
 
@@ -249,11 +266,13 @@ class MCPServerOrchestrator:
             except Exception as e:
                 print(f"❌ Error stopping {server_name}: {e}")
 
-    def print_status_report(self, start_results: dict[str, bool], health_results: dict[str, bool]):
+    def print_status_report(
+        self, start_results: dict[str, bool], health_results: dict[str, bool]
+    ):
         """Print a comprehensive status report"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🏥 SOPHIA AI MCP SERVER STATUS REPORT")
-        print("="*60)
+        print("=" * 60)
 
         total_servers = len(self.servers)
         started_servers = sum(1 for result in start_results.values() if result)
@@ -269,11 +288,15 @@ class MCPServerOrchestrator:
             healthy = health_results.get(server_name, False)
 
             status_icon = "✅" if healthy else "❌" if started else "⏸️"
-            status_text = "HEALTHY" if healthy else "UNHEALTHY" if started else "NOT_STARTED"
+            status_text = (
+                "HEALTHY" if healthy else "UNHEALTHY" if started else "NOT_STARTED"
+            )
 
-            print(f"{status_icon} {server_name:20} | Port {config['port']:5} | {status_text}")
+            print(
+                f"{status_icon} {server_name:20} | Port {config['port']:5} | {status_text}"
+            )
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
 
         if healthy_servers == total_servers:
             print("🎉 All MCP servers are operational!")
@@ -312,7 +335,9 @@ async def main():
                 await asyncio.sleep(10)
                 # Periodic health check
                 current_health = await orchestrator.health_check_all()
-                unhealthy = [name for name, healthy in current_health.items() if not healthy]
+                unhealthy = [
+                    name for name, healthy in current_health.items() if not healthy
+                ]
                 if unhealthy:
                     print(f"⚠️ Unhealthy servers detected: {', '.join(unhealthy)}")
         except KeyboardInterrupt:

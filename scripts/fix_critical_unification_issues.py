@@ -4,12 +4,10 @@ Fix Critical Issues for Sophia AI Platform Unification
 Phase 1: Fix import errors, indentation issues, and missing dependencies
 """
 
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 # Add backend to path
 backend_path = Path(__file__).parent.parent / "backend"
@@ -19,42 +17,42 @@ sys.path.insert(0, str(backend_path))
 def fix_snowflake_cortex_indentation():
     """Fix indentation issues in snowflake_cortex_service.py"""
     print("\n🔧 Fixing snowflake_cortex_service.py indentation issues...")
-    
+
     file_path = backend_path / "utils" / "snowflake_cortex_service.py"
-    
+
     if not file_path.exists():
         print(f"❌ File not found: {file_path}")
         return False
-    
-    with open(file_path, 'r') as f:
+
+    with open(file_path) as f:
         content = f.read()
-    
+
     # Fix the specific indentation issues
     fixes = [
         # Fix line 799 - _iteration_1 method
         (
             r'(\s*)def _iteration_1\(self\):\n(\s*)".*?"\n(\s*)for key in metadata_filters:',
-            r'\1def _iteration_1(self):\n\2"""Extracted iteration logic"""\n\2for key in metadata_filters:'
+            r'\1def _iteration_1(self):\n\2"""Extracted iteration logic"""\n\2for key in metadata_filters:',
         ),
         # Fix line 808 - _error_handling_2 method
         (
             r'(\s*)def _error_handling_2\(self\):\n(\s*)".*?"\n(\s*)cursor = self\.connection\.cursor\(\)',
-            r'\1def _error_handling_2(self):\n\2"""Extracted error_handling logic"""\n\2cursor = self.connection.cursor()'
+            r'\1def _error_handling_2(self):\n\2"""Extracted error_handling logic"""\n\2cursor = self.connection.cursor()',
         ),
         # Fix any other misaligned cursor assignments
         (
-            r'\n(\s{8,})cursor = self\.connection\.cursor\(\)',
-            r'\n        cursor = self.connection.cursor()'
+            r"\n(\s{8,})cursor = self\.connection\.cursor\(\)",
+            r"\n        cursor = self.connection.cursor()",
         ),
     ]
-    
+
     for pattern, replacement in fixes:
         content = re.sub(pattern, replacement, content, flags=re.MULTILINE | re.DOTALL)
-    
+
     # Write back the fixed content
-    with open(file_path, 'w') as f:
+    with open(file_path, "w") as f:
         f.write(content)
-    
+
     print("✅ Fixed indentation issues in snowflake_cortex_service.py")
     return True
 
@@ -62,38 +60,38 @@ def fix_snowflake_cortex_indentation():
 def fix_mcp_server_endpoint():
     """Fix MCPServerEndpoint initialization issues"""
     print("\n🔧 Fixing MCPServerEndpoint initialization...")
-    
+
     file_path = backend_path / "services" / "mcp_orchestration_service.py"
-    
+
     if not file_path.exists():
         print(f"❌ File not found: {file_path}")
         return False
-    
-    with open(file_path, 'r') as f:
+
+    with open(file_path) as f:
         content = f.read()
-    
+
     # Fix MCPServerEndpoint calls to not use 'name' parameter
     # Change from: MCPServerEndpoint(name=..., server_name=..., ...)
     # To: MCPServerEndpoint(server_name=..., ...)
-    
+
     # Pattern 1: Fix in _load_mcp_configuration
     content = re.sub(
-        r'MCPServerEndpoint\(\s*name=name,\s*server_name=name,',
-        'MCPServerEndpoint(\n                        server_name=name,',
-        content
+        r"MCPServerEndpoint\(\s*name=name,\s*server_name=name,",
+        "MCPServerEndpoint(\n                        server_name=name,",
+        content,
     )
-    
+
     # Pattern 2: Fix any other occurrences with 'name' parameter
     content = re.sub(
         r'MCPServerEndpoint\(\s*name="([^"]+)",',
         r'MCPServerEndpoint(\n                server_name="\1",',
-        content
+        content,
     )
-    
+
     # Write back the fixed content
-    with open(file_path, 'w') as f:
+    with open(file_path, "w") as f:
         f.write(content)
-    
+
     print("✅ Fixed MCPServerEndpoint initialization")
     return True
 
@@ -101,40 +99,42 @@ def fix_mcp_server_endpoint():
 def fix_missing_imports():
     """Fix missing module imports"""
     print("\n🔧 Fixing missing imports...")
-    
+
     # Fix enhanced_ai_memory_mcp_server.py
     memory_file = backend_path / "mcp_servers" / "enhanced_ai_memory_mcp_server.py"
     if memory_file.exists():
-        with open(memory_file, 'r') as f:
+        with open(memory_file) as f:
             content = f.read()
-        
+
         # Remove the problematic import
         content = re.sub(
-            r'from backend\.mcp_servers\.server import Server\n',
-            '',
-            content
+            r"from backend\.mcp_servers\.server import Server\n", "", content
         )
-        
+
         # Add correct imports if needed
-        if 'from mcp.server import Server' not in content:
+        if "from mcp.server import Server" not in content:
             # Find the import section
-            import_section = re.search(r'(from mcp import.*?\n)+', content)
+            import_section = re.search(r"(from mcp import.*?\n)+", content)
             if import_section:
                 insert_pos = import_section.end()
-                content = content[:insert_pos] + 'from mcp.server import Server\n' + content[insert_pos:]
-        
-        with open(memory_file, 'w') as f:
+                content = (
+                    content[:insert_pos]
+                    + "from mcp.server import Server\n"
+                    + content[insert_pos:]
+                )
+
+        with open(memory_file, "w") as f:
             f.write(content)
-        
+
         print("✅ Fixed imports in enhanced_ai_memory_mcp_server.py")
-    
+
     return True
 
 
 def install_missing_dependencies():
     """Install missing Python dependencies"""
     print("\n📦 Installing missing dependencies...")
-    
+
     dependencies = [
         "slowapi==0.1.9",
         "python-multipart==0.0.6",
@@ -142,7 +142,7 @@ def install_missing_dependencies():
         "httpx==0.25.2",
         "aiohttp==3.9.1",
     ]
-    
+
     for dep in dependencies:
         print(f"Installing {dep}...")
         try:
@@ -150,19 +150,19 @@ def install_missing_dependencies():
                 [sys.executable, "-m", "pip", "install", dep],
                 check=True,
                 capture_output=True,
-                text=True
+                text=True,
             )
             print(f"✅ Installed {dep}")
         except subprocess.CalledProcessError as e:
             print(f"❌ Failed to install {dep}: {e.stderr}")
-    
+
     return True
 
 
 def create_unified_app_structure():
     """Create the unified app structure"""
     print("\n🏗️ Creating unified app structure...")
-    
+
     # Create directories
     app_dir = backend_path / "app"
     core_dir = app_dir / "core"
@@ -170,12 +170,12 @@ def create_unified_app_structure():
     v3_dir = api_dir / "v3"
     mcp_dir = api_dir / "mcp"
     admin_dir = api_dir / "admin"
-    
+
     for dir_path in [core_dir, v3_dir, mcp_dir, admin_dir]:
         dir_path.mkdir(parents=True, exist_ok=True)
         # Create __init__.py files
         (dir_path / "__init__.py").touch()
-    
+
     print("✅ Created unified app directory structure")
     return True
 
@@ -183,7 +183,7 @@ def create_unified_app_structure():
 def create_unified_config():
     """Create unified configuration"""
     print("\n⚙️ Creating unified configuration...")
-    
+
     config_content = '''"""
 Unified configuration for Sophia AI platform
 """
@@ -198,43 +198,43 @@ class Settings(BaseSettings):
     app_version: str = "3.0.0"
     debug: bool = False
     environment: str = "production"
-    
+
     # API
     api_v3_prefix: str = "/api/v3"
     api_mcp_prefix: str = "/api/mcp"
     api_admin_prefix: str = "/api/admin"
-    
+
     # Server
     host: str = "0.0.0.0"
     port: int = 8000
     reload: bool = False
-    
+
     # Security
     secret_key: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-    
+
     # CORS
     cors_origins: list[str] = ["*"]
     cors_credentials: bool = True
     cors_methods: list[str] = ["*"]
     cors_headers: list[str] = ["*"]
-    
+
     # Rate Limiting
     rate_limit_requests: int = 100
     rate_limit_period: int = 60  # seconds
-    
+
     # Database
     database_url: str = os.getenv("DATABASE_URL", "")
-    
+
     # MCP Configuration
     mcp_config_path: str = "config/cursor_enhanced_mcp_config.json"
     mcp_health_check_interval: int = 60
-    
+
     # Monitoring
     enable_metrics: bool = True
     metrics_port: int = 9090
-    
+
     class Config:
         env_file = ".env"
         case_sensitive = False
@@ -248,11 +248,11 @@ def get_settings() -> Settings:
 
 settings = get_settings()
 '''
-    
+
     config_path = backend_path / "app" / "core" / "config.py"
-    with open(config_path, 'w') as f:
+    with open(config_path, "w") as f:
         f.write(config_content)
-    
+
     print("✅ Created unified configuration")
     return True
 
@@ -260,7 +260,7 @@ settings = get_settings()
 def create_unified_dependencies():
     """Create unified dependencies"""
     print("\n🔗 Creating unified dependencies...")
-    
+
     deps_content = '''"""
 Unified dependencies for Sophia AI platform
 """
@@ -284,7 +284,7 @@ async def get_current_user(
     """Get current user from token"""
     if not credentials:
         return {"user_id": "anonymous", "role": "guest"}
-    
+
     # TODO: Implement actual token validation
     return {"user_id": "user123", "role": "user"}
 
@@ -318,11 +318,11 @@ CurrentUser = Annotated[dict, Depends(get_current_user)]
 MCPService = Annotated[MCPOrchestrationService, Depends(get_mcp_service)]
 ChatService = Annotated[EnhancedUnifiedChatService, Depends(get_chat_service)]
 '''
-    
+
     deps_path = backend_path / "app" / "core" / "dependencies.py"
-    with open(deps_path, 'w') as f:
+    with open(deps_path, "w") as f:
         f.write(deps_content)
-    
+
     print("✅ Created unified dependencies")
     return True
 
@@ -330,9 +330,9 @@ ChatService = Annotated[EnhancedUnifiedChatService, Depends(get_chat_service)]
 def run_verification():
     """Run verification checks"""
     print("\n🔍 Running verification checks...")
-    
+
     checks = []
-    
+
     # Check if files exist
     files_to_check = [
         backend_path / "utils" / "snowflake_cortex_service.py",
@@ -340,25 +340,26 @@ def run_verification():
         backend_path / "app" / "core" / "config.py",
         backend_path / "app" / "core" / "dependencies.py",
     ]
-    
+
     for file_path in files_to_check:
         if file_path.exists():
             checks.append((f"✅ {file_path.name} exists", True))
         else:
             checks.append((f"❌ {file_path.name} missing", False))
-    
+
     # Check imports
     try:
         import slowapi
+
         checks.append(("✅ slowapi installed", True))
     except ImportError:
         checks.append(("❌ slowapi not installed", False))
-    
+
     # Print results
     print("\nVerification Results:")
-    for check, status in checks:
+    for check, _status in checks:
         print(f"  {check}")
-    
+
     all_passed = all(status for _, status in checks)
     return all_passed
 
@@ -367,7 +368,7 @@ def main():
     """Main execution"""
     print("🚀 Sophia AI Platform Unification - Phase 1: Fix Critical Issues")
     print("=" * 60)
-    
+
     steps = [
         ("Fix Snowflake Cortex indentation", fix_snowflake_cortex_indentation),
         ("Fix MCPServerEndpoint initialization", fix_mcp_server_endpoint),
@@ -377,7 +378,7 @@ def main():
         ("Create unified configuration", create_unified_config),
         ("Create unified dependencies", create_unified_dependencies),
     ]
-    
+
     success_count = 0
     for step_name, step_func in steps:
         print(f"\n▶️ {step_name}...")
@@ -386,22 +387,22 @@ def main():
                 success_count += 1
         except Exception as e:
             print(f"❌ Failed: {e}")
-    
+
     # Run verification
     verification_passed = run_verification()
-    
+
     print("\n" + "=" * 60)
     print(f"✅ Completed {success_count}/{len(steps)} steps successfully")
-    
+
     if verification_passed:
         print("✅ All verification checks passed!")
         print("\n🎉 Phase 1 complete! Ready for Phase 2: API Consolidation")
     else:
         print("⚠️ Some verification checks failed. Please review and fix.")
-    
+
     return success_count == len(steps) and verification_passed
 
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

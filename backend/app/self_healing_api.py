@@ -4,9 +4,10 @@ Self-Healing Minimal API for Sophia AI
 """
 
 import logging
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,21 +22,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "self_healing_api"}
+
 
 @app.get("/")
 async def root():
     return {"message": "Sophia AI Self-Healing API is running"}
 
+
 @app.get("/api/v1/status")
 async def api_status():
-    return {
-        "api_version": "1.0.0",
-        "status": "operational",
-        "self_healing": True
-    }
+    return {"api_version": "1.0.0", "status": "operational", "self_healing": True}
+
 
 if __name__ == "__main__":
     logger.info("🚀 Starting Self-Healing API on port 8002")

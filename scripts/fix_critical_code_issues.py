@@ -11,6 +11,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+
 class CriticalIssueFixer:
     def __init__(self):
         self.fixed_count = 0
@@ -21,11 +22,9 @@ class CriticalIssueFixer:
         """Run ruff to get all issues."""
         print("🔍 Running ruff check to identify issues...")
         result = subprocess.run(
-            ["ruff", "check", str(PROJECT_ROOT)],
-            capture_output=True,
-            text=True
+            ["ruff", "check", str(PROJECT_ROOT)], capture_output=True, text=True
         )
-        return result.stdout.strip().split('\n') if result.stdout else []
+        return result.stdout.strip().split("\n") if result.stdout else []
 
     def fix_syntax_errors(self):
         """Fix common syntax errors."""
@@ -40,10 +39,10 @@ class CriticalIssueFixer:
             # Add missing except block after try
             if "try:" in content and "except" not in content:
                 content = re.sub(
-                    r'(try:.*?)(\n(?!except|finally))',
+                    r"(try:.*?)(\n(?!except|finally))",
                     r'\1\nexcept Exception as e:\n    logger.error(f"Error: {e}")\n    raise\2',
                     content,
-                    flags=re.DOTALL
+                    flags=re.DOTALL,
                 )
                 file_path.write_text(content)
                 self.fixed_count += 1
@@ -56,10 +55,10 @@ class CriticalIssueFixer:
 
             # Fix invalid import syntax
             content = re.sub(
-                r'from\s+(\w+)\s+import\s*$',
-                r'from \1 import *  # TODO: Specify exact imports',
+                r"from\s+(\w+)\s+import\s*$",
+                r"from \1 import *  # TODO: Specify exact imports",
                 content,
-                flags=re.MULTILINE
+                flags=re.MULTILINE,
             )
             file_path.write_text(content)
             self.fixed_count += 1
@@ -69,22 +68,28 @@ class CriticalIssueFixer:
         print("\n🔧 Fixing undefined names...")
 
         # Fix EnhancedAiMemoryMCPServer import
-        file_path = PROJECT_ROOT / "backend/agents/specialized/asana_project_intelligence_agent.py"
+        file_path = (
+            PROJECT_ROOT
+            / "backend/agents/specialized/asana_project_intelligence_agent.py"
+        )
         if file_path.exists():
             print(f"  Fixing {file_path}")
             content = file_path.read_text()
 
             # Add missing import
-            if "EnhancedAiMemoryMCPServer" in content and "from mcp_servers.ai_memory" not in content:
+            if (
+                "EnhancedAiMemoryMCPServer" in content
+                and "from mcp_servers.ai_memory" not in content
+            ):
                 import_line = "from mcp_servers.ai_memory.ai_memory_mcp_server import EnhancedAiMemoryMCPServer\n"
                 # Add after other imports
-                lines = content.split('\n')
+                lines = content.split("\n")
                 import_index = 0
                 for i, line in enumerate(lines):
-                    if line.startswith('import ') or line.startswith('from '):
+                    if line.startswith("import ") or line.startswith("from "):
                         import_index = i + 1
                 lines.insert(import_index, import_line)
-                content = '\n'.join(lines)
+                content = "\n".join(lines)
                 file_path.write_text(content)
                 self.fixed_count += 1
 
@@ -96,9 +101,7 @@ class CriticalIssueFixer:
 
             # Change MemoryCategory to string literal
             content = re.sub(
-                r'category=MemoryCategory\.(\w+)',
-                r'category="\1"',
-                content
+                r"category=MemoryCategory\.(\w+)", r'category="\1"', content
             )
             file_path.write_text(content)
             self.fixed_count += 1
@@ -111,7 +114,7 @@ class CriticalIssueFixer:
         result = subprocess.run(
             ["ruff", "check", str(PROJECT_ROOT), "--fix", "--select", "E402,I001"],
             capture_output=True,
-            text=True
+            text=True,
         )
 
         if result.returncode == 0:
@@ -128,14 +131,16 @@ class CriticalIssueFixer:
         result = subprocess.run(
             ["ruff", "check", str(PROJECT_ROOT), "--fix", "--select", "W291,W292,W293"],
             capture_output=True,
-            text=True
+            text=True,
         )
 
         if result.returncode == 0:
             print("  ✅ Whitespace issues fixed")
             self.fixed_count += 100  # Approximate
         else:
-            print(f"  ⚠️  Some whitespace issues couldn't be auto-fixed: {result.stderr}")
+            print(
+                f"  ⚠️  Some whitespace issues couldn't be auto-fixed: {result.stderr}"
+            )
 
     def improve_snowflake_pool(self):
         """Improve the Snowflake connection pool implementation."""
@@ -272,9 +277,9 @@ async def release_connection(conn):
 
     def generate_report(self):
         """Generate a summary report."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("📊 CRITICAL ISSUE FIX SUMMARY")
-        print("="*60)
+        print("=" * 60)
         print(f"✅ Issues Fixed: {self.fixed_count}")
         print(f"❌ Failed Fixes: {self.failed_count}")
 
@@ -283,7 +288,7 @@ async def release_connection(conn):
         result = subprocess.run(
             ["ruff", "check", str(PROJECT_ROOT), "--statistics"],
             capture_output=True,
-            text=True
+            text=True,
         )
 
         print("\n📈 Updated Code Quality Metrics:")
@@ -291,7 +296,7 @@ async def release_connection(conn):
 
         # Save report
         report_path = PROJECT_ROOT / "CRITICAL_FIXES_APPLIED.md"
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             f.write("# Critical Code Quality Fixes Applied\n\n")
             f.write("## Summary\n")
             f.write(f"- Issues Fixed: {self.fixed_count}\n")
@@ -307,10 +312,11 @@ async def release_connection(conn):
 
         print(f"\n📄 Report saved to: {report_path}")
 
+
 def main():
     """Main function to fix critical issues."""
     print("🚀 Sophia AI Critical Code Quality Fixer")
-    print("="*60)
+    print("=" * 60)
 
     fixer = CriticalIssueFixer()
 
@@ -330,6 +336,7 @@ def main():
         sys.exit(1)
 
     print("\n✅ Critical issue fixing complete!")
+
 
 if __name__ == "__main__":
     main()

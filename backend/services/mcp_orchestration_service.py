@@ -16,13 +16,12 @@ import asyncio
 import hashlib
 import json
 import logging
-import os
 import subprocess
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any
 from pathlib import Path
+from typing import Any
 
 import aiohttp
 import httpx
@@ -241,10 +240,12 @@ class MCPOrchestrationService:
     def _load_default_configuration(self):
         """Load default MCP server configuration as fallback"""
         default_servers = {
-            "ai_memory": MCPServerEndpoint(port=9000,
+            "ai_memory": MCPServerEndpoint(
+                port=9000,
                 capabilities=["memory_storage", "context_recall"],
             ),
-            "codacy": MCPServerEndpoint(port=3008,
+            "codacy": MCPServerEndpoint(
+                port=3008,
                 capabilities=["code_analysis", "security_scan"],
             ),
         }
@@ -320,16 +321,18 @@ class MCPOrchestrationService:
             # (e.g., via Docker, systemd, or manual startup)
             # We just check if it's accessible
             logger.info(f"Checking availability of MCP server: {server_name}")
-            
+
             # Wait a moment and check health
             await asyncio.sleep(1)
             is_healthy = await self._check_server_health_simple(server_name)
-            
+
             if is_healthy:
                 logger.info(f"MCP server {server_name} is available")
                 return True
             else:
-                logger.warning(f"MCP server {server_name} is not responding on port {config.port}")
+                logger.warning(
+                    f"MCP server {server_name} is not responding on port {config.port}"
+                )
                 return False
 
         except Exception as e:
@@ -962,7 +965,7 @@ class MCPOrchestrationService:
         health_results = {}
 
         tasks = []
-        for server_name, server in self.servers.items():
+        for server_name, _server in self.servers.items():
             tasks.append(self._check_server_health_simple(server_name))
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -1183,7 +1186,7 @@ class MCPOrchestrationService:
                     timeout=aiohttp.ClientTimeout(total=30),
                     headers={"User-Agent": "Sophia-AI-Orchestrator/3.18.0"},
                 )
-                
+
             # For now, just call the health endpoint as a placeholder
             # In production, this would call appropriate server endpoints based on task type
             async with self.session.get(f"{server.base_url}/health") as response:

@@ -11,40 +11,46 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+
 @dataclass
 class DeploymentStep:
     """Represents a deployment step"""
+
     name: str
     description: str
-    command: Optional[str] = None
-    script_path: Optional[str] = None
+    command: str | None = None
+    script_path: str | None = None
     critical: bool = True
     estimated_duration: int = 60  # seconds
+
 
 @dataclass
 class DeploymentResult:
     """Result of a deployment step"""
+
     step_name: str
     success: bool
     duration: float
     output: str
-    error: Optional[str] = None
+    error: str | None = None
+
 
 class EnterpriseDeploymentOrchestrator:
     """Orchestrates the complete enterprise deployment"""
-    
+
     def __init__(self):
         self.deployment_steps = self._define_deployment_steps()
-        self.results: List[DeploymentResult] = []
-        
-    def _define_deployment_steps(self) -> List[DeploymentStep]:
+        self.results: list[DeploymentResult] = []
+
+    def _define_deployment_steps(self) -> list[DeploymentStep]:
         """Define all deployment steps in order"""
         return [
             # Phase 1: Infrastructure Validation
@@ -53,122 +59,117 @@ class EnterpriseDeploymentOrchestrator:
                 description="Validate infrastructure readiness and dependencies",
                 script_path="scripts/validate_infrastructure.py",
                 critical=True,
-                estimated_duration=120
+                estimated_duration=120,
             ),
-            
             # Phase 2: Security Hardening
             DeploymentStep(
                 name="security_hardening",
                 description="Apply enterprise security configurations",
                 script_path="scripts/apply_enterprise_security.py",
                 critical=True,
-                estimated_duration=180
+                estimated_duration=180,
             ),
-            
             # Phase 3: Database Optimization
             DeploymentStep(
                 name="database_optimization",
                 description="Optimize Snowflake configurations for production",
                 script_path="scripts/optimize_snowflake_production.py",
                 critical=True,
-                estimated_duration=240
+                estimated_duration=240,
             ),
-            
             # Phase 4: MCP Server Deployment
             DeploymentStep(
                 name="mcp_deployment",
                 description="Deploy and configure all MCP servers",
                 script_path="scripts/deploy_mcp_ecosystem.py",
                 critical=True,
-                estimated_duration=300
+                estimated_duration=300,
             ),
-            
             # Phase 5: Performance Optimization
             DeploymentStep(
                 name="performance_optimization",
                 description="Apply performance optimizations",
                 script_path="scripts/activate_performance_optimizations.py",
                 critical=True,
-                estimated_duration=180
+                estimated_duration=180,
             ),
-            
             # Phase 6: Monitoring Setup
             DeploymentStep(
                 name="monitoring_setup",
                 description="Configure comprehensive monitoring",
                 script_path="scripts/setup_enterprise_monitoring.py",
                 critical=True,
-                estimated_duration=240
+                estimated_duration=240,
             ),
-            
             # Phase 7: Integration Testing
             DeploymentStep(
                 name="integration_testing",
                 description="Run comprehensive integration tests",
                 script_path="scripts/run_integration_tests.py",
                 critical=True,
-                estimated_duration=360
+                estimated_duration=360,
             ),
-            
             # Phase 8: Production Deployment
             DeploymentStep(
                 name="production_deployment",
                 description="Deploy to production environment",
                 script_path="scripts/deploy_to_production.py",
                 critical=True,
-                estimated_duration=300
+                estimated_duration=300,
             ),
-            
             # Phase 9: Health Verification
             DeploymentStep(
                 name="health_verification",
                 description="Verify system health and performance",
                 script_path="scripts/verify_production_health.py",
                 critical=True,
-                estimated_duration=180
+                estimated_duration=180,
             ),
-            
             # Phase 10: Documentation Generation
             DeploymentStep(
                 name="documentation_generation",
                 description="Generate final deployment documentation",
                 script_path="scripts/generate_deployment_docs.py",
                 critical=False,
-                estimated_duration=120
-            )
+                estimated_duration=120,
+            ),
         ]
-    
-    async def run_enterprise_deployment(self) -> Dict[str, any]:
+
+    async def run_enterprise_deployment(self) -> dict[str, any]:
         """Run complete enterprise deployment"""
         logger.info("🚀 Month 1: Full Enterprise-Grade Platform Deployment")
         logger.info("=" * 70)
-        
-        total_estimated_time = sum(step.estimated_duration for step in self.deployment_steps)
-        logger.info(f"📅 Estimated total deployment time: {total_estimated_time // 60} minutes")
-        
+
+        total_estimated_time = sum(
+            step.estimated_duration for step in self.deployment_steps
+        )
+        logger.info(
+            f"📅 Estimated total deployment time: {total_estimated_time // 60} minutes"
+        )
+
         summary = {
             "total_steps": len(self.deployment_steps),
             "successful_steps": 0,
             "failed_steps": 0,
             "critical_failures": 0,
             "total_duration": 0,
-            "deployment_status": "IN_PROGRESS"
+            "deployment_status": "IN_PROGRESS",
         }
-        
+
         start_time = time.time()
-        
+
         try:
             for i, step in enumerate(self.deployment_steps, 1):
                 logger.info(f"🔄 Step {i}/{len(self.deployment_steps)}: {step.name}")
                 logger.info(f"📝 {step.description}")
-                
+
                 step_start = time.time()
                 result = await self._execute_deployment_step(step)
                 step_duration = time.time() - step_start
-                
+
                 result.duration = step_duration
                 self.results.append(result)
-                
+
                 if result.success:
                     summary["successful_steps"] += 1
                     logger.info(f"✅ {step.name} completed in {step_duration:.1f}s")
@@ -176,39 +177,43 @@ class EnterpriseDeploymentOrchestrator:
                     summary["failed_steps"] += 1
                     if step.critical:
                         summary["critical_failures"] += 1
-                        logger.error(f"❌ CRITICAL FAILURE: {step.name} failed: {result.error}")
-                        
+                        logger.error(
+                            f"❌ CRITICAL FAILURE: {step.name} failed: {result.error}"
+                        )
+
                         # Stop deployment on critical failure
                         summary["deployment_status"] = "FAILED"
                         break
                     else:
-                        logger.warning(f"⚠️  Non-critical failure: {step.name}: {result.error}")
-                
+                        logger.warning(
+                            f"⚠️  Non-critical failure: {step.name}: {result.error}"
+                        )
+
                 # Progress update
                 progress = (i / len(self.deployment_steps)) * 100
                 logger.info(f"📊 Deployment progress: {progress:.1f}%")
-            
+
             # Calculate final status
             if summary["critical_failures"] == 0:
                 if summary["failed_steps"] == 0:
                     summary["deployment_status"] = "SUCCESS"
                 else:
                     summary["deployment_status"] = "SUCCESS_WITH_WARNINGS"
-            
+
             summary["total_duration"] = time.time() - start_time
-            
+
             # Generate final report
             self._generate_deployment_report(summary)
-            
+
             logger.info("✅ Enterprise deployment completed!")
-            
+
         except Exception as e:
             logger.error(f"❌ Enterprise deployment failed: {e}")
             summary["deployment_status"] = "ERROR"
             summary["error"] = str(e)
-        
+
         return summary
-    
+
     async def _execute_deployment_step(self, step: DeploymentStep) -> DeploymentResult:
         """Execute a single deployment step"""
         try:
@@ -220,20 +225,20 @@ class EnterpriseDeploymentOrchestrator:
                         [sys.executable, str(script_path)],
                         capture_output=True,
                         text=True,
-                        timeout=step.estimated_duration * 2  # 2x timeout buffer
+                        timeout=step.estimated_duration * 2,  # 2x timeout buffer
                     )
-                    
+
                     return DeploymentResult(
                         step_name=step.name,
                         success=result.returncode == 0,
                         duration=0,  # Will be set by caller
                         output=result.stdout,
-                        error=result.stderr if result.returncode != 0 else None
+                        error=result.stderr if result.returncode != 0 else None,
                     )
                 else:
                     # Create placeholder script if it doesn't exist
                     return self._create_placeholder_result(step)
-            
+
             elif step.command:
                 # Execute shell command
                 result = subprocess.run(
@@ -241,52 +246,48 @@ class EnterpriseDeploymentOrchestrator:
                     shell=True,
                     capture_output=True,
                     text=True,
-                    timeout=step.estimated_duration * 2
+                    timeout=step.estimated_duration * 2,
                 )
-                
+
                 return DeploymentResult(
                     step_name=step.name,
                     success=result.returncode == 0,
                     duration=0,
                     output=result.stdout,
-                    error=result.stderr if result.returncode != 0 else None
+                    error=result.stderr if result.returncode != 0 else None,
                 )
-            
+
             else:
                 return DeploymentResult(
                     step_name=step.name,
                     success=False,
                     duration=0,
                     output="",
-                    error="No command or script specified"
+                    error="No command or script specified",
                 )
-                
+
         except subprocess.TimeoutExpired:
             return DeploymentResult(
                 step_name=step.name,
                 success=False,
                 duration=0,
                 output="",
-                error=f"Step timed out after {step.estimated_duration * 2} seconds"
+                error=f"Step timed out after {step.estimated_duration * 2} seconds",
             )
         except Exception as e:
             return DeploymentResult(
-                step_name=step.name,
-                success=False,
-                duration=0,
-                output="",
-                error=str(e)
+                step_name=step.name, success=False, duration=0, output="", error=str(e)
             )
-    
+
     def _create_placeholder_result(self, step: DeploymentStep) -> DeploymentResult:
         """Create a placeholder result for missing scripts"""
         logger.warning(f"⚠️  Script not found: {step.script_path}, creating placeholder")
-        
+
         # Create a simple placeholder script
         if step.script_path:
             script_path = PROJECT_ROOT / step.script_path
             script_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             placeholder_content = f'''#!/usr/bin/env python3
 """
 Placeholder script for {step.name}
@@ -303,46 +304,44 @@ def main():
     """Placeholder implementation for {step.name}"""
     logger.info("🔄 Executing {step.name}")
     logger.info("📝 {step.description}")
-    
+
     # TODO: Implement actual {step.name} logic
     logger.info("✅ {step.name} placeholder completed successfully")
-    
+
     return 0
 
 if __name__ == "__main__":
     sys.exit(main())
 '''
-            
+
             script_path.write_text(placeholder_content)
             script_path.chmod(0o755)
-            
+
             # Execute the placeholder
             result = subprocess.run(
-                [sys.executable, str(script_path)],
-                capture_output=True,
-                text=True
+                [sys.executable, str(script_path)], capture_output=True, text=True
             )
-            
+
             return DeploymentResult(
                 step_name=step.name,
                 success=result.returncode == 0,
                 duration=0,
                 output=result.stdout + "\n[PLACEHOLDER EXECUTION]",
-                error=None
+                error=None,
             )
-        
+
         return DeploymentResult(
             step_name=step.name,
             success=True,
             duration=0,
             output="Placeholder step completed",
-            error=None
+            error=None,
         )
-    
-    def _generate_deployment_report(self, summary: Dict[str, any]):
+
+    def _generate_deployment_report(self, summary: dict[str, any]):
         """Generate comprehensive deployment report"""
         report_path = PROJECT_ROOT / "MONTH1_ENTERPRISE_DEPLOYMENT_REPORT.md"
-        
+
         report_content = f"""# Month 1: Enterprise-Grade Platform Deployment Report
 
 ## Executive Summary
@@ -359,11 +358,13 @@ if __name__ == "__main__":
 | Step | Name | Status | Duration | Description |
 |------|------|--------|----------|-------------|
 """
-        
-        for i, (step, result) in enumerate(zip(self.deployment_steps, self.results), 1):
+
+        for i, (step, result) in enumerate(
+            zip(self.deployment_steps, self.results, strict=False), 1
+        ):
             status = "✅ SUCCESS" if result.success else "❌ FAILED"
             report_content += f"| {i} | {step.name} | {status} | {result.duration:.1f}s | {step.description} |\n"
-        
+
         report_content += f"""
 
 ## Deployment Phases
@@ -444,7 +445,7 @@ if __name__ == "__main__":
 
 ## Failed Steps Analysis
 """
-        
+
         failed_results = [r for r in self.results if not r.success]
         if failed_results:
             for result in failed_results:
@@ -456,7 +457,7 @@ if __name__ == "__main__":
 """
         else:
             report_content += "\nNo failed steps - perfect deployment! 🎉"
-        
+
         report_content += f"""
 
 ## Business Impact Assessment
@@ -518,35 +519,41 @@ if __name__ == "__main__":
 **Deployment completed on**: {time.strftime('%Y-%m-%d %H:%M:%S')}
 **Platform Status**: PRODUCTION READY 🚀
 """
-        
+
         report_path.write_text(report_content)
         logger.info(f"📊 Enterprise deployment report generated: {report_path}")
+
 
 async def main():
     """Main execution for Month 1 enterprise deployment"""
     orchestrator = EnterpriseDeploymentOrchestrator()
-    
+
     try:
         summary = await orchestrator.run_enterprise_deployment()
-        
+
         logger.info("🎉 Month 1: Enterprise-Grade Platform Deployment Complete!")
         logger.info("=" * 70)
         logger.info(f"Deployment Status: {summary['deployment_status']}")
-        logger.info(f"Successful Steps: {summary['successful_steps']}/{summary['total_steps']}")
+        logger.info(
+            f"Successful Steps: {summary['successful_steps']}/{summary['total_steps']}"
+        )
         logger.info(f"Total Duration: {summary['total_duration']//60:.0f} minutes")
-        
-        if summary['deployment_status'] in ['SUCCESS', 'SUCCESS_WITH_WARNINGS']:
+
+        if summary["deployment_status"] in ["SUCCESS", "SUCCESS_WITH_WARNINGS"]:
             logger.info("✅ SOPHIA AI IS NOW ENTERPRISE-READY! 🚀")
-            logger.info("🌟 World-class AI orchestration platform deployed successfully")
+            logger.info(
+                "🌟 World-class AI orchestration platform deployed successfully"
+            )
             logger.info("💼 Ready for unlimited business scaling and innovation")
         else:
             logger.error("❌ Deployment failed - manual intervention required")
-            
-        return 0 if summary['critical_failures'] == 0 else 1
-        
+
+        return 0 if summary["critical_failures"] == 0 else 1
+
     except Exception as e:
         logger.error(f"❌ Enterprise deployment failed: {e}")
         return 1
 
+
 if __name__ == "__main__":
-    sys.exit(asyncio.run(main())) 
+    sys.exit(asyncio.run(main()))

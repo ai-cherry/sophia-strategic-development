@@ -8,13 +8,14 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from functools import lru_cache
+from functools import cached_property
 from typing import Any
 
 import aiohttp
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class PerformanceConfig:
@@ -49,6 +50,7 @@ class PerformanceConfig:
     metrics_enabled: bool = True
     profiling_enabled: bool = False
 
+
 class PerformanceOptimizer:
     """Performance optimization utilities for Sophia AI."""
 
@@ -59,17 +61,23 @@ class PerformanceOptimizer:
         self._request_counts = {}
         self._session_pool = None
 
-    @lru_cache(maxsize=128)
-    def get_environment_config(self) -> dict[str, Any]:
+    @cached_property
+    def environment_config(self) -> dict[str, Any]:
         """Get cached environment configuration."""
         return {
-            'sophia_env': os.getenv('SOPHIA_ENV', 'production'),
-            'debug': os.getenv('DEBUG', 'false').lower() == 'true',
-            'log_level': os.getenv('LOG_LEVEL', 'INFO'),
-            'platform': os.getenv('PLATFORM', 'vercel'),
-            'cache_ttl': int(os.getenv('CACHE_TTL', self.config.cache_ttl)),
-            'max_concurrent': int(os.getenv('MAX_CONCURRENT_REQUESTS', self.config.max_concurrent_requests)),
-            'request_timeout': int(os.getenv('REQUEST_TIMEOUT', self.config.request_timeout))
+            "sophia_env": os.getenv("SOPHIA_ENV", "production"),
+            "debug": os.getenv("DEBUG", "false").lower() == "true",
+            "log_level": os.getenv("LOG_LEVEL", "INFO"),
+            "platform": os.getenv("PLATFORM", "vercel"),
+            "cache_ttl": int(os.getenv("CACHE_TTL", self.config.cache_ttl)),
+            "max_concurrent": int(
+                os.getenv(
+                    "MAX_CONCURRENT_REQUESTS", self.config.max_concurrent_requests
+                )
+            ),
+            "request_timeout": int(
+                os.getenv("REQUEST_TIMEOUT", self.config.request_timeout)
+            ),
         }
 
     def cache_get(self, key: str) -> Any | None:
@@ -78,7 +86,9 @@ class PerformanceOptimizer:
             return None
 
         timestamp = self._cache_timestamps.get(key)
-        if timestamp and datetime.utcnow() - timestamp > timedelta(seconds=self.config.cache_ttl):
+        if timestamp and datetime.utcnow() - timestamp > timedelta(
+            seconds=self.config.cache_ttl
+        ):
             # Cache expired
             del self._cache[key]
             del self._cache_timestamps[key]
@@ -91,8 +101,9 @@ class PerformanceOptimizer:
         # Implement LRU eviction if cache is full
         if len(self._cache) >= self.config.cache_max_size:
             # Remove oldest entry
-            oldest_key = min(self._cache_timestamps.keys(),
-                           key=lambda k: self._cache_timestamps[k])
+            oldest_key = min(
+                self._cache_timestamps.keys(), key=lambda k: self._cache_timestamps[k]
+            )
             del self._cache[oldest_key]
             del self._cache_timestamps[oldest_key]
 
@@ -114,8 +125,11 @@ class PerformanceOptimizer:
 
         # Clean old entries
         cutoff = now - timedelta(minutes=2)
-        old_keys = [k for k in self._request_counts.keys()
-                   if datetime.strptime(k.split(':')[1], '%Y-%m-%d:%H:%M') < cutoff]
+        old_keys = [
+            k
+            for k in self._request_counts.keys()
+            if datetime.strptime(k.split(":")[1], "%Y-%m-%d:%H:%M") < cutoff
+        ]
         for old_key in old_keys:
             del self._request_counts[old_key]
 
@@ -135,22 +149,22 @@ class PerformanceOptimizer:
                 ttl_dns_cache=300,
                 use_dns_cache=True,
                 keepalive_timeout=30,
-                enable_cleanup_closed=True
+                enable_cleanup_closed=True,
             )
 
             timeout = aiohttp.ClientTimeout(
-                total=self.config.request_timeout,
-                connect=30,
-                sock_read=60
+                total=self.config.request_timeout, connect=30, sock_read=60
             )
 
             self._session_pool = aiohttp.ClientSession(
                 connector=connector,
                 timeout=timeout,
                 headers={
-                    'User-Agent': 'Sophia-AI/2.1.0',
-                    'Accept-Encoding': 'gzip, deflate' if self.config.compression_enabled else None
-                }
+                    "User-Agent": "Sophia-AI/2.1.0",
+                    "Accept-Encoding": (
+                        "gzip, deflate" if self.config.compression_enabled else None
+                    ),
+                },
             )
 
         return self._session_pool
@@ -167,11 +181,11 @@ class PerformanceOptimizer:
             optimized = {k: v for k, v in data.items() if v is not None}
 
             # Add performance metadata
-            optimized['_performance'] = {
-                'timestamp': datetime.utcnow().isoformat(),
-                'cache_enabled': True,
-                'compression': self.config.compression_enabled,
-                'optimized': True
+            optimized["_performance"] = {
+                "timestamp": datetime.utcnow().isoformat(),
+                "cache_enabled": True,
+                "compression": self.config.compression_enabled,
+                "optimized": True,
             }
 
             return optimized
@@ -182,18 +196,20 @@ class PerformanceOptimizer:
         """Get current memory usage statistics."""
         try:
             import psutil
+
             process = psutil.Process()
             memory_info = process.memory_info()
 
             return {
-                'rss': memory_info.rss / 1024 / 1024,  # MB
-                'vms': memory_info.vms / 1024 / 1024,  # MB
-                'percent': process.memory_percent(),
-                'available': psutil.virtual_memory().available / 1024 / 1024,  # MB
-                'threshold_exceeded': memory_info.rss / 1024 / 1024 > self.config.max_memory_usage
+                "rss": memory_info.rss / 1024 / 1024,  # MB
+                "vms": memory_info.vms / 1024 / 1024,  # MB
+                "percent": process.memory_percent(),
+                "available": psutil.virtual_memory().available / 1024 / 1024,  # MB
+                "threshold_exceeded": memory_info.rss / 1024 / 1024
+                > self.config.max_memory_usage,
             }
         except ImportError:
-            return {'error': 'psutil not available'}
+            return {"error": "psutil not available"}
 
     def trigger_garbage_collection(self) -> dict[str, Any]:
         """Trigger garbage collection if needed."""
@@ -204,31 +220,31 @@ class PerformanceOptimizer:
         after_count = len(gc.get_objects())
 
         return {
-            'objects_before': before_count,
-            'objects_after': after_count,
-            'collected': collected,
-            'freed_objects': before_count - after_count
+            "objects_before": before_count,
+            "objects_after": after_count,
+            "collected": collected,
+            "freed_objects": before_count - after_count,
         }
 
     def get_performance_metrics(self) -> dict[str, Any]:
         """Get comprehensive performance metrics."""
         return {
-            'cache_stats': {
-                'size': len(self._cache),
-                'max_size': self.config.cache_max_size,
-                'hit_ratio': self._calculate_cache_hit_ratio()
+            "cache_stats": {
+                "size": len(self._cache),
+                "max_size": self.config.cache_max_size,
+                "hit_ratio": self._calculate_cache_hit_ratio(),
             },
-            'rate_limiting': {
-                'active_windows': len(self._request_counts),
-                'total_requests': sum(self._request_counts.values())
+            "rate_limiting": {
+                "active_windows": len(self._request_counts),
+                "total_requests": sum(self._request_counts.values()),
             },
-            'memory': self.get_memory_usage(),
-            'config': {
-                'cache_ttl': self.config.cache_ttl,
-                'max_concurrent': self.config.max_concurrent_requests,
-                'compression_enabled': self.config.compression_enabled
+            "memory": self.get_memory_usage(),
+            "config": {
+                "cache_ttl": self.config.cache_ttl,
+                "max_concurrent": self.config.max_concurrent_requests,
+                "compression_enabled": self.config.compression_enabled,
             },
-            'timestamp': datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def _calculate_cache_hit_ratio(self) -> float:
@@ -239,16 +255,21 @@ class PerformanceOptimizer:
             return 0.0
         return min(len(self._cache) / self.config.cache_max_size, 1.0)
 
+
 # Global performance optimizer instance
 performance_optimizer = PerformanceOptimizer()
+
 
 # Decorator for caching function results
 def cached(ttl: int | None = None):
     """Decorator to cache function results."""
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Create cache key from function name and arguments
-            cache_key = f"{func.__name__}:{hash(str(args) + str(sorted(kwargs.items())))}"
+            cache_key = (
+                f"{func.__name__}:{hash(str(args) + str(sorted(kwargs.items())))}"
+            )
 
             # Try to get from cache
             cached_result = performance_optimizer.cache_get(cache_key)
@@ -260,27 +281,34 @@ def cached(ttl: int | None = None):
             performance_optimizer.cache_set(cache_key, result)
 
             return result
+
         return wrapper
+
     return decorator
+
 
 # Decorator for rate limiting
 def rate_limited(identifier_func=None):
     """Decorator to apply rate limiting."""
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Determine identifier
             if identifier_func:
                 identifier = identifier_func(*args, **kwargs)
             else:
-                identifier = 'default'
+                identifier = "default"
 
             # Check rate limit
             if not performance_optimizer.check_rate_limit(identifier):
                 raise Exception(f"Rate limit exceeded for {identifier}")
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
+
 
 # Async context manager for session management
 class SessionManager:
@@ -297,6 +325,7 @@ class SessionManager:
         # Don't close the session here as it's pooled
         pass
 
+
 # Performance monitoring utilities
 class PerformanceMonitor:
     """Performance monitoring utilities."""
@@ -311,7 +340,7 @@ class PerformanceMonitor:
     def check_memory_threshold():
         """Check if memory usage exceeds threshold."""
         memory_stats = performance_optimizer.get_memory_usage()
-        if memory_stats.get('threshold_exceeded', False):
+        if memory_stats.get("threshold_exceeded", False):
             logger.warning(f"Memory threshold exceeded: {memory_stats}")
             # Trigger garbage collection
             gc_stats = performance_optimizer.trigger_garbage_collection()
@@ -328,14 +357,14 @@ class PerformanceMonitor:
 
         logger.info("Cold start optimization completed")
 
+
 # Export key components
 __all__ = [
-    'PerformanceConfig',
-    'PerformanceOptimizer',
-    'performance_optimizer',
-    'cached',
-    'rate_limited',
-    'SessionManager',
-    'PerformanceMonitor'
+    "PerformanceConfig",
+    "PerformanceOptimizer",
+    "performance_optimizer",
+    "cached",
+    "rate_limited",
+    "SessionManager",
+    "PerformanceMonitor",
 ]
-

@@ -6,27 +6,17 @@ Implements robust ELT pattern: Sources → PostgreSQL → Redis → Snowflake �
 """
 
 import asyncio
-import json
 import logging
-import os
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
-from backend.core.optimized_database_manager import (
-    OptimizedDatabaseManager,
-    BatchOperation,
-    ConnectionType
-)
+from typing import Any
 
-
-import aiohttp
 import asyncpg
 import redis.asyncio as redis
-import snowflake.connector
-from dataclasses import dataclass, field
 
-from backend.core.auto_esc_config import get_config_value
 from backend.core.aligned_snowflake_config import aligned_snowflake_config
+from backend.core.auto_esc_config import get_config_value
 from backend.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -35,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 class DataSource(Enum):
     """Supported data sources"""
+
     HUBSPOT = "hubspot"
     GONG = "gong"
     SLACK = "slack"
@@ -44,6 +35,7 @@ class DataSource(Enum):
 
 class FlowStatus(Enum):
     """Estuary Flow status"""
+
     ACTIVE = "active"
     PAUSED = "paused"
     FAILED = "failed"
@@ -53,11 +45,14 @@ class FlowStatus(Enum):
 @dataclass
 class EstuaryPipelineConfig:
     """Configuration for the pure Estuary Flow pipeline"""
-    sources: List[DataSource] = field(default_factory=lambda: [DataSource.HUBSPOT, DataSource.GONG])
-    postgresql_config: Dict[str, Any] = field(default_factory=dict)
-    redis_config: Dict[str, Any] = field(default_factory=dict)
-    snowflake_config: Dict[str, Any] = field(default_factory=dict)
-    estuary_config: Dict[str, Any] = field(default_factory=dict)
+
+    sources: list[DataSource] = field(
+        default_factory=lambda: [DataSource.HUBSPOT, DataSource.GONG]
+    )
+    postgresql_config: dict[str, Any] = field(default_factory=dict)
+    redis_config: dict[str, Any] = field(default_factory=dict)
+    snowflake_config: dict[str, Any] = field(default_factory=dict)
+    estuary_config: dict[str, Any] = field(default_factory=dict)
     monitoring_enabled: bool = True
     auto_retry: bool = True
     max_retries: int = 3
@@ -67,12 +62,13 @@ class EstuaryPipelineConfig:
 @dataclass
 class PipelineStatus:
     """Status of the Estuary Flow pipeline"""
-    sources_active: Dict[str, FlowStatus] = field(default_factory=dict)
-    destinations_active: Dict[str, FlowStatus] = field(default_factory=dict)
-    flows_active: Dict[str, FlowStatus] = field(default_factory=dict)
-    last_sync: Optional[datetime] = None
-    errors: List[str] = field(default_factory=list)
-    metrics: Dict[str, Any] = field(default_factory=dict)
+
+    sources_active: dict[str, FlowStatus] = field(default_factory=dict)
+    destinations_active: dict[str, FlowStatus] = field(default_factory=dict)
+    flows_active: dict[str, FlowStatus] = field(default_factory=dict)
+    last_sync: datetime | None = None
+    errors: list[str] = field(default_factory=list)
+    metrics: dict[str, Any] = field(default_factory=dict)
     total_records_processed: int = 0
     data_freshness_minutes: int = 0
 
@@ -83,18 +79,18 @@ class PureEstuaryDataPipeline:
     Manages data flow from multiple sources to multiple destinations using only Estuary Flow
     Provides enterprise-grade reliability, monitoring, and performance
     """
-    
-    def __init__(self, config: Optional[EstuaryPipelineConfig] = None):
+
+    def __init__(self, config: EstuaryPipelineConfig | None = None):
         self.config = config or EstuaryPipelineConfig()
-        self.estuary_orchestrator: Optional[EstuaryFlowOrchestrator] = None
-        self.postgresql_pool: Optional[asyncpg.Pool] = None
-        self.redis_client: Optional[redis.Redis] = None
-        self.snowflake_service: Optional[SnowflakeCortexService] = None
+        self.estuary_orchestrator: EstuaryFlowOrchestrator | None = None
+        self.postgresql_pool: asyncpg.Pool | None = None
+        self.redis_client: redis.Redis | None = None
+        self.snowflake_service: SnowflakeCortexService | None = None
         self.status = PipelineStatus()
-        
+
         # Initialize configurations
         self._initialize_configs()
-    
+
     def _initialize_configs(self):
         """Initialize configuration from environment variables"""
         # PostgreSQL configuration
@@ -105,152 +101,158 @@ class PureEstuaryDataPipeline:
             "user": get_config_value("database_user", "sophia_user"),
             "password": get_config_value("database_password"),
             "min_size": 5,
-            "max_size": 20
+            "max_size": 20,
         }
-        
+
         # Redis configuration
         self.config.redis_config = {
             "host": get_config_value("redis_host", "localhost"),
             "port": get_config_value("redis_port", 6379),
             "password": get_config_value("redis_password"),
-            "db": get_config_value("redis_db", 0)
+            "db": get_config_value("redis_db", 0),
         }
-        
+
         # Estuary Flow configuration
         self.config.estuary_config = {
-            "api_url": get_config_value("estuary_flow_api_url", "https://api.estuary.dev"),
+            "api_url": get_config_value(
+                "estuary_flow_api_url", "https://api.estuary.dev"
+            ),
             "access_token": get_config_value("estuary_access_token"),
             "tenant": get_config_value("estuary_flow_tenant", "sophia-ai"),
-            "namespace": get_config_value("estuary_namespace", "sophia/ai")
+            "namespace": get_config_value("estuary_namespace", "sophia/ai"),
         }
-        
+
         # Snowflake configuration (aligned with actual setup)
         self.config.snowflake_config = aligned_snowflake_config.get_connection_params()
-    
+
     async def __aenter__(self):
         """Async context manager entry"""
         await self._initialize_connections()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit"""
         await self._cleanup_connections()
-    
+
     async def _initialize_connections(self):
         """Initialize all database and service connections"""
         logger.info("🔌 Initializing pure Estuary Flow pipeline connections...")
-        
+
         try:
             # Initialize PostgreSQL connection pool
-            self.postgresql_pool = await asyncpg.create_pool(**self.config.postgresql_config)
+            self.postgresql_pool = await asyncpg.create_pool(
+                **self.config.postgresql_config
+            )
             logger.info("✅ PostgreSQL connection pool initialized")
-            
+
             # Initialize Redis connection
             self.redis_client = redis.Redis(**self.config.redis_config)
             await self.redis_client.ping()
             logger.info("✅ Redis connection initialized")
-            
+
             # Initialize Snowflake service
             self.snowflake_service = SnowflakeCortexService()
             logger.info("✅ Snowflake service initialized")
-            
+
             # Initialize Estuary Flow orchestrator
             self.estuary_orchestrator = EstuaryFlowOrchestrator()
             await self.estuary_orchestrator.__aenter__()
             logger.info("✅ Estuary Flow orchestrator initialized")
-            
+
         except Exception as e:
             logger.error(f"❌ Connection initialization failed: {e}")
             await self._cleanup_connections()
             raise
-    
+
     async def _cleanup_connections(self):
         """Clean up all connections"""
         logger.info("🧹 Cleaning up pipeline connections...")
-        
+
         if self.estuary_orchestrator:
             try:
                 await self.estuary_orchestrator.__aexit__(None, None, None)
             except Exception as e:
                 logger.warning(f"⚠️ Estuary Flow cleanup error: {e}")
-        
+
         if self.postgresql_pool:
             try:
                 await self.postgresql_pool.close()
             except Exception as e:
                 logger.warning(f"⚠️ PostgreSQL cleanup error: {e}")
-        
+
         if self.redis_client:
             try:
                 await self.redis_client.close()
             except Exception as e:
                 logger.warning(f"⚠️ Redis cleanup error: {e}")
-    
-    async def setup_complete_pipeline(self) -> Dict[str, Any]:
+
+    async def setup_complete_pipeline(self) -> dict[str, Any]:
         """
         Set up the complete data pipeline using pure Estuary Flow
         """
-        logger.info("🚀 Setting up complete Sophia AI data pipeline with pure Estuary Flow...")
-        
+        logger.info(
+            "🚀 Setting up complete Sophia AI data pipeline with pure Estuary Flow..."
+        )
+
         results = {
             "engine_used": "estuary_flow",
             "sources_configured": [],
             "destinations_configured": [],
             "flows_created": [],
             "collections_created": [],
-            "errors": []
+            "errors": [],
         }
-        
+
         try:
             # Set up database schemas
             await self._setup_database_schemas()
             results["destinations_configured"].append("postgresql_schemas")
-            
+
             # Set up Estuary Flow collections
             collections = await self._setup_estuary_collections()
             results["collections_created"] = collections
-            
+
             # Configure data sources
             source_results = await self._setup_estuary_sources()
             results.update(source_results)
-            
+
             # Set up data transformations
             await self._setup_data_transformations()
             results["destinations_configured"].append("data_transformations")
-            
+
             # Set up Snowflake integration
             await self._setup_snowflake_integration()
             results["destinations_configured"].append("snowflake")
-            
+
             # Set up Redis caching
             await self._setup_redis_caching()
             results["destinations_configured"].append("redis_cache")
-            
+
             # Set up monitoring and alerting
             if self.config.monitoring_enabled:
                 await self._setup_monitoring()
                 results["destinations_configured"].append("monitoring")
-            
+
             # Start all flows
             await self._start_all_flows()
-            
+
             # Update status
-            self.status.last_sync = datetime.now(timezone.utc)
-            
+            self.status.last_sync = datetime.now(UTC)
+
             logger.info("✅ Complete pure Estuary Flow pipeline setup successful!")
             return results
-            
+
         except Exception as e:
             logger.error(f"❌ Pipeline setup failed: {e}")
             results["errors"].append(str(e))
             raise
-    
-    async def _setup_estuary_collections(self) -> List[str]:
+
+    async def _setup_estuary_collections(self) -> list[str]:
         """Set up Estuary Flow collections for all data sources"""
         logger.info("📊 Setting up Estuary Flow collections...")
-        
+
         collections = []
-        
+
         # Define collection schemas for each data source
         collection_configs = {
             "hubspot_contacts": {
@@ -265,11 +267,11 @@ class PureEstuaryDataPipeline:
                         "phone": {"type": "string"},
                         "created_at": {"type": "string", "format": "date-time"},
                         "updated_at": {"type": "string", "format": "date-time"},
-                        "properties": {"type": "object"}
+                        "properties": {"type": "object"},
                     },
-                    "required": ["id", "email"]
+                    "required": ["id", "email"],
                 },
-                "key": ["/id"]
+                "key": ["/id"],
             },
             "hubspot_deals": {
                 "schema": {
@@ -283,11 +285,11 @@ class PureEstuaryDataPipeline:
                         "closedate": {"type": "string", "format": "date-time"},
                         "created_at": {"type": "string", "format": "date-time"},
                         "updated_at": {"type": "string", "format": "date-time"},
-                        "properties": {"type": "object"}
+                        "properties": {"type": "object"},
                     },
-                    "required": ["id", "dealname"]
+                    "required": ["id", "dealname"],
                 },
-                "key": ["/id"]
+                "key": ["/id"],
             },
             "gong_calls": {
                 "schema": {
@@ -303,11 +305,11 @@ class PureEstuaryDataPipeline:
                         "summary": {"type": "string"},
                         "sentiment": {"type": "string"},
                         "topics": {"type": "array"},
-                        "created_at": {"type": "string", "format": "date-time"}
+                        "created_at": {"type": "string", "format": "date-time"},
                     },
-                    "required": ["id", "title"]
+                    "required": ["id", "title"],
                 },
-                "key": ["/id"]
+                "key": ["/id"],
             },
             "slack_messages": {
                 "schema": {
@@ -319,56 +321,49 @@ class PureEstuaryDataPipeline:
                         "text": {"type": "string"},
                         "thread_ts": {"type": "string"},
                         "reply_count": {"type": "integer"},
-                        "created_at": {"type": "string", "format": "date-time"}
+                        "created_at": {"type": "string", "format": "date-time"},
                     },
-                    "required": ["ts", "channel", "user"]
+                    "required": ["ts", "channel", "user"],
                 },
-                "key": ["/ts", "/channel"]
-            }
+                "key": ["/ts", "/channel"],
+            },
         }
-        
+
         # Create collections in Estuary Flow
         for collection_name, config in collection_configs.items():
             try:
                 full_collection_name = f"{self.config.flow_prefix}/{collection_name}"
-                
+
                 collection_spec = {
                     "schema": config["schema"],
                     "key": config["key"],
                     "projections": {
-                        "id": {
-                            "location": "/id",
-                            "partition": True
-                        },
-                        "created_at": {
-                            "location": "/created_at"
-                        }
-                    }
+                        "id": {"location": "/id", "partition": True},
+                        "created_at": {"location": "/created_at"},
+                    },
                 }
-                
+
                 await self.estuary_orchestrator.create_collection(
-                    collection_name=full_collection_name,
-                    schema=collection_spec
+                    collection_name=full_collection_name, schema=collection_spec
                 )
-                
+
                 collections.append(full_collection_name)
                 logger.info(f"✅ Created Estuary collection: {full_collection_name}")
-                
+
             except Exception as e:
                 logger.error(f"❌ Failed to create collection {collection_name}: {e}")
-                self.status.errors.append(f"Collection creation failed: {collection_name} - {e}")
-        
+                self.status.errors.append(
+                    f"Collection creation failed: {collection_name} - {e}"
+                )
+
         return collections
-    
-    async def _setup_estuary_sources(self) -> Dict[str, Any]:
+
+    async def _setup_estuary_sources(self) -> dict[str, Any]:
         """Set up Estuary Flow sources for all configured data sources"""
         logger.info("🔌 Setting up Estuary Flow sources...")
-        
-        results = {
-            "sources_configured": [],
-            "flows_created": []
-        }
-        
+
+        results = {"sources_configured": [], "flows_created": []}
+
         # HubSpot source configuration
         if DataSource.HUBSPOT in self.config.sources:
             try:
@@ -376,10 +371,10 @@ class PureEstuaryDataPipeline:
                     "start_date": "2024-01-01T00:00:00Z",
                     "credentials": {
                         "credentials_title": "Private App Credentials",
-                        "access_token": get_config_value("hubspot_access_token")
-                    }
+                        "access_token": get_config_value("hubspot_access_token"),
+                    },
                 }
-                
+
                 # Create HubSpot captures
                 hubspot_captures = [
                     {
@@ -387,80 +382,86 @@ class PureEstuaryDataPipeline:
                         "endpoint": {
                             "connector": {
                                 "image": "ghcr.io/estuary/source-hubspot:dev",
-                                "config": hubspot_config
+                                "config": hubspot_config,
                             }
                         },
                         "bindings": [
                             {
-                                "resource": {"stream": "contacts", "syncMode": "incremental"},
-                                "target": f"{self.config.flow_prefix}/hubspot_contacts"
+                                "resource": {
+                                    "stream": "contacts",
+                                    "syncMode": "incremental",
+                                },
+                                "target": f"{self.config.flow_prefix}/hubspot_contacts",
                             }
-                        ]
+                        ],
                     },
                     {
                         "name": f"{self.config.flow_prefix}/hubspot_deals_capture",
                         "endpoint": {
                             "connector": {
                                 "image": "ghcr.io/estuary/source-hubspot:dev",
-                                "config": hubspot_config
+                                "config": hubspot_config,
                             }
                         },
                         "bindings": [
                             {
-                                "resource": {"stream": "deals", "syncMode": "incremental"},
-                                "target": f"{self.config.flow_prefix}/hubspot_deals"
+                                "resource": {
+                                    "stream": "deals",
+                                    "syncMode": "incremental",
+                                },
+                                "target": f"{self.config.flow_prefix}/hubspot_deals",
                             }
-                        ]
-                    }
+                        ],
+                    },
                 ]
-                
+
                 for capture in hubspot_captures:
                     await self.estuary_orchestrator.create_capture(capture)
                     results["flows_created"].append(capture["name"])
-                
+
                 results["sources_configured"].append("hubspot")
                 self.status.sources_active["hubspot"] = FlowStatus.ACTIVE
-                
+
             except Exception as e:
                 logger.error(f"❌ HubSpot source setup failed: {e}")
                 self.status.errors.append(f"HubSpot setup failed: {e}")
                 self.status.sources_active["hubspot"] = FlowStatus.FAILED
-        
+
         # Gong source configuration
         if DataSource.GONG in self.config.sources:
             try:
                 gong_config = {
                     "access_key": get_config_value("gong_access_key"),
                     "access_key_secret": get_config_value("gong_access_key_secret"),
-                    "start_date": "2024-01-01T00:00:00Z"
+                    "start_date": "2024-01-01T00:00:00Z",
                 }
-                
+
                 gong_capture = {
                     "name": f"{self.config.flow_prefix}/gong_calls_capture",
                     "endpoint": {
                         "connector": {
                             "image": "ghcr.io/estuary/source-gong:dev",
-                            "config": gong_config
+                            "config": gong_config,
                         }
                     },
                     "bindings": [
                         {
                             "resource": {"stream": "calls", "syncMode": "incremental"},
-                            "target": f"{self.config.flow_prefix}/gong_calls"
+                            "target": f"{self.config.flow_prefix}/gong_calls",
                         }
-                    ]
+                    ],
                 }
-                
+
                 await self.estuary_orchestrator.create_capture(gong_capture)
                 results["flows_created"].append(gong_capture["name"])
                 results["sources_configured"].append("gong")
                 self.status.sources_active["gong"] = FlowStatus.ACTIVE
-                
+
             except Exception as e:
                 logger.error(f"❌ Gong source setup failed: {e}")
                 self.status.errors.append(f"Gong setup failed: {e}")
                 self.status.sources_active["gong"] = FlowStatus.FAILED
-        
+
         # Slack source configuration
         if DataSource.SLACK in self.config.sources:
             try:
@@ -468,47 +469,50 @@ class PureEstuaryDataPipeline:
                     "api_token": get_config_value("slack_bot_token"),
                     "start_date": "2024-01-01T00:00:00Z",
                     "lookback_window": 7,
-                    "join_channels": True
+                    "join_channels": True,
                 }
-                
+
                 slack_capture = {
                     "name": f"{self.config.flow_prefix}/slack_messages_capture",
                     "endpoint": {
                         "connector": {
                             "image": "ghcr.io/estuary/source-slack:dev",
-                            "config": slack_config
+                            "config": slack_config,
                         }
                     },
                     "bindings": [
                         {
-                            "resource": {"stream": "messages", "syncMode": "incremental"},
-                            "target": f"{self.config.flow_prefix}/slack_messages"
+                            "resource": {
+                                "stream": "messages",
+                                "syncMode": "incremental",
+                            },
+                            "target": f"{self.config.flow_prefix}/slack_messages",
                         }
-                    ]
+                    ],
                 }
-                
+
                 await self.estuary_orchestrator.create_capture(slack_capture)
                 results["flows_created"].append(slack_capture["name"])
                 results["sources_configured"].append("slack")
                 self.status.sources_active["slack"] = FlowStatus.ACTIVE
-                
+
             except Exception as e:
                 logger.error(f"❌ Slack source setup failed: {e}")
                 self.status.errors.append(f"Slack setup failed: {e}")
                 self.status.sources_active["slack"] = FlowStatus.FAILED
-        
+
         return results
-    
+
     async def _setup_database_schemas(self):
         """Set up PostgreSQL database schemas for staging data"""
         logger.info("🗄️ Setting up PostgreSQL database schemas...")
-        
+
         schema_sql = """
         -- Create schemas for different data sources
         CREATE SCHEMA IF NOT EXISTS estuary_raw;
         CREATE SCHEMA IF NOT EXISTS estuary_staging;
         CREATE SCHEMA IF NOT EXISTS estuary_processed;
-        
+
         -- HubSpot tables
         CREATE TABLE IF NOT EXISTS estuary_raw.hubspot_contacts (
             id VARCHAR PRIMARY KEY,
@@ -523,7 +527,7 @@ class PureEstuaryDataPipeline:
             _estuary_flow_document JSONB,
             _estuary_flow_published_at TIMESTAMP DEFAULT NOW()
         );
-        
+
         CREATE TABLE IF NOT EXISTS estuary_raw.hubspot_deals (
             id VARCHAR PRIMARY KEY,
             dealname VARCHAR,
@@ -537,7 +541,7 @@ class PureEstuaryDataPipeline:
             _estuary_flow_document JSONB,
             _estuary_flow_published_at TIMESTAMP DEFAULT NOW()
         );
-        
+
         -- Gong tables
         CREATE TABLE IF NOT EXISTS estuary_raw.gong_calls (
             id VARCHAR PRIMARY KEY,
@@ -554,7 +558,7 @@ class PureEstuaryDataPipeline:
             _estuary_flow_document JSONB,
             _estuary_flow_published_at TIMESTAMP DEFAULT NOW()
         );
-        
+
         -- Slack tables
         CREATE TABLE IF NOT EXISTS estuary_raw.slack_messages (
             ts VARCHAR,
@@ -568,7 +572,7 @@ class PureEstuaryDataPipeline:
             _estuary_flow_published_at TIMESTAMP DEFAULT NOW(),
             PRIMARY KEY (ts, channel)
         );
-        
+
         -- Create indexes for performance
         CREATE INDEX IF NOT EXISTS idx_hubspot_contacts_email ON estuary_raw.hubspot_contacts(email);
         CREATE INDEX IF NOT EXISTS idx_hubspot_contacts_updated ON estuary_raw.hubspot_contacts(updated_at);
@@ -578,16 +582,16 @@ class PureEstuaryDataPipeline:
         CREATE INDEX IF NOT EXISTS idx_slack_messages_channel ON estuary_raw.slack_messages(channel);
         CREATE INDEX IF NOT EXISTS idx_slack_messages_created ON estuary_raw.slack_messages(created_at);
         """
-        
+
         async with self.postgresql_pool.acquire() as conn:
             await conn.execute(schema_sql)
-        
+
         logger.info("✅ PostgreSQL schemas created successfully")
-    
+
     async def _setup_data_transformations(self):
         """Set up Estuary Flow derivations for data transformations"""
         logger.info("🔄 Setting up Estuary Flow data transformations...")
-        
+
         # Create unified contact derivation
         unified_contacts_derivation = {
             "name": f"{self.config.flow_prefix}/unified_contacts",
@@ -600,14 +604,14 @@ class PureEstuaryDataPipeline:
                         "port": self.config.postgresql_config["port"],
                         "database": self.config.postgresql_config["database"],
                         "user": self.config.postgresql_config["user"],
-                        "password": self.config.postgresql_config["password"]
-                    }
+                        "password": self.config.postgresql_config["password"],
+                    },
                 }
             },
             "bindings": [
                 {
                     "source": f"{self.config.flow_prefix}/hubspot_contacts",
-                    "target": "estuary_staging.unified_contacts"
+                    "target": "estuary_staging.unified_contacts",
                 }
             ],
             "transforms": {
@@ -615,7 +619,7 @@ class PureEstuaryDataPipeline:
                     "source": f"{self.config.flow_prefix}/hubspot_contacts",
                     "shuffle": "any",
                     "lambda": """
-                    SELECT 
+                    SELECT
                         id as contact_id,
                         'hubspot' as source_system,
                         email,
@@ -628,13 +632,13 @@ class PureEstuaryDataPipeline:
                         properties,
                         NOW() as processed_at
                     FROM source
-                    """
+                    """,
                 }
-            }
+            },
         }
-        
+
         await self.estuary_orchestrator.create_derivation(unified_contacts_derivation)
-        
+
         # Create deal intelligence derivation
         deal_intelligence_derivation = {
             "name": f"{self.config.flow_prefix}/deal_intelligence",
@@ -647,14 +651,14 @@ class PureEstuaryDataPipeline:
                         "port": self.config.postgresql_config["port"],
                         "database": self.config.postgresql_config["database"],
                         "user": self.config.postgresql_config["user"],
-                        "password": self.config.postgresql_config["password"]
-                    }
+                        "password": self.config.postgresql_config["password"],
+                    },
                 }
             },
             "bindings": [
                 {
                     "source": f"{self.config.flow_prefix}/hubspot_deals",
-                    "target": "estuary_staging.deal_intelligence"
+                    "target": "estuary_staging.deal_intelligence",
                 }
             ],
             "transforms": {
@@ -662,19 +666,19 @@ class PureEstuaryDataPipeline:
                     "source": f"{self.config.flow_prefix}/hubspot_deals",
                     "shuffle": "any",
                     "lambda": """
-                    SELECT 
+                    SELECT
                         id as deal_id,
                         dealname,
                         amount,
                         dealstage,
                         pipeline,
                         closedate,
-                        CASE 
+                        CASE
                             WHEN amount > 100000 THEN 'high_value'
                             WHEN amount > 50000 THEN 'medium_value'
                             ELSE 'low_value'
                         END as deal_tier,
-                        CASE 
+                        CASE
                             WHEN dealstage IN ('closedwon', 'closed-won') THEN 'won'
                             WHEN dealstage IN ('closedlost', 'closed-lost') THEN 'lost'
                             ELSE 'active'
@@ -684,44 +688,56 @@ class PureEstuaryDataPipeline:
                         properties,
                         NOW() as processed_at
                     FROM source
-                    """
+                    """,
                 }
-            }
+            },
         }
-        
+
         await self.estuary_orchestrator.create_derivation(deal_intelligence_derivation)
-        
+
         logger.info("✅ Data transformations configured successfully")
-    
+
     async def _setup_snowflake_integration(self):
         """Set up Estuary Flow materialization to Snowflake"""
         logger.info("❄️ Setting up Snowflake integration...")
-        
+
         # Use aligned Snowflake configuration
-        snowflake_materialization = aligned_snowflake_config.get_estuary_materialization_config()
-        snowflake_materialization["name"] = f"{self.config.flow_prefix}/snowflake_materialization"
-        
-        await self.estuary_orchestrator.create_materialization(snowflake_materialization)
-        
+        snowflake_materialization = (
+            aligned_snowflake_config.get_estuary_materialization_config()
+        )
+        snowflake_materialization["name"] = (
+            f"{self.config.flow_prefix}/snowflake_materialization"
+        )
+
+        await self.estuary_orchestrator.create_materialization(
+            snowflake_materialization
+        )
+
         self.status.destinations_active["snowflake"] = FlowStatus.ACTIVE
         logger.info("✅ Snowflake integration configured successfully")
-    
+
     async def _setup_redis_caching(self):
         """Set up Redis caching for real-time data access"""
         logger.info("🔄 Setting up Redis caching...")
-        
+
         # Set up Redis streams for real-time data
-        await self.redis_client.xgroup_create("contacts_stream", "sophia_ai", id="0", mkstream=True)
-        await self.redis_client.xgroup_create("deals_stream", "sophia_ai", id="0", mkstream=True)
-        await self.redis_client.xgroup_create("calls_stream", "sophia_ai", id="0", mkstream=True)
-        
+        await self.redis_client.xgroup_create(
+            "contacts_stream", "sophia_ai", id="0", mkstream=True
+        )
+        await self.redis_client.xgroup_create(
+            "deals_stream", "sophia_ai", id="0", mkstream=True
+        )
+        await self.redis_client.xgroup_create(
+            "calls_stream", "sophia_ai", id="0", mkstream=True
+        )
+
         self.status.destinations_active["redis"] = FlowStatus.ACTIVE
         logger.info("✅ Redis caching configured successfully")
-    
+
     async def _setup_monitoring(self):
         """Set up monitoring and alerting for the pipeline"""
         logger.info("📊 Setting up pipeline monitoring...")
-        
+
         # Create monitoring collection
         monitoring_collection = {
             "schema": {
@@ -732,24 +748,24 @@ class PureEstuaryDataPipeline:
                     "status": {"type": "string"},
                     "records_processed": {"type": "integer"},
                     "errors": {"type": "array"},
-                    "metrics": {"type": "object"}
+                    "metrics": {"type": "object"},
                 },
-                "required": ["timestamp", "flow_name", "status"]
+                "required": ["timestamp", "flow_name", "status"],
             },
-            "key": ["/timestamp", "/flow_name"]
+            "key": ["/timestamp", "/flow_name"],
         }
-        
+
         await self.estuary_orchestrator.create_collection(
             collection_name=f"{self.config.flow_prefix}/monitoring",
-            schema=monitoring_collection
+            schema=monitoring_collection,
         )
-        
+
         logger.info("✅ Monitoring configured successfully")
-    
+
     async def _start_all_flows(self):
         """Start all Estuary Flow captures, derivations, and materializations"""
         logger.info("▶️ Starting all Estuary Flow flows...")
-        
+
         # Enable all flows
         flows_to_enable = [
             f"{self.config.flow_prefix}/hubspot_contacts_capture",
@@ -758,9 +774,9 @@ class PureEstuaryDataPipeline:
             f"{self.config.flow_prefix}/slack_messages_capture",
             f"{self.config.flow_prefix}/unified_contacts",
             f"{self.config.flow_prefix}/deal_intelligence",
-            f"{self.config.flow_prefix}/snowflake_materialization"
+            f"{self.config.flow_prefix}/snowflake_materialization",
         ]
-        
+
         for flow_name in flows_to_enable:
             try:
                 await self.estuary_orchestrator.enable_flow(flow_name)
@@ -770,64 +786,79 @@ class PureEstuaryDataPipeline:
                 logger.error(f"❌ Failed to start flow {flow_name}: {e}")
                 self.status.flows_active[flow_name] = FlowStatus.FAILED
                 self.status.errors.append(f"Flow start failed: {flow_name} - {e}")
-        
+
         logger.info("✅ All flows started successfully")
-    
+
     async def get_pipeline_status(self) -> PipelineStatus:
         """Get current pipeline status and metrics"""
         logger.info("📊 Getting pipeline status...")
-        
+
         try:
             # Update metrics from Estuary Flow
             if self.estuary_orchestrator:
                 flow_stats = await self.estuary_orchestrator.get_flow_stats()
-                
+
                 # Calculate total records processed
                 total_records = sum(
-                    stats.get("records_processed", 0) 
-                    for stats in flow_stats.values()
+                    stats.get("records_processed", 0) for stats in flow_stats.values()
                 )
                 self.status.total_records_processed = total_records
-                
+
                 # Calculate data freshness
                 latest_sync = max(
-                    (stats.get("last_sync") for stats in flow_stats.values() if stats.get("last_sync")),
-                    default=None
+                    (
+                        stats.get("last_sync")
+                        for stats in flow_stats.values()
+                        if stats.get("last_sync")
+                    ),
+                    default=None,
                 )
-                
+
                 if latest_sync:
-                    freshness = (datetime.now(timezone.utc) - latest_sync).total_seconds() / 60
+                    freshness = (datetime.now(UTC) - latest_sync).total_seconds() / 60
                     self.status.data_freshness_minutes = int(freshness)
-                
+
                 self.status.metrics = {
                     "flow_stats": flow_stats,
                     "total_flows": len(self.status.flows_active),
-                    "active_flows": len([s for s in self.status.flows_active.values() if s == FlowStatus.ACTIVE]),
-                    "failed_flows": len([s for s in self.status.flows_active.values() if s == FlowStatus.FAILED])
+                    "active_flows": len(
+                        [
+                            s
+                            for s in self.status.flows_active.values()
+                            if s == FlowStatus.ACTIVE
+                        ]
+                    ),
+                    "failed_flows": len(
+                        [
+                            s
+                            for s in self.status.flows_active.values()
+                            if s == FlowStatus.FAILED
+                        ]
+                    ),
                 }
-            
+
             return self.status
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to get pipeline status: {e}")
             self.status.errors.append(f"Status check failed: {e}")
             return self.status
-    
+
     async def pause_pipeline(self):
         """Pause all pipeline flows"""
         logger.info("⏸️ Pausing pipeline...")
-        
+
         for flow_name in self.status.flows_active.keys():
             try:
                 await self.estuary_orchestrator.disable_flow(flow_name)
                 self.status.flows_active[flow_name] = FlowStatus.PAUSED
             except Exception as e:
                 logger.error(f"❌ Failed to pause flow {flow_name}: {e}")
-    
+
     async def resume_pipeline(self):
         """Resume all pipeline flows"""
         logger.info("▶️ Resuming pipeline...")
-        
+
         for flow_name in self.status.flows_active.keys():
             try:
                 await self.estuary_orchestrator.enable_flow(flow_name)
@@ -837,25 +868,29 @@ class PureEstuaryDataPipeline:
 
 
 # Convenience functions for easy pipeline management
-async def setup_sophia_data_pipeline(config: Optional[EstuaryPipelineConfig] = None) -> Dict[str, Any]:
+async def setup_sophia_data_pipeline(
+    config: EstuaryPipelineConfig | None = None,
+) -> dict[str, Any]:
     """Set up the complete Sophia AI data pipeline"""
     async with PureEstuaryDataPipeline(config) as pipeline:
         return await pipeline.setup_complete_pipeline()
 
 
-async def get_sophia_pipeline_status(config: Optional[EstuaryPipelineConfig] = None) -> PipelineStatus:
+async def get_sophia_pipeline_status(
+    config: EstuaryPipelineConfig | None = None,
+) -> PipelineStatus:
     """Get the current status of the Sophia AI data pipeline"""
     async with PureEstuaryDataPipeline(config) as pipeline:
         return await pipeline.get_pipeline_status()
 
 
-async def pause_sophia_pipeline(config: Optional[EstuaryPipelineConfig] = None):
+async def pause_sophia_pipeline(config: EstuaryPipelineConfig | None = None):
     """Pause the Sophia AI data pipeline"""
     async with PureEstuaryDataPipeline(config) as pipeline:
         await pipeline.pause_pipeline()
 
 
-async def resume_sophia_pipeline(config: Optional[EstuaryPipelineConfig] = None):
+async def resume_sophia_pipeline(config: EstuaryPipelineConfig | None = None):
     """Resume the Sophia AI data pipeline"""
     async with PureEstuaryDataPipeline(config) as pipeline:
         await pipeline.resume_pipeline()
@@ -865,23 +900,22 @@ if __name__ == "__main__":
     # Example usage
     async def main():
         logger.info("🚀 Starting Sophia AI Pure Estuary Flow Data Pipeline...")
-        
+
         config = EstuaryPipelineConfig(
             sources=[DataSource.HUBSPOT, DataSource.GONG, DataSource.SLACK],
-            monitoring_enabled=True
+            monitoring_enabled=True,
         )
-        
+
         try:
             result = await setup_sophia_data_pipeline(config)
             logger.info(f"✅ Pipeline setup completed: {result}")
-            
+
             # Get status
             status = await get_sophia_pipeline_status(config)
             logger.info(f"📊 Pipeline status: {status}")
-            
+
         except Exception as e:
             logger.error(f"❌ Pipeline setup failed: {e}")
             raise
-    
-    asyncio.run(main())
 
+    asyncio.run(main())

@@ -6,21 +6,22 @@ Applies Extract Method pattern and other refactoring strategies to reduce functi
 
 import ast
 import logging
-import re
-import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+
 @dataclass
 class FunctionComplexityIssue:
     """Represents a function complexity issue"""
+
     file_path: str
     function_name: str
     start_line: int
@@ -30,48 +31,53 @@ class FunctionComplexityIssue:
     issue_type: str
     refactoring_strategy: str
 
+
 @dataclass
 class RefactoringResult:
     """Result of a refactoring operation"""
+
     file_path: str
     function_name: str
     success: bool
     strategy_applied: str
     lines_reduced: int
     new_functions_created: int
-    error: Optional[str] = None
+    error: str | None = None
+
 
 class FunctionComplexityAnalyzer:
     """Analyzes function complexity and identifies refactoring opportunities"""
-    
+
     def __init__(self):
-        self.complexity_issues: List[FunctionComplexityIssue] = []
-        self.python_files: List[Path] = []
-        
-    def analyze_codebase(self) -> List[FunctionComplexityIssue]:
+        self.complexity_issues: list[FunctionComplexityIssue] = []
+        self.python_files: list[Path] = []
+
+    def analyze_codebase(self) -> list[FunctionComplexityIssue]:
         """Analyze entire codebase for function complexity issues"""
         logger.info("🔍 Analyzing codebase for function complexity issues...")
-        
+
         # Find all Python files
         self.python_files = list(PROJECT_ROOT.rglob("*.py"))
-        self.python_files = [f for f in self.python_files if not self._should_skip_file(f)]
-        
+        self.python_files = [
+            f for f in self.python_files if not self._should_skip_file(f)
+        ]
+
         logger.info(f"Found {len(self.python_files)} Python files to analyze")
-        
+
         for file_path in self.python_files:
             try:
                 self._analyze_file(file_path)
             except Exception as e:
                 logger.warning(f"Failed to analyze {file_path}: {e}")
-        
+
         # Sort by priority (line count + complexity)
         self.complexity_issues.sort(
             key=lambda x: (x.line_count + x.complexity_score), reverse=True
         )
-        
+
         logger.info(f"Found {len(self.complexity_issues)} complexity issues")
         return self.complexity_issues
-    
+
     def _should_skip_file(self, file_path: Path) -> bool:
         """Check if file should be skipped"""
         skip_patterns = [
@@ -86,43 +92,45 @@ class FunctionComplexityAnalyzer:
             ".backup",
             ".week1.backup",
         ]
-        
+
         str_path = str(file_path)
         return any(pattern in str_path for pattern in skip_patterns)
-    
+
     def _analyze_file(self, file_path: Path):
         """Analyze a single file for complexity issues"""
         try:
-            content = file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encoding="utf-8")
             tree = ast.parse(content)
-            
+
             for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                     self._analyze_function(file_path, node, content)
-                    
+
         except Exception as e:
             logger.debug(f"Error analyzing {file_path}: {e}")
-    
+
     def _analyze_function(self, file_path: Path, node: ast.FunctionDef, content: str):
         """Analyze a single function for complexity"""
-        lines = content.split('\n')
+        content.split("\n")
         start_line = node.lineno
         end_line = node.end_lineno or start_line
         line_count = end_line - start_line + 1
-        
+
         # Skip very small functions
         if line_count < 20:
             return
-        
+
         # Calculate complexity score
         complexity_score = self._calculate_complexity(node)
-        
+
         # Determine refactoring strategy
-        strategy = self._determine_refactoring_strategy(node, line_count, complexity_score)
-        
+        strategy = self._determine_refactoring_strategy(
+            node, line_count, complexity_score
+        )
+
         # Determine issue type
         issue_type = self._classify_issue_type(line_count, complexity_score)
-        
+
         issue = FunctionComplexityIssue(
             file_path=str(file_path.relative_to(PROJECT_ROOT)),
             function_name=node.name,
@@ -131,26 +139,28 @@ class FunctionComplexityAnalyzer:
             line_count=line_count,
             complexity_score=complexity_score,
             issue_type=issue_type,
-            refactoring_strategy=strategy
+            refactoring_strategy=strategy,
         )
-        
+
         self.complexity_issues.append(issue)
-    
+
     def _calculate_complexity(self, node: ast.FunctionDef) -> int:
         """Calculate complexity score for a function"""
         complexity = 1  # Base complexity
-        
+
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
                 complexity += 1
-            elif isinstance(child, (ast.ExceptHandler, ast.With, ast.AsyncWith)):
+            elif isinstance(child, ast.ExceptHandler | ast.With | ast.AsyncWith):
                 complexity += 1
             elif isinstance(child, ast.Try):
                 complexity += len(child.handlers)
-        
+
         return complexity
-    
-    def _determine_refactoring_strategy(self, node: ast.FunctionDef, line_count: int, complexity: int) -> str:
+
+    def _determine_refactoring_strategy(
+        self, node: ast.FunctionDef, line_count: int, complexity: int
+    ) -> str:
         """Determine the best refactoring strategy"""
         if line_count > 100:
             return "extract_method"
@@ -162,7 +172,7 @@ class FunctionComplexityAnalyzer:
             return "single_responsibility"
         else:
             return "extract_method"
-    
+
     def _classify_issue_type(self, line_count: int, complexity: int) -> str:
         """Classify the type of complexity issue"""
         if line_count > 150:
@@ -173,70 +183,81 @@ class FunctionComplexityAnalyzer:
             return "MEDIUM"
         else:
             return "LOW"
-    
+
     def _has_multiple_responsibilities(self, node: ast.FunctionDef) -> bool:
         """Check if function has multiple responsibilities"""
         # Simple heuristic: multiple try blocks or multiple class instantiations
         try_blocks = 0
         class_instantiations = 0
-        
+
         for child in ast.walk(node):
             if isinstance(child, ast.Try):
                 try_blocks += 1
             elif isinstance(child, ast.Call) and isinstance(child.func, ast.Name):
                 if child.func.id[0].isupper():  # Likely class instantiation
                     class_instantiations += 1
-        
+
         return try_blocks > 1 or class_instantiations > 3
+
 
 class FunctionRefactorer:
     """Applies refactoring strategies to reduce function complexity"""
-    
+
     def __init__(self):
-        self.refactoring_results: List[RefactoringResult] = []
-        self.backup_files: List[str] = []
-    
-    def apply_refactoring(self, issues: List[FunctionComplexityIssue], max_functions: int = 20) -> List[RefactoringResult]:
+        self.refactoring_results: list[RefactoringResult] = []
+        self.backup_files: list[str] = []
+
+    def apply_refactoring(
+        self, issues: list[FunctionComplexityIssue], max_functions: int = 20
+    ) -> list[RefactoringResult]:
         """Apply refactoring to the most critical issues"""
         logger.info(f"🔧 Applying refactoring to top {max_functions} complexity issues")
-        
+
         # Focus on critical and high priority issues
-        priority_issues = [i for i in issues if i.issue_type in ["CRITICAL", "HIGH"]][:max_functions]
-        
+        priority_issues = [i for i in issues if i.issue_type in ["CRITICAL", "HIGH"]][
+            :max_functions
+        ]
+
         for issue in priority_issues:
             try:
                 result = self._refactor_function(issue)
                 self.refactoring_results.append(result)
-                
+
                 if result.success:
-                    logger.info(f"✅ Refactored {issue.function_name} in {issue.file_path}")
+                    logger.info(
+                        f"✅ Refactored {issue.function_name} in {issue.file_path}"
+                    )
                 else:
-                    logger.warning(f"⚠️  Failed to refactor {issue.function_name}: {result.error}")
-                    
+                    logger.warning(
+                        f"⚠️  Failed to refactor {issue.function_name}: {result.error}"
+                    )
+
             except Exception as e:
                 logger.error(f"❌ Error refactoring {issue.function_name}: {e}")
-                self.refactoring_results.append(RefactoringResult(
-                    file_path=issue.file_path,
-                    function_name=issue.function_name,
-                    success=False,
-                    strategy_applied=issue.refactoring_strategy,
-                    lines_reduced=0,
-                    new_functions_created=0,
-                    error=str(e)
-                ))
-        
+                self.refactoring_results.append(
+                    RefactoringResult(
+                        file_path=issue.file_path,
+                        function_name=issue.function_name,
+                        success=False,
+                        strategy_applied=issue.refactoring_strategy,
+                        lines_reduced=0,
+                        new_functions_created=0,
+                        error=str(e),
+                    )
+                )
+
         return self.refactoring_results
-    
+
     def _refactor_function(self, issue: FunctionComplexityIssue) -> RefactoringResult:
         """Refactor a single function based on its complexity issue"""
         file_path = PROJECT_ROOT / issue.file_path
-        
+
         # Create backup
         backup_path = str(file_path) + f".week2-3.{issue.function_name}.backup"
         content = file_path.read_text()
         Path(backup_path).write_text(content)
         self.backup_files.append(backup_path)
-        
+
         try:
             if issue.refactoring_strategy == "extract_method":
                 return self._apply_extract_method(issue, file_path, content)
@@ -246,7 +267,7 @@ class FunctionRefactorer:
                 return self._apply_parameter_object(issue, file_path, content)
             else:
                 return self._apply_extract_method(issue, file_path, content)
-                
+
         except Exception as e:
             # Restore backup on failure
             file_path.write_text(content)
@@ -257,74 +278,80 @@ class FunctionRefactorer:
                 strategy_applied=issue.refactoring_strategy,
                 lines_reduced=0,
                 new_functions_created=0,
-                error=str(e)
+                error=str(e),
             )
-    
-    def _apply_extract_method(self, issue: FunctionComplexityIssue, file_path: Path, content: str) -> RefactoringResult:
+
+    def _apply_extract_method(
+        self, issue: FunctionComplexityIssue, file_path: Path, content: str
+    ) -> RefactoringResult:
         """Apply Extract Method pattern to break up long functions"""
-        lines = content.split('\n')
-        
+        lines = content.split("\n")
+
         # Find the function boundaries
         start_idx = issue.start_line - 1
         end_idx = issue.end_line - 1
-        
-        function_lines = lines[start_idx:end_idx + 1]
-        
+
+        function_lines = lines[start_idx : end_idx + 1]
+
         # Identify logical blocks to extract
         extracted_methods = []
         new_function_lines = []
-        
+
         # Simple heuristic: extract try/except blocks and loops
-        i = 0
         current_block = []
         in_extractable_block = False
         block_type = None
-        
+
         for line in function_lines:
             stripped = line.strip()
-            
+
             # Check for extractable blocks
-            if (stripped.startswith('try:') or 
-                stripped.startswith('for ') or 
-                stripped.startswith('while ') or
-                stripped.startswith('if ') and len(current_block) == 0):
-                
+            if (
+                stripped.startswith("try:")
+                or stripped.startswith("for ")
+                or stripped.startswith("while ")
+                or stripped.startswith("if ")
+                and len(current_block) == 0
+            ):
+
                 if current_block and not in_extractable_block:
                     new_function_lines.extend(current_block)
-                
+
                 current_block = [line]
                 in_extractable_block = True
-                
-                if stripped.startswith('try:'):
-                    block_type = 'error_handling'
-                elif stripped.startswith('for ') or stripped.startswith('while '):
-                    block_type = 'iteration'
+
+                if stripped.startswith("try:"):
+                    block_type = "error_handling"
+                elif stripped.startswith("for ") or stripped.startswith("while "):
+                    block_type = "iteration"
                 else:
-                    block_type = 'conditional'
-                    
+                    block_type = "conditional"
+
             elif in_extractable_block:
                 current_block.append(line)
-                
+
                 # Check if block is complete
-                if (stripped == '' and len(current_block) > 5) or len(current_block) > 15:
+                if (stripped == "" and len(current_block) > 5) or len(
+                    current_block
+                ) > 15:
                     # Extract this block
                     method_name = f"_{block_type}_{len(extracted_methods) + 1}"
                     extracted_methods.append((method_name, current_block, block_type))
-                    
+
                     # Replace with method call
                     indent = self._get_indentation(current_block[0])
                     new_function_lines.append(f"{indent}self.{method_name}()")
-                    
+
                     current_block = []
                     in_extractable_block = False
                     block_type = None
             else:
                 current_block.append(line)
-        
+
         # Add remaining lines
         if current_block:
             new_function_lines.extend(current_block)
-        
+
         if not extracted_methods:
             return RefactoringResult(
                 file_path=issue.file_path,
@@ -333,66 +360,77 @@ class FunctionRefactorer:
                 strategy_applied="extract_method",
                 lines_reduced=0,
                 new_functions_created=0,
-                error="No extractable blocks found"
+                error="No extractable blocks found",
             )
-        
+
         # Generate new file content
         new_content_lines = lines[:start_idx]
         new_content_lines.extend(new_function_lines)
-        new_content_lines.extend(lines[end_idx + 1:])
-        
+        new_content_lines.extend(lines[end_idx + 1 :])
+
         # Add extracted methods before the original function
         method_lines = []
         for method_name, method_lines_content, block_type in extracted_methods:
             method_lines.append(f"    def {method_name}(self):")
             method_lines.append(f'        """Extracted {block_type} logic"""')
-            method_lines.extend([f"    {line}" if line.strip() else line for line in method_lines_content[1:]])
+            method_lines.extend(
+                [
+                    f"    {line}" if line.strip() else line
+                    for line in method_lines_content[1:]
+                ]
+            )
             method_lines.append("")
-        
+
         # Insert extracted methods before the original function
-        new_content_lines = (lines[:start_idx] + method_lines + 
-                           new_function_lines + lines[end_idx + 1:])
-        
+        new_content_lines = (
+            lines[:start_idx] + method_lines + new_function_lines + lines[end_idx + 1 :]
+        )
+
         # Write new content
-        file_path.write_text('\n'.join(new_content_lines))
-        
+        file_path.write_text("\n".join(new_content_lines))
+
         lines_reduced = len(function_lines) - len(new_function_lines)
-        
+
         return RefactoringResult(
             file_path=issue.file_path,
             function_name=issue.function_name,
             success=True,
             strategy_applied="extract_method",
             lines_reduced=lines_reduced,
-            new_functions_created=len(extracted_methods)
+            new_functions_created=len(extracted_methods),
         )
-    
-    def _apply_strategy_pattern(self, issue: FunctionComplexityIssue, file_path: Path, content: str) -> RefactoringResult:
+
+    def _apply_strategy_pattern(
+        self, issue: FunctionComplexityIssue, file_path: Path, content: str
+    ) -> RefactoringResult:
         """Apply Strategy pattern for high complexity functions"""
         # For now, fall back to extract method
         return self._apply_extract_method(issue, file_path, content)
-    
-    def _apply_parameter_object(self, issue: FunctionComplexityIssue, file_path: Path, content: str) -> RefactoringResult:
+
+    def _apply_parameter_object(
+        self, issue: FunctionComplexityIssue, file_path: Path, content: str
+    ) -> RefactoringResult:
         """Apply Parameter Object pattern for functions with many parameters"""
         # For now, fall back to extract method
         return self._apply_extract_method(issue, file_path, content)
-    
+
     def _get_indentation(self, line: str) -> str:
         """Get the indentation of a line"""
-        return line[:len(line) - len(line.lstrip())]
+        return line[: len(line) - len(line.lstrip())]
+
 
 class Week2And3ComplexityReducer:
     """Main class for Week 2-3 complexity reduction"""
-    
+
     def __init__(self):
         self.analyzer = FunctionComplexityAnalyzer()
         self.refactorer = FunctionRefactorer()
-    
-    def run_week2_3_complexity_reduction(self) -> Dict[str, any]:
+
+    def run_week2_3_complexity_reduction(self) -> dict[str, any]:
         """Run complete Week 2-3 complexity reduction"""
         logger.info("🚀 Week 2-3: Function Complexity Reduction")
         logger.info("=" * 60)
-        
+
         summary = {
             "functions_analyzed": 0,
             "complexity_issues_found": 0,
@@ -400,50 +438,55 @@ class Week2And3ComplexityReducer:
             "total_lines_reduced": 0,
             "new_functions_created": 0,
             "critical_issues_resolved": 0,
-            "high_issues_resolved": 0
+            "high_issues_resolved": 0,
         }
-        
+
         try:
             # Step 1: Analyze codebase for complexity issues
             logger.info("📊 Step 1: Analyzing function complexity...")
             issues = self.analyzer.analyze_codebase()
-            
+
             summary["functions_analyzed"] = len(self.analyzer.python_files)
             summary["complexity_issues_found"] = len(issues)
-            
+
             # Step 2: Apply refactoring to critical issues
             logger.info("🔧 Step 2: Applying refactoring strategies...")
             results = self.refactorer.apply_refactoring(issues, max_functions=25)
-            
+
             # Calculate summary statistics
             for result in results:
                 if result.success:
                     summary["functions_refactored"] += 1
                     summary["total_lines_reduced"] += result.lines_reduced
                     summary["new_functions_created"] += result.new_functions_created
-            
+
             # Count resolved issues by priority
             for issue in issues[:25]:  # Top 25 issues we attempted to fix
                 if issue.issue_type == "CRITICAL":
                     summary["critical_issues_resolved"] += 1
                 elif issue.issue_type == "HIGH":
                     summary["high_issues_resolved"] += 1
-            
+
             # Step 3: Generate report
             self._generate_week2_3_report(summary, issues, results)
-            
+
             logger.info("✅ Week 2-3 complexity reduction completed!")
-            
+
         except Exception as e:
             logger.error(f"❌ Week 2-3 complexity reduction failed: {e}")
             summary["error"] = str(e)
-        
+
         return summary
-    
-    def _generate_week2_3_report(self, summary: Dict[str, any], issues: List[FunctionComplexityIssue], results: List[RefactoringResult]):
+
+    def _generate_week2_3_report(
+        self,
+        summary: dict[str, any],
+        issues: list[FunctionComplexityIssue],
+        results: list[RefactoringResult],
+    ):
         """Generate comprehensive Week 2-3 report"""
         report_path = PROJECT_ROOT / "WEEK2_3_COMPLEXITY_REDUCTION_REPORT.md"
-        
+
         report_content = f"""# Week 2-3: Function Complexity Reduction Report
 
 ## Executive Summary
@@ -465,30 +508,30 @@ class Week2And3ComplexityReducer:
 | Function | File | Lines | Complexity | Priority | Strategy |
 |----------|------|-------|------------|----------|----------|
 """
-        
-        for i, issue in enumerate(issues[:10]):
+
+        for _i, issue in enumerate(issues[:10]):
             report_content += f"| {issue.function_name} | {issue.file_path} | {issue.line_count} | {issue.complexity_score} | {issue.issue_type} | {issue.refactoring_strategy} |\n"
-        
-        report_content += f"""
+
+        report_content += """
 
 ## Refactoring Results
 
 ### Successful Refactorings
 """
-        
+
         successful_results = [r for r in results if r.success]
         for result in successful_results:
             report_content += f"- **{result.function_name}** ({result.file_path}): {result.strategy_applied}, {result.lines_reduced} lines reduced, {result.new_functions_created} new functions\n"
-        
+
         failed_results = [r for r in results if not r.success]
         if failed_results:
-            report_content += f"""
+            report_content += """
 
 ### Failed Refactorings
 """
             for result in failed_results:
                 report_content += f"- **{result.function_name}** ({result.file_path}): {result.error}\n"
-        
+
         report_content += f"""
 
 ## Refactoring Strategies Applied
@@ -535,7 +578,7 @@ class Week2And3ComplexityReducer:
 ## Week 2-3 Success Metrics
 
 - ✅ {summary['critical_issues_resolved']} critical complexity issues resolved
-- ✅ {summary['high_issues_resolved']} high-priority issues addressed  
+- ✅ {summary['high_issues_resolved']} high-priority issues addressed
 - ✅ {summary['total_lines_reduced']} lines of complex code simplified
 - ✅ {summary['new_functions_created']} focused functions created
 - ✅ Platform ready for Week 4 Clean Architecture implementation
@@ -544,27 +587,28 @@ class Week2And3ComplexityReducer:
 
 The following backup files were created and can be restored if needed:
 """
-        
+
         for backup in self.refactorer.backup_files:
             report_content += f"- {backup}\n"
-        
+
         report_content += """
 
 ---
 
 *Week 2-3 completed successfully. Ready for Week 4 Clean Architecture compliance.*
 """
-        
+
         report_path.write_text(report_content)
         logger.info(f"📊 Week 2-3 report generated: {report_path}")
+
 
 def main():
     """Main execution for Week 2-3 complexity reduction"""
     reducer = Week2And3ComplexityReducer()
-    
+
     try:
         summary = reducer.run_week2_3_complexity_reduction()
-        
+
         logger.info("🎉 Week 2-3: Function Complexity Reduction Complete!")
         logger.info("=" * 60)
         logger.info(f"Functions Analyzed: {summary['functions_analyzed']}")
@@ -572,17 +616,18 @@ def main():
         logger.info(f"Functions Refactored: {summary['functions_refactored']}")
         logger.info(f"Total Lines Reduced: {summary['total_lines_reduced']}")
         logger.info(f"New Functions Created: {summary['new_functions_created']}")
-        
-        if summary['functions_refactored'] > 0:
+
+        if summary["functions_refactored"] > 0:
             logger.info("✅ Week 2-3 objectives achieved - ready for Week 4")
         else:
             logger.warning("⚠️  No functions refactored - manual review may be needed")
-            
+
         return 0
-        
+
     except Exception as e:
         logger.error(f"❌ Week 2-3 complexity reduction failed: {e}")
         return 1
 
+
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

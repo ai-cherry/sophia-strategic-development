@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Minimal working API to verify deployment."""
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 import logging
 import sys
 from pathlib import Path
+
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -27,28 +28,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def root():
     return {"message": "Sophia AI Minimal API is running!"}
 
+
 @app.get("/health")
 async def health():
-    return {
-        "status": "healthy",
-        "service": "sophia-ai-minimal",
-        "version": "0.1.0"
-    }
+    return {"status": "healthy", "service": "sophia-ai-minimal", "version": "0.1.0"}
+
 
 @app.get("/api/v1/test")
 async def test_endpoint():
     return {
         "status": "success",
         "message": "API is working",
-        "data": {
-            "test": True,
-            "timestamp": "2024-01-15"
-        }
+        "data": {"test": True, "timestamp": "2024-01-15"},
     }
+
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000

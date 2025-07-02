@@ -27,10 +27,10 @@ import requests
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class PulumiESCSync:
     """Manages synchronization between GitHub Secrets and Pulumi ESC"""
@@ -51,24 +51,20 @@ class PulumiESCSync:
             "INTERCOM_ACCESS_TOKEN": "Intercom access token for customer support",
             "GONG_ACCESS_KEY": "Gong.io access key for conversation analytics",
             "GONG_CLIENT_SECRET": "Gong.io client secret for authentication",
-
             # Database and Storage
             "SNOWFLAKE_ACCOUNT": "Snowflake account identifier",
             "SNOWFLAKE_USERNAME": "Snowflake database username",
             "SNOWFLAKE_PASSWORD": "Snowflake database password",
             "REDIS_URL": "Redis connection URL for caching",
-
             # Workflow and Automation
             "N8N_WEBHOOK_SECRET": "n8n webhook secret for secure automation",
-
             # Monitoring and Analytics
             "VERCEL_ANALYTICS_ID": "Vercel Analytics tracking ID",
             "SENTRY_DSN": "Sentry DSN for error tracking",
-
             # Deployment Tokens
             "VERCEL_TOKEN": "Vercel deployment token",
             "GITHUB_TOKEN": "GitHub API token for repository access",
-            "PULUMI_ACCESS_TOKEN": "Pulumi access token for infrastructure management"
+            "PULUMI_ACCESS_TOKEN": "Pulumi access token for infrastructure management",
         }
 
     def validate_github_secrets(self) -> dict[str, bool]:
@@ -77,7 +73,7 @@ class PulumiESCSync:
 
         headers = {
             "Authorization": f"token {self.github_token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application/vnd.github.v3+json",
         }
 
         url = f"https://api.github.com/orgs/{self.github_org}/actions/secrets"
@@ -86,7 +82,9 @@ class PulumiESCSync:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
 
-            existing_secrets = {secret['name'] for secret in response.json().get('secrets', [])}
+            existing_secrets = {
+                secret["name"] for secret in response.json().get("secrets", [])
+            }
 
             validation_results = {}
             for secret_name in self.required_secrets:
@@ -103,9 +101,13 @@ class PulumiESCSync:
             logger.error(f"Failed to validate GitHub secrets: {e}")
             return {}
 
-    def update_pulumi_esc_environment(self, environment: str, dry_run: bool = True) -> bool:
+    def update_pulumi_esc_environment(
+        self, environment: str, dry_run: bool = True
+    ) -> bool:
         """Update Pulumi ESC environment with current secret configuration"""
-        logger.info(f"Updating Pulumi ESC environment: {environment} (dry_run={dry_run})")
+        logger.info(
+            f"Updating Pulumi ESC environment: {environment} (dry_run={dry_run})"
+        )
 
         # Read the ESC configuration
         config_path = "/home/ubuntu/sophia-project/pulumi-esc-configuration.yaml"
@@ -124,15 +126,18 @@ class PulumiESCSync:
         logger.info(f"Updated Pulumi ESC environment: {environment}")
         return True
 
-    def sync_vercel_environment_variables(self, project_id: str, dry_run: bool = True) -> bool:
+    def sync_vercel_environment_variables(
+        self, project_id: str, dry_run: bool = True
+    ) -> bool:
         """Synchronize environment variables with Vercel project"""
-        logger.info(f"Synchronizing Vercel environment variables for project: {project_id}")
-
+        logger.info(
+            f"Synchronizing Vercel environment variables for project: {project_id}"
+        )
 
         # Environment variables to sync (these would come from Pulumi ESC in real implementation)
         env_vars = {
             "VITE_SOPHIA_ENV": "production",
-            "VITE_SOPHIA_API_URL": "https://sophia-ai-frontend-dev.vercel.app"
+            "VITE_SOPHIA_API_URL": "https://sophia-ai-frontend-dev.vercel.app",
         }
 
         if dry_run:
@@ -185,12 +190,21 @@ Generated: {timestamp}
 
         return report
 
+
 def main():
     parser = argparse.ArgumentParser(description="Sophia AI Pulumi ESC Synchronization")
-    parser.add_argument("--environment", default="production", help="Target environment")
-    parser.add_argument("--dry-run", action="store_true", help="Perform dry run without making changes")
-    parser.add_argument("--apply", action="store_true", help="Apply changes (opposite of dry-run)")
-    parser.add_argument("--audit-only", action="store_true", help="Only generate audit report")
+    parser.add_argument(
+        "--environment", default="production", help="Target environment"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Perform dry run without making changes"
+    )
+    parser.add_argument(
+        "--apply", action="store_true", help="Apply changes (opposite of dry-run)"
+    )
+    parser.add_argument(
+        "--audit-only", action="store_true", help="Only generate audit report"
+    )
 
     args = parser.parse_args()
 
@@ -203,7 +217,9 @@ def main():
     vercel_token = os.getenv("VERCEL_TOKEN")
 
     if not all([github_token, pulumi_token, vercel_token]):
-        logger.error("Missing required environment variables: GITHUB_TOKEN, PULUMI_ACCESS_TOKEN, VERCEL_TOKEN")
+        logger.error(
+            "Missing required environment variables: GITHUB_TOKEN, PULUMI_ACCESS_TOKEN, VERCEL_TOKEN"
+        )
         sys.exit(1)
 
     # Initialize synchronizer
@@ -222,7 +238,7 @@ def main():
 
     # Save audit report
     report_path = f"/home/ubuntu/sophia-project/audit-report-{datetime.now().strftime('%Y%m%d-%H%M%S')}.md"
-    with open(report_path, 'w') as f:
+    with open(report_path, "w") as f:
         f.write(audit_report)
 
     logger.info(f"Audit report saved: {report_path}")
@@ -247,6 +263,6 @@ def main():
     if dry_run:
         logger.info("This was a dry run. Use --apply to make actual changes.")
 
+
 if __name__ == "__main__":
     main()
-

@@ -49,14 +49,12 @@ from backend.core.performance_monitor import performance_monitor
 
 # Import decomposed modules
 from .optimized_snowflake_cortex_service_models import (
-    CortexOperation,
-    ProcessingMode,
-    CortexResult,
-    BatchCortexRequest,
-    CortexPerformanceMetrics,
     CortexConfig,
+    CortexOperation,
+    CortexPerformanceMetrics,
+    CortexResult,
+    ProcessingMode,
 )
-from .optimized_snowflake_cortex_service_utils import CortexUtils
 
 logger = logging.getLogger(__name__)
 

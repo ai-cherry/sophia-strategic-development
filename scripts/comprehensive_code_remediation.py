@@ -10,19 +10,24 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+
 @dataclass
 class RemediationResult:
     """Result of a remediation operation"""
+
     file_path: str
     issue_type: str
     fixed: bool
     error: str | None = None
     details: str | None = None
+
 
 class ComprehensiveCodeRemediator:
     """Comprehensive code quality remediation system"""
@@ -46,7 +51,7 @@ class ComprehensiveCodeRemediator:
             "imports_fixed": 0,
             "functions_refactored": 0,
             "style_issues_fixed": 0,
-            "errors_encountered": 0
+            "errors_encountered": 0,
         }
 
         try:
@@ -58,7 +63,9 @@ class ComprehensiveCodeRemediator:
             # Phase 2: Undefined Names & Import Issues
             logger.info("📋 Phase 2: Undefined Names & Import Resolution")
             import_results = self.fix_undefined_names_and_imports()
-            summary["undefined_names_fixed"] = len([r for r in import_results if r.fixed])
+            summary["undefined_names_fixed"] = len(
+                [r for r in import_results if r.fixed]
+            )
 
             # Phase 3: Style & Import Organization
             logger.info("📋 Phase 3: Style & Import Organization")
@@ -88,7 +95,7 @@ class ComprehensiveCodeRemediator:
             "mcp-servers/github/github_mcp_server.py",
             "mcp-servers/hubspot/hubspot_mcp_server.py",
             "mcp-servers/notion/notion_mcp_server.py",
-            "mcp-servers/slack/slack_mcp_server.py"
+            "mcp-servers/slack/slack_mcp_server.py",
         ]
 
         for server_path in mcp_servers:
@@ -107,12 +114,14 @@ class ComprehensiveCodeRemediator:
 
         try:
             content = full_path.read_text()
-            lines = content.split('\n')
+            lines = content.split("\n")
             modified = False
 
             for i, line in enumerate(lines):
                 # Fix __init__ method indentation
-                if "def __init__(self, port: int" in line and line.strip().endswith(":"):
+                if "def __init__(self, port: int" in line and line.strip().endswith(
+                    ":"
+                ):
                     if i + 1 < len(lines) and lines[i + 1].startswith("port = "):
                         lines[i + 1] = "        " + lines[i + 1].strip()
                         modified = True
@@ -122,13 +131,13 @@ class ComprehensiveCodeRemediator:
                 full_path.rename(backup_path)
                 self.backup_files.append(backup_path)
 
-                full_path.write_text('\n'.join(lines))
+                full_path.write_text("\n".join(lines))
 
                 return RemediationResult(
                     file_path=file_path,
                     issue_type="syntax_error",
                     fixed=True,
-                    details="Fixed MCP server indentation issues"
+                    details="Fixed MCP server indentation issues",
                 )
 
         except Exception as e:
@@ -136,7 +145,7 @@ class ComprehensiveCodeRemediator:
                 file_path=file_path,
                 issue_type="syntax_error",
                 fixed=False,
-                error=str(e)
+                error=str(e),
             )
 
         return None
@@ -150,14 +159,14 @@ class ComprehensiveCodeRemediator:
             "get_config_value": "from backend.core.auto_esc_config import get_config_value",
             "datetime": "from datetime import datetime",
             "gc": "import gc",
-            "shlex": "import shlex"
+            "shlex": "import shlex",
         }
 
         # Files with known undefined name issues
         target_files = [
             "scripts/security_fixes_examples.py",
             "ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py",
-            "ui-ux-agent/start_ui_ux_agent_system.py"
+            "ui-ux-agent/start_ui_ux_agent_system.py",
         ]
 
         for file_path in target_files:
@@ -167,7 +176,9 @@ class ComprehensiveCodeRemediator:
 
         return results
 
-    def fix_file_undefined_names(self, file_path: str, fixes: dict[str, str]) -> RemediationResult | None:
+    def fix_file_undefined_names(
+        self, file_path: str, fixes: dict[str, str]
+    ) -> RemediationResult | None:
         """Fix undefined names in a specific file"""
         full_path = PROJECT_ROOT / file_path
 
@@ -185,15 +196,15 @@ class ComprehensiveCodeRemediator:
                     imports_to_add.append(import_statement)
 
             if imports_to_add:
-                lines = content.split('\n')
+                lines = content.split("\n")
                 insert_pos = 0
 
                 # Find insertion point
                 for i, line in enumerate(lines):
-                    if line.strip().startswith(('import ', 'from ')):
+                    if line.strip().startswith(("import ", "from ")):
                         insert_pos = i
                         break
-                    elif line.strip() and not line.strip().startswith('#'):
+                    elif line.strip() and not line.strip().startswith("#"):
                         insert_pos = i
                         break
 
@@ -202,7 +213,7 @@ class ComprehensiveCodeRemediator:
                     lines.insert(insert_pos, import_stmt)
                     insert_pos += 1
 
-                content = '\n'.join(lines)
+                content = "\n".join(lines)
 
             if content != original_content:
                 backup_path = str(full_path) + ".backup"
@@ -215,7 +226,7 @@ class ComprehensiveCodeRemediator:
                     file_path=file_path,
                     issue_type="undefined_name",
                     fixed=True,
-                    details=f"Added {len(imports_to_add)} missing imports"
+                    details=f"Added {len(imports_to_add)} missing imports",
                 )
 
         except Exception as e:
@@ -223,7 +234,7 @@ class ComprehensiveCodeRemediator:
                 file_path=file_path,
                 issue_type="undefined_name",
                 fixed=False,
-                error=str(e)
+                error=str(e),
             )
 
         return None
@@ -242,17 +253,28 @@ class ComprehensiveCodeRemediator:
     def run_ruff_fixes(self) -> RemediationResult | None:
         """Run Ruff automated fixes"""
         try:
-            subprocess.run([
-                sys.executable, "-m", "ruff", "check",
-                "--fix", "--unsafe-fixes",
-                "backend/", "scripts/", "mcp-servers/"
-            ], capture_output=True, text=True, cwd=PROJECT_ROOT)
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "ruff",
+                    "check",
+                    "--fix",
+                    "--unsafe-fixes",
+                    "backend/",
+                    "scripts/",
+                    "mcp-servers/",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=PROJECT_ROOT,
+            )
 
             return RemediationResult(
                 file_path="multiple",
                 issue_type="style_issues",
                 fixed=True,
-                details="Applied Ruff automated fixes"
+                details="Applied Ruff automated fixes",
             )
 
         except Exception as e:
@@ -260,10 +282,12 @@ class ComprehensiveCodeRemediator:
                 file_path="multiple",
                 issue_type="style_issues",
                 fixed=False,
-                error=str(e)
+                error=str(e),
             )
 
-    def generate_remediation_report(self, summary: dict[str, int], results: list[RemediationResult]):
+    def generate_remediation_report(
+        self, summary: dict[str, int], results: list[RemediationResult]
+    ):
         """Generate comprehensive remediation report"""
         report_path = PROJECT_ROOT / "COMPREHENSIVE_REMEDIATION_REPORT.md"
 
@@ -284,15 +308,20 @@ class ComprehensiveCodeRemediator:
 
         successful_fixes = [r for r in results if r.fixed]
         for result in successful_fixes:
-            report_content += f"- **{result.file_path}**: {result.issue_type} - {result.details}\n"
+            report_content += (
+                f"- **{result.file_path}**: {result.issue_type} - {result.details}\n"
+            )
 
         report_content += "\n### Failed Fixes\n"
         failed_fixes = [r for r in results if not r.fixed]
         for result in failed_fixes:
-            report_content += f"- **{result.file_path}**: {result.issue_type} - {result.error}\n"
+            report_content += (
+                f"- **{result.file_path}**: {result.issue_type} - {result.error}\n"
+            )
 
         report_path.write_text(report_content)
         logger.info(f"📊 Report generated: {report_path}")
+
 
 def main():
     """Main execution function"""
@@ -309,6 +338,7 @@ def main():
     except Exception as e:
         logger.error(f"❌ Remediation failed: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

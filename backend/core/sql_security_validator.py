@@ -68,7 +68,7 @@ class SQLSecurityValidator:
         "CONVERSATION_SESSIONS",
     }
 
-    SAFE_WAREHOUSES = {"AI_SOPHIA_AI_WH", "SOPHIA_AI_WH", "ANALYTICS_WH", "SOPHIA_AI_WH"}
+    SAFE_WAREHOUSES = {"AI_SOPHIA_AI_WH", "SOPHIA_AI_WH", "ANALYTICS_WH"}
 
     SAFE_COLUMNS = {
         "ai_memory_embedding",

@@ -8,23 +8,18 @@ Leverages Apify CLI and SDK for business intelligence
 import asyncio
 import json
 import logging
-from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
-    EnhancedStandardizedMCPServer,
-    MCPServerConfig,
-    HealthCheckLevel
-)
-
 from typing import Any
 
 import httpx
-from backend.mcp_servers.server import Server
-from backend.mcp_servers.types import TextContent, Tool
 
 from backend.core.auto_esc_config import get_config_value
+from backend.mcp_servers.server import Server
+from backend.mcp_servers.types import TextContent, Tool
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class ApifyIntelligenceMCPServer:
     """Apify Intelligence MCP Server for competitive intelligence and market research"""
@@ -40,34 +35,33 @@ class ApifyIntelligenceMCPServer:
             "competitor_analysis": {
                 "actor_id": "apify/website-content-crawler",
                 "description": "Analyze competitor websites for insights",
-                "max_pages": 50
+                "max_pages": 50,
             },
             "pricing_intelligence": {
                 "actor_id": "apify/web-scraper",
                 "description": "Extract pricing information from competitor sites",
-                "max_pages": 20
+                "max_pages": 20,
             },
             "market_research": {
                 "actor_id": "apify/google-search-scraper",
                 "description": "Research market trends and opportunities",
-                "max_results": 100
+                "max_results": 100,
             },
             "social_listening": {
                 "actor_id": "apify/instagram-scraper",
                 "description": "Monitor social media for brand mentions",
-                "max_posts": 200
+                "max_posts": 200,
             },
             "news_monitoring": {
                 "actor_id": "apify/google-news-scraper",
                 "description": "Track industry news and trends",
-                "max_articles": 50
-            }
+                "max_articles": 50,
+            },
         }
 
         # Initialize HTTP client for Apify API
         self.http_client = httpx.AsyncClient(
-            headers={"Authorization": f"Bearer {self.apify_token}"},
-            timeout=60.0
+            headers={"Authorization": f"Bearer {self.apify_token}"}, timeout=60.0
         )
 
         self._register_tools()
@@ -82,30 +76,39 @@ class ApifyIntelligenceMCPServer:
             analysis_type = arguments.get("analysis_type", "comprehensive")
 
             if not competitor_urls:
-                return [TextContent(
-                    type="text",
-                    text="Error: No competitor URLs provided for analysis"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text="Error: No competitor URLs provided for analysis",
+                    )
+                ]
 
-            logger.info(f"🔍 Starting competitive analysis for {len(competitor_urls)} competitors")
+            logger.info(
+                f"🔍 Starting competitive analysis for {len(competitor_urls)} competitors"
+            )
 
             try:
-                results = await self._run_competitive_analysis(competitor_urls, analysis_type)
+                results = await self._run_competitive_analysis(
+                    competitor_urls, analysis_type
+                )
 
                 # Format results for business intelligence
                 analysis_report = self._format_competitive_analysis(results)
 
-                return [TextContent(
-                    type="text",
-                    text=f"📊 Competitive Analysis Report:\n\n{analysis_report}"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"📊 Competitive Analysis Report:\n\n{analysis_report}",
+                    )
+                ]
 
             except Exception as e:
                 logger.error(f"❌ Competitive analysis failed: {e}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error during competitive analysis: {str(e)}"
-                )]
+                return [
+                    TextContent(
+                        type="text", text=f"Error during competitive analysis: {str(e)}"
+                    )
+                ]
 
         @self.server.call_tool()
         async def pricing_intelligence(arguments: dict[str, Any]) -> list[TextContent]:
@@ -116,22 +119,27 @@ class ApifyIntelligenceMCPServer:
             logger.info(f"💰 Analyzing pricing for {len(target_companies)} companies")
 
             try:
-                pricing_data = await self._extract_pricing_intelligence(target_companies, product_categories)
+                pricing_data = await self._extract_pricing_intelligence(
+                    target_companies, product_categories
+                )
 
                 # Generate pricing insights
                 insights = self._analyze_pricing_strategy(pricing_data)
 
-                return [TextContent(
-                    type="text",
-                    text=f"💰 Pricing Intelligence Report:\n\n{insights}"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"💰 Pricing Intelligence Report:\n\n{insights}",
+                    )
+                ]
 
             except Exception as e:
                 logger.error(f"❌ Pricing intelligence failed: {e}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error during pricing analysis: {str(e)}"
-                )]
+                return [
+                    TextContent(
+                        type="text", text=f"Error during pricing analysis: {str(e)}"
+                    )
+                ]
 
         @self.server.call_tool()
         async def market_research(arguments: dict[str, Any]) -> list[TextContent]:
@@ -140,7 +148,9 @@ class ApifyIntelligenceMCPServer:
             market_segments = arguments.get("segments", [])
             geographical_focus = arguments.get("geography", "global")
 
-            logger.info(f"📈 Conducting market research on {len(research_topics)} topics")
+            logger.info(
+                f"📈 Conducting market research on {len(research_topics)} topics"
+            )
 
             try:
                 research_results = await self._conduct_market_research(
@@ -150,17 +160,20 @@ class ApifyIntelligenceMCPServer:
                 # Generate market insights
                 market_insights = self._generate_market_insights(research_results)
 
-                return [TextContent(
-                    type="text",
-                    text=f"📈 Market Research Report:\n\n{market_insights}"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"📈 Market Research Report:\n\n{market_insights}",
+                    )
+                ]
 
             except Exception as e:
                 logger.error(f"❌ Market research failed: {e}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error during market research: {str(e)}"
-                )]
+                return [
+                    TextContent(
+                        type="text", text=f"Error during market research: {str(e)}"
+                    )
+                ]
 
         @self.server.call_tool()
         async def social_listening(arguments: dict[str, Any]) -> list[TextContent]:
@@ -169,25 +182,32 @@ class ApifyIntelligenceMCPServer:
             keywords = arguments.get("keywords", [])
             platforms = arguments.get("platforms", ["instagram", "twitter"])
 
-            logger.info(f"👂 Social listening for {len(brands)} brands across {len(platforms)} platforms")
+            logger.info(
+                f"👂 Social listening for {len(brands)} brands across {len(platforms)} platforms"
+            )
 
             try:
-                social_data = await self._conduct_social_listening(brands, keywords, platforms)
+                social_data = await self._conduct_social_listening(
+                    brands, keywords, platforms
+                )
 
                 # Analyze sentiment and trends
                 social_insights = self._analyze_social_sentiment(social_data)
 
-                return [TextContent(
-                    type="text",
-                    text=f"👂 Social Listening Report:\n\n{social_insights}"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"👂 Social Listening Report:\n\n{social_insights}",
+                    )
+                ]
 
             except Exception as e:
                 logger.error(f"❌ Social listening failed: {e}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error during social listening: {str(e)}"
-                )]
+                return [
+                    TextContent(
+                        type="text", text=f"Error during social listening: {str(e)}"
+                    )
+                ]
 
         @self.server.call_tool()
         async def news_monitoring(arguments: dict[str, Any]) -> list[TextContent]:
@@ -199,22 +219,27 @@ class ApifyIntelligenceMCPServer:
             logger.info(f"📰 Monitoring news for {len(industry_keywords)} keywords")
 
             try:
-                news_data = await self._monitor_industry_news(industry_keywords, companies, time_range)
+                news_data = await self._monitor_industry_news(
+                    industry_keywords, companies, time_range
+                )
 
                 # Generate news insights
                 news_insights = self._analyze_news_trends(news_data)
 
-                return [TextContent(
-                    type="text",
-                    text=f"📰 News Monitoring Report:\n\n{news_insights}"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"📰 News Monitoring Report:\n\n{news_insights}",
+                    )
+                ]
 
             except Exception as e:
                 logger.error(f"❌ News monitoring failed: {e}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error during news monitoring: {str(e)}"
-                )]
+                return [
+                    TextContent(
+                        type="text", text=f"Error during news monitoring: {str(e)}"
+                    )
+                ]
 
         @self.server.call_tool()
         async def run_custom_scraper(arguments: dict[str, Any]) -> list[TextContent]:
@@ -224,31 +249,40 @@ class ApifyIntelligenceMCPServer:
             description = arguments.get("description", "Custom scraping task")
 
             if not actor_id:
-                return [TextContent(
-                    type="text",
-                    text="Error: No actor_id provided for custom scraper"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text="Error: No actor_id provided for custom scraper",
+                    )
+                ]
 
             logger.info(f"🎯 Running custom scraper: {actor_id}")
 
             try:
                 results = await self._run_custom_apify_actor(actor_id, input_data)
 
-                formatted_results = self._format_custom_scraper_results(results, description)
+                formatted_results = self._format_custom_scraper_results(
+                    results, description
+                )
 
-                return [TextContent(
-                    type="text",
-                    text=f"🎯 Custom Scraper Results ({description}):\n\n{formatted_results}"
-                )]
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"🎯 Custom Scraper Results ({description}):\n\n{formatted_results}",
+                    )
+                ]
 
             except Exception as e:
                 logger.error(f"❌ Custom scraper failed: {e}")
-                return [TextContent(
-                    type="text",
-                    text=f"Error running custom scraper: {str(e)}"
-                )]
+                return [
+                    TextContent(
+                        type="text", text=f"Error running custom scraper: {str(e)}"
+                    )
+                ]
 
-    async def _run_competitive_analysis(self, urls: list[str], analysis_type: str) -> dict[str, Any]:
+    async def _run_competitive_analysis(
+        self, urls: list[str], analysis_type: str
+    ) -> dict[str, Any]:
         """Run competitive analysis using Apify actors"""
         results = {}
 
@@ -258,7 +292,9 @@ class ApifyIntelligenceMCPServer:
             # Use website content crawler
             actor_input = {
                 "startUrls": [{"url": url}],
-                "maxCrawlPages": self.intelligence_configs["competitor_analysis"]["max_pages"],
+                "maxCrawlPages": self.intelligence_configs["competitor_analysis"][
+                    "max_pages"
+                ],
                 "crawlHttpsUrls": True,
                 "crawlSubdomains": False,
                 "removeCookieWarnings": True,
@@ -266,14 +302,14 @@ class ApifyIntelligenceMCPServer:
                     "businessInfo": True,
                     "pricing": True,
                     "products": True,
-                    "contact": True
-                }
+                    "contact": True,
+                },
             }
 
             try:
                 result = await self._run_apify_actor(
                     self.intelligence_configs["competitor_analysis"]["actor_id"],
-                    actor_input
+                    actor_input,
                 )
                 results[url] = result
 
@@ -283,7 +319,9 @@ class ApifyIntelligenceMCPServer:
 
         return results
 
-    async def _extract_pricing_intelligence(self, companies: list[str], categories: list[str]) -> dict[str, Any]:
+    async def _extract_pricing_intelligence(
+        self, companies: list[str], categories: list[str]
+    ) -> dict[str, Any]:
         """Extract pricing intelligence from competitor websites"""
         pricing_data = {}
 
@@ -292,7 +330,11 @@ class ApifyIntelligenceMCPServer:
 
             # Search for company pricing pages
             search_input = {
-                "queries": [f"{company} pricing", f"{company} plans", f"{company} cost"],
+                "queries": [
+                    f"{company} pricing",
+                    f"{company} plans",
+                    f"{company} cost",
+                ],
                 "maxPagesPerQuery": 5,
                 "includeUnfilteredResults": False,
                 "customDataFunction": """
@@ -303,13 +345,13 @@ class ApifyIntelligenceMCPServer:
                         features: $('[data-feature], .feature').text()
                     };
                 }
-                """
+                """,
             }
 
             try:
                 result = await self._run_apify_actor(
                     self.intelligence_configs["pricing_intelligence"]["actor_id"],
-                    search_input
+                    search_input,
                 )
                 pricing_data[company] = result
 
@@ -319,7 +361,9 @@ class ApifyIntelligenceMCPServer:
 
         return pricing_data
 
-    async def _conduct_market_research(self, topics: list[str], segments: list[str], geography: str) -> dict[str, Any]:
+    async def _conduct_market_research(
+        self, topics: list[str], segments: list[str], geography: str
+    ) -> dict[str, Any]:
         """Conduct comprehensive market research"""
         research_data = {}
 
@@ -331,20 +375,20 @@ class ApifyIntelligenceMCPServer:
                 f"{topic} market size {geography}",
                 f"{topic} market trends 2024",
                 f"{topic} industry analysis",
-                f"{topic} competitive landscape"
+                f"{topic} competitive landscape",
             ]
 
             search_input = {
                 "queries": search_queries,
                 "maxPagesPerQuery": 20,
                 "countryCode": self._get_country_code(geography),
-                "includeUnfilteredResults": False
+                "includeUnfilteredResults": False,
             }
 
             try:
                 result = await self._run_apify_actor(
                     self.intelligence_configs["market_research"]["actor_id"],
-                    search_input
+                    search_input,
                 )
                 research_data[topic] = result
 
@@ -354,7 +398,9 @@ class ApifyIntelligenceMCPServer:
 
         return research_data
 
-    async def _conduct_social_listening(self, brands: list[str], keywords: list[str], platforms: list[str]) -> dict[str, Any]:
+    async def _conduct_social_listening(
+        self, brands: list[str], keywords: list[str], platforms: list[str]
+    ) -> dict[str, Any]:
         """Conduct social media listening across platforms"""
         social_data = {}
 
@@ -367,13 +413,15 @@ class ApifyIntelligenceMCPServer:
                 if platform == "instagram":
                     search_input = {
                         "hashtags": [f"#{brand}"] + [f"#{kw}" for kw in keywords],
-                        "resultsLimit": self.intelligence_configs["social_listening"]["max_posts"]
+                        "resultsLimit": self.intelligence_configs["social_listening"][
+                            "max_posts"
+                        ],
                     }
 
                     try:
                         result = await self._run_apify_actor(
                             self.intelligence_configs["social_listening"]["actor_id"],
-                            search_input
+                            search_input,
                         )
                         social_data[brand][platform] = result
 
@@ -383,7 +431,9 @@ class ApifyIntelligenceMCPServer:
 
         return social_data
 
-    async def _monitor_industry_news(self, keywords: list[str], companies: list[str], time_range: str) -> dict[str, Any]:
+    async def _monitor_industry_news(
+        self, keywords: list[str], companies: list[str], time_range: str
+    ) -> dict[str, Any]:
         """Monitor industry news and trends"""
         news_data = {}
 
@@ -394,15 +444,17 @@ class ApifyIntelligenceMCPServer:
 
             search_input = {
                 "queries": [query],
-                "maxArticles": self.intelligence_configs["news_monitoring"]["max_articles"],
+                "maxArticles": self.intelligence_configs["news_monitoring"][
+                    "max_articles"
+                ],
                 "timeRange": time_range,
-                "includeUnfilteredResults": False
+                "includeUnfilteredResults": False,
             }
 
             try:
                 result = await self._run_apify_actor(
                     self.intelligence_configs["news_monitoring"]["actor_id"],
-                    search_input
+                    search_input,
                 )
                 news_data[query] = result
 
@@ -412,13 +464,14 @@ class ApifyIntelligenceMCPServer:
 
         return news_data
 
-    async def _run_apify_actor(self, actor_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    async def _run_apify_actor(
+        self, actor_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Run an Apify actor and return results"""
         try:
             # Start actor run
             response = await self.http_client.post(
-                f"https://api.apify.com/v2/acts/{actor_id}/runs",
-                json=input_data
+                f"https://api.apify.com/v2/acts/{actor_id}/runs", json=input_data
             )
 
             if response.status_code != 201:
@@ -457,20 +510,22 @@ class ApifyIntelligenceMCPServer:
                         "status": "success",
                         "data": results_response.json(),
                         "run_id": run_id,
-                        "execution_time": run_status.get("runTimeSecs", 0)
+                        "execution_time": run_status.get("runTimeSecs", 0),
                     }
 
             return {
                 "status": "failed",
                 "error": f"Actor run failed with status: {run_status['status'] if run_status else 'unknown'}",
-                "run_id": run_id
+                "run_id": run_id,
             }
 
         except Exception as e:
             logger.error(f"❌ Apify actor execution failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    async def _run_custom_apify_actor(self, actor_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    async def _run_custom_apify_actor(
+        self, actor_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Run custom Apify actor with provided configuration"""
         return await self._run_apify_actor(actor_id, input_data)
 
@@ -521,8 +576,12 @@ class ApifyIntelligenceMCPServer:
                         pricing_mentions.append(item["prices"])
 
                 if pricing_mentions:
-                    insights.append(f"  💵 Pricing found: {len(pricing_mentions)} mentions")
-                    insights.append(f"  📊 Strategy: {self._analyze_pricing_patterns(pricing_mentions)}")
+                    insights.append(
+                        f"  💵 Pricing found: {len(pricing_mentions)} mentions"
+                    )
+                    insights.append(
+                        f"  📊 Strategy: {self._analyze_pricing_patterns(pricing_mentions)}"
+                    )
                 else:
                     insights.append("  ⚠️ No clear pricing information found")
 
@@ -578,7 +637,9 @@ class ApifyIntelligenceMCPServer:
                     sentiment = self._analyze_sentiment_basic(data["data"])
                     insights.append(f"    😊 Sentiment: {sentiment}")
 
-                    insights.append(f"    ⏱️ Analysis time: {data.get('execution_time', 0)}s")
+                    insights.append(
+                        f"    ⏱️ Analysis time: {data.get('execution_time', 0)}s"
+                    )
 
             insights.append("")
 
@@ -607,7 +668,9 @@ class ApifyIntelligenceMCPServer:
                 topics = self._extract_trending_topics(data["data"])
                 trending_topics.extend(topics)
 
-                insights.append(f"  ⏱️ Monitoring time: {data.get('execution_time', 0)}s")
+                insights.append(
+                    f"  ⏱️ Monitoring time: {data.get('execution_time', 0)}s"
+                )
 
             insights.append("")
 
@@ -621,7 +684,9 @@ class ApifyIntelligenceMCPServer:
 
         return "\n".join(insights)
 
-    def _format_custom_scraper_results(self, results: dict[str, Any], description: str) -> str:
+    def _format_custom_scraper_results(
+        self, results: dict[str, Any], description: str
+    ) -> str:
         """Format custom scraper results"""
         if "error" in results:
             return f"❌ Error: {results['error']}"
@@ -648,7 +713,7 @@ First few results:
             "usa": "US",
             "europe": "DE",
             "asia": "JP",
-            "uk": "GB"
+            "uk": "GB",
         }
         return geography_mapping.get(geography.lower(), "US")
 
@@ -675,6 +740,7 @@ First few results:
 
         # Return most common themes
         from collections import Counter
+
         return [theme for theme, count in Counter(themes).most_common(5)]
 
     def _analyze_sentiment_basic(self, posts: list[dict]) -> str:
@@ -716,10 +782,12 @@ First few results:
         @self.server.call_tool()
         async def health_check(arguments: dict[str, Any]) -> list[TextContent]:
             """Health check for Apify Intelligence MCP server"""
-            return [TextContent(
-                type="text",
-                text=f"✅ Apify Intelligence MCP Server is healthy (Port: {self.port})"
-            )]
+            return [
+                TextContent(
+                    type="text",
+                    text=f"✅ Apify Intelligence MCP Server is healthy (Port: {self.port})",
+                )
+            ]
 
         # Register tools as MCP tools
         tools = [
@@ -730,10 +798,10 @@ First few results:
                     "type": "object",
                     "properties": {
                         "urls": {"type": "array", "items": {"type": "string"}},
-                        "analysis_type": {"type": "string", "default": "comprehensive"}
+                        "analysis_type": {"type": "string", "default": "comprehensive"},
                     },
-                    "required": ["urls"]
-                }
+                    "required": ["urls"],
+                },
             ),
             Tool(
                 name="pricing_intelligence",
@@ -742,10 +810,10 @@ First few results:
                     "type": "object",
                     "properties": {
                         "companies": {"type": "array", "items": {"type": "string"}},
-                        "categories": {"type": "array", "items": {"type": "string"}}
+                        "categories": {"type": "array", "items": {"type": "string"}},
                     },
-                    "required": ["companies"]
-                }
+                    "required": ["companies"],
+                },
             ),
             Tool(
                 name="market_research",
@@ -755,10 +823,10 @@ First few results:
                     "properties": {
                         "topics": {"type": "array", "items": {"type": "string"}},
                         "segments": {"type": "array", "items": {"type": "string"}},
-                        "geography": {"type": "string", "default": "global"}
+                        "geography": {"type": "string", "default": "global"},
                     },
-                    "required": ["topics"]
-                }
+                    "required": ["topics"],
+                },
             ),
             Tool(
                 name="social_listening",
@@ -768,10 +836,10 @@ First few results:
                     "properties": {
                         "brands": {"type": "array", "items": {"type": "string"}},
                         "keywords": {"type": "array", "items": {"type": "string"}},
-                        "platforms": {"type": "array", "items": {"type": "string"}}
+                        "platforms": {"type": "array", "items": {"type": "string"}},
                     },
-                    "required": ["brands"]
-                }
+                    "required": ["brands"],
+                },
             ),
             Tool(
                 name="news_monitoring",
@@ -781,10 +849,10 @@ First few results:
                     "properties": {
                         "keywords": {"type": "array", "items": {"type": "string"}},
                         "companies": {"type": "array", "items": {"type": "string"}},
-                        "time_range": {"type": "string", "default": "7d"}
+                        "time_range": {"type": "string", "default": "7d"},
                     },
-                    "required": ["keywords"]
-                }
+                    "required": ["keywords"],
+                },
             ),
             Tool(
                 name="run_custom_scraper",
@@ -794,16 +862,16 @@ First few results:
                     "properties": {
                         "actor_id": {"type": "string"},
                         "input": {"type": "object"},
-                        "description": {"type": "string"}
+                        "description": {"type": "string"},
                     },
-                    "required": ["actor_id", "input"]
-                }
+                    "required": ["actor_id", "input"],
+                },
             ),
             Tool(
                 name="health_check",
                 description="Check health status of Apify Intelligence MCP server",
-                inputSchema={"type": "object", "properties": {}}
-            )
+                inputSchema={"type": "object", "properties": {}},
+            ),
         ]
 
         # Set tools on server
@@ -817,6 +885,7 @@ First few results:
         if self.http_client:
             await self.http_client.aclose()
 
+
 # Main execution
 async def main():
     server = ApifyIntelligenceMCPServer()
@@ -828,6 +897,7 @@ async def main():
     finally:
         await server.cleanup()
 
+
 if __name__ == "__main__":
     asyncio.run(main())
 
@@ -835,10 +905,13 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {"status": "ok"}
+
 except ImportError:
     pass
 
@@ -846,19 +919,18 @@ except ImportError:
         """Server-specific initialization"""
         # TODO: Add server-specific initialization
         pass
-        
+
     def _setup_server_routes(self):
         """Setup server-specific routes"""
         # Existing routes should be moved here
         pass
-        
+
     async def check_server_health(self) -> bool:
         """Check server health"""
         # TODO: Implement health check
         return True
-        
+
     async def server_specific_shutdown(self):
         """Server-specific shutdown"""
         # TODO: Add cleanup logic
         pass
-

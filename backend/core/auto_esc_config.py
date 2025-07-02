@@ -329,7 +329,9 @@ def initialize_default_config():
 
     # Set fallback defaults only if not available from ESC
     if not get_config_value("snowflake_account"):
-        set_config_value("snowflake_account", "ZNB04675.us-east-1.us-east-1")  # Fixed: Use correct account
+        set_config_value(
+            "snowflake_account", "ZNB04675.us-east-1.us-east-1"
+        )  # Fixed: Use correct account
     if not get_config_value("snowflake_user"):
         set_config_value("snowflake_user", "SCOOBYJAVA15")
     if not get_config_value("snowflake_role"):

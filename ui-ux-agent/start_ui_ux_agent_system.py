@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import gc
 """
 Sophia AI UI/UX Agent System - Phase 2 Enhanced Startup
 Implements dashboard takeover and advanced workflow orchestration

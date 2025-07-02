@@ -15,35 +15,34 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "backend"))
 
 try:
     from backend.core.auto_esc_config import get_config_value
+
     ESC_AVAILABLE = True
 except ImportError:
-    print("⚠️ Pulumi ESC integration not available, falling back to environment variables")
+    print(
+        "⚠️ Pulumi ESC integration not available, falling back to environment variables"
+    )
     ESC_AVAILABLE = False
 
     # Create a dummy function to avoid linter errors
     def get_config_value(key: str, default=None) -> str:
         return default or ""
 
+
 REQUIRED_SECRETS = [
     "openai_api_key",
     "anthropic_api_key",
     "pinecone_api_key",
     "gong_access_key",
-    "snowflake_password"
+    "snowflake_password",
 ]
 
-CRITICAL_SERVICES = [
-    "snowflake",
-    "openai",
-    "anthropic",
-    "pinecone"
-]
+CRITICAL_SERVICES = ["snowflake", "openai", "anthropic", "pinecone"]
 
 REPORT = {
     "missing_secrets": [],
     "failed_services": [],
     "health_checks": [],
-    "esc_status": "unknown"
+    "esc_status": "unknown",
 }
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
@@ -60,7 +59,11 @@ def check_secrets():
             for secret in REQUIRED_SECRETS:
                 try:
                     value = get_config_value(secret)
-                    if not value or value.startswith("PLACEHOLDER") or value == "[secret]":
+                    if (
+                        not value
+                        or value.startswith("PLACEHOLDER")
+                        or value == "[secret]"
+                    ):
                         REPORT["missing_secrets"].append(secret)
                 except Exception as e:
                     REPORT["missing_secrets"].append(f"{secret} (ESC error: {str(e)})")
@@ -71,7 +74,9 @@ def check_secrets():
             for secret in REQUIRED_SECRETS:
                 env_var = secret.upper()
                 if not os.getenv(env_var):
-                    REPORT["missing_secrets"].append(f"{secret} (ESC failed, env missing)")
+                    REPORT["missing_secrets"].append(
+                        f"{secret} (ESC failed, env missing)"
+                    )
     else:
         REPORT["esc_status"] = "not_available"
         # Use environment variables
@@ -91,7 +96,12 @@ def check_service_health(service_name: str) -> bool:
         if service_name == "snowflake":
             account = get_config_value("snowflake_account")
             password = get_config_value("snowflake_password")
-            return bool(account and password and not password.startswith("PLACEHOLDER") and password != "[secret]")
+            return bool(
+                account
+                and password
+                and not password.startswith("PLACEHOLDER")
+                and password != "[secret]"
+            )
         elif service_name == "openai":
             key = get_config_value("openai_api_key")
             return bool(key and not key.startswith("PLACEHOLDER") and key != "[secret]")
@@ -113,19 +123,19 @@ def check_backend_health():
     url = f"{BACKEND_URL}/health"
     try:
         r = requests.get(url, timeout=10)
-        REPORT["health_checks"].append({
-            "service": "backend",
-            "url": url,
-            "status": r.status_code,
-            "response_time_ms": r.elapsed.total_seconds() * 1000
-        })
+        REPORT["health_checks"].append(
+            {
+                "service": "backend",
+                "url": url,
+                "status": r.status_code,
+                "response_time_ms": r.elapsed.total_seconds() * 1000,
+            }
+        )
         return r.ok
     except Exception as e:
-        REPORT["health_checks"].append({
-            "service": "backend",
-            "url": url,
-            "error": str(e)
-        })
+        REPORT["health_checks"].append(
+            {"service": "backend", "url": url, "error": str(e)}
+        )
         return False
 
 
@@ -134,7 +144,7 @@ def check_mcp_servers():
     critical_mcp_servers = [
         ("ai_memory", 9000),
         ("snowflake_admin", 9011),
-        ("ui_ux_agent", 9002)
+        ("ui_ux_agent", 9002),
     ]
 
     mcp_results = []
@@ -142,19 +152,13 @@ def check_mcp_servers():
         url = f"http://localhost:{port}/health"
         try:
             r = requests.get(url, timeout=5)
-            mcp_results.append({
-                "server": name,
-                "port": port,
-                "status": r.status_code,
-                "healthy": r.ok
-            })
+            mcp_results.append(
+                {"server": name, "port": port, "status": r.status_code, "healthy": r.ok}
+            )
         except Exception as e:
-            mcp_results.append({
-                "server": name,
-                "port": port,
-                "error": str(e),
-                "healthy": False
-            })
+            mcp_results.append(
+                {"server": name, "port": port, "error": str(e), "healthy": False}
+            )
 
     REPORT["mcp_servers"] = mcp_results
     return all(result.get("healthy", False) for result in mcp_results)
@@ -189,12 +193,16 @@ def main():
     print(f"📊 ESC Status: {REPORT['esc_status']}")
 
     if REPORT["missing_secrets"]:
-        print(f"❌ Missing secrets ({len(REPORT['missing_secrets'])}): {REPORT['missing_secrets']}")
+        print(
+            f"❌ Missing secrets ({len(REPORT['missing_secrets'])}): {REPORT['missing_secrets']}"
+        )
     else:
         print("✅ All required secrets available")
 
     if REPORT["failed_services"]:
-        print(f"❌ Failed services ({len(REPORT['failed_services'])}): {REPORT['failed_services']}")
+        print(
+            f"❌ Failed services ({len(REPORT['failed_services'])}): {REPORT['failed_services']}"
+        )
     else:
         print("✅ All critical services configured")
 

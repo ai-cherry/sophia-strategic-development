@@ -5,8 +5,8 @@ This script fixes common issues and starts the unified platform
 """
 
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # Add backend to path
@@ -17,17 +17,17 @@ sys.path.insert(0, str(backend_path.parent))
 def fix_immediate_issues():
     """Fix immediate blocking issues"""
     print("🔧 Fixing immediate issues...")
-    
+
     # Fix snowflake_cortex_service.py indentation
     cortex_file = backend_path / "utils" / "snowflake_cortex_service.py"
     if cortex_file.exists():
-        with open(cortex_file, 'r') as f:
+        with open(cortex_file) as f:
             content = f.read()
-        
+
         # Fix the indentation issues
-        lines = content.split('\n')
+        lines = content.split("\n")
         fixed_lines = []
-        
+
         for i, line in enumerate(lines):
             # Fix line 799 - around _iteration_1
             if i == 798 and "if key not in ALLOWED_FILTER_COLUMNS:" in line:
@@ -37,42 +37,45 @@ def fix_immediate_issues():
                 fixed_lines.append("        cursor = self.connection.cursor()")
             else:
                 fixed_lines.append(line)
-        
-        with open(cortex_file, 'w') as f:
-            f.write('\n'.join(fixed_lines))
-        
+
+        with open(cortex_file, "w") as f:
+            f.write("\n".join(fixed_lines))
+
         print("✅ Fixed snowflake_cortex_service.py indentation")
-    
+
     # Fix MCPServerEndpoint in mcp_orchestration_service.py
     mcp_file = backend_path / "services" / "mcp_orchestration_service.py"
     if mcp_file.exists():
-        with open(mcp_file, 'r') as f:
+        with open(mcp_file) as f:
             content = f.read()
-        
+
         # Remove 'name' parameter from MCPServerEndpoint calls
         content = content.replace(
-            'MCPServerEndpoint(\n                        name=name,\n                        server_name=name,',
-            'MCPServerEndpoint(\n                        server_name=name,'
+            "MCPServerEndpoint(\n                        name=name,\n                        server_name=name,",
+            "MCPServerEndpoint(\n                        server_name=name,",
         )
-        
-        with open(mcp_file, 'w') as f:
+
+        with open(mcp_file, "w") as f:
             f.write(content)
-        
+
         print("✅ Fixed MCPServerEndpoint initialization")
-    
+
     # Install missing dependencies
     print("📦 Installing missing dependencies...")
     deps = ["slowapi", "python-multipart", "prometheus-client"]
     for dep in deps:
-        subprocess.run([sys.executable, "-m", "pip", "install", dep], 
-                      capture_output=True, text=True)
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", dep],
+            capture_output=True,
+            text=True,
+        )
     print("✅ Installed dependencies")
 
 
 def create_simple_unified_api():
     """Create a simple unified API that works"""
     print("\n🏗️ Creating simple unified API...")
-    
+
     api_content = '''"""
 Sophia AI Unified API - Simple Working Version
 """
@@ -138,11 +141,11 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 '''
-    
+
     api_file = backend_path / "app" / "simple_unified_api.py"
-    with open(api_file, 'w') as f:
+    with open(api_file, "w") as f:
         f.write(api_content)
-    
+
     print("✅ Created simple_unified_api.py")
     return api_file
 
@@ -150,16 +153,16 @@ if __name__ == "__main__":
 def start_api(api_file):
     """Start the unified API"""
     print(f"\n🚀 Starting Unified API from {api_file}...")
-    
+
     # Change to backend directory
     os.chdir(backend_path.parent)
-    
+
     # Start the API
     cmd = [sys.executable, str(api_file)]
-    
+
     print(f"Running: {' '.join(cmd)}")
     print("=" * 60)
-    
+
     try:
         subprocess.run(cmd)
     except KeyboardInterrupt:
@@ -172,16 +175,16 @@ def main():
     """Main execution"""
     print("🚀 Sophia AI Unified API Starter")
     print("=" * 60)
-    
+
     # Fix immediate issues
     fix_immediate_issues()
-    
+
     # Create simple unified API
     api_file = create_simple_unified_api()
-    
+
     # Start the API
     start_api(api_file)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

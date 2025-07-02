@@ -25,14 +25,14 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
+# Optimized imports
+from backend.core.optimized_connection_manager import connection_manager
+from backend.core.performance_monitor import performance_monitor
+
 # MCP imports
 from backend.mcp_servers.server import Server
 from backend.mcp_servers.server.stdio import stdio_server
 from backend.mcp_servers.types import TextContent, Tool
-
-# Optimized imports
-from backend.core.optimized_connection_manager import connection_manager
-from backend.core.performance_monitor import performance_monitor
 from backend.utils.optimized_snowflake_cortex_service import optimized_cortex_service
 
 logger = logging.getLogger(__name__)

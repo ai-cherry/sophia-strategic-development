@@ -41,33 +41,33 @@ class SophiaMetrics:
 
         # Request metrics
         self.request_count = Counter(
-            'sophia_requests_total',
-            'Total number of requests',
-            ['method', 'endpoint', 'status'],
-            registry=self.registry
+            "sophia_requests_total",
+            "Total number of requests",
+            ["method", "endpoint", "status"],
+            registry=self.registry,
         )
 
         self.request_duration = Histogram(
-            'sophia_request_duration_seconds',
-            'Request duration in seconds',
-            ['method', 'endpoint'],
-            registry=self.registry
+            "sophia_request_duration_seconds",
+            "Request duration in seconds",
+            ["method", "endpoint"],
+            registry=self.registry,
         )
 
         # Error metrics
         self.error_count = Counter(
-            'sophia_errors_total',
-            'Total number of errors',
-            ['service', 'error_type'],
-            registry=self.registry
+            "sophia_errors_total",
+            "Total number of errors",
+            ["service", "error_type"],
+            registry=self.registry,
         )
 
         # Active connections
         self.active_connections = Gauge(
-            'sophia_active_connections',
-            'Number of active connections',
-            ['service'],
-            registry=self.registry
+            "sophia_active_connections",
+            "Number of active connections",
+            ["service"],
+            registry=self.registry,
         )
 
     def _init_ai_metrics(self):
@@ -75,46 +75,46 @@ class SophiaMetrics:
 
         # AI model performance
         self.ai_request_count = Counter(
-            'sophia_ai_requests_total',
-            'Total AI requests',
-            ['model', 'provider', 'task_type'],
-            registry=self.registry
+            "sophia_ai_requests_total",
+            "Total AI requests",
+            ["model", "provider", "task_type"],
+            registry=self.registry,
         )
 
         self.ai_request_duration = Histogram(
-            'sophia_ai_request_duration_seconds',
-            'AI request duration',
-            ['model', 'provider'],
-            registry=self.registry
+            "sophia_ai_request_duration_seconds",
+            "AI request duration",
+            ["model", "provider"],
+            registry=self.registry,
         )
 
         self.ai_token_usage = Counter(
-            'sophia_ai_tokens_total',
-            'Total AI tokens used',
-            ['model', 'provider', 'token_type'],
-            registry=self.registry
+            "sophia_ai_tokens_total",
+            "Total AI tokens used",
+            ["model", "provider", "token_type"],
+            registry=self.registry,
         )
 
         self.ai_cost = Counter(
-            'sophia_ai_cost_dollars',
-            'Total AI cost in dollars',
-            ['model', 'provider'],
-            registry=self.registry
+            "sophia_ai_cost_dollars",
+            "Total AI cost in dollars",
+            ["model", "provider"],
+            registry=self.registry,
         )
 
         # AI quality metrics
         self.ai_evaluation_scores = Histogram(
-            'sophia_ai_evaluation_scores',
-            'AI evaluation scores',
-            ['metric', 'category'],
-            registry=self.registry
+            "sophia_ai_evaluation_scores",
+            "AI evaluation scores",
+            ["metric", "category"],
+            registry=self.registry,
         )
 
         self.ai_safety_violations = Counter(
-            'sophia_ai_safety_violations_total',
-            'AI safety violations',
-            ['violation_type'],
-            registry=self.registry
+            "sophia_ai_safety_violations_total",
+            "AI safety violations",
+            ["violation_type"],
+            registry=self.registry,
         )
 
     def _init_business_metrics(self):
@@ -122,40 +122,40 @@ class SophiaMetrics:
 
         # Business queries
         self.business_queries = Counter(
-            'sophia_business_queries_total',
-            'Total business intelligence queries',
-            ['query_type', 'user_role'],
-            registry=self.registry
+            "sophia_business_queries_total",
+            "Total business intelligence queries",
+            ["query_type", "user_role"],
+            registry=self.registry,
         )
 
         self.business_query_success = Counter(
-            'sophia_business_query_success_total',
-            'Successful business queries',
-            ['query_type', 'data_source'],
-            registry=self.registry
+            "sophia_business_query_success_total",
+            "Successful business queries",
+            ["query_type", "data_source"],
+            registry=self.registry,
         )
 
         # Data processing
         self.data_ingestion_records = Counter(
-            'sophia_data_ingestion_records_total',
-            'Total records ingested',
-            ['source', 'table'],
-            registry=self.registry
+            "sophia_data_ingestion_records_total",
+            "Total records ingested",
+            ["source", "table"],
+            registry=self.registry,
         )
 
         self.data_processing_duration = Histogram(
-            'sophia_data_processing_duration_seconds',
-            'Data processing duration',
-            ['operation', 'source'],
-            registry=self.registry
+            "sophia_data_processing_duration_seconds",
+            "Data processing duration",
+            ["operation", "source"],
+            registry=self.registry,
         )
 
         # Business insights
         self.insights_generated = Counter(
-            'sophia_insights_generated_total',
-            'Total insights generated',
-            ['insight_type', 'confidence_level'],
-            registry=self.registry
+            "sophia_insights_generated_total",
+            "Total insights generated",
+            ["insight_type", "confidence_level"],
+            registry=self.registry,
         )
 
     def _init_infrastructure_metrics(self):
@@ -163,54 +163,52 @@ class SophiaMetrics:
 
         # Database connections
         self.db_connections_active = Gauge(
-            'sophia_db_connections_active',
-            'Active database connections',
-            ['database', 'pool'],
-            registry=self.registry
+            "sophia_db_connections_active",
+            "Active database connections",
+            ["database", "pool"],
+            registry=self.registry,
         )
 
         self.db_query_duration = Histogram(
-            'sophia_db_query_duration_seconds',
-            'Database query duration',
-            ['database', 'operation'],
-            registry=self.registry
+            "sophia_db_query_duration_seconds",
+            "Database query duration",
+            ["database", "operation"],
+            registry=self.registry,
         )
 
         # Cache metrics
         self.cache_operations = Counter(
-            'sophia_cache_operations_total',
-            'Cache operations',
-            ['operation', 'cache_type'],
-            registry=self.registry
+            "sophia_cache_operations_total",
+            "Cache operations",
+            ["operation", "cache_type"],
+            registry=self.registry,
         )
 
         self.cache_hit_ratio = Gauge(
-            'sophia_cache_hit_ratio',
-            'Cache hit ratio',
-            ['cache_type'],
-            registry=self.registry
+            "sophia_cache_hit_ratio",
+            "Cache hit ratio",
+            ["cache_type"],
+            registry=self.registry,
         )
 
         # MCP server metrics
         self.mcp_server_status = Gauge(
-            'sophia_mcp_server_status',
-            'MCP server status (1=up, 0=down)',
-            ['server_name', 'port'],
-            registry=self.registry
+            "sophia_mcp_server_status",
+            "MCP server status (1=up, 0=down)",
+            ["server_name", "port"],
+            registry=self.registry,
         )
 
         self.mcp_request_count = Counter(
-            'sophia_mcp_requests_total',
-            'MCP server requests',
-            ['server_name', 'tool'],
-            registry=self.registry
+            "sophia_mcp_requests_total",
+            "MCP server requests",
+            ["server_name", "tool"],
+            registry=self.registry,
         )
 
         # System info
         self.system_info = Info(
-            'sophia_system_info',
-            'System information',
-            registry=self.registry
+            "sophia_system_info", "System information", registry=self.registry
         )
 
     @contextmanager
@@ -225,7 +223,9 @@ class SophiaMetrics:
 
     def record_request(self, method: str, endpoint: str, status: int, duration: float):
         """Record HTTP request metrics"""
-        self.request_count.labels(method=method, endpoint=endpoint, status=str(status)).inc()
+        self.request_count.labels(
+            method=method, endpoint=endpoint, status=str(status)
+        ).inc()
         self.request_duration.labels(method=method, endpoint=endpoint).observe(duration)
 
     def record_error(self, service: str, error_type: str):
@@ -240,32 +240,25 @@ class SophiaMetrics:
         duration: float,
         input_tokens: int = 0,
         output_tokens: int = 0,
-        cost: float = 0.0
+        cost: float = 0.0,
     ):
         """Record AI request metrics"""
         self.ai_request_count.labels(
-            model=model,
-            provider=provider,
-            task_type=task_type
+            model=model, provider=provider, task_type=task_type
         ).inc()
 
-        self.ai_request_duration.labels(
-            model=model,
-            provider=provider
-        ).observe(duration)
+        self.ai_request_duration.labels(model=model, provider=provider).observe(
+            duration
+        )
 
         if input_tokens > 0:
             self.ai_token_usage.labels(
-                model=model,
-                provider=provider,
-                token_type="input"
+                model=model, provider=provider, token_type="input"
             ).inc(input_tokens)
 
         if output_tokens > 0:
             self.ai_token_usage.labels(
-                model=model,
-                provider=provider,
-                token_type="output"
+                model=model, provider=provider, token_type="output"
             ).inc(output_tokens)
 
         if cost > 0:
@@ -273,7 +266,9 @@ class SophiaMetrics:
 
     def record_ai_evaluation(self, metric: str, category: str, score: float):
         """Record AI evaluation metrics"""
-        self.ai_evaluation_scores.labels(metric=metric, category=category).observe(score)
+        self.ai_evaluation_scores.labels(metric=metric, category=category).observe(
+            score
+        )
 
     def record_safety_violation(self, violation_type: str):
         """Record AI safety violation"""
@@ -284,15 +279,14 @@ class SophiaMetrics:
         query_type: str,
         user_role: str,
         success: bool = True,
-        data_source: str = "unknown"
+        data_source: str = "unknown",
     ):
         """Record business intelligence query"""
         self.business_queries.labels(query_type=query_type, user_role=user_role).inc()
 
         if success:
             self.business_query_success.labels(
-                query_type=query_type,
-                data_source=data_source
+                query_type=query_type, data_source=data_source
             ).inc()
 
     def record_data_ingestion(self, source: str, table: str, record_count: int):
@@ -302,8 +296,7 @@ class SophiaMetrics:
     def record_insight_generation(self, insight_type: str, confidence_level: str):
         """Record insight generation"""
         self.insights_generated.labels(
-            insight_type=insight_type,
-            confidence_level=confidence_level
+            insight_type=insight_type, confidence_level=confidence_level
         ).inc()
 
     def update_db_connections(self, database: str, pool: str, count: int):
@@ -312,7 +305,9 @@ class SophiaMetrics:
 
     def record_db_query(self, database: str, operation: str, duration: float):
         """Record database query metrics"""
-        self.db_query_duration.labels(database=database, operation=operation).observe(duration)
+        self.db_query_duration.labels(database=database, operation=operation).observe(
+            duration
+        )
 
     def record_cache_operation(self, operation: str, cache_type: str):
         """Record cache operation"""
@@ -324,10 +319,9 @@ class SophiaMetrics:
 
     def update_mcp_server_status(self, server_name: str, port: int, status: bool):
         """Update MCP server status"""
-        self.mcp_server_status.labels(
-            server_name=server_name,
-            port=str(port)
-        ).set(1 if status else 0)
+        self.mcp_server_status.labels(server_name=server_name, port=str(port)).set(
+            1 if status else 0
+        )
 
     def record_mcp_request(self, server_name: str, tool: str):
         """Record MCP server request"""
@@ -344,11 +338,12 @@ metrics = SophiaMetrics()
 
 def monitor_request(endpoint: str = "unknown"):
     """Decorator to monitor HTTP requests"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             start_time = time.time()
-            method = kwargs.get('method', 'GET')
+            method = kwargs.get("method", "GET")
             status = 200
 
             try:
@@ -363,11 +358,13 @@ def monitor_request(endpoint: str = "unknown"):
                 metrics.record_request(method, endpoint, status, duration)
 
         return wrapper
+
     return decorator
 
 
 def monitor_ai_operation(model: str, provider: str, task_type: str):
     """Decorator to monitor AI operations"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -378,9 +375,9 @@ def monitor_ai_operation(model: str, provider: str, task_type: str):
 
                 # Extract metrics from result if available
                 duration = time.time() - start_time
-                input_tokens = result.get('usage', {}).get('input_tokens', 0)
-                output_tokens = result.get('usage', {}).get('output_tokens', 0)
-                cost = result.get('cost', 0.0)
+                input_tokens = result.get("usage", {}).get("input_tokens", 0)
+                output_tokens = result.get("usage", {}).get("output_tokens", 0)
+                cost = result.get("cost", 0.0)
 
                 metrics.record_ai_request(
                     model=model,
@@ -389,7 +386,7 @@ def monitor_ai_operation(model: str, provider: str, task_type: str):
                     duration=duration,
                     input_tokens=input_tokens,
                     output_tokens=output_tokens,
-                    cost=cost
+                    cost=cost,
                 )
 
                 return result
@@ -399,11 +396,13 @@ def monitor_ai_operation(model: str, provider: str, task_type: str):
                 raise
 
         return wrapper
+
     return decorator
 
 
 def monitor_db_operation(database: str, operation: str):
     """Decorator to monitor database operations"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -420,6 +419,7 @@ def monitor_db_operation(database: str, operation: str):
                 metrics.record_db_query(database, operation, duration)
 
         return wrapper
+
     return decorator
 
 
@@ -434,15 +434,19 @@ class PrometheusServer:
     def start(self):
         """Start Prometheus metrics server"""
         try:
-            self.server = start_http_server(self.port, self.host, registry=metrics.registry)
+            self.server = start_http_server(
+                self.port, self.host, registry=metrics.registry
+            )
             logger.info(f"Prometheus metrics server started on {self.host}:{self.port}")
 
             # Set initial system info
-            metrics.set_system_info({
-                "version": "1.0.0",
-                "service": "sophia-ai",
-                "environment": "production"
-            })
+            metrics.set_system_info(
+                {
+                    "version": "1.0.0",
+                    "service": "sophia-ai",
+                    "environment": "production",
+                }
+            )
 
         except Exception as e:
             logger.error(f"Failed to start Prometheus server: {e}")
@@ -453,17 +457,17 @@ class PrometheusServer:
         if self.server:
             # Prometheus client returns a tuple (server, thread)
             # We need to stop the thread
-            if hasattr(self.server, '__iter__') and len(self.server) == 2:
+            if hasattr(self.server, "__iter__") and len(self.server) == 2:
                 server, thread = self.server
-                if hasattr(server, 'shutdown'):
+                if hasattr(server, "shutdown"):
                     server.shutdown()
-                if hasattr(thread, 'join'):
+                if hasattr(thread, "join"):
                     thread.join()
             logger.info("Prometheus metrics server stopped")
 
     def get_metrics(self) -> str:
         """Get current metrics in Prometheus format"""
-        return generate_latest(metrics.registry).decode('utf-8')
+        return generate_latest(metrics.registry).decode("utf-8")
 
 
 # Health check metrics
@@ -472,35 +476,29 @@ class HealthMetrics:
 
     def __init__(self):
         self.health_check_status = Gauge(
-            'sophia_health_check_status',
-            'Health check status (1=healthy, 0=unhealthy)',
-            ['service', 'check_type'],
-            registry=metrics.registry
+            "sophia_health_check_status",
+            "Health check status (1=healthy, 0=unhealthy)",
+            ["service", "check_type"],
+            registry=metrics.registry,
         )
 
         self.health_check_duration = Histogram(
-            'sophia_health_check_duration_seconds',
-            'Health check duration',
-            ['service', 'check_type'],
-            registry=metrics.registry
+            "sophia_health_check_duration_seconds",
+            "Health check duration",
+            ["service", "check_type"],
+            registry=metrics.registry,
         )
 
     def record_health_check(
-        self,
-        service: str,
-        check_type: str,
-        healthy: bool,
-        duration: float
+        self, service: str, check_type: str, healthy: bool, duration: float
     ):
         """Record health check result"""
-        self.health_check_status.labels(
-            service=service,
-            check_type=check_type
-        ).set(1 if healthy else 0)
+        self.health_check_status.labels(service=service, check_type=check_type).set(
+            1 if healthy else 0
+        )
 
         self.health_check_duration.labels(
-            service=service,
-            check_type=check_type
+            service=service, check_type=check_type
         ).observe(duration)
 
 
@@ -534,4 +532,5 @@ async def example_usage():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(example_usage())

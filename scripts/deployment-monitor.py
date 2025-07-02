@@ -23,6 +23,7 @@ class HealthCheck:
     timeout: int = 30
     critical: bool = True
 
+
 @dataclass
 class MonitoringResult:
     timestamp: datetime
@@ -30,9 +31,10 @@ class MonitoringResult:
     overall_health: bool
     response_times: dict[str, float]
 
+
 class DeploymentMonitor:
     def __init__(self, base_url: str, webhook_url: str | None = None):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.webhook_url = webhook_url
         self.logger = self._setup_logging()
 
@@ -40,19 +42,23 @@ class DeploymentMonitor:
         self.health_checks = [
             HealthCheck("Frontend", f"{self.base_url}/", critical=True),
             HealthCheck("API Health", f"{self.base_url}/api/health", critical=True),
-            HealthCheck("n8n Webhook", f"{self.base_url}/api/n8n/health", critical=False),
-            HealthCheck("MCP Server", f"{self.base_url}/api/mcp/health", critical=False),
+            HealthCheck(
+                "n8n Webhook", f"{self.base_url}/api/n8n/health", critical=False
+            ),
+            HealthCheck(
+                "MCP Server", f"{self.base_url}/api/mcp/health", critical=False
+            ),
         ]
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration."""
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
+            format="%(asctime)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler('deployment-monitor.log'),
-                logging.StreamHandler(sys.stdout)
-            ]
+                logging.FileHandler("deployment-monitor.log"),
+                logging.StreamHandler(sys.stdout),
+            ],
         )
         return logging.getLogger(__name__)
 
@@ -64,7 +70,7 @@ class DeploymentMonitor:
             response = requests.get(
                 check.url,
                 timeout=check.timeout,
-                headers={'User-Agent': 'Sophia-AI-Monitor/1.0'}
+                headers={"User-Agent": "Sophia-AI-Monitor/1.0"},
             )
 
             response_time = time.time() - start_time
@@ -117,7 +123,7 @@ class DeploymentMonitor:
             timestamp=datetime.utcnow(),
             checks=checks,
             overall_health=overall_health,
-            response_times=response_times
+            response_times=response_times,
         )
 
     def send_alert(self, result: MonitoringResult, alert_type: str = "failure"):
@@ -152,24 +158,16 @@ class DeploymentMonitor:
                 {
                     "color": color,
                     "fields": [
-                        {
-                            "title": "Status",
-                            "value": status_text,
-                            "short": True
-                        },
+                        {"title": "Status", "value": status_text, "short": True},
                         {
                             "title": "Timestamp",
                             "value": result.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC"),
-                            "short": True
+                            "short": True,
                         },
-                        {
-                            "title": "Base URL",
-                            "value": self.base_url,
-                            "short": False
-                        }
-                    ]
+                        {"title": "Base URL", "value": self.base_url, "short": False},
+                    ],
                 }
-            ]
+            ],
         }
 
         # Add detailed check results
@@ -179,18 +177,16 @@ class DeploymentMonitor:
             response_time = result.response_times.get(name, 0)
             check_details.append(f"{icon} {name}: {message} ({response_time:.2f}s)")
 
-        payload["attachments"][0]["fields"].append({
-            "title": "Detailed Results",
-            "value": "\n".join(check_details),
-            "short": False
-        })
+        payload["attachments"][0]["fields"].append(
+            {
+                "title": "Detailed Results",
+                "value": "\n".join(check_details),
+                "short": False,
+            }
+        )
 
         try:
-            response = requests.post(
-                self.webhook_url,
-                json=payload,
-                timeout=10
-            )
+            response = requests.post(self.webhook_url, json=payload, timeout=10)
 
             if response.status_code == 200:
                 self.logger.info("📤 Alert sent successfully")
@@ -208,7 +204,7 @@ class DeploymentMonitor:
             "timestamp": result.timestamp.isoformat(),
             "overall_health": result.overall_health,
             "response_times": result.response_times,
-            "checks": {name: success for name, success, _ in result.checks}
+            "checks": {name: success for name, success, _ in result.checks},
         }
 
         try:
@@ -244,12 +240,18 @@ class DeploymentMonitor:
         # Calculate statistics
         total_checks = len(recent_metrics)
         healthy_checks = sum(1 for m in recent_metrics if m["overall_health"])
-        uptime_percentage = (healthy_checks / total_checks) * 100 if total_checks > 0 else 0
+        uptime_percentage = (
+            (healthy_checks / total_checks) * 100 if total_checks > 0 else 0
+        )
 
         # Average response times
         avg_response_times = {}
         for service in ["Frontend", "API Health", "n8n Webhook", "MCP Server"]:
-            times = [m["response_times"].get(service, 0) for m in recent_metrics if service in m["response_times"]]
+            times = [
+                m["response_times"].get(service, 0)
+                for m in recent_metrics
+                if service in m["response_times"]
+            ]
             avg_response_times[service] = sum(times) / len(times) if times else 0
 
         # Generate report
@@ -286,6 +288,7 @@ class DeploymentMonitor:
 
         return report.strip()
 
+
 def main():
     """Main monitoring function."""
     # Get configuration from environment
@@ -305,7 +308,9 @@ def main():
             # Test mode - single check without alerts
             monitor = DeploymentMonitor(base_url)
             result = monitor.run_health_checks()
-            print(f"\n📊 Overall Health: {'✅ Healthy' if result.overall_health else '❌ Issues'}")
+            print(
+                f"\n📊 Overall Health: {'✅ Healthy' if result.overall_health else '❌ Issues'}"
+            )
             return
 
     # Regular monitoring mode
@@ -348,6 +353,6 @@ def main():
     # Exit with appropriate code
     sys.exit(0 if current_healthy else 1)
 
+
 if __name__ == "__main__":
     main()
-

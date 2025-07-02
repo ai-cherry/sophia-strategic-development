@@ -118,7 +118,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-    # TODO: Extract business logic to use case
+# TODO: Extract business logic to use case
 def validate_ceo_access(user_role: str) -> bool:
     # TODO: Extract business logic to use case
     """Validate CEO-level access for sensitive operations"""
@@ -160,9 +160,9 @@ async def enhanced_chat(request: ChatRequest):
             urgency=request.urgency,
         )
 
-    # TODO: Extract business logic to use case
+        # TODO: Extract business logic to use case
         # Generate suggestions based on response
-    # TODO: Extract business logic to use case
+        # TODO: Extract business logic to use case
         suggestions = _generate_suggestions(response, request.context_type)
 
         # Get provider info if requested
@@ -180,7 +180,7 @@ async def enhanced_chat(request: ChatRequest):
             model_used=response.model_used,
             tokens_used=response.tokens_used,
             cost_estimate=response.cost_estimate,
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             processing_time_ms=response.processing_time_ms,
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
@@ -206,9 +206,9 @@ async def code_expert(request: CodeRequest):
         )
 
         suggestions = [
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             "Review the generated code for edge cases",
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             "Run unit tests to validate functionality",
             "Consider performance optimization",
             "Add comprehensive documentation",
@@ -221,7 +221,7 @@ async def code_expert(request: CodeRequest):
             model_used=response.model_used,
             tokens_used=response.tokens_used,
             cost_estimate=response.cost_estimate,
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             processing_time_ms=response.processing_time_ms,
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
@@ -259,7 +259,7 @@ async def business_analyst(request: BusinessAnalysisRequest):
             model_used=response.model_used,
             tokens_used=response.tokens_used,
             cost_estimate=response.cost_estimate,
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             processing_time_ms=response.processing_time_ms,
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
@@ -305,7 +305,7 @@ async def research_assistant(request: ResearchRequest):
             model_used=response.model_used,
             tokens_used=response.tokens_used,
             cost_estimate=response.cost_estimate,
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             processing_time_ms=response.processing_time_ms,
             task_complexity=response.task_complexity.value,
             quality_score=response.quality_score,
@@ -362,18 +362,18 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             data = await websocket.receive_text()
             message_data = json.loads(data)
 
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             # Process chat request
             chat_request = ChatRequest(**message_data)
 
             # Send immediate acknowledgment
             await manager.send_personal_message(
-    # TODO: Extract business logic to use case
+                # TODO: Extract business logic to use case
                 json.dumps({"type": "ack", "message": "Processing your request..."}),
                 websocket,
             )
 
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             # Process with enhanced orchestrator
             complexity_map = {
                 "simple": TaskComplexity.SIMPLE,
@@ -404,7 +404,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 "model_used": response.model_used,
                 "tokens_used": response.tokens_used,
                 "cost_estimate": response.cost_estimate,
-    # TODO: Extract business logic to use case
+                # TODO: Extract business logic to use case
                 "processing_time_ms": response.processing_time_ms,
                 "quality_score": response.quality_score,
                 "success": response.success,
@@ -420,8 +420,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             json.dumps({"type": "error", "message": str(e)}), websocket
         )
 
-
     # TODO: Extract business logic to use case
+
+
 def _generate_suggestions(
     response: EnhancedLLMResponse, context_type: str
 ) -> list[str]:
@@ -452,7 +453,7 @@ def _generate_suggestions(
         ]
     else:
         base_suggestions = [
-    # TODO: Extract business logic to use case
+            # TODO: Extract business logic to use case
             "Review and validate results",
             "Consider next steps",
             "Gather additional context",

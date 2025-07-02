@@ -5,12 +5,11 @@ Deploys PostgreSQL staging database and Redis cache on Lambda Labs instances
 Integrates with Pulumi ESC for secure credential management
 """
 
-import json
 import logging
 import subprocess
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -22,6 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LambdaLabsConfig:
     """Configuration for Lambda Labs deployment"""
+
     api_key: str
     ssh_private_key: str
     region: str = "us-west-1"
@@ -31,6 +31,7 @@ class LambdaLabsConfig:
 @dataclass
 class DatabaseConfig:
     """Configuration for PostgreSQL database"""
+
     name: str = "sophia_staging"
     version: str = "15"
     port: int = 5432
@@ -42,6 +43,7 @@ class DatabaseConfig:
 @dataclass
 class RedisConfig:
     """Configuration for Redis cache"""
+
     port: int = 6379
     max_memory: str = "2gb"
     max_memory_policy: str = "allkeys-lru"
@@ -53,68 +55,70 @@ class LambdaLabsDeployer:
     Deploys PostgreSQL and Redis infrastructure on Lambda Labs
     Manages instance lifecycle and configuration
     """
-    
+
     def __init__(self):
         self.config = LambdaLabsConfig(
             api_key=get_config_value("lambda_api_key"),
             ssh_private_key=get_config_value("lambda_ssh_private_key"),
             region=get_config_value("lambda_region", "us-west-1"),
-            instance_type=get_config_value("lambda_instance_type", "gpu_1x_a10")
+            instance_type=get_config_value("lambda_instance_type", "gpu_1x_a10"),
         )
         self.base_url = "https://cloud.lambdalabs.com/api/v1"
         self.headers = {
             "Authorization": f"Bearer {self.config.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
         self._validate_config()
-    
+
     def _validate_config(self):
         """Validate Lambda Labs configuration"""
         if not self.config.api_key:
             raise ValueError("Lambda Labs API key not configured in Pulumi ESC")
-        
+
         if not self.config.ssh_private_key:
             raise ValueError("Lambda Labs SSH private key not configured in Pulumi ESC")
-        
-        logger.info(f"Lambda Labs deployer initialized for region: {self.config.region}")
-    
-    def _make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict[str, Any]:
+
+        logger.info(
+            f"Lambda Labs deployer initialized for region: {self.config.region}"
+        )
+
+    def _make_request(
+        self, method: str, endpoint: str, data: dict | None = None
+    ) -> dict[str, Any]:
         """Make authenticated request to Lambda Labs API"""
         url = f"{self.base_url}/{endpoint}"
-        
+
         try:
             response = requests.request(
-                method=method,
-                url=url,
-                headers=self.headers,
-                json=data,
-                timeout=30
+                method=method, url=url, headers=self.headers, json=data, timeout=30
             )
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
             logger.error(f"Lambda Labs API request failed: {e}")
             raise
-    
-    def list_instance_types(self) -> List[Dict[str, Any]]:
+
+    def list_instance_types(self) -> list[dict[str, Any]]:
         """List available instance types"""
         return self._make_request("GET", "instance-types")
-    
-    def launch_database_instance(self) -> Dict[str, Any]:
+
+    def launch_database_instance(self) -> dict[str, Any]:
         """
         Launch Lambda Labs instance for PostgreSQL and Redis
-        
+
         Returns:
             Instance information including IP address and ID
         """
         # Get available instance types
         instance_types = self.list_instance_types()
         available_types = [t["name"] for t in instance_types["data"]]
-        
+
         if self.config.instance_type not in available_types:
-            logger.warning(f"Instance type {self.config.instance_type} not available, using first available")
+            logger.warning(
+                f"Instance type {self.config.instance_type} not available, using first available"
+            )
             self.config.instance_type = available_types[0]
-        
+
         # Launch instance
         launch_data = {
             "region_name": self.config.region,
@@ -122,98 +126,106 @@ class LambdaLabsDeployer:
             "ssh_key_names": ["sophia-ai-key"],  # Assumes SSH key is already uploaded
             "file_system_names": [],
             "quantity": 1,
-            "name": "sophia-ai-database-server"
+            "name": "sophia-ai-database-server",
         }
-        
+
         logger.info(f"Launching Lambda Labs instance: {self.config.instance_type}")
         result = self._make_request("POST", "instance-operations/launch", launch_data)
-        
+
         instance_ids = result["data"]["instance_ids"]
         if not instance_ids:
             raise RuntimeError("Failed to launch Lambda Labs instance")
-        
+
         instance_id = instance_ids[0]
         logger.info(f"Instance launched successfully: {instance_id}")
-        
+
         # Wait for instance to be running
         instance_info = self._wait_for_instance_running(instance_id)
-        
+
         return {
             "instance_id": instance_id,
             "ip_address": instance_info["ip"],
             "status": instance_info["status"],
-            "instance_type": self.config.instance_type
+            "instance_type": self.config.instance_type,
         }
-    
-    def _wait_for_instance_running(self, instance_id: str, timeout: int = 300) -> Dict[str, Any]:
+
+    def _wait_for_instance_running(
+        self, instance_id: str, timeout: int = 300
+    ) -> dict[str, Any]:
         """Wait for instance to be in running state"""
         start_time = time.time()
-        
+
         while time.time() - start_time < timeout:
             instances = self._make_request("GET", "instances")
-            
+
             for instance in instances["data"]:
                 if instance["id"] == instance_id:
                     if instance["status"] == "running":
-                        logger.info(f"Instance {instance_id} is running at {instance['ip']}")
+                        logger.info(
+                            f"Instance {instance_id} is running at {instance['ip']}"
+                        )
                         return instance
                     elif instance["status"] == "unhealthy":
                         raise RuntimeError(f"Instance {instance_id} is unhealthy")
-            
+
             logger.info(f"Waiting for instance {instance_id} to be running...")
             time.sleep(10)
-        
-        raise TimeoutError(f"Instance {instance_id} did not start within {timeout} seconds")
-    
-    def setup_database_server(self, ip_address: str) -> Dict[str, Any]:
+
+        raise TimeoutError(
+            f"Instance {instance_id} did not start within {timeout} seconds"
+        )
+
+    def setup_database_server(self, ip_address: str) -> dict[str, Any]:
         """
         Set up PostgreSQL and Redis on the Lambda Labs instance
-        
+
         Args:
             ip_address: IP address of the Lambda Labs instance
-        
+
         Returns:
             Configuration details for the deployed services
         """
         logger.info(f"Setting up database server on {ip_address}")
-        
+
         # Create setup script
         setup_script = self._generate_setup_script()
-        
+
         # Execute setup via SSH
         self._execute_remote_setup(ip_address, setup_script)
-        
+
         # Generate configuration
         db_config = DatabaseConfig()
         redis_config = RedisConfig()
-        
+
         return {
             "postgresql": {
                 "host": ip_address,
                 "port": db_config.port,
                 "database": db_config.name,
                 "username": "sophia_user",
-                "connection_string": f"postgresql://sophia_user:{{password}}@{ip_address}:{db_config.port}/{db_config.name}"
+                "connection_string": f"postgresql://sophia_user:{{password}}@{ip_address}:{db_config.port}/{db_config.name}",
             },
             "redis": {
                 "host": ip_address,
                 "port": redis_config.port,
-                "url": f"redis://{ip_address}:{redis_config.port}"
+                "url": f"redis://{ip_address}:{redis_config.port}",
             },
             "monitoring": {
                 "health_check_url": f"http://{ip_address}:8080/health",
-                "metrics_url": f"http://{ip_address}:9090/metrics"
-            }
+                "metrics_url": f"http://{ip_address}:9090/metrics",
+            },
         }
-    
+
     def _generate_setup_script(self) -> str:
         """Generate setup script for PostgreSQL and Redis installation"""
         db_config = DatabaseConfig()
         redis_config = RedisConfig()
-        
+
         # Generate secure password for PostgreSQL
-        postgres_password = get_config_value("postgresql_password") or "sophia_secure_2025"
-        
+        postgres_password = (
+            get_config_value("postgresql_password") or "sophia_secure_2025"
+        )
+
         return f"""#!/bin/bash
 set -e
 
@@ -282,7 +294,7 @@ app = Flask(__name__)
 @app.route('/health')
 def health_check():
     status = {{"status": "healthy", "services": {{}}}}
-    
+
     # Check PostgreSQL
     try:
         conn = psycopg2.connect(
@@ -296,7 +308,7 @@ def health_check():
     except Exception as e:
         status["services"]["postgresql"] = f"unhealthy: {{e}}"
         status["status"] = "unhealthy"
-    
+
     # Check Redis
     try:
         r = redis.Redis(host="localhost", port={redis_config.port}, password="sophia_redis_2025")
@@ -305,7 +317,7 @@ def health_check():
     except Exception as e:
         status["services"]["redis"] = f"unhealthy: {{e}}"
         status["status"] = "unhealthy"
-    
+
     return jsonify(status)
 
 if __name__ == '__main__':
@@ -349,108 +361,124 @@ echo "PostgreSQL: localhost:{db_config.port}/{db_config.name}"
 echo "Redis: localhost:{redis_config.port}"
 echo "Health check: http://localhost:8080/health"
 """
-    
+
     def _execute_remote_setup(self, ip_address: str, setup_script: str):
         """Execute setup script on remote Lambda Labs instance"""
         # Save SSH key to temporary file
-        import tempfile
         import os
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as key_file:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".pem", delete=False
+        ) as key_file:
             key_file.write(self.config.ssh_private_key)
             key_file_path = key_file.name
-        
+
         try:
             # Set proper permissions on SSH key
             os.chmod(key_file_path, 0o600)
-            
+
             # Save setup script to temporary file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.sh', delete=False) as script_file:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".sh", delete=False
+            ) as script_file:
                 script_file.write(setup_script)
                 script_file_path = script_file.name
-            
+
             # Copy script to remote server
             scp_cmd = [
-                "scp", "-i", key_file_path, "-o", "StrictHostKeyChecking=no",
-                script_file_path, f"ubuntu@{ip_address}:/tmp/setup.sh"
+                "scp",
+                "-i",
+                key_file_path,
+                "-o",
+                "StrictHostKeyChecking=no",
+                script_file_path,
+                f"ubuntu@{ip_address}:/tmp/setup.sh",
             ]
-            
+
             logger.info("Copying setup script to remote server...")
             subprocess.run(scp_cmd, check=True, capture_output=True)
-            
+
             # Execute script on remote server
             ssh_cmd = [
-                "ssh", "-i", key_file_path, "-o", "StrictHostKeyChecking=no",
-                f"ubuntu@{ip_address}", "chmod +x /tmp/setup.sh && /tmp/setup.sh"
+                "ssh",
+                "-i",
+                key_file_path,
+                "-o",
+                "StrictHostKeyChecking=no",
+                f"ubuntu@{ip_address}",
+                "chmod +x /tmp/setup.sh && /tmp/setup.sh",
             ]
-            
+
             logger.info("Executing setup script on remote server...")
             result = subprocess.run(ssh_cmd, check=True, capture_output=True, text=True)
-            
+
             logger.info("Setup script executed successfully")
             logger.debug(f"Setup output: {result.stdout}")
-            
+
         finally:
             # Clean up temporary files
             os.unlink(key_file_path)
             os.unlink(script_file_path)
-    
-    def update_pulumi_esc_config(self, database_config: Dict[str, Any]):
+
+    def update_pulumi_esc_config(self, database_config: dict[str, Any]):
         """
         Update Pulumi ESC configuration with database connection details
-        
+
         Args:
             database_config: Database configuration from setup
         """
         logger.info("Updating Pulumi ESC configuration with database details")
-        
+
         # Create ESC configuration update
         esc_updates = {
             "postgresql_host": database_config["postgresql"]["host"],
             "postgresql_port": str(database_config["postgresql"]["port"]),
             "postgresql_database": database_config["postgresql"]["database"],
             "postgresql_user": database_config["postgresql"]["username"],
-            "postgresql_password": get_config_value("postgresql_password", "sophia_secure_2025"),
+            "postgresql_password": get_config_value(
+                "postgresql_password", "sophia_secure_2025"
+            ),
             "redis_host": database_config["redis"]["host"],
             "redis_port": str(database_config["redis"]["port"]),
             "redis_password": "sophia_redis_2025",
-            "redis_url": f"redis://:{database_config['redis']['host']}:{database_config['redis']['port']}"
+            "redis_url": f"redis://:{database_config['redis']['host']}:{database_config['redis']['port']}",
         }
-        
+
         # Update ESC environment (this would typically use Pulumi ESC CLI)
         logger.info("Database configuration ready for Pulumi ESC update:")
         for key, value in esc_updates.items():
             logger.info(f"  {key}: {value}")
-        
+
         return esc_updates
-    
-    def deploy_complete_infrastructure(self) -> Dict[str, Any]:
+
+    def deploy_complete_infrastructure(self) -> dict[str, Any]:
         """
         Deploy complete database infrastructure on Lambda Labs
-        
+
         Returns:
             Complete deployment configuration
         """
         logger.info("Starting complete infrastructure deployment...")
-        
+
         # Launch instance
         instance_info = self.launch_database_instance()
-        
+
         # Set up database server
         database_config = self.setup_database_server(instance_info["ip_address"])
-        
+
         # Update Pulumi ESC
         esc_updates = self.update_pulumi_esc_config(database_config)
-        
+
         # Complete deployment info
         deployment_info = {
             "instance": instance_info,
             "database": database_config,
             "esc_updates": esc_updates,
             "deployment_time": time.time(),
-            "status": "deployed"
+            "status": "deployed",
         }
-        
+
         logger.info("Infrastructure deployment completed successfully!")
         return deployment_info
 
@@ -463,15 +491,20 @@ def deploy_lambda_labs_infrastructure():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    
+
     try:
         deployment = deploy_lambda_labs_infrastructure()
         print("🚀 Lambda Labs Infrastructure Deployment Complete!")
-        print(f"PostgreSQL: {deployment['database']['postgresql']['host']}:{deployment['database']['postgresql']['port']}")
-        print(f"Redis: {deployment['database']['redis']['host']}:{deployment['database']['redis']['port']}")
-        print(f"Health Check: {deployment['database']['monitoring']['health_check_url']}")
-        
+        print(
+            f"PostgreSQL: {deployment['database']['postgresql']['host']}:{deployment['database']['postgresql']['port']}"
+        )
+        print(
+            f"Redis: {deployment['database']['redis']['host']}:{deployment['database']['redis']['port']}"
+        )
+        print(
+            f"Health Check: {deployment['database']['monitoring']['health_check_url']}"
+        )
+
     except Exception as e:
         print(f"❌ Deployment failed: {e}")
         raise
-

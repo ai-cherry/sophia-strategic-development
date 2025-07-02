@@ -20,12 +20,6 @@ TODO: Implement file decomposition
 import ast
 import asyncio
 import os
-from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
-    EnhancedStandardizedMCPServer,
-    MCPServerConfig,
-    HealthCheckLevel
-)
-
 import re
 import tempfile
 from dataclasses import dataclass
@@ -38,6 +32,11 @@ from typing import Any
 # Security analysis
 from bandit.core import config as bandit_config
 from bandit.core import manager as bandit_manager
+
+from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
+    MCPServerConfig,
+)
 
 # Code complexity analysis
 try:
@@ -53,10 +52,10 @@ import logging
 
 from backend.core.auto_esc_config import get_config_value
 from backend.mcp_servers.base.standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
-    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -1001,9 +1000,12 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {"status": "ok"}
+
 except ImportError:
     pass

@@ -5,14 +5,13 @@ Verifies that decomposed modules work correctly together
 """
 
 import pytest
+
 from backend.utils.optimized_snowflake_cortex_service_models import (
-    CortexOperation,
-    ProcessingMode,
-    CortexResult,
     CortexConfig,
-    CortexPerformanceMetrics
+    CortexOperation,
+    CortexResult,
+    ProcessingMode,
 )
-from backend.utils.optimized_snowflake_cortex_service_utils import CortexUtils
 
 
 class TestCortexServiceDecomposition:
@@ -23,16 +22,16 @@ class TestCortexServiceDecomposition:
         # Test enum values
         assert CortexOperation.SENTIMENT_ANALYSIS == "sentiment_analysis"
         assert ProcessingMode.BATCH == "batch"
-        
+
         # Test dataclass instantiation
         result = CortexResult(
             operation=CortexOperation.SENTIMENT_ANALYSIS,
             success=True,
-            result={"score": 0.8}
+            result={"score": 0.8},
         )
         assert result.operation == CortexOperation.SENTIMENT_ANALYSIS
         assert result.success is True
-        
+
         # Test config with defaults
         config = CortexConfig()
         assert config.max_batch_size == 50

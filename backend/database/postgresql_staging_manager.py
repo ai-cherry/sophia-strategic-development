@@ -4,13 +4,11 @@ Manages the staging layer in the data pipeline: Estuary Flow → PostgreSQL → 
 Handles schema creation, data transformation, and pipeline orchestration
 """
 
-import asyncio
 import logging
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
 import asyncpg
-from dataclasses import dataclass
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -20,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PostgreSQLConfig:
     """Configuration for PostgreSQL staging database"""
+
     host: str
     port: int
     database: str
@@ -31,10 +30,11 @@ class PostgreSQLConfig:
 @dataclass
 class StagingSchema:
     """Definition of a staging schema"""
+
     name: str
-    tables: List[str]
-    indexes: List[str]
-    transforms: List[str]
+    tables: list[str]
+    indexes: list[str]
+    transforms: list[str]
 
 
 class PostgreSQLStagingManager:
@@ -42,7 +42,7 @@ class PostgreSQLStagingManager:
     Manages PostgreSQL staging layer for Sophia AI data pipeline
     Handles raw data ingestion, transformation, and preparation for Snowflake
     """
-    
+
     def __init__(self):
         self.config = PostgreSQLConfig(
             host=get_config_value("postgresql_host"),
@@ -50,21 +50,25 @@ class PostgreSQLStagingManager:
             database=get_config_value("postgresql_database", "sophia_staging"),
             username=get_config_value("postgresql_user"),
             password=get_config_value("postgresql_password"),
-            ssl_mode=get_config_value("postgresql_ssl_mode", "require")
+            ssl_mode=get_config_value("postgresql_ssl_mode", "require"),
         )
-        self.pool: Optional[asyncpg.Pool] = None
+        self.pool: asyncpg.Pool | None = None
         self._validate_config()
-    
+
     def _validate_config(self):
         """Validate PostgreSQL configuration"""
         required_fields = ["host", "username", "password"]
-        missing = [field for field in required_fields if not getattr(self.config, field)]
-        
+        missing = [
+            field for field in required_fields if not getattr(self.config, field)
+        ]
+
         if missing:
             raise ValueError(f"Missing PostgreSQL configuration: {missing}")
-        
-        logger.info(f"PostgreSQL staging manager initialized for {self.config.host}:{self.config.port}")
-    
+
+        logger.info(
+            f"PostgreSQL staging manager initialized for {self.config.host}:{self.config.port}"
+        )
+
     async def initialize_pool(self, min_size: int = 5, max_size: int = 20):
         """Initialize connection pool"""
         try:
@@ -76,57 +80,59 @@ class PostgreSQLStagingManager:
                 password=self.config.password,
                 ssl=self.config.ssl_mode,
                 min_size=min_size,
-                max_size=max_size
+                max_size=max_size,
             )
-            logger.info(f"PostgreSQL connection pool initialized ({min_size}-{max_size} connections)")
+            logger.info(
+                f"PostgreSQL connection pool initialized ({min_size}-{max_size} connections)"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize PostgreSQL pool: {e}")
             raise
-    
+
     async def close_pool(self):
         """Close connection pool"""
         if self.pool:
             await self.pool.close()
             logger.info("PostgreSQL connection pool closed")
-    
+
     async def __aenter__(self):
         """Async context manager entry"""
         await self.initialize_pool()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit"""
         await self.close_pool()
-    
+
     async def execute_query(self, query: str, *args) -> Any:
         """Execute a query with connection from pool"""
         if not self.pool:
             raise RuntimeError("Connection pool not initialized")
-        
+
         async with self.pool.acquire() as conn:
             return await conn.execute(query, *args)
-    
-    async def fetch_query(self, query: str, *args) -> List[Dict[str, Any]]:
+
+    async def fetch_query(self, query: str, *args) -> list[dict[str, Any]]:
         """Fetch query results with connection from pool"""
         if not self.pool:
             raise RuntimeError("Connection pool not initialized")
-        
+
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(query, *args)
             return [dict(row) for row in rows]
-    
+
     async def create_staging_schemas(self):
         """Create all staging schemas for data sources"""
         schemas = [
             self._get_hubspot_schema(),
             self._get_gong_schema(),
             self._get_slack_schema(),
-            self._get_processed_schema()
+            self._get_processed_schema(),
         ]
-        
+
         for schema in schemas:
             await self._create_schema(schema)
-    
+
     def _get_hubspot_schema(self) -> StagingSchema:
         """Define HubSpot staging schema"""
         return StagingSchema(
@@ -182,19 +188,19 @@ class PostgreSQLStagingManager:
                     _estuary_ingested_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     _estuary_source_system VARCHAR(50) DEFAULT 'hubspot'
                 )
-                """
+                """,
             ],
             indexes=[
                 "CREATE INDEX IF NOT EXISTS idx_hubspot_contacts_email ON hubspot_raw.contacts(email)",
                 "CREATE INDEX IF NOT EXISTS idx_hubspot_contacts_company ON hubspot_raw.contacts(company)",
                 "CREATE INDEX IF NOT EXISTS idx_hubspot_companies_domain ON hubspot_raw.companies(domain)",
                 "CREATE INDEX IF NOT EXISTS idx_hubspot_deals_stage ON hubspot_raw.deals(dealstage)",
-                "CREATE INDEX IF NOT EXISTS idx_hubspot_deals_closedate ON hubspot_raw.deals(closedate)"
+                "CREATE INDEX IF NOT EXISTS idx_hubspot_deals_closedate ON hubspot_raw.deals(closedate)",
             ],
             transforms=[
                 """
                 CREATE OR REPLACE VIEW hubspot_processed.contacts_enriched AS
-                SELECT 
+                SELECT
                     c.*,
                     co.name as company_name,
                     co.industry as company_industry,
@@ -202,9 +208,9 @@ class PostgreSQLStagingManager:
                 FROM hubspot_raw.contacts c
                 LEFT JOIN hubspot_raw.companies co ON c.company = co.name
                 """
-            ]
+            ],
         )
-    
+
     def _get_gong_schema(self) -> StagingSchema:
         """Define Gong staging schema"""
         return StagingSchema(
@@ -264,19 +270,19 @@ class PostgreSQLStagingManager:
                     _estuary_ingested_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     _estuary_source_system VARCHAR(50) DEFAULT 'gong'
                 )
-                """
+                """,
             ],
             indexes=[
                 "CREATE INDEX IF NOT EXISTS idx_gong_calls_started ON gong_raw.calls(started)",
                 "CREATE INDEX IF NOT EXISTS idx_gong_calls_user ON gong_raw.calls(primary_user_id)",
                 "CREATE INDEX IF NOT EXISTS idx_gong_transcripts_call ON gong_raw.call_transcripts(call_id)",
                 "CREATE INDEX IF NOT EXISTS idx_gong_transcripts_sentiment ON gong_raw.call_transcripts(sentiment)",
-                "CREATE INDEX IF NOT EXISTS idx_gong_users_email ON gong_raw.users(email_address)"
+                "CREATE INDEX IF NOT EXISTS idx_gong_users_email ON gong_raw.users(email_address)",
             ],
             transforms=[
                 """
                 CREATE OR REPLACE VIEW gong_processed.call_analytics AS
-                SELECT 
+                SELECT
                     c.id,
                     c.title,
                     c.started,
@@ -291,9 +297,9 @@ class PostgreSQLStagingManager:
                 LEFT JOIN gong_raw.call_transcripts t ON c.id = t.call_id
                 GROUP BY c.id, c.title, c.started, c.duration, u.first_name, u.last_name, u.email_address
                 """
-            ]
+            ],
         )
-    
+
     def _get_slack_schema(self) -> StagingSchema:
         """Define Slack staging schema"""
         return StagingSchema(
@@ -361,19 +367,19 @@ class PostgreSQLStagingManager:
                     _estuary_ingested_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     _estuary_source_system VARCHAR(50) DEFAULT 'slack'
                 )
-                """
+                """,
             ],
             indexes=[
                 "CREATE INDEX IF NOT EXISTS idx_slack_messages_channel ON slack_raw.messages(channel)",
                 "CREATE INDEX IF NOT EXISTS idx_slack_messages_user ON slack_raw.messages(user_id)",
                 "CREATE INDEX IF NOT EXISTS idx_slack_messages_created ON slack_raw.messages(created_at)",
                 "CREATE INDEX IF NOT EXISTS idx_slack_channels_name ON slack_raw.channels(name)",
-                "CREATE INDEX IF NOT EXISTS idx_slack_users_email ON slack_raw.users(email)"
+                "CREATE INDEX IF NOT EXISTS idx_slack_users_email ON slack_raw.users(email)",
             ],
             transforms=[
                 """
                 CREATE OR REPLACE VIEW slack_processed.channel_activity AS
-                SELECT 
+                SELECT
                     c.name as channel_name,
                     c.purpose_value as channel_purpose,
                     COUNT(m.ts) as message_count,
@@ -385,9 +391,9 @@ class PostgreSQLStagingManager:
                 WHERE c.is_archived = false
                 GROUP BY c.id, c.name, c.purpose_value
                 """
-            ]
+            ],
         )
-    
+
     def _get_processed_schema(self) -> StagingSchema:
         """Define processed data schema for Snowflake ingestion"""
         return StagingSchema(
@@ -426,42 +432,44 @@ class PostgreSQLStagingManager:
                     metadata JSONB,
                     _processed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
                 )
-                """
+                """,
             ],
             indexes=[
                 "CREATE INDEX IF NOT EXISTS idx_unified_contacts_email ON processed_data.unified_contacts(email)",
                 "CREATE INDEX IF NOT EXISTS idx_unified_contacts_company ON processed_data.unified_contacts(company_name)",
                 "CREATE INDEX IF NOT EXISTS idx_interaction_timeline_contact ON processed_data.interaction_timeline(contact_id)",
-                "CREATE INDEX IF NOT EXISTS idx_interaction_timeline_date ON processed_data.interaction_timeline(interaction_date)"
+                "CREATE INDEX IF NOT EXISTS idx_interaction_timeline_date ON processed_data.interaction_timeline(interaction_date)",
             ],
-            transforms=[]
+            transforms=[],
         )
-    
+
     async def _create_schema(self, schema: StagingSchema):
         """Create a staging schema with tables and indexes"""
         try:
             # Create schema
             await self.execute_query(f"CREATE SCHEMA IF NOT EXISTS {schema.name}")
             logger.info(f"Created schema: {schema.name}")
-            
+
             # Create tables
             for table_sql in schema.tables:
                 await self.execute_query(table_sql)
-            
+
             # Create indexes
             for index_sql in schema.indexes:
                 await self.execute_query(index_sql)
-            
+
             # Create transforms (views, functions)
             for transform_sql in schema.transforms:
                 await self.execute_query(transform_sql)
-            
-            logger.info(f"Successfully created schema {schema.name} with {len(schema.tables)} tables")
-            
+
+            logger.info(
+                f"Successfully created schema {schema.name} with {len(schema.tables)} tables"
+            )
+
         except Exception as e:
             logger.error(f"Failed to create schema {schema.name}: {e}")
             raise
-    
+
     async def run_data_transformations(self):
         """Run data transformations to prepare data for Snowflake"""
         transformations = [
@@ -469,9 +477,9 @@ class PostgreSQLStagingManager:
             self._transform_gong_data,
             self._transform_slack_data,
             self._create_unified_contacts,
-            self._create_interaction_timeline
+            self._create_interaction_timeline,
         ]
-        
+
         for transform in transformations:
             try:
                 await transform()
@@ -479,15 +487,16 @@ class PostgreSQLStagingManager:
             except Exception as e:
                 logger.error(f"Transformation failed {transform.__name__}: {e}")
                 raise
-    
+
     async def _transform_hubspot_data(self):
         """Transform HubSpot raw data"""
-        await self.execute_query("""
+        await self.execute_query(
+            """
             INSERT INTO processed_data.unified_contacts (
-                id, source_system, source_id, email, first_name, last_name, 
+                id, source_system, source_id, email, first_name, last_name,
                 full_name, company_name, job_title, phone, created_at, updated_at, properties
             )
-            SELECT 
+            SELECT
                 'hubspot_' || id::text,
                 'hubspot',
                 id::text,
@@ -513,16 +522,18 @@ class PostgreSQLStagingManager:
                 updated_at = EXCLUDED.updated_at,
                 properties = EXCLUDED.properties,
                 _processed_at = CURRENT_TIMESTAMP
-        """)
-    
+        """
+        )
+
     async def _transform_gong_data(self):
         """Transform Gong raw data"""
-        await self.execute_query("""
+        await self.execute_query(
+            """
             INSERT INTO processed_data.interaction_timeline (
-                id, contact_id, interaction_type, interaction_date, 
+                id, contact_id, interaction_type, interaction_date,
                 source_system, source_id, title, description, sentiment, metadata
             )
-            SELECT 
+            SELECT
                 'gong_call_' || c.id,
                 'gong_user_' || c.primary_user_id,
                 'call',
@@ -546,16 +557,18 @@ class PostgreSQLStagingManager:
                 sentiment = EXCLUDED.sentiment,
                 metadata = EXCLUDED.metadata,
                 _processed_at = CURRENT_TIMESTAMP
-        """)
-    
+        """
+        )
+
     async def _transform_slack_data(self):
         """Transform Slack raw data"""
-        await self.execute_query("""
+        await self.execute_query(
+            """
             INSERT INTO processed_data.interaction_timeline (
                 id, contact_id, interaction_type, interaction_date,
                 source_system, source_id, title, description, metadata
             )
-            SELECT 
+            SELECT
                 'slack_msg_' || m.ts,
                 'slack_user_' || m.user_id,
                 'message',
@@ -579,55 +592,61 @@ class PostgreSQLStagingManager:
                 description = EXCLUDED.description,
                 metadata = EXCLUDED.metadata,
                 _processed_at = CURRENT_TIMESTAMP
-        """)
-    
+        """
+        )
+
     async def _create_unified_contacts(self):
         """Create unified contact records from all sources"""
         # This is handled in individual transform methods
         pass
-    
+
     async def _create_interaction_timeline(self):
         """Create unified interaction timeline"""
         # This is handled in individual transform methods
         pass
-    
-    async def get_pipeline_metrics(self) -> Dict[str, Any]:
+
+    async def get_pipeline_metrics(self) -> dict[str, Any]:
         """Get metrics about the data pipeline"""
         metrics = {}
-        
+
         # Raw data counts
         for schema in ["hubspot_raw", "gong_raw", "slack_raw"]:
-            schema_metrics = await self.fetch_query(f"""
-                SELECT 
+            schema_metrics = await self.fetch_query(
+                """
+                SELECT
                     schemaname,
                     tablename,
                     n_tup_ins as inserts,
                     n_tup_upd as updates,
                     n_tup_del as deletes,
                     n_live_tup as live_rows
-                FROM pg_stat_user_tables 
+                FROM pg_stat_user_tables
                 WHERE schemaname = $1
-            """, schema)
+            """,
+                schema,
+            )
             metrics[schema] = schema_metrics
-        
+
         # Processed data counts
-        processed_metrics = await self.fetch_query("""
-            SELECT 
+        processed_metrics = await self.fetch_query(
+            """
+            SELECT
                 'unified_contacts' as table_name,
                 COUNT(*) as total_records,
                 COUNT(DISTINCT source_system) as source_systems,
                 MAX(_processed_at) as last_processed
             FROM processed_data.unified_contacts
             UNION ALL
-            SELECT 
+            SELECT
                 'interaction_timeline' as table_name,
                 COUNT(*) as total_records,
                 COUNT(DISTINCT source_system) as source_systems,
                 MAX(_processed_at) as last_processed
             FROM processed_data.interaction_timeline
-        """)
+        """
+        )
         metrics["processed_data"] = processed_metrics
-        
+
         return metrics
 
 
@@ -646,4 +665,3 @@ async def run_data_pipeline():
         metrics = await manager.get_pipeline_metrics()
         logger.info(f"Data pipeline completed. Metrics: {metrics}")
         return metrics
-

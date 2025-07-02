@@ -9,15 +9,19 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 
+
 def check_pulumi_esc():
     """Check Pulumi ESC connectivity and secrets"""
     print("🔐 Checking Pulumi ESC Integration...")
 
     try:
         # Run health gate to check ESC
-        result = subprocess.run([
-            "python", "scripts/ci/deployment_health_gate.py"
-        ], capture_output=True, text=True, cwd=PROJECT_ROOT)
+        result = subprocess.run(
+            ["python", "scripts/ci/deployment_health_gate.py"],
+            capture_output=True,
+            text=True,
+            cwd=PROJECT_ROOT,
+        )
 
         if result.returncode == 0:
             print("✅ Pulumi ESC: Connected and secrets available")
@@ -28,6 +32,7 @@ def check_pulumi_esc():
     except Exception as e:
         print(f"❌ Pulumi ESC check failed: {e}")
         return False
+
 
 def check_mcp_configuration():
     """Check MCP server configuration"""
@@ -60,6 +65,7 @@ def check_mcp_configuration():
     print("✅ MCP Configuration: All critical servers found")
     return True
 
+
 def check_github_actions():
     """Check GitHub Actions workflows"""
     print("🔄 Checking GitHub Actions Workflows...")
@@ -69,10 +75,7 @@ def check_github_actions():
         print("❌ GitHub workflows directory not found")
         return False
 
-    critical_workflows = [
-        "sophia-master-deployment.yml",
-        "deployment_health_gate.yml"
-    ]
+    critical_workflows = ["sophia-master-deployment.yml", "deployment_health_gate.yml"]
 
     missing_workflows = []
     for workflow in critical_workflows:
@@ -85,6 +88,7 @@ def check_github_actions():
 
     print("✅ GitHub Actions: All critical workflows found")
     return True
+
 
 def check_backend_dependencies():
     """Check backend dependencies"""
@@ -100,7 +104,7 @@ def check_backend_dependencies():
         "app/fastapi_app.py",
         "core/auto_esc_config.py",
         "services",
-        "api"
+        "api",
     ]
 
     missing_files = []
@@ -114,6 +118,7 @@ def check_backend_dependencies():
 
     print("✅ Backend Dependencies: All critical files found")
     return True
+
 
 def check_frontend_dependencies():
     """Check frontend dependencies"""
@@ -138,6 +143,7 @@ def check_frontend_dependencies():
     print("✅ Frontend Dependencies: Ready")
     return True
 
+
 def check_activation_scripts():
     """Check activation scripts are present"""
     print("🚀 Checking Activation Scripts...")
@@ -146,7 +152,7 @@ def check_activation_scripts():
     critical_scripts = [
         "activate_sophia_production.py",
         "start_all_mcp_servers.py",
-        "ci/deployment_health_gate.py"
+        "ci/deployment_health_gate.py",
     ]
 
     missing_scripts = []
@@ -161,6 +167,7 @@ def check_activation_scripts():
     print("✅ Activation Scripts: All present")
     return True
 
+
 def check_configuration_files():
     """Check configuration files"""
     print("⚙️ Checking Configuration Files...")
@@ -172,7 +179,7 @@ def check_configuration_files():
 
     critical_configs = [
         "unified_mcp_port_registry.json",
-        "cursor_enhanced_mcp_config.json"
+        "cursor_enhanced_mcp_config.json",
     ]
 
     missing_configs = []
@@ -187,6 +194,7 @@ def check_configuration_files():
     print("✅ Configuration Files: All present")
     return True
 
+
 def generate_readiness_report(checks):
     """Generate readiness report"""
     total_checks = len(checks)
@@ -199,7 +207,11 @@ def generate_readiness_report(checks):
         "passed_checks": passed_checks,
         "failed_checks": total_checks - passed_checks,
         "checks": checks,
-        "status": "ready" if readiness_score >= 90 else "partial" if readiness_score >= 70 else "not_ready"
+        "status": (
+            "ready"
+            if readiness_score >= 90
+            else "partial" if readiness_score >= 70 else "not_ready"
+        ),
     }
 
     # Save report
@@ -208,6 +220,7 @@ def generate_readiness_report(checks):
         json.dump(report, f, indent=2)
 
     return report
+
 
 def main():
     """Main validation function"""
@@ -222,7 +235,7 @@ def main():
         "backend_dependencies": check_backend_dependencies(),
         "frontend_dependencies": check_frontend_dependencies(),
         "activation_scripts": check_activation_scripts(),
-        "configuration_files": check_configuration_files()
+        "configuration_files": check_configuration_files(),
     }
 
     # Generate report
@@ -235,7 +248,7 @@ def main():
     print(f"Status: {report['status'].upper()}")
     print(f"Passed: {report['passed_checks']}/{report['total_checks']} checks")
 
-    if report['failed_checks'] > 0:
+    if report["failed_checks"] > 0:
         print("\n❌ Failed Checks:")
         for check_name, result in checks.items():
             if not result:
@@ -243,11 +256,11 @@ def main():
 
     print("\n📄 Full report: infrastructure_readiness_report.json")
 
-    if report['readiness_score'] >= 90:
+    if report["readiness_score"] >= 90:
         print("\n🎉 INFRASTRUCTURE READY FOR ACTIVATION!")
         print("Execute: python scripts/activate_sophia_production.py")
         return 0
-    elif report['readiness_score'] >= 70:
+    elif report["readiness_score"] >= 70:
         print("\n⚠️ INFRASTRUCTURE PARTIALLY READY")
         print("Fix failed checks before activation")
         return 1
@@ -255,6 +268,7 @@ def main():
         print("\n❌ INFRASTRUCTURE NOT READY")
         print("Address critical issues before proceeding")
         return 1
+
 
 if __name__ == "__main__":
     exit(main())

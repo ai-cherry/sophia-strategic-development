@@ -58,10 +58,10 @@ from backend.core.comprehensive_memory_manager import ComprehensiveMemoryManager
 from backend.core.contextual_memory_intelligence import ContextualMemoryIntelligence
 from backend.core.hierarchical_cache import HierarchicalCache
 from backend.mcp_servers.base.standardized_mcp_server import (
+    EnhancedStandardizedMCPServer,
     HealthCheckResult,
     HealthStatus,
     MCPServerConfig,
-    EnhancedStandardizedMCPServer,
     SyncPriority,
 )
 
@@ -857,9 +857,12 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {"status": "ok"}
+
 except ImportError:
     pass

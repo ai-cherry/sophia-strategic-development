@@ -100,7 +100,6 @@ class PulumiESCSync:
             "DATABASE_URL": "database_url",
             "REDIS_URL": "redis_url",
             "ESTUARY_ACCESS_TOKEN": "estuary_access_token",
-            "ESTUARY_ACCESS_TOKEN": "estuary_access_token",
             # Cloud Infrastructure
             "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
             "VERCEL_ACCESS_TOKEN": "vercel_access_token",

@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 """
 Sophia Infrastructure Agent - AI-driven infrastructure orchestration
 Builds on existing Agno framework with infrastructure intelligence
@@ -21,6 +19,7 @@ TODO: Implement file decomposition
 import asyncio
 import logging
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 from backend.agents.core.langgraph_agent_base import (

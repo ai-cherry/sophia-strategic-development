@@ -26,7 +26,7 @@ class ComprehensiveCleanup:
         self.cleanup_log = {
             "timestamp": datetime.now().isoformat(),
             "dry_run": dry_run,
-            "categories": {}
+            "categories": {},
         }
 
     def get_cleanup_targets(self) -> dict[str, list[str]]:
@@ -40,7 +40,6 @@ class ComprehensiveCleanup:
                 "uv_migration_backups",
                 "docs_backup",
                 "backups",
-
                 # Archived documentation files
                 "CLEANUP_REPORT.md",
                 "documentation_cleanup_log.json",
@@ -54,7 +53,6 @@ class ComprehensiveCleanup:
                 "optimization_report.json",
                 "type_safety_audit_report.json",
             ],
-
             "one_time_reports": [
                 # One-time implementation reports
                 "CRITICAL_PRIORITY_FIXES_REPORT.md",
@@ -70,7 +68,6 @@ class ComprehensiveCleanup:
                 "SOPHIA_AI_COMPREHENSIVE_COMPLETION_REPORT.md",
                 "MCP_ECOSYSTEM_ENHANCEMENT_SUMMARY.md",
                 "PHASE_1_IMPLEMENTATION_SUCCESS_REPORT.md",
-
                 # Strategic planning documents (one-time use)
                 "SOPHIA_AI_MCP_ECOSYSTEM_ENHANCEMENT_PLAN.md",
                 "COMPREHENSIVE_KNOWLEDGE_BASE_IMPLEMENTATION_PLAN.md",
@@ -78,7 +75,6 @@ class ComprehensiveCleanup:
                 "SOPHIA_SNOWFLAKE_ECOSYSTEM_DEEP_DIVE.md",
                 "sophia-ai-compliance-integration-strategy.md",
             ],
-
             "one_time_scripts": [
                 # One-time fix scripts
                 "fix_github_pulumi_sync_permanently.py",
@@ -87,7 +83,6 @@ class ComprehensiveCleanup:
                 "run_test_suite.py",
                 "test_snowflake_connection.py",
                 "configure_github_security.py",
-
                 # Deployment scripts (one-time use)
                 "scripts/execute_modernization_now.py",
                 "scripts/execute_modernization_day1.py",
@@ -97,14 +92,12 @@ class ComprehensiveCleanup:
                 "scripts/fix_undefined_imports.py",
                 "scripts/fix_remaining_undefined_names.py",
                 "scripts/systematic_quality_improvement.py",
-
                 # Test scripts
                 "mcp-servers/test_server.py",
                 "mcp-servers/hubspot/tests/test_mcp_ticket_conversations.py",
                 "mcp-servers/hubspot/tests/test_closed_tickets.py",
                 "external/dynamike_snowflake/tests/test_snowflake_conn.py",
             ],
-
             "duplicate_docs": [
                 # Documentation duplicates with numbers
                 "**/AGNO_*_SUMMARY 2.md",
@@ -123,26 +116,23 @@ class ComprehensiveCleanup:
                 "**/*-dev 4.txt",
                 "**/*-dev 5.txt",
             ],
-
             "deprecated_configs": [
                 # Deprecated configuration files
                 "config/agno_vsa_configuration.yaml",
                 "snowflake_connection_fix.patch",
-
                 # Log files
                 "fastapi.log",
                 "fastapi_fixed.log",
                 "*.pid",
                 "*.lock",
             ],
-
             "empty_directories": [
                 # Empty or unused directories
                 "backend/watched_costar_files",
                 "watched_costar_files",
                 "mcp-servers/logs",
                 "logs",
-            ]
+            ],
         }
 
     def get_file_size(self, path: Path) -> int:
@@ -151,7 +141,7 @@ class ComprehensiveCleanup:
             if path.is_file():
                 return path.stat().st_size
             elif path.is_dir():
-                return sum(f.stat().st_size for f in path.rglob('*') if f.is_file())
+                return sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
             return 0
         except (OSError, PermissionError):
             return 0
@@ -207,12 +197,10 @@ class ComprehensiveCleanup:
             "LICENSE",
             "CHANGELOG.md",
             ".cursorrules",
-
             # Preserve active configuration
             "pyproject.toml",
             "requirements.txt",
             "package.json",
-
             # Preserve current documentation structure
             "docs/README.md",
             "docs/*/README.md",
@@ -252,7 +240,7 @@ class ComprehensiveCleanup:
 
         self.cleanup_log["categories"][category] = {
             "removed_count": removed_count,
-            "patterns": patterns
+            "patterns": patterns,
         }
 
         logger.info(f"  ✅ {category}: {removed_count} items removed")
@@ -263,15 +251,17 @@ class ComprehensiveCleanup:
 
         size_mb = self.total_size_freed / (1024 * 1024)
 
-        self.cleanup_log.update({
-            "summary": {
-                "files_removed": len(self.removed_files),
-                "directories_removed": len(self.removed_dirs),
-                "total_size_freed_mb": round(size_mb, 2)
-            },
-            "removed_files": [str(f) for f in self.removed_files],
-            "removed_directories": [str(d) for d in self.removed_dirs]
-        })
+        self.cleanup_log.update(
+            {
+                "summary": {
+                    "files_removed": len(self.removed_files),
+                    "directories_removed": len(self.removed_dirs),
+                    "total_size_freed_mb": round(size_mb, 2),
+                },
+                "removed_files": [str(f) for f in self.removed_files],
+                "removed_directories": [str(d) for d in self.removed_dirs],
+            }
+        )
 
         # Save cleanup log
         log_file = Path("comprehensive_cleanup_log.json")
@@ -315,9 +305,17 @@ def main():
     """Main execution function"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Comprehensive Documentation & Script Cleanup")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be removed without actually removing")
-    parser.add_argument("--live", action="store_true", help="Actually remove files (use with caution)")
+    parser = argparse.ArgumentParser(
+        description="Comprehensive Documentation & Script Cleanup"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be removed without actually removing",
+    )
+    parser.add_argument(
+        "--live", action="store_true", help="Actually remove files (use with caution)"
+    )
 
     args = parser.parse_args()
 
@@ -326,7 +324,9 @@ def main():
         return
 
     if args.live:
-        response = input("⚠️  This will permanently remove files. Are you sure? (yes/no): ")
+        response = input(
+            "⚠️  This will permanently remove files. Are you sure? (yes/no): "
+        )
         if response.lower() != "yes":
             logger.info("Cleanup cancelled.")
             return

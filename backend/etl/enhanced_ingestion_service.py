@@ -10,12 +10,6 @@ from backend.etl.estuary.estuary_configuration_manager import (
     SourceType,
 )
 from backend.services.semantic_layer_service import SemanticLayerService
-from backend.core.optimized_database_manager import (
-    OptimizedDatabaseManager,
-    BatchOperation,
-    ConnectionType
-)
-
 
 logger = logging.getLogger(__name__)
 

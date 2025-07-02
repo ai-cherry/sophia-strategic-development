@@ -25,11 +25,14 @@ try:
     import snowflake.connector
 
     from backend.core.auto_esc_config import get_config_value
+
     SNOWFLAKE_AVAILABLE = True
 except ImportError:
     SNOWFLAKE_AVAILABLE = False
+
     def get_config_value(key):
         return os.getenv(key.upper())
+
 
 logger = logging.getLogger(__name__)
 

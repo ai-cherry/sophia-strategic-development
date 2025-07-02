@@ -3,12 +3,10 @@ Sophia AI Unified API - Simplified Working Version
 Consolidates all API endpoints into a single application
 """
 
-import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,14 +15,14 @@ from fastapi.responses import JSONResponse
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Import available routers
 try:
     from backend.api.data_flow_routes import router as data_flow_router
+
     has_data_flow = True
 except ImportError:
     has_data_flow = False
@@ -32,6 +30,7 @@ except ImportError:
 
 try:
     from backend.api.llm_strategy_routes import router as llm_strategy_router
+
     has_llm_strategy = True
 except ImportError:
     has_llm_strategy = False
@@ -39,6 +38,7 @@ except ImportError:
 
 try:
     from backend.api.mcp_integration_routes import router as mcp_router
+
     has_mcp = True
 except ImportError:
     has_mcp = False
@@ -46,6 +46,7 @@ except ImportError:
 
 try:
     from backend.api.linear_integration_routes import router as linear_router
+
     has_linear = True
 except ImportError:
     has_linear = False
@@ -53,6 +54,7 @@ except ImportError:
 
 try:
     from backend.api.asana_integration_routes import router as asana_router
+
     has_asana = True
 except ImportError:
     has_asana = False
@@ -60,6 +62,7 @@ except ImportError:
 
 try:
     from backend.api.notion_integration_routes import router as notion_router
+
     has_notion = True
 except ImportError:
     has_notion = False
@@ -67,6 +70,7 @@ except ImportError:
 
 try:
     from backend.api.codacy_integration_routes import router as codacy_router
+
     has_codacy = True
 except ImportError:
     has_codacy = False
@@ -84,32 +88,33 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     logger.info(f"🚀 Starting {APP_NAME} v{APP_VERSION}...")
     logger.info(f"📍 Environment: {ENVIRONMENT}")
-    
+
     # Initialize services
     try:
         # Try to initialize MCP orchestration if available
         from backend.services.mcp_orchestration_service import MCPOrchestrationService
+
         app.state.mcp_service = MCPOrchestrationService()
         logger.info("✅ MCP Orchestration Service initialized")
     except Exception as e:
         logger.warning(f"Could not initialize MCP service: {e}")
         app.state.mcp_service = None
-    
+
     logger.info(f"✅ {APP_NAME} started successfully!")
-    logger.info(f"📍 API documentation: http://localhost:8000/docs")
-    
+    logger.info("📍 API documentation: http://localhost:8000/docs")
+
     yield
-    
+
     # Shutdown
     logger.info(f"🛑 Shutting down {APP_NAME}...")
-    
+
     # Cleanup services
     if hasattr(app.state, "mcp_service") and app.state.mcp_service:
         try:
             await app.state.mcp_service.shutdown()
         except Exception as e:
             logger.error(f"Error during MCP shutdown: {e}")
-    
+
     logger.info("👋 Shutdown complete")
 
 
@@ -121,7 +126,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add middleware
@@ -148,12 +153,8 @@ async def root():
         "endpoints": {
             "docs": "/docs",
             "health": "/health",
-            "api": {
-                "v3": "/api/v3",
-                "mcp": "/api/mcp",
-                "admin": "/api/admin"
-            }
-        }
+            "api": {"v3": "/api/v3", "mcp": "/api/mcp", "admin": "/api/admin"},
+        },
     }
 
 
@@ -166,9 +167,9 @@ async def health_check():
         "timestamp": datetime.now().isoformat(),
         "version": APP_VERSION,
         "environment": ENVIRONMENT,
-        "services": {}
+        "services": {},
     }
-    
+
     # Check MCP services if available
     if hasattr(app.state, "mcp_service") and app.state.mcp_service:
         try:
@@ -176,14 +177,11 @@ async def health_check():
             health_status["services"]["mcp"] = {
                 "status": mcp_health.get("overall_health", "unknown"),
                 "healthy_servers": mcp_health.get("healthy_servers", 0),
-                "total_servers": mcp_health.get("total_servers", 0)
+                "total_servers": mcp_health.get("total_servers", 0),
             }
         except Exception as e:
-            health_status["services"]["mcp"] = {
-                "status": "error",
-                "error": str(e)
-            }
-    
+            health_status["services"]["mcp"] = {"status": "error", "error": str(e)}
+
     # Check loaded routers
     health_status["services"]["routers"] = {
         "data_flow": "loaded" if has_data_flow else "not_available",
@@ -194,11 +192,14 @@ async def health_check():
         "notion": "loaded" if has_notion else "not_available",
         "codacy": "loaded" if has_codacy else "not_available",
     }
-    
+
     # Determine overall health
-    if any(service.get("status") == "error" for service in health_status["services"].values()):
+    if any(
+        service.get("status") == "error"
+        for service in health_status["services"].values()
+    ):
         health_status["status"] = "degraded"
-    
+
     return health_status
 
 
@@ -209,33 +210,35 @@ async def chat_endpoint(request: Request):
     try:
         body = await request.json()
         message = body.get("message", "")
-        
+
         # Try to use chat service if available
         try:
-            from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
             from backend.core.config_manager import ConfigManager
-            
+            from backend.services.enhanced_unified_chat_service import (
+                EnhancedUnifiedChatService,
+            )
+
             config_manager = ConfigManager()
             chat_service = EnhancedUnifiedChatService(config_manager)
             await chat_service.initialize()
-            
+
             response = await chat_service.process_message(
                 message=message,
                 user_id=body.get("user_id", "test_user"),
-                session_id=body.get("session_id", "test_session")
+                session_id=body.get("session_id", "test_session"),
             )
-            
+
             return {"response": response, "status": "success"}
-            
+
         except Exception as e:
             logger.error(f"Chat service error: {e}")
             # Fallback response
             return {
                 "response": f"Echo: {message}",
                 "status": "fallback",
-                "note": "Chat service not available, returning echo"
+                "note": "Chat service not available, returning echo",
             }
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -280,8 +283,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={
             "detail": "Internal server error",
             "timestamp": datetime.now().isoformat(),
-            "path": str(request.url)
-        }
+            "path": str(request.url),
+        },
     )
 
 
@@ -292,30 +295,28 @@ async def api_info():
     routes = []
     for route in app.routes:
         if hasattr(route, "methods") and hasattr(route, "path"):
-            routes.append({
-                "path": route.path,
-                "methods": list(route.methods),
-                "name": route.name
-            })
-    
+            routes.append(
+                {"path": route.path, "methods": list(route.methods), "name": route.name}
+            )
+
     return {
         "app_name": APP_NAME,
         "version": APP_VERSION,
         "environment": ENVIRONMENT,
         "total_routes": len(routes),
-        "routes": sorted(routes, key=lambda x: x["path"])
+        "routes": sorted(routes, key=lambda x: x["path"]),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     port = int(os.getenv("PORT", "8000"))
-    
+
     uvicorn.run(
         "backend.app.unified_api:app",
         host="0.0.0.0",
         port=port,
         reload=True if ENVIRONMENT == "development" else False,
-        log_level="info"
-    ) 
+        log_level="info",
+    )

@@ -6,12 +6,6 @@ Provides CRM and sales data functionality
 import asyncio
 import logging
 from datetime import datetime
-from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
-    EnhancedStandardizedMCPServer,
-    MCPServerConfig,
-    HealthCheckLevel
-)
-
 from typing import Any
 
 from mcp import Server
@@ -141,10 +135,13 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {"status": "ok"}
+
 except ImportError:
     pass
 
@@ -152,19 +149,18 @@ except ImportError:
         """Server-specific initialization"""
         # TODO: Add server-specific initialization
         pass
-        
+
     def _setup_server_routes(self):
         """Setup server-specific routes"""
         # Existing routes should be moved here
         pass
-        
+
     async def check_server_health(self) -> bool:
         """Check server health"""
         # TODO: Implement health check
         return True
-        
+
     async def server_specific_shutdown(self):
         """Server-specific shutdown"""
         # TODO: Add cleanup logic
         pass
-

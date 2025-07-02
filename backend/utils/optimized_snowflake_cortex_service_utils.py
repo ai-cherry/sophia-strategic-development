@@ -22,9 +22,7 @@ class CortexUtils:
     """Utility functions for Cortex operations"""
 
     @staticmethod
-    def generate_cache_key(
-        text: str, model: str, operation: CortexOperation
-    ) -> str:
+    def generate_cache_key(text: str, model: str, operation: CortexOperation) -> str:
         """Generate cache key for text, model, and operation"""
         key_string = f"{operation.value}:{model}:{text}"
         return hashlib.sha256(key_string.encode()).hexdigest()[:16]
@@ -35,7 +33,7 @@ class CortexUtils:
     ) -> ProcessingMode:
         """Determine optimal processing mode based on text count and operation"""
         text_count = len(texts)
-        
+
         if text_count <= 5:
             return ProcessingMode.SEQUENTIAL
         elif text_count <= 50:
@@ -56,20 +54,19 @@ class CortexUtils:
         """Update performance metrics"""
         metrics.total_operations += 1
         metrics.batch_operations += 1 if text_count > 1 else 0
-        
+
         # Update average batch size
         if metrics.total_operations > 0:
             metrics.avg_batch_size = (
-                (metrics.avg_batch_size * (metrics.total_operations - 1) + text_count)
-                / metrics.total_operations
-            )
-        
+                metrics.avg_batch_size * (metrics.total_operations - 1) + text_count
+            ) / metrics.total_operations
+
         # Update execution time
         metrics.total_execution_time_ms += execution_time
         metrics.avg_execution_time_ms = (
             metrics.total_execution_time_ms / metrics.total_operations
         )
-        
+
         # Update token and cost tracking
         for result in results:
             if result.success:
@@ -97,17 +94,17 @@ class CortexUtils:
         """Validate and clean input texts"""
         if not texts:
             return []
-        
+
         # Filter out empty or None texts
         valid_texts = [text for text in texts if text and text.strip()]
-        
+
         # Truncate very long texts (optional)
         max_length = 10000  # Adjust based on model limits
         truncated_texts = [
             text[:max_length] if len(text) > max_length else text
             for text in valid_texts
         ]
-        
+
         return truncated_texts
 
     @staticmethod
@@ -167,17 +164,19 @@ class CortexUtils:
     ) -> str:
         """Create optimized vector search query"""
         embedding_str = "[" + ",".join(map(str, query_embedding)) + "]"
-        
+
         # Build additional filters
         filter_clauses = []
         if additional_filters:
             for column, value in additional_filters.items():
                 if isinstance(value, str):
                     filter_clauses.append(f"{column} = '{value}'")
-                elif isinstance(value, (int, float)):
+                elif isinstance(value, int | float):
                     filter_clauses.append(f"{column} = {value}")
                 elif isinstance(value, list):
-                    value_str = ",".join([f"'{v}'" if isinstance(v, str) else str(v) for v in value])
+                    value_str = ",".join(
+                        [f"'{v}'" if isinstance(v, str) else str(v) for v in value]
+                    )
                     filter_clauses.append(f"{column} IN ({value_str})")
 
         where_clause = ""
@@ -196,12 +195,14 @@ class CortexUtils:
         """
 
     @staticmethod
-    def format_performance_stats(metrics: CortexPerformanceMetrics, start_time: float) -> dict[str, Any]:
+    def format_performance_stats(
+        metrics: CortexPerformanceMetrics, start_time: float
+    ) -> dict[str, Any]:
         """Format performance statistics for reporting"""
         import time
-        
+
         uptime_seconds = time.time() - start_time
-        
+
         return {
             "service_uptime_seconds": uptime_seconds,
             "total_operations": metrics.total_operations,
@@ -239,14 +240,18 @@ class CortexUtils:
                 if metrics.total_operations > 0
                 else 0
             ),
-            "performance_grade": CortexUtils._calculate_performance_grade(metrics, uptime_seconds),
+            "performance_grade": CortexUtils._calculate_performance_grade(
+                metrics, uptime_seconds
+            ),
         }
 
     @staticmethod
-    def _calculate_performance_grade(metrics: CortexPerformanceMetrics, uptime_seconds: float) -> str:
+    def _calculate_performance_grade(
+        metrics: CortexPerformanceMetrics, uptime_seconds: float
+    ) -> str:
         """Calculate overall performance grade"""
         score = 0
-        
+
         # Execution time score (0-30 points)
         if metrics.avg_execution_time_ms < 50:
             score += 30
@@ -258,7 +263,7 @@ class CortexUtils:
             score += 15
         else:
             score += 10
-        
+
         # Cache hit ratio score (0-25 points)
         cache_ratio = (
             metrics.cache_hits / (metrics.cache_hits + metrics.cache_misses)
@@ -266,7 +271,7 @@ class CortexUtils:
             else 0
         )
         score += int(cache_ratio * 25)
-        
+
         # Error rate score (0-25 points)
         error_rate = (
             metrics.error_count / metrics.total_operations
@@ -281,7 +286,7 @@ class CortexUtils:
             score += 15
         else:
             score += 10
-        
+
         # Batch efficiency score (0-20 points)
         batch_ratio = (
             metrics.batch_operations / metrics.total_operations
@@ -289,7 +294,7 @@ class CortexUtils:
             else 0
         )
         score += int(batch_ratio * 20)
-        
+
         # Convert to letter grade
         if score >= 90:
             return "A+"
@@ -304,4 +309,4 @@ class CortexUtils:
         elif score >= 65:
             return "C"
         else:
-            return "D" 
+            return "D"

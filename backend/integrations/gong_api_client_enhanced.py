@@ -671,7 +671,7 @@ class EnhancedGongAPIClient:
 
         attempt = 0
         max_attempts = 5  # Add bounded retries
-        
+
         while attempt < max_attempts:
             try:
                 # Acquire rate limit token
@@ -764,13 +764,17 @@ class EnhancedGongAPIClient:
 
             await asyncio.sleep(retry_delay)
             attempt += 1
-                
+
         # All retries exhausted - raise the last error
         if last_error:
-            self.logger.error(f"Request failed after {max_attempts} attempts: {last_error}")
+            self.logger.error(
+                f"Request failed after {max_attempts} attempts: {last_error}"
+            )
             raise last_error
         else:
-            raise Exception(f"Request failed after {max_attempts} attempts with unknown error")
+            raise Exception(
+                f"Request failed after {max_attempts} attempts with unknown error"
+            )
 
     # API Endpoint Methods
 

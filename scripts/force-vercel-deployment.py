@@ -21,7 +21,7 @@ class VercelDeploymentForcer:
         self.base_url = "https://api.vercel.com"
         self.headers = {
             "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def get_project_info(self) -> dict[str, Any]:
@@ -32,7 +32,9 @@ class VercelDeploymentForcer:
         response = requests.get(url, headers=self.headers)
 
         if response.status_code != 200:
-            raise Exception(f"Failed to get project info: {response.status_code} - {response.text}")
+            raise Exception(
+                f"Failed to get project info: {response.status_code} - {response.text}"
+            )
 
         project_data = response.json()
         print(f"✅ Project: {project_data.get('name', 'Unknown')}")
@@ -45,15 +47,14 @@ class VercelDeploymentForcer:
         print(f"📋 Fetching latest {limit} deployments...")
 
         url = f"{self.base_url}/v6/deployments"
-        params = {
-            "projectId": self.project_id,
-            "limit": limit
-        }
+        params = {"projectId": self.project_id, "limit": limit}
 
         response = requests.get(url, headers=self.headers, params=params)
 
         if response.status_code != 200:
-            raise Exception(f"Failed to get deployments: {response.status_code} - {response.text}")
+            raise Exception(
+                f"Failed to get deployments: {response.status_code} - {response.text}"
+            )
 
         deployments = response.json().get("deployments", [])
 
@@ -66,7 +67,9 @@ class VercelDeploymentForcer:
 
         return deployments
 
-    def trigger_deployment(self, git_source: dict[str, Any] | None = None) -> dict[str, Any]:
+    def trigger_deployment(
+        self, git_source: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Trigger a new deployment."""
         print("🚀 Triggering new deployment...")
 
@@ -75,7 +78,7 @@ class VercelDeploymentForcer:
             git_source = {
                 "type": "github",
                 "repo": "ai-cherry/sophia-main",
-                "ref": "main"
+                "ref": "main",
             }
 
         deployment_data = {
@@ -86,15 +89,17 @@ class VercelDeploymentForcer:
                 "buildCommand": "cd frontend && npm run build",
                 "outputDirectory": "frontend/dist",
                 "installCommand": "cd frontend && npm install",
-                "framework": None
-            }
+                "framework": None,
+            },
         }
 
         url = f"{self.base_url}/v13/deployments"
         response = requests.post(url, headers=self.headers, json=deployment_data)
 
         if response.status_code not in [200, 201]:
-            raise Exception(f"Failed to trigger deployment: {response.status_code} - {response.text}")
+            raise Exception(
+                f"Failed to trigger deployment: {response.status_code} - {response.text}"
+            )
 
         deployment = response.json()
         deployment_id = deployment.get("id", "unknown")
@@ -106,7 +111,9 @@ class VercelDeploymentForcer:
 
         return deployment
 
-    def monitor_deployment(self, deployment_id: str, timeout: int = 600) -> dict[str, Any]:
+    def monitor_deployment(
+        self, deployment_id: str, timeout: int = 600
+    ) -> dict[str, Any]:
         """Monitor deployment progress."""
         print(f"⏳ Monitoring deployment {deployment_id}...")
 
@@ -160,16 +167,14 @@ class VercelDeploymentForcer:
             frontend_ok = False
 
         # Test API endpoints
-        api_endpoints = [
-            "/api/health",
-            "/api/n8n/health",
-            "/api/mcp/health"
-        ]
+        api_endpoints = ["/api/health", "/api/n8n/health", "/api/mcp/health"]
 
         api_results = []
         for endpoint in api_endpoints:
             try:
-                response = requests.get(f"https://{deployment_url}{endpoint}", timeout=30)
+                response = requests.get(
+                    f"https://{deployment_url}{endpoint}", timeout=30
+                )
                 if response.status_code == 200:
                     print(f"✅ {endpoint} is working")
                     api_results.append(True)
@@ -188,7 +193,9 @@ class VercelDeploymentForcer:
             print("❌ Deployment validation: FAILED (frontend not accessible)")
             return False
 
-    def generate_report(self, deployment: dict[str, Any], validation_result: bool) -> str:
+    def generate_report(
+        self, deployment: dict[str, Any], validation_result: bool
+    ) -> str:
         """Generate a deployment report."""
         report = f"""
 # 🚀 Vercel Deployment Force Report
@@ -220,6 +227,7 @@ class VercelDeploymentForcer:
         """
 
         return report.strip()
+
 
 def main():
     """Main function to force Vercel deployment."""
@@ -255,7 +263,7 @@ def main():
                 print("⚠️  Latest deployment is already READY")
                 print("🤔 Do you want to force a new deployment anyway? (y/N)")
                 response = input().strip().lower()
-                if response != 'y':
+                if response != "y":
                     print("🛑 Deployment cancelled by user")
                     sys.exit(0)
 
@@ -303,6 +311,6 @@ def main():
         print(f"❌ ERROR: {e}")
         sys.exit(1)
 
+
 if __name__ == "__main__":
     main()
-
