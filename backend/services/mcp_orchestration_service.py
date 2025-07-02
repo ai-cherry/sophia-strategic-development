@@ -18,10 +18,11 @@ import json
 import logging
 import os
 import subprocess
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
+from pathlib import Path
 
 import aiohttp
 import httpx
@@ -107,14 +108,10 @@ class MCPServerEndpoint:
     port: int = 9000
     health_endpoint: str = "/health"
     base_path: str = ""
-    capabilities: list[str] = None
+    capabilities: list[str] = field(default_factory=list)
     last_health_check: datetime | None = None
     status: ServerStatus = ServerStatus.OFFLINE
     response_time_ms: float = 0.0
-
-    def __post_init__(self):
-        if self.capabilities is None:
-            self.capabilities = []
 
     @property
     def base_url(self) -> str:
@@ -130,14 +127,12 @@ class BusinessTask:
     description: str
     required_capabilities: list[str]
     priority: TaskPriority = TaskPriority.MEDIUM
-    context_data: dict[str, Any] = None
+    context_data: dict[str, Any] = field(default_factory=dict)
     max_execution_time_seconds: int = 300
     requires_synthesis: bool = True
     created_at: datetime | None = None
 
     def __post_init__(self):
-        if self.context_data is None:
-            self.context_data = {}
         if self.created_at is None:
             self.created_at = datetime.now(UTC)
 
@@ -153,7 +148,7 @@ class OrchestrationResult:
     servers_used: list[str]
     synthesis_applied: bool = False
     error_message: str | None = None
-    metadata: dict[str, Any] = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         if self.metadata is None:
@@ -185,25 +180,24 @@ class MCPOrchestrationService:
         self._initialize_orchestration_rules()
 
     def _load_mcp_configuration(self):
-        """Load MCP server configuration from cursor_enhanced_mcp_config.json"""
+        """Load MCP server configuration from JSON file"""
         try:
-            config_path = "config/cursor_enhanced_mcp_config.json"
-            if os.path.exists(config_path):
+            config_path = Path("cursor_enhanced_mcp_config.json")
+            if config_path.exists():
                 with open(config_path) as f:
-                    config_data = json.load(f)
+                    config = json.load(f)
 
-                # Extract MCP servers from configuration
-                mcp_servers = config_data.get("mcpServers", {})
+                # Load server configurations
+                for name, server_config in config.get("mcpServers", {}).items():
+                    if not server_config.get("disabled", False):
+                        # Extract port from configuration
+                        port = self._extract_port_from_config(server_config, name)
 
-                for name, server_config in mcp_servers.items():
-                    # Determine port from environment or assign default
-                    port = self._extract_port_from_config(server_config, name)
-
-                    self.servers[name] = MCPServerEndpoint(
-                        server_name=name,
-                        port=port,
-                        capabilities=server_config.get("capabilities", []),
-                    )
+                        self.servers[name] = MCPServerEndpoint(
+                            server_name=name,
+                            port=port,
+                            capabilities=server_config.get("capabilities", []),
+                        )
 
                 logger.info(f"Loaded configuration for {len(self.servers)} MCP servers")
             else:
@@ -322,35 +316,28 @@ class MCPOrchestrationService:
 
         try:
             # Check if server is already running
-            if await self._check_server_health(server_name):
+            if await self._check_server_health_simple(server_name):
                 logger.info(f"MCP server {server_name} already running")
                 return True
 
-            # Prepare environment
-            env = os.environ.copy()
-            env.update(config.env)
-
-            # Start server process (for Python/UV servers)
-            if config.command in ["uv", "python"]:
-                logger.info(f"Starting Python MCP server: {server_name}")
-                # For now, we'll mark as started but not actually start subprocess
-                # In production, this would start the actual process
+            # For MCPServerEndpoint, we assume the server is managed externally
+            # (e.g., via Docker, systemd, or manual startup)
+            # We just check if it's accessible
+            logger.info(f"Checking availability of MCP server: {server_name}")
+            
+            # Wait a moment and check health
+            await asyncio.sleep(1)
+            is_healthy = await self._check_server_health_simple(server_name)
+            
+            if is_healthy:
+                logger.info(f"MCP server {server_name} is available")
                 return True
-
-            # For Node.js servers
-            elif config.command in ["node", "npx"]:
-                logger.info(f"Starting Node.js MCP server: {server_name}")
-                # For now, we'll mark as started
-                return True
-
             else:
-                logger.warning(
-                    f"Unknown command type for {server_name}: {config.command}"
-                )
+                logger.warning(f"MCP server {server_name} is not responding on port {config.port}")
                 return False
 
         except Exception as e:
-            logger.error(f"Failed to start MCP server {server_name}: {e}")
+            logger.error(f"Failed to check MCP server {server_name}: {e}")
             return False
 
     async def route_to_mcp(
@@ -371,7 +358,7 @@ class MCPOrchestrationService:
 
         try:
             # Check server health first
-            if not await self._check_server_health(server):
+            if not await self._check_server_health_simple(server):
                 # Try fallback server if available
                 fallback_server = self._get_fallback_server(server)
                 if fallback_server:
@@ -517,7 +504,7 @@ class MCPOrchestrationService:
         # Check all servers in parallel
         tasks = []
         for server_name in self.servers.keys():
-            tasks.append(self._check_server_health(server_name))
+            tasks.append(self._check_server_health_simple(server_name))
 
         await asyncio.gather(*tasks, return_exceptions=True)
         self.last_health_check = datetime.now()
@@ -534,7 +521,7 @@ class MCPOrchestrationService:
             f"Health check complete: {healthy_count}/{len(self.servers)} servers healthy"
         )
 
-    async def _check_server_health(self, server_name: str) -> bool:
+    async def _check_server_health_simple(self, server_name: str) -> bool:
         """Check health of individual MCP server"""
         config = self.servers.get(server_name)
         if not config:
@@ -544,7 +531,7 @@ class MCPOrchestrationService:
 
         try:
             # Try to connect to server health endpoint
-            url = f"http://localhost:{config.port}/health"
+            url = f"{config.base_url}{config.health_endpoint}"
             response = await self.client.get(url, timeout=5.0)
 
             response_time = (datetime.now() - start_time).total_seconds() * 1000
@@ -670,7 +657,7 @@ class MCPOrchestrationService:
             await asyncio.sleep(2)  # Simulate restart time
 
             # Check if restart was successful
-            return await self._check_server_health(server_name)
+            return await self._check_server_health_simple(server_name)
 
         except Exception as e:
             logger.error(f"Failed to restart {server_name}: {e}")
@@ -980,7 +967,7 @@ class MCPOrchestrationService:
 
         tasks = []
         for server_name, server in self.servers.items():
-            tasks.append(self._check_server_health(server_name, server))
+            tasks.append(self._check_server_health_simple(server_name))
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -996,43 +983,6 @@ class MCPOrchestrationService:
             f"Health check completed: {len([s for s in health_results.values() if s == ServerStatus.HEALTHY])}/{len(self.servers)} servers healthy"
         )
         return health_results
-
-    async def _check_server_health(
-        self, server_name: str, server: MCPServerEndpoint
-    ) -> ServerStatus:
-        """Check health of a specific server"""
-        try:
-            start_time = datetime.now(UTC)
-
-            async with self.session.get(
-                f"{server.base_url}{server.health_endpoint}"
-            ) as response:
-                if response.status == 200:
-                    health_data = await response.json()
-
-                    # Update server status
-                    server.last_health_check = datetime.now(UTC)
-                    server.response_time_ms = (
-                        server.last_health_check - start_time
-                    ).total_seconds() * 1000
-
-                    # Determine status based on health response
-                    if health_data.get("status") == "healthy":
-                        server.status = ServerStatus.HEALTHY
-                    elif health_data.get("status") == "degraded":
-                        server.status = ServerStatus.DEGRADED
-                    else:
-                        server.status = ServerStatus.UNHEALTHY
-
-                    return server.status
-                else:
-                    server.status = ServerStatus.UNHEALTHY
-                    return ServerStatus.UNHEALTHY
-
-        except Exception as e:
-            logger.warning(f"Health check failed for {server_name}: {e}")
-            server.status = ServerStatus.OFFLINE
-            return ServerStatus.OFFLINE
 
     async def execute_business_task(self, task: BusinessTask) -> OrchestrationResult:
         """Execute a business task using intelligent server orchestration"""
@@ -1231,6 +1181,13 @@ class MCPOrchestrationService:
     ) -> dict[str, Any]:
         """Execute a task on a specific server"""
         try:
+            # Ensure session is initialized
+            if not self.session:
+                self.session = aiohttp.ClientSession(
+                    timeout=aiohttp.ClientTimeout(total=30),
+                    headers={"User-Agent": "Sophia-AI-Orchestrator/3.18.0"},
+                )
+                
             # For now, just call the health endpoint as a placeholder
             # In production, this would call appropriate server endpoints based on task type
             async with self.session.get(f"{server.base_url}/health") as response:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import uuid
 
 """
 Snowflake Cortex AI Service
@@ -39,6 +40,9 @@ from typing import Any
 import pandas as pd
 
 from backend.core.auto_esc_config import get_config_value
+
+# Import ConnectionType from optimized connection manager
+from backend.core.optimized_connection_manager import ConnectionType
 
 logger = logging.getLogger(__name__)
 
@@ -334,7 +338,7 @@ class SnowflakeCortexService:
 
         try:
             # Use connection manager instead of direct cursor
-            results = await self.execute_query(query)
+            results = await self.connection_manager.execute_query(query)
 
             embeddings = []
             for row in results:
@@ -413,11 +417,11 @@ class SnowflakeCortexService:
         """
 
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-
-            results = []
-            for row in cursor.fetchall():
+            # Use connection manager to execute query
+            results = await self.connection_manager.execute_query(query)
+            
+            vector_results = []
+            for row in results:
                 result = VectorSearchResult(
                     content=row[1],
                     similarity_score=row[5],
@@ -425,19 +429,16 @@ class SnowflakeCortexService:
                     source_table=row[3],
                     source_id=row[4],
                 )
-                results.append(result)
+                vector_results.append(result)
 
             logger.info(
-                f"Found {len(results)} similar results for query: {query_text[:50]}..."
+                f"Found {len(vector_results)} similar results for query: {query_text[:50]}..."
             )
-            return results
+            return vector_results
 
         except Exception as e:
             logger.error(f"Error performing vector search: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def complete_text_with_cortex(
         self,
@@ -478,11 +479,13 @@ class SnowflakeCortexService:
         """
 
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-
-            result = cursor.fetchone()
-            completion = result[0] if result else ""
+            # Use connection manager to execute query
+            results = await self.connection_manager.execute_query(query)
+            
+            if results and len(results) > 0:
+                completion = results[0][0] if results[0][0] else ""
+            else:
+                completion = ""
 
             logger.info(f"Generated text completion using {model.value}")
             return completion
@@ -490,9 +493,6 @@ class SnowflakeCortexService:
         except Exception as e:
             logger.error(f"Error generating text completion: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def extract_entities_from_text(
         self,
@@ -536,16 +536,23 @@ class SnowflakeCortexService:
             query += f" WHERE {conditions}"
 
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
-
-            columns = [desc[0] for desc in cursor.description]
-            results = cursor.fetchall()
-
+            # Use connection manager to execute query
+            results = await self.connection_manager.execute_query(query)
+            
             entities = []
-            for row in results:
-                record = dict(zip(columns, row, strict=False))
-                entities.append(record)
+            if hasattr(results, 'to_dict'):
+                # Handle pandas DataFrame
+                entities = results.to_dict('records')
+            else:
+                # Handle raw results
+                for row in results:
+                    record = {
+                        'id': row[0],
+                        'text': row[1],
+                        'extracted_entities': row[2],
+                        'extracted_at': row[3]
+                    }
+                    entities.append(record)
 
             logger.info(f"Extracted entities from {len(entities)} records")
             return entities
@@ -553,9 +560,6 @@ class SnowflakeCortexService:
         except Exception as e:
             logger.error(f"Error extracting entities: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def _create_vector_tables(self):
         """Create vector storage tables if they don't exist"""
@@ -576,14 +580,10 @@ class SnowflakeCortexService:
             """
 
             try:
-                cursor = self.connection.cursor()
-                cursor.execute(create_query)
+                await self.connection_manager.execute_query(create_query)
                 logger.debug(f"Ensured vector table {table_name} exists")
             except Exception as e:
                 logger.warning(f"Could not create vector table {table_name}: {e}")
-            finally:
-                if cursor:
-                    cursor.close()
 
     async def _store_embeddings(
         self, embeddings: list[dict[str, Any]], source_table: str
@@ -616,22 +616,26 @@ class SnowflakeCortexService:
         """
 
         try:
-            cursor = self.connection.cursor()
-            cursor.executemany(insert_query, insert_data)
+            # Use connection manager's pool to get connection
+            pool = self.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+            if not pool:
+                raise ValueError("Snowflake connection pool not available")
+                
+            async with pool.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.executemany(insert_query, insert_data)
+                cursor.close()
+                
             logger.info(f"Stored {len(insert_data)} embeddings in {vector_table}")
         except Exception as e:
             logger.error(f"Error storing embeddings: {e}")
             raise
-        finally:
-            if cursor:
-                cursor.close()
 
     async def close(self):
         """Close Snowflake connection"""
-        if self.connection:
-            self.connection.close()
-            self.initialized = False
-            logger.info("Snowflake Cortex service connection closed")
+        # Connection managed by connection manager
+        self.initialized = False
+        logger.info("Snowflake Cortex service connection closed")
 
     async def store_embedding_in_business_table(
         self,
@@ -691,85 +695,90 @@ class SnowflakeCortexService:
 
         cursor = None
         try:
-            cursor = self.connection.cursor()
+            pool = self.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+            if not pool:
+                raise ValueError("Snowflake connection pool not available")
+                
+            async with pool.get_connection() as conn:
+                cursor = conn.cursor()
 
-            # Step 1: Verify record exists
-            check_query = f"SELECT 1 FROM {table_name} WHERE id = %s"
-            cursor.execute(check_query, (record_id,))
-            record_exists = cursor.fetchone() is not None
+                # Step 1: Verify record exists
+                check_query = f"SELECT 1 FROM {table_name} WHERE id = %s"
+                cursor.execute(check_query, (record_id,))
+                record_exists = cursor.fetchone() is not None
 
-            if not record_exists:
-                raise ValueError(f"Record {record_id} not found in {table_name}")
+                if not record_exists:
+                    raise ValueError(f"Record {record_id} not found in {table_name}")
 
-            # Step 2: Generate embedding with error handling
-            try:
-                embed_query = (
-                    "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as embedding"
-                )
-                cursor.execute(embed_query, (model, text_content))
-                embedding_result = cursor.fetchone()
-
-                if not embedding_result or not embedding_result[0]:
-                    raise CortexEmbeddingError(
-                        f"Failed to generate embedding with model {model}"
-                    )
-
-                generated_embedding = embedding_result[0]
-
-            except Exception as cortex_error:
-                if "insufficient credits" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(
-                        "Insufficient Snowflake credits for embedding generation"
-                    )
-                elif "model not available" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(
-                        f"Model {model} not available in Snowflake Cortex"
-                    )
-                elif "text too long" in str(cortex_error).lower():
-                    raise CortexEmbeddingError("Text content exceeds model limits")
-                else:
-                    raise CortexEmbeddingError(
-                        f"Cortex embedding error: {cortex_error}"
-                    )
-
-            # Step 3: Serialize metadata properly
-            metadata_json = None
-            if metadata:
+                # Step 2: Generate embedding with error handling
                 try:
-                    metadata_json = json.dumps(
-                        metadata, default=str, ensure_ascii=False
+                    embed_query = (
+                        "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as embedding"
                     )
-                except (TypeError, ValueError) as e:
-                    logger.warning(f"Failed to serialize metadata: {e}")
-                    metadata_json = json.dumps(
-                        {"error": "failed_to_serialize", "original_error": str(e)}
+                    cursor.execute(embed_query, (model, text_content))
+                    embedding_result = cursor.fetchone()
+
+                    if not embedding_result or not embedding_result[0]:
+                        raise CortexEmbeddingError(
+                            f"Failed to generate embedding with model {model}"
+                        )
+
+                    generated_embedding = embedding_result[0]
+
+                except Exception as cortex_error:
+                    if "insufficient credits" in str(cortex_error).lower():
+                        raise CortexEmbeddingError(
+                            "Insufficient Snowflake credits for embedding generation"
+                        )
+                    elif "model not available" in str(cortex_error).lower():
+                        raise CortexEmbeddingError(
+                            f"Model {model} not available in Snowflake Cortex"
+                        )
+                    elif "text too long" in str(cortex_error).lower():
+                        raise CortexEmbeddingError("Text content exceeds model limits")
+                    else:
+                        raise CortexEmbeddingError(
+                            f"Cortex embedding error: {cortex_error}"
+                        )
+
+                # Step 3: Serialize metadata properly
+                metadata_json = None
+                if metadata:
+                    try:
+                        metadata_json = json.dumps(
+                            metadata, default=str, ensure_ascii=False
+                        )
+                    except (TypeError, ValueError) as e:
+                        logger.warning(f"Failed to serialize metadata: {e}")
+                        metadata_json = json.dumps(
+                            {"error": "failed_to_serialize", "original_error": str(e)}
+                        )
+
+                # Step 4: Update record with embedding and metadata
+                update_query = f"""
+                UPDATE {table_name}
+                SET
+                    {embedding_column} = %s,
+                    ai_memory_metadata = %s,
+                    ai_memory_updated_at = CURRENT_TIMESTAMP()
+                WHERE id = %s
+                """
+
+                cursor.execute(
+                    update_query, (generated_embedding, metadata_json, record_id)
+                )
+                rows_affected = cursor.rowcount
+
+                if rows_affected > 0:
+                    logger.info(
+                        f"Successfully stored embedding for {record_id} in {table_name}"
                     )
-
-            # Step 4: Update record with embedding and metadata
-            update_query = f"""
-            UPDATE {table_name}
-            SET
-                {embedding_column} = %s,
-                ai_memory_metadata = %s,
-                ai_memory_updated_at = CURRENT_TIMESTAMP()
-            WHERE id = %s
-            """
-
-            cursor.execute(
-                update_query, (generated_embedding, metadata_json, record_id)
-            )
-            rows_affected = cursor.rowcount
-
-            if rows_affected > 0:
-                logger.info(
-                    f"Successfully stored embedding for {record_id} in {table_name}"
-                )
-                return True
-            else:
-                logger.error(
-                    f"No rows updated for {record_id} in {table_name} - this should not happen"
-                )
-                return False
+                    return True
+                else:
+                    logger.error(
+                        f"No rows updated for {record_id} in {table_name} - this should not happen"
+                    )
+                    return False
 
         except ValueError:
             # Re-raise validation errors
@@ -794,8 +803,17 @@ class SnowflakeCortexService:
             if cursor:
                 cursor.close()
 
-    def _iteration_1(self):
+    def _iteration_1(self, metadata_filters):
         """Extracted iteration logic"""
+        ALLOWED_FILTER_COLUMNS = {
+            "deal_stage",
+            "sentiment_category",
+            "primary_user_name",
+            "hubspot_deal_id",
+            "call_type",
+            "id",
+            "contact_id",
+        }
         for key in metadata_filters:
             if key not in ALLOWED_FILTER_COLUMNS:
                 raise InvalidInputError(
@@ -803,58 +821,7 @@ class SnowflakeCortexService:
                 )
 
 
-    def _error_handling_2(self):
-        """Extracted error_handling logic"""
-        cursor = self.connection.cursor()
 
-        # Step 1: Verify table exists and has required columns
-        table_check_query = """
-        SELECT COUNT(*)
-        FROM INFORMATION_SCHEMA.TABLES
-        WHERE TABLE_NAME = %s
-          AND TABLE_SCHEMA = %s
-          AND TABLE_CATALOG = %s
-        """
-        cursor.execute(table_check_query, (table_name, self.schema, self.database))
-        table_exists = cursor.fetchone()[0] > 0
-
-
-    def _error_handling_3(self):
-        """Extracted error_handling logic"""
-                    embed_query = (
-                        "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as query_vector"
-                    )
-                    cursor.execute(embed_query, (model, query_text))
-                    embedding_result = cursor.fetchone()
-
-
-    def _conditional_4(self):
-        """Extracted conditional logic"""
-                        raise CortexEmbeddingError(
-                            f"Failed to generate query embedding with model {model}"
-                        )
-
-                    query_embedding = embedding_result[0]
-
-
-    def _iteration_5(self):
-        """Extracted iteration logic"""
-                        # Key is already validated against whitelist above
-                        where_conditions.append(f"{key} = %s")
-                        query_params.append(value)
-
-                where_clause = " AND ".join(where_conditions)
-
-
-    def _iteration_6(self):
-        """Extracted iteration logic"""
-                    record = dict(zip(columns, row, strict=False))
-                    search_results.append(record)
-
-                logger.info(
-                    f"Found {len(search_results)} similar records in {table_name} for query: {query_text[:50]}..."
-                )
-                return search_results
 
 
     async def vector_search_business_table(
@@ -939,58 +906,109 @@ class SnowflakeCortexService:
 
         # Validate metadata filters
         if metadata_filters:
-            self._iteration_1()
+            self._iteration_1(metadata_filters)
+        
         cursor = None
-        self._error_handling_2()
-            self._error_handling_3()
-                self._conditional_4()
-            except Exception as cortex_error:
-                if "insufficient credits" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(
-                        "Insufficient Snowflake credits for query embedding"
+        try:
+            pool = self.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+            if not pool:
+                raise ValueError("Snowflake connection pool not available")
+                
+            async with pool.get_connection() as conn:
+                cursor = conn.cursor()
+
+                # Step 1: Verify table exists and has required columns
+                table_check_query = """
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_NAME = %s
+                  AND TABLE_SCHEMA = %s
+                  AND TABLE_CATALOG = %s
+                """
+                cursor.execute(table_check_query, (table_name, self.schema, self.database))
+                table_exists = cursor.fetchone()[0] > 0
+
+                if not table_exists:
+                    raise BusinessTableNotFoundError(
+                        f"Table {table_name} not found in schema {self.schema}"
                     )
-                elif "model not available" in str(cortex_error).lower():
-                    raise CortexEmbeddingError(
-                        f"Model {model} not available in Snowflake Cortex"
+
+                # Step 2: Generate embedding for query text
+                try:
+                    embed_query = (
+                        "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s) as query_vector"
                     )
-                else:
-                    raise CortexEmbeddingError(f"Query embedding error: {cortex_error}")
+                    cursor.execute(embed_query, (model, query_text))
+                    embedding_result = cursor.fetchone()
 
-            # Step 3: Build WHERE clause with parameterized queries - SECURE VERSION
-            where_conditions = [f"{embedding_column} IS NOT NULL"]
-            query_params = []
+                    if not embedding_result or not embedding_result[0]:
+                        raise CortexEmbeddingError(
+                            f"Failed to generate query embedding with model {model}"
+                        )
 
-            if metadata_filters:
-                self._iteration_5()
-            # Step 4: Build the vector search query with proper parameterization - SECURE VERSION
-            # Using validated table_name and embedding_column directly since they're whitelisted
-            search_query = f"""
-            SELECT
-                *,
-                VECTOR_COSINE_SIMILARITY(%s, {embedding_column}) as similarity_score
-            FROM {table_name}
-            WHERE {where_clause}
-              AND VECTOR_COSINE_SIMILARITY(%s, {embedding_column}) >= %s
-            ORDER BY similarity_score DESC
-            LIMIT %s
-            """
+                    query_embedding = embedding_result[0]
 
-            # Parameters: [query_embedding, query_embedding, ...metadata_values..., similarity_threshold, top_k]
-            final_params = (
-                [query_embedding, query_embedding]
-                + query_params
-                + [similarity_threshold, top_k]
-            )
+                except Exception as cortex_error:
+                    if "insufficient credits" in str(cortex_error).lower():
+                        raise CortexEmbeddingError(
+                            "Insufficient Snowflake credits for query embedding"
+                        )
+                    elif "model not available" in str(cortex_error).lower():
+                        raise CortexEmbeddingError(
+                            f"Model {model} not available in Snowflake Cortex"
+                        )
+                    else:
+                        raise CortexEmbeddingError(f"Query embedding error: {cortex_error}")
 
-            cursor.execute(search_query, final_params)
+                # Step 3: Build WHERE clause with parameterized queries - SECURE VERSION
+                where_conditions = [f"{embedding_column} IS NOT NULL"]
+                query_params = []
 
-            # Get column names and results
-            columns = [desc[0] for desc in cursor.description]
-            results = cursor.fetchall()
+                if metadata_filters:
+                    for key, value in metadata_filters.items():
+                        # Key is already validated against whitelist above
+                        where_conditions.append(f"{key} = %s")
+                        query_params.append(value)
 
-            # Convert to list of dictionaries
-            search_results = []
-            self._iteration_6()
+                where_clause = " AND ".join(where_conditions)
+
+                # Step 4: Build the vector search query with proper parameterization - SECURE VERSION
+                # Using validated table_name and embedding_column directly since they're whitelisted
+                search_query = f"""
+                SELECT
+                    *,
+                    VECTOR_COSINE_SIMILARITY(%s, {embedding_column}) as similarity_score
+                FROM {table_name}
+                WHERE {where_clause}
+                  AND VECTOR_COSINE_SIMILARITY(%s, {embedding_column}) >= %s
+                ORDER BY similarity_score DESC
+                LIMIT %s
+                """
+
+                # Parameters: [query_embedding, query_embedding, ...metadata_values..., similarity_threshold, top_k]
+                final_params = (
+                    [query_embedding, query_embedding]
+                    + query_params
+                    + [similarity_threshold, top_k]
+                )
+
+                cursor.execute(search_query, final_params)
+
+                # Get column names and results
+                columns = [desc[0] for desc in cursor.description]
+                results = cursor.fetchall()
+
+                # Convert to list of dictionaries
+                search_results = []
+                for row in results:
+                    record = dict(zip(columns, row, strict=False))
+                    search_results.append(record)
+
+                logger.info(
+                    f"Found {len(search_results)} similar records in {table_name} for query: {query_text[:50]}..."
+                )
+                return search_results
+
         except InvalidInputError:
             # Re-raise validation errors
             raise
@@ -1039,39 +1057,44 @@ class SnowflakeCortexService:
 
         cursor = None
         try:
-            cursor = self.connection.cursor()
+            pool = self.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+            if not pool:
+                raise ValueError("Snowflake connection pool not available")
+                
+            async with pool.get_connection() as conn:
+                cursor = conn.cursor()
 
-            # Use IF NOT EXISTS for safe concurrent execution
-            alter_statements = [
-                f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_embedding VECTOR(FLOAT, 768)",
-                f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_metadata VARCHAR(16777216)",
-                f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_updated_at TIMESTAMP_NTZ",
-            ]
+                # Use IF NOT EXISTS for safe concurrent execution
+                alter_statements = [
+                    f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_embedding VECTOR(FLOAT, 768)",
+                    f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_metadata VARCHAR(16777216)",
+                    f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS ai_memory_updated_at TIMESTAMP_NTZ",
+                ]
 
-            # Execute within transaction for atomicity
-            cursor.execute("BEGIN TRANSACTION")
+                # Execute within transaction for atomicity
+                cursor.execute("BEGIN TRANSACTION")
 
-            try:
-                for statement in alter_statements:
-                    cursor.execute(statement)
-                    logger.info(f"Executed: {statement}")
+                try:
+                    for statement in alter_statements:
+                        cursor.execute(statement)
+                        logger.info(f"Executed: {statement}")
 
-                cursor.execute("COMMIT")
-                logger.info(
-                    f"✅ Successfully ensured AI Memory columns exist in {table_name}"
-                )
-                return True
-
-            except Exception as alter_error:
-                cursor.execute("ROLLBACK")
-
-                if "permission denied" in str(alter_error).lower():
-                    raise InsufficientPermissionsError(
-                        f"Insufficient permissions to alter {table_name}: {alter_error}"
+                    cursor.execute("COMMIT")
+                    logger.info(
+                        f"✅ Successfully ensured AI Memory columns exist in {table_name}"
                     )
-                else:
-                    logger.error(f"Error adding columns to {table_name}: {alter_error}")
-                    raise
+                    return True
+
+                except Exception as alter_error:
+                    cursor.execute("ROLLBACK")
+
+                    if "permission denied" in str(alter_error).lower():
+                        raise InsufficientPermissionsError(
+                            f"Insufficient permissions to alter {table_name}: {alter_error}"
+                        )
+                    else:
+                        logger.error(f"Error adding columns to {table_name}: {alter_error}")
+                        raise
 
         except InvalidInputError:
             # Re-raise validation errors
@@ -1642,219 +1665,183 @@ class SnowflakeCortexService:
 
     async def log_etl_job_status(self, job_log: dict[str, Any]) -> bool:
         """
-        Log ETL job status to OPS_MONITORING.ETL_JOB_LOGS table
+        Log ETL job status to operational monitoring table
 
         Args:
             job_log: Dictionary containing job status information
 
         Returns:
-            True if logged successfully, False otherwise
+            True if successful, False otherwise
         """
-        try:
-            # Insert job log into monitoring table
-            insert_sql = f"""
-            INSERT INTO OPS_MONITORING.ETL_JOB_LOGS (
-                JOB_ID,
-                JOB_TYPE,
-                STATUS,
-                RECORDS_PROCESSED,
-                SUCCESS_RATE,
-                HEALTH_STATUS,
-                CONNECTION_ID,
-                SOURCE_TYPE,
-                DESTINATION_TYPE,
-                ERROR_MESSAGE,
-                METADATA
-            ) VALUES (
-                '{job_log.get("job_id", "")}',
-                '{job_log.get("job_type", "")}',
-                '{job_log.get("status", "")}',
-                {job_log.get("records_processed", 0)},
-                {job_log.get("success_rate", 0.0)},
-                '{job_log.get("health_status", "")}',
-                '{job_log.get("connection_id", "")}',
-                '{job_log.get("source_type", "")}',
-                '{job_log.get("destination_type", "")}',
-                '{job_log.get("error_message", "")}',
-                PARSE_JSON('{json.dumps(job_log.get("metadata", {}))}')
-            )
-            """
+        if not self.initialized:
+            await self.initialize()
 
-            await self.execute_query(insert_sql)
-            logger.info(f"ETL job status logged: {job_log.get('job_id', 'unknown')}")
-            return True
+        # Prepare job log data
+        log_data = {
+            "job_id": job_log.get("job_id", str(uuid.uuid4())),
+            "job_name": job_log.get("job_name", "Unknown"),
+            "job_type": job_log.get("job_type", "ETL"),
+            "status": job_log.get("status", "RUNNING"),
+            "start_time": job_log.get("start_time"),
+            "end_time": job_log.get("end_time"),
+            "records_processed": job_log.get("records_processed", 0),
+            "error_message": job_log.get("error_message"),
+            "metadata": json.dumps(job_log.get("metadata", {})),
+        }
+
+        insert_query = """
+        INSERT INTO OPS_MONITORING.ETL_JOB_LOGS
+        (job_id, job_name, job_type, status, start_time, end_time, 
+         records_processed, error_message, metadata)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor = None
+        try:
+            pool = self.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+            if not pool:
+                raise ValueError("Snowflake connection pool not available")
+                
+            async with pool.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    insert_query,
+                    (
+                        log_data["job_id"],
+                        log_data["job_name"],
+                        log_data["job_type"],
+                        log_data["status"],
+                        log_data["start_time"],
+                        log_data["end_time"],
+                        log_data["records_processed"],
+                        log_data["error_message"],
+                        log_data["metadata"],
+                    ),
+                )
+                logger.info(f"✅ Logged ETL job status: {log_data['job_id']}")
+                return True
 
         except Exception as e:
-            logger.error(f"Failed to log ETL job status: {e}")
+            logger.error(f"❌ Failed to log ETL job status: {e}")
             return False
+        finally:
+            if cursor:
+                cursor.close()
 
     async def get_connection(self):
-        """
-        Get a Snowflake connection from the connection manager
-
-        Returns:
-            Snowflake connection instance via context manager
-        """
-        if not self.initialized:
-            await self.initialize()
-
-        try:
-            # Get connection from the optimized connection manager using context manager
-            from backend.core.optimized_connection_manager import ConnectionType
-
-            return self.connection_manager.pools[
-                ConnectionType.SNOWFLAKE
-            ].get_connection()
-        except Exception as e:
-            logger.error(f"Failed to get Snowflake connection: {e}")
-            raise
+        """Get a database connection from the connection manager"""
+        pool = self.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+        if not pool:
+            raise ValueError("Snowflake connection pool not available")
+            
+        # Return the connection context manager
+        return pool.get_connection()
 
     async def execute_query(self, query: str, params: tuple | None = None):
-        """
-        Execute a query using the connection manager
-
-        Args:
-            query: SQL query to execute
-            params: Optional query parameters
-
-        Returns:
-            Query results
-        """
-        if not self.initialized:
-            await self.initialize()
-
-        try:
-            from backend.core.optimized_connection_manager import ConnectionType
-
-            return await self.connection_manager.execute_query(
-                query, params, ConnectionType.SNOWFLAKE
-            )
-        except Exception as e:
-            logger.error(f"Failed to execute query: {e}")
-            raise
+        """Execute a query using the connection manager"""
+        return await self.connection_manager.execute_query(query, params)
 
 
-# Global service instance
-cortex_service = SnowflakeCortexService()
+# Global instance
+_cortex_service: SnowflakeCortexService | None = None
 
 
 async def get_cortex_service() -> SnowflakeCortexService:
-    """Get the global Cortex service instance"""
-    if not cortex_service.initialized:
-        await cortex_service.initialize()
-    return cortex_service
+    """Get or create global Cortex service instance"""
+    global _cortex_service
+    if _cortex_service is None:
+        _cortex_service = SnowflakeCortexService()
+        await _cortex_service.initialize()
+    return _cortex_service
 
 
-# Convenience functions for common AI operations
 async def summarize_hubspot_contact_notes(
     contact_id: str, max_length: int = 150
 ) -> dict[str, Any]:
-    """Summarize all notes for a HubSpot contact using Cortex"""
+    """
+    Summarize all notes for a HubSpot contact using Cortex AI
+
+    Args:
+        contact_id: HubSpot contact ID
+        max_length: Maximum summary length
+
+    Returns:
+        Summary result with AI-generated content
+    """
     service = await get_cortex_service()
 
-    conditions = f"contact_id = '{contact_id}' AND note_text IS NOT NULL"
-    summaries = await service.summarize_text_in_snowflake(
-        text_column="note_text",
+    results = await service.summarize_text_in_snowflake(
+        text_column="note_content",
         table_name="HUBSPOT_CONTACT_NOTES",
-        conditions=conditions,
+        conditions=f"contact_id = '{contact_id}'",
         max_length=max_length,
     )
 
-    return {
-        "contact_id": contact_id,
-        "note_summaries": summaries,
-        "total_notes": len(summaries),
-        "ai_service": "snowflake_cortex",
-    }
+    return {"contact_id": contact_id, "summaries": results}
 
 
 async def analyze_gong_call_sentiment(call_id: str) -> dict[str, Any]:
     """
-    Analyze sentiment for a specific Gong call using Snowflake Cortex
+    Analyze sentiment for a Gong call transcript
 
     Args:
         call_id: Gong call ID
 
     Returns:
-        Comprehensive sentiment analysis with call context
+        Sentiment analysis results
     """
     service = await get_cortex_service()
 
-    query = f"""
+    # Analyze overall call sentiment
+    call_sentiment = await service.analyze_sentiment_in_snowflake(
+        text_column="transcript_text",
+        table_name="GONG_CALL_TRANSCRIPTS",
+        conditions=f"call_id = '{call_id}'",
+    )
+
+    # Analyze sentiment by speaker
+    speaker_sentiment_query = f"""
     SELECT
-        gc.CALL_ID,
-        gc.CALL_TITLE,
-        gc.CALL_DATETIME_UTC,
-        gc.PRIMARY_USER_NAME,
-        gc.HUBSPOT_DEAL_ID,
-
-        -- Overall call sentiment from Cortex
-        SNOWFLAKE.CORTEX.SENTIMENT(
-            COALESCE(gc.CALL_TITLE, '') || ' ' ||
-            COALESCE(gc.CALL_SUMMARY, '') || ' ' ||
-            COALESCE(gc.ACCOUNT_NAME, '')
-        ) as call_sentiment_score,
-
-        -- Transcript sentiment analysis
-        AVG(t.SEGMENT_SENTIMENT) as avg_transcript_sentiment,
-        COUNT(t.TRANSCRIPT_ID) as transcript_segments,
-
-        -- Risk indicators from negative segments
-        STRING_AGG(
-            CASE WHEN t.SEGMENT_SENTIMENT < 0.2
-            THEN t.TRANSCRIPT_TEXT
-            ELSE NULL END,
-            ' | '
-        ) as negative_segments,
-
-        -- Positive highlights
-        STRING_AGG(
-            CASE WHEN t.SEGMENT_SENTIMENT > 0.7
-            THEN t.TRANSCRIPT_TEXT
-            ELSE NULL END,
-            ' | '
-        ) as positive_segments
-
-    FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc
-    LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t
-        ON gc.CALL_ID = t.CALL_ID
-    WHERE gc.CALL_ID = '{call_id}'
-    GROUP BY
-        gc.CALL_ID, gc.CALL_TITLE, gc.CALL_DATETIME_UTC,
-        gc.PRIMARY_USER_NAME, gc.HUBSPOT_DEAL_ID,
-        gc.CALL_SUMMARY, gc.ACCOUNT_NAME
+        speaker_name,
+        speaker_type,
+        AVG(SNOWFLAKE.CORTEX.SENTIMENT(transcript_segment)) as avg_sentiment,
+        COUNT(*) as segment_count
+    FROM GONG_CALL_TRANSCRIPT_SEGMENTS
+    WHERE call_id = '{call_id}'
+    GROUP BY speaker_name, speaker_type
     """
 
+    cursor = None
     try:
-        cursor = service.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
+        pool = service.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+        if not pool:
+            raise ValueError("Snowflake connection pool not available")
+            
+        async with pool.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(speaker_sentiment_query)
+            speaker_results = cursor.fetchall()
 
-        if result:
+            speaker_sentiment = []
+            for row in speaker_results:
+                speaker_sentiment.append(
+                    {
+                        "speaker_name": row[0],
+                        "speaker_type": row[1],
+                        "avg_sentiment": row[2],
+                        "segment_count": row[3],
+                    }
+                )
+
             return {
-                "call_id": result[0],
-                "call_title": result[1],
-                "call_datetime": result[2],
-                "sales_rep": result[3],
-                "hubspot_deal_id": result[4],
-                "call_sentiment_score": result[5],
-                "avg_transcript_sentiment": result[6],
-                "transcript_segments": result[7],
-                "negative_segments": result[8],
-                "positive_segments": result[9],
-                "sentiment_category": _classify_sentiment_score(result[5]),
-                "coaching_priority": _calculate_coaching_priority(result[5], result[6]),
-                "ai_service": "snowflake_cortex",
-            }
-        else:
-            return {
-                "error": f"Call {call_id} not found",
-                "ai_service": "snowflake_cortex",
+                "call_id": call_id,
+                "overall_sentiment": call_sentiment,
+                "speaker_sentiment": speaker_sentiment,
             }
 
     except Exception as e:
         logger.error(f"Error analyzing Gong call sentiment: {e}")
-        raise
+        return {"call_id": call_id, "error": str(e)}
     finally:
         if cursor:
             cursor.close()
@@ -1864,105 +1851,107 @@ async def summarize_gong_call_with_context(
     call_id: str, max_length: int = 300
 ) -> dict[str, Any]:
     """
-    Generate comprehensive call summary using Snowflake Cortex with HubSpot context
+    Generate comprehensive summary of Gong call with business context
 
     Args:
         call_id: Gong call ID
         max_length: Maximum summary length
 
     Returns:
-        AI-generated call summary with business context
+        Comprehensive call summary with context
     """
     service = await get_cortex_service()
 
-    query = f"""
-    WITH call_context AS (
-        SELECT
-            gc.CALL_ID,
-            gc.CALL_TITLE,
-            gc.PRIMARY_USER_NAME,
-            gc.CALL_DURATION_SECONDS,
-            gc.SENTIMENT_SCORE,
-            gc.TALK_RATIO,
-
-            -- HubSpot context (if available)
-            hd.DEAL_NAME,
-            hd.DEAL_STAGE,
-            hd.DEAL_AMOUNT,
-            hc.COMPANY_NAME,
-
-            -- Concatenated transcript for summarization
-            STRING_AGG(t.TRANSCRIPT_TEXT, ' ') as full_transcript
-
-        FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc
-        LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t
-            ON gc.CALL_ID = t.CALL_ID
-        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd
-            ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc
-            ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
-        WHERE gc.CALL_ID = '{call_id}'
-        GROUP BY
-            gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME,
-            gc.CALL_DURATION_SECONDS, gc.SENTIMENT_SCORE, gc.TALK_RATIO,
-            hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hc.COMPANY_NAME
-    )
+    # Get call metadata for context
+    metadata_query = f"""
     SELECT
-        CALL_ID,
-        CALL_TITLE,
-        PRIMARY_USER_NAME,
-        DEAL_NAME,
-        DEAL_STAGE,
-        DEAL_AMOUNT,
-        COMPANY_NAME,
-
-        -- Generate comprehensive summary with Cortex
-        SNOWFLAKE.CORTEX.SUMMARIZE(
-            'Sales Call: ' || CALL_TITLE ||
-            CASE WHEN DEAL_NAME IS NOT NULL THEN '. Deal: ' || DEAL_NAME ELSE '' END ||
-            CASE WHEN DEAL_STAGE IS NOT NULL THEN '. Stage: ' || DEAL_STAGE ELSE '' END ||
-            CASE WHEN COMPANY_NAME IS NOT NULL THEN '. Company: ' || COMPANY_NAME ELSE '' END ||
-            CASE WHEN full_transcript IS NOT NULL THEN '. Conversation: ' || LEFT(full_transcript, 8000) ELSE '' END,
-            {max_length}
-        ) as ai_summary,
-
-        SENTIMENT_SCORE,
-        TALK_RATIO,
-        CALL_DURATION_SECONDS
-
-    FROM call_context
+        c.call_title,
+        c.call_date,
+        c.duration_minutes,
+        c.account_name,
+        c.opportunity_name,
+        c.opportunity_stage,
+        c.opportunity_amount,
+        GROUP_CONCAT(p.participant_name) as participants
+    FROM GONG_CALLS c
+    LEFT JOIN GONG_CALL_PARTICIPANTS p ON c.call_id = p.call_id
+    WHERE c.call_id = '{call_id}'
+    GROUP BY c.call_id, c.call_title, c.call_date, c.duration_minutes,
+             c.account_name, c.opportunity_name, c.opportunity_stage, c.opportunity_amount
     """
 
+    cursor = None
     try:
-        cursor = service.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
+        pool = service.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+        if not pool:
+            raise ValueError("Snowflake connection pool not available")
+            
+        async with pool.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(metadata_query)
+            metadata = cursor.fetchone()
 
-        if result:
+            if not metadata:
+                return {"call_id": call_id, "error": "Call not found"}
+
+            # Build context for summary
+            context = f"""
+            Call: {metadata[0]}
+            Date: {metadata[1]}
+            Duration: {metadata[2]} minutes
+            Account: {metadata[3]}
+            Opportunity: {metadata[4]} (Stage: {metadata[5]}, Amount: ${metadata[6]:,.2f})
+            Participants: {metadata[7]}
+            """
+
+            # Generate AI summary with context
+            summary_query = f"""
+            SELECT SNOWFLAKE.CORTEX.SUMMARIZE(
+                CONCAT('{context}\\n\\nTranscript:\\n', transcript_text),
+                {max_length}
+            ) as ai_summary
+            FROM GONG_CALL_TRANSCRIPTS
+            WHERE call_id = '{call_id}'
+            """
+
+            cursor.execute(summary_query)
+            summary_result = cursor.fetchone()
+
+            # Get key topics and action items
+            topics_query = f"""
+            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+                'mistral-7b',
+                CONCAT('Extract key topics and action items from this call transcript:\\n', transcript_text),
+                {{'max_tokens': 200}}
+            ) as key_topics_actions
+            FROM GONG_CALL_TRANSCRIPTS
+            WHERE call_id = '{call_id}'
+            """
+
+            cursor.execute(topics_query)
+            topics_result = cursor.fetchone()
+
             return {
-                "call_id": result[0],
-                "call_title": result[1],
-                "sales_rep": result[2],
-                "deal_name": result[3],
-                "deal_stage": result[4],
-                "deal_amount": result[5],
-                "company_name": result[6],
-                "ai_summary": result[7],
-                "sentiment_score": result[8],
-                "talk_ratio": result[9],
-                "duration_seconds": result[10],
-                "summary_length": len(result[7]) if result[7] else 0,
-                "ai_service": "snowflake_cortex",
-            }
-        else:
-            return {
-                "error": f"Call {call_id} not found",
-                "ai_service": "snowflake_cortex",
+                "call_id": call_id,
+                "metadata": {
+                    "title": metadata[0],
+                    "date": metadata[1],
+                    "duration_minutes": metadata[2],
+                    "account": metadata[3],
+                    "opportunity": {
+                        "name": metadata[4],
+                        "stage": metadata[5],
+                        "amount": metadata[6],
+                    },
+                    "participants": metadata[7].split(",") if metadata[7] else [],
+                },
+                "ai_summary": summary_result[0] if summary_result else None,
+                "key_topics_actions": topics_result[0] if topics_result else None,
             }
 
     except Exception as e:
         logger.error(f"Error summarizing Gong call: {e}")
-        raise
+        return {"call_id": call_id, "error": str(e)}
     finally:
         if cursor:
             cursor.close()
@@ -1975,109 +1964,83 @@ async def find_similar_gong_calls(
     date_range_days: int = 90,
 ) -> list[dict[str, Any]]:
     """
-    Find similar Gong calls using vector similarity search with Snowflake Cortex
+    Find similar Gong calls based on semantic search
 
     Args:
-        query_text: Text to search for (topic, concern, etc.)
-        top_k: Number of similar calls to return
+        query_text: Search query
+        top_k: Number of results to return
         similarity_threshold: Minimum similarity score
-        date_range_days: Days back to search
+        date_range_days: Search within last N days
 
     Returns:
-        List of similar calls with similarity scores and context
+        List of similar calls with metadata
     """
     service = await get_cortex_service()
 
-    query = f"""
-    WITH query_embedding AS (
-        SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') AS query_vector
-    ),
-    similar_transcripts AS (
-        SELECT
-            t.CALL_ID,
-            t.TRANSCRIPT_TEXT,
-            t.SPEAKER_NAME,
-            t.SEGMENT_SENTIMENT,
-            VECTOR_COSINE_SIMILARITY(q.query_vector, t.TRANSCRIPT_EMBEDDING) AS similarity_score
-        FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t
-        CROSS JOIN query_embedding q
-        JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc ON t.CALL_ID = gc.CALL_ID
-        WHERE VECTOR_COSINE_SIMILARITY(q.query_vector, t.TRANSCRIPT_EMBEDDING) >= {similarity_threshold}
-        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-        ORDER BY similarity_score DESC
-        LIMIT {top_k * 3}  -- Get more results for better call-level aggregation
-    )
-    SELECT
-        gc.CALL_ID,
-        gc.CALL_TITLE,
-        gc.PRIMARY_USER_NAME,
-        gc.CALL_DATETIME_UTC,
-        gc.SENTIMENT_SCORE,
-        hd.DEAL_NAME,
-        hd.DEAL_STAGE,
-        hd.DEAL_AMOUNT,
-        hc.COMPANY_NAME,
+    # Generate embedding for search query
+    embed_query = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as query_embedding"
 
-        -- Aggregate similarity and context
-        MAX(st.similarity_score) as max_similarity,
-        AVG(st.similarity_score) as avg_similarity,
-        COUNT(st.CALL_ID) as matching_segments,
-
-        -- Best matching transcript segments
-        STRING_AGG(
-            CASE WHEN st.similarity_score >= {similarity_threshold + 0.1}
-            THEN st.TRANSCRIPT_TEXT
-            ELSE NULL END,
-            ' | '
-        ) as relevant_segments
-
-    FROM similar_transcripts st
-    JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc ON st.CALL_ID = gc.CALL_ID
-    LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-    LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
-
-    GROUP BY
-        gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
-        gc.SENTIMENT_SCORE, hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hc.COMPANY_NAME
-
-    ORDER BY max_similarity DESC
-    LIMIT {top_k}
-    """
-
+    cursor = None
     try:
-        cursor = service.connection.cursor()
-        cursor.execute(query)
-        results = cursor.fetchall()
+        pool = service.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+        if not pool:
+            raise ValueError("Snowflake connection pool not available")
+            
+        async with pool.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(embed_query)
+            embedding_result = cursor.fetchone()
 
-        similar_calls = []
-        for row in results:
-            similar_calls.append(
-                {
-                    "call_id": row[0],
-                    "call_title": row[1],
-                    "sales_rep": row[2],
-                    "call_datetime": row[3],
-                    "sentiment_score": row[4],
-                    "deal_name": row[5],
-                    "deal_stage": row[6],
-                    "deal_amount": row[7],
-                    "company_name": row[8],
-                    "max_similarity": row[9],
-                    "avg_similarity": row[10],
-                    "matching_segments": row[11],
-                    "relevant_segments": row[12],
-                    "ai_service": "snowflake_cortex",
-                }
+            if not embedding_result:
+                return []
+
+            # Search for similar calls
+            search_query = f"""
+            WITH query_embedding AS (
+                SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', '{query_text}') as embedding
             )
+            SELECT
+                c.call_id,
+                c.call_title,
+                c.call_date,
+                c.account_name,
+                c.opportunity_name,
+                c.opportunity_stage,
+                t.transcript_summary,
+                VECTOR_COSINE_SIMILARITY(t.transcript_embedding, q.embedding) as similarity_score
+            FROM GONG_CALLS c
+            JOIN GONG_CALL_TRANSCRIPTS t ON c.call_id = t.call_id
+            CROSS JOIN query_embedding q
+            WHERE c.call_date >= DATEADD(day, -{date_range_days}, CURRENT_DATE())
+              AND t.transcript_embedding IS NOT NULL
+              AND VECTOR_COSINE_SIMILARITY(t.transcript_embedding, q.embedding) >= {similarity_threshold}
+            ORDER BY similarity_score DESC
+            LIMIT {top_k}
+            """
 
-        logger.info(
-            f"Found {len(similar_calls)} similar calls for query: {query_text[:50]}..."
-        )
-        return similar_calls
+            cursor.execute(search_query)
+            results = cursor.fetchall()
+
+            similar_calls = []
+            for row in results:
+                similar_calls.append(
+                    {
+                        "call_id": row[0],
+                        "call_title": row[1],
+                        "call_date": row[2],
+                        "account_name": row[3],
+                        "opportunity_name": row[4],
+                        "opportunity_stage": row[5],
+                        "transcript_summary": row[6],
+                        "similarity_score": row[7],
+                    }
+                )
+
+            return similar_calls
 
     except Exception as e:
         logger.error(f"Error finding similar Gong calls: {e}")
-        raise
+        return []
     finally:
         if cursor:
             cursor.close()
@@ -2087,212 +2050,185 @@ async def get_gong_coaching_insights(
     sales_rep: str, date_range_days: int = 30, min_calls: int = 3
 ) -> dict[str, Any]:
     """
-    Generate coaching insights for a sales rep using Snowflake Cortex analysis
+    Generate AI-powered coaching insights for a sales rep
 
     Args:
-        sales_rep: Sales representative name
-        date_range_days: Days back to analyze
-        min_calls: Minimum calls required for analysis
+        sales_rep: Sales rep name or email
+        date_range_days: Analysis period in days
+        min_calls: Minimum calls for analysis
 
     Returns:
-        Comprehensive coaching insights with AI recommendations
+        Coaching insights and recommendations
     """
     service = await get_cortex_service()
 
-    query = f"""
+    # Analyze call patterns and sentiment
+    analysis_query = f"""
     WITH rep_calls AS (
         SELECT
-            gc.CALL_ID,
-            gc.CALL_TITLE,
-            gc.CALL_DATETIME_UTC,
-            gc.SENTIMENT_SCORE,
-            gc.TALK_RATIO,
-            gc.CALL_DURATION_SECONDS,
-            hd.DEAL_STAGE,
-            hd.DEAL_AMOUNT,
-
-            -- Aggregate transcript sentiment
-            AVG(t.SEGMENT_SENTIMENT) as avg_transcript_sentiment,
-
-            -- Identify coaching opportunities from transcript
-            STRING_AGG(
-                CASE WHEN t.SEGMENT_SENTIMENT < 0.3 AND t.SPEAKER_TYPE = 'Internal'
-                THEN t.TRANSCRIPT_TEXT
-                ELSE NULL END,
-                ' | '
-            ) as improvement_areas
-
-        FROM SOPHIA_AI.GONG_DATA.STG_GONG_CALLS gc
-        LEFT JOIN SOPHIA_AI.GONG_DATA.STG_GONG_CALL_TRANSCRIPTS t ON gc.CALL_ID = t.CALL_ID
-        LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-
-        WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
-        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-
-        GROUP BY
-            gc.CALL_ID, gc.CALL_TITLE, gc.CALL_DATETIME_UTC,
-            gc.SENTIMENT_SCORE, gc.TALK_RATIO, gc.CALL_DURATION_SECONDS,
-            hd.DEAL_STAGE, hd.DEAL_AMOUNT
-    ),
-    coaching_analysis AS (
-        SELECT
-            COUNT(*) as total_calls,
-            AVG(SENTIMENT_SCORE) as avg_sentiment,
-            AVG(TALK_RATIO) as avg_talk_ratio,
-            AVG(CALL_DURATION_SECONDS) as avg_duration,
-            AVG(avg_transcript_sentiment) as avg_transcript_sentiment,
-
-            -- Performance categories
-            COUNT(CASE WHEN SENTIMENT_SCORE > 0.6 THEN 1 END) as positive_calls,
-            COUNT(CASE WHEN SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
-            COUNT(CASE WHEN TALK_RATIO > 0.7 THEN 1 END) as high_talk_ratio_calls,
-            COUNT(CASE WHEN TALK_RATIO < 0.4 THEN 1 END) as low_talk_ratio_calls,
-
-            -- Deal outcomes
-            COUNT(CASE WHEN DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won,
-            SUM(CASE WHEN DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN DEAL_AMOUNT ELSE 0 END) as revenue_won,
-
-            -- Improvement areas
-            STRING_AGG(improvement_areas, ' ### ') as all_improvement_areas
-
-        FROM rep_calls
+            c.call_id,
+            c.call_date,
+            c.duration_minutes,
+            c.opportunity_stage,
+            t.sentiment_score,
+            t.talk_ratio,
+            t.questions_asked,
+            t.objections_handled
+        FROM GONG_CALLS c
+        JOIN GONG_CALL_ANALYTICS t ON c.call_id = t.call_id
+        WHERE c.primary_participant = '{sales_rep}'
+          AND c.call_date >= DATEADD(day, -{date_range_days}, CURRENT_DATE())
     )
     SELECT
-        '{sales_rep}' as sales_rep,
-        total_calls,
-        avg_sentiment,
-        avg_talk_ratio,
-        avg_duration,
-        positive_calls,
-        negative_calls,
-        high_talk_ratio_calls,
-        low_talk_ratio_calls,
-        deals_won,
-        revenue_won,
-
-        -- Generate AI coaching recommendations using Cortex
-        SNOWFLAKE.CORTEX.COMPLETE(
-            'mistral-7b',
-            'Based on this sales performance data, provide 3 specific coaching recommendations: ' ||
-            'Average sentiment: ' || ROUND(avg_sentiment, 2) ||
-            ', Talk ratio: ' || ROUND(avg_talk_ratio, 2) ||
-            ', Positive calls: ' || positive_calls || '/' || total_calls ||
-            ', Negative calls: ' || negative_calls || '/' || total_calls ||
-            CASE WHEN all_improvement_areas IS NOT NULL
-            THEN '. Common issues: ' || LEFT(all_improvement_areas, 1000)
-            ELSE '' END,
-            {{'max_tokens': 300}}
-        ) as ai_coaching_recommendations
-
-    FROM coaching_analysis
-    WHERE total_calls >= {min_calls}
+        COUNT(*) as total_calls,
+        AVG(duration_minutes) as avg_duration,
+        AVG(sentiment_score) as avg_sentiment,
+        AVG(talk_ratio) as avg_talk_ratio,
+        AVG(questions_asked) as avg_questions,
+        AVG(objections_handled) as avg_objections,
+        SUM(CASE WHEN sentiment_score > 0.2 THEN 1 ELSE 0 END) as positive_calls,
+        SUM(CASE WHEN sentiment_score < -0.2 THEN 1 ELSE 0 END) as negative_calls
+    FROM rep_calls
     """
 
+    cursor = None
     try:
-        cursor = service.connection.cursor()
-        cursor.execute(query)
-        result = cursor.fetchone()
+        pool = service.connection_manager.pools.get(ConnectionType.SNOWFLAKE)
+        if not pool:
+            raise ValueError("Snowflake connection pool not available")
+            
+        async with pool.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(analysis_query)
+            stats = cursor.fetchone()
 
-        if result:
+            if not stats or stats[0] < min_calls:
+                return {
+                    "sales_rep": sales_rep,
+                    "error": f"Insufficient call data (found {stats[0] if stats else 0} calls, need {min_calls})",
+                }
+
+            # Generate AI coaching recommendations
+            coaching_prompt = f"""
+            Based on the following sales performance data, provide specific coaching recommendations:
+            - Total calls: {stats[0]}
+            - Average duration: {stats[1]:.1f} minutes
+            - Average sentiment: {stats[2]:.2f}
+            - Average talk ratio: {stats[3]:.2%}
+            - Average questions per call: {stats[4]:.1f}
+            - Average objections handled: {stats[5]:.1f}
+            - Positive sentiment calls: {stats[6]}
+            - Negative sentiment calls: {stats[7]}
+            
+            Provide 3-5 specific, actionable coaching recommendations.
+            """
+
+            recommendations_query = f"""
+            SELECT SNOWFLAKE.CORTEX.COMPLETE(
+                'mistral-7b',
+                '{coaching_prompt}',
+                {{'max_tokens': 300}}
+            ) as coaching_recommendations
+            """
+
+            cursor.execute(recommendations_query)
+            recommendations = cursor.fetchone()
+
+            # Get specific call examples for coaching
+            examples_query = f"""
+            SELECT
+                c.call_id,
+                c.call_title,
+                c.call_date,
+                t.sentiment_score,
+                t.transcript_summary
+            FROM GONG_CALLS c
+            JOIN GONG_CALL_TRANSCRIPTS t ON c.call_id = t.call_id
+            WHERE c.primary_participant = '{sales_rep}'
+              AND c.call_date >= DATEADD(day, -{date_range_days}, CURRENT_DATE())
+            ORDER BY 
+                CASE 
+                    WHEN t.sentiment_score < -0.3 THEN 1  -- Prioritize negative calls
+                    WHEN t.talk_ratio > 0.7 THEN 2       -- High talk ratio
+                    ELSE 3
+                END,
+                c.call_date DESC
+            LIMIT 3
+            """
+
+            cursor.execute(examples_query)
+            example_calls = cursor.fetchall()
+
+            coaching_examples = []
+            for call in example_calls:
+                coaching_examples.append(
+                    {
+                        "call_id": call[0],
+                        "title": call[1],
+                        "date": call[2],
+                        "sentiment": call[3],
+                        "summary": call[4],
+                        "coaching_focus": _get_coaching_focus(call[3]),
+                    }
+                )
+
             return {
-                "sales_rep": result[0],
-                "analysis_period_days": date_range_days,
-                "total_calls": result[1],
-                "avg_sentiment": result[2],
-                "avg_talk_ratio": result[3],
-                "avg_duration_seconds": result[4],
-                "positive_calls": result[5],
-                "negative_calls": result[6],
-                "high_talk_ratio_calls": result[7],
-                "low_talk_ratio_calls": result[8],
-                "deals_won": result[9],
-                "revenue_won": result[10],
-                "ai_coaching_recommendations": result[11],
-                "performance_score": _calculate_performance_score(
-                    result[2], result[3], result[5], result[1]
+                "sales_rep": sales_rep,
+                "period_days": date_range_days,
+                "performance_stats": {
+                    "total_calls": stats[0],
+                    "avg_duration_minutes": round(stats[1], 1),
+                    "avg_sentiment_score": round(stats[2], 2),
+                    "avg_talk_ratio_percent": round(stats[3] * 100, 1),
+                    "avg_questions_per_call": round(stats[4], 1),
+                    "avg_objections_handled": round(stats[5], 1),
+                    "positive_calls": stats[6],
+                    "negative_calls": stats[7],
+                },
+                "performance_rating": _calculate_performance_rating(stats),
+                "ai_coaching_recommendations": (
+                    recommendations[0] if recommendations else None
                 ),
-                "coaching_priority": _determine_coaching_priority(
-                    result[2], result[6], result[7]
-                ),
-                "ai_service": "snowflake_cortex",
-            }
-        else:
-            return {
-                "error": f"Insufficient data for {sales_rep} (minimum {min_calls} calls required)",
-                "ai_service": "snowflake_cortex",
+                "example_calls_for_review": coaching_examples,
             }
 
     except Exception as e:
         logger.error(f"Error generating coaching insights: {e}")
-        raise
+        return {"sales_rep": sales_rep, "error": str(e)}
     finally:
         if cursor:
             cursor.close()
 
 
-# Helper functions for Gong analysis
-def _classify_sentiment_score(score: float) -> str:
-    """Classify sentiment score into categories"""
-    if score is None:
-        return "Unknown"
-    elif score > 0.7:
-        return "Very Positive"
-    elif score > 0.3:
-        return "Positive"
-    elif score > -0.3:
-        return "Neutral"
-    elif score > -0.7:
-        return "Negative"
+def _get_coaching_focus(sentiment_score: float) -> str:
+    """Determine coaching focus based on sentiment"""
+    if sentiment_score < -0.3:
+        return "Improve rapport building and objection handling"
+    elif sentiment_score < 0:
+        return "Focus on positive framing and value articulation"
+    elif sentiment_score < 0.3:
+        return "Good baseline - work on enthusiasm and energy"
     else:
-        return "Very Negative"
+        return "Excellent sentiment - maintain approach"
 
 
-def _calculate_coaching_priority(
-    call_sentiment: float, transcript_sentiment: float
-) -> str:
-    """Calculate coaching priority based on sentiment scores"""
-    if call_sentiment is None or transcript_sentiment is None:
-        return "Low"
+def _calculate_performance_rating(stats: tuple) -> dict[str, Any]:
+    """Calculate overall performance rating"""
+    # Simple scoring based on key metrics
+    sentiment_score = (stats[2] + 1) / 2 * 40  # Normalize to 0-40
+    talk_ratio_score = (1 - abs(stats[3] - 0.4)) * 30  # Optimal around 40%
+    questions_score = min(stats[4] / 10, 1) * 20  # More questions = better
+    positive_ratio = stats[6] / max(stats[0], 1) * 10
 
-    avg_sentiment = (call_sentiment + transcript_sentiment) / 2
+    total_score = sentiment_score + talk_ratio_score + questions_score + positive_ratio
 
-    if avg_sentiment < 0.2:
-        return "High"
-    elif avg_sentiment < 0.4:
-        return "Medium"
+    if total_score >= 80:
+        rating = "Excellent"
+    elif total_score >= 65:
+        rating = "Good"
+    elif total_score >= 50:
+        rating = "Needs Improvement"
     else:
-        return "Low"
+        rating = "Requires Coaching"
 
-
-def _calculate_performance_score(
-    avg_sentiment: float, avg_talk_ratio: float, positive_calls: int, total_calls: int
-) -> float:
-    """Calculate overall performance score (0-100)"""
-    if not all([avg_sentiment, avg_talk_ratio, total_calls]):
-        return 0.0
-
-    # Sentiment component (40% weight)
-    sentiment_score = max(0, min(100, (avg_sentiment + 1) * 50))
-
-    # Talk ratio component (30% weight) - optimal range 0.4-0.6
-    talk_ratio_score = max(0, min(100, 100 - abs(avg_talk_ratio - 0.5) * 200))
-
-    # Positive call ratio component (30% weight)
-    positive_ratio = positive_calls / total_calls
-    positive_score = positive_ratio * 100
-
-    return round(
-        sentiment_score * 0.4 + talk_ratio_score * 0.3 + positive_score * 0.3, 1
-    )
-
-
-def _determine_coaching_priority(
-    avg_sentiment: float, negative_calls: int, high_talk_ratio_calls: int
-) -> str:
-    """Determine coaching priority level"""
-    if avg_sentiment < 0.3 or negative_calls > 2 or high_talk_ratio_calls > 3:
-        return "High"
-    elif avg_sentiment < 0.5 or negative_calls > 0 or high_talk_ratio_calls > 1:
-        return "Medium"
-    else:
-        return "Low"
+    return {"rating": rating, "score": round(total_score, 1), "max_score": 100}
