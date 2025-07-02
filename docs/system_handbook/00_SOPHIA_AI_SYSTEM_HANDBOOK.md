@@ -8,6 +8,7 @@
 ---
 
 ## 1. Project Overview & Vision
+> **Alignment Check:** For a detailed breakdown of how this implemented system aligns with the original project vision, see the [Vision to Reality Alignment Report](./01_1_Vision_to_Reality_Alignment.md).
 
 ### 1.1. Mission Statement
 Sophia AI is the central "Pay Ready Brain," an AI-native orchestration platform designed to drive business intelligence, automate complex workflows, and provide a seamless, intelligent interface for all company operations.
@@ -126,9 +127,41 @@ graph TD
 
 ## 4. Platform Deep Dive
 
-### 4.1. Dashboard & Universal Chat Interface
-*(Description of the UI, role-based access, and the central chat experience to be added)*
+### 4.1. The Sophia AI User Interface Strategy
 
+Our UI strategy is centered around two primary, role-based interfaces, both built on a modern React frontend.
+
+#### **4.1.1. The Universal Chat Interface**
+-   **Purpose:** This is the primary, day-to-day interface for all users. It provides a familiar, powerful chat experience for interacting with the Sophia AI orchestrator.
+-   **Functionality:** Users can ask questions, get information, and trigger any of the tools available via the MCP gateway through natural language commands.
+
+#### **4.1.2. The Curation & Admin Dashboard**
+-   **Purpose:** This is the "cockpit" for managing the AI's intelligence and performance. It is a multi-tabbed interface designed for administrative oversight.
+-   **Access:** Access to this dashboard and its various tabs is strictly controlled by user roles and permissions.
+-   **Key Tabs:**
+    -   **AI Training & Curation:** The central hub for our Interactive Training Loop, including the Knowledge Gap Analysis and User Impact Management components. (Visible to CEO/Curators).
+    -   **System Health & Monitoring:** Will house the Grafana-powered dashboards for monitoring N8N workflows and service health. (Visible to Admins/Engineers).
+    -   **Project Management Overview:** A future tab that will provide a high-level, cross-platform view of projects from Linear and Asana.
+
+This dual-interface strategy ensures that users have a simple, intuitive chat for their daily tasks, while administrators have a powerful, dedicated environment for managing the platform's core systems.
+
+### 4.1. The Sophia AI User Interface Strategy
+
+Our UI strategy is centered around two primary, role-based interfaces, both built on a modern React frontend.
+
+#### **4.1.1. The Universal Chat Interface**
+-   **Purpose:** This is the primary, day-to-day interface for all users. It provides a familiar, powerful chat experience for interacting with the Sophia AI orchestrator.
+-   **Functionality:** Users can ask questions, get information, and trigger any of the tools available via the MCP gateway through natural language commands.
+
+#### **4.1.2. The Curation & Admin Dashboard**
+-   **Purpose:** This is the "cockpit" for managing the AIs intelligence and performance. It is a multi-tabbed interface designed for administrative oversight.
+-   **Access:** Access to this dashboard and its various tabs is strictly controlled by user roles and permissions.
+-   **Key Tabs:**
+    -   **AI Training & Curation:** The central hub for our Interactive Training Loop, including the Knowledge Gap Analysis and User Impact Management components. (Visible to CEO/Curators).
+    -   **System Health & Monitoring:** Will house the Grafana-powered dashboards for monitoring N8N workflows and service health. (Visible to Admins/Engineers).
+    -   **Project Management Overview:** A future tab that will provide a high-level, cross-platform view of projects from Linear and Asana.
+
+This dual-interface strategy ensures that users have a simple, intuitive chat for their daily tasks, while administrators have a powerful, dedicated environment for managing the platforms core systems.
 ### 4.2. AI Training & Curation Dashboard
 
 The platform includes a dedicated, CEO-controlled dashboard for managing the AI's intelligence. This interface is the command center for our **Interactive Training Loop**.

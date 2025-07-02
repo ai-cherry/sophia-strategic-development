@@ -2,7 +2,7 @@ import asyncio
 import logging
 import uvicorn
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI
 import sys
 from pathlib import Path
 
@@ -32,7 +32,9 @@ LINEAR_CREATE_ISSUE_URL = f"{N8N_BASE_URL}/webhook/linear-create-issue"
 ASANA_CREATE_TASK_URL = f"{N8N_BASE_URL}/webhook/asana-create-task"
 NOTION_CREATE_PAGE_URL = f"{N8N_BASE_URL}/webhook/notion-create-page"
 SLACK_POST_MESSAGE_URL = f"{N8N_BASE_URL}/webhook/slack-post-message"
+RECOMMEND_PATTERN_URL = f"{N8N_BASE_URL}/webhook/recommend-pattern"
 SUBMIT_TRAINING_DATA_URL = f"{N8N_BASE_URL}/webhook/submit-training-data"
+
 
 # --- Tool Definitions ---
 
@@ -44,7 +46,7 @@ async def analyze_code(code: str, filename: str = "snippet.py") -> dict:
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(CODACY_WORKFLOW_URL, json={"code": code, "filename": filename})
             response.raise_for_status()
-            return response.json().get('data', result)
+            return response.json().get('data', {})
     except Exception as e:
         logger.error(f"Error in analyze_code: {e}")
         return {"error": str(e)}
@@ -140,31 +142,43 @@ async def post_slack_message(channel: str, text: str) -> dict:
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             payload = {"channel": channel, "text": text}
-            response = await client.post(SLACK_POST_MESSAGE_URL = f"{N8N_BASE_URL}/webhook/slack-post-message"
-SUBMIT_TRAINING_DATA_URL = f"{N8N_BASE_URL}/webhook/submit-training-data"            response.raise_for_status()
+            response = await client.post(SLACK_POST_MESSAGE_URL, json=payload)
+            response.raise_for_status()
             return response.json().get('data', {})
     except Exception as e:
         logger.error(f"Error in post_slack_message: {e}")
         return {"error": str(e)}
 
+@mcp.tool()
+async def recommend_repository_pattern(query: str) -> dict:
+    """Recommends a repository from the external collection based on a query."""
+    logger.info(f"Gateway: Received request for repository pattern recommendation with query '{query}'")
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            payload = {"query": query}
+            response = await client.post(RECOMMEND_PATTERN_URL, json=payload)
+            response.raise_for_status()
+            result = response.json().get('data', [])
+            return {"status": "success", "recommendation_count": len(result), "recommendations": result}
+    except Exception as e:
+        logger.error(f"Error in recommend_repository_pattern: {e}")
+        return {"error": str(e)}
 
 @mcp.tool()
 async def submit_training_data(user_id: str, topic: str, content: str) -> dict:
-    """
-    Submits an authoritative piece of knowledge to the AIs memory.
-    Used for correcting the AI or providing definitive information.
-    The users CEO-assigned impact score will be applied automatically.
-    """
-    logger.info(f"Gateway: Received request to submit training data for topic {topic} from user {user_id}")
+    """Submits an authoritative piece of knowledge to the AI's memory."""
+    logger.info(f"Gateway: Received request to submit training data for topic '{topic}' from user '{user_id}'")
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             payload = {"user_id": user_id, "topic": topic, "content": content}
             response = await client.post(SUBMIT_TRAINING_DATA_URL, json=payload)
             response.raise_for_status()
-            return response.json().get(data, {})
+            return response.json().get('data', {})
     except Exception as e:
         logger.error(f"Error in submit_training_data: {e}")
         return {"error": str(e)}
+
+
 # --- FastAPI App for Health Check ---
 app = FastAPI(title="N8N MCP Gateway", version="1.0.0")
 
@@ -179,61 +193,25 @@ async def list_mcp_tools():
         for tool in mcp.tools.values()
     ]}
 
+
 # --- Main execution logic ---
 async def main():
-    logger.info("�� Starting the N8N MCP Gateway...")
+    """Starts the MCP server and the health check API."""
+    logger.info("🚀 Starting the N8N MCP Gateway...")
     config = uvicorn.Config(app, host="0.0.0.0", port=8100, log_level="info")
     server = uvicorn.Server(config)
     
+    # Run the health check server in the background
     asyncio.create_task(server.serve())
     logger.info("✅ Health check API running on http://localhost:8100")
     
+    # Run the MCP server in the foreground
     logger.info("🤖 MCP Gateway listening for AI tool requests...")
     await mcp.run_async()
+
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("🛑 Gateway shutting down.")
-
-RECOMMEND_PATTERN_URL = f"{N8N_BASE_URL}/webhook/recommend-pattern"
-
-@mcp.tool()
-async def recommend_repository_pattern(query: str) -> dict:
-    """
-    Recommends a repository from the external collection based on a query.
-    """
-    logger.info(f"Gateway: Received request for repository pattern recommendation with query '{query}'")
-    try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            payload = {"query": query}
-            response = await client.post(RECOMMEND_PATTERN_URL, json=payload)
-            response.raise_for_status()
-            result = response.json().get('data', [])
-            return {"status": "success", "recommendation_count": len(result), "recommendations": result}
-    except Exception as e:
-        logger.error(f"Error in recommend_repository_pattern: {e}")
-        return {"error": str(e)}
-
-
-SUBMIT_TRAINING_DATA_URL = f"{N8N_BASE_URL}/webhook/submit-training-data"
-
-@mcp.tool()
-async def submit_training_data(user_id: str, topic: str, content: str) -> dict:
-    """
-    Submits an authoritative piece of knowledge to the AI's memory.
-    Used for correcting the AI or providing definitive information.
-    The user's CEO-assigned impact score will be applied automatically.
-    """
-    logger.info(f"Gateway: Received request to submit training data for topic '{topic}' from user '{user_id}'")
-    try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            payload = {"user_id": user_id, "topic": topic, "content": content}
-            response = await client.post(SUBMIT_TRAINING_DATA_URL, json=payload)
-            response.raise_for_status()
-            return response.json().get('data', {})
-    except Exception as e:
-        logger.error(f"Error in submit_training_data: {e}")
-        return {"error": str(e)}
-

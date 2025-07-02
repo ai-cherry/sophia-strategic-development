@@ -166,6 +166,146 @@ This is a revolutionary feature that allows Sophia AI to be continuously trained
 
 The entire interactive training process, including the management of `authoritative_knowledge` and user `training_impact_score` values, is overseen through the **AI Training & Curation Dashboard**. This provides a dedicated, CEO-controlled interface to ensure the quality and integrity of the AI's learned knowledge base.
 
-## 7. Management & Curation
+---
 
-The entire interactive training process, including the management of `authoritative_knowledge` and user `training_impact_score` values, is overseen through the **AI Training & Curation Dashboard**. This provides a dedicated, CEO-controlled interface to ensure the quality and integrity of the AI's learned knowledge base.
+## 8. The Sophia AI Learning Loop: Proactive & Reactive Training
+
+The intelligence of the Sophia AI platform is not static; it is a dynamic system designed for continuous improvement. This is achieved through a two-pronged learning architecture that combines direct user instruction (Reactive) with automated discovery (Proactive).
+
+```mermaid
+graph TD
+    subgraph "User Interaction (Reactive)"
+        U[Universal Chat Interface]
+        U -- "@sophia remember..." --> GW
+    end
+
+    subgraph "Automated Monitoring (Proactive)"
+        S[Slack]
+        G[Gong]
+        H[HubSpot]
+        S & G & H -- Daily Ingestion --> NW_Gap
+    end
+
+    subgraph "N8N Orchestration Layer"
+        GW(MCP Gateway)
+        NW_Gap(N8N Gap Analysis<br>Workflow)
+        
+        GW -- triggers --> NW_Submit
+        NW_Submit(N8N Submit Training<br>Workflow)
+    end
+    
+    subgraph "Backend Services & AI"
+        TS(Training Service)
+        GS(Gap Analysis Script<br>w/ Snowflake Cortex)
+    end
+    
+    subgraph "Snowflake Database"
+        AK[authoritative_knowledge]
+        KG[knowledge_gaps]
+    end
+    
+    subgraph "Curation Dashboard"
+        DB(AI Training & Curation Dashboard)
+    end
+
+    NW_Submit -- calls --> TS
+    TS -- writes to --> AK
+    
+    NW_Gap -- executes --> GS
+    GS -- identifies gaps --> KG
+    
+    DB -- reads from --> AK
+    DB -- reads from --> KG
+    U -- views/manages --> DB
+
+    style GW fill:#7E57C2,stroke:#FFF,stroke-width:2px,color:#FFF
+    style NW_Gap fill:#4DD0E1,stroke:#333,stroke-width:1px
+    style NW_Submit fill:#4DD0E1,stroke:#333,stroke-width:1px
+    style GS fill:#81D4FA,stroke:#333
+```
+
+### 8.1. The Reactive Loop (User-Driven Training)
+- **Trigger:** An authorized user provides an explicit instruction, such as `@sophia remember: [definition]` or `@sophia correct: [correction]`.
+- **Flow:** The command is routed through the MCP Gateway to the "Submit Training" N8N workflow. This workflow calls our internal `InteractiveTrainingService`, which validates the user's impact score and writes the information to the `authoritative_knowledge` table in Snowflake.
+- **Purpose:** To capture explicit, high-value knowledge directly from trusted human experts.
+
+### 8.2. The Proactive Loop (AI-Driven Discovery)
+- **Trigger:** A scheduled N8N workflow (`proactive_knowledge_gap_analysis`) runs automatically every night.
+- **Flow:**
+    1. **Ingest:** The workflow pulls raw conversational data from key platforms (Gong, Slack, HubSpot).
+    2. **Analyze:** It executes our `analyze_knowledge_gaps.py` script. This script leverages Snowflake Cortex AI functions to perform topic modeling and entity extraction on the raw text, identifying recurring themes.
+    3. **Compare & Identify:** For each theme, the script checks if a corresponding entry exists in the `authoritative_knowledge` table. If not, it's flagged as a "knowledge gap."
+    4. **Store & Alert:** The prioritized list of gaps is stored in the `knowledge_gaps` table and a summary notification is sent to a dedicated Slack channel.
+- **Purpose:** To autonomously discover the "unknown unknowns"—the questions and topics that are important to the business but that no one has explicitly taught the AI yet. This allows curators to focus their training efforts on the most impactful areas.
+
+---
+
+## 8. The Sophia AI Learning Loop: Proactive & Reactive Training
+
+The intelligence of the Sophia AI platform is not static; it is a dynamic system designed for continuous improvement. This is achieved through a two-pronged learning architecture that combines direct user instruction (Reactive) with automated discovery (Proactive).
+
+```mermaid
+graph TD
+    subgraph "User Interaction (Reactive)"
+        U[Universal Chat Interface]
+        U -- "@sophia remember..." --> GW
+    end
+
+    subgraph "Automated Monitoring (Proactive)"
+        S[Slack]
+        G[Gong]
+        H[HubSpot]
+        S & G & H -- Daily Ingestion --> NW_Gap
+    end
+
+    subgraph "N8N Orchestration Layer"
+        GW(MCP Gateway)
+        NW_Gap(N8N Gap Analysis<br>Workflow)
+        
+        GW -- triggers --> NW_Submit
+        NW_Submit(N8N Submit Training<br>Workflow)
+    end
+    
+    subgraph "Backend Services & AI"
+        TS(Training Service)
+        GS(Gap Analysis Script<br>w/ Snowflake Cortex)
+    end
+    
+    subgraph "Snowflake Database"
+        AK[authoritative_knowledge]
+        KG[knowledge_gaps]
+    end
+    
+    subgraph "Curation Dashboard"
+        DB(AI Training & Curation Dashboard)
+    end
+
+    NW_Submit -- calls --> TS
+    TS -- writes to --> AK
+    
+    NW_Gap -- executes --> GS
+    GS -- identifies gaps --> KG
+    
+    DB -- reads from --> AK
+    DB -- reads from --> KG
+    U -- views/manages --> DB
+
+    style GW fill:#7E57C2,stroke:#FFF,stroke-width:2px,color:#FFF
+    style NW_Gap fill:#4DD0E1,stroke:#333,stroke-width:1px
+    style NW_Submit fill:#4DD0E1,stroke:#333,stroke-width:1px
+    style GS fill:#81D4FA,stroke:#333
+```
+
+### 8.1. The Reactive Loop (User-Driven Training)
+- **Trigger:** An authorized user provides an explicit instruction, such as `@sophia remember: [definition]` or `@sophia correct: [correction]`.
+- **Flow:** The command is routed through the MCP Gateway to the "Submit Training" N8N workflow. This workflow calls our internal `InteractiveTrainingService`, which validates the user's impact score and writes the information to the `authoritative_knowledge` table in Snowflake.
+- **Purpose:** To capture explicit, high-value knowledge directly from trusted human experts.
+
+### 8.2. The Proactive Loop (AI-Driven Discovery)
+- **Trigger:** A scheduled N8N workflow (`proactive_knowledge_gap_analysis`) runs automatically every night.
+- **Flow:**
+    1. **Ingest:** The workflow pulls raw conversational data from key platforms (Gong, Slack, HubSpot).
+    2. **Analyze:** It executes our `analyze_knowledge_gaps.py` script. This script leverages Snowflake Cortex AI functions to perform topic modeling and entity extraction on the raw text, identifying recurring themes.
+    3. **Compare & Identify:** For each theme, the script checks if a corresponding entry exists in the `authoritative_knowledge` table. If not, it's flagged as a "knowledge gap."
+    4. **Store & Alert:** The prioritized list of gaps is stored in the `knowledge_gaps` table and a summary notification is sent to a dedicated Slack channel.
+- **Purpose:** To autonomously discover the "unknown unknowns"—the questions and topics that are important to the business but that no one has explicitly taught the AI yet. This allows curators to focus their training efforts on the most impactful areas.
