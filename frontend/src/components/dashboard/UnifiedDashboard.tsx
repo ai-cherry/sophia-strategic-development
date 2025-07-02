@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { api } from '../../services/apiClient';
+import EnhancedUnifiedChatInterface, { type ChatContext } from '../shared/EnhancedUnifiedChatInterface';
 
 // Types
 interface KPIData {
@@ -326,77 +327,30 @@ const KnowledgeManagement: React.FC<{ jobs: IngestionJob[] }> = ({ jobs }) => {
   );
 };
 
-// Executive Chat Interface Component
-const ExecutiveChatInterface: React.FC = () => {
-  const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-
-  const handleSendMessage = () => {
-    if (chatInput.trim()) {
-      setMessages(prev => [...prev, { role: 'user', content: chatInput }]);
-      // Simulate AI response
-      setTimeout(() => {
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: `I understand you're asking about: "${chatInput}". Let me analyze the data and provide insights.` 
-        }]);
-      }, 1000);
-      setChatInput('');
-    }
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Activity className="h-5 w-5" />
-          <span>Executive Assistant</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="h-64 bg-gray-50 rounded-lg p-4 overflow-y-auto">
-          {messages.length === 0 ? (
-            <div className="text-gray-500 text-center py-8">
-              Ask me anything about your business metrics, team performance, or strategic insights.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {messages.map((message, index) => (
-                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.role === 'user' 
-                      ? 'bg-purple-600 text-white' 
-                      : 'bg-gray-200 text-gray-800'
-                  }`}>
-                    {message.content}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="flex space-x-2">
-          <Input 
-            placeholder="e.g., 'Summarize the top 5 deals from last week.'"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-          />
-          <Button onClick={handleSendMessage}>
-            Send
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
 // Main Unified Dashboard Component
 const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('executive');
   const [agnoMetrics, setAgnoMetrics] = useState<AgnoMetrics | null>(null);
   const [agnoLoading, setAgnoLoading] = useState(true);
   const [agnoError, setAgnoError] = useState<string | null>(null);
+
+  const [currentChatContext, setCurrentChatContext] = useState<ChatContext>({
+    dashboardType: 'general', // Default, can be updated based on activeTab
+    userId: 'systemUser', // Replace with actual dynamic user ID
+    tenantId: 'systemTenant', // Replace with actual dynamic tenant ID
+  });
+
+  // Update chat context when activeTab changes
+  useEffect(() => {
+    let dashboardType: ChatContext['dashboardType'] = 'general';
+    if (activeTab === 'executive') {
+      dashboardType = 'ceo';
+    } else if (activeTab === 'knowledge') {
+      dashboardType = 'knowledge';
+    }
+    // Potentially add 'project' if a project tab exists or is added
+    setCurrentChatContext(prev => ({ ...prev, dashboardType }));
+  }, [activeTab]);
 
   // Mock data
   const kpiData: KPIData[] = [
@@ -503,7 +457,10 @@ const UnifiedDashboard: React.FC = () => {
 
           {/* AI Interaction Tab */}
           <TabsContent value="interaction">
-            <ExecutiveChatInterface />
+            <EnhancedUnifiedChatInterface
+              context={currentChatContext}
+              placeholder={`Ask Sophia anything within the ${currentChatContext.dashboardType} context...`}
+            />
           </TabsContent>
         </Tabs>
       </div>
