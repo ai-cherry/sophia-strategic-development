@@ -14,6 +14,7 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
@@ -24,6 +25,7 @@ from typing import Any
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
 from backend.services.smart_ai_service import SmartAIService
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 

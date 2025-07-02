@@ -185,22 +185,21 @@ class MCPOrchestrationService:
         self._initialize_orchestration_rules()
 
     def _load_mcp_configuration(self):
-        """Load MCP server configuration from cursor_enhanced_mcp_config.json"""
+        """Load MCP server configuration from JSON file"""
+        config_path = "config/cursor_enhanced_mcp_config.json"
+
         try:
-            config_path = "config/cursor_enhanced_mcp_config.json"
             if os.path.exists(config_path):
-                with open(config_path) as f:
+                with open(config_path, "r") as f:
                     config_data = json.load(f)
 
-                # Extract MCP servers from configuration
                 mcp_servers = config_data.get("mcpServers", {})
 
                 for name, server_config in mcp_servers.items():
-                    # Determine port from environment or assign default
                     port = self._extract_port_from_config(server_config, name)
 
                     self.servers[name] = MCPServerEndpoint(
-                        name=name,
+                        server_name=name,
                         port=port,
                         capabilities=server_config.get("capabilities", []),
                     )
@@ -248,12 +247,12 @@ class MCPOrchestrationService:
         """Load default MCP server configuration as fallback"""
         default_servers = {
             "ai_memory": MCPServerEndpoint(
-                name="ai_memory",
+                server_name="ai_memory",
                 port=9000,
                 capabilities=["memory_storage", "context_recall"],
             ),
             "codacy": MCPServerEndpoint(
-                name="codacy",
+                server_name="codacy",
                 port=3008,
                 capabilities=["code_analysis", "security_scan"],
             ),
@@ -708,12 +707,12 @@ class MCPOrchestrationService:
         """Initialize known MCP server endpoints"""
         self.servers = {
             "ai_memory": MCPServerEndpoint(
-                "ai_memory",
+                server_name="ai_memory",
                 port=9000,
                 capabilities=["memory_storage", "semantic_search", "context_recall"],
             ),
             "figma_context": MCPServerEndpoint(
-                "figma_context",
+                server_name="figma_context",
                 port=9001,
                 capabilities=[
                     "design_system",
@@ -722,7 +721,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "ui_ux_agent": MCPServerEndpoint(
-                "ui_ux_agent",
+                server_name="ui_ux_agent",
                 port=9002,
                 capabilities=[
                     "accessibility_analysis",
@@ -731,17 +730,17 @@ class MCPOrchestrationService:
                 ],
             ),
             "codacy": MCPServerEndpoint(
-                "codacy",
+                server_name="codacy",
                 port=9003,
                 capabilities=["code_analysis", "security_scanning", "quality_metrics"],
             ),
             "asana": MCPServerEndpoint(
-                "asana",
+                server_name="asana",
                 port=9004,
                 capabilities=["project_management", "task_tracking", "team_analytics"],
             ),
             "notion": MCPServerEndpoint(
-                "notion",
+                server_name="notion",
                 port=9005,
                 capabilities=[
                     "knowledge_management",
@@ -750,7 +749,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "linear": MCPServerEndpoint(
-                "linear",
+                server_name="linear",
                 port=9006,
                 capabilities=[
                     "issue_tracking",
@@ -759,7 +758,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "github": MCPServerEndpoint(
-                "github",
+                server_name="github",
                 port=9007,
                 capabilities=[
                     "repository_management",
@@ -768,7 +767,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "slack": MCPServerEndpoint(
-                "slack",
+                server_name="slack",
                 port=9008,
                 capabilities=[
                     "communication_analysis",
@@ -777,7 +776,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "postgresql": MCPServerEndpoint(
-                "postgresql",
+                server_name="postgresql",
                 port=9009,
                 capabilities=[
                     "database_operations",
@@ -786,12 +785,12 @@ class MCPOrchestrationService:
                 ],
             ),
             "sophia_data": MCPServerEndpoint(
-                "sophia_data",
+                server_name="sophia_data",
                 port=9010,
                 capabilities=["data_orchestration", "pipeline_management", "analytics"],
             ),
             "sophia_infrastructure": MCPServerEndpoint(
-                "sophia_infrastructure",
+                server_name="sophia_infrastructure",
                 port=9011,
                 capabilities=[
                     "infrastructure_management",
@@ -800,7 +799,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "snowflake_admin": MCPServerEndpoint(
-                "snowflake_admin",
+                server_name="snowflake_admin",
                 port=9012,
                 capabilities=[
                     "database_administration",
@@ -809,7 +808,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "portkey_admin": MCPServerEndpoint(
-                "portkey_admin",
+                server_name="portkey_admin",
                 port=9013,
                 capabilities=[
                     "ai_model_routing",
@@ -818,7 +817,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "openrouter_search": MCPServerEndpoint(
-                "openrouter_search",
+                server_name="openrouter_search",
                 port=9014,
                 capabilities=[
                     "model_discovery",
@@ -827,7 +826,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "lambda_labs_cli": MCPServerEndpoint(
-                "lambda_labs_cli",
+                server_name="lambda_labs_cli",
                 port=9020,
                 capabilities=[
                     "gpu_management",
@@ -836,7 +835,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "snowflake_cli_enhanced": MCPServerEndpoint(
-                "snowflake_cli_enhanced",
+                server_name="snowflake_cli_enhanced",
                 port=9021,
                 capabilities=[
                     "advanced_snowflake_ops",
@@ -845,7 +844,7 @@ class MCPOrchestrationService:
                 ],
             ),
             "estuary_flow": MCPServerEndpoint(
-                "estuary_flow",
+                server_name="estuary_flow",
                 port=9022,
                 capabilities=[
                     "data_pipeline_management",
@@ -1358,5 +1357,12 @@ class MCPOrchestrationService:
         }
 
 
-# Global orchestration service instance
-orchestration_service = MCPOrchestrationService()
+# Global orchestration service instance - using lazy initialization
+_orchestration_service = None
+
+def get_orchestration_service() -> MCPOrchestrationService:
+    """Get the global orchestration service instance (lazy initialization)"""
+    global _orchestration_service
+    if _orchestration_service is None:
+        _orchestration_service = MCPOrchestrationService()
+    return _orchestration_service
