@@ -140,7 +140,7 @@ async def post_slack_message(channel: str, text: str) -> dict:
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             payload = {"channel": channel, "text": text}
-            response = await client.post(SLACK_POST_MESSAGE_URL, json=payload)
+            response = await client.post(SLACK_POST_MESSAGE_URL = f"{N8N_BASE_URL}/webhook/slack-post-message"
             response.raise_for_status()
             return response.json().get('data', {})
     except Exception as e:
@@ -179,3 +179,23 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("🛑 Gateway shutting down.")
+
+RECOMMEND_PATTERN_URL = f"{N8N_BASE_URL}/webhook/recommend-pattern"
+
+@mcp.tool()
+async def recommend_repository_pattern(query: str) -> dict:
+    """
+    Recommends a repository from the external collection based on a query.
+    """
+    logger.info(f"Gateway: Received request for repository pattern recommendation with query '{query}'")
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            payload = {"query": query}
+            response = await client.post(RECOMMEND_PATTERN_URL, json=payload)
+            response.raise_for_status()
+            result = response.json().get('data', [])
+            return {"status": "success", "recommendation_count": len(result), "recommendations": result}
+    except Exception as e:
+        logger.error(f"Error in recommend_repository_pattern: {e}")
+        return {"error": str(e)}
+
