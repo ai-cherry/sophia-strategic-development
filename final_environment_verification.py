@@ -138,7 +138,6 @@ def verify_fastapi_loading():
     logger.info("🚀 Verifying FastAPI Application...")
 
     try:
-
         logger.info("   ✅ FastAPI application loads successfully")
         return True
 

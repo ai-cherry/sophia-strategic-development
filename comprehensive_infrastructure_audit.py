@@ -194,7 +194,6 @@ class SophiaAIInfrastructureAuditor:
 
         # Check if FastAPI app can import
         try:
-
             services_status["fastapi"] = {"status": "importable", "error": None}
         except Exception as e:
             services_status["fastapi"] = {"status": "failed", "error": str(e)}

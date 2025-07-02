@@ -7,7 +7,7 @@ Focuses on stability and ease of use without over-complexity.
 
 import logging
 from datetime import datetime
-from typing import Any
+from typing import Any, List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
@@ -361,41 +361,6 @@ async def webhook_endpoint(
     """
     Webhook endpoint for real-time data ingestion
 
-@router.post("/batch", response_model=BatchResponse)
-async def batch_operation(
-    operations: List[BatchRequest],
-    db_manager: OptimizedDatabaseManager = Depends(get_db_manager)
-):
-    """Execute multiple operations in batch for improved performance""":
-    try:
-        # Convert to BatchOperation objects
-        batch_ops = []
-        for op in operations:
-            batch_ops.append(BatchOperation(
-                query=op.query,
-                params=op.params,
-                operation_type=op.operation_type
-            ))
-            
-        # Execute batch
-        result = await db_manager.execute_batch(
-            ConnectionType.SNOWFLAKE,
-            batch_ops,
-            transaction=True
-        )
-        
-        return BatchResponse(
-            success=result["success"],
-            operations_count=result["operations_count"],
-            affected_rows=result["affected_rows"],
-            errors=result["errors"]
-        )
-        
-    except Exception as e:
-        logger.error(f"Batch operation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
     Simple webhook that external systems can call to send data
     directly to the processing pipeline.
     """
@@ -430,3 +395,4 @@ async def batch_operation(
     except Exception as e:
         logger.error(f"Webhook error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+

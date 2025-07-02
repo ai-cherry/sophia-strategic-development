@@ -320,6 +320,9 @@ async def main():
 
         # Graceful shutdown handling
 shutdown_event = asyncio.Event()
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        raise
 
 def signal_handler(signum, frame):
     logger.info(f"Received signal {signum}, initiating graceful shutdown...")

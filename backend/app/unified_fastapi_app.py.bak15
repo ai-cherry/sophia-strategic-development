@@ -34,8 +34,8 @@ from backend.api import (
     notion_integration_routes,
     slack_linear_knowledge_routes,
     enhanced_unified_chat_routes as chat_routes,
-    foundational_knowledge_routes as knowledge_base_routes,
-    ceo_dashboard_routes as monitoring_routes,
+    foundational_knowledge_routes as foundational_knowledge_routes as knowledge_base_routes,
+    ceo_dashboard_routes as ceo_dashboard_routes as monitoring_routes,
 )
 from backend.core.auto_esc_config import get_config_value
 from backend.core.config_validator import DeploymentValidator

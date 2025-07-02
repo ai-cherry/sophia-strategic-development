@@ -21,6 +21,9 @@ except ImportError:
             def decorator(func):
                 return func
             return decorator
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        raise
 
 # Initialize MCP server
 app = FastMCP("Snowflake Cortex Agent MCP")
