@@ -1,7 +1,7 @@
 {
   "version": "4.0",
   "description": "Unified MCP Server Port Configuration - Single Source of Truth",
-  "last_updated": "2025-07-01T00:33:24.164737",
+  "last_updated": "2025-07-03T13:39:27",
   "port_ranges": {
     "core_intelligence": "9000-9019",
     "strategic_enhancements": "9020-9029",
@@ -40,7 +40,9 @@
     "apollo_io": 9102,
     "snowflake": 9200,
     "snowflake_cortex": 9201,
-    "estuary": 9202
+    "estuary": 9202,
+    "prompt_optimizer": 9030,
+    "mem0_bridge": 9031
   },
   "server_status": {
     "operational": [
@@ -56,13 +58,15 @@
       "notion",
       "github",
       "slack",
-      "codacy"
+      "codacy",
+      "prompt_optimizer"
     ],
     "planned": [
       "estuary_flow_cli",
       "apollo_io",
       "bright_data",
-      "graphiti"
+      "graphiti",
+      "mem0_bridge"
     ]
   },
   "configuration_hierarchy": {

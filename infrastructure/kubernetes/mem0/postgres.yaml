@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-mem0
+  namespace: sophia-memory
+spec:
+  serviceName: postgres-mem0
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-mem0
+  template:
+    metadata:
+      labels:
+        app: postgres-mem0
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          value: mem0db
+        - name: POSTGRES_USER
+          value: mem0
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mem0-postgres-secret
+              key: password
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-mem0
+  namespace: sophia-memory
+spec:
+  selector:
+    app: postgres-mem0
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mem0-postgres-secret
+  namespace: sophia-memory
+type: Opaque
+stringData:
+  password: mem0pass  # In production, use a secure password from Pulumi ESC 

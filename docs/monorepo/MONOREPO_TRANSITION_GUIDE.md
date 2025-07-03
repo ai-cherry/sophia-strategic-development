@@ -1,135 +1,108 @@
-# Monorepo Transition Guide
+# Sophia AI Monorepo Transition Guide
 
-## 🚨 IMPORTANT: Quality-First Transition Approach
+⚠️ **TRANSITION IN PROGRESS** ⚠️
 
-**Status**: We are carefully transitioning to a monorepo structure, prioritizing stability and code quality for CEO operations.
+## Current Status
 
-**Development Context**:
-- Primary User: CEO (sole user for 3+ months)
-- Priority: Zero disruption to current functionality
-- Approach: Careful, tested migration with no breaking changes
+We are transitioning from the old structure to a new monorepo structure. During this transition:
+- **USE THE OLD STRUCTURE** for all new code
+- **DO NOT USE THE NEW STRUCTURE** until migration is complete
+- Target completion: ~~February 2025~~ **May 2025** (Extended for enhancement phases)
 
-### Current State (December 2024)
+## Directory Structure During Transition
 
-The project has **TWO directory structures coexisting**:
-
-#### 1. Old Structure (Still Active)
+### Current (Active) Structure - USE THIS
 ```
 sophia-main/
-├── backend/              # Current Python services
-│   ├── agents/          # AI agents
-│   ├── api/             # API routes  
-│   ├── services/        # Business logic
-│   └── mcp_servers/     # MCP implementations
-├── frontend/             # Current React frontend
-├── mcp-servers/         # Standalone MCP servers
-└── infrastructure/      # Pulumi IaC
+├── backend/          # ✅ PUT NEW BACKEND CODE HERE
+├── frontend/         # ✅ PUT NEW FRONTEND CODE HERE  
+├── mcp-servers/      # ✅ PUT NEW MCP SERVERS HERE
+├── scripts/          # ✅ PUT NEW SCRIPTS HERE
+├── docs/             # ✅ PUT NEW DOCS HERE
+└── infrastructure/   # ✅ PUT NEW INFRA CODE HERE
 ```
 
-#### 2. New Structure (Being Populated)
+### Future Structure - DO NOT USE YET
 ```
 sophia-main/
-├── apps/                # Monorepo applications
-│   ├── api/            # Will contain backend/api
-│   ├── frontend/       # Will contain frontend
-│   ├── mcp-servers/    # Will contain all MCP servers
-│   └── n8n-bridge/     # Will contain N8N integration
-├── libs/                # Shared libraries
-│   ├── ui/             # Shared UI components
-│   ├── utils/          # Shared utilities
-│   ├── types/          # Shared TypeScript types
-│   └── core/           # Core business logic
-└── config/             # Centralized configurations
+├── apps/             # ❌ DO NOT USE YET
+│   ├── api/
+│   ├── frontend/
+│   └── mcp-servers/
+├── libs/             # ❌ DO NOT USE YET
+│   ├── core/
+│   └── shared/
+└── config/           # ❌ DO NOT USE YET
 ```
 
-### ⚠️ CRITICAL: Where to Put New Code
+## Updated Transition Timeline
 
-**For NOW (During Transition)**:
-- Continue adding new code to the **OLD structure** (`backend/`, `frontend/`, etc.)
-- The new structure is being prepared but is NOT yet active
+### Phase 0: Infrastructure Setup ✅ COMPLETE
+- Turborepo configuration
+- PNPM workspace setup
+- CI/CD templates
+- Migration tooling
 
-**After Migration** (Target: February 2025):
-- All new code will go in the **NEW structure** (`apps/`, `libs/`)
-- Imports will change from `backend.core` to `libs.core`
+### Phase 1: Foundation Enhancement (January 2025)
+- Mem0 integration for persistent memory
+- Prompt optimization MCP deployment
+- Advanced LangGraph patterns
+- Unified MCP gateway
 
-### Why This Transition?
+### Phase 2: Data Pipeline Automation (February 2025)
+- N8N workflow automation
+- Automated data ingestion
+- Real-time transformations
+- Executive dashboards
 
-We're moving to a monorepo structure to achieve:
-- **Build times**: 15-20 min → <5 min (with Turborepo caching)
-- **CI/CD**: 15+ duplicate workflows → 5-10 reusable templates
-- **Dependencies**: Unified management with UV (Python) and PNPM (JavaScript)
-- **Developer Experience**: One-command setup, consistent tooling
+### Phase 3: Intelligence Enhancement (March 2025)
+- Multi-agent learning system
+- Conversational training
+- Self-improving responses
+- Natural language workflows
 
-### Migration Status
+### Phase 4: Monorepo Migration (April 2025)
+- Move backend/ → apps/api/
+- Move frontend/ → apps/frontend/
+- Extract shared code → libs/
+- Update all imports
 
-| Component | Current Location | Future Location | Status |
-|-----------|-----------------|-----------------|--------|
-| Backend API | `backend/api/` | `apps/api/` | 🔴 Not Started |
-| Frontend | `frontend/` | `apps/frontend/` | 🔴 Not Started |
-| MCP Servers | `mcp-servers/` | `apps/mcp-servers/` | 🔴 Not Started |
-| Core Utils | `backend/core/` | `libs/core/` | 🔴 Not Started |
-| Shared UI | N/A | `libs/ui/` | 🔴 Not Started |
+### Phase 5: Production Optimization (May 2025)
+- Performance tuning
+- Monitoring enhancement
+- Documentation finalization
+- Team onboarding
 
-### Tools Installed
+## Migration Rules
 
-✅ **Already Set Up**:
-- Turborepo configuration (`turbo.json`)
-- PNPM workspace (`pnpm-workspace.yaml`)
-- Migration scripts (`scripts/monorepo/`)
-- CI/CD templates (`.github/workflow-templates/`)
+1. **All new features** go in the OLD structure
+2. **No manual moves** - use migration scripts only
+3. **Update imports** will be done automatically
+4. **Test everything** after each migration phase
 
-### For AI Coders
+## For AI Coders
 
-**IMPORTANT RULES**:
+When working on Sophia AI:
+1. **ALWAYS** use the current structure (backend/, frontend/, etc.)
+2. **IGNORE** the apps/ and libs/ directories
+3. **FOLLOW** the enhancement phases for new features
+4. **CHECK** this guide if confused about where to put code
 
-1. **Check Migration Status First**
-   - Look at this file to see which components have been migrated
-   - If not migrated, use the OLD structure
+## Quality Standards During Transition
 
-2. **Don't Create Duplicate Code**
-   - Don't add the same functionality in both old and new structures
-   - Wait for official migration of each component
+- **Code Quality**: Every line must be correct
+- **No Duplication**: Check existing code first
+- **Clean Dependencies**: Use config_manager pattern
+- **Delete One-Time Scripts**: After successful use
 
-3. **Follow Import Patterns**
-   - Old: `from backend.core.config import get_config_value`
-   - New (after migration): `from libs.core.config import get_config_value`
+## Questions?
 
-4. **Use Existing Tools**
-   - Python dependencies: UV (already configured in `pyproject.toml`)
-   - JavaScript dependencies: NPM for now, PNPM after migration
-   - Docker: Continue using existing Dockerfiles
-
-### Migration Commands (For Reference)
-
-When components are ready to migrate:
-```bash
-# Migrate a service (DO NOT RUN YET)
-./scripts/monorepo/migrate-service.sh backend/api app
-
-# Test the monorepo structure
-pnpm turbo run echo --filter=api
-
-# Bootstrap workspace (already done)
-./scripts/monorepo/bootstrap-workspace.sh
-```
-
-### Timeline
-
-- **Phase 0** ✅: Infrastructure setup (Complete)
-- **Phase 1** 🔄: Planning & Design (Current - January 2025)
-- **Phase 2**: Migration execution (February 2025)
-- **Phase 3**: Testing & validation (March 2025)
-- **Phase 4**: Cleanup old structure (April 2025)
-
-### Questions?
-
-If you're unsure where to put code:
-1. Check the migration status table above
-2. Default to the OLD structure if not migrated
-3. Look for similar code and follow its pattern
-4. The System Handbook remains authoritative for architecture
+If you're unsure:
+1. Use the OLD structure
+2. Check recent commits for patterns
+3. Follow existing code organization
+4. Ask before creating new top-level directories
 
 ---
 
-**Last Updated**: December 31, 2024  
-**Next Review**: January 15, 2025 
+*Last updated: January 2025 - Extended timeline for enhancement phases* 

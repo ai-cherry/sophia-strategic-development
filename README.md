@@ -14,12 +14,11 @@
 - **Rollout**: CEO → Super users (3 months) → Company-wide (6+ months)
 - **Priority**: Quality & Stability over Performance & Scale
 
-## ⚠️ Monorepo Transition Notice
+## 🚨 Development Status
 
-We are transitioning to a monorepo structure. During this transition:
-- **Continue using** the current structure (`backend/`, `frontend/`)
-- **Do not use** the new structure (`apps/`, `libs/`) until migration is complete
-- See [Monorepo Transition Guide](docs/monorepo/MONOREPO_TRANSITION_GUIDE.md) for details
+**Monorepo Transition**: We are transitioning to a monorepo structure. **Continue using the current directory structure** (`backend/`, `frontend/`, etc.) until the migration is complete in April 2025. See [MONOREPO_TRANSITION_GUIDE.md](docs/monorepo/MONOREPO_TRANSITION_GUIDE.md) for details.
+
+**Enhancement Phase**: January-March 2025 focused on Memory & Learning, Data Automation, and Intelligence Enhancement. See [System Handbook](docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md) for the integrated plan.
 
 ## 🚀 Quick Start
 
@@ -183,3 +182,15 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 **Sophia AI** - Transforming business operations through intelligent AI orchestration. 🚀
+
+## 🗓️ Roadmap
+
+### Q1 2025: Intelligence Enhancement
+- **January**: Memory & Learning Layer (Mem0, Prompt Optimization)
+- **February**: Data Pipeline Automation (N8N Workflows)
+- **March**: Multi-Agent Learning System
+
+### Q2 2025: Platform Evolution
+- **April**: Monorepo Migration
+- **May**: Production Optimization
+- **June**: Team Onboarding

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-mem0
+  namespace: sophia-memory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-mem0
+  template:
+    metadata:
+      labels:
+        app: redis-mem0
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+          name: redis
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-mem0
+  namespace: sophia-memory
+spec:
+  selector:
+    app: redis-mem0
+  ports:
+  - port: 6379
+    targetPort: 6379
+  type: ClusterIP 
