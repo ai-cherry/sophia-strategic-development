@@ -89,7 +89,12 @@ const UnifiedDashboard = () => {
     
     const renderProjects = () => (
         <Card>
-            <CardHeader><CardTitle>Cross-Platform Project Overview</CardTitle></CardHeader>
+            <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                    <Briefcase />
+                    <span>Cross-Platform Project & OKR Hub</span>
+                </CardTitle>
+            </CardHeader>
             <CardContent>
                 <Table>
                     <TableHeader>
@@ -99,16 +104,18 @@ const UnifiedDashboard = () => {
                             <TableHead>Health</TableHead>
                             <TableHead>Progress</TableHead>
                             <TableHead>Team</TableHead>
+                            <TableHead>OKR Alignment</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data.projects.map(p => (
+                        {data.projects && data.projects.map(p => (
                             <TableRow key={p.id}>
                                 <TableCell className="font-medium">{p.name}</TableCell>
-                                <TableCell><Badge variant="outline">{p.platform}</Badge></TableCell>
-                                <TableCell className={p.health_score > 80 ? 'text-green-500' : 'text-orange-500'}>{p.health_score}%</TableCell>
+                                <TableCell><Badge variant="outline" className="flex items-center w-min"><GitBranch className="h-3 w-3 mr-1" />{p.platform}</Badge></TableCell>
+                                <TableCell className={p.health_score > 80 ? 'text-green-500' : p.health_score > 60 ? 'text-yellow-500' : 'text-red-500'}>{p.health_score}%</TableCell>
                                 <TableCell><Progress value={p.completion_percentage} className="w-full" /></TableCell>
                                 <TableCell>{p.team_members.join(', ')}</TableCell>
+                                <TableCell><Badge>{p.okr_alignment}</Badge></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -118,11 +125,40 @@ const UnifiedDashboard = () => {
     );
 
     const renderKnowledge = () => (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <UnifiedKPICard title="Total Documents" value={data.knowledge?.totalDocuments || 0} icon={Database} />
-            <UnifiedKPICard title="Total Size" value={data.knowledge?.totalSize || '0 GB'} icon={Database} />
-            <UnifiedKPICard title="Recent Ingestions" value={data.knowledge?.recentIngestions || 0} icon={RefreshCw} />
-            <UnifiedKPICard title="Avg. Query Time" value={`${data.knowledge?.avgQueryTime || 0}ms`} icon={Search} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+                <Card>
+                    <CardHeader><CardTitle>Data Ingestion Status</CardTitle></CardHeader>
+                    <CardContent>
+                        {/* Placeholder for Ingestion Status Table */}
+                        <p>Real-time ingestion job status will be displayed here.</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader><CardTitle>AI Learning & Growth</CardTitle></CardHeader>
+                    <CardContent>
+                        {/* Placeholder for AI learning metrics */}
+                        <p>Metrics on AI concept growth and accuracy will be shown here.</p>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader><CardTitle>Data Sources</CardTitle></CardHeader>
+                    <CardContent className="space-y-2">
+                        <Button variant="outline" className="w-full justify-start">Sync Gong</Button>
+                        <Button variant="outline" className="w-full justify-start">Sync HubSpot</Button>
+                        <Button variant="outline" className="w-full justify-start">Sync Snowflake</Button>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader><CardTitle>Manual Upload</CardTitle></CardHeader>
+                    <CardContent>
+                        <Input type="file" />
+                        <Button className="w-full mt-2">Upload and Ingest</Button>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 
