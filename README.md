@@ -188,3 +188,29 @@ See the [Deployment Guides](docs/04-deployment/README.md).
 ## System Handbook
 
 See the [System Handbook](docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md).
+
+## 🔒 Security
+
+### Dependency Security Auditing
+
+Sophia AI includes comprehensive dependency security scanning integrated with UV:
+
+```bash
+# Run local security audit
+./scripts/audit-deps.sh
+
+# Save security reports
+./scripts/audit-deps.sh --save
+
+# Check licenses
+./scripts/audit-deps.sh --check-licenses
+```
+
+**Features:**
+- 🔍 Automated vulnerability scanning with pip-audit and safety
+- 🚀 CI/CD integration - blocks PRs with critical vulnerabilities
+- 📊 Security metrics exposed via Prometheus
+- 🌙 Nightly baseline scans with trend analysis
+- 📝 Vulnerability lifecycle management with allowlisting
+
+See [Security Documentation](docs/08-security/DEPENDENCY_SECURITY_AUDIT.md) for details.
