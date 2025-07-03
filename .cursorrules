@@ -126,7 +126,8 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 "Find performance optimization strategies from high-star repos"
 "Show security patterns used by official implementations"
 
-# AI-Powered UI Generation (V0.dev Integration)
+# AI-Powered UI Generation (V0.dev Integration via Unified Chat)
+# Note: Type these directly in the unified chat - no @ commands needed
 "Create a modern dashboard component with glassmorphism styling"
 "Build a responsive navigation bar with dropdown menus"
 "Generate a data table component with sorting and filtering"

@@ -1,6 +1,10 @@
 """
 UI Generation Intent Handler for Sophia AI
-Connects unified chat service to V0.dev MCP server for AI-powered UI generation
+Automatically handles UI generation requests from the unified chat interface.
+Routes to V0.dev MCP server through the orchestration service.
+
+IMPORTANT: This is an internal service. Users interact only through the unified chat
+within the unified dashboard. No direct API access or separate commands.
 """
 
 import logging

@@ -15,7 +15,13 @@
 @codacy analyze this file for security issues  
 @memory remember we use PostgreSQL for main database
 @github create PR for authentication feature
-@v0dev create a dashboard component with glassmorphism
+```
+
+**Note:** All UI generation requests go through the unified chat interface. Simply type your request naturally without any @ prefix:
+```bash
+"Create a dashboard component with glassmorphism"
+"Build a responsive navigation bar"
+"Generate a data table with sorting"
 ```
 
 ## **📚 Sophia AI Intelligence Commands**
@@ -243,132 +249,132 @@
 @docker update service with new image
 ```
 
-## **🎨 V0.dev UI Generation Commands**
+## **🎨 UI Generation Through Unified Chat**
 
-### **Component Creation**
+### **Component Creation (via Unified Chat)**
 
 #### **Dashboard Components**
 ```bash
 # Executive dashboard
-@v0dev create an executive dashboard with KPI cards and glassmorphism styling
+"Create an executive dashboard with KPI cards and glassmorphism styling"
 
 # Analytics dashboard
-@v0dev build a dashboard showing revenue, user growth, and performance metrics
+"Build a dashboard showing revenue, user growth, and performance metrics"
 
 # Real-time dashboard
-@v0dev generate a real-time monitoring dashboard with live charts
+"Generate a real-time monitoring dashboard with live charts"
 
 # Mobile dashboard
-@v0dev design a responsive mobile-friendly dashboard
+"Design a responsive mobile-friendly dashboard"
 ```
 
 #### **Form Components**
 ```bash
 # Contact form
-@v0dev create a contact form with email validation and submit handling
+"Create a contact form with email validation and submit handling"
 
 # Multi-step form
-@v0dev build a multi-step registration form with progress indicator
+"Build a multi-step registration form with progress indicator"
 
 # Dynamic form
-@v0dev generate a dynamic form builder with drag-and-drop fields
+"Generate a dynamic form builder with drag-and-drop fields"
 
 # Login form
-@v0dev design a modern login form with social auth buttons
+"Design a modern login form with social auth buttons"
 ```
 
 #### **Data Display**
 ```bash
 # Data table
-@v0dev create a data table with sorting, filtering, and pagination
+"Create a data table with sorting, filtering, and pagination"
 
 # Card grid
-@v0dev build a product card grid with hover effects
+"Build a product card grid with hover effects"
 
 # List view
-@v0dev generate a user list with avatars and action buttons
+"Generate a user list with avatars and action buttons"
 
 # Timeline
-@v0dev design a vertical timeline component for events
+"Design a vertical timeline component for events"
 ```
 
 #### **Navigation**
 ```bash
 # Header
-@v0dev create a responsive header with dropdown navigation
+"Create a responsive header with dropdown navigation"
 
 # Sidebar
-@v0dev build a collapsible sidebar with nested menu items
+"Build a collapsible sidebar with nested menu items"
 
 # Breadcrumbs
-@v0dev generate a breadcrumb component with icons
+"Generate a breadcrumb component with icons"
 
 # Tab navigation
-@v0dev design a tab component with animated transitions
+"Design a tab component with animated transitions"
 ```
 
-### **Style-Specific Requests**
+### **Style-Specific Requests (via Unified Chat)**
 
 #### **Modern Styles**
 ```bash
 # Glassmorphism
-@v0dev create a glassmorphism card component with blur effect
+"Create a glassmorphism card component with blur effect"
 
 # Neumorphism
-@v0dev build neumorphic buttons with pressed states
+"Build neumorphic buttons with pressed states"
 
 # Gradient
-@v0dev generate a gradient hero section with animated background
+"Generate a gradient hero section with animated background"
 
 # Minimal
-@v0dev design a minimal pricing card with clean typography
+"Design a minimal pricing card with clean typography"
 ```
 
 #### **Theme Variations**
 ```bash
 # Dark theme
-@v0dev create a dark theme dashboard with neon accents
+"Create a dark theme dashboard with neon accents"
 
 # Light theme
-@v0dev build a light theme form with soft shadows
+"Build a light theme form with soft shadows"
 
 # High contrast
-@v0dev generate an accessible high-contrast data table
+"Generate an accessible high-contrast data table"
 
 # Custom brand
-@v0dev design components matching our brand colors #FF6B6B and #4ECDC4
+"Design components matching our brand colors #FF6B6B and #4ECDC4"
 ```
 
-### **Framework-Specific Generation**
+### **Framework-Specific Generation (via Unified Chat)**
 
 ```bash
 # React + TypeScript
-@v0dev create a React TypeScript component for user profile management
+"Create a React TypeScript component for user profile management"
 
 # Next.js
-@v0dev build a Next.js layout component with SSR support
+"Build a Next.js layout component with SSR support"
 
 # Tailwind CSS
-@v0dev generate a component using only Tailwind CSS classes
+"Generate a component using only Tailwind CSS classes"
 
 # Material-UI
-@v0dev design a component using Material-UI v5 components
+"Design a component using Material-UI v5 components"
 ```
 
-### **Advanced UI Features**
+### **Advanced UI Features (via Unified Chat)**
 
 ```bash
 # Animations
-@v0dev create a card with smooth hover animations and transitions
+"Create a card with smooth hover animations and transitions"
 
 # Interactive charts
-@v0dev build a dashboard with interactive Chart.js visualizations
+"Build a dashboard with interactive Chart.js visualizations"
 
 # Drag and drop
-@v0dev generate a kanban board with drag-and-drop functionality
+"Generate a kanban board with drag-and-drop functionality"
 
 # Real-time updates
-@v0dev design a component with WebSocket real-time data updates
+"Design a component with WebSocket real-time data updates"
 ```
 
 ## **🔄 Workflow Combinations**
@@ -430,25 +436,25 @@
 @sophia suggest refactoring for better maintainability
 ```
 
-### **UI Development Flow**
+### **UI Development Flow (via Unified Chat)**
 ```bash
 # 1. Design the component
-@v0dev create a user profile card with avatar and social links
+"Create a user profile card with avatar and social links"
 
-# 2. Review accessibility
-@v0dev ensure the component meets WCAG 2.1 standards
+# 2. Review accessibility  
+"Ensure the component meets WCAG 2.1 standards"
 
 # 3. Check code quality
-@codacy analyze the generated component code
+"Analyze the generated component code for quality issues"
 
 # 4. Save design decision
-@memory remember: Using glassmorphism style for all profile cards
+"Remember: Using glassmorphism style for all profile cards"
 
 # 5. Create tests
-@sophia generate React tests for the ProfileCard component
+"Generate React tests for the ProfileCard component"
 
 # 6. Integrate
-@sophia show me how to integrate this component into our dashboard
+"Show me how to integrate this component into our dashboard"
 ```
 
 ## **💡 Pro Tips**
@@ -524,13 +530,13 @@ caches it in Redis for 5 minutes, and includes error handling
 | Need | Command |
 |------|---------|
 | Generate code | `@sophia create [description]` |
-| Generate UI | `@v0dev create [component]` |
+| Generate UI | Type naturally: `"Create [component]"` |
 | Fix bug | `@sophia debug [error]` |
 | Analyze quality | `@codacy analyze` |
 | Remember decision | `@memory store [info]` |
 | Create PR | `@github create PR [title]` |
 | Build container | `@docker build` |
-| Design interface | `@v0dev design [UI element]` |
+| Design interface | Type naturally: `"Design [UI element]"` |
 | Explain concept | `@sophia explain [topic]` |
 | Find past solution | `@memory search [problem]` |
 | Security check | `@codacy security scan` |

@@ -2,29 +2,35 @@
 
 ## Overview
 
-Sophia AI now integrates V0.dev for AI-powered UI component generation through natural language commands. This guide explains how to use natural language to create UI components via the unified chat interface.
+V0.dev AI-powered UI component generation is fully integrated into Sophia AI's **Unified Chat** interface within the **Unified Dashboard**. There are no separate commands or interfaces - simply type your UI generation requests naturally in the unified chat, and Sophia will automatically detect your intent and route it to the appropriate services.
 
 ## How It Works
 
 ### Architecture Flow
 
-1. **Natural Language Input** → User types UI generation request in chat
-2. **Intent Detection** → Unified chat service detects UI generation intent
-3. **MCP Orchestration** → Request routed to V0.dev MCP server
-4. **Component Generation** → V0.dev creates the component
-5. **Multi-Server Validation** → Quality checks via Figma, UI/UX Agent, and Codacy
-6. **Response with Preview** → Component code returned with live preview
+1. **Unified Chat Input** → Type UI request in the unified chat interface
+2. **Automatic Intent Detection** → Unified intelligence service detects UI generation intent
+3. **Intelligent Routing** → Request automatically routed through MCP orchestration
+4. **Component Generation** → V0.dev creates the component behind the scenes
+5. **Multi-Server Validation** → Quality checks via integrated services
+6. **Unified Response** → Component returned in the chat with preview
 
-### Integration Points
+### Key Integration Points
 
-- **Unified Chat Service**: `backend/services/enhanced_unified_intelligence_service.py`
-- **UI Intent Handler**: `backend/services/ui_generation_intent_handler.py`
-- **MCP Orchestration**: `backend/services/mcp_orchestration_service.py`
-- **V0.dev MCP Server**: `mcp-servers/v0dev/v0dev_mcp_server.py`
+- **Single Entry Point**: `frontend/src/components/dashboard/UnifiedDashboard.tsx`
+- **Unified Chat Service**: All requests go through `backend/services/enhanced_unified_intelligence_service.py`
+- **Automatic Routing**: No manual server selection - intelligence service handles everything
+- **Seamless Experience**: No need to know which MCP server handles what
 
-## Natural Language Commands
+## Using V0.dev Through Unified Chat
 
-### Basic Component Creation
+### IMPORTANT: No Special Commands Needed
+
+Simply type your UI generation requests naturally in the unified chat. The system automatically understands and routes your request. **Do NOT use @v0dev or any other prefix**.
+
+### Natural Language Examples
+
+Type these directly in the unified chat:
 
 ```
 "Create a dashboard component with glassmorphism styling"
@@ -157,61 +163,54 @@ const CustomerDataTable = ({ data }) => {
 export default CustomerDataTable;
 ```
 
-## Chat Integration
+## Using Within the Unified Dashboard
 
-### Using with Sophia Chat
+### Access Through Unified Chat Tab
 
-1. **Open Sophia Chat Interface**
-   ```
-   Navigate to /dashboard/chat or use the chat widget
-   ```
+1. **Open Unified Dashboard**
+   - Navigate to your Sophia AI instance
+   - The unified dashboard is your single entry point
 
-2. **Type Natural Language Command**
+2. **Select Unified Chat Tab**
+   - Click on the "Unified Chat" tab
+   - This is where all interactions happen
+
+3. **Type Natural Language Requests**
    ```
    User: "Create a modern dashboard component with dark theme and real-time charts"
    ```
 
-3. **Receive Generated Component**
+4. **Receive Integrated Response**
    - Component code displayed in chat
-   - Live preview link provided
-   - Quality scores shown (accessibility, code quality)
-   - Suggestions for improvements
+   - Live preview embedded in response
+   - Quality scores integrated
+   - Suggestions included
 
-4. **Iterate with Feedback**
+5. **Iterate Naturally**
    ```
    User: "Make the charts more colorful and add animations"
    ```
 
-### Frontend Integration
+### Unified Dashboard Integration
+
+The generated components are designed to work seamlessly within the unified dashboard:
 
 ```typescript
-// In your React component
-import { v0devClient } from '@/services/v0devClient';
-import { UIComponentPreview } from '@/components/UIComponentPreview';
-
-const ChatInterface = () => {
-  const [componentCode, setComponentCode] = useState('');
-  const [previewUrl, setPreviewUrl] = useState('');
-  
-  const handleUIGeneration = async (message: string) => {
-    // This happens automatically through chat, but you can also call directly
-    const response = await v0devClient.generateComponent({
-      prompt: message,
-      stream: true
-    });
-    
-    setComponentCode(response.code);
-    setPreviewUrl(response.previewUrl);
-  };
-  
-  return (
-    <div>
-      {/* Chat interface */}
-      {previewUrl && <UIComponentPreview url={previewUrl} />}
-    </div>
-  );
+// Components automatically integrate with UnifiedDashboard.tsx
+const UnifiedDashboard = () => {
+  // Your generated components can be added as new tabs or within existing tabs
+  {activeTab === 'custom-dashboard' && <YourGeneratedComponent />}
 };
 ```
+
+### No Separate Interfaces
+
+- ❌ No separate V0.dev interface
+- ❌ No command-line tools needed
+- ❌ No direct API calls required
+- ✅ Everything through unified chat
+- ✅ All within unified dashboard
+- ✅ Automatic intelligent routing
 
 ## Best Practices
 
@@ -292,42 +291,33 @@ Each generated component goes through:
 - Reference existing design system
 - Provide color/theme preferences
 
-## API Reference
+## Technical Architecture (For Developers)
 
-### Direct API Usage (Advanced)
+### How It Works Under the Hood
 
-```python
-# Python example
-from backend.services.ui_generation_intent_handler import get_ui_generation_handler
+While users interact only through the unified chat, here's what happens internally:
 
-handler = get_ui_generation_handler()
-response = await handler.generate_ui_from_chat(
-    message="Create a dashboard component",
-    user_id="user123",
-    session_id="session456"
-)
-```
+1. **Unified Chat** receives the message
+2. **Intent Detection** in `enhanced_unified_intelligence_service.py`
+3. **Routing** through `ui_generation_intent_handler.py`
+4. **Orchestration** via `mcp_orchestration_service.py`
+5. **Generation** by V0.dev MCP server
+6. **Response** back through unified chat
 
-### WebSocket Integration
+### Integration Points
 
-```javascript
-// JavaScript WebSocket example
-const ws = new WebSocket('ws://localhost:8000/api/v1/chat/ws/user123');
+- All UI generation requests are automatically handled
+- No direct API calls needed - use unified chat
+- Components integrate directly with `UnifiedDashboard.tsx`
+- WebSocket connections managed by unified chat service
 
-ws.send(JSON.stringify({
-  type: 'chat',
-  message: 'Create a modern dashboard component',
-  session_id: 'session123'
-}));
+### IMPORTANT: Always Use Unified Chat
 
-ws.onmessage = (event) => {
-  const response = JSON.parse(event.data);
-  if (response.type === 'ui_generation') {
-    console.log('Component:', response.data.component_code);
-    console.log('Preview:', response.data.preview_url);
-  }
-};
-```
+Direct API usage is not recommended. All interactions should go through the unified chat interface to ensure:
+- Proper authentication and authorization
+- Consistent user experience
+- Automatic context management
+- Integrated response handling
 
 ## FastAPI Migration Note
 
