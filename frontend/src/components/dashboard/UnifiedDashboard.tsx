@@ -4,6 +4,7 @@ import { MessageCircle, Search, TrendingUp, AlertTriangle, Users, Target, Calend
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import apiClient from '../../services/apiClient';
+import EnhancedUnifiedChat from '../shared/EnhancedUnifiedChat';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
@@ -104,36 +105,7 @@ const UnifiedDashboard = () => {
     );
     
     const renderChat = () => (
-         <Card className="h-[70vh] flex flex-col">
-            <CardHeader>
-              <CardTitle>AI Business Intelligence Chat</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col">
-              <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-gray-50 rounded-lg">
-                {chatMessages.map((message, index) => (
-                  <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-lg ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-white text-gray-900 border'}`}>
-                      <p className="whitespace-pre-wrap">{message.response || message.content}</p>
-                      <p className="text-xs mt-2 opacity-70">{new Date(message.timestamp).toLocaleTimeString()}</p>
-                    </div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
-              <div className="flex space-x-2">
-                <Input
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask a question about your business..."
-                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
-                  disabled={isLoading}
-                />
-                <Button onClick={handleChatSend} disabled={isLoading || !chatInput.trim()}>
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        <EnhancedUnifiedChat initialContext="business_intelligence" />
     );
 
     // --- Main Component Return ---
