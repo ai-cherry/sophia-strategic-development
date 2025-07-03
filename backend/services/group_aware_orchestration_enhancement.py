@@ -11,7 +11,7 @@ Business Value:
 - Executive intelligence queries across all server groups
 - Group-based health monitoring with business impact analysis
 - Predictive group failure detection
-- Cross-group synthesis for CEO dashboard
+- Cross-group synthesis for Unified dashboard
 """
 
 """
@@ -529,7 +529,7 @@ class GroupAwareOrchestrationEnhancement:
     async def execute_executive_intelligence_task(self, query: str) -> dict[str, Any]:
         """
         New capability: Execute executive intelligence query across all groups.
-        This is the primary interface for CEO dashboard queries.
+        This is the primary interface for Unified dashboard queries.
         """
         # Create a business task from the natural language query
         task = BusinessTask(

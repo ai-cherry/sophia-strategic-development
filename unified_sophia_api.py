@@ -47,10 +47,10 @@ async def lifespan(app: FastAPI):
         from backend.services.enhanced_universal_chat_service import universal_chat_service
         
         # Initialize chat service
-        logger.info("🧠 Initializing Universal Chat Service...")
+        logger.info("🧠 Initializing Unified Chat Service...")
         await universal_chat_service.initialize()
         chat_service = universal_chat_service
-        logger.info("✅ Universal Chat Service ready")
+        logger.info("✅ Unified Chat Service ready")
         
         logger.info("🎉 Unified Sophia AI Platform is ready!")
         
@@ -85,8 +85,8 @@ app.add_middleware(
 # Include API routers
 try:
     from backend.api.unified_chat_routes import router as chat_router
-    app.include_router(chat_router, tags=["Universal Chat"])
-    logger.info("✅ Universal Chat routes loaded")
+    app.include_router(chat_router, tags=["Unified Chat"])
+    logger.info("✅ Unified Chat routes loaded")
 except Exception as e:
     logger.warning(f"⚠️ Failed to load chat routes: {e}")
 

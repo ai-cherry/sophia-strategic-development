@@ -588,9 +588,9 @@ CREATE INDEX IF NOT EXISTS IX_PARTNERSHIP_OPPORTUNITIES_TYPE ON PARTNERSHIP_OPPO
 """
 
     def _create_ceo_intelligence_schema(self) -> str:
-        """Create CEO_INTELLIGENCE schema content (already implemented above)"""
-        return """-- CEO_INTELLIGENCE schema content would be loaded from the existing file
--- This is a placeholder for the comprehensive CEO intelligence schema
+        """Create Unified_INTELLIGENCE schema content (already implemented above)"""
+        return """-- Unified_INTELLIGENCE schema content would be loaded from the existing file
+-- This is a placeholder for the comprehensive Unified intelligence schema
 -- that was created in the separate file above.
 """
 
@@ -601,7 +601,7 @@ CREATE INDEX IF NOT EXISTS IX_PARTNERSHIP_OPPORTUNITIES_TYPE ON PARTNERSHIP_OPPO
 -- =====================================================================
 
 -- Create hierarchical roles
-CREATE ROLE IF NOT EXISTS CEO_ROLE;
+CREATE ROLE IF NOT EXISTS Unified_ROLE;
 CREATE ROLE IF NOT EXISTS EXECUTIVE_ROLE;
 CREATE ROLE IF NOT EXISTS BOARD_ROLE;
 CREATE ROLE IF NOT EXISTS MANAGER_ROLE;
@@ -614,17 +614,17 @@ GRANT ROLE VIEWER_ROLE TO ROLE ANALYST_ROLE;
 GRANT ROLE ANALYST_ROLE TO ROLE EMPLOYEE_ROLE;
 GRANT ROLE EMPLOYEE_ROLE TO ROLE MANAGER_ROLE;
 GRANT ROLE MANAGER_ROLE TO ROLE EXECUTIVE_ROLE;
-GRANT ROLE EXECUTIVE_ROLE TO ROLE CEO_ROLE;
+GRANT ROLE EXECUTIVE_ROLE TO ROLE Unified_ROLE;
 
--- CEO-only access to CEO_INTELLIGENCE schema
-GRANT USAGE ON SCHEMA CEO_INTELLIGENCE TO ROLE CEO_ROLE;
-GRANT SELECT ON ALL TABLES IN SCHEMA CEO_INTELLIGENCE TO ROLE CEO_ROLE;
-GRANT INSERT ON ALL TABLES IN SCHEMA CEO_INTELLIGENCE TO ROLE CEO_ROLE;
-GRANT UPDATE ON ALL TABLES IN SCHEMA CEO_INTELLIGENCE TO ROLE CEO_ROLE;
+-- Unified-only access to Unified_INTELLIGENCE schema
+GRANT USAGE ON SCHEMA Unified_INTELLIGENCE TO ROLE Unified_ROLE;
+GRANT SELECT ON ALL TABLES IN SCHEMA Unified_INTELLIGENCE TO ROLE Unified_ROLE;
+GRANT INSERT ON ALL TABLES IN SCHEMA Unified_INTELLIGENCE TO ROLE Unified_ROLE;
+GRANT UPDATE ON ALL TABLES IN SCHEMA Unified_INTELLIGENCE TO ROLE Unified_ROLE;
 
 -- Board role access to board materials only
-GRANT USAGE ON SCHEMA CEO_INTELLIGENCE TO ROLE BOARD_ROLE;
-GRANT SELECT ON CEO_INTELLIGENCE.BOARD_MATERIALS TO ROLE BOARD_ROLE;
+GRANT USAGE ON SCHEMA Unified_INTELLIGENCE TO ROLE BOARD_ROLE;
+GRANT SELECT ON Unified_INTELLIGENCE.BOARD_MATERIALS TO ROLE BOARD_ROLE;
 
 -- Executive access to business data
 GRANT USAGE ON SCHEMA HUBSPOT_DATA TO ROLE EXECUTIVE_ROLE;
@@ -646,7 +646,7 @@ GRANT SELECT ON ALL TABLES IN SCHEMA PAYREADY_CORE_SQL TO ROLE EXECUTIVE_ROLE;
 -- Customer data access policy
 CREATE OR REPLACE ROW ACCESS POLICY CUSTOMER_DATA_POLICY
 AS (
-    CURRENT_ROLE() IN ('CEO_ROLE', 'EXECUTIVE_ROLE')
+    CURRENT_ROLE() IN ('Unified_ROLE', 'EXECUTIVE_ROLE')
     OR (
         CURRENT_ROLE() = 'MANAGER_ROLE'
         AND CUSTOMER_ID IN (
@@ -660,7 +660,7 @@ AS (
 -- Employee data access policy
 CREATE OR REPLACE ROW ACCESS POLICY EMPLOYEE_DATA_POLICY
 AS (
-    CURRENT_ROLE() IN ('CEO_ROLE', 'EXECUTIVE_ROLE')
+    CURRENT_ROLE() IN ('Unified_ROLE', 'EXECUTIVE_ROLE')
     OR EMPLOYEE_ID = CURRENT_USER()
     OR (
         CURRENT_ROLE() = 'MANAGER_ROLE'
@@ -675,7 +675,7 @@ AS (
 -- Financial data access policy
 CREATE OR REPLACE ROW ACCESS POLICY FINANCIAL_DATA_POLICY
 AS (
-    CURRENT_ROLE() IN ('CEO_ROLE', 'EXECUTIVE_ROLE', 'FINANCE_ROLE')
+    CURRENT_ROLE() IN ('Unified_ROLE', 'EXECUTIVE_ROLE', 'FINANCE_ROLE')
 );
 """
 
@@ -828,7 +828,7 @@ $$;
 - Partnership opportunity tracking
 - Third-party data integration
 
-### 5. CEO_INTELLIGENCE Schema ✅
+### 5. Unified_INTELLIGENCE Schema ✅
 - Strategic planning documents
 - Board materials and minutes
 - Executive performance reviews
@@ -849,7 +849,7 @@ $$;
 
 ## Security Enhancements
 
-- ✅ CEO-only access controls for strategic data
+- ✅ Unified-only access controls for strategic data
 - ✅ Row-level security for customer and employee data
 - ✅ Comprehensive audit logging
 - ✅ Role-based access hierarchy
@@ -859,15 +859,15 @@ $$;
 
 1. Deploy schemas to Snowflake DEV environment
 2. Test access controls and security policies
-3. Validate Universal Chat Interface integration
+3. Validate Unified Chat Interface integration
 4. Deploy to STAGING environment
-5. Production deployment with CEO approval
+5. Production deployment with Unified approval
 
 ## Business Impact
 
 - **100% Database Architecture Completeness**
 - **Enterprise-Grade Security Implementation**
-- **CEO Dashboard with Confidential Intelligence**
+- **Unified Dashboard with Confidential Intelligence**
 - **Comprehensive Business Intelligence Platform**
 - **Full Regulatory Compliance Ready**
 
@@ -968,7 +968,7 @@ async def main():
         print("\n🎉 ALL SCHEMAS IMPLEMENTED SUCCESSFULLY!")
         print("📊 Database architecture is now 100% complete")
         print("🔒 Enterprise-grade security implemented")
-        print("🤖 Universal Chat Interface ready for full integration")
+        print("🤖 Unified Chat Interface ready for full integration")
         return 0
     else:
         print("\n⚠️  Some schemas failed to implement")

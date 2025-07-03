@@ -54,6 +54,51 @@
       "env": {
         "PORT": "9033"
       }
+    },
+    "ai_memory": {
+      "command": "uvicorn",
+      "args": [
+        "mcp-servers.ai_memory.ai_memory_mcp_server:app",
+        "--host", "0.0.0.0",
+        "--port", "9000"
+      ],
+      "auto_trigger": {
+        "enabled": true,
+        "patterns": ["remember", "recall", "store memory", "what did we", "last time"],
+        "priority": "HIGH"
+      }
+    },
+    "mem0_openmemory": {
+      "command": "curl",
+      "args": [
+        "-X", "POST",
+        "http://mem0.sophia-lambda.svc:8080/",
+        "-H", "Content-Type: application/json"
+      ],
+      "remote": true,
+      "endpoint": "http://mem0.sophia-lambda.svc:8080",
+      "auto_trigger": {
+        "enabled": true,
+        "patterns": ["persistent memory", "cross-session", "remember across", "mem0"],
+        "priority": "HIGH"
+      }
+    },
+    "cortex_aisql": {
+      "command": "curl",
+      "args": [
+        "-X", "POST",
+        "http://cortex-aisql-service.sophia-ai.svc:8080/",
+        "-H", "Content-Type: application/json"
+      ],
+      "remote": true,
+      "endpoint": "http://cortex-aisql-service.sophia-ai.svc:8080",
+      "auto_trigger": {
+        "enabled": true,
+        "patterns": ["natural language query", "ask snowflake", "cortex ai", "business data"],
+        "priority": "HIGH"
+      }
+    },
+    "codacy": {
     }
   },
   "version": "4.0-phoenix",

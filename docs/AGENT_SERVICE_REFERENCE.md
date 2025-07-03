@@ -30,7 +30,7 @@ This reference lists all major agents in the Sophia AI platform, their purpose, 
 | CRMSyncAgent              | CRM data sync (HubSpot, Gong)           | `await CRMSyncAgent.pooled(config)`         | `AgentConfig`        | Pooled, <10μs                     |
 | InsightExtractionAgent    | Extract insights from Gong transcripts  | `await InsightExtractionAgent.pooled(config)`| `AgentConfig`        | Pooled, <10μs                     |
 | ProjectIntelligenceAgent  | Project/OKR/portfolio analysis         | `await ProjectIntelligenceAgent.pooled(config)`| `AgentConfig`      | Pooled, <10μs                     |
-| ExecutiveAgent            | CEO/exec strategic intelligence        | `await ExecutiveAgent.pooled(config)`       | `AgentConfig`        | Pooled, <10μs                     |
+| ExecutiveAgent            | Unified/exec strategic intelligence        | `await ExecutiveAgent.pooled(config)`       | `AgentConfig`        | Pooled, <10μs                     |
 | HRAgent                   | Team/HR analytics (Slack)              | `await HRAgent.pooled(config)`              | `AgentConfig`        | Pooled, <10μs                     |
 | ComplianceMonitoringAgent | Regulatory/compliance monitoring       | `await ComplianceMonitoringAgent.pooled(config)`| `AgentConfig`    | Pooled, <10μs                     |
 
@@ -79,4 +79,4 @@ python
 
 ---
 
-For more details, see the onboarding guide and the CEO dashboard for live agent metrics.
+For more details, see the onboarding guide and the Unified dashboard for live agent metrics.

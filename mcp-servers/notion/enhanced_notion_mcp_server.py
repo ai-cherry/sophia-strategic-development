@@ -1,7 +1,7 @@
 """
 Enhanced Notion MCP Server for Sophia AI
 Provides real Notion API integration with project management capabilities
-Designed for CEO project oversight and Salesforce migration tracking
+Designed for Unified project oversight and Salesforce migration tracking
 """
 
 """
@@ -330,7 +330,7 @@ class EnhancedNotionMCPServer:
 
         @self.mcp_server.tool("get_project_status")
         async def get_project_status(project_name: str = "") -> Dict[str, Any]:
-            """Get comprehensive project status for CEO dashboard"""
+            """Get comprehensive project status for Unified dashboard"""
             try:
                 if not self.notion_client or not self.project_db_id:
                     return {"error": "Project workspace not initialized"}
@@ -457,7 +457,7 @@ class EnhancedNotionMCPServer:
 
         @self.mcp_server.tool("get_executive_dashboard_data")
         async def get_executive_dashboard_data() -> Dict[str, Any]:
-            """Get comprehensive data for CEO executive dashboard"""
+            """Get comprehensive data for Unified executive dashboard"""
             try:
                 if not self.notion_client:
                     return {"error": "Notion client not initialized"}

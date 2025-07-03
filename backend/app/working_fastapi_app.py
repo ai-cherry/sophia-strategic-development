@@ -18,7 +18,7 @@ from backend.services.foundational_knowledge_service import FoundationalKnowledg
 from backend.services.smart_ai_service import SmartAIService
 
 # Import existing Sophia AI services
-from backend.services.sophia_universal_chat_service import SophiaUniversalChatService
+from backend.services.sophia_universal_chat_service import SophiaUnifiedChatService
 
 
 # Pydantic models
@@ -41,7 +41,7 @@ class HealthResponse(BaseModel):
 
 
 # Global services
-chat_service: SophiaUniversalChatService | None = None
+chat_service: SophiaUnifiedChatService | None = None
 ai_service: SmartAIService | None = None
 knowledge_service: FoundationalKnowledgeService | None = None
 
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
 
     try:
         # Initialize services
-        chat_service = SophiaUniversalChatService()
+        chat_service = SophiaUnifiedChatService()
         ai_service = SmartAIService()
         knowledge_service = FoundationalKnowledgeService()
 

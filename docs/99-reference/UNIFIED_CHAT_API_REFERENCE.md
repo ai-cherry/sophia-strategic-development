@@ -25,7 +25,7 @@ The Unified Chat API consolidates all chat functionality into a single, modular 
 
 ## Chat Modes
 
-### Universal Mode
+### Unified Mode
 - **Purpose**: Basic chat functionality
 - **Provider**: OpenAI (default)
 - **Use Case**: General conversations and queries
@@ -37,7 +37,7 @@ The Unified Chat API consolidates all chat functionality into a single, modular 
 - **Use Case**: Advanced business analysis and AI assistance
 
 ### Executive Mode
-- **Purpose**: CEO/executive-focused chat
+- **Purpose**: Unified/executive-focused chat
 - **Features**: High-level strategic insights, board-ready summaries
 - **Provider**: Portkey (recommended)
 - **Use Case**: Executive decision support and strategic planning
@@ -149,7 +149,7 @@ backend/services/chat/
 ├── context_manager.py        # Context handling
 ├── sophia_chat_service.py    # Sophia mode (planned)
 ├── executive_chat_service.py # Executive mode (planned)
-└── universal_chat_service.py # Universal mode (planned)
+└── universal_chat_service.py # Unified mode (planned)
 ```
 
 *Note: Mode-specific service implementations are currently using mock services while the actual implementations are being migrated to the new architecture.*
@@ -209,10 +209,10 @@ Replace legacy endpoint calls with the unified endpoint:
 
 **Before:**
 ```python
-# Sophia Universal Chat
+# Sophia Unified Chat
 requests.post("/api/v1/sophia-universal-chat", {...})
 
-# Enhanced CEO Chat
+# Enhanced Unified Chat
 requests.post("/api/v1/enhanced-ceo-chat", {...})
 ```
 

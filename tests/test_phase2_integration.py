@@ -3,7 +3,7 @@ Phase 2 Integration Tests
 
 Comprehensive test suite for Phase 2 enhancements including:
 - Enhanced LangGraph orchestration
-- Universal chat service
+- Unified chat service
 - Cost engineering and model routing
 - Enhanced Snowflake Cortex integration
 - End-to-end workflow testing
@@ -258,7 +258,7 @@ class TestEnhancedLangGraphOrchestration:
         assert status["progress"]["total_nodes"] == 2
 
 
-class TestUniversalChatService:
+class TestUnifiedChatService:
     """Test suite for universal chat service"""
 
     @pytest.fixture

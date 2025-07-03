@@ -61,7 +61,7 @@ class SecurityRemediator:
             # API keys
             r'"TV33BPZ5UN44QKZCZJUCAKRXHQ6Q3L5N"': "GONG_ACCESS_KEY",
             # Access tokens
-            r'"sophia_ceo_access_2024"': "CEO_ACCESS_TOKEN",
+            r'"sophia_ceo_access_2024"': "Unified_ACCESS_TOKEN",
         }
 
         # SQL injection patterns to fix
@@ -337,7 +337,7 @@ class SecurityRemediator:
             "JWT_TOKEN": "jwt_token",
             "SNOWFLAKE_PASSWORD": "snowflake_password",
             "GONG_ACCESS_KEY": "gong_access_key",
-            "CEO_ACCESS_TOKEN": "ceo_access_token",
+            "Unified_ACCESS_TOKEN": "ceo_access_token",
         }
 
         # Check for specific patterns

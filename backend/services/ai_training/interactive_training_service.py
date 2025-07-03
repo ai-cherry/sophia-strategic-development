@@ -51,7 +51,7 @@ async def get_knowledge_gaps(self) -> list[dict]:
 
 async def manage_knowledge(self, knowledge_id: str, action: str, content: str = None) -> dict:
     """
-    Allows a CEO/admin to manage a piece of authoritative knowledge.
+    Allows a Unified/admin to manage a piece of authoritative knowledge.
     Actions: 'update' or 'delete'.
     """
     logger.info(f"Performing action '{action}' on knowledge ID '{knowledge_id}'")
@@ -136,7 +136,7 @@ async def manage_knowledge(self, knowledge_id: str, action: str, content: str = 
 
     async def manage_knowledge(self, knowledge_id: str, action: str, content: str = None) -> dict:
         """
-        Allows a CEO/admin to manage a piece of authoritative knowledge.
+        Allows a Unified/admin to manage a piece of authoritative knowledge.
         Actions: 'update' or 'delete'.
         """
         logger.info(f"Performing action '{action}' on knowledge ID '{knowledge_id}'")

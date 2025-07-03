@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "name": "Sophia AI Enhanced CEO Chat",
+  "name": "Sophia AI Enhanced Unified Chat",
   "description": "Enterprise AI orchestrator with 11-provider intelligent routing via Portkey",
   
   "api_configuration": {
@@ -55,7 +55,7 @@
   
   "agent_personas": {
     "ceo_assistant": {
-      "name": "Sophia - CEO AI Assistant",
+      "name": "Sophia - Unified AI Assistant",
       "avatar": "/assets/sophia-ceo.png",
       "description": "Enterprise AI orchestrator with access to 11 LLM providers",
       "capabilities": [

@@ -86,7 +86,7 @@ Raw Data Sources → Estuary/Estuary → Lambda Labs Processing → Snowflake + 
 - **Training Feedback Loops**: Capture and process user feedback
 
 #### **6. AI Agent Network**
-- **Executive Intelligence Agent**: CEO dashboard insights and strategic analysis
+- **Executive Intelligence Agent**: Unified dashboard insights and strategic analysis
 - **Competitive Intelligence Agent**: Market monitoring and threat assessment
 - **Project Intelligence Agent**: Team productivity and project health
 - **Knowledge Management Agent**: Content organization and retrieval optimization
@@ -163,11 +163,11 @@ User Query: "Summarize last week's Gong calls and tell me the top talking points
 
 ### **Executive Training Interface**
 ```
-CEO → "Sophia, analyze last week's Gong calls for key talking points"
+Unified → "Sophia, analyze last week's Gong calls for key talking points"
      ↓
 Sophia → Retrieves + analyzes calls → "Here are the top 5 talking points..."
      ↓
-CEO → "These are good, but talking point #3 about ROI isn't our strongest"
+Unified → "These are good, but talking point #3 about ROI isn't our strongest"
      ↓
 Sophia → Updates talking point effectiveness scoring → Retrains retrieval weights
 ```

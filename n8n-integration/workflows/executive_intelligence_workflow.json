@@ -155,7 +155,7 @@
           "includeLinkToWorkflow": true
         }
       },
-      "name": "CEO Slack Alert",
+      "name": "Unified Slack Alert",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 1,
       "position": [1100, 200],
@@ -259,7 +259,7 @@
       "main": [
         [
           {
-            "node": "CEO Slack Alert",
+            "node": "Unified Slack Alert",
             "type": "main",
             "index": 0
           }

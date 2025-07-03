@@ -19,10 +19,10 @@ const productionConfig = {
   },
 
   // ===========================================
-  // ENHANCED CEO DASHBOARD CONFIGURATION  
+  // ENHANCED Unified DASHBOARD CONFIGURATION  
   // ===========================================
   dashboard: {
-    // Figma Integration (Required for Enhanced CEO Dashboard)
+    // Figma Integration (Required for Enhanced Unified Dashboard)
     figma: {
       personalAccessToken: process.env.VITE_FIGMA_PERSONAL_ACCESS_TOKEN,
       fileKey: process.env.VITE_FIGMA_FILE_KEY,
@@ -59,7 +59,7 @@ const productionConfig = {
   // SECURITY CONFIGURATION
   // ===========================================
   security: {
-    ceoAccessToken: process.env.VITE_CEO_ACCESS_TOKEN || 'sophia_ceo_access_2024',
+    ceoAccessToken: process.env.VITE_Unified_ACCESS_TOKEN || 'sophia_ceo_access_2024',
     adminMode: process.env.VITE_ADMIN_MODE === 'true',
     httpsOnly: true,
     csrfProtection: true

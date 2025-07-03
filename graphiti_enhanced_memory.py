@@ -244,7 +244,7 @@ if __name__ == "__main__":
             "DEAL", "Acme Corp Deal", {"value": 100000}
         )
         person_id = await graphiti.store_business_entity(
-            "PERSON", "John Smith", {"role": "CEO"}
+            "PERSON", "John Smith", {"role": "Unified"}
         )
 
         # Test relationship

@@ -16,14 +16,14 @@ from pydantic import BaseModel, Field
 # Import the enhanced chat service
 from backend.services.enhanced_universal_chat_service import (
     ChatResponse,
-    EnhancedUniversalChatService,
+    EnhancedUnifiedChatService,
     universal_chat_service,
 )
 
 logger = logging.getLogger(__name__)
 
 # Create router
-router = APIRouter(prefix="/api/chat", tags=["Universal Chat"])
+router = APIRouter(prefix="/api/chat", tags=["Unified Chat"])
 
 # Request/Response Models
 class ChatRequest(BaseModel):
@@ -40,7 +40,7 @@ class HealthResponse(BaseModel):
     timestamp: str
 
 # Helper Functions
-async def get_chat_service() -> EnhancedUniversalChatService:
+async def get_chat_service() -> EnhancedUnifiedChatService:
     """Get the chat service instance"""
     if not universal_chat_service.initialized:
         await universal_chat_service.initialize()
@@ -50,7 +50,7 @@ async def get_chat_service() -> EnhancedUniversalChatService:
 @router.post("/message", response_model=ChatResponse)
 async def send_chat_message(
     request: ChatRequest,
-    chat_service: EnhancedUniversalChatService = Depends(get_chat_service)
+    chat_service: EnhancedUnifiedChatService = Depends(get_chat_service)
 ):
     """Send a chat message and get AI response"""
     try:
@@ -71,7 +71,7 @@ async def send_chat_message(
 
 @router.get("/health", response_model=HealthResponse)
 async def chat_health_check(
-    chat_service: EnhancedUniversalChatService = Depends(get_chat_service)
+    chat_service: EnhancedUnifiedChatService = Depends(get_chat_service)
 ):
     """Get chat service health status"""
     try:
@@ -108,7 +108,7 @@ async def get_chat_capabilities():
             "strategic_research"
         ],
         "supported_roles": [
-            "CEO",
+            "Unified",
             "Executive",
             "Manager", 
             "Employee"

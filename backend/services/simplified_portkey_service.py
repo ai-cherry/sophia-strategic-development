@@ -25,7 +25,7 @@ logger = structlog.get_logger()
 class TaskType(str, Enum):
     """Simplified task type routing"""
 
-    CEO_INSIGHTS = "ceo_insights"
+    Unified_INSIGHTS = "ceo_insights"
     BUSINESS_ANALYSIS = "business_analysis"
     CODE_GENERATION = "code_generation"
     CREATIVE_DESIGN = "creative_design"
@@ -90,7 +90,7 @@ class SimplifiedPortkeyService:
 
         # Simplified model routing via virtual keys
         self.task_routing = {
-            TaskType.CEO_INSIGHTS: ModelTier.PREMIUM,
+            TaskType.Unified_INSIGHTS: ModelTier.PREMIUM,
             TaskType.BUSINESS_ANALYSIS: ModelTier.PREMIUM,
             TaskType.CODE_GENERATION: ModelTier.BALANCED,
             TaskType.CREATIVE_DESIGN: ModelTier.PREMIUM,
@@ -360,7 +360,7 @@ class SophiaLLM:
     async def analyze_business(
         cls, query: str, context: dict[str, Any] | None = None
     ) -> SimplifiedLLMResponse:
-        """CEO/Business analysis optimized"""
+        """Unified/Business analysis optimized"""
         enhanced_prompt = f"""
 As a business intelligence expert, analyze the following:
 
@@ -374,7 +374,7 @@ Provide strategic insights with:
 3. Recommended actions
 4. Risk assessment
 """
-        return await cls.chat(enhanced_prompt, TaskType.CEO_INSIGHTS, max_tokens=3000)
+        return await cls.chat(enhanced_prompt, TaskType.Unified_INSIGHTS, max_tokens=3000)
 
     @classmethod
     async def generate_code(

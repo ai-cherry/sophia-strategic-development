@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 
 """
-Enhanced CEO Universal Chat Service for Sophia AI
-CEO-level capabilities: deep web research, MCP integration, AI coding agents
+Enhanced Unified Unified Chat Service for Sophia AI
+Unified-level capabilities: deep web research, MCP integration, AI coding agents
 """
 
 import logging
@@ -19,20 +19,20 @@ class AccessLevel(Enum):
     EMPLOYEE = "employee"
     MANAGER = "manager"
     EXECUTIVE = "executive"
-    CEO = "ceo"
+    Unified = "ceo"
 
 
 class SearchContext(Enum):
     INTERNAL_ONLY = "internal_only"
     WEB_RESEARCH = "web_research"
-    DEEP_RESEARCH = "deep_research"  # CEO-only
+    DEEP_RESEARCH = "deep_research"  # Unified-only
     BLENDED = "blended"
-    MCP_TOOLS = "mcp_tools"  # CEO-only
-    CODING_AGENTS = "coding_agents"  # CEO-only
+    MCP_TOOLS = "mcp_tools"  # Unified-only
+    CODING_AGENTS = "coding_agents"  # Unified-only
 
 
 @dataclass
-class CEOChatContext:
+class UnifiedChatContext:
     user_id: str
     access_level: AccessLevel
     session_id: str
@@ -63,8 +63,8 @@ class EnhancedChatResponse:
             self.timestamp = datetime.now(UTC).isoformat()
 
 
-class EnhancedCEOUniversalChatService:
-    """Enhanced CEO-level universal chat service"""
+class EnhancedUnifiedUnifiedChatService:
+    """Enhanced Unified-level universal chat service"""
 
     def __init__(self):
         self.config = SophiaConfig()
@@ -82,9 +82,9 @@ class EnhancedCEOUniversalChatService:
         return {"api_key": api_key} if api_key else None
 
     async def process_ceo_query(
-        self, query: str, context: CEOChatContext
+        self, query: str, context: UnifiedChatContext
     ) -> EnhancedChatResponse:
-        """Process CEO-level query with enhanced capabilities"""
+        """Process Unified-level query with enhanced capabilities"""
         try:
             if context.search_context == SearchContext.CODING_AGENTS:
                 return await self._process_coding_query(query, context)
@@ -96,16 +96,16 @@ class EnhancedCEOUniversalChatService:
                 return await self._process_business_query(query, context)
 
         except Exception as e:
-            logger.error(f"Error processing CEO query: {e}")
+            logger.error(f"Error processing Unified query: {e}")
             return EnhancedChatResponse(content=f"Error processing request: {str(e)}")
 
     async def _process_coding_query(
-        self, query: str, context: CEOChatContext
+        self, query: str, context: UnifiedChatContext
     ) -> EnhancedChatResponse:
         """Process coding-related queries"""
-        if context.access_level != AccessLevel.CEO:
+        if context.access_level != AccessLevel.Unified:
             return EnhancedChatResponse(
-                content="AI coding agent access is only available to CEO-level users.",
+                content="AI coding agent access is only available to Unified-level users.",
                 query_type="code_analysis",
             )
 
@@ -139,7 +139,7 @@ class EnhancedCEOUniversalChatService:
         )
 
     async def _process_web_research(
-        self, query: str, context: CEOChatContext
+        self, query: str, context: UnifiedChatContext
     ) -> EnhancedChatResponse:
         """Process web research queries"""
         return EnhancedChatResponse(
@@ -171,12 +171,12 @@ class EnhancedCEOUniversalChatService:
         )
 
     async def _process_deep_research(
-        self, query: str, context: CEOChatContext
+        self, query: str, context: UnifiedChatContext
     ) -> EnhancedChatResponse:
-        """Process deep research queries (CEO-only)"""
-        if context.access_level != AccessLevel.CEO:
+        """Process deep research queries (Unified-only)"""
+        if context.access_level != AccessLevel.Unified:
             return EnhancedChatResponse(
-                content="🔒 Deep research capabilities are only available to CEO-level users.",
+                content="🔒 Deep research capabilities are only available to Unified-level users.",
                 query_type="deep_research",
             )
 
@@ -217,7 +217,7 @@ class EnhancedCEOUniversalChatService:
         )
 
     async def _process_business_query(
-        self, query: str, context: CEOChatContext
+        self, query: str, context: UnifiedChatContext
     ) -> EnhancedChatResponse:
         """Process business intelligence queries"""
         return EnhancedChatResponse(
@@ -262,7 +262,7 @@ class EnhancedCEOUniversalChatService:
             {"name": "linear", "description": "Linear Issue Tracking", "port": 3005},
         ]
 
-        if access_level in [AccessLevel.CEO, AccessLevel.EXECUTIVE]:
+        if access_level in [AccessLevel.Unified, AccessLevel.EXECUTIVE]:
             base_servers.extend(
                 [
                     {
@@ -278,7 +278,7 @@ class EnhancedCEOUniversalChatService:
                 ]
             )
 
-        if access_level == AccessLevel.CEO:
+        if access_level == AccessLevel.Unified:
             base_servers.extend(
                 [
                     {
@@ -302,7 +302,7 @@ class EnhancedCEOUniversalChatService:
         return base_servers
 
     async def health_check(self) -> dict[str, Any]:
-        """Health check for CEO chat service"""
+        """Health check for Unified chat service"""
         return {
             "service": "enhanced_ceo_universal_chat",
             "status": "healthy",
@@ -315,7 +315,7 @@ class EnhancedCEOUniversalChatService:
                 "business_intelligence": True,
             },
             "capabilities": [
-                "CEO-level access control",
+                "Unified-level access control",
                 "Deep web research and scraping",
                 "AI coding agent integration",
                 "MCP server orchestration",

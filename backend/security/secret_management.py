@@ -32,7 +32,7 @@ from cryptography.fernet import Fernet
 from jose import jwt
 from pydantic import BaseModel, Field
 
-from backend.core.auto_esc_config import EnhancedSettings, config
+from backend.core.auto_esc_config import config
 
 logger = logging.getLogger(__name__)
 
@@ -118,8 +118,8 @@ class SecurityAuditEvent(BaseModel):
 class SecretManager:
     """Enhanced secret management with Pulumi ESC integration."""
 
-    def __init__(self, enhanced_config: EnhancedSettings | None = None):
-        self.config = enhanced_config or config.as_enhanced_settings()
+    def __init__(self):
+        self.config = config
         self.logger = logger.bind(component="secret_manager")
 
         # Initialize encryption components

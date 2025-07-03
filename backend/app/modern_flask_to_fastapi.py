@@ -635,7 +635,7 @@ async def generate_chat_response(chat_request: ChatRequest, current_user: dict) 
 
     # Simulate AI response generation (in production, integrate with actual AI services)
     response_templates = {
-        "universal": f"Universal Chat Response: {chat_request.message}",
+        "universal": f"Unified Chat Response: {chat_request.message}",
         "sophia": f"Sophia AI Enhanced Response: Analyzing '{chat_request.message}' with comprehensive business intelligence context, real-time data integration, and strategic insights.",
         "executive": f"Executive Assistant Response: Providing strategic analysis for '{chat_request.message}' with market intelligence, competitive analysis, and actionable recommendations.",
     }

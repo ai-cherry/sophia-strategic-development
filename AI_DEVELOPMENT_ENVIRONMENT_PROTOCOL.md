@@ -152,7 +152,7 @@ echo "Virtual env: $VIRTUAL_ENV"
 # 3. Use integrated terminal instead of external
 ```
 
-### **Universal Fallback**
+### **Unified Fallback**
 ```bash
 # When shell integration fails, use verification commands:
 python -c "import os; print(f'Directory: {os.getcwd()}')"

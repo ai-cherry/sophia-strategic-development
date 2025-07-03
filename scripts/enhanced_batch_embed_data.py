@@ -2,7 +2,7 @@
 """
 Enhanced Batch Embedding Data Script
 Generates embeddings for all schemas including new PAYREADY_CORE_SQL, NETSUITE_DATA,
-PROPERTY_ASSETS, AI_WEB_RESEARCH, and CEO_INTELLIGENCE schemas
+PROPERTY_ASSETS, AI_WEB_RESEARCH, and Unified_INTELLIGENCE schemas
 """
 
 """
@@ -44,7 +44,7 @@ class EmbeddingConfig:
     updated_column: str = "AI_MEMORY_UPDATED_AT"
     batch_size: int = 100
     model: str = "e5-base-v2"
-    security_level: str = "STANDARD"  # STANDARD, CONFIDENTIAL, CEO_ONLY
+    security_level: str = "STANDARD"  # STANDARD, CONFIDENTIAL, Unified_ONLY
 
 
 class EnhancedBatchEmbeddingProcessor:
@@ -203,60 +203,60 @@ class EnhancedBatchEmbeddingProcessor:
                 text_columns=["PARTNER_NAME", "OPPORTUNITY_DESCRIPTION"],
                 id_column="OPPORTUNITY_ID",
             ),
-            # CEO_INTELLIGENCE schema (NEW - CONFIDENTIAL)
+            # Unified_INTELLIGENCE schema (NEW - CONFIDENTIAL)
             EmbeddingConfig(
                 table_name="STRATEGIC_PLANS",
-                schema_name="CEO_INTELLIGENCE",
+                schema_name="Unified_INTELLIGENCE",
                 text_columns=["PLAN_TITLE", "EXECUTIVE_SUMMARY", "STRATEGIC_RATIONALE"],
                 id_column="PLAN_ID",
-                security_level="CEO_ONLY",
+                security_level="Unified_ONLY",
             ),
             EmbeddingConfig(
                 table_name="BOARD_MATERIALS",
-                schema_name="CEO_INTELLIGENCE",
+                schema_name="Unified_INTELLIGENCE",
                 text_columns=["MATERIAL_TITLE", "MATERIAL_CONTENT"],
                 id_column="MATERIAL_ID",
-                security_level="CEO_ONLY",
+                security_level="Unified_ONLY",
             ),
             EmbeddingConfig(
                 table_name="COMPETITIVE_INTELLIGENCE",
-                schema_name="CEO_INTELLIGENCE",
+                schema_name="Unified_INTELLIGENCE",
                 text_columns=[
                     "INTELLIGENCE_TITLE",
                     "DETAILED_ANALYSIS",
                     "STRATEGIC_IMPLICATIONS",
                 ],
                 id_column="INTELLIGENCE_ID",
-                security_level="CEO_ONLY",
+                security_level="Unified_ONLY",
             ),
             EmbeddingConfig(
                 table_name="MA_OPPORTUNITIES",
-                schema_name="CEO_INTELLIGENCE",
+                schema_name="Unified_INTELLIGENCE",
                 text_columns=[
                     "TARGET_COMPANY_NAME",
                     "STRATEGIC_RATIONALE",
                     "DUE_DILIGENCE_SUMMARY",
                 ],
                 id_column="OPPORTUNITY_ID",
-                security_level="CEO_ONLY",
+                security_level="Unified_ONLY",
             ),
             EmbeddingConfig(
                 table_name="INVESTOR_RELATIONS",
-                schema_name="CEO_INTELLIGENCE",
+                schema_name="Unified_INTELLIGENCE",
                 text_columns=[
                     "INVESTOR_NAME",
                     "COMMUNICATION_SUBJECT",
                     "COMMUNICATION_CONTENT",
                 ],
                 id_column="COMMUNICATION_ID",
-                security_level="CEO_ONLY",
+                security_level="Unified_ONLY",
             ),
             EmbeddingConfig(
                 table_name="EXECUTIVE_DECISIONS",
-                schema_name="CEO_INTELLIGENCE",
+                schema_name="Unified_INTELLIGENCE",
                 text_columns=["DECISION_TITLE", "DECISION_SUMMARY", "RATIONALE"],
                 id_column="DECISION_ID",
-                security_level="CEO_ONLY",
+                security_level="Unified_ONLY",
             ),
         ]
 
@@ -428,7 +428,7 @@ class EnhancedBatchEmbeddingProcessor:
                 ("SLACK_DATA", "STG_SLACK_MESSAGES"),
                 ("AI_WEB_RESEARCH", "INDUSTRY_TRENDS"),
                 ("AI_WEB_RESEARCH", "COMPETITOR_INTELLIGENCE"),
-                ("CEO_INTELLIGENCE", "COMPETITIVE_INTELLIGENCE"),
+                ("Unified_INTELLIGENCE", "COMPETITIVE_INTELLIGENCE"),
             ]
 
             if (config.schema_name, config.table_name) not in sentiment_applicable:
@@ -471,9 +471,9 @@ class EnhancedBatchEmbeddingProcessor:
             summarization_applicable = [
                 ("GONG_DATA", "STG_GONG_CALL_TRANSCRIPTS"),
                 ("FOUNDATIONAL_KNOWLEDGE", "BUSINESS_DOCUMENTS"),
-                ("CEO_INTELLIGENCE", "STRATEGIC_PLANS"),
-                ("CEO_INTELLIGENCE", "BOARD_MATERIALS"),
-                ("CEO_INTELLIGENCE", "COMPETITIVE_INTELLIGENCE"),
+                ("Unified_INTELLIGENCE", "STRATEGIC_PLANS"),
+                ("Unified_INTELLIGENCE", "BOARD_MATERIALS"),
+                ("Unified_INTELLIGENCE", "COMPETITIVE_INTELLIGENCE"),
                 ("AI_WEB_RESEARCH", "INDUSTRY_TRENDS"),
             ]
 

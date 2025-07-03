@@ -1,0 +1,42 @@
+{
+  "mcp_servers": {
+    "mem0_persistent": {
+      "port": 9010,
+      "name": "Mem0 Persistent Memory",
+      "description": "Cross-session learning and adaptive intelligence",
+      "memory_integration": [
+        "L3"
+      ],
+      "capabilities": [
+        "persistent_store",
+        "cross_session_recall",
+        "adaptive_learning",
+        "snowflake_sync"
+      ],
+      "health_check_endpoint": "/health",
+      "environment_variables": [
+        "MEM0_API_KEY",
+        "MEM0_ENVIRONMENT",
+        "SNOWFLAKE_ACCOUNT",
+        "ENVIRONMENT"
+      ]
+    }
+  },
+  "memory_tier_configuration": {
+    "L1_session_cache": {
+      "provider": "redis",
+      "ttl_seconds": 3600,
+      "max_size_mb": 512
+    },
+    "L2_snowflake_cortex": {
+      "provider": "snowflake",
+      "embedding_model": "e5-base-v2",
+      "vector_dimension": 768
+    },
+    "L3_mem0_persistent": {
+      "provider": "mem0",
+      "api_endpoint": "https://api.mem0.ai/v1",
+      "sync_interval_minutes": 15
+    }
+  }
+}

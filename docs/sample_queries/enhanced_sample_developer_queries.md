@@ -1,12 +1,12 @@
 # Enhanced Sample Developer Queries for Sophia AI
 
 ## Overview
-This document provides comprehensive sample queries for all Sophia AI schemas, including the newly implemented PAYREADY_CORE_SQL, NETSUITE_DATA, PROPERTY_ASSETS, AI_WEB_RESEARCH, and CEO_INTELLIGENCE schemas.
+This document provides comprehensive sample queries for all Sophia AI schemas, including the newly implemented PAYREADY_CORE_SQL, NETSUITE_DATA, PROPERTY_ASSETS, AI_WEB_RESEARCH, and Unified_INTELLIGENCE schemas.
 
 ## Security Levels
 - **STANDARD**: FOUNDATIONAL_KNOWLEDGE, HUBSPOT_DATA, GONG_DATA, SLACK_DATA
 - **EXECUTIVE**: All STANDARD + PAYREADY_CORE_SQL, NETSUITE_DATA, PROPERTY_ASSETS, AI_WEB_RESEARCH
-- **CEO_ONLY**: All EXECUTIVE + CEO_INTELLIGENCE (CONFIDENTIAL)
+- **Unified_ONLY**: All EXECUTIVE + Unified_INTELLIGENCE (CONFIDENTIAL)
 
 ---
 
@@ -427,7 +427,7 @@ ORDER BY total_potential_value DESC;
 
 ---
 
-## 5. CEO_INTELLIGENCE Schema Queries (CONFIDENTIAL - CEO ACCESS ONLY)
+## 5. Unified_INTELLIGENCE Schema Queries (CONFIDENTIAL - Unified ACCESS ONLY)
 
 ### Strategic Plans Analysis
 
@@ -439,7 +439,7 @@ ORDER BY total_potential_value DESC;
 #### SQL Queries:
 
 ```sql
--- Strategic plans overview (CEO ONLY)
+-- Strategic plans overview (Unified ONLY)
 SELECT 
     PLAN_TITLE,
     STATUS,
@@ -449,7 +449,7 @@ SELECT
     RISK_ASSESSMENT,
     RESPONSIBLE_EXECUTIVE,
     NEXT_REVIEW_DATE
-FROM CEO_INTELLIGENCE.STRATEGIC_PLANS
+FROM Unified_INTELLIGENCE.STRATEGIC_PLANS
 WHERE STATUS IN ('IN_EXECUTION', 'PLANNING')
 ORDER BY PRIORITY_LEVEL, PROJECTED_ROI DESC;
 
@@ -460,7 +460,7 @@ SELECT
     SUM(ESTIMATED_INVESTMENT) as total_investment,
     AVG(PROJECTED_ROI) as avg_roi,
     SUM(ESTIMATED_INVESTMENT * PROJECTED_ROI) as projected_return
-FROM CEO_INTELLIGENCE.STRATEGIC_PLANS
+FROM Unified_INTELLIGENCE.STRATEGIC_PLANS
 GROUP BY STATUS
 ORDER BY total_investment DESC;
 ```
@@ -475,7 +475,7 @@ ORDER BY total_investment DESC;
 #### SQL Queries:
 
 ```sql
--- Recent board materials (CEO ONLY)
+-- Recent board materials (Unified ONLY)
 SELECT 
     MATERIAL_TITLE,
     MATERIAL_TYPE,
@@ -483,7 +483,7 @@ SELECT
     CONFIDENTIALITY_LEVEL,
     APPROVAL_STATUS,
     PREPARED_BY
-FROM CEO_INTELLIGENCE.BOARD_MATERIALS
+FROM Unified_INTELLIGENCE.BOARD_MATERIALS
 WHERE BOARD_MEETING_DATE >= CURRENT_DATE - 180
 ORDER BY BOARD_MEETING_DATE DESC;
 
@@ -492,12 +492,12 @@ SELECT
     CONFIDENTIALITY_LEVEL,
     COUNT(*) as material_count,
     COUNT(CASE WHEN APPROVAL_STATUS = 'APPROVED' THEN 1 END) as approved_count
-FROM CEO_INTELLIGENCE.BOARD_MATERIALS
+FROM Unified_INTELLIGENCE.BOARD_MATERIALS
 WHERE BOARD_MEETING_DATE >= CURRENT_DATE - 365
 GROUP BY CONFIDENTIALITY_LEVEL;
 ```
 
-### Competitive Intelligence (CEO Level)
+### Competitive Intelligence (Unified Level)
 
 #### Natural Language Queries:
 - "Show me critical competitive threats"
@@ -507,7 +507,7 @@ GROUP BY CONFIDENTIALITY_LEVEL;
 #### SQL Queries:
 
 ```sql
--- Critical competitive intelligence (CEO ONLY)
+-- Critical competitive intelligence (Unified ONLY)
 SELECT 
     INTELLIGENCE_TITLE,
     DETAILED_ANALYSIS,
@@ -516,7 +516,7 @@ SELECT
     COMPETITIVE_IMPACT,
     RECOMMENDED_ACTIONS,
     COLLECTION_DATE
-FROM CEO_INTELLIGENCE.COMPETITIVE_INTELLIGENCE
+FROM Unified_INTELLIGENCE.COMPETITIVE_INTELLIGENCE
 WHERE COMPETITIVE_IMPACT = 'CRITICAL'
 AND COLLECTION_DATE >= CURRENT_DATE - 90
 ORDER BY COLLECTION_DATE DESC;
@@ -527,7 +527,7 @@ SELECT
     COMPETITIVE_IMPACT,
     COUNT(*) as intelligence_count,
     MAX(COLLECTION_DATE) as latest_intelligence
-FROM CEO_INTELLIGENCE.COMPETITIVE_INTELLIGENCE
+FROM Unified_INTELLIGENCE.COMPETITIVE_INTELLIGENCE
 WHERE COLLECTION_DATE >= CURRENT_DATE - 180
 GROUP BY CONFIDENCE_LEVEL, COMPETITIVE_IMPACT
 ORDER BY intelligence_count DESC;
@@ -651,7 +651,7 @@ LIMIT 20;
 - "Analyze customer feature adoption trends"
 - "What are the latest industry trends affecting us?"
 
-#### CEO Dashboard Queries (CONFIDENTIAL):
+#### Unified Dashboard Queries (CONFIDENTIAL):
 - "Give me a strategic overview of our competitive position"
 - "Show me board materials for the next meeting"
 - "What M&A opportunities are we tracking?"
@@ -674,7 +674,7 @@ LIMIT 20;
 - Consider materialized views for complex aggregations
 
 ### Security Considerations:
-- Always verify user access level before querying CEO_INTELLIGENCE
+- Always verify user access level before querying Unified_INTELLIGENCE
 - Use role-based access control for sensitive data
 - Audit all access to confidential information
 - Implement data masking for non-authorized users

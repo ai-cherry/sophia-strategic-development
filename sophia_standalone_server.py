@@ -35,14 +35,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-CEO_ACCESS_TOKEN = os.getenv(
-    "CEO_ACCESS_TOKEN",
+UNIFIED_ACCESS_TOKEN = os.getenv(
+    "UNIFIED_ACCESS_TOKEN",
     get_config_value(
-        "ceo_access_token",
-        get_config_value("ceo_access_token", "sophia_ceo_access_2024"),
+        "unified_access_token",
+        get_config_value("unified_access_token", "sophia_unified_access_2024"),
     ),
 )
-ADMIN_USER_ID = "ceo_user"
+ADMIN_USER_ID = "unified_user"
 
 # Snowflake Configuration
 SNOWFLAKE_CONFIG = {
@@ -50,9 +50,9 @@ SNOWFLAKE_CONFIG = {
     "user": "SCOOBYJAVA15",
     "password": get_config_value("snowflake_password"),
     "role": "ACCOUNTADMIN",
-    "database": "SOPHIA_AI_PROD",
-    "schema": "UNIVERSAL_CHAT",
-    "warehouse": "SOPHIA_AI_WH",
+    "database": "SOPHIA_AI_PRODUCTION",
+    "schema": "SOPHIA_KNOWLEDGE_BASE",
+    "warehouse": "SOPHIA_COMPUTE_WH",
 }
 
 
@@ -84,7 +84,7 @@ security = HTTPBearer()
 async def authenticate_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
-    if credentials.credentials == CEO_ACCESS_TOKEN:
+    if credentials.credentials == UNIFIED_ACCESS_TOKEN:
         return ADMIN_USER_ID
     raise HTTPException(status_code=401, detail="Invalid authentication token")
 
@@ -513,6 +513,6 @@ if __name__ == "__main__":
     logger.info("🚀 Starting Sophia AI Standalone Server...")
     logger.info("📍 Main API: http://localhost:8000")
     logger.info("📍 Documentation: http://localhost:8000/docs")
-    logger.info("🔑 CEO Access Token: sophia_ceo_access_2024")
+    logger.info("🔑 Unified Access Token: sophia_unified_access_2024")
 
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)

@@ -32,7 +32,7 @@ class SchemaType(str, Enum):
 
 
 class TableType(str, Enum):
-    # Universal Chat Tables
+    # Unified Chat Tables
     KNOWLEDGE_CATEGORIES = "KNOWLEDGE_CATEGORIES"
     KNOWLEDGE_SOURCES = "KNOWLEDGE_SOURCES"
     KNOWLEDGE_BASE_ENTRIES = "KNOWLEDGE_BASE_ENTRIES"

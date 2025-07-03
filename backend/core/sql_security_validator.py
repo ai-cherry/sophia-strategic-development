@@ -44,7 +44,7 @@ class SQLSecurityValidator:
         "AI_MEMORY",
         "OPS_MONITORING",
         "UNIVERSAL_CHAT",
-        "CEO_INTELLIGENCE",
+        "Unified_INTELLIGENCE",
         "NETSUITE_DATA",
         "PROPERTY_ASSETS",
         "AI_WEB_RESEARCH",

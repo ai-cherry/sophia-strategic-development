@@ -816,7 +816,7 @@
         ],
         "type": "external"
       },
-      "services.sophia_universal_chat_service.SophiaUniversalChatService": {
+      "services.sophia_universal_chat_service.SophiaUnifiedChatService": {
         "locations": [
           "backend/api/unified_chat_routes_v2.py"
         ],
@@ -2135,7 +2135,7 @@
         ],
         "type": "internal"
       },
-      "universal_chat_service.UniversalChatService": {
+      "universal_chat_service.UnifiedChatService": {
         "locations": [
           "backend/services/chat/__init__.py",
           "backend/services/chat/unified_chat_service.py"
@@ -3372,7 +3372,7 @@
         ],
         "type": "internal"
       },
-      "backend.services.sophia_universal_chat_service.SophiaUniversalChatService": {
+      "backend.services.sophia_universal_chat_service.SophiaUnifiedChatService": {
         "locations": [
           "backend/core/dependencies.py",
           "backend/app/working_fastapi_app.py",
@@ -4989,7 +4989,7 @@
         ],
         "type": "internal"
       },
-      "sophia_universal_chat_service.SophiaUniversalChatService": {
+      "sophia_universal_chat_service.SophiaUnifiedChatService": {
         "locations": [
           "backend/services/enhanced_unified_chat_service.py"
         ],

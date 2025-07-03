@@ -57,7 +57,7 @@ This guide explains how to securely manage secrets, credentials, and sensitive d
   2. GitHub Actions will sync the new secret to Pulumi ESC.
   3. The backend will pick up the new secret automatically on restart or reload.
 - **All secret access and changes are logged for auditability.**
-- **Use the CEO dashboard and logs to monitor secret usage and rotation events.**
+- **Use the Unified dashboard and logs to monitor secret usage and rotation events.**
 
 ---
 
@@ -85,4 +85,4 @@ openai.api_key = config.openai_api_key
 
 ---
 
-For more details, see the onboarding guide, performance playbook, and CEO dashboard for live security and secret management status.
+For more details, see the onboarding guide, performance playbook, and Unified dashboard for live security and secret management status.

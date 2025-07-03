@@ -192,14 +192,14 @@ class MCPOrchestrationAuditor:
                 }
             )
 
-        # Check for CEO dashboard integration
+        # Check for Unified dashboard integration
         if not self._check_executive_dashboard():
             gaps.append(
                 {
                     "type": "business_gap",
                     "severity": "high",
                     "description": "No unified executive dashboard",
-                    "recommendation": "Implement CEO Dashboard Engine",
+                    "recommendation": "Implement Unified Dashboard Engine",
                 }
             )
 
@@ -369,7 +369,7 @@ class MCPOrchestrationAuditor:
     def _check_executive_dashboard(self) -> bool:
         """Check for executive dashboard components"""
         dashboard_files = [
-            "frontend/src/components/dashboard/CEODashboard",
+            "frontend/src/components/dashboard/UnifiedDashboard",
             "frontend/src/components/dashboard/ExecutiveDashboard",
             "backend/api/executive_routes.py",
         ]

@@ -64,7 +64,7 @@ def fix_file_secrets(file_path: Path) -> bool:
             f"'{EXPOSED_GONG_KEY}'", 'get_config_value("gong_access_key")'
         )
 
-        # Replace hardcoded CEO access token
+        # Replace hardcoded Unified access token
         content = content.replace(
             '"sophia_ceo_access_2024"',
             'get_config_value("ceo_access_token", "sophia_ceo_access_2024")',

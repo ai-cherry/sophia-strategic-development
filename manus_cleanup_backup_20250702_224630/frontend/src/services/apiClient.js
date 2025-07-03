@@ -221,8 +221,8 @@ export const api = {
     me: () => retryRequest(() => apiClient.get('/auth/me'))
   },
   
-  // CEO Dashboard Methods
-  getCEOKPIs: async (timeRange = '30d') => {
+  // Unified Dashboard Methods
+  getUnifiedKPIs: async (timeRange = '30d') => {
     try {
       const response = await retryRequest(() => apiClient.get(`/ceo/kpis?range=${timeRange}`));
       return response.data;

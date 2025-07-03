@@ -1,7 +1,7 @@
 """
 Sophia AI OKR Tracking Service
 
-Real-time tracking and optimization for CEO's strategic OKRs:
+Real-time tracking and optimization for Unified's strategic OKRs:
 1. AI-First Company transformation
 2. Revenue per Employee optimization
 3. Revenue per Apartment Unit tracking

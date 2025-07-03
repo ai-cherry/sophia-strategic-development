@@ -15,10 +15,10 @@ from pydantic import BaseModel, Field
 # Import existing services for backward compatibility
 try:
     from ..services.enhanced_unified_chat_service import EnhancedUnifiedChatService
-    from ..services.sophia_universal_chat_service import SophiaUniversalChatService
+    from ..services.sophia_universal_chat_service import SophiaUnifiedChatService
 except ImportError:
     # Fallback for development
-    SophiaUniversalChatService = None
+    SophiaUnifiedChatService = None
     EnhancedUnifiedChatService = None
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class ChatRequest(BaseModel):
     message: str = Field(..., description="User message content")
     mode: Literal["universal", "sophia", "executive"] = Field(
         default="universal",
-        description="Chat mode: universal (basic), sophia (full AI), executive (CEO-focused)",
+        description="Chat mode: universal (basic), sophia (full AI), executive (Unified-focused)",
     )
     session_id: str | None = Field(
         default=None, description="Session ID for conversation continuity"
@@ -99,7 +99,7 @@ class MockChatService:
     async def process_universal_chat(self, request: ChatRequest) -> ChatResponse:
         """Process universal chat request"""
         return ChatResponse(
-            response=f"Universal chat response to: '{request.message}'. This is a basic chat mode with general AI capabilities.",
+            response=f"Unified chat response to: '{request.message}'. This is a basic chat mode with general AI capabilities.",
             session_id=request.session_id or str(uuid.uuid4()),
             mode="universal",
             provider=request.provider,
@@ -135,7 +135,7 @@ class MockChatService:
         )
 
     async def process_executive_chat(self, request: ChatRequest) -> ChatResponse:
-        """Process executive/CEO chat request"""
+        """Process executive/Unified chat request"""
         return ChatResponse(
             response=f"Executive Assistant response to: '{request.message}'. As your executive AI assistant, I provide high-level strategic insights, board-ready summaries, and C-suite focused analysis. I can help with executive decision-making, competitive analysis, and strategic planning.",
             session_id=request.session_id or str(uuid.uuid4()),
@@ -173,7 +173,7 @@ async def handle_universal_chat(request: ChatRequest) -> ChatResponse:
     logger.info(f"Processing universal chat: {request.message[:50]}...")
 
     # Use existing universal chat service if available
-    if SophiaUniversalChatService:
+    if SophiaUnifiedChatService:
         # TODO: Integrate with existing service
         pass
 
@@ -186,7 +186,7 @@ async def handle_sophia_chat(request: ChatRequest) -> ChatResponse:
     logger.info(f"Processing Sophia chat: {request.message[:50]}...")
 
     # Use existing Sophia chat service if available
-    if SophiaUniversalChatService:
+    if SophiaUnifiedChatService:
         # TODO: Integrate with existing service
         pass
 
@@ -195,10 +195,10 @@ async def handle_sophia_chat(request: ChatRequest) -> ChatResponse:
 
 
 async def handle_executive_chat(request: ChatRequest) -> ChatResponse:
-    """Handle executive/CEO chat mode"""
+    """Handle executive/Unified chat mode"""
     logger.info(f"Processing executive chat: {request.message[:50]}...")
 
-    # Use existing enhanced CEO chat service if available
+    # Use existing enhanced Unified chat service if available
     if EnhancedUnifiedChatService:
         # TODO: Integrate with existing service
         pass
@@ -216,7 +216,7 @@ async def unified_chat(request: ChatRequest) -> ChatResponse:
     Modes:
     - universal: Basic chat functionality
     - sophia: Full Sophia AI capabilities with business intelligence
-    - executive: CEO/executive-focused chat with strategic insights
+    - executive: Unified/executive-focused chat with strategic insights
 
     Providers:
     - openai: OpenAI GPT models
@@ -351,7 +351,7 @@ async def universal_chat_legacy(request: dict[str, Any]) -> dict[str, Any]:
 
 @router.post("/enhanced-ceo-chat", deprecated=True)
 async def enhanced_ceo_chat_legacy(request: dict[str, Any]) -> dict[str, Any]:
-    """Legacy enhanced CEO chat endpoint (deprecated)"""
+    """Legacy enhanced Unified chat endpoint (deprecated)"""
     logger.warning("Using deprecated enhanced-ceo-chat endpoint")
 
     # Convert legacy request to unified format
@@ -359,7 +359,7 @@ async def enhanced_ceo_chat_legacy(request: dict[str, Any]) -> dict[str, Any]:
         message=request.get("message", ""),
         mode="executive",
         session_id=request.get("session_id"),
-        provider="portkey",  # CEO chat uses Portkey
+        provider="portkey",  # Unified chat uses Portkey
         user_role="ceo",
     )
 

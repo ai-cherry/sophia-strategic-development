@@ -8,7 +8,7 @@
 ALTER TABLE payready_core_sql.users
 ADD COLUMN training_impact_score FLOAT DEFAULT 0.1;
 
-COMMENT ON COLUMN payready_core_sql.users.training_impact_score IS 'A score from 0.0 to 1.0 representing the authoritative weight of this user''s training input. Controlled by the CEO.';
+COMMENT ON COLUMN payready_core_sql.users.training_impact_score IS 'A score from 0.0 to 1.0 representing the authoritative weight of this user''s training input. Controlled by the Unified.';
 
 
 -- Step 2: Create the Authoritative Knowledge table

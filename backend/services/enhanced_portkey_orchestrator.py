@@ -57,7 +57,7 @@ class TaskComplexity(str, Enum):
     SIMPLE = "simple"  # Basic chat, simple questions
     MODERATE = "moderate"  # Code generation, analysis
     COMPLEX = "complex"  # Business analysis, research
-    EXPERT = "expert"  # CEO insights, critical decisions
+    EXPERT = "expert"  # Unified insights, critical decisions
     CREATIVE = "creative"  # Design, content creation
     RESEARCH = "research"  # Deep analysis, fact-checking
 

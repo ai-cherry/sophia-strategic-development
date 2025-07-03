@@ -447,7 +447,7 @@ export { Button, buttonVariants };
 
     def _create_dashboard_components(self):
         """Create dashboard-specific components."""
-        # CEO Dashboard
+        # Unified Dashboard
         ceo_dashboard_content = """import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../design-system/buttons/Button';
@@ -456,7 +456,7 @@ import GlassCard from '../design-system/cards/GlassCard';
 import EnhancedUnifiedChatInterface from '../shared/EnhancedUnifiedChatInterface';
 import { DollarSign, Users, Activity, Target, TrendingUp, BarChart3 } from 'lucide-react';
 
-interface CEODashboardProps {
+interface UnifiedDashboardProps {
   className?: string;
 }
 
@@ -471,7 +471,7 @@ interface DashboardMetrics {
   apiCallsChange: string;
 }
 
-export const CEODashboard: React.FC<CEODashboardProps> = ({ className }) => {
+export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ className }) => {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d');
@@ -595,11 +595,11 @@ export const CEODashboard: React.FC<CEODashboardProps> = ({ className }) => {
   );
 };
 
-export default CEODashboard;
+export default UnifiedDashboard;
 """
 
         ceo_file = (
-            self.frontend_dir / "src" / "components" / "dashboard" / "CEODashboard.tsx"
+            self.frontend_dir / "src" / "components" / "dashboard" / "UnifiedDashboard.tsx"
         )
         with open(ceo_file, "w") as f:
             f.write(ceo_dashboard_content)
@@ -748,7 +748,7 @@ async def get_ceo_metrics(
     time_range: str = Query("30d", description="Time range for metrics"),
     user_id: Optional[str] = Query(None, description="User ID for personalization")
 ):
-    """Get CEO dashboard metrics."""
+    """Get Unified dashboard metrics."""
     try:
         metrics = await dashboard_service.get_ceo_metrics(
             time_range=time_range,
@@ -756,7 +756,7 @@ async def get_ceo_metrics(
         )
         return metrics
     except Exception as e:
-        logger.error(f"Failed to get CEO metrics: {e}")
+        logger.error(f"Failed to get Unified metrics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch metrics")
 
 @router.get("/knowledge/stats")

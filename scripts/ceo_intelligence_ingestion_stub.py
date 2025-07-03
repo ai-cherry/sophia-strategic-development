@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-CEO Intelligence Data Ingestion Stub (CONFIDENTIAL)
-Secure ingestion of strategic intelligence into CEO_INTELLIGENCE schema
+Unified Intelligence Data Ingestion Stub (CONFIDENTIAL)
+Secure ingestion of strategic intelligence into Unified_INTELLIGENCE schema
 """
 
 import asyncio
@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CEOIntelligenceConfig:
-    """Configuration for CEO intelligence data ingestion"""
+class UnifiedIntelligenceConfig:
+    """Configuration for Unified intelligence data ingestion"""
 
     secure_upload_path: str
     encryption_key: str
@@ -33,8 +33,8 @@ class CEOIntelligenceConfig:
     audit_level: str = "MAXIMUM"
 
 
-class CEOIntelligenceIngestor:
-    """Secure ingestion of CEO intelligence data (CONFIDENTIAL ACCESS ONLY)"""
+class UnifiedIntelligenceIngestor:
+    """Secure ingestion of Unified intelligence data (CONFIDENTIAL ACCESS ONLY)"""
 
     def __init__(self):
         self.config = None
@@ -43,10 +43,10 @@ class CEOIntelligenceIngestor:
         self.kb_service = None
 
     async def initialize(self) -> None:
-        """Initialize the CEO intelligence ingestor with maximum security"""
+        """Initialize the Unified intelligence ingestor with maximum security"""
         try:
             # Get configuration from Pulumi ESC
-            self.config = CEOIntelligenceConfig(
+            self.config = UnifiedIntelligenceConfig(
                 secure_upload_path=await get_config_value(
                     "ceo_intelligence_upload_path", "/secure/ceo_intelligence/"
                 ),
@@ -60,7 +60,7 @@ class CEOIntelligenceIngestor:
                 ),
             )
 
-            # Initialize Snowflake connection with CEO role
+            # Initialize Snowflake connection with Unified role
             import snowflake.connector
 
             self.snowflake_conn = snowflake.connector.connect(
@@ -68,9 +68,9 @@ class CEOIntelligenceIngestor:
                 user=await get_config_value("snowflake_user"),
                 password=await get_config_value("snowflake_password"),
                 database="SOPHIA_AI_DEV",
-                schema="CEO_INTELLIGENCE",
+                schema="Unified_INTELLIGENCE",
                 warehouse="WH_SOPHIA_AI_PROCESSING",
-                role="CEO_ROLE",  # Highest privilege role
+                role="Unified_ROLE",  # Highest privilege role
             )
 
             # Initialize Cortex service for AI processing
@@ -82,15 +82,15 @@ class CEOIntelligenceIngestor:
             await self.kb_service.initialize()
 
             logger.info(
-                "✅ CEO Intelligence Ingestor initialized with maximum security"
+                "✅ Unified Intelligence Ingestor initialized with maximum security"
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize CEO intelligence ingestor: {e}")
+            logger.error(f"❌ Failed to initialize Unified intelligence ingestor: {e}")
             raise
 
     async def validate_user_authorization(self, user_id: str) -> bool:
-        """Validate user authorization for CEO intelligence access"""
+        """Validate user authorization for Unified intelligence access"""
         try:
             if user_id not in self.config.authorized_users:
                 logger.warning(f"🚨 Unauthorized access attempt by user: {user_id}")
@@ -111,7 +111,7 @@ class CEOIntelligenceIngestor:
             cursor = self.snowflake_conn.cursor()
             cursor.execute(
                 """
-                INSERT INTO CEO_INTELLIGENCE_AUDIT_LOG (
+                INSERT INTO Unified_INTELLIGENCE_AUDIT_LOG (
                     LOG_ID, USER_ID, ACTION, STATUS, TIMESTAMP, IP_ADDRESS, USER_AGENT
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s, %s
@@ -124,7 +124,7 @@ class CEOIntelligenceIngestor:
                     status,
                     datetime.now(),
                     "127.0.0.1",  # Would get actual IP in production
-                    "CEO_INTELLIGENCE_INGESTOR",
+                    "Unified_INTELLIGENCE_INGESTOR",
                 ),
             )
             cursor.close()
@@ -148,7 +148,7 @@ class CEOIntelligenceIngestor:
                     "estimated_investment": 15000000.00,
                     "projected_roi": 3.2,
                     "risk_assessment": "MEDIUM",
-                    "responsible_executive": "CEO",
+                    "responsible_executive": "Unified",
                     "last_review_date": datetime.now() - timedelta(days=7),
                     "next_review_date": datetime.now() + timedelta(days=30),
                 },
@@ -191,7 +191,7 @@ class CEOIntelligenceIngestor:
                     "board_meeting_date": datetime(2024, 12, 15),
                     "confidentiality_level": "BOARD_CONFIDENTIAL",
                     "distribution_list": "BOARD_MEMBERS_ONLY",
-                    "prepared_by": "CEO",
+                    "prepared_by": "Unified",
                     "reviewed_by": "CFO",
                     "approval_status": "APPROVED",
                     "material_version": "1.2",
@@ -205,7 +205,7 @@ class CEOIntelligenceIngestor:
                     "board_meeting_date": datetime(2024, 11, 20),
                     "confidentiality_level": "TOP_SECRET",
                     "distribution_list": "BOARD_MEMBERS_ONLY",
-                    "prepared_by": "CEO",
+                    "prepared_by": "Unified",
                     "reviewed_by": "BOARD_CHAIR",
                     "approval_status": "APPROVED",
                     "material_version": "2.0",
@@ -273,7 +273,7 @@ class CEOIntelligenceIngestor:
 
             # Validate authorization
             if not await self.validate_user_authorization(user_id):
-                raise PermissionError("Unauthorized access to CEO intelligence data")
+                raise PermissionError("Unauthorized access to Unified intelligence data")
 
             cursor = self.snowflake_conn.cursor()
 
@@ -377,11 +377,11 @@ class CEOIntelligenceIngestor:
             return 0
 
     async def generate_ceo_intelligence_ai_embeddings(self, user_id: str) -> int:
-        """Generate AI embeddings for CEO intelligence data with security controls"""
+        """Generate AI embeddings for Unified intelligence data with security controls"""
         try:
             # Validate authorization
             if not await self.validate_user_authorization(user_id):
-                raise PermissionError("Unauthorized access to CEO intelligence data")
+                raise PermissionError("Unauthorized access to Unified intelligence data")
 
             cursor = self.snowflake_conn.cursor()
 
@@ -398,7 +398,7 @@ class CEOIntelligenceIngestor:
                     'embedding_source', 'strategic_plan_content',
                     'embedding_generated_at', CURRENT_TIMESTAMP()::STRING,
                     'embedding_confidence', 0.95,
-                    'security_level', 'CEO_ONLY',
+                    'security_level', 'Unified_ONLY',
                     'priority_level', PRIORITY_LEVEL,
                     'estimated_investment', ESTIMATED_INVESTMENT,
                     'projected_roi', PROJECTED_ROI
@@ -423,7 +423,7 @@ class CEOIntelligenceIngestor:
                     'embedding_source', 'board_material_content',
                     'embedding_generated_at', CURRENT_TIMESTAMP()::STRING,
                     'embedding_confidence', 0.95,
-                    'security_level', 'CEO_ONLY',
+                    'security_level', 'Unified_ONLY',
                     'confidentiality_level', CONFIDENTIALITY_LEVEL,
                     'material_type', MATERIAL_TYPE
                 ),
@@ -447,7 +447,7 @@ class CEOIntelligenceIngestor:
                     'embedding_source', 'competitive_intelligence_analysis',
                     'embedding_generated_at', CURRENT_TIMESTAMP()::STRING,
                     'embedding_confidence', 0.95,
-                    'security_level', 'CEO_ONLY',
+                    'security_level', 'Unified_ONLY',
                     'confidence_level', CONFIDENCE_LEVEL,
                     'competitive_impact', COMPETITIVE_IMPACT
                 ),
@@ -467,29 +467,29 @@ class CEOIntelligenceIngestor:
 
             # Log successful operation
             await self._log_access_attempt(
-                user_id, "CEO_INTELLIGENCE_EMBEDDINGS", "SUCCESS"
+                user_id, "Unified_INTELLIGENCE_EMBEDDINGS", "SUCCESS"
             )
 
             logger.info(
-                f"✅ Generated embeddings for {total_updated} CEO intelligence records (CONFIDENTIAL)"
+                f"✅ Generated embeddings for {total_updated} Unified intelligence records (CONFIDENTIAL)"
             )
             return total_updated
 
         except Exception as e:
-            logger.error(f"❌ Failed to generate CEO intelligence AI embeddings: {e}")
+            logger.error(f"❌ Failed to generate Unified intelligence AI embeddings: {e}")
             await self._log_access_attempt(
-                user_id, "CEO_INTELLIGENCE_EMBEDDINGS", "ERROR"
+                user_id, "Unified_INTELLIGENCE_EMBEDDINGS", "ERROR"
             )
             return 0
 
     async def run_secure_ceo_intelligence_sync(self, user_id: str) -> dict[str, int]:
-        """Run secure synchronization of CEO intelligence data"""
+        """Run secure synchronization of Unified intelligence data"""
         try:
             # Validate authorization
             if not await self.validate_user_authorization(user_id):
-                raise PermissionError("Unauthorized access to CEO intelligence data")
+                raise PermissionError("Unauthorized access to Unified intelligence data")
 
-            logger.info("🚀 Starting CEO Intelligence secure sync (CONFIDENTIAL)")
+            logger.info("🚀 Starting Unified Intelligence secure sync (CONFIDENTIAL)")
 
             results = {}
 
@@ -514,18 +514,18 @@ class CEOIntelligenceIngestor:
 
             # Log successful operation
             await self._log_access_attempt(
-                user_id, "CEO_INTELLIGENCE_FULL_SYNC", "SUCCESS"
+                user_id, "Unified_INTELLIGENCE_FULL_SYNC", "SUCCESS"
             )
 
             logger.info(
-                f"✅ CEO Intelligence secure sync completed: {results} (CONFIDENTIAL)"
+                f"✅ Unified Intelligence secure sync completed: {results} (CONFIDENTIAL)"
             )
             return results
 
         except Exception as e:
-            logger.error(f"❌ CEO Intelligence secure sync failed: {e}")
+            logger.error(f"❌ Unified Intelligence secure sync failed: {e}")
             await self._log_access_attempt(
-                user_id, "CEO_INTELLIGENCE_FULL_SYNC", "ERROR"
+                user_id, "Unified_INTELLIGENCE_FULL_SYNC", "ERROR"
             )
             raise
 
@@ -538,32 +538,32 @@ class CEOIntelligenceIngestor:
                 await self.cortex_service.close()
             if self.kb_service:
                 await self.kb_service.close()
-            logger.info("✅ CEO Intelligence Ingestor connections closed")
+            logger.info("✅ Unified Intelligence Ingestor connections closed")
         except Exception as e:
             logger.error(f"❌ Error closing connections: {e}")
 
 
 async def main():
-    """Main execution function (requires CEO authorization)"""
-    ingestor = CEOIntelligenceIngestor()
+    """Main execution function (requires Unified authorization)"""
+    ingestor = UnifiedIntelligenceIngestor()
 
     try:
         await ingestor.initialize()
 
-        # Simulate CEO user access
+        # Simulate Unified user access
         ceo_user_id = "ceo@payready.com"
 
         # Run secure sync
         results = await ingestor.run_secure_ceo_intelligence_sync(ceo_user_id)
 
-        print("✅ CEO Intelligence ingestion completed successfully! (CONFIDENTIAL)")
+        print("✅ Unified Intelligence ingestion completed successfully! (CONFIDENTIAL)")
         print(f"📊 Results: {results}")
 
     except PermissionError as e:
         print(f"🚨 ACCESS DENIED: {e}")
         return 1
     except Exception as e:
-        print(f"❌ CEO Intelligence ingestion failed: {e}")
+        print(f"❌ Unified Intelligence ingestion failed: {e}")
         return 1
     finally:
         await ingestor.close()

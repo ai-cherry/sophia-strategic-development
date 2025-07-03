@@ -58,7 +58,7 @@ def create_app():
             # Mock response for deployment testing
             # In production, this would integrate with the actual chat services
             response_map = {
-                "universal": f"Universal Chat Response: {message}",
+                "universal": f"Unified Chat Response: {message}",
                 "sophia": f"Sophia AI Response: Analyzing your request '{message}' with business intelligence context.",
                 "executive": f"Executive Assistant Response: Providing strategic insights for '{message}'",
             }

@@ -46,7 +46,7 @@ class SnowflakeLifecycleService:
             await self.create_retention_task(schema, policy)
 ```
 
-## 2. Universal Chat Performance Enhancements
+## 2. Unified Chat Performance Enhancements
 
 ### A. Response Caching Strategy
 **Current State:** Every query executes fresh database lookups

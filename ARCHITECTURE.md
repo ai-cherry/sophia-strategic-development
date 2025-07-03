@@ -17,7 +17,7 @@ Sophia AI is an enterprise-grade AI orchestrator platform designed for business 
 │                    SOPHIA AI ECOSYSTEM                          │
 ├─────────────────────────────────────────────────────────────────┤
 │  Frontend Layer (React + Next.js)                              │
-│  ├── CEO Dashboard        ├── Knowledge Dashboard              │
+│  ├── Unified Dashboard        ├── Knowledge Dashboard              │
 │  ├── Project Dashboard    └── Conversational Interface         │
 ├─────────────────────────────────────────────────────────────────┤
 │  API Gateway Layer (FastAPI)                                   │

@@ -252,7 +252,7 @@ class SophiaAIPlatformAnalyzer:
         multimodal_indicators = [
             "backend/integrations/enhanced_gong_integration.py",
             "backend/api/universal_chat_routes.py",
-            "frontend/src/components/UniversalChatInterface.tsx",
+            "frontend/src/components/UnifiedChatInterface.tsx",
         ]
 
         multimodal_score = 0

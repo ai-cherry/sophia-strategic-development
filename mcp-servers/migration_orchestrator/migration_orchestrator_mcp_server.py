@@ -195,7 +195,7 @@ class MigrationOrchestratorMCPServer:
                             ],
                             "deliverables": [
                                 "All MCP servers operational",
-                                "CEO project dashboard in Notion",
+                                "Unified project dashboard in Notion",
                                 "Initial migration workflows created",
                             ],
                             "success_criteria": "95% infrastructure health checks pass",
@@ -232,7 +232,7 @@ class MigrationOrchestratorMCPServer:
                                 "Automated reporting system",
                                 "User training materials",
                             ],
-                            "success_criteria": "CEO dashboard operational with real-time data",
+                            "success_criteria": "Unified dashboard operational with real-time data",
                         },
                     },
                     "resource_allocation": {
@@ -392,7 +392,7 @@ class MigrationOrchestratorMCPServer:
             execution_id: str,
             update_type: str = "progress",
         ) -> Dict[str, Any]:
-            """Create automated project update in Notion for CEO dashboard"""
+            """Create automated project update in Notion for Unified dashboard"""
             try:
                 if execution_id not in self.active_migrations:
                     return {"success": False, "error": f"Execution {execution_id} not found"}

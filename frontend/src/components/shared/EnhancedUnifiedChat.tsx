@@ -99,7 +99,7 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="business_intelligence">Business Intelligence</SelectItem>
-                        <SelectItem value="ceo_deep_research">CEO Deep Research</SelectItem>
+                        <SelectItem value="ceo_deep_research">Unified Deep Research</SelectItem>
                         <SelectItem value="internal_only">Internal Knowledge</SelectItem>
                         <SelectItem value="blended_intelligence">Blended Intelligence</SelectItem>
                     </SelectContent>

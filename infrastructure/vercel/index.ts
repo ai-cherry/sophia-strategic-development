@@ -103,7 +103,7 @@ const cleanup = new command.local.Command("vercel-cleanup", {
 
 // Production project - Updated for Vite + React
 const prodProject = new vercel.Project("sophia-ai-production", {
-    name: "sophia-ai-ceo-dashboard-prod",
+    name: "sophia-ai-unified-dashboard-prod",
     framework: "vite",
     gitRepository: {
         type: "github",
@@ -119,7 +119,7 @@ const prodProject = new vercel.Project("sophia-ai-production", {
 
 // Development project - Updated for Vite + React
 const devProject = new vercel.Project("sophia-ai-development", {
-    name: "sophia-ai-ceo-dashboard-dev",
+    name: "sophia-ai-unified-dashboard-dev",
     framework: "vite",
     gitRepository: {
         type: "github",
@@ -134,7 +134,7 @@ const devProject = new vercel.Project("sophia-ai-development", {
 }, { dependsOn: [cleanup] });
 
 // =====================================================================
-// 3. ENHANCED CEO DASHBOARD ENVIRONMENT VARIABLES
+// 3. ENHANCED UNIFIED DASHBOARD ENVIRONMENT VARIABLES
 // =====================================================================
 
 // Production environment variables - Enhanced Dashboard
@@ -161,7 +161,7 @@ const prodEnvVars = [
     { key: "VITE_DEBUG_MODE", value: "false" },
     
     // Security
-    { key: "VITE_CEO_ACCESS_TOKEN", value: "sophia_ceo_access_2024" },
+    { key: "VITE_UNIFIED_ACCESS_TOKEN", value: "sophia_unified_access_2024" },
     { key: "VITE_ADMIN_MODE", value: "false" }
 ];
 
@@ -189,7 +189,7 @@ const devEnvVars = [
     { key: "VITE_DEBUG_MODE", value: "true" },
     
     // Security
-    { key: "VITE_CEO_ACCESS_TOKEN", value: "sophia_ceo_access_2024" },
+    { key: "VITE_UNIFIED_ACCESS_TOKEN", value: "sophia_unified_access_token_dev" },
     { key: "VITE_ADMIN_MODE", value: "true" }
 ];
 
@@ -283,11 +283,11 @@ const vercelConfig = {
     version: 2,
     rewrites: [
         {
-            source: "/dashboard/ceo-enhanced",
+            source: "/dashboard/unified-enhanced",
             destination: "/index.html"
         },
         {
-            source: "/dashboard/ceo",
+            source: "/dashboard/unified",
             destination: "/index.html"
         },
         {
@@ -592,16 +592,16 @@ check_domain_status() {
     echo "$domain: $status"
 }
 
-echo "Enhanced CEO Dashboard Deployment Status:"
+echo "Enhanced Unified Dashboard Deployment Status:"
 echo "========================================"
 echo "Projects Created:"
-echo "- Production: sophia-ai-ceo-dashboard-prod"
-echo "- Development: sophia-ai-ceo-dashboard-dev"
+echo "- Production: sophia-ai-unified-dashboard-prod"
+echo "- Development: sophia-ai-unified-dashboard-dev"
 echo ""
 echo "Framework: Vite + React"
 echo "Build Output: dist/"
 echo "Features Enabled:"
-echo "- Enhanced CEO Dashboard"
+echo "- Enhanced Unified Dashboard"
 echo "- Chart.js Dashboard"
 echo "- Figma Integration"
 echo "- Real-time Charts"
@@ -618,8 +618,8 @@ echo "1. Set VITE_FIGMA_PERSONAL_ACCESS_TOKEN in Vercel dashboard"
 echo "2. Set VITE_FIGMA_FILE_KEY in Vercel dashboard"
 echo "3. Configure backend API endpoints"
 echo "4. Test dashboard routes:"
-echo "   - /dashboard/ceo (Chart.js Dashboard)"
-echo "   - /dashboard/ceo-enhanced (Figma + Enhanced Dashboard)"
+echo "   - /dashboard/unified (Chart.js Dashboard)"
+echo "   - /dashboard/unified-enhanced (Figma + Enhanced Dashboard)"
 `;
 
 const statusCheckPath = "/tmp/status-check.sh";
@@ -641,8 +641,8 @@ export const productionProjectId = prodProject.id;
 export const developmentProjectId = devProject.id;
 export const productionProjectName = prodProject.name;
 export const developmentProjectName = devProject.name;
-export const productionUrl = `https://sophia-ai-ceo-dashboard-prod.vercel.app`;
-export const developmentUrl = `https://sophia-ai-ceo-dashboard-dev.vercel.app`;
+export const productionUrl = `https://${prodProject.name}.vercel.app`;
+export const developmentUrl = `https://${devProject.name}.vercel.app`;
 export const productionCustomDomain = `https://app.${domain}`;
 export const developmentCustomDomain = `https://dev.app.${domain}`;
 export const cleanupStatus = cleanup.stdout;
@@ -664,13 +664,23 @@ export const configurationSummary = {
         glassmorphism: true
     },
     routes: {
-        enhancedCEO: "/dashboard/ceo-enhanced",
-        originalCEO: "/dashboard/ceo",
-        dashboardHub: "/dashboard"
+        enhancedUnified: "/dashboard/unified-enhanced",
+        originalUnified: "/dashboard/unified",
+        unifiedHub: "/dashboard"
     },
     deleteLegacyProjects: deleteLegacyProjects,
     automatedDNS: pulumi.all([namecheapApiUser, namecheapApiKey]).apply(
         ([user, key]) => !!(user && key)
     ),
+};
+
+// For easy access in other parts of the Pulumi program
+export const outputs = {
+    ...configurationSummary,
+    endpoints: {
+        health: "/health",
+        unifiedEnhanced: "/dashboard/unified-enhanced",
+        originalUnified: "/dashboard/unified",
+    },
 };
 

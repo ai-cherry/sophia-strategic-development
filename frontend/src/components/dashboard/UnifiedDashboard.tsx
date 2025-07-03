@@ -25,7 +25,7 @@ const UnifiedKPICard = ({ title, value, change, changeType, icon: Icon }) => (
 
 const UnifiedDashboard = () => {
     // --- State Management ---
-    const [activeTab, setActiveTab] = useState('ceo_overview');
+    const [activeTab, setActiveTab] = useState('unified_overview');
     const [isLoading, setIsLoading] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(new Date());
     const [data, setData] = useState({
@@ -41,8 +41,8 @@ const UnifiedDashboard = () => {
         try {
             let response;
             switch (tab) {
-                case 'ceo_overview':
-                    response = await apiClient.get('/api/v1/ceo/dashboard/summary');
+                case 'unified_overview':
+                    response = await apiClient.get('/api/v1/unified/dashboard/summary');
                     setData(prev => ({ ...prev, ceo: response.data }));
                     break;
                 case 'projects':
@@ -75,7 +75,7 @@ const UnifiedDashboard = () => {
 
     // --- Render Functions for Tabs ---
 
-    const renderCEOOverview = () => (
+    const renderUnifiedOverview = () => (
         <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <UnifiedKPICard title="Project Health" value={`${data.ceo?.project_health || 72}%`} change="+2%" changeType="increase" icon={Target} />
@@ -83,7 +83,7 @@ const UnifiedDashboard = () => {
                 <UnifiedKPICard title="Team Utilization" value={`${data.ceo?.team_utilization || 85}%`} change="+3%" changeType="increase" icon={Users} />
                 <UnifiedKPICard title="On-Time Delivery" value={`${data.ceo?.on_time_delivery || 67}%`} change="-1%" changeType="decrease" icon={Calendar} />
             </div>
-            {/* Add more CEO-specific charts and components here */}
+            {/* Add more Unified-specific charts and components here */}
         </div>
     );
     
@@ -192,18 +192,18 @@ const UnifiedDashboard = () => {
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
-                    <TabsTrigger value="ceo_overview">CEO Overview</TabsTrigger>
+                    <TabsTrigger value="unified_overview">Unified Overview</TabsTrigger>
                     <TabsTrigger value="projects">Projects & OKRs</TabsTrigger>
                     <TabsTrigger value="knowledge">Knowledge AI</TabsTrigger>
                     <TabsTrigger value="sales">Sales Intelligence</TabsTrigger>
-                    <TabsTrigger value="chat">AI Chat</TabsTrigger>
+                    <TabsTrigger value="unified_chat">Unified Chat</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="ceo_overview" className="mt-6">{renderCEOOverview()}</TabsContent>
+                <TabsContent value="unified_overview" className="mt-6">{renderUnifiedOverview()}</TabsContent>
                 <TabsContent value="projects" className="mt-6">{renderProjects()}</TabsContent>
                 <TabsContent value="knowledge" className="mt-6">{renderKnowledge()}</TabsContent>
                 <TabsContent value="sales" className="mt-6">{renderSales()}</TabsContent>
-                <TabsContent value="chat" className="mt-6">
+                <TabsContent value="unified_chat" className="mt-6">
                     <EnhancedUnifiedChat initialContext={activeTab} />
                 </TabsContent>
             </Tabs>

@@ -179,7 +179,7 @@ class SmartAIService:
             },
         }
 
-        # Strategic model assignments (CEO-configurable)
+        # Strategic model assignments (Unified-configurable)
         self.strategic_assignments = {
             TaskType.EXECUTIVE_INSIGHTS: "gpt-4o",
             TaskType.COMPETITIVE_ANALYSIS: "claude-3-opus",
@@ -319,7 +319,7 @@ class SmartAIService:
                     "reasoning": f"Explicit model preference: {model}",
                 }
 
-            # Check strategic assignments (CEO-configurable)
+            # Check strategic assignments (Unified-configurable)
             if request.task_type in self.strategic_assignments:
                 model = self.strategic_assignments[request.task_type]
                 provider = self._get_provider_for_model(model)
@@ -734,7 +734,7 @@ class SmartAIService:
     async def update_strategic_assignment(
         self, task_type: TaskType, model: str
     ) -> bool:
-        """Update strategic model assignment (CEO-configurable)"""
+        """Update strategic model assignment (Unified-configurable)"""
         try:
             self.strategic_assignments[task_type] = model
             logger.info(f"Updated strategic assignment: {task_type.value} -> {model}")

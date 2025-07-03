@@ -4,8 +4,8 @@
   "description": "Sophia AI Phase 2 - Advanced AI automation platform with natural language interaction",
   "main": "api/index.py",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'Build complete'",
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
     "deploy": "vercel --prod"
   },
   "keywords": [

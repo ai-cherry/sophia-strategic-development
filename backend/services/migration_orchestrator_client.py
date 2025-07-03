@@ -3,7 +3,7 @@
 Migration Orchestrator Client Service
 =====================================
 
-Centralized interface for all migration operations with CEO dashboard and universal chat integration.
+Centralized interface for all migration operations with Unified dashboard and universal chat integration.
 Provides real-time monitoring, natural language commands, and executive oversight capabilities.
 """
 
@@ -72,7 +72,7 @@ class MigrationCommand(BaseModel):
 class MigrationOrchestratorClient:
     """
     Client for interacting with the migration orchestrator MCP server
-    Provides CEO dashboard integration and natural language command processing
+    Provides Unified dashboard integration and natural language command processing
     """
 
     def __init__(self):
@@ -84,7 +84,7 @@ class MigrationOrchestratorClient:
         self.migration_history: List[Dict[str, Any]] = []
 
     async def get_migration_status(self) -> Dict[str, Any]:
-        """Get comprehensive migration status for CEO dashboard"""
+        """Get comprehensive migration status for Unified dashboard"""
         try:
             response = await self.client.get(f"{self.base_url}/migration/status")
             if response.status_code == 200:
@@ -386,7 +386,7 @@ class MigrationOrchestratorClient:
             }
 
     async def get_executive_summary(self) -> Dict[str, Any]:
-        """Get executive-level migration summary for CEO dashboard"""
+        """Get executive-level migration summary for Unified dashboard"""
         try:
             status = await self.get_migration_status()
             issues = await self.get_migration_issues()

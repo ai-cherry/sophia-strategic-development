@@ -46,11 +46,11 @@ async def test_environment_setup():
 
 async def test_enhanced_chat_service():
     """Test the enhanced universal chat service"""
-    logger.info("🧪 Testing Enhanced Universal Chat Service...")
+    logger.info("🧪 Testing Enhanced Unified Chat Service...")
     
     try:
         from backend.services.enhanced_universal_chat_service import (
-            EnhancedUniversalChatService,
+            EnhancedUnifiedChatService,
             universal_chat_service
         )
         

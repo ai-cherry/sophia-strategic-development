@@ -21,8 +21,8 @@ async def test_system_health():
         "summary": {"passed": 0, "failed": 0, "warnings": 0}
     }
     
-    # Test 1: CEO Dashboard Health
-    print("\n1️⃣  Testing CEO Dashboard...")
+    # Test 1: Unified Dashboard Health
+    print("\n1️⃣  Testing Unified Dashboard...")
     try:
         import subprocess
         result = subprocess.run(
@@ -31,34 +31,34 @@ async def test_system_health():
         )
         if result.returncode == 0 and "healthy" in result.stdout:
             results["tests"].append({
-                "test": "CEO Dashboard Health",
+                "test": "Unified Dashboard Health",
                 "status": "✅ PASS",
                 "details": result.stdout.strip()
             })
             results["summary"]["passed"] += 1
-            print("   ✅ CEO Dashboard is healthy")
+            print("   ✅ Unified Dashboard is healthy")
         else:
             results["tests"].append({
-                "test": "CEO Dashboard Health", 
+                "test": "Unified Dashboard Health", 
                 "status": "❌ FAIL",
                 "details": result.stdout or result.stderr
             })
             results["summary"]["failed"] += 1
-            print(f"   ❌ CEO Dashboard failed")
+            print(f"   ❌ Unified Dashboard failed")
     except Exception as e:
         results["tests"].append({
-            "test": "CEO Dashboard Health",
+            "test": "Unified Dashboard Health",
             "status": "❌ FAIL", 
             "details": str(e)
         })
         results["summary"]["failed"] += 1
-        print(f"   ❌ CEO Dashboard error: {e}")
+        print(f"   ❌ Unified Dashboard error: {e}")
     
     # Test 2: File System Structure
     print("\n2️⃣  Testing File System Structure...")
     critical_files = [
         "backend/app/ceo_dashboard_app.py",
-        "frontend/src/components/dashboard/CEODashboard.tsx",
+        "frontend/src/components/dashboard/UnifiedDashboard.tsx",
         "docker-compose.yml",
         "n8n-integration/docker-compose.yml",
         "SOPHIA_AI_UNIFIED_DASHBOARD_ENHANCEMENT_PLAN.md"

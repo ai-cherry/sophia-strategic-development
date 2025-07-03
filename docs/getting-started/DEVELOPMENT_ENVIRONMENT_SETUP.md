@@ -15,7 +15,7 @@ related_docs: none
 - [🎯 PROBLEM SOLVED: AI Tools Virtual Environment Issues](#🎯-problem-solved:-ai-tools-virtual-environment-issues)
 - [✅ AUTOMATED SOLUTION IMPLEMENTED](#✅-automated-solution-implemented)
   - [**1. Direnv Auto-Activation (PERMANENT FIX)**](#**1.-direnv-auto-activation-(permanent-fix)**)
-  - [**2. Universal Environment Enforcer**](#**2.-universal-environment-enforcer**)
+  - [**2. Unified Environment Enforcer**](#**2.-universal-environment-enforcer**)
   - [**3. Environment Validation**](#**3.-environment-validation**)
 - [🔧 SETUP COMPLETE - WHAT WAS INSTALLED](#🔧-setup-complete---what-was-installed)
   - [**Direnv Installation**](#**direnv-installation**)
@@ -57,7 +57,7 @@ This setup **permanently fixes** the issue where AI coding tools constantly kick
 - **Works with ALL tools**: Cursor AI, terminal sessions, scripts, background processes
 - **Zero manual intervention** required after setup
 
-### **2. Universal Environment Enforcer**
+### **2. Unified Environment Enforcer**
 - **Script**: `./scripts/ensure_venv.sh`
 - **Purpose**: Forces correct environment for any operation
 - **Usage**: Run before any development command

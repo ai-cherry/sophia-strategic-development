@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Enhanced CEO Chat Service
+Enhanced Unified Chat Service
 ========================
 
 Advanced chat service with migration control capabilities, natural language processing,
-and executive-level intelligence for CEO dashboard integration.
+and executive-level intelligence for Unified dashboard integration.
 """
 
 import asyncio
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChatContext(Enum):
-    """Chat context types for CEO interface"""
+    """Chat context types for Unified interface"""
     GENERAL = "general"
     MIGRATION_CONTROL = "migration_control"
     BUSINESS_INTELLIGENCE = "business_intelligence"
@@ -31,8 +31,8 @@ class ChatContext(Enum):
     STRATEGIC_PLANNING = "strategic_planning"
 
 
-class CEOChatRequest(BaseModel):
-    """CEO chat request model"""
+class UnifiedChatRequest(BaseModel):
+    """Unified chat request model"""
     message: str
     user_id: str
     context: ChatContext = ChatContext.GENERAL
@@ -44,8 +44,8 @@ class CEOChatRequest(BaseModel):
             self.timestamp = datetime.now(UTC)
 
 
-class CEOChatResponse(BaseModel):
-    """CEO chat response model"""
+class UnifiedChatResponse(BaseModel):
+    """Unified chat response model"""
     message: str
     context: ChatContext
     timestamp: datetime
@@ -56,9 +56,9 @@ class CEOChatResponse(BaseModel):
     confirmation_message: Optional[str] = None
 
 
-class EnhancedCEOChatService:
+class EnhancedUnifiedChatService:
     """
-    Enhanced CEO chat service with migration control and executive intelligence
+    Enhanced Unified chat service with migration control and executive intelligence
     """
 
     def __init__(self):
@@ -78,8 +78,8 @@ class EnhancedCEOChatService:
             "completion": ["when", "complete", "finish", "done", "eta"],
         }
 
-    async def process_ceo_message(self, request: CEOChatRequest) -> CEOChatResponse:
-        """Process CEO message with context-aware routing"""
+    async def process_ceo_message(self, request: UnifiedChatRequest) -> UnifiedChatResponse:
+        """Process Unified message with context-aware routing"""
         try:
             # Store conversation in memory
             await self._store_conversation_context(request)
@@ -101,15 +101,15 @@ class EnhancedCEOChatService:
                 return await self._handle_general_chat(request)
                 
         except Exception as e:
-            logger.error(f"Failed to process CEO message: {e}")
-            return CEOChatResponse(
+            logger.error(f"Failed to process Unified message: {e}")
+            return UnifiedChatResponse(
                 message=f"I encountered an error processing your request: {str(e)}",
                 context=request.context,
                 timestamp=datetime.now(UTC),
                 suggestions=["Please try rephrasing your request", "Check system status", "Contact technical support"],
             )
 
-    async def _handle_migration_control(self, request: CEOChatRequest) -> CEOChatResponse:
+    async def _handle_migration_control(self, request: UnifiedChatRequest) -> UnifiedChatResponse:
         """Handle migration control commands"""
         message = request.message.lower().strip()
         actions_taken = []
@@ -140,7 +140,7 @@ class EnhancedCEOChatService:
                 # Generate contextual suggestions
                 suggestions = await self._generate_migration_suggestions(result)
                 
-                return CEOChatResponse(
+                return UnifiedChatResponse(
                     message=response_message,
                     context=ChatContext.MIGRATION_CONTROL,
                     timestamp=datetime.now(UTC),
@@ -158,7 +158,7 @@ class EnhancedCEOChatService:
                 if available_commands:
                     response_message += f"\n\nAvailable migration commands:\n" + "\n".join([f"• {cmd}" for cmd in available_commands])
                 
-                return CEOChatResponse(
+                return UnifiedChatResponse(
                     message=response_message,
                     context=ChatContext.MIGRATION_CONTROL,
                     timestamp=datetime.now(UTC),
@@ -167,14 +167,14 @@ class EnhancedCEOChatService:
                 
         except Exception as e:
             logger.error(f"Migration control error: {e}")
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=f"Migration control system encountered an error: {str(e)}",
                 context=ChatContext.MIGRATION_CONTROL,
                 timestamp=datetime.now(UTC),
                 suggestions=["Check migration system health", "Try basic status command", "Contact technical support"],
             )
 
-    async def _handle_business_intelligence(self, request: CEOChatRequest) -> CEOChatResponse:
+    async def _handle_business_intelligence(self, request: UnifiedChatRequest) -> UnifiedChatResponse:
         """Handle business intelligence queries"""
         try:
             # Get executive summary if migration-related
@@ -183,7 +183,7 @@ class EnhancedCEOChatService:
                 
                 response_message = await self._format_executive_summary(summary, request.message)
                 
-                return CEOChatResponse(
+                return UnifiedChatResponse(
                     message=response_message,
                     context=ChatContext.BUSINESS_INTELLIGENCE,
                     timestamp=datetime.now(UTC),
@@ -199,11 +199,11 @@ class EnhancedCEOChatService:
                 # General business intelligence
                 ai_response = await self.ai_service.generate_response(
                     request.message,
-                    context="CEO business intelligence query",
+                    context="Unified business intelligence query",
                     user_id=request.user_id,
                 )
                 
-                return CEOChatResponse(
+                return UnifiedChatResponse(
                     message=ai_response,
                     context=ChatContext.BUSINESS_INTELLIGENCE,
                     timestamp=datetime.now(UTC),
@@ -216,13 +216,13 @@ class EnhancedCEOChatService:
                 
         except Exception as e:
             logger.error(f"Business intelligence error: {e}")
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=f"Business intelligence system error: {str(e)}",
                 context=ChatContext.BUSINESS_INTELLIGENCE,
                 timestamp=datetime.now(UTC),
             )
 
-    async def _handle_system_monitoring(self, request: CEOChatRequest) -> CEOChatResponse:
+    async def _handle_system_monitoring(self, request: UnifiedChatRequest) -> UnifiedChatResponse:
         """Handle system monitoring queries"""
         try:
             # Get system health status
@@ -256,7 +256,7 @@ class EnhancedCEOChatService:
             
             response_message = "\n".join(response_parts)
             
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=response_message,
                 context=ChatContext.SYSTEM_MONITORING,
                 timestamp=datetime.now(UTC),
@@ -271,19 +271,19 @@ class EnhancedCEOChatService:
             
         except Exception as e:
             logger.error(f"System monitoring error: {e}")
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=f"System monitoring error: {str(e)}",
                 context=ChatContext.SYSTEM_MONITORING,
                 timestamp=datetime.now(UTC),
             )
 
-    async def _handle_strategic_planning(self, request: CEOChatRequest) -> CEOChatResponse:
+    async def _handle_strategic_planning(self, request: UnifiedChatRequest) -> UnifiedChatResponse:
         """Handle strategic planning discussions"""
         try:
             # Use AI service for strategic analysis
             ai_response = await self.ai_service.generate_response(
                 request.message,
-                context="CEO strategic planning discussion with focus on AI and automation capabilities",
+                context="Unified strategic planning discussion with focus on AI and automation capabilities",
                 user_id=request.user_id,
             )
             
@@ -296,7 +296,7 @@ class EnhancedCEOChatService:
             else:
                 enhanced_response = ai_response
             
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=enhanced_response,
                 context=ChatContext.STRATEGIC_PLANNING,
                 timestamp=datetime.now(UTC),
@@ -310,23 +310,23 @@ class EnhancedCEOChatService:
             
         except Exception as e:
             logger.error(f"Strategic planning error: {e}")
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=f"Strategic planning system error: {str(e)}",
                 context=ChatContext.STRATEGIC_PLANNING,
                 timestamp=datetime.now(UTC),
             )
 
-    async def _handle_general_chat(self, request: CEOChatRequest) -> CEOChatResponse:
+    async def _handle_general_chat(self, request: UnifiedChatRequest) -> UnifiedChatResponse:
         """Handle general chat queries"""
         try:
             # Use AI service for general responses
             ai_response = await self.ai_service.generate_response(
                 request.message,
-                context="CEO general inquiry",
+                context="Unified general inquiry",
                 user_id=request.user_id,
             )
             
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=ai_response,
                 context=ChatContext.GENERAL,
                 timestamp=datetime.now(UTC),
@@ -340,7 +340,7 @@ class EnhancedCEOChatService:
             
         except Exception as e:
             logger.error(f"General chat error: {e}")
-            return CEOChatResponse(
+            return UnifiedChatResponse(
                 message=f"I encountered an error: {str(e)}",
                 context=ChatContext.GENERAL,
                 timestamp=datetime.now(UTC),
@@ -375,7 +375,7 @@ class EnhancedCEOChatService:
     async def _generate_executive_response(self, result: Dict[str, Any], original_command: str) -> str:
         """Generate executive-appropriate response for migration commands"""
         if "start" in original_command.lower():
-            return f"✅ **Migration Initiated Successfully**\n\nThe Salesforce to HubSpot/Intercom migration has been started with AI-enhanced orchestration. Migration ID: {result.get('migration_id', 'N/A')}\n\n**Key Details:**\n• Estimated Duration: {result.get('estimated_duration', 'Calculating...')}\n• Next Phase: {result.get('next_phase', 'Assessment')}\n• AI Enhancement: Active\n• CEO Notifications: Enabled\n\nYou'll receive real-time updates as the migration progresses through each phase."
+            return f"✅ **Migration Initiated Successfully**\n\nThe Salesforce to HubSpot/Intercom migration has been started with AI-enhanced orchestration. Migration ID: {result.get('migration_id', 'N/A')}\n\n**Key Details:**\n• Estimated Duration: {result.get('estimated_duration', 'Calculating...')}\n• Next Phase: {result.get('next_phase', 'Assessment')}\n• AI Enhancement: Active\n• Unified Notifications: Enabled\n\nYou'll receive real-time updates as the migration progresses through each phase."
         
         elif "status" in original_command.lower():
             metrics = result.get("metrics", {})
@@ -438,7 +438,7 @@ class EnhancedCEOChatService:
         return suggestions
 
     async def _format_executive_summary(self, summary: Dict[str, Any], query: str) -> str:
-        """Format executive summary for CEO consumption"""
+        """Format executive summary for Unified consumption"""
         if summary.get("error"):
             return f"**Executive Summary Error:** {summary['error']}"
         
@@ -498,11 +498,11 @@ class EnhancedCEOChatService:
         
         return "\n".join(insights)
 
-    async def _store_conversation_context(self, request: CEOChatRequest):
+    async def _store_conversation_context(self, request: UnifiedChatRequest):
         """Store conversation in AI memory for context"""
         try:
             await self.memory_handlers.store_memory(
-                content=f"CEO Query: {request.message}",
+                content=f"Unified Query: {request.message}",
                 category="ceo_interaction",
                 importance=0.8,
                 context={
@@ -519,7 +519,7 @@ class EnhancedCEOChatService:
         """Get conversation history for context"""
         try:
             memories = await self.memory_handlers.search_memories(
-                query=f"CEO interactions for user {user_id}",
+                query=f"Unified interactions for user {user_id}",
                 category="ceo_interaction",
                 limit=limit,
             )
@@ -533,12 +533,12 @@ class EnhancedCEOChatService:
         await self.migration_client.cleanup()
 
 
-# Global CEO chat service instance
+# Global Unified chat service instance
 _ceo_chat_service = None
 
-def get_ceo_chat_service() -> EnhancedCEOChatService:
-    """Get the global CEO chat service instance"""
+def get_ceo_chat_service() -> EnhancedUnifiedChatService:
+    """Get the global Unified chat service instance"""
     global _ceo_chat_service
     if _ceo_chat_service is None:
-        _ceo_chat_service = EnhancedCEOChatService()
+        _ceo_chat_service = EnhancedUnifiedChatService()
     return _ceo_chat_service 

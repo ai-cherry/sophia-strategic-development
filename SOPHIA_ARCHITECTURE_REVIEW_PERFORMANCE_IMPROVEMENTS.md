@@ -76,7 +76,7 @@ class DataLifecycleManager:
             }
         )
         
-        # CEO Intelligence - Permanent retention with encryption
+        # Unified Intelligence - Permanent retention with encryption
         await self.create_policy(
             schema="ceo_intelligence",
             policy={
@@ -467,4 +467,4 @@ These performance and stability improvements are designed to elegantly integrate
 3. **Scalable**: Designed for 10x growth
 4. **Intelligent**: Self-learning and self-optimizing systems
 
-The focus remains on enhancing the Universal Chat Interface experience while ensuring the underlying infrastructure can scale efficiently and reliably.
+The focus remains on enhancing the Unified Chat Interface experience while ensuring the underlying infrastructure can scale efficiently and reliably.

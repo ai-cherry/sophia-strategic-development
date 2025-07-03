@@ -4,10 +4,10 @@ This fixes the import error that's preventing MCP servers from starting
 """
 
 # Import the actual working service
-from .sophia_universal_chat_service import SophiaUniversalChatService
+from .sophia_universal_chat_service import SophiaUnifiedChatService
 
 # Create compatibility aliases
-EnhancedUnifiedChatService = SophiaUniversalChatService
+EnhancedUnifiedChatService = SophiaUnifiedChatService
 
 
 # For compatibility with existing imports

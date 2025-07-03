@@ -163,7 +163,7 @@ SELECT
 FROM companies c
 CROSS JOIN (
     VALUES
-    ('Market Expansion', 'Expand into new geographic markets', 'in_progress', 'high', '2024-01-01', '2024-12-31', 75, 500000, 'CEO'),
+    ('Market Expansion', 'Expand into new geographic markets', 'in_progress', 'high', '2024-01-01', '2024-12-31', 75, 500000, 'Unified'),
     ('Product Innovation', 'Develop next-generation payment platform', 'in_progress', 'high', '2024-02-01', '2024-10-31', 60, 750000, 'CTO'),
     ('Customer Retention', 'Implement advanced customer success program', 'in_progress', 'medium', '2024-03-01', '2024-09-30', 85, 200000, 'VP Customer Success')
 ) AS initiative(title, description, status, priority, start_date, target_date, progress, budget, owner)

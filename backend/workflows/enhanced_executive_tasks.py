@@ -4,7 +4,7 @@
 ========================================
 
 Extends the existing business task system with executive-level tasks
-that leverage group-aware orchestration for CEO dashboard and
+that leverage group-aware orchestration for Unified dashboard and
 strategic decision support.
 
 Business Value:
@@ -37,7 +37,7 @@ class ExecutiveTaskType(Enum):
 @dataclass
 class ExecutiveBusinessIntelligence(BusinessTask):
     """
-    CEO dashboard queries requiring cross-group synthesis.
+    Unified dashboard queries requiring cross-group synthesis.
     Extends BusinessTask with executive-specific attributes.
     """
 

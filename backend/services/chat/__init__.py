@@ -14,14 +14,14 @@ from .providers.portkey_provider import PortkeyProvider
 from .session_manager import SessionManager
 from .sophia_chat_service import SophiaChatService
 from .unified_chat_service import UnifiedChatService
-from .universal_chat_service import UniversalChatService
+from .universal_chat_service import UnifiedChatService
 
 __all__ = [
     # Core Services
     "BaseChatService",
     "SophiaChatService",
     "ExecutiveChatService",
-    "UniversalChatService",
+    "UnifiedChatService",
     "UnifiedChatService",
     # Managers
     "SessionManager",

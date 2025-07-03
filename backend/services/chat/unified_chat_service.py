@@ -19,7 +19,7 @@ from .context_manager import ContextManager
 from .executive_chat_service import ExecutiveChatService
 from .session_manager import SessionManager
 from .sophia_chat_service import SophiaChatService
-from .universal_chat_service import UniversalChatService
+from .universal_chat_service import UnifiedChatService
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class UnifiedChatService:
     def _initialize_services(self):
         """Initialize all chat service implementations"""
         try:
-            self._services[ChatMode.UNIVERSAL] = UniversalChatService()
+            self._services[ChatMode.UNIVERSAL] = UnifiedChatService()
             self._services[ChatMode.SOPHIA] = SophiaChatService()
             self._services[ChatMode.EXECUTIVE] = ExecutiveChatService()
 

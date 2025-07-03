@@ -58,7 +58,7 @@ class EnterpriseAIEcosystemDeployer:
         if phase == "validate_prerequisites":
             return await self._validate_prerequisites()
         elif phase == "deploy_core_infrastructure":
-            return await self._run_pulumi_update("infrastructure/core")
+            return await self._run_pulumi_update("infrastructure")
         elif phase == "deploy_mcp_servers":
             return await self._deploy_all_mcp_servers()
         elif phase == "validate_deployment":
@@ -91,6 +91,12 @@ class EnterpriseAIEcosystemDeployer:
     async def _run_pulumi_update(self, path: str) -> str:
         """Run 'pulumi up' for a specific infrastructure component."""
         logger.info(f"Running Pulumi update for: {path}")
+        
+        # Install dependencies for TypeScript/JavaScript projects
+        if (Path(path) / "package.json").exists():
+            logger.info(f"Found package.json in {path}, installing dependencies with npm...")
+            await self._run_command(f"npm install --prefix {path}")
+
         command = f"pulumi up -C {path} -s {self.pulumi_stack} --yes --skip-preview"
         return await self._run_command(command)
 

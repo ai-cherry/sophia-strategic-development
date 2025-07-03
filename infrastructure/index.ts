@@ -492,7 +492,7 @@ export class StorageComponents extends pulumi.ComponentResource {
         const trainingDataBucket = new aws.s3.Bucket(`${name}-training-data`, {
             acl: "private",
             versioning: {
-                enabled: args.s3Config?.enableVersioning !== false, // Default to true
+                enabled: args.s3Config?.enableVersioning !== false,
             },
             serverSideEncryptionConfiguration: {
                 rule: {
@@ -502,55 +502,6 @@ export class StorageComponents extends pulumi.ComponentResource {
                     },
                 },
             },
-            lifecycleRules: [
-                {
-                    id: "training-data-lifecycle",
-                    enabled: true,
-                    prefix: "datasets/",
-                    transitions: [
-                        {
-                            days: lifecycleDays.standardIa,
-                            storageClass: "STANDARD_IA",
-                        },
-                        {
-                            days: lifecycleDays.glacier,
-                            storageClass: "GLACIER",
-                        },
-                    ],
-                    noncurrentVersionTransitions: [
-                        {
-                            days: 7,
-                            storageClass: "STANDARD_IA",
-                        },
-                        {
-                            days: 30,
-                            storageClass: "GLACIER",
-                        },
-                    ],
-                    noncurrentVersionExpiration: {
-                        days: lifecycleDays.expiration,
-                    },
-                },
-            ],
-            // Intelligent tiering for training data
-            ...(args.s3Config?.enableIntelligentTiering ? {
-                intelligentTieringConfigurations: [
-                    {
-                        name: "training-data-tiering",
-                        status: "Enabled",
-                        tierings: [
-                            {
-                                accessTier: "ARCHIVE_ACCESS",
-                                days: 90,
-                            },
-                            {
-                                accessTier: "DEEP_ARCHIVE_ACCESS",
-                                days: 180,
-                            },
-                        ],
-                    },
-                ],
-            } : {}),
             tags: {
                 ...tags,
                 Name: `${name}-training-data-${args.environment}`,

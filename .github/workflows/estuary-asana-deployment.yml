@@ -546,7 +546,7 @@ jobs
             echo "- ✅ Snowflake tables populated with Asana data" >> deployment_summary.md
             echo "- ✅ AI enrichment and embeddings generated" >> deployment_summary.md
             echo "- ✅ Project Management Dashboard updated" >> deployment_summary.md
-            echo "- ✅ Universal Chat Service enhanced with Asana queries" >> deployment_summary.md
+            echo "- ✅ Unified Chat Service enhanced with Asana queries" >> deployment_summary.md
           else
             echo "❌ **Asana integration deployment encountered issues**" >> deployment_summary.md
             echo "" >> deployment_summary.md

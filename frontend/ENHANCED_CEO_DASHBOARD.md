@@ -1,4 +1,4 @@
-# 🚀 Enhanced CEO Dashboard
+# 🚀 Enhanced Unified Dashboard
 
 A professional, executive-level dashboard built with React, ShadCN/UI, and glassmorphism design principles. Features Figma API integration for automated design token extraction and a comprehensive component library for business intelligence interfaces.
 
@@ -21,7 +21,7 @@ src/
 ├── components/
 │   ├── KPICard.jsx             # Professional KPI metric cards
 │   ├── ExecutiveChart.jsx       # Advanced chart components
-│   └── CEODashboard.jsx        # Main dashboard layout
+│   └── UnifiedDashboard.jsx        # Main dashboard layout
 └── App.jsx                     # Application entry point
 ```
 

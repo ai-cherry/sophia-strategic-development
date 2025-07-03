@@ -19,7 +19,7 @@ This diagram illustrates the journey of a user's query through the Sophia AI pla
 ```mermaid
 graph TD
     subgraph User Interface
-        A[Universal Chat Interface]
+        A[Unified Chat Interface]
     end
 
     subgraph N8N MCP Gateway
@@ -77,7 +77,7 @@ graph TD
 
 ## 3. Step-by-Step Data Flow
 
-1.  **User Query:** A user types a message (e.g., `"What was the outcome of our last call with ACME Corp?"`) into the **Universal Chat Interface**.
+1.  **User Query:** A user types a message (e.g., `"What was the outcome of our last call with ACME Corp?"`) into the **Unified Chat Interface**.
 
 2.  **Intent Detection (Gateway):** The query is sent to our central **N8N MCP Gateway**. The first step is an N8N workflow that performs initial Natural Language Understanding (NLU) to detect user intent (e.g., `recall_memory`, `query_snowflake`) and key entities (e.g., `"ACME Corp"`).
 
@@ -103,7 +103,7 @@ graph TD
 
 Knowledge is not static; it is constantly ingested into the Sophia AI ecosystem from multiple sources.
 
-### 4.1. Interactive Ingestion via Universal Chat
+### 4.1. Interactive Ingestion via Unified Chat
 -   **Mechanism:** Authorized users (especially those with high training impact) can directly teach Sophia.
 -   **Example Command:** `> @sophia ingest and index this document for our Q3 planning: [link]`
 -   **Process:** The AI uses a WebFetch tool to retrieve the content, then automatically triggers the chunking, meta-tagging, and embedding pipeline.
@@ -128,7 +128,7 @@ Once data is ingested, it goes through a sophisticated processing pipeline to ma
     -   `source`: (e.g., "Gong", "Slack", "Manual Upload")
     -   `author`: The user who created the content or uploaded the document.
     -   `timestamp`: The original creation date.
-    -   `security_level`: (e.g., "Public", "Internal", "Confidential", "CEO-Only")
+    -   `security_level`: (e.g., "Public", "Internal", "Confidential", "Unified-Only")
     -   `document_id`: A unique ID to group all chunks from the same source.
 3.  **Embedding & Semantic Search:** Each chunk is converted into a vector embedding using state-of-the-art models and stored in our vector database (Pinecone/Weaviate) for fast, accurate semantic search.
 
@@ -137,13 +137,13 @@ Once data is ingested, it goes through a sophisticated processing pipeline to ma
 This is a revolutionary feature that allows Sophia AI to be continuously trained and corrected by its users, with a system of weighted impact ensuring that expert knowledge is prioritized.
 
 ### 6.1. Natural Language Interaction
--   **Mechanism:** An authorized user can correct or teach Sophia directly within the Universal Chat Interface.
+-   **Mechanism:** An authorized user can correct or teach Sophia directly within the Unified Chat Interface.
 -   **Correction Example:** `> @sophia that's not quite right. The lead for 'Project Titan' is actually Maria, not Michael.`
 -   **Teaching Example:** `> @sophia let's establish a core definition. 'Customer Health Score' is a metric from 0-100 calculated based on product usage, NPS, and support ticket volume.`
 
 ### 6.2. The Weighting System
--   **CEO-Controlled User Impact:** In the user setup, the CEO can assign a **Training Impact Score (0.0 to 1.0)** to each user.
-    -   `CEO`: 1.0 (100% impact)
+-   **Unified-Controlled User Impact:** In the user setup, the Unified can assign a **Training Impact Score (0.0 to 1.0)** to each user.
+    -   `Unified`: 1.0 (100% impact)
     -   `Department Head`: 0.8 (80% impact)
     -   `Customer Service Rep`: 0.1 (10% impact)
 -   **How it Works:** When a user provides a correction or definition, the "truth" of that statement is recorded with a confidence score equal to their Training Impact Score. When conflicting information exists, the information from the user with the highest impact score is prioritized by the LLM during prompt synthesis.
@@ -155,7 +155,7 @@ This is a revolutionary feature that allows Sophia AI to be continuously trained
     ```
     ...
     <AuthoritativeKnowledge>
-    - Definition for 'Customer Health Score' provided by CEO (Impact: 1.0): [Definition Here]
+    - Definition for 'Customer Health Score' provided by Unified (Impact: 1.0): [Definition Here]
     - Correction for 'Project Titan' lead provided by Engineering Lead (Impact: 0.9): [Correction Here]
     </AuthoritativeKnowledge>
     ...
@@ -164,7 +164,7 @@ This is a revolutionary feature that allows Sophia AI to be continuously trained
 
 ## 7. Management & Curation
 
-The entire interactive training process, including the management of `authoritative_knowledge` and user `training_impact_score` values, is overseen through the **AI Training & Curation Dashboard**. This provides a dedicated, CEO-controlled interface to ensure the quality and integrity of the AI's learned knowledge base.
+The entire interactive training process, including the management of `authoritative_knowledge` and user `training_impact_score` values, is overseen through the **AI Training & Curation Dashboard**. This provides a dedicated, Unified-controlled interface to ensure the quality and integrity of the AI's learned knowledge base.
 
 ---
 
@@ -175,7 +175,7 @@ The intelligence of the Sophia AI platform is not static; it is a dynamic system
 ```mermaid
 graph TD
     subgraph "User Interaction (Reactive)"
-        U[Universal Chat Interface]
+        U[Unified Chat Interface]
         U -- "@sophia remember..." --> GW
     end
 
@@ -247,7 +247,7 @@ The intelligence of the Sophia AI platform is not static; it is a dynamic system
 ```mermaid
 graph TD
     subgraph "User Interaction (Reactive)"
-        U[Universal Chat Interface]
+        U[Unified Chat Interface]
         U -- "@sophia remember..." --> GW
     end
 

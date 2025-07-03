@@ -1,3 +1,3 @@
--- CEO_INTELLIGENCE schema content would be loaded from the existing file
--- This is a placeholder for the comprehensive CEO intelligence schema
+-- Unified_INTELLIGENCE schema content would be loaded from the existing file
+-- This is a placeholder for the comprehensive Unified intelligence schema
 -- that was created in the separate file above.

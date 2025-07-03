@@ -1,5 +1,5 @@
 # 🎯 Executive Natural Language Command Demo
-**Salesforce Migration Project - CEO Interface**
+**Salesforce Migration Project - Unified Interface**
 
 ---
 
@@ -71,7 +71,7 @@
 
 **What happens:**
 - 🚀 AI-orchestrated migration across all phases
-- 📊 Real-time progress updates in Notion CEO dashboard
+- 📊 Real-time progress updates in Notion Unified dashboard
 - 🤖 Automated error detection and recovery
 - ✅ Continuous data validation and quality assurance
 
@@ -161,7 +161,7 @@
 
 ---
 
-## 🎯 **Next Steps for CEO**
+## 🎯 **Next Steps for Unified**
 
 ### **Immediate Actions (Today)**
 1. **Review this demo** ✅ *Complete*

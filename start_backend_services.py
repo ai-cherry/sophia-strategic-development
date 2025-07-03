@@ -80,13 +80,13 @@ async def platform_health():
 
 if __name__ == "__main__":
     # Set environment variables for production
-    os.environ.setdefault("CEO_ACCESS_TOKEN", "sophia_ceo_access_2024")
+    os.environ.setdefault("Unified_ACCESS_TOKEN", "sophia_ceo_access_2024")
 
     logger.info("🚀 Starting Sophia AI Platform...")
     logger.info("📍 Chat Service: http://localhost:8000/chat")
     logger.info("📍 Knowledge API: http://localhost:8000/api/v1/knowledge")
     logger.info("📍 WebSocket: ws://localhost:8000/ws/chat/{user_id}")
     logger.info("📍 Documentation: http://localhost:8000/docs")
-    logger.info("🔑 CEO Access Token: sophia_ceo_access_2024")
+    logger.info("🔑 Unified Access Token: sophia_ceo_access_2024")
 
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info", reload=False)

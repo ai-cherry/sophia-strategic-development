@@ -15,11 +15,11 @@
   "dependencies": {
     "@pulumi/aws": "^5.30.0",
     "@pulumi/awsx": "^1.0.2",
+    "@pulumi/command": "^0.7.0",
     "@pulumi/eks": "^1.0.2",
     "@pulumi/kubernetes": "^3.24.0",
     "@pulumi/pulumi": "^3.55.0",
     "@pulumi/random": "^4.8.2",
-    "@pulumi/command": "^0.7.0",
     "@types/node": "^18.0.0"
   },
   "devDependencies": {
@@ -29,7 +29,7 @@
     "eslint": "^8.38.0",
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=16.0.0"

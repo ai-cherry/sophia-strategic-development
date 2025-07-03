@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mem0-openmemory-server
+  namespace: sophia-memory
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mem0-openmemory
+  template:
+    metadata:
+      labels:
+        app: mem0-openmemory
+    spec:
+      containers:
+      - name: mem0-openmemory-mcp
+        image: IMAGE_PLACEHOLDER # Replace with Docker Cloud image name/tag
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MEM0_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mem0-credentials
+              key: api-key
+        - name: MEM0_HOST
+          value: "mem0.sophia-lambda.svc"
+        - name: MEM0_PORT
+          value: "8765"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mem0-openmemory-service
+  namespace: sophia-memory
+spec:
+  selector:
+    app: mem0-openmemory
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+        

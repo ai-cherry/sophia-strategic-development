@@ -30,7 +30,7 @@ This roadmap translates the architectural vision outlined in the **Sophia AI Sys
 -   **Key Initiatives:**
     1.  **Deploy N8N in Queue Mode:** Reconfigure the N8N Docker deployment for high-throughput, horizontally-scalable production workloads to handle hundreds of concurrent AI agent requests.
     2.  **Centralize Observability:** Create a comprehensive Grafana dashboard. Pipe all N8N execution logs, MCP gateway metrics, and internal service health checks into this dashboard for a single-pane-of-glass view of the entire system's health.
-    3.  **Implement Enterprise Security:** Enforce strict Role-Based Access Control (RBAC) within N8N. Create credential mappings and workflows that ensure AI agents and users can only access the tools and data appropriate for their role (e.g., CEO, Sales, Engineering).
+    3.  **Implement Enterprise Security:** Enforce strict Role-Based Access Control (RBAC) within N8N. Create credential mappings and workflows that ensure AI agents and users can only access the tools and data appropriate for their role (e.g., Unified, Sales, Engineering).
 
 ### **Phase 3: Interactive Intelligence**
 
@@ -38,7 +38,7 @@ This roadmap translates the architectural vision outlined in the **Sophia AI Sys
 -   **Key Initiatives:**
     1.  **Build the Ingestion Pipeline:** Implement the UI-based and automated ingestion workflows for getting knowledge into the system (from file uploads, Slack channels, Gong calls, etc.). This includes building out the chunking, meta-tagging, and embedding processes.
     2.  **Activate the Training Loop:** Develop the UI components and backend logic for the natural language training interface.
-    3.  **Implement the User Impact Model:** Build the system for the CEO to assign "Training Impact Scores" to users. This involves updating the user model in the database and modifying the LLM prompt synthesizer to prioritize knowledge from high-impact users.
+    3.  **Implement the User Impact Model:** Build the system for the Unified to assign "Training Impact Scores" to users. This involves updating the user model in the database and modifying the LLM prompt synthesizer to prioritize knowledge from high-impact users.
 
 ### **Phase 4: CRM Modernization**
 
@@ -54,6 +54,6 @@ This roadmap translates the architectural vision outlined in the **Sophia AI Sys
 -   **Impact:** Ongoing innovation to maintain Sophia AI's position as a world-class AI orchestration platform.
 -   **Key Initiatives (Ongoing):**
     1.  **Expand the Toolset:** Continuously add new tools to the N8N gateway, focusing on high-value integrations and patterns from our strategic repository collection.
-    2.  **Evolve the UI:** Enhance the Universal Chat Interface and dashboards based on user feedback.
+    2.  **Evolve the UI:** Enhance the Unified Chat Interface and dashboards based on user feedback.
     3.  **Optimize Performance:** Regularly review system performance metrics and optimize bottlenecks in N8N workflows, database queries, and AI model routing.
     4.  **Refine the Training Model:** Evolve the user impact model to support context-specific expertise (e.g., weighting a sales leader's input higher on sales-related topics).

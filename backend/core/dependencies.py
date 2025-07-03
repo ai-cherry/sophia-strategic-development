@@ -12,21 +12,21 @@ from functools import lru_cache
 # Import the chat service
 try:
     from backend.services.sophia_universal_chat_service import (
-        SophiaUniversalChatService,
+        SophiaUnifiedChatService,
     )
 
     CHAT_SERVICE_AVAILABLE = True
 except ImportError:
     try:
         from backend.services.enhanced_unified_chat_service import (
-            EnhancedUnifiedChatService as SophiaUniversalChatService,
+            EnhancedUnifiedChatService as SophiaUnifiedChatService,
         )
 
         CHAT_SERVICE_AVAILABLE = True
     except ImportError:
         CHAT_SERVICE_AVAILABLE = False
 
-        class SophiaUniversalChatService:
+        class SophiaUnifiedChatService:
             """Mock chat service for when import fails"""
 
             def __init__(self):
@@ -34,7 +34,7 @@ except ImportError:
 
 
 # Global instance (singleton pattern)
-_chat_service_instance: SophiaUniversalChatService | None = None
+_chat_service_instance: SophiaUnifiedChatService | None = None
 
 
 @lru_cache
@@ -44,7 +44,7 @@ def get_config_service():
     return True
 
 
-async def get_chat_service() -> SophiaUniversalChatService:
+async def get_chat_service() -> SophiaUnifiedChatService:
     """
     Get the chat service instance.
 
@@ -56,15 +56,15 @@ async def get_chat_service() -> SophiaUniversalChatService:
     if _chat_service_instance is None:
         if CHAT_SERVICE_AVAILABLE:
             try:
-                _chat_service_instance = SophiaUniversalChatService()
+                _chat_service_instance = SophiaUnifiedChatService()
                 # Add any initialization logic here
             except Exception as e:
                 print(f"Warning: Failed to initialize chat service: {e}")
                 # Create a mock instance
-                _chat_service_instance = SophiaUniversalChatService()
+                _chat_service_instance = SophiaUnifiedChatService()
         else:
             print("Warning: Chat service not available, using mock")
-            _chat_service_instance = SophiaUniversalChatService()
+            _chat_service_instance = SophiaUnifiedChatService()
 
     return _chat_service_instance
 

@@ -800,7 +800,7 @@ BEGIN
         EMPLOYEE_ID, FIRST_NAME, LAST_NAME, EMAIL_ADDRESS, DEPARTMENT, JOB_TITLE, 
         EMPLOYEE_LEVEL, HIRE_DATE, EMPLOYMENT_STATUS, LOCATION, PRIMARY_SKILLS
     ) VALUES 
-    ('emp_001', 'Lynn', 'Musil', 'lynn@payready.com', 'Executive', 'CEO', 'C-Level', '2020-01-01', 'Active', 'Remote', 
+    ('emp_001', 'Lynn', 'Musil', 'lynn@payready.com', 'Executive', 'Unified', 'C-Level', '2020-01-01', 'Active', 'Remote', 
      PARSE_JSON('["Strategic Planning", "Business Development", "Leadership", "Product Strategy"]')),
     ('emp_002', 'John', 'Smith', 'john.smith@payready.com', 'Sales', 'VP of Sales', 'VP', '2020-06-01', 'Active', 'New York', 
      PARSE_JSON('["Sales Strategy", "Team Leadership", "Customer Relations", "Revenue Growth"]')),

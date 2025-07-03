@@ -16,7 +16,7 @@ def get_current_user() -> dict[str, Any]:
     """
     return {
         "id": "dev_user_001",
-        "role": "ceo",  # Default to CEO role for testing
+        "role": "ceo",  # Default to Unified role for testing
         "department": "executive",
         "name": "Development User",
         "email": "dev@sophia-ai.com",

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Universal Virtual Environment Enforcer for Sophia AI
+# Unified Virtual Environment Enforcer for Sophia AI
 # This script ensures any operation runs in the correct virtual environment
 
 set -e
