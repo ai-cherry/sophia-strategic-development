@@ -10,6 +10,8 @@ from enum import Enum
 import logging
 from datetime import datetime
 
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService, CortexModel
+
 logger = logging.getLogger(__name__)
 
 
@@ -66,6 +68,8 @@ class CortexRouter:
             model: {"count": 0, "total_cost": 0.0, "total_tokens": 0}
             for model in ModelType
         }
+        # Use existing Snowflake Cortex Service
+        self.cortex_service = SnowflakeCortexService()
     
     async def route_request(
         self,
@@ -120,6 +124,75 @@ class CortexRouter:
         )
         
         return model, temperature, metadata
+    
+    async def execute_with_routing(
+        self,
+        query: str,
+        intent: Optional[IntentType] = None,
+        complexity: Optional[float] = None,
+        max_cost: Optional[float] = None,
+        required_capabilities: Optional[list] = None,
+        context: Optional[str] = None,
+        max_tokens: int = 500
+    ) -> Tuple[str, Dict[str, Any]]:
+        """
+        Route and execute request using the appropriate model.
+        
+        Args:
+            query: User query
+            intent: Detected intent type
+            complexity: Complexity score (0-1)
+            max_cost: Maximum cost constraint
+            required_capabilities: List of required model capabilities
+            context: Additional context for the query
+            max_tokens: Maximum tokens for response
+            
+        Returns:
+            Tuple of (response, metadata)
+        """
+        # Route to appropriate model
+        model, temperature, routing_metadata = await self.route_request(
+            query, intent, complexity, max_cost, required_capabilities
+        )
+        
+        # Map our ModelType to CortexModel enum from the existing service
+        cortex_model_map = {
+            ModelType.MISTRAL_7B: CortexModel.MISTRAL_7B,
+            ModelType.LLAMA3_8B: CortexModel.LLAMA2_70B,  # Using LLAMA2 as closest alternative
+            ModelType.LLAMA3_70B: CortexModel.LLAMA2_70B,
+            ModelType.SNOWFLAKE_ARCTIC: CortexModel.MISTRAL_LARGE,  # Using largest available
+            ModelType.REKA_CORE: CortexModel.MIXTRAL_8X7B,  # Using Mixtral for multimodal
+        }
+        
+        cortex_model = cortex_model_map.get(model, CortexModel.LLAMA2_70B)
+        
+        # Execute using existing Cortex service
+        try:
+            response = await self.cortex_service.complete_text_with_cortex(
+                prompt=query,
+                model=cortex_model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                context=context
+            )
+            
+            # Add execution metadata
+            metadata = {
+                **routing_metadata,
+                "response_length": len(response),
+                "execution_success": True
+            }
+            
+            return response, metadata
+            
+        except Exception as e:
+            logger.error(f"Error executing with Cortex: {e}")
+            metadata = {
+                **routing_metadata,
+                "execution_success": False,
+                "error": str(e)
+            }
+            return "", metadata
     
     async def _detect_intent(self, query: str) -> IntentType:
         """Detect user intent from query"""
