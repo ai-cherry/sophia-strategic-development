@@ -8,8 +8,9 @@ import json
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Body
 from pydantic import BaseModel, Field
 import httpx
 import numpy as np
@@ -20,10 +21,55 @@ from backend.services.mem0_integration_service import get_mem0_service
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+# Global service instance
+optimizer_service = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown"""
+    global optimizer_service
+    
+    # Startup
+    logger.info("🚀 Starting Prompt Optimizer MCP Server")
+    optimizer_service = PromptOptimizerService()
+    
+    # Initialize default templates
+    default_templates = [
+        PromptTemplate(
+            name="Business Analysis",
+            category="analysis",
+            template="You are a business analyst. Analyze {topic} considering:\n1. Current state\n2. Key challenges\n3. Opportunities\n4. Recommendations\n\nFocus on actionable insights for {audience}."
+        ),
+        PromptTemplate(
+            name="Code Review",
+            category="development",
+            template="Review the following {language} code for:\n- Code quality and best practices\n- Potential bugs or issues\n- Performance considerations\n- Security concerns\n\nCode:\n{code}\n\nProvide specific suggestions for improvement."
+        ),
+        PromptTemplate(
+            name="Sales Email",
+            category="sales",
+            template="Write a professional sales email to {recipient_name} at {company} about {product}.\n\nKey points to cover:\n- {value_proposition}\n- {call_to_action}\n\nTone: {tone}\nLength: {length}"
+        )
+    ]
+    
+    for template in default_templates:
+        await optimizer_service.create_template(template)
+    
+    logger.info(f"✅ Loaded {len(default_templates)} default templates")
+    
+    yield
+    
+    # Shutdown
+    logger.info("👋 Shutting down Prompt Optimizer MCP Server")
+
+
 app = FastAPI(
     title="Prompt Optimizer MCP Server",
     description="Intelligent prompt optimization and management for Sophia AI",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 
@@ -56,6 +102,11 @@ class PromptAnalysisResult(BaseModel):
     overall_score: float = Field(..., description="Overall quality score (0-1)")
     suggestions: List[str] = Field(default_factory=list, description="Improvement suggestions")
     token_count: int = Field(..., description="Estimated token count")
+
+
+class FeedbackRequest(BaseModel):
+    """Request model for template feedback"""
+    feedback_score: float = Field(..., ge=0, le=1, description="Feedback score between 0 and 1")
 
 
 class PromptOptimizerService:
@@ -268,40 +319,6 @@ class PromptOptimizerService:
         template.updated_at = datetime.now()
 
 
-# Global service instance
-optimizer_service = PromptOptimizerService()
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize the service on startup"""
-    logger.info("🚀 Starting Prompt Optimizer MCP Server")
-    
-    # Initialize default templates
-    default_templates = [
-        PromptTemplate(
-            name="Business Analysis",
-            category="analysis",
-            template="You are a business analyst. Analyze {topic} considering:\n1. Current state\n2. Key challenges\n3. Opportunities\n4. Recommendations\n\nFocus on actionable insights for {audience}."
-        ),
-        PromptTemplate(
-            name="Code Review",
-            category="development",
-            template="Review the following {language} code for:\n- Code quality and best practices\n- Potential bugs or issues\n- Performance considerations\n- Security concerns\n\nCode:\n{code}\n\nProvide specific suggestions for improvement."
-        ),
-        PromptTemplate(
-            name="Sales Email",
-            category="sales",
-            template="Write a professional sales email to {recipient_name} at {company} about {product}.\n\nKey points to cover:\n- {value_proposition}\n- {call_to_action}\n\nTone: {tone}\nLength: {length}"
-        )
-    ]
-    
-    for template in default_templates:
-        await optimizer_service.create_template(template)
-    
-    logger.info(f"✅ Loaded {len(default_templates)} default templates")
-
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -309,13 +326,15 @@ async def health_check():
         "status": "healthy",
         "service": "prompt_optimizer",
         "timestamp": datetime.now().isoformat(),
-        "templates_count": len(optimizer_service.templates)
+        "templates_count": len(optimizer_service.templates) if optimizer_service else 0
     }
 
 
 @app.post("/analyze", response_model=PromptAnalysisResult)
-async def analyze_prompt(prompt: str):
+async def analyze_prompt(prompt: str = Body(..., embed=True)):
     """Analyze a prompt for quality and structure"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     try:
         result = await optimizer_service.analyze_prompt(prompt)
         return result
@@ -327,6 +346,8 @@ async def analyze_prompt(prompt: str):
 @app.post("/optimize")
 async def optimize_prompt(request: PromptOptimizationRequest):
     """Optimize a prompt for better performance"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     try:
         optimized = await optimizer_service.optimize_prompt(
             request.prompt,
@@ -356,6 +377,8 @@ async def optimize_prompt(request: PromptOptimizationRequest):
 @app.post("/templates", response_model=PromptTemplate)
 async def create_template(template: PromptTemplate):
     """Create a new prompt template"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     try:
         created = await optimizer_service.create_template(template)
         return created
@@ -367,6 +390,8 @@ async def create_template(template: PromptTemplate):
 @app.get("/templates", response_model=List[PromptTemplate])
 async def list_templates(category: Optional[str] = None):
     """List all templates"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     try:
         templates = await optimizer_service.list_templates(category)
         return templates
@@ -378,6 +403,8 @@ async def list_templates(category: Optional[str] = None):
 @app.get("/templates/{template_id}", response_model=PromptTemplate)
 async def get_template(template_id: str):
     """Get a specific template"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     template = await optimizer_service.get_template(template_id)
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
@@ -387,6 +414,8 @@ async def get_template(template_id: str):
 @app.post("/templates/{template_id}/apply")
 async def apply_template(template_id: str, variables: Dict[str, str]):
     """Apply variables to a template"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     try:
         result = await optimizer_service.apply_template(template_id, variables)
         return {"result": result}
@@ -400,11 +429,13 @@ async def apply_template(template_id: str, variables: Dict[str, str]):
 @app.post("/templates/{template_id}/feedback")
 async def update_template_feedback(
     template_id: str,
-    feedback_score: float = Field(..., ge=0, le=1)
+    request: FeedbackRequest
 ):
     """Update template performance based on feedback"""
+    if not optimizer_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
     try:
-        await optimizer_service.update_template_performance(template_id, feedback_score)
+        await optimizer_service.update_template_performance(template_id, request.feedback_score)
         return {"status": "success", "message": "Feedback recorded"}
     except Exception as e:
         logger.error(f"Error updating template feedback: {e}")
@@ -414,8 +445,8 @@ async def update_template_feedback(
 @app.get("/history")
 async def get_optimization_history(limit: int = 10):
     """Get recent optimization history"""
-    history = optimizer_service.optimization_history[-limit:]
-    return {"history": history, "total": len(optimizer_service.optimization_history)}
+    history = optimizer_service.optimization_history[-limit:] if optimizer_service else []
+    return {"history": history, "total": len(optimizer_service.optimization_history) if optimizer_service else 0}
 
 
 if __name__ == "__main__":
