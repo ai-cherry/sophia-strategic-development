@@ -11,7 +11,7 @@ from functools import lru_cache
 
 # Import the chat service
 try:
-    from backend.services.sophia_universal_chat_service import (
+    from backend.services.unified_chat_service import (
         SophiaUnifiedChatService,
     )
 

@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisco
 from pydantic import BaseModel, Field
 
 # Import the enhanced chat service
-from backend.services.enhanced_universal_chat_service import (
+from backend.services.unified_chat_service import (
     ChatResponse,
     EnhancedUnifiedChatService,
     universal_chat_service,

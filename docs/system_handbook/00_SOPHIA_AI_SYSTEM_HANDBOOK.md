@@ -723,3 +723,107 @@ For complete implementation details, see:
 - **Unified FastAPI App**: Single backend application
 - **Dockcloud Deployment**: Lambda Labs infrastructure only
 - **Enterprise Secrets**: GitHub Org Secrets → Pulumi ESC → Containers
+
+---
+
+## 📚 Table of Contents
+
+1. [🏗️ System Architecture](#system-architecture)
+2. [🔧 Core Components](#core-components)
+3. [🌊 Data Flow](#data-flow)
+4. [🔐 Security & Authentication](#security--authentication)
+5. [🚀 Deployment & Operations](#deployment--operations)
+6. [📈 Performance & Scaling](#performance--scaling)
+7. [🔄 Monorepo Transformation](#monorepo-transformation)
+8. [🎯 Unified Interface Architecture](#unified-interface-architecture)
+9. [🛠️ Development Guidelines](#development-guidelines)
+10. [📊 Business Intelligence](#business-intelligence)
+11. [🔮 Future Roadmap](#future-roadmap)
+
+---
+
+## 🎯 Unified Interface Architecture
+
+> **CRITICAL**: Sophia AI uses a SINGLE unified dashboard and SINGLE chat interface. There are no separate CEO, Executive, or Admin dashboards.
+
+### Frontend Architecture (✅ Already Unified)
+
+The frontend implements a clean, unified architecture:
+
+```
+frontend/src/components/
+├── dashboard/
+│   └── UnifiedDashboard.tsx    # THE ONLY DASHBOARD (with 5 tabs)
+└── shared/
+    └── EnhancedUnifiedChat.tsx  # THE ONLY CHAT INTERFACE
+```
+
+#### UnifiedDashboard.tsx
+- **Location**: `frontend/src/components/dashboard/UnifiedDashboard.tsx`
+- **Purpose**: Single dashboard with role-based content adaptation
+- **Tabs**:
+  1. **Unified Overview** - Executive KPIs and metrics
+  2. **Projects & OKRs** - Cross-platform project management
+  3. **Knowledge AI** - Data ingestion and AI learning metrics
+  4. **Sales Intelligence** - Pipeline and deal analytics
+  5. **Unified Chat** - Integrated chat interface (embeds EnhancedUnifiedChat)
+
+#### EnhancedUnifiedChat.tsx
+- **Location**: `frontend/src/components/shared/EnhancedUnifiedChat.tsx`
+- **Purpose**: Single chat interface with context switching
+- **Contexts**:
+  - Business Intelligence
+  - CEO Deep Research
+  - Internal Only
+  - Blended Intelligence
+- **Features**:
+  - WebSocket real-time communication
+  - Source attribution
+  - Suggested follow-up questions
+  - Role-based access control
+
+### Backend Architecture (🔄 Consolidation in Progress)
+
+The backend is being consolidated into a unified architecture:
+
+#### Target State:
+```
+backend/
+├── services/
+│   └── unified_chat_service.py      # THE ONLY CHAT SERVICE
+├── api/
+│   └── unified_routes.py            # THE ONLY API ROUTES
+└── models/
+    └── chat_models.py               # Shared data models
+```
+
+#### Key Principles:
+1. **Single Service Entry Point** - All chat logic in UnifiedChatService
+2. **Context-Based Routing** - Internal routing based on chat context
+3. **Role-Based Access Control** - CEO, Executive, Manager, Employee levels
+4. **Unified Data Models** - Consistent request/response models
+
+### Access Control
+
+The unified interfaces adapt content based on user role:
+
+```python
+class AccessLevel(Enum):
+    CEO = "ceo"         # Full access to all features and data
+    EXECUTIVE = "executive"  # Access to strategic features
+    MANAGER = "manager"     # Access to team and project data
+    EMPLOYEE = "employee"   # Basic access to relevant data
+```
+
+### Important Notes
+
+1. **No Multiple Dashboards** - Despite legacy references in documentation, there is only ONE dashboard
+2. **No Multiple Chat Services** - Backend consolidation will result in ONE chat service
+3. **Role-Based Adaptation** - The same interfaces show different content based on user role
+4. **Context Switching** - Chat interface can switch contexts, not interfaces
+
+---
+
+**END OF HANDBOOK**
+
+*This document represents the complete, authoritative architecture for Sophia AI. Any conflicts between this handbook and other documentation should be resolved in favor of this document. The Phoenix has risen.*

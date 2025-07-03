@@ -33,7 +33,7 @@ from backend.api import (
     mcp_integration_routes,
     notion_integration_routes,
     slack_linear_knowledge_routes,
-    enhanced_unified_chat_routes as chat_routes,
+    unified_routes,
     foundational_knowledge_routes as knowledge_base_routes,
     ceo_dashboard_routes as monitoring_routes,
 )
@@ -312,7 +312,7 @@ class UnifiedFastAPIApp:
 
         # Include all route modules
         routers = [
-            (chat_routes.router, "/api/v3", ["Chat"]),
+            (unified_routes.router, "/api/v1", ["Unified API"]),
             (mcp_integration_routes.router, "/api", ["MCP"]),
             (knowledge_base_routes.router, "/api/v3", ["Knowledge Base"]),
             (slack_linear_knowledge_routes.router, "/api/v3", ["Integrations"]),
