@@ -5,11 +5,11 @@
 ## **⚡ 30-Second Setup**
 
 ```bash
-# 1. Start all MCP servers
-docker-compose up -d
+# 1. Connect to Lambda Labs deployment
+# Services are already running on 104.171.202.64
 
-# 2. Verify Sophia AI is running
-curl http://localhost:8092/health
+# 2. Verify Sophia AI is accessible
+# Check with your team for the service endpoints
 
 # 3. Start coding!
 # In Cursor IDE, just type:
@@ -200,29 +200,29 @@ quality_tasks:
 
 **Sophia not responding?**
 ```bash
-# Check health
-curl http://localhost:8092/health
+# Check with team for service status
+# Services run on Lambda Labs cloud infrastructure
 
-# Restart if needed
-docker-compose restart sophia-intelligence
+# Contact DevOps if services are down
+# All services are managed via Docker Swarm
 ```
 
 **Codacy not analyzing?**
 ```bash
-# Check Codacy token
-echo $CODACY_API_TOKEN
+# Verify Codacy integration in Cursor settings
+# Token is managed via Pulumi ESC (no local tokens)
 
-# Test connection
-curl http://localhost:3008/health
+# Check MCP server configuration
+cat cursor_enhanced_mcp_config.json | grep codacy
 ```
 
 **Memory not storing?**
 ```bash
-# Check AI Memory status
-curl http://localhost:9000/health
+# AI Memory runs on cloud infrastructure
+# Check MCP configuration for correct endpoints
 
-# View recent memories
-curl http://localhost:9000/memories/recent
+# Verify connection in Cursor logs
+# View > Output > MCP Logs
 ```
 
 ## **📚 Quick Reference**

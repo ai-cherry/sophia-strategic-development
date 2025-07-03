@@ -174,22 +174,37 @@ The external repository collection enables:
    # Add to ~/.bashrc, ~/.zshrc, ~/.profile
    ```
 
-### **🐳 DOCKER & CONTAINER ENVIRONMENT RULES**
+### **🐳 DOCKER CLOUD DEPLOYMENT RULES**
 
-1. **ALL containers MUST inherit environment:**
+1. **ALL Docker deployments target Lambda Labs (NOT local):**
+   ```yaml
+   # Primary deployment: docker-compose.cloud.yml
+   # Target: 104.171.202.64 (Lambda Labs)
+   # Registry: scoobyjava15 (Docker Hub)
+   # Orchestration: Docker Swarm
+   ```
+
+2. **Container environment configuration:**
    ```dockerfile
    ENV ENVIRONMENT=prod
    ENV PULUMI_ORG=scoobyjava-org
-   ENV PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
+   # Secrets via Docker Secrets, NOT environment variables
    ```
 
-2. **Docker Compose MUST include environment:**
+3. **Docker Compose for production MUST use:**
    ```yaml
-   environment:
-     - ENVIRONMENT=prod
-     - PULUMI_ORG=scoobyjava-org
-     - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
+   # docker-compose.cloud.yml with:
+   - mode: replicated  # Swarm mode
+   - secrets:          # Docker secrets
+   - deploy:           # Swarm deployment config
+   - healthcheck:      # Required for all services
    ```
+
+4. **NEVER use local Docker deployment:**
+   - ❌ No `docker-compose up` locally
+   - ❌ No `.env` files  
+   - ✅ Use `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
+   - ✅ All secrets via Pulumi ESC
 
 ### **🔧 MCP SERVER ENVIRONMENT RULES**
 
@@ -524,10 +539,13 @@ external/              # 🆕 Strategic MCP repository collection
 - Include confidence scores in AI responses
 
 ## Deployment Considerations
-- Target Lambda Labs for production deployment
-- Use Docker for containerization
-- Implement zero-downtime deployment strategies
-- Include environment-specific configurations
+- **Target**: Lambda Labs infrastructure ONLY (104.171.202.64)
+- **Docker Cloud**: Use docker-compose.cloud.yml with Docker Swarm
+- **Registry**: Push all images to scoobyjava15 Docker Hub
+- **Secrets**: All secrets via Pulumi ESC (NO .env files)
+- **Deployment**: `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
+- **Scaling**: Use Swarm replicas and resource limits
+- **Zero-downtime**: Rolling updates with health checks
 
 ## Performance Requirements
 - API response times < 200ms for critical paths

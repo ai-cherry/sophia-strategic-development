@@ -233,7 +233,7 @@
 
 ### **Compose Operations**
 ```bash
-@docker compose up all services
+@docker check service status on Lambda Labs
 
 @docker restart the database container
 

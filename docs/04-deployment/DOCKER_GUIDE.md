@@ -1,33 +1,33 @@
-# Docker Deployment Guide
+# Docker Cloud Deployment Guide
 
 ## Overview
 
-Sophia AI uses a streamlined Docker setup with multi-stage builds and UV for fast, efficient containerization. This guide covers development, testing, and production deployment.
+Sophia AI uses Docker Cloud deployment with Docker Swarm orchestration on Lambda Labs infrastructure. This guide covers building, testing, and production deployment to our cloud infrastructure.
 
 ## Quick Start
 
-### Development
+### Lambda Labs Deployment
 
 ```bash
-# Start all services in development mode
-docker-compose up
+# SSH to Lambda Labs instance
+ssh ubuntu@104.171.202.64
 
-# Start with specific services
-docker-compose up sophia-backend redis postgres
+# Initialize Docker Swarm (first time only)
+docker swarm init
 
-# Start with development tools
-docker-compose --profile dev-tools up
+# Deploy the stack
+docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod
+
+# Check services
+docker stack services sophia-ai-prod
 ```
 
-### Production
+### ⚠️ Important: NO Local Docker Deployment
 
-```bash
-# Build and start production services
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-
-# Scale services
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale sophia-backend=3
-```
+- **All deployments target Lambda Labs infrastructure**
+- **Use docker-compose.cloud.yml for production**
+- **Secrets managed via Pulumi ESC (no .env files)**
+- **Registry: scoobyjava15 on Docker Hub**
 
 ## Architecture
 
@@ -36,16 +36,17 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale so
 Our canonical `Dockerfile` uses multi-stage builds:
 
 1. **base**: Common setup for all stages
-2. **dependencies**: UV-based dependency installation
+2. **dependencies**: UV-based dependency installation  
 3. **production**: Minimal runtime with only necessary files
-4. **development**: Full source with hot reload
+4. **development**: Full source (for building only)
 5. **testing**: Test execution environment
 
 ### Docker Compose Structure
 
-- `docker-compose.yml`: Base configuration
-- `docker-compose.override.yml`: Development overrides (auto-loaded)
-- `docker-compose.prod.yml`: Production settings
+- `docker-compose.cloud.yml`: Production Swarm configuration (PRIMARY)
+- `docker-compose.yml`: Base configuration reference
+- `docker-compose.override.yml`: Local development overrides (reference only)
+- `docker-compose.prod.yml`: Production overrides
 
 ## Services
 
@@ -53,240 +54,286 @@ Our canonical `Dockerfile` uses multi-stage builds:
 
 #### sophia-backend
 - Main FastAPI application
-- Port: 8000
+- Port: 8000 (published)
+- Replicas: 3-10 (auto-scaling)
 - Health endpoint: `/api/health`
 
-#### mem0-server
+#### mem0-server  
 - Memory management MCP server
-- Port: 8080
-- Requires: MEM0_API_KEY
+- Port: 8080 (published)
+- Replicas: 2-5
+- Secrets: Via Docker Secrets
 
-#### cortex-server
+#### cortex-aisql-server
 - Snowflake Cortex AI integration
-- Port: 8081
-- Requires: Snowflake credentials
+- Port: 8080 (internal), 8080 (published)
+- Replicas: 2-5
+- Secrets: Via Docker Secrets
 
 ### Infrastructure
 
 #### redis
 - Session and cache storage
 - Port: 6379
-- Persistence: AOF enabled
+- Mode: Replicated with persistence
+- Resource limits: 1GB RAM
 
 #### postgres
 - Primary database
-- Port: 5432
+- Port: 5432 (internal only)
 - Version: PostgreSQL 16
+- Persistent volume on Lambda Labs
 
-### Development Tools
+## Building and Pushing Images
 
-#### pgadmin
-- Database management UI
-- Port: 5050
-- Profile: `tools`
-
-#### mailhog
-- Email testing
-- SMTP: 1025
-- Web UI: 8025
-- Profile: `dev-tools`
-
-#### jupyter
-- Data exploration
-- Port: 8888
-- Profile: `dev-tools`
-
-## Building Images
-
-### Development Build
+### Build for Production
 
 ```bash
-# Build with development target
-docker build --target development -t sophia-ai:dev .
+# Build production image
+docker build --target production -t scoobyjava15/sophia-ai:latest .
 
-# Build specific MCP server
+# Build with specific version
+docker build --target production -t scoobyjava15/sophia-ai:v1.2.3 .
+
+# Build MCP server
 docker build -f docker/Dockerfile.mcp-server \
-  --build-arg MCP_SERVER_PATH=backend/mcp_servers/mem0_openmemory \
-  --build-arg MCP_SERVER_MODULE=enhanced_mem0_server \
-  -t mem0-server:latest .
+  -t scoobyjava15/sophia-mcp:latest .
 ```
 
-### Production Build
+### Push to Registry
 
 ```bash
-# Build with production target
-docker build --target production -t sophia-ai:prod .
+# Login to Docker Hub
+docker login -u scoobyjava15
 
-# Build with cache
-docker build --cache-from sophia-ai:cache --target production -t sophia-ai:prod .
+# Push images
+docker push scoobyjava15/sophia-ai:latest
+docker push scoobyjava15/sophia-ai:v1.2.3
+docker push scoobyjava15/sophia-mcp:latest
 ```
 
-## Environment Variables
+## Secret Management
 
-### Required
+### Pulumi ESC Integration
+
+All secrets are managed through Pulumi ESC:
 
 ```bash
-# Pulumi ESC
-PULUMI_ORG=scoobyjava-org
-PULUMI_ACCESS_TOKEN=<your-token>
-
-# Database
-POSTGRES_PASSWORD=<secure-password>
-
-# MCP Servers
-MEM0_API_KEY=<mem0-key>
-SNOWFLAKE_ACCOUNT=<account>
-SNOWFLAKE_USER=<user>
-SNOWFLAKE_PASSWORD=<password>
+# Secrets are automatically available via:
+# - GitHub Organization → Pulumi ESC → Docker Secrets
+# - No manual .env files needed
 ```
 
-### Optional
-
-```bash
-# Ports
-BACKEND_PORT=8000
-REDIS_PORT=6379
-POSTGRES_PORT=5432
-
-# Environment
-ENVIRONMENT=dev|staging|prod
-LOG_LEVEL=DEBUG|INFO|WARNING|ERROR
-
-# Build
-BUILD_TARGET=development|production
-PYTHON_VERSION=3.12
-```
-
-## Networking
-
-All services use the `sophia-network` bridge network with subnet `172.20.0.0/16`.
-
-Internal service communication:
-- Backend → Redis: `redis:6379`
-- Backend → Postgres: `postgres:5432`
-- Backend → MCP: `mem0-server:8080`
-
-## Volumes
-
-### Persistent Data
-
-- `redis_data`: Redis persistence
-- `postgres_data`: PostgreSQL data
-- `prometheus_data`: Metrics storage
-- `grafana_data`: Dashboard config
-
-### Development Mounts
+### Docker Secrets
 
 ```yaml
-volumes:
-  - ./backend:/app/backend:cached
-  - ./config:/app/config:cached
+secrets:
+  postgres_password:
+    external: true
+  snowflake_account:
+    external: true
+  openai_api_key:
+    external: true
 ```
 
-## Health Checks
+## Deployment Commands
 
-All services include health checks:
+### Deploy Stack
 
 ```bash
-# Check all services
-docker-compose ps
+# Deploy or update the stack
+docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod
 
-# Check specific service health
-docker inspect sophia-backend | jq '.[0].State.Health'
+# Deploy with specific image version
+IMAGE_TAG=v1.2.3 docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod
+```
+
+### Scale Services
+
+```bash
+# Scale backend service
+docker service scale sophia-ai-prod_sophia-backend=5
+
+# Scale MCP servers
+docker service scale sophia-ai-prod_mem0-server=3
+docker service scale sophia-ai-prod_cortex-aisql-server=4
+```
+
+### Update Services
+
+```bash
+# Update with new image
+docker service update --image scoobyjava15/sophia-ai:v2.0 sophia-ai-prod_sophia-backend
+
+# Rolling update with health checks
+docker service update --update-parallelism 1 --update-delay 30s sophia-ai-prod_sophia-backend
 ```
 
 ## Monitoring
+
+### Service Status
+
+```bash
+# Check all services
+docker stack services sophia-ai-prod
+
+# Check service details
+docker service ps sophia-ai-prod_sophia-backend
+
+# View logs
+docker service logs --tail 100 sophia-ai-prod_sophia-backend
+docker service logs -f sophia-ai-prod_sophia-backend
+```
+
+### Health Checks
+
+All services include health checks:
+
+```yaml
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+```
+
+### Metrics
 
 Production deployment includes:
 
 - **Prometheus**: Metrics collection (port 9090)
 - **Grafana**: Dashboards (port 3001)
+- **Metrics endpoint**: `/metrics` on each service
+
+## Networking
+
+### Overlay Network
+
+Docker Swarm uses overlay network for service communication:
+
+```yaml
+networks:
+  sophia-overlay:
+    driver: overlay
+    attachable: true
+```
+
+### Service Discovery
+
+Internal service communication via service names:
+- Backend → Redis: `redis:6379`
+- Backend → Postgres: `postgres:5432`  
+- Backend → MCP: `mem0-server:8080`
+
+## Volumes
+
+### Persistent Storage
+
+All persistent data stored on Lambda Labs NVMe:
+
+```yaml
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      device: /mnt/nvme/postgres
+  redis_data:
+    driver: local
+    driver_opts:
+      device: /mnt/nvme/redis
+```
 
 ## Troubleshooting
 
-### Build Issues
+### SSH to Lambda Labs
 
 ```bash
-# Clean build without cache
-docker build --no-cache -t sophia-ai:dev .
+# Connect to instance
+ssh ubuntu@104.171.202.64
 
-# Check build context size
-du -sh .
+# Check Docker status
+docker node ls
+docker stack ps sophia-ai-prod
 ```
 
-### Container Logs
+### Service Issues
 
 ```bash
-# View logs
-docker-compose logs -f sophia-backend
+# Check failing service
+docker service ps sophia-ai-prod_sophia-backend --no-trunc
 
-# View last 100 lines
-docker-compose logs --tail=100 sophia-backend
-```
+# View error logs
+docker service logs sophia-ai-prod_sophia-backend 2>&1 | grep ERROR
 
-### Shell Access
-
-```bash
-# Development container
-docker-compose exec sophia-backend /bin/bash
-
-# Production container (no shell)
-docker-compose exec sophia-backend python -c "print('test')"
+# Force service update
+docker service update --force sophia-ai-prod_sophia-backend
 ```
 
 ### Resource Usage
 
 ```bash
-# Check resource usage
-docker stats
+# Check node resources
+docker node inspect self --pretty
 
-# Limit resources in production
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+# Monitor resource usage
+docker stats $(docker ps -q)
 ```
 
 ## Best Practices
 
-1. **Always use .dockerignore** to minimize build context
-2. **Use multi-stage builds** to reduce image size
-3. **Pin base image versions** for reproducibility
-4. **Run as non-root user** (appuser)
-5. **Use health checks** for all services
-6. **Set resource limits** in production
-7. **Use BuildKit** for faster builds:
-   ```bash
-   DOCKER_BUILDKIT=1 docker build .
-   ```
-
-## Migration from Legacy
-
-If upgrading from old Docker setup:
-
-1. Stop all running containers
-2. Run archive script: `python scripts/archive_legacy_docker_files.py`
-3. Pull latest changes
-4. Start with new setup: `docker-compose up`
+1. **Always use Docker Swarm** for production deployment
+2. **Push images to scoobyjava15 registry** before deployment
+3. **Use Docker Secrets** for sensitive data (via Pulumi ESC)
+4. **Set resource limits** for all services
+5. **Implement health checks** for zero-downtime deployments
+6. **Use rolling updates** with proper delays
+7. **Monitor with Prometheus/Grafana** for production insights
 
 ## Security
 
-- No secrets in images (use Pulumi ESC)
-- Non-root user execution
-- Minimal attack surface in production
-- Network isolation between services
-- Read-only root filesystem (where possible)
+- **No secrets in images** - Use Pulumi ESC + Docker Secrets
+- **Non-root user execution** (appuser)
+- **Network isolation** between services
+- **TLS encryption** for overlay network
+- **Regular security scans** of images
+- **Minimal attack surface** in production images
 
 ## CI/CD Integration
 
-GitHub Actions workflow example:
+GitHub Actions workflow for Docker Cloud:
 
 ```yaml
-- name: Build and test
+- name: Build and push
   run: |
-    docker build --target testing -t sophia-ai:test .
-    docker run sophia-ai:test
+    # Build production image
+    docker build --target production -t scoobyjava15/sophia-ai:${{ github.sha }} .
+    
+    # Push to registry
+    echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    docker push scoobyjava15/sophia-ai:${{ github.sha }}
+    
+    # Deploy to Lambda Labs (via SSH action)
+    ssh ubuntu@104.171.202.64 "IMAGE_TAG=${{ github.sha }} docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod"
+```
 
-- name: Build production
-  run: |
-    docker build --target production -t sophia-ai:prod .
-    docker tag sophia-ai:prod ${{ secrets.REGISTRY }}/sophia-ai:${{ github.sha }}
-    docker push ${{ secrets.REGISTRY }}/sophia-ai:${{ github.sha }}
+## Disaster Recovery
+
+### Backup
+
+```bash
+# Backup PostgreSQL
+docker exec $(docker ps -q -f name=sophia-ai-prod_postgres) pg_dump -U sophia sophia > backup.sql
+
+# Backup Redis
+docker exec $(docker ps -q -f name=sophia-ai-prod_redis) redis-cli BGSAVE
+```
+
+### Rollback
+
+```bash
+# Rollback to previous version
+docker service rollback sophia-ai-prod_sophia-backend
+
+# Deploy specific version
+IMAGE_TAG=v1.2.2 docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod
 ``` 

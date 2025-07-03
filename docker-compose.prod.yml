@@ -1,7 +1,8 @@
 version: '3.8'
 
-# Production overrides for docker-compose.yml
-# Use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+# Production overrides for Docker Cloud deployment
+# This file provides production-specific settings
+# Primary deployment uses: docker-compose.cloud.yml
 
 services:
   mcp-gateway:
