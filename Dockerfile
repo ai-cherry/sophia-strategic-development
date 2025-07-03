@@ -32,9 +32,10 @@ FROM base AS dependencies
 # Install UV for fast dependency resolution
 RUN pip install --no-cache-dir uv
 
-# Copy dependency files
+# Copy dependency files and README for package build
 COPY --chown=appuser:appuser pyproject.toml ./
 COPY --chown=appuser:appuser uv.lock* ./
+COPY --chown=appuser:appuser README.md ./
 
 # Install runtime dependencies only
 RUN uv pip install --system --no-cache .
@@ -45,7 +46,7 @@ RUN uv pip install --system --no-cache .
 FROM base AS production
 
 # Copy installed packages from dependencies stage
-COPY --from=dependencies /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
+COPY --from=dependencies /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=dependencies /usr/local/bin /usr/local/bin
 
 # Copy application code
