@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Alert, AlertDescription, Progress, Avatar, AvatarFallback } from '@/components/ui';
-import { MessageCircle, Search, TrendingUp, AlertTriangle, Users, Target, Calendar, DollarSign, Activity, BarChart3, PieChart, LineChart, Send, Loader2, RefreshCw, Settings, Bell, Download, Share2, Maximize2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Alert, AlertDescription, Progress, Avatar, AvatarFallback, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { MessageCircle, Search, TrendingUp, AlertTriangle, Users, Target, Calendar, DollarSign, Activity, BarChart3, PieChart, LineChart, Send, Loader2, RefreshCw, Settings, Bell, Download, Share2, Maximize2, BrainCircuit, Database, GitBranch, Briefcase } from 'lucide-react';
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import apiClient from '../../services/apiClient';
@@ -10,7 +10,7 @@ import EnhancedUnifiedChat from '../shared/EnhancedUnifiedChat';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 // --- Reusable Components ---
-const UnifiedKPICard = ({ title, value, change, changeType, icon: Icon, target }) => (
+const UnifiedKPICard = ({ title, value, change, changeType, icon: Icon }) => (
     <Card className="hover:shadow-lg transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
@@ -18,7 +18,7 @@ const UnifiedKPICard = ({ title, value, change, changeType, icon: Icon, target }
         </CardHeader>
         <CardContent>
             <div className="text-2xl font-bold text-gray-900">{value}</div>
-            <p className={`text-xs ${changeType === 'increase' ? 'text-green-500' : 'text-red-500'}`}>{change} from last month</p>
+            {change && <p className={`text-xs ${changeType === 'increase' ? 'text-green-500' : 'text-red-500'}`}>{change}</p>}
         </CardContent>
     </Card>
 );
@@ -28,16 +28,12 @@ const UnifiedDashboard = () => {
     const [activeTab, setActiveTab] = useState('ceo_overview');
     const [isLoading, setIsLoading] = useState(false);
     const [lastRefresh, setLastRefresh] = useState(new Date());
-
-    // Data states for each tab
-    const [ceoData, setCeoData] = useState(null);
-    const [projectData, setProjectData] = useState(null);
-    const [salesData, setSalesData] = useState(null);
-    const [knowledgeData, setKnowledgeData] = useState(null);
-    const [chatMessages, setChatMessages] = useState([]);
-    const [chatInput, setChatInput] = useState('');
-
-    const chatEndRef = useRef(null);
+    const [data, setData] = useState({
+        ceo: null,
+        projects: [],
+        knowledge: null,
+        sales: null,
+    });
 
     // --- Data Fetching ---
     const fetchDataForTab = async (tab) => {
@@ -47,9 +43,20 @@ const UnifiedDashboard = () => {
             switch (tab) {
                 case 'ceo_overview':
                     response = await apiClient.get('/api/v1/ceo/dashboard/summary');
-                    setCeoData(response.data);
+                    setData(prev => ({ ...prev, ceo: response.data }));
                     break;
-                // Add cases for other tabs here
+                case 'projects':
+                     response = await apiClient.get('/api/v1/projects'); // Mocked for now
+                     setData(prev => ({ ...prev, projects: response.data.projects }));
+                    break;
+                case 'knowledge':
+                     response = await apiClient.get('/api/v1/knowledge/stats'); // Mocked
+                     setData(prev => ({ ...prev, knowledge: response.data }));
+                    break;
+                 case 'sales':
+                     response = await apiClient.get('/api/v1/sales/summary'); // Mocked
+                     setData(prev => ({ ...prev, sales: response.data }));
+                    break;
             }
         } catch (error) {
             console.error(`Failed to fetch data for tab ${tab}:`, error);
@@ -65,47 +72,67 @@ const UnifiedDashboard = () => {
         setLastRefresh(new Date());
         fetchDataForTab(activeTab);
     };
-    
-    // --- Chat Logic ---
-    useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [chatMessages]);
-
-    const handleChatSend = async () => {
-        if (!chatInput.trim()) return;
-        const userMessage = { type: 'user', content: chatInput, timestamp: new Date().toISOString() };
-        setChatMessages(prev => [...prev, userMessage]);
-        setIsLoading(true);
-        
-        try {
-            const res = await apiClient.post('/api/v1/ceo/chat', { message: chatInput });
-            const assistantMessage = { type: 'assistant', ...res.data };
-            setChatMessages(prev => [...prev, assistantMessage]);
-        } catch (error) {
-            const errorMessage = { type: 'assistant', content: 'Sorry, I encountered an error.', timestamp: new Date().toISOString() };
-            setChatMessages(prev => [...prev, errorMessage]);
-        }
-        
-        setChatInput('');
-        setIsLoading(false);
-    };
 
     // --- Render Functions for Tabs ---
 
     const renderCEOOverview = () => (
         <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <UnifiedKPICard title="Total Revenue" value={ceoData?.total_revenue || '$0'} change="+5.2%" changeType="increase" icon={DollarSign} />
-                <UnifiedKPICard title="Active Deals" value={ceoData?.active_deals || '0'} change="+12" changeType="increase" icon={Activity} />
-                <UnifiedKPICard title="Team Performance" value={`${ceoData?.team_performance || '0'}%`} change="-1.2%" changeType="decrease" icon={Users} />
-                <UnifiedKPICard title="Customer Satisfaction" value={`${ceoData?.customer_satisfaction || '0'}/5`} change="+0.1" changeType="increase" icon={TrendingUp} />
+                <UnifiedKPICard title="Project Health" value={`${data.ceo?.project_health || 72}%`} change="+2%" changeType="increase" icon={Target} />
+                <UnifiedKPICard title="Budget Usage" value={`${data.ceo?.budget_usage || 50}%`} change="-5%" changeType="decrease" icon={DollarSign} />
+                <UnifiedKPICard title="Team Utilization" value={`${data.ceo?.team_utilization || 85}%`} change="+3%" changeType="increase" icon={Users} />
+                <UnifiedKPICard title="On-Time Delivery" value={`${data.ceo?.on_time_delivery || 67}%`} change="-1%" changeType="decrease" icon={Calendar} />
             </div>
-            {/* Add charts and other components here */}
+            {/* Add more CEO-specific charts and components here */}
         </div>
     );
     
-    const renderChat = () => (
-        <EnhancedUnifiedChat initialContext="business_intelligence" />
+    const renderProjects = () => (
+        <Card>
+            <CardHeader><CardTitle>Cross-Platform Project Overview</CardTitle></CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Project</TableHead>
+                            <TableHead>Platform</TableHead>
+                            <TableHead>Health</TableHead>
+                            <TableHead>Progress</TableHead>
+                            <TableHead>Team</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.projects.map(p => (
+                            <TableRow key={p.id}>
+                                <TableCell className="font-medium">{p.name}</TableCell>
+                                <TableCell><Badge variant="outline">{p.platform}</Badge></TableCell>
+                                <TableCell className={p.health_score > 80 ? 'text-green-500' : 'text-orange-500'}>{p.health_score}%</TableCell>
+                                <TableCell><Progress value={p.completion_percentage} className="w-full" /></TableCell>
+                                <TableCell>{p.team_members.join(', ')}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
+
+    const renderKnowledge = () => (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <UnifiedKPICard title="Total Documents" value={data.knowledge?.totalDocuments || 0} icon={Database} />
+            <UnifiedKPICard title="Total Size" value={data.knowledge?.totalSize || '0 GB'} icon={Database} />
+            <UnifiedKPICard title="Recent Ingestions" value={data.knowledge?.recentIngestions || 0} icon={RefreshCw} />
+            <UnifiedKPICard title="Avg. Query Time" value={`${data.knowledge?.avgQueryTime || 0}ms`} icon={Search} />
+        </div>
+    );
+
+    const renderSales = () => (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+             <UnifiedKPICard title="Pipeline Value" value={`$${(data.sales?.pipeline_value / 1000000).toFixed(1)}M`} change="+15%" changeType="increase" icon={DollarSign} />
+             <UnifiedKPICard title="Active Deals" value={data.sales?.active_deals || 0} change="+10" changeType="increase" icon={Briefcase} />
+             <UnifiedKPICard title="Win Rate" value={`${data.sales?.win_rate || 0}%`} change="+2%" changeType="increase" icon={TrendingUp} />
+             <UnifiedKPICard title="Calls Analyzed" value={data.sales?.calls_analyzed || 0} icon={Activity} />
+        </div>
     );
 
     // --- Main Component Return ---
@@ -115,7 +142,7 @@ const UnifiedDashboard = () => {
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Unified Intelligence Dashboard</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                      Last updated: {lastRefresh.toLocaleTimeString()}
+                      The single source of truth for Sophia AI. Last updated: {lastRefresh.toLocaleTimeString()}
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -137,10 +164,12 @@ const UnifiedDashboard = () => {
                 </TabsList>
 
                 <TabsContent value="ceo_overview" className="mt-6">{renderCEOOverview()}</TabsContent>
-                <TabsContent value="projects" className="mt-6"><p className="text-center py-16 text-gray-500">Project management data coming soon...</p></TabsContent>
-                <TabsContent value="knowledge" className="mt-6"><p className="text-center py-16 text-gray-500">Knowledge AI interface coming soon...</p></TabsContent>
-                <TabsContent value="sales" className="mt-6"><p className="text-center py-16 text-gray-500">Sales intelligence coming soon...</p></TabsContent>
-                <TabsContent value="chat" className="mt-6">{renderChat()}</TabsContent>
+                <TabsContent value="projects" className="mt-6">{renderProjects()}</TabsContent>
+                <TabsContent value="knowledge" className="mt-6">{renderKnowledge()}</TabsContent>
+                <TabsContent value="sales" className="mt-6">{renderSales()}</TabsContent>
+                <TabsContent value="chat" className="mt-6">
+                    <EnhancedUnifiedChat initialContext={activeTab} />
+                </TabsContent>
             </Tabs>
         </div>
     );
