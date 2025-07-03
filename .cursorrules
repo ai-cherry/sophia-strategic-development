@@ -94,6 +94,7 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 
 #### **🎨 Design & Creative**
 - **glips_figma_context** (8.7k stars): Design-to-code workflows, component generation
+- **V0.dev Integration** (NEW): AI-powered UI generation with natural language commands
 
 #### **❄️ Data Intelligence**
 - **snowflake_cortex_official**: Official Snowflake AI integration patterns
@@ -124,6 +125,14 @@ Sophia AI leverages 11 strategic external repositories to provide world-class AI
 "Compare authentication patterns across all external repositories"
 "Find performance optimization strategies from high-star repos"
 "Show security patterns used by official implementations"
+
+# AI-Powered UI Generation (V0.dev Integration)
+"Create a modern dashboard component with glassmorphism styling"
+"Build a responsive navigation bar with dropdown menus"
+"Generate a data table component with sorting and filtering"
+"Design a modal dialog with form validation"
+"Create a chart component for revenue visualization"
+"Build a user profile card with avatar and social links"
 ```
 
 ### **🔍 AI Pattern Recognition & Learning**

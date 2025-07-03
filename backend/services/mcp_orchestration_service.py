@@ -847,6 +847,16 @@ class MCPOrchestrationService:
                     "reliability_monitoring",
                 ],
             ),
+            "v0dev": MCPServerEndpoint(
+                server_name="v0dev",
+                port=9023,
+                capabilities=[
+                    "ui_generation",
+                    "component_design",
+                    "ai_ui_creation",
+                    "real_time_preview"
+                ],
+            ),
         }
 
     def _initialize_orchestration_rules(self):
@@ -954,6 +964,25 @@ class MCPOrchestrationService:
                 "synthesis_type": "executive_business_intelligence",
                 "parallel_execution": True,
                 "priority": TaskPriority.CRITICAL,
+            },
+            {
+                "rule_id": "ai_ui_generation",
+                "task_types": [
+                    "ui_generation",
+                    "component_creation",
+                    "interface_design",
+                    "ui_mockup"
+                ],
+                "server_sequence": [
+                    "v0dev",
+                    "figma_context",
+                    "ui_ux_agent",
+                    "codacy",
+                    "ai_memory"
+                ],
+                "synthesis_type": "ui_creation_report",
+                "parallel_execution": False,  # Sequential for UI workflow
+                "priority": TaskPriority.MEDIUM,
             },
         ]
 

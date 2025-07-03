@@ -1,4 +1,10 @@
-name: Sophia AI UV CI/CD Pipeline
+4. Dependency Audit and Security Implementation
+Implement continuous vulnerability scanning using pip-audit integrated with your UV workflow:
+
+bash
+# Add to your CI/CD pipeline
+pip install pip-audit
+pip-audit --format=json --output=vulnerability-report.jsonname: Sophia AI UV CI/CD Pipeline
 
 on
   push
@@ -75,7 +81,7 @@ jobs
         run: uv run safety check
       
       - name: Run pip-audit
-        run: uv run pip-audit
+        run: uv run pip-audit --format=json --output=vulnerability-report.json
 
   build-and-deploy
     needs: [test, security]

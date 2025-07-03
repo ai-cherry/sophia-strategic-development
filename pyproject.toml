@@ -166,6 +166,11 @@ docs = [
     "sphinx>=7.2.6",
 ]
 
+security = [
+    "safety>=2.3.5",
+    "pip-audit>=2.0"
+]
+
 all = [
     "sophia-ai[dev]",
     "sophia-ai[performance]",

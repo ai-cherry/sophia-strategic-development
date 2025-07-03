@@ -14,6 +14,7 @@ from typing import Any
 from backend.services.unified_intelligence_service import (
     SophiaUnifiedIntelligenceService,
 )
+from backend.services.ui_generation_intent_handler import get_ui_generation_handler
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,11 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             "average_response_time": 0.0,
             "cost_savings": 0.0,
         }
+
+        # Initialize UI generation handler
+        self.ui_handler = get_ui_generation_handler()
+        
+        logger.info("✅ Enhanced Unified Intelligence Service initialized")
 
     async def unified_business_query(
         self,
@@ -76,6 +82,10 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         self, query: str, query_type: str, context: dict, user_id: str
     ) -> dict[str, Any]:
         """Prepare comprehensive query context"""
+        # Check for UI generation intent
+        if self.ui_handler.detect_ui_generation_intent(query):
+            query_type = "ui_generation"
+            
         return {
             "original_query": query,
             "query_type": query_type,
@@ -99,6 +109,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             return await self._handle_analytics_query(query_context)
         elif query_type == "operational":
             return await self._handle_operational_query(query_context)
+        elif query_type == "ui_generation":
+            return await self._handle_ui_generation_query(query_context)
         else:
             return await self._handle_general_query(query_context)
 
@@ -129,6 +141,32 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         """Handle operational queries"""
         # Operational query processing logic
         return {"type": "operational", "results": [], "insights": []}
+
+    async def _handle_ui_generation_query(
+        self, query_context: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Handle UI generation queries through V0.dev integration"""
+        try:
+            # Generate UI through the handler
+            ui_response = await self.ui_handler.generate_ui_from_chat(
+                message=query_context["original_query"],
+                user_id=query_context.get("user_id"),
+                session_id=query_context.get("session_id")
+            )
+            
+            return {
+                "type": "ui_generation",
+                "results": [ui_response],
+                "insights": ["UI component generated successfully"]
+            }
+        except Exception as e:
+            logger.error(f"UI generation failed: {e}")
+            return {
+                "type": "ui_generation",
+                "results": [],
+                "insights": [],
+                "error": str(e)
+            }
 
     async def _handle_general_query(
         self, query_context: dict[str, Any]
