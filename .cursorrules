@@ -786,3 +786,91 @@ Remember: You're building an enterprise-grade AI orchestrator that will handle c
 4.  **DOCUMENTATION IS LAW:** All frontend architecture must align with the `docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md`. Any deviation must first be reflected in the handbook.
 
 This ensures we maintain a single, clean, and unified frontend, preventing the fragmentation that we just worked so hard to eliminate.
+
+# Sophia AI Development Rules
+
+PROJECT_CONTEXT: |
+  Sophia AI - Executive AI Orchestrator for Pay Ready
+  Initial User: CEO only (80-employee company)
+  Priority: Quality > Stability > Maintainability > Performance > Cost
+  Current Phase: Building enhanced chat with citation system
+  
+CODING_STANDARDS: |
+  Python:
+    - Use Python 3.11+ with type hints for all functions
+    - Follow async/await patterns for I/O operations
+    - Use Black formatter (88 char line limit)
+    - Include comprehensive docstrings
+    - Error handling with proper logging
+    
+  TypeScript:
+    - Strict mode enabled, no 'any' types
+    - ESLint + Prettier configured
+    - Interfaces over types where possible
+    - JSDoc for all exported functions
+    - React functional components only
+    
+  Testing:
+    - TDD approach - write tests first
+    - pytest for Python, Jest for TypeScript
+    - Minimum 80% code coverage
+    - Integration tests for all API endpoints
+    - Unit tests for business logic
+  
+AI_RULES: |
+  Planning:
+    - Plan-Then-Act: 70% planning, 30% execution
+    - Break tasks into micro-tasks (< 5 min each)
+    - Define clear success criteria before coding
+    - Create tests before implementation
+    
+  Development:
+    - Make minimal, focused changes
+    - Micro-commits with descriptive messages
+    - Update documentation with each change
+    - Run tests after each change
+    - Review diffs before committing
+    
+  Context:
+    - Always reference @docs/PROJECT_CONTEXT.md
+    - Check @docs/architecture/ for patterns
+    - Update @docs/AI_MEMORY.md with learnings
+    - Cite all data sources in responses
+    
+ARCHITECTURE_PATTERNS: |
+  Backend:
+    - FastAPI for async REST APIs
+    - Service layer pattern for business logic
+    - Repository pattern for data access
+    - Dependency injection for testability
+    - Event-driven communication via Redis
+    
+  Frontend:
+    - React 18 with TypeScript
+    - Component composition over inheritance
+    - Custom hooks for shared logic
+    - Context API for global state
+    - TailwindCSS for styling
+    
+  AI Integration:
+    - Snowflake Cortex for all LLM operations
+    - Model routing based on task complexity
+    - Citation system for transparency
+    - Memory system with Mem0
+    - Cost tracking for all AI operations
+
+SECURITY_RULES: |
+  - Never hardcode secrets or API keys
+  - Use environment variables via auto_esc_config
+  - Validate all user inputs
+  - Sanitize LLM outputs
+  - Log security-relevant events
+  - Follow principle of least privilege
+  
+QUALITY_STANDARDS: |
+  - No code duplication
+  - Clear variable and function names
+  - Comprehensive error handling
+  - Performance monitoring for all endpoints
+  - Document all architectural decisions
+  - Regular code reviews (even for AI-generated code)
