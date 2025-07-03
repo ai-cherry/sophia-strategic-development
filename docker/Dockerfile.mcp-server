@@ -1,0 +1,65 @@
+# syntax=docker/dockerfile:1
+# Specialized Dockerfile for MCP Servers
+# Lightweight, single-purpose containers for individual MCP services
+
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_SYSTEM_PYTHON=1
+
+# Create non-root user
+RUN adduser --disabled-password --gecos "" appuser && \
+    mkdir -p /app && \
+    chown -R appuser:appuser /app
+
+WORKDIR /app
+
+# ============================================
+# Dependencies stage
+# ============================================
+FROM base AS dependencies
+
+# Install UV
+RUN pip install --no-cache-dir uv
+
+# Copy dependency files
+COPY --chown=appuser:appuser pyproject.toml ./
+
+# Install base dependencies for MCP servers
+RUN uv pip install --system --no-cache .
+
+# ============================================
+# Runtime stage
+# ============================================
+FROM base AS runtime
+
+# Copy installed packages
+COPY --from=dependencies /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
+COPY --from=dependencies /usr/local/bin /usr/local/bin
+
+# Copy common backend utilities needed by MCP servers
+COPY --chown=appuser:appuser backend/core/auto_esc_config.py ./backend/core/
+COPY --chown=appuser:appuser backend/core/__init__.py ./backend/core/
+
+# The specific MCP server code will be copied at build time using build args
+ARG MCP_SERVER_PATH
+ARG MCP_SERVER_MODULE
+ARG MCP_SERVER_PORT=8080
+
+# Copy the specific MCP server
+COPY --chown=appuser:appuser ${MCP_SERVER_PATH} ./
+
+# Switch to non-root user
+USER appuser
+
+# Expose the MCP server port
+EXPOSE ${MCP_SERVER_PORT}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${MCP_SERVER_PORT}/health').read()"
+
+# Run the MCP server
+CMD ["sh", "-c", "uvicorn ${MCP_SERVER_MODULE}:app --host 0.0.0.0 --port ${MCP_SERVER_PORT}"] 

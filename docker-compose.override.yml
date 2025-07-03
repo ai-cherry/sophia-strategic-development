@@ -1,3 +1,8 @@
+version: '3.8'
+
+# Development overrides for docker-compose.yml
+# This file is automatically loaded by docker-compose in development
+
 services:
   mcp-gateway:
     build: ./mcp-gateway
@@ -69,4 +74,69 @@ services:
       context: .
       dockerfile: mcp-servers/sophia_infrastructure/Dockerfile
     volumes:
-      - ./mcp-servers/sophia_infrastructure:/app 
+      - ./mcp-servers/sophia_infrastructure:/app
+
+  sophia-backend:
+    build:
+      target: development
+    volumes:
+      # Mount source code for hot reload
+      - ./backend:/app/backend:cached
+      - ./config:/app/config:cached
+      - ./pyproject.toml:/app/pyproject.toml:cached
+      # Exclude Python cache
+      - /app/backend/__pycache__
+      - /app/backend/**/__pycache__
+    environment:
+      - ENVIRONMENT=dev
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - RELOAD=true
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # Python debugger port
+    command: ["uvicorn", "backend.app.unified_fastapi_app:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+
+  mem0-server:
+    volumes:
+      - ./backend/mcp_servers/mem0_openmemory:/app:cached
+    environment:
+      - LOG_LEVEL=DEBUG
+
+  cortex-server:
+    volumes:
+      - ./backend/mcp_servers/cortex_aisql:/app:cached
+    environment:
+      - LOG_LEVEL=DEBUG
+
+  # Development tools
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: sophia-mailhog
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+    profiles:
+      - dev-tools
+    networks:
+      - sophia-network
+
+  # Jupyter for data exploration
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: sophia-jupyter
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./backend:/app/backend
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    profiles:
+      - dev-tools
+    networks:
+      - sophia-network 
