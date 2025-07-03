@@ -38,7 +38,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy and install advanced requirements
-COPY requirements_advanced.txt /tmp/requirements.txt
+COPY pyproject.toml .
 
 # Install dependencies with performance optimizations
 RUN # UV handles package management automatically setuptools wheel && \

@@ -14,24 +14,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only dependency files first for caching
-COPY pyproject.toml uv.lock ./
+FROM base as dependencies
+# Copy pyproject.toml for dependency installation
+COPY pyproject.toml* ./
+# Install UV and dependencies
+RUN pip install --no-cache-dir uv && \
+    uv pip install --system .
 
-# Install dependencies using uv (if available), fallback to pip if not
-RUN pip install --upgrade pip && \
-    pip install uv || pip install -r requirements.txt
+FROM base as runtime
+# Copy installed packages from dependencies stage
+COPY --from=dependencies /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=dependencies /usr/local/bin /usr/local/bin
 
 # Copy the application code
-COPY . .
+COPY --chown=appuser:appuser backend/mcp_servers/mem0_openmemory/ /app/
 
-# Change to non-root user
 USER appuser
 
-# Expose the FastAPI port
 EXPOSE 8080
 
-# Healthcheck (optional, for Kubernetes)
-HEALTHCHECK CMD curl --fail http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health').read()"
 
-# Start the server with uvicorn
 CMD ["uvicorn", "enhanced_mem0_server:app", "--host", "0.0.0.0", "--port", "8080"] 

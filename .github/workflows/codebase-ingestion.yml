@@ -25,7 +25,7 @@ jobs
           curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.local/bin" >> $GITHUB_PATH
           # We will add openai, pinecone-client, etc. here later
-          uv sync || pip install -r docker-requirements.txt || echo "No requirements file found, proceeding without."
+          uv sync || pip install uv && uv pip install .[dev] || echo "No requirements file found, proceeding without."
 
 
       - name: Run Ingestion Script

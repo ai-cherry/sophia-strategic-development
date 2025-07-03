@@ -221,3 +221,7 @@ github_pat_*
 health_gate_report.json
 scripts/standardise_mcp_report.json
 deployment_credentials.env
+
+# Prevent requirements.txt files (we use pyproject.toml now)
+requirements*.txt
+!external/**/requirements*.txt

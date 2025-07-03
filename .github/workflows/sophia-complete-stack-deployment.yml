@@ -132,7 +132,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install uv && uv pip install .[dev]
       
       - name: Validate project structure
         run: |
@@ -184,7 +184,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install uv && uv pip install .[dev]
       
       - name: Update Pulumi ESC configuration
         run: |
@@ -226,7 +226,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install uv && uv pip install .[dev]
           pip install snowflake-connector-python asyncpg redis
       
       - name: Install Snowflake CLI
@@ -331,7 +331,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install uv && uv pip install .[dev]
       
       - name: Deploy Estuary Flow pipeline
         run: |
@@ -434,7 +434,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install uv && uv pip install .[dev]
       
       - name: Run comprehensive health checks
         run: |

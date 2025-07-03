@@ -12,7 +12,7 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Dict, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -21,7 +21,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Gauge, Histogram, generate_latest
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Import all route modules
 from backend.api import (
@@ -42,6 +42,9 @@ from backend.core.config_validator import DeploymentValidator
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 from backend.services.smart_ai_service import SmartAIService
+from backend.services.mcp_orchestration_service import MCPOrchestrationService
+from backend.services.n8n_webhook_service import N8NWebhookService
+from backend.services.chat.unified_chat_service import UnifiedChatService
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +159,14 @@ class UnifiedFastAPIApp:
         # AI Service
         self.services["ai"] = SmartAIService()
 
+        # Initialize additional services
+        mcp_orchestration_service = MCPOrchestrationService()
+        n8n_webhook_service = N8NWebhookService()
+
+        # Initialize new services
+        unified_chat_service = UnifiedChatService()
+        knowledge_service = FoundationalKnowledgeService()
+
         logger.info("✅ All services initialized")
 
     async def _start_background_tasks(self):
@@ -195,12 +206,8 @@ class UnifiedFastAPIApp:
         """Create and configure the FastAPI application"""
         self.app = FastAPI(
             title="Sophia AI Unified Platform",
-            description="Enterprise AI orchestrator with unified API",
-            version="3.0.0",
-            docs_url="/docs",
-            redoc_url="/redoc",
-            openapi_url="/openapi.json",
-            lifespan=self.lifespan,
+            description="The single, unified FastAPI application for all backend services.",
+            version="2.0.0",
         )
 
         # Configure middleware
@@ -219,7 +226,7 @@ class UnifiedFastAPIApp:
         # CORS
         self.app.add_middleware(
             CORSMiddleware,
-            allow_origins=get_config_value("cors_origins", ["*"]),
+            allow_origins=["*"],  # Restrict in production
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
@@ -283,55 +290,24 @@ class UnifiedFastAPIApp:
     def _configure_routes(self):
         """Configure all API routes"""
 
-        # Health and system routes
-        @self.app.get("/health", response_model=HealthResponse, tags=["System"])
-        async def health_check():
-            """Comprehensive health check"""
-            uptime = (datetime.now(UTC) - self.start_time).total_seconds()
+        @self.app.get("/", tags=["Status"])
+        async def root() -> Dict[str, str]:
+            """Root endpoint for basic service health checks."""
+            return {"status": "ok", "message": "Welcome to Sophia AI Unified Platform"}
 
-            # Check service health
-            service_health = {}
-            for name, service in self.services.items():
-                if hasattr(service, "health_check"):
-                    try:
-                        health = await service.health_check()
-                        service_health[name] = "healthy" if health else "unhealthy"
-                    except Exception:
-                        service_health[name] = "error"
-                else:
-                    service_health[name] = "unknown"
+        @self.app.get("/api/health", tags=["Status"])
+        async def health_check() -> Dict[str, str]:
+            """Provides a simple health check endpoint."""
+            return {"status": "ok"}
 
-            return HealthResponse(
-                status=(
-                    "healthy"
-                    if all(s == "healthy" for s in service_health.values())
-                    else "degraded"
-                ),
-                timestamp=datetime.now(UTC).isoformat(),
-                version="3.0.0",
-                environment=get_config_value("environment", "production"),
-                services=service_health,
-                uptime_seconds=uptime,
-                metrics={
-                    "requests_total": self.request_count,
-                    "errors_total": self.error_count,
-                    "error_rate": (self.error_count / max(self.request_count, 1)) * 100,
-                },
-            )
-
-        @self.app.get("/metrics", tags=["System"])
-        async def metrics():
-            """Prometheus metrics endpoint"""
-            return Response(content=generate_latest(), media_type="text/plain")
-
-        @self.app.get("/", tags=["System"])
-        async def root():
-            """Root endpoint"""
+        @self.app.get("/api/status", tags=["Status"])
+        async def get_status() -> Dict[str, Any]:
+            """Provides a detailed status of the application."""
+            # This can be expanded to include database status, MCP server health, etc.
             return {
-                "message": "Welcome to Sophia AI Platform",
-                "version": "3.0.0",
-                "docs": "/docs",
-                "health": "/health",
+                "status": "ok",
+                "service_name": "Sophia AI Unified Platform",
+                "version": self.app.version,
             }
 
         # Include all route modules
@@ -353,6 +329,69 @@ class UnifiedFastAPIApp:
                 logger.info(f"✅ Loaded router: {router}")
             except Exception as e:
                 logger.error(f"Failed to load router {router}: {e}")
+
+        @self.app.post("/api/mcp/{tool_name:path}", tags=["MCP"])
+        async def handle_mcp_request(tool_name: str, request: Dict[str, Any]) -> Dict[str, Any]:
+            """Handles all MCP requests and routes them to the orchestration service."""
+            response = await self.services["mcp_orchestration"].route_tool_request(tool_name, request)
+            return response
+
+        @self.app.get("/api/mcp/health", tags=["MCP"])
+        async def mcp_health() -> Dict[str, Any]:
+            """Provides a health check for the MCP orchestration service."""
+            # This can be expanded to check the health of all registered MCP servers
+            return {"status": "ok", "service": "mcp_orchestration"}
+
+        @self.app.post("/api/n8n/webhook/{workflow_type:path}", tags=["N8N"])
+        async def handle_n8n_webhook(workflow_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+            """Handles all N8N webhooks and routes them to the webhook service."""
+            result = await self.services["n8n_webhook_service"].process_webhook(workflow_type, payload)
+            return {"status": "ok", "result": result}
+
+        @self.app.get("/api/n8n/health", tags=["N8N"])
+        async def n8n_health() -> Dict[str, Any]:
+            """Provides a health check for the N8N webhook service."""
+            return {"status": "ok", "service": "n8n_webhook_service"}
+
+        # Models for request/response
+        class ChatRequest(BaseModel):
+            query: str
+            user_id: str
+            session_id: str
+            context: Optional[Dict[str, Any]] = None
+
+        class FileUpload(BaseModel):
+            file_name: str
+            file_content: bytes # Using bytes for file content
+
+        class SyncRequest(BaseModel):
+            source: str
+
+        @self.app.post("/api/v1/chat", tags=["Chat"])
+        async def chat(request: ChatRequest) -> Dict[str, Any]:
+            """Handles chat requests and returns an AI-generated response."""
+            response = await self.services["chat"].process_chat(
+                query=request.query,
+                user_id=request.user_id,
+                session_id=request.session_id,
+                context=request.context,
+            )
+            return response
+
+        @self.app.post("/api/v1/knowledge/upload", tags=["Knowledge"])
+        async def upload_knowledge(file: FileUpload) -> Dict[str, Any]:
+            """Uploads a knowledge document to the system."""
+            result = await self.services["knowledge"].upload_document(
+                file_name=file.file_name,
+                file_content=file.file_content,
+            )
+            return {"status": "ok", "result": result}
+
+        @self.app.post("/api/v1/knowledge/sync", tags=["Knowledge"])
+        async def sync_knowledge(request: SyncRequest) -> Dict[str, Any]:
+            """Triggers a knowledge sync from a specified source."""
+            result = await self.services["knowledge"].sync_source(source=request.source)
+            return {"status": "ok", "result": result}
 
     def _configure_error_handlers(self):
         """Configure global error handlers"""

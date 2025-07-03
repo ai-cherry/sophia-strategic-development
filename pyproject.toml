@@ -1,28 +1,275 @@
 [project]
 name = "sophia-ai"
-version = "2.0.0"
-description = "Sophia AI - Enterprise AI Orchestration Platform"
+version = "2.1.0"
+description = "Sophia AI - Enterprise AI Orchestration Platform with Unified FastAPI"
+readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [ "fastapi>=0.115.0", "uvicorn[standard]>=0.24.0", "pydantic>=2.5.0", "sqlalchemy>=2.0.0", "asyncpg>=0.29.0", "redis>=5.0.0", "openai>=1.0.0", "anthropic>=0.25.0", "pinecone-client>=3.0.0", "snowflake-connector-python>=3.7.0", "pulumi>=3.100.0", "kubernetes>=28.0.0", "prometheus-client>=0.19.0", "structlog>=23.2.0", "typer>=0.9.0", "httpx>=0.26.0", "pydantic-settings>=2.1.0",]
+license = {text = "Proprietary"}
+authors = [
+    {name = "Sophia AI Team", email = "team@sophia-ai.com"}
+]
+keywords = ["ai", "orchestration", "fastapi", "enterprise", "mcp"]
+
+dependencies = [
+    "aiodns>=3.1.1",
+    "aiofiles>=24.1.0",
+    "aiohttp>=3.9.1",
+    "aioredis",
+    "annotated_types",
+    "anthropic>=0.25.0",
+    "anyio",
+    "apscheduler>=3.10.4",
+    "asyncpg",
+    "autopep8>=2.0.4",
+    "azure-storage-blob>=12.19.0",
+    "bcrypt>=4.1.2",
+    "boto3>=1.34.0",
+    "bs4",
+    "cchardet>=2.1.7",
+    "celery>=5.3.4",
+    "certifi>=2025.6.15",
+    "chardet>=5.2.0",
+    "chromadb>=0.4.18",
+    "click>=8.1.7",
+    "cryptography>=45.0.5",
+    "docx",
+    "eventlet>=0.33.3",
+    "faiss-cpu>=1.7.4",
+    "fastapi>=0.115.0",
+    "fastmcp",
+    "gevent>=23.9.1",
+    "google-cloud-storage>=2.10.0",
+    "gradio>=4.8.0",
+    "greenlet>=3.0.2",
+    "httpx_sse",
+    "hubspot",
+    "idna>=3.6",
+    "jinja2",
+    "joblib>=1.3.2",
+    "jsonschema",
+    "langchain>=0.1.0",
+    "langchain-community>=0.0.10",
+    "line-profiler>=4.1.1",
+    "locust>=2.17.0",
+    "markdownify",
+    "matplotlib>=3.8.2",
+    "mcp>=0.5.0",
+    "memory-profiler>=0.61.0",
+    "multiprocessing-logging>=0.3.4",
+    "notion-client>=2.2.1",
+    "numpy>=2.1.3",
+    "openai>=1.6.1",
+    "orjson",
+    "pandas>=2.2.3",
+    "passlib>=1.7.4"
+]>=1.7.4",
+    "pgvector  # MISSING - needs installation",
+    "pika>=1.3.2",
+    "pinecone",
+    "pinecone-client>=2.2.4",
+    "pip>=25.1.1",
+    "plotly>=5.17.0",
+    "pptx",
+    "prometheus-client",
+    "protego  # MISSING - needs installation",
+    "providers  # MISSING - needs installation",
+    "psutil>=5.9.6",
+    "psycopg2-binary>=2.9.9",
+    "py-spy>=0.3.14",
+    "pyautogui  # MISSING - needs installation",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.6.1",
+    "pydantic_ai  # MISSING - needs installation",
+    "pydantic_core",
+    "pydantic_settings",
+    "pyjwt",
+    "pytest_examples  # MISSING - needs installation",
+    "python-dateutil>=2.8.2",
+    "python-dotenv>=1.0.1",
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.18",
+    "pytz>=2023.3",
+    "pyyaml",
+    "qualify_deal  # MISSING - needs installation",
+    "radon  # MISSING - needs installation",
+    "readabilipy  # MISSING - needs installation",
+    "redis>=5.0.1",
+    "requests>=2.32.4",
+    "resource_manager  # MISSING - needs installation",
+    "rich>=13.9.4",
+    "router  # MISSING - needs installation",
+    "schedule>=1.2.0",
+    "scikit-learn>=1.3.2",
+    "seaborn>=0.13.0",
+    "sentence-transformers>=2.2.2",
+    "sentence_transformers",
+    "sentiment  # MISSING - needs installation",
+    "sentry_sdk",
+    "server  # MISSING - needs installation",
+    "services  # MISSING - needs installation",
+    "session_manager  # MISSING - needs installation",
+    "settings  # MISSING - needs installation",
+    "setuptools>=80.9.0",
+    "shared  # MISSING - needs installation",
+    "simple_auth_provider  # MISSING - needs installation",
+    "six>=1.16.0",
+    "slack_sdk",
+    "slowapi",
+    "snowflake-connector-python>=3.6.0",
+    "snowflake-sqlalchemy>=1.7.5",
+    "snowflake_call_repository  # MISSING - needs installation",
+    "snowflake_mcp_server  # MISSING - needs installation",
+    "sophia_chat_service  # MISSING - needs installation",
+    "sophia_mcp_base  # MISSING - needs installation",
+    "sophia_universal_chat_service  # MISSING - needs installation",
+    "sqlalchemy>=2.0.23",
+    "sqlglot  # MISSING - needs installation",
+    "sqlparse  # MISSING - needs installation",
+    "sse_starlette",
+    "starlette>=0.37.2,<0.39.0",
+    "streamlit>=1.29.0",
+    "structlog>=24.4.0",
+    "templates  # MISSING - needs installation",
+    "token_verifier  # MISSING - needs installation",
+    "tomlkit",
+    "tool_manager  # MISSING - needs installation",
+    "torch>=2.1.2",
+    "tqdm>=4.66.1",
+    "transformers>=4.36.2",
+    "typer>=0.9.0",
+    "typing_extensions",
+    "tzlocal  # MISSING - needs installation",
+    "unified_chat_service  # MISSING - needs installation",
+    "universal_chat_service  # MISSING - needs installation",
+    "urllib3>=2.5.0",
+    "user  # MISSING - needs installation",
+    "utilities  # MISSING - needs installation",
+    "utils  # MISSING - needs installation",
+    "uvicorn>=0.24.0",
+    "uvicorn[standard]>=0.32.0",
+    "uvloop>=0.21.0",
+    "watchdog>=3.0.0",
+    "weaviate-client>=3.25.3",
+    "websockets>=14.1",
+    "websockets  # MISSING - needs installation",
+    "werkzeug  # MISSING - needs installation",
+    "wheel>=0.45.1",
+    "win32  # MISSING - needs installation",
+    "write_detector  # MISSING - needs installation",
+]
+
+[project.optional-dependencies]
+dev = [
+    "bandit>=1.7.5",
+    "black>=24.10.0",
+    "coverage>=7.3.2",
+    "flake8>=6.1.0",
+    "httpx>=0.28.1",
+    "ipython>=8.18.1",
+    "isort>=5.13.2",
+    "jupyter>=1.0.0",
+    "mypy>=1.8.0",
+    "notebook>=7.0.6",
+    "pre-commit>=3.6.0",
+    "pylint>=3.0.3",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.8.4",
+    "safety>=2.3.5",
+]
+docs = [
+    "mkdocs>=1.5.3",
+    "mkdocs-material>=9.4.14",
+    "sphinx>=7.2.6",
+]
+all = [
+    "sophia-ai[dev]",
+    "sophia-ai[docs]",
+]
 
 [build-system]
-requires = [ "hatchling",]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-dev-dependencies = [ "pytest>=7.4.0", "pytest-asyncio>=0.23.0", "black>=23.0.0", "ruff>=0.1.0", "mypy>=1.8.0", "coverage>=7.4.0", "pre-commit>=3.6.0",]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "black>=24.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+    "coverage>=7.4.0",
+    "pre-commit>=3.6.0",
+    "httpx>=0.26.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend"]
 
 [tool.black]
 line-length = 88
-target-version = [ "py312",]
+target-version = ["py312"]
+include = "\\.pyi?$"
+extend-exclude = """
+/(
+  # directories
+  \\.eggs
+  | \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | build
+  | dist
+  | external
+)/
+"""
 
 [tool.ruff]
 target-version = "py312"
 line-length = 88
-select = [ "E", "F", "W", "I", "N", "B", "C4", "UP",]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "S", "A", "C90", "T20", "SIM", "ARG"]
+ignore = ["E501", "B008", "B904"]
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "external",
+    "build",
+    "dist",
+]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+ignore_missing_imports = true
+exclude = [
+    "external/",
+    "build/",
+    "dist/",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["backend"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/external/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false

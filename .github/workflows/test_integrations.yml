@@ -28,7 +28,7 @@ jobs
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.local/bin" >> $GITHUB_PATH
-          pip install -r integration_requirements.txt
+          pip install uv && uv pip install .[dev]
 
       - name: Set up environment variables
         run: |
