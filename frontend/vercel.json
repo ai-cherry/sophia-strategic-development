@@ -2,15 +2,19 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/dashboard/ceo-enhanced",
-      "destination": "/index.html"
-    },
-    {
       "source": "/dashboard/ceo",
       "destination": "/index.html"
     },
     {
       "source": "/dashboard/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/chat",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/test",
       "destination": "/index.html"
     },
     {
@@ -25,15 +29,6 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
         }
       ]
     }

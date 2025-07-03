@@ -27,7 +27,6 @@ const getBaseURL = () => {
   const baseURL = isDevelopment ? API_CONFIG.development : API_CONFIG.production;
   console.log(`API Client using ${isDevelopment ? 'development' : 'production'} URL:`, baseURL);
   return baseURL;
-}
 };
 
 // Create axios instance with default configuration
