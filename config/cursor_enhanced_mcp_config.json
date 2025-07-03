@@ -99,9 +99,27 @@
       }
     },
     "codacy": {
+    },
+    "v0dev": {
+      "command": "python",
+      "args": [
+        "mcp-servers/v0dev/v0dev_mcp_server.py"
+      ],
+      "env": {
+        "PORT": "9030",
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org"
+      },
+      "remote": false,
+      "auto_trigger": {
+        "enabled": true,
+        "patterns": ["generate ui", "create component", "design component", "ui from", "component with"],
+        "priority": "HIGH"
+      },
+      "description": "V0.dev AI-driven UI component generation"
     }
   },
-  "version": "4.0-phoenix",
-  "description": "Cursor IDE MCP Configuration - Unified N8N Gateway",
-  "last_updated": "2024-07-02T12:00:00.000000Z"
+  "version": "4.1-phoenix-v0dev",
+  "description": "Cursor IDE MCP Configuration - Unified N8N Gateway with V0.dev Integration",
+  "last_updated": "2025-01-03T15:00:00.000000Z"
 }

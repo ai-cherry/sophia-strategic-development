@@ -1,0 +1,11 @@
+# V0.dev MCP Server Requirements
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+httpx>=0.28.1
+pydantic>=2.5.0
+pydantic-settings>=2.6.1
+prometheus-client>=0.19.0
+python-multipart>=0.0.18
+mcp>=0.5.0
+aiofiles>=24.1.0
+python-json-logger>=2.0.7 

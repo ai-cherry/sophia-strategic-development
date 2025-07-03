@@ -168,6 +168,55 @@ services:
       - "traefik.http.routers.cortex-server.rule=Host(`cortex.sophia-ai.lambda.cloud`)"
       - "traefik.http.routers.cortex-server.tls=true"
 
+  # V0.dev MCP Server - AI-driven UI component generation
+  v0dev-server:
+    image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai-v0dev:${IMAGE_TAG:-latest}
+    environment:
+      - VERCEL_V0DEV_API_KEY_FILE=/run/secrets/vercel_v0dev_api_key
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+      - LOG_LEVEL=INFO
+    ports:
+      - target: 9030
+        published: 9030
+        mode: ingress
+    secrets:
+      - vercel_v0dev_api_key
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9030/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sophia-overlay
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.v0dev-server.rule=Host(`v0dev.sophia-ai.lambda.cloud`)"
+      - "traefik.http.routers.v0dev-server.tls=true"
+      - "traefik.http.routers.v0dev-server.tls.certresolver=le"
+      - "traefik.http.services.v0dev-server.loadbalancer.server.port=9030"
+
   # Redis - Distributed caching across Lambda Labs
   redis:
     image: redis:7-alpine
@@ -391,6 +440,8 @@ secrets:
   snowflake_password:
     external: true
   grafana_password:
+    external: true
+  vercel_v0dev_api_key:
     external: true
 
 # Persistent volumes for stateful services

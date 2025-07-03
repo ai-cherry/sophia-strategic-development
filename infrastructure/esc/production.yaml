@@ -40,6 +40,9 @@ values:
       api_key: ${MEM0_API_KEY}
       host: mem0-service
       port: 8765
+    
+    vercel_v0dev:
+      api_key: ${VERCEL_V0DEV_API_KEY}
   
   # Data Infrastructure
   data:
@@ -138,6 +141,7 @@ environmentVariables:
   ANTHROPIC_API_KEY: ${ai.anthropic.api_key}
   PINECONE_API_KEY: ${ai.pinecone.api_key}
   MEM0_API_KEY: ${ai.mem0.api_key}
+  VERCEL_V0DEV_API_KEY: ${ai.vercel_v0dev.api_key}
   
   # Data
   SNOWFLAKE_ACCOUNT: ${data.snowflake.account}
