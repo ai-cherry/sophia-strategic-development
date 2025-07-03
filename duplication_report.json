@@ -1,0 +1,1568 @@
+{
+  "duplicate_files": {
+    "d41d8cd98f00b204e9800998ecf8427e": [
+      "/Users/lynnmusil/sophia-main/backend/core/sophia_intelligence_orchestrator.py",
+      "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service_handlers.py",
+      "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service_core.py",
+      "/Users/lynnmusil/sophia-main/backend/api/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/app/core/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/app/api/admin/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/app/api/mcp/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/app/api/v3/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/web/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/persistence/redis/__init__.py",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/persistence/snowflake/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ai_memory/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/codacy/__init__.py"
+    ],
+    "2592fc5a08402b771fa911e296a3c8f0": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py"
+    ],
+    "0aa18c6de1a257e9aed8e4267b68c272": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/slack_integration/simple_slack_integration_server.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/slack_unified/simple_slack_integration_server.py"
+    ],
+    "a2c68e7ac7872b6c9c96525b5484b12d": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/lambda_labs_cli/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/overlays/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/linear/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/playwright/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ui_ux_agent/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/apify_intelligence/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/postgres/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/apollo/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/huggingface_ai/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ag_ui/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/bright_data/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/portkey_admin/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/pulumi/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/asana/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/figma_context/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/__init__.py"
+    ],
+    "11287327473e4473f8b46c9629aacaa7": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/overlays/staging/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/playwright/microsoft-playwright-mcp/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/apollo/apollo-io-mcp/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/figma_context/figma-context-mcp/__init__.py"
+    ],
+    "68b329da9893e34099c7d8ad5cb9c940": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/core/__init__.py",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/__init__.py"
+    ]
+  },
+  "duplicate_files_count": 37,
+  "similar_files": [
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/mcp-servers/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/core/sophia_intelligence_orchestrator.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service_handlers.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service_core.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/api/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/infrastructure/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/app/core/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/app/api/admin/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/app/api/mcp/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/app/api/v3/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/infrastructure/web/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/infrastructure/persistence/redis/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/backend/infrastructure/persistence/snowflake/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/api/middleware/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/api/config/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/api/monitoring/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/external/davidamom_snowflake/tests/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/external/davidamom_snowflake/src/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/external/davidamom_snowflake/src/snowflake_mcp/__init__.py",
+      "similarity": 1.0
+    },
+    {
+      "file1": "/Users/lynnmusil/sophia-main/scripts/mcp_analysis_simple.py",
+      "file2": "/Users/lynnmusil/sophia-main/external/davidamom_snowflake/src/snowflake_mcp/connection/__init__.py",
+      "similarity": 1.0
+    }
+  ],
+  "duplicate_functions": {
+    "__init__(self)": [
+      "/Users/lynnmusil/sophia-main/backend/database/postgresql_staging_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/websocket/resilient_websocket_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/websocket/resilient_websocket_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/self_optimization.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/self_optimization.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/intelligent_data_ingestion.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/cache_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/data_flow_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/data_flow_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/comprehensive_memory_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/performance_monitor.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/constitutional_ai.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/integration_registry.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/query_optimization_framework.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/simple_config.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/integrated_performance_monitoring.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/aligned_snowflake_config.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/simple_mcp_base.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/simple_mcp_base.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/secure_snowflake_config.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/sophia_env_config.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/intelligent_caching_system.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_database_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_database_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/mcp_sync_orchestrator_config.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/dependencies.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/app/unified_fastapi_app.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/security/secret_management.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/enhanced_ingestion_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/estuary_flow_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong_api_extractor_clean.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong_api_extractor_clean.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/workflows/enhanced_langgraph_orchestration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/workflows/langgraph_agent_orchestration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_core.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_hubspot_connector.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_gong_connector.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/enhanced_microsoft_gong_integration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_webhook_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/enhanced_gong_integration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/advanced_estuary_flow_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/advanced_estuary_flow_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/portkey_gateway_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client_enhanced.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/batch_embed_data.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/transform_slack_linear_data.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/integrate_gong_pipeline.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/deploy_snowflake_schema.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_registry.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_auth.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_health.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/enhanced_ai_memory_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory_auto_discovery.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory_auto_discovery.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_ai_memory_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/api/enhanced_unified_chat_routes.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/quality_rules.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/comprehensive_health_monitor.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/health_monitoring_system.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/deployment_tracker.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/memory_monitoring_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/enhanced_deployment_tracker.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/performance_analytics.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/gong_data_quality.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/prometheus_config.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/deployment_status_monitor.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/intelligent_alerting_system.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/sophia_iac_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake_intelligence_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/graph_memory_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_cortex_agent_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_cortex_agent_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/automated_insights_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/intelligent_query_router.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/predictive_analytics_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_mcp_orchestration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_knowledge_base_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/project_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/mcp_orchestration_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/sse_progress_streaming_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_portkey_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/foundational_knowledge_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/large_file_ingestion_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_sentiment_analyzer.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/task_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/unified_ai_orchestration_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/simplified_portkey_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/langgraph_learning_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/kb_management_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/kb_management_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/knowledge_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/intelligent_data_discovery_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_data_ingestion.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/sophia_ai_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake_metadata_optimizer.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ceo_universal_chat_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/cortex_agent_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/cost_engineering_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat_driven_metadata_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat_driven_metadata_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/progressive_autonomy_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/semantic_layer_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/comprehensive_memory_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_snowflake_cortex_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/portkey_gateway.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_unified_intelligence_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/advanced_ui_ux_agent_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/ui_generation_intent_handler.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/smart_ai_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/vector_indexing_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ceo_chat_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/large_data_import_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_mcp_orchestration_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/team_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake_admin_chat_integration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake_admin_chat_integration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/vector_intelligence_router.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/event_driven_ingestion_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/migration_orchestrator_client.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/memory_preservation_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/predictive_automation_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/unified_intelligence_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/simplified_unified_intelligence_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/analytics_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/okr_tracking_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/payready_core/ingest_core_sql_data.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/netsuite/estuary_netsuite_setup.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong/gong_data_quality_module.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong/gong_data_quality_module.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/slack_analysis_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/linear_project_health_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/enhanced_sales_coach_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/interactive_sales_coach_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_core.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/marketing_analysis_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/integrations/gong_data_integration.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/enhanced/cortex_agent_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/infrastructure/sophia_infrastructure_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mixins/cline_v3_18_features.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mixins/cline_v3_18_features.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mixins/cline_v3_18_features.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mixins/cline_v3_18_features.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mem0_openmemory/enhanced_mem0_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mem0_persistent/mem0_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/core/dependency_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/context_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/unified_chat_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/infrastructure_chat/sophia_infrastructure_chat.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/health_check.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/linear/simple_linear_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/graphiti/graphiti_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/github/simple_github_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ai_memory/enhanced_ai_memory_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/bright_data/bright_data_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/codacy/production_codacy_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/codacy/production_codacy_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/codacy/production_codacy_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/codacy/production_codacy_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/v0dev/v0dev_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:__init__"
+    ],
+    "_validate_config(self)": [
+      "/Users/lynnmusil/sophia-main/backend/database/postgresql_staging_manager.py:_validate_config",
+      "/Users/lynnmusil/sophia-main/backend/etl/estuary_flow_orchestrator.py:_validate_config"
+    ],
+    "is_expired(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_cache.py:is_expired",
+      "/Users/lynnmusil/sophia-main/backend/core/intelligent_caching_system.py:is_expired",
+      "/Users/lynnmusil/sophia-main/backend/security/ephemeral_credentials/models.py:is_expired",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_models.py:is_expired",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake/connection_pool_manager.py:is_expired"
+    ],
+    "get_stats(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_cache.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/enhanced_cache_manager.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/performance_monitor.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/core/intelligent_caching_system.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_network.py:get_stats",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake/connection_pool_manager.py:get_stats"
+    ],
+    "__init__(self,environment)": [
+      "/Users/lynnmusil/sophia-main/backend/core/config_validator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/centralized_config_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_gong_pipeline_test_suite.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/estuary/estuary_configuration_manager.py:__init__"
+    ],
+    "can_execute(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:can_execute",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:can_execute"
+    ],
+    "record_success(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:record_success",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:record_success"
+    ],
+    "record_failure(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:record_failure",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:record_failure"
+    ],
+    "_sync_connect()": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:_sync_connect",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:_sync_connect"
+    ],
+    "connect()": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:connect",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:connect",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:connect"
+    ],
+    "_sync_health_check()": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:_sync_health_check",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:_sync_health_check"
+    ],
+    "_sync_close()": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py:_sync_close",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:_sync_close"
+    ],
+    "__init__(self,failure_threshold,recovery_timeout)": [
+      "/Users/lynnmusil/sophia-main/backend/core/data_flow_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:__init__"
+    ],
+    "_should_attempt_reset(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/data_flow_manager.py:_should_attempt_reset",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong/gong_data_quality_module.py:_should_attempt_reset"
+    ],
+    "validate_table_name(table_name)": [
+      "/Users/lynnmusil/sophia-main/backend/core/sql_security_validator.py:validate_table_name",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:validate_table_name"
+    ],
+    "_generate_recommendations(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/performance_monitor.py:_generate_recommendations",
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_estuary_integration_test_suite.py:_generate_recommendations"
+    ],
+    "decorator(func)": [
+      "/Users/lynnmusil/sophia-main/backend/core/performance_monitor.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/core/integrated_performance_monitoring.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/core/intelligent_caching_system.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/security/llm_audit.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/security/audit_logger.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/prometheus_config.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/prometheus_config.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/prometheus_config.py:decorator",
+      "/Users/lynnmusil/sophia-main/backend/security/rbac/dependencies.py:decorator",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:decorator",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:decorator"
+    ],
+    "sync_wrapper()": [
+      "/Users/lynnmusil/sophia-main/backend/core/performance_monitor.py:sync_wrapper",
+      "/Users/lynnmusil/sophia-main/backend/core/integrated_performance_monitoring.py:sync_wrapper",
+      "/Users/lynnmusil/sophia-main/backend/security/llm_audit.py:sync_wrapper"
+    ],
+    "get_snowflake_connection_params()": [
+      "/Users/lynnmusil/sophia-main/backend/core/snowflake_config_override.py:get_snowflake_connection_params",
+      "/Users/lynnmusil/sophia-main/backend/core/snowflake_override.py:get_snowflake_connection_params"
+    ],
+    "__post_init__(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/workflows/enhanced_executive_tasks.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/workflows/enhanced_executive_tasks.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/workflows/enhanced_executive_tasks.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service_models.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/estuary_gong_setup.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_gong_pipeline_test_suite.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/mcp_monitoring_config.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/mcp_monitoring_config.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/mcp_monitoring_config.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/mcp_orchestration_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/mcp_orchestration_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/mcp_orchestration_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/sophia_ai_orchestrator.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/sophia_ai_orchestrator.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ceo_universal_chat_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat_driven_metadata_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat_driven_metadata_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/smart_ai_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/smart_ai_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ceo_chat_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/services/memory_preservation_service.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_models.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/domain/value_objects/sentiment.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/domain/value_objects/money.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/user.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/deal.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/call.py:__post_init__",
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/contact.py:__post_init__"
+    ],
+    "get_config_value(key)": [
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py:get_config_value",
+      "/Users/lynnmusil/sophia-main/mcp-servers/v0dev/v0dev_mcp_server.py:get_config_value"
+    ],
+    "__init__(self,cortex_service)": [
+      "/Users/lynnmusil/sophia-main/backend/core/cross_platform_sync_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/core/cross_platform_sync_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py:__init__"
+    ],
+    "get_config_value(key,default)": [
+      "/Users/lynnmusil/sophia-main/backend/core/simple_config.py:get_config_value",
+      "/Users/lynnmusil/sophia-main/backend/core/auto_esc_config.py:get_config_value"
+    ],
+    "get_snowflake_config()": [
+      "/Users/lynnmusil/sophia-main/backend/core/simple_config.py:get_snowflake_config",
+      "/Users/lynnmusil/sophia-main/backend/core/auto_esc_config.py:get_snowflake_config"
+    ],
+    "_load_config(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/simple_config.py:_load_config",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong_api_extractor_clean.py:_load_config",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:_load_config",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/enhanced_mcp_base.py:_load_config",
+      "/Users/lynnmusil/sophia-main/backend/services/schema_discovery_service.py:_load_config",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/adapters/estuary_adapter.py:_load_config"
+    ],
+    "get(self,key,default)": [
+      "/Users/lynnmusil/sophia-main/backend/core/simple_config.py:get",
+      "/Users/lynnmusil/sophia-main/backend/core/auto_esc_config.py:get"
+    ],
+    "to_dict(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/integrated_performance_monitoring.py:to_dict",
+      "/Users/lynnmusil/sophia-main/backend/services/kb_management_service.py:to_dict",
+      "/Users/lynnmusil/sophia-main/backend/services/event_driven_ingestion_service.py:to_dict",
+      "/Users/lynnmusil/sophia-main/backend/services/predictive_automation_service.py:to_dict",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_models.py:to_dict",
+      "/Users/lynnmusil/sophia-main/mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py:to_dict",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py:to_dict",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py:to_dict",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ag_ui/enhanced_ag_ui_mcp_server.py:to_dict",
+      "/Users/lynnmusil/sophia-main/mcp-servers/portkey_admin/portkey_admin_mcp_server.py:to_dict"
+    ],
+    "get_snowflake_connection()": [
+      "/Users/lynnmusil/sophia-main/backend/core/aligned_snowflake_config.py:get_snowflake_connection",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake/connection_pool_manager.py:get_snowflake_connection"
+    ],
+    "get_connection_params(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/aligned_snowflake_config.py:get_connection_params",
+      "/Users/lynnmusil/sophia-main/backend/core/secure_snowflake_config.py:get_connection_params"
+    ],
+    "validate_connection(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/aligned_snowflake_config.py:validate_connection",
+      "/Users/lynnmusil/sophia-main/backend/core/secure_snowflake_config.py:validate_connection"
+    ],
+    "__init__(self,name,version)": [
+      "/Users/lynnmusil/sophia-main/backend/core/simple_mcp_base.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:__init__"
+    ],
+    "get(self,key)": [
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:get",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:get"
+    ],
+    "clear(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:clear",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:clear"
+    ],
+    "get_hit_ratio(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:get_hit_ratio",
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client_enhanced.py:get_hit_ratio"
+    ],
+    "get_performance_stats(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/hierarchical_cache.py:get_performance_stats",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service.py:get_performance_stats",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py:get_performance_stats",
+      "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service.py:get_performance_stats",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_handlers.py:get_performance_stats",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_ai_memory_mcp_server.py:get_performance_stats",
+      "/Users/lynnmusil/sophia-main/backend/agents/integrations/optimized_gong_data_integration.py:get_performance_stats"
+    ],
+    "get_health_status(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/sophia_env_config.py:get_health_status",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/unified_chat_service.py:get_health_status"
+    ],
+    "__str__(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/sophia_env_config.py:__str__",
+      "/Users/lynnmusil/sophia-main/backend/domain/value_objects/money.py:__str__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/base_chat_service.py:__str__"
+    ],
+    "__repr__(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/sophia_env_config.py:__repr__",
+      "/Users/lynnmusil/sophia-main/backend/domain/value_objects/money.py:__repr__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/base_chat_service.py:__repr__"
+    ],
+    "_initialize_configs(self)": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_database_manager.py:_initialize_configs",
+      "/Users/lynnmusil/sophia-main/backend/etl/enhanced_unified_data_pipeline.py:_initialize_configs",
+      "/Users/lynnmusil/sophia-main/backend/etl/enhanced_unified_data_pipeline_backup.py:_initialize_configs"
+    ],
+    "__init__(self,max_concurrent_agents)": [
+      "/Users/lynnmusil/sophia-main/backend/core/concurrent_agent_processor.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/integrations/optimized_gong_data_integration.py:__init__"
+    ],
+    "_extract_user_id(self,request)": [
+      "/Users/lynnmusil/sophia-main/backend/security/audit_middleware.py:_extract_user_id",
+      "/Users/lynnmusil/sophia-main/backend/security/audit_middleware.py:_extract_user_id"
+    ],
+    "_get_client_ip(self,request)": [
+      "/Users/lynnmusil/sophia-main/backend/security/audit_middleware.py:_get_client_ip",
+      "/Users/lynnmusil/sophia-main/backend/security/audit_middleware.py:_get_client_ip"
+    ],
+    "wrapper()": [
+      "/Users/lynnmusil/sophia-main/backend/security/audit_logger.py:wrapper",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/core/error_handler.py:wrapper"
+    ],
+    "__init__(self,config)": [
+      "/Users/lynnmusil/sophia-main/backend/etl/enhanced_unified_data_pipeline.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/enhanced_unified_data_pipeline_backup.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/enhanced_snowflake_cortex_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/gong_data_quality.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/gong_data_quality.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/advanced_ui_ux_agent_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_slack_integration_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/asana_project_intelligence_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/standardized_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/enhanced_standardized_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake/connection_pool_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/portkey_admin/portkey_admin_mcp_server.py:__init__"
+    ],
+    "__init__(self,service)": [
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_handlers.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_handlers.py:__init__"
+    ],
+    "__init__(self,retry_after)": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_webhook_server.py:__init__"
+    ],
+    "to_flow_yaml(self)": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/estuary_flow_manager.py:to_flow_yaml",
+      "/Users/lynnmusil/sophia-main/backend/integrations/estuary_flow_manager.py:to_flow_yaml"
+    ],
+    "__init__(self,failure_threshold,timeout)": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client_enhanced.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/etl/gong/gong_data_quality_module.py:__init__"
+    ],
+    "duration_seconds(self)": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/batch_embed_data.py:duration_seconds",
+      "/Users/lynnmusil/sophia-main/backend/scripts/transform_slack_linear_data.py:duration_seconds",
+      "/Users/lynnmusil/sophia-main/backend/scripts/ingest_foundational_kb.py:duration_seconds"
+    ],
+    "success_rate(self)": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/batch_embed_data.py:success_rate",
+      "/Users/lynnmusil/sophia-main/backend/scripts/transform_slack_linear_data.py:success_rate",
+      "/Users/lynnmusil/sophia-main/backend/scripts/ingest_foundational_kb.py:success_rate",
+      "/Users/lynnmusil/sophia-main/backend/agents/core/langgraph_agent_base.py:success_rate"
+    ],
+    "parse_arguments()": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py:parse_arguments",
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_gong_pipeline_test_suite.py:parse_arguments"
+    ],
+    "generate_test_report(self)": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_gong_pipeline_test_suite.py:generate_test_report",
+      "/Users/lynnmusil/sophia-main/backend/scripts/enhanced_asana_integration_test_suite.py:generate_test_report"
+    ],
+    "main()": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/check_environment_health.py:main",
+      "/Users/lynnmusil/sophia-main/mcp-servers/github/simple_github_server.py:main",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/tests/get_closed_ticket_conversations.py:main"
+    ],
+    "__init__(self,name,version,port)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/enhanced_mcp_base.py:__init__"
+    ],
+    "_register_tools(self)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/enhanced_mcp_base.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/hubspot_mcp_server.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/intercom/intercom_mcp_server.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/notion/enhanced_notion_mcp_server.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/apify_intelligence/apify_intelligence_mcp_server.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/github/github_mcp_server.py:_register_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/salesforce/salesforce_mcp_server.py:_register_tools"
+    ],
+    "_register_resources(self)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/sophia_mcp_base.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/enhanced_mcp_base.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/hubspot_mcp_server.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/mcp-servers/intercom/intercom_mcp_server.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/mcp-servers/notion/enhanced_notion_mcp_server.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/mcp-servers/github/github_mcp_server.py:_register_resources",
+      "/Users/lynnmusil/sophia-main/mcp-servers/salesforce/salesforce_mcp_server.py:_register_resources"
+    ],
+    "_initialize_metrics(self)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_network.py:_initialize_metrics",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_server.py:_initialize_metrics",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/standardized_mcp_server.py:_initialize_metrics",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/enhanced_standardized_mcp_server.py:_initialize_metrics"
+    ],
+    "__init__(self,name)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:__init__"
+    ],
+    "_load_config(self,config_path)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_client.py:_load_config",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_client.py:_load_config"
+    ],
+    "_setup_routes(self)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_server.py:_setup_routes",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/standardized_mcp_server.py:_setup_routes",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/enhanced_standardized_mcp_server.py:_setup_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ai_memory/enhanced_ai_memory_server.py:_setup_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ag_ui/enhanced_ag_ui_mcp_server.py:_setup_routes"
+    ],
+    "_load_port_from_config(self)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_server.py:_load_port_from_config",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/standardized_mcp_server.py:_load_port_from_config",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/enhanced_standardized_mcp_server.py:_load_port_from_config"
+    ],
+    "__init__(self,config_path)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_client.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/schema_discovery_service.py:__init__"
+    ],
+    "generate_deployment_id(self,component,environment)": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/deployment_tracker.py:generate_deployment_id",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/enhanced_deployment_tracker.py:generate_deployment_id"
+    ],
+    "_get_github_context(self)": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/deployment_tracker.py:_get_github_context",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/enhanced_deployment_tracker.py:_get_github_context"
+    ],
+    "__init__(self,webhook_url)": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py:__init__"
+    ],
+    "_calculate_performance_score(self,metrics)": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/performance_analytics.py:_calculate_performance_score",
+      "/Users/lynnmusil/sophia-main/backend/agents/infrastructure/sophia_infrastructure_agent.py:_calculate_performance_score"
+    ],
+    "_calculate_trend(self,values)": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/group_health_monitoring.py:_calculate_trend",
+      "/Users/lynnmusil/sophia-main/backend/services/predictive_automation_service.py:_calculate_trend"
+    ],
+    "__init__(self,name,platform_type)": [
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/sophia_iac_orchestrator.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/adapters/snowflake_adapter.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/adapters/estuary_adapter.py:__init__"
+    ],
+    "__init__(self,config_dict)": [
+      "/Users/lynnmusil/sophia-main/backend/services/payready_business_intelligence.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/core/base_agent.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/call_analysis_agent.py:__init__"
+    ],
+    "__init__(self,snowflake_config)": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_chat_context_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/large_file_ingestion_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ingestion_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/event_driven_ingestion_service.py:__init__"
+    ],
+    "__init__(self,ingestion_service)": [
+      "/Users/lynnmusil/sophia-main/backend/services/sse_progress_streaming_service.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat_driven_metadata_service.py:__init__"
+    ],
+    "_get_fallback_dashboard(self)": [
+      "/Users/lynnmusil/sophia-main/backend/services/progressive_autonomy_manager.py:_get_fallback_dashboard",
+      "/Users/lynnmusil/sophia-main/backend/services/okr_tracking_service.py:_get_fallback_dashboard"
+    ],
+    "_format_unified_response(self,query_results,query_context,max_results)": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_unified_intelligence_service.py:_format_unified_response",
+      "/Users/lynnmusil/sophia-main/backend/services/unified_intelligence_service.py:_format_unified_response"
+    ],
+    "from_dict(cls,data)": [
+      "/Users/lynnmusil/sophia-main/backend/services/event_driven_ingestion_service.py:from_dict",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_models.py:from_dict"
+    ],
+    "_ensure_storage_dir(self)": [
+      "/Users/lynnmusil/sophia-main/backend/security/rbac/service.py:_ensure_storage_dir",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/faiss_manager.py:_ensure_storage_dir"
+    ],
+    "_load_from_storage(self)": [
+      "/Users/lynnmusil/sophia-main/backend/security/rbac/service.py:_load_from_storage",
+      "/Users/lynnmusil/sophia-main/backend/security/ephemeral_credentials/service.py:_load_from_storage"
+    ],
+    "validate_expiration(cls,v,values)": [
+      "/Users/lynnmusil/sophia-main/backend/security/ephemeral_credentials/models.py:validate_expiration",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_models.py:validate_expiration"
+    ],
+    "get_capabilities(self)": [
+      "/Users/lynnmusil/sophia-main/backend/agents/core/base_agent.py:get_capabilities",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mixins/cline_v3_18_features.py:get_capabilities",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/base_chat_service.py:get_capabilities"
+    ],
+    "__init__(self,agent)": [
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py:__init__"
+    ],
+    "_identify_revenue_signals(self,call_data)": [
+      "/Users/lynnmusil/sophia-main/backend/agents/integrations/gong_data_integration.py:_identify_revenue_signals",
+      "/Users/lynnmusil/sophia-main/backend/agents/integrations/optimized_gong_data_integration.py:_identify_revenue_signals"
+    ],
+    "__lt__(self,other)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_models.py:__lt__",
+      "/Users/lynnmusil/sophia-main/backend/domain/value_objects/money.py:__lt__"
+    ],
+    "__init__(self,storage_handler)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py:__init__"
+    ],
+    "_setup_server_routes(self)": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/base/enhanced_standardized_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/hubspot_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/graphiti/graphiti_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/apify_intelligence/apify_intelligence_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/github/github_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ag_ui/enhanced_ag_ui_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/bright_data/bright_data_mcp_server.py:_setup_server_routes",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:_setup_server_routes"
+    ],
+    "__init__(self,call_id)": [
+      "/Users/lynnmusil/sophia-main/backend/application/use_cases/analyze_call_sentiment.py:__init__",
+      "/Users/lynnmusil/sophia-main/backend/application/use_cases/analyze_call_sentiment.py:__init__"
+    ],
+    "full_name(self)": [
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/user.py:full_name",
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/contact.py:full_name"
+    ],
+    "display_name(self)": [
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/user.py:display_name",
+      "/Users/lynnmusil/sophia-main/backend/domain/entities/contact.py:display_name"
+    ],
+    "__len__(self)": [
+      "/Users/lynnmusil/sophia-main/backend/services/chat/context_manager.py:__len__",
+      "/Users/lynnmusil/sophia-main/backend/services/chat/session_manager.py:__len__"
+    ],
+    "__init__(self,port)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/hubspot_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/intercom/intercom_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/notion/enhanced_notion_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/apify_intelligence/apify_intelligence_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/github/github_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/ag_ui/enhanced_ag_ui_mcp_server.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/salesforce/salesforce_mcp_server.py:__init__"
+    ],
+    "_validate_connection(self)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:_validate_connection",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:_validate_connection"
+    ],
+    "_get_connection(self)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:_get_connection",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:_get_connection"
+    ],
+    "_execute_cortex_function(self,sql_query)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:_execute_cortex_function",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:_execute_cortex_function"
+    ],
+    "tool(self)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_unified/unified_snowflake_server.py:tool",
+      "/Users/lynnmusil/sophia-main/mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py:tool"
+    ],
+    "get_mcp_tools(self)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/graphiti/graphiti_mcp_server.py:get_mcp_tools",
+      "/Users/lynnmusil/sophia-main/mcp-servers/bright_data/bright_data_mcp_server.py:get_mcp_tools"
+    ],
+    "get_recent_emails(self,limit,after)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/hubspot_client.py:get_recent_emails",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/conversation_client.py:get_recent_emails"
+    ],
+    "get_tickets(self,criteria,limit,max_retries,retry_delay)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/hubspot_client.py:get_tickets",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/ticket_client.py:get_tickets"
+    ],
+    "__init__(self,hubspot_client,access_token)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/company_client.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/contact_client.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/ticket_client.py:__init__"
+    ],
+    "get_recent(self,limit)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/company_client.py:get_recent",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/contact_client.py:get_recent"
+    ],
+    "_fetch_thread_messages(self,thread_id)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/conversation_client.py:_fetch_thread_messages",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/ticket_client.py:_fetch_thread_messages"
+    ],
+    "_format_message(self,msg)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/conversation_client.py:_format_message",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/ticket_client.py:_format_message"
+    ],
+    "__init__(self,hubspot_client,faiss_manager,embedding_model)": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/ticket_handler.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/conversation_handler.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/company_handler.py:__init__",
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/contact_handler.py:__init__"
+    ]
+  },
+  "duplicate_functions_count": 100,
+  "service_patterns": {
+    "PostgreSQLStagingManager": [
+      "/Users/lynnmusil/sophia-main/backend/database/postgresql_staging_manager.py"
+    ],
+    "ResilientWebSocketManager": [
+      "/Users/lynnmusil/sophia-main/backend/websocket/resilient_websocket_manager.py"
+    ],
+    "DashboardCacheManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/cache_manager.py"
+    ],
+    "ServiceType": [
+      "/Users/lynnmusil/sophia-main/backend/core/config_validator.py"
+    ],
+    "SecureCredentialManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/secure_credential_manager.py"
+    ],
+    "OptimizedConnectionManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_connection_manager.py"
+    ],
+    "DataFlowManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/data_flow_manager.py"
+    ],
+    "ComprehensiveMemoryManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/comprehensive_memory_manager.py"
+    ],
+    "EnhancedCacheManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/enhanced_cache_manager.py"
+    ],
+    "UnifiedConnectionManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/unified_connection_manager.py"
+    ],
+    "ServiceHealthStatus": [
+      "/Users/lynnmusil/sophia-main/backend/core/integrated_performance_monitoring.py"
+    ],
+    "SimpleMCPManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/simple_mcp_base.py"
+    ],
+    "OptimizedDatabaseManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/optimized_database_manager.py"
+    ],
+    "CentralizedConfigManager": [
+      "/Users/lynnmusil/sophia-main/backend/core/centralized_config_manager.py"
+    ],
+    "SophiaUnifiedChatService": [
+      "/Users/lynnmusil/sophia-main/backend/core/dependencies.py"
+    ],
+    "SecretManager": [
+      "/Users/lynnmusil/sophia-main/backend/security/secret_management.py"
+    ],
+    "EnhancedIngestionService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ingestion_service.py",
+      "/Users/lynnmusil/sophia-main/backend/etl/enhanced_ingestion_service.py"
+    ],
+    "SnowflakeCortexService": [
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service.py",
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_core.py"
+    ],
+    "CacheManager": [
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_utils.py"
+    ],
+    "OptimizedSnowflakeCortexService": [
+      "/Users/lynnmusil/sophia-main/backend/utils/optimized_snowflake_cortex_service.py"
+    ],
+    "EnhancedSnowflakeCortexService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_snowflake_cortex_service.py",
+      "/Users/lynnmusil/sophia-main/backend/utils/enhanced_snowflake_cortex_service.py"
+    ],
+    "CortexHandlers": [
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_handlers.py"
+    ],
+    "BusinessHandlers": [
+      "/Users/lynnmusil/sophia-main/backend/utils/snowflake_cortex_service_handlers.py"
+    ],
+    "MCPServiceHealth": [
+      "/Users/lynnmusil/sophia-main/backend/models/api_models.py"
+    ],
+    "GongAPIClient": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client.py",
+      "/Users/lynnmusil/sophia-main/backend/scripts/sophia_data_pipeline_ultimate.py"
+    ],
+    "RetryManager": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client.py",
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_webhook_server.py"
+    ],
+    "RedisNotificationClient": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_redis_client.py"
+    ],
+    "EstuaryFlowManager": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/estuary_flow_manager.py",
+      "/Users/lynnmusil/sophia-main/backend/integrations/advanced_estuary_flow_manager.py"
+    ],
+    "AdvancedEstuaryFlowManager": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/advanced_estuary_flow_manager.py"
+    ],
+    "PortkeyGatewayService": [
+      "/Users/lynnmusil/sophia-main/backend/services/advanced_ui_ux_agent_service.py",
+      "/Users/lynnmusil/sophia-main/backend/integrations/portkey_gateway_service.py"
+    ],
+    "SnowflakeWebhookClient": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_snowflake_client.py"
+    ],
+    "EnhancedGongAPIClient": [
+      "/Users/lynnmusil/sophia-main/backend/integrations/gong_api_client_enhanced.py"
+    ],
+    "SlackLinearTransformationService": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/transform_slack_linear_data.py"
+    ],
+    "FoundationalKBIngestionService": [
+      "/Users/lynnmusil/sophia-main/backend/scripts/ingest_foundational_kb.py"
+    ],
+    "MCPClientMode": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_client.py"
+    ],
+    "MCPClientConfig": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_client.py"
+    ],
+    "OptimizedMCPClient": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/optimized_mcp_client.py"
+    ],
+    "ServiceHealth": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_health.py"
+    ],
+    "MCPClient": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mcp_client.py"
+    ],
+    "ConnectionManager": [
+      "/Users/lynnmusil/sophia-main/backend/api/enhanced_unified_chat_routes.py"
+    ],
+    "MockChatService": [
+      "/Users/lynnmusil/sophia-main/backend/api/unified_chat_routes_v2.py"
+    ],
+    "QualityAlertManager": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py"
+    ],
+    "SlackNotificationClient": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py"
+    ],
+    "EmailNotificationClient": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py"
+    ],
+    "WebhookNotificationClient": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py"
+    ],
+    "PagerDutyNotificationClient": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/alert_manager.py"
+    ],
+    "MemoryMonitoringService": [
+      "/Users/lynnmusil/sophia-main/backend/monitoring/memory_monitoring_service.py"
+    ],
+    "SnowflakeIntelligenceService": [
+      "/Users/lynnmusil/sophia-main/backend/services/snowflake_intelligence_service.py"
+    ],
+    "GraphMemoryService": [
+      "/Users/lynnmusil/sophia-main/backend/services/graph_memory_service.py"
+    ],
+    "CortexAgentService": [
+      "/Users/lynnmusil/sophia-main/backend/services/cortex_agent_service.py",
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_cortex_agent_service.py"
+    ],
+    "EnhancedCortexAgentService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_cortex_agent_service.py"
+    ],
+    "AutomatedInsightsService": [
+      "/Users/lynnmusil/sophia-main/backend/services/automated_insights_service.py"
+    ],
+    "PredictiveAnalyticsService": [
+      "/Users/lynnmusil/sophia-main/backend/services/predictive_analytics_service.py"
+    ],
+    "EnhancedChatContextService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_chat_context_service.py"
+    ],
+    "EnhancedKnowledgeBaseService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_knowledge_base_service.py"
+    ],
+    "ProjectService": [
+      "/Users/lynnmusil/sophia-main/backend/services/project_service.py"
+    ],
+    "MCPOrchestrationService": [
+      "/Users/lynnmusil/sophia-main/backend/services/mcp_orchestration_service.py"
+    ],
+    "HybridProgressStreamingService": [
+      "/Users/lynnmusil/sophia-main/backend/services/sse_progress_streaming_service.py"
+    ],
+    "FoundationalKnowledgeService": [
+      "/Users/lynnmusil/sophia-main/backend/services/foundational_knowledge_service.py"
+    ],
+    "LargeFileIngestionService": [
+      "/Users/lynnmusil/sophia-main/backend/services/large_file_ingestion_service.py"
+    ],
+    "TaskService": [
+      "/Users/lynnmusil/sophia-main/backend/services/task_service.py"
+    ],
+    "UnifiedAIOrchestrationService": [
+      "/Users/lynnmusil/sophia-main/backend/services/unified_ai_orchestration_service.py"
+    ],
+    "SimplifiedPortkeyService": [
+      "/Users/lynnmusil/sophia-main/backend/services/simplified_portkey_service.py"
+    ],
+    "WebSocketClient": [
+      "/Users/lynnmusil/sophia-main/backend/services/real_time_streaming_service.py"
+    ],
+    "RealTimeStreamingService": [
+      "/Users/lynnmusil/sophia-main/backend/services/real_time_streaming_service.py"
+    ],
+    "KBManagementService": [
+      "/Users/lynnmusil/sophia-main/backend/services/kb_management_service.py"
+    ],
+    "KnowledgeService": [
+      "/Users/lynnmusil/sophia-main/backend/services/knowledge_service.py"
+    ],
+    "IntelligentDataDiscoveryService": [
+      "/Users/lynnmusil/sophia-main/backend/services/intelligent_data_discovery_service.py"
+    ],
+    "EnhancedDataIngestionService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_data_ingestion.py"
+    ],
+    "EnhancedUnifiedUnifiedChatService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ceo_universal_chat_service.py"
+    ],
+    "CostEngineeringService": [
+      "/Users/lynnmusil/sophia-main/backend/services/cost_engineering_service.py"
+    ],
+    "SchemaDiscoveryService": [
+      "/Users/lynnmusil/sophia-main/backend/services/schema_discovery_service.py"
+    ],
+    "ChatDrivenMetadataService": [
+      "/Users/lynnmusil/sophia-main/backend/services/chat_driven_metadata_service.py"
+    ],
+    "ProgressiveAutonomyManager": [
+      "/Users/lynnmusil/sophia-main/backend/services/progressive_autonomy_manager.py"
+    ],
+    "SemanticLayerService": [
+      "/Users/lynnmusil/sophia-main/backend/services/semantic_layer_service.py"
+    ],
+    "ComprehensiveMemoryService": [
+      "/Users/lynnmusil/sophia-main/backend/services/comprehensive_memory_service.py"
+    ],
+    "ConversationalTrainingService": [
+      "/Users/lynnmusil/sophia-main/backend/services/conversational_training_service.py"
+    ],
+    "EnhancedUnifiedIntelligenceService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_unified_intelligence_service.py"
+    ],
+    "AdvancedUIUXAgentService": [
+      "/Users/lynnmusil/sophia-main/backend/services/advanced_ui_ux_agent_service.py"
+    ],
+    "SecureCredentialService": [
+      "/Users/lynnmusil/sophia-main/backend/services/secure_credential_service.py"
+    ],
+    "EnhancedSlackIntegrationService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_slack_integration_service.py"
+    ],
+    "UIGenerationIntentHandler": [
+      "/Users/lynnmusil/sophia-main/backend/services/ui_generation_intent_handler.py"
+    ],
+    "SmartAIService": [
+      "/Users/lynnmusil/sophia-main/backend/services/smart_ai_service.py"
+    ],
+    "VectorIndexingService": [
+      "/Users/lynnmusil/sophia-main/backend/services/vector_indexing_service.py"
+    ],
+    "EnhancedUnifiedChatService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_ceo_chat_service.py"
+    ],
+    "LargeDataImportService": [
+      "/Users/lynnmusil/sophia-main/backend/services/large_data_import_service.py"
+    ],
+    "EnhancedMCPOrchestrationService": [
+      "/Users/lynnmusil/sophia-main/backend/services/enhanced_mcp_orchestration_service.py"
+    ],
+    "TeamService": [
+      "/Users/lynnmusil/sophia-main/backend/services/team_service.py"
+    ],
+    "HierarchicalCachingService": [
+      "/Users/lynnmusil/sophia-main/backend/services/hierarchical_caching_service.py"
+    ],
+    "EventDrivenIngestionService": [
+      "/Users/lynnmusil/sophia-main/backend/services/event_driven_ingestion_service.py"
+    ],
+    "MigrationOrchestratorClient": [
+      "/Users/lynnmusil/sophia-main/backend/services/migration_orchestrator_client.py"
+    ],
+    "MemoryPreservationService": [
+      "/Users/lynnmusil/sophia-main/backend/services/memory_preservation_service.py"
+    ],
+    "PredictiveAutomationService": [
+      "/Users/lynnmusil/sophia-main/backend/services/predictive_automation_service.py"
+    ],
+    "SophiaUnifiedIntelligenceService": [
+      "/Users/lynnmusil/sophia-main/backend/services/unified_intelligence_service.py"
+    ],
+    "SimplifiedUnifiedIntelligenceService": [
+      "/Users/lynnmusil/sophia-main/backend/services/simplified_unified_intelligence_service.py"
+    ],
+    "AnalyticsService": [
+      "/Users/lynnmusil/sophia-main/backend/services/analytics_service.py"
+    ],
+    "OKRTrackingService": [
+      "/Users/lynnmusil/sophia-main/backend/services/okr_tracking_service.py"
+    ],
+    "RBACService": [
+      "/Users/lynnmusil/sophia-main/backend/security/rbac/service.py"
+    ],
+    "EphemeralCredentialsService": [
+      "/Users/lynnmusil/sophia-main/backend/security/ephemeral_credentials/service.py"
+    ],
+    "EnhancedEstuaryManager": [
+      "/Users/lynnmusil/sophia-main/backend/etl/estuary/estuary_configuration_manager.py"
+    ],
+    "DealRiskHandler": [
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py"
+    ],
+    "EmailGenerationHandler": [
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py"
+    ],
+    "CompetitorAnalysisHandler": [
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py"
+    ],
+    "PipelineAnalysisHandler": [
+      "/Users/lynnmusil/sophia-main/backend/agents/specialized/sales_intelligence_agent_handlers.py"
+    ],
+    "GongAgentIntegrationManager": [
+      "/Users/lynnmusil/sophia-main/backend/agents/integrations/gong_data_integration.py"
+    ],
+    "MockRedisClient": [
+      "/Users/lynnmusil/sophia-main/backend/agents/infrastructure/sophia_infrastructure_agent.py"
+    ],
+    "Mem0RestClient": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/mem0_openmemory/enhanced_mem0_server.py"
+    ],
+    "MemoryStorageHandler": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py"
+    ],
+    "MemorySearchHandler": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py"
+    ],
+    "MemoryAnalyticsHandler": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py"
+    ],
+    "MemoryMaintenanceHandler": [
+      "/Users/lynnmusil/sophia-main/backend/mcp_servers/ai_memory/ai_memory_handlers.py"
+    ],
+    "AIService": [
+      "/Users/lynnmusil/sophia-main/backend/application/ports/services/ai_service.py"
+    ],
+    "InfrastructureStateManager": [
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/core/state_manager.py"
+    ],
+    "DependencyManager": [
+      "/Users/lynnmusil/sophia-main/backend/infrastructure/core/dependency_manager.py"
+    ],
+    "ContextManager": [
+      "/Users/lynnmusil/sophia-main/backend/services/chat/context_manager.py"
+    ],
+    "SessionManager": [
+      "/Users/lynnmusil/sophia-main/backend/services/chat/session_manager.py"
+    ],
+    "BaseChatService": [
+      "/Users/lynnmusil/sophia-main/backend/services/chat/base_chat_service.py"
+    ],
+    "UnifiedChatService": [
+      "/Users/lynnmusil/sophia-main/backend/services/chat/unified_chat_service.py"
+    ],
+    "SimpleLinearManager": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/linear/simple_linear_server.py"
+    ],
+    "CodacyAPIClient": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/codacy/codacy_api_client.py"
+    ],
+    "V0DevService": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/v0dev/v0dev_mcp_server.py"
+    ],
+    "HubSpotClient": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/hubspot_client.py"
+    ],
+    "FaissManager": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/faiss_manager.py"
+    ],
+    "CompanyClient": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/company_client.py"
+    ],
+    "ConversationClient": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/conversation_client.py"
+    ],
+    "ContactClient": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/contact_client.py"
+    ],
+    "TicketClient": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/clients/ticket_client.py"
+    ],
+    "TicketHandler": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/ticket_handler.py"
+    ],
+    "ConversationHandler": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/conversation_handler.py"
+    ],
+    "CompanyHandler": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/company_handler.py"
+    ],
+    "SearchHandler": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/search_handler.py"
+    ],
+    "ContactHandler": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/contact_handler.py"
+    ],
+    "BaseHandler": [
+      "/Users/lynnmusil/sophia-main/mcp-servers/hubspot_unified/src/mcp_server_hubspot/handlers/base_handler.py"
+    ]
+  },
+  "redundant_services": {
+    "DashboardCacheManager": [
+      "CacheManager"
+    ],
+    "SecureCredentialManager": [
+      "SecretManager",
+      "SecureCredentialService",
+      "SecureCredentialService"
+    ],
+    "OptimizedConnectionManager": [
+      "UnifiedConnectionManager",
+      "ConnectionManager"
+    ],
+    "DataFlowManager": [
+      "EstuaryFlowManager",
+      "AdvancedEstuaryFlowManager"
+    ],
+    "ComprehensiveMemoryManager": [
+      "ComprehensiveMemoryService",
+      "ComprehensiveMemoryService"
+    ],
+    "EnhancedCacheManager": [
+      "CacheManager",
+      "EnhancedEstuaryManager"
+    ],
+    "UnifiedConnectionManager": [
+      "ConnectionManager"
+    ],
+    "ServiceHealthStatus": [
+      "MCPServiceHealth",
+      "ServiceHealth"
+    ],
+    "SimpleMCPManager": [
+      "SimpleLinearManager"
+    ],
+    "SophiaUnifiedChatService": [
+      "EnhancedUnifiedUnifiedChatService",
+      "EnhancedUnifiedChatService",
+      "SophiaUnifiedIntelligenceService",
+      "UnifiedChatService"
+    ],
+    "SecretManager": [
+      "RetryManager"
+    ],
+    "EnhancedIngestionService": [
+      "FoundationalKBIngestionService",
+      "EnhancedCortexAgentService",
+      "EnhancedChatContextService",
+      "EnhancedKnowledgeBaseService",
+      "LargeFileIngestionService",
+      "EnhancedDataIngestionService",
+      "EnhancedSlackIntegrationService",
+      "EnhancedUnifiedChatService",
+      "EnhancedMCPOrchestrationService",
+      "EventDrivenIngestionService"
+    ],
+    "SnowflakeCortexService": [
+      "OptimizedSnowflakeCortexService",
+      "EnhancedSnowflakeCortexService",
+      "SnowflakeIntelligenceService"
+    ],
+    "OptimizedSnowflakeCortexService": [
+      "EnhancedSnowflakeCortexService"
+    ],
+    "EnhancedSnowflakeCortexService": [
+      "EnhancedCortexAgentService",
+      "EnhancedChatContextService",
+      "EnhancedKnowledgeBaseService"
+    ],
+    "CortexHandlers": [
+      "ContactHandler"
+    ],
+    "BusinessHandlers": [
+      "BaseHandler"
+    ],
+    "MCPServiceHealth": [
+      "ServiceHealth"
+    ],
+    "GongAPIClient": [
+      "EnhancedGongAPIClient",
+      "CodacyAPIClient"
+    ],
+    "RetryManager": [
+      "EstuaryFlowManager"
+    ],
+    "RedisNotificationClient": [
+      "SlackNotificationClient",
+      "EmailNotificationClient",
+      "WebhookNotificationClient",
+      "PagerDutyNotificationClient"
+    ],
+    "EstuaryFlowManager": [
+      "AdvancedEstuaryFlowManager"
+    ],
+    "AdvancedEstuaryFlowManager": [
+      "EnhancedEstuaryManager"
+    ],
+    "FoundationalKBIngestionService": [
+      "FoundationalKnowledgeService",
+      "EnhancedDataIngestionService",
+      "EventDrivenIngestionService"
+    ],
+    "MCPClientMode": [
+      "MCPClientConfig",
+      "MCPClient"
+    ],
+    "MCPClientConfig": [
+      "MCPClient"
+    ],
+    "MCPClient": [
+      "CompanyClient"
+    ],
+    "ConnectionManager": [
+      "ContextManager",
+      "SessionManager"
+    ],
+    "MockChatService": [
+      "BaseChatService"
+    ],
+    "SlackNotificationClient": [
+      "EmailNotificationClient",
+      "WebhookNotificationClient",
+      "PagerDutyNotificationClient"
+    ],
+    "EmailNotificationClient": [
+      "WebhookNotificationClient",
+      "PagerDutyNotificationClient"
+    ],
+    "WebhookNotificationClient": [
+      "PagerDutyNotificationClient"
+    ],
+    "SnowflakeIntelligenceService": [
+      "EnhancedUnifiedIntelligenceService",
+      "SophiaUnifiedIntelligenceService",
+      "SimplifiedUnifiedIntelligenceService"
+    ],
+    "CortexAgentService": [
+      "EnhancedCortexAgentService",
+      "AdvancedUIUXAgentService"
+    ],
+    "EnhancedCortexAgentService": [
+      "EnhancedChatContextService",
+      "EnhancedKnowledgeBaseService",
+      "EnhancedDataIngestionService",
+      "AdvancedUIUXAgentService",
+      "EnhancedSlackIntegrationService",
+      "EnhancedMCPOrchestrationService"
+    ],
+    "PredictiveAnalyticsService": [
+      "PredictiveAutomationService",
+      "AnalyticsService"
+    ],
+    "EnhancedChatContextService": [
+      "EnhancedDataIngestionService",
+      "EnhancedSlackIntegrationService",
+      "EnhancedUnifiedChatService",
+      "EnhancedMCPOrchestrationService"
+    ],
+    "EnhancedKnowledgeBaseService": [
+      "KnowledgeService",
+      "EnhancedUnifiedChatService"
+    ],
+    "ProjectService": [
+      "RBACService"
+    ],
+    "MCPOrchestrationService": [
+      "UnifiedAIOrchestrationService",
+      "EnhancedMCPOrchestrationService",
+      "MemoryPreservationService"
+    ],
+    "FoundationalKnowledgeService": [
+      "KnowledgeService"
+    ],
+    "TaskService": [
+      "SmartAIService",
+      "TeamService",
+      "RBACService",
+      "AIService"
+    ],
+    "UnifiedAIOrchestrationService": [
+      "EnhancedMCPOrchestrationService",
+      "UnifiedChatService"
+    ],
+    "WebSocketClient": [
+      "HubSpotClient",
+      "TicketClient"
+    ],
+    "EnhancedDataIngestionService": [
+      "EnhancedSlackIntegrationService",
+      "EnhancedMCPOrchestrationService"
+    ],
+    "EnhancedUnifiedUnifiedChatService": [
+      "EnhancedUnifiedIntelligenceService",
+      "EnhancedUnifiedChatService",
+      "UnifiedChatService"
+    ],
+    "SchemaDiscoveryService": [
+      "SemanticLayerService"
+    ],
+    "SemanticLayerService": [
+      "SmartAIService"
+    ],
+    "EnhancedUnifiedIntelligenceService": [
+      "EnhancedUnifiedChatService",
+      "SophiaUnifiedIntelligenceService",
+      "SimplifiedUnifiedIntelligenceService"
+    ],
+    "SecureCredentialService": [
+      "EphemeralCredentialsService"
+    ],
+    "EnhancedSlackIntegrationService": [
+      "EnhancedMCPOrchestrationService"
+    ],
+    "UIGenerationIntentHandler": [
+      "EmailGenerationHandler"
+    ],
+    "SmartAIService": [
+      "AIService"
+    ],
+    "EnhancedUnifiedChatService": [
+      "UnifiedChatService"
+    ],
+    "TeamService": [
+      "RBACService",
+      "AIService"
+    ],
+    "SophiaUnifiedIntelligenceService": [
+      "SimplifiedUnifiedIntelligenceService"
+    ],
+    "AnalyticsService": [
+      "AIService"
+    ],
+    "RBACService": [
+      "AIService",
+      "BaseChatService"
+    ],
+    "DealRiskHandler": [
+      "SearchHandler"
+    ],
+    "EmailGenerationHandler": [
+      "ConversationHandler"
+    ],
+    "CompetitorAnalysisHandler": [
+      "PipelineAnalysisHandler",
+      "MemoryAnalyticsHandler",
+      "CompanyHandler"
+    ],
+    "MemoryStorageHandler": [
+      "MemorySearchHandler",
+      "MemoryMaintenanceHandler"
+    ],
+    "MemorySearchHandler": [
+      "MemoryMaintenanceHandler",
+      "SearchHandler"
+    ],
+    "BaseChatService": [
+      "UnifiedChatService"
+    ],
+    "CodacyAPIClient": [
+      "CompanyClient",
+      "ContactClient"
+    ],
+    "ConversationClient": [
+      "ContactClient",
+      "ConversationHandler"
+    ],
+    "TicketHandler": [
+      "ContactHandler"
+    ],
+    "ConversationHandler": [
+      "ContactHandler"
+    ],
+    "CompanyHandler": [
+      "ContactHandler"
+    ],
+    "SearchHandler": [
+      "BaseHandler"
+    ]
+  }
+}

@@ -425,4 +425,56 @@ async def legacy_sophia_chat(request: dict):
         user_id=request.get("user_id", "user"),
         context="business_intelligence",
         access_level="employee"
-    )) 
+    ))
+
+
+@router.post("/chat/approve/{approval_id}")
+async def approve_code_changes(
+    approval_id: str,
+    chat_service: UnifiedChatService = Depends(get_unified_chat_service)
+) -> Dict[str, Any]:
+    """
+    Approve pending code changes
+    
+    Args:
+        approval_id: ID of the pending approval
+        
+    Returns:
+        Result of applying the changes
+    """
+    result = await chat_service.apply_pending_changes(approval_id)
+    
+    return {
+        "success": result["success"],
+        "file_path": result.get("file_path"),
+        "error": result.get("error")
+    }
+    
+
+@router.post("/chat/reject/{approval_id}")
+async def reject_code_changes(
+    approval_id: str,
+    chat_service: UnifiedChatService = Depends(get_unified_chat_service)
+) -> Dict[str, Any]:
+    """
+    Reject pending code changes
+    
+    Args:
+        approval_id: ID of the pending approval
+        
+    Returns:
+        Result of rejection
+    """
+    result = await chat_service.reject_pending_changes(approval_id)
+    
+    return {
+        "success": result["success"],
+        "file_path": result.get("file_path"),
+        "error": result.get("error")
+    }
+
+
+# Dependency injection helpers
+def get_enhanced_chat_service() -> UnifiedChatService:
+    """Get enhanced chat service instance"""
+    return UnifiedChatService() 

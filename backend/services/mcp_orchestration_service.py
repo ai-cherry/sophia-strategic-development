@@ -34,7 +34,7 @@ import subprocess
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 import httpx
@@ -66,6 +66,20 @@ class MCPServerStatus(Enum):
     OFFLINE = "offline"
     STARTING = "starting"
     ERROR = "error"
+
+
+class MCPServerType(str, Enum):
+    """Types of MCP servers"""
+    GONG = "gong"
+    SNOWFLAKE = "snowflake"
+    SLACK = "slack"
+    LINEAR = "linear"
+    VERCEL = "vercel"
+    ESTUARY = "estuary"
+    AI_MEMORY = "ai_memory"
+    PROMPT_OPTIMIZER = "prompt_optimizer"
+    CODE_MODIFIER = "code_modifier"
+    CODACY = "codacy"
 
 
 @dataclass
@@ -172,6 +186,17 @@ class OrchestrationResult:
         if self.metadata is None:
             self.metadata = {}
 
+
+@dataclass
+class MCPServerInfo:
+    """Information about an MCP server"""
+    name: str
+    type: MCPServerType
+    port: int
+    base_url: str
+    available: bool = True
+    capabilities: List[str] = None
+    
 
 class MCPOrchestrationService:
     """

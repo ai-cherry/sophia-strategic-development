@@ -10,8 +10,8 @@ from datetime import datetime
 from dataclasses import dataclass
 
 from backend.core.config_manager import ConfigManager
-from backend.services.snowflake_cortex_service import SnowflakeCortexService
-from backend.services.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_intelligence_service import EnhancedUnifiedIntelligenceService
 
 logger = logging.getLogger(__name__)
