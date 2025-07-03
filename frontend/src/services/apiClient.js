@@ -5,7 +5,7 @@ const PRODUCTION_BACKEND_URL = 'https://e5h6i7c09ylk.manus.space';
 
 const API_CONFIG = {
   production: PRODUCTION_BACKEND_URL,
-  development: 'http://localhost:8000',
+  development: 'http://localhost:8001',
   timeout: 10000,
   retries: 3,
   retryDelay: 1000

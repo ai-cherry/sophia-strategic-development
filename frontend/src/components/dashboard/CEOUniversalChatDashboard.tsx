@@ -28,10 +28,8 @@ import {
   Shield
 } from 'lucide-react';
 
-// Environment-aware configuration
-const getBackendUrl = () => {
-  return import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
-};
+// Import the specialized CEO API client
+import { ceoApi, checkCEOConnection } from '../../services/ceoApiClient';
 
 // Types
 interface ChatMessage {
@@ -167,24 +165,35 @@ I'm your advanced AI assistant with enterprise-grade capabilities:
     // Refresh metrics every 5 minutes
     const interval = setInterval(loadDashboardMetrics, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadDashboardMetrics]);
 
-  // API Functions
+  // API Functions using specialized CEO API client
   const loadDashboardMetrics = async () => {
+    setConnectionStatus('connecting');
     try {
-      const backendUrl = getBackendUrl();
-      const response = await fetch(`${backendUrl}/api/v1/ceo/dashboard/summary`);
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardMetrics(data);
-        setLastRefresh(new Date());
-        setConnectionStatus('connected');
-      } else {
-        setConnectionStatus('disconnected');
-      }
+      const data = await ceoApi.getDashboardSummary();
+      setDashboardMetrics({
+        total_revenue: `$${(data.total_revenue / 1000000).toFixed(1)}M`,
+        active_deals: data.active_deals,
+        team_performance: data.team_performance,
+        customer_satisfaction: data.customer_satisfaction,
+        recent_insights: data.recent_insights || [
+          {
+            title: "Backend Connected",
+            description: "Live data from CEO API",
+            priority: "high",
+            timestamp: new Date().toISOString()
+          }
+        ],
+        last_updated: data.last_updated || new Date().toISOString()
+      });
+      setLastRefresh(new Date());
+      setConnectionStatus('connected');
     } catch (error) {
       console.error('Failed to load dashboard metrics:', error);
       setConnectionStatus('disconnected');
+      // Clear metrics when disconnected to avoid showing stale data
+      setDashboardMetrics(null);
     }
   };
 
@@ -198,42 +207,27 @@ I'm your advanced AI assistant with enterprise-grade capabilities:
       timestamp: new Date().toISOString()
     };
 
+    const currentInput = input;
     setMessages(prev => [...prev, userMessage]);
     setLoading(true);
     setInput('');
 
     try {
-      const backendUrl = getBackendUrl();
-      const response = await fetch(`${backendUrl}/api/v1/ceo/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: input,
-          search_context: searchContext,
-          user_id: 'ceo_user',
-          include_sources: true
-        })
-      });
+      const data = await ceoApi.chat(currentInput, searchContext, 'ceo_user');
+      
+      const assistantMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response,
+        timestamp: data.timestamp,
+        sources: data.sources,
+        suggestions: data.suggestions,
+        query_type: data.query_type,
+        processing_time_ms: data.processing_time_ms
+      };
 
-      if (response.ok) {
-        const data = await response.json();
-        
-        const assistantMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: data.response,
-          timestamp: data.timestamp,
-          sources: data.sources,
-          suggestions: data.suggestions,
-          query_type: data.query_type,
-          processing_time_ms: data.processing_time_ms
-        };
-
-        setMessages(prev => [...prev, assistantMessage]);
-        setConnectionStatus('connected');
-      } else {
-        throw new Error(`HTTP ${response.status}`);
-      }
+      setMessages(prev => [...prev, assistantMessage]);
+      setConnectionStatus('connected');
     } catch (error) {
       console.error('Chat error:', error);
       setConnectionStatus('disconnected');
