@@ -1,4 +1,7 @@
 {
+  // WARNING: This file is part of the future monorepo structure.
+  // DO NOT USE until migration is complete (Target: February 2025)
+  // See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md for details
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
   "pipeline": {

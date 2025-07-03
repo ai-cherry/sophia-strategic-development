@@ -1,7 +1,11 @@
+# WARNING: This file is part of the future monorepo structure.
+# DO NOT USE until migration is complete (Target: February 2025)
+# See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md for details
+
 packages:
-  # Applications
+  # Applications (NOT YET ACTIVE)
   - 'apps/*'
-  # Shared libraries
+  # Shared libraries (NOT YET ACTIVE)
   - 'libs/*'
-  # Configuration packages
+  # Configuration packages (NOT YET ACTIVE)
   - 'config/*'

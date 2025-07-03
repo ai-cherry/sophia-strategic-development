@@ -1,3 +1,11 @@
+## ⚠️ **MONOREPO TRANSITION IN PROGRESS**
+
+**CRITICAL FOR AI CODERS**: 
+- We are transitioning from the old structure (`backend/`, `frontend/`) to a new monorepo structure (`apps/`, `libs/`)
+- **Continue using the OLD structure** for all new code until migration is complete
+- See `docs/monorepo/MONOREPO_TRANSITION_GUIDE.md` for details
+- Target completion: February 2025
+
 ## 🌟 **NEW: The System Handbook is the Ultimate Source of Truth**
 
 **CRITICAL DIRECTIVE:** The `docs/system_handbook/` directory, and specifically `00_SOPHIA_AI_SYSTEM_HANDBOOK.md`, is the **single, definitive source of truth** for the Sophia AI platform's architecture, standards, and roadmap.
@@ -411,6 +419,8 @@ This enhanced integration transforms Cursor AI into an intelligent development p
 - Include detailed docstrings for all classes and methods
 
 ### Agent Development Pattern
+
+**During Transition - USE THIS**:
 ```python
 from backend.agents.core.base_agent import BaseAgent
 
@@ -422,6 +432,14 @@ class YourAgent(BaseAgent):
     async def execute_task(self, task: Task) -> TaskResult:
         # Implementation with error handling
         pass
+```
+
+**After Migration (DO NOT USE YET)**:
+```python
+from libs.core.agents.base_agent import BaseAgent
+
+class YourAgent(BaseAgent):
+    # Same implementation, different import
 ```
 
 ### Integration Pattern
@@ -498,7 +516,14 @@ except Exception as e:
 3. **Slack:** Main communication channel for team updates
 4. **Vector Databases:** For semantic search and AI capabilities
 
-## File Organization
+## 🚨 MONOREPO TRANSITION IN PROGRESS
+
+**CRITICAL**: We are transitioning to a monorepo structure. During this transition:
+- **Continue using the OLD structure** for new code (`backend/`, `frontend/`, etc.)
+- **DO NOT use the new structure** (`apps/`, `libs/`) until migration is complete
+- See `docs/monorepo/MONOREPO_TRANSITION_GUIDE.md` for current status
+
+### Current File Organization (USE THIS)
 ```
 backend/
 ├── agents/
@@ -520,6 +545,27 @@ external/              # 🆕 Strategic MCP repository collection
 ├── glips_figma_context/    # Design-to-code (8.7k stars)
 ├── snowflake_cortex_official/ # Official Snowflake AI
 └── [8 additional strategic repos]
+```
+
+### Future File Organization (DO NOT USE YET)
+```
+apps/                  # Monorepo applications
+├── api/              # Backend API (from backend/api)
+├── frontend/         # React frontend
+├── mcp-servers/      # All MCP servers
+└── n8n-bridge/       # N8N integration
+
+libs/                  # Shared libraries
+├── ui/               # Shared UI components
+├── utils/            # Shared utilities
+├── types/            # Shared TypeScript types
+└── core/             # Core business logic
+
+config/               # Centralized configurations
+├── eslint/
+├── prettier/
+├── typescript/
+└── ruff/
 ```
 
 ## Common Patterns

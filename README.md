@@ -6,6 +6,13 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 
+## ⚠️ Monorepo Transition Notice
+
+We are transitioning to a monorepo structure. During this transition:
+- **Continue using** the current structure (`backend/`, `frontend/`)
+- **Do not use** the new structure (`apps/`, `libs/`) until migration is complete
+- See [Monorepo Transition Guide](docs/monorepo/MONOREPO_TRANSITION_GUIDE.md) for details
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -168,49 +175,3 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 **Sophia AI** - Transforming business operations through intelligent AI orchestration. 🚀
-
-# Sophia AI
-
-Sophia AI is the central orchestration platform for Pay Ready, providing unified AI-driven business intelligence, automation, and development assistance.
-
-## Getting Started
-
-See the [Getting Started Guide](docs/01-getting-started/README.md).
-
-## Development
-
-See the [Development Guide](docs/02-development/README.md).
-
-## Deployment
-
-See the [Deployment Guides](docs/04-deployment/README.md).
-
-## System Handbook
-
-See the [System Handbook](docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md).
-
-## 🔒 Security
-
-### Dependency Security Auditing
-
-Sophia AI includes comprehensive dependency security scanning integrated with UV:
-
-```bash
-# Run local security audit
-./scripts/audit-deps.sh
-
-# Save security reports
-./scripts/audit-deps.sh --save
-
-# Check licenses
-./scripts/audit-deps.sh --check-licenses
-```
-
-**Features:**
-- 🔍 Automated vulnerability scanning with pip-audit and safety
-- 🚀 CI/CD integration - blocks PRs with critical vulnerabilities
-- 📊 Security metrics exposed via Prometheus
-- 🌙 Nightly baseline scans with trend analysis
-- 📝 Vulnerability lifecycle management with allowlisting
-
-See [Security Documentation](docs/08-security/DEPENDENCY_SECURITY_AUDIT.md) for details.

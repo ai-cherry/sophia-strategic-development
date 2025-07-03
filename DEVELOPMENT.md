@@ -1,5 +1,12 @@
 # 🛠️ SOPHIA AI DEVELOPMENT GUIDE
 
+## ⚠️ Monorepo Transition Notice
+
+We are transitioning to a monorepo structure. During this transition:
+- **Continue using** the current structure (`backend/`, `frontend/`)
+- **Do not use** the new structure (`apps/`, `libs/`) until migration is complete
+- See [Monorepo Transition Guide](docs/monorepo/MONOREPO_TRANSITION_GUIDE.md) for details
+
 ## Quick Start
 
 ### Prerequisites

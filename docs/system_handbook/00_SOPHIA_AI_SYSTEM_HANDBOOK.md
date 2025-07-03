@@ -425,6 +425,15 @@ pulumi up     # Infrastructure
 - [ ] Documentation completion
 - [ ] Production deployment
 
+### Phase 7: Monorepo Transformation (Months 4-6)
+- [ ] Migrate to monorepo structure (`apps/` and `libs/`)
+- [ ] Implement Turborepo for 5x faster builds
+- [ ] Consolidate CI/CD workflows
+- [ ] Unified dependency management with UV and PNPM
+- [ ] Clean up old structure after successful migration
+
+**Note**: During the monorepo transition (current), continue using the existing `backend/` and `frontend/` structure. See `docs/monorepo/MONOREPO_TRANSITION_GUIDE.md` for details.
+
 ---
 
 ## 🏆 SUCCESS METRICS
