@@ -1,256 +1,466 @@
-# Sophia AI: The Unified System Handbook
+# SOPHIA AI SYSTEM HANDBOOK
+## The Definitive Source of Truth
 
-> **Version:** 1.0  
-> **Status:** In Development  
-> **Last Updated:** 2024-07-02 by Sophia AI  
-> **Owner:** CAIO / CTO  
-
----
-
-## 1. Project Overview & Vision
-> **Alignment Check:** For a detailed breakdown of how this implemented system aligns with the original project vision, see the [Vision to Reality Alignment Report](./01_1_Vision_to_Reality_Alignment.md).
-
-### 1.1. Mission Statement
-Sophia AI is the central "Pay Ready Brain," an AI-native orchestration platform designed to drive business intelligence, automate complex workflows, and provide a seamless, intelligent interface for all company operations.
-
-### 1.2. Core Business Objectives
-- **Automate & Scale:** Dramatically reduce manual overhead in sales, project management, and operations.
-- **Synthesize Intelligence:** Break down data silos by unifying information from HubSpot, Gong, Snowflake, Linear, Asana, and more into a single queryable interface.
-- **Empower the Team:** Provide every team member, from the CEO to developers, with a powerful AI assistant that understands their role and context.
-- **Accelerate Development:** Leverage AI to enforce best practices, automate testing, and provide world-class coding assistance.
-
-### 1.3. Key Stakeholders & Use Cases
-- **CEO & Executive Team:** Real-time business intelligence dashboards, strategic planning via Notion, and cross-functional performance analysis.
-- **Sales & Account Management:** AI-powered call analysis (Gong), CRM automation (HubSpot), and intelligent communication workflows (Slack).
-- **Product & Engineering:** Unified project tracking (Linear/Asana), automated code quality enforcement, and AI-assisted development.
+**Version**: Phoenix 1.0  
+**Last Updated**: January 2025  
+**Status**: AUTHORITATIVE - This document supersedes all previous architecture documentation
 
 ---
 
-## 2. The Sophia AI Tech Stack & Tools
+## 🔥 THE PHOENIX ARCHITECTURE
 
-### 2.1. Core Technologies
-- **Orchestration Engine:** **N8N** - The central nervous system of our platform. *Chosen for its enterprise-grade reliability, visual workflow design, and native support for AI and MCP, allowing us to rapidly integrate any tool or service.*
-- **Infrastructure as Code:** **Pulumi** - Manages our entire cloud infrastructure with TypeScript. *Chosen for its use of real programming languages, which enables superior logic, abstraction, and testability over YAML-based solutions.*
-- **Dependency Management:** **UV** - A next-generation Python package manager written in Rust. *Chosen for its incredible speed (10-100x faster than pip/conda), which dramatically accelerates development setup, Docker builds, and CI/CD pipelines.*
-- **Backend Framework:** **FastAPI** - The foundation for all our internal services. *Chosen for its high performance, native async support, and automatic data validation via Pydantic.*
+### Core Principle: Snowflake as the Center of the Universe
 
-### 2.2. Data & AI Stack
-- **Data Warehouse:** **Snowflake**
-- **Vector Search & Embeddings:** **Snowflake Cortex, Pinecone, Weaviate**
-- **AI Models:** **OpenAI, Anthropic, OpenRouter Gateway**
-- **In-Memory Cache:** **Redis**
-- **Database:** **PostgreSQL**
+Sophia AI operates on a unified architecture where **Snowflake is the single, undisputed source of truth** for all data—structured, unstructured, and vectorized. This eliminates the fragmentation that previously existed across multiple databases and vector stores.
 
-### 2.3. Deployment
-
-For automated, production-grade deployments—including Lambda Labs one-click deployment—see the [Lambda Labs Quick Deployment Guide](../04-deployment/LAMBDA_LABS_DEPLOYMENT_GUIDE.md).
-
-For a full, research-validated integration roadmap, see the [Comprehensive Integration Plan V2.0](../04-deployment/COMPREHENSIVE_INTEGRATION_PLAN_V2.0.md).
-
----
-
-## 3. The Sophia AI Architecture
-
-### 3.1. High-Level Data Flow
-*(A detailed diagram and explanation of the end-to-end data flow will be added here.)*
-
-### 3.2. MCP Structure: The Phoenix Plan
-
-**The Core Principle:** **Orchestration over brittle, custom integration.**
-
-Instead of maintaining dozens of individual, protocol-sensitive servers, we now use **N8N** as a central, enterprise-grade orchestration engine.
-
-#### **Architecture Diagram: N8N Gateway**
-
-```mermaid
-graph TD
-    subgraph "Cursor AI & Other Agents"
-        A[AI Agent]
-    end
-
-    subgraph "Unified MCP Gateway (N8N)"
-        B(N8N MCP Gateway)
-        B -- MCP over HTTP/stdio --> A
-    end
-
-    subgraph "N8N Workflows (The 'Tools')"
-        C[WF: analyze_code]
-        D[WF: store_memory]
-        E[WF: execute_snowflake_query]
-        F[WF: recommend_pattern]
-        G[WF: create_linear_issue]
-    end
-    
-    B -- triggers --> C
-    B -- triggers --> D
-    B -- triggers --> E
-    B -- triggers --> F
-    B -- triggers --> G
-
-    subgraph "Internal Services & Scripts (REST APIs)"
-        H[Codacy API Service]
-        I[AI Memory API Service]
-        J[Snowflake Native API]
-        K[Repository Analysis Script]
-        L[Linear/Asana/Notion/Slack APIs]
-    end
-
-    C -- HTTP Request --> H
-    D -- HTTP Request --> I
-    E -- Native Integration --> J
-    F -- Execute Command --> K
-    G -- Native Integration --> L
-
-    style B fill:#7E57C2,stroke:#FFF,stroke-width:2px,color:#FFF
-    style C fill:#4DD0E1,stroke:#333,stroke-width:1px
-    style D fill:#4DD0E1,stroke:#333,stroke-width:1px
-    style E fill:#4DD0E1,stroke:#333,stroke-width:1px
-    style F fill:#4DD0E1,stroke:#333,stroke-width:1px
-    style G fill:#4DD0E1,stroke:#333,stroke-width:1px
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SOPHIA AI PHOENIX PLATFORM                │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend: Unified Dashboard (React + TypeScript)            │
+│  ├─ CEO Universal Chat (Primary Interface)                   │
+│  ├─ Project Management Hub (Linear + Asana + Slack)          │
+│  ├─ Knowledge AI (File Upload + Learning Status)             │
+│  ├─ Sales Intelligence (Revenue Engine)                      │
+│  └─ System Health (MCP Server Status)                        │
+├─────────────────────────────────────────────────────────────┤
+│  Backend: Python FastAPI + LangGraph Orchestration          │
+│  ├─ Unified Chat Service (Natural Language Processing)       │
+│  ├─ MCP Server Gateway (27 Consolidated Servers)             │
+│  ├─ AI Memory System (Snowflake Cortex Native)               │
+│  └─ Business Intelligence Engine                             │
+├─────────────────────────────────────────────────────────────┤
+│  DATA LAYER: SNOWFLAKE CORTEX (THE UNIVERSE CENTER)         │
+│  ├─ L3: Core Data Lakehouse (All Business Data)              │
+│  ├─ L2: Semantic Memory (Cortex Embeddings + Vector Search)  │
+│  ├─ L1: Fast Cache (Materialized Views + Result Caching)     │
+│  └─ AI Processing: Native Cortex Functions                   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-#### **How It Works:**
+---
 
-1.  **Single Entry Point:** All AI agents connect to a single, robust MCP server: the `n8n_mcp_gateway.py`. This is the only component that needs to speak the MCP protocol perfectly.
-2.  **Tools as Workflows:** Each "tool" available to the AI (e.g., `analyze_code`, `execute_snowflake_query`) is actually a dedicated N8N workflow.
-3.  **Orchestrated Execution:** When the gateway receives a tool request, it triggers the corresponding N8N workflow via a simple webhook.
-4.  **Flexible Backend:** The N8N workflow then performs the actual task. It can call an internal REST API (like our Codacy server), execute a Python script (like our repository analyzer), or use N8N's powerful native integrations to talk directly to services like Snowflake, Linear, or Slack.
+## 🏗️ UNIFIED DATA ARCHITECTURE
 
-#### **Strategic Strengths of This Approach:**
+### The Snowflake Universe Schema
 
--   **Unmatched Agility:** We can add, remove, or modify complex tools without ever touching the core MCP gateway. We simply create or update an N8N workflow.
--   **Ultimate Reliability:** We leverage N8N's production-ready, enterprise-grade engine for queuing, error handling, and monitoring, which is vastly superior to maintaining custom code.
--   **Infinite Extensibility:** With over 400 native integrations, N8N allows us to connect to virtually any service in minutes, making the Sophia AI platform instantly more powerful.
--   **Problem Solved:** This architecture completely resolves the original protocol mismatch and makes our entire ecosystem available to AI agents.
+**ALL DATA FLOWS INTO SNOWFLAKE**. No exceptions. No parallel systems.
 
-### 3.3. AI Agent & LangGraph Structure
-*(Detailed explanation of how agents collaborate to solve complex tasks to be added)*
+```sql
+-- AUTHORITATIVE DDL - This is the single source of truth
+CREATE SCHEMA IF NOT EXISTS SOPHIA_CORE;
+CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_MEMORY;
+CREATE SCHEMA IF NOT EXISTS SOPHIA_BUSINESS_INTELLIGENCE;
+CREATE SCHEMA IF NOT EXISTS SOPHIA_PROJECT_MANAGEMENT;
+CREATE SCHEMA IF NOT EXISTS SOPHIA_KNOWLEDGE_BASE;
 
-### 3.4. Contextualized Memory Architecture
-*(Full explanation in [Contextualized Memory Architecture](./03_4_Contextual_Memory_Architecture.md))*
+-- L3: Core Data Lakehouse
+CREATE TABLE SOPHIA_CORE.UNIFIED_DATA_CATALOG (
+    data_id VARCHAR(255) PRIMARY KEY,
+    source_system VARCHAR(100) NOT NULL,
+    data_type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    updated_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    metadata VARIANT,
+    content_hash VARCHAR(64),
+    ai_processed BOOLEAN DEFAULT FALSE
+);
+
+-- L2: Semantic Memory (Cortex Native)
+CREATE TABLE SOPHIA_AI_MEMORY.MEMORY_RECORDS (
+    memory_id VARCHAR(255) PRIMARY KEY,
+    category VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    embedding VECTOR(FLOAT, 768), -- Cortex Native Embeddings
+    created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    importance_score FLOAT DEFAULT 0.5,
+    business_context VARIANT,
+    tags ARRAY
+);
+
+-- L1: Fast Cache Layer
+CREATE TABLE SOPHIA_CORE.QUERY_CACHE (
+    cache_key VARCHAR(255) PRIMARY KEY,
+    query_hash VARCHAR(64) NOT NULL,
+    result_data VARIANT,
+    created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    expires_at TIMESTAMP_NTZ,
+    hit_count INTEGER DEFAULT 0
+);
+```
+
+### Tiered Memory System
+
+1. **L3 - Deep Storage**: All raw business data in Snowflake tables
+2. **L2 - Semantic Memory**: Cortex embeddings with vector search
+3. **L1 - Fast Cache**: Materialized views and result caching
+
+**No Redis. No Pinecone. No Weaviate. No PostgreSQL for business data.**
 
 ---
 
-## 4. Platform Deep Dive
+## 🧠 THE SOPHIA AI BRAIN
 
-### 4.1. The Sophia AI User Interface: The Unified Dashboard
+### Natural Language Processing Pipeline
 
-Our user interface strategy is centered on a single, powerful, and unified dashboard that provides a role-aware experience for every user in the organization, from the CEO to individual contributors.
+```python
+# Unified Chat Service - The Heart of Sophia
+class SophiaUnifiedChatService:
+    """
+    The central nervous system of Sophia AI.
+    All user interactions flow through this service.
+    """
+    
+    def __init__(self):
+        self.snowflake_cortex = SnowflakeCortexService()
+        self.ai_memory = SophiaAIMemoryService()
+        self.business_intelligence = SophiaBusinessIntelligence()
+        self.project_hub = SophiaProjectHub()
+        
+    async def process_message(self, message: str, context: dict) -> dict:
+        """
+        Process natural language input through the Sophia AI brain.
+        
+        Flow:
+        1. Intent Detection (Cortex Classification)
+        2. Context Retrieval (Vector Search)
+        3. Business Logic Routing
+        4. Response Generation
+        5. Memory Storage
+        """
+        # Intent detection using Snowflake Cortex
+        intent = await self.snowflake_cortex.classify_intent(message)
+        
+        # Context retrieval from semantic memory
+        context_data = await self.ai_memory.retrieve_context(
+            message, intent, limit=10
+        )
+        
+        # Route to appropriate business logic
+        response = await self._route_to_service(intent, message, context_data)
+        
+        # Store interaction in memory
+        await self.ai_memory.store_interaction(
+            message, response, intent, context
+        )
+        
+        return response
+```
 
--   **File Location**: `frontend/src/components/dashboard/UnifiedDashboard.tsx`
--   **Core Principle**: One codebase, one application, with intelligent, context-aware views presented via a tabbed interface.
+### MCP Server Consolidation
 
-#### **The "Bad Ass" All-Encompassing Template**
-The `UnifiedDashboard` is the single source of truth for all frontend visualizatio. It is designed to be a holistic command center, with dedicated tabs for different business functions:
+**27 Consolidated MCP Servers** (reduced from 36+ fragmented servers):
 
-1.  **CEO Overview**: The strategic command center, featuring high-level KPIs, critical alerts, and top-level company performance charts.
-2.  **Projects & OKRs**: The operational view, providing cross-platform project health from tools like Linear and Asana, risk factor analysis, and company OKR tracking.
-3.  **Knowledge AI**: The data hub, which shows the status of data ingestion pipelines, manages document sources, and provides insights into the AI's learning and training metrics.
-4.  **Sales Intelligence**: The revenue engine view, integrating data from Gong and HubSpot to display sales pipeline value, call analysis insights, and AI-powered sales coaching recommendations.
-5.  **Universal AI Chat**: A persistent, context-aware conversational interface that adapts its scope and knowledge based on the user's currently active tab.
+**Core Intelligence** (7 servers):
+- `ai_memory` - Snowflake Cortex native memory
+- `sophia_intelligence_unified` - Central AI orchestration
+- `snowflake_unified` - Single database interface
+- `codacy` - Code quality and security
+- `github` - Repository management
+- `linear` - Engineering project management
+- `asana` - Product management
 
-This unified approach eliminates frontend fragmentation, ensures a consistent user experience, and provides a single, scalable platform for all future dashboard development. It is the definitive frontend for the Sophia AI platform.
+**Business Intelligence** (8 servers):
+- `hubspot_unified` - CRM and sales data
+- `gong` - Call analysis and sales intelligence
+- `slack_unified` - Communication analytics
+- `notion` - Knowledge management
+- `intercom` - Customer support
+- `salesforce` - Extended CRM
+- `apollo` - Sales prospecting
+- `bright_data` - Market intelligence
 
-### 4.2. AI Training & Curation Dashboard
+**Infrastructure** (7 servers):
+- `lambda_labs_cli` - GPU compute management
+- `pulumi` - Infrastructure as code
+- `portkey_admin` - LLM gateway optimization
+- `postgres` - Legacy system bridge
+- `playwright` - Browser automation
+- `figma_context` - Design system integration
+- `apify_intelligence` - Web scraping
 
-The platform includes a dedicated, CEO-controlled dashboard for managing the AI's intelligence. This interface is the command center for our **Interactive Training Loop**.
-
-**Access:** This dashboard tab is only visible to users with a high `training_impact_score` (e.g., > 0.7), ensuring that only authorized curators can shape the AI's core knowledge.
-
-**Key Components:**
-1.  **Live Knowledge Feed:** A real-time view of all authoritative knowledge being submitted to the system, showing the content, the source user, and their impact score.
-2.  **User Impact Management:** An interface for the CEO to view and directly edit the `training_impact_score` (from 0.0 to 1.0) for every user on the platform.
-3.  **Knowledge Gap Analysis:** An automated tool that analyzes user queries to identify important topics where the AI lacks authoritative knowledge, presenting them as a prioritized list for a curator to define.
-4.  **Topic Explorer:** A searchable and editable view of the entire `authoritative_knowledge` database, allowing for direct management of the AI's learned facts.
-
-This dashboard transforms AI training from a backend developer task into a strategic business function controlled by the company's leadership.
-
-### 4.3. Business Intelligence & Analytics
-*(How we leverage the data stack to provide insights to be added)*
-
-### 4.4. Project Management Ecosystem
-*(How Linear, Asana, Notion, and Slack are unified to be added)*
-
-### 4.5. Code Quality & Security Automation
-
-#### **The Automated Guardian: Codacy Tool**
-
-When a developer or an AI agent calls the `analyze_code` tool, it triggers our N8N workflow which invokes our internal Codacy service. This service performs a multi-point inspection:
-
-1.  **Security Vulnerability Scanning:**
-    -   It actively scans for common, high-risk security vulnerabilities directly within the development environment.
-    -   **Current Checks Include:**
-        -   `eval()` and `exec()` usage (remote code execution risk)
-        -   `os.system()` and `shell=True` usage (shell injection risk)
-        -   Hardcoded secrets (`password = "..."`, `api_key = "..."`)
-
-2.  **Complexity Analysis:**
-    -   The service calculates a complexity score based on elements like functions, classes, conditionals, and loops.
-    -   This helps identify monolithic functions or overly complex classes that are candidates for refactoring, improving long-term maintainability.
-
-3.  **Overall Quality Scoring:**
-    -   It generates a simple, out-of-100 **Quality Score** based on the number of issues found.
-    -   It provides plain-language **Recommendations** for improvement (e.g., "Consider breaking down complex functions," "Fix 2 security issues").
-
-#### **How It's Used in Practice:**
-
--   **AI-Assisted Refactoring:** A developer can highlight a function and ask, `"@sophia analyze this code and suggest improvements."` The AI will use the `analyze_code` tool and provide instant feedback on security and complexity.
--   **Pre-Commit Checks:** This tool is the foundation for a future pre-commit hook. Before code is even committed to the repository, it can be automatically scanned for critical issues, preventing bugs and security flaws from entering the main branch.
--   **Enforcing Best Practices:** By providing immediate, automated feedback, this system trains both human developers and AI agents on the project's quality and security standards.
-
----
-
-This automated system is a critical component of our strategy to accelerate development while simultaneously increasing the quality and security of our codebase.
-
----
-
-## 5. Operations & Development
-
-### 5.1. GitHub Repository Structure
-*(Full explanation in [GitHub Strategy & Operations](./05_1_GitHub_Strategy.md))*
-
-### 5.2. Commit & Deployment Strategy
-*(Our branch strategy, commit message conventions, and CI/CD pipeline are detailed in the [GitHub Strategy & Operations](./05_1_GitHub_Strategy.md) document.)*
-
-### 5.3. Backup & Recovery Plan
-*(Our strategy for backing up critical data and infrastructure to be added)*
-
----
-
-## 6. Strategic Integrations
-
-### 6.1. Current Integrations
-- HubSpot, Gong, Slack, Linear, Asana, Notion, etc.
-
-### 6.2. Salesforce to Intercom/HubSpot Migration Plan
-*(Full explanation in [Salesforce to Intercom/HubSpot Migration Plan](./06_1_Salesforce_Migration_Plan.md))*
+**Specialized** (5 servers):
+- `huggingface_ai` - Model management
+- `graphiti` - Knowledge graphs
+- `ui_ux_agent` - Design automation
+- `overlays` - System monitoring
+- `migration_orchestrator` - Data migration
 
 ---
 
-## 7. AI-Assisted Development Framework
+## 🎯 THE UNIFIED DASHBOARD
 
-### 7.1. Current State & Strengths
-*(Summary of what is real and working today, highlighting our pivot to the N8N architecture as a major strength).*
+### Single Source of Truth Frontend
 
-### 7.2. Identified Gaps & Weaknesses
-*(Honest assessment of what still needs work, e.g., completing Phase 4 of the Phoenix Plan).*
+**Location**: `frontend/src/components/dashboard/UnifiedDashboard.tsx`
 
-### 7.3. The Roadmap
-*(A detailed implementation roadmap is available at [Implementation Roadmap](./08_1_Implementation_Roadmap.md))**
+**CRITICAL RULE**: All new frontend development MUST extend this component. No new dashboards.
 
-## 8. Project Roadmap & Future Vision
+```typescript
+// Unified Dashboard Structure
+const UnifiedDashboard = () => {
+  const [activeTab, setActiveTab] = useState('universal-chat');
+  
+  return (
+    <div className="unified-dashboard">
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {activeTab === 'universal-chat' && <UniversalChatInterface />}
+      {activeTab === 'projects-okrs' && <ProjectManagementHub />}
+      {activeTab === 'knowledge-ai' && <KnowledgeAIInterface />}
+      {activeTab === 'sales-intelligence' && <SalesIntelligenceHub />}
+      {activeTab === 'system-health' && <SystemHealthDashboard />}
+      {activeTab === 'financials' && <FinancialsOverview />}
+      {activeTab === 'employees' && <EmployeeManagement />}
+      {activeTab === 'sophia-persona' && <SophiaPersonaManager />}
+    </div>
+  );
+};
+```
 
-### 8.1. Current State & Strengths
-*(Summary of what is real and working today, highlighting our pivot to the N8N architecture as a major strength).*
+### Tab Definitions
 
-### 8.2. Identified Gaps & Weaknesses
-*(Honest assessment of what still needs work, e.g., completing Phase 4 of the Phoenix Plan).*
+1. **Universal Chat** - Primary interface, contextualized AI chat
+2. **Projects & OKRs** - Cross-platform project health (Linear + Asana + Slack)
+3. **Knowledge AI** - File upload, learning status, AI training metrics
+4. **Sales Intelligence** - Revenue engine, deal analysis, forecasting
+5. **System Health** - MCP server status, API health, performance metrics
+6. **Financials** - NetSuite integration, revenue analytics
+7. **Employees** - HR systems (Lattice, Trinet), team management
+8. **Sophia Persona** - AI personality customization, skills management
 
-### 8.3. The Roadmap
-*(A detailed implementation roadmap is available at [Implementation Roadmap](./08_1_Implementation_Roadmap.md))**
+---
 
-### **Dashboard Systems**
-- **[Unified Dashboard](frontend/src/components/dashboard/UnifiedDashboard.tsx)** - ✅ **OPERATIONAL & UNIFIED** (1 codebase)
-- **[Backend Service](backend/app/ceo_dashboard_app.py)** - ✅ OPERATIONAL (7 endpoints)
-- **[Universal Chat Service](backend/services/sophia_universal_chat_service.py)** - ✅ READY (Role-based access)
+## 🚀 DEPLOYMENT ARCHITECTURE
 
+### Infrastructure Stack
+
+**Primary Deployment**: Vercel (Frontend) + Lambda Labs (Backend)
+**Database**: Snowflake (Single source of truth)
+**Secrets Management**: Pulumi ESC
+**Container Orchestration**: Kubernetes (Lambda Labs)
+**Monitoring**: Grafana + Prometheus
+
+### Environment Configuration
+
+```yaml
+# Production Environment (AUTHORITATIVE)
+ENVIRONMENT: "prod"
+SNOWFLAKE_ACCOUNT: "payready.us-east-1"
+SNOWFLAKE_DATABASE: "SOPHIA_AI_PRODUCTION"
+SNOWFLAKE_WAREHOUSE: "SOPHIA_COMPUTE_WH"
+SNOWFLAKE_ROLE: "SOPHIA_AI_ROLE"
+
+# MCP Server Ports (Consolidated)
+MCP_AI_MEMORY_PORT: 9000
+MCP_CODACY_PORT: 3008
+MCP_GITHUB_PORT: 9003
+MCP_LINEAR_PORT: 9004
+MCP_ASANA_PORT: 3006
+MCP_NOTION_PORT: 3007
+MCP_HUBSPOT_PORT: 9006
+MCP_SLACK_PORT: 9005
+```
+
+---
+
+## 🔐 SECURITY FRAMEWORK
+
+### Secret Management Pipeline
+
+```
+GitHub Organization Secrets (ai-cherry)
+           ↓
+    GitHub Actions (automatic sync)
+           ↓
+    Pulumi ESC Environments
+           ↓
+    Sophia AI Backend (automatic loading)
+```
+
+**NEVER**:
+- Create or manage `.env` files
+- Hardcode API keys or tokens
+- Share secrets in chat/email
+- Manual environment variable setup
+
+**ALWAYS**:
+- Use GitHub organization secrets
+- Leverage Pulumi ESC for centralized configuration
+- Implement automatic backend configuration loading
+- Use GitHub Actions for secret synchronization
+
+---
+
+## 📊 BUSINESS INTELLIGENCE FRAMEWORK
+
+### Executive Dashboard KPIs
+
+**Revenue Intelligence**:
+- Monthly Recurring Revenue (MRR)
+- Customer Acquisition Cost (CAC)
+- Customer Lifetime Value (CLV)
+- Churn Rate Analysis
+
+**Operational Intelligence**:
+- Project Health Scores (Linear + Asana)
+- Team Productivity Metrics
+- System Performance Indicators
+- AI Learning Progress
+
+**Strategic Intelligence**:
+- Market Analysis (Bright Data)
+- Competitive Positioning
+- Growth Forecasting
+- Risk Assessment
+
+### Natural Language Query Examples
+
+```sql
+-- CEO Dashboard Queries (Natural Language → SQL)
+"Show me revenue trends for the last 6 months"
+→ SELECT date_trunc('month', created_date) as month, 
+         sum(amount) as revenue 
+  FROM hubspot_deals 
+  WHERE created_date >= dateadd('month', -6, current_date())
+  GROUP BY month ORDER BY month;
+
+"What are our top 5 customers by revenue?"
+→ SELECT customer_name, sum(deal_amount) as total_revenue
+  FROM hubspot_deals 
+  WHERE deal_stage = 'closed_won'
+  GROUP BY customer_name 
+  ORDER BY total_revenue DESC LIMIT 5;
+```
+
+---
+
+## 🔄 DEVELOPMENT WORKFLOW
+
+### Phoenix Development Principles
+
+1. **Snowflake First**: All data decisions go through Snowflake
+2. **Unified Dashboard**: All UI development extends UnifiedDashboard.tsx
+3. **MCP Consolidation**: No new fragmented servers
+4. **Real Data Only**: No mock data in production paths
+5. **Documentation Authority**: This handbook is the single source of truth
+
+### Development Commands
+
+```bash
+# Start the Phoenix Platform
+cd sophia-main
+source activate_env.sh
+
+# Backend (CEO Test Server)
+python -m backend.test_ceo_server
+
+# Frontend (Unified Dashboard)
+cd frontend && npm run dev
+
+# MCP Servers (Consolidated)
+python scripts/activate_sophia_production.py
+
+# Deployment
+vercel --prod  # Frontend
+pulumi up     # Infrastructure
+```
+
+---
+
+## 🎯 ROADMAP: THE PHOENIX PLAN
+
+### Phase 1: Foundation (Weeks 1-2) ✅ COMPLETE
+- [x] Snowflake schema deployment
+- [x] Unified dashboard creation
+- [x] MCP server consolidation
+- [x] Mock data elimination
+- [x] System handbook creation
+
+### Phase 2: Core Intelligence (Weeks 3-4) 🔄 IN PROGRESS
+- [ ] Sophia AI brain deployment
+- [ ] Cortex embeddings integration
+- [ ] Natural language processing
+- [ ] Memory system activation
+
+### Phase 3: Project Management Hub (Weeks 5-6)
+- [ ] Linear + Asana integration
+- [ ] OKR tracking system
+- [ ] Team productivity analytics
+- [ ] Cross-platform project health
+
+### Phase 4: Knowledge Base (Weeks 7-8)
+- [ ] File upload system
+- [ ] AI training loop
+- [ ] Knowledge categorization
+- [ ] Learning progress tracking
+
+### Phase 5: CEO Management (Weeks 9-10)
+- [ ] User management system
+- [ ] Tab access permissions
+- [ ] LLM usage analytics
+- [ ] Sophia persona customization
+
+### Phase 6: System Excellence (Weeks 11-12)
+- [ ] Performance optimization
+- [ ] Security hardening
+- [ ] Documentation completion
+- [ ] Production deployment
+
+---
+
+## 🏆 SUCCESS METRICS
+
+### Technical Excellence
+- **Uptime**: 99.9% system availability
+- **Performance**: <200ms API response times
+- **Reliability**: Zero data loss, atomic transactions
+- **Security**: Enterprise-grade secret management
+
+### Business Impact
+- **User Adoption**: 100% executive team usage
+- **Decision Speed**: 60% faster executive decisions
+- **Data Quality**: 100% single source of truth
+- **Development Velocity**: 40% faster feature delivery
+
+### AI Intelligence
+- **Context Accuracy**: 95% relevant context retrieval
+- **Learning Speed**: Continuous improvement metrics
+- **Natural Language**: 90% intent recognition accuracy
+- **Memory Efficiency**: <100ms semantic search
+
+---
+
+## 📞 SUPPORT & ESCALATION
+
+### Development Issues
+- **Architecture Questions**: Consult this handbook first
+- **MCP Server Issues**: Check consolidated server status
+- **Data Questions**: Snowflake is the source of truth
+- **Frontend Issues**: Extend UnifiedDashboard.tsx only
+
+### Emergency Contacts
+- **System Down**: Check Grafana dashboards
+- **Data Loss**: Snowflake recovery procedures
+- **Security Breach**: Immediate Pulumi ESC rotation
+- **Performance Issues**: Lambda Labs scaling procedures
+
+---
+
+## 🔄 DOCUMENT VERSIONING
+
+**Version History**:
+- Phoenix 1.0 (January 2025): Initial unified architecture
+- Previous versions: DEPRECATED and removed
+
+**Update Process**:
+1. All architectural changes must update this handbook
+2. Changes require approval from system architect
+3. Version control through Git with clear commit messages
+4. Quarterly comprehensive reviews
+
+---
+
+**END OF HANDBOOK**
+
+*This document represents the complete, authoritative architecture for Sophia AI. Any conflicts between this handbook and other documentation should be resolved in favor of this document. The Phoenix has risen.*
