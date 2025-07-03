@@ -11,7 +11,7 @@ from typing import Any
 
 import aiohttp
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.core.secure_snowflake_config import secure_snowflake_config
 
 logger = logging.getLogger(__name__)

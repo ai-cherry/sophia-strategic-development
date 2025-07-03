@@ -7,6 +7,30 @@
 
 ---
 
+## 🎯 DEVELOPMENT PRIORITIES & CONTEXT
+
+### Company Context
+- **Company Size**: 80 employees (Pay Ready)
+- **Initial User**: CEO (sole user for 3+ months)
+- **Development Team**: CEO + AI assistants
+- **Rollout Plan**: CEO → 2-3 super users (3 months) → Full company (6+ months)
+
+### Priority Order (NEVER COMPROMISE)
+1. **QUALITY & CORRECTNESS** - Every line must be correct and well-structured
+2. **STABILITY & RELIABILITY** - Rock-solid system for CEO operations
+3. **MAINTAINABILITY** - Clear code that's easy to modify
+4. **PERFORMANCE** - Important but secondary to quality
+5. **COST & SECURITY** - Consider but don't over-optimize yet
+
+### Quality Standards
+- **Zero Duplication**: Never duplicate code or functionality
+- **Clear Dependencies**: All dependencies explicit and documented
+- **Conflict Prevention**: Check for conflicts before implementing
+- **Structure First**: Plan structure to avoid future issues
+- **Clean Codebase**: Delete one-time scripts after use
+
+---
+
 ## 🔥 THE PHOENIX ARCHITECTURE
 
 ### Core Principle: Snowflake as the Center of the Universe
@@ -394,6 +418,13 @@ pulumi up     # Infrastructure
 - [x] MCP server consolidation
 - [x] Mock data elimination
 - [x] System handbook creation
+
+### Phase 1.5: Quality Foundation (Week 1) 🔄 IN PROGRESS
+- [x] Dependency analysis - 120 circular dependencies found
+- [x] Orphaned scripts audit - 12 scripts identified for deletion
+- [ ] Circular dependency resolution - Base interfaces created
+- [ ] Service boundary definition
+- [ ] Import hierarchy establishment
 
 ### Phase 2: Core Intelligence (Weeks 3-4) 🔄 IN PROGRESS
 - [ ] Sophia AI brain deployment

@@ -27,7 +27,7 @@ import pandas as pd
 import snowflake.connector
 from sqlalchemy import create_engine, text
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logging.basicConfig(level=logging.INFO)

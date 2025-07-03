@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.mcp_servers.server.fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)

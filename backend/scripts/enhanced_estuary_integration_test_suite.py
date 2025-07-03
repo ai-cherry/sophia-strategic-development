@@ -28,7 +28,7 @@ from typing import Any
 import aiohttp
 import structlog
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.scripts.estuary_gong_setup import EstuaryConfig, EstuaryGongOrchestrator
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService

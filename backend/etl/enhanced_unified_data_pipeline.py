@@ -29,7 +29,7 @@ import asyncpg
 import redis.asyncio as redis
 
 from backend.core.aligned_snowflake_config import aligned_snowflake_config
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 

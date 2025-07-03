@@ -12,7 +12,7 @@ Recommended decomposition:
 TODO: Implement file decomposition
 """
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 
 """
 Snowflake Schema Integration for Sophia AI

@@ -260,7 +260,7 @@ class SecurityConfig:
     @classmethod
     def validate_environment_secrets(cls) -> dict[str, bool]:
         """Validate that all required secrets are available"""
-        from backend.core.auto_esc_config import get_config_value
+        from backend.core.config_manager import get_config_value
 
         validation_results = {}
         for key, config in cls.SECRETS_REGISTRY.items():

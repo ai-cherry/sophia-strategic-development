@@ -1,7 +1,7 @@
 
 from mcp.server import Server
 from mem0 import MemoryClient
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.core.standardized_mcp_server import StandardizedMCPServer
 
 class Mem0PersistentMCPServer(StandardizedMCPServer):

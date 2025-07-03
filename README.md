@@ -1,10 +1,18 @@
 # 🤖 Sophia AI Platform
 
-> **Enterprise AI Orchestrator for Business Intelligence & Automation**
+> **CEO-Level AI Assistant for Pay Ready Business Intelligence**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
+
+## 🎯 Project Context
+
+- **Company**: Pay Ready (80 employees)
+- **Primary User**: CEO (sole user initially)
+- **Development**: CEO-led with AI assistance
+- **Rollout**: CEO → Super users (3 months) → Company-wide (6+ months)
+- **Priority**: Quality & Stability over Performance & Scale
 
 ## ⚠️ Monorepo Transition Notice
 

@@ -29,7 +29,7 @@ from enum import Enum
 from typing import Any
 from uuid import uuid4
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.services.event_driven_ingestion_service import (
     EventDrivenIngestionService,
     IngestionEvent,

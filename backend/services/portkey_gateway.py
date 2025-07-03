@@ -28,7 +28,7 @@ import backoff
 import httpx
 from pydantic import BaseModel
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.core.optimized_connection_manager import ConnectionType
 
 logger = logging.getLogger(__name__)

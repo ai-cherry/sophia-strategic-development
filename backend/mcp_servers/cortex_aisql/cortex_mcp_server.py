@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, validator
 from typing import Dict, Any, Optional, List, Optional as OptionalType
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 import snowflake.connector
 from snowflake.connector.pool import SnowflakePool
 import asyncio

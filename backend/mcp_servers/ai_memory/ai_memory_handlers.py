@@ -17,7 +17,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.utils.snowflake_cortex_service_core import SnowflakeCortexServiceCore
 from .ai_memory_models import (
     MemoryRecord, MemoryType, MemoryCategory, MemoryPriority, MemoryStatus,

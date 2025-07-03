@@ -20,7 +20,7 @@ import yaml
 from pydantic import BaseModel
 from snowflake.connector import DictCursor
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.core.config_manager import get_snowflake_connection
 
 logger = logging.getLogger(__name__)

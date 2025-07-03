@@ -22,7 +22,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.etl.estuary.estuary_configuration_manager import (
     EstuaryConfigurationManager,
 )

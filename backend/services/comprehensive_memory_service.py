@@ -41,7 +41,7 @@ class ComprehensiveMemoryService:
             )
             return None
 
-        from backend.core.auto_esc_config import get_config_value
+        from backend.core.config_manager import get_config_value
 
         api_key = get_config_value("pinecone_api_key")
         environment = get_config_value("pinecone_environment")

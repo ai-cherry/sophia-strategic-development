@@ -24,26 +24,64 @@ This ensures our documentation remains a living, breathing, and accurate represe
 ## Project Overview
 You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company. Sophia serves as the central "Pay Ready Brain" that orchestrates multiple AI agents and integrates with business systems.
 
-## 🌟 **NEW: The System Handbook is the Ultimate Source of Truth**
+### Company Context
+- **Company Size:** 80 employees total
+- **Initial Users:** 1 (CEO - primary developer and user)
+- **Rollout Plan:** CEO only → Few super users (2-3 months) → Full company (6+ months)
+- **Development Team:** CEO (sole human developer) + AI assistants
 
-**CRITICAL DIRECTIVE:** The `docs/system_handbook/` directory, and specifically `00_SOPHIA_AI_SYSTEM_HANDBOOK.md`, is the **single, definitive source of truth** for the Sophia AI platform's architecture, standards, and roadmap.
+## 🎯 **Development Priorities (CRITICAL)**
 
-### **Your Core Responsibilities Regarding Documentation:**
+### **Priority Order - NEVER COMPROMISE:**
+1. **QUALITY & CORRECTNESS** - Every line of code must be correct and well-structured
+2. **STABILITY & RELIABILITY** - System must be rock-solid for CEO usage
+3. **MAINTAINABILITY** - Code must be clear and easy to modify
+4. **PERFORMANCE** - Important but secondary to quality
+5. **COST & SECURITY** - Consider but don't over-optimize at this stage
 
-1.  **CONSULT FIRST, CODE LATER:** Before answering any architectural question or implementing any new feature, you **MUST** first consult the System Handbook to understand the established patterns and principles.
-2.  **PROACTIVELY UPDATE:** If you make a significant architectural change (e.g., add a new service, change a data flow, modify the MCP gateway), you **MUST** update the relevant section of the System Handbook within the same session.
-3.  **MAINTAIN STRUCTURE:** When adding documentation, you **MUST** follow the existing structure and format. If a new deep-dive document is needed, create it within the `system_handbook` directory and link to it from the master file.
-4.  **CITE YOUR SOURCE:** When you use information from the handbook to make a decision, you should briefly mention it (e.g., "Based on the Phoenix Plan architecture outlined in the System Handbook, I will...").
+### **Quality Standards:**
+- **Zero Duplication:** Never duplicate code or functionality
+- **Clear Dependencies:** All dependencies must be explicit and documented
+- **Conflict Prevention:** Check for conflicts before implementing
+- **Structure First:** Plan structure to avoid future issues
+- **Review Everything:** Always review context before coding
 
-This ensures our documentation remains a living, breathing, and accurate representation of the platform, empowering both human and AI developers.
+## 🧹 **Code Hygiene Rules (MANDATORY)**
+
+### **One-Time Scripts and Documents:**
+1. **ALWAYS DELETE after use:**
+   - Migration scripts after successful migration
+   - Test scripts after tests pass
+   - Setup scripts after setup complete
+   - Temporary analysis documents
+   - One-time reports
+
+2. **NEVER DELETE:**
+   - Reusable utilities
+   - Documentation in `docs/`
+   - Configuration files
+   - Test suites
+   - Core scripts
+
+3. **Before Creating Files:**
+   - Ask: "Will this be used more than once?"
+   - If NO → Plan to delete after use
+   - If YES → Place in appropriate permanent location
+
+4. **Cleanup Pattern:**
+   ```python
+   # At the end of any one-time script:
+   print("✅ Task completed successfully")
+   print("🧹 This script can now be deleted: rm scripts/one_time_script.py")
+   ```
 
 ## Architecture Context
-- **Type:** Multi-agent AI orchestrator with flat-to-hierarchical evolution
-- **Primary Role:** Business intelligence and automation for Pay Ready
+- **Type:** Multi-agent AI orchestrator for CEO-level business intelligence
+- **Primary User:** Pay Ready CEO (initial sole user)
 - **Core Integrations:** HubSpot CRM, Gong.io call analysis, Slack communication
 - **Data Stack:** PostgreSQL, Redis, Pinecone, Weaviate
 - **Infrastructure:** Lambda Labs servers, Vercel frontend deployment
-- **🆕 External Repository Collection:** 11 strategic MCP servers (22k+ combined stars)
+- **External Repository Collection:** 11 strategic MCP servers (22k+ combined stars)
 
 ## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION**
 

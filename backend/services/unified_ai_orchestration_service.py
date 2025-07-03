@@ -13,7 +13,7 @@ TODO: Implement file decomposition
 
 from datetime import UTC, datetime
 
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 
 """
 Unified AI Orchestration Service

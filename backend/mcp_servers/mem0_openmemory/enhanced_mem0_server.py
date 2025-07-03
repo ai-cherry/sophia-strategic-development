@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, validator
 from typing import List, Dict, Any, Optional
 import httpx
 import logging
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 import time
 from contextlib import asynccontextmanager
 import asyncio

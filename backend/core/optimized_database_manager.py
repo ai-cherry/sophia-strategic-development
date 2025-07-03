@@ -23,7 +23,7 @@ from prometheus_client import Counter, Gauge, Histogram
 from snowflake.connector.pool import ConnectionPool
 
 from backend.core.aligned_snowflake_config import aligned_snowflake_config
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 
 logger = logging.getLogger(__name__)
 

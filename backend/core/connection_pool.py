@@ -22,7 +22,7 @@ import snowflake.connector
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.errors import DatabaseError, OperationalError
 
-from backend.core.auto_esc_config import config as esc_config
+from backend.core.config_manager import get_config_value as config as esc_config
 
 logger = logging.getLogger(__name__)
 

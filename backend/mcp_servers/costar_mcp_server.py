@@ -31,7 +31,7 @@ import asyncpg
 import pandas as pd
 from pydantic import BaseModel
 
-from backend.core.auto_esc_config import config
+from backend.core.config_manager import get_config_value as config
 from backend.core.integration_registry import IntegrationRegistry
 
 logger = logging.getLogger(__name__)

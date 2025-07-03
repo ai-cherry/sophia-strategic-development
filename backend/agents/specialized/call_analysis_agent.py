@@ -34,7 +34,7 @@ from enum import Enum
 from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
-from backend.core.auto_esc_config import config
+from backend.core.config_manager import get_config_value as config
 
 # Traditional integrations (fallback)
 from backend.integrations.gong_api_client import GongAPIClient

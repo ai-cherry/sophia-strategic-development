@@ -37,7 +37,7 @@ from backend.api import (
     foundational_knowledge_routes as knowledge_base_routes,
     ceo_dashboard_routes as monitoring_routes,
 )
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.core.config_validator import DeploymentValidator
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService

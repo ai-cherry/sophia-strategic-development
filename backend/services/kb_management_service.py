@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any
 
 # Core imports
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService

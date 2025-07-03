@@ -34,7 +34,7 @@ from typing import Any, Dict, List, Optional, Protocol
 from pathlib import Path
 
 import pandas as pd
-from backend.core.auto_esc_config import get_config_value
+from backend.core.config_manager import get_config_value
 from backend.utils.snowflake_cortex_service_core import SnowflakeCortexServiceCore
 
 logger = logging.getLogger(__name__)

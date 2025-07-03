@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
-from backend.core.auto_esc_config import config
+from backend.core.config_manager import get_config_value as config
 
 
 class AgentStatus(Enum):

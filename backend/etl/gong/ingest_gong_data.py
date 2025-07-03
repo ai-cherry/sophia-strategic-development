@@ -48,7 +48,7 @@ import snowflake.connector
 import structlog
 from pydantic import BaseModel, Field
 
-from backend.core.auto_esc_config import config
+from backend.core.config_manager import get_config_value as config
 
 logger = structlog.get_logger()
 
