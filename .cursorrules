@@ -663,3 +663,14 @@ When using Cursor AI for infrastructure operations, you can use natural language
 9. **🆕 Cross-Repository Intelligence**: Synthesize insights from multiple repository approaches
 
 Remember: You're building an enterprise-grade AI orchestrator that will handle critical business operations for Pay Ready. Code quality, reliability, and performance are paramount. The strategic external repository collection provides access to 22k+ stars of community-validated patterns and proven implementation approaches.
+
+## 🎯 **The Unified Dashboard is the ONLY Frontend**
+
+**CRITICAL RULE:** All new frontend development MUST extend the one, true `UnifiedDashboard.tsx` component.
+
+1.  **NO NEW DASHBOARDS:** Do not create new, separate dashboard components or pages. All new views, tabs, or features must be integrated into the existing `UnifiedDashboard.tsx` tabbed interface.
+2.  **EXTEND, DON'T REPLACE:** Use the existing components (`UnifiedKPICard`, etc.) and the established layout. New features should be added as new tabs or as components within existing tabs.
+3.  **SINGLE API CLIENT:** All frontend API calls MUST use the `frontend/src/services/apiClient.js`. Do not create new API clients.
+4.  **DOCUMENTATION IS LAW:** All frontend architecture must align with the `docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md`. Any deviation must first be reflected in the handbook.
+
+This ensures we maintain a single, clean, and unified frontend, preventing the fragmentation that we just worked so hard to eliminate.
