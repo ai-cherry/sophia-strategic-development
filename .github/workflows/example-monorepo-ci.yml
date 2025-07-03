@@ -1,0 +1,100 @@
+name: Example Monorepo CI
+
+# This is an example of how services will use the reusable workflow templates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+      - 'apps/frontend/**'
+      - 'libs/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'apps/frontend/**'
+      - 'libs/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'pnpm-lock.yaml'
+
+jobs:
+  # Python API Service
+  api-ci:
+    name: API Service CI
+    uses: ./.github/workflow-templates/python-ci.yml
+    with:
+      service-path: apps/api
+      python-version: '3.12'
+      run-tests: true
+      run-security: true
+
+  # Frontend React App
+  frontend-ci:
+    name: Frontend CI
+    uses: ./.github/workflow-templates/javascript-ci.yml
+    with:
+      service-path: apps/frontend
+      node-version: '18.x'
+      run-tests: true
+      run-build: true
+
+  # Shared Python Library
+  core-lib-ci:
+    name: Core Library CI
+    uses: ./.github/workflow-templates/python-ci.yml
+    with:
+      service-path: libs/core
+      python-version: '3.12'
+      run-tests: true
+      run-security: false  # Skip security for libraries
+
+  # Shared UI Components
+  ui-lib-ci:
+    name: UI Library CI
+    uses: ./.github/workflow-templates/javascript-ci.yml
+    with:
+      service-path: libs/ui
+      node-version: '18.x'
+      run-tests: true
+      run-build: false  # Libraries don't need build
+
+  # Deployment Gate
+  deploy:
+    name: Deploy to Production
+    needs: [api-ci, frontend-ci, core-lib-ci, ui-lib-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy API
+        run: |
+          echo "Deploying API to Lambda Labs..."
+          # Deployment logic here
+
+      - name: Deploy Frontend
+        run: |
+          echo "Deploying Frontend to Vercel..."
+          # Deployment logic here
+
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+# This workflow demonstrates:
+# 1. Path filtering for efficient CI runs
+# 2. Reusable workflow templates for consistency
+# 3. Parallel execution of independent services
+# 4. Deployment gates requiring all tests to pass
+# 5. Slack notifications for deployment status 

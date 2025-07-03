@@ -1,0 +1,7 @@
+packages:
+  # Applications
+  - 'apps/*'
+  # Shared libraries
+  - 'libs/*'
+  # Configuration packages
+  - 'config/*'

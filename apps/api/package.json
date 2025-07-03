@@ -1,0 +1,12 @@
+{
+  "name": "@sophia-ai/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "echo": "echo 'API package working'",
+    "dev": "echo 'Development mode not yet configured'",
+    "build": "echo 'Build not yet configured'",
+    "test": "echo 'Tests not yet configured'",
+    "lint": "echo 'Linting not yet configured'"
+  }
+}

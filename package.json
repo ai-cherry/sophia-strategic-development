@@ -1,0 +1,22 @@
+{
+  "name": "@sophia-ai/root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sophia AI Monorepo Root",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "security:audit": "./scripts/audit-deps.sh"
+  },
+  "devDependencies": {
+    "turbo": "^1.11.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.14.0"
+}

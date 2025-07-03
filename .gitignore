@@ -225,3 +225,7 @@ deployment_credentials.env
 # Prevent requirements.txt files (we use pyproject.toml now)
 requirements*.txt
 !external/**/requirements*.txt
+
+# Monorepo
+.turbo/
+.pnpm-store/
