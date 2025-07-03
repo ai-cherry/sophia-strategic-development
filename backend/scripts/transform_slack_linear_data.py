@@ -248,7 +248,7 @@ class SlackLinearTransformationService:
         try:
             logger.info("Starting Linear issues transformation")
 
-            # Call Snowflake stored procedure (to be created by Manus AI)
+            # Call Snowflake stored procedure (to be created by Sophia AI)
             transform_query = "CALL LINEAR_DATA.TRANSFORM_RAW_LINEAR_ISSUES()"
             result = await self.cortex_service.execute_query(transform_query)
 
@@ -292,7 +292,7 @@ class SlackLinearTransformationService:
         try:
             logger.info("Processing Linear issues with Cortex AI")
 
-            # Call Snowflake stored procedure (to be created by Manus AI)
+            # Call Snowflake stored procedure (to be created by Sophia AI)
             cortex_query = "CALL LINEAR_DATA.PROCESS_LINEAR_ISSUES_WITH_CORTEX()"
             result = await self.cortex_service.execute_query(cortex_query)
 

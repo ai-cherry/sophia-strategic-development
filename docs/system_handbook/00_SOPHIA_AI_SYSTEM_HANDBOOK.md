@@ -133,41 +133,24 @@ graph TD
 
 ## 4. Platform Deep Dive
 
-### 4.1. The Sophia AI User Interface Strategy
+### 4.1. The Sophia AI User Interface: The Unified Dashboard
 
-Our UI strategy is centered around two primary, role-based interfaces, both built on a modern React frontend.
+Our user interface strategy is centered on a single, powerful, and unified dashboard that provides a role-aware experience for every user in the organization, from the CEO to individual contributors.
 
-#### **4.1.1. The Universal Chat Interface**
--   **Purpose:** This is the primary, day-to-day interface for all users. It provides a familiar, powerful chat experience for interacting with the Sophia AI orchestrator.
--   **Functionality:** Users can ask questions, get information, and trigger any of the tools available via the MCP gateway through natural language commands.
+-   **File Location**: `frontend/src/components/dashboard/UnifiedDashboard.tsx`
+-   **Core Principle**: One codebase, one application, with intelligent, context-aware views presented via a tabbed interface.
 
-#### **4.1.2. The Curation & Admin Dashboard**
--   **Purpose:** This is the "cockpit" for managing the AI's intelligence and performance. It is a multi-tabbed interface designed for administrative oversight.
--   **Access:** Access to this dashboard and its various tabs is strictly controlled by user roles and permissions.
--   **Key Tabs:**
-    -   **AI Training & Curation:** The central hub for our Interactive Training Loop, including the Knowledge Gap Analysis and User Impact Management components. (Visible to CEO/Curators).
-    -   **System Health & Monitoring:** Will house the Grafana-powered dashboards for monitoring N8N workflows and service health. (Visible to Admins/Engineers).
-    -   **Project Management Overview:** A future tab that will provide a high-level, cross-platform view of projects from Linear and Asana.
+#### **The "Bad Ass" All-Encompassing Template**
+The `UnifiedDashboard` is the single source of truth for all frontend visualizatio. It is designed to be a holistic command center, with dedicated tabs for different business functions:
 
-This dual-interface strategy ensures that users have a simple, intuitive chat for their daily tasks, while administrators have a powerful, dedicated environment for managing the platform's core systems.
+1.  **CEO Overview**: The strategic command center, featuring high-level KPIs, critical alerts, and top-level company performance charts.
+2.  **Projects & OKRs**: The operational view, providing cross-platform project health from tools like Linear and Asana, risk factor analysis, and company OKR tracking.
+3.  **Knowledge AI**: The data hub, which shows the status of data ingestion pipelines, manages document sources, and provides insights into the AI's learning and training metrics.
+4.  **Sales Intelligence**: The revenue engine view, integrating data from Gong and HubSpot to display sales pipeline value, call analysis insights, and AI-powered sales coaching recommendations.
+5.  **Universal AI Chat**: A persistent, context-aware conversational interface that adapts its scope and knowledge based on the user's currently active tab.
 
-### 4.1. The Sophia AI User Interface Strategy
+This unified approach eliminates frontend fragmentation, ensures a consistent user experience, and provides a single, scalable platform for all future dashboard development. It is the definitive frontend for the Sophia AI platform.
 
-Our UI strategy is centered around two primary, role-based interfaces, both built on a modern React frontend.
-
-#### **4.1.1. The Universal Chat Interface**
--   **Purpose:** This is the primary, day-to-day interface for all users. It provides a familiar, powerful chat experience for interacting with the Sophia AI orchestrator.
--   **Functionality:** Users can ask questions, get information, and trigger any of the tools available via the MCP gateway through natural language commands.
-
-#### **4.1.2. The Curation & Admin Dashboard**
--   **Purpose:** This is the "cockpit" for managing the AIs intelligence and performance. It is a multi-tabbed interface designed for administrative oversight.
--   **Access:** Access to this dashboard and its various tabs is strictly controlled by user roles and permissions.
--   **Key Tabs:**
-    -   **AI Training & Curation:** The central hub for our Interactive Training Loop, including the Knowledge Gap Analysis and User Impact Management components. (Visible to CEO/Curators).
-    -   **System Health & Monitoring:** Will house the Grafana-powered dashboards for monitoring N8N workflows and service health. (Visible to Admins/Engineers).
-    -   **Project Management Overview:** A future tab that will provide a high-level, cross-platform view of projects from Linear and Asana.
-
-This dual-interface strategy ensures that users have a simple, intuitive chat for their daily tasks, while administrators have a powerful, dedicated environment for managing the platforms core systems.
 ### 4.2. AI Training & Curation Dashboard
 
 The platform includes a dedicated, CEO-controlled dashboard for managing the AI's intelligence. This interface is the command center for our **Interactive Training Loop**.
@@ -265,4 +248,9 @@ This automated system is a critical component of our strategy to accelerate deve
 
 ### 8.3. The Roadmap
 *(A detailed implementation roadmap is available at [Implementation Roadmap](./08_1_Implementation_Roadmap.md))**
+
+### **Dashboard Systems**
+- **[Unified Dashboard](frontend/src/components/dashboard/UnifiedDashboard.tsx)** - ✅ **OPERATIONAL & UNIFIED** (1 codebase)
+- **[Backend Service](backend/app/ceo_dashboard_app.py)** - ✅ OPERATIONAL (7 endpoints)
+- **[Universal Chat Service](backend/services/sophia_universal_chat_service.py)** - ✅ READY (Role-based access)
 

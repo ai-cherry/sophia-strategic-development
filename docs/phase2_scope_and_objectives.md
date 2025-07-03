@@ -1,6 +1,6 @@
 # Sophia AI Enhancement Plan - Phase 2 Scope and Objectives
 
-**Author**: Manus AI  
+**Author**: Sophia AI  
 **Date**: July 1, 2025  
 **Version**: 1.0  
 

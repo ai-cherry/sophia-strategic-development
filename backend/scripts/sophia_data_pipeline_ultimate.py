@@ -351,7 +351,7 @@ class SnowflakeDataLoader:
             # Begin transaction
             cursor.execute("BEGIN")
 
-            # Updated to match Manus AI DDL structure
+            # Updated to match Sophia AI DDL structure
             insert_sql = """
             INSERT INTO RAW_ESTUARY.RAW_GONG_CALLS_RAW
             (_ESTUARY_AB_ID, _ESTUARY_EMITTED_AT, _ESTUARY_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
@@ -414,7 +414,7 @@ class SnowflakeDataLoader:
             # Begin transaction
             cursor.execute("BEGIN")
 
-            # Updated to match Manus AI DDL structure
+            # Updated to match Sophia AI DDL structure
             insert_sql = """
             INSERT INTO RAW_ESTUARY.RAW_GONG_CALL_TRANSCRIPTS_RAW
             (_ESTUARY_AB_ID, _ESTUARY_EMITTED_AT, _ESTUARY_DATA, INGESTED_AT, CORRELATION_ID, PROCESSED)
@@ -474,7 +474,7 @@ class SnowflakeDataLoader:
         results = {}
 
         try:
-            # Transform calls using the correct procedure names from Manus AI DDL
+            # Transform calls using the correct procedure names from Sophia AI DDL
             logger.info("🔄 Executing call transformation procedures...")
             cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_RAW_GONG_CALLS()")
             calls_result = cursor.fetchone()
@@ -514,7 +514,7 @@ class SnowflakeDataLoader:
         try:
             logger.info("🧠 Executing AI enrichment procedures...")
 
-            # Execute AI enrichment procedure from Manus AI DDL
+            # Execute AI enrichment procedure from Sophia AI DDL
             cursor.execute("CALL STG_TRANSFORMED.ENRICH_GONG_CALLS_WITH_AI()")
             enrichment_result = cursor.fetchone()
             results["enrichments_completed"] = (

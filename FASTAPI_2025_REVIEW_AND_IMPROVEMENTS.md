@@ -61,7 +61,7 @@ app = FastAPI(
 **Problem**: Production URL is hardcoded, preventing local development
 ```javascript
 // frontend/src/services/apiClient.js line 4
-const BACKEND_URL = 'https://e5h6i7c09ylk.manus.space';
+const BACKEND_URL = 'https://e5h6i7c09ylk.api.sophia-intel.ai';
 ```
 
 **Fix Required**:
@@ -70,7 +70,7 @@ const getBackendURL = () => {
     if (process.env.NODE_ENV === 'development') {
         return process.env.REACT_APP_API_URL || 'http://localhost:8000';
     }
-    return process.env.REACT_APP_API_URL || 'https://e5h6i7c09ylk.manus.space';
+    return process.env.REACT_APP_API_URL || 'https://e5h6i7c09ylk.api.sophia-intel.ai';
 };
 ```
 

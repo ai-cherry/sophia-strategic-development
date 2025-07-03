@@ -383,7 +383,7 @@ class EstuaryGongOrchestrator:
                 "access_key": self.gong_config.access_key,
                 "access_key_secret": self.gong_config.access_key_secret,
                 "start_date": self.gong_config.start_date,
-                # Gong API scopes and endpoints (based on Manus AI guidance)
+                # Gong API scopes and endpoints (based on Sophia AI guidance)
                 "api_endpoints": {
                     "calls": {
                         "enabled": True,

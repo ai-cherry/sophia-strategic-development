@@ -10,7 +10,7 @@
       "message": "Clean DDL file not found: backend/snowflake_setup/clean_gong_ddl.sql",
       "impact": "medium",
       "expected_file": "backend/snowflake_setup/clean_gong_ddl.sql",
-      "resolution": "Create clean DDL file without legacy artifacts"
+      "resolution": "Create clean DDL file without manus contamination"
     }
   ],
   "next_steps": [

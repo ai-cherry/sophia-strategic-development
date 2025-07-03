@@ -61,7 +61,13 @@ class PulumiESCSync:
             "SLACK_CLIENT_SECRET": "slack_client_secret",
             "SLACK_SIGNING_SECRET": "slack_signing_secret",
             # Development Tools (Priority 1)
-            "GH_API_TOKEN": "github_token",  # Note: mapping GH_API_TOKEN → github_token
+            "GITHUB_TOKEN": "github_token",
+            "GITHUB_API_KEY": "github_api_key",
+            "VERCEL_TOKEN": "vercel_token",
+            "DOCKER_HUB_TOKEN": "docker_hub_token",
+            "CODACY_API_TOKEN": "codacy_api_token",
+            "SENTRY_DSN": "sentry_dsn",
+            "SENTRY_AUTH_TOKEN": "sentry_auth_token",
             "FIGMA_PAT": "figma_pat",
             "NOTION_API_KEY": "notion_api_token",  # Note: mapping NOTION_API_KEY → notion_api_token
             # Infrastructure (Priority 1)
@@ -111,7 +117,6 @@ class PulumiESCSync:
             "GRAFANA_URL": "grafana_url",
             "GRAFANA_USERNAME": "grafana_username",
             "PROMETHEUS_URL": "prometheus_url",
-            "SENTRY_DSN": "sentry_dsn",
             # Research & Data Collection
             "APIFY_API_TOKEN": "apify_api_token",
             "BRAVE_API_KEY": "brave_api_key",

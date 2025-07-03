@@ -1,472 +1,177 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  DollarSign, 
-  Users, 
-  Activity, 
-  CheckCircle,
-  Upload,
-  RefreshCw,
-  BarChart3,
-  Settings,
-  Search,
-  Bell
-} from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { api } from '../../services/apiClient';
-import EnhancedUnifiedChatInterface, { type ChatContext } from '../shared/EnhancedUnifiedChatInterface';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Alert, AlertDescription, Progress, Avatar, AvatarFallback } from '@/components/ui';
+import { MessageCircle, Search, TrendingUp, AlertTriangle, Users, Target, Calendar, DollarSign, Activity, BarChart3, PieChart, LineChart, Send, Loader2, RefreshCw, Settings, Bell, Download, Share2, Maximize2 } from 'lucide-react';
+import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import apiClient from '../../services/apiClient';
 
-// Types
-interface KPIData {
-  title: string;
-  value: string | number;
-  change: string;
-  changeType: 'increase' | 'decrease' | 'neutral';
-  icon: React.ComponentType;
-  target?: number;
-}
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
-interface IngestionJob {
-  id: string;
-  source: string;
-  document: string;
-  status: 'Success' | 'Processing' | 'Failed' | 'Queued';
-  timestamp: string;
-}
-
-interface AgnoMetrics {
-  summary?: {
-    call_analysis?: {
-      avg_instantiation_us?: number;
-      pool_size?: number;
-      pool_max?: number;
-      instantiation_samples?: number;
-    };
-  };
-  last_updated?: string;
-}
-
-// Enhanced KPI Card Component
-const UnifiedKPICard: React.FC<KPIData> = ({ title, value, change, changeType, icon: Icon, target }) => {
-  const trendColor = changeType === 'increase' ? 'text-green-500' : 
-                    changeType === 'decrease' ? 'text-red-500' : 'text-gray-500';
-  const TrendIcon = changeType === 'increase' ? TrendingUp : 
-                   changeType === 'decrease' ? TrendingDown : Minus;
-
-  const formatValue = (val: string | number) => {
-    if (typeof val === 'number') {
-      if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`;
-      if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
-      return val.toLocaleString();
-    }
-    return val;
-  };
-
-  return (
-    <Card className="hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-purple-300">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
-        {Icon && <Icon className="h-4 w-4 text-gray-400" />}
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-gray-900">{formatValue(value)}</div>
-        <div className="flex items-center space-x-1 text-xs text-gray-500">
-          <TrendIcon className={`h-4 w-4 ${trendColor}`} />
-          <span className={trendColor}>{change}</span>
-          <span>from last month</span>
-        </div>
-        {target && (
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Target: {formatValue(target)}</span>
-              <span>{Math.round((Number(value) / target) * 100)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div 
-                className="bg-purple-600 h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min((Number(value) / target) * 100, 100)}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </CardContent>
+// --- Reusable Components ---
+const UnifiedKPICard = ({ title, value, change, changeType, icon: Icon, target }) => (
+    <Card className="hover:shadow-lg transition-all duration-300">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+            <Icon className="h-4 w-4 text-gray-400" />
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold text-gray-900">{value}</div>
+            <p className={`text-xs ${changeType === 'increase' ? 'text-green-500' : 'text-red-500'}`}>{change} from last month</p>
+        </CardContent>
     </Card>
-  );
-};
+);
 
-// Agno Performance Component
-const AgnoPerformanceCard: React.FC<{ metrics: AgnoMetrics | null; loading: boolean; error: string | null }> = ({ 
-  metrics, loading, error 
-}) => {
-  const agnoDetails = metrics?.summary?.call_analysis || {};
-  const agnoLastUpdated = metrics?.last_updated || '';
+const UnifiedDashboard = () => {
+    // --- State Management ---
+    const [activeTab, setActiveTab] = useState('ceo_overview');
+    const [isLoading, setIsLoading] = useState(false);
+    const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Activity className="h-5 w-5" />
-          <span>Agno Agent Performance</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="text-gray-400">Loading Agno performance metrics...</div>
-        ) : error ? (
-          <div className="text-red-500">{error}</div>
-        ) : (
-          <div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div>
-                <div className="text-xs text-gray-500">Avg Instantiation</div>
-                <div className="text-lg font-bold">
-                  {agnoDetails.avg_instantiation_us ? `${agnoDetails.avg_instantiation_us}μs` : '—'}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Pool Size</div>
-                <div className="text-lg font-bold">
-                  {agnoDetails.pool_size ?? '—'} / {agnoDetails.pool_max ?? '—'}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500">Instantiation Samples</div>
-                <div className="text-lg font-bold">{agnoDetails.instantiation_samples ?? '—'}</div>
-              </div>
-              <div className="col-span-2 md:col-span-3">
-                <div className="text-xs text-gray-500">Last Updated</div>
-                <div className="text-sm font-medium">{agnoLastUpdated}</div>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-gray-400 p-3 bg-gray-50 rounded-lg">
-              <span>Agno-powered agent instantiation is up to 5000x faster and 50x more memory efficient than legacy agents.</span>
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
+    // Data states for each tab
+    const [ceoData, setCeoData] = useState(null);
+    const [projectData, setProjectData] = useState(null);
+    const [salesData, setSalesData] = useState(null);
+    const [knowledgeData, setKnowledgeData] = useState(null);
+    const [chatMessages, setChatMessages] = useState([]);
+    const [chatInput, setChatInput] = useState('');
 
-// LLM Cost Analysis Component
-const LLMCostAnalysis: React.FC<{ data: Array<{ name: string; cost: number }> }> = ({ data }) => {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <BarChart3 className="h-5 w-5" />
-          <span>LLM Cost Analysis</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value) => [`$${value}`, 'Cost']} />
-            <Legend />
-            <Bar dataKey="cost" fill="#8B5CF6" />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-};
+    const chatEndRef = useRef(null);
 
-// Knowledge Management Component
-const KnowledgeManagement: React.FC<{ jobs: IngestionJob[] }> = ({ jobs }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [syncing, setSyncing] = useState<string | null>(null);
-
-  const handleFileUpload = async () => {
-    if (selectedFile) {
-      try {
-        setUploading(true);
-        await api.knowledge.uploadFile(selectedFile);
-        console.log('File uploaded successfully:', selectedFile.name);
-        setSelectedFile(null);
-        // Refresh jobs list
-        // TODO: Add callback to refresh jobs
-      } catch (error) {
-        console.error('File upload failed:', error);
-      } finally {
-        setUploading(false);
-      }
-    }
-  };
-
-  const handleSync = async (source: string) => {
-    try {
-      setSyncing(source);
-      await api.knowledge.syncSource(source);
-      console.log('Sync completed for:', source);
-      // TODO: Add callback to refresh jobs
-    } catch (error) {
-      console.error('Sync failed for', source, ':', error);
-    } finally {
-      setSyncing(null);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Success': return 'bg-green-100 text-green-800';
-      case 'Processing': return 'bg-blue-100 text-blue-800';
-      case 'Failed': return 'bg-red-100 text-red-800';
-      case 'Queued': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  return (
-    <div className="grid gap-8 md:grid-cols-3">
-      {/* Control Panel */}
-      <div className="md:col-span-1 space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Upload className="h-5 w-5" />
-              <span>Manual Ingestion</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input 
-              type="file" 
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-            />
-            <Button 
-              className="w-full" 
-              onClick={handleFileUpload}
-              disabled={!selectedFile || uploading}
-            >
-              {uploading ? 'Uploading...' : 'Upload and Ingest'}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <RefreshCw className="h-5 w-5" />
-              <span>Data Source Sync</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => handleSync('gong')}
-              disabled={syncing === 'gong'}
-            >
-              {syncing === 'gong' ? 'Syncing...' : 'Sync Gong Calls'}
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => handleSync('hubspot')}
-              disabled={syncing === 'hubspot'}
-            >
-              {syncing === 'hubspot' ? 'Syncing...' : 'Sync HubSpot CRM'}
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => handleSync('snowflake')}
-              disabled={syncing === 'snowflake'}
-            >
-              {syncing === 'snowflake' ? 'Syncing...' : 'Sync Snowflake Tables'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Ingestion Status */}
-      <div className="md:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Ingestion Jobs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Document</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Timestamp</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jobs.map((job) => (
-                  <TableRow key={job.id}>
-                    <TableCell>{job.source}</TableCell>
-                    <TableCell className="font-medium">{job.document}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(job.status)}`}>
-                        {job.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>{job.timestamp}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// Main Unified Dashboard Component
-const UnifiedDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('executive');
-  const [agnoMetrics, setAgnoMetrics] = useState<AgnoMetrics | null>(null);
-  const [agnoLoading, setAgnoLoading] = useState(true);
-  const [agnoError, setAgnoError] = useState<string | null>(null);
-
-  const [currentChatContext, setCurrentChatContext] = useState<ChatContext>({
-    dashboardType: 'general', // Default, can be updated based on activeTab
-    userId: 'systemUser', // Replace with actual dynamic user ID
-    tenantId: 'systemTenant', // Replace with actual dynamic tenant ID
-  });
-
-  // Update chat context when activeTab changes
-  useEffect(() => {
-    let dashboardType: ChatContext['dashboardType'] = 'general';
-    if (activeTab === 'executive') {
-      dashboardType = 'ceo';
-    } else if (activeTab === 'knowledge') {
-      dashboardType = 'knowledge';
-    }
-    // Potentially add 'project' if a project tab exists or is added
-    setCurrentChatContext(prev => ({ ...prev, dashboardType }));
-  }, [activeTab]);
-
-  // Mock data
-  const kpiData: KPIData[] = [
-    { title: 'Monthly Recurring Revenue', value: 2100000, change: '+3.2%', changeType: 'increase', icon: DollarSign, target: 2500000 },
-    { title: 'Active Agents', value: '48', change: '+5', changeType: 'increase', icon: Users },
-    { title: 'Agent Success Rate', value: '94.2%', change: '-0.5%', changeType: 'decrease', icon: CheckCircle },
-    { title: 'Total API Calls', value: '1.2B', change: '+12%', changeType: 'increase', icon: Activity },
-  ];
-
-  const llmCostData = [
-    { name: 'GPT-4o', cost: 4200 },
-    { name: 'Claude 3 Opus', cost: 5500 },
-    { name: 'Gemini 1.5 Pro', cost: 3100 },
-    { name: 'Llama 3', cost: 1800 },
-  ];
-
-  const ingestionJobs: IngestionJob[] = [
-    { id: 'job_123', source: 'Gong Sync', document: 'Call with Acme Corp', status: 'Success', timestamp: '2024-07-21 10:00 AM' },
-    { id: 'job_124', source: 'File Upload', document: 'Q3_Financials.pdf', status: 'Processing', timestamp: '2024-07-21 10:05 AM' },
-    { id: 'job_125', source: 'HubSpot Sync', document: 'New Contacts Q3', status: 'Queued', timestamp: '2024-07-21 10:06 AM' },
-    { id: 'job_122', source: 'File Upload', document: 'competitor_analysis.docx', status: 'Failed', timestamp: '2024-07-21 09:55 AM' },
-  ];
-
-  useEffect(() => {
-    // Load Agno metrics from API
-    const fetchAgnoMetrics = async () => {
-      try {
-        setAgnoLoading(true);
-        const data = await api.agno.getPerformanceMetrics();
-        setAgnoMetrics(data);
-      } catch (error) {
-        console.error('Failed to load Agno metrics:', error);
-        setAgnoError('Failed to load Agno metrics');
-      } finally {
-        setAgnoLoading(false);
-      }
+    // --- Data Fetching ---
+    const fetchDataForTab = async (tab) => {
+        setIsLoading(true);
+        try {
+            let response;
+            switch (tab) {
+                case 'ceo_overview':
+                    response = await apiClient.get('/api/v1/ceo/dashboard/summary');
+                    setCeoData(response.data);
+                    break;
+                // Add cases for other tabs here
+            }
+        } catch (error) {
+            console.error(`Failed to fetch data for tab ${tab}:`, error);
+        }
+        setIsLoading(false);
     };
 
-    fetchAgnoMetrics();
-  }, []);
+    useEffect(() => {
+        fetchDataForTab(activeTab);
+    }, [activeTab]);
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-xl text-white">👑</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Sophia AI Dashboard</h1>
-                <p className="text-sm text-gray-500">Unified Executive Command Center</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-              <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    const handleRefresh = () => {
+        setLastRefresh(new Date());
+        fetchDataForTab(activeTab);
+    };
+    
+    // --- Chat Logic ---
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatMessages]);
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="executive">Executive Overview</TabsTrigger>
-            <TabsTrigger value="knowledge">Knowledge Management</TabsTrigger>
-            <TabsTrigger value="interaction">AI Interaction</TabsTrigger>
-          </TabsList>
+    const handleChatSend = async () => {
+        if (!chatInput.trim()) return;
+        const userMessage = { type: 'user', content: chatInput, timestamp: new Date().toISOString() };
+        setChatMessages(prev => [...prev, userMessage]);
+        setIsLoading(true);
+        
+        try {
+            const res = await apiClient.post('/api/v1/ceo/chat', { message: chatInput });
+            const assistantMessage = { type: 'assistant', ...res.data };
+            setChatMessages(prev => [...prev, assistantMessage]);
+        } catch (error) {
+            const errorMessage = { type: 'assistant', content: 'Sorry, I encountered an error.', timestamp: new Date().toISOString() };
+            setChatMessages(prev => [...prev, errorMessage]);
+        }
+        
+        setChatInput('');
+        setIsLoading(false);
+    };
 
-          {/* Executive Overview Tab */}
-          <TabsContent value="executive" className="space-y-6">
-            {/* KPI Cards */}
+    // --- Render Functions for Tabs ---
+
+    const renderCEOOverview = () => (
+        <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {kpiData.map((kpi, index) => (
-                <UnifiedKPICard key={index} {...kpi} />
-              ))}
+                <UnifiedKPICard title="Total Revenue" value={ceoData?.total_revenue || '$0'} change="+5.2%" changeType="increase" icon={DollarSign} />
+                <UnifiedKPICard title="Active Deals" value={ceoData?.active_deals || '0'} change="+12" changeType="increase" icon={Activity} />
+                <UnifiedKPICard title="Team Performance" value={`${ceoData?.team_performance || '0'}%`} change="-1.2%" changeType="decrease" icon={Users} />
+                <UnifiedKPICard title="Customer Satisfaction" value={`${ceoData?.customer_satisfaction || '0'}/5`} change="+0.1" changeType="increase" icon={TrendingUp} />
+            </div>
+            {/* Add charts and other components here */}
+        </div>
+    );
+    
+    const renderChat = () => (
+         <Card className="h-[70vh] flex flex-col">
+            <CardHeader>
+              <CardTitle>AI Business Intelligence Chat</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col">
+              <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                {chatMessages.map((message, index) => (
+                  <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] p-3 rounded-lg ${message.type === 'user' ? 'bg-blue-600 text-white' : 'bg-white text-gray-900 border'}`}>
+                      <p className="whitespace-pre-wrap">{message.response || message.content}</p>
+                      <p className="text-xs mt-2 opacity-70">{new Date(message.timestamp).toLocaleTimeString()}</p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+              <div className="flex space-x-2">
+                <Input
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Ask a question about your business..."
+                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleChatSend()}
+                  disabled={isLoading}
+                />
+                <Button onClick={handleChatSend} disabled={isLoading || !chatInput.trim()}>
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+    );
+
+    // --- Main Component Return ---
+    return (
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Unified Intelligence Dashboard</h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Last updated: {lastRefresh.toLocaleTimeString()}
+                    </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Button onClick={handleRefresh} disabled={isLoading} variant="outline" size="sm">
+                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                    </Button>
+                    <Button variant="outline" size="sm"><Settings className="h-4 w-4" /></Button>
+                </div>
             </div>
 
-            {/* Charts and Analytics */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              <LLMCostAnalysis data={llmCostData} />
-              <AgnoPerformanceCard 
-                metrics={agnoMetrics} 
-                loading={agnoLoading} 
-                error={agnoError} 
-              />
-            </div>
-          </TabsContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+                    <TabsTrigger value="ceo_overview">CEO Overview</TabsTrigger>
+                    <TabsTrigger value="projects">Projects & OKRs</TabsTrigger>
+                    <TabsTrigger value="knowledge">Knowledge AI</TabsTrigger>
+                    <TabsTrigger value="sales">Sales Intelligence</TabsTrigger>
+                    <TabsTrigger value="chat">AI Chat</TabsTrigger>
+                </TabsList>
 
-          {/* Knowledge Management Tab */}
-          <TabsContent value="knowledge">
-            <KnowledgeManagement jobs={ingestionJobs} />
-          </TabsContent>
-
-          {/* AI Interaction Tab */}
-          <TabsContent value="interaction">
-            <EnhancedUnifiedChatInterface
-              context={currentChatContext}
-              placeholder={`Ask Sophia anything within the ${currentChatContext.dashboardType} context...`}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
+                <TabsContent value="ceo_overview" className="mt-6">{renderCEOOverview()}</TabsContent>
+                <TabsContent value="projects" className="mt-6"><p className="text-center py-16 text-gray-500">Project management data coming soon...</p></TabsContent>
+                <TabsContent value="knowledge" className="mt-6"><p className="text-center py-16 text-gray-500">Knowledge AI interface coming soon...</p></TabsContent>
+                <TabsContent value="sales" className="mt-6"><p className="text-center py-16 text-gray-500">Sales intelligence coming soon...</p></TabsContent>
+                <TabsContent value="chat" className="mt-6">{renderChat()}</TabsContent>
+            </Tabs>
+        </div>
+    );
 };
 
-export default UnifiedDashboard;
-
+export default UnifiedDashboard; 

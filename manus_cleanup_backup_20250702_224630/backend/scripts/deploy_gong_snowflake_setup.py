@@ -69,7 +69,7 @@ class GongSnowflakeDeployment:
         self.logger = logging.getLogger(__name__)
         
     async def deploy_clean_ddl(self) -> Dict[str, Any]:
-        """Deploy clean DDL without legacy artifacts"""
+        """Deploy clean DDL without manus contamination"""
         self.logger.info("🚀 Deploying clean Gong DDL schema...")
         
         # Use clean DDL file instead of manus contaminated one
