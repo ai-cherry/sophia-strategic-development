@@ -33,7 +33,7 @@ jobs
       - name: Set up environment variables
         run: |
           echo "Setting up environment variables..."
-          cp integration.env.example .env
+          touch .env
 
           # Snowflake
           echo "SNOWFLAKE_ACCOUNT=${{ secrets.SNOWFLAKE_ACCOUNT }}" >> .env

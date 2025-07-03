@@ -21,22 +21,27 @@ WORKDIR /app
 # ============================================
 FROM base AS dependencies
 
-# Install UV
-RUN pip install --no-cache-dir uv
-
-# Copy dependency files
-COPY --chown=appuser:appuser pyproject.toml ./
-
-# Install base dependencies for MCP servers
-RUN uv pip install --system --no-cache .
+# Install dependencies using regular pip (more reliable in slim containers)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+        fastapi>=0.115.0 \
+        uvicorn>=0.32.0 \
+        mcp>=0.5.0 \
+        fastmcp>=0.1.0 \
+        pydantic>=2.5.0 \
+        snowflake-connector-python>=3.6.0 \
+        redis>=5.0.1 \
+        aioredis>=2.0.1 \
+        requests>=2.31.0 \
+        aiofiles>=24.1.0
 
 # ============================================
 # Runtime stage
 # ============================================
 FROM base AS runtime
 
-# Copy installed packages
-COPY --from=dependencies /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
+# Copy installed packages (use simple path that works with python slim images)
+COPY --from=dependencies /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=dependencies /usr/local/bin /usr/local/bin
 
 # Copy common backend utilities needed by MCP servers

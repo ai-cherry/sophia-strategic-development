@@ -117,7 +117,7 @@ services:
       - "traefik.http.routers.mem0-server.tls=true"
 
   # Cortex AISQL MCP Server - AI-optimized deployment
-  cortex-server:
+  cortex-aisql-server:
     image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai-cortex:${IMAGE_TAG:-latest}
     environment:
       - SNOWFLAKE_ACCOUNT_FILE=/run/secrets/snowflake_account
@@ -128,7 +128,7 @@ services:
       - SNOWFLAKE_SCHEMA=PUBLIC
     ports:
       - target: 8080
-        published: 8081
+        published: 8080
         mode: ingress
     secrets:
       - snowflake_account

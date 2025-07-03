@@ -1,0 +1,397 @@
+{
+  "validation_summary": {
+    "timestamp": "2025-07-03T08:06:35.814201",
+    "overall_status": "PASS",
+    "total_checks": 62,
+    "passed_checks": 62,
+    "failed_checks": 0
+  },
+  "detailed_results": [
+    {
+      "check_name": "Required Files",
+      "passed": true,
+      "message": "All required files present",
+      "details": null
+    },
+    {
+      "check_name": "Prohibited Files Removed",
+      "passed": true,
+      "message": "All obsolete files successfully removed",
+      "details": null
+    },
+    {
+      "check_name": "Main Docker Build",
+      "passed": true,
+      "message": "Docker build successful",
+      "details": {
+        "image_id": "sha256:0b10a0574ed2ea59138c7907b7217e12ea96101b6d7b9cbafab11376a26f500d"
+      }
+    },
+    {
+      "check_name": "MCP Server Docker Build",
+      "passed": true,
+      "message": "MCP server Docker build successful",
+      "details": null
+    },
+    {
+      "check_name": "Compose File: docker-compose.yml",
+      "passed": true,
+      "message": "Valid YAML structure",
+      "details": null
+    },
+    {
+      "check_name": "Environment References: docker-compose.yml",
+      "passed": true,
+      "message": "No prohibited environment file references",
+      "details": null
+    },
+    {
+      "check_name": "Compose File: docker-compose.override.yml",
+      "passed": true,
+      "message": "Valid YAML structure",
+      "details": null
+    },
+    {
+      "check_name": "Environment References: docker-compose.override.yml",
+      "passed": true,
+      "message": "No prohibited environment file references",
+      "details": null
+    },
+    {
+      "check_name": "Compose File: docker-compose.prod.yml",
+      "passed": true,
+      "message": "Valid YAML structure",
+      "details": null
+    },
+    {
+      "check_name": "Environment References: docker-compose.prod.yml",
+      "passed": true,
+      "message": "No prohibited environment file references",
+      "details": null
+    },
+    {
+      "check_name": "Compose File: docker-compose.cloud.yml",
+      "passed": true,
+      "message": "All expected services present",
+      "details": null
+    },
+    {
+      "check_name": "Environment References: docker-compose.cloud.yml",
+      "passed": true,
+      "message": "No prohibited environment file references",
+      "details": null
+    },
+    {
+      "check_name": "Pulumi ESC Configuration",
+      "passed": true,
+      "message": "ESC configuration file found",
+      "details": null
+    },
+    {
+      "check_name": "Auto ESC Config",
+      "passed": true,
+      "message": "Auto ESC config module found",
+      "details": null
+    },
+    {
+      "check_name": "Secret Leakage: Dockerfile",
+      "passed": true,
+      "message": "No hardcoded secrets detected",
+      "details": null
+    },
+    {
+      "check_name": "Secret Leakage: docker-compose.cloud.yml",
+      "passed": true,
+      "message": "No hardcoded secrets detected",
+      "details": null
+    },
+    {
+      "check_name": "MCP Server Configuration",
+      "passed": true,
+      "message": "Found 9 configured MCP servers",
+      "details": null
+    },
+    {
+      "check_name": "MCP Server Directories",
+      "passed": true,
+      "message": "Found 31 MCP server directories",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: mcp-security-audit.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sophia-complete-stack-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: lambda-labs-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: quality-gate.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: vercel-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: reusable-deploy-mcp.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: test_integrations.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: estuary-asana-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sync_secrets.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: deployment-monitoring.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: deploy_infrastructure.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: estuary-monitoring.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: production-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: infrastructure-tests.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: master-deployment-workflow.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: force-vercel-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: cursor-integration.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: pulumi-esc-sync.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: infrastructure-deploy.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: reusable-deploy-platform.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sophia_secrets_export.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sophia_ai_infrastructure.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: mcp-ci-cd.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: dependabot-auto-merge.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: documentation-quality.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sophia-master-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: mcp-integration-test.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: enhanced-deployment-oversight.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: test-suite.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sophia-main.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: production_deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: uv-ci-enhanced.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: simplified-vercel-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: fix-vercel-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: codebase-ingestion.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: estuary-deployment.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: sync-mcp-submodules.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: unified-secret-sync.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: uv-ci-cd.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Workflow: deploy_platform.yml",
+      "passed": true,
+      "message": "No prohibited file references",
+      "details": null
+    },
+    {
+      "check_name": "Pulumi Configuration",
+      "passed": true,
+      "message": "Pulumi.yaml found",
+      "details": null
+    },
+    {
+      "check_name": "Infrastructure Directory",
+      "passed": true,
+      "message": "Infrastructure directory found",
+      "details": null
+    },
+    {
+      "check_name": "Lambda Labs Deployment Script",
+      "passed": true,
+      "message": "Deployment script found",
+      "details": null
+    },
+    {
+      "check_name": "Service Endpoints",
+      "passed": true,
+      "message": "All expected service endpoints configured",
+      "details": null
+    }
+  ],
+  "recommendations": [
+    "Perform staging deployment test on Lambda Labs",
+    "Run comprehensive integration tests",
+    "Monitor deployment logs for any issues",
+    "Validate all service endpoints after deployment"
+  ],
+  "dockcloud_readiness": {
+    "docker_build_ready": false,
+    "compose_config_ready": true,
+    "secret_management_ready": true,
+    "deployment_script_ready": true
+  }
+}
