@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-07-03 03:22:54",
+  "validation_results": {
+    "toml_syntax": true,
+    "uv_resolve": false,
+    "docker_build": false,
+    "container_startup": false
+  },
+  "overall_status": "FAIL",
+  "recommendations": [
+    "Resolve dependency conflicts",
+    "Fix Docker build issues",
+    "Fix application startup issues"
+  ]
+}
