@@ -82,4 +82,4 @@ When working with agent orchestration:
 
 - LangGraph Documentation: https://langchain-ai.github.io/langgraph/
 - Our Implementation: `backend/workflows/enhanced_langgraph_patterns.py`
-- Integration Examples: Throughout `backend/agents/` directory 
+- Integration Examples: Throughout `backend/agents/` directory

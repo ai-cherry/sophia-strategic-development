@@ -1,8 +1,8 @@
 # Docker Cloud Bottleneck Remediation Plan
 
-**Status**: IMMEDIATE ACTION REQUIRED  
-**Date**: January 2025  
-**Environment**: Docker Swarm on Lambda Labs (104.171.202.64)  
+**Status**: IMMEDIATE ACTION REQUIRED
+**Date**: January 2025
+**Environment**: Docker Swarm on Lambda Labs (104.171.202.64)
 **Priority**: CRITICAL - Performance and stability issues
 
 ## Executive Summary
@@ -91,12 +91,12 @@ traefik:
     placement:
       constraints:
         - node.role == manager
-        
+
 redis:
   deploy:
     replicas: 3
     # Redis Sentinel for HA
-    
+
 mcp-gateway:
   deploy:
     replicas: 3
@@ -130,7 +130,7 @@ services:
       placement:
         constraints:
           - node.labels.zone == primary
-          
+
   redis:
     deploy:
       placement:
@@ -145,11 +145,11 @@ networks:
   frontend:
     driver: overlay
     attachable: true
-    
+
   backend:
     driver: overlay
     internal: true
-    
+
   data:
     driver: overlay
     internal: true
@@ -167,7 +167,7 @@ volumes:
       type: none
       o: bind
       device: /mnt/fast-ssd/postgres
-      
+
   redis_data:
     driver: local
     driver_opts:
@@ -204,12 +204,12 @@ services:
         target: /etc/prometheus/prometheus.yml
     deploy:
       replicas: 2
-      
+
   grafana:
     image: grafana/grafana:latest
     deploy:
       replicas: 2
-      
+
   node-exporter:
     image: prom/node-exporter:latest
     deploy:
@@ -247,7 +247,7 @@ def add_resource_limits(compose_file: str):
     """Add resource limits to all services"""
     with open(compose_file, 'r') as f:
         config = yaml.safe_load(f)
-    
+
     # Default resource limits
     default_limits = {
         'backend': {'cpus': '2.0', 'memory': '4G'},
@@ -255,14 +255,14 @@ def add_resource_limits(compose_file: str):
         'database': {'cpus': '4.0', 'memory': '8G'},
         'cache': {'cpus': '2.0', 'memory': '4G'},
     }
-    
+
     for service, spec in config['services'].items():
         if 'deploy' not in spec:
             spec['deploy'] = {}
-            
+
         service_type = detect_service_type(service)
         limits = default_limits.get(service_type, {'cpus': '1.0', 'memory': '2G'})
-        
+
         spec['deploy']['resources'] = {
             'limits': limits,
             'reservations': {
@@ -270,7 +270,7 @@ def add_resource_limits(compose_file: str):
                 'memory': f"{int(limits['memory'][:-1]) // 2}G"
             }
         }
-    
+
     # Save updated config
     with open(compose_file + '.optimized', 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
@@ -287,7 +287,7 @@ Validate and add health checks to all services
 
 def generate_health_check(service_name: str, port: int) -> dict:
     """Generate appropriate health check for service"""
-    
+
     health_checks = {
         'fastapi': {
             'test': ["CMD", "curl", "-f", f"http://localhost:{port}/health"],
@@ -311,7 +311,7 @@ def generate_health_check(service_name: str, port: int) -> dict:
             'start_period': '30s'
         }
     }
-    
+
     # Detect service type and return appropriate health check
     if 'postgres' in service_name:
         return health_checks['postgres']
@@ -433,4 +433,4 @@ docker network ls --filter driver=overlay
 
 ---
 
-This plan addresses all identified bottlenecks with concrete, actionable steps that can be implemented immediately on our Docker Swarm cluster. 
+This plan addresses all identified bottlenecks with concrete, actionable steps that can be implemented immediately on our Docker Swarm cluster.

@@ -126,4 +126,4 @@ Before proposing any new tool:
 3. Verify existing tools can't handle it
 4. Document the justification
 
-This list is maintained as the single source of truth for our tooling decisions. 
+This list is maintained as the single source of truth for our tooling decisions.

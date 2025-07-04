@@ -13,8 +13,6 @@ TODO: Implement file decomposition
 
 from datetime import UTC, datetime
 
-from backend.core.config_manager import get_config_value
-
 """
 Unified AI Orchestration Service
 Integrates Snowflake Cortex Agents, Estuary Flow, and multi-source data processing
@@ -28,6 +26,8 @@ from typing import Any
 import httpx
 import snowflake.connector
 from snowflake.connector import DictCursor
+
+from backend.core.auto_esc_config import get_snowflake_config
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -68,15 +68,8 @@ class UnifiedAIOrchestrationService:
     async def _initialize_snowflake_connection(self):
         """Initialize Snowflake connection with advanced configuration"""
         try:
-            self.snowflake_conn = snowflake.connector.connect(
-                account="ZNB04675.us-east-1",
-                user="SCOOBYJAVA15",
-                password=get_config_value("snowflake_password"),
-                role="ACCOUNTADMIN",
-                warehouse="AI_SOPHIA_AI_WH",
-                database="SOPHIA_AI_ADVANCED",
-                schema="PROCESSED_AI",
-            )
+            config = get_snowflake_config()
+            self.snowflake_conn = snowflake.connector.connect(**config)
             logger.info("✅ Snowflake connection established")
         except Exception as e:
             logger.error(f"❌ Snowflake connection failed: {e}")
