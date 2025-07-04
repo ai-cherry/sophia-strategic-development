@@ -1,34 +1,15 @@
 """
-Gong Data Quality Monitoring Package.
+Monitoring Package for Sophia AI.
 
-Provides comprehensive monitoring, alerting, and dashboards for
-Gong webhook data quality within the Sophia AI platform.
+Provides comprehensive monitoring, health checks, and metrics collection
+for the Sophia AI platform.
 """
 
-from .gong_data_quality import (
-    AlertSeverity,
-    AlertType,
-    CompletenessReport,
-    DataQualityConfig,
-    EnhancementReport,
-    GongDataQualityMonitor,
-    MappingReport,
-    QualityDimension,
-    QualityMetricsCollector,
-    QualityReport,
-    QualityRuleEngine,
-)
+# Only import modules that don't have circular dependencies
+# Individual modules can be imported directly when needed
 
 __all__ = [
-    "GongDataQualityMonitor",
-    "QualityRuleEngine",
-    "QualityMetricsCollector",
-    "DataQualityConfig",
-    "QualityReport",
-    "EnhancementReport",
-    "CompletenessReport",
-    "MappingReport",
-    "AlertSeverity",
-    "AlertType",
-    "QualityDimension",
+    "mcp_health_monitor",
+    "performance_monitor",
+    "security_metrics_exporter",
 ]

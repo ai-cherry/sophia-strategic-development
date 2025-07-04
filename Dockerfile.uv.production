@@ -9,6 +9,7 @@ WORKDIR /app
 
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
+COPY README.md ./
 
 # Install dependencies with UV
 RUN uv sync --frozen --no-dev
@@ -38,7 +39,7 @@ COPY pyproject.toml uv.lock ./
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH="/app:${PYTHONPATH}"
+ENV PYTHONPATH="/app"
 ENV ENVIRONMENT=prod
 ENV PULUMI_ORG=scoobyjava-org
 

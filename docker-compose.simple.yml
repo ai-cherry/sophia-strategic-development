@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Sophia Backend only
+  sophia-backend:
+    image: scoobyjava15/sophia-backend:latest
+    container_name: sophia-backend-prod
+    ports:
+      - "8001:8000"  # Using 8001 to avoid conflicts
+    environment:
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+      - POSTGRES_HOST=postgres-staging  # Use existing postgres
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=redis-staging  # Use existing redis
+      - REDIS_PORT=6379
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - sophia-main_sophia-network  # Connect to existing network
+    external_links:
+      - postgres-staging:postgres
+      - redis-staging:redis
+
+networks:
+  sophia-main_sophia-network:
+    external: true 
