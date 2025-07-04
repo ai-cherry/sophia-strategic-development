@@ -104,13 +104,40 @@ That's it! The script handles everything:
 
 ## 🌐 Access Points
 
-After deployment, access your services at:
+### Immediate Access (Using IP Address)
+After deployment, you can immediately access your services at:
+
+- **Backend API**: http://104.171.202.64:8000
+- **Frontend Dashboard**: http://104.171.202.64:3000
+- **API Documentation**: http://104.171.202.64:8000/docs
+- **Grafana Monitoring**: http://104.171.202.64:3000 (port 3000 for Grafana)
+- **Prometheus Metrics**: http://104.171.202.64:9090
+- **Dashboard MCP**: http://104.171.202.64:9100
+- **Chat MCP**: http://104.171.202.64:9101
+- **Codacy MCP**: http://104.171.202.64:3008
+
+### Future Access (After DNS Setup)
+Once you configure DNS (see instructions below), you'll access via:
 
 - **Dashboard**: https://api.sophia-ai.lambda.cloud/dashboard
 - **Chat Interface**: https://chat-mcp.sophia-ai.lambda.cloud
 - **API Documentation**: https://api.sophia-ai.lambda.cloud/docs
-- **Grafana**: http://104.171.202.64:3000
-- **Prometheus**: http://104.171.202.64:9090
+
+## 🔗 DNS Configuration
+
+To use the custom domain names, you need to:
+
+1. **Own a domain** (e.g., sophia-ai.lambda.cloud)
+2. **Configure DNS records** pointing to Lambda Labs IP (104.171.202.64)
+3. **Set up SSL certificates** (Let's Encrypt recommended)
+
+### Example DNS Records:
+```
+Type  Name                          Value
+A     api.sophia-ai.lambda.cloud    104.171.202.64
+A     chat-mcp.sophia-ai.lambda.cloud  104.171.202.64
+A     *.sophia-ai.lambda.cloud      104.171.202.64
+```
 
 ## 🔒 Security
 
@@ -162,17 +189,18 @@ docker service scale sophia-ai_chat-mcp=5
 You know deployment is successful when:
 - ✅ All services show desired replicas
 - ✅ Health checks passing (green in Grafana)
-- ✅ Can access dashboard and chat
-- ✅ API docs load at /docs
+- ✅ Can access services via IP address
+- ✅ API docs load at http://104.171.202.64:8000/docs
 - ✅ No error logs in services
 
 ## 📈 Next Steps
 
-1. **Configure DNS**: Point your domain to Lambda Labs IP
-2. **Set up SSL**: Use Let's Encrypt with Nginx
-3. **Configure Backups**: Set up automated PostgreSQL backups
-4. **Fine-tune Scaling**: Adjust replicas based on load
-5. **Set up Alerts**: Configure Grafana alerts
+1. **Test with IP addresses first** - Verify everything works
+2. **Configure DNS**: Point your domain to Lambda Labs IP
+3. **Set up SSL**: Use Let's Encrypt with Nginx
+4. **Configure Backups**: Set up automated PostgreSQL backups
+5. **Fine-tune Scaling**: Adjust replicas based on load
+6. **Set up Alerts**: Configure Grafana alerts
 
 ## 🔄 Updates and Maintenance
 

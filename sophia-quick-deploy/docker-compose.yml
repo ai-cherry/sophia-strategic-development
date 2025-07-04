@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Use existing PostgreSQL and Redis from Docker Hub
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: sophia_ai
+      POSTGRES_USER: sophia
+      POSTGRES_PASSWORD: sophia2024secure
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  # Backend - using existing image
+  backend:
+    image: scoobyjava15/sophia-ai:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=prod
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=sophia_ai
+      - POSTGRES_USER=sophia
+      - POSTGRES_PASSWORD=sophia2024secure
+      - REDIS_HOST=redis
+      - PULUMI_ORG=scoobyjava-org
+      - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN:-dummy}
+    depends_on:
+      - postgres
+      - redis
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+  # Simple nginx frontend
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    deploy:
+      replicas: 2
+
+volumes:
+  postgres_data:
+  redis_data:

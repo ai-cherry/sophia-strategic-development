@@ -1,0 +1,50 @@
+# AI Memory MCP Server Production Dockerfile
+FROM python:3.12-slim
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -u 1000 aimemory
+
+# Set working directory
+WORKDIR /app
+
+# Copy MCP server code
+COPY mcp-servers/ai_memory/ ./
+COPY backend/core/auto_esc_config.py ./backend/core/
+COPY backend/core/__init__.py ./backend/core/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    fastapi==0.115.5 \
+    uvicorn==0.32.1 \
+    redis==5.2.1 \
+    openai==1.58.1 \
+    pinecone-client==5.0.1 \
+    pulumi==3.143.0 \
+    pulumi-esc==0.10.0
+
+# Set environment variables
+ENV MCP_SERVER_NAME=ai-memory
+ENV MCP_SERVER_PORT=9000
+ENV PULUMI_ORG=scoobyjava-org
+ENV ENVIRONMENT=prod
+
+# Change ownership
+RUN chown -R aimemory:aimemory /app
+
+# Switch to non-root user
+USER aimemory
+
+# Expose port
+EXPOSE 9000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:9000/health || exit 1
+
+# Run the server
+CMD ["python", "-m", "uvicorn", "enhanced_ai_memory_mcp_server:app", "--host", "0.0.0.0", "--port", "9000"]

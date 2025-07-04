@@ -1,0 +1,61 @@
+# Simple production Dockerfile for Sophia AI
+FROM python:3.12-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -u 1000 sophia
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY pyproject.toml ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    fastapi==0.115.5 \
+    uvicorn==0.32.1 \
+    snowflake-connector-python==3.12.3 \
+    redis==5.2.1 \
+    httpx==0.28.1 \
+    pydantic==2.10.3 \
+    python-multipart==0.0.18 \
+    prometheus-client==0.21.1 \
+    openai==1.58.1 \
+    anthropic==0.40.0 \
+    pinecone-client==5.0.1 \
+    pulumi==3.143.0 \
+    psycopg2-binary==2.9.10 \
+    aiofiles==24.1.0 \
+    python-jose[cryptography]==3.3.0
+
+# Copy application code
+COPY backend/ ./backend/
+COPY config/ ./config/
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV ENVIRONMENT=prod
+ENV PULUMI_ORG=scoobyjava-org
+
+# Change ownership
+RUN chown -R sophia:sophia /app
+
+# Switch to non-root user
+USER sophia
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/api/health || exit 1
+
+# Run the application
+CMD ["python", "-m", "uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
