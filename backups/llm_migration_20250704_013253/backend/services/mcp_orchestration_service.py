@@ -34,7 +34,7 @@ import subprocess
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 import httpx
@@ -70,6 +70,7 @@ class MCPServerStatus(Enum):
 
 class MCPServerType(str, Enum):
     """Types of MCP servers"""
+
     GONG = "gong"
     SNOWFLAKE = "snowflake"
     SLACK = "slack"
@@ -190,13 +191,14 @@ class OrchestrationResult:
 @dataclass
 class MCPServerInfo:
     """Information about an MCP server"""
+
     name: str
     type: MCPServerType
     port: int
     base_url: str
     available: bool = True
-    capabilities: List[str] = None
-    
+    capabilities: list[str] = None
+
 
 class MCPOrchestrationService:
     """
@@ -228,7 +230,7 @@ class MCPOrchestrationService:
 
         try:
             if os.path.exists(config_path):
-                with open(config_path, "r") as f:
+                with open(config_path) as f:
                     config_data = json.load(f)
 
                 mcp_servers = config_data.get("mcpServers", {})
@@ -365,7 +367,9 @@ class MCPOrchestrationService:
 
             # For now, just mark as started since we don't have subprocess management
             # In production, this would actually start the MCP server process
-            logger.info(f"MCP server {server_name} marked as started (port {config.port})")
+            logger.info(
+                f"MCP server {server_name} marked as started (port {config.port})"
+            )
             return True
 
         except Exception as e:
@@ -879,7 +883,7 @@ class MCPOrchestrationService:
                     "ui_generation",
                     "component_design",
                     "ai_ui_creation",
-                    "real_time_preview"
+                    "real_time_preview",
                 ],
             ),
         }
@@ -996,14 +1000,14 @@ class MCPOrchestrationService:
                     "ui_generation",
                     "component_creation",
                     "interface_design",
-                    "ui_mockup"
+                    "ui_mockup",
                 ],
                 "server_sequence": [
                     "v0dev",
                     "figma_context",
                     "ui_ux_agent",
                     "codacy",
-                    "ai_memory"
+                    "ai_memory",
                 ],
                 "synthesis_type": "ui_creation_report",
                 "parallel_execution": False,  # Sequential for UI workflow
@@ -1332,9 +1336,9 @@ class MCPOrchestrationService:
                 "Implement suggested code quality improvements",
                 "Schedule regular automated security audits",
             ]
-            synthesis["summary"] = (
-                f"Comprehensive code analysis completed with {len(successful_results)} services contributing to security and quality assessment."
-            )
+            synthesis[
+                "summary"
+            ] = f"Comprehensive code analysis completed with {len(successful_results)} services contributing to security and quality assessment."
 
         elif synthesis_type == "project_health_dashboard":
             synthesis["insights"] = [
@@ -1347,9 +1351,9 @@ class MCPOrchestrationService:
                 "Optimize team workflow based on insights",
                 "Implement predictive project monitoring",
             ]
-            synthesis["summary"] = (
-                f"Project health dashboard synthesized from {len(successful_results)} data sources providing comprehensive project visibility."
-            )
+            synthesis[
+                "summary"
+            ] = f"Project health dashboard synthesized from {len(successful_results)} data sources providing comprehensive project visibility."
 
         elif synthesis_type == "executive_business_intelligence":
             synthesis["insights"] = [
@@ -1362,14 +1366,14 @@ class MCPOrchestrationService:
                 "Optimize resource allocation based on insights",
                 "Implement data-driven decision making processes",
             ]
-            synthesis["summary"] = (
-                f"Executive business intelligence synthesized from {len(successful_results)} business systems."
-            )
+            synthesis[
+                "summary"
+            ] = f"Executive business intelligence synthesized from {len(successful_results)} business systems."
 
         else:  # general synthesis
-            synthesis["summary"] = (
-                f"Task completed with {len(successful_results)} successful server responses."
-            )
+            synthesis[
+                "summary"
+            ] = f"Task completed with {len(successful_results)} successful server responses."
             synthesis["insights"] = [
                 "Task executed across distributed server architecture"
             ]
@@ -1408,6 +1412,7 @@ class MCPOrchestrationService:
 
 # Global orchestration service instance - using lazy initialization
 _orchestration_service = None
+
 
 def get_orchestration_service() -> MCPOrchestrationService:
     """Get the global orchestration service instance (lazy initialization)"""

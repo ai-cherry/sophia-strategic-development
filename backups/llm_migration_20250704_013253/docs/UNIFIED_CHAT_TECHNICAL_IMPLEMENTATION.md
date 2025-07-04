@@ -52,15 +52,15 @@ class SophiaIntentEngine:
     """
     Advanced intent classification with multi-model consensus
     """
-    
+
     def __init__(self):
         self.smart_ai = SmartAIService()
         self.intent_patterns = self._load_intent_patterns()
         self.domain_keywords = self._load_domain_keywords()
-        
+
     async def classify_intent(
-        self, 
-        message: str, 
+        self,
+        message: str,
         context: ChatContext,
         user_history: List[Dict[str, Any]]
     ) -> EnhancedIntent:
@@ -74,16 +74,16 @@ class SophiaIntentEngine:
             self._context_based_inference(message, context, user_history),
             return_exceptions=True
         )
-        
+
         # Combine results for robust classification
         combined_intent = self._combine_intent_results(results)
-        
+
         # Determine if approval needed
         combined_intent.requires_approval = self._needs_approval(combined_intent)
-        
+
         # Suggest best agents for the task
         combined_intent.suggested_agents = await self._suggest_agents(combined_intent)
-        
+
         return combined_intent
 ```
 
@@ -111,15 +111,15 @@ class AgentRegistry:
     """
     Central registry of all available agents and their capabilities
     """
-    
+
     def __init__(self):
         self.agents: Dict[str, AgentCapability] = {}
         self.capability_graph = nx.DiGraph()
         self._initialize_agents()
-        
+
     def _initialize_agents(self):
         """Register all available agents"""
-        
+
         # Business Agents
         self.register_agent(AgentCapability(
             name="sales_intelligence_agent",
@@ -131,7 +131,7 @@ class AgentRegistry:
             availability=True,
             cost_per_invocation=0.02
         ))
-        
+
         # Code Agents
         self.register_agent(AgentCapability(
             name="cursor_ide_agent",
@@ -143,7 +143,7 @@ class AgentRegistry:
             availability=True,
             cost_per_invocation=0.05
         ))
-        
+
         # Infrastructure Agents
         self.register_agent(AgentCapability(
             name="pulumi_iac_agent",
@@ -155,30 +155,30 @@ class AgentRegistry:
             availability=True,
             cost_per_invocation=0.10
         ))
-        
+
     def find_capable_agents(
-        self, 
+        self,
         required_capabilities: List[str],
         domain: Optional[str] = None
     ) -> List[AgentCapability]:
         """Find agents that can handle required capabilities"""
         capable_agents = []
-        
+
         for agent_name, agent in self.agents.items():
             if domain and agent.domain != domain:
                 continue
-                
+
             if all(cap in agent.actions for cap in required_capabilities):
                 capable_agents.append(agent)
-                
+
         # Sort by performance and cost
         capable_agents.sort(
-            key=lambda a: (a.performance_metrics.get("accuracy", 0) * 
-                          a.performance_metrics.get("speed", 0) / 
+            key=lambda a: (a.performance_metrics.get("accuracy", 0) *
+                          a.performance_metrics.get("speed", 0) /
                           (a.cost_per_invocation + 0.01)),
             reverse=True
         )
-        
+
         return capable_agents
 ```
 
@@ -219,12 +219,12 @@ class SophiaWorkflowOrchestrator:
     """
     Orchestrates complex multi-agent workflows
     """
-    
+
     def __init__(self):
         self.langgraph = EnhancedLangGraphOrchestrator()
         self.agent_registry = AgentRegistry()
         self.active_workflows: Dict[str, List[WorkflowTask]] = {}
-        
+
     async def create_workflow(
         self,
         intent: EnhancedIntent,
@@ -232,18 +232,18 @@ class SophiaWorkflowOrchestrator:
     ) -> str:
         """Create workflow from intent"""
         workflow_id = str(uuid.uuid4())
-        
+
         # Generate workflow tasks
         tasks = await self._generate_tasks(intent, context)
-        
+
         # Optimize task order and parallelization
         optimized_tasks = self._optimize_workflow(tasks)
-        
+
         # Store workflow
         self.active_workflows[workflow_id] = optimized_tasks
-        
+
         return workflow_id
-        
+
     async def execute_workflow(
         self,
         workflow_id: str,
@@ -253,10 +253,10 @@ class SophiaWorkflowOrchestrator:
         tasks = self.active_workflows.get(workflow_id)
         if not tasks:
             raise ValueError(f"Workflow {workflow_id} not found")
-            
+
         results = {}
         completed_tasks = set()
-        
+
         while len(completed_tasks) < len(tasks):
             # Find tasks ready to run
             ready_tasks = [
@@ -264,23 +264,23 @@ class SophiaWorkflowOrchestrator:
                 if task.status == TaskStatus.PENDING
                 and all(dep in completed_tasks for dep in task.dependencies)
             ]
-            
+
             if not ready_tasks:
                 # Check for deadlock
                 if self._has_deadlock(tasks, completed_tasks):
                     raise RuntimeError("Workflow deadlock detected")
                 await asyncio.sleep(0.1)
                 continue
-                
+
             # Execute ready tasks in parallel
             task_futures = []
             for task in ready_tasks:
                 task.status = TaskStatus.RUNNING
                 task_futures.append(self._execute_task(task))
-                
+
             # Wait for tasks to complete
             task_results = await asyncio.gather(*task_futures, return_exceptions=True)
-            
+
             # Process results
             for task, result in zip(ready_tasks, task_results):
                 if isinstance(result, Exception):
@@ -290,9 +290,9 @@ class SophiaWorkflowOrchestrator:
                     task.status = TaskStatus.COMPLETED
                     task.result = result
                     results[task.id] = result
-                    
+
                 completed_tasks.add(task.id)
-                
+
                 # Send progress update
                 if progress_callback:
                     await progress_callback({
@@ -300,7 +300,7 @@ class SophiaWorkflowOrchestrator:
                         "status": task.status.value,
                         "progress": len(completed_tasks) / len(tasks)
                     })
-                    
+
         return {
             "workflow_id": workflow_id,
             "status": "completed",
@@ -318,24 +318,24 @@ class NaturalLanguageResponseGenerator:
     """
     Generates human-friendly responses from workflow results
     """
-    
+
     def __init__(self):
         self.smart_ai = SmartAIService()
         self.response_templates = self._load_templates()
-        
+
     async def generate_progress_update(
         self,
         task: WorkflowTask,
         workflow_context: Dict[str, Any]
     ) -> str:
         """Generate natural language progress update"""
-        
+
         # Use templates for common updates
         if task.agent in self.response_templates:
             template = self.response_templates[task.agent].get(task.action)
             if template:
                 return template.format(**task.inputs)
-                
+
         # Generate custom update using LLM
         prompt = f"""
         Generate a brief, friendly progress update for this task:
@@ -343,12 +343,12 @@ class NaturalLanguageResponseGenerator:
         Action: {task.action}
         Status: {task.status.value}
         Context: {workflow_context}
-        
+
         Keep it conversational and informative.
         """
-        
+
         return await self.smart_ai.generate_text(prompt)
-        
+
     async def synthesize_results(
         self,
         workflow_results: Dict[str, Any],
@@ -356,31 +356,31 @@ class NaturalLanguageResponseGenerator:
         intent: EnhancedIntent
     ) -> str:
         """Synthesize workflow results into coherent response"""
-        
+
         prompt = f"""
         Create a comprehensive response to the user's request based on these results:
-        
+
         Original Request: {original_request}
         Intent: {intent.action.value} {intent.domain.value}
-        
+
         Results from various agents:
         {json.dumps(workflow_results, indent=2)}
-        
+
         Guidelines:
         1. Start with a clear summary of what was accomplished
         2. Present key findings or outputs
         3. Highlight any important decisions or changes made
         4. Suggest logical next steps
         5. Keep the tone professional but friendly
-        
+
         Response:
         """
-        
+
         response = await self.smart_ai.generate_text(prompt)
-        
+
         # Add interactive elements
         response = self._add_interactive_elements(response, workflow_results)
-        
+
         return response
 ```
 
@@ -398,45 +398,45 @@ class EnhancedUnifiedChatService(UnifiedChatService):
     """
     Enhanced chat service with orchestration capabilities
     """
-    
+
     def __init__(self):
         super().__init__()
         self.intent_engine = SophiaIntentEngine()
         self.orchestrator = SophiaWorkflowOrchestrator()
         self.response_generator = NaturalLanguageResponseGenerator()
-        
+
     async def process_chat(self, request: ChatRequest) -> ChatResponse:
         """Process chat with full orchestration"""
-        
+
         # Classify intent
         intent = await self.intent_engine.classify_intent(
             request.message,
             request.context,
             await self.get_user_history(request.user_id)
         )
-        
+
         # Check if this needs orchestration
         if intent.suggested_agents:
             # Create and execute workflow
             workflow_id = await self.orchestrator.create_workflow(intent, request.context)
-            
+
             # Stream progress updates
             async def progress_callback(update):
                 await self.stream_update(request.session_id, update)
-                
+
             # Execute workflow
             results = await self.orchestrator.execute_workflow(
                 workflow_id,
                 progress_callback
             )
-            
+
             # Generate natural language response
             response_text = await self.response_generator.synthesize_results(
                 results,
                 request.message,
                 intent
             )
-            
+
             return ChatResponse(
                 response=response_text,
                 workflow_id=workflow_id,
@@ -463,14 +463,14 @@ class CursorIDEMCPServer(StandardizedMCPServer):
     """
     MCP server for Cursor IDE integration
     """
-    
+
     def __init__(self):
         super().__init__(
             name="cursor_ide",
             port=9050,
             description="Natural language code generation and modification in Cursor"
         )
-        
+
     @mcp_tool(
         name="generate_code",
         description="Generate code based on requirements"
@@ -482,27 +482,27 @@ class CursorIDEMCPServer(StandardizedMCPServer):
         context_files: List[str] = None
     ) -> Dict[str, Any]:
         """Generate code based on natural language requirements"""
-        
+
         # Analyze requirements
         code_spec = await self._analyze_requirements(requirements)
-        
+
         # Load context from files
         context = await self._load_context(context_files or [])
-        
+
         # Generate code
         code = await self._generate_code_with_ai(code_spec, language, context)
-        
+
         # Format and validate
         formatted_code = await self._format_code(code, language)
         validation_results = await self._validate_code(formatted_code, language)
-        
+
         return {
             "code": formatted_code,
             "language": language,
             "validation": validation_results,
             "explanation": await self._explain_code(formatted_code, requirements)
         }
-        
+
     @mcp_tool(
         name="modify_code",
         description="Modify existing code based on instructions"
@@ -514,23 +514,23 @@ class CursorIDEMCPServer(StandardizedMCPServer):
         preview_only: bool = True
     ) -> Dict[str, Any]:
         """Modify existing code file"""
-        
+
         # Read current code
         current_code = await self._read_file(file_path)
-        
+
         # Generate modifications
         modified_code = await self._apply_modifications(
             current_code,
             instructions,
             file_path
         )
-        
+
         # Create diff
         diff = await self._create_diff(current_code, modified_code)
-        
+
         if not preview_only:
             await self._write_file(file_path, modified_code)
-            
+
         return {
             "file_path": file_path,
             "diff": diff,
@@ -548,7 +548,7 @@ class InfrastructureMCPServer(StandardizedMCPServer):
     """
     MCP server for infrastructure management
     """
-    
+
     def __init__(self):
         super().__init__(
             name="infrastructure",
@@ -557,7 +557,7 @@ class InfrastructureMCPServer(StandardizedMCPServer):
         )
         self.pulumi_workspace = None
         self.terraform_workspace = None
-        
+
     @mcp_tool(
         name="deploy_infrastructure",
         description="Deploy infrastructure based on requirements"
@@ -569,22 +569,22 @@ class InfrastructureMCPServer(StandardizedMCPServer):
         dry_run: bool = True
     ) -> Dict[str, Any]:
         """Deploy infrastructure from natural language requirements"""
-        
+
         # Parse infrastructure requirements
         infra_spec = await self._parse_requirements(requirements)
-        
+
         # Choose IaC tool
         iac_tool = self._select_iac_tool(infra_spec)
-        
+
         # Generate IaC code
         if iac_tool == "pulumi":
             iac_code = await self._generate_pulumi_code(infra_spec)
         else:
             iac_code = await self._generate_terraform_code(infra_spec)
-            
+
         # Preview changes
         preview = await self._preview_changes(iac_code, environment)
-        
+
         if not dry_run and preview["safe_to_apply"]:
             # Apply changes
             result = await self._apply_changes(iac_code, environment)
@@ -676,7 +676,7 @@ class InfrastructureMCPServer(StandardizedMCPServer):
 # tests/test_intent_engine.py
 async def test_intent_classification():
     engine = SophiaIntentEngine()
-    
+
     # Test business intent
     intent = await engine.classify_intent(
         "Analyze why our sales dropped last month",
@@ -685,7 +685,7 @@ async def test_intent_classification():
     )
     assert intent.domain == IntentDomain.BUSINESS
     assert intent.action == IntentAction.ANALYZE
-    
+
     # Test infrastructure intent
     intent = await engine.classify_intent(
         "Deploy the new API to production",
@@ -702,7 +702,7 @@ async def test_intent_classification():
 # tests/test_orchestration.py
 async def test_multi_agent_workflow():
     orchestrator = SophiaWorkflowOrchestrator()
-    
+
     # Create test intent
     intent = EnhancedIntent(
         domain=IntentDomain.BUSINESS,
@@ -715,11 +715,11 @@ async def test_multi_agent_workflow():
         requires_approval=False,
         suggested_agents=["sales_intelligence_agent", "data_analyst_agent"]
     )
-    
+
     # Create and execute workflow
     workflow_id = await orchestrator.create_workflow(intent, {})
     results = await orchestrator.execute_workflow(workflow_id)
-    
+
     assert results["status"] == "completed"
     assert len(results["results"]) == 2
 ```
@@ -764,4 +764,4 @@ async def test_multi_agent_workflow():
 3. **User Experience Success**
    - 90% user satisfaction score
    - 3x productivity improvement
-   - 50% reduction in task completion time 
+   - 50% reduction in task completion time

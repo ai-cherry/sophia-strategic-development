@@ -145,13 +145,13 @@ api_key = os.getenv("OPENAI_API_KEY")
 ```python
 class UnifiedLLMService:
     """Single service for all LLM interactions"""
-    
+
     def __init__(self):
         self.gateway = PortkeyGateway()  # or OpenRouter
         self.cache = SemanticCache()
         self.analytics = LLMAnalytics()
         self.router = IntelligentRouter()
-    
+
     async def complete(
         self,
         prompt: str,
@@ -172,7 +172,7 @@ models:
     provider: openai
     cost_per_1k: 0.03
     capabilities: [reasoning, code, analysis]
-    
+
   claude-3-opus:
     provider: anthropic
     cost_per_1k: 0.015
@@ -221,4 +221,4 @@ models:
 - **Performance**: < 50ms additional latency
 - **Reliability**: 99.9% uptime
 - **Coverage**: 100% of LLM calls through gateway
-- **Observability**: Full visibility into all LLM operations 
+- **Observability**: Full visibility into all LLM operations

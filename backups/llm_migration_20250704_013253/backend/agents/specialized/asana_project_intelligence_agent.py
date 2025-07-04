@@ -14,7 +14,6 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
@@ -22,12 +21,10 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
+from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.smart_ai_service import SmartAIService
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
 logger = logging.getLogger(__name__)
 
@@ -843,9 +840,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 "summary": summary,
             }
 
-            logger.info(
-                f"✅ Generated intelligence report for {len(projects)} projects"
-            )
+            logger.info(f"✅ Generated intelligence report for {len(projects)} projects")
             return report
 
         except Exception as e:

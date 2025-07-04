@@ -11,10 +11,10 @@ import json
 import logging
 from typing import Any
 
+from backend.services.ui_generation_intent_handler import get_ui_generation_handler
 from backend.services.unified_intelligence_service import (
     SophiaUnifiedIntelligenceService,
 )
-from backend.services.ui_generation_intent_handler import get_ui_generation_handler
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         # Initialize UI generation handler
         self.ui_handler = get_ui_generation_handler()
-        
+
         logger.info("✅ Enhanced Unified Intelligence Service initialized")
 
     async def unified_business_query(
@@ -85,7 +85,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         # Check for UI generation intent
         if self.ui_handler.detect_ui_generation_intent(query):
             query_type = "ui_generation"
-            
+
         return {
             "original_query": query,
             "query_type": query_type,
@@ -151,13 +151,13 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             ui_response = await self.ui_handler.generate_ui_from_chat(
                 message=query_context["original_query"],
                 user_id=query_context.get("user_id"),
-                session_id=query_context.get("session_id")
+                session_id=query_context.get("session_id"),
             )
-            
+
             return {
                 "type": "ui_generation",
                 "results": [ui_response],
-                "insights": ["UI component generated successfully"]
+                "insights": ["UI component generated successfully"],
             }
         except Exception as e:
             logger.error(f"UI generation failed: {e}")
@@ -165,7 +165,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 "type": "ui_generation",
                 "results": [],
                 "insights": [],
-                "error": str(e)
+                "error": str(e),
             }
 
     async def _handle_general_query(

@@ -19,4 +19,3 @@
         -- Create Mem0 memory ID index
         CREATE INDEX IF NOT EXISTS idx_mem0_memory_id
         ON SOPHIA_AI_MEMORY.MEMORY_RECORDS(mem0_memory_id);
-

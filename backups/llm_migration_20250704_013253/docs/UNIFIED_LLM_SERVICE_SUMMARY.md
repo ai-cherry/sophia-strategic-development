@@ -135,4 +135,4 @@ async for chunk in llm_service.complete(
 - ✅ Created migration path
 - 🔄 77 files pending migration
 
-The UnifiedLLMService is now the single source of truth for all LLM interactions in Sophia AI! 
+The UnifiedLLMService is now the single source of truth for all LLM interactions in Sophia AI!

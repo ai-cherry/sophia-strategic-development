@@ -23,10 +23,10 @@ MIGRATION_PATTERNS = [
     # Import replacements
     ("from backend.services.smart_ai_service import SmartAIService",
      "from backend.services.unified_llm_service import get_unified_llm_service, TaskType"),
-    
+
     # Class instantiation replacements
     ("SmartAIService()", "await get_unified_llm_service()"),
-    
+
     # Method call replacements
     ("smart_ai.generate_response", "llm_service.complete"),
 ]
@@ -127,7 +127,7 @@ repos:
 #### ❌ **SKIP: High Complexity, Marginal Benefit**
 
 ##### 1. Lambda Labs Kubernetes GPU Stack
-**Why Skip**: 
+**Why Skip**:
 - We're not doing LLM training
 - Adds significant operational complexity
 - Current Lambda Labs setup is sufficient
@@ -247,4 +247,4 @@ docker-compose up -d sonarqube
 
 ## Conclusion
 
-Focus on the UnifiedLLMService migration first, then selectively add infrastructure that provides clear value without complexity. The goal is a simpler, more maintainable system, not a complex enterprise stack. 
+Focus on the UnifiedLLMService migration first, then selectively add infrastructure that provides clear value without complexity. The goal is a simpler, more maintainable system, not a complex enterprise stack.

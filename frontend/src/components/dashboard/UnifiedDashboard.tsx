@@ -33,6 +33,7 @@ const UnifiedDashboard = () => {
         projects: [],
         knowledge: null,
         sales: null,
+        llm: null,
     });
 
     // --- Data Fetching ---
@@ -56,6 +57,10 @@ const UnifiedDashboard = () => {
                  case 'sales':
                      response = await apiClient.get('/api/v1/sales/summary'); // Mocked
                      setData(prev => ({ ...prev, sales: response.data }));
+                    break;
+                case 'llm_metrics':
+                    response = await apiClient.get('/api/v1/llm/stats');
+                    setData(prev => ({ ...prev, llm: response.data }));
                     break;
             }
         } catch (error) {
@@ -171,6 +176,175 @@ const UnifiedDashboard = () => {
         </div>
     );
 
+    const renderLLMMetrics = () => (
+        <div className="space-y-6">
+            {/* LLM Cost Overview */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <UnifiedKPICard
+                    title="Total LLM Cost (Today)"
+                    value={`$${data.llm?.daily_cost || 0}`}
+                    change={`${data.llm?.cost_change || 0}%`}
+                    changeType={data.llm?.cost_change > 0 ? 'increase' : 'decrease'}
+                    icon={DollarSign}
+                />
+                <UnifiedKPICard
+                    title="Requests (24h)"
+                    value={data.llm?.daily_requests || 0}
+                    change={`${data.llm?.request_change || 0}%`}
+                    changeType="increase"
+                    icon={Activity}
+                />
+                <UnifiedKPICard
+                    title="Avg Response Time"
+                    value={`${data.llm?.avg_response_time || 0}ms`}
+                    change={`${data.llm?.response_time_change || 0}%`}
+                    changeType={data.llm?.response_time_change < 0 ? 'increase' : 'decrease'}
+                    icon={Activity}
+                />
+                <UnifiedKPICard
+                    title="Cache Hit Rate"
+                    value={`${data.llm?.cache_hit_rate || 0}%`}
+                    change={`+${data.llm?.cache_improvement || 0}%`}
+                    changeType="increase"
+                    icon={Database}
+                />
+            </div>
+
+            {/* Provider Breakdown */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                        <BrainCircuit />
+                        <span>LLM Provider Usage</span>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Provider</TableHead>
+                                <TableHead>Model</TableHead>
+                                <TableHead>Requests</TableHead>
+                                <TableHead>Cost</TableHead>
+                                <TableHead>Avg Latency</TableHead>
+                                <TableHead>Task Type</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data.llm?.providers && data.llm.providers.map(p => (
+                                <TableRow key={`${p.provider}-${p.model}`}>
+                                    <TableCell>
+                                        <Badge variant={p.provider === 'snowflake' ? 'default' : 'secondary'}>
+                                            {p.provider}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="font-medium">{p.model}</TableCell>
+                                    <TableCell>{p.requests.toLocaleString()}</TableCell>
+                                    <TableCell>${p.cost.toFixed(3)}</TableCell>
+                                    <TableCell>{p.avg_latency}ms</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{p.primary_task_type}</Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+
+            {/* Cost by Task Type */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Cost by Task Type</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {data.llm?.task_costs && (
+                            <Doughnut
+                                data={{
+                                    labels: Object.keys(data.llm.task_costs),
+                                    datasets: [{
+                                        data: Object.values(data.llm.task_costs),
+                                        backgroundColor: [
+                                            '#3B82F6', '#10B981', '#F59E0B',
+                                            '#EF4444', '#8B5CF6', '#EC4899'
+                                        ]
+                                    }]
+                                }}
+                                options={{
+                                    responsive: true,
+                                    plugins: {
+                                        legend: { position: 'right' }
+                                    }
+                                }}
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Request Volume Trend (7 Days)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {data.llm?.request_trend && (
+                            <Line
+                                data={{
+                                    labels: data.llm.request_trend.labels,
+                                    datasets: [{
+                                        label: 'Requests',
+                                        data: data.llm.request_trend.values,
+                                        borderColor: '#3B82F6',
+                                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                        tension: 0.4
+                                    }]
+                                }}
+                                options={{
+                                    responsive: true,
+                                    plugins: {
+                                        legend: { display: false }
+                                    },
+                                    scales: {
+                                        y: { beginAtZero: true }
+                                    }
+                                }}
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Snowflake Data Locality Savings */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Snowflake Data Locality Savings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-green-600">
+                                ${data.llm?.snowflake_savings || 0}
+                            </p>
+                            <p className="text-sm text-gray-500">Cost Saved (Month)</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-blue-600">
+                                {data.llm?.data_movement_avoided || 0} GB
+                            </p>
+                            <p className="text-sm text-gray-500">Data Movement Avoided</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-purple-600">
+                                {data.llm?.snowflake_percentage || 0}%
+                            </p>
+                            <p className="text-sm text-gray-500">Queries Handled by Snowflake</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+
     // --- Main Component Return ---
     return (
         <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -196,6 +370,7 @@ const UnifiedDashboard = () => {
                     <TabsTrigger value="projects">Projects & OKRs</TabsTrigger>
                     <TabsTrigger value="knowledge">Knowledge AI</TabsTrigger>
                     <TabsTrigger value="sales">Sales Intelligence</TabsTrigger>
+                    <TabsTrigger value="llm_metrics">LLM Metrics</TabsTrigger>
                     <TabsTrigger value="unified_chat">Unified Chat</TabsTrigger>
                 </TabsList>
 
@@ -203,6 +378,7 @@ const UnifiedDashboard = () => {
                 <TabsContent value="projects" className="mt-6">{renderProjects()}</TabsContent>
                 <TabsContent value="knowledge" className="mt-6">{renderKnowledge()}</TabsContent>
                 <TabsContent value="sales" className="mt-6">{renderSales()}</TabsContent>
+                <TabsContent value="llm_metrics" className="mt-6">{renderLLMMetrics()}</TabsContent>
                 <TabsContent value="unified_chat" className="mt-6">
                     <EnhancedUnifiedChat initialContext={activeTab} />
                 </TabsContent>
