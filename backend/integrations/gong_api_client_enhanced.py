@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Enhanced Gong API Client - Production-ready async client with comprehensive features.
 
@@ -18,8 +20,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import asyncio
 import hashlib
