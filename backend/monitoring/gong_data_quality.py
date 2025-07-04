@@ -29,7 +29,8 @@ from typing import Any
 
 import structlog
 from prometheus_client import Counter, Gauge, Histogram
-from pydantic import BaseModel, BaseSettings, Field
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 
 logger = structlog.get_logger()
 
@@ -124,9 +125,9 @@ class DataQualityConfig(BaseSettings):
     """Configuration for data quality monitoring."""
 
     # Monitoring thresholds
-    MIN_QUALITY_SCORE: float = Field(0.8, env="MIN_QUALITY_SCORE")
-    MAX_PROCESSING_LATENCY: float = Field(30.0, env="MAX_PROCESSING_LATENCY")
-    ALERT_WEBHOOK_URL: str = Field(..., env="ALERT_WEBHOOK_URL")
+    MIN_QUALITY_SCORE: float = Field(default=0.8, alias="MIN_QUALITY_SCORE")
+    MAX_PROCESSING_LATENCY: float = Field(default=30.0, alias="MAX_PROCESSING_LATENCY")
+    ALERT_WEBHOOK_URL: str = Field(default="", alias="ALERT_WEBHOOK_URL")
 
     # Data validation rules
     REQUIRED_FIELDS: list[str] = [
@@ -137,15 +138,15 @@ class DataQualityConfig(BaseSettings):
         "primary_user_id",
         "participants",
     ]
-    COMPLETENESS_THRESHOLD: float = Field(0.95, env="COMPLETENESS_THRESHOLD")
+    COMPLETENESS_THRESHOLD: float = Field(default=0.95, alias="COMPLETENESS_THRESHOLD")
 
     # Alert configuration
-    ALERT_COOLDOWN_MINUTES: int = Field(15, env="ALERT_COOLDOWN_MINUTES")
-    MAX_ALERTS_PER_HOUR: int = Field(10, env="MAX_ALERTS_PER_HOUR")
+    ALERT_COOLDOWN_MINUTES: int = Field(default=15, alias="ALERT_COOLDOWN_MINUTES")
+    MAX_ALERTS_PER_HOUR: int = Field(default=10, alias="MAX_ALERTS_PER_HOUR")
 
     # Performance settings
-    METRIC_UPDATE_INTERVAL: float = Field(5.0, env="METRIC_UPDATE_INTERVAL")
-    QUALITY_HISTORY_SIZE: int = Field(1000, env="QUALITY_HISTORY_SIZE")
+    METRIC_UPDATE_INTERVAL: float = Field(default=5.0, alias="METRIC_UPDATE_INTERVAL")
+    QUALITY_HISTORY_SIZE: int = Field(default=1000, alias="QUALITY_HISTORY_SIZE")
 
     class Config:
         env_file = ".env"
