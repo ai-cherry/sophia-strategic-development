@@ -128,6 +128,86 @@ When planning coding work, use this structure:
 - Clean code standards met
 ```
 
+## Tool Selection Principle
+
+### Key Principle
+> **Only add new tools when there's a clear gap that existing tools cannot fill.**
+
+### Why This Matters
+
+Adding unnecessary tools creates:
+- **Complexity Creep**: Each tool adds configuration, dependencies, and potential failure points
+- **Maintenance Burden**: More tools = more updates, security patches, and compatibility issues
+- **Duplicate Functionality**: Often new tools overlap with existing capabilities
+- **Migration Overhead**: Switching between similar tools wastes development time
+
+### Tool Evaluation Checklist
+
+Before proposing any new tool or framework:
+
+1. **Identify the Gap**
+   - What specific problem are you trying to solve?
+   - Why can't existing tools handle this?
+   - Is this a core requirement or nice-to-have?
+
+2. **Check Existing Tools**
+   - Review current stack capabilities
+   - Can existing tools be enhanced instead?
+   - Would a simple script suffice?
+
+3. **Evaluate Long-term Cost**
+   - Who will maintain this tool?
+   - What's the learning curve?
+   - How does it affect system complexity?
+
+4. **Document the Decision**
+   - Clear justification for the addition
+   - Specific gaps it fills
+   - Integration plan with existing tools
+
+### Examples
+
+#### ❌ WRONG: Adding Unnecessary Tools
+```
+"Let's add Airflow for workflow orchestration"
+(But we already have Estuary for ELT)
+
+"We need LangChain for agent management"
+(But we already use LangGraph)
+
+"Let's switch to pip from UV"
+(UV is 6x faster and already working)
+```
+
+#### ✅ RIGHT: Justified Tool Addition
+```
+"Add Dependabot for automated security updates"
+(Clear gap: No automated dependency security scanning)
+
+"Enable Grafana for metrics visualization"
+(Clear gap: Prometheus metrics exist but no dashboards)
+
+"Consider Jaeger for distributed tracing"
+(Clear gap: Complex service interactions hard to debug)
+```
+
+### Current Stack Reference
+
+Before adding tools, understand what we already have:
+
+- **ELT/Data Pipeline**: Estuary
+- **Agent Orchestration**: LangGraph
+- **Dependency Management**: UV
+- **Container Orchestration**: Kubernetes (migrating from Swarm)
+- **Secret Management**: Pulumi ESC
+- **LLM Routing**: UnifiedLLMService
+- **Monitoring**: Prometheus metrics
+- **Code Quality**: Pre-commit hooks, Codacy MCP
+
+### The 80/20 Rule
+
+80% of problems can be solved with 20% of the tools. Focus on mastering and enhancing the core tools rather than constantly adding new ones.
+
 ## Remember
 
 The goal is to build high-quality, maintainable code that solves real business problems. Time estimates don't help achieve this goal - they only create pressure and distraction.

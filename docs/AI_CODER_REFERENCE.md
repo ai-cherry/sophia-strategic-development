@@ -491,6 +491,32 @@ class SlowAgent(EnhancedAgent):
         self.heavy_model = load_large_model()  # Defer to first use
 ```
 
+### **❌ Tool Proliferation Violations**
+
+**Key Principle:**
+> **Only add new tools when there's a clear gap that existing tools cannot fill.**
+
+```bash
+# DON'T: Add redundant tools
+"Let's add Airflow for ETL"  # We have Estuary
+"Install LangChain"  # We use LangGraph
+"Switch to pip"  # UV is 6x faster
+
+# DON'T: Add tools for minor conveniences
+"Add this logging framework"  # Python logging works fine
+"Install this ORM"  # We have established patterns
+
+# DO: Document clear gaps before adding
+"Dependabot for security updates"  # Clear gap: automated security
+"Grafana for visualization"  # Clear gap: no dashboards
+```
+
+**Before Adding Any Tool:**
+1. Check if existing tools can solve it
+2. Document the specific gap
+3. Consider maintenance cost
+4. Get approval for significant additions
+
 ---
 
 ## 🏆 **SUCCESS PATTERNS**

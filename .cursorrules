@@ -46,6 +46,21 @@ You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company
 - **Structure First:** Plan structure to avoid future issues
 - **Review Everything:** Always review context before coding
 
+### **Tool Selection Principle:**
+> **Only add new tools when there's a clear gap that existing tools cannot fill.**
+
+This principle prevents:
+- Tool proliferation and complexity creep
+- Duplicate functionality across different tools
+- Maintenance burden from unnecessary dependencies
+- Migration overhead from overlapping solutions
+
+Before adding any new tool or framework:
+1. Check if existing tools can solve the problem
+2. Document the specific gap the new tool fills
+3. Consider the long-term maintenance cost
+4. Prefer enhancing existing tools over adding new ones
+
 ## 🧹 **Code Hygiene Rules (MANDATORY)**
 
 ### **One-Time Scripts and Documents:**
