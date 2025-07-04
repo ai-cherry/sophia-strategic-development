@@ -108,8 +108,6 @@ class UnifiedLLMService:
                     "mode": "semantic",
                     "threshold": 0.95,
                     "ttl": 3600,
-                    "max_size": 1000,  # Maximum cached items
-                    "enabled": True,   # Explicitly enable caching
                 },
                 "retry": {
                     "attempts": 3,
