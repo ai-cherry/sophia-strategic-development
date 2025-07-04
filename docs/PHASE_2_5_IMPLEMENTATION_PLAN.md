@@ -1,421 +1,328 @@
 # 🚀 Phase 2.5: AI Orchestrator Implementation Plan
 
-**Based on Research Findings - Immediate Next Steps**
+## Overview
 
-## 📅 Week 1-2: Foundation & Quick Wins
+Building on our Phase 2 foundation (natural language code modification) and research findings, Phase 2.5 implements an intelligent AI orchestration layer that optimizes model selection, cost, and quality.
 
-### 1. **Create Sophia AI Convention Files**
+## Architecture Components
 
-Create `.cursorrules` file for the project:
+### 1. AI Model Router
+```python
+class AIModelRouter:
+    """
+    Intelligent routing based on:
+    - Task complexity analysis
+    - Cost optimization
+    - Quality requirements
+    - Model availability
+    """
+```
+
+**Key Features:**
+- Complexity scoring algorithm
+- Model capability mapping
+- Fallback mechanisms
+- Override capabilities
+
+### 2. Model Integration Layer
+```python
+class UnifiedModelInterface:
+    """
+    Abstraction layer for all AI providers:
+    - OpenAI (GPT-4, GPT-3.5)
+    - Anthropic (Claude 3 family)
+    - Google (Gemini family)
+    - Snowflake Cortex
+    - Open source models
+    """
+```
+
+**Supported Providers:**
+- Commercial APIs (OpenAI, Anthropic, Google)
+- Snowflake Cortex (already integrated)
+- Open source via Ollama/vLLM
+- Specialized models (code, finance, etc.)
+
+### 3. Cost Optimization Engine
+```python
+class CostOptimizer:
+    """
+    Strategies for reducing costs:
+    - Semantic caching
+    - Request batching
+    - Model cascading
+    - Usage tracking
+    """
+```
+
+**Optimization Techniques:**
+- Cache similar queries with embeddings
+- Batch process where possible
+- Start with cheaper models, escalate if needed
+- Track and analyze usage patterns
+
+### 4. Quality Assurance System
+```python
+class QualityValidator:
+    """
+    Ensure response quality:
+    - Confidence scoring
+    - Fact checking
+    - Consistency validation
+    - Hallucination detection
+    """
+```
+
+**Validation Layers:**
+- Response confidence thresholds
+- Cross-reference with knowledge base
+- Consistency across responses
+- User feedback integration
+
+## Implementation Phases
+
+### Phase 2.5.1: Core Router Implementation
+
+**Components to Build:**
+1. **Task Analyzer**
+   - Parse incoming requests
+   - Extract complexity indicators
+   - Identify task type (code, analysis, creative, etc.)
+   - Determine quality requirements
+
+2. **Model Selector**
+   - Map task requirements to model capabilities
+   - Consider cost constraints
+   - Check model availability
+   - Apply routing rules
+
+3. **Request Executor**
+   - Standardized request format
+   - Provider-specific adapters
+   - Error handling and retries
+   - Response normalization
+
+**Integration Points:**
+- Unified chat service
+- Code modification service
+- Memory system
+- Existing Snowflake Cortex
+
+### Phase 2.5.2: Optimization Layer
+
+**Components to Build:**
+1. **Semantic Cache**
+   - Embedding-based similarity matching
+   - Configurable TTL policies
+   - Cache invalidation logic
+   - Hit rate monitoring
+
+2. **Batch Processor**
+   - Queue similar requests
+   - Optimize API calls
+   - Handle timeouts gracefully
+   - Maintain request ordering
+
+3. **Cost Tracker**
+   - Real-time cost calculation
+   - Budget alerts
+   - Usage analytics
+   - ROI reporting
+
+**Performance Targets:**
+- Cache hit rate > 40%
+- Batch efficiency > 60%
+- Cost reduction > 30%
+
+### Phase 2.5.3: Quality & Monitoring
+
+**Components to Build:**
+1. **Quality Metrics**
+   - Response accuracy scoring
+   - User satisfaction tracking
+   - Error rate monitoring
+   - Performance benchmarks
+
+2. **Monitoring Dashboard**
+   - Real-time metrics
+   - Model performance comparison
+   - Cost analysis
+   - Alert configuration
+
+3. **Feedback Loop**
+   - User feedback collection
+   - Automatic improvement
+   - A/B testing framework
+   - Model retraining triggers
+
+**Success Metrics:**
+- Response quality > 95%
+- User satisfaction > 90%
+- System uptime > 99.9%
+
+## Technical Implementation Details
+
+### Router Configuration Schema
 ```yaml
-# Sophia AI Development Rules
-PROJECT_CONTEXT: |
-  You are working on Sophia AI, an executive AI orchestrator for Pay Ready.
-  Tech Stack: Python/FastAPI, TypeScript/React, Snowflake, PostgreSQL, Redis
-  Architecture: Microservices with event-driven communication
+models:
+  gpt-4:
+    capabilities: ["complex_reasoning", "code_generation", "analysis"]
+    cost_per_1k: 0.03
+    quality_score: 0.95
+    latency_ms: 2000
   
-CODING_STANDARDS: |
-  - Python: Type hints required, async/await for I/O
-  - TypeScript: Strict mode, no 'any' types
-  - Testing: TDD approach, pytest for Python, Jest for TypeScript
-  - Documentation: Docstrings for all functions, JSDoc for TS
-  
-AI_BEHAVIOR: |
-  - Always plan before implementing (70% planning, 30% execution)
-  - Create tests before implementation
-  - Make minimal, focused changes
-  - Update documentation with each change
-  - Cite sources for any external information
+  gpt-3.5-turbo:
+    capabilities: ["general_chat", "simple_analysis"]
+    cost_per_1k: 0.001
+    quality_score: 0.80
+    latency_ms: 800
+    
+  snowflake-cortex:
+    capabilities: ["sql_generation", "data_analysis"]
+    cost_per_1k: 0.0001
+    quality_score: 0.85
+    latency_ms: 200
+
+routing_rules:
+  - if: complexity > 0.8
+    then: ["gpt-4", "claude-3-opus"]
+  - if: task_type == "sql"
+    then: ["snowflake-cortex"]
+  - if: cost_sensitive == true
+    then: ["gpt-3.5-turbo", "open-source"]
 ```
 
-### 2. **Implement Enhanced Unified Chat Interface**
+### Integration with Existing Services
 
-Based on Perplexity/ChatGPT Search patterns:
-
-```typescript
-// frontend/src/components/EnhancedUnifiedChat.tsx
-interface ChatEnhancements {
-  // Citation system
-  citations: {
-    inline: boolean; // Show [1] style citations
-    sidebar: boolean; // Show sources in sidebar
-    preview: boolean; // Hover preview of sources
-  };
-  
-  // Combat blank canvas
-  suggestions: {
-    iceBreakers: string[]; // Initial prompts
-    followUps: string[]; // Context-aware suggestions
-    templates: ChatTemplate[]; // Pre-built prompts
-  };
-  
-  // Focus modes
-  focusModes: {
-    business: boolean; // Business intelligence focus
-    code: boolean; // Code generation focus
-    data: boolean; // Data analysis focus
-    general: boolean; // General queries
-  };
-  
-  // Visual enhancements
-  displays: {
-    charts: boolean; // Revenue, metrics charts
-    tables: boolean; // Data tables
-    code: boolean; // Syntax highlighted code
-    weather: boolean; // Weather widgets
-  };
-}
-```
-
-### 3. **Snowflake Cortex Integration Optimization**
-
-Implement smart model selection:
-
+**Unified Chat Service Enhancement:**
 ```python
-# backend/services/cortex_optimizer.py
-class CortexOptimizer:
-    """Optimizes Snowflake Cortex usage for cost and performance"""
+async def process_message(self, message: str, context: Dict):
+    # Existing intent classification
+    intent = await self.classify_intent(message)
     
-    MODEL_SELECTION = {
-        "classification": "mistral-7b",  # Smallest for routing
-        "summarization": "llama3-8b",    # Balanced
-        "code_generation": "llama3-70b", # Powerful
-        "complex_reasoning": "reka-core", # Most capable
-    }
+    # NEW: Route to optimal model
+    model_selection = await self.router.select_model(
+        message=message,
+        intent=intent,
+        context=context
+    )
     
-    async def route_request(self, intent: str, complexity: float) -> str:
-        """Route to appropriate model based on intent and complexity"""
-        if intent == "classify":
-            return self.MODEL_SELECTION["classification"]
-        elif complexity < 0.3:
-            return self.MODEL_SELECTION["summarization"]
-        elif intent == "code":
-            return self.MODEL_SELECTION["code_generation"]
-        else:
-            return self.MODEL_SELECTION["complex_reasoning"]
+    # Execute with selected model
+    response = await self.execute_with_model(
+        model=model_selection.model,
+        message=message,
+        context=context
+    )
+    
+    # Track usage and costs
+    await self.track_usage(model_selection, response)
+    
+    return response
 ```
 
-## 📅 Week 3-4: Memory & Context Enhancement
-
-### 1. **Integrate Mem0 with Snowflake**
-
-Enhance the existing Mem0 integration:
-
+**Memory Integration:**
 ```python
-# backend/services/enhanced_memory_service.py
-class EnhancedMemoryService:
-    """Memory service with conversation context and project awareness"""
-    
-    async def store_conversation_context(
-        self,
-        conversation_id: str,
-        messages: List[Message],
-        metadata: Dict[str, Any]
-    ):
-        """Store full conversation with context"""
-        # Extract key decisions and insights
-        decisions = await self.extract_decisions(messages)
-        insights = await self.extract_insights(messages)
-        
-        # Store in Mem0 with rich metadata
-        await self.mem0_client.add(
-            messages=messages,
-            user_id=metadata["user_id"],
-            metadata={
-                "conversation_id": conversation_id,
-                "decisions": decisions,
-                "insights": insights,
-                "timestamp": datetime.utcnow(),
-                "context": metadata.get("context", {})
-            }
-        )
-        
-        # Sync to Snowflake for analytics
-        await self.sync_to_snowflake(conversation_id, decisions, insights)
+# Store model performance data
+await self.memory.store({
+    "type": "model_performance",
+    "model": model_name,
+    "task": task_type,
+    "quality_score": score,
+    "cost": cost,
+    "latency": latency
+})
+
+# Learn optimal routing patterns
+performance_history = await self.memory.recall(
+    "model_performance",
+    filters={"task": task_type}
+)
 ```
 
-### 2. **Implement Project Context Files**
+## Deployment Strategy
 
-Create structured documentation:
+### Infrastructure Requirements
+- **Compute**: Minimal (routing logic is lightweight)
+- **Storage**: Redis for caching, PostgreSQL for analytics
+- **Monitoring**: Prometheus + Grafana
+- **Logging**: Structured logs to Elasticsearch
 
-```markdown
-# docs/sophia_project_plan.md
-## Project: Sophia AI - Executive AI Orchestrator
+### Configuration Management
+- Environment-specific model configs
+- Feature flags for gradual rollout
+- A/B testing configuration
+- Cost budget limits
 
-### Vision
-Transform Pay Ready's decision-making through AI-powered business intelligence
+### Security Considerations
+- API key rotation
+- Request validation
+- Rate limiting per model
+- Audit logging
 
-### Architecture
-- Multi-agent system with specialized domains
-- Event-driven orchestration via Redis
-- Persistent memory via Mem0 + Snowflake
-- Natural language interface with citation system
+## Success Criteria
 
-### Current Phase
-Building unified chat with enhanced search capabilities
+### Technical Success
+- ✅ Router makes decisions in < 50ms
+- ✅ Support for 10+ models
+- ✅ 99.9% uptime
+- ✅ Seamless failover
 
-### Tech Stack
-- Backend: FastAPI, LangGraph, Snowflake Cortex
-- Frontend: React, TypeScript, TailwindCSS
-- Data: Snowflake, PostgreSQL, Redis, Pinecone
-- AI: Claude 3.5, Llama 3, Mistral, Reka
+### Business Success
+- ✅ 30-50% cost reduction
+- ✅ Maintain/improve quality
+- ✅ CEO satisfaction
+- ✅ Clear ROI demonstration
 
-### Key Decisions
-1. Use Snowflake Cortex for all LLM operations
-2. Implement citation system like Perplexity
-3. Focus on CEO use case first
-4. Prioritize quality over features
-```
+### User Experience
+- ✅ No noticeable latency
+- ✅ Consistent responses
+- ✅ Transparent model selection
+- ✅ Quality indicators
 
-## 📅 Week 5-6: Natural Language to Code
+## Risk Mitigation
 
-### 1. **Implement Convention-Based Code Generation**
+### Technical Risks
+1. **Model API failures**
+   - Solution: Multiple fallback options
+   - Monitoring: Real-time availability checks
 
-```python
-# backend/services/code_generation_service.py
-class ConventionBasedCodeGenerator:
-    """Generate code following project conventions"""
-    
-    def __init__(self):
-        self.conventions = self.load_conventions()
-        self.templates = self.load_templates()
-    
-    async def generate_code(
-        self,
-        request: CodeRequest,
-        context: ProjectContext
-    ) -> CodeResult:
-        """Generate code with conventions and context"""
-        
-        # 1. Plan phase (70%)
-        plan = await self.create_detailed_plan(request, context)
-        
-        # 2. Test generation
-        tests = await self.generate_tests(plan)
-        
-        # 3. Implementation (30%)
-        implementation = await self.generate_implementation(
-            plan=plan,
-            tests=tests,
-            conventions=self.conventions
-        )
-        
-        # 4. Validation
-        validation = await self.validate_against_conventions(
-            implementation
-        )
-        
-        return CodeResult(
-            plan=plan,
-            tests=tests,
-            code=implementation,
-            validation=validation
-        )
-```
+2. **Cost overruns**
+   - Solution: Hard budget limits
+   - Monitoring: Real-time cost tracking
 
-### 2. **Task Decomposition System**
+3. **Quality degradation**
+   - Solution: Minimum quality thresholds
+   - Monitoring: Continuous quality scoring
 
-```python
-# backend/services/task_decomposer.py
-class TaskDecomposer:
-    """Break complex tasks into micro-tasks"""
-    
-    async def decompose(self, task: str) -> List[MicroTask]:
-        """Decompose task using AI analysis"""
-        
-        # Use Cortex to analyze task complexity
-        analysis = await self.cortex.complete(
-            model="llama3-70b",
-            prompt=f"""
-            Break down this task into smallest possible subtasks:
-            {task}
-            
-            Requirements:
-            - Each subtask should be completable in < 5 minutes
-            - Include clear success criteria
-            - Order by dependencies
-            - Mark as testable or not
-            """
-        )
-        
-        # Convert to structured micro-tasks
-        micro_tasks = self.parse_micro_tasks(analysis)
-        
-        # Create markdown checklist
-        checklist = self.create_checklist(micro_tasks)
-        
-        return micro_tasks
-```
+### Business Risks
+1. **User trust**
+   - Solution: Transparent model selection
+   - Monitoring: User feedback tracking
 
-## 📅 Week 7-8: Integration & Polish
+2. **Complexity**
+   - Solution: Gradual feature rollout
+   - Monitoring: Usage analytics
 
-### 1. **Cursor AI Integration Patterns**
+## Next Steps
 
-Create Cursor-aware service:
+1. **Implement core router**
+   - Task analyzer
+   - Model selector
+   - Request executor
 
-```python
-# backend/services/cursor_integration.py
-class CursorIntegrationService:
-    """Integrate with Cursor AI patterns"""
-    
-    async def prepare_cursor_context(
-        self,
-        project: Project,
-        task: Task
-    ) -> CursorContext:
-        """Prepare context for Cursor AI"""
-        
-        return CursorContext(
-            convention_file=project.cursorrules,
-            architecture_diagram=project.architecture_mermaid,
-            technical_docs=project.technical_md,
-            current_task=task.to_markdown(),
-            checkpoints=self.get_checkpoints(project),
-            safety_rules=self.get_safety_rules()
-        )
-    
-    async def handle_cursor_callback(
-        self,
-        event: CursorEvent
-    ):
-        """Handle callbacks from Cursor operations"""
-        
-        if event.type == "checkpoint_created":
-            await self.store_checkpoint(event)
-        elif event.type == "code_generated":
-            await self.validate_and_store(event)
-        elif event.type == "error":
-            await self.handle_error(event)
-```
+2. **Add optimization layer**
+   - Semantic cache
+   - Batch processor
+   - Cost tracker
 
-### 2. **Advanced Search Features**
+3. **Deploy monitoring**
+   - Metrics collection
+   - Dashboard creation
+   - Alert setup
 
-Implement Perplexity-style features:
+4. **Iterate based on usage**
+   - Analyze patterns
+   - Optimize routing rules
+   - Add new models
 
-```typescript
-// frontend/src/services/advancedSearch.ts
-class AdvancedSearchService {
-  async search(query: string, options: SearchOptions) {
-    const enhancedQuery = await this.enhanceQuery(query);
-    
-    // Multi-source search
-    const results = await Promise.all([
-      this.searchSnowflake(enhancedQuery),
-      this.searchVectorDB(enhancedQuery),
-      this.searchBusinessData(enhancedQuery),
-      options.includeWeb ? this.searchWeb(enhancedQuery) : null
-    ]);
-    
-    // Merge and rank results
-    const merged = this.mergeResults(results);
-    
-    // Generate citations
-    const cited = this.addCitations(merged);
-    
-    // Create follow-up suggestions
-    const suggestions = await this.generateFollowUps(
-      query,
-      cited
-    );
-    
-    return {
-      results: cited,
-      suggestions,
-      metadata: this.generateMetadata(results)
-    };
-  }
-}
-```
-
-## 🎯 Quick Wins to Implement Now
-
-### 1. **Enhanced Chat UI** (1-2 days)
-- Add citation display system
-- Implement ice breaker prompts
-- Add follow-up suggestions
-- Create focus mode selector
-
-### 2. **Cortex Optimization** (1 day)
-- Implement model routing logic
-- Add temperature controls
-- Set up token limits
-- Create caching layer
-
-### 3. **Memory Integration** (2-3 days)
-- Enhance Mem0 to store full conversations
-- Add decision extraction
-- Implement context recall
-- Create memory search
-
-### 4. **Convention Files** (1 day)
-- Create .cursorrules for project
-- Document coding standards
-- Set up AI behavior rules
-- Create templates
-
-### 5. **Project Documentation** (1 day)
-- Create Project_Plan.md
-- Write Technical_Specs.md
-- Set up AI_Memory.md
-- Document architecture
-
-## 📊 Success Metrics to Track
-
-### Week 1-2 Targets:
-- Chat response time < 300ms
-- Citation accuracy > 90%
-- Memory recall success > 80%
-- Code generation with conventions > 75% compliance
-
-### Week 3-4 Targets:
-- Context retention across sessions > 90%
-- Task decomposition accuracy > 85%
-- Follow-up suggestion relevance > 70%
-- Multi-source search integration working
-
-### Week 5-6 Targets:
-- Code generation success rate > 80%
-- Test-first development adoption 100%
-- Cursor integration operational
-- Natural language to code accuracy > 75%
-
-### Week 7-8 Targets:
-- All features integrated
-- Performance optimized to targets
-- CEO testing positive feedback
-- Ready for gradual rollout
-
-## 🚦 Go/No-Go Checkpoints
-
-### After Week 2:
-- [ ] Basic enhanced chat working?
-- [ ] Citations displaying correctly?
-- [ ] Memory storing conversations?
-- [ ] Cortex routing optimized?
-
-### After Week 4:
-- [ ] Context retention working?
-- [ ] Search returning relevant results?
-- [ ] Follow-ups helpful?
-- [ ] Performance acceptable?
-
-### After Week 6:
-- [ ] Code generation reliable?
-- [ ] Cursor patterns integrated?
-- [ ] Testing workflows smooth?
-- [ ] Documentation complete?
-
-### After Week 8:
-- [ ] All features integrated?
-- [ ] CEO approval received?
-- [ ] Metrics meeting targets?
-- [ ] Ready for wider rollout?
-
-## 🎬 Next Immediate Actions
-
-1. **Today**: Create .cursorrules and project documentation files
-2. **Tomorrow**: Start implementing citation system in chat UI
-3. **This Week**: Get basic enhanced chat with citations working
-4. **Next Week**: Integrate memory and context systems
-
-Remember: Focus on quality and stability. It's better to have fewer features that work perfectly than many features that are buggy. 
+The AI orchestrator will transform Sophia AI into a cost-effective, high-quality platform that intelligently leverages the best AI models for each task. 

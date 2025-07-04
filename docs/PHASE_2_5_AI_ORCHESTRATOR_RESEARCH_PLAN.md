@@ -146,19 +146,19 @@
 
 ## 🔧 Research Methodology
 
-### Phase 1: Broad Discovery (2-3 hours)
+### Phase 1: Broad Discovery
 1. Use Perplexity AI for initial broad searches
 2. Identify key papers, blog posts, and documentation
 3. Find GitHub repos with high stars
 4. Locate recent conference talks and presentations
 
-### Phase 2: Deep Dive (3-4 hours)
+### Phase 2: Deep Dive
 1. Read identified resources in detail
 2. Analyze code examples and implementations
 3. Extract patterns and best practices
 4. Identify gaps in our current approach
 
-### Phase 3: Synthesis (2 hours)
+### Phase 3: Synthesis
 1. Compile findings into actionable insights
 2. Create comparison matrix of approaches
 3. Identify must-have vs nice-to-have features
@@ -199,11 +199,47 @@
 - Locate 5+ examples of natural language to code systems
 - Find 3+ innovative memory management approaches
 
-## 📅 Timeline
+## 🎯 Success Metrics
 
-- **Day 1**: Broad discovery and initial findings
-- **Day 2**: Deep dive into most promising areas
-- **Day 3**: Synthesis and architecture updates
+### Technical Metrics
+- Response time < 200ms for routing decisions
+- Cache hit rate > 40%
+- Model selection accuracy > 90%
+- Zero downtime during model switches
+
+### Business Metrics
+- 30-50% cost reduction vs single model
+- Maintain or improve response quality
+- Support for 10+ models
+- Easy addition of new models
+
+### User Experience Metrics
+- Transparent model selection
+- Consistent response format
+- No noticeable latency increase
+- Clear quality indicators
+
+## 🎯 Key Decisions Needed
+
+### 1. Primary Architecture
+- [ ] Build custom router from scratch
+- [ ] Use existing AI gateway service
+- [ ] Implement hybrid approach
+
+### 2. Model Portfolio
+- [ ] Which models to integrate initially
+- [ ] Balance of commercial vs open source
+- [ ] Specialized models to include
+
+### 3. Caching Strategy
+- [ ] Embedding-based semantic cache
+- [ ] Simple key-value cache
+- [ ] Hybrid caching approach
+
+### 4. Quality Thresholds
+- [ ] Minimum confidence scores
+- [ ] Fallback trigger points
+- [ ] Human escalation criteria
 
 ## 🔗 Key Resources to Start
 

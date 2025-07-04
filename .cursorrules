@@ -75,6 +75,34 @@ You are working on Sophia AI, an AI assistant orchestrator for Pay Ready company
    print("🧹 This script can now be deleted: rm scripts/one_time_script.py")
    ```
 
+## 📅 **Timeline and Budget Guidelines (CRITICAL)**
+
+### **For Coding Tasks - NEVER INCLUDE:**
+- ❌ **NO specific time estimates** (hours, days, weeks, months)
+- ❌ **NO budget estimates** for development work
+- ❌ **NO duration predictions** for implementation
+- ❌ **NO cost calculations** for coding effort
+- ❌ **NO timeline-based milestones**
+
+### **For Coding Tasks - ALWAYS USE:**
+- ✅ **Phase numbers** (Phase 1, Phase 2.5, etc.)
+- ✅ **Functional milestones** (Foundation Complete, Integration Ready)
+- ✅ **Feature-based progress** (Intent Classification ✅, Code Modification ✅)
+- ✅ **Technical dependencies** (Requires X before Y)
+- ✅ **Complexity indicators** (Simple, Moderate, Complex)
+
+### **Why This Matters:**
+- Time estimates for AI-assisted coding are meaningless and wasteful
+- Focus should be on technical implementation, not scheduling
+- Quality and correctness matter more than speed
+- Each coding session is unique and unpredictable
+
+### **Exception - Business Planning Only:**
+- Timeline estimates ONLY when explicitly requested for business planning
+- Infrastructure cost estimates when evaluating services
+- ROI calculations for business decisions
+- Keep business metrics completely separate from coding tasks
+
 ## Architecture Context
 - **Type:** Multi-agent AI orchestrator for CEO-level business intelligence
 - **Primary User:** Pay Ready CEO (initial sole user)
@@ -874,3 +902,22 @@ QUALITY_STANDARDS: |
   - Performance monitoring for all endpoints
   - Document all architectural decisions
   - Regular code reviews (even for AI-generated code)
+
+TIMELINE_AND_BUDGET_GUIDELINES: |
+  Coding Tasks:
+    - NO specific timeline estimates (hours, days, weeks)
+    - NO budget estimates for development work
+    - Focus on technical implementation details only
+    - Break down tasks by complexity, not time
+    - Describe phases by functionality, not duration
+    
+  Business Planning:
+    - Timeline estimates only when explicitly requested for business planning
+    - Budget discussions only for infrastructure/service costs
+    - Keep business metrics separate from coding tasks
+    
+  Documentation:
+    - Use phase numbers or functional milestones
+    - Describe dependencies and prerequisites
+    - Focus on "what" and "how", not "when"
+    - Technical complexity over time estimates

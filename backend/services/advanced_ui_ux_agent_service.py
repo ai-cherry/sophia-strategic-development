@@ -100,7 +100,7 @@ class DesignResponse:
     model_used: str = ""
 
 
-class PortkeyGatewayService:
+class UnifiedLLMServiceService:
     """Interface to Portkey AI Gateway for multi-model routing"""
 
     def __init__(self, config: SophiaConfig):
@@ -169,7 +169,7 @@ class AdvancedUIUXAgentService:
 
     def __init__(self):
         self.config = SophiaConfig()
-        self.portkey = PortkeyGatewayService(self.config)
+        self.portkey = UnifiedLLMServiceService(self.config)
 
         # MCP server connections for design tools
         self.mcp_servers = {

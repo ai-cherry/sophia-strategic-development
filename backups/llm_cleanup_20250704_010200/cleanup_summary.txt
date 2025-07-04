@@ -1,0 +1,120 @@
+LLM Cleanup Summary
+============================================================
+
+Date: 2025-07-04T01:02:01.467230
+
+Deleted Files:
+  - backend/services/portkey_gateway.py
+  - backend/services/smart_ai_service.py
+  - backend/services/simplified_portkey_service.py
+  - backend/services/enhanced_portkey_orchestrator.py
+
+Updated Files:
+  - backend/services/advanced_ui_ux_agent_service.py (2 replacements)
+
+Additional References Found:
+
+  Pattern 'SmartAIService':
+    - backend/app/unified_fastapi_app.py
+    - backend/app/__pycache__/working_fastapi_app.cpython-312.pyc
+    - backend/snowflake_setup/ai_usage_analytics_schema.sql
+    - backend/workflows/__pycache__/enhanced_langgraph_patterns.cpython-312.pyc
+    - backend/workflows/enhanced_langgraph_patterns.py
+    - backend/agents/core/__pycache__/langgraph_agent_base.cpython-312.pyc
+    - backend/agents/core/langgraph_agent_base.py
+    - backend/agents/specialized/asana_project_intelligence_agent.py
+    - backend/agents/specialized/__pycache__/sales_intelligence_agent.cpython-312.pyc
+    - backend/agents/specialized/__pycache__/sales_intelligence_agent_core.cpython-312.pyc
+    - backend/agents/specialized/__pycache__/asana_project_intelligence_agent.cpython-312.pyc
+    - backend/agents/specialized/sales_intelligence_agent_core.py
+    - backend/agents/specialized/sales_intelligence_agent.py
+    - backend/agents/specialized/sales_intelligence_agent_handlers.py
+    - backend/agents/specialized/marketing_analysis_agent.py
+    - backend/agents/infrastructure/sophia_infrastructure_agent.py
+    - backend/api/__pycache__/ceo_dashboard_unified_routes.cpython-312.pyc
+    - backend/services/enhanced_unified_chat_service.py
+    - backend/services/sophia_intent_engine.py
+    - backend/services/__pycache__/ceo_dashboard_service.cpython-312.pyc
+    - backend/services/__pycache__/intelligent_data_discovery_service.cpython-312.pyc
+    - backend/services/__pycache__/smart_ai_service.cpython-312.pyc
+    - backend/services/__pycache__/enhanced_unified_chat_service.cpython-312.pyc
+    - backend/services/__pycache__/enhanced_ceo_chat_service.cpython-312.pyc
+    - backend/services/intelligent_data_discovery_service.py
+    - backend/services/code_modification_service.py
+    - backend/services/_archived_chat_services/20250703_142237_enhanced_ceo_chat_service.py
+
+  Pattern 'PortkeyGateway':
+    - backend/integrations/portkey_gateway_service.py
+
+  Pattern 'smart_ai_service':
+    - backend/app/unified_fastapi_app.py
+    - backend/app/__pycache__/working_fastapi_app.cpython-312.pyc
+    - backend/workflows/__pycache__/enhanced_langgraph_patterns.cpython-312.pyc
+    - backend/workflows/enhanced_langgraph_patterns.py
+    - backend/agents/core/__pycache__/langgraph_agent_base.cpython-312.pyc
+    - backend/agents/core/langgraph_agent_base.py
+    - backend/agents/specialized/asana_project_intelligence_agent.py
+    - backend/agents/specialized/__pycache__/sales_intelligence_agent_core.cpython-312.pyc
+    - backend/agents/specialized/__pycache__/asana_project_intelligence_agent.cpython-312.pyc
+    - backend/agents/specialized/sales_intelligence_agent_core.py
+    - backend/agents/specialized/marketing_analysis_agent.py
+    - backend/agents/infrastructure/sophia_infrastructure_agent.py
+    - backend/api/__pycache__/ceo_dashboard_unified_routes.cpython-312.pyc
+    - backend/services/enhanced_unified_chat_service.py
+    - backend/services/sophia_intent_engine.py
+    - backend/services/__pycache__/ceo_dashboard_service.cpython-312.pyc
+    - backend/services/__pycache__/intelligent_data_discovery_service.cpython-312.pyc
+    - backend/services/__pycache__/smart_ai_service.cpython-312.pyc
+    - backend/services/__pycache__/enhanced_unified_chat_service.cpython-312.pyc
+    - backend/services/__pycache__/enhanced_ceo_chat_service.cpython-312.pyc
+    - backend/services/intelligent_data_discovery_service.py
+    - backend/services/code_modification_service.py
+    - backend/services/_archived_chat_services/20250703_142237_enhanced_ceo_chat_service.py
+
+  Pattern 'portkey_gateway':
+    - backend/integrations/portkey_gateway_service.py
+    - backend/api/__pycache__/llm_strategy_routes.cpython-312.pyc
+    - backend/api/__pycache__/mcp_integration_routes.cpython-312.pyc
+    - backend/api/__pycache__/enhanced_cortex_routes.cpython-312.pyc
+    - backend/services/mcp_orchestration_service.py
+    - backend/services/__pycache__/mcp_orchestration_service.cpython-312.pyc
+    - backend/services/simplified_unified_intelligence_service.py
+
+  Pattern 'SmartAIService':
+    - scripts/cleanup_stale_llm_files.py
+    - scripts/implement_critical_refactoring.py
+
+  Pattern 'PortkeyGateway':
+    - scripts/cleanup_stale_llm_files.py
+
+  Pattern 'SimplifiedPortkeyService':
+    - scripts/cleanup_stale_llm_files.py
+
+  Pattern 'smart_ai_service':
+    - scripts/cleanup_stale_llm_files.py
+    - scripts/implement_critical_refactoring.py
+
+  Pattern 'portkey_gateway':
+    - scripts/cleanup_stale_llm_files.py
+    - scripts/mcp_ecosystem_validator.py
+
+  Pattern 'simplified_portkey_service':
+    - scripts/cleanup_stale_llm_files.py
+
+  Pattern 'SmartAIService':
+    - docs/PHASE_2_FOUNDATION_IMPLEMENTATION_PLAN.md
+    - docs/UNIFIED_CHAT_TECHNICAL_IMPLEMENTATION.md
+
+  Pattern 'PortkeyGateway':
+    - docs/CURRENT_LLM_USAGE_ANALYSIS.md
+
+  Pattern 'smart_ai_service':
+    - docs/CURRENT_LLM_USAGE_ANALYSIS.md
+    - docs/architecture/CIRCULAR_DEPENDENCY_MIGRATION.md
+    - docs/PHASE_2_FOUNDATION_IMPLEMENTATION_PLAN.md
+    - docs/UNIFIED_CHAT_TECHNICAL_IMPLEMENTATION.md
+
+  Pattern 'portkey_gateway':
+    - docs/CURRENT_LLM_USAGE_ANALYSIS.md
+    - docs/architecture/CIRCULAR_DEPENDENCY_MIGRATION.md
+    - docs/architecture/SERVICE_CONSOLIDATION_PLAN.md
