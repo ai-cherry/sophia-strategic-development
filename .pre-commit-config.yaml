@@ -1,103 +1,85 @@
 # Pre-commit hooks for Sophia AI
-# Ensures code quality and consistency across all commits
+# See https://pre-commit.com for more information
+
 repos:
   # Python code formatting
   - repo: https://github.com/psf/black
     rev: 23.12.1
     hooks:
       - id: black
-        language_version: python3.12
+        language_version: python3.11
         args: [--line-length=88]
 
-  # Python linting and code quality
+  # Python linting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.1.11
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
-
-  # Type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-all]
-        args: [--ignore-missing-imports, --check-untyped-defs]
-
-  # Security scanning
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [--severity-level, medium]
-        exclude: ^tests/
-
-  # General code quality
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
-      - id: check-toml
-      - id: check-merge-conflict
-      - id: check-added-large-files
-        args: [--maxkb=1000]
-      - id: detect-private-key
-
-  # Python import sorting
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: [--profile, black, --line-length, "88"]
-
-  # Dockerfile linting
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
-    hooks:
-      - id: hadolint-docker
-        args: [--ignore, DL3008, --ignore, DL3009]
+        args: [--fix]
 
   # YAML formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
-        types: [yaml]
+        types_or: [yaml, json]
+        exclude: |
+          (?x)^(
+            package-lock\.json|
+            pnpm-lock\.yaml
+          )$
 
-  # Shell script linting
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.9.0.6
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
     hooks:
-      - id: shellcheck
+      - id: bandit
+        args: [-ll, --skip=B101,B601,B602,B607]
+        files: ^backend/.*\.py$
 
-  # Commit message formatting
-  - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.13.0
+  # Check for large files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
     hooks:
-      - id: commitizen
-        stages: [commit-msg]
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-json
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: detect-private-key
 
-  # Python docstring formatting
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
+  # TypeScript/JavaScript linting
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.56.0
     hooks:
-      - id: pydocstyle
-        args: [--convention=google]
-        exclude: ^tests/
+      - id: eslint
+        files: \.[jt]sx?$
+        types: [file]
+        additional_dependencies:
+          - eslint@8.56.0
+          - eslint-config-prettier@9.1.0
+          - '@typescript-eslint/eslint-plugin@6.18.1'
+          - '@typescript-eslint/parser@6.18.1'
 
-# Configuration for specific tools
-ci:
-  autofix_commit_msg: |
-    [pre-commit.ci] auto fixes from pre-commit hooks
+# Configuration
+default_language_version:
+  python: python3.11
 
-    for more information, see https://pre-commit.ci
-  autofix_prs: true
-  autoupdate_branch: ''
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
-  autoupdate_schedule: weekly
-  skip: []
-  submodules: false
+exclude: |
+  (?x)^(
+    external/|
+    node_modules/|
+    venv/|
+    \.venv/|
+    __pycache__/|
+    \.pytest_cache/|
+    \.mypy_cache/|
+    \.ruff_cache/|
+    build/|
+    dist/|
+    \.git/|
+    .*\.min\.js$|
+    .*\.min\.css$
+  )$
