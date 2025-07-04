@@ -1,342 +1,296 @@
 """
-LLM Metrics API Routes
-Provides endpoints for monitoring LLM usage, costs, and performance
+LLM Metrics and Cost Alerts API Routes
 """
 
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 import logging
 
-import snowflake.connector
-from fastapi import APIRouter, HTTPException
-from snowflake.connector import DictCursor
-
+from backend.services.unified_llm_service import UnifiedLLMService
+from backend.services.cost_engineering_service import CostEngineeringService
 from backend.core.config_manager import ConfigManager
-from backend.services.unified_llm_service import get_unified_llm_service
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/v1/llm", tags=["llm_metrics"])
+router = APIRouter(prefix="/api/v1/llm")
 
+# Pydantic models
+class CostAlert(BaseModel):
+    """Cost alert model"""
+    title: str
+    message: str
+    severity: str = Field(..., pattern="^(info|warning|critical)$")
+    timestamp: str
+    alert_type: str = Field(..., pattern="^(daily_budget|monthly_budget|spike|projection)$")
+    
+class BudgetStatus(BaseModel):
+    """Budget status model"""
+    daily_budget: float
+    monthly_budget: float
+    daily_cost: float
+    monthly_cost: float
+    projected_monthly: float
+    is_over_budget: bool
+    budget_utilization_daily: float
+    budget_utilization_monthly: float
 
-async def get_snowflake_connection():
-    """Get Snowflake connection for metrics queries"""
-    config = ConfigManager()
-    return snowflake.connector.connect(
-        account=config.get_value("snowflake_account"),
-        user=config.get_value("snowflake_user"),
-        password=config.get_value("snowflake_password"),
-        warehouse=config.get_value("snowflake_warehouse"),
-        database=config.get_value("snowflake_database"),
-        schema="AI_USAGE_ANALYTICS",
-    )
+class ProviderMetrics(BaseModel):
+    """Provider usage metrics"""
+    provider: str
+    model: str
+    requests: int
+    cost: float
+    avg_latency: int
+    primary_task_type: str
+    
+class LLMMetricsResponse(BaseModel):
+    """Complete LLM metrics response"""
+    daily_cost: float
+    monthly_cost: float
+    cost_change: float
+    daily_requests: int
+    request_change: float
+    avg_response_time: int
+    response_time_change: float
+    cache_hit_rate: float
+    cache_improvement: float
+    alerts: List[CostAlert]
+    budget_status: BudgetStatus
+    providers: List[ProviderMetrics]
+    task_costs: Dict[str, float]
+    request_trend: Dict[str, Any]
+    snowflake_savings: float
+    data_movement_avoided: float
+    snowflake_percentage: float
 
+# Dependency injection
+def get_llm_service() -> UnifiedLLMService:
+    """Get LLM service instance"""
+    return UnifiedLLMService()
 
-@router.get("/stats")
-async def get_llm_stats():
-    """Get comprehensive LLM usage statistics"""
+def get_cost_service() -> CostEngineeringService:
+    """Get cost engineering service instance"""
+    return CostEngineeringService()
+
+def get_config_manager() -> ConfigManager:
+    """Get config manager instance"""
+    return ConfigManager()
+
+@router.get("/stats", response_model=LLMMetricsResponse)
+async def get_llm_stats(
+    llm_service: UnifiedLLMService = Depends(get_llm_service),
+    cost_service: CostEngineeringService = Depends(get_cost_service),
+    config: ConfigManager = Depends(get_config_manager)
+) -> LLMMetricsResponse:
+    """Get comprehensive LLM metrics and cost data"""
     try:
-        conn = await get_snowflake_connection()
-        cursor = conn.cursor(DictCursor)
-
-        # Get daily metrics
-        daily_metrics_query = """
-        SELECT
-            COUNT(*) as daily_requests,
-            SUM(estimated_cost) as daily_cost,
-            AVG(response_time_ms) as avg_response_time,
-            SUM(CASE WHEN cache_hit = TRUE THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as cache_hit_rate
-        FROM LLM_REQUEST_LOG
-        WHERE request_timestamp >= CURRENT_DATE()
-        """
-        cursor.execute(daily_metrics_query)
-        daily_metrics = cursor.fetchone()
-
-        # Get provider breakdown
-        provider_query = """
-        SELECT
-            provider,
-            model,
-            COUNT(*) as requests,
-            SUM(estimated_cost) as cost,
-            AVG(response_time_ms) as avg_latency,
-            MODE(task_type) as primary_task_type
-        FROM LLM_REQUEST_LOG
-        WHERE request_timestamp >= CURRENT_DATE() - 7
-        GROUP BY provider, model
-        ORDER BY requests DESC
-        """
-        cursor.execute(provider_query)
-        providers = cursor.fetchall()
-
-        # Get task type costs
-        task_costs_query = """
-        SELECT
-            task_type,
-            SUM(estimated_cost) as cost
-        FROM LLM_REQUEST_LOG
-        WHERE request_timestamp >= CURRENT_DATE() - 7
-        GROUP BY task_type
-        """
-        cursor.execute(task_costs_query)
-        task_costs_raw = cursor.fetchall()
-        task_costs = {row["task_type"]: float(row["cost"]) for row in task_costs_raw}
-
-        # Get request trend (last 7 days)
-        trend_query = """
-        SELECT
-            DATE(request_timestamp) as date,
-            COUNT(*) as requests
-        FROM LLM_REQUEST_LOG
-        WHERE request_timestamp >= CURRENT_DATE() - 7
-        GROUP BY DATE(request_timestamp)
-        ORDER BY date
-        """
-        cursor.execute(trend_query)
-        trend_data = cursor.fetchall()
-
-        # Get Snowflake savings
-        snowflake_query = """
-        SELECT
-            COUNT(*) as snowflake_requests,
-            SUM(data_size_mb) as data_processed_mb
-        FROM LLM_REQUEST_LOG
-        WHERE provider = 'snowflake'
-        AND request_timestamp >= DATEADD(month, -1, CURRENT_DATE())
-        """
-        cursor.execute(snowflake_query)
-        snowflake_data = cursor.fetchone()
-
-        # Calculate savings (assuming $0.01 per MB data movement cost)
-        data_movement_avoided_gb = (snowflake_data["data_processed_mb"] or 0) / 1024
-        snowflake_savings = data_movement_avoided_gb * 10  # $10 per GB
-
-        # Get total requests for percentage
-        total_requests_query = """
-        SELECT COUNT(*) as total
-        FROM LLM_REQUEST_LOG
-        WHERE request_timestamp >= DATEADD(month, -1, CURRENT_DATE())
-        """
-        cursor.execute(total_requests_query)
-        total_requests = cursor.fetchone()["total"]
-
-        snowflake_percentage = (
-            (snowflake_data["snowflake_requests"] / total_requests * 100)
-            if total_requests > 0
-            else 0
+        # Initialize services if needed
+        if not cost_service.initialized:
+            await cost_service.initialize()
+            
+        # Get current metrics
+        global_metrics = cost_service.global_metrics
+        
+        # Calculate daily and monthly costs
+        today = datetime.now().date()
+        month_start = datetime.now().replace(day=1).date()
+        
+        # Get cost report
+        cost_report = await cost_service.get_cost_report()
+        
+        # Check budget status
+        daily_budget = config.get_value("llm_daily_budget", 100.0)
+        monthly_budget = config.get_value("llm_monthly_budget", 3000.0)
+        
+        daily_cost = await cost_service._calculate_daily_cost()
+        monthly_cost = await cost_service._calculate_monthly_cost()
+        
+        # Calculate projected monthly cost based on current rate
+        days_in_month = 30
+        days_elapsed = (datetime.now().date() - month_start).days + 1
+        projected_monthly = (monthly_cost / days_elapsed) * days_in_month if days_elapsed > 0 else 0
+        
+        # Generate alerts
+        alerts = []
+        
+        # Daily budget alert
+        if daily_cost > daily_budget * 0.8:
+            severity = "critical" if daily_cost > daily_budget else "warning"
+            alerts.append(CostAlert(
+                title="Daily Budget Alert",
+                message=f"Daily LLM cost (${daily_cost:.2f}) is {'exceeding' if daily_cost > daily_budget else 'approaching'} the budget limit of ${daily_budget}",
+                severity=severity,
+                timestamp=datetime.now().isoformat(),
+                alert_type="daily_budget"
+            ))
+            
+        # Monthly budget projection alert
+        if projected_monthly > monthly_budget * 0.8:
+            severity = "critical" if projected_monthly > monthly_budget else "warning"
+            alerts.append(CostAlert(
+                title="Monthly Budget Projection Alert",
+                message=f"Projected monthly cost (${projected_monthly:.2f}) will {'exceed' if projected_monthly > monthly_budget else 'approach'} the budget limit of ${monthly_budget}",
+                severity=severity,
+                timestamp=datetime.now().isoformat(),
+                alert_type="projection"
+            ))
+            
+        # Cost spike alert (>50% increase from yesterday)
+        yesterday_cost = 50.0  # Mock data - would calculate from historical data
+        if daily_cost > yesterday_cost * 1.5:
+            alerts.append(CostAlert(
+                title="Cost Spike Detected",
+                message=f"Today's cost is {((daily_cost / yesterday_cost - 1) * 100):.0f}% higher than yesterday",
+                severity="warning",
+                timestamp=datetime.now().isoformat(),
+                alert_type="spike"
+            ))
+        
+        # Budget status
+        budget_status = BudgetStatus(
+            daily_budget=daily_budget,
+            monthly_budget=monthly_budget,
+            daily_cost=round(daily_cost, 2),
+            monthly_cost=round(monthly_cost, 2),
+            projected_monthly=round(projected_monthly, 2),
+            is_over_budget=daily_cost > daily_budget or monthly_cost > monthly_budget,
+            budget_utilization_daily=round((daily_cost / daily_budget) * 100, 1),
+            budget_utilization_monthly=round((monthly_cost / monthly_budget) * 100, 1)
         )
-
-        # Calculate changes
-        yesterday_query = """
-        SELECT
-            COUNT(*) as requests,
-            SUM(estimated_cost) as cost,
-            AVG(response_time_ms) as avg_response_time
-        FROM LLM_REQUEST_LOG
-        WHERE DATE(request_timestamp) = CURRENT_DATE() - 1
-        """
-        cursor.execute(yesterday_query)
-        yesterday_data = cursor.fetchone()
-
-        cost_change = 0
-        request_change = 0
-        response_time_change = 0
-
-        if yesterday_data and yesterday_data["cost"]:
-            cost_change = (
-                (daily_metrics["daily_cost"] - yesterday_data["cost"])
-                / yesterday_data["cost"]
-                * 100
+        
+        # Provider breakdown (mock data - would come from actual metrics)
+        providers = [
+            ProviderMetrics(
+                provider="snowflake",
+                model="cortex-llama3",
+                requests=1250,
+                cost=15.30,
+                avg_latency=450,
+                primary_task_type="data_analysis"
+            ),
+            ProviderMetrics(
+                provider="portkey",
+                model="gpt-4o",
+                requests=320,
+                cost=28.50,
+                avg_latency=850,
+                primary_task_type="complex_reasoning"
+            ),
+            ProviderMetrics(
+                provider="openrouter",
+                model="mixtral-8x7b",
+                requests=890,
+                cost=8.90,
+                avg_latency=320,
+                primary_task_type="general_query"
             )
-            request_change = (
-                (daily_metrics["daily_requests"] - yesterday_data["requests"])
-                / yesterday_data["requests"]
-                * 100
-            )
-            response_time_change = (
-                (
-                    daily_metrics["avg_response_time"]
-                    - yesterday_data["avg_response_time"]
-                )
-                / yesterday_data["avg_response_time"]
-                * 100
-            )
-
-        return {
-            "daily_cost": round(daily_metrics["daily_cost"] or 0, 2),
-            "daily_requests": daily_metrics["daily_requests"] or 0,
-            "avg_response_time": round(daily_metrics["avg_response_time"] or 0, 0),
-            "cache_hit_rate": round(daily_metrics["cache_hit_rate"] or 0, 1),
-            "cost_change": round(cost_change, 1),
-            "request_change": round(request_change, 1),
-            "response_time_change": round(response_time_change, 1),
-            "cache_improvement": 5.2,  # Mock improvement
-            "providers": providers,
-            "task_costs": task_costs,
-            "request_trend": {
-                "labels": [row["date"].strftime("%m/%d") for row in trend_data],
-                "values": [row["requests"] for row in trend_data],
-            },
-            "snowflake_savings": round(snowflake_savings, 2),
-            "data_movement_avoided": round(data_movement_avoided_gb, 1),
-            "snowflake_percentage": round(snowflake_percentage, 1),
+        ]
+        
+        # Task costs breakdown
+        task_costs = {
+            "data_analysis": 18.50,
+            "complex_reasoning": 28.50,
+            "general_query": 12.30,
+            "summarization": 8.40,
+            "code_generation": 15.20
         }
-
+        
+        # Request trend (last 7 days)
+        request_trend = {
+            "labels": [(datetime.now() - timedelta(days=i)).strftime("%b %d") for i in range(6, -1, -1)],
+            "values": [1200, 1350, 1100, 1450, 1600, 1550, 1800]  # Mock data
+        }
+        
+        # Calculate metrics changes
+        cost_change = 15.5  # Mock: 15.5% increase
+        request_change = 12.0  # Mock: 12% increase
+        response_time_change = -5.0  # Mock: 5% improvement
+        cache_improvement = 3.5  # Mock: 3.5% improvement
+        
+        return LLMMetricsResponse(
+            daily_cost=round(daily_cost, 2),
+            monthly_cost=round(monthly_cost, 2),
+            cost_change=cost_change,
+            daily_requests=global_metrics.request_count,
+            request_change=request_change,
+            avg_response_time=int(global_metrics.avg_latency_ms),
+            response_time_change=response_time_change,
+            cache_hit_rate=round(cost_report["metrics"]["cache_hit_rate"] * 100, 1),
+            cache_improvement=cache_improvement,
+            alerts=alerts,
+            budget_status=budget_status,
+            providers=providers,
+            task_costs=task_costs,
+            request_trend=request_trend,
+            snowflake_savings=125.50,  # Mock data
+            data_movement_avoided=450.0,  # Mock data GB
+            snowflake_percentage=35.0  # Mock data %
+        )
+        
     except Exception as e:
-        logger.error(f"Error fetching LLM stats: {e}")
-        # Return mock data for development
-        return {
-            "daily_cost": 12.45,
-            "daily_requests": 1234,
-            "avg_response_time": 145,
-            "cache_hit_rate": 32.5,
-            "cost_change": -5.2,
-            "request_change": 12.3,
-            "response_time_change": -8.7,
-            "cache_improvement": 5.2,
-            "providers": [
-                {
-                    "provider": "snowflake",
-                    "model": "mistral-large",
-                    "requests": 523,
-                    "cost": 2.34,
-                    "avg_latency": 89,
-                    "primary_task_type": "SQL_GENERATION",
-                },
-                {
-                    "provider": "portkey",
-                    "model": "gpt-4o",
-                    "requests": 412,
-                    "cost": 8.76,
-                    "avg_latency": 234,
-                    "primary_task_type": "CHAT_CONVERSATION",
-                },
-                {
-                    "provider": "openrouter",
-                    "model": "mixtral-8x7b",
-                    "requests": 299,
-                    "cost": 1.35,
-                    "avg_latency": 156,
-                    "primary_task_type": "DOCUMENT_SUMMARY",
-                },
-            ],
-            "task_costs": {
-                "CHAT_CONVERSATION": 5.67,
-                "SQL_GENERATION": 2.34,
-                "DOCUMENT_SUMMARY": 3.21,
-                "CODE_GENERATION": 1.23,
-            },
-            "request_trend": {
-                "labels": [
-                    "01/28",
-                    "01/29",
-                    "01/30",
-                    "01/31",
-                    "02/01",
-                    "02/02",
-                    "02/03",
-                ],
-                "values": [987, 1123, 1045, 1234, 1189, 1298, 1234],
-            },
-            "snowflake_savings": 145.67,
-            "data_movement_avoided": 14.6,
-            "snowflake_percentage": 42.3,
-        }
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-
-
-@router.get("/cost-breakdown")
-async def get_cost_breakdown(days: int = 7):
-    """Get detailed cost breakdown by provider and model"""
-    try:
-        llm_service = await get_unified_llm_service()
-        # This would query the Snowflake analytics tables
-        return {
-            "breakdown": [
-                {
-                    "provider": "snowflake",
-                    "models": [
-                        {"model": "mistral-large", "cost": 23.45, "requests": 2345},
-                        {"model": "llama2-70b", "cost": 12.34, "requests": 1234},
-                    ],
-                    "total_cost": 35.79,
-                },
-                {
-                    "provider": "portkey",
-                    "models": [
-                        {"model": "gpt-4o", "cost": 89.12, "requests": 891},
-                        {"model": "claude-3-opus", "cost": 67.89, "requests": 678},
-                    ],
-                    "total_cost": 157.01,
-                },
-                {
-                    "provider": "openrouter",
-                    "models": [
-                        {"model": "mixtral-8x7b", "cost": 15.67, "requests": 1567},
-                        {"model": "deepseek-v3", "cost": 8.90, "requests": 890},
-                    ],
-                    "total_cost": 24.57,
-                },
-            ],
-            "total": 217.37,
-            "period_days": days,
-        }
-    except Exception as e:
-        logger.error(f"Error getting cost breakdown: {e}")
+        logger.error(f"Error getting LLM stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.get("/performance-metrics")
-async def get_performance_metrics():
-    """Get performance metrics for LLM operations"""
+@router.post("/budget/set")
+async def set_budget(
+    daily_budget: Optional[float] = None,
+    monthly_budget: Optional[float] = None,
+    cost_service: CostEngineeringService = Depends(get_cost_service),
+    config: ConfigManager = Depends(get_config_manager)
+) -> Dict[str, Any]:
+    """Set LLM cost budgets"""
     try:
-        # This would query Prometheus metrics
+        # Update budgets
+        if daily_budget is not None:
+            config.set_value("llm_daily_budget", daily_budget)
+            await cost_service.set_cost_budget(daily_budget=daily_budget)
+            
+        if monthly_budget is not None:
+            config.set_value("llm_monthly_budget", monthly_budget)
+            await cost_service.set_cost_budget(monthly_budget=monthly_budget)
+            
         return {
-            "latency_percentiles": {"p50": 123, "p90": 234, "p95": 345, "p99": 567},
-            "throughput": {"requests_per_minute": 20.5, "tokens_per_second": 1234.5},
-            "error_rate": 0.02,
-            "availability": 99.98,
+            "status": "success",
+            "daily_budget": daily_budget or config.get_value("llm_daily_budget", 100.0),
+            "monthly_budget": monthly_budget or config.get_value("llm_monthly_budget", 3000.0)
         }
+        
     except Exception as e:
-        logger.error(f"Error getting performance metrics: {e}")
+        logger.error(f"Error setting budget: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.get("/model-recommendations")
-async def get_model_recommendations():
-    """Get AI-powered recommendations for model usage optimization"""
+@router.get("/alerts")
+async def get_cost_alerts(
+    limit: int = 10,
+    severity: Optional[str] = None,
+    cost_service: CostEngineeringService = Depends(get_cost_service)
+) -> List[CostAlert]:
+    """Get recent cost alerts"""
     try:
-        llm_service = await get_unified_llm_service()
-
-        # This would analyze usage patterns and provide recommendations
-        return {
-            "recommendations": [
-                {
-                    "title": "Increase Snowflake Usage for SQL Queries",
-                    "description": "Moving 30% more SQL generation tasks to Snowflake Cortex could save $45/day",
-                    "potential_savings": 45.00,
-                    "implementation": "Update routing rules in UnifiedLLMService",
-                    "priority": "high",
-                },
-                {
-                    "title": "Enable Semantic Caching",
-                    "description": "32.5% of requests are similar. Semantic caching could reduce costs by 25%",
-                    "potential_savings": 54.25,
-                    "implementation": "Configure Portkey semantic caching with 0.95 threshold",
-                    "priority": "high",
-                },
-                {
-                    "title": "Use Mixtral for Summaries",
-                    "description": "Mixtral-8x7b performs well for summaries at 1/5 the cost of GPT-4",
-                    "potential_savings": 23.45,
-                    "implementation": "Update model routing for DOCUMENT_SUMMARY tasks",
-                    "priority": "medium",
-                },
-            ],
-            "total_potential_savings": 122.70,
-            "estimated_implementation_time": "2-3 hours",
-        }
+        # This would fetch from a persistent store
+        # For now, generate based on current status
+        alerts = []
+        
+        daily_cost = await cost_service._calculate_daily_cost()
+        monthly_cost = await cost_service._calculate_monthly_cost()
+        
+        # Add relevant alerts based on current metrics
+        if daily_cost > 80:
+            alerts.append(CostAlert(
+                title="High Daily Spend",
+                message=f"Daily LLM cost of ${daily_cost:.2f} is above normal",
+                severity="warning",
+                timestamp=datetime.now().isoformat(),
+                alert_type="daily_budget"
+            ))
+            
+        # Filter by severity if requested
+        if severity:
+            alerts = [a for a in alerts if a.severity == severity]
+            
+        return alerts[:limit]
+        
     except Exception as e:
-        logger.error(f"Error getting model recommendations: {e}")
+        logger.error(f"Error getting alerts: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -178,6 +178,86 @@ const UnifiedDashboard = () => {
 
     const renderLLMMetrics = () => (
         <div className="space-y-6">
+            {/* Cost Alerts Section */}
+            {data.llm?.alerts && data.llm.alerts.length > 0 && (
+                <div className="space-y-4">
+                    {data.llm.alerts.map((alert, index) => (
+                        <Alert key={index} variant={alert.severity === 'critical' ? 'destructive' : 'default'}>
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <strong>{alert.title}</strong>
+                                        <p className="text-sm mt-1">{alert.message}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <Badge variant={alert.severity === 'critical' ? 'destructive' : 'secondary'}>
+                                            {alert.severity}
+                                        </Badge>
+                                        <p className="text-xs text-gray-500 mt-1">{alert.timestamp}</p>
+                                    </div>
+                                </div>
+                            </AlertDescription>
+                        </Alert>
+                    ))}
+                </div>
+            )}
+
+            {/* Budget Status Card */}
+            <Card className={data.llm?.budget_status?.is_over_budget ? 'border-red-500' : ''}>
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                        <span className="flex items-center space-x-2">
+                            <DollarSign />
+                            <span>Budget Status</span>
+                        </span>
+                        {data.llm?.budget_status?.is_over_budget && (
+                            <Badge variant="destructive">Over Budget</Badge>
+                        )}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <div>
+                            <p className="text-sm text-gray-500">Daily Budget</p>
+                            <p className="text-xl font-bold">${data.llm?.budget_status?.daily_budget || 100}</p>
+                            <Progress 
+                                value={(data.llm?.daily_cost / data.llm?.budget_status?.daily_budget) * 100 || 0} 
+                                className={`mt-2 ${(data.llm?.daily_cost / data.llm?.budget_status?.daily_budget) > 0.8 ? 'bg-red-100' : ''}`}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                ${data.llm?.daily_cost || 0} / ${data.llm?.budget_status?.daily_budget || 100} used
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Monthly Budget</p>
+                            <p className="text-xl font-bold">${data.llm?.budget_status?.monthly_budget || 3000}</p>
+                            <Progress 
+                                value={(data.llm?.monthly_cost / data.llm?.budget_status?.monthly_budget) * 100 || 0} 
+                                className={`mt-2 ${(data.llm?.monthly_cost / data.llm?.budget_status?.monthly_budget) > 0.8 ? 'bg-red-100' : ''}`}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                ${data.llm?.monthly_cost || 0} / ${data.llm?.budget_status?.monthly_budget || 3000} used
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Projected Monthly</p>
+                            <p className="text-xl font-bold ${data.llm?.budget_status?.projected_monthly > data.llm?.budget_status?.monthly_budget ? 'text-red-600' : ''}">
+                                ${data.llm?.budget_status?.projected_monthly || 0}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Based on current usage rate
+                            </p>
+                            {data.llm?.budget_status?.projected_monthly > data.llm?.budget_status?.monthly_budget && (
+                                <p className="text-xs text-red-600 mt-1">
+                                    ⚠️ Exceeds budget by ${(data.llm?.budget_status?.projected_monthly - data.llm?.budget_status?.monthly_budget).toFixed(2)}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* LLM Cost Overview */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <UnifiedKPICard

@@ -28,6 +28,7 @@ from backend.api import (
     asana_integration_routes,
     codacy_integration_routes,
     linear_integration_routes,
+    llm_metrics_routes,
     mcp_integration_routes,
     notion_integration_routes,
     slack_linear_knowledge_routes,
@@ -321,6 +322,7 @@ class UnifiedFastAPIApp:
         # Include all route modules
         routers = [
             (unified_routes.router, "/api/v1", ["Unified API"]),
+            (llm_metrics_routes.router, "", ["LLM Metrics"]),
             (mcp_integration_routes.router, "/api", ["MCP"]),
             (knowledge_base_routes.router, "/api/v3", ["Knowledge Base"]),
             (slack_linear_knowledge_routes.router, "/api/v3", ["Integrations"]),
