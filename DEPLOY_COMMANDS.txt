@@ -1,0 +1,38 @@
+# Sophia AI Deployment Commands
+# Copy and paste these commands in order
+
+# 1. From your local machine - Upload deployment package:
+scp sophia-deployment-20250704-022911.tar.gz ubuntu@104.171.202.64:~/
+
+# 2. Connect to Lambda Labs:
+ssh ubuntu@104.171.202.64
+
+# 3. On Lambda Labs - Extract and enter directory:
+tar -xzf sophia-deployment-20250704-022911.tar.gz
+cd sophia-deployment-20250704-022911
+
+# 4. Set required environment variables (REPLACE WITH YOUR VALUES):
+export POSTGRES_PASSWORD="your-postgres-password"
+export GRAFANA_PASSWORD="your-grafana-password"
+export PULUMI_ACCESS_TOKEN="your-pulumi-token"
+export MEM0_API_KEY="your-mem0-key"
+export SNOWFLAKE_ACCOUNT="your-snowflake-account"
+export SNOWFLAKE_USER="your-snowflake-user"
+export SNOWFLAKE_PASSWORD="your-snowflake-password"
+export VERCEL_V0DEV_API_KEY="your-vercel-key"
+
+# 5. Deploy the stack:
+./quick_deploy.sh
+
+# 6. Monitor deployment:
+docker service ls
+./monitor_swarm_performance.sh
+
+# 7. Check logs if needed:
+docker service logs sophia-ai_backend --tail 50
+docker service logs sophia-ai_chat-mcp --tail 50
+
+# 8. Access services:
+# Dashboard: https://api.sophia-ai.lambda.cloud/dashboard
+# Chat: https://chat-mcp.sophia-ai.lambda.cloud
+# Grafana: https://sophia-ai.lambda.cloud:3000 
