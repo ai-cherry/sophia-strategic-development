@@ -229,3 +229,4 @@ requirements*.txt
 # Monorepo
 .turbo/
 .pnpm-store/
+test_env/
