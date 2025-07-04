@@ -2,9 +2,9 @@ name: Sophia AI UV CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   ENVIRONMENT: prod
@@ -16,19 +16,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Install UV
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      
+
       - name: Add UV to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      
+
       - name: Install dependencies
         run: uv sync --group dev
-      
+
       - name: Run linting with Ruff
         run: uv run ruff check .
-      
+
       - name: Run type checking with MyPy
         run: uv run mypy backend/
         continue-on-error: true
@@ -38,20 +38,20 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Install UV
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      
+
       - name: Add UV to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      
+
       - name: Set Python version
         run: echo "${{ matrix.python-version }}" > .python-version
-      
+
       - name: Cache UV dependencies
         uses: actions/cache@v4
         with:
@@ -60,13 +60,13 @@ jobs:
           restore-keys: |
             uv-${{ runner.os }}-${{ matrix.python-version }}-
             uv-${{ runner.os }}-
-      
+
       - name: Install dependencies
         run: uv sync --group dev
-      
+
       - name: Run tests with pytest
         run: uv run pytest tests/ --cov=backend --cov-report=xml
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -79,17 +79,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Cache UV dependencies
         uses: actions/cache@v4
         with:
@@ -100,14 +100,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-security-
             ${{ runner.os }}-uv-
-            
+
       - name: Install dependencies
         run: |
           uv sync --group dev
-          
+
       - name: Create security reports directory
         run: mkdir -p security/reports
-        
+
       - name: Run pip-audit
         id: pip_audit
         run: |
@@ -116,14 +116,14 @@ jobs:
           AUDIT_EXIT_CODE=$?
           echo "exit_code=$AUDIT_EXIT_CODE" >> $GITHUB_OUTPUT
           uv run pip-audit --format=markdown --output=security/reports/vulnerability-report.md || true
-          
+
           if [ -f security/reports/vulnerability-report.json ]; then
             HIGH_CRITICAL=$(python -c "import json; data = json.load(open('security/reports/vulnerability-report.json')); vulns = data.get('vulnerabilities', []); high_critical = [v for v in vulns if v.get('fix_versions') and v.get('severity', '').lower() in ['high', 'critical']]; print(len(high_critical))")
             echo "high_critical_count=$HIGH_CRITICAL" >> $GITHUB_OUTPUT
           else
             echo "high_critical_count=0" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Run safety check
         id: safety_check
         run: |
@@ -132,7 +132,7 @@ jobs:
           SAFETY_EXIT_CODE=$?
           echo "exit_code=$SAFETY_EXIT_CODE" >> $GITHUB_OUTPUT
           uv run safety check --output=security/reports/safety-report.txt || true
-          
+
       - name: Upload vulnerability reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -140,7 +140,7 @@ jobs:
           name: security-reports-${{ github.sha }}
           path: security/reports/
           retention-days: 30
-          
+
       - name: Add PR comment with security summary
         if: github.event_name == 'pull_request' && (steps.pip_audit.outputs.exit_code != '0' || steps.safety_check.outputs.exit_code != '0')
         uses: actions/github-script@v7
@@ -148,7 +148,7 @@ jobs:
           script: |
             const fs = require('fs');
             let comment = '## 🔒 Security Scan Results\n\n';
-            
+
             if (fs.existsSync('security/reports/vulnerability-report.md')) {
               const auditReport = fs.readFileSync('security/reports/vulnerability-report.md', 'utf8');
               comment += '### pip-audit Results\n\n';
@@ -157,12 +157,12 @@ jobs:
                 comment += '\n\n... (truncated, see full report in artifacts)';
               }
             }
-            
+
             const highCritical = ${{ steps.pip_audit.outputs.high_critical_count }};
             if (highCritical > 0) {
               comment += `\n\n**⚠️ Found ${highCritical} HIGH/CRITICAL vulnerabilities that must be fixed!**\n`;
             }
-            
+
             if (fs.existsSync('security/reports/safety-report.txt')) {
               const safetyReport = fs.readFileSync('security/reports/safety-report.txt', 'utf8');
               comment += '\n\n### Safety Check Results\n\n```\n';
@@ -172,16 +172,16 @@ jobs:
               }
               comment += '\n```';
             }
-            
+
             comment += '\n\n[View full reports in workflow artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})';
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
             });
-            
+
       - name: Fail if high/critical vulnerabilities found
         if: steps.pip_audit.outputs.high_critical_count != '0'
         run: |
@@ -193,20 +193,20 @@ jobs:
     needs: [test, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Install UV
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      
+
       - name: Add UV to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image with UV
         run: |
           docker buildx build \
@@ -216,10 +216,10 @@ jobs:
             --cache-from type=gha \
             --cache-to type=gha,mode=max \
             .
-      
+
       - name: Install Pulumi dependencies
         run: uv sync --group prod-stack
-      
+
       - name: Configure Pulumi
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -228,7 +228,7 @@ jobs:
           curl -fsSL https://get.pulumi.com | sh
           export PATH=$PATH:$HOME/.pulumi/bin
           pulumi login
-      
+
       - name: Deploy infrastructure with Pulumi
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -241,19 +241,19 @@ jobs:
     needs: [build-and-deploy]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Install UV
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      
+
       - name: Add UV to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      
+
       - name: Install monitoring dependencies
         run: uv sync --group monitoring
-      
+
       - name: Run performance tests
         run: uv run locust --headless --users 100 --spawn-rate 10 --run-time 60s --host https://app.sophia-intel.ai

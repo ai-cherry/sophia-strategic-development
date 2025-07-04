@@ -1,6 +1,6 @@
 ---
 title: Sophia AI Development Timeline & Milestones
-description: 
+description:
 tags: security, gong, monitoring, database, agent
 last_updated: 2025-06-23
 dependencies: none

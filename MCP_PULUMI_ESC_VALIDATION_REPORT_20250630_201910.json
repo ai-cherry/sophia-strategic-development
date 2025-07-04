@@ -130,10 +130,7 @@
   },
   "mcp_server_secrets": {
     "ai_memory": {
-      "required_secrets": [
-        "openai_api_key",
-        "pinecone_api_key"
-      ],
+      "required_secrets": ["openai_api_key", "pinecone_api_key"],
       "secrets_status": {
         "openai_api_key": {
           "available": true,
@@ -148,9 +145,7 @@
       "test_status": "passed"
     },
     "figma_context": {
-      "required_secrets": [
-        "figma_pat"
-      ],
+      "required_secrets": ["figma_pat"],
       "secrets_status": {
         "figma_pat": {
           "available": false,
@@ -161,10 +156,7 @@
       "test_status": "failed"
     },
     "ui_ux_agent": {
-      "required_secrets": [
-        "figma_pat",
-        "openai_api_key"
-      ],
+      "required_secrets": ["figma_pat", "openai_api_key"],
       "secrets_status": {
         "figma_pat": {
           "available": false,
@@ -185,9 +177,7 @@
       "test_status": "passed"
     },
     "asana": {
-      "required_secrets": [
-        "asana_access_token"
-      ],
+      "required_secrets": ["asana_access_token"],
       "secrets_status": {
         "asana_access_token": {
           "available": false,
@@ -198,9 +188,7 @@
       "test_status": "failed"
     },
     "notion": {
-      "required_secrets": [
-        "notion_api_token"
-      ],
+      "required_secrets": ["notion_api_token"],
       "secrets_status": {
         "notion_api_token": {
           "available": false,
@@ -211,9 +199,7 @@
       "test_status": "failed"
     },
     "linear": {
-      "required_secrets": [
-        "linear_api_key"
-      ],
+      "required_secrets": ["linear_api_key"],
       "secrets_status": {
         "linear_api_key": {
           "available": false,
@@ -224,9 +210,7 @@
       "test_status": "failed"
     },
     "github": {
-      "required_secrets": [
-        "github_token"
-      ],
+      "required_secrets": ["github_token"],
       "secrets_status": {
         "github_token": {
           "available": false,
@@ -237,10 +221,7 @@
       "test_status": "failed"
     },
     "slack": {
-      "required_secrets": [
-        "slack_bot_token",
-        "slack_app_token"
-      ],
+      "required_secrets": ["slack_bot_token", "slack_app_token"],
       "secrets_status": {
         "slack_bot_token": {
           "available": false,
@@ -278,9 +259,7 @@
       "test_status": "passed"
     },
     "portkey_admin": {
-      "required_secrets": [
-        "portkey_api_key"
-      ],
+      "required_secrets": ["portkey_api_key"],
       "secrets_status": {
         "portkey_api_key": {
           "available": false,
@@ -291,9 +270,7 @@
       "test_status": "failed"
     },
     "openrouter_search": {
-      "required_secrets": [
-        "openrouter_api_key"
-      ],
+      "required_secrets": ["openrouter_api_key"],
       "secrets_status": {
         "openrouter_api_key": {
           "available": false,
@@ -304,9 +281,7 @@
       "test_status": "failed"
     },
     "lambda_labs_cli": {
-      "required_secrets": [
-        "lambda_api_key"
-      ],
+      "required_secrets": ["lambda_api_key"],
       "secrets_status": {
         "lambda_api_key": {
           "available": false,
@@ -408,10 +383,7 @@
     },
     "infrastructure_config": {
       "test_name": "Infrastructure Configuration",
-      "keys_tested": [
-        "lambda_api_key",
-        "figma_pat"
-      ],
+      "keys_tested": ["lambda_api_key", "figma_pat"],
       "status": {
         "lambda_api_key": false,
         "figma_pat": false

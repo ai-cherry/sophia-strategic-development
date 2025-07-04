@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS costar_market_data (
     data_quality_score INTEGER DEFAULT 100, -- 1-100 quality score
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Ensure no duplicate entries for same market/property/date combination
     UNIQUE(market_id, property_type, market_date, submarket)
 );
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS costar_market_comparisons (
     comparison_factors JSONB, -- Factors used in comparison
     analysis_date DATE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Prevent duplicate comparisons
     UNIQUE(primary_market_id, comparison_market_id, property_type, analysis_date)
 );
@@ -127,4 +127,4 @@ COMMENT ON TABLE costar_market_comparisons IS 'Comparative analysis between diff
 COMMENT ON COLUMN costar_market_data.vacancy_rate IS 'Percentage of vacant space (0-100)';
 COMMENT ON COLUMN costar_market_data.asking_rent_psf IS 'Average asking rent per square foot annually';
 COMMENT ON COLUMN costar_market_data.net_absorption IS 'Net change in occupied space (positive = absorption, negative = give-back)';
-COMMENT ON COLUMN costar_market_data.data_quality_score IS 'Quality score from 1-100 based on data completeness and accuracy'; 
+COMMENT ON COLUMN costar_market_data.data_quality_score IS 'Quality score from 1-100 based on data completeness and accuracy';

@@ -10,7 +10,7 @@ The new Google Gemini CLI with comprehensive MCP (Model Context Protocol) suppor
 
 **Unified MCP Server Architecture (4-Tier System)**:
 1. **sophia-ai-intelligence** (Port 8091) - AI model routing, monitoring, optimization
-2. **sophia-data-intelligence** (Port 8092) - Data collection, storage, pipeline management  
+2. **sophia-data-intelligence** (Port 8092) - Data collection, storage, pipeline management
 3. **sophia-infrastructure** (Port 8093) - Infrastructure management and deployment
 4. **sophia-business-intelligence** (Port 8094) - Business tools and communication platforms
 
@@ -67,11 +67,11 @@ The new Google Gemini CLI with comprehensive MCP (Model Context Protocol) suppor
       }
     },
     "sophia-data-intelligence": {
-      "command": "python", 
+      "command": "python",
       "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
       "env": {
         "PYTHONPATH": "/app",
-        "MCP_SERVER_TYPE": "data-intelligence", 
+        "MCP_SERVER_TYPE": "data-intelligence",
         "MCP_SERVER_PORT": "8092"
       }
     },
@@ -326,4 +326,3 @@ The integration of Gemini CLI with MCP support into the Sophia AI ecosystem repr
 4. **Continuous Optimization**: Monitor performance and optimize configurations based on usage patterns
 
 This integration will enhance our development capabilities, reduce costs, improve productivity, and strengthen our competitive position in the AI-powered business intelligence market while maintaining our existing security, compliance, and operational standards.
-

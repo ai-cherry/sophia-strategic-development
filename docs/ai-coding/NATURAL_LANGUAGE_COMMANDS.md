@@ -12,7 +12,7 @@
 ### **Examples**
 ```bash
 @sophia generate a user authentication system
-@codacy analyze this file for security issues  
+@codacy analyze this file for security issues
 @memory remember we use PostgreSQL for main database
 @github create PR for authentication feature
 ```
@@ -64,7 +64,7 @@
 # Unit Tests
 @sophia write comprehensive pytest tests for the UserService class
 
-# Integration Tests  
+# Integration Tests
 @sophia create integration tests for the authentication API
 
 # E2E Tests
@@ -441,7 +441,7 @@
 # 1. Design the component
 "Create a user profile card with avatar and social links"
 
-# 2. Review accessibility  
+# 2. Review accessibility
 "Ensure the component meets WCAG 2.1 standards"
 
 # 3. Check code quality
@@ -465,7 +465,7 @@
 @sophia create a function
 
 # ✅ Specific
-@sophia create an async Python function that fetches user data from PostgreSQL, 
+@sophia create an async Python function that fetches user data from PostgreSQL,
 caches it in Redis for 5 minutes, and includes error handling
 ```
 
@@ -475,7 +475,7 @@ caches it in Redis for 5 minutes, and includes error handling
 @sophia fix this error
 
 # ✅ With context
-@sophia fix this error in our FastAPI application: 
+@sophia fix this error in our FastAPI application:
 "RuntimeError: Event loop is closed" when running async tests
 ```
 

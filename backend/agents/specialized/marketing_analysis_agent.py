@@ -36,11 +36,11 @@ from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     MemoryCategory,
 )
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
-from backend.services.smart_ai_service import (
+from backend.services.llm_service import (
     LLMRequest,
     TaskType,
     generate_competitive_analysis,
-    smart_ai_service,
+    llm_service,
 )
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
@@ -200,7 +200,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
             # Initialize AI Memory and Smart AI Service
             await self.ai_memory.initialize()
-            await smart_ai_service.initialize()
+            await llm_service.initialize()
 
             self.initialized = True
             logger.info("✅ Marketing Analysis Agent initialized")
@@ -299,7 +299,11 @@ class MarketingAnalysisAgent(BaseAgent):
                     metadata={"campaign_id": campaign_id},
                 )
 
-                response = await smart_ai_service.generate_response(request)
+                response = await async for chunk in llm_service.complete(
+    prompt=request.prompt if hasattr(request, 'prompt') else request.get('prompt', ''),
+    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
+    stream=True
+)
                 ai_summary = response.content
 
                 # Extract specific recommendations using Cortex
@@ -476,7 +480,11 @@ class MarketingAnalysisAgent(BaseAgent):
             },
         )
 
-        response = await smart_ai_service.generate_response(llm_request)
+        response = await async for chunk in llm_service.complete(
+    prompt=llm_request.prompt if hasattr(llm_request, 'prompt') else llm_request.get('prompt', ''),
+    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
+    stream=True
+)
         return response.content
 
     async def _generate_content_variations(

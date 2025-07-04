@@ -440,9 +440,9 @@ class SnowflakeAdminChatIntegration:
         if response.results:
             result["results"] = response.results[:10]  # Limit for chat display
             if len(response.results) > 10:
-                result["results_note"] = (
-                    f"Showing 10 of {len(response.results)} results"
-                )
+                result[
+                    "results_note"
+                ] = f"Showing 10 of {len(response.results)} results"
 
         return result
 

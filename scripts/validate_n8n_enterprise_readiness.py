@@ -167,9 +167,7 @@ class ReadinessValidator:
             docker_version = subprocess.check_output(
                 ["docker", "--version"], text=True
             ).strip()
-            checks.append(
-                {"check": "Docker", "status": "✅", "details": docker_version}
-            )
+            checks.append({"check": "Docker", "status": "✅", "details": docker_version})
             score += 20
         except Exception as e:
             checks.append(
@@ -748,10 +746,10 @@ class ReadinessValidator:
         max_score = 100
 
         # Check Portkey gateway service
-        portkey_service = (
+        llm_service = (
             self.project_root / "backend" / "services" / "portkey_ai_gateway.py"
         )
-        if portkey_service.exists():
+        if llm_service.exists():
             checks.append(
                 {
                     "check": "Portkey Gateway Service",
@@ -968,7 +966,6 @@ class ReadinessValidator:
                 category_data.get("score", 0)
                 < category_data.get("max_score", 100) * 0.8
             ):
-
                 if category_key == "infrastructure":
                     recommendations.append(
                         {
@@ -1083,7 +1080,9 @@ class ReadinessValidator:
             status_emoji = (
                 "✅"
                 if status == "ready"
-                else "⚠️" if status == "needs_attention" else "❌"
+                else "⚠️"
+                if status == "needs_attention"
+                else "❌"
             )
             print(
                 f"  {status_emoji} {category_key.replace('_', ' ').title()}: {score}/{max_score}"
@@ -1095,7 +1094,9 @@ class ReadinessValidator:
                 priority_emoji = (
                     "🔴"
                     if rec["priority"] == "critical"
-                    else "🟡" if rec["priority"] == "high" else "🟢"
+                    else "🟡"
+                    if rec["priority"] == "high"
+                    else "🟢"
                 )
                 print(f"  {i}. {priority_emoji} {rec['action']}")
                 print(f"     {rec['details']}")

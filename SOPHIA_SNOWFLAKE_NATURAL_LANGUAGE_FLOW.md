@@ -43,11 +43,11 @@ class SmartAIService:
     """
     Enterprise Smart AI Service with intelligent routing
     """
-    
+
     async def generate_response(self, request: LLMRequest) -> LLMResponse:
         # Select optimal strategy based on task type
         strategy = await self.select_strategy(request)
-        
+
         # Route to appropriate LLM provider
         if strategy["provider"] == LLMProvider.PORTKEY:
             response = await self._call_portkey(request, strategy, request_id)
@@ -82,7 +82,7 @@ class LangGraphAgentBase(ABC):
         """
         # Validate and process request
         response = await self._process_request_internal(request, context)
-        
+
         # Add metadata and metrics
         response["metadata"].update({
             "agent_name": self.name,
@@ -90,7 +90,7 @@ class LangGraphAgentBase(ABC):
             "capabilities_used": self.capabilities,
             "mcp_integrations": self.mcp_integrations,
         })
-        
+
         return response
 ```
 
@@ -105,12 +105,12 @@ class CortexAgentOrchestrator:
     ) -> Dict[str, Any]:
         # Create task plan from natural language request
         task_plan = self._create_task_plan(workflow_request)
-        
+
         # Execute tasks with appropriate agents
         for task in task_plan:
             capable_agents = self._find_capable_agents(task.required_capabilities)
             selected_agent = self._select_optimal_agent(capable_agents, task)
-            
+
             # Execute with Snowflake Cortex capabilities
             task_result = await agent.execute_with_cortex(task)
 ```
@@ -162,7 +162,7 @@ class SnowflakeCortexService:
             query = f"SELECT SNOWFLAKE.CORTEX.SUMMARIZE('{text}') as summary"
         elif analysis_type == "complete":
             query = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('claude-3-haiku', '{text}') as response"
-        
+
         return await self.execute_query(query)
 ```
 

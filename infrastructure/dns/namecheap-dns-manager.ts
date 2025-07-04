@@ -59,13 +59,13 @@ export class NamecheapDNSManager {
         try {
             // First, get current host records
             const currentRecords = await this.getHostRecords(record.domain);
-            
+
             // Add or update the record
             const updatedRecords = this.updateRecordInList(currentRecords, record);
-            
+
             // Set all host records (Namecheap requires setting all at once)
             const result = await this.setHostRecords(record.domain, updatedRecords);
-            
+
             if (result.success) {
                 console.log(`  ✅ Successfully created/updated DNS record: ${record.name}.${record.domain}`);
             } else {
@@ -98,10 +98,10 @@ export class NamecheapDNSManager {
         };
 
         const response = await this.makeAPICall(params);
-        
+
         if (response.success && response.data?.DomainDNSGetHostsResult?.host) {
-            const hosts = Array.isArray(response.data.DomainDNSGetHostsResult.host) 
-                ? response.data.DomainDNSGetHostsResult.host 
+            const hosts = Array.isArray(response.data.DomainDNSGetHostsResult.host)
+                ? response.data.DomainDNSGetHostsResult.host
                 : [response.data.DomainDNSGetHostsResult.host];
 
             return hosts.map((host: any) => ({
@@ -169,7 +169,7 @@ export class NamecheapDNSManager {
 
             https.get(url, (res) => {
                 let data = '';
-                
+
                 res.on('data', (chunk) => {
                     data += chunk;
                 });
@@ -197,7 +197,7 @@ export class NamecheapDNSManager {
     private parseNamecheapResponse(xmlData: string): NamecheapAPIResponse {
         // Simple XML parsing for Namecheap responses
         // In production, you might want to use a proper XML parser
-        
+
         const isSuccess = xmlData.includes('Status="OK"');
         const hasError = xmlData.includes('<Errors>');
 
@@ -231,7 +231,7 @@ export class NamecheapDNSManager {
                     const type = this.extractXMLValue(hostMatch, 'Type');
                     const address = this.extractXMLValue(hostMatch, 'Address');
                     const ttl = this.extractXMLValue(hostMatch, 'TTL');
-                    
+
                     return { Name: name, Type: type, Address: address, TTL: ttl };
                 });
 
@@ -254,7 +254,7 @@ export class NamecheapDNSManager {
      */
     private extractErrorsFromXML(xmlData: string): string[] {
         const errors: string[] = [];
-        
+
         // Extract error messages
         const errorMatches = xmlData.match(/<Error Number="\d+">(.*?)<\/Error>/g);
         if (errorMatches) {
@@ -281,7 +281,7 @@ export class NamecheapDNSManager {
     async validateConfiguration(): Promise<boolean> {
         try {
             console.log('🔍 Validating Namecheap API configuration...');
-            
+
             const params = {
                 ApiUser: this.config.api_user,
                 ApiKey: this.config.api_key,
@@ -291,7 +291,7 @@ export class NamecheapDNSManager {
             };
 
             const response = await this.makeAPICall(params);
-            
+
             if (response.success) {
                 console.log('  ✅ Namecheap API configuration is valid');
                 return true;
@@ -305,4 +305,4 @@ export class NamecheapDNSManager {
             return false;
         }
     }
-} 
+}

@@ -44,7 +44,7 @@ Total TypeScript/JavaScript files: ~100+
   - Optional groups: ui, docs, security, performance
 
 #### JavaScript Dependencies
-- **Frontend**: 
+- **Frontend**:
   - Method: npm with `package-lock.json`
   - Location: `frontend/package.json`
   - Framework: React with Vite
@@ -231,4 +231,4 @@ Total TypeScript/JavaScript files: ~100+
 
 ---
 
-*This inventory will be used to create the detailed migration plan in Phase 1.* 
+*This inventory will be used to create the detailed migration plan in Phase 1.*

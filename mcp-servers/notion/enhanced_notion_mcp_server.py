@@ -18,10 +18,9 @@ TODO: Implement file decomposition
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from mcp import Server
 from notion_client import Client as NotionClient
@@ -66,7 +65,7 @@ class EnhancedNotionMCPServer:
         """Register enhanced Notion MCP tools"""
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Enhanced health check with API validation"""
             try:
                 if not self.notion_client:
@@ -105,7 +104,7 @@ class EnhancedNotionMCPServer:
                 }
 
         @self.mcp_server.tool("create_salesforce_migration_workspace")
-        async def create_salesforce_migration_workspace() -> Dict[str, Any]:
+        async def create_salesforce_migration_workspace() -> dict[str, Any]:
             """Create complete Salesforce migration project workspace in Notion"""
             try:
                 if not self.notion_client:
@@ -114,7 +113,10 @@ class EnhancedNotionMCPServer:
                 # Create parent page for Salesforce Migration Project
                 parent_page = self.notion_client.pages.create(
                     **{
-                        "parent": {"type": "page_id", "page_id": ""},  # Will use workspace
+                        "parent": {
+                            "type": "page_id",
+                            "page_id": "",
+                        },  # Will use workspace
                         "properties": {
                             "title": {
                                 "title": [
@@ -216,7 +218,9 @@ class EnhancedNotionMCPServer:
                 task_db = self.notion_client.databases.create(
                     **{
                         "parent": {"type": "page_id", "page_id": parent_id},
-                        "title": [{"type": "text", "text": {"content": "Migration Tasks"}}],
+                        "title": [
+                            {"type": "text", "text": {"content": "Migration Tasks"}}
+                        ],
                         "properties": {
                             "Task": {"title": {}},
                             "Project": {
@@ -281,7 +285,10 @@ class EnhancedNotionMCPServer:
                     **{
                         "parent": {"type": "page_id", "page_id": parent_id},
                         "title": [
-                            {"type": "text", "text": {"content": "Executive Status Updates"}}
+                            {
+                                "type": "text",
+                                "text": {"content": "Executive Status Updates"},
+                            }
                         ],
                         "properties": {
                             "Update": {"title": {}},
@@ -329,7 +336,7 @@ class EnhancedNotionMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("get_project_status")
-        async def get_project_status(project_name: str = "") -> Dict[str, Any]:
+        async def get_project_status(project_name: str = "") -> dict[str, Any]:
             """Get comprehensive project status for Unified dashboard"""
             try:
                 if not self.notion_client or not self.project_db_id:
@@ -356,7 +363,7 @@ class EnhancedNotionMCPServer:
                 project_status = []
                 for project in projects["results"]:
                     props = project["properties"]
-                    
+
                     project_info = {
                         "id": project["id"],
                         "name": self._get_title_text(props.get("Name", {})),
@@ -365,7 +372,9 @@ class EnhancedNotionMCPServer:
                         "progress": props.get("Progress", {}).get("number", 0) or 0,
                         "budget": props.get("Budget", {}).get("number", 0) or 0,
                         "roi": props.get("ROI", {}).get("number", 0) or 0,
-                        "risk_level": self._get_select_value(props.get("Risk Level", {})),
+                        "risk_level": self._get_select_value(
+                            props.get("Risk Level", {})
+                        ),
                         "start_date": self._get_date_value(props.get("Start Date", {})),
                         "end_date": self._get_date_value(props.get("End Date", {})),
                         "assignee": self._get_people_names(props.get("Assignee", {})),
@@ -374,11 +383,14 @@ class EnhancedNotionMCPServer:
 
                     # Calculate task statistics for this project
                     project_tasks = [
-                        task for task in tasks["results"]
+                        task
+                        for task in tasks["results"]
                         if self._is_task_in_project(task, project["id"])
                     ]
-                    
-                    project_info["task_stats"] = self._calculate_task_stats(project_tasks)
+
+                    project_info["task_stats"] = self._calculate_task_stats(
+                        project_tasks
+                    )
                     project_status.append(project_info)
 
                 return {
@@ -401,7 +413,7 @@ class EnhancedNotionMCPServer:
             next_steps: str,
             risks: str = "",
             ai_insights: str = "",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Create executive status update with AI insights"""
             try:
                 if not self.notion_client or not self.status_db_id:
@@ -456,7 +468,7 @@ class EnhancedNotionMCPServer:
                 return {"error": str(e)}
 
         @self.mcp_server.tool("get_executive_dashboard_data")
-        async def get_executive_dashboard_data() -> Dict[str, Any]:
+        async def get_executive_dashboard_data() -> dict[str, Any]:
             """Get comprehensive data for Unified executive dashboard"""
             try:
                 if not self.notion_client:
@@ -464,7 +476,7 @@ class EnhancedNotionMCPServer:
 
                 # Get all workspace data
                 project_data = await get_project_status()
-                
+
                 # Get recent status updates
                 recent_updates = []
                 if self.status_db_id:
@@ -473,22 +485,36 @@ class EnhancedNotionMCPServer:
                         sorts=[{"property": "Date", "direction": "descending"}],
                         page_size=5,
                     )
-                    
+
                     for update in updates["results"]:
                         props = update["properties"]
-                        recent_updates.append({
-                            "title": self._get_title_text(props.get("Update", {})),
-                            "date": self._get_date_value(props.get("Date", {})),
-                            "progress": props.get("Overall Progress", {}).get("number", 0),
-                            "status": self._get_select_value(props.get("Status", {})),
-                            "url": update["url"],
-                        })
+                        recent_updates.append(
+                            {
+                                "title": self._get_title_text(props.get("Update", {})),
+                                "date": self._get_date_value(props.get("Date", {})),
+                                "progress": props.get("Overall Progress", {}).get(
+                                    "number", 0
+                                ),
+                                "status": self._get_select_value(
+                                    props.get("Status", {})
+                                ),
+                                "url": update["url"],
+                            }
+                        )
 
                 # Calculate executive summary
                 projects = project_data.get("projects", [])
-                total_progress = sum(p["progress"] for p in projects) / len(projects) if projects else 0
-                on_track_count = len([p for p in projects if p["status"] in ["Planning", "In Progress"]])
-                completed_count = len([p for p in projects if p["status"] == "Complete"])
+                total_progress = (
+                    sum(p["progress"] for p in projects) / len(projects)
+                    if projects
+                    else 0
+                )
+                on_track_count = len(
+                    [p for p in projects if p["status"] in ["Planning", "In Progress"]]
+                )
+                completed_count = len(
+                    [p for p in projects if p["status"] == "Complete"]
+                )
                 blocked_count = len([p for p in projects if p["status"] == "Blocked"])
 
                 return {
@@ -503,7 +529,9 @@ class EnhancedNotionMCPServer:
                     },
                     "projects": projects,
                     "recent_updates": recent_updates,
-                    "ai_recommendations": await self._generate_ai_recommendations(projects),
+                    "ai_recommendations": await self._generate_ai_recommendations(
+                        projects
+                    ),
                 }
 
             except Exception as e:
@@ -557,7 +585,10 @@ class EnhancedNotionMCPServer:
                         "properties": {
                             "Name": {
                                 "title": [
-                                    {"type": "text", "text": {"content": project["name"]}}
+                                    {
+                                        "type": "text",
+                                        "text": {"content": project["name"]},
+                                    }
                                 ]
                             },
                             "Status": {"select": {"name": project["status"]}},
@@ -575,35 +606,35 @@ class EnhancedNotionMCPServer:
         except Exception as e:
             logger.error(f"Error creating initial project structure: {e}")
 
-    def _get_title_text(self, title_prop: Dict) -> str:
+    def _get_title_text(self, title_prop: dict) -> str:
         """Extract text from title property"""
         if not title_prop or "title" not in title_prop:
             return ""
         titles = title_prop["title"]
         return "".join([t["text"]["content"] for t in titles if "text" in t])
 
-    def _get_select_value(self, select_prop: Dict) -> str:
+    def _get_select_value(self, select_prop: dict) -> str:
         """Extract value from select property"""
         if not select_prop or "select" not in select_prop:
             return ""
         select = select_prop["select"]
         return select["name"] if select else ""
 
-    def _get_date_value(self, date_prop: Dict) -> Optional[str]:
+    def _get_date_value(self, date_prop: dict) -> Optional[str]:
         """Extract date value from date property"""
         if not date_prop or "date" not in date_prop:
             return None
         date = date_prop["date"]
         return date["start"] if date else None
 
-    def _get_people_names(self, people_prop: Dict) -> List[str]:
+    def _get_people_names(self, people_prop: dict) -> list[str]:
         """Extract names from people property"""
         if not people_prop or "people" not in people_prop:
             return []
         people = people_prop["people"]
         return [person.get("name", "") for person in people]
 
-    def _is_task_in_project(self, task: Dict, project_id: str) -> bool:
+    def _is_task_in_project(self, task: dict, project_id: str) -> bool:
         """Check if task belongs to project"""
         project_prop = task["properties"].get("Project", {})
         if "relation" in project_prop:
@@ -611,14 +642,16 @@ class EnhancedNotionMCPServer:
             return any(rel["id"] == project_id for rel in relations)
         return False
 
-    def _calculate_task_stats(self, tasks: List[Dict]) -> Dict[str, Any]:
+    def _calculate_task_stats(self, tasks: list[dict]) -> dict[str, Any]:
         """Calculate task statistics"""
         if not tasks:
             return {"total": 0, "completed": 0, "in_progress": 0, "blocked": 0}
 
         total = len(tasks)
         completed = len([t for t in tasks if self._get_task_status(t) == "Complete"])
-        in_progress = len([t for t in tasks if self._get_task_status(t) == "In Progress"])
+        in_progress = len(
+            [t for t in tasks if self._get_task_status(t) == "In Progress"]
+        )
         blocked = len([t for t in tasks if self._get_task_status(t) == "Blocked"])
 
         return {
@@ -629,32 +662,42 @@ class EnhancedNotionMCPServer:
             "completion_rate": round((completed / total) * 100, 1) if total > 0 else 0,
         }
 
-    def _get_task_status(self, task: Dict) -> str:
+    def _get_task_status(self, task: dict) -> str:
         """Get task status"""
         return self._get_select_value(task["properties"].get("Status", {}))
 
-    async def _generate_ai_recommendations(self, projects: List[Dict]) -> List[str]:
+    async def _generate_ai_recommendations(self, projects: list[dict]) -> list[str]:
         """Generate AI-powered recommendations based on project data"""
         recommendations = []
-        
+
         # Analyze project health
         blocked_projects = [p for p in projects if p["status"] == "Blocked"]
         if blocked_projects:
-            recommendations.append(f"🚨 {len(blocked_projects)} projects are blocked - immediate attention required")
+            recommendations.append(
+                f"🚨 {len(blocked_projects)} projects are blocked - immediate attention required"
+            )
 
         high_risk_projects = [p for p in projects if p["risk_level"] == "High"]
         if high_risk_projects:
-            recommendations.append(f"⚠️ {len(high_risk_projects)} high-risk projects need additional monitoring")
+            recommendations.append(
+                f"⚠️ {len(high_risk_projects)} high-risk projects need additional monitoring"
+            )
 
         # Progress analysis
-        low_progress_projects = [p for p in projects if p["progress"] < 0.2 and p["status"] != "Planning"]
+        low_progress_projects = [
+            p for p in projects if p["progress"] < 0.2 and p["status"] != "Planning"
+        ]
         if low_progress_projects:
-            recommendations.append(f"📈 {len(low_progress_projects)} projects showing slow progress - consider resource reallocation")
+            recommendations.append(
+                f"📈 {len(low_progress_projects)} projects showing slow progress - consider resource reallocation"
+            )
 
         # Budget analysis
         total_budget = sum(p["budget"] for p in projects)
         if total_budget > 0:
-            recommendations.append(f"💰 Total project budget: ${total_budget:,} with expected 3,400% ROI")
+            recommendations.append(
+                f"💰 Total project budget: ${total_budget:,} with expected 3,400% ROI"
+            )
 
         return recommendations
 
@@ -662,7 +705,7 @@ class EnhancedNotionMCPServer:
         """Register Notion MCP resources"""
 
         @self.mcp_server.resource("databases")
-        async def get_databases() -> List[Dict[str, Any]]:
+        async def get_databases() -> list[dict[str, Any]]:
             """Get Notion databases"""
             try:
                 if not self.notion_client:
@@ -675,12 +718,14 @@ class EnhancedNotionMCPServer:
 
                 databases = []
                 for result in search_results["results"]:
-                    databases.append({
-                        "id": result["id"],
-                        "title": self._get_title_text(result.get("title", {})),
-                        "url": result.get("url", ""),
-                        "created_time": result.get("created_time", ""),
-                    })
+                    databases.append(
+                        {
+                            "id": result["id"],
+                            "title": self._get_title_text(result.get("title", {})),
+                            "url": result.get("url", ""),
+                            "created_time": result.get("created_time", ""),
+                        }
+                    )
 
                 return databases
 
@@ -719,9 +764,16 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
-        return {"status": "ok", "version": "2.0.0", "features": ["project_management", "executive_dashboard", "ai_insights"]}
+        return {
+            "status": "ok",
+            "version": "2.0.0",
+            "features": ["project_management", "executive_dashboard", "ai_insights"],
+        }
+
 except ImportError:
     pass

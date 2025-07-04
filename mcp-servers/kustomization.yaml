@@ -7,4 +7,4 @@ kind: Kustomization
 resources:
   # Common resources can be added here
   # - namespace.yaml
-  # - network-policy.yaml 
+  # - network-policy.yaml

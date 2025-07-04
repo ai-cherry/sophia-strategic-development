@@ -3,21 +3,21 @@ global:
   scrape_interval: 15s
 rule_files: []
 scrape_configs:
-- job_name: sophia-backend
-  metrics_path: /metrics
-  scrape_interval: 15s
-  static_configs:
-  - targets:
-    - sophia-backend:8000
-- job_name: mcp-gateway
-  metrics_path: /metrics
-  scrape_interval: 15s
-  static_configs:
-  - targets:
-    - mcp-gateway:9090
-- job_name: ai-memory-mcp
-  metrics_path: /metrics
-  scrape_interval: 30s
-  static_configs:
-  - targets:
-    - ai-memory-mcp:9000
+  - job_name: sophia-backend
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - sophia-backend:8000
+  - job_name: mcp-gateway
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - mcp-gateway:9090
+  - job_name: ai-memory-mcp
+    metrics_path: /metrics
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - ai-memory-mcp:9000

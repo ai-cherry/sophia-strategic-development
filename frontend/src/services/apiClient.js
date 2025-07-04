@@ -10,7 +10,7 @@ const API_CONFIG = {
 };
 
 const getBaseURL = () => {
-  const isDevelopment = process.env.NODE_ENV === 'development' || 
+  const isDevelopment = process.env.NODE_ENV === 'development' ||
                        window.location.hostname === 'localhost' ||
                        window.location.hostname === '127.0.0.1';
   return isDevelopment ? API_CONFIG.development : API_CONFIG.production;
@@ -52,4 +52,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-export default apiClient; 
+export default apiClient;

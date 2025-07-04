@@ -99,10 +99,7 @@
       "structure": {
         "external/": {
           "description": "External MCP repositories as submodules",
-          "submodules": [
-            "anthropic-mcp-servers",
-            "anthropic-mcp-inspector"
-          ]
+          "submodules": ["anthropic-mcp-servers", "anthropic-mcp-inspector"]
         },
         "mcp-integrations/": {
           "description": "Custom integrations based on external repos",
@@ -110,10 +107,7 @@
         },
         "mcp-forks/": {
           "description": "Links to forked repositories in organization",
-          "repos": [
-            "notion-mcp-server",
-            "slack-mcp-server"
-          ]
+          "repos": ["notion-mcp-server", "slack-mcp-server"]
         }
       }
     },
@@ -185,30 +179,22 @@
         {
           "name": "NOTION_API_KEY",
           "description": "API key for Notion MCP server",
-          "required_for": [
-            "notion-mcp-server"
-          ]
+          "required_for": ["notion-mcp-server"]
         },
         {
           "name": "SLACK_BOT_TOKEN",
           "description": "Bot token for Slack MCP server",
-          "required_for": [
-            "slack-mcp-server"
-          ]
+          "required_for": ["slack-mcp-server"]
         },
         {
           "name": "BRIGHTDATA_API_KEY",
           "description": "API key for BrightData web scraping",
-          "required_for": [
-            "brightdata-mcp-server"
-          ]
+          "required_for": ["brightdata-mcp-server"]
         },
         {
           "name": "PINECONE_API_KEY",
           "description": "API key for Pinecone vector database",
-          "required_for": [
-            "vector-memory-server"
-          ]
+          "required_for": ["vector-memory-server"]
         }
       ]
     },
@@ -220,25 +206,15 @@
         {
           "name": "mcp-server-bug.md",
           "title": "MCP Server Bug Report",
-          "labels": [
-            "bug",
-            "mcp-server"
-          ],
-          "assignees": [
-            "mcp-team"
-          ],
+          "labels": ["bug", "mcp-server"],
+          "assignees": ["mcp-team"],
           "body": "\n## MCP Server Bug Report\n\n**Server Name:** \n**Version:** \n**Environment:** \n\n### Description\nA clear description of the bug.\n\n### Steps to Reproduce\n1. \n2. \n3. \n\n### Expected Behavior\nWhat should happen.\n\n### Actual Behavior\nWhat actually happens.\n\n### Logs\n```\nPaste relevant logs here\n```\n\n### Additional Context\nAny other context about the problem.\n"
         },
         {
           "name": "mcp-integration-request.md",
           "title": "New MCP Integration Request",
-          "labels": [
-            "enhancement",
-            "mcp-integration"
-          ],
-          "assignees": [
-            "mcp-team"
-          ],
+          "labels": ["enhancement", "mcp-integration"],
+          "assignees": ["mcp-team"],
           "body": "\n## MCP Integration Request\n\n**Service/Tool:** \n**Repository URL:** \n**Priority:** High/Medium/Low\n\n### Business Justification\nWhy this integration is needed.\n\n### Technical Requirements\n- [ ] API access available\n- [ ] Documentation reviewed\n- [ ] Security assessment completed\n- [ ] Integration approach defined\n\n### Success Criteria\nWhat defines a successful integration.\n\n### Additional Notes\nAny other relevant information.\n"
         }
       ]
@@ -459,18 +435,13 @@
       },
       "security_analysis": {
         "security_score": 10,
-        "security_features": [
-          "Issue tracking enabled"
-        ],
+        "security_features": ["Issue tracking enabled"],
         "security_concerns": [],
         "recommendations": []
       },
       "recommended_approach": {
         "primary_method": "submodule",
-        "alternative_methods": [
-          "fork",
-          "dependency"
-        ],
+        "alternative_methods": ["fork", "dependency"],
         "implementation_steps": [
           "git submodule add https://github.com/modelcontextprotocol/servers external/anthropic-mcp-servers",
           "git submodule update --init --recursive",
@@ -519,18 +490,13 @@
       },
       "security_analysis": {
         "security_score": 10,
-        "security_features": [
-          "Issue tracking enabled"
-        ],
+        "security_features": ["Issue tracking enabled"],
         "security_concerns": [],
         "recommendations": []
       },
       "recommended_approach": {
         "primary_method": "dependency",
-        "alternative_methods": [
-          "submodule",
-          "fork"
-        ],
+        "alternative_methods": ["submodule", "fork"],
         "implementation_steps": [
           "Add to pyproject.toml dependencies",
           "Update uv.lock file",
@@ -574,25 +540,18 @@
           "High community adoption",
           "Permissive license"
         ],
-        "challenges": [
-          "Requires Node.js runtime"
-        ],
+        "challenges": ["Requires Node.js runtime"],
         "requirements": []
       },
       "security_analysis": {
         "security_score": 10,
-        "security_features": [
-          "Issue tracking enabled"
-        ],
+        "security_features": ["Issue tracking enabled"],
         "security_concerns": [],
         "recommendations": []
       },
       "recommended_approach": {
         "primary_method": "submodule",
-        "alternative_methods": [
-          "fork",
-          "dependency"
-        ],
+        "alternative_methods": ["fork", "dependency"],
         "implementation_steps": [
           "git submodule add https://github.com/modelcontextprotocol/inspector external/anthropic-mcp-inspector",
           "git submodule update --init --recursive",
@@ -636,9 +595,7 @@
           "High community adoption",
           "Permissive license"
         ],
-        "challenges": [
-          "Requires Node.js runtime"
-        ],
+        "challenges": ["Requires Node.js runtime"],
         "requirements": []
       },
       "security_analysis": {
@@ -652,10 +609,7 @@
       },
       "recommended_approach": {
         "primary_method": "fork",
-        "alternative_methods": [
-          "submodule",
-          "dependency"
-        ],
+        "alternative_methods": ["submodule", "dependency"],
         "implementation_steps": [
           "Fork repository to ai-cherry organization",
           "Clone forked repository locally",
@@ -710,18 +664,13 @@
       },
       "security_analysis": {
         "security_score": 10,
-        "security_features": [
-          "Issue tracking enabled"
-        ],
+        "security_features": ["Issue tracking enabled"],
         "security_concerns": [],
         "recommendations": []
       },
       "recommended_approach": {
         "primary_method": "fork",
-        "alternative_methods": [
-          "submodule",
-          "dependency"
-        ],
+        "alternative_methods": ["submodule", "dependency"],
         "implementation_steps": [
           "Fork repository to ai-cherry organization",
           "Clone forked repository locally",

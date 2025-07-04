@@ -1,14 +1,15 @@
-
 from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, Any
 from datetime import datetime
+from enum import Enum
+from typing import Any
+
 
 class FeedbackType(Enum):
     POSITIVE = "positive"
     NEGATIVE = "negative"
     CORRECTION = "correction"
     PREFERENCE = "preference"
+
 
 @dataclass
 class RLHFFeedback:
@@ -17,13 +18,13 @@ class RLHFFeedback:
     feedback_type: FeedbackType
     feedback_content: str
     rating: float
-    context: Dict[str, Any]
+    context: dict[str, Any]
     timestamp: datetime
 
+
 class ConversationalTrainingService:
-    async def process_user_feedback(self, feedback: RLHFFeedback) -> Dict[str, Any]:
+    async def process_user_feedback(self, feedback: RLHFFeedback) -> dict[str, Any]:
         # Store feedback in Mem0 for learning
         # Update learning analytics in Snowflake
         # Adjust AI behavior based on feedback
         return {"status": "processed", "learning_applied": True}
-        

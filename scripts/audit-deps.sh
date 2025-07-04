@@ -95,17 +95,17 @@ else
     # Human-readable format
     echo ""
     AUDIT_OUTPUT=$(uv run pip-audit --format=json 2>&1)
-    
+
     if [ $? -eq 0 ]; then
         # Parse JSON output for human-readable display
         VULN_COUNT=$(echo "$AUDIT_OUTPUT" | python -c "import json, sys; data = json.load(sys.stdin); print(len(data.get('vulnerabilities', [])))" 2>/dev/null || echo "0")
-        
+
         if [ "$VULN_COUNT" = "0" ]; then
             echo -e "${GREEN}✅ No vulnerabilities found!${NC}"
         else
             echo -e "${YELLOW}⚠️  Found $VULN_COUNT vulnerabilities:${NC}"
             echo ""
-            
+
             # Parse and display vulnerabilities
             echo "$AUDIT_OUTPUT" | python -c "
 import json
@@ -131,7 +131,7 @@ for severity in ['critical', 'high', 'medium', 'low', 'unknown']:
             if vuln.get('fix_versions'):
                 print(f\"    Fix: upgrade to {', '.join(vuln.get('fix_versions', []))}\")
 "
-            
+
             if [ "$SAVE_REPORT" = true ]; then
                 echo "$AUDIT_OUTPUT" > security/reports/pip-audit-${TIMESTAMP}.json
                 echo -e "${GREEN}✅ Full report saved to security/reports/pip-audit-${TIMESTAMP}.json${NC}"
@@ -159,12 +159,12 @@ else
     echo ""
     SAFETY_OUTPUT=$(uv run safety check 2>&1)
     SAFETY_EXIT_CODE=$?
-    
+
     if [ $SAFETY_EXIT_CODE -eq 0 ]; then
         echo -e "${GREEN}✅ No vulnerabilities found by safety!${NC}"
     else
         echo "$SAFETY_OUTPUT" | grep -E "^[│├└]" || echo "$SAFETY_OUTPUT"
-        
+
         if [ "$SAVE_REPORT" = true ]; then
             echo "$SAFETY_OUTPUT" > security/reports/safety-${TIMESTAMP}.txt
             echo -e "${GREEN}✅ Report saved to security/reports/safety-${TIMESTAMP}.txt${NC}"
@@ -177,13 +177,13 @@ if [ "$CHECK_LICENSES" = true ]; then
     echo ""
     echo -e "${BLUE}📋 Running license compliance check...${NC}"
     echo ""
-    
+
     LICENSE_OUTPUT=$(uv run safety license 2>&1)
     LICENSE_EXIT_CODE=$?
-    
+
     if [ $LICENSE_EXIT_CODE -eq 0 ]; then
         echo "$LICENSE_OUTPUT" | grep -E "^[│├└]" || echo "$LICENSE_OUTPUT"
-        
+
         if [ "$SAVE_REPORT" = true ]; then
             echo "$LICENSE_OUTPUT" > security/reports/licenses-${TIMESTAMP}.txt
             echo -e "${GREEN}✅ License report saved to security/reports/licenses-${TIMESTAMP}.txt${NC}"
@@ -219,4 +219,4 @@ else
 fi
 
 echo ""
-echo "Run with --help to see all available options." 
+echo "Run with --help to see all available options."

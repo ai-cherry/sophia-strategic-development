@@ -1,7 +1,7 @@
 /**
  * Security Patch for @modelcontextprotocol/server-filesystem
  * Addresses GHSA-hc55-p739-j48w and GHSA-q66q-fx2p-7w4m
- * 
+ *
  * This patch implements secure path validation to prevent:
  * 1. Path validation bypass via colliding path prefix
  * 2. Path validation bypass via prefix matching and symlink handling
@@ -24,11 +24,11 @@ class SecurePathValidator {
         try {
             // Resolve the path to handle symlinks and relative paths
             const resolvedPath = path.resolve(requestedPath);
-            
+
             // Check if the resolved path is within any allowed root
             for (const allowedRoot of this.allowedRoots) {
                 const relativePath = path.relative(allowedRoot, resolvedPath);
-                
+
                 // Path is safe if:
                 // 1. It doesn't start with '..' (not outside root)
                 // 2. It's not an absolute path after relative calculation
@@ -36,7 +36,7 @@ class SecurePathValidator {
                     return true;
                 }
             }
-            
+
             return false;
         } catch (error) {
             // If any error occurs during path resolution, reject the path
@@ -56,7 +56,7 @@ class SecurePathValidator {
 
         // Remove null bytes and other dangerous characters
         const sanitized = filePath.replace(/\0/g, '');
-        
+
         if (!this.isPathSafe(sanitized)) {
             return null;
         }
@@ -117,7 +117,7 @@ class SecurePathValidator {
             // Ensure directory exists
             const dir = path.dirname(validatedPath);
             await fs.promises.mkdir(dir, { recursive: true });
-            
+
             await fs.promises.writeFile(validatedPath, content, 'utf8');
         } catch (error) {
             throw new Error(`Failed to write file: ${error.message}`);
@@ -149,4 +149,4 @@ module.exports = {
 // Auto-apply patch when this module is loaded
 if (require.main === module) {
     applySecurityPatch();
-} 
+}

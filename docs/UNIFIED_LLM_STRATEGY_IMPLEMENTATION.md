@@ -29,9 +29,9 @@ Successfully implemented a unified LLM service for Sophia AI that consolidates a
 
 ### 3. Cleanup Completed
 - **Deleted Files**:
-  - `backend/services/portkey_gateway.py`
-  - `backend/services/smart_ai_service.py`
-  - `backend/services/simplified_portkey_service.py`
+  - `backend/services/llm_service.py`
+  - `backend/services/llm_service.py`
+  - `backend/services/simplified_llm_service.py`
   - `backend/services/enhanced_portkey_orchestrator.py`
 - **Backup Location**: `backups/llm_cleanup_20250704_010200/`
 
@@ -123,8 +123,8 @@ print(f"Estimated cost: ${cost_estimate['estimated_cost_usd']:.4f}")
 Replace old imports:
 ```python
 # OLD
-from backend.services.smart_ai_service import SmartAIService
-from backend.services.portkey_gateway import PortkeyGateway
+from backend.services.unified_llm_service import get_unified_llm_service, TaskType
+from backend.services.unified_llm_service import get_unified_llm_service, TaskType
 
 # NEW
 from backend.services.unified_llm_service import get_unified_llm_service, TaskType
@@ -133,8 +133,12 @@ from backend.services.unified_llm_service import get_unified_llm_service, TaskTy
 Update usage:
 ```python
 # OLD
-smart_ai = SmartAIService()
-response = await smart_ai.generate_response(request)
+smart_ai = await get_unified_llm_service()
+response = await async for chunk in smart_ai.complete(
+    prompt=request.prompt if hasattr(request, 'prompt') else request.get('prompt', ''),
+    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
+    stream=True
+)
 
 # NEW
 llm_service = await get_unified_llm_service()
@@ -225,4 +229,4 @@ values:
 - ✅ 100% of LLM interactions routed through unified service
 - ✅ Snowflake-first for data operations (data locality)
 - ✅ Comprehensive monitoring and cost tracking
-- 🔄 77 files pending update (in progress) 
+- 🔄 77 files pending update (in progress)

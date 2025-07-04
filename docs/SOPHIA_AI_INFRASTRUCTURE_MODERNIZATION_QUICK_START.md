@@ -24,7 +24,7 @@ curl -X POST https://slack.com/api/channels.create \
 
 # Add team members to the channel
 # - Infrastructure Lead: Mike Johnson
-# - AI/BI Lead: Sarah Smith  
+# - AI/BI Lead: Sarah Smith
 # - Security Lead: Emily Chen
 # - Executive Sponsor: Lynn Musil
 ```
@@ -112,7 +112,7 @@ gh workflow run ai-infrastructure-orchestrator.yml \
 
 ### Business Value Deliverables
 - [ ] **Cost Visibility**: Real-time infrastructure cost dashboard
-- [ ] **Compliance Status**: Initial compliance report with risk assessment  
+- [ ] **Compliance Status**: Initial compliance report with risk assessment
 - [ ] **Competitive Intel**: Basic monitoring of EliseAI and Hunter Warfield
 - [ ] **Executive Dashboard**: Mockup showing key metrics and KPIs
 - [ ] **Team Alignment**: Slack channel with daily standup schedule

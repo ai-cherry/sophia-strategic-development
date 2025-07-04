@@ -165,4 +165,4 @@ memory.add(
 ---
 
 *Last Updated: [Current Date]*
-*Next Review: [Weekly]* 
+*Next Review: [Weekly]*

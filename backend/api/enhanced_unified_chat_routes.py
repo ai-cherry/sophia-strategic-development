@@ -297,8 +297,10 @@ async def create_workflow(
             await get_enhanced_orchestrator().initialize()
 
         # Create workflow
-        workflow_id = await get_enhanced_orchestrator().create_workflow_from_natural_language(
-            user_request=request.description, user_id=user_id, session_id=session_id
+        workflow_id = (
+            await get_enhanced_orchestrator().create_workflow_from_natural_language(
+                user_request=request.description, user_id=user_id, session_id=session_id
+            )
         )
 
         # Get workflow status

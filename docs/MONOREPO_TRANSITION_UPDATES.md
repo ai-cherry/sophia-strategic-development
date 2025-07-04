@@ -52,5 +52,5 @@ During the transition period, having two directory structures could be very conf
 
 ---
 
-**Last Updated**: December 31, 2024  
-**Next Review**: January 15, 2025 
+**Last Updated**: December 31, 2024
+**Next Review**: January 15, 2025

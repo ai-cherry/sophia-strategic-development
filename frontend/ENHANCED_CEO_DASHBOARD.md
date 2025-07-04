@@ -256,4 +256,3 @@ This project is part of the Sophia AI platform and follows the organization's li
 ---
 
 **Built with ❤️ for executive-level business intelligence**
-

@@ -92,10 +92,10 @@ async def analyze_pr(pr_number: int):
         "regression": calculate_regression(before, after),
         "recommendations": generate_recommendations()
     }
-    
+
     if results["regression"] > 0.05:  # 5% regression threshold
         return ReviewStatus.REQUEST_CHANGES
-    
+
     return ReviewStatus.APPROVE
 ```
 
@@ -244,7 +244,7 @@ CREATE INDEX idx_users_active ON users(email) WHERE status = 'active';
 
 ### Issue: Database Connection Exhaustion
 **Symptoms**: Timeouts, connection errors
-**Solution**: 
+**Solution**:
 1. Check connection pool metrics
 2. Increase pool size if needed
 3. Review long-running queries
@@ -265,7 +265,7 @@ async def get_user(
 ) -> UserResponse:
     """
     Get user by ID.
-    
+
     Performance:
     - Cached in Redis (5min TTL)
     - P95 latency: <200ms
@@ -286,7 +286,7 @@ async def generate_performance_report():
         "improvements": await analyze_improvements(),
         "regressions": await analyze_regressions()
     }
-    
+
     await publish_report(report)
 ```
 
@@ -307,15 +307,15 @@ jobs:
       - name: Generate API Docs
         run: |
           openapi-generator generate -i openapi.yaml -o docs/api
-          
+
       - name: Generate Performance Report
         run: |
           python scripts/generate_performance_docs.py
-          
+
       - name: Update Architecture Diagrams
         run: |
           python scripts/update_architecture_diagrams.py
-          
+
       - name: Validate Documentation
         run: |
           markdownlint docs/**/*.md
@@ -394,5 +394,5 @@ docs/
 
 **Remember**: Good documentation enables 10x engineering. Performance without documentation is unmaintainable.
 
-**Last Updated**: December 31, 2024  
-**Next Review**: January 15, 2025 
+**Last Updated**: December 31, 2024
+**Next Review**: January 15, 2025

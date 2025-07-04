@@ -15,7 +15,7 @@ We are transitioning from the old structure to a new monorepo structure. During 
 ```
 sophia-main/
 ├── backend/          # ✅ PUT NEW BACKEND CODE HERE
-├── frontend/         # ✅ PUT NEW FRONTEND CODE HERE  
+├── frontend/         # ✅ PUT NEW FRONTEND CODE HERE
 ├── mcp-servers/      # ✅ PUT NEW MCP SERVERS HERE
 ├── scripts/          # ✅ PUT NEW SCRIPTS HERE
 ├── docs/             # ✅ PUT NEW DOCS HERE
@@ -105,4 +105,4 @@ If you're unsure:
 
 ---
 
-*Last updated: January 2025 - Extended timeline for enhancement phases* 
+*Last updated: January 2025 - Extended timeline for enhancement phases*

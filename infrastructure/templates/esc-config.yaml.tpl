@@ -12,7 +12,7 @@ values:
     name: "${project_name}"
     environment: "${environment}"
     managed_by: "terraform"
-    
+
   # Data Pipeline Infrastructure
   data_infrastructure:
     # Estuary Flow Configuration
@@ -23,7 +23,7 @@ values:
       api_url: "https://api.estuary.dev"
       webhook_url: "https://sophia-ai-frontend-dev.vercel.app/api/estuary/webhook"
       organization: "sophia-ai"
-    
+
     # PostgreSQL Staging Database
     postgresql:
       host:
@@ -36,7 +36,7 @@ values:
       ssl_mode: "require"
       max_connections: ${postgresql_config.max_connections}
       connection_string: "postgresql://${postgresql_config.username}:$${postgresql_password}@$${lambda_config.region}:${postgresql_config.port}/${postgresql_config.database_name}"
-    
+
     # Redis Cache
     redis:
       host:
@@ -87,7 +87,7 @@ values:
         fn::secret: $${github-org-secrets.HUBSPOT_API_KEY}
       portal_id:
         fn::secret: $${github-org-secrets.HUBSPOT_PORTAL_ID}
-    
+
     # Gong Revenue Intelligence
     gong:
       access_key:
@@ -96,7 +96,7 @@ values:
         fn::secret: $${github-org-secrets.GONG_CLIENT_SECRET}
       webhook_secret:
         fn::secret: $${github-org-secrets.GONG_WEBHOOK_SECRET}
-    
+
     # Slack Communication
     slack:
       bot_token:
@@ -116,19 +116,19 @@ values:
     openai:
       api_key:
         fn::secret: $${github-org-secrets.OPENAI_API_KEY}
-    
+
     # Anthropic
     anthropic:
       api_key:
         fn::secret: $${github-org-secrets.ANTHROPIC_API_KEY}
-    
+
     # Portkey Gateway
     portkey:
       api_key:
         fn::secret: $${github-org-secrets.PORTKEY_API_KEY}
       config:
         fn::secret: $${github-org-secrets.PORTKEY_CONFIG}
-    
+
     # Vector Database
     pinecone:
       api_key:
@@ -146,14 +146,14 @@ values:
         fn::secret: $${github-org-secrets.VERCEL_PROJECT_ID}
       org_id:
         fn::secret: $${github-org-secrets.VERCEL_ORG_ID}
-    
+
     # GitHub
     github:
       token:
         fn::secret: $${github-org-secrets.GITHUB_TOKEN}
       webhook_secret:
         fn::secret: $${github-org-secrets.GITHUB_WEBHOOK_SECRET}
-    
+
     # Pulumi
     pulumi:
       access_token:
@@ -164,7 +164,7 @@ values:
     # Infrastructure
     LAMBDA_API_KEY: $${compute_infrastructure.lambda_labs.api_key}
     LAMBDA_IP_ADDRESS: $${compute_infrastructure.lambda_labs.ip_address}
-    
+
     # Data Pipeline
     ESTUARY_FLOW_ACCESS_TOKEN: $${data_infrastructure.estuary_flow.access_token}
     ESTUARY_FLOW_TENANT: $${data_infrastructure.estuary_flow.tenant}
@@ -178,7 +178,7 @@ values:
     REDIS_PORT: $${data_infrastructure.redis.port}
     REDIS_PASSWORD: $${data_infrastructure.redis.password}
     REDIS_URL: $${data_infrastructure.redis.url}
-    
+
     # Snowflake
     SNOWFLAKE_ACCOUNT: $${data_warehouse.snowflake.account}
     SNOWFLAKE_USER: $${data_warehouse.snowflake.user}
@@ -187,7 +187,7 @@ values:
     SNOWFLAKE_WAREHOUSE: $${data_warehouse.snowflake.warehouse}
     SNOWFLAKE_DATABASE: $${data_warehouse.snowflake.database}
     SNOWFLAKE_SCHEMA: $${data_warehouse.snowflake.schema}
-    
+
     # External Integrations
     HUBSPOT_ACCESS_TOKEN: $${external_integrations.hubspot.access_token}
     HUBSPOT_API_KEY: $${external_integrations.hubspot.api_key}
@@ -198,14 +198,14 @@ values:
     SLACK_BOT_TOKEN: $${external_integrations.slack.bot_token}
     SLACK_APP_TOKEN: $${external_integrations.slack.app_token}
     SLACK_SIGNING_SECRET: $${external_integrations.slack.signing_secret}
-    
+
     # AI Services
     OPENAI_API_KEY: $${ai_services.openai.api_key}
     ANTHROPIC_API_KEY: $${ai_services.anthropic.api_key}
     PORTKEY_API_KEY: $${ai_services.portkey.api_key}
     PINECONE_API_KEY: $${ai_services.pinecone.api_key}
     PINECONE_ENVIRONMENT: $${ai_services.pinecone.environment}
-    
+
     # Deployment
     VERCEL_TOKEN: $${deployment.vercel.token}
     GITHUB_TOKEN: $${deployment.github.token}
@@ -217,4 +217,3 @@ values:
     version: "1.0"
     workspace: "infrastructure-production"
     last_applied: "$${timestamp()}"
-

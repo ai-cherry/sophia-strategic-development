@@ -99,7 +99,7 @@ class ModelTier(Enum):
     TIER_2 = "tier_2"  # GPT-3.5, Claude-Haiku (via Portkey)
     TIER_3 = "tier_3"  # Llama, Mixtral (via OpenRouter)
     EMBEDDINGS = "embeddings"  # Snowflake Cortex
-    
+
 class TaskType(Enum):
     DATA_ANALYSIS = "data_analysis"  # Use Snowflake
     SQL_GENERATION = "sql_generation"  # Use Snowflake
@@ -117,19 +117,19 @@ class UnifiedLLMService:
         self.openrouter = self._init_openrouter()
         self.snowflake = self._init_snowflake()
         self.model_routing = self._init_model_routing()
-        
+
     def _init_portkey(self) -> Portkey:
         return Portkey(
             api_key=self.config.get_value("portkey_api_key"),
             config="prod-performance-optimized"  # Pre-configured in Portkey UI
         )
-        
+
     def _init_openrouter(self) -> AsyncOpenAI:
         return AsyncOpenAI(
             api_key=self.config.get_value("openrouter_api_key"),
             base_url="https://openrouter.ai/api/v1"
         )
-        
+
     def _init_model_routing(self) -> Dict[TaskType, ModelTier]:
         """CEO-configurable task-to-tier mapping"""
         return {
@@ -144,7 +144,7 @@ class UnifiedLLMService:
             TaskType.CHAT_CONVERSATION: ModelTier.TIER_2,
             TaskType.DOCUMENT_SUMMARY: ModelTier.TIER_2,
         }
-        
+
     async def complete(
         self,
         prompt: str,
@@ -156,7 +156,7 @@ class UnifiedLLMService:
         Unified completion interface with intelligent routing
         """
         tier = self.model_routing.get(task_type, ModelTier.TIER_2)
-        
+
         # Add metadata for tracking
         request_metadata = {
             "task_type": task_type.value,
@@ -164,7 +164,7 @@ class UnifiedLLMService:
             "source": "sophia_ai",
             **(metadata or {})
         }
-        
+
         if tier == ModelTier.SNOWFLAKE:
             # Use Snowflake Cortex for data operations
             return await self._snowflake_complete(prompt, task_type)
@@ -200,7 +200,7 @@ interface LLMMetrics {
 export const LLMManagementTab: React.FC = () => {
   const [metrics, setMetrics] = useState<LLMMetrics[]>([]);
   const [taskRouting, setTaskRouting] = useState<Record<string, string>>({});
-  
+
   // Model selection dropdown for CEO control
   const ModelRoutingConfig = () => (
     <Card title="Task-to-Model Routing Configuration">
@@ -221,7 +221,7 @@ export const LLMManagementTab: React.FC = () => {
       ))}
     </Card>
   );
-  
+
   // Real-time metrics display
   const MetricsDisplay = () => (
     <Card title="LLM Performance Metrics">
@@ -253,7 +253,7 @@ export const LLMManagementTab: React.FC = () => {
       </div>
     </Card>
   );
-  
+
   return (
     <div className="space-y-6">
       <ModelRoutingConfig />
@@ -391,7 +391,7 @@ class UnifiedSearchChatService:
         self.llm_service = UnifiedLLMService()
         self.pinecone = pinecone.Index('sophia-ai')
         self.snowflake = SnowflakeConnector()
-        
+
     async def process_query(
         self,
         query: str,
@@ -403,7 +403,7 @@ class UnifiedSearchChatService:
         """
         # Step 1: Parallel search operations
         search_tasks = []
-        
+
         if use_rag:
             # Semantic search via Snowflake Cortex
             search_tasks.append(
@@ -417,14 +417,14 @@ class UnifiedSearchChatService:
             search_tasks.append(
                 self._keyword_search(query)
             )
-            
+
         # Execute searches in parallel
         if search_tasks:
             search_results = await asyncio.gather(*search_tasks)
             context = self._merge_search_results(search_results)
         else:
             context = ""
-            
+
         # Step 2: Determine where to process
         if self._is_data_query(query):
             # Use Snowflake for data-related queries
@@ -491,7 +491,7 @@ BEGIN
         'Analyze ' || analysis_type || ' for ' || table_name,
         'Internal business data analysis'
     ) INTO initial_analysis;
-    
+
     -- Step 2: Only if needed, enhance with external knowledge
     IF analysis_type = 'market_comparison' THEN
         -- Call Portkey for external market data
@@ -534,7 +534,7 @@ $$
     WITH query_embedding AS (
         SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', query_text) as embedding
     )
-    SELECT 
+    SELECT
         content,
         VECTOR_L2_DISTANCE(doc_embedding, query_embedding.embedding) as score
     FROM IDENTIFIER(search_table), query_embedding
@@ -563,13 +563,13 @@ async def optimize_model_routing(
     """
     # Analyze task complexity
     complexity_score = await analyze_task_complexity(task_description)
-    
+
     # Determine data location
     uses_internal_data = await check_data_requirements(task_description)
-    
+
     # Get current model performance metrics
     metrics = await get_model_metrics()
-    
+
     # Recommend optimal routing
     if uses_internal_data:
         return {
@@ -609,13 +609,13 @@ async def analyze_llm_costs(
     """
     # Query Snowflake usage (internal)
     snowflake_usage = await query_snowflake_usage(time_period)
-    
+
     # Query Portkey analytics
     portkey_costs = await query_portkey_analytics(time_period)
-    
+
     # Query OpenRouter usage
     openrouter_costs = await query_openrouter_usage(time_period)
-    
+
     return {
         "total_cost": sum([
             snowflake_usage['compute_cost'],  # Snowflake compute
@@ -676,26 +676,26 @@ class LLMMetricsCollector:
     def __init__(self):
         self.portkey_client = Portkey()
         self.snowflake_client = SnowflakeConnector()
-        
+
     async def collect_metrics(self):
         """Collect metrics from all LLM providers"""
         # Snowflake Cortex metrics
         snowflake_metrics = await self.snowflake_client.get_cortex_metrics()
-        
+
         # Portkey metrics
         portkey_analytics = await self.portkey_client.analytics.get_summary()
-        
+
         # Update Prometheus metrics
         for provider_data in portkey_analytics:
             llm_cache_hit_rate.labels(
                 provider=provider_data['provider']
             ).set(provider_data['cache_hit_rate'])
-            
+
             llm_cost_per_request.labels(
                 provider=provider_data['provider'],
                 model=provider_data['model']
             ).set(provider_data['avg_cost'])
-            
+
         # Track data locality benefits
         data_movement_avoided.labels(
             operation_type='embeddings'
@@ -781,4 +781,4 @@ This unified strategy ensures Snowflake remains central to our AI strategy while
 2. **Testing**: Comprehensive integration testing across all services
 3. **Monitoring**: Setting up Grafana dashboards for LLM metrics
 
-See `docs/UNIFIED_LLM_STRATEGY_IMPLEMENTATION.md` for detailed implementation status and migration guide. 
+See `docs/UNIFIED_LLM_STRATEGY_IMPLEMENTATION.md` for detailed implementation status and migration guide.

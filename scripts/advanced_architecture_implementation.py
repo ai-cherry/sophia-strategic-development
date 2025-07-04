@@ -310,9 +310,9 @@ class AdvancedArchitectureImplementation:
         try:
             # Implement foundation components (simplified for now)
             results["gpu_kubernetes"] = await self.implement_gpu_kubernetes_foundation()
-            results["mcp_orchestration"] = (
-                await self.implement_mcp_orchestration_foundation()
-            )
+            results[
+                "mcp_orchestration"
+            ] = await self.implement_mcp_orchestration_foundation()
             results["rag_agents"] = await self.implement_rag_agent_foundation()
 
             # Generate implementation report

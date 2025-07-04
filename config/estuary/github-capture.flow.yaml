@@ -1,19 +1,19 @@
 captures:
   Pay_Ready/github-capture:
     bindings:
-    - resource:
-        stream: commits
-      target: Pay_Ready/github-commits
-    - resource:
-        stream: pull_requests
-      target: Pay_Ready/github-pull-requests
-    - resource:
-        stream: issues
-      target: Pay_Ready/github-issues
+      - resource:
+          stream: commits
+        target: Pay_Ready/github-commits
+      - resource:
+          stream: pull_requests
+        target: Pay_Ready/github-pull-requests
+      - resource:
+          stream: issues
+        target: Pay_Ready/github-issues
     endpoint:
       connector:
         config:
           access_token: ${GITHUB_ACCESS_TOKEN}
           repository: ai-cherry/sophia-main
-          start_date: '2024-01-01T00:00:00Z'
+          start_date: "2024-01-01T00:00:00Z"
         image: ghcr.io/estuary/source-github:dev

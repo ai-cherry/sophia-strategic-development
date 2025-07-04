@@ -43,7 +43,7 @@ echo ""
 set_org_secret() {
     local secret_name=$1
     local secret_value=$2
-    
+
     echo "Setting $secret_name..."
     if echo "$secret_value" | gh secret set "$secret_name" --org "$ORG" --visibility all; then
         echo "✅ $secret_name set successfully"
@@ -77,4 +77,3 @@ echo "   gh workflow run sync-sentry-secrets.yml --repo $ORG/$REPO"
 echo ""
 echo "🔍 To verify secrets were set:"
 echo "   gh secret list --org $ORG"
-

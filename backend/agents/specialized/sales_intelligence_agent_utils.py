@@ -6,14 +6,11 @@ Contains utility functions and helper classes
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from typing import Any
+from datetime import datetime
 
 from .sales_intelligence_agent_models import (
     DealRiskLevel,
     SalesStage,
-    DealRiskAssessment,
-    SalesEmailRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -28,7 +25,7 @@ class SalesIntelligenceUtils:
     ) -> float:
         """Calculate overall risk score based on factors and sentiment"""
         base_score = 0.0
-        
+
         # Risk factor scoring
         risk_weights = {
             "no_recent_activity": 15,
@@ -42,10 +39,10 @@ class SalesIntelligenceUtils:
             "technical_concerns": 10,
             "timeline_pressure": 5,
         }
-        
+
         for factor in risk_factors:
             base_score += risk_weights.get(factor, 5)
-        
+
         # Sentiment scoring
         if sentiment:
             avg_sentiment = sum(sentiment.values()) / len(sentiment)
@@ -55,7 +52,7 @@ class SalesIntelligenceUtils:
                 base_score += 15
             elif avg_sentiment < 0.7:  # Neutral
                 base_score += 5
-        
+
         return min(100.0, base_score)
 
     @staticmethod

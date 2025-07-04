@@ -89,17 +89,17 @@ BEGIN
     INTO v_memory_id, v_feedback_type, v_feedback_score
     FROM RLHF_FEEDBACK
     WHERE feedback_id = :P_FEEDBACK_ID AND applied = FALSE;
-    
+
     IF (v_memory_id IS NULL) THEN
         RETURN 'Feedback not found or already applied';
     END IF;
-    
+
     -- Get current learning score
     SELECT learning_score
     INTO v_current_score
     FROM MEMORY_RECORDS
     WHERE memory_id = :v_memory_id;
-    
+
     -- Calculate new score based on feedback type
     IF (v_feedback_type = 'positive') THEN
         v_new_score := LEAST(v_current_score + (v_feedback_score * 0.1), 1.0);
@@ -108,7 +108,7 @@ BEGIN
     ELSE -- correction
         v_new_score := v_current_score; -- Corrections don't change score directly
     END IF;
-    
+
     IF (P_APPLY_LEARNING) THEN
         -- Update memory record
         UPDATE MEMORY_RECORDS
@@ -116,19 +116,19 @@ BEGIN
             feedback_count = feedback_count + 1,
             last_reinforced = CURRENT_TIMESTAMP()
         WHERE memory_id = :v_memory_id;
-        
+
         -- Mark feedback as applied
         UPDATE RLHF_FEEDBACK
         SET applied = TRUE,
             applied_at = CURRENT_TIMESTAMP()
         WHERE feedback_id = :P_FEEDBACK_ID;
-        
+
         -- Log to analytics
         INSERT INTO MEMORY_LEARNING_ANALYTICS (
             memory_id, learning_type, feedback_score, learning_outcome, metadata
         ) VALUES (
-            :v_memory_id, 
-            'rlhf', 
+            :v_memory_id,
+            'rlhf',
             :v_feedback_score,
             'Feedback applied: ' || :v_feedback_type,
             OBJECT_CONSTRUCT(
@@ -138,7 +138,7 @@ BEGIN
             )
         );
     END IF;
-    
+
     RETURN 'Feedback processed successfully';
 END;
 $$;
@@ -161,7 +161,7 @@ RETURNS TABLE (
 )
 AS
 $$
-SELECT 
+SELECT
     m.memory_id,
     m.content,
     m.category,
@@ -194,7 +194,7 @@ BEGIN
     -- For now, just update user profiles
     MERGE INTO USER_LEARNING_PROFILES ulp
     USING (
-        SELECT 
+        SELECT
             user_id,
             COUNT(*) as total_memories,
             SUM(CASE WHEN feedback_count > 0 THEN 1 ELSE 0 END) as memories_with_feedback,
@@ -220,4 +220,4 @@ ALTER TASK CONSOLIDATE_USER_MEMORIES RESUME;
 -- Grant necessary permissions
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA SOPHIA_AI_MEMORY TO ROLE SOPHIA_AI_APP_ROLE;
 GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA SOPHIA_AI_MEMORY TO ROLE SOPHIA_AI_APP_ROLE;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA SOPHIA_AI_MEMORY TO ROLE SOPHIA_AI_APP_ROLE; 
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA SOPHIA_AI_MEMORY TO ROLE SOPHIA_AI_APP_ROLE;

@@ -129,9 +129,7 @@ class SimpleValidationFix:
                 }
                 return False
             else:
-                logger.info(
-                    f"✅ All {len(validation_methods)} validation methods found"
-                )
+                logger.info(f"✅ All {len(validation_methods)} validation methods found")
                 self.validation_results["secret_manager"] = {
                     "status": "PASSED",
                     "found": len(found_methods),
@@ -386,9 +384,7 @@ class SimpleValidationFix:
         logger.info(
             f"📊 Success Rate: {success_rate:.1f}% ({passed_validations}/{total_validations} validations passed)"
         )
-        logger.info(
-            f"⏰ Execution Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        )
+        logger.info(f"⏰ Execution Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         if success_rate == 100:
             logger.info("🎯 RESULT: PERFECT - All components validated successfully!")
@@ -411,7 +407,9 @@ class SimpleValidationFix:
                 else (
                     "EXCELLENT"
                     if success_rate >= 80
-                    else "GOOD" if success_rate >= 60 else "NEEDS_WORK"
+                    else "GOOD"
+                    if success_rate >= 60
+                    else "NEEDS_WORK"
                 )
             ),
         }

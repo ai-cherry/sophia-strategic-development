@@ -779,9 +779,9 @@ async def main():
         """Load multiple calls in batch"""
         if not calls:
             return
-            
+
         logger.info(f"Loading {len(calls)} calls in batch...")
-        
+
         # Prepare batch operations
         operations = []
         for call in calls:
@@ -805,23 +805,23 @@ async def main():
                 },
                 operation_type="insert"
             ))
-            
+
         # Execute batch
         db_manager = OptimizedDatabaseManager()
         await db_manager.initialize()
-        
+
         try:
             result = await db_manager.execute_batch(
                 ConnectionType.SNOWFLAKE,
                 operations,
                 transaction=True
             )
-            
+
             if result["success"]:
                 logger.info(f"✅ Batch insert successful: {result['affected_rows']} rows")
             else:
                 logger.error(f"Batch insert failed: {result['errors']}")
-                
+
         finally:
             await db_manager.close()
 

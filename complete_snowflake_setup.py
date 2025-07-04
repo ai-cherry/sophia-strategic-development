@@ -315,9 +315,7 @@ def save_configuration_summary():
     with open("snowflake_configuration_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 
-    logger.info(
-        "💾 Configuration summary saved to snowflake_configuration_summary.json"
-    )
+    logger.info("💾 Configuration summary saved to snowflake_configuration_summary.json")
 
     return summary
 

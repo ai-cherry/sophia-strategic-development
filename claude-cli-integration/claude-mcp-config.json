@@ -2,7 +2,12 @@
   "mcpServers": {
     "sophia-ai-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "ai-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "ai-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "ai-intelligence",
@@ -13,7 +18,7 @@
       "description": "Sophia AI Intelligence MCP Server - AI model routing and optimization for Claude",
       "capabilities": [
         "model_routing",
-        "cost_optimization", 
+        "cost_optimization",
         "semantic_caching",
         "performance_monitoring",
         "claude_integration"
@@ -27,7 +32,12 @@
     },
     "sophia-data-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "data-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "data-intelligence",
@@ -51,8 +61,13 @@
       }
     },
     "sophia-infrastructure": {
-      "command": "python", 
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "infrastructure"],
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "infrastructure"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "infrastructure",
@@ -63,7 +78,7 @@
       "description": "Sophia Infrastructure MCP Server - Claude-powered infrastructure management",
       "capabilities": [
         "gpu_orchestration",
-        "container_management", 
+        "container_management",
         "infrastructure_as_code",
         "ci_cd_automation",
         "claude_devops"
@@ -77,10 +92,15 @@
     },
     "sophia-business-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "business-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "business-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
-        "MCP_SERVER_TYPE": "business-intelligence", 
+        "MCP_SERVER_TYPE": "business-intelligence",
         "MCP_SERVER_PORT": "8094",
         "PULUMI_ORG": "scoobyjava-org",
         "PULUMI_STACK": "sophia-ai-production"
@@ -89,7 +109,7 @@
       "capabilities": [
         "project_management",
         "team_communication",
-        "sales_intelligence", 
+        "sales_intelligence",
         "customer_support",
         "claude_business_insights"
       ],
@@ -132,7 +152,7 @@
       "description": "Sophia UI/UX Agent MCP Server - Claude-enhanced design automation",
       "capabilities": [
         "component_generation",
-        "design_analysis", 
+        "design_analysis",
         "design_system_validation",
         "accessibility_optimization",
         "claude_ui_assistance"
@@ -243,7 +263,16 @@
       "restrictFileAccess": true,
       "allowedDirectories": ["/app", "/tmp/claude-workspace"],
       "maxFileSize": "50MB",
-      "allowedFileTypes": [".py", ".js", ".ts", ".json", ".md", ".sql", ".yaml", ".yml"]
+      "allowedFileTypes": [
+        ".py",
+        ".js",
+        ".ts",
+        ".json",
+        ".md",
+        ".sql",
+        ".yaml",
+        ".yml"
+      ]
     },
     "rateLimiting": {
       "enabled": true,
@@ -267,4 +296,4 @@
       "responseStreaming": true
     }
   }
-} 
+}

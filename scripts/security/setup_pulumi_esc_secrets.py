@@ -50,9 +50,7 @@ class PulumiESCManager:
                 )
                 return False
         except FileNotFoundError:
-            logger.error(
-                "❌ Pulumi CLI not found. Install from https://get.pulumi.com/"
-            )
+            logger.error("❌ Pulumi CLI not found. Install from https://get.pulumi.com/")
             return False
 
     def check_esc_cli(self) -> bool:
@@ -117,9 +115,7 @@ class PulumiESCManager:
             )
 
             if result.returncode != 0:
-                logger.error(
-                    f"❌ Failed to set environment definition: {result.stderr}"
-                )
+                logger.error(f"❌ Failed to set environment definition: {result.stderr}")
                 return False
 
             logger.info(f"✅ Created ESC environment: {self.full_env}")

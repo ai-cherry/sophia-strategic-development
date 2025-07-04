@@ -1,8 +1,6 @@
 {
   "phase": "infrastructure_preparation",
-  "steps_completed": [
-    "configuration_backup"
-  ],
+  "steps_completed": ["configuration_backup"],
   "errors": [
     "Phase 1: Missing required environment variables: ['gong_access_key', 'slack_bot_token', 'hubspot_access_token']"
   ],

@@ -1,11 +1,11 @@
 agno_integration:
   enabled: true
-  bridge_mode: "hybrid"  # hybrid, agno_preferred, traditional_only
+  bridge_mode: "hybrid" # hybrid, agno_preferred, traditional_only
 
   # Default configuration for all Agno agents
   default_agent_config:
     use_agno: true
-    performance_mode: "standard"  # standard, high_performance, team_coordination
+    performance_mode: "standard" # standard, high_performance, team_coordination
     memory_limit_mb: 50
     response_timeout_ms: 200
     team_eligible: false
@@ -88,7 +88,7 @@ agno_integration:
   # Team coordination configurations
   team_configs:
     business_intelligence:
-      coordination_mode: "coordinate"  # route, coordinate, collaborate
+      coordination_mode: "coordinate" # route, coordinate, collaborate
       max_team_size: 4
       shared_memory: true
       success_criteria: "Comprehensive BI analysis with <500ms response time"
@@ -168,7 +168,7 @@ agno_integration:
       - team_coordination_time
 
   # Fallback and error handling
-  fallback_strategy: "graceful"  # graceful, immediate, disabled
+  fallback_strategy: "graceful" # graceful, immediate, disabled
 
   fallback_config:
     graceful:
@@ -188,15 +188,15 @@ agno_integration:
   resource_management:
     max_concurrent_agents: 1000
     max_concurrent_teams: 50
-    memory_pool_mb: 10240  # 10GB shared memory pool
+    memory_pool_mb: 10240 # 10GB shared memory pool
     agent_cleanup_interval_minutes: 30
     team_cleanup_interval_minutes: 60
 
   # A/B testing configuration
   ab_testing:
     enabled: true
-    agno_traffic_percentage: 50  # Start with 50% traffic to Agno agents
-    test_duration_hours: 168  # 1 week
+    agno_traffic_percentage: 50 # Start with 50% traffic to Agno agents
+    test_duration_hours: 168 # 1 week
     success_metrics:
       - response_time_improvement
       - memory_efficiency
@@ -236,8 +236,8 @@ agno_integration:
     enable_agno_agents: true
     enable_team_coordination: true
     enable_performance_optimization: true
-    enable_predictive_allocation: false  # Future feature
-    enable_auto_scaling: false  # Future feature
+    enable_predictive_allocation: false # Future feature
+    enable_auto_scaling: false # Future feature
     enable_advanced_memory: true
     enable_knowledge_sharing: true
 

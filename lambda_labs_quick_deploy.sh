@@ -242,4 +242,3 @@ print_status "To view logs: docker-compose logs -f"
 print_status "To stop services: docker-compose down"
 print_status "To restart services: docker-compose restart"
 echo "=================================================="
-

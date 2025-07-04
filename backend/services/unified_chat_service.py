@@ -4,21 +4,24 @@ Consolidates all chat functionality into a single service
 """
 
 import logging
-from enum import Enum
-from typing import Any, Dict, Optional
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any, Optional
 
 from backend.core.config_manager import ConfigManager
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-from backend.services.enhanced_unified_intelligence_service import EnhancedUnifiedIntelligenceService
+from backend.services.enhanced_unified_intelligence_service import (
+    EnhancedUnifiedIntelligenceService,
+)
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
 
 class ChatContext(str, Enum):
     """Available chat contexts"""
+
     BUSINESS_INTELLIGENCE = "business_intelligence"
     CEO_DEEP_RESEARCH = "ceo_deep_research"
     INTERNAL_ONLY = "internal_only"
@@ -30,6 +33,7 @@ class ChatContext(str, Enum):
 
 class AccessLevel(str, Enum):
     """User access levels"""
+
     CEO = "ceo"
     EXECUTIVE = "executive"
     MANAGER = "manager"
@@ -39,21 +43,23 @@ class AccessLevel(str, Enum):
 @dataclass
 class ChatRequest:
     """Unified chat request model"""
+
     message: str
     user_id: str
     session_id: Optional[str] = None
     context: ChatContext = ChatContext.BLENDED_INTELLIGENCE
     access_level: AccessLevel = AccessLevel.EMPLOYEE
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[dict[str, Any]] = None
 
 
 @dataclass
 class ChatResponse:
     """Unified chat response model"""
+
     response: str
     sources: Optional[list] = None
     suggestions: Optional[list] = None
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[dict[str, Any]] = None
     timestamp: str = None
 
     def __post_init__(self):
@@ -66,15 +72,15 @@ class UnifiedChatService:
     THE ONLY CHAT SERVICE for Sophia AI
     Handles all chat contexts, access levels, and integrations
     """
-    
+
     def __init__(self):
         self.config = ConfigManager()
         self.cortex_service = SnowflakeCortexService()
         self.memory_service = EnhancedAiMemoryMCPServer()
         self.intelligence_service = EnhancedUnifiedIntelligenceService()
-        
+
         logger.info("UnifiedChatService initialized")
-    
+
     async def process_chat(self, request: ChatRequest) -> ChatResponse:
         """
         Main entry point for all chat requests
@@ -82,15 +88,17 @@ class UnifiedChatService:
         """
         try:
             # Log the request
-            logger.info(f"Processing chat request: user={request.user_id}, context={request.context}")
-            
+            logger.info(
+                f"Processing chat request: user={request.user_id}, context={request.context}"
+            )
+
             # Check access level permissions
             if not self._check_access_permissions(request):
                 return ChatResponse(
                     response="You don't have permission to access this context.",
-                    metadata={"error": "insufficient_permissions"}
+                    metadata={"error": "insufficient_permissions"},
                 )
-            
+
             # Route based on context
             if request.context == ChatContext.INFRASTRUCTURE:
                 return await self._handle_infrastructure_chat(request)
@@ -100,31 +108,31 @@ class UnifiedChatService:
                 return await self._handle_ceo_research(request)
             else:
                 return await self._handle_business_intelligence(request)
-                
+
         except Exception as e:
             logger.error(f"Chat processing error: {e}")
             return ChatResponse(
                 response="I encountered an error processing your request. Please try again.",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
-    
+
     def _check_access_permissions(self, request: ChatRequest) -> bool:
         """Check if user has permission for the requested context"""
         # CEO has access to everything
         if request.access_level == AccessLevel.CEO:
             return True
-            
+
         # Context-specific permissions
         restricted_contexts = {
             ChatContext.CEO_DEEP_RESEARCH: [AccessLevel.CEO, AccessLevel.EXECUTIVE],
             ChatContext.INFRASTRUCTURE: [AccessLevel.CEO, AccessLevel.EXECUTIVE],
         }
-        
+
         if request.context in restricted_contexts:
             return request.access_level in restricted_contexts[request.context]
-            
+
         return True
-    
+
     async def _handle_business_intelligence(self, request: ChatRequest) -> ChatResponse:
         """Handle business intelligence queries"""
         # Use the intelligence service for comprehensive analysis
@@ -133,10 +141,10 @@ class UnifiedChatService:
             context={
                 "user_id": request.user_id,
                 "access_level": request.access_level.value,
-                "search_context": request.context.value
-            }
+                "search_context": request.context.value,
+            },
         )
-        
+
         # Store in memory for future reference
         await self.memory_service.store_memory(
             user_id=request.user_id,
@@ -144,17 +152,17 @@ class UnifiedChatService:
             memory_type="business_query",
             metadata={
                 "context": request.context.value,
-                "response_summary": result.get("summary", "")
-            }
+                "response_summary": result.get("summary", ""),
+            },
         )
-        
+
         return ChatResponse(
             response=result.get("response", ""),
             sources=result.get("sources", []),
             suggestions=result.get("suggestions", []),
-            metadata=result.get("metadata", {})
+            metadata=result.get("metadata", {}),
         )
-    
+
     async def _handle_infrastructure_chat(self, request: ChatRequest) -> ChatResponse:
         """Handle infrastructure-related queries"""
         # This would integrate with AIaC concepts
@@ -163,10 +171,10 @@ class UnifiedChatService:
             suggestions=[
                 "Check system health status",
                 "View deployment history",
-                "Monitor resource usage"
-            ]
+                "Monitor resource usage",
+            ],
         )
-    
+
     async def _handle_coding_chat(self, request: ChatRequest) -> ChatResponse:
         """Handle coding assistance queries"""
         # This would integrate with coding agents
@@ -175,10 +183,10 @@ class UnifiedChatService:
             suggestions=[
                 "Generate a React component",
                 "Optimize this Python function",
-                "Create unit tests"
-            ]
+                "Create unit tests",
+            ],
         )
-    
+
     async def _handle_ceo_research(self, request: ChatRequest) -> ChatResponse:
         """Handle CEO-level deep research queries"""
         # Enhanced research with multiple data sources
@@ -189,29 +197,28 @@ class UnifiedChatService:
                 "access_level": "ceo",
                 "search_context": "deep_research",
                 "include_predictions": True,
-                "include_competitive": True
-            }
+                "include_competitive": True,
+            },
         )
-        
+
         return ChatResponse(
             response=research_result.get("response", ""),
             sources=research_result.get("sources", []),
             suggestions=research_result.get("executive_recommendations", []),
             metadata={
                 "confidence": research_result.get("confidence", 0),
-                "analysis_depth": "comprehensive"
-            }
+                "analysis_depth": "comprehensive",
+            },
         )
-    
+
     async def get_session_history(self, session_id: str, limit: int = 10) -> list:
         """Get chat history for a session"""
         # Retrieve from memory service
         memories = await self.memory_service.recall_memories(
-            query=f"session:{session_id}",
-            limit=limit
+            query=f"session:{session_id}", limit=limit
         )
         return memories
-    
+
     async def clear_session(self, session_id: str) -> bool:
         """Clear a chat session"""
         # Implementation would clear session data
@@ -222,9 +229,10 @@ class UnifiedChatService:
 # Global instance for dependency injection
 _unified_chat_service = None
 
+
 def get_unified_chat_service() -> UnifiedChatService:
     """Get the singleton chat service instance"""
     global _unified_chat_service
     if _unified_chat_service is None:
         _unified_chat_service = UnifiedChatService()
-    return _unified_chat_service 
+    return _unified_chat_service

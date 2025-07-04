@@ -13,7 +13,6 @@ Key Features:
 - Performance monitoring and optimization
 """
 
-import asyncio
 import hashlib
 import logging
 import time
@@ -90,6 +89,7 @@ class EnhancedCacheManager:
         }
 
         logger.info("✅ Enhanced Cache Manager initialized with hierarchical caching")
+
     async def _ensure_cache_initialized(self):
         """Ensure cache is initialized (lazy initialization)"""
         if not self._cache_initialized:
@@ -112,7 +112,7 @@ class EnhancedCacheManager:
         try:
             # Ensure cache is initialized
             await self._ensure_cache_initialized()
-            
+
             # Generate cache key with type prefix
             cache_key = self._generate_cache_key(key, cache_type)
 
@@ -158,7 +158,7 @@ class EnhancedCacheManager:
         try:
             # Ensure cache is initialized
             await self._ensure_cache_initialized()
-            
+
             # Generate cache key with type prefix
             cache_key = self._generate_cache_key(key, cache_type)
 

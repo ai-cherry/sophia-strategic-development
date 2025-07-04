@@ -6,7 +6,7 @@ The Claude CLI is **actively running** and successfully integrating with Sophia 
 
 ### 🚀 **Current Live Status**
 - **Figma MCP Server**: ✅ Healthy (Port 9001)
-- **UI/UX Agent**: ✅ Healthy (Port 9002) 
+- **UI/UX Agent**: ✅ Healthy (Port 9002)
 - **Claude CLI**: ✅ Fully functional with MCP integration
 - **Real-time Monitoring**: ✅ All systems operational
 

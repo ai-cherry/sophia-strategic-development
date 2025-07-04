@@ -13,21 +13,25 @@ from typing import Any
 # Custom Exception Classes
 class CortexEmbeddingError(Exception):
     """Raised when Snowflake Cortex embedding generation fails"""
+
     pass
 
 
 class InsufficientPermissionsError(Exception):
     """Raised when user lacks required Snowflake permissions"""
+
     pass
 
 
 class BusinessTableNotFoundError(Exception):
     """Raised when business table doesn't exist or is not accessible"""
+
     pass
 
 
 class InvalidInputError(Exception):
     """Raised when input parameters are invalid"""
+
     pass
 
 
@@ -74,7 +78,7 @@ class VectorSearchResult:
 @dataclass
 class CortexOperation:
     """Represents a Cortex AI operation with metadata"""
-    
+
     operation_type: str
     input_text: str
     model: str
@@ -87,7 +91,7 @@ class CortexOperation:
 @dataclass
 class ProcessingMode:
     """Configuration for processing modes"""
-    
+
     batch_size: int = 100
     concurrent_operations: int = 5
     retry_attempts: int = 3
@@ -97,7 +101,7 @@ class ProcessingMode:
 @dataclass
 class CortexResult:
     """Standard result format for Cortex operations"""
-    
+
     success: bool
     data: Any | None = None
     error_message: str | None = None
@@ -108,7 +112,7 @@ class CortexResult:
 @dataclass
 class CortexConfig:
     """Configuration for Cortex service"""
-    
+
     database: str
     schema: str
     warehouse: str
@@ -120,10 +124,10 @@ class CortexConfig:
 @dataclass
 class CortexPerformanceMetrics:
     """Performance metrics for Cortex operations"""
-    
+
     total_operations: int = 0
     successful_operations: int = 0
     failed_operations: int = 0
     average_processing_time: float = 0.0
     total_processing_time: float = 0.0
-    operations_per_second: float = 0.0 
+    operations_per_second: float = 0.0

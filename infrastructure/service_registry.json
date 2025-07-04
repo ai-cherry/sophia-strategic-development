@@ -39,7 +39,12 @@
     "type": "infrastructure",
     "description": "Lambda Labs GPU compute resources",
     "config_keys": [],
-    "secret_keys": ["api_key", "jupyter_password", "ssh_public_key", "ssh_private_key"],
+    "secret_keys": [
+      "api_key",
+      "jupyter_password",
+      "ssh_public_key",
+      "ssh_private_key"
+    ],
     "rotation_schedule": "90d",
     "owner": "ml-team",
     "dependencies": []

@@ -108,7 +108,7 @@ fi
 # Update imports in Python files
 if [ "$TARGET_TYPE" = "lib" ]; then
     echo "5️⃣ Updating Python imports..."
-    
+
     # Find all Python files and update imports
     find "$TARGET_PATH" -name "*.py" -type f | while read -r file; do
         # Update from backend.core to libs.core
@@ -116,7 +116,7 @@ if [ "$TARGET_TYPE" = "lib" ]; then
         sed -i.bak "s/import backend\.$SERVICE_NAME/import libs.$SERVICE_NAME/g" "$file"
         rm -f "${file}.bak"
     done
-    
+
     echo -e "${GREEN}✅ Updated imports${NC}"
 fi
 
@@ -124,7 +124,7 @@ fi
 if [ -f "$SOURCE_PATH/Dockerfile" ]; then
     echo "6️⃣ Updating Dockerfile..."
     cp "$SOURCE_PATH/Dockerfile" "$TARGET_PATH/Dockerfile"
-    
+
     # Update paths in Dockerfile
     sed -i.bak "s|$SOURCE_PATH|$TARGET_PATH|g" "$TARGET_PATH/Dockerfile"
     rm -f "$TARGET_PATH/Dockerfile.bak"
@@ -157,7 +157,7 @@ fi
 WORKFLOW_FILE=".github/workflows/$SERVICE_NAME.yml"
 if [ -f "$WORKFLOW_FILE" ]; then
     echo "7️⃣ Updating CI/CD workflow..."
-    
+
     # Create new workflow using template
     cat > "$WORKFLOW_FILE" << EOF
 name: $SERVICE_NAME CI/CD
@@ -184,7 +184,7 @@ jobs:
       run-tests: true
       run-security: true
 EOF
-    
+
     echo -e "${GREEN}✅ Updated workflow${NC}"
 fi
 
@@ -222,4 +222,4 @@ if [ "$TARGET_TYPE" = "app" ]; then
     echo "  pnpm turbo run dev --filter=$SERVICE_NAME"
 else
     echo "  pnpm turbo run test --filter=$SERVICE_NAME"
-fi 
+fi

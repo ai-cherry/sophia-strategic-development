@@ -55,4 +55,3 @@ apply_dbt_builtins = false
 # Custom rules for Snowflake
 [sqlfluff:rules:references.from]
 force_enable = false
-

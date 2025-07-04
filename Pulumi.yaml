@@ -9,7 +9,7 @@ description: Sophia AI - Enterprise AI Orchestrator Infrastructure
 config:
   aws:region: us-west-2
   kubernetes:enableServerSideApply: true
-  
+
 template:
   config:
     aws:region:

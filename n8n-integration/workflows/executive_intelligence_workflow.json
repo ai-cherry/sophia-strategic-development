@@ -82,7 +82,7 @@
               "workflow_id": "executive_intelligence",
               "execution_id": "={{$json.execution_id}}",
               "node_name": "Google_AI_Enhancement",
-              "mcp_server": "business_intelligence", 
+              "mcp_server": "business_intelligence",
               "enhancement_type": "executive_intelligence",
               "data": "={{$json}}",
               "priority": "executive"
@@ -124,7 +124,7 @@
         "method": "POST"
       },
       "name": "Cross-Platform Intelligence Synthesis",
-      "type": "n8n-nodes-base.httpRequest", 
+      "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 1,
       "position": [700, 300],
       "id": "cross-platform-synthesis"
@@ -193,7 +193,7 @@
             "index": 0
           },
           {
-            "node": "Fetch Google Ads", 
+            "node": "Fetch Google Ads",
             "type": "main",
             "index": 0
           }
@@ -216,7 +216,7 @@
         [
           {
             "node": "Sophia AI Enhancement - Google",
-            "type": "main", 
+            "type": "main",
             "index": 0
           }
         ]
@@ -282,4 +282,4 @@
   "triggerCount": 1,
   "updatedAt": "2025-01-30T10:00:00.000Z",
   "versionId": "1"
-} 
+}

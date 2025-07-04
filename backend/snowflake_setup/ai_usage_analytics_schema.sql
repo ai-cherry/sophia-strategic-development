@@ -9,39 +9,39 @@ CREATE TABLE IF NOT EXISTS OPS_MONITORING.AI_USAGE_ANALYTICS (
     -- Request identification
     REQUEST_ID VARCHAR(100) NOT NULL,
     TIMESTAMP TIMESTAMP_NTZ NOT NULL,
-    
+
     -- Provider and model information
     PROVIDER VARCHAR(50) NOT NULL,  -- portkey, openrouter, fallback
     MODEL VARCHAR(100) NOT NULL,
-    
+
     -- Request context
     TASK_TYPE VARCHAR(50) NOT NULL,
     USER_ID VARCHAR(100) NOT NULL,
     SESSION_ID VARCHAR(100),
-    
+
     -- Performance metrics
     COST_USD DECIMAL(10, 6) NOT NULL DEFAULT 0,
     LATENCY_MS INTEGER NOT NULL DEFAULT 0,
     TOKENS_USED INTEGER NOT NULL DEFAULT 0,
-    
+
     -- Quality and caching
     CACHE_HIT BOOLEAN NOT NULL DEFAULT FALSE,
     QUALITY_SCORE DECIMAL(3, 2) DEFAULT 0,
-    
+
     -- Routing intelligence
     PERFORMANCE_PRIORITY BOOLEAN NOT NULL DEFAULT TRUE,
     COST_SENSITIVITY DECIMAL(3, 2) NOT NULL DEFAULT 0.5,
     ROUTING_REASONING VARCHAR(500),
-    
+
     -- Error handling
     ERROR VARCHAR(1000),
-    
+
     -- Metadata
     METADATA VARIANT,
-    
+
     -- Audit fields
     CREATED_AT TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    
+
     -- Primary key
     PRIMARY KEY (REQUEST_ID, TIMESTAMP)
 );
@@ -57,10 +57,10 @@ CREATE TABLE IF NOT EXISTS OPS_MONITORING.AI_USAGE_ANALYTICS (
 -- CREATE INDEX IF NOT EXISTS IDX_AI_USAGE_TASK_TYPE ON OPS_MONITORING.AI_USAGE_ANALYTICS (TASK_TYPE);
 -- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
 -- CREATE INDEX IF NOT EXISTS IDX_AI_USAGE_USER ON OPS_MONITORING.AI_USAGE_ANALYTICS (USER_ID);
--- 
+--
 -- Cost Analytics View
 CREATE OR REPLACE VIEW OPS_MONITORING.V_AI_COST_ANALYTICS AS
-SELECT 
+SELECT
     DATE_TRUNC('day', TIMESTAMP) AS USAGE_DATE,
     PROVIDER,
     MODEL,
@@ -82,7 +82,7 @@ ORDER BY USAGE_DATE DESC, TOTAL_COST DESC;
 
 -- Performance Analytics View
 CREATE OR REPLACE VIEW OPS_MONITORING.V_AI_PERFORMANCE_ANALYTICS AS
-SELECT 
+SELECT
     PROVIDER,
     MODEL,
     COUNT(*) AS TOTAL_REQUESTS,
@@ -100,7 +100,7 @@ ORDER BY TOTAL_REQUESTS DESC;
 
 -- Strategic Model Usage View
 CREATE OR REPLACE VIEW OPS_MONITORING.V_AI_STRATEGIC_USAGE AS
-SELECT 
+SELECT
     TASK_TYPE,
     MODEL,
     PROVIDER,
@@ -118,7 +118,7 @@ ORDER BY USAGE_COUNT DESC;
 -- Cost Optimization Opportunities View
 CREATE OR REPLACE VIEW OPS_MONITORING.V_AI_COST_OPTIMIZATION AS
 WITH cost_analysis AS (
-    SELECT 
+    SELECT
         TASK_TYPE,
         MODEL,
         PROVIDER,
@@ -132,14 +132,14 @@ WITH cost_analysis AS (
     GROUP BY TASK_TYPE, MODEL, PROVIDER
 ),
 task_benchmarks AS (
-    SELECT 
+    SELECT
         TASK_TYPE,
         MIN(avg_cost) AS min_cost_for_task,
         MAX(avg_quality) AS max_quality_for_task
     FROM cost_analysis
     GROUP BY TASK_TYPE
 )
-SELECT 
+SELECT
     ca.TASK_TYPE,
     ca.MODEL,
     ca.PROVIDER,
@@ -150,10 +150,10 @@ SELECT
     tb.min_cost_for_task,
     (ca.avg_cost - tb.min_cost_for_task) AS cost_premium,
     (ca.avg_cost - tb.min_cost_for_task) * ca.request_count AS potential_savings,
-    CASE 
-        WHEN ca.avg_cost > tb.min_cost_for_task * 1.5 AND ca.avg_quality < tb.max_quality_for_task * 0.9 
+    CASE
+        WHEN ca.avg_cost > tb.min_cost_for_task * 1.5 AND ca.avg_quality < tb.max_quality_for_task * 0.9
         THEN 'HIGH_OPTIMIZATION_OPPORTUNITY'
-        WHEN ca.avg_cost > tb.min_cost_for_task * 1.2 
+        WHEN ca.avg_cost > tb.min_cost_for_task * 1.2
         THEN 'MEDIUM_OPTIMIZATION_OPPORTUNITY'
         ELSE 'WELL_OPTIMIZED'
     END AS optimization_opportunity
@@ -164,7 +164,7 @@ ORDER BY potential_savings DESC;
 
 -- Real-time Monitoring View
 CREATE OR REPLACE VIEW OPS_MONITORING.V_AI_REALTIME_MONITORING AS
-SELECT 
+SELECT
     DATE_TRUNC('hour', TIMESTAMP) AS HOUR,
     PROVIDER,
     COUNT(*) AS REQUESTS_PER_HOUR,
@@ -180,7 +180,7 @@ ORDER BY HOUR DESC;
 -- Gateway Health Status View
 CREATE OR REPLACE VIEW OPS_MONITORING.V_AI_GATEWAY_HEALTH AS
 WITH recent_usage AS (
-    SELECT 
+    SELECT
         PROVIDER,
         COUNT(*) AS total_requests,
         SUM(CASE WHEN ERROR IS NOT NULL THEN 1 ELSE 0 END) AS error_count,
@@ -190,14 +190,14 @@ WITH recent_usage AS (
     WHERE TIMESTAMP >= CURRENT_TIMESTAMP - INTERVAL '1 HOUR'
     GROUP BY PROVIDER
 )
-SELECT 
+SELECT
     PROVIDER,
     total_requests,
     error_count,
     CASE WHEN total_requests > 0 THEN error_count / total_requests ELSE 0 END AS error_rate,
     avg_latency,
     last_request_time,
-    CASE 
+    CASE
         WHEN last_request_time < CURRENT_TIMESTAMP - INTERVAL '30 MINUTES' THEN 'INACTIVE'
         WHEN error_count / GREATEST(total_requests, 1) > 0.1 THEN 'DEGRADED'
         WHEN avg_latency > 5000 THEN 'SLOW'
@@ -226,7 +226,7 @@ AS
 $$
 BEGIN
     RETURN TABLE(
-        SELECT 
+        SELECT
             PROVIDER,
             MODEL,
             COUNT(*) AS total_requests,
@@ -259,4 +259,4 @@ COMMENT ON COLUMN OPS_MONITORING.AI_USAGE_ANALYTICS.COST_SENSITIVITY IS 'Cost se
 COMMENT ON VIEW OPS_MONITORING.V_AI_COST_ANALYTICS IS 'Daily cost analytics across all AI providers and models';
 COMMENT ON VIEW OPS_MONITORING.V_AI_PERFORMANCE_ANALYTICS IS 'Performance metrics and SLA monitoring for AI services';
 COMMENT ON VIEW OPS_MONITORING.V_AI_COST_OPTIMIZATION IS 'Identifies cost optimization opportunities by comparing model performance vs cost';
-COMMENT ON VIEW OPS_MONITORING.V_AI_GATEWAY_HEALTH IS 'Real-time health monitoring of AI gateway providers'; 
+COMMENT ON VIEW OPS_MONITORING.V_AI_GATEWAY_HEALTH IS 'Real-time health monitoring of AI gateway providers';

@@ -47,11 +47,11 @@ class YourAgent(BaseAgent):
             "name": "your_agent",
             "capabilities": ["your_capability"]
         })
-    
+
     async def _agent_initialize(self):
         # Your initialization logic
         pass
-    
+
     async def _execute_task(self, task: Task) -> Any:
         # Your task execution logic
         pass

@@ -28,8 +28,8 @@ services:
   mcp-gateway:
     image: mcp/gateway:latest
     ports:
-      - "3000:3000"  # HTTP SSE transport
-      - "8090:8090"  # Management interface
+      - "3000:3000" # HTTP SSE transport
+      - "8090:8090" # Management interface
     environment:
       - MCP_PORT=3000
       - MCP_HOST=0.0.0.0
@@ -163,7 +163,7 @@ services:
     ports:
       - "3008:3008"
     volumes:
-      - .:/workspace:ro  # Mount workspace as read-only for analysis
+      - .:/workspace:ro # Mount workspace as read-only for analysis
     networks:
       - sophia-network
     restart: unless-stopped
@@ -204,12 +204,12 @@ services:
       - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
     networks:
       - sophia-network
     restart: unless-stopped
@@ -238,4 +238,4 @@ volumes:
 
 networks:
   sophia-network:
-    driver: bridge 
+    driver: bridge

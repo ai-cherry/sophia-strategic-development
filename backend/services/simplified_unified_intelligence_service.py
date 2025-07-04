@@ -26,7 +26,7 @@ class SimplifiedUnifiedIntelligenceService:
         self.ai_memory = None
         self.gong_integration = None
         self.constitutional_ai = None
-        self.portkey_gateway = None
+        self.llm_service = None
 
         # Performance tracking
         self.performance_metrics = {

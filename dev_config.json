@@ -37,11 +37,7 @@
         "pulumi",
         "asana"
       ],
-      "fallback_ready": [
-        "ai_memory",
-        "codacy",
-        "snowflake_admin"
-      ],
+      "fallback_ready": ["ai_memory", "codacy", "snowflake_admin"],
       "ready_for_phase1": true
     }
   }

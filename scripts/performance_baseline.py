@@ -407,9 +407,7 @@ class SophiaPerformanceBenchmarker:
             f"Benchmarks: {summary['excellent_count'] + summary['good_count']}/{summary['total_benchmarks']} meeting targets"
         )
         print(f"Total Execution Time: {report['total_execution_time']:.2f}s")
-        print(
-            f"Production Ready: {'✅ YES' if summary['production_ready'] else '❌ NO'}"
-        )
+        print(f"Production Ready: {'✅ YES' if summary['production_ready'] else '❌ NO'}")
 
         # System info
         sys_info = report.get("system_info", {})

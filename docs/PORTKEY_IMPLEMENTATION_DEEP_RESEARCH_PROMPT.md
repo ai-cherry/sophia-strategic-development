@@ -16,7 +16,7 @@ Deep dive into Portkey AI Gateway implementation best practices, focusing on:
 **Search Query**: "Portkey AI gateway best practices production setup 2024 virtual keys configuration"
 
 **Key Focus Areas**:
-- **Virtual Key Strategy**: 
+- **Virtual Key Strategy**:
   - How many virtual keys should we create? (per environment? per provider? per use case?)
   - Best naming conventions for virtual keys
   - Security best practices for key rotation
@@ -286,4 +286,4 @@ Deep dive into Portkey AI Gateway implementation best practices, focusing on:
 
 ---
 
-**Remember**: We prioritize PERFORMANCE over cost. Look for configurations and patterns that minimize latency and maximize throughput, even if they increase costs. 
+**Remember**: We prioritize PERFORMANCE over cost. Look for configurations and patterns that minimize latency and maximize throughput, even if they increase costs.

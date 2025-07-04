@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 # Development overrides for docker-compose.yml
 # This file is automatically loaded by docker-compose in development
@@ -94,8 +94,19 @@ services:
       - RELOAD=true
     ports:
       - "8000:8000"
-      - "5678:5678"  # Python debugger port
-    command: ["uvicorn", "backend.app.unified_fastapi_app:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+      - "5678:5678" # Python debugger port
+    command:
+      [
+        "uvicorn",
+        "backend.app.unified_fastapi_app:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+        "--log-level",
+        "debug",
+      ]
 
   mem0-server:
     volumes:
@@ -114,8 +125,8 @@ services:
     image: mailhog/mailhog:latest
     container_name: sophia-mailhog
     ports:
-      - "1025:1025"  # SMTP server
-      - "8025:8025"  # Web UI
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
     profiles:
       - dev-tools
     networks:
@@ -128,7 +139,15 @@ services:
       dockerfile: Dockerfile
       target: development
     container_name: sophia-jupyter
-    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    command:
+      [
+        "jupyter",
+        "lab",
+        "--ip=0.0.0.0",
+        "--port=8888",
+        "--no-browser",
+        "--allow-root",
+      ]
     ports:
       - "8888:8888"
     volumes:
@@ -139,4 +158,4 @@ services:
     profiles:
       - dev-tools
     networks:
-      - sophia-network 
+      - sophia-network

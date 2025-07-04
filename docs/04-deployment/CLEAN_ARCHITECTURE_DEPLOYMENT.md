@@ -272,4 +272,4 @@ kubectl rollout undo deployment/sophia-api-clean-arch -n sophia-ai
 3. **Storage**
    - Clean old model cache
    - Use appropriate storage classes
-   - Compress large files 
+   - Compress large files

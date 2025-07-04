@@ -61,7 +61,6 @@ class TestEnhancedLangGraphOrchestration:
                 "backend.workflows.enhanced_langgraph_orchestration.EnhancedAiMemoryMCPServer"
             ) as mock_memory,
         ):
-
             mock_cortex_instance = AsyncMock()
             mock_cortex.return_value = mock_cortex_instance
 
@@ -272,7 +271,6 @@ class TestUnifiedChatService:
                 "backend.services.sophia_universal_chat_service.EnhancedAiMemoryMCPServer"
             ) as mock_memory,
         ):
-
             mock_cortex_instance = AsyncMock()
             mock_cortex.return_value = mock_cortex_instance
 
@@ -327,7 +325,6 @@ class TestUnifiedChatService:
                 chat_service.orchestrator, "get_workflow_status"
             ) as mock_status,
         ):
-
             mock_create.return_value = "workflow_123"
             mock_status.return_value = {
                 "status": "pending",
@@ -359,7 +356,6 @@ class TestUnifiedChatService:
                 chat_service.orchestrator, "handle_human_response"
             ) as mock_handle,
         ):
-
             mock_pending.return_value = [
                 {
                     "checkpoint_id": "checkpoint_123",
@@ -414,7 +410,6 @@ class TestCostEngineeringService:
                 "backend.services.cost_engineering_service.EnhancedAiMemoryMCPServer"
             ) as mock_memory,
         ):
-
             mock_cortex_instance = AsyncMock()
             mock_cortex.return_value = mock_cortex_instance
 
@@ -545,7 +540,6 @@ class TestCostEngineeringService:
                 cost_service.ai_memory, "search_similar_content"
             ) as mock_search,
         ):
-
             mock_get.return_value = None
             mock_search.return_value = []
 
@@ -777,7 +771,6 @@ class TestEndToEndIntegration:
                 "backend.services.cost_engineering_service.EnhancedAiMemoryMCPServer"
             ),
         ):
-
             # Initialize services
             await universal_chat_service.initialize()
             await enhanced_orchestrator.initialize()
@@ -837,7 +830,6 @@ class TestEndToEndIntegration:
                     enhanced_orchestrator, "handle_human_response"
                 ) as mock_handle,
             ):
-
                 mock_pending.return_value = [
                     {
                         "checkpoint_id": checkpoint_id,
@@ -871,7 +863,6 @@ class TestEndToEndIntegration:
                 "backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect"
             ),
         ):
-
             await cost_engineering_service.initialize()
             await enhanced_cortex_service.initialize()
 
@@ -891,7 +882,6 @@ class TestEndToEndIntegration:
                     cost_engineering_service, "_assess_response_quality"
                 ) as mock_quality,
             ):
-
                 mock_execute.return_value = ("Positive sentiment detected", 50)
                 mock_quality.return_value = 0.9
 
@@ -918,7 +908,6 @@ class TestEndToEndIntegration:
                 "backend.services.enhanced_snowflake_cortex_service.snowflake.connector.connect"
             ),
         ):
-
             await universal_chat_service.initialize()
             await cost_engineering_service.initialize()
             await enhanced_cortex_service.initialize()

@@ -11,20 +11,20 @@ graph TD
     E[HubSpot API] --> B
     F[Google Calendar API] --> G[Activity Analyzer]
     H[Linear API] --> I[Project Context Engine]
-    
+
     B --> J[Snowflake Cortex AI]
     D --> J
     G --> J
     I --> J
-    
+
     J --> K[Sales Coach Agent]
     K --> L[AI Memory MCP Server]
     K --> M[Coaching Recommendations Engine]
-    
+
     M --> N[Performance Analytics]
     M --> O[Predictive Insights]
     M --> P[Action Plan Generator]
-    
+
     N --> Q[Comprehensive Coaching Report]
     O --> Q
     P --> Q
@@ -41,7 +41,7 @@ async def extract_gong_data():
         date_range_days=7,
         include_transcripts=True
     )
-    
+
     for call in gong_calls:
         # Extract call metrics
         call_data = {
@@ -53,7 +53,7 @@ async def extract_gong_data():
             "participants": call.participants,
             "outcome": call.outcome
         }
-        
+
         # Store in Snowflake for Cortex analysis
         await snowflake_cortex.store_call_data(call_data)
 ```
@@ -68,31 +68,31 @@ async def analyze_riley_sentiment():
         channel=SentimentChannel.GONG_CALLS,
         context={"sales_rep": "Riley Martinez", "call_type": "demo"}
     )
-    
+
     # Slack messages sentiment
     slack_messages = await slack_connector.get_user_messages(
         user="Riley Martinez",
         days=7
     )
-    
+
     slack_sentiment = await enhanced_sentiment_analyzer.analyze_sentiment(
         text=" ".join(slack_messages),
         channel=SentimentChannel.SLACK_MESSAGES,
         context={"team_context": True}
     )
-    
+
     # Email sentiment analysis
     emails = await hubspot_connector.get_sales_emails(
         sales_rep="Riley Martinez",
         days=7
     )
-    
+
     email_sentiment = await enhanced_sentiment_analyzer.analyze_sentiment(
         text=" ".join([e.body for e in emails]),
         channel=SentimentChannel.HUBSPOT_EMAILS,
         context={"prospect_communication": True}
     )
-    
+
     return {
         "gong_sentiment": gong_sentiment,
         "slack_sentiment": slack_sentiment,
@@ -104,12 +104,12 @@ async def analyze_riley_sentiment():
 ```sql
 -- Advanced Call Analysis Using Snowflake Cortex
 WITH call_analysis AS (
-    SELECT 
+    SELECT
         call_id,
         sales_rep,
         SNOWFLAKE.CORTEX.SENTIMENT(transcript) as ai_sentiment,
         SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
-            transcript, 
+            transcript,
             'What objections did the prospect raise?'
         ) as objections_raised,
         SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
@@ -121,12 +121,12 @@ WITH call_analysis AS (
             ['excellent_call', 'good_call', 'needs_improvement', 'poor_call']
         ) as call_quality,
         SNOWFLAKE.CORTEX.SUMMARIZE(transcript) as call_summary
-    FROM gong_calls 
+    FROM gong_calls
     WHERE sales_rep = 'Riley Martinez'
     AND call_date >= DATEADD(day, -7, CURRENT_DATE())
 ),
 performance_trends AS (
-    SELECT 
+    SELECT
         sales_rep,
         AVG(ai_sentiment) as avg_sentiment,
         AVG(talk_ratio) as avg_talk_ratio,
@@ -148,19 +148,19 @@ async def analyze_riley_cross_platform():
         user="Riley Martinez",
         days=7
     )
-    
+
     # Email response rate correlation
     email_performance = await email_analyzer.analyze_response_patterns(
         sales_rep="Riley Martinez",
         days=7
     )
-    
+
     # Slack team sentiment impact
     team_sentiment = await slack_analyzer.analyze_team_impact(
         user="Riley Martinez",
         days=7
     )
-    
+
     # Correlation analysis
     correlation_matrix = {
         "call_sentiment_vs_email_response": calculate_correlation(
@@ -173,7 +173,7 @@ async def analyze_riley_cross_platform():
             slack_sentiment_scores, sales_performance_metrics
         )
     }
-    
+
     return correlation_matrix
 ```
 
@@ -189,16 +189,16 @@ async def integrate_ai_memory():
         tags=["sentiment_decline", "talk_ratio_issue", "discovery_coaching"],
         confidence_score=0.942
     )
-    
+
     # Recall historical patterns
     historical_insights = await ai_memory_server.recall_coaching_insights(
         query="Riley Martinez coaching sentiment discovery",
         limit=10
     )
-    
+
     # Identify recurring patterns
     recurring_issues = analyze_pattern_recurrence(historical_insights)
-    
+
     return {
         "historical_context": historical_insights,
         "recurring_patterns": recurring_issues,
@@ -221,14 +221,14 @@ async def predict_riley_performance():
         "product_knowledge_score": 0.89,  # Strong
         "rapport_building_score": 0.72    # Good
     }
-    
+
     # ML model prediction
     performance_prediction = await ml_predictor.predict_sales_performance(
         features=features,
         model_type="sales_coach_performance",
         time_horizon_days=30
     )
-    
+
     # Risk assessment
     risk_factors = {
         "quota_attainment_risk": "medium",
@@ -236,7 +236,7 @@ async def predict_riley_performance():
         "coaching_response_likelihood": "high",
         "improvement_timeline": "2-3_weeks"
     }
-    
+
     return {
         "predicted_performance": performance_prediction,
         "risk_assessment": risk_factors,
@@ -279,17 +279,17 @@ class CoachingRecommendationEngine:
                 ]
             }
         }
-    
+
     async def generate_recommendations(self, analysis_data):
         recommendations = []
-        
+
         for metric, rule in self.coaching_rules.items():
             if self._meets_threshold(analysis_data, metric, rule):
                 recommendation = await self._create_recommendation(
                     metric, rule, analysis_data
                 )
                 recommendations.append(recommendation)
-        
+
         # Prioritize recommendations
         return self._prioritize_recommendations(recommendations)
 ```
@@ -309,7 +309,7 @@ async def get_riley_live_dashboard():
         "team_sentiment_impact": await measure_team_sentiment_impact(),
         "next_recommended_action": await get_next_action_recommendation()
     }
-    
+
     return dashboard_data
 ```
 
@@ -322,7 +322,7 @@ async def track_coaching_effectiveness():
     # Measure improvement after coaching
     pre_coaching_metrics = await get_baseline_metrics("Riley Martinez")
     post_coaching_metrics = await get_current_metrics("Riley Martinez")
-    
+
     improvement_analysis = {
         "sentiment_improvement": calculate_improvement(
             pre_coaching_metrics.sentiment,
@@ -337,10 +337,10 @@ async def track_coaching_effectiveness():
             post_coaching_metrics.email_response_rate
         )
     }
-    
+
     # Update coaching model based on effectiveness
     await update_coaching_model(improvement_analysis)
-    
+
     return improvement_analysis
 ```
 

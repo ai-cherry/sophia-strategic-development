@@ -129,23 +129,23 @@ export interface LambdaLabsKubernetesOutputs {
 
 export class LambdaLabsKubernetesComponent extends pulumi.ComponentResource {
     public readonly outputs: LambdaLabsKubernetesOutputs;
-    
+
     constructor(name: string, args: LambdaLabsKubernetesArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:lambda-labs:KubernetesComponent", name, {}, opts);
-        
+
         // Lambda Labs Kubernetes cluster creation
         const cluster = this.createKubernetesCluster(args);
-        
+
         this.outputs = {
             clusterId: cluster.id,
             kubeconfig: cluster.kubeconfig,
             nodeIds: cluster.nodeIds,
             // ... other outputs
         };
-        
+
         this.registerOutputs(this.outputs);
     }
-    
+
     private createKubernetesCluster(args: LambdaLabsKubernetesArgs) {
         // Implementation for Lambda Labs Kubernetes cluster
         // ...
@@ -302,23 +302,23 @@ export class SecureSecretManager {
         // Automatically loads from Pulumi ESC which syncs from GitHub Org Secrets
         this.secrets = this.loadSecretsFromESC();
     }
-    
+
     private loadSecretsFromESC(): SecretConfig {
         return {
             // AI Intelligence secrets
             openai_api_key: getConfigValue("openai_api_key"),
             anthropic_api_key: getConfigValue("anthropic_api_key"),
             portkey_api_key: getConfigValue("portkey_api_key"),
-            
+
             // Infrastructure secrets
             lambda_labs_api_key: getConfigValue("lambda_labs_api_key"),
             docker_username: getConfigValue("docker_username"),
             docker_token: getConfigValue("docker_personal_access_token"),
-            
+
             // Data infrastructure secrets
             snowflake_password: getConfigValue("snowflake_password"),
             estuary_access_token: getConfigValue("estuary_access_token"),
-            
+
             // Business intelligence secrets
             gong_access_key: getConfigValue("gong_access_key"),
             hubspot_access_token: getConfigValue("hubspot_access_token"),
@@ -487,7 +487,7 @@ Specialized patterns for GPU workload management on Lambda Labs:
 // GPU workload orchestration for Lambda Labs
 export class LambdaLabsGPUOrchestrator {
     constructor(private kubeconfig: string) {}
-    
+
     async scheduleInferenceWorkload(model: string, replicas: number) {
         const deployment = {
             apiVersion: "apps/v1",
@@ -532,7 +532,7 @@ export class LambdaLabsGPUOrchestrator {
                 },
             },
         };
-        
+
         return this.deployToKubernetes(deployment);
     }
 }
@@ -554,27 +554,27 @@ export interface LambdaLabsModelRegistryArgs {
 export class LambdaLabsModelRegistry extends pulumi.ComponentResource {
     public readonly dockerRegistry: string;
     public readonly modelStorage: string;
-    
+
     constructor(name: string, args: LambdaLabsModelRegistryArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:ai:LambdaLabsModelRegistry", name, {}, opts);
-        
+
         // Docker registry for containerized models
         this.dockerRegistry = this.createDockerRegistry(args);
-        
+
         // High-performance storage for model artifacts
         this.modelStorage = this.createModelStorage(args);
-        
+
         this.registerOutputs({
             dockerRegistry: this.dockerRegistry,
             modelStorage: this.modelStorage,
         });
     }
-    
+
     private createDockerRegistry(args: LambdaLabsModelRegistryArgs): string {
         // Implementation for Lambda Labs-optimized Docker registry
         return "registry.lambda-labs.local/sophia-ai";
     }
-    
+
     private createModelStorage(args: LambdaLabsModelRegistryArgs): string {
         // Implementation for high-performance model storage
         return "/mnt/models";
@@ -591,7 +591,7 @@ Optimization techniques specific to Lambda Labs GPU infrastructure:
 ```typescript
 // GPU performance optimization for Lambda Labs
 export class LambdaLabsGPUOptimizer {
-    
+
     static optimizeForA10GPU(containerSpec: any) {
         return {
             ...containerSpec,
@@ -618,14 +618,14 @@ export class LambdaLabsGPUOptimizer {
             },
         };
     }
-    
+
     static configureBatchOptimization(workloadType: string) {
         const batchConfigs = {
             inference: { batchSize: 32, maxLatency: "100ms" },
             training: { batchSize: 64, checkpointInterval: "10min" },
             embedding: { batchSize: 128, vectorDimension: 768 },
         };
-        
+
         return batchConfigs[workloadType] || batchConfigs.inference;
     }
 }
@@ -638,7 +638,7 @@ Optimized integration with Snowflake Cortex AI:
 ```typescript
 // Snowflake Cortex optimization for Lambda Labs
 export class SnowflakeCortexOptimizer {
-    
+
     static createOptimizedConnection() {
         return {
             account: getConfigValue("snowflake_account"),
@@ -654,7 +654,7 @@ export class SnowflakeCortexOptimizer {
             enableVectorOptimization: true,
         };
     }
-    
+
     static optimizeVectorOperations() {
         return {
             embeddingDimension: 768,
@@ -674,7 +674,7 @@ Optimized Portkey configuration for Lambda Labs deployment:
 ```typescript
 // Portkey optimization for Lambda Labs
 export class PortkeyOptimizer {
-    
+
     static createOptimizedGateway() {
         return {
             baseUrl: "https://api.portkey.ai/v1",
@@ -694,7 +694,7 @@ export class PortkeyOptimizer {
             },
         };
     }
-    
+
     static configureModelRouting() {
         return {
             strategy: "conditional",
@@ -727,7 +727,7 @@ Comprehensive monitoring for Lambda Labs infrastructure:
 ```typescript
 // Monitoring configuration for Lambda Labs
 export class LambdaLabsMonitoring {
-    
+
     static createMonitoringStack() {
         return {
             prometheus: {
@@ -881,7 +881,7 @@ Enhanced secret security for Lambda Labs deployment:
 ```typescript
 // Secret security configuration
 export class LambdaLabsSecretSecurity {
-    
+
     static createSecureSecretConfig() {
         return {
             encryption: {
@@ -901,7 +901,7 @@ export class LambdaLabsSecretSecurity {
             },
         };
     }
-    
+
     static validateSecretCompliance(secret: string): boolean {
         // Implement secret validation logic
         const patterns = [
@@ -909,7 +909,7 @@ export class LambdaLabsSecretSecurity {
             /^sk-ant-api03-[a-zA-Z0-9_-]{95}$/, // Anthropic API key pattern
             /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/, // UUID pattern
         ];
-        
+
         return patterns.some(pattern => pattern.test(secret));
     }
 }
@@ -924,7 +924,7 @@ Cost optimization strategies for Lambda Labs infrastructure:
 ```typescript
 // Cost optimization for Lambda Labs
 export class LambdaLabsCostOptimizer {
-    
+
     static calculateCostEfficiency() {
         const lambdaLabsCosts = {
             gpuInstance: 0.75, // $0.75/hour for A10 GPU
@@ -932,20 +932,20 @@ export class LambdaLabsCostOptimizer {
             networking: 0, // Included in instance cost
             support: 0, // Included in instance cost
         };
-        
+
         const cloudAlternativeCosts = {
             gpuInstance: 3.20, // Typical cloud GPU instance
             storage: 0.12, // Per GB per month
             networking: 0.09, // Per GB transfer
             support: 200, // Monthly support cost
         };
-        
+
         return {
             monthlySavings: this.calculateMonthlySavings(lambdaLabsCosts, cloudAlternativeCosts),
             costEfficiencyRatio: this.calculateEfficiencyRatio(lambdaLabsCosts, cloudAlternativeCosts),
         };
     }
-    
+
     static optimizeResourceAllocation(workloadType: string) {
         const optimizations = {
             inference: {
@@ -964,7 +964,7 @@ export class LambdaLabsCostOptimizer {
                 sharedResources: true,
             },
         };
-        
+
         return optimizations[workloadType] || optimizations.inference;
     }
 }
@@ -1005,7 +1005,7 @@ Troubleshooting guide for Lambda Labs infrastructure:
 ```typescript
 // Troubleshooting utilities for Lambda Labs
 export class LambdaLabsTroubleshooter {
-    
+
     static diagnoseGPUIssues() {
         return {
             commands: [
@@ -1030,7 +1030,7 @@ export class LambdaLabsTroubleshooter {
             ],
         };
     }
-    
+
     static diagnoseKubernetesIssues() {
         return {
             commands: [

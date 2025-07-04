@@ -8,13 +8,13 @@ environments:
     account: "${SNOWFLAKE_DEV_ACCOUNT}"
     user: "${SNOWFLAKE_DEV_USER}"
     password: "${SNOWFLAKE_DEV_PASSWORD}"
-    pat: "${SNOWFLAKE_DEV_PAT}"  # Programmatic Access Token (preferred)
+    pat: "${SNOWFLAKE_DEV_PAT}" # Programmatic Access Token (preferred)
     warehouse: "${SNOWFLAKE_DEV_WAREHOUSE}"
     database: "${SNOWFLAKE_DEV_DATABASE}"
     schema: "${SNOWFLAKE_DEV_SCHEMA}"
     role: "${SNOWFLAKE_DEV_ROLE}"
     description: "Safe environment for testing admin operations"
-    
+
   stg:
     name: "Staging Environment"
     account: "${SNOWFLAKE_STG_ACCOUNT}"
@@ -26,7 +26,7 @@ environments:
     schema: "${SNOWFLAKE_STG_SCHEMA}"
     role: "${SNOWFLAKE_STG_ROLE}"
     description: "Pre-production environment with enhanced safety checks"
-    
+
   prod:
     name: "Production Environment"
     account: "${SNOWFLAKE_PROD_ACCOUNT}"
@@ -53,7 +53,7 @@ security:
     - "\\bUPDATE\\s+.*\\s+SET\\b"
     - "\\bALTER\\s+.*\\s+DROP\\b"
     - "\\bRENAME\\s+TO\\b"
-  
+
   # Safe operations that don't require confirmation
   safe_patterns:
     - "\\bCREATE\\s+(?:SCHEMA|WAREHOUSE|ROLE)\\s+IF\\s+NOT\\s+EXISTS\\b"
@@ -62,7 +62,7 @@ security:
     - "\\bSELECT\\s+.*\\s+FROM\\s+INFORMATION_SCHEMA\\b"
     - "\\bGRANT\\s+USAGE\\s+ON\\s+(?:SCHEMA|WAREHOUSE)\\b"
     - "\\bGRANT\\s+SELECT\\s+ON\\b"
-  
+
   # Environment-specific restrictions
   environment_restrictions:
     dev:
@@ -77,7 +77,7 @@ security:
         - REVOKE
         - SHOW
         - DESCRIBE
-    
+
     stg:
       allow_destructive: false
       require_confirmation: true
@@ -89,7 +89,7 @@ security:
         - REVOKE
         - SHOW
         - DESCRIBE
-      
+
     prod:
       allow_destructive: false
       require_confirmation: true
@@ -114,31 +114,31 @@ langchain:
     temperature: 0
     max_tokens: 1000
     timeout: 30
-  
+
   agent:
     type: "ZERO_SHOT_REACT_DESCRIPTION"
     max_iterations: 5
     max_execution_time: 30
     early_stopping_method: "generate"
     verbose: true
-  
+
   sql_database:
-    include_tables: []  # Don't include business tables for security
+    include_tables: [] # Don't include business tables for security
     custom_table_info: {}
     max_string_length: 1000
-    top_k: 0  # Don't expose table data
+    top_k: 0 # Don't expose table data
 
 # Service User Configuration (for PAT authentication)
 service_user:
   name: "SOPHIA_SNOWFLAKE_ADMIN_BOT_USER"
   description: "Service user for Sophia AI Snowflake administration"
-  
+
   # Recommended role configuration
   roles:
     dev: "ROLE_SOPHIA_SNOWFLAKE_ADMIN_BOT_DEV"
     stg: "ROLE_SOPHIA_SNOWFLAKE_ADMIN_BOT_STG"
     prod: "ROLE_SOPHIA_SNOWFLAKE_ADMIN_BOT_PROD"
-  
+
   # Permissions per environment
   permissions:
     dev:
@@ -147,14 +147,14 @@ service_user:
       - "USAGE ON DATABASE SOPHIA_AI"
       - "ALL ON SCHEMA SOPHIA_AI.*"
       - "MONITOR ON ACCOUNT"
-    
+
     stg:
       - "USAGE ON WAREHOUSE STG_*"
       - "USAGE ON DATABASE SOPHIA_AI_STG"
       - "USAGE ON SCHEMA SOPHIA_AI_STG.*"
       - "CREATE ON SCHEMA SOPHIA_AI_STG.*"
       - "MONITOR ON ACCOUNT"
-    
+
     prod:
       - "USAGE ON WAREHOUSE PROD_READ_ONLY"
       - "USAGE ON DATABASE SOPHIA_AI"
@@ -166,7 +166,7 @@ monitoring:
   log_all_queries: true
   log_level: "INFO"
   audit_trail: true
-  
+
   # Metrics to track
   metrics:
     - query_count
@@ -174,7 +174,7 @@ monitoring:
     - error_rate
     - confirmation_rate
     - environment_usage
-  
+
   # Alerts
   alerts:
     failed_queries_threshold: 5
@@ -185,9 +185,9 @@ monitoring:
 chat_integration:
   intent_confidence_threshold: 0.6
   max_results_display: 10
-  confirmation_timeout: 600  # 10 minutes
+  confirmation_timeout: 600 # 10 minutes
   suggestion_count: 5
-  
+
   # Response formatting
   response_format:
     include_sql: true
@@ -202,21 +202,21 @@ task_templates:
     - "Show all schemas in the current database"
     - "Describe the schema {schema_name}"
     - "Grant USAGE on schema {schema_name} to role {role_name}"
-  
+
   warehouse_management:
     - "Create a warehouse called {warehouse_name} with size {size}"
     - "Show all warehouses and their status"
     - "Alter warehouse {warehouse_name} to auto suspend after {seconds} seconds"
     - "Grant USAGE on warehouse {warehouse_name} to role {role_name}"
-  
+
   role_management:
     - "Create a new role called {role_name}"
     - "Show all roles in the account"
     - "Grant role {role_name} to user {user_name}"
     - "Show grants for role {role_name}"
-  
+
   object_inspection:
     - "Show all tables in schema {schema_name}"
     - "Describe table {table_name}"
     - "Show the DDL for table {table_name}"
-    - "List all columns in table {table_name} with their data types" 
+    - "List all columns in table {table_name} with their data types"

@@ -83,7 +83,7 @@ export class DNSHealthChecker {
             const hostname = `${subdomain}.${request.domain}`;
             const subdomainResult = await this.checkSingleDomain(hostname, request.expectedIP, request.timeout);
             results.push(subdomainResult);
-            
+
             if (!subdomainResult.isValid) {
                 failures.push(`Subdomain ${hostname}: ${subdomainResult.error || 'IP mismatch'}`);
             }
@@ -275,10 +275,10 @@ export class DNSHealthChecker {
 
         // Calculate overall health
         const dnsScore = dnsResult.allPassed ? 50 : (dnsResult.summary.passed / dnsResult.summary.totalChecked) * 50;
-        const endpointScore = endpointResults.length > 0 
-            ? (endpointResults.filter(r => r.isHealthy).length / endpointResults.length) * 50 
+        const endpointScore = endpointResults.length > 0
+            ? (endpointResults.filter(r => r.isHealthy).length / endpointResults.length) * 50
             : 0;
-        
+
         const overallScore = Math.round(dnsScore + endpointScore);
         const isHealthy = overallScore >= 80;
 
@@ -325,7 +325,7 @@ export class DNSHealthChecker {
                     console.log(`🔄 DNS change detected for ${domain}:`);
                     console.log(`  Previous: ${previousIPsStr || 'none'}`);
                     console.log(`  Current: ${currentIPsStr}`);
-                    
+
                     previousIPs[domain] = currentIPs;
                 } else {
                     console.log(`✅ DNS stable for ${domain}: ${currentIPsStr}`);
@@ -348,10 +348,10 @@ export class DNSHealthChecker {
      */
     generateHealthReport(domain: string, results: DNSValidationResult, endpoints: EndpointHealthResult[]): string {
         const timestamp = new Date().toISOString();
-        
+
         let report = `# DNS Health Report - ${domain}\n`;
         report += `Generated: ${timestamp}\n\n`;
-        
+
         report += `## DNS Validation Summary\n`;
         report += `- Total checked: ${results.summary.totalChecked}\n`;
         report += `- Passed: ${results.summary.passed}\n`;
@@ -380,4 +380,4 @@ export class DNSHealthChecker {
 
         return report;
     }
-} 
+}

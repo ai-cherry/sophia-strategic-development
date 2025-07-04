@@ -123,7 +123,9 @@ class DevelopmentInsightsGenerator:
             "optimization_potential": (
                 "high"
                 if perf_opportunities > 10
-                else "medium" if perf_opportunities > 5 else "low"
+                else "medium"
+                if perf_opportunities > 5
+                else "low"
             ),
             "recommendations": self._generate_performance_recommendations(),
         }

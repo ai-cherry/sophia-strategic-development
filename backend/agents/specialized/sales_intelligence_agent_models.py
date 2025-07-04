@@ -176,4 +176,4 @@ class AgentCapabilities:
     data_sources: list[str]
     output_formats: list[str]
     integration_points: list[str]
-    performance_metrics: dict[str, Any] 
+    performance_metrics: dict[str, Any]

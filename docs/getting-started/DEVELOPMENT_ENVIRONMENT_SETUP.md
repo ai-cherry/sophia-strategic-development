@@ -1,6 +1,6 @@
 ---
 title: 🚀 Sophia AI Development Environment Setup
-description: 
+description:
 tags: security, onboarding, monitoring
 last_updated: 2025-06-23
 dependencies: none

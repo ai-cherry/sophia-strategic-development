@@ -309,7 +309,11 @@ class CriticalRefactorer:
             },
         )
 
-        response = await smart_ai_service.generate_response(llm_request)
+        response = await async for chunk in llm_service.complete(
+    prompt=llm_request.prompt if hasattr(llm_request, 'prompt') else llm_request.get('prompt', ''),
+    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
+    stream=True
+)
         return response.content
 
     async def _generate_content_variations(self, request: ContentGenerationRequest, content: str) -> List[str]:

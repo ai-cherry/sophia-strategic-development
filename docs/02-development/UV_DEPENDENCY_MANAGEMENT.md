@@ -158,4 +158,4 @@ UV respects standard pip environment variables:
 
 - [UV Documentation](https://github.com/astral-sh/uv)
 - [Python Packaging Guide](https://packaging.python.org)
-- [PEP 621](https://peps.python.org/pep-0621/) - pyproject.toml specification 
+- [PEP 621](https://peps.python.org/pep-0621/) - pyproject.toml specification

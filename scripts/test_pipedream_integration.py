@@ -126,7 +126,9 @@ class PipedreamIntegrationTester:
                 logger.info(f"✅ Migration readiness: {readiness_score:.0f}% - READY")
             elif readiness_score >= 60:
                 status = "partial"
-                logger.info(f"⚠️  Migration readiness: {readiness_score:.0f}% - PARTIAL")
+                logger.info(
+                    f"⚠️  Migration readiness: {readiness_score:.0f}% - PARTIAL"
+                )
             else:
                 status = "not_ready"
                 logger.info(

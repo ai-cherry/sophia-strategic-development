@@ -1,9 +1,6 @@
 {
   "phase": "infrastructure_preparation",
-  "steps_completed": [
-    "configuration_backup",
-    "environment_validation"
-  ],
+  "steps_completed": ["configuration_backup", "environment_validation"],
   "errors": [
     "Phase 1: Snowflake connectivity failed: 250001 (08001): None: Failed to connect to DB: ZNB04675.us-east-1.snowflakecomputing.com:443. Programmatic access token is invalid."
   ],

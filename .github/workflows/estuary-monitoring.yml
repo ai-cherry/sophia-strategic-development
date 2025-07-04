@@ -30,16 +30,16 @@ jobs
     name: Monitor Pipeline Health
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || 'dev' }}
-    
+
     steps
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -69,10 +69,10 @@ jobs
               await manager.initialize()
               # Perform health check
               health_check = await manager.perform_health_check()
-              
+
               # Validate data quality
               quality_metrics = await manager.validate_gong_data_quality(200)
-              
+
               # Create monitoring report
               report = {
                   'timestamp': datetime.utcnow().isoformat(),
@@ -90,24 +90,24 @@ jobs
               # Save report
               with open('monitoring_report.json', 'w') as f
                   json.dump(report, f, indent=2)
-              
+
               # Check for alerts
               alerts = []
-              
+
               if health_check['overall_status'] == 'critical'
                   alerts.append('CRITICAL: Pipeline health is critical')
-              
+
               if quality_metrics.quality_score < float('${{ github.event.inputs.alert_threshold || '0.85' }}')
                   alerts.append(f'WARNING: Data quality score {quality_metrics.quality_score:.3f} below threshold')
-              
+
               if quality_metrics.issues
                   alerts.append(f'WARNING: Data quality issues detected: {', '.join(quality_metrics.issues)}')
-              
+
               # Log results
               print(f'Health Status: {health_check[\"overall_status\"]}')
               print(f'Data Quality Score: {quality_metrics.quality_score:.3f}')
               print(f'Total Records: {quality_metrics.total_records}')
-              
+
               if alerts
                   print('ALERTS:')
                   for alert in alerts
@@ -127,7 +127,7 @@ jobs
           name: monitoring-report-${{ github.event.inputs.environment || 'dev' }}-${{ github.run_number }}
           path: monitoring_report.json
           retention-days: 90
-      
+
       - name: Check for alerts
         id: check-alerts
         run: |
@@ -147,13 +147,13 @@ jobs
             const alerts = `${{ steps.check-alerts.outputs.alerts }}`;
             const environment = '${{ github.event.inputs.environment || 'dev' }}';
             const timestamp = new Date().toISOString();
-            
+
             const issueBody = `
             ## 🚨 Critical Pipeline Alert
             **Environment:** ${environment}
             **Timestamp:** ${timestamp}
             **Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            
+
             ### Alerts
             \`\`\`
             ${alerts}
@@ -180,16 +180,16 @@ jobs
     name: Monitor Data Freshness
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || 'dev' }}
-    
+
     steps
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -218,27 +218,27 @@ jobs
               await cortex.initialize()
               # Check raw data freshness
               raw_freshness_query = '''
-                  SELECT 
+                  SELECT
                       MAX(_ESTUARY_EMITTED_AT) as latest_raw_data,
                       COUNT(*) as records_last_24h
                   FROM SOPHIA_AI_DEV.RAW_ESTUARY.RAW_GONG_CALLS_RAW
                   WHERE _ESTUARY_EMITTED_AT >= DATEADD('hour', -24, CURRENT_TIMESTAMP())
               '''
               raw_result = await cortex.execute_query(raw_freshness_query)
-              
+
               # Check transformed data freshness
               stg_freshness_query = '''
-                  SELECT 
+                  SELECT
                       MAX(UPDATED_AT) as latest_stg_data,
                       COUNT(*) as records_last_24h
                   FROM SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS
                   WHERE UPDATED_AT >= DATEADD('hour', -24, CURRENT_TIMESTAMP())
               '''
               stg_result = await cortex.execute_query(stg_freshness_query)
-              
+
               # Analyze freshness
               now = datetime.utcnow()
-              
+
               if len(raw_result) > 0 and raw_result.iloc[0]['LATEST_RAW_DATA']
                   latest_raw = raw_result.iloc[0]['LATEST_RAW_DATA']
                   raw_age_hours = (now - latest_raw).total_seconds() / 3600
@@ -246,7 +246,7 @@ jobs
               else
                   raw_age_hours = 999
                   raw_records = 0
-              
+
               if len(stg_result) > 0 and stg_result.iloc[0]['LATEST_STG_DATA']
                   latest_stg = stg_result.iloc[0]['LATEST_STG_DATA']
                   stg_age_hours = (now - latest_stg).total_seconds() / 3600
@@ -254,23 +254,23 @@ jobs
               else
                   stg_age_hours = 999
                   stg_records = 0
-              
+
               print(f'Raw Data Freshness: {raw_age_hours:.1f} hours ago ({raw_records} records in 24h)')
               print(f'Transformed Data Freshness: {stg_age_hours:.1f} hours ago ({stg_records} records in 24h)')
-              
+
               # Alert thresholds
               if raw_age_hours > 6:  # Alert if raw data is older than 6 hours
                   print(f'⚠️  WARNING: Raw data is {raw_age_hours:.1f} hours old')
-              
+
               if stg_age_hours > 8:  # Alert if transformed data is older than 8 hours
                   print(f'⚠️  WARNING: Transformed data is {stg_age_hours:.1f} hours old')
-              
+
               if raw_records == 0
                   print('🚨 CRITICAL: No raw data ingested in the last 24 hours')
-              
+
               if stg_records == 0
                   print('🚨 CRITICAL: No data transformed in the last 24 hours')
-              
+
               if raw_age_hours <= 6 and stg_age_hours <= 8 and raw_records > 0 and stg_records > 0
                   print('✅ Data freshness is within acceptable limits')
               await cortex.close()
@@ -282,7 +282,7 @@ jobs
     runs-on: ubuntu-latest
     needs: [monitor-pipeline-health, monitor-data-freshness]
     if: always()
-    
+
     steps
       - name: Download monitoring artifacts
         uses: actions/download-artifact@v3
@@ -290,7 +290,7 @@ jobs
         with
           name: monitoring-report-${{ github.event.inputs.environment || 'dev' }}-${{ github.run_number }}
           path: ./monitoring-artifacts
-      
+
       - name: Generate Summary
         run: |
           echo "## 📊 Pipeline Monitoring Summary" >> $GITHUB_STEP_SUMMARY

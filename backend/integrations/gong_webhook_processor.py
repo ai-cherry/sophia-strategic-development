@@ -5,19 +5,19 @@ This module provides webhook processing capabilities for Gong integration.
 Simplified version to resolve import and indentation issues.
 """
 
-import asyncio
-import time
 import logging
-from datetime import datetime
-from typing import Any, Dict
+import time
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class NotificationPriority(Enum):
     """Notification priority levels"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -26,6 +26,7 @@ class NotificationPriority(Enum):
 @dataclass
 class ProcessedCallData:
     """Processed call data structure"""
+
     call_id: str
     webhook_id: str
     title: str
@@ -42,6 +43,7 @@ class ProcessedCallData:
 @dataclass
 class ProcessedEmailData:
     """Processed email data structure"""
+
     email_id: str
     webhook_id: str
     subject: str
@@ -55,6 +57,7 @@ class ProcessedEmailData:
 @dataclass
 class ProcessedMeetingData:
     """Processed meeting data structure"""
+
     meeting_id: str
     webhook_id: str
     title: str
@@ -71,7 +74,7 @@ class WebhookProcessor:
     def __init__(
         self,
         gong_api_key: str,
-        snowflake_config: Dict[str, str],
+        snowflake_config: dict[str, str],
         redis_url: str = "redis://localhost:6379",
     ):
         self.gong_api_key = gong_api_key
@@ -88,8 +91,8 @@ class WebhookProcessor:
         pass
 
     async def process_call_webhook(
-        self, webhook_id: str, webhook_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, webhook_id: str, webhook_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process a call webhook through the complete pipeline."""
         start_time = time.time()
         call_id = webhook_data.get("call_id", "")
@@ -118,13 +121,13 @@ class WebhookProcessor:
         return processing_result
 
     async def process_email_webhook(
-        self, webhook_id: str, webhook_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, webhook_id: str, webhook_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process an email webhook (simplified)."""
         return {"status": "completed", "webhook_id": webhook_id}
 
     async def process_meeting_webhook(
-        self, webhook_id: str, webhook_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, webhook_id: str, webhook_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Process a meeting webhook (simplified)."""
         return {"status": "completed", "webhook_id": webhook_id}

@@ -107,7 +107,7 @@ persona:
     - Data-driven decision making
     - Proactive in suggesting insights
     - Transparent about limitations
-  
+
 rules:
   always:
     - Cite sources for business data
@@ -227,4 +227,4 @@ rules:
 - Helicone for LLM observability
 - Portkey for model routing
 
-Remember: The goal is not to build the most complex system, but the most useful one for Pay Ready's specific needs. Start simple, measure everything, and iterate based on real usage. 
+Remember: The goal is not to build the most complex system, but the most useful one for Pay Ready's specific needs. Start simple, measure everything, and iterate based on real usage.

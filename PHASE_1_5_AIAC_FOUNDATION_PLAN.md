@@ -27,21 +27,21 @@ class AIaCChatIntegration:
     """
     Extends unified chat to handle infrastructure commands
     """
-    
+
     def __init__(self):
         self.mem0_service = get_mem0_service()
         self.prompt_optimizer = PromptOptimizerClient()
         self.intent_classifier = AIaCIntentClassifier()
         self.plan_generator = ExecutionPlanGenerator()
         self.approval_manager = ApprovalManager()
-    
+
     async def process_message(self, message: str, user_id: str) -> AIaCResponse:
         # Classify intent
         intent = await self.intent_classifier.classify(message)
-        
+
         if intent.category == "infrastructure":
             return await self.handle_infrastructure_command(message, user_id, intent)
-        
+
         # Regular chat processing
         return await self.process_regular_chat(message, user_id)
 ```
@@ -70,7 +70,7 @@ interface ExecutionPlan {
 const AIaCApprovalCard: React.FC<{plan: ExecutionPlan}> = ({ plan }) => {
     const [expanded, setExpanded] = useState(false);
     const [approving, setApproving] = useState(false);
-    
+
     return (
         <Card className="aiac-approval-card glassmorphism">
             <div className="header">
@@ -78,39 +78,39 @@ const AIaCApprovalCard: React.FC<{plan: ExecutionPlan}> = ({ plan }) => {
                 <h3>Infrastructure Change Approval Required</h3>
                 <RiskBadge level={plan.risk_level} />
             </div>
-            
+
             <div className="intent-section">
                 <h4>What you asked:</h4>
                 <p className="user-intent">{plan.intent}</p>
             </div>
-            
+
             <div className="plan-section">
                 <h4>What will happen:</h4>
                 <StepList steps={plan.steps} />
             </div>
-            
-            <SimulationResults 
+
+            <SimulationResults
                 result={plan.simulation}
                 expanded={expanded}
                 onToggle={() => setExpanded(!expanded)}
             />
-            
+
             <div className="approval-actions">
-                <Button 
-                    variant="primary" 
+                <Button
+                    variant="primary"
                     onClick={() => handleApprove(plan.id)}
                     loading={approving}
                 >
                     <Icon name="check" /> Approve & Execute
                 </Button>
-                <Button 
-                    variant="danger" 
+                <Button
+                    variant="danger"
                     onClick={() => handleReject(plan.id)}
                 >
                     <Icon name="x" /> Reject
                 </Button>
-                <Button 
-                    variant="secondary" 
+                <Button
+                    variant="secondary"
                     onClick={() => requestModification(plan.id)}
                 >
                     <Icon name="edit" /> Modify Plan
@@ -142,7 +142,7 @@ class PulumiAIaCServer(StandardizedMCPServer):
     """
     Pulumi MCP with AIaC capabilities using Automation API
     """
-    
+
     def __init__(self):
         super().__init__(
             name="pulumi_aiac",
@@ -151,24 +151,24 @@ class PulumiAIaCServer(StandardizedMCPServer):
         )
         self.workspace_dir = "/workspace/infrastructure"
         self.stacks: Dict[str, auto.Stack] = {}
-        
+
     async def startup(self):
         """Initialize Pulumi workspace and load stacks"""
         await super().startup()
         await self.load_available_stacks()
-        
+
     async def load_available_stacks(self):
         """Load all available Pulumi stacks"""
         workspace = auto.LocalWorkspace(work_dir=self.workspace_dir)
         stack_summaries = await workspace.list_stacks()
-        
+
         for summary in stack_summaries:
             stack = auto.select_stack(
                 stack_name=summary.name,
                 work_dir=self.workspace_dir
             )
             self.stacks[summary.name] = stack
-            
+
     @mcp_tool(
         name="list_stacks",
         description="List all available Pulumi stacks",
@@ -186,31 +186,31 @@ class PulumiAIaCServer(StandardizedMCPServer):
                 "resource_count": len(info.resources) if info.resources else 0
             })
         return stacks
-    
+
     @mcp_tool(
         name="preview_changes",
         description="Preview infrastructure changes without applying",
         read_only=True
     )
     async def preview_changes(
-        self, 
+        self,
         stack_name: str,
         config_updates: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         """Preview changes for a stack"""
         if stack_name not in self.stacks:
             raise ValueError(f"Stack {stack_name} not found")
-            
+
         stack = self.stacks[stack_name]
-        
+
         # Apply config updates if provided
         if config_updates:
             for key, value in config_updates.items():
                 await stack.set_config(key, auto.ConfigValue(value))
-        
+
         # Run preview
         preview_result = await stack.preview()
-        
+
         return {
             "summary": {
                 "create": preview_result.summary.create,
@@ -222,7 +222,7 @@ class PulumiAIaCServer(StandardizedMCPServer):
             "stdout": preview_result.stdout[-1000:],  # Last 1000 chars
             "warnings": self._extract_warnings(preview_result.stdout)
         }
-    
+
     @mcp_tool(
         name="apply_changes",
         description="Apply infrastructure changes (requires approval)",
@@ -238,16 +238,16 @@ class PulumiAIaCServer(StandardizedMCPServer):
         # Verify approval
         if not await self.verify_approval(approval_token):
             raise HTTPException(status_code=403, detail="Invalid approval token")
-            
+
         stack = self.stacks[stack_name]
-        
+
         # Store pre-update state for rollback
         pre_state = await stack.export_stack()
-        
+
         try:
             # Apply updates
             up_result = await stack.up(message=message)
-            
+
             # Store in memory for learning
             await self.mem0_service.store_infrastructure_change(
                 stack_name=stack_name,
@@ -255,7 +255,7 @@ class PulumiAIaCServer(StandardizedMCPServer):
                 success=True,
                 message=message
             )
-            
+
             return {
                 "success": True,
                 "summary": up_result.summary,
@@ -263,7 +263,7 @@ class PulumiAIaCServer(StandardizedMCPServer):
                 "duration": up_result.duration,
                 "rollback_checkpoint": pre_state["checkpoint"]
             }
-            
+
         except Exception as e:
             # Automatic rollback on failure
             logger.error(f"Update failed: {e}")
@@ -280,7 +280,7 @@ class AIaCSimulationEngine:
     """
     Simulates infrastructure changes before execution
     """
-    
+
     def __init__(self):
         self.simulators = {
             "pulumi": PulumiSimulator(),
@@ -288,9 +288,9 @@ class AIaCSimulationEngine:
             "snowflake": SnowflakeSimulator(),
             "github": GitHubSimulator()
         }
-        
+
     async def simulate_plan(
-        self, 
+        self,
         plan: ExecutionPlan
     ) -> SimulationResult:
         """
@@ -299,19 +299,19 @@ class AIaCSimulationEngine:
         results = []
         total_duration = 0
         risk_factors = []
-        
+
         for step in plan.steps:
             simulator = self.simulators.get(step.service)
             if not simulator:
                 raise ValueError(f"No simulator for {step.service}")
-                
+
             # Run step simulation
             step_result = await simulator.simulate(step)
             results.append(step_result)
-            
+
             total_duration += step_result.estimated_duration
             risk_factors.extend(step_result.risk_factors)
-            
+
         return SimulationResult(
             success=all(r.success for r in results),
             steps=results,
@@ -330,47 +330,47 @@ class AIaCIntentClassifier:
     """
     Classifies user messages for infrastructure operations
     """
-    
+
     def __init__(self):
         self.infrastructure_keywords = {
             "deploy", "scale", "update", "rollback", "create",
             "delete", "modify", "infrastructure", "server",
             "database", "kubernetes", "k8s", "pulumi"
         }
-        
+
         self.read_only_keywords = {
             "show", "list", "describe", "status", "check",
             "preview", "simulate", "what if", "would"
         }
-        
+
     async def classify(self, message: str) -> IntentClassification:
         """
         Classify user intent from message
         """
         message_lower = message.lower()
-        
+
         # Check for infrastructure keywords
         is_infrastructure = any(
-            keyword in message_lower 
+            keyword in message_lower
             for keyword in self.infrastructure_keywords
         )
-        
+
         if not is_infrastructure:
             return IntentClassification(
                 category="general",
                 confidence=0.9
             )
-            
+
         # Determine if read-only or state-changing
         is_read_only = any(
-            keyword in message_lower 
+            keyword in message_lower
             for keyword in self.read_only_keywords
         )
-        
+
         # Extract specific intent
         intent_type = self.extract_intent_type(message)
         target = self.extract_target(message)
-        
+
         return IntentClassification(
             category="infrastructure",
             intent_type=intent_type,
@@ -390,14 +390,14 @@ class AIaCIntentClassifier:
 @router.post("/chat")
 async def unified_chat_endpoint(request: ChatRequest):
     # Existing chat logic...
-    
+
     # Add AIaC integration
     aiac_integration = AIaCChatIntegration()
     response = await aiac_integration.process_message(
         request.message,
         request.user_id
     )
-    
+
     if response.requires_approval:
         # Return approval UI
         return ChatResponse(
@@ -405,7 +405,7 @@ async def unified_chat_endpoint(request: ChatRequest):
             content=response.approval_card,
             plan_id=response.plan_id
         )
-    
+
     # Regular response
     return response
 ```
@@ -540,4 +540,4 @@ optimized_command = await prompt_optimizer.optimize(
 
 Phase 1.5 transforms Sophia AI into an infrastructure command center while maintaining the CEO's complete control. By integrating AIaC principles with our unified chat interface and memory system, we create a unique platform that learns from every action and improves over time.
 
-The implementation is designed to be completed in 2 weeks with a focus on safety, quality, and user experience. Every component has been carefully designed to support the CEO's workflow while providing enterprise-grade reliability and security. 
+The implementation is designed to be completed in 2 weeks with a focus on safety, quality, and user experience. Every component has been carefully designed to support the CEO's workflow while providing enterprise-grade reliability and security.

@@ -404,14 +404,14 @@ Include:
                     )
 
             # Get performance requirements
-            business_context["performance_requirements"] = (
-                "Sub-200ms response times, scalable architecture"
-            )
+            business_context[
+                "performance_requirements"
+            ] = "Sub-200ms response times, scalable architecture"
 
             # Get security requirements
-            business_context["security_requirements"] = (
-                "Enterprise-grade security, Pulumi ESC integration"
-            )
+            business_context[
+                "security_requirements"
+            ] = "Enterprise-grade security, Pulumi ESC integration"
 
             # Get design context from UI/UX agent
             try:
@@ -419,9 +419,9 @@ Include:
                     "http://localhost:9001/api/design_system", timeout=5
                 )
                 if design_response.status_code == 200:
-                    business_context["design_context"] = (
-                        "Glassmorphism design system, WCAG 2.1 AA compliance"
-                    )
+                    business_context[
+                        "design_context"
+                    ] = "Glassmorphism design system, WCAG 2.1 AA compliance"
             except Exception as e:
                 logger.warning(
                     f"Could not connect to design system MCP, using default. Error: {e}"
@@ -429,9 +429,9 @@ Include:
                 business_context["design_context"] = "Modern responsive design required"
 
         except Exception as e:
-            business_context["context_error"] = (
-                f"Failed to gather business context: {str(e)}"
-            )
+            business_context[
+                "context_error"
+            ] = f"Failed to gather business context: {str(e)}"
 
         return business_context
 

@@ -4,52 +4,45 @@ Automated migration script for UnifiedLLMService
 Migrates files from old LLM services to the new unified service
 """
 
-import os
-import re
 import argparse
-from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
-from datetime import datetime
+import re
 import shutil
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
 
 # Migration patterns for different services
 MIGRATION_PATTERNS = [
     # Import replacements
-    (r"from backend\.services\.smart_ai_service import SmartAIService",
-     "from backend.services.unified_llm_service import get_unified_llm_service, TaskType"),
-    
-    (r"from backend\.services\.portkey_gateway import PortkeyGateway",
-     "from backend.services.unified_llm_service import get_unified_llm_service, TaskType"),
-    
-    (r"from backend\.services\.simplified_portkey_service import SimplifiedPortkeyService",
-     "from backend.services.unified_llm_service import get_unified_llm_service, TaskType"),
-    
-    (r"from backend\.services\.enhanced_portkey_orchestrator import EnhancedPortkeyOrchestrator",
-     "from backend.services.unified_llm_service import get_unified_llm_service, TaskType"),
-    
+    (
+        r"from backend\.services\.smart_ai_service import SmartAIService",
+        "from backend.services.unified_llm_service import get_unified_llm_service, TaskType",
+    ),
+    (
+        r"from backend\.services\.portkey_gateway import PortkeyGateway",
+        "from backend.services.unified_llm_service import get_unified_llm_service, TaskType",
+    ),
+    (
+        r"from backend\.services\.simplified_portkey_service import SimplifiedPortkeyService",
+        "from backend.services.unified_llm_service import get_unified_llm_service, TaskType",
+    ),
+    (
+        r"from backend\.services\.enhanced_portkey_orchestrator import EnhancedPortkeyOrchestrator",
+        "from backend.services.unified_llm_service import get_unified_llm_service, TaskType",
+    ),
     # Import statement replacements
-    (r"import backend\.services\.smart_ai_service",
-     "import backend.services.unified_llm_service"),
-    
+    (
+        r"import backend\.services\.smart_ai_service",
+        "import backend.services.unified_llm_service",
+    ),
     # Class instantiation replacements
-    (r"SmartAIService\(\)",
-     "await get_unified_llm_service()"),
-    
-    (r"PortkeyGateway\(\)",
-     "await get_unified_llm_service()"),
-    
-    (r"SimplifiedPortkeyService\(\)",
-     "await get_unified_llm_service()"),
-    
+    (r"SmartAIService\(\)", "await get_unified_llm_service()"),
+    (r"PortkeyGateway\(\)", "await get_unified_llm_service()"),
+    (r"SimplifiedPortkeyService\(\)", "await get_unified_llm_service()"),
     # Variable name replacements
-    (r"smart_ai_service",
-     "llm_service"),
-    
-    (r"portkey_gateway",
-     "llm_service"),
-    
-    (r"portkey_service",
-     "llm_service"),
+    (r"smart_ai_service", "llm_service"),
+    (r"portkey_gateway", "llm_service"),
+    (r"portkey_service", "llm_service"),
 ]
 
 # Task type mappings for method calls
@@ -100,10 +93,12 @@ FILES_TO_MIGRATE = [
 class UnifiedLLMMigrator:
     def __init__(self, dry_run: bool = True):
         self.dry_run = dry_run
-        self.backup_dir = Path(f"backups/llm_migration_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+        self.backup_dir = Path(
+            f"backups/llm_migration_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
         self.changes_made = []
         self.errors = []
-        
+
     def backup_file(self, file_path: Path) -> bool:
         """Backup a file before modification"""
         if not self.dry_run:
@@ -113,68 +108,56 @@ class UnifiedLLMMigrator:
             shutil.copy2(file_path, backup_path)
             return True
         return False
-        
-    def migrate_file(self, file_path: str) -> Dict[str, Any]:
+
+    def migrate_file(self, file_path: str) -> dict[str, Any]:
         """Migrate a single file"""
         path = Path(file_path)
         if not path.exists():
             self.errors.append(f"File not found: {file_path}")
             return {"status": "error", "file": file_path, "error": "File not found"}
-            
+
         try:
             content = path.read_text()
             original_content = content
             changes = []
-            
+
             # Apply migration patterns
             for old_pattern, new_pattern in MIGRATION_PATTERNS:
                 matches = re.findall(old_pattern, content)
                 if matches:
                     content = re.sub(old_pattern, new_pattern, content)
-                    changes.append(f"Replaced {len(matches)} occurrences of '{old_pattern}'")
-            
+                    changes.append(
+                        f"Replaced {len(matches)} occurrences of '{old_pattern}'"
+                    )
+
             # Handle method call migrations (more complex)
             content = self._migrate_method_calls(content, changes)
-            
+
             # Only write if changes were made
             if content != original_content:
                 if not self.dry_run:
                     self.backup_file(path)
                     path.write_text(content)
-                
-                self.changes_made.append({
-                    "file": file_path,
-                    "changes": changes
-                })
-                
-                return {
-                    "status": "modified",
-                    "file": file_path,
-                    "changes": changes
-                }
+
+                self.changes_made.append({"file": file_path, "changes": changes})
+
+                return {"status": "modified", "file": file_path, "changes": changes}
             else:
-                return {
-                    "status": "unchanged",
-                    "file": file_path
-                }
-                
+                return {"status": "unchanged", "file": file_path}
+
         except Exception as e:
             self.errors.append(f"Error processing {file_path}: {str(e)}")
-            return {
-                "status": "error",
-                "file": file_path,
-                "error": str(e)
-            }
-    
-    def _migrate_method_calls(self, content: str, changes: List[str]) -> str:
+            return {"status": "error", "file": file_path, "error": str(e)}
+
+    def _migrate_method_calls(self, content: str, changes: list[str]) -> str:
         """Migrate method calls to the new pattern"""
         # Pattern for smart_ai.generate_response(request)
         pattern = r"(\w+)\.generate_response\s*\(\s*([^)]+)\s*\)"
-        
+
         def replace_method_call(match):
             var_name = match.group(1)
             args = match.group(2)
-            
+
             # Extract the request object
             if "request" in args:
                 # Assume request has prompt, task_type, etc.
@@ -189,28 +172,26 @@ class UnifiedLLMMigrator:
     task_type=TaskType.CHAT_CONVERSATION,  # TODO: Set appropriate task type
     stream=True
 )"""
-        
+
         new_content = re.sub(pattern, replace_method_call, content)
         if new_content != content:
             changes.append("Migrated method calls to new pattern")
-            
+
         return new_content
-    
-    def run_migration(self, files: Optional[List[str]] = None):
+
+    def run_migration(self, files: Optional[list[str]] = None):
         """Run the migration on specified files or all files"""
         if files is None:
             files = FILES_TO_MIGRATE
-            
-        print(f"{'DRY RUN: ' if self.dry_run else ''}Starting UnifiedLLMService migration...")
+
+        print(
+            f"{'DRY RUN: ' if self.dry_run else ''}Starting UnifiedLLMService migration..."
+        )
         print(f"Processing {len(files)} files...")
         print("=" * 60)
-        
-        results = {
-            "modified": [],
-            "unchanged": [],
-            "errors": []
-        }
-        
+
+        results = {"modified": [], "unchanged": [], "errors": []}
+
         for file_path in files:
             result = self.migrate_file(file_path)
             status = result["status"]
@@ -218,75 +199,75 @@ class UnifiedLLMMigrator:
                 results["errors"].append(result)
             else:
                 results[status].append(result)
-            
+
             # Print progress
-            status_symbol = {
-                "modified": "✓",
-                "unchanged": "-",
-                "error": "✗"
-            }[status]
-            
+            status_symbol = {"modified": "✓", "unchanged": "-", "error": "✗"}[status]
+
             print(f"{status_symbol} {file_path}")
             if status == "modified" and self.dry_run:
                 for change in result["changes"]:
                     print(f"  → {change}")
-        
+
         # Print summary
         print("\n" + "=" * 60)
         print("Migration Summary:")
         print(f"  Modified: {len(results['modified'])} files")
         print(f"  Unchanged: {len(results['unchanged'])} files")
         print(f"  Errors: {len(results['errors'])} files")
-        
-        if results['errors']:
+
+        if results["errors"]:
             print("\nErrors:")
-            for error in results['errors']:
+            for error in results["errors"]:
                 print(f"  ✗ {error['file']}: {error.get('error', 'Unknown error')}")
-        
-        if not self.dry_run and results['modified']:
+
+        if not self.dry_run and results["modified"]:
             print(f"\nBackups saved to: {self.backup_dir}")
-            
+
             # Create migration report
             report_path = self.backup_dir / "migration_report.txt"
-            with open(report_path, 'w') as f:
+            with open(report_path, "w") as f:
                 f.write("UnifiedLLMService Migration Report\n")
                 f.write("=" * 60 + "\n\n")
                 f.write(f"Date: {datetime.now().isoformat()}\n")
                 f.write(f"Files modified: {len(results['modified'])}\n\n")
-                
-                for result in results['modified']:
+
+                for result in results["modified"]:
                     f.write(f"\n{result['file']}:\n")
-                    for change in result['changes']:
+                    for change in result["changes"]:
                         f.write(f"  - {change}\n")
-                        
+
             print(f"Migration report saved to: {report_path}")
-        
+
         return results
 
 
 def main():
     parser = argparse.ArgumentParser(description="Migrate to UnifiedLLMService")
-    parser.add_argument("--dry-run", action="store_true", default=True,
-                        help="Show what would be changed without modifying files")
-    parser.add_argument("--apply", action="store_true",
-                        help="Actually apply the changes")
-    parser.add_argument("--files", nargs="+",
-                        help="Specific files to migrate")
-    
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=True,
+        help="Show what would be changed without modifying files",
+    )
+    parser.add_argument(
+        "--apply", action="store_true", help="Actually apply the changes"
+    )
+    parser.add_argument("--files", nargs="+", help="Specific files to migrate")
+
     args = parser.parse_args()
-    
+
     # If --apply is specified, turn off dry-run
     if args.apply:
         args.dry_run = False
-    
+
     migrator = UnifiedLLMMigrator(dry_run=args.dry_run)
     results = migrator.run_migration(files=args.files)
-    
+
     # Return non-zero exit code if there were errors
-    if results['errors']:
+    if results["errors"]:
         return 1
     return 0
 
 
 if __name__ == "__main__":
-    exit(main()) 
+    exit(main())

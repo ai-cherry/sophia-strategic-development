@@ -1,9 +1,7 @@
 {
   "environments": {
     "production": {
-      "imports": [
-        "scoobyjava-org/default/sophia-ai-production"
-      ],
+      "imports": ["scoobyjava-org/default/sophia-ai-production"],
       "values": {
         "aws": {
           "region": "us-east-1"
@@ -14,9 +12,7 @@
       }
     },
     "development": {
-      "imports": [
-        "scoobyjava-org/default/sophia-ai-development"
-      ],
+      "imports": ["scoobyjava-org/default/sophia-ai-development"],
       "values": {
         "aws": {
           "region": "us-east-1"

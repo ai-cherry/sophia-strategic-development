@@ -39,7 +39,7 @@ CONDITIONAL_DELETE=("orchestra-main" "dashboard" "admin-interface")
 delete_project() {
     local project_name=$1
     echo "Attempting to delete project: $project_name"
-    
+
     # Check if project exists
     if vercel projects ls --token="$VERCEL_TOKEN" | grep -q "$project_name"; then
         echo "Found project $project_name, deleting..."
@@ -54,7 +54,7 @@ remove_domain() {
     local project_name=$1
     local domain_name=$2
     echo "Attempting to remove domain $domain_name from project $project_name"
-    
+
     # Try to remove domain (may fail if domain doesn't exist)
     vercel domains rm "$domain_name" --yes --token="$VERCEL_TOKEN" || echo "Failed to remove domain $domain_name (may not exist)"
 }
@@ -67,11 +67,11 @@ done
 # Conditionally delete projects if flag is set
 if [ "$DELETE_LEGACY" = "true" ]; then
     echo "DELETE_LEGACY flag is set, removing legacy projects..."
-    
+
     # Remove domains from legacy projects first
     remove_domain "dashboard" "dashboard.cherry-ai.me"
     remove_domain "admin-interface" "admin.cherry-ai.me"
-    
+
     # Delete legacy projects
     for project in "\${CONDITIONAL_DELETE[@]}"; do
         delete_project "$project"
@@ -144,22 +144,22 @@ const prodEnvVars = [
     { key: "VITE_BUILD_VERSION", value: "2.0.0" },
     { key: "VITE_BACKEND_URL", value: "https://api.sophia-intel.ai" },
     { key: "VITE_WS_URL", value: "wss://api.sophia-intel.ai" },
-    
+
     // Enhanced Dashboard Features
     { key: "VITE_ENABLE_ENHANCED_DASHBOARD", value: "true" },
     { key: "VITE_ENABLE_CHART_JS_DASHBOARD", value: "true" },
     { key: "VITE_ENABLE_REAL_TIME_CHARTS", value: "true" },
     { key: "VITE_ENABLE_FIGMA_INTEGRATION", value: "true" },
-    
+
     // Design System
     { key: "VITE_GLASSMORPHISM_ENABLED", value: "true" },
     { key: "VITE_DESIGN_SYSTEM_MODE", value: "production" },
-    
+
     // Monitoring & Analytics
     { key: "VITE_ENABLE_PERFORMANCE_MONITORING", value: "true" },
     { key: "VITE_ANALYTICS_ENABLED", value: "false" },
     { key: "VITE_DEBUG_MODE", value: "false" },
-    
+
     // Security
     { key: "VITE_UNIFIED_ACCESS_TOKEN", value: "sophia_unified_access_2024" },
     { key: "VITE_ADMIN_MODE", value: "false" }
@@ -172,22 +172,22 @@ const devEnvVars = [
     { key: "VITE_BUILD_VERSION", value: "2.0.0-dev" },
     { key: "VITE_BACKEND_URL", value: "https://dev.api.sophia-intel.ai" },
     { key: "VITE_WS_URL", value: "wss://dev.api.sophia-intel.ai" },
-    
+
     // Enhanced Dashboard Features
     { key: "VITE_ENABLE_ENHANCED_DASHBOARD", value: "true" },
     { key: "VITE_ENABLE_CHART_JS_DASHBOARD", value: "true" },
     { key: "VITE_ENABLE_REAL_TIME_CHARTS", value: "true" },
     { key: "VITE_ENABLE_FIGMA_INTEGRATION", value: "true" },
-    
+
     // Design System
     { key: "VITE_GLASSMORPHISM_ENABLED", value: "true" },
     { key: "VITE_DESIGN_SYSTEM_MODE", value: "development" },
-    
+
     // Monitoring & Analytics
     { key: "VITE_ENABLE_PERFORMANCE_MONITORING", value: "true" },
     { key: "VITE_ANALYTICS_ENABLED", value: "false" },
     { key: "VITE_DEBUG_MODE", value: "true" },
-    
+
     // Security
     { key: "VITE_UNIFIED_ACCESS_TOKEN", value: "sophia_unified_access_token_dev" },
     { key: "VITE_ADMIN_MODE", value: "true" }
@@ -342,7 +342,7 @@ class NamecheapAPI:
         self.api_key = api_key
         self.client_ip = client_ip
         self.base_url = "https://api.namecheap.com/xml.response"
-    
+
     def _make_request(self, command, extra_params=None):
         params = {
             "ApiUser": self.api_user,
@@ -351,33 +351,33 @@ class NamecheapAPI:
             "Command": command,
             "ClientIp": self.client_ip,
         }
-        
+
         if extra_params:
             params.update(extra_params)
-        
+
         response = requests.get(self.base_url, params=params)
         response.raise_for_status()
-        
+
         root = ET.fromstring(response.content)
-        
+
         # Check for API errors
         if root.get("Status") != "OK":
             errors = root.find(".//Errors")
             if errors is not None:
                 error_msg = errors.find("Error").text if errors.find("Error") is not None else "Unknown error"
                 raise Exception(f"Namecheap API Error: {error_msg}")
-        
+
         return root
-    
+
     def get_hosts(self, domain):
         """Get existing DNS records for domain"""
         sld, tld = domain.split(".", 1)
-        
+
         response = self._make_request("namecheap.domains.dns.getHosts", {
             "SLD": sld,
             "TLD": tld
         })
-        
+
         hosts = []
         for host in response.findall(".//host"):
             hosts.append({
@@ -386,25 +386,25 @@ class NamecheapAPI:
                 "Address": host.get("Address"),
                 "TTL": host.get("TTL")
             })
-        
+
         return hosts
-    
+
     def set_hosts(self, domain, hosts):
         """Set DNS records for domain"""
         sld, tld = domain.split(".", 1)
-        
+
         params = {
             "SLD": sld,
             "TLD": tld
         }
-        
+
         # Add host records to params
         for i, host in enumerate(hosts, 1):
             params[f"HostName{i}"] = host["Name"]
             params[f"RecordType{i}"] = host["Type"]
             params[f"Address{i}"] = host["Address"]
             params[f"TTL{i}"] = str(host["TTL"])
-        
+
         response = self._make_request("namecheap.domains.dns.setHosts", params)
         return response.get("Status") == "OK"
 
@@ -412,23 +412,23 @@ def main():
     if len(sys.argv) < 6:
         print("Usage: python3 namecheap_dns.py <api_user> <api_key> <domain> <prod_verification> <dev_verification>")
         sys.exit(1)
-    
+
     api_user = sys.argv[1]
     api_key = sys.argv[2]
     domain = sys.argv[3]
     prod_verification = sys.argv[4]
     dev_verification = sys.argv[5]
-    
+
     try:
         api = NamecheapAPI(api_user, api_key)
-        
+
         # Get existing hosts
         existing_hosts = api.get_hosts(domain)
         print(f"Found {len(existing_hosts)} existing DNS records")
-        
+
         # Filter out any existing Vercel-related records
         filtered_hosts = [
-            host for host in existing_hosts 
+            host for host in existing_hosts
             if not (
                 (host["Name"] == "app" and host["Type"] == "CNAME") or
                 (host["Name"] == "dev.app" and host["Type"] == "CNAME") or
@@ -436,7 +436,7 @@ def main():
                 (host["Name"] == "_vercel.dev.app" and host["Type"] == "TXT")
             )
         ]
-        
+
         # Add new Vercel records
         new_hosts = filtered_hosts + [
             {
@@ -447,12 +447,12 @@ def main():
             },
             {
                 "Name": "dev.app",
-                "Type": "CNAME", 
+                "Type": "CNAME",
                 "Address": "cname.vercel-dns.com.",
                 "TTL": 300
             }
         ]
-        
+
         # Add verification records if provided
         if prod_verification and prod_verification != "PLACEHOLDER":
             new_hosts.append({
@@ -461,18 +461,18 @@ def main():
                 "Address": prod_verification,
                 "TTL": 300
             })
-        
+
         if dev_verification and dev_verification != "PLACEHOLDER":
             new_hosts.append({
-                "Name": "_vercel.dev.app", 
+                "Name": "_vercel.dev.app",
                 "Type": "TXT",
                 "Address": dev_verification,
                 "TTL": 300
             })
-        
+
         # Update DNS records
         success = api.set_hosts(domain, new_hosts)
-        
+
         if success:
             print("DNS records updated successfully!")
             print("Added records:")
@@ -485,7 +485,7 @@ def main():
         else:
             print("Failed to update DNS records")
             sys.exit(1)
-            
+
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
@@ -509,9 +509,9 @@ set -e
 get_verification_value() {
     local domain=$1
     local project_id=$2
-    
+
     echo "Getting verification value for domain: $domain"
-    
+
     # Use Vercel CLI to get domain info
     vercel domains inspect "$domain" --token="$VERCEL_TOKEN" --output json 2>/dev/null | \
         jq -r '.verification[]? | select(.type == "TXT") | .value' || echo "PLACEHOLDER"
@@ -569,7 +569,7 @@ fs.chmodSync(verificationScriptPath, 0o755);
 // Execute domain verification and DNS setup
 const dnsSetup = new command.local.Command("dns-setup", {
     create: pulumi.all([prodProject.id, devProject.id, namecheapApiUser, namecheapApiKey]).apply(
-        ([prodId, devId, apiUser, apiKey]) => 
+        ([prodId, devId, apiUser, apiKey]) =>
             `VERCEL_TOKEN=${vercelToken} PROD_PROJECT_ID=${prodId} DEV_PROJECT_ID=${devId} NAMECHEAP_API_USER=${apiUser || ""} NAMECHEAP_API_KEY=${apiKey || ""} bash ${verificationScriptPath}`
     ),
     environment: {
@@ -586,7 +586,7 @@ const statusCheckScript = `#!/bin/bash
 check_domain_status() {
     local domain=$1
     echo "Checking status for domain: $domain"
-    
+
     # Get domain status from Vercel
     status=$(vercel domains inspect "$domain" --token="$VERCEL_TOKEN" --output json 2>/dev/null | jq -r '.verified // false')
     echo "$domain: $status"
@@ -683,4 +683,3 @@ export const outputs = {
         originalUnified: "/dashboard/unified",
     },
 };
-

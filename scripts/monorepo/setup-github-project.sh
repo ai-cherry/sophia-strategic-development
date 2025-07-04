@@ -56,7 +56,7 @@ create_label() {
     local name=$1
     local color=$2
     local description=$3
-    
+
     if gh label create "$name" --color "$color" --description "$description" --repo "$ORG/$REPO" 2>/dev/null; then
         echo -e "${GREEN}✅ Created label: $name${NC}"
     else
@@ -98,7 +98,7 @@ create_milestone() {
     local title=$1
     local due_date=$2
     local description=$3
-    
+
     if gh api "repos/$ORG/$REPO/milestones" \
         --method POST \
         -f title="$title" \
@@ -137,7 +137,7 @@ gh issue create \
     --title "Form cross-functional task force" \
     --body "Identify and confirm team members for:
 - Backend Lead
-- Frontend Lead  
+- Frontend Lead
 - DevOps Lead
 - QA Lead
 - Security Lead
@@ -238,4 +238,4 @@ echo "Next steps:"
 echo "1. Assign team members to issues"
 echo "2. Add issues to project board"
 echo "3. Set up automation rules"
-echo "4. Schedule kickoff meeting" 
+echo "4. Schedule kickoff meeting"

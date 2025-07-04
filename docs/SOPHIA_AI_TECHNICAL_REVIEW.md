@@ -1,6 +1,6 @@
 ---
 title: Sophia AI Platform Technical Review
-description: 
+description:
 tags: mcp, security, gong, kubernetes, linear, monitoring, database, docker
 last_updated: 2025-06-23
 dependencies: none

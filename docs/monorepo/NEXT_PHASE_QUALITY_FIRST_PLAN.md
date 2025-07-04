@@ -61,7 +61,7 @@ class ServiceError(Exception):
         self.service = service
         self.context = context or {}
         super().__init__(self.format_message())
-    
+
     def format_message(self) -> str:
         return f"[{self.service}] {self.message}"
 
@@ -97,13 +97,13 @@ from pydantic import BaseModel, validator
 
 class ServiceRequest(BaseModel):
     """Base request model with validation"""
-    
+
     @validator('*', pre=True)
     def empty_str_to_none(cls, v):
         if isinstance(v, str) and not v:
             return None
         return v
-    
+
     class Config:
         validate_assignment = True
         use_enum_values = True
@@ -290,4 +290,4 @@ if __name__ == "__main__":
 3. Update documentation
 4. Delete any one-time scripts
 
-This plan ensures Sophia AI becomes a rock-solid platform that the CEO can rely on, with quality and stability as the foundation for future growth. 
+This plan ensures Sophia AI becomes a rock-solid platform that the CEO can rely on, with quality and stability as the foundation for future growth.

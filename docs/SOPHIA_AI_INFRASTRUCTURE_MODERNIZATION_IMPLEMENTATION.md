@@ -92,15 +92,15 @@ uv add -r infrastructure/requirements.txt
 # infrastructure/agents/sophia_intelligence_agent.py
 class SophiaIntelligenceAgent:
     """AI-driven infrastructure orchestrator"""
-    
+
     def __init__(self):
         self.pulumi_ai = PulumiAI()
         self.business_context = PayReadyContext()
-    
+
     async def deploy_competitive_intelligence(self):
         """Deploy competitor monitoring infrastructure"""
         # AI-generated infrastructure for EliseAI, Hunter Warfield monitoring
-        
+
     async def deploy_nmhc_enrichment(self):
         """Deploy NMHC Top 50 prospect enrichment"""
         # AI-generated pipelines for prospect intelligence
@@ -120,12 +120,12 @@ capabilities:
     targets: [EliseAI, Hunter Warfield, RealPage]
     frequency: real-time
     alerts: executive-dashboard
-  
+
   nmhc_enrichment:
     data_sources: [CoStar, Apollo.io, LinkedIn, Gong]
     scoring: ai-powered
     updates: daily
-  
+
   compliance:
     frameworks: [PCI-DSS, GLBA, FDCPA]
     monitoring: continuous
@@ -198,7 +198,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pulumi/actions@v5
-      
+
       - name: AI-Driven Deployment
         run: |
           python infrastructure/orchestrator.py deploy \
@@ -317,7 +317,7 @@ environments:
   - name: production
     active: true
     traffic: 90%
-  
+
   - name: modernized
     active: true
     traffic: 10%

@@ -1,7 +1,7 @@
 ---
 title: VSCode Shell Configuration for Cline
-description: 
-tags: 
+description:
+tags:
 last_updated: 2025-06-23
 dependencies: none
 related_docs: none

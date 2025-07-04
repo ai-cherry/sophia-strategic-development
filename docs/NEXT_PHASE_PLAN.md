@@ -140,7 +140,7 @@ Deliverables:
 sophia-ai/
 ├── apps/
 │   ├── api/              # FastAPI backend
-│   ├── web/              # Next.js frontend  
+│   ├── web/              # Next.js frontend
 │   ├── mcp-gateway/      # High-performance MCP router
 │   └── workers/          # Background job processors
 ├── packages/
@@ -187,12 +187,12 @@ Deployment Pipeline:
 #### Day 1-2: Snowflake Optimization
 ```sql
 -- Clustering for performance
-ALTER TABLE sophia_core.unified_data_catalog 
+ALTER TABLE sophia_core.unified_data_catalog
 CLUSTER BY (source_system, created_at);
 
 -- Materialized views for common queries
 CREATE MATERIALIZED VIEW sophia_core.active_deals_mv AS
-SELECT * FROM hubspot_deals 
+SELECT * FROM hubspot_deals
 WHERE status = 'active'
 WITH AUTOMATIC REFRESH;
 
@@ -313,11 +313,11 @@ async def get_data():
 async def process_batch(items: List[Item]):
     # Process 100 items concurrently
     semaphore = asyncio.Semaphore(100)
-    
+
     async def process_with_limit(item):
         async with semaphore:
             return await process_item(item)
-    
+
     tasks = [process_with_limit(item) for item in items]
     return await asyncio.gather(*tasks)
 ```
@@ -335,7 +335,7 @@ async def bulk_insert(records: List[Dict]):
 
 # Prepared statements
 prepared = await conn.prepare("""
-    SELECT * FROM users 
+    SELECT * FROM users
     WHERE id = $1 AND active = true
 """)
 result = await prepared.fetch(user_id)
@@ -350,7 +350,7 @@ class WebSocketManager:
     def __init__(self):
         self.connections: Dict[str, Set[WebSocket]] = defaultdict(set)
         self.pubsub = aioredis.create_redis_pool()
-    
+
     async def broadcast(self, channel: str, message: dict):
         # Use Redis pub/sub for scaling
         await self.pubsub.publish(channel, orjson.dumps(message))
@@ -395,7 +395,7 @@ class ModelServer:
             self.load_model("classification"),
             self.load_model("embeddings")
         )
-        
+
         # GPU memory pinning
         for model in self.models:
             model.pin_memory()
@@ -407,13 +407,13 @@ class ModelServer:
 async def batch_predict(items: List[str]):
     # Optimal batch size for GPU
     batch_size = 64
-    
+
     results = []
     for i in range(0, len(items), batch_size):
         batch = items[i:i + batch_size]
         predictions = await model.predict_batch(batch)
         results.extend(predictions)
-    
+
     return results
 ```
 
@@ -426,12 +426,12 @@ async def get_embeddings(text: str) -> np.ndarray:
     cached = await redis.get(f"embed:{hash(text)}")
     if cached:
         return np.frombuffer(cached, dtype=np.float32)
-    
+
     # Generate and cache
     embedding = await model.embed(text)
     await redis.setex(
-        f"embed:{hash(text)}", 
-        3600, 
+        f"embed:{hash(text)}",
+        3600,
         embedding.tobytes()
     )
     return embedding
@@ -723,7 +723,7 @@ Since we prioritize performance > scalability > stability over cost:
 ### Technical Risks
 1. **Monorepo Migration Complexity**
    - Mitigation: Incremental migration with rollback plan
-   
+
 2. **Performance Regression**
    - Mitigation: Continuous benchmarking and alerts
 
@@ -750,4 +750,4 @@ Since we prioritize performance > scalability > stability over cost:
 4. **Week 3**: Begin monorepo migration
 5. **Ongoing**: Weekly progress reviews
 
-This foundation-first approach ensures we build a platform that can scale to millions of users while maintaining sub-100ms response times and 99.99% availability. 
+This foundation-first approach ensures we build a platform that can scale to millions of users while maintaining sub-100ms response times and 99.99% availability.

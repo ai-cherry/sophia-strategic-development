@@ -69,7 +69,7 @@ class YourAgent(EnhancedAgent):
             agent_type="business_intelligence",  # or specialized, infrastructure
             capabilities=["data_analysis", "insight_generation"]
         )
-    
+
     async def process_request(self, request: dict) -> dict:
         # Your implementation here
         pass
@@ -91,7 +91,7 @@ class YourMCPServer(StandardizedMCPServer):
             port=9000,  # Use assigned port from mcp_ports.json
             tools=["tool1", "tool2"]
         )
-    
+
     async def handle_tool_call(self, tool_name: str, arguments: dict):
         # Implementation here
         pass
@@ -107,7 +107,7 @@ from backend.services.comprehensive_memory_service import ComprehensiveMemorySer
 class YourService:
     def __init__(self):
         self.memory_service = ComprehensiveMemoryService()
-    
+
     async def query_data(self, query: str):
         return await self.memory_service.semantic_search(query)
 
@@ -180,7 +180,7 @@ LAMBDA_LABS_API_KEY=         # Compute resources
 ```json
 {
   "ai_memory": "port 9000 - AI memory and vector search",
-  "snowflake_admin": "port 9012 - Database administration", 
+  "snowflake_admin": "port 9012 - Database administration",
   "gong_intelligence": "port 9001 - Sales call analysis",
   "hubspot_crm": "port 9002 - CRM data access",
   "slack_integration": "port 9003 - Team communication",
@@ -198,7 +198,7 @@ from backend.mcp.mcp_client import MCPClient
 class YourService:
     def __init__(self):
         self.mcp_client = MCPClient()
-    
+
     async def get_sales_data(self):
         return await self.mcp_client.call_tool(
             server="gong_intelligence",
@@ -236,7 +236,7 @@ class PerformantAgent(EnhancedAgent):
         super().__init__(agent_name="fast_agent")
         # Defer heavy operations to first use
         self._heavy_resource = None
-    
+
     @property
     def heavy_resource(self):
         if self._heavy_resource is None:
@@ -252,7 +252,7 @@ class YourAgent(EnhancedAgent):
         # Validate input
         if not self._validate_request(request):
             raise ValueError("Invalid request format")
-        
+
         # Process with error handling
         try:
             result = await self._process_business_logic(request)
@@ -274,7 +274,7 @@ from backend.services.comprehensive_memory_service import ComprehensiveMemorySer
 class DataService:
     def __init__(self):
         self.memory_service = ComprehensiveMemoryService()
-    
+
     async def query_sales_data(self, filters: dict):
         query = """
         SELECT call_date, prospect_name, outcome
@@ -303,7 +303,7 @@ from backend.etl.enhanced_ingestion_service import EnhancedIngestionService
 class DataIngestion:
     def __init__(self):
         self.ingestion_service = EnhancedIngestionService()
-    
+
     async def ingest_new_data(self, source: str, data: list):
         return await self.ingestion_service.process_batch(source, data)
 ```
@@ -321,7 +321,7 @@ from typing import Optional
 class YourService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-    
+
     async def risky_operation(self) -> Optional[dict]:
         try:
             result = await self._perform_operation()
@@ -346,7 +346,7 @@ async def health_check(self) -> dict:
         # Test critical dependencies
         await self._test_database_connection()
         await self._test_mcp_servers()
-        
+
         return {
             "status": "healthy",
             "timestamp": datetime.utcnow().isoformat(),
@@ -389,11 +389,11 @@ class TestYourService:
     @pytest.fixture
     async def service(self):
         return YourService()
-    
+
     async def test_process_request_success(self, service):
         # Mock dependencies
         service.memory_service.semantic_search = AsyncMock(return_value=[])
-        
+
         # Test functionality
         result = await service.process_request({"query": "test"})
         assert result["status"] == "success"
@@ -408,7 +408,7 @@ async def test_agent_instantiation_speed():
     start_time = time.perf_counter()
     agent = YourAgent()
     end_time = time.perf_counter()
-    
+
     instantiation_time = (end_time - start_time) * 1_000_000  # microseconds
     assert instantiation_time < 3, f"Agent instantiation took {instantiation_time}μs (max: 3μs)"
 ```
@@ -511,25 +511,25 @@ class SalesIntelligenceAgent(EnhancedAgent):
         )
         self.memory_service = ComprehensiveMemoryService()
         self.logger = logging.getLogger(__name__)
-    
+
     async def process_request(self, request: dict) -> dict:
         try:
             # Validate input
             if not request.get("query"):
                 raise ValueError("Query parameter required")
-            
+
             # Process with semantic search
             results = await self.memory_service.semantic_search(
                 query=request["query"],
                 filters={"source": "gong_calls"}
             )
-            
+
             return {
                 "status": "success",
                 "data": results,
                 "agent": self.agent_name
             }
-            
+
         except Exception as e:
             self.logger.error(f"Processing failed: {e}")
             return {
@@ -537,7 +537,7 @@ class SalesIntelligenceAgent(EnhancedAgent):
                 "message": str(e),
                 "agent": self.agent_name
             }
-    
+
     async def health_check(self) -> dict:
         try:
             await self.memory_service.health_check()
@@ -573,7 +573,6 @@ class SalesIntelligenceAgent(EnhancedAgent):
 
 ---
 
-*Last Updated: June 27, 2025*  
-*Version: 2.0*  
+*Last Updated: June 27, 2025*
+*Version: 2.0*
 *Status: Production Reference*
-

@@ -409,7 +409,7 @@ class HuggingFaceAIMCPServer:
         try:
     from transformers import pipeline
     from backend.core.auto_esc_config import get_config_value
-    
+
     # Transformers available
     transformers_available = True
 except ImportError:
@@ -575,19 +575,18 @@ except ImportError:
         """Server-specific initialization"""
         # TODO: Add server-specific initialization
         pass
-        
+
     def _setup_server_routes(self):
         """Setup server-specific routes"""
         # Existing routes should be moved here
         pass
-        
+
     async def check_server_health(self) -> bool:
         """Check server health"""
         # TODO: Implement health check
         return True
-        
+
     async def server_specific_shutdown(self):
         """Server-specific shutdown"""
         # TODO: Add cleanup logic
         pass
-

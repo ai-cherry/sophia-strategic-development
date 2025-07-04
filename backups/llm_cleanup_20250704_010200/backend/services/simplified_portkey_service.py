@@ -374,7 +374,9 @@ Provide strategic insights with:
 3. Recommended actions
 4. Risk assessment
 """
-        return await cls.chat(enhanced_prompt, TaskType.Unified_INSIGHTS, max_tokens=3000)
+        return await cls.chat(
+            enhanced_prompt, TaskType.Unified_INSIGHTS, max_tokens=3000
+        )
 
     @classmethod
     async def generate_code(

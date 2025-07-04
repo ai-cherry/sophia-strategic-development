@@ -86,7 +86,7 @@ const UnifiedDashboard = () => {
             {/* Add more Unified-specific charts and components here */}
         </div>
     );
-    
+
     const renderProjects = () => (
         <Card>
             <CardHeader>
@@ -211,4 +211,4 @@ const UnifiedDashboard = () => {
     );
 };
 
-export default UnifiedDashboard; 
+export default UnifiedDashboard;

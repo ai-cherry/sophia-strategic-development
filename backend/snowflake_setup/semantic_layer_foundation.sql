@@ -3,7 +3,7 @@
 
 -- Customer Entity Semantic View
 CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.CUSTOMER_360 AS
-SELECT 
+SELECT
     c.customer_id,
     c.company_name,
     c.industry,
@@ -22,7 +22,7 @@ GROUP BY c.customer_id, c.company_name, c.industry, c.lifecycle_stage;
 
 -- Employee Entity Semantic View
 CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.EMPLOYEE_360 AS
-SELECT 
+SELECT
     e.employee_id,
     e.full_name,
     e.department,
@@ -42,7 +42,7 @@ GROUP BY e.employee_id, e.full_name, e.department, e.role;
 
 -- Business Metrics Semantic Layer
 CREATE OR REPLACE VIEW SOPHIA_SEMANTIC.BUSINESS_METRICS AS
-SELECT 
+SELECT
     DATE_TRUNC('month', metric_date) as month,
     'revenue' as metric_type,
     SUM(amount) as value,
@@ -50,10 +50,10 @@ SELECT
 FROM PAYREADY_CORE.REVENUE_DATA
 GROUP BY DATE_TRUNC('month', metric_date)
 UNION ALL
-SELECT 
+SELECT
     DATE_TRUNC('month', call_date) as month,
     'sales_activity' as metric_type,
     COUNT(*) as value,
     'calls' as currency
 FROM GONG_DATA.CALLS
-GROUP BY DATE_TRUNC('month', call_date); 
+GROUP BY DATE_TRUNC('month', call_date);

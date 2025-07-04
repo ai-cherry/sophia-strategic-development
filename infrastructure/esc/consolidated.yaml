@@ -1,10 +1,10 @@
 environments:
   development:
     imports:
-    - scoobyjava-org/default/sophia-ai-development
+      - scoobyjava-org/default/sophia-ai-development
     values:
       alerts:
-        channel: '#sophia-dev'
+        channel: "#sophia-dev"
       aws:
         region: us-east-1
       kubernetes:
@@ -13,10 +13,10 @@ environments:
         enabled: false
   production:
     imports:
-    - scoobyjava-org/default/sophia-ai-production
+      - scoobyjava-org/default/sophia-ai-production
     values:
       alerts:
-        channel: '#sophia-alerts'
+        channel: "#sophia-alerts"
       aws:
         region: us-east-1
       kubernetes:

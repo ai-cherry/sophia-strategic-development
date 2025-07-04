@@ -379,10 +379,10 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         query = request.get("query", "")
 
         # Use SmartAIService for general infrastructure questions
-        if self.smart_ai_service:
+        if self.llm_service:
             try:
-                ai_response = await self.smart_ai_service.generate_response(
-                    {
+                ai_response = await self.async for chunk in llm_service.complete(
+    prompt={
                         "messages": [
                             {
                                 "role": "system",
@@ -393,7 +393,10 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                         "task_type": "infrastructure_guidance",
                         "model_preference": "balanced",
                     }
-                )
+                ,
+    task_type=TaskType.CHAT_CONVERSATION,  # TODO: Set appropriate task type
+    stream=True
+)
 
                 return {
                     "success": True,

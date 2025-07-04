@@ -21,20 +21,20 @@ chat_service = None
 async def lifespan(app: FastAPI):
     """Manage application lifecycle"""
     global chat_service
-    
+
     logger.info("🚀 Starting Sophia AI Platform...")
-    
+
     # Initialize services
     chat_service = UnifiedChatService()
     await chat_service.initialize()
-    
+
     logger.info("✅ Sophia AI Platform started successfully")
-    
+
     yield
-    
+
     # Cleanup
     logger.info("🛑 Shutting down Sophia AI Platform...")
-    if hasattr(chat_service, 'cleanup'):
+    if hasattr(chat_service, "cleanup"):
         await chat_service.cleanup()
     logger.info("✅ Shutdown complete")
 
@@ -44,7 +44,7 @@ app = FastAPI(
     title="Sophia AI Platform",
     description="Unified AI Platform with single dashboard and chat interface",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Configure CORS
@@ -59,6 +59,7 @@ app.add_middleware(
 # Include routers
 app.include_router(unified_router, tags=["API"])
 
+
 # Health check
 @app.get("/")
 async def root():
@@ -66,7 +67,7 @@ async def root():
     return {
         "status": "ok",
         "message": "Sophia AI Platform - Unified Architecture",
-        "version": "1.0.0"
+        "version": "1.0.0",
     }
 
 
@@ -76,18 +77,14 @@ async def health():
     return {
         "status": "healthy",
         "services": {
-            "chat": "operational" if chat_service and chat_service.initialized else "not_initialized"
-        }
+            "chat": "operational"
+            if chat_service and chat_service.initialized
+            else "not_initialized"
+        },
     }
 
 
 if __name__ == "__main__":
     import uvicorn
-    
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    ) 
+
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")

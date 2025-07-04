@@ -101,7 +101,12 @@
     "dependencies": [],
     "status": "active",
     "priority": "high",
-    "features": ["smart_routing", "semantic_caching", "observability", "load_balancing"],
+    "features": [
+      "smart_routing",
+      "semantic_caching",
+      "observability",
+      "load_balancing"
+    ],
     "cost_tier": "enterprise"
   },
   "apify": {
@@ -114,7 +119,12 @@
     "dependencies": [],
     "status": "active",
     "priority": "high",
-    "features": ["web_scraping", "automation", "data_extraction", "proxy_rotation"],
+    "features": [
+      "web_scraping",
+      "automation",
+      "data_extraction",
+      "proxy_rotation"
+    ],
     "cost_tier": "pay_per_use"
   },
   "phantombuster": {
@@ -166,7 +176,12 @@
     "dependencies": [],
     "status": "active",
     "priority": "medium",
-    "features": ["web_scraping", "proxy_rotation", "js_rendering", "captcha_solving"],
+    "features": [
+      "web_scraping",
+      "proxy_rotation",
+      "js_rendering",
+      "captcha_solving"
+    ],
     "cost_tier": "pay_per_use"
   },
   "huggingface": {
@@ -179,7 +194,12 @@
     "dependencies": [],
     "status": "active",
     "priority": "high",
-    "features": ["model_inference", "embeddings", "classification", "local_models"],
+    "features": [
+      "model_inference",
+      "embeddings",
+      "classification",
+      "local_models"
+    ],
     "cost_tier": "freemium"
   },
   "together_ai": {
@@ -192,7 +212,12 @@
     "dependencies": [],
     "status": "active",
     "priority": "high",
-    "features": ["fast_inference", "code_generation", "chat_completion", "streaming"],
+    "features": [
+      "fast_inference",
+      "code_generation",
+      "chat_completion",
+      "streaming"
+    ],
     "cost_tier": "pay_per_use"
   },
   "docker": {
@@ -231,7 +256,11 @@
     "dependencies": [],
     "status": "active",
     "priority": "critical",
-    "features": ["infrastructure_as_code", "secret_management", "deployment_automation"],
+    "features": [
+      "infrastructure_as_code",
+      "secret_management",
+      "deployment_automation"
+    ],
     "cost_tier": "enterprise"
   },
   "github": {

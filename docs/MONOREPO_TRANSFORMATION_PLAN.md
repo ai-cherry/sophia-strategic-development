@@ -152,16 +152,16 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
   ```bash
   # Create root package.json
   npm init -y
-  
+
   # Install PNPM
   npm install -g pnpm
-  
+
   # Create pnpm-workspace.yaml
   echo "packages:
     - 'apps/*'
     - 'libs/*'
     - 'config/*'" > pnpm-workspace.yaml
-  
+
   # Install Turborepo
   pnpm add -D turbo
   ```
@@ -205,7 +205,7 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
   # Import runtime dependencies
   uv add -r apps/api/requirements.txt
   uv add -r apps/mcp-servers/requirements.txt
-  
+
   # Add dev dependencies
   uv add --group dev pytest black ruff mypy httpx
   uv add --group test pytest-cov pytest-asyncio
@@ -213,19 +213,19 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
 - [ ] Update all Python Dockerfiles:
   ```dockerfile
   FROM python:3.12-slim
-  
+
   # Install UV
   COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-  
+
   # Copy dependency files
   COPY pyproject.toml uv.lock ./
-  
+
   # Install production dependencies only
   RUN uv sync --no-dev --frozen
-  
+
   # Copy application code
   COPY apps/api ./apps/api
-  
+
   # Run with UV
   CMD ["uv", "run", "python", "-m", "apps.api.main"]
   ```
@@ -252,7 +252,7 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
   mkdir -p libs/ui
   cd libs/ui
   pnpm init
-  
+
   # Move shared components
   mv apps/frontend/src/components/shared/* libs/ui/src/
   ```
@@ -289,7 +289,7 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
         service-path:
           required: true
           type: string
-  
+
   jobs:
     test:
       runs-on: ubuntu-latest
@@ -306,7 +306,7 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
   ```yaml
   name: API Tests
   on: [push, pull_request]
-  
+
   jobs:
     test:
       uses: ./.github/workflow-templates/python-test.yml
@@ -403,19 +403,19 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
   ```bash
   #!/bin/bash
   echo "🚀 Setting up Sophia AI monorepo..."
-  
+
   # Install prerequisites
   curl -LsSf https://astral.sh/uv/install.sh | sh
   npm install -g pnpm
-  
+
   # Clone and setup
   git clone https://github.com/ai-cherry/sophia-main.git
   cd sophia-main
-  
+
   # Install dependencies
   uv sync
   pnpm install
-  
+
   # Validate setup
   pnpm turbo run build
   ```
@@ -467,7 +467,7 @@ This document outlines the comprehensive plan to transform the Sophia AI reposit
   # Remove unused dependencies
   uv show --only-deps | grep "unused"
   pnpm prune
-  
+
   # Update outdated packages
   uv update --dry-run
   pnpm outdated
@@ -593,4 +593,4 @@ turbo run build --force
 - [UV Documentation](https://github.com/astral-sh/uv)
 - [PNPM Documentation](https://pnpm.io)
 - [Turborepo Documentation](https://turbo.build)
-- [GitHub Actions Reusable Workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows) 
+- [GitHub Actions Reusable Workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows)

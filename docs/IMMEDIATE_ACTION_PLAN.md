@@ -28,7 +28,7 @@
      excerpt: string;
      url?: string;
    }
-   
+
    // Create basic citation display component
    // Add inline citation markers [1], [2]
    // Create collapsible sidebar
@@ -151,4 +151,4 @@ cd backend && pytest tests/test_cortex_router.py
 - Create template system
 - Begin MCP planning
 
-Remember: **Ship small, ship often**. It's better to have citations working perfectly than to attempt everything at once. 
+Remember: **Ship small, ship often**. It's better to have citations working perfectly than to attempt everything at once.

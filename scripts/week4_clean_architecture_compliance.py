@@ -205,7 +205,6 @@ class CleanArchitectureAnalyzer:
                 and node.func.value.id == "os"
                 and node.func.attr == "getenv"
             ):
-
                 self.violations.append(
                     ArchitectureViolation(
                         file_path=relative_path,

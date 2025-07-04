@@ -7,11 +7,10 @@ Centralized interface for all migration operations with Unified dashboard and un
 Provides real-time monitoring, natural language commands, and executive oversight capabilities.
 """
 
-import asyncio
 import logging
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import httpx
 from pydantic import BaseModel
@@ -21,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class MigrationPhase(Enum):
     """Migration phases for tracking progress"""
+
     ASSESSMENT = "assessment"
     CONTACTS = "contacts"
     DEALS = "deals"
@@ -32,6 +32,7 @@ class MigrationPhase(Enum):
 
 class MigrationStatus(Enum):
     """Migration status indicators"""
+
     NOT_STARTED = "not_started"
     RUNNING = "running"
     PAUSED = "paused"
@@ -42,6 +43,7 @@ class MigrationStatus(Enum):
 
 class MigrationAlert(BaseModel):
     """Migration alert model"""
+
     severity: str  # "critical", "warning", "info"
     message: str
     timestamp: datetime
@@ -51,6 +53,7 @@ class MigrationAlert(BaseModel):
 
 class MigrationMetrics(BaseModel):
     """Real-time migration metrics"""
+
     current_phase: MigrationPhase
     overall_progress: float  # 0-100
     records_processed: int
@@ -63,10 +66,11 @@ class MigrationMetrics(BaseModel):
 
 class MigrationCommand(BaseModel):
     """Natural language migration command"""
+
     command: str
     user_id: str
     timestamp: datetime
-    parameters: Dict[str, Any] = {}
+    parameters: dict[str, Any] = {}
 
 
 class MigrationOrchestratorClient:
@@ -80,32 +84,38 @@ class MigrationOrchestratorClient:
         self.client = httpx.AsyncClient(timeout=30.0)
         self.current_status = MigrationStatus.NOT_STARTED
         self.current_metrics: Optional[MigrationMetrics] = None
-        self.alerts: List[MigrationAlert] = []
-        self.migration_history: List[Dict[str, Any]] = []
+        self.alerts: list[MigrationAlert] = []
+        self.migration_history: list[dict[str, Any]] = []
 
-    async def get_migration_status(self) -> Dict[str, Any]:
+    async def get_migration_status(self) -> dict[str, Any]:
         """Get comprehensive migration status for Unified dashboard"""
         try:
             response = await self.client.get(f"{self.base_url}/migration/status")
             if response.status_code == 200:
                 status_data = response.json()
-                
+
                 # Update internal state
-                self.current_status = MigrationStatus(status_data.get("status", "not_started"))
-                
+                self.current_status = MigrationStatus(
+                    status_data.get("status", "not_started")
+                )
+
                 if "metrics" in status_data:
                     self.current_metrics = MigrationMetrics(**status_data["metrics"])
-                
+
                 return {
                     "status": self.current_status.value,
-                    "metrics": self.current_metrics.dict() if self.current_metrics else None,
+                    "metrics": self.current_metrics.dict()
+                    if self.current_metrics
+                    else None,
                     "alerts": [alert.dict() for alert in self.alerts],
                     "last_updated": datetime.now(UTC).isoformat(),
                     "health_indicators": await self._get_system_health(),
                 }
             else:
-                raise Exception(f"Migration status request failed: {response.status_code}")
-                
+                raise Exception(
+                    f"Migration status request failed: {response.status_code}"
+                )
+
         except Exception as e:
             logger.error(f"Failed to get migration status: {e}")
             return {
@@ -114,7 +124,7 @@ class MigrationOrchestratorClient:
                 "last_updated": datetime.now(UTC).isoformat(),
             }
 
-    async def start_migration(self, user_id: str) -> Dict[str, Any]:
+    async def start_migration(self, user_id: str) -> dict[str, Any]:
         """Start Salesforce to HubSpot/Intercom migration"""
         try:
             payload = {
@@ -127,23 +137,27 @@ class MigrationOrchestratorClient:
                     "phases": [phase.value for phase in MigrationPhase],
                     "ai_enhancement": True,
                     "ceo_notifications": True,
-                }
+                },
             }
-            
-            response = await self.client.post(f"{self.base_url}/migration/start", json=payload)
-            
+
+            response = await self.client.post(
+                f"{self.base_url}/migration/start", json=payload
+            )
+
             if response.status_code == 200:
                 result = response.json()
                 self.current_status = MigrationStatus.RUNNING
-                
+
                 # Add to history
-                self.migration_history.append({
-                    "action": "start",
-                    "user_id": user_id,
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "result": result,
-                })
-                
+                self.migration_history.append(
+                    {
+                        "action": "start",
+                        "user_id": user_id,
+                        "timestamp": datetime.now(UTC).isoformat(),
+                        "result": result,
+                    }
+                )
+
                 return {
                     "success": True,
                     "message": "Migration started successfully",
@@ -153,7 +167,7 @@ class MigrationOrchestratorClient:
                 }
             else:
                 raise Exception(f"Migration start failed: {response.text}")
-                
+
         except Exception as e:
             logger.error(f"Failed to start migration: {e}")
             return {
@@ -162,7 +176,7 @@ class MigrationOrchestratorClient:
                 "timestamp": datetime.now(UTC).isoformat(),
             }
 
-    async def pause_migration(self, user_id: str) -> Dict[str, Any]:
+    async def pause_migration(self, user_id: str) -> dict[str, Any]:
         """Pause migration at current checkpoint"""
         try:
             payload = {
@@ -170,13 +184,15 @@ class MigrationOrchestratorClient:
                 "user_id": user_id,
                 "timestamp": datetime.now(UTC).isoformat(),
             }
-            
-            response = await self.client.post(f"{self.base_url}/migration/pause", json=payload)
-            
+
+            response = await self.client.post(
+                f"{self.base_url}/migration/pause", json=payload
+            )
+
             if response.status_code == 200:
                 result = response.json()
                 self.current_status = MigrationStatus.PAUSED
-                
+
                 return {
                     "success": True,
                     "message": "Migration paused at safe checkpoint",
@@ -185,7 +201,7 @@ class MigrationOrchestratorClient:
                 }
             else:
                 raise Exception(f"Migration pause failed: {response.text}")
-                
+
         except Exception as e:
             logger.error(f"Failed to pause migration: {e}")
             return {
@@ -193,7 +209,7 @@ class MigrationOrchestratorClient:
                 "error_message": str(e),
             }
 
-    async def resume_migration(self, user_id: str) -> Dict[str, Any]:
+    async def resume_migration(self, user_id: str) -> dict[str, Any]:
         """Resume paused migration"""
         try:
             payload = {
@@ -201,13 +217,15 @@ class MigrationOrchestratorClient:
                 "user_id": user_id,
                 "timestamp": datetime.now(UTC).isoformat(),
             }
-            
-            response = await self.client.post(f"{self.base_url}/migration/resume", json=payload)
-            
+
+            response = await self.client.post(
+                f"{self.base_url}/migration/resume", json=payload
+            )
+
             if response.status_code == 200:
                 result = response.json()
                 self.current_status = MigrationStatus.RUNNING
-                
+
                 return {
                     "success": True,
                     "message": "Migration resumed successfully",
@@ -216,7 +234,7 @@ class MigrationOrchestratorClient:
                 }
             else:
                 raise Exception(f"Migration resume failed: {response.text}")
-                
+
         except Exception as e:
             logger.error(f"Failed to resume migration: {e}")
             return {
@@ -224,7 +242,7 @@ class MigrationOrchestratorClient:
                 "error_message": str(e),
             }
 
-    async def stop_migration(self, user_id: str) -> Dict[str, Any]:
+    async def stop_migration(self, user_id: str) -> dict[str, Any]:
         """Stop migration with confirmation"""
         try:
             payload = {
@@ -233,13 +251,15 @@ class MigrationOrchestratorClient:
                 "timestamp": datetime.now(UTC).isoformat(),
                 "confirmation": True,
             }
-            
-            response = await self.client.post(f"{self.base_url}/migration/stop", json=payload)
-            
+
+            response = await self.client.post(
+                f"{self.base_url}/migration/stop", json=payload
+            )
+
             if response.status_code == 200:
                 result = response.json()
                 self.current_status = MigrationStatus.COMPLETED
-                
+
                 return {
                     "success": True,
                     "message": "Migration stopped successfully",
@@ -248,7 +268,7 @@ class MigrationOrchestratorClient:
                 }
             else:
                 raise Exception(f"Migration stop failed: {response.text}")
-                
+
         except Exception as e:
             logger.error(f"Failed to stop migration: {e}")
             return {
@@ -256,7 +276,7 @@ class MigrationOrchestratorClient:
                 "error_message": str(e),
             }
 
-    async def rollback_migration(self, user_id: str) -> Dict[str, Any]:
+    async def rollback_migration(self, user_id: str) -> dict[str, Any]:
         """Rollback migration with data integrity checks"""
         try:
             payload = {
@@ -266,13 +286,15 @@ class MigrationOrchestratorClient:
                 "confirmation": True,
                 "preserve_data": True,
             }
-            
-            response = await self.client.post(f"{self.base_url}/migration/rollback", json=payload)
-            
+
+            response = await self.client.post(
+                f"{self.base_url}/migration/rollback", json=payload
+            )
+
             if response.status_code == 200:
                 result = response.json()
                 self.current_status = MigrationStatus.ROLLING_BACK
-                
+
                 return {
                     "success": True,
                     "message": "Migration rollback initiated",
@@ -281,7 +303,7 @@ class MigrationOrchestratorClient:
                 }
             else:
                 raise Exception(f"Migration rollback failed: {response.text}")
-                
+
         except Exception as e:
             logger.error(f"Failed to rollback migration: {e}")
             return {
@@ -289,73 +311,96 @@ class MigrationOrchestratorClient:
                 "error_message": str(e),
             }
 
-    async def get_migration_issues(self) -> List[Dict[str, Any]]:
+    async def get_migration_issues(self) -> list[dict[str, Any]]:
         """Get current migration issues and resolution suggestions"""
         try:
             response = await self.client.get(f"{self.base_url}/migration/issues")
-            
+
             if response.status_code == 200:
                 issues_data = response.json()
-                
+
                 # Convert to alerts
                 self.alerts = []
                 for issue in issues_data.get("issues", []):
                     alert = MigrationAlert(
                         severity=issue.get("severity", "info"),
                         message=issue.get("message", ""),
-                        timestamp=datetime.fromisoformat(issue.get("timestamp", datetime.now(UTC).isoformat())),
+                        timestamp=datetime.fromisoformat(
+                            issue.get("timestamp", datetime.now(UTC).isoformat())
+                        ),
                         phase=MigrationPhase(issue.get("phase", "assessment")),
                         resolved=issue.get("resolved", False),
                     )
                     self.alerts.append(alert)
-                
+
                 return [alert.dict() for alert in self.alerts]
             else:
                 raise Exception(f"Issues request failed: {response.status_code}")
-                
+
         except Exception as e:
             logger.error(f"Failed to get migration issues: {e}")
             return []
 
-    async def process_natural_language_command(self, command: str, user_id: str) -> Dict[str, Any]:
+    async def process_natural_language_command(
+        self, command: str, user_id: str
+    ) -> dict[str, Any]:
         """Process natural language migration commands"""
         try:
             # Parse command intent
             command_lower = command.lower().strip()
-            
-            if any(keyword in command_lower for keyword in ["start", "begin", "initiate"]):
+
+            if any(
+                keyword in command_lower for keyword in ["start", "begin", "initiate"]
+            ):
                 if "migration" in command_lower:
                     return await self.start_migration(user_id)
-                    
-            elif any(keyword in command_lower for keyword in ["status", "progress", "how"]):
+
+            elif any(
+                keyword in command_lower for keyword in ["status", "progress", "how"]
+            ):
                 return await self.get_migration_status()
-                
+
             elif any(keyword in command_lower for keyword in ["pause", "stop", "halt"]):
                 if "rollback" not in command_lower:
                     return await self.pause_migration(user_id)
-                    
-            elif any(keyword in command_lower for keyword in ["resume", "continue", "restart"]):
+
+            elif any(
+                keyword in command_lower
+                for keyword in ["resume", "continue", "restart"]
+            ):
                 return await self.resume_migration(user_id)
-                
-            elif any(keyword in command_lower for keyword in ["rollback", "revert", "undo"]):
+
+            elif any(
+                keyword in command_lower for keyword in ["rollback", "revert", "undo"]
+            ):
                 return await self.rollback_migration(user_id)
-                
-            elif any(keyword in command_lower for keyword in ["issues", "problems", "errors"]):
+
+            elif any(
+                keyword in command_lower for keyword in ["issues", "problems", "errors"]
+            ):
                 issues = await self.get_migration_issues()
                 return {
                     "success": True,
                     "issues": issues,
                     "issues_count": len(issues),
-                    "critical_issues": len([i for i in issues if i.get("severity") == "critical"]),
+                    "critical_issues": len(
+                        [i for i in issues if i.get("severity") == "critical"]
+                    ),
                 }
-                
-            elif any(keyword in command_lower for keyword in ["when", "completion", "finish"]):
+
+            elif any(
+                keyword in command_lower for keyword in ["when", "completion", "finish"]
+            ):
                 status = await self.get_migration_status()
-                if status.get("metrics") and status["metrics"].get("estimated_completion"):
+                if status.get("metrics") and status["metrics"].get(
+                    "estimated_completion"
+                ):
                     return {
                         "success": True,
                         "message": f"Migration estimated to complete at {status['metrics']['estimated_completion']}",
-                        "current_progress": status["metrics"].get("overall_progress", 0),
+                        "current_progress": status["metrics"].get(
+                            "overall_progress", 0
+                        ),
                     }
                 else:
                     return {
@@ -368,15 +413,15 @@ class MigrationOrchestratorClient:
                     "message": "Command not recognized. Try: 'start migration', 'migration status', 'pause migration', 'migration issues'",
                     "available_commands": [
                         "start migration",
-                        "migration status", 
+                        "migration status",
                         "pause migration",
                         "resume migration",
                         "migration issues",
                         "rollback migration",
-                        "when will migration complete"
+                        "when will migration complete",
                     ],
                 }
-                
+
         except Exception as e:
             logger.error(f"Failed to process command '{command}': {e}")
             return {
@@ -385,36 +430,42 @@ class MigrationOrchestratorClient:
                 "command": command,
             }
 
-    async def get_executive_summary(self) -> Dict[str, Any]:
+    async def get_executive_summary(self) -> dict[str, Any]:
         """Get executive-level migration summary for Unified dashboard"""
         try:
             status = await self.get_migration_status()
             issues = await self.get_migration_issues()
-            
+
             # Calculate ROI metrics
             roi_metrics = await self._calculate_roi_metrics()
-            
+
             return {
                 "migration_overview": {
                     "status": status.get("status"),
                     "current_phase": status.get("metrics", {}).get("current_phase"),
-                    "overall_progress": status.get("metrics", {}).get("overall_progress", 0),
+                    "overall_progress": status.get("metrics", {}).get(
+                        "overall_progress", 0
+                    ),
                     "success_rate": status.get("metrics", {}).get("success_rate", 0),
                 },
                 "business_impact": roi_metrics,
                 "risk_assessment": {
                     "total_issues": len(issues),
-                    "critical_issues": len([i for i in issues if i.get("severity") == "critical"]),
+                    "critical_issues": len(
+                        [i for i in issues if i.get("severity") == "critical"]
+                    ),
                     "risk_level": self._calculate_risk_level(issues),
                 },
                 "timeline": {
-                    "estimated_completion": status.get("metrics", {}).get("estimated_completion"),
+                    "estimated_completion": status.get("metrics", {}).get(
+                        "estimated_completion"
+                    ),
                     "time_saved_vs_manual": "75% faster than manual migration",
                 },
                 "next_actions": self._get_recommended_actions(status, issues),
                 "last_updated": datetime.now(UTC).isoformat(),
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to get executive summary: {e}")
             return {
@@ -422,27 +473,29 @@ class MigrationOrchestratorClient:
                 "last_updated": datetime.now(UTC).isoformat(),
             }
 
-    async def _get_system_health(self) -> Dict[str, str]:
+    async def _get_system_health(self) -> dict[str, str]:
         """Get health status of all migration-related systems"""
         health_indicators = {}
-        
+
         systems = {
             "salesforce": "http://localhost:9031/health",
-            "hubspot": "http://localhost:9032/health", 
+            "hubspot": "http://localhost:9032/health",
             "intercom": "http://localhost:9033/health",
             "migration_orchestrator": f"{self.base_url}/health",
         }
-        
+
         for system, url in systems.items():
             try:
                 response = await self.client.get(url, timeout=5.0)
-                health_indicators[system] = "healthy" if response.status_code == 200 else "degraded"
+                health_indicators[system] = (
+                    "healthy" if response.status_code == 200 else "degraded"
+                )
             except Exception:
                 health_indicators[system] = "offline"
-                
+
         return health_indicators
 
-    async def _calculate_roi_metrics(self) -> Dict[str, Any]:
+    async def _calculate_roi_metrics(self) -> dict[str, Any]:
         """Calculate ROI and business impact metrics"""
         return {
             "cost_savings": {
@@ -462,11 +515,11 @@ class MigrationOrchestratorClient:
             },
         }
 
-    def _calculate_risk_level(self, issues: List[Dict[str, Any]]) -> str:
+    def _calculate_risk_level(self, issues: list[dict[str, Any]]) -> str:
         """Calculate overall risk level based on issues"""
         critical_count = len([i for i in issues if i.get("severity") == "critical"])
         warning_count = len([i for i in issues if i.get("severity") == "warning"])
-        
+
         if critical_count > 0:
             return "high"
         elif warning_count > 3:
@@ -474,12 +527,14 @@ class MigrationOrchestratorClient:
         else:
             return "low"
 
-    def _get_recommended_actions(self, status: Dict[str, Any], issues: List[Dict[str, Any]]) -> List[str]:
+    def _get_recommended_actions(
+        self, status: dict[str, Any], issues: list[dict[str, Any]]
+    ) -> list[str]:
         """Get recommended next actions based on current state"""
         actions = []
-        
+
         current_status = status.get("status")
-        
+
         if current_status == "not_started":
             actions.append("Review migration plan and start migration when ready")
         elif current_status == "running":
@@ -492,12 +547,14 @@ class MigrationOrchestratorClient:
             actions.append("Review failure logs and consider rollback or restart")
         elif current_status == "completed":
             actions.append("Validate migration results and begin user training")
-            
+
         # Add issue-specific actions
         critical_issues = [i for i in issues if i.get("severity") == "critical"]
         if critical_issues:
-            actions.append(f"Address {len(critical_issues)} critical migration issues immediately")
-            
+            actions.append(
+                f"Address {len(critical_issues)} critical migration issues immediately"
+            )
+
         return actions
 
     async def cleanup(self):
@@ -508,9 +565,10 @@ class MigrationOrchestratorClient:
 # Global migration orchestrator client instance
 _migration_client = None
 
+
 def get_migration_orchestrator_client() -> MigrationOrchestratorClient:
     """Get the global migration orchestrator client instance"""
     global _migration_client
     if _migration_client is None:
         _migration_client = MigrationOrchestratorClient()
-    return _migration_client 
+    return _migration_client

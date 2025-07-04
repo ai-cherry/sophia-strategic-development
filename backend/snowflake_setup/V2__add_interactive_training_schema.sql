@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS payready_core_sql.authoritative_knowledge (
     last_updated_at TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP(),
     version INT DEFAULT 1,
     metadata OBJECT,
-    
+
     -- Foreign key to the users table
     CONSTRAINT fk_source_user
         FOREIGN KEY (source_user_id)
@@ -48,4 +48,3 @@ COMMENT ON COLUMN payready_core_sql.authoritative_knowledge.embedding IS 'Vector
 -- Grant usage to application roles
 GRANT USAGE ON TABLE payready_core_sql.authoritative_knowledge TO ROLE sophia_app_role;
 GRANT SELECT, INSERT, UPDATE ON TABLE payready_core_sql.authoritative_knowledge TO ROLE sophia_app_role;
-

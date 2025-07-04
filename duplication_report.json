@@ -1287,9 +1287,7 @@
     ]
   },
   "redundant_services": {
-    "DashboardCacheManager": [
-      "CacheManager"
-    ],
+    "DashboardCacheManager": ["CacheManager"],
     "SecureCredentialManager": [
       "SecretManager",
       "SecureCredentialService",
@@ -1299,37 +1297,22 @@
       "UnifiedConnectionManager",
       "ConnectionManager"
     ],
-    "DataFlowManager": [
-      "EstuaryFlowManager",
-      "AdvancedEstuaryFlowManager"
-    ],
+    "DataFlowManager": ["EstuaryFlowManager", "AdvancedEstuaryFlowManager"],
     "ComprehensiveMemoryManager": [
       "ComprehensiveMemoryService",
       "ComprehensiveMemoryService"
     ],
-    "EnhancedCacheManager": [
-      "CacheManager",
-      "EnhancedEstuaryManager"
-    ],
-    "UnifiedConnectionManager": [
-      "ConnectionManager"
-    ],
-    "ServiceHealthStatus": [
-      "MCPServiceHealth",
-      "ServiceHealth"
-    ],
-    "SimpleMCPManager": [
-      "SimpleLinearManager"
-    ],
+    "EnhancedCacheManager": ["CacheManager", "EnhancedEstuaryManager"],
+    "UnifiedConnectionManager": ["ConnectionManager"],
+    "ServiceHealthStatus": ["MCPServiceHealth", "ServiceHealth"],
+    "SimpleMCPManager": ["SimpleLinearManager"],
     "SophiaUnifiedChatService": [
       "EnhancedUnifiedUnifiedChatService",
       "EnhancedUnifiedChatService",
       "SophiaUnifiedIntelligenceService",
       "UnifiedChatService"
     ],
-    "SecretManager": [
-      "RetryManager"
-    ],
+    "SecretManager": ["RetryManager"],
     "EnhancedIngestionService": [
       "FoundationalKBIngestionService",
       "EnhancedCortexAgentService",
@@ -1347,64 +1330,35 @@
       "EnhancedSnowflakeCortexService",
       "SnowflakeIntelligenceService"
     ],
-    "OptimizedSnowflakeCortexService": [
-      "EnhancedSnowflakeCortexService"
-    ],
+    "OptimizedSnowflakeCortexService": ["EnhancedSnowflakeCortexService"],
     "EnhancedSnowflakeCortexService": [
       "EnhancedCortexAgentService",
       "EnhancedChatContextService",
       "EnhancedKnowledgeBaseService"
     ],
-    "CortexHandlers": [
-      "ContactHandler"
-    ],
-    "BusinessHandlers": [
-      "BaseHandler"
-    ],
-    "MCPServiceHealth": [
-      "ServiceHealth"
-    ],
-    "GongAPIClient": [
-      "EnhancedGongAPIClient",
-      "CodacyAPIClient"
-    ],
-    "RetryManager": [
-      "EstuaryFlowManager"
-    ],
+    "CortexHandlers": ["ContactHandler"],
+    "BusinessHandlers": ["BaseHandler"],
+    "MCPServiceHealth": ["ServiceHealth"],
+    "GongAPIClient": ["EnhancedGongAPIClient", "CodacyAPIClient"],
+    "RetryManager": ["EstuaryFlowManager"],
     "RedisNotificationClient": [
       "SlackNotificationClient",
       "EmailNotificationClient",
       "WebhookNotificationClient",
       "PagerDutyNotificationClient"
     ],
-    "EstuaryFlowManager": [
-      "AdvancedEstuaryFlowManager"
-    ],
-    "AdvancedEstuaryFlowManager": [
-      "EnhancedEstuaryManager"
-    ],
+    "EstuaryFlowManager": ["AdvancedEstuaryFlowManager"],
+    "AdvancedEstuaryFlowManager": ["EnhancedEstuaryManager"],
     "FoundationalKBIngestionService": [
       "FoundationalKnowledgeService",
       "EnhancedDataIngestionService",
       "EventDrivenIngestionService"
     ],
-    "MCPClientMode": [
-      "MCPClientConfig",
-      "MCPClient"
-    ],
-    "MCPClientConfig": [
-      "MCPClient"
-    ],
-    "MCPClient": [
-      "CompanyClient"
-    ],
-    "ConnectionManager": [
-      "ContextManager",
-      "SessionManager"
-    ],
-    "MockChatService": [
-      "BaseChatService"
-    ],
+    "MCPClientMode": ["MCPClientConfig", "MCPClient"],
+    "MCPClientConfig": ["MCPClient"],
+    "MCPClient": ["CompanyClient"],
+    "ConnectionManager": ["ContextManager", "SessionManager"],
+    "MockChatService": ["BaseChatService"],
     "SlackNotificationClient": [
       "EmailNotificationClient",
       "WebhookNotificationClient",
@@ -1414,9 +1368,7 @@
       "WebhookNotificationClient",
       "PagerDutyNotificationClient"
     ],
-    "WebhookNotificationClient": [
-      "PagerDutyNotificationClient"
-    ],
+    "WebhookNotificationClient": ["PagerDutyNotificationClient"],
     "SnowflakeIntelligenceService": [
       "EnhancedUnifiedIntelligenceService",
       "SophiaUnifiedIntelligenceService",
@@ -1448,17 +1400,13 @@
       "KnowledgeService",
       "EnhancedUnifiedChatService"
     ],
-    "ProjectService": [
-      "RBACService"
-    ],
+    "ProjectService": ["RBACService"],
     "MCPOrchestrationService": [
       "UnifiedAIOrchestrationService",
       "EnhancedMCPOrchestrationService",
       "MemoryPreservationService"
     ],
-    "FoundationalKnowledgeService": [
-      "KnowledgeService"
-    ],
+    "FoundationalKnowledgeService": ["KnowledgeService"],
     "TaskService": [
       "SmartAIService",
       "TeamService",
@@ -1469,10 +1417,7 @@
       "EnhancedMCPOrchestrationService",
       "UnifiedChatService"
     ],
-    "WebSocketClient": [
-      "HubSpotClient",
-      "TicketClient"
-    ],
+    "WebSocketClient": ["HubSpotClient", "TicketClient"],
     "EnhancedDataIngestionService": [
       "EnhancedSlackIntegrationService",
       "EnhancedMCPOrchestrationService"
@@ -1482,87 +1427,39 @@
       "EnhancedUnifiedChatService",
       "UnifiedChatService"
     ],
-    "SchemaDiscoveryService": [
-      "SemanticLayerService"
-    ],
-    "SemanticLayerService": [
-      "SmartAIService"
-    ],
+    "SchemaDiscoveryService": ["SemanticLayerService"],
+    "SemanticLayerService": ["SmartAIService"],
     "EnhancedUnifiedIntelligenceService": [
       "EnhancedUnifiedChatService",
       "SophiaUnifiedIntelligenceService",
       "SimplifiedUnifiedIntelligenceService"
     ],
-    "SecureCredentialService": [
-      "EphemeralCredentialsService"
-    ],
-    "EnhancedSlackIntegrationService": [
-      "EnhancedMCPOrchestrationService"
-    ],
-    "UIGenerationIntentHandler": [
-      "EmailGenerationHandler"
-    ],
-    "SmartAIService": [
-      "AIService"
-    ],
-    "EnhancedUnifiedChatService": [
-      "UnifiedChatService"
-    ],
-    "TeamService": [
-      "RBACService",
-      "AIService"
-    ],
+    "SecureCredentialService": ["EphemeralCredentialsService"],
+    "EnhancedSlackIntegrationService": ["EnhancedMCPOrchestrationService"],
+    "UIGenerationIntentHandler": ["EmailGenerationHandler"],
+    "SmartAIService": ["AIService"],
+    "EnhancedUnifiedChatService": ["UnifiedChatService"],
+    "TeamService": ["RBACService", "AIService"],
     "SophiaUnifiedIntelligenceService": [
       "SimplifiedUnifiedIntelligenceService"
     ],
-    "AnalyticsService": [
-      "AIService"
-    ],
-    "RBACService": [
-      "AIService",
-      "BaseChatService"
-    ],
-    "DealRiskHandler": [
-      "SearchHandler"
-    ],
-    "EmailGenerationHandler": [
-      "ConversationHandler"
-    ],
+    "AnalyticsService": ["AIService"],
+    "RBACService": ["AIService", "BaseChatService"],
+    "DealRiskHandler": ["SearchHandler"],
+    "EmailGenerationHandler": ["ConversationHandler"],
     "CompetitorAnalysisHandler": [
       "PipelineAnalysisHandler",
       "MemoryAnalyticsHandler",
       "CompanyHandler"
     ],
-    "MemoryStorageHandler": [
-      "MemorySearchHandler",
-      "MemoryMaintenanceHandler"
-    ],
-    "MemorySearchHandler": [
-      "MemoryMaintenanceHandler",
-      "SearchHandler"
-    ],
-    "BaseChatService": [
-      "UnifiedChatService"
-    ],
-    "CodacyAPIClient": [
-      "CompanyClient",
-      "ContactClient"
-    ],
-    "ConversationClient": [
-      "ContactClient",
-      "ConversationHandler"
-    ],
-    "TicketHandler": [
-      "ContactHandler"
-    ],
-    "ConversationHandler": [
-      "ContactHandler"
-    ],
-    "CompanyHandler": [
-      "ContactHandler"
-    ],
-    "SearchHandler": [
-      "BaseHandler"
-    ]
+    "MemoryStorageHandler": ["MemorySearchHandler", "MemoryMaintenanceHandler"],
+    "MemorySearchHandler": ["MemoryMaintenanceHandler", "SearchHandler"],
+    "BaseChatService": ["UnifiedChatService"],
+    "CodacyAPIClient": ["CompanyClient", "ContactClient"],
+    "ConversationClient": ["ContactClient", "ConversationHandler"],
+    "TicketHandler": ["ContactHandler"],
+    "ConversationHandler": ["ContactHandler"],
+    "CompanyHandler": ["ContactHandler"],
+    "SearchHandler": ["BaseHandler"]
   }
 }

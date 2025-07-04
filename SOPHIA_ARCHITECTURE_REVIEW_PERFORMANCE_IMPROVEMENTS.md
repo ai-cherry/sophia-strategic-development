@@ -20,7 +20,7 @@ ALTER TABLE SOPHIA_AI_CORE.<schema>.<table> ADD COLUMN IF NOT EXISTS
     data_quality_score FLOAT DEFAULT 1.0;
 
 -- Performance indexes for common access patterns
-CREATE INDEX IF NOT EXISTS idx_metadata_composite 
+CREATE INDEX IF NOT EXISTS idx_metadata_composite
     ON <schema>.<table>(last_updated DESC, confidence_score DESC, processing_status);
 ```
 
@@ -60,7 +60,7 @@ class SchemaOptimizer:
 class DataLifecycleManager:
     async def setup_automated_policies(self):
         """Configure schema-specific lifecycle policies"""
-        
+
         # AI Web Research - 30-day auto-purge with exceptions
         await self.create_policy(
             schema="ai_web_research",
@@ -75,7 +75,7 @@ class DataLifecycleManager:
                 "compress_after": 7
             }
         )
-        
+
         # Unified Intelligence - Permanent retention with encryption
         await self.create_policy(
             schema="ceo_intelligence",
@@ -96,9 +96,9 @@ CREATE OR REPLACE FUNCTION calculate_freshness_score(
     data_type VARCHAR
 ) RETURNS FLOAT
 AS $$
-    CASE 
-        WHEN data_type = 'real_time' THEN 
-            CASE 
+    CASE
+        WHEN data_type = 'real_time' THEN
+            CASE
                 WHEN DATEDIFF('hour', last_updated, CURRENT_TIMESTAMP()) < 1 THEN 1.0
                 WHEN DATEDIFF('hour', last_updated, CURRENT_TIMESTAMP()) < 24 THEN 0.8
                 ELSE 0.5
@@ -124,12 +124,12 @@ $$;
 class EntityDeduplicationService:
     async def setup_deduplication_framework(self):
         """Initialize high-performance deduplication system"""
-        
+
         # Property deduplication with fuzzy matching
         await self.create_dedup_view("""
             CREATE OR REPLACE VIEW property_master AS
             WITH property_matches AS (
-                SELECT 
+                SELECT
                     p1.property_id,
                     p1.property_name,
                     p1.normalized_address,
@@ -138,14 +138,14 @@ class EntityDeduplicationService:
                     EDITDISTANCE(p1.normalized_address, p2.normalized_address) as address_distance,
                     ABS(p1.unit_count - p2.unit_count) / GREATEST(p1.unit_count, p2.unit_count) as unit_variance
                 FROM property_assets p1
-                JOIN property_assets p2 
+                JOIN property_assets p2
                     ON p1.property_id < p2.property_id
                     AND ST_DISTANCE(p1.geolocation, p2.geolocation) < 100 -- within 100m
             ),
             confidence_scores AS (
-                SELECT 
+                SELECT
                     *,
-                    CASE 
+                    CASE
                         WHEN name_score > 0.9 AND address_distance < 5 AND unit_variance < 0.1 THEN 0.95
                         WHEN name_score > 0.8 AND address_distance < 10 AND unit_variance < 0.2 THEN 0.80
                         WHEN name_score > 0.7 OR (address_distance < 5 AND unit_variance < 0.1) THEN 0.60
@@ -161,15 +161,15 @@ class EntityDeduplicationService:
 ```python
 async def deduplicate_on_insert(self, new_entity: Dict[str, Any]) -> Dict[str, Any]:
     """Check for duplicates before insertion"""
-    
+
     # Fast hash-based initial check
     entity_hash = self.generate_entity_hash(new_entity)
-    
+
     # Check bloom filter for potential matches
     if self.bloom_filter.possibly_contains(entity_hash):
         # Detailed similarity check
         matches = await self.find_similar_entities(new_entity)
-        
+
         if matches:
             # Auto-merge high confidence matches
             for match in matches:
@@ -178,7 +178,7 @@ async def deduplicate_on_insert(self, new_entity: Dict[str, Any]) -> Dict[str, A
                 elif match['confidence'] > 0.7:
                     # Queue for human review via chat interface
                     await self.queue_for_review(new_entity, match)
-    
+
     # Add to bloom filter for future checks
     self.bloom_filter.add(entity_hash)
     return new_entity
@@ -199,7 +199,7 @@ class PortkeyPerformanceOptimizer:
             "reliability_weight": 0.15,   # Uptime/success rate
             "cost_weight": 0.10          # Token cost
         }
-        
+
         # Real-time performance tracking
         self.model_stats = defaultdict(lambda: {
             "requests": 0,
@@ -208,32 +208,32 @@ class PortkeyPerformanceOptimizer:
             "quality_scores": [],
             "last_updated": datetime.now()
         })
-    
+
     async def select_optimal_model(self, request: LLMRequest) -> str:
         """Select model with 75% performance, 25% cost weighting"""
-        
+
         # Get live performance data
         model_scores = {}
         for model in self.available_models:
             stats = self.model_stats[model]
-            
+
             # Calculate performance score (75% weight)
             avg_latency = stats["total_latency"] / max(stats["requests"], 1)
             success_rate = 1 - (stats["errors"] / max(stats["requests"], 1))
             avg_quality = sum(stats["quality_scores"]) / max(len(stats["quality_scores"]), 1)
-            
+
             performance_score = (
                 (1 - min(avg_latency / 1000, 1)) * self.performance_metrics["latency_weight"] +
                 avg_quality * self.performance_metrics["quality_weight"] +
                 success_rate * self.performance_metrics["reliability_weight"]
             )
-            
+
             # Add cost consideration (25% weight)
             cost_score = 1 - (self.model_costs[model] / max(self.model_costs.values()))
-            
+
             # Combined score: 75% performance, 25% cost
             model_scores[model] = (performance_score * 0.75) + (cost_score * 0.25)
-        
+
         return max(model_scores, key=model_scores.get)
 ```
 
@@ -250,24 +250,24 @@ class DeveloperMemoryService:
         self.l1_cache = {}  # In-memory, hot data
         self.l2_cache = RedisCache()  # Distributed, warm data
         self.l3_storage = SnowflakeStorage()  # Persistent, cold data
-        
+
     async def get_context(self, query: str, context_type: str) -> Dict[str, Any]:
         """Retrieve context with cascading cache lookup"""
-        
+
         cache_key = self.generate_cache_key(query, context_type)
-        
+
         # L1 Cache (microseconds)
         if cache_key in self.l1_cache:
             self.update_access_stats(cache_key, "l1_hit")
             return self.l1_cache[cache_key]
-        
+
         # L2 Cache (milliseconds)
         l2_result = await self.l2_cache.get(cache_key)
         if l2_result:
             self.l1_cache[cache_key] = l2_result  # Promote to L1
             self.update_access_stats(cache_key, "l2_hit")
             return l2_result
-        
+
         # L3 Storage (10s of milliseconds)
         l3_result = await self.l3_storage.semantic_search(query, context_type)
         if l3_result:
@@ -276,7 +276,7 @@ class DeveloperMemoryService:
             self.l1_cache[cache_key] = l3_result
             self.update_access_stats(cache_key, "l3_hit")
             return l3_result
-        
+
         return None
 ```
 
@@ -296,37 +296,37 @@ class AdaptiveConnectionPool:
             "health_check_interval": 30,
             "stale_timeout": 300
         }
-        
+
         # Predictive scaling based on historical patterns
         self.usage_patterns = defaultdict(list)
-        
+
     async def get_connection(self) -> SnowflakeConnection:
         """Get healthy connection with automatic scaling"""
-        
+
         # Check pool utilization
         utilization = self.active_connections / self.pool_size
-        
+
         # Predictive scaling
         if utilization > self.pool_config["scaling_threshold"]:
             predicted_need = self.predict_connection_need()
             await self.scale_pool(predicted_need)
-        
+
         # Get healthy connection
         conn = await self.acquire_healthy_connection()
-        
+
         # Track usage patterns
         self.track_usage_pattern()
-        
+
         return conn
-    
+
     def predict_connection_need(self) -> int:
         """Predict connection needs based on time patterns"""
         current_hour = datetime.now().hour
         current_day = datetime.now().weekday()
-        
+
         # Get historical usage for this time
         historical = self.usage_patterns[f"{current_day}_{current_hour}"]
-        
+
         if historical:
             # Use 95th percentile of historical usage
             return int(np.percentile(historical, 95))
@@ -346,33 +346,33 @@ class QueryIntelligenceService:
     def __init__(self):
         self.query_patterns = {}
         self.optimization_rules = self.load_optimization_rules()
-        
+
     async def optimize_query(self, original_query: str, context: Dict[str, Any]) -> str:
         """Apply intelligent query optimization"""
-        
+
         # Pattern matching for common inefficiencies
         optimizations_applied = []
         optimized_query = original_query
-        
+
         # Check for SELECT * patterns
         if "SELECT *" in optimized_query.upper():
             required_columns = await self.analyze_required_columns(context)
             optimized_query = self.replace_select_star(optimized_query, required_columns)
             optimizations_applied.append("select_star_optimization")
-        
+
         # Add result size limiting for chat queries
         if context.get("source") == "universal_chat" and "LIMIT" not in optimized_query.upper():
             optimized_query += " LIMIT 1000"
             optimizations_applied.append("auto_limit")
-        
+
         # Add time-based partitioning hints
         if self.can_add_partition_filter(optimized_query):
             optimized_query = self.add_partition_filter(optimized_query, context)
             optimizations_applied.append("partition_pruning")
-        
+
         # Log optimization for learning
         await self.log_optimization(original_query, optimized_query, optimizations_applied)
-        
+
         return optimized_query
 ```
 
@@ -391,27 +391,27 @@ class AutoRecoveryFramework:
             "cache_performance": {"interval": 300, "threshold": 5},
             "memory_usage": {"interval": 120, "threshold": 1}
         }
-        
+
         self.recovery_actions = {
             "snowflake_connection": self.recover_snowflake_connection,
             "llm_gateway": self.recover_llm_gateway,
             "cache_performance": self.optimize_cache,
             "memory_usage": self.cleanup_memory
         }
-    
+
     async def monitor_and_heal(self):
         """Continuous monitoring with automatic recovery"""
-        
+
         while True:
             for check_name, config in self.health_checks.items():
                 try:
                     # Run health check
                     is_healthy = await self.run_health_check(check_name)
-                    
+
                     if not is_healthy:
                         # Increment failure counter
                         self.failure_counts[check_name] += 1
-                        
+
                         # Trigger recovery if threshold exceeded
                         if self.failure_counts[check_name] >= config["threshold"]:
                             await self.recovery_actions[check_name]()
@@ -419,10 +419,10 @@ class AutoRecoveryFramework:
                     else:
                         # Reset counter on success
                         self.failure_counts[check_name] = 0
-                        
+
                 except Exception as e:
                     logger.error(f"Health check {check_name} failed: {e}")
-                    
+
             await asyncio.sleep(10)  # Base interval
 ```
 

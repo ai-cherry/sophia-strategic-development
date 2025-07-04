@@ -26,4 +26,4 @@ SELECT
 FROM base b
 {% for enrichment in enrichments %}
 LEFT JOIN enrichment_{{ loop.index }} e{{ loop.index }} ON b.{{ enrichment.join_on.from_column }} = e{{ loop.index }}.join_key
-{% endfor %}; 
+{% endfor %};

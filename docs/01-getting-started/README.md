@@ -60,7 +60,7 @@ python -c "from backend.app.fastapi_app import app; print('✅ All systems opera
 ### **Daily Commands**
 ```bash
 verify-sophia           # Always start here
-uv sync                # Update dependencies  
+uv sync                # Update dependencies
 uv run pytest          # Run tests
 uv add package-name     # Add new packages
 ```

@@ -5,14 +5,11 @@ Integrates with Sophia AI's orchestration capabilities for optimal migration exe
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from mcp import Server
-
-from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +41,7 @@ class MigrationOrchestratorMCPServer:
         """Register Migration Orchestrator MCP tools"""
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check Migration Orchestrator health and dependencies"""
             try:
                 # Check integration dependencies
@@ -57,7 +54,9 @@ class MigrationOrchestratorMCPServer:
                     "n8n": await self._check_integration("n8n"),
                 }
 
-                all_healthy = all(status["healthy"] for status in integrations_status.values())
+                all_healthy = all(
+                    status["healthy"] for status in integrations_status.values()
+                )
 
                 return {
                     "healthy": all_healthy,
@@ -77,7 +76,7 @@ class MigrationOrchestratorMCPServer:
                 }
 
         @self.mcp_server.tool("analyze_salesforce_workspace")
-        async def analyze_salesforce_workspace() -> Dict[str, Any]:
+        async def analyze_salesforce_workspace() -> dict[str, Any]:
             """AI-powered analysis of Salesforce workspace for migration planning"""
             try:
                 logger.info("🔍 Starting AI-powered Salesforce workspace analysis...")
@@ -106,10 +105,10 @@ class MigrationOrchestratorMCPServer:
                         "recommended_batch_size": 1000,
                         "priority_objects": [
                             "Account",
-                            "Contact", 
+                            "Contact",
                             "Lead",
                             "Opportunity",
-                            "Case"
+                            "Case",
                         ],
                     },
                     "object_analysis": {
@@ -168,10 +167,12 @@ class MigrationOrchestratorMCPServer:
             migration_scope: str = "full",
             timeline_weeks: int = 3,
             risk_tolerance: str = "medium",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Create AI-optimized migration execution plan"""
             try:
-                logger.info(f"🎯 Creating migration plan: scope={migration_scope}, timeline={timeline_weeks}w")
+                logger.info(
+                    f"🎯 Creating migration plan: scope={migration_scope}, timeline={timeline_weeks}w"
+                )
 
                 # Generate comprehensive migration plan
                 plan = {
@@ -180,7 +181,9 @@ class MigrationOrchestratorMCPServer:
                     "timeline": {
                         "total_weeks": timeline_weeks,
                         "start_date": datetime.now().isodate(),
-                        "estimated_completion": (datetime.now() + timedelta(weeks=timeline_weeks)).isodate(),
+                        "estimated_completion": (
+                            datetime.now() + timedelta(weeks=timeline_weeks)
+                        ).isodate(),
                     },
                     "phases": {
                         "phase_1": {
@@ -283,17 +286,22 @@ class MigrationOrchestratorMCPServer:
             plan_id: str,
             phase: str = "all",
             dry_run: bool = False,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Execute migration with AI orchestration and real-time monitoring"""
             try:
                 if plan_id not in self.migration_sessions:
-                    return {"success": False, "error": f"Migration plan {plan_id} not found"}
+                    return {
+                        "success": False,
+                        "error": f"Migration plan {plan_id} not found",
+                    }
 
                 plan = self.migration_sessions[plan_id]["plan"]
-                logger.info(f"🚀 Executing migration {plan_id}, phase: {phase}, dry_run: {dry_run}")
+                logger.info(
+                    f"🚀 Executing migration {plan_id}, phase: {phase}, dry_run: {dry_run}"
+                )
 
                 execution_id = f"exec_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                
+
                 # Initialize execution tracking
                 execution = {
                     "execution_id": execution_id,
@@ -320,33 +328,43 @@ class MigrationOrchestratorMCPServer:
                     logger.info("📋 Executing Phase 1: Infrastructure Enhancement")
                     phase1_result = await self._execute_phase_1(execution, dry_run)
                     execution["phases_completed"].append("phase_1")
-                    execution["ai_insights"].append({
-                        "phase": "phase_1",
-                        "insight": "Infrastructure deployment completed with 98% success rate",
-                        "recommendation": "Proceed to migration execution phase",
-                    })
+                    execution["ai_insights"].append(
+                        {
+                            "phase": "phase_1",
+                            "insight": "Infrastructure deployment completed with 98% success rate",
+                            "recommendation": "Proceed to migration execution phase",
+                        }
+                    )
 
                 if phase == "all" or phase == "phase_2":
                     logger.info("🔄 Executing Phase 2: Migration Execution")
                     phase2_result = await self._execute_phase_2(execution, dry_run)
                     execution["phases_completed"].append("phase_2")
-                    execution["ai_insights"].append({
-                        "phase": "phase_2",
-                        "insight": "Data migration completed with AI-optimized batching",
-                        "recommendation": "Data quality validation successful, proceed to BI integration",
-                    })
+                    execution["ai_insights"].append(
+                        {
+                            "phase": "phase_2",
+                            "insight": "Data migration completed with AI-optimized batching",
+                            "recommendation": "Data quality validation successful, proceed to BI integration",
+                        }
+                    )
 
                 if phase == "all" or phase == "phase_3":
-                    logger.info("📊 Executing Phase 3: Business Intelligence Integration")
+                    logger.info(
+                        "📊 Executing Phase 3: Business Intelligence Integration"
+                    )
                     phase3_result = await self._execute_phase_3(execution, dry_run)
                     execution["phases_completed"].append("phase_3")
-                    execution["ai_insights"].append({
-                        "phase": "phase_3",
-                        "insight": "Executive dashboard deployed with real-time data feeds",
-                        "recommendation": "Migration complete, monitoring active",
-                    })
+                    execution["ai_insights"].append(
+                        {
+                            "phase": "phase_3",
+                            "insight": "Executive dashboard deployed with real-time data feeds",
+                            "recommendation": "Migration complete, monitoring active",
+                        }
+                    )
 
-                execution["status"] = "completed" if not dry_run else "dry_run_completed"
+                execution["status"] = (
+                    "completed" if not dry_run else "dry_run_completed"
+                )
                 execution["completed_at"] = datetime.now().isoformat()
                 execution["performance_metrics"]["success_rate"] = 0.98
 
@@ -361,7 +379,7 @@ class MigrationOrchestratorMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp_server.tool("get_migration_status")
-        async def get_migration_status(execution_id: str = "") -> Dict[str, Any]:
+        async def get_migration_status(execution_id: str = "") -> dict[str, Any]:
             """Get real-time migration status with AI insights"""
             try:
                 if execution_id:
@@ -370,10 +388,15 @@ class MigrationOrchestratorMCPServer:
                         return {
                             "success": True,
                             "execution": execution,
-                            "real_time_metrics": await self._get_real_time_metrics(execution_id),
+                            "real_time_metrics": await self._get_real_time_metrics(
+                                execution_id
+                            ),
                         }
                     else:
-                        return {"success": False, "error": f"Execution {execution_id} not found"}
+                        return {
+                            "success": False,
+                            "error": f"Execution {execution_id} not found",
+                        }
                 else:
                     # Return all active migrations
                     return {
@@ -391,16 +414,21 @@ class MigrationOrchestratorMCPServer:
         async def create_notion_project_update(
             execution_id: str,
             update_type: str = "progress",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Create automated project update in Notion for Unified dashboard"""
             try:
                 if execution_id not in self.active_migrations:
-                    return {"success": False, "error": f"Execution {execution_id} not found"}
+                    return {
+                        "success": False,
+                        "error": f"Execution {execution_id} not found",
+                    }
 
                 execution = self.active_migrations[execution_id]
-                
+
                 # Generate AI-powered update content
-                update_content = await self._generate_notion_update(execution, update_type)
+                update_content = await self._generate_notion_update(
+                    execution, update_type
+                )
 
                 return {
                     "success": True,
@@ -412,56 +440,80 @@ class MigrationOrchestratorMCPServer:
                 logger.error(f"Notion update error: {e}")
                 return {"success": False, "error": str(e)}
 
-    async def _check_integration(self, integration_name: str) -> Dict[str, Any]:
+    async def _check_integration(self, integration_name: str) -> dict[str, Any]:
         """Check the health of an integration dependency"""
         try:
             # Simulate integration health checks
             integration_status = {
-                "salesforce": {"healthy": True, "version": "v57.0", "connection": "active"},
+                "salesforce": {
+                    "healthy": True,
+                    "version": "v57.0",
+                    "connection": "active",
+                },
                 "hubspot": {"healthy": True, "version": "v3", "connection": "active"},
-                "intercom": {"healthy": True, "version": "2.11", "connection": "active"},
-                "notion": {"healthy": True, "version": "2022-06-28", "connection": "active"},
-                "ai_memory": {"healthy": True, "version": "1.0.0", "connection": "active"},
+                "intercom": {
+                    "healthy": True,
+                    "version": "2.11",
+                    "connection": "active",
+                },
+                "notion": {
+                    "healthy": True,
+                    "version": "2022-06-28",
+                    "connection": "active",
+                },
+                "ai_memory": {
+                    "healthy": True,
+                    "version": "1.0.0",
+                    "connection": "active",
+                },
                 "n8n": {"healthy": True, "version": "1.0.0", "connection": "active"},
             }
 
-            return integration_status.get(integration_name, {"healthy": False, "error": "Unknown integration"})
+            return integration_status.get(
+                integration_name, {"healthy": False, "error": "Unknown integration"}
+            )
 
         except Exception as e:
             return {"healthy": False, "error": str(e)}
 
-    async def _execute_phase_1(self, execution: Dict[str, Any], dry_run: bool) -> Dict[str, Any]:
+    async def _execute_phase_1(
+        self, execution: dict[str, Any], dry_run: bool
+    ) -> dict[str, Any]:
         """Execute Phase 1: Infrastructure Enhancement"""
         execution["current_phase"] = "phase_1"
-        
+
         if not dry_run:
             # Simulate infrastructure deployment
             await asyncio.sleep(2)  # Simulate processing time
-        
+
         return {"phase": "phase_1", "status": "completed", "duration_seconds": 2}
 
-    async def _execute_phase_2(self, execution: Dict[str, Any], dry_run: bool) -> Dict[str, Any]:
+    async def _execute_phase_2(
+        self, execution: dict[str, Any], dry_run: bool
+    ) -> dict[str, Any]:
         """Execute Phase 2: Migration Execution"""
         execution["current_phase"] = "phase_2"
-        
+
         if not dry_run:
             # Simulate data migration
             execution["performance_metrics"]["records_processed"] = 125000
             await asyncio.sleep(3)  # Simulate processing time
-        
+
         return {"phase": "phase_2", "status": "completed", "duration_seconds": 3}
 
-    async def _execute_phase_3(self, execution: Dict[str, Any], dry_run: bool) -> Dict[str, Any]:
+    async def _execute_phase_3(
+        self, execution: dict[str, Any], dry_run: bool
+    ) -> dict[str, Any]:
         """Execute Phase 3: Business Intelligence Integration"""
         execution["current_phase"] = "phase_3"
-        
+
         if not dry_run:
             # Simulate BI integration
             await asyncio.sleep(1)  # Simulate processing time
-        
+
         return {"phase": "phase_3", "status": "completed", "duration_seconds": 1}
 
-    async def _get_real_time_metrics(self, execution_id: str) -> Dict[str, Any]:
+    async def _get_real_time_metrics(self, execution_id: str) -> dict[str, Any]:
         """Get real-time metrics for migration execution"""
         return {
             "cpu_usage": 65.2,
@@ -472,16 +524,20 @@ class MigrationOrchestratorMCPServer:
             "estimated_completion": (datetime.now() + timedelta(hours=2)).isoformat(),
         }
 
-    async def _generate_notion_update(self, execution: Dict[str, Any], update_type: str) -> Dict[str, Any]:
+    async def _generate_notion_update(
+        self, execution: dict[str, Any], update_type: str
+    ) -> dict[str, Any]:
         """Generate AI-powered Notion update content"""
         progress = len(execution["phases_completed"]) / 3 * 100
-        
+
         return {
             "title": f"Migration Progress Update - {update_type.title()}",
             "progress": progress,
             "status": "On Track" if progress < 100 else "Complete",
             "achievements": f"Completed {len(execution['phases_completed'])}/3 phases successfully",
-            "next_steps": "Continue with scheduled migration phases" if progress < 100 else "Migration validation and go-live",
+            "next_steps": "Continue with scheduled migration phases"
+            if progress < 100
+            else "Migration validation and go-live",
             "ai_insights": "Migration proceeding ahead of schedule with 98% success rate",
         }
 
@@ -489,7 +545,7 @@ class MigrationOrchestratorMCPServer:
         """Register Migration Orchestrator MCP resources"""
 
         @self.mcp_server.resource("migration_templates")
-        async def get_migration_templates() -> List[Dict[str, Any]]:
+        async def get_migration_templates() -> list[dict[str, Any]]:
             """Get available migration templates"""
             return [
                 {
@@ -519,10 +575,14 @@ class MigrationOrchestratorMCPServer:
         if health.get("healthy"):
             logger.info("✅ Migration Orchestrator MCP Server started successfully")
             logger.info("   🎛️ AI-enhanced migration orchestration ready")
-            logger.info("   🔄 Salesforce → HubSpot/Intercom migration capabilities enabled")
+            logger.info(
+                "   🔄 Salesforce → HubSpot/Intercom migration capabilities enabled"
+            )
             logger.info("   📊 Real-time monitoring and Notion integration active")
         else:
-            logger.warning("⚠️ Migration Orchestrator started with some dependencies unavailable")
+            logger.warning(
+                "⚠️ Migration Orchestrator started with some dependencies unavailable"
+            )
 
     async def stop(self):
         """Stop the Migration Orchestrator MCP server"""
@@ -539,13 +599,21 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {
-            "status": "ok", 
-            "version": "1.0.0", 
-            "features": ["ai_orchestration", "migration_planning", "real_time_monitoring", "notion_integration"]
+            "status": "ok",
+            "version": "1.0.0",
+            "features": [
+                "ai_orchestration",
+                "migration_planning",
+                "real_time_monitoring",
+                "notion_integration",
+            ],
         }
+
 except ImportError:
     pass

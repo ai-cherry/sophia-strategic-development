@@ -45,7 +45,7 @@ pip install snowflake-connector-python aiohttp structlog pydantic
 
 # Ensure Pulumi ESC secrets are configured:
 # - gong_access_key
-# - gong_access_key_secret  
+# - gong_access_key_secret
 # - snowflake_user
 # - snowflake_password
 # - snowflake_account
@@ -224,14 +224,14 @@ CALL PROCESS_TRANSCRIPTS_WITH_CORTEX(); -- Every 2 hours
 ### 4. HubSpot Integration
 ```sql
 -- Views join Gong data with HubSpot Secure Data Share
-SELECT 
+SELECT
     gc.CALL_ID,
     gc.SENTIMENT_SCORE,
     hd.DEAL_NAME,
     hd.DEAL_STAGE,
     hd.DEAL_AMOUNT
 FROM STG_GONG_CALLS gc
-JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd 
+JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd
     ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID;
 ```
 
@@ -242,7 +242,7 @@ JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd
 # Example: Get calls needing coaching attention
 async def get_coaching_opportunities():
     query = """
-    SELECT 
+    SELECT
         CALL_ID,
         PRIMARY_USER_NAME,
         SENTIMENT_SCORE,
@@ -262,7 +262,7 @@ async def get_coaching_opportunities():
 # Example: Analyze call with Cortex AI
 async def analyze_call_with_cortex(call_id: str):
     query = """
-    SELECT 
+    SELECT
         CALL_ID,
         SNOWFLAKE.CORTEX.SUMMARIZE(
             CALL_TITLE || ': ' || STRING_AGG(TRANSCRIPT_TEXT, ' '),
@@ -270,8 +270,8 @@ async def analyze_call_with_cortex(call_id: str):
         ) AS AI_SUMMARY,
         AVG(SEGMENT_SENTIMENT) AS OVERALL_SENTIMENT,
         STRING_AGG(
-            CASE WHEN SEGMENT_SENTIMENT < 0.2 
-            THEN TRANSCRIPT_TEXT ELSE NULL END, 
+            CASE WHEN SEGMENT_SENTIMENT < 0.2
+            THEN TRANSCRIPT_TEXT ELSE NULL END,
             ' | '
         ) AS RISK_SEGMENTS
     FROM STG_GONG_CALLS gc
@@ -290,7 +290,7 @@ async def find_similar_calls(query_text: str, limit: int = 10):
     WITH query_embedding AS (
         SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', ?) AS query_vector
     )
-    SELECT 
+    SELECT
         t.CALL_ID,
         t.TRANSCRIPT_TEXT,
         t.SEGMENT_SENTIMENT,
@@ -335,7 +335,7 @@ export SNOWFLAKE_ACCOUNT="your_account"
 ### Task Monitoring
 ```sql
 -- Check task execution status
-SELECT 
+SELECT
     NAME,
     STATE,
     SCHEDULED_TIME,
@@ -350,7 +350,7 @@ ORDER BY SCHEDULED_TIME DESC;
 ### Data Quality Checks
 ```sql
 -- Check ingestion completeness
-SELECT 
+SELECT
     DATE(INGESTED_AT) AS ingestion_date,
     COUNT(*) AS calls_ingested,
     COUNT(CASE WHEN PROCESSED THEN 1 END) AS calls_processed,
@@ -364,13 +364,13 @@ ORDER BY ingestion_date DESC;
 ### Performance Optimization
 ```sql
 -- Add indexes for query performance
-CREATE INDEX IF NOT EXISTS IX_GONG_CALLS_DATETIME 
+CREATE INDEX IF NOT EXISTS IX_GONG_CALLS_DATETIME
     ON STG_GONG_CALLS(CALL_DATETIME_UTC);
 
-CREATE INDEX IF NOT EXISTS IX_GONG_CALLS_HUBSPOT_DEAL 
+CREATE INDEX IF NOT EXISTS IX_GONG_CALLS_HUBSPOT_DEAL
     ON STG_GONG_CALLS(HUBSPOT_DEAL_ID);
 
-CREATE INDEX IF NOT EXISTS IX_TRANSCRIPT_CALL_ID 
+CREATE INDEX IF NOT EXISTS IX_TRANSCRIPT_CALL_ID
     ON STG_GONG_CALL_TRANSCRIPTS(CALL_ID);
 ```
 
@@ -395,7 +395,7 @@ await config.validate_snowflake_credentials()
 #### 3. Missing Transcripts
 ```sql
 -- Check calls without transcripts
-SELECT 
+SELECT
     gc.CALL_ID,
     gc.CALL_TITLE,
     gc.CALL_DATETIME_UTC
@@ -408,7 +408,7 @@ AND gc.CALL_DATETIME_UTC >= DATEADD('day', -7, CURRENT_DATE());
 #### 4. Cortex Processing Errors
 ```sql
 -- Check Cortex processing status
-SELECT 
+SELECT
     PROCESSED_BY_CORTEX,
     COUNT(*) as call_count
 FROM STG_GONG_CALLS
@@ -421,7 +421,7 @@ GROUP BY PROCESSED_BY_CORTEX;
 #### Reprocess Failed Records
 ```sql
 -- Reset processing flags for retry
-UPDATE GONG_CALLS_RAW 
+UPDATE GONG_CALLS_RAW
 SET PROCESSED = FALSE, PROCESSING_ERROR = NULL
 WHERE PROCESSING_ERROR IS NOT NULL;
 
@@ -444,7 +444,7 @@ python backend/etl/gong/ingest_gong_data.py \
 ```sql
 -- Production task schedule
 -- Raw data ingestion: Every 4 hours
--- Transformation: Every 15-30 minutes  
+-- Transformation: Every 15-30 minutes
 -- Cortex processing: Every 1-2 hours
 -- HubSpot sync: Every hour (via Secure Data Share)
 ```
@@ -485,4 +485,4 @@ python backend/etl/gong/ingest_gong_data.py \
 - [Sales Coach Agent](../../agents/specialized/sales_coach_agent.py)
 - [Call Analysis Agent](../../agents/specialized/call_analysis_agent.py)
 
-For questions or issues, check the troubleshooting section above or consult the Sophia AI team. 
+For questions or issues, check the troubleshooting section above or consult the Sophia AI team.

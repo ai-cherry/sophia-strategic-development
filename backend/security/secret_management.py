@@ -306,9 +306,9 @@ class SecretManager:
             and self.config.slack_signing_secret
             and self.config.slack_app_token
         ):
-            results["slack_enhanced"] = (
-                await self._validate_slack_enhanced_credentials()
-            )
+            results[
+                "slack_enhanced"
+            ] = await self._validate_slack_enhanced_credentials()
 
         return results
 

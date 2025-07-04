@@ -2,18 +2,14 @@
   "mcpServers": {
     "n8n_gateway": {
       "command": "python",
-      "args": [
-        "n8n-integration/n8n_mcp_gateway.py"
-      ],
+      "args": ["n8n-integration/n8n_mcp_gateway.py"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
         "PYTHONPATH": "."
       },
       "disabled": false,
-      "alwaysAllow": [
-        "*"
-      ],
+      "alwaysAllow": ["*"],
       "initializationOptions": {
         "auto_start": true,
         "health_check_url": "http://localhost:8100/health"
@@ -21,18 +17,14 @@
     },
     "snowflake_unified": {
       "command": "python",
-      "args": [
-        "mcp-servers/snowflake_unified/unified_snowflake_server.py"
-      ],
+      "args": ["mcp-servers/snowflake_unified/unified_snowflake_server.py"],
       "env": {
         "PORT": "9030"
       }
     },
     "slack_unified": {
       "command": "python",
-      "args": [
-        "mcp-servers/slack_unified/slack_integration_server.py"
-      ],
+      "args": ["mcp-servers/slack_unified/slack_integration_server.py"],
       "env": {
         "PORT": "9031"
       }
@@ -48,9 +40,7 @@
     },
     "hubspot_unified": {
       "command": "python",
-      "args": [
-        "mcp-servers/hubspot_unified/hubspot_server.py"
-      ],
+      "args": ["mcp-servers/hubspot_unified/hubspot_server.py"],
       "env": {
         "PORT": "9033"
       }
@@ -59,52 +49,71 @@
       "command": "uvicorn",
       "args": [
         "mcp-servers.ai_memory.ai_memory_mcp_server:app",
-        "--host", "0.0.0.0",
-        "--port", "9000"
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "9000"
       ],
       "auto_trigger": {
         "enabled": true,
-        "patterns": ["remember", "recall", "store memory", "what did we", "last time"],
+        "patterns": [
+          "remember",
+          "recall",
+          "store memory",
+          "what did we",
+          "last time"
+        ],
         "priority": "HIGH"
       }
     },
     "mem0_openmemory": {
       "command": "curl",
       "args": [
-        "-X", "POST",
+        "-X",
+        "POST",
         "http://mem0.sophia-lambda.svc:8080/",
-        "-H", "Content-Type: application/json"
+        "-H",
+        "Content-Type: application/json"
       ],
       "remote": true,
       "endpoint": "http://mem0.sophia-lambda.svc:8080",
       "auto_trigger": {
         "enabled": true,
-        "patterns": ["persistent memory", "cross-session", "remember across", "mem0"],
+        "patterns": [
+          "persistent memory",
+          "cross-session",
+          "remember across",
+          "mem0"
+        ],
         "priority": "HIGH"
       }
     },
     "cortex_aisql": {
       "command": "curl",
       "args": [
-        "-X", "POST",
+        "-X",
+        "POST",
         "http://cortex-aisql-service.sophia-ai.svc:8080/",
-        "-H", "Content-Type: application/json"
+        "-H",
+        "Content-Type: application/json"
       ],
       "remote": true,
       "endpoint": "http://cortex-aisql-service.sophia-ai.svc:8080",
       "auto_trigger": {
         "enabled": true,
-        "patterns": ["natural language query", "ask snowflake", "cortex ai", "business data"],
+        "patterns": [
+          "natural language query",
+          "ask snowflake",
+          "cortex ai",
+          "business data"
+        ],
         "priority": "HIGH"
       }
     },
-    "codacy": {
-    },
+    "codacy": {},
     "v0dev": {
       "command": "python",
-      "args": [
-        "mcp-servers/v0dev/v0dev_mcp_server.py"
-      ],
+      "args": ["mcp-servers/v0dev/v0dev_mcp_server.py"],
       "env": {
         "PORT": "9030",
         "ENVIRONMENT": "prod",
@@ -113,7 +122,13 @@
       "remote": false,
       "auto_trigger": {
         "enabled": true,
-        "patterns": ["generate ui", "create component", "design component", "ui from", "component with"],
+        "patterns": [
+          "generate ui",
+          "create component",
+          "design component",
+          "ui from",
+          "component with"
+        ],
         "priority": "HIGH"
       },
       "description": "V0.dev AI-driven UI component generation"

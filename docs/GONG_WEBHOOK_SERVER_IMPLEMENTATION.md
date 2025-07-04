@@ -1,6 +1,6 @@
 ---
 title: 🚀 Gong Webhook Server Implementation
-description: 
+description:
 tags: security, gong, monitoring, database, docker, agent
 last_updated: 2025-06-23
 dependencies: none

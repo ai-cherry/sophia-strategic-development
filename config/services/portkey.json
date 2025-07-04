@@ -29,17 +29,8 @@
     }
   ],
   "guardrails": {
-    "input_checks": [
-      "length < 10000"
-    ],
-    "output_checks": [
-      "no_pii",
-      "professional_tone"
-    ]
+    "input_checks": ["length < 10000"],
+    "output_checks": ["no_pii", "professional_tone"]
   },
-  "fallback_providers": [
-    "claude-3-opus",
-    "gpt-4",
-    "openrouter/mixtral"
-  ]
+  "fallback_providers": ["claude-3-opus", "gpt-4", "openrouter/mixtral"]
 }

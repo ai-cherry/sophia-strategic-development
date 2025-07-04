@@ -9,7 +9,7 @@ echo "🚀 Setting up VSCode Terminal Integration for Sophia AI..."
 add_sophia_alias() {
     local shell_rc="$1"
     local alias_cmd='alias sophia="cd ~/sophia-main && source .venv/bin/activate"'
-    
+
     if [ -f "$shell_rc" ]; then
         if ! grep -q "alias sophia=" "$shell_rc"; then
             echo "" >> "$shell_rc"
@@ -30,7 +30,7 @@ add_auto_activation() {
 if [[ "$PWD" == "$HOME/sophia-main"* ]] && [ -f ".venv/bin/activate" ]; then
     source .venv/bin/activate
 fi'
-    
+
     if [ -f "$shell_rc" ]; then
         if ! grep -q "Auto-activate Sophia AI environment" "$shell_rc"; then
             echo "$activation_code" >> "$shell_rc"

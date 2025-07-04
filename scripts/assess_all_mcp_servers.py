@@ -378,9 +378,7 @@ class MCPServerAssessor:
             )
 
         if not assessment.metrics:
-            assessment.recommendations.append(
-                "📊 Add Prometheus metrics for monitoring"
-            )
+            assessment.recommendations.append("📊 Add Prometheus metrics for monitoring")
 
         if not assessment.cline_v3_18:
             assessment.recommendations.append(
@@ -529,9 +527,7 @@ class MCPServerAssessor:
         if categorization["good_servers"]:
             print(f"   🟢 Good (70-89): {', '.join(categorization['good_servers'])}")
         if categorization["needs_work"]:
-            print(
-                f"   🟡 Needs Work (50-69): {', '.join(categorization['needs_work'])}"
-            )
+            print(f"   🟡 Needs Work (50-69): {', '.join(categorization['needs_work'])}")
         if categorization["critical_servers"]:
             print(
                 f"   🔴 Critical (<50): {', '.join(categorization['critical_servers'])}"

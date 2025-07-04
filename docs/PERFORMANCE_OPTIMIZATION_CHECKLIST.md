@@ -170,4 +170,4 @@ py-spy record -o profile.svg -- python app.py
 
 ---
 
-**Remember**: Measure first, optimize second. Every optimization should be backed by data showing the improvement. 
+**Remember**: Measure first, optimize second. Every optimization should be backed by data showing the improvement.

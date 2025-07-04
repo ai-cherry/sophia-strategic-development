@@ -1,5 +1,4 @@
 # Lambda Labs GPU Resource Configuration for Sophia AI
-
 ---
 apiVersion: v1
 kind: ResourceQuota
@@ -8,14 +7,14 @@ metadata:
   namespace: sophia-ai
 spec:
   hard:
-    requests.nvidia.com/gpu: "4"    # Total GPU requests
-    limits.nvidia.com/gpu: "4"      # Total GPU limits
-    requests.cpu: "16"              # Total CPU requests
-    requests.memory: 32Gi           # Total memory requests
-    limits.cpu: "32"                # Total CPU limits
-    limits.memory: 64Gi             # Total memory limits
-    persistentvolumeclaims: "10"    # Total PVC count
-    requests.storage: 100Gi         # Total storage requests
+    requests.nvidia.com/gpu: "4" # Total GPU requests
+    limits.nvidia.com/gpu: "4" # Total GPU limits
+    requests.cpu: "16" # Total CPU requests
+    requests.memory: 32Gi # Total memory requests
+    limits.cpu: "32" # Total CPU limits
+    limits.memory: 64Gi # Total memory limits
+    persistentvolumeclaims: "10" # Total PVC count
+    requests.storage: 100Gi # Total storage requests
 
 ---
 apiVersion: v1
@@ -25,24 +24,24 @@ metadata:
   namespace: sophia-ai
 spec:
   limits:
-  - default:
-      nvidia.com/gpu: "0.25"
-      cpu: "1000m"
-      memory: "2Gi"
-    defaultRequest:
-      nvidia.com/gpu: "0.25"
-      cpu: "200m"
-      memory: "512Mi"
-    type: Container
-  - max:
-      nvidia.com/gpu: "1"
-      cpu: "4000m"
-      memory: "8Gi"
-    min:
-      nvidia.com/gpu: "0.1"
-      cpu: "100m"
-      memory: "128Mi"
-    type: Container
+    - default:
+        nvidia.com/gpu: "0.25"
+        cpu: "1000m"
+        memory: "2Gi"
+      defaultRequest:
+        nvidia.com/gpu: "0.25"
+        cpu: "200m"
+        memory: "512Mi"
+      type: Container
+    - max:
+        nvidia.com/gpu: "1"
+        cpu: "4000m"
+        memory: "8Gi"
+      min:
+        nvidia.com/gpu: "0.1"
+        cpu: "100m"
+        memory: "128Mi"
+      type: Container
 
 ---
 apiVersion: v1
@@ -102,38 +101,38 @@ spec:
       nodeSelector:
         lambdalabs.com/gpu-type: "rtx-4090"
       tolerations:
-      - key: "lambdalabs.com/gpu"
-        operator: "Equal"
-        value: "true"
-        effect: "NoSchedule"
+        - key: "lambdalabs.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
       containers:
-      - name: nvidia-dcgm-exporter
-        image: nvcr.io/nvidia/k8s/dcgm-exporter:3.1.7-3.1.4-ubuntu20.04
-        ports:
-        - name: metrics
-          containerPort: 9400
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - name: proc
-          mountPath: /host/proc
-          readOnly: true
-        - name: sys
-          mountPath: /host/sys
-          readOnly: true
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+        - name: nvidia-dcgm-exporter
+          image: nvcr.io/nvidia/k8s/dcgm-exporter:3.1.7-3.1.4-ubuntu20.04
+          ports:
+            - name: metrics
+              containerPort: 9400
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
       volumes:
-      - name: proc
-        hostPath:
-          path: /proc
-      - name: sys
-        hostPath:
-          path: /sys
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
       hostNetwork: true
       hostPID: true

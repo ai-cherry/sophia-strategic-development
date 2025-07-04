@@ -38,16 +38,16 @@ jobs
     name: Validate Estuary Configuration
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment || 'dev' }}
-    
+
     steps
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -103,16 +103,16 @@ jobs
     needs: validate-and-test
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     environment: ${{ github.event.inputs.environment || 'dev' }}
-    
+
     steps
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -149,9 +149,9 @@ jobs
               await cortex.initialize()
               # Verify STG_GONG_CALLS table exists
               result = await cortex.execute_query('''
-                  SELECT COUNT(*) as table_exists 
-                  FROM INFORMATION_SCHEMA.TABLES 
-                  WHERE TABLE_SCHEMA = 'STG_TRANSFORMED' 
+                  SELECT COUNT(*) as table_exists
+                  FROM INFORMATION_SCHEMA.TABLES
+                  WHERE TABLE_SCHEMA = 'STG_TRANSFORMED'
                   AND TABLE_NAME = 'STG_GONG_CALLS'
               ''')
               if result.iloc[0]['TABLE_EXISTS'] == 0
@@ -167,16 +167,16 @@ jobs
     needs: deploy-snowflake-infrastructure
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     environment: ${{ github.event.inputs.environment || 'dev' }}
-    
+
     steps
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -206,16 +206,16 @@ jobs
               source_result = await manager.configure_gong_source()
               if source_result.status.value != 'success'
                   raise Exception(f'Gong source configuration failed: {source_result.error_message}')
-              
+
               print(f'✅ Gong source configured: {source_result.resource_id}')
-              
+
               # Configure Snowflake destination
               # dest_result = await manager.configure_snowflake_destination()
               # if dest_result.status.value != 'success'
               #     raise Exception(f'Snowflake destination configuration failed: {dest_result.error_message}')
-              
+
               # print(f'✅ Snowflake destination configured: {dest_result.resource_id}')
-              
+
               await manager.cleanup()
           asyncio.run(configure())
           "
@@ -226,16 +226,16 @@ jobs
     needs: configure-estuary-connectors
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     environment: ${{ github.event.inputs.environment || 'dev' }}
-    
+
     steps
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install dependencies
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -271,10 +271,10 @@ jobs
               manager = EnhancedEstuaryManager('${{ github.event.inputs.environment || 'dev' }}')
               await manager.initialize()
               health_check = await manager.perform_health_check()
-              
+
               if health_check['overall_status'] not in ['healthy', 'degraded']
                   raise Exception(f'Pipeline health check failed: {health_check[\"overall_status\"]}')
-              
+
               print(f'✅ Pipeline health validated: {health_check[\"overall_status\"]}')
               await manager.cleanup()
           asyncio.run(validate())
@@ -286,7 +286,7 @@ jobs
           name: post-deployment-results-${{ github.event.inputs.environment || 'dev' }}
           path: post_deployment_results.json
           retention-days: 30
-      
+
       - name: Notify deployment success
         if: success()
         run: |

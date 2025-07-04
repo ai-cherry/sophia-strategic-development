@@ -89,7 +89,7 @@ CREATE TABLE CORTEX_AGENTS_WORKSPACE.AGENT_CONFIGURATIONS (
 
 ```sql
 -- Intelligent data classification with AISQL
-SELECT 
+SELECT
     SNOWFLAKE.CORTEX.CLASSIFY_TEXT(chunk_text, ['urgent', 'normal', 'low_priority']) as urgency,
     SNOWFLAKE.CORTEX.CLASSIFY_TEXT(chunk_text, ['sales_opportunity', 'support', 'feedback']) as type,
     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(chunk_text, 'What are the key action items?') as actions
@@ -123,7 +123,7 @@ CREATE FUNCTION HYBRID_CONTEXTUAL_SEARCH(
 -- Live customer context with 1-minute freshness
 CREATE DYNAMIC TABLE LIVE_CUSTOMER_CONTEXT
 TARGET_LAG = '1 minute'
-AS SELECT 
+AS SELECT
     customer_id,
     SNOWFLAKE.CORTEX.SUMMARIZE(recent_interactions) as summary,
     AI_context_analysis,
@@ -292,4 +292,3 @@ Your Sophia AI platform will have **world-class AI infrastructure** that positio
 5. **Monitor Performance**: Track business impact and optimization opportunities
 
 The implementation is **ready to deploy immediately** and will transform your business operations with the most advanced AI capabilities available in 2025! 🚀
-

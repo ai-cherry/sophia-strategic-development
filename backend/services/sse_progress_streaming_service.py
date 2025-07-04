@@ -132,15 +132,15 @@ class SSEProgressStreamer:
 
     def __init__(self):
         # Active SSE connections
-        self.active_connections: dict[str, set[str]] = (
-            {}
-        )  # user_id -> set of connection_ids
-        self.connection_queues: dict[str, asyncio.Queue] = (
-            {}
-        )  # connection_id -> event queue
-        self.connection_metadata: dict[str, dict[str, Any]] = (
-            {}
-        )  # connection_id -> metadata
+        self.active_connections: dict[
+            str, set[str]
+        ] = {}  # user_id -> set of connection_ids
+        self.connection_queues: dict[
+            str, asyncio.Queue
+        ] = {}  # connection_id -> event queue
+        self.connection_metadata: dict[
+            str, dict[str, Any]
+        ] = {}  # connection_id -> metadata
 
         # Metrics
         self.metrics = {
@@ -225,9 +225,9 @@ class SSEProgressStreamer:
                     sse_data = event.to_sse_data()
 
                     # Add WCAG accessibility data
-                    sse_data["accessibility"] = (
-                        WCAGProgressFormatter.format_progress_message(event)
-                    )
+                    sse_data[
+                        "accessibility"
+                    ] = WCAGProgressFormatter.format_progress_message(event)
 
                     yield f"id: {event.event_id}\n"
                     yield f"event: {event.event_type.value}\n"

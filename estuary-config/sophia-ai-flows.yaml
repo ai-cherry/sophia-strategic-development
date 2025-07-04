@@ -1,18 +1,18 @@
 captures:
   sophia/postgresql:
     bindings:
-    - resource:
-        stream: public.conversations
-        syncMode: incremental
-      target: sophia/conversations
-    - resource:
-        stream: public.ai_memory_records
-        syncMode: incremental
-      target: sophia/ai_memory
-    - resource:
-        stream: public.business_metrics
-        syncMode: incremental
-      target: sophia/metrics
+      - resource:
+          stream: public.conversations
+          syncMode: incremental
+        target: sophia/conversations
+      - resource:
+          stream: public.ai_memory_records
+          syncMode: incremental
+        target: sophia/ai_memory
+      - resource:
+          stream: public.business_metrics
+          syncMode: incremental
+        target: sophia/metrics
     endpoint:
       connector:
         config:
@@ -27,12 +27,12 @@ captures:
         image: ghcr.io/estuary/source-postgres:dev
   sophia/snowflake:
     bindings:
-    - resource:
-        table: SOPHIA_AI.PUBLIC.ENRICHED_GONG_CALLS
-      target: sophia/gong_calls
-    - resource:
-        table: SOPHIA_AI.PUBLIC.ENRICHED_HUBSPOT_DEALS
-      target: sophia/hubspot_deals
+      - resource:
+          table: SOPHIA_AI.PUBLIC.ENRICHED_GONG_CALLS
+        target: sophia/gong_calls
+      - resource:
+          table: SOPHIA_AI.PUBLIC.ENRICHED_HUBSPOT_DEALS
+        target: sophia/hubspot_deals
     endpoint:
       connector:
         config:
@@ -46,7 +46,7 @@ captures:
 collections:
   sophia/conversations:
     key:
-    - /id
+      - /id
     schema:
       properties:
         created_at:
@@ -65,7 +65,7 @@ collections:
       type: object
   sophia/vector_updates:
     key:
-    - /embedding_id
+      - /embedding_id
     schema:
       properties:
         embedding_id:
@@ -85,15 +85,15 @@ collections:
 materializations:
   sophia/pinecone:
     bindings:
-    - fields:
-        include:
-          id: /id
-          metadata: /metadata
-          vector: /embedding
-        recommended: true
-      resource:
-        index: sophia-conversations
-      source: sophia/conversations
+      - fields:
+          include:
+            id: /id
+            metadata: /metadata
+            vector: /embedding
+          recommended: true
+        resource:
+          index: sophia-conversations
+        source: sophia/conversations
     endpoint:
       connector:
         config:
@@ -105,12 +105,12 @@ materializations:
         image: ghcr.io/estuary/materialize-pinecone:dev
   sophia/weaviate:
     bindings:
-    - resource:
-        class: SophiaConversation
-      source: sophia/conversations
-    - resource:
-        class: SophiaMemory
-      source: sophia/ai_memory
+      - resource:
+          class: SophiaConversation
+        source: sophia/conversations
+      - resource:
+          class: SophiaMemory
+        source: sophia/ai_memory
     endpoint:
       connector:
         config:

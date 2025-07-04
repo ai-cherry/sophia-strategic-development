@@ -6,10 +6,8 @@ Contains the main service class with connection management and basic operations
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from backend.core.config_manager import get_config_value
-from backend.core.optimized_connection_manager import ConnectionType
 
 logger = logging.getLogger(__name__)
 
@@ -118,4 +116,4 @@ class SnowflakeCortexService:
         """Execute a query using the connection manager"""
         if not self.initialized:
             await self.initialize()
-        return await self.connection_manager.execute_query(query, params) 
+        return await self.connection_manager.execute_query(query, params)

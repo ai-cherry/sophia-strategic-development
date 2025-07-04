@@ -390,7 +390,9 @@ async def main():
         if successful == total:
             logger.info("🎉 All Tier 1 repositories implemented successfully!")
         else:
-            logger.warning(f"⚠️ {total - successful} repositories need manual attention")
+            logger.warning(
+                f"⚠️ {total - successful} repositories need manual attention"
+            )
 
         return successful == total
 

@@ -217,14 +217,14 @@ services:
   frontend:
     image: sophia-frontend
     replicas: 2
-    
+
   backend:
     image: sophia-backend
     replicas: 3
-    
+
   redis:
     image: redis:alpine
-    
+
   postgres:
     image: postgres:15
 ```
@@ -233,4 +233,4 @@ services:
 - Horizontal pod autoscaling
 - Service mesh for observability
 - Persistent volume claims
-- ConfigMaps for configuration 
+- ConfigMaps for configuration

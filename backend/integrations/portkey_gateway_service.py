@@ -363,7 +363,7 @@ class PortkeyGatewayService:
     async def health_check(self) -> dict[str, Any]:
         """Health check for Portkey gateway service"""
         return {
-            "service": "portkey_gateway",
+            "service": "llm_service",
             "status": "healthy",
             "timestamp": datetime.now(UTC).isoformat(),
             "features": {

@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   snowflake-admin-mcp:
@@ -18,7 +18,7 @@ services:
       - SNOWFLAKE_DEV_DATABASE=${SNOWFLAKE_DEV_DATABASE}
       - SNOWFLAKE_DEV_SCHEMA=${SNOWFLAKE_DEV_SCHEMA}
       - SNOWFLAKE_DEV_ROLE=${SNOWFLAKE_DEV_ROLE}
-      
+
       # Snowflake Staging Environment
       - SNOWFLAKE_STG_ACCOUNT=${SNOWFLAKE_STG_ACCOUNT}
       - SNOWFLAKE_STG_USER=${SNOWFLAKE_STG_USER}
@@ -28,7 +28,7 @@ services:
       - SNOWFLAKE_STG_DATABASE=${SNOWFLAKE_STG_DATABASE}
       - SNOWFLAKE_STG_SCHEMA=${SNOWFLAKE_STG_SCHEMA}
       - SNOWFLAKE_STG_ROLE=${SNOWFLAKE_STG_ROLE}
-      
+
       # Snowflake Production Environment
       - SNOWFLAKE_PROD_ACCOUNT=${SNOWFLAKE_PROD_ACCOUNT}
       - SNOWFLAKE_PROD_USER=${SNOWFLAKE_PROD_USER}
@@ -38,46 +38,52 @@ services:
       - SNOWFLAKE_PROD_DATABASE=${SNOWFLAKE_PROD_DATABASE}
       - SNOWFLAKE_PROD_SCHEMA=${SNOWFLAKE_PROD_SCHEMA}
       - SNOWFLAKE_PROD_ROLE=${SNOWFLAKE_PROD_ROLE}
-      
+
       # OpenAI Configuration
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      
+
       # Pulumi ESC Configuration
       - PULUMI_ORG=${PULUMI_ORG}
       - PULUMI_ACCESS_TOKEN=${PULUMI_ACCESS_TOKEN}
-      
+
       # Logging
       - LOG_LEVEL=INFO
       - PYTHONPATH=/app:/app/backend
-    
+
     volumes:
       - ./backend:/app/backend:ro
       - ./config:/app/config:ro
       - ./logs:/app/logs
-    
+
     networks:
       - sophia-network
-    
+
     restart: unless-stopped
-    
+
     healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8085/health')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import requests; requests.get('http://localhost:8085/health')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.snowflake-admin.rule=Host(`snowflake-admin.sophia-intel.ai`)"
       - "traefik.http.routers.snowflake-admin.tls=true"
       - "traefik.http.routers.snowflake-admin.tls.certresolver=letsencrypt"
       - "traefik.http.services.snowflake-admin.loadbalancer.server.port=8085"
-    
+
     depends_on:
       - redis
       - postgres
-    
+
     logging:
       driver: "json-file"
       options:
@@ -88,7 +94,7 @@ networks:
   sophia-network:
     external: true
 
-# Health check service for monitoring
+  # Health check service for monitoring
   snowflake-admin-health:
     image: curlimages/curl:latest
     container_name: sophia-snowflake-admin-health
@@ -104,4 +110,4 @@ networks:
       - sophia-network
     depends_on:
       - snowflake-admin-mcp
-    restart: unless-stopped 
+    restart: unless-stopped

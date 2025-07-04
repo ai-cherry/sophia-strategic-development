@@ -161,4 +161,4 @@ By end of Week 1:
 
 ---
 
-**Remember**: This week is about planning and tooling. We're setting up for success, not rushing into coding. Quality foundation = Quality system. 
+**Remember**: This week is about planning and tooling. We're setting up for success, not rushing into coding. Quality foundation = Quality system.

@@ -9,10 +9,7 @@
       "change_frequency": 23,
       "last_modified": "2025-06-27",
       "technical_debt_score": 160.5,
-      "issues": [
-        "Very high churn (>15 changes)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Very high churn (>15 changes)", "Mixed async/sync patterns"],
       "refactoring_priority": "HIGH"
     },
     {
@@ -36,10 +33,7 @@
       "change_frequency": 16,
       "last_modified": "2025-06-27",
       "technical_debt_score": 87.0,
-      "issues": [
-        "Very high churn (>15 changes)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Very high churn (>15 changes)", "Mixed async/sync patterns"],
       "refactoring_priority": "MEDIUM"
     },
     {
@@ -64,10 +58,7 @@
       "change_frequency": 14,
       "last_modified": "2025-06-27",
       "technical_debt_score": 63.0,
-      "issues": [
-        "High churn (>10 changes)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["High churn (>10 changes)", "Mixed async/sync patterns"],
       "refactoring_priority": "MEDIUM"
     },
     {
@@ -91,9 +82,7 @@
       "change_frequency": 14,
       "last_modified": "2025-06-27",
       "technical_debt_score": 48.0,
-      "issues": [
-        "High churn (>10 changes)"
-      ],
+      "issues": ["High churn (>10 changes)"],
       "refactoring_priority": "LOW"
     },
     {
@@ -103,10 +92,7 @@
       "change_frequency": 12,
       "last_modified": "2025-06-27",
       "technical_debt_score": 59.0,
-      "issues": [
-        "High churn (>10 changes)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["High churn (>10 changes)", "Mixed async/sync patterns"],
       "refactoring_priority": "MEDIUM"
     },
     {
@@ -130,9 +116,7 @@
       "change_frequency": 12,
       "last_modified": "2025-06-27",
       "technical_debt_score": 44.0,
-      "issues": [
-        "High churn (>10 changes)"
-      ],
+      "issues": ["High churn (>10 changes)"],
       "refactoring_priority": "LOW"
     }
   ],
@@ -172,10 +156,7 @@
       "change_frequency": 10,
       "last_modified": "2025-06-27",
       "technical_debt_score": 636.5,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -185,10 +166,7 @@
       "change_frequency": 4,
       "last_modified": "2025-06-27",
       "technical_debt_score": 606.0,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -198,10 +176,7 @@
       "change_frequency": 5,
       "last_modified": "2025-06-27",
       "technical_debt_score": 594.0,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -211,10 +186,7 @@
       "change_frequency": 3,
       "last_modified": "2025-06-27",
       "technical_debt_score": 567.5,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -239,9 +211,7 @@
       "change_frequency": 2,
       "last_modified": "2025-06-27",
       "technical_debt_score": 521.3,
-      "issues": [
-        "Monolithic file (>1000 lines)"
-      ],
+      "issues": ["Monolithic file (>1000 lines)"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -309,10 +279,7 @@
       "change_frequency": 10,
       "last_modified": "2025-06-27",
       "technical_debt_score": 636.5,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -322,10 +289,7 @@
       "change_frequency": 4,
       "last_modified": "2025-06-27",
       "technical_debt_score": 606.0,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -335,10 +299,7 @@
       "change_frequency": 5,
       "last_modified": "2025-06-27",
       "technical_debt_score": 594.0,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -363,10 +324,7 @@
       "change_frequency": 3,
       "last_modified": "2025-06-27",
       "technical_debt_score": 567.5,
-      "issues": [
-        "Large file (>500 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -376,9 +334,7 @@
       "change_frequency": 2,
       "last_modified": "2025-06-27",
       "technical_debt_score": 521.3,
-      "issues": [
-        "Monolithic file (>1000 lines)"
-      ],
+      "issues": ["Monolithic file (>1000 lines)"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -459,10 +415,7 @@
       "change_frequency": 3,
       "last_modified": "2025-06-27",
       "technical_debt_score": 428.4,
-      "issues": [
-        "Monolithic file (>1000 lines)",
-        "Mixed async/sync patterns"
-      ],
+      "issues": ["Monolithic file (>1000 lines)", "Mixed async/sync patterns"],
       "refactoring_priority": "CRITICAL"
     },
     {
@@ -791,10 +744,7 @@
         "path": "backend/core/intelligent_data_ingestion.py",
         "lines": 605,
         "complexity": 653.0,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/core/enhanced_config.py",
@@ -811,10 +761,7 @@
         "path": "backend/core/sophia_env_config.py",
         "lines": 544,
         "complexity": 608.0,
-        "issues": [
-          "Large file (>500 lines)",
-          "Excessive exception handling"
-        ]
+        "issues": ["Large file (>500 lines)", "Excessive exception handling"]
       },
       {
         "path": "backend/security/secret_management.py",
@@ -850,10 +797,7 @@
         "path": "backend/workflows/langgraph_agent_orchestration.py",
         "lines": 935,
         "complexity": 1115.9,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/agents/specialized/asana_project_intelligence_agent.py",
@@ -869,19 +813,13 @@
         "path": "backend/agents/specialized/linear_project_health_agent.py",
         "lines": 872,
         "complexity": 1088.0,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/agents/specialized/interactive_sales_coach_agent.py",
         "lines": 679,
         "complexity": 735.0,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/agents/specialized/sales_coach_agent.py",
@@ -907,28 +845,19 @@
         "path": "backend/agents/specialized/call_analysis_agent.py",
         "lines": 975,
         "complexity": 1152.9,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/agents/specialized/marketing_analysis_agent.py",
         "lines": 839,
         "complexity": 1042.9,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/agents/integrations/gong_data_integration.py",
         "lines": 1632,
         "complexity": 423.7,
-        "issues": [
-          "Monolithic file (>1000 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Monolithic file (>1000 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/utils/snowflake_cortex_service.py",
@@ -945,9 +874,7 @@
         "path": "backend/utils/enhanced_snowflake_cortex_service.py",
         "lines": 487,
         "complexity": 573.0,
-        "issues": [
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Mixed async/sync patterns"]
       },
       {
         "path": "backend/mcp/enhanced_ai_memory_mcp_server.py",
@@ -964,10 +891,7 @@
         "path": "backend/scripts/deploy_asana_snowflake_setup.py",
         "lines": 875,
         "complexity": 546.9,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/scripts/enhanced_asana_integration_test_suite.py",
@@ -983,10 +907,7 @@
         "path": "backend/scripts/test_gong_pipeline.py",
         "lines": 801,
         "complexity": 548.6,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/scripts/deploy_snowflake_application_layer.py",
@@ -1043,9 +964,7 @@
         "path": "backend/monitoring/dashboard_generator.py",
         "lines": 1393,
         "complexity": 934.6,
-        "issues": [
-          "Monolithic file (>1000 lines)"
-        ]
+        "issues": ["Monolithic file (>1000 lines)"]
       },
       {
         "path": "backend/services/sophia_universal_chat_service.py",
@@ -1061,64 +980,43 @@
         "path": "backend/services/foundational_knowledge_service.py",
         "lines": 636,
         "complexity": 684.0,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/services/sophia_ai_orchestrator.py",
         "lines": 1022,
         "complexity": 524.4,
-        "issues": [
-          "Monolithic file (>1000 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Monolithic file (>1000 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/services/comprehensive_memory_service.py",
         "lines": 465,
         "complexity": 513.0,
-        "issues": [
-          "Excessive exception handling",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Excessive exception handling", "Mixed async/sync patterns"]
       },
       {
         "path": "backend/services/memory_preservation_service.py",
         "lines": 1006,
         "complexity": 714.8,
-        "issues": [
-          "Monolithic file (>1000 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Monolithic file (>1000 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "scripts/implement_missing_snowflake_schemas.py",
         "lines": 966,
         "complexity": 603.8,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "mcp-servers/linear/linear_mcp_server.py",
         "lines": 1059,
         "complexity": 557.4,
-        "issues": [
-          "Monolithic file (>1000 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Monolithic file (>1000 lines)", "Mixed async/sync patterns"]
       },
       {
         "path": "mcp-servers/notion/notion_mcp_server.py",
         "lines": 895,
         "complexity": 506.2,
-        "issues": [
-          "Large file (>500 lines)",
-          "Mixed async/sync patterns"
-        ]
+        "issues": ["Large file (>500 lines)", "Mixed async/sync patterns"]
       }
     ]
   },

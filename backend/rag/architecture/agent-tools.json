@@ -2,103 +2,55 @@
   "business_tools": {
     "hubspot": {
       "type": "crm",
-      "capabilities": [
-        "read",
-        "write",
-        "search"
-      ]
+      "capabilities": ["read", "write", "search"]
     },
     "gong": {
       "type": "call_analysis",
-      "capabilities": [
-        "read",
-        "transcribe",
-        "analyze"
-      ]
+      "capabilities": ["read", "transcribe", "analyze"]
     },
     "slack": {
       "type": "communication",
-      "capabilities": [
-        "read",
-        "write",
-        "search"
-      ]
+      "capabilities": ["read", "write", "search"]
     },
     "linear": {
       "type": "project_mgmt",
-      "capabilities": [
-        "read",
-        "write",
-        "create"
-      ]
+      "capabilities": ["read", "write", "create"]
     },
     "asana": {
       "type": "project_mgmt",
-      "capabilities": [
-        "read",
-        "write",
-        "create"
-      ]
+      "capabilities": ["read", "write", "create"]
     },
     "notion": {
       "type": "knowledge",
-      "capabilities": [
-        "read",
-        "write",
-        "search"
-      ]
+      "capabilities": ["read", "write", "search"]
     }
   },
   "data_tools": {
     "snowflake": {
       "type": "analytics",
-      "capabilities": [
-        "query",
-        "analyze",
-        "report"
-      ]
+      "capabilities": ["query", "analyze", "report"]
     },
     "postgres": {
       "type": "transactional",
-      "capabilities": [
-        "crud",
-        "search"
-      ]
+      "capabilities": ["crud", "search"]
     },
     "redis": {
       "type": "cache",
-      "capabilities": [
-        "get",
-        "set",
-        "pubsub"
-      ]
+      "capabilities": ["get", "set", "pubsub"]
     }
   },
   "ai_tools": {
     "embeddings": {
       "type": "vector",
-      "capabilities": [
-        "generate",
-        "search",
-        "compare"
-      ]
+      "capabilities": ["generate", "search", "compare"]
     },
     "llm_local": {
       "type": "generation",
-      "capabilities": [
-        "chat",
-        "completion",
-        "reasoning"
-      ]
+      "capabilities": ["chat", "completion", "reasoning"]
     },
     "llm_cloud": {
       "type": "generation",
-      "capabilities": [
-        "chat",
-        "completion",
-        "reasoning",
-        "vision"
-      ]
+      "capabilities": ["chat", "completion", "reasoning", "vision"]
     }
   }
 }

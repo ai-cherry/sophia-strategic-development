@@ -461,4 +461,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **Built with ❤️ by the Sophia AI Team**
 
-*Transforming Pay Ready into a unified AI-driven organization through intelligent infrastructure automation.* 
+*Transforming Pay Ready into a unified AI-driven organization through intelligent infrastructure automation.*

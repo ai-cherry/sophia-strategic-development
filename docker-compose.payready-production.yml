@@ -1,7 +1,7 @@
 # Pay Ready AI Business Intelligence Production Stack
 # Optimized for comprehensive competitive intelligence and sales acceleration
 
-version: '3.8'
+version: "3.8"
 
 services:
   # Core Pay Ready Business Intelligence Stack
@@ -23,15 +23,15 @@ services:
       resources:
         limits:
           memory: 4GB
-          cpus: '2.0'
+          cpus: "2.0"
 
   # Competitive Intelligence MCP Servers
   apollo-mcp:
-    build: 
+    build:
       context: ./mcp-servers/apollo_io/
       dockerfile: Dockerfile.uv
     container_name: payready-apollo-mcp
-    ports: 
+    ports:
       - "3010:3000"
     environment:
       - APOLLO_API_KEY=${APOLLO_API_KEY}
@@ -47,14 +47,14 @@ services:
       resources:
         limits:
           memory: 2GB
-          cpus: '1.0'
-  
+          cpus: "1.0"
+
   linkedin-intelligence-mcp:
-    build: 
+    build:
       context: ./mcp-servers/linkedin_intel/
       dockerfile: Dockerfile.uv
     container_name: payready-linkedin-mcp
-    ports: 
+    ports:
       - "3011:3000"
     environment:
       - LINKEDIN_API_KEY=${LINKEDIN_API_KEY}
@@ -70,14 +70,14 @@ services:
       resources:
         limits:
           memory: 2GB
-          cpus: '1.0'
-      
+          cpus: "1.0"
+
   competitive-monitor-mcp:
-    build: 
+    build:
       context: ./mcp-servers/competitive_monitor/
       dockerfile: Dockerfile.uv
     container_name: payready-competitive-monitor
-    ports: 
+    ports:
       - "3012:3000"
     environment:
       - ELISE_AI_MONITOR=enabled
@@ -85,7 +85,7 @@ services:
       - COLLECTTECH_MONITOR=enabled
       - ENTRATA_MONITOR=enabled
       - YARDI_MONITOR=enabled
-      - MONITORING_FREQUENCY=300  # 5 minutes
+      - MONITORING_FREQUENCY=300 # 5 minutes
       - ALERT_CHANNEL=#competitive-intelligence
     volumes:
       - competitive-data:/app/data
@@ -96,15 +96,15 @@ services:
       resources:
         limits:
           memory: 2GB
-          cpus: '1.0'
+          cpus: "1.0"
 
   # NMHC Top 50 Targeting MCP
   nmhc-targeting-mcp:
-    build: 
+    build:
       context: ./mcp-servers/nmhc_targeting/
       dockerfile: Dockerfile.uv
     container_name: payready-nmhc-targeting
-    ports: 
+    ports:
       - "3013:3000"
     environment:
       - COSTAR_API_KEY=${COSTAR_API_KEY}
@@ -124,15 +124,15 @@ services:
       resources:
         limits:
           memory: 4GB
-          cpus: '2.0'
+          cpus: "2.0"
 
   # Buzz ROI Validation MCP
   buzz-roi-validation-mcp:
-    build: 
+    build:
       context: ./mcp-servers/buzz_roi_validation/
       dockerfile: Dockerfile.uv
     container_name: payready-buzz-roi
-    ports: 
+    ports:
       - "3014:3000"
     environment:
       - SNOWFLAKE_CONNECTION=${SNOWFLAKE_CONNECTION}
@@ -149,7 +149,7 @@ services:
       resources:
         limits:
           memory: 2GB
-          cpus: '1.0'
+          cpus: "1.0"
 
   # Enhanced Weaviate for Competitive Intelligence
   weaviate-competitive:
@@ -169,7 +169,7 @@ services:
       resources:
         limits:
           memory: 8GB
-          cpus: '2.0'
+          cpus: "2.0"
 
   # Pay Ready BI Monitoring Dashboard
   payready-bi-dashboard:
@@ -178,7 +178,7 @@ services:
       dockerfile: Dockerfile.uv
     container_name: payready-bi-monitoring
     ports:
-      - "3015:8501"  # Streamlit dashboard
+      - "3015:8501" # Streamlit dashboard
     environment:
       - MONITORING_MODE=business_intelligence
       - ALERT_ENABLED=true
@@ -192,7 +192,7 @@ services:
       resources:
         limits:
           memory: 1GB
-          cpus: '0.5'
+          cpus: "0.5"
 
 volumes:
   linkedin-data:

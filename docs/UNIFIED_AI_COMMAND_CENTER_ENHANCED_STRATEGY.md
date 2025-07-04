@@ -1,6 +1,6 @@
 ---
 title: 🎯 **Unified AI Command Center - Enhanced Strategic Plan v2.0**
-description: 
+description:
 tags: mcp, linear, monitoring
 last_updated: 2025-06-23
 dependencies: none

@@ -6,10 +6,7 @@
       "name": "Start",
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
-      "position": [
-        240,
-        300
-      ]
+      "position": [240, 300]
     },
     {
       "parameters": {
@@ -19,10 +16,7 @@
       "name": "Webhook Trigger (Snowflake)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [
-        440,
-        300
-      ],
+      "position": [440, 300],
       "webhookId": "mcp-snowflake-query"
     },
     {
@@ -34,10 +28,7 @@
       "name": "Execute Snowflake Query",
       "type": "n8n-nodes-base.snowflake",
       "typeVersion": 1,
-      "position": [
-        640,
-        300
-      ],
+      "position": [640, 300],
       "credentials": {
         "snowflake": {
           "id": "sophia-snowflake-prod",
@@ -58,10 +49,7 @@
       "name": "Return Query Result",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [
-        840,
-        300
-      ]
+      "position": [840, 300]
     }
   ],
   "connections": {

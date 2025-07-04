@@ -4,21 +4,21 @@ on:
   workflow_call:
     inputs:
       service-path:
-        description: 'Path to the service directory'
+        description: "Path to the service directory"
         required: true
         type: string
       python-version:
-        description: 'Python version to use'
+        description: "Python version to use"
         required: false
         type: string
-        default: '3.12'
+        default: "3.12"
       run-tests:
-        description: 'Whether to run tests'
+        description: "Whether to run tests"
         required: false
         type: boolean
         default: true
       run-security:
-        description: 'Whether to run security scans'
+        description: "Whether to run security scans"
         required: false
         type: boolean
         default: true
@@ -26,7 +26,7 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
   security-scan:
     if: ${{ inputs.run-security }}
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -121,22 +121,22 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             let comment = '## 🔒 Security Scan Results\n\n';
-            
+
             try {
               const auditResults = JSON.parse(fs.readFileSync('audit-results.json', 'utf8'));
               const vulnerabilities = auditResults.vulnerabilities || [];
-              
+
               if (vulnerabilities.length > 0) {
                 comment += `### ⚠️ Found ${vulnerabilities.length} vulnerabilities\n\n`;
                 comment += '| Package | Version | Vulnerability | Fix Version |\n';
                 comment += '|---------|---------|---------------|-------------|\n';
-                
+
                 vulnerabilities.slice(0, 10).forEach(vuln => {
                   comment += `| ${vuln.name} | ${vuln.version} | ${vuln.id} | ${vuln.fix_versions?.join(', ') || 'N/A'} |\n`;
                 });
-                
+
                 if (vulnerabilities.length > 10) {
                   comment += `\n*And ${vulnerabilities.length - 10} more...*\n`;
                 }
@@ -146,10 +146,10 @@ jobs:
             } catch (e) {
               comment += '### ⚠️ Could not parse security results\n';
             }
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
-            }); 
+            });

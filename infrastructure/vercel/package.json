@@ -1,40 +1,39 @@
 {
-    "name": "sophia-ai-vercel-infrastructure",
-    "version": "1.0.0",
-    "description": "Pulumi infrastructure for Sophia AI Vercel deployment and DNS automation",
-    "main": "index.ts",
-    "scripts": {
-        "build": "tsc",
-        "start": "pulumi up",
-        "preview": "pulumi preview",
-        "destroy": "pulumi destroy",
-        "refresh": "pulumi refresh",
-        "stack:init": "pulumi stack init",
-        "stack:select": "pulumi stack select",
-        "config:set": "pulumi config set",
-        "config:get": "pulumi config get"
-    },
-    "dependencies": {
-        "@pulumi/pulumi": "^3.100.0",
-        "@pulumiverse/vercel": "^1.7.0",
-        "@pulumi/command": "^0.9.0"
-    },
-    "devDependencies": {
-        "@types/node": "^20.0.0",
-        "typescript": "^5.0.0"
-    },
-    "keywords": [
-        "pulumi",
-        "vercel",
-        "infrastructure",
-        "sophia-ai",
-        "dns",
-        "namecheap"
-    ],
-    "author": "Sophia AI Team",
-    "license": "MIT",
-    "engines": {
-        "node": ">=18.0.0"
-    }
+  "name": "sophia-ai-vercel-infrastructure",
+  "version": "1.0.0",
+  "description": "Pulumi infrastructure for Sophia AI Vercel deployment and DNS automation",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "pulumi up",
+    "preview": "pulumi preview",
+    "destroy": "pulumi destroy",
+    "refresh": "pulumi refresh",
+    "stack:init": "pulumi stack init",
+    "stack:select": "pulumi stack select",
+    "config:set": "pulumi config set",
+    "config:get": "pulumi config get"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.100.0",
+    "@pulumiverse/vercel": "^1.7.0",
+    "@pulumi/command": "^0.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "pulumi",
+    "vercel",
+    "infrastructure",
+    "sophia-ai",
+    "dns",
+    "namecheap"
+  ],
+  "author": "Sophia AI Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
-

@@ -9,13 +9,13 @@ import logging
 from typing import Any
 
 from backend.agents.core.base_agent import BaseAgent
+
 # # from backend.agents.specialized.sales_coach_agent import SalesCoachAgent  # Temporarily disabled  # Temporarily disabled due to syntax error
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
-    
 )
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
-from backend.services.smart_ai_service import smart_ai_service
+from backend.services.llm_service import llm_service
 from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.snowflake_gong_connector import SnowflakeGongConnector
 from backend.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
@@ -27,18 +27,18 @@ from backend.workflows.multi_agent_workflow import (
     WorkflowTask,
 )
 
-from .sales_intelligence_agent_models import (
-    DealRiskAssessment,
-    SalesEmailRequest,
-    CompetitorTalkingPoints,
-    PipelineAnalysis,
-    AgentCapabilities,
-)
 from .sales_intelligence_agent_handlers import (
+    CompetitorAnalysisHandler,
     DealRiskHandler,
     EmailGenerationHandler,
-    CompetitorAnalysisHandler,
     PipelineAnalysisHandler,
+)
+from .sales_intelligence_agent_models import (
+    AgentCapabilities,
+    CompetitorTalkingPoints,
+    DealRiskAssessment,
+    PipelineAnalysis,
+    SalesEmailRequest,
 )
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             # Initialize all services
             await self.ai_memory.initialize()
             # # await self.sales_coach.initialize()  # Temporarily disabled
-            await smart_ai_service.initialize()
+            await llm_service.initialize()
 
             self.initialized = True
             logger.info("✅ Sales Intelligence Agent initialized")
@@ -117,7 +117,9 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
         """Delegate to deal risk handler"""
         if not self.initialized:
             await self.initialize()
-        return await self.deal_risk_handler.assess_deal_risk(deal_id, include_gong_analysis)
+        return await self.deal_risk_handler.assess_deal_risk(
+            deal_id, include_gong_analysis
+        )
 
     async def generate_sales_email(self, request: SalesEmailRequest) -> dict[str, Any]:
         """Delegate to email generation handler"""
@@ -153,7 +155,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
 
         try:
             task_type = task.task_type.lower()
-            
+
             if task_type == "deal_risk_assessment":
                 deal_id = task.parameters.get("deal_id")
                 if not deal_id:
@@ -164,7 +166,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
                         error_message="Missing deal_id parameter",
                         agent_id=self.name,
                     )
-                
+
                 assessment = await self.assess_deal_risk(deal_id)
                 return WorkflowResult(
                     task_id=task.task_id,
@@ -178,7 +180,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
                 # Extract email request parameters
                 email_request = SalesEmailRequest(**task.parameters)
                 result = await self.generate_sales_email(email_request)
-                
+
                 return WorkflowResult(
                     task_id=task.task_id,
                     status=TaskStatus.COMPLETED,
@@ -190,7 +192,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             elif task_type == "competitor_analysis":
                 competitor_name = task.parameters.get("competitor_name")
                 deal_id = task.parameters.get("deal_id")
-                
+
                 if not competitor_name or not deal_id:
                     return WorkflowResult(
                         task_id=task.task_id,
@@ -199,25 +201,27 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
                         error_message="Missing competitor_name or deal_id parameter",
                         agent_id=self.name,
                     )
-                
+
                 talking_points = await self.get_competitor_talking_points(
                     competitor_name, deal_id
                 )
-                
+
                 return WorkflowResult(
                     task_id=task.task_id,
                     status=TaskStatus.COMPLETED,
                     result=talking_points.__dict__ if talking_points else {},
                     agent_id=self.name,
-                    confidence_score=talking_points.confidence_score if talking_points else 0.0,
+                    confidence_score=talking_points.confidence_score
+                    if talking_points
+                    else 0.0,
                 )
 
             elif task_type == "pipeline_analysis":
                 sales_rep = task.parameters.get("sales_rep")
                 time_period = task.parameters.get("time_period_days", 90)
-                
+
                 analysis = await self.analyze_pipeline_health(sales_rep, time_period)
-                
+
                 return WorkflowResult(
                     task_id=task.task_id,
                     status=TaskStatus.COMPLETED,
@@ -278,7 +282,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             ],
             integration_points=[
                 "multi_agent_workflows",
-                "smart_ai_service",
+                "llm_service",
                 "snowflake_cortex",
                 "ai_memory_storage",
             ],
@@ -303,24 +307,35 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
     async def validate_task_input(self, task: WorkflowTask) -> dict[str, Any]:
         """Validate task input parameters"""
         validation_result = {"valid": True, "errors": []}
-        
+
         task_type = task.task_type.lower()
-        
+
         if task_type == "deal_risk_assessment":
             if "deal_id" not in task.parameters:
-                validation_result["errors"].append("Missing required parameter: deal_id")
-        
+                validation_result["errors"].append(
+                    "Missing required parameter: deal_id"
+                )
+
         elif task_type == "sales_email_generation":
-            required_params = ["email_type", "deal_id", "recipient_name", "recipient_role"]
+            required_params = [
+                "email_type",
+                "deal_id",
+                "recipient_name",
+                "recipient_role",
+            ]
             for param in required_params:
                 if param not in task.parameters:
-                    validation_result["errors"].append(f"Missing required parameter: {param}")
-        
+                    validation_result["errors"].append(
+                        f"Missing required parameter: {param}"
+                    )
+
         elif task_type == "competitor_analysis":
             required_params = ["competitor_name", "deal_id"]
             for param in required_params:
                 if param not in task.parameters:
-                    validation_result["errors"].append(f"Missing required parameter: {param}")
-        
+                    validation_result["errors"].append(
+                        f"Missing required parameter: {param}"
+                    )
+
         validation_result["valid"] = len(validation_result["errors"]) == 0
         return validation_result

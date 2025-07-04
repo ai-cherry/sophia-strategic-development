@@ -27,7 +27,7 @@ The Sophia AI codebase currently has a fragmented LLM strategy with multiple int
 - **Usage**: Advanced reasoning and code generation
 - **Integration Points**:
   - `claude-cli-integration/` - Dedicated CLI integration
-  - `backend/services/portkey_gateway.py` - Via Portkey
+  - `backend/services/llm_service.py` - Via Portkey
   - Direct API calls in some services
 - **Models Used**: Claude-3-opus, Claude-3-sonnet, Claude-3-haiku
 - **Configuration**: Separate Claude CLI config + API keys
@@ -43,7 +43,7 @@ The Sophia AI codebase currently has a fragmented LLM strategy with multiple int
 
 ### 2. Gateway Implementations
 
-#### Portkey Gateway (`backend/services/portkey_gateway.py`)
+#### Portkey Gateway (`backend/services/llm_service.py`)
 - **Status**: Partially implemented
 - **Features**:
   - Multi-provider support (OpenAI, Anthropic, Google, Mistral)
@@ -55,7 +55,7 @@ The Sophia AI codebase currently has a fragmented LLM strategy with multiple int
   - Missing advanced features (semantic caching, cost tracking)
   - No dashboard integration
 
-#### Smart AI Service (`backend/services/smart_ai_service.py`)
+#### Smart AI Service (`backend/services/llm_service.py`)
 - **Status**: More advanced implementation
 - **Features**:
   - Parallel Portkey/OpenRouter strategy
@@ -145,13 +145,13 @@ api_key = os.getenv("OPENAI_API_KEY")
 ```python
 class UnifiedLLMService:
     """Single service for all LLM interactions"""
-    
+
     def __init__(self):
-        self.gateway = PortkeyGateway()  # or OpenRouter
+        self.gateway = await get_unified_llm_service()  # or OpenRouter
         self.cache = SemanticCache()
         self.analytics = LLMAnalytics()
         self.router = IntelligentRouter()
-    
+
     async def complete(
         self,
         prompt: str,
@@ -172,7 +172,7 @@ models:
     provider: openai
     cost_per_1k: 0.03
     capabilities: [reasoning, code, analysis]
-    
+
   claude-3-opus:
     provider: anthropic
     cost_per_1k: 0.015
@@ -221,4 +221,4 @@ models:
 - **Performance**: < 50ms additional latency
 - **Reliability**: 99.9% uptime
 - **Coverage**: 100% of LLM calls through gateway
-- **Observability**: Full visibility into all LLM operations 
+- **Observability**: Full visibility into all LLM operations

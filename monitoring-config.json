@@ -22,15 +22,8 @@
     }
   },
   "alerts": {
-    "channels": [
-      "slack",
-      "email"
-    ],
-    "severity_levels": [
-      "critical",
-      "warning",
-      "info"
-    ],
+    "channels": ["slack", "email"],
+    "severity_levels": ["critical", "warning", "info"],
     "escalation_rules": {
       "critical": "immediate",
       "warning": "15 minutes",

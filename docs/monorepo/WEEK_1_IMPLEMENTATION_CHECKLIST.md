@@ -33,7 +33,7 @@
   // tests/load/baseline.js
   import http from 'k6/http';
   import { check } from 'k6';
-  
+
   export let options = {
     stages: [
       { duration: '2m', target: 100 },
@@ -54,15 +54,15 @@
 - [ ] Create ADR template
   ```markdown
   # ADR-001: Event-Driven Architecture
-  
+
   ## Status: Proposed
-  
+
   ## Context
   [Why we need this]
-  
+
   ## Decision
   [What we're doing]
-  
+
   ## Consequences
   [What happens as a result]
   ```
@@ -86,7 +86,7 @@
 - [ ] Analyze current Snowflake usage
   ```sql
   -- Query performance analysis
-  SELECT query_id, 
+  SELECT query_id,
          execution_time,
          bytes_scanned,
          rows_produced
@@ -104,9 +104,9 @@
 - [ ] Create Snowflake optimization scripts
   ```sql
   -- Clustering key recommendations
-  ALTER TABLE sophia_core.unified_data_catalog 
+  ALTER TABLE sophia_core.unified_data_catalog
   CLUSTER BY (created_at, source_system);
-  
+
   -- Result cache configuration
   ALTER SESSION SET USE_CACHED_RESULT = TRUE;
   ```
@@ -124,17 +124,17 @@
       technology: "In-memory LRU"
       size: "1GB per instance"
       ttl: "60 seconds"
-      
+
     L2_shared:
       technology: "Redis Cluster"
       size: "100GB"
       ttl: "5 minutes"
-      
+
     L3_database:
       technology: "Snowflake Result Cache"
       size: "Unlimited"
       ttl: "24 hours"
-      
+
     L4_edge:
       technology: "Cloudflare Workers KV"
       size: "Unlimited"
@@ -155,7 +155,7 @@
 - [ ] Create developer onboarding guide
   ```markdown
   # Performance-First Development Guide
-  
+
   1. Every PR must include performance impact
   2. Use profiling in development
   3. Follow caching guidelines
@@ -215,4 +215,4 @@
 - [ ] Update performance dashboard
 - [ ] Commit profiling results
 - [ ] Document findings
-- [ ] Plan tomorrow's tasks 
+- [ ] Plan tomorrow's tasks

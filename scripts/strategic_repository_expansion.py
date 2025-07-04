@@ -14,40 +14,39 @@ Key Features:
 - Cursor IDE integration optimization
 """
 
-import os
-import subprocess
-import sys
-from pathlib import Path
-from typing import List, Dict, Tuple, Optional
 import json
 import logging
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('strategic_expansion.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("strategic_expansion.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
+
 class StrategicRepositoryExpander:
     """Manages strategic expansion of external repositories for Sophia AI"""
-    
+
     def __init__(self, repo_root: str = "."):
         self.repo_root = Path(repo_root).resolve()
         self.external_dir = self.repo_root / "external"
         self.config_dir = self.repo_root / "config"
         self.docs_dir = self.repo_root / "docs"
-        
+
         # Ensure directories exist
         self.external_dir.mkdir(exist_ok=True)
         self.config_dir.mkdir(exist_ok=True)
-        
-    def run_command(self, cmd: List[str], cwd: Optional[Path] = None, check: bool = True) -> Tuple[int, str, str]:
+
+    def run_command(
+        self, cmd: list[str], cwd: Optional[Path] = None, check: bool = True
+    ) -> tuple[int, str, str]:
         """Execute a command and return results"""
         try:
             result = subprocess.run(
@@ -55,19 +54,19 @@ class StrategicRepositoryExpander:
                 cwd=cwd or self.repo_root,
                 capture_output=True,
                 text=True,
-                check=check
+                check=check,
             )
             return result.returncode, result.stdout, result.stderr
         except subprocess.CalledProcessError as e:
             return e.returncode, e.stdout, e.stderr
         except Exception as e:
             return 1, "", str(e)
-    
+
     def log(self, message: str, level: str = "info"):
         """Log a message"""
         getattr(logger, level.lower())(message)
-    
-    def get_strategic_repositories(self) -> List[Dict]:
+
+    def get_strategic_repositories(self) -> list[dict]:
         """Define strategic repositories for expansion"""
         return [
             # TIER 1: CRITICAL INFRASTRUCTURE & DEVOPS
@@ -78,16 +77,16 @@ class StrategicRepositoryExpander:
                 "category": "infrastructure",
                 "ai_value": "GitHub automation, PR management, issue tracking, repository intelligence",
                 "business_impact": "40% faster development, automated workflows, intelligent code review",
-                "cursor_integration": "Automatic GitHub context, intelligent PR suggestions, issue management"
+                "cursor_integration": "Automatic GitHub context, intelligent PR suggestions, issue management",
             },
             {
                 "name": "docker_mcp_official",
-                "url": "https://github.com/modelcontextprotocol/server-docker.git", 
+                "url": "https://github.com/modelcontextprotocol/server-docker.git",
                 "priority": "CRITICAL",
                 "category": "infrastructure",
                 "ai_value": "Container orchestration, deployment automation, infrastructure as code",
                 "business_impact": "60% faster deployments, automated scaling, infrastructure intelligence",
-                "cursor_integration": "Docker context awareness, container optimization, deployment suggestions"
+                "cursor_integration": "Docker context awareness, container optimization, deployment suggestions",
             },
             {
                 "name": "vercel_mcp_official",
@@ -96,9 +95,8 @@ class StrategicRepositoryExpander:
                 "category": "deployment",
                 "ai_value": "Frontend deployment automation, performance optimization, edge computing",
                 "business_impact": "50% faster frontend deployments, automatic performance optimization",
-                "cursor_integration": "Vercel deployment context, performance insights, optimization suggestions"
+                "cursor_integration": "Vercel deployment context, performance insights, optimization suggestions",
             },
-            
             # TIER 2: AI & MACHINE LEARNING ECOSYSTEM
             {
                 "name": "anthropic_claude_mcp",
@@ -107,27 +105,26 @@ class StrategicRepositoryExpander:
                 "category": "ai_ml",
                 "ai_value": "Advanced Claude integration, conversation management, AI reasoning",
                 "business_impact": "Enhanced AI capabilities, better conversation quality, advanced reasoning",
-                "cursor_integration": "Claude-powered code analysis, intelligent suggestions, conversation context"
+                "cursor_integration": "Claude-powered code analysis, intelligent suggestions, conversation context",
             },
             {
                 "name": "openai_mcp_official",
                 "url": "https://github.com/openai/mcp-server-openai.git",
-                "priority": "HIGH", 
+                "priority": "HIGH",
                 "category": "ai_ml",
                 "ai_value": "OpenAI integration, GPT-4 capabilities, vision and audio processing",
                 "business_impact": "Multi-modal AI capabilities, enhanced content generation",
-                "cursor_integration": "OpenAI context for code generation, intelligent documentation"
+                "cursor_integration": "OpenAI context for code generation, intelligent documentation",
             },
             {
                 "name": "langchain_mcp_official",
                 "url": "https://github.com/langchain-ai/mcp-server-langchain.git",
                 "priority": "HIGH",
-                "category": "ai_ml", 
+                "category": "ai_ml",
                 "ai_value": "LangChain orchestration, agent workflows, chain management",
                 "business_impact": "Advanced AI workflows, intelligent agent orchestration",
-                "cursor_integration": "LangChain workflow context, agent management, chain optimization"
+                "cursor_integration": "LangChain workflow context, agent management, chain optimization",
             },
-            
             # TIER 3: BUSINESS INTELLIGENCE & PRODUCTIVITY
             {
                 "name": "linear_mcp_official",
@@ -136,16 +133,16 @@ class StrategicRepositoryExpander:
                 "category": "productivity",
                 "ai_value": "Project management intelligence, issue tracking, team analytics",
                 "business_impact": "Enhanced project visibility, automated issue management",
-                "cursor_integration": "Linear context in code, automatic issue creation, project insights"
+                "cursor_integration": "Linear context in code, automatic issue creation, project insights",
             },
             {
-                "name": "slack_mcp_official", 
+                "name": "slack_mcp_official",
                 "url": "https://github.com/slack-mcp/official-server.git",
                 "priority": "HIGH",
                 "category": "communication",
                 "ai_value": "Team communication intelligence, channel analysis, automated responses",
                 "business_impact": "Improved team coordination, automated communication workflows",
-                "cursor_integration": "Slack context awareness, team communication insights"
+                "cursor_integration": "Slack context awareness, team communication insights",
             },
             {
                 "name": "notion_mcp_official",
@@ -154,9 +151,8 @@ class StrategicRepositoryExpander:
                 "category": "productivity",
                 "ai_value": "Knowledge management, documentation automation, content organization",
                 "business_impact": "Centralized knowledge base, automated documentation",
-                "cursor_integration": "Notion context for documentation, knowledge retrieval"
+                "cursor_integration": "Notion context for documentation, knowledge retrieval",
             },
-            
             # TIER 4: SPECIALIZED INTEGRATIONS
             {
                 "name": "postgres_mcp_enhanced",
@@ -165,18 +161,17 @@ class StrategicRepositoryExpander:
                 "category": "database",
                 "ai_value": "Database intelligence, query optimization, schema management",
                 "business_impact": "Intelligent database operations, automated optimization",
-                "cursor_integration": "Database context awareness, query optimization suggestions"
+                "cursor_integration": "Database context awareness, query optimization suggestions",
             },
             {
-                "name": "filesystem_mcp_enhanced", 
+                "name": "filesystem_mcp_enhanced",
                 "url": "https://github.com/modelcontextprotocol/server-filesystem.git",
                 "priority": "MEDIUM",
                 "category": "development",
                 "ai_value": "File system intelligence, automated organization, content analysis",
                 "business_impact": "Intelligent file management, automated organization",
-                "cursor_integration": "File system context, intelligent file operations"
+                "cursor_integration": "File system context, intelligent file operations",
             },
-            
             # TIER 5: EMERGING TECHNOLOGIES
             {
                 "name": "kubernetes_mcp",
@@ -185,55 +180,53 @@ class StrategicRepositoryExpander:
                 "category": "infrastructure",
                 "ai_value": "Container orchestration, cluster management, scaling intelligence",
                 "business_impact": "Advanced container orchestration, automated scaling",
-                "cursor_integration": "Kubernetes context, cluster optimization suggestions"
+                "cursor_integration": "Kubernetes context, cluster optimization suggestions",
             },
             {
                 "name": "terraform_mcp",
-                "url": "https://github.com/hashicorp/mcp-server-terraform.git", 
+                "url": "https://github.com/hashicorp/mcp-server-terraform.git",
                 "priority": "LOW",
                 "category": "infrastructure",
                 "ai_value": "Infrastructure as code, resource management, deployment automation",
                 "business_impact": "Infrastructure automation, resource optimization",
-                "cursor_integration": "Terraform context, infrastructure suggestions"
-            }
+                "cursor_integration": "Terraform context, infrastructure suggestions",
+            },
         ]
-    
-    def add_repository(self, repo_info: Dict) -> Dict:
+
+    def add_repository(self, repo_info: dict) -> dict:
         """Add a single repository as submodule"""
         repo_name = repo_info["name"]
         repo_url = repo_info["url"]
         target_path = f"external/{repo_name}"
-        
+
         self.log(f"📦 Adding {repo_name} ({repo_info['priority']} priority)")
         self.log(f"   URL: {repo_url}")
         self.log(f"   AI Value: {repo_info['ai_value']}")
-        
+
         # Check if already exists
         repo_path = self.repo_root / target_path
         if repo_path.exists():
             self.log(f"✅ {repo_name} already exists, updating...")
             exit_code, stdout, stderr = self.run_command(
-                ["git", "pull"], 
-                cwd=repo_path,
-                check=False
+                ["git", "pull"], cwd=repo_path, check=False
             )
             status = "updated" if exit_code == 0 else "update_failed"
             if exit_code != 0:
                 self.log(f"⚠️  Update failed: {stderr}", "warning")
         else:
             # Add as submodule
-            self.log(f"   Adding as submodule...")
-            exit_code, stdout, stderr = self.run_command([
-                "git", "submodule", "add", repo_url, target_path
-            ], check=False)
-            
+            self.log("   Adding as submodule...")
+            exit_code, stdout, stderr = self.run_command(
+                ["git", "submodule", "add", repo_url, target_path], check=False
+            )
+
             if exit_code == 0:
                 status = "added"
                 self.log(f"✅ Successfully added {repo_name}")
             else:
                 status = "failed"
                 self.log(f"❌ Failed to add {repo_name}: {stderr}", "error")
-        
+
         return {
             "name": repo_name,
             "status": status,
@@ -241,24 +234,24 @@ class StrategicRepositoryExpander:
             "category": repo_info["category"],
             "ai_value": repo_info["ai_value"],
             "business_impact": repo_info["business_impact"],
-            "cursor_integration": repo_info["cursor_integration"]
+            "cursor_integration": repo_info["cursor_integration"],
         }
-    
+
     def update_gitmodules_documentation(self):
         """Update .gitmodules with better documentation"""
         gitmodules_path = self.repo_root / ".gitmodules"
         if not gitmodules_path.exists():
             return
-        
+
         self.log("📝 Updating .gitmodules documentation")
-        
+
         # Read current content
-        with open(gitmodules_path, 'r') as f:
+        with open(gitmodules_path) as f:
             content = f.read()
-        
+
         # Add header comment if not present
-        header = '''# Sophia AI External Repository Configuration
-# 
+        header = """# Sophia AI External Repository Configuration
+#
 # This file manages external MCP repositories integrated as submodules.
 # Each submodule provides specialized capabilities for AI-enhanced development.
 #
@@ -266,19 +259,19 @@ class StrategicRepositoryExpander:
 # To initialize after clone: git submodule update --init --recursive
 #
 
-'''
-        
-        if not content.startswith('#'):
-            with open(gitmodules_path, 'w') as f:
+"""
+
+        if not content.startswith("#"):
+            with open(gitmodules_path, "w") as f:
                 f.write(header + content)
             self.log("✅ Added documentation header to .gitmodules")
-    
-    def create_external_readme(self, results: List[Dict]):
+
+    def create_external_readme(self, results: list[dict]):
         """Create comprehensive README for external directory"""
         readme_path = self.external_dir / "README.md"
-        
+
         self.log("📚 Creating comprehensive external/README.md")
-        
+
         # Categorize repositories
         categories = {}
         for result in results:
@@ -286,12 +279,12 @@ class StrategicRepositoryExpander:
             if cat not in categories:
                 categories[cat] = []
             categories[cat].append(result)
-        
-        # Generate README content
-        content = f'''# 🚀 Sophia AI External Repository Collection
 
-**Last Updated**: {datetime.now().strftime("%B %d, %Y")}  
-**Total Repositories**: {len(results)}  
+        # Generate README content
+        content = f"""# 🚀 Sophia AI External Repository Collection
+
+**Last Updated**: {datetime.now().strftime("%B %d, %Y")}
+**Total Repositories**: {len(results)}
 **Integration Status**: Strategic AI-Enhanced Development Platform
 
 ## 🎯 Purpose & Vision
@@ -300,43 +293,43 @@ This collection represents cutting-edge MCP (Model Context Protocol) repositorie
 
 ## 📊 Repository Categories
 
-'''
-        
+"""
+
         # Add category sections
         category_icons = {
             "infrastructure": "🏗️",
-            "ai_ml": "🤖", 
+            "ai_ml": "🤖",
             "productivity": "📈",
             "communication": "💬",
             "database": "🗄️",
             "development": "⚡",
-            "deployment": "🚀"
+            "deployment": "🚀",
         }
-        
+
         for category, repos in categories.items():
             icon = category_icons.get(category, "📦")
-            content += f'''### {icon} {category.title().replace('_', ' & ')} ({len(repos)} repositories)
+            content += f"""### {icon} {category.title().replace('_', ' & ')} ({len(repos)} repositories)
 
-'''
+"""
             for repo in repos:
                 status_icon = "✅" if repo["status"] in ["added", "updated"] else "❌"
                 priority_badge = {
                     "CRITICAL": "🔴 CRITICAL",
-                    "HIGH": "🟡 HIGH", 
+                    "HIGH": "🟡 HIGH",
                     "MEDIUM": "🟢 MEDIUM",
-                    "LOW": "🔵 LOW"
+                    "LOW": "🔵 LOW",
                 }.get(repo["priority"], repo["priority"])
-                
-                content += f'''#### {status_icon} **{repo["name"]}** - {priority_badge}
 
-**AI Value**: {repo["ai_value"]}  
-**Business Impact**: {repo["business_impact"]}  
+                content += f"""#### {status_icon} **{repo["name"]}** - {priority_badge}
+
+**AI Value**: {repo["ai_value"]}
+**Business Impact**: {repo["business_impact"]}
 **Cursor Integration**: {repo["cursor_integration"]}
 
-'''
-        
+"""
+
         # Add usage section
-        content += '''## 🔧 Usage & Management
+        content += """## 🔧 Usage & Management
 
 ### Initialize All Submodules (First Time Setup)
 ```bash
@@ -372,7 +365,7 @@ Each repository is automatically discovered by Cursor AI and provides:
 # Repository discovery
 "What MCP servers do we have for GitHub integration?"
 
-# Implementation assistance  
+# Implementation assistance
 "Use the GitHub MCP patterns to implement issue automation"
 
 # Pattern analysis
@@ -453,22 +446,22 @@ Future AI Assistant:
 ---
 
 **🎉 This collection transforms Sophia AI into an intelligent development platform that learns from the global developer community while maintaining enterprise-grade security and performance.**
-'''
-        
-        with open(readme_path, 'w') as f:
+"""
+
+        with open(readme_path, "w") as f:
             f.write(content)
-        
+
         self.log("✅ Created comprehensive external/README.md")
-    
-    def update_cursor_mcp_config(self, results: List[Dict]):
+
+    def update_cursor_mcp_config(self, results: list[dict]):
         """Update Cursor MCP configuration with new repositories"""
         config_path = self.config_dir / "cursor_enhanced_mcp_config.json"
-        
+
         self.log("🔧 Updating Cursor MCP configuration")
-        
+
         # Load existing config or create new
         if config_path.exists():
-            with open(config_path, 'r') as f:
+            with open(config_path) as f:
                 config = json.load(f)
         else:
             config = {
@@ -476,22 +469,26 @@ Future AI Assistant:
                 "aiMemory": {
                     "enabled": True,
                     "autoStore": True,
-                    "categories": ["external_repos", "development_patterns", "ai_insights"]
+                    "categories": [
+                        "external_repos",
+                        "development_patterns",
+                        "ai_insights",
+                    ],
                 },
                 "codacy": {
                     "enabled": True,
                     "realTimeAnalysis": True,
-                    "securityScanning": True
-                }
+                    "securityScanning": True,
+                },
             }
-        
+
         # Add external repository context
         config["externalRepositories"] = {
             "enabled": True,
             "discoveryMode": "automatic",
-            "repositories": []
+            "repositories": [],
         }
-        
+
         for result in results:
             if result["status"] in ["added", "updated"]:
                 repo_config = {
@@ -502,19 +499,19 @@ Future AI Assistant:
                     "aiValue": result["ai_value"],
                     "cursorIntegration": result["cursor_integration"],
                     "autoDiscovery": True,
-                    "contextAware": True
+                    "contextAware": True,
                 }
                 config["externalRepositories"]["repositories"].append(repo_config)
-        
+
         # Save updated config
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             json.dump(config, f, indent=2)
-        
+
         self.log("✅ Updated Cursor MCP configuration")
-    
+
     def create_web_search_prompt(self) -> str:
         """Create comprehensive web search prompt for finding additional MCP repositories"""
-        prompt = '''# 🔍 COMPREHENSIVE MCP SERVER DISCOVERY PROMPT
+        prompt = """# 🔍 COMPREHENSIVE MCP SERVER DISCOVERY PROMPT
 
 ## Primary Search Objectives
 
@@ -533,7 +530,7 @@ Find cutting-edge AI/ML MCP integrations:
 
 ```
 "MCP server" OpenAI GPT integration
-"MCP server" Claude Anthropic integration  
+"MCP server" Claude Anthropic integration
 "MCP server" LangChain workflow automation
 "MCP server" Hugging Face transformers
 "MCP server" vector database Pinecone Weaviate
@@ -638,7 +635,7 @@ Google Scholar "MCP server framework"
 ### Company & Organization Searches
 ```
 site:github.com/microsoft "MCP server"
-site:github.com/google "MCP server" 
+site:github.com/google "MCP server"
 site:github.com/meta "MCP server"
 site:github.com/openai "MCP server"
 site:github.com/anthropic "MCP server"
@@ -710,18 +707,18 @@ site:github.com/anthropic "MCP server"
 ---
 
 **🎯 EXECUTION COMMAND**: Use this prompt systematically across multiple search engines, GitHub, academic databases, and community platforms to discover the most comprehensive collection of MCP servers that will transform Sophia AI into the ultimate AI-enhanced development platform.**
-'''
-        
+"""
+
         return prompt
-    
-    def run_strategic_expansion(self) -> Dict:
+
+    def run_strategic_expansion(self) -> dict:
         """Execute the complete strategic expansion process"""
         self.log("🚀 Starting Strategic Repository Expansion for Sophia AI")
-        
+
         # Get strategic repositories
         strategic_repos = self.get_strategic_repositories()
         self.log(f"📋 Planning to add {len(strategic_repos)} strategic repositories")
-        
+
         # Add repositories
         results = []
         for repo in strategic_repos:
@@ -730,42 +727,46 @@ site:github.com/anthropic "MCP server"
                 results.append(result)
             except Exception as e:
                 self.log(f"❌ Failed to add {repo['name']}: {e}", "error")
-                results.append({
-                    "name": repo["name"],
-                    "status": "failed",
-                    "error": str(e),
-                    **{k: v for k, v in repo.items() if k not in ["name", "url"]}
-                })
-        
+                results.append(
+                    {
+                        "name": repo["name"],
+                        "status": "failed",
+                        "error": str(e),
+                        **{k: v for k, v in repo.items() if k not in ["name", "url"]},
+                    }
+                )
+
         # Update submodules
         self.log("🔄 Updating all submodules...")
-        exit_code, stdout, stderr = self.run_command([
-            "git", "submodule", "update", "--init", "--recursive"
-        ], check=False)
-        
+        exit_code, stdout, stderr = self.run_command(
+            ["git", "submodule", "update", "--init", "--recursive"], check=False
+        )
+
         if exit_code == 0:
             self.log("✅ All submodules updated successfully")
         else:
             self.log(f"⚠️  Submodule update warnings: {stderr}", "warning")
-        
+
         # Update documentation and configuration
         self.update_gitmodules_documentation()
         self.create_external_readme(results)
         self.update_cursor_mcp_config(results)
-        
+
         # Generate web search prompt
         web_search_prompt = self.create_web_search_prompt()
-        
+
         # Save web search prompt
         prompt_path = self.docs_dir / "MCP_DISCOVERY_WEB_SEARCH_PROMPT.md"
-        with open(prompt_path, 'w') as f:
+        with open(prompt_path, "w") as f:
             f.write(web_search_prompt)
-        
+
         # Generate summary report
         summary = {
             "timestamp": datetime.now().isoformat(),
             "total_repositories": len(results),
-            "successful_additions": len([r for r in results if r["status"] in ["added", "updated"]]),
+            "successful_additions": len(
+                [r for r in results if r["status"] in ["added", "updated"]]
+            ),
             "failed_additions": len([r for r in results if r["status"] == "failed"]),
             "categories": list(set(r.get("category", "unknown") for r in results)),
             "priority_distribution": {
@@ -779,27 +780,29 @@ site:github.com/anthropic "MCP server"
                 "Evaluate discovered repositories for integration",
                 "Update Cursor IDE configuration for new repositories",
                 "Test AI coding assistance with expanded repository collection",
-                "Monitor repository health and update schedules"
-            ]
+                "Monitor repository health and update schedules",
+            ],
         }
-        
+
         self.log("📊 Strategic expansion completed successfully!")
         self.log(f"✅ Added/Updated: {summary['successful_additions']} repositories")
         self.log(f"❌ Failed: {summary['failed_additions']} repositories")
         self.log(f"📚 Web search prompt saved to: {prompt_path}")
-        
+
         return summary
+
 
 def main():
     """Main execution function"""
     try:
         expander = StrategicRepositoryExpander()
         summary = expander.run_strategic_expansion()
-        
+
         # Save summary report
         report_path = Path("STRATEGIC_REPOSITORY_EXPANSION_REPORT.md")
-        with open(report_path, 'w') as f:
-            f.write(f"""# Strategic Repository Expansion Report
+        with open(report_path, "w") as f:
+            f.write(
+                f"""# Strategic Repository Expansion Report
 
 **Execution Date**: {summary['timestamp']}
 **Total Repositories**: {summary['total_repositories']}
@@ -813,15 +816,19 @@ def main():
 ## Next Steps
 
 {chr(10).join(f"- {step}" for step in summary['next_steps'])}
-""")
-        
+"""
+            )
+
         print(f"\n🎉 Strategic expansion completed! Report saved to: {report_path}")
-        print(f"📚 Web search prompt available at: {summary['web_search_prompt_location']}")
+        print(
+            f"📚 Web search prompt available at: {summary['web_search_prompt_location']}"
+        )
         return 0
-        
+
     except Exception as e:
         logger.error(f"Strategic expansion failed: {e}")
         return 1
 
+
 if __name__ == "__main__":
-    sys.exit(main()) 
+    sys.exit(main())

@@ -3,4 +3,4 @@
 -- to the semantic layer views.
 -- Example:
 -- CREATE OR REPLACE TAG SOPHIA_SEMANTIC.BUSINESS_TERM
--- ALLOWED_VALUES 'MRR', 'ARR', 'Customer Churn'; 
+-- ALLOWED_VALUES 'MRR', 'ARR', 'Customer Churn';

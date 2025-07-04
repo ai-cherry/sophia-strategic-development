@@ -89,19 +89,19 @@ server:
   host: "0.0.0.0"
   port: 8000
   workers: 4
-  
+
 snowflake:
   warehouse: "SOPHIA_AI_WH"
   role: "SOPHIA_AI_ROLE"
   schema: "PRODUCTION"
-  
+
 portkey:
   base_url: "https://api.portkey.ai/v1"
   default_model: "gpt-4"
-  
+
 estuary:
   connector: "sophia-ai-production"
-  
+
 ml:
   model_cache_dir: "/app/models"
   enable_gpu: true
@@ -321,4 +321,4 @@ export const namespaceName = namespace.metadata.name;
 export const deploymentName = deployment.metadata.name;
 export const serviceName = service.metadata.name;
 export const serviceEndpoint = pulumi.interpolate`http://${service.metadata.name}.${namespace.metadata.name}.svc.cluster.local`;
-export const imageUri = sophiaImage.imageName; 
+export const imageUri = sophiaImage.imageName;

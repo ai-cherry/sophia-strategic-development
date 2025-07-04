@@ -91,7 +91,7 @@ All secrets are automatically managed through Pulumi ESC:
 # Main API health
 curl http://104.171.202.64:8000/api/health
 
-# Mem0 server health  
+# Mem0 server health
 curl http://104.171.202.64:8080/health
 
 # Cortex server health
@@ -111,7 +111,7 @@ docker service scale sophia-ai-prod_sophia-backend=5
 # Scale Mem0 servers
 docker service scale sophia-ai-prod_mem0-server=3
 
-# Scale Cortex servers  
+# Scale Cortex servers
 docker service scale sophia-ai-prod_cortex-server=4
 ```
 
@@ -269,4 +269,4 @@ docker secret ls
 
 All infrastructure is configured and ready. The Sophia AI platform can now be deployed to Lambda Labs with enterprise-grade monitoring, auto-scaling, and security.
 
-**Next Command**: `python scripts/deploy_to_lambda_labs_cloud.py --environment prod` 
+**Next Command**: `python scripts/deploy_to_lambda_labs_cloud.py --environment prod`

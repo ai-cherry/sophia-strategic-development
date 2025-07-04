@@ -73,7 +73,7 @@ GRANT CREATE TABLE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE SOPHIA_AI_DEVELOPER;
 -- Note: Airbyte will create the actual tables in these schemas based on the data streams
 -- Examples of tables Airbyte might create:
 -- SOPHIA_GONG_RAW.gong_calls
--- SOPHIA_GONG_RAW.gong_transcripts  
+-- SOPHIA_GONG_RAW.gong_transcripts
 -- SOPHIA_GONG_RAW.gong_participants
 -- SOPHIA_SLACK_RAW.slack_messages
 -- SOPHIA_SLACK_RAW.slack_channels
@@ -85,7 +85,7 @@ GRANT CREATE TABLE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE SOPHIA_AI_DEVELOPER;
 
 -- Unified view combining Gong calls and Slack conversations
 CREATE OR REPLACE VIEW SOPHIA_AI_CORE.AI_MEMORY.INTEGRATED_CONVERSATIONS AS
-SELECT 
+SELECT
     'gong_' || COALESCE(call_id, 'unknown') as conversation_id,
     'gong' as source_platform,
     COALESCE(started_at, CURRENT_TIMESTAMP()) as conversation_time,
@@ -103,7 +103,7 @@ WHERE transcript IS NOT NULL AND transcript != ''
 
 UNION ALL
 
-SELECT 
+SELECT
     'slack_' || COALESCE(channel_id, 'unknown') || '_' || COALESCE(ts, 'unknown') as conversation_id,
     'slack' as source_platform,
     COALESCE(TO_TIMESTAMP(ts), CURRENT_TIMESTAMP()) as conversation_time,
@@ -135,25 +135,25 @@ RETURNS FLOAT
 LANGUAGE SQL
 AS
 $$
-    CASE 
+    CASE
         WHEN content_length > 1000 THEN 0.8
         WHEN content_length > 500 THEN 0.6
         WHEN content_length > 100 THEN 0.4
         ELSE 0.2
     END +
-    CASE 
+    CASE
         WHEN access_count > 10 THEN 0.3
         WHEN access_count > 5 THEN 0.2
         WHEN access_count > 1 THEN 0.1
         ELSE 0.0
     END +
-    CASE 
+    CASE
         WHEN recency_days <= 1 THEN 0.3
         WHEN recency_days <= 7 THEN 0.2
         WHEN recency_days <= 30 THEN 0.1
         ELSE 0.0
     END +
-    CASE 
+    CASE
         WHEN source_platform = 'gong' THEN 0.2
         WHEN source_platform = 'slack' THEN 0.1
         ELSE 0.0
@@ -166,23 +166,23 @@ $$;
 
 -- Create indexes for better query performance
 -- Snowflake does not support traditional indexes; consider search optimization or clustering.
--- -- CREATE INDEX IF NOT EXISTS idx_memory_records_conversation_id 
+-- -- CREATE INDEX IF NOT EXISTS idx_memory_records_conversation_id
 -- -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(conversation_id);
--- 
+--
 -- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
--- -- CREATE INDEX IF NOT EXISTS idx_memory_records_user_id 
+-- -- CREATE INDEX IF NOT EXISTS idx_memory_records_user_id
 -- -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(user_id);
--- 
+--
 -- -- Snowflake does not support traditional indexes; consider search optimization or clustering.
--- -- CREATE INDEX IF NOT EXISTS idx_memory_records_created_at 
+-- -- CREATE INDEX IF NOT EXISTS idx_memory_records_created_at
 -- -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(created_at);
 
 -- Snowflake does not support traditional indexes; consider search optimization or clustering.
--- CREATE INDEX IF NOT EXISTS idx_memory_records_importance 
+-- CREATE INDEX IF NOT EXISTS idx_memory_records_importance
 -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS(importance_score);
 
 -- Snowflake does not support traditional indexes; consider search optimization or clustering.
--- CREATE INDEX IF NOT EXISTS idx_memory_embeddings_memory_id 
+-- CREATE INDEX IF NOT EXISTS idx_memory_embeddings_memory_id
 -- ON SOPHIA_AI_CORE.AI_MEMORY.MEMORY_EMBEDDINGS(memory_id);
 
 -- =====================================================
@@ -190,7 +190,7 @@ $$;
 -- =====================================================
 
 -- Insert sample memory categories
-INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.MEMORY_CATEGORIES 
+INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.MEMORY_CATEGORIES
 (category_id, category_name, description) VALUES
 ('cat_business', 'Business Conversations', 'Conversations related to business operations and strategy'),
 ('cat_technical', 'Technical Discussions', 'Technical conversations and problem-solving'),
@@ -199,17 +199,17 @@ INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.MEMORY_CATEGORIES
 ('cat_slack_msgs', 'Slack Messages', 'Memory records from Slack conversations');
 
 -- Insert sample conversation history
-INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.CONVERSATION_HISTORY 
+INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.CONVERSATION_HISTORY
 (conversation_id, user_id, agent_id, message_count, effectiveness_score) VALUES
 ('conv_sample_001', 'user_001', 'sophia_ai', 15, 0.85),
 ('conv_sample_002', 'user_002', 'sophia_ai', 8, 0.72);
 
 -- Insert sample memory records
-INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS 
+INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS
 (memory_id, conversation_id, user_id, agent_id, content, memory_type, importance_score, metadata, tags) VALUES
-('mem_001', 'conv_sample_001', 'user_001', 'sophia_ai', 
+('mem_001', 'conv_sample_001', 'user_001', 'sophia_ai',
  'User discussed quarterly sales targets and expressed concerns about market competition.',
- 'business_insight', 0.8, 
+ 'business_insight', 0.8,
  PARSE_JSON('{"topic": "sales", "sentiment": "concerned", "priority": "high"}'),
  ARRAY_CONSTRUCT('sales', 'quarterly', 'competition')),
 ('mem_002', 'conv_sample_001', 'user_001', 'sophia_ai',
@@ -219,4 +219,3 @@ INSERT INTO SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS
  ARRAY_CONSTRUCT('analytics', 'churn', 'crm'));
 
 COMMIT;
-

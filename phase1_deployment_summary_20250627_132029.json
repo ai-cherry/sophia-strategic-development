@@ -31,13 +31,7 @@
       "Vector embeddings",
       "Predictive analytics"
     ],
-    "data_sources": [
-      "Gong",
-      "HubSpot",
-      "Slack",
-      "Linear",
-      "Direct input"
-    ]
+    "data_sources": ["Gong", "HubSpot", "Slack", "Linear", "Direct input"]
   },
   "next_phase_readiness": {
     "schema_foundation": true,

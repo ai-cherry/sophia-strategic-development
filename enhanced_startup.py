@@ -286,7 +286,9 @@ async def analyze_sentiment(data: dict[str, Any]):
                 "urgency_level": (
                     "high"
                     if sentiment_score < -0.5
-                    else "medium" if sentiment_score < -0.2 else "low"
+                    else "medium"
+                    if sentiment_score < -0.2
+                    else "low"
                 ),
                 "confidence_score": 0.7,
                 "business_impact_score": 0.5,

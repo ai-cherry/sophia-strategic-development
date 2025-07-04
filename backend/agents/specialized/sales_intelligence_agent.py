@@ -15,20 +15,30 @@ Decomposed Architecture:
 from __future__ import annotations
 
 import logging
-from typing import Any
+
+# Import core agent
+from .sales_intelligence_agent_core import SalesIntelligenceAgentCore
+
+# Import handlers
+from .sales_intelligence_agent_handlers import (
+    CompetitorAnalysisHandler,
+    DealRiskHandler,
+    EmailGenerationHandler,
+    PipelineAnalysisHandler,
+)
 
 # Import all models and classes for backward compatibility
 from .sales_intelligence_agent_models import (
-    DealRiskLevel,
-    SalesStage,
-    EmailType,
-    DealRiskAssessment,
-    SalesEmailRequest,
-    CompetitorTalkingPoints,
-    PipelineAnalysis,
-    SalesEmailResult,
-    WorkflowTaskResult,
     AgentCapabilities,
+    CompetitorTalkingPoints,
+    DealRiskAssessment,
+    DealRiskLevel,
+    EmailType,
+    PipelineAnalysis,
+    SalesEmailRequest,
+    SalesEmailResult,
+    SalesStage,
+    WorkflowTaskResult,
 )
 
 # Import utility classes
@@ -36,27 +46,16 @@ from .sales_intelligence_agent_utils import (
     SalesIntelligenceUtils,
 )
 
-# Import handlers
-from .sales_intelligence_agent_handlers import (
-    DealRiskHandler,
-    EmailGenerationHandler,
-    CompetitorAnalysisHandler,
-    PipelineAnalysisHandler,
-)
-
-# Import core agent
-from .sales_intelligence_agent_core import SalesIntelligenceAgentCore
-
 logger = logging.getLogger(__name__)
 
 
 class SalesIntelligenceAgent(SalesIntelligenceAgentCore):
     """
     Enhanced Sales Intelligence Agent with Workflow Integration
-    
+
     This is the main facade class that maintains backward compatibility
     while delegating to the decomposed modules.
-    
+
     Capabilities:
     - Advanced deal risk assessment with AI insights
     - Sales email generation using SmartAIService
@@ -78,7 +77,7 @@ class SalesIntelligenceAgent(SalesIntelligenceAgentCore):
 __all__ = [
     "SalesIntelligenceAgent",
     "DealRiskLevel",
-    "SalesStage", 
+    "SalesStage",
     "EmailType",
     "DealRiskAssessment",
     "SalesEmailRequest",
@@ -94,10 +93,12 @@ __all__ = [
     "PipelineAnalysisHandler",
 ]
 
+
 # Convenience factory function for backward compatibility
 def create_sales_intelligence_agent() -> SalesIntelligenceAgent:
     """Factory function to create a Sales Intelligence Agent instance"""
     return SalesIntelligenceAgent()
+
 
 # Legacy compatibility - maintain original class name
 SalesIntelligenceAgent.__name__ = "SalesIntelligenceAgent"

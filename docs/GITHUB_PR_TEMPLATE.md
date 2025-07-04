@@ -1,6 +1,6 @@
 ---
 title: Sophia AI Codebase Cleanup - Phase [X]
-description: 
+description:
 tags: mcp, security, database, docker, agent
 last_updated: 2025-06-23
 dependencies: none
@@ -99,7 +99,7 @@ This PR implements Phase [X] of the codebase cleanup as outlined in the cleanup 
 ## Breaking Changes
 - [ ] None
 - [ ] Listed below:
-  - 
+  -
 
 ## Documentation Updates
 - [ ] README.md updated

@@ -7,7 +7,7 @@ async function main() {
     // Fetch configuration for the production environment
     // In a real scenario, these values would come from Pulumi config, another service, or be hardcoded for a specific environment.
     const config = new pulumi.Config();
-    
+
     // Example VPC and Subnet details. Replace with your actual network configuration.
     // For this example, we'll look up the default VPC.
     const vpc = await aws.ec2.getVpc({ default: true });
@@ -46,4 +46,4 @@ async function main() {
 }
 
 // Export the outputs of the main function
-export const outputs = main(); 
+export const outputs = main();

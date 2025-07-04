@@ -326,7 +326,6 @@ class FunctionRefactorer:
                 or stripped.startswith("if ")
                 and len(current_block) == 0
             ):
-
                 if current_block and not in_extractable_block:
                     new_function_lines.extend(current_block)
 

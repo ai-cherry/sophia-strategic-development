@@ -53,7 +53,7 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
         setMessages(prev => [...prev, userMessage]);
         setIsLoading(true);
         setError(null);
-        
+
         ws.current.send(JSON.stringify({ message: input, search_context: searchContext }));
         setInput('');
     };
@@ -134,4 +134,4 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
     );
 };
 
-export default EnhancedUnifiedChat; 
+export default EnhancedUnifiedChat;

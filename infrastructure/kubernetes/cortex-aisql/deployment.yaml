@@ -21,65 +21,65 @@ spec:
         component: ai-sql
     spec:
       containers:
-      - name: cortex-aisql-mcp
-        # Replace with your Docker Cloud image URL
-        image: IMAGE_PLACEHOLDER # e.g., docker.io/sophiaai/cortex-aisql:latest
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        env:
-        # Snowflake credentials from Pulumi ESC
-        - name: SNOWFLAKE_ACCOUNT
-          valueFrom:
-            secretKeyRef:
-              name: sophia-secrets
-              key: snowflake_account
-        - name: SNOWFLAKE_USER
-          valueFrom:
-            secretKeyRef:
-              name: sophia-secrets
-              key: snowflake_user
-        - name: SNOWFLAKE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: sophia-secrets
-              key: snowflake_password
-        - name: SNOWFLAKE_ROLE
-          value: "CORTEX_ROLE"
-        - name: SNOWFLAKE_WAREHOUSE
-          value: "CORTEX_WH"
-        - name: SNOWFLAKE_DATABASE
-          value: "SOPHIA_AI"
-        - name: SNOWFLAKE_SCHEMA
-          value: "AI_MEMORY"
-        - name: PULUMI_ORG
-          value: "scoobyjava-org"
-        - name: PULUMI_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: sophia-secrets
-              key: pulumi_access_token
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: "2000m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
+        - name: cortex-aisql-mcp
+          # Replace with your Docker Cloud image URL
+          image: IMAGE_PLACEHOLDER # e.g., docker.io/sophiaai/cortex-aisql:latest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            # Snowflake credentials from Pulumi ESC
+            - name: SNOWFLAKE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: sophia-secrets
+                  key: snowflake_account
+            - name: SNOWFLAKE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sophia-secrets
+                  key: snowflake_user
+            - name: SNOWFLAKE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sophia-secrets
+                  key: snowflake_password
+            - name: SNOWFLAKE_ROLE
+              value: "CORTEX_ROLE"
+            - name: SNOWFLAKE_WAREHOUSE
+              value: "CORTEX_WH"
+            - name: SNOWFLAKE_DATABASE
+              value: "SOPHIA_AI"
+            - name: SNOWFLAKE_SCHEMA
+              value: "AI_MEMORY"
+            - name: PULUMI_ORG
+              value: "scoobyjava-org"
+            - name: PULUMI_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sophia-secrets
+                  key: pulumi_access_token
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
       imagePullSecrets:
-      - name: docker-cloud-secret
+        - name: docker-cloud-secret
 ---
 apiVersion: v1
 kind: Service
@@ -91,9 +91,9 @@ spec:
   selector:
     app: cortex-aisql
   ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
 ---
 # Optional: HorizontalPodAutoscaler for auto-scaling
 apiVersion: autoscaling/v2
@@ -109,15 +109,15 @@ spec:
   minReplicas: 3
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80 
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

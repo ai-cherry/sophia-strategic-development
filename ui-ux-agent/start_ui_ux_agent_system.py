@@ -340,9 +340,7 @@ class EnhancedUIUXAgentSystemManager:
             logger.info(
                 "   🎨 Visual improvements: Professional glassmorphism effects applied"
             )
-            logger.info(
-                "   ⚡ Performance improvements: 40% faster load times achieved"
-            )
+            logger.info("   ⚡ Performance improvements: 40% faster load times achieved")
             logger.info("   ♿ Accessibility improvements: 100% WCAG 2.1 AA compliance")
 
         except Exception as e:

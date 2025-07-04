@@ -48,7 +48,7 @@ DESCRIBE TABLE STG_TRANSFORMED.STG_HUBSPOT_DEALS;
 
 ```sql
 -- Check record counts across key tables
-SELECT 
+SELECT
     'STG_GONG_CALLS' as table_name,
     COUNT(*) as record_count,
     MIN(CREATED_AT) as earliest_record,
@@ -57,7 +57,7 @@ FROM STG_TRANSFORMED.STG_GONG_CALLS
 
 UNION ALL
 
-SELECT 
+SELECT
     'STG_HUBSPOT_DEALS' as table_name,
     COUNT(*) as record_count,
     MIN(CREATED_AT) as earliest_record,
@@ -66,7 +66,7 @@ FROM STG_TRANSFORMED.STG_HUBSPOT_DEALS
 
 UNION ALL
 
-SELECT 
+SELECT
     'STG_GONG_CALL_TRANSCRIPTS' as table_name,
     COUNT(*) as record_count,
     MIN(CREATED_AT) as earliest_record,
@@ -80,7 +80,7 @@ FROM STG_TRANSFORMED.STG_GONG_CALL_TRANSCRIPTS;
 
 ```sql
 -- Get recent deals with key metrics
-SELECT 
+SELECT
     DEAL_ID,
     DEAL_NAME,
     DEAL_STAGE,
@@ -100,7 +100,7 @@ LIMIT 20;
 
 ```sql
 -- Analyze deals by stage and pipeline
-SELECT 
+SELECT
     PIPELINE_NAME,
     DEAL_STAGE,
     COUNT(*) as deal_count,
@@ -117,14 +117,14 @@ ORDER BY PIPELINE_NAME, total_value DESC;
 
 ```sql
 -- Identify high-value deals with AI Memory data
-SELECT 
+SELECT
     hd.DEAL_ID,
     hd.DEAL_NAME,
     hd.DEAL_STAGE,
     hd.DEAL_AMOUNT,
     hd.CLOSE_DATE,
     hd.DEAL_OWNER,
-    CASE 
+    CASE
         WHEN hd.AI_MEMORY_EMBEDDING IS NOT NULL THEN 'Has AI Insights'
         ELSE 'No AI Insights'
     END as ai_analysis_status,
@@ -143,14 +143,14 @@ ORDER BY hd.DEAL_AMOUNT DESC;
 
 ```sql
 -- Get recent calls with sentiment analysis
-SELECT 
+SELECT
     CALL_ID,
     CALL_TITLE,
     CALL_DATETIME_UTC,
     PRIMARY_USER_NAME,
     CALL_DURATION_SECONDS / 60 as duration_minutes,
     SENTIMENT_SCORE,
-    CASE 
+    CASE
         WHEN SENTIMENT_SCORE > 0.5 THEN 'Very Positive'
         WHEN SENTIMENT_SCORE > 0.2 THEN 'Positive'
         WHEN SENTIMENT_SCORE > -0.2 THEN 'Neutral'
@@ -171,7 +171,7 @@ LIMIT 50;
 
 ```sql
 -- Analyze call performance metrics by sales representative
-SELECT 
+SELECT
     PRIMARY_USER_NAME as sales_rep,
     COUNT(*) as total_calls,
     AVG(SENTIMENT_SCORE) as avg_sentiment,
@@ -179,7 +179,7 @@ SELECT
     AVG(CALL_DURATION_SECONDS / 60) as avg_duration_minutes,
     COUNT(DISTINCT HUBSPOT_DEAL_ID) as unique_deals_discussed,
     -- Performance assessment
-    CASE 
+    CASE
         WHEN AVG(SENTIMENT_SCORE) > 0.3 AND AVG(TALK_RATIO) BETWEEN 0.3 AND 0.6 THEN 'High Performer'
         WHEN AVG(SENTIMENT_SCORE) > 0.1 AND AVG(TALK_RATIO) BETWEEN 0.2 AND 0.7 THEN 'Good Performer'
         ELSE 'Needs Coaching'
@@ -196,7 +196,7 @@ ORDER BY avg_sentiment DESC, total_calls DESC;
 
 ```sql
 -- Analyze call transcripts with AI processing status
-SELECT 
+SELECT
     t.CALL_ID,
     c.CALL_TITLE,
     c.ACCOUNT_NAME,
@@ -205,10 +205,10 @@ SELECT
     SUM(t.WORD_COUNT) as total_words,
     COUNT(CASE WHEN t.AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as segments_with_embeddings,
     -- AI processing status
-    CASE 
-        WHEN COUNT(CASE WHEN t.AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) = COUNT(t.TRANSCRIPT_ID) 
+    CASE
+        WHEN COUNT(CASE WHEN t.AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) = COUNT(t.TRANSCRIPT_ID)
         THEN 'Fully Processed'
-        WHEN COUNT(CASE WHEN t.AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) > 0 
+        WHEN COUNT(CASE WHEN t.AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) > 0
         THEN 'Partially Processed'
         ELSE 'Not Processed'
     END as ai_processing_status
@@ -231,7 +231,7 @@ WITH target_deal AS (
     WHERE DEAL_ID = 'your_deal_id_here'
     AND AI_MEMORY_EMBEDDING IS NOT NULL
 )
-SELECT 
+SELECT
     hd.DEAL_ID,
     hd.DEAL_NAME,
     hd.DEAL_STAGE,
@@ -254,7 +254,7 @@ LIMIT 10;
 WITH query_embedding AS (
     SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'pricing objection budget concerns') as query_vector
 )
-SELECT 
+SELECT
     t.CALL_ID,
     c.CALL_TITLE,
     c.ACCOUNT_NAME,
@@ -275,7 +275,7 @@ LIMIT 20;
 
 ```sql
 -- Analyze AI Memory usage patterns
-SELECT 
+SELECT
     CATEGORY,
     COUNT(*) as memory_count,
     AVG(IMPORTANCE_SCORE) as avg_importance,
@@ -294,10 +294,10 @@ ORDER BY memory_count DESC;
 
 ```sql
 -- Generate embeddings for deals without them
-SELECT 
+SELECT
     DEAL_ID,
     DEAL_NAME,
-    SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 
+    SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2',
         DEAL_NAME || ' - ' || COALESCE(DEAL_STAGE, '') || ' - ' || COALESCE(PIPELINE_NAME, '')
     ) as generated_embedding
 FROM STG_TRANSFORMED.STG_HUBSPOT_DEALS
@@ -310,7 +310,7 @@ LIMIT 10;
 
 ```sql
 -- Analyze sentiment for calls without sentiment scores
-SELECT 
+SELECT
     CALL_ID,
     CALL_TITLE,
     ACCOUNT_NAME,
@@ -318,7 +318,7 @@ SELECT
         CALL_TITLE || ' ' || COALESCE(ACCOUNT_NAME, '') || ' ' || COALESCE(DEAL_STAGE, '')
     ) as calculated_sentiment,
     SNOWFLAKE.CORTEX.SUMMARIZE(
-        'Call with ' || COALESCE(ACCOUNT_NAME, 'Unknown') || 
+        'Call with ' || COALESCE(ACCOUNT_NAME, 'Unknown') ||
         ' about ' || COALESCE(CALL_TITLE, 'business discussion') ||
         '. Deal stage: ' || COALESCE(DEAL_STAGE, 'Unknown'),
         100
@@ -333,7 +333,7 @@ LIMIT 5;
 
 ```sql
 -- Use Cortex for deal risk analysis
-SELECT 
+SELECT
     DEAL_ID,
     DEAL_NAME,
     DEAL_STAGE,
@@ -361,7 +361,7 @@ LIMIT 3;
 
 ```sql
 -- Get all configuration settings for the application
-SELECT 
+SELECT
     SETTING_NAME,
     SETTING_VALUE,
     DATA_TYPE,
@@ -380,7 +380,7 @@ ORDER BY CATEGORY, SETTING_NAME;
 
 ```sql
 -- Check status of feature flags
-SELECT 
+SELECT
     FLAG_NAME,
     IS_ENABLED,
     FLAG_TYPE,
@@ -409,7 +409,7 @@ SELECT CONFIG.EVALUATE_FEATURE_FLAG('enhanced_ai_memory', 'user_123', 'DEV', 'SO
 
 ```sql
 -- Monitor ETL job performance
-SELECT 
+SELECT
     JOB_NAME,
     JOB_TYPE,
     STATUS,
@@ -429,7 +429,7 @@ ORDER BY JOB_NAME, STATUS;
 
 ```sql
 -- Analyze application errors
-SELECT 
+SELECT
     APPLICATION_NAME,
     SERVICE_NAME,
     ERROR_LEVEL,
@@ -448,7 +448,7 @@ ORDER BY error_count DESC;
 
 ```sql
 -- System health check summary
-SELECT 
+SELECT
     APPLICATION_NAME,
     SERVICE_NAME,
     CHECK_TYPE,
@@ -469,7 +469,7 @@ ORDER BY APPLICATION_NAME, SERVICE_NAME;
 ```sql
 -- Analyze correlation between call activity and deal success
 WITH deal_call_summary AS (
-    SELECT 
+    SELECT
         hd.DEAL_ID,
         hd.DEAL_NAME,
         hd.DEAL_STAGE,
@@ -484,7 +484,7 @@ WITH deal_call_summary AS (
     WHERE hd.DEAL_STATUS IN ('Won', 'Lost', 'In Progress')
     GROUP BY hd.DEAL_ID, hd.DEAL_NAME, hd.DEAL_STAGE, hd.DEAL_AMOUNT, hd.DEAL_STATUS
 )
-SELECT 
+SELECT
     DEAL_STATUS,
     COUNT(*) as deal_count,
     AVG(call_count) as avg_calls_per_deal,
@@ -494,11 +494,11 @@ SELECT
     AVG(DEAL_AMOUNT) as avg_deal_value
 FROM deal_call_summary
 GROUP BY DEAL_STATUS
-ORDER BY 
-    CASE DEAL_STATUS 
-        WHEN 'Won' THEN 1 
-        WHEN 'In Progress' THEN 2 
-        WHEN 'Lost' THEN 3 
+ORDER BY
+    CASE DEAL_STATUS
+        WHEN 'Won' THEN 1
+        WHEN 'In Progress' THEN 2
+        WHEN 'Lost' THEN 3
     END;
 ```
 
@@ -507,7 +507,7 @@ ORDER BY
 ```sql
 -- Analyze AI Memory effectiveness and usage patterns
 WITH memory_effectiveness AS (
-    SELECT 
+    SELECT
         mr.CATEGORY,
         mr.BUSINESS_TABLE_NAME,
         COUNT(*) as total_memories,
@@ -519,7 +519,7 @@ WITH memory_effectiveness AS (
     FROM AI_MEMORY.MEMORY_RECORDS mr
     GROUP BY mr.CATEGORY, mr.BUSINESS_TABLE_NAME
 )
-SELECT 
+SELECT
     CATEGORY,
     BUSINESS_TABLE_NAME,
     total_memories,
@@ -529,8 +529,8 @@ SELECT
     recently_accessed,
     recently_accessed / total_memories as recent_access_rate,
     -- Effectiveness score
-    (avg_importance * 0.4 + 
-     LEAST(avg_access_count / 10, 1) * 0.3 + 
+    (avg_importance * 0.4 +
+     LEAST(avg_access_count / 10, 1) * 0.3 +
      recently_accessed / total_memories * 0.3) as effectiveness_score
 FROM memory_effectiveness
 ORDER BY effectiveness_score DESC;
@@ -541,7 +541,7 @@ ORDER BY effectiveness_score DESC;
 ```sql
 -- Generate conversation intelligence insights
 WITH conversation_analysis AS (
-    SELECT 
+    SELECT
         DATE_TRUNC('week', ch.STARTED_AT) as week_start,
         ch.CONVERSATION_TYPE,
         ch.AGENT_TYPE,
@@ -554,7 +554,7 @@ WITH conversation_analysis AS (
     WHERE ch.STARTED_AT >= DATEADD('week', -8, CURRENT_DATE())
     GROUP BY DATE_TRUNC('week', ch.STARTED_AT), ch.CONVERSATION_TYPE, ch.AGENT_TYPE
 )
-SELECT 
+SELECT
     week_start,
     conversation_type,
     agent_type,
@@ -565,11 +565,11 @@ SELECT
     unique_users,
     -- Trend analysis
     LAG(conversation_count) OVER (
-        PARTITION BY conversation_type, agent_type 
+        PARTITION BY conversation_type, agent_type
         ORDER BY week_start
     ) as prev_week_conversations,
     conversation_count - LAG(conversation_count) OVER (
-        PARTITION BY conversation_type, agent_type 
+        PARTITION BY conversation_type, agent_type
         ORDER BY week_start
     ) as conversation_growth
 FROM conversation_analysis
@@ -582,7 +582,7 @@ ORDER BY week_start DESC, conversation_count DESC;
 
 ```sql
 -- Check if indexes are being used efficiently
-SELECT 
+SELECT
     TABLE_NAME,
     INDEX_NAME,
     COLUMN_NAME,
@@ -596,7 +596,7 @@ ORDER BY TABLE_NAME, INDEX_NAME;
 
 ```sql
 -- Analyze query performance for large tables
-SELECT 
+SELECT
     TABLE_NAME,
     ROW_COUNT,
     BYTES,
@@ -623,7 +623,7 @@ ORDER BY BYTES DESC;
 
 ```sql
 -- Find records without embeddings that should have them
-SELECT 
+SELECT
     'STG_HUBSPOT_DEALS' as table_name,
     COUNT(*) as records_without_embeddings
 FROM STG_TRANSFORMED.STG_HUBSPOT_DEALS
@@ -632,7 +632,7 @@ AND DEAL_NAME IS NOT NULL
 
 UNION ALL
 
-SELECT 
+SELECT
     'STG_GONG_CALL_TRANSCRIPTS' as table_name,
     COUNT(*) as records_without_embeddings
 FROM STG_TRANSFORMED.STG_GONG_CALL_TRANSCRIPTS
@@ -645,7 +645,7 @@ AND LENGTH(TRANSCRIPT_TEXT) > 10;
 
 ```sql
 -- Check for missing or invalid configuration
-SELECT 
+SELECT
     SETTING_NAME,
     SETTING_VALUE,
     DATA_TYPE,
@@ -653,7 +653,7 @@ SELECT
 FROM CONFIG.APPLICATION_SETTINGS
 WHERE IS_ACTIVE = TRUE
 AND (
-    SETTING_VALUE IS NULL 
+    SETTING_VALUE IS NULL
     OR (DATA_TYPE = 'NUMBER' AND TRY_TO_NUMBER(SETTING_VALUE) IS NULL)
     OR (DATA_TYPE = 'BOOLEAN' AND SETTING_VALUE NOT IN ('true', 'false'))
 );
@@ -669,7 +669,7 @@ AND (
 WITH query_embedding AS (
     SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'pricing discussion negotiation cost') as embedding
 )
-SELECT 
+SELECT
     gc.CALL_ID,
     gc.CALL_TITLE,
     gc.ACCOUNT_NAME,
@@ -690,7 +690,7 @@ LIMIT 10;
 WITH query_embedding AS (
     SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'competitor salesforce hubspot alternative') as embedding
 )
-SELECT 
+SELECT
     gt.TRANSCRIPT_ID,
     gt.CALL_ID,
     gt.SPEAKER_NAME,
@@ -715,30 +715,30 @@ LIMIT 15;
 ### **Sentiment Analysis with Account Insights**
 ```sql
 -- Comprehensive sentiment analysis by account with AI insights
-SELECT 
+SELECT
     gc.ACCOUNT_NAME,
     COUNT(*) as total_calls,
     AVG(gc.SENTIMENT_SCORE) as avg_sentiment,
     COUNT(CASE WHEN gc.SENTIMENT_SCORE > 0.3 THEN 1 END) as positive_calls,
     COUNT(CASE WHEN gc.SENTIMENT_SCORE < -0.3 THEN 1 END) as negative_calls,
     AVG(gc.TALK_RATIO) as avg_talk_ratio,
-    
+
     -- AI-generated insights
     LISTAGG(DISTINCT gc.KEY_TOPICS, ', ') as common_topics,
     LISTAGG(DISTINCT gc.RISK_INDICATORS, ', ') as identified_risks,
-    
+
     -- Deal context
     gc.DEAL_STAGE,
     MAX(gc.CALL_DATETIME_UTC) as latest_call,
-    
+
     -- Account health score (custom calculation)
-    CASE 
+    CASE
         WHEN AVG(gc.SENTIMENT_SCORE) > 0.5 AND COUNT(*) > 3 THEN 'Excellent'
         WHEN AVG(gc.SENTIMENT_SCORE) > 0.2 AND COUNT(*) > 1 THEN 'Good'
         WHEN AVG(gc.SENTIMENT_SCORE) > -0.2 THEN 'Fair'
         ELSE 'At Risk'
     END as account_health
-    
+
 FROM STG_TRANSFORMED.STG_GONG_CALLS gc
 WHERE gc.CALL_DATETIME_UTC >= DATEADD(month, -3, CURRENT_TIMESTAMP())
 AND gc.ACCOUNT_NAME IS NOT NULL
@@ -751,7 +751,7 @@ ORDER BY avg_sentiment DESC, total_calls DESC;
 ```sql
 -- Analyze discussion topics and cross-reference with AI Memory
 WITH topic_analysis AS (
-    SELECT 
+    SELECT
         gc.CALL_ID,
         gc.ACCOUNT_NAME,
         gc.PRIMARY_USER_NAME,
@@ -764,7 +764,7 @@ WITH topic_analysis AS (
     AND gc.CALL_DATETIME_UTC >= DATEADD(day, -30, CURRENT_TIMESTAMP())
 ),
 memory_insights AS (
-    SELECT 
+    SELECT
         mr.SOURCE_ID as call_id,
         mr.CATEGORY,
         mr.RELEVANCE_SCORE,
@@ -774,25 +774,25 @@ memory_insights AS (
     WHERE mr.SOURCE_TYPE = 'gong'
     AND mr.CATEGORY = 'gong_call_insight'
 )
-SELECT 
+SELECT
     ta.topic,
     COUNT(*) as mention_frequency,
     AVG(ta.sentiment_score) as avg_sentiment_for_topic,
     COUNT(DISTINCT ta.account_name) as unique_accounts,
     COUNT(DISTINCT ta.primary_user_name) as unique_reps,
-    
+
     -- AI Memory insights
     AVG(mi.relevance_score) as avg_memory_relevance,
     AVG(mi.access_count) as avg_memory_access,
-    
+
     -- Top accounts discussing this topic
-    LISTAGG(DISTINCT 
-        CASE WHEN ta.sentiment_score > 0.3 
-        THEN ta.account_name || ' (Positive)' 
-        ELSE ta.account_name 
+    LISTAGG(DISTINCT
+        CASE WHEN ta.sentiment_score > 0.3
+        THEN ta.account_name || ' (Positive)'
+        ELSE ta.account_name
         END, ', '
     ) WITHIN GROUP (ORDER BY ta.sentiment_score DESC) as top_accounts
-    
+
 FROM topic_analysis ta
 LEFT JOIN memory_insights mi ON ta.call_id = mi.call_id
 GROUP BY ta.topic
@@ -807,29 +807,29 @@ LIMIT 20;
 ```sql
 -- Comprehensive deal risk assessment using AI insights
 WITH deal_risk_analysis AS (
-    SELECT 
+    SELECT
         gc.HUBSPOT_DEAL_ID,
         gc.ACCOUNT_NAME,
         gc.DEAL_STAGE,
         gc.DEAL_VALUE,
-        
+
         -- Call metrics
         COUNT(*) as total_calls,
         AVG(gc.SENTIMENT_SCORE) as avg_sentiment,
         AVG(gc.TALK_RATIO) as avg_talk_ratio,
         MAX(gc.CALL_DATETIME_UTC) as last_call_date,
         DATEDIFF('day', MAX(gc.CALL_DATETIME_UTC), CURRENT_TIMESTAMP()) as days_since_last_call,
-        
+
         -- Risk indicators from AI analysis
         LISTAGG(DISTINCT ri.value::STRING, '; ') as all_risk_indicators,
         COUNT(DISTINCT ri.value::STRING) as unique_risk_count,
-        
+
         -- Next steps tracking
         LISTAGG(DISTINCT ns.value::STRING, '; ') as all_next_steps,
-        
+
         -- AI Memory integration
         MAX(gc.AI_MEMORY_UPDATED_AT) as latest_ai_analysis
-        
+
     FROM STG_TRANSFORMED.STG_GONG_CALLS gc
     LEFT JOIN LATERAL FLATTEN(input => gc.RISK_INDICATORS) AS ri ON TRUE
     LEFT JOIN LATERAL FLATTEN(input => gc.NEXT_STEPS) AS ns ON TRUE
@@ -837,29 +837,29 @@ WITH deal_risk_analysis AS (
     AND gc.DEAL_STAGE NOT IN ('Closed Won', 'Closed Lost')
     GROUP BY gc.HUBSPOT_DEAL_ID, gc.ACCOUNT_NAME, gc.DEAL_STAGE, gc.DEAL_VALUE
 )
-SELECT 
+SELECT
     *,
     -- Calculated risk score (0-100, higher = more risk)
-    CASE 
+    CASE
         WHEN days_since_last_call > 14 THEN 25 ELSE 0 END +
-    CASE 
-        WHEN avg_sentiment < -0.3 THEN 30 
-        WHEN avg_sentiment < 0 THEN 15 
-        ELSE 0 
+    CASE
+        WHEN avg_sentiment < -0.3 THEN 30
+        WHEN avg_sentiment < 0 THEN 15
+        ELSE 0
     END +
-    CASE 
-        WHEN unique_risk_count > 2 THEN 25 
-        WHEN unique_risk_count > 0 THEN 10 
-        ELSE 0 
+    CASE
+        WHEN unique_risk_count > 2 THEN 25
+        WHEN unique_risk_count > 0 THEN 10
+        ELSE 0
     END +
-    CASE 
+    CASE
         WHEN avg_talk_ratio > 0.8 THEN 10  -- Rep talking too much
         WHEN avg_talk_ratio < 0.3 THEN 15  -- Customer not engaged
-        ELSE 0 
+        ELSE 0
     END as calculated_risk_score,
-    
+
     -- Risk category
-    CASE 
+    CASE
         WHEN (
             CASE WHEN days_since_last_call > 14 THEN 25 ELSE 0 END +
             CASE WHEN avg_sentiment < -0.3 THEN 30 WHEN avg_sentiment < 0 THEN 15 ELSE 0 END +
@@ -874,7 +874,7 @@ SELECT
         ) >= 25 THEN 'Medium Risk'
         ELSE 'Low Risk'
     END as risk_category
-    
+
 FROM deal_risk_analysis
 ORDER BY calculated_risk_score DESC, deal_value DESC;
 ```
@@ -885,10 +885,10 @@ ORDER BY calculated_risk_score DESC, deal_value DESC;
 ```sql
 -- Sales rep performance analysis with AI-generated coaching recommendations
 WITH rep_performance AS (
-    SELECT 
+    SELECT
         gc.PRIMARY_USER_NAME as sales_rep,
         gc.PRIMARY_USER_EMAIL,
-        
+
         -- Call metrics
         COUNT(*) as total_calls,
         AVG(gc.CALL_DURATION_SECONDS) / 60 as avg_call_duration_minutes,
@@ -896,27 +896,27 @@ WITH rep_performance AS (
         AVG(gc.TALK_RATIO) as avg_talk_ratio,
         AVG(gc.INTERACTIVITY_SCORE) as avg_interactivity,
         AVG(gc.QUESTIONS_ASKED_COUNT) as avg_questions_asked,
-        
+
         -- Deal outcomes
         COUNT(DISTINCT gc.HUBSPOT_DEAL_ID) as unique_deals_touched,
         COUNT(DISTINCT gc.ACCOUNT_NAME) as unique_accounts,
         SUM(CASE WHEN gc.DEAL_STAGE IN ('Closed Won') THEN gc.DEAL_VALUE ELSE 0 END) as won_deal_value,
-        
+
         -- AI insights
         COUNT(CASE WHEN ARRAY_SIZE(gc.RISK_INDICATORS) > 0 THEN 1 END) as calls_with_risks,
         COUNT(CASE WHEN ARRAY_SIZE(gc.NEXT_STEPS) > 0 THEN 1 END) as calls_with_next_steps,
-        
+
         -- Time analysis
         MAX(gc.CALL_DATETIME_UTC) as last_call_date,
         MIN(gc.CALL_DATETIME_UTC) as first_call_date
-        
+
     FROM STG_TRANSFORMED.STG_GONG_CALLS gc
     WHERE gc.CALL_DATETIME_UTC >= DATEADD(month, -3, CURRENT_TIMESTAMP())
     AND gc.PRIMARY_USER_NAME IS NOT NULL
     GROUP BY gc.PRIMARY_USER_NAME, gc.PRIMARY_USER_EMAIL
 ),
 coaching_insights AS (
-    SELECT 
+    SELECT
         mr.METADATA:primary_user::STRING as sales_rep,
         COUNT(*) as coaching_memories,
         AVG(mr.RELEVANCE_SCORE) as avg_coaching_relevance,
@@ -926,41 +926,41 @@ coaching_insights AS (
     AND mr.CATEGORY = 'gong_coaching_recommendation'
     GROUP BY mr.METADATA:primary_user::STRING
 )
-SELECT 
+SELECT
     rp.*,
-    
+
     -- Performance scores (0-100)
-    LEAST(100, GREATEST(0, 
+    LEAST(100, GREATEST(0,
         (rp.avg_sentiment + 1) * 25 +  -- Sentiment contribution (0-50)
-        CASE 
+        CASE
             WHEN rp.avg_talk_ratio BETWEEN 0.4 AND 0.6 THEN 25  -- Ideal talk ratio
             WHEN rp.avg_talk_ratio BETWEEN 0.3 AND 0.7 THEN 15
             ELSE 5
         END +
         LEAST(25, rp.avg_questions_asked * 5)  -- Questions asked contribution
     )) as performance_score,
-    
+
     -- Coaching insights
     COALESCE(ci.coaching_memories, 0) as coaching_recommendations_count,
     ci.coaching_areas,
-    
+
     -- Performance category
-    CASE 
+    CASE
         WHEN rp.avg_sentiment > 0.4 AND rp.avg_talk_ratio BETWEEN 0.4 AND 0.6 THEN 'Top Performer'
         WHEN rp.avg_sentiment > 0.2 AND rp.total_calls >= 10 THEN 'Strong Performer'
         WHEN rp.avg_sentiment > -0.1 THEN 'Developing'
         ELSE 'Needs Immediate Coaching'
     END as performance_category,
-    
+
     -- Specific coaching recommendations
-    CASE 
+    CASE
         WHEN rp.avg_talk_ratio > 0.7 THEN 'Focus on active listening and asking more questions'
         WHEN rp.avg_talk_ratio < 0.3 THEN 'Increase engagement and value proposition delivery'
         WHEN rp.avg_sentiment < 0 THEN 'Work on relationship building and objection handling'
         WHEN rp.avg_questions_asked < 3 THEN 'Improve discovery questioning techniques'
         ELSE 'Continue current approach with minor optimizations'
     END as primary_coaching_focus
-    
+
 FROM rep_performance rp
 LEFT JOIN coaching_insights ci ON rp.sales_rep = ci.sales_rep
 WHERE rp.total_calls >= 5  -- Minimum call threshold for meaningful analysis
@@ -973,7 +973,7 @@ ORDER BY performance_score DESC, total_calls DESC;
 ```sql
 -- Cross-reference Gong insights with HubSpot data and AI Memory
 WITH gong_hubspot_unified AS (
-    SELECT 
+    SELECT
         gc.CALL_ID,
         gc.HUBSPOT_DEAL_ID,
         gc.ACCOUNT_NAME,
@@ -981,49 +981,49 @@ WITH gong_hubspot_unified AS (
         gc.SENTIMENT_SCORE,
         gc.CALL_SUMMARY,
         gc.AI_MEMORY_METADATA,
-        
+
         -- HubSpot deal data (assuming integration)
         -- hd.DEAL_NAME,
         -- hd.DEAL_STAGE as HUBSPOT_DEAL_STAGE,
         -- hd.DEAL_AMOUNT,
         -- hd.CLOSE_DATE,
-        
+
         -- AI Memory records
         mr.MEMORY_ID,
         mr.CATEGORY as MEMORY_CATEGORY,
         mr.RELEVANCE_SCORE,
         mr.ACCESS_COUNT,
         mr.LAST_ACCESSED_AT
-        
+
     FROM STG_TRANSFORMED.STG_GONG_CALLS gc
-    LEFT JOIN AI_MEMORY.MEMORY_RECORDS mr 
-        ON gc.CALL_ID = mr.SOURCE_ID 
+    LEFT JOIN AI_MEMORY.MEMORY_RECORDS mr
+        ON gc.CALL_ID = mr.SOURCE_ID
         AND mr.SOURCE_TYPE = 'gong'
     WHERE gc.CALL_DATETIME_UTC >= DATEADD(month, -1, CURRENT_TIMESTAMP())
 )
-SELECT 
+SELECT
     ACCOUNT_NAME,
     COUNT(DISTINCT CALL_ID) as total_calls,
     COUNT(DISTINCT MEMORY_ID) as ai_memories_created,
     AVG(SENTIMENT_SCORE) as avg_sentiment,
     AVG(RELEVANCE_SCORE) as avg_memory_relevance,
     SUM(ACCESS_COUNT) as total_memory_accesses,
-    
+
     -- Memory categories for this account
     LISTAGG(DISTINCT MEMORY_CATEGORY, ', ') as memory_categories,
-    
+
     -- Latest insights
     MAX(CALL_DATETIME_UTC) as latest_call,
     MAX(LAST_ACCESSED_AT) as latest_memory_access,
-    
+
     -- Account intelligence score
-    CASE 
+    CASE
         WHEN COUNT(DISTINCT MEMORY_ID) >= 5 AND AVG(RELEVANCE_SCORE) > 0.8 THEN 'High Intelligence'
         WHEN COUNT(DISTINCT MEMORY_ID) >= 3 AND AVG(RELEVANCE_SCORE) > 0.6 THEN 'Good Intelligence'
         WHEN COUNT(DISTINCT MEMORY_ID) >= 1 THEN 'Basic Intelligence'
         ELSE 'Limited Intelligence'
     END as intelligence_level
-    
+
 FROM gong_hubspot_unified
 WHERE ACCOUNT_NAME IS NOT NULL
 GROUP BY ACCOUNT_NAME
@@ -1035,33 +1035,33 @@ ORDER BY total_memory_accesses DESC, avg_memory_relevance DESC;
 ### **Cortex-Powered Call Summarization**
 ```sql
 -- Generate AI summaries for recent calls without existing summaries
-SELECT 
+SELECT
     CALL_ID,
     ACCOUNT_NAME,
     CALL_TITLE,
     CALL_DATETIME_UTC,
-    
+
     -- Generate summary using Snowflake Cortex
     SNOWFLAKE.CORTEX.SUMMARIZE(
         CONCAT(
-            'Call Title: ', COALESCE(CALL_TITLE, 'Unknown'), 
+            'Call Title: ', COALESCE(CALL_TITLE, 'Unknown'),
             '. Account: ', COALESCE(ACCOUNT_NAME, 'Unknown'),
             '. Duration: ', CALL_DURATION_SECONDS / 60, ' minutes.',
             '. Key Topics: ', COALESCE(KEY_TOPICS::STRING, 'None specified')
         )
     ) as AI_GENERATED_SUMMARY,
-    
+
     -- Sentiment analysis
     SNOWFLAKE.CORTEX.SENTIMENT(
         COALESCE(CALL_SUMMARY, CALL_TITLE)
     ) as AI_SENTIMENT_ANALYSIS,
-    
+
     -- Topic extraction
     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
         COALESCE(CALL_SUMMARY, CALL_TITLE),
         'What were the main topics discussed in this call?'
     ) as AI_EXTRACTED_TOPICS
-    
+
 FROM STG_TRANSFORMED.STG_GONG_CALLS
 WHERE CALL_DATETIME_UTC >= DATEADD(day, -7, CURRENT_TIMESTAMP())
 AND (CALL_SUMMARY IS NULL OR LENGTH(CALL_SUMMARY) < 50)
@@ -1074,12 +1074,12 @@ LIMIT 20;
 ```sql
 -- Generate embeddings for new calls and find similar historical calls
 WITH new_call_embeddings AS (
-    SELECT 
+    SELECT
         CALL_ID,
         ACCOUNT_NAME,
         CALL_SUMMARY,
         SNOWFLAKE.CORTEX.EMBED_TEXT(
-            'e5-base-v2', 
+            'e5-base-v2',
             CONCAT(COALESCE(CALL_SUMMARY, ''), ' ', COALESCE(CALL_TITLE, ''))
         ) as call_embedding
     FROM STG_TRANSFORMED.STG_GONG_CALLS
@@ -1087,7 +1087,7 @@ WITH new_call_embeddings AS (
     AND AI_MEMORY_EMBEDDING IS NULL
 ),
 historical_calls AS (
-    SELECT 
+    SELECT
         CALL_ID as historical_call_id,
         ACCOUNT_NAME as historical_account,
         CALL_SUMMARY as historical_summary,
@@ -1096,17 +1096,17 @@ historical_calls AS (
     WHERE AI_MEMORY_EMBEDDING IS NOT NULL
     AND CALL_DATETIME_UTC >= DATEADD(month, -6, CURRENT_TIMESTAMP())
 )
-SELECT 
+SELECT
     nce.CALL_ID as new_call_id,
     nce.ACCOUNT_NAME as new_account,
     nce.CALL_SUMMARY as new_summary,
-    
+
     hc.historical_call_id,
     hc.historical_account,
     hc.historical_summary,
-    
+
     VECTOR_COSINE_SIMILARITY(nce.call_embedding, hc.historical_embedding) as similarity_score
-    
+
 FROM new_call_embeddings nce
 CROSS JOIN historical_calls hc
 WHERE VECTOR_COSINE_SIMILARITY(nce.call_embedding, hc.historical_embedding) >= 0.8
@@ -1118,7 +1118,7 @@ ORDER BY nce.CALL_ID, similarity_score DESC;
 ### **Data Pipeline Health Check**
 ```sql
 -- Monitor the health of the Gong data pipeline
-SELECT 
+SELECT
     'RAW_ESTUARY.RAW_GONG_CALLS_RAW' as table_name,
     COUNT(*) as total_records,
     COUNT(CASE WHEN PROCESSED = TRUE THEN 1 END) as processed_records,
@@ -1130,7 +1130,7 @@ FROM RAW_ESTUARY.RAW_GONG_CALLS_RAW
 
 UNION ALL
 
-SELECT 
+SELECT
     'STG_TRANSFORMED.STG_GONG_CALLS' as table_name,
     COUNT(*) as total_records,
     COUNT(CASE WHEN AI_MEMORY_EMBEDDING IS NOT NULL THEN 1 END) as records_with_embeddings,
@@ -1142,7 +1142,7 @@ FROM STG_TRANSFORMED.STG_GONG_CALLS
 
 UNION ALL
 
-SELECT 
+SELECT
     'AI_MEMORY.MEMORY_RECORDS (Gong)' as table_name,
     COUNT(*) as total_records,
     COUNT(CASE WHEN EMBEDDING IS NOT NULL THEN 1 END) as records_with_embeddings,
@@ -1157,7 +1157,7 @@ WHERE SOURCE_TYPE = 'gong';
 ### **Performance Monitoring**
 ```sql
 -- Monitor query performance and usage patterns
-SELECT 
+SELECT
     'Gong Calls Semantic Search' as operation_type,
     COUNT(*) as total_operations,
     AVG(DATEDIFF('millisecond', query_start_time, query_end_time)) as avg_duration_ms,
@@ -1169,7 +1169,7 @@ AND LOG_TIMESTAMP >= DATEADD(day, -7, CURRENT_TIMESTAMP())
 
 UNION ALL
 
-SELECT 
+SELECT
     'AI Memory Storage' as operation_type,
     COUNT(*) as total_operations,
     AVG(DATEDIFF('millisecond', query_start_time, query_end_time)) as avg_duration_ms,
@@ -1180,4 +1180,4 @@ WHERE JOB_TYPE = 'ai_memory_storage'
 AND LOG_TIMESTAMP >= DATEADD(day, -7, CURRENT_TIMESTAMP());
 ```
 
-This guide provides a comprehensive foundation for working with the Sophia AI Snowflake setup. Adapt these queries to your specific use cases and always test in the development environment first. 
+This guide provides a comprehensive foundation for working with the Sophia AI Snowflake setup. Adapt these queries to your specific use cases and always test in the development environment first.

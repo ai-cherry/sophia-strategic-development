@@ -18,8 +18,8 @@ values:
         builder_name: scoobyjava15/sophia-ai-builder
         cache_strategy: shared
         platforms:
-        - linux/amd64
-        - linux/arm64
+          - linux/amd64
+          - linux/arm64
       lambda_labs:
         api_key: ${LAMBDA_LABS_API_KEY}
         auto_scaling:

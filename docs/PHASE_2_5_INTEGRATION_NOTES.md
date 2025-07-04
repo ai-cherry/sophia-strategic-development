@@ -14,7 +14,7 @@ from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 class CortexRouter:
     def __init__(self):
         self.cortex_service = SnowflakeCortexService()
-    
+
     async def execute_with_routing(self, query, model, temperature):
         # Use the existing service for actual execution
         return await self.cortex_service.complete_text_with_cortex(
@@ -25,14 +25,14 @@ class CortexRouter:
 ```
 
 ### 2. **Memory Services**
-- **Existing**: 
+- **Existing**:
   - `Mem0IntegrationService` - Full Mem0 integration
   - `ComprehensiveMemoryService` - Comprehensive memory management
   - `MockMem0Service` - Local development mock
 - **Plan**: Use existing `Mem0IntegrationService` instead of creating new
 
 ### 3. **Chat Services**
-- **Existing**: 
+- **Existing**:
   - `EnhancedUnifiedChatService` (backend)
   - `EnhancedUnifiedChat.tsx` (frontend)
 - **Plan**: Enhance existing components with citation support
@@ -82,4 +82,4 @@ import { IceBreakerPrompts } from '../IceBreakerPrompts';
 1. **NO NEW DASHBOARDS** - Only extend UnifiedDashboard.tsx
 2. **NO NEW CHAT SERVICES** - Only enhance existing ones
 3. **USE EXISTING MEMORY** - Don't create duplicate memory services
-4. **INTEGRATE, DON'T DUPLICATE** - Always check for existing components first 
+4. **INTEGRATE, DON'T DUPLICATE** - Always check for existing components first

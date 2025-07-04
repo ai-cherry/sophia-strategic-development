@@ -211,9 +211,7 @@ class SmartAIService:
             self.snowflake_service = SnowflakeCortexService()
 
             self.initialized = True
-            logger.info(
-                "✅ Smart AI Service initialized with parallel gateway strategy"
-            )
+            logger.info("✅ Smart AI Service initialized with parallel gateway strategy")
 
         except Exception as e:
             logger.error(f"Failed to initialize Smart AI Service: {e}")

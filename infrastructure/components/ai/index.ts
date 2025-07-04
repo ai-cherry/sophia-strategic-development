@@ -1,6 +1,6 @@
 /**
  * Sophia AI - AI/ML Infrastructure Components
- * 
+ *
  * This module provides specialized infrastructure components for AI/ML workloads,
  * including optimized compute resources, GPU support, auto-scaling, and model storage.
  */
@@ -18,48 +18,48 @@ export interface AIInfrastructureArgs {
      * Environment name (e.g., dev, staging, prod)
      */
     environment: string;
-    
+
     /**
      * VPC ID where resources will be created
      */
     vpcId: pulumi.Input<string>;
-    
+
     /**
      * Subnet IDs where resources will be created
      */
     subnetIds: pulumi.Input<string>[];
-    
+
     /**
      * Security group IDs for ML workloads
      */
     securityGroupIds: pulumi.Input<string>[];
-    
+
     /**
      * EKS cluster for Kubernetes deployments
      */
     eksCluster?: eks.Cluster;
-    
+
     /**
      * Kubernetes provider for deployments
      */
     k8sProvider?: kubernetes.Provider;
-    
+
     /**
      * Namespace for Kubernetes resources
      */
     namespace?: string;
-    
+
     /**
      * Enable GPU support
      */
     enableGpu?: boolean;
-    
+
     /**
      * GPU instance type (if enableGpu is true)
      * Default: g4dn.xlarge
      */
     gpuInstanceType?: string;
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -74,60 +74,60 @@ export class AIInfrastructure extends pulumi.ComponentResource {
      * Auto-scaling group for CPU-based ML workloads
      */
     public readonly cpuAutoScalingGroup?: aws.autoscaling.Group;
-    
+
     /**
      * Auto-scaling group for GPU-based ML workloads
      */
     public readonly gpuAutoScalingGroup?: aws.autoscaling.Group;
-    
+
     /**
      * Model artifact bucket for storing ML models
      */
     public readonly modelArtifactBucket: aws.s3.Bucket;
-    
+
     /**
      * EFS file system for shared model storage
      */
     public readonly modelFileSystem: aws.efs.FileSystem;
-    
+
     /**
      * EFS mount targets in each subnet
      */
     public readonly modelFileMountTargets: aws.efs.MountTarget[];
-    
+
     /**
      * Elastic Cache Redis cluster for model caching
      */
     public readonly modelCache: aws.elasticache.Cluster;
-    
+
     /**
      * Kubernetes storage class for model artifacts
      */
     public readonly modelStorageClass?: kubernetes.storage.v1.StorageClass;
-    
+
     /**
      * Kubernetes persistent volume for model storage
      */
     public readonly modelPersistentVolume?: kubernetes.core.v1.PersistentVolume;
-    
+
     /**
      * Kubernetes resource quota for ML namespaces
      */
     public readonly mlResourceQuota?: kubernetes.core.v1.ResourceQuota;
-    
+
     /**
      * Kubernetes pod disruption budget for ML services
      */
     public readonly mlPodDisruptionBudget?: kubernetes.policy.v1.PodDisruptionBudget;
-    
+
     /**
      * Kubernetes horizontal pod autoscaler for ML services
      */
     public readonly mlHorizontalPodAutoscaler?: kubernetes.autoscaling.v2.HorizontalPodAutoscaler;
-    
+
     constructor(name: string, args: AIInfrastructureArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:ai:AIInfrastructure", name, {}, opts);
-        
+
         // Assign default tags
         const tags = {
             Environment: args.environment,
@@ -137,7 +137,7 @@ export class AIInfrastructure extends pulumi.ComponentResource {
             CreatedAt: new Date().toISOString(),
             ...args.tags,
         };
-        
+
         // Create model artifact bucket
         this.modelArtifactBucket = new aws.s3.Bucket(`${name}-model-artifacts`, {
             acl: "private",
@@ -177,7 +177,7 @@ export class AIInfrastructure extends pulumi.ComponentResource {
                 ResourceType: "ModelStorage",
             },
         }, { parent: this });
-        
+
         // Create model file system (EFS)
         this.modelFileSystem = new aws.efs.FileSystem(`${name}-model-fs`, {
             encrypted: true,
@@ -194,7 +194,7 @@ export class AIInfrastructure extends pulumi.ComponentResource {
                 ResourceType: "ModelFileSystem",
             },
         }, { parent: this });
-        
+
         // Create EFS mount targets in each subnet
         this.modelFileMountTargets = [];
         args.subnetIds.forEach((subnetId, i) => {
@@ -203,10 +203,10 @@ export class AIInfrastructure extends pulumi.ComponentResource {
                 subnetId: subnetId,
                 securityGroups: args.securityGroupIds,
             }, { parent: this });
-            
+
             this.modelFileMountTargets.push(mountTarget);
         });
-        
+
         // Create ElastiCache Redis cluster for model caching
         const subnetGroup = new aws.elasticache.SubnetGroup(`${name}-cache-subnet-group`, {
             subnetIds: args.subnetIds,
@@ -215,7 +215,7 @@ export class AIInfrastructure extends pulumi.ComponentResource {
                 Name: `${name}-cache-subnet-group-${args.environment}`,
             },
         }, { parent: this });
-        
+
         this.modelCache = new aws.elasticache.Cluster(`${name}-model-cache`, {
             engine: "redis",
             engineVersion: "6.2",
@@ -235,7 +235,7 @@ export class AIInfrastructure extends pulumi.ComponentResource {
                 ResourceType: "ModelCache",
             },
         }, { parent: this });
-        
+
         // Create EC2 Launch Templates and Auto Scaling Groups for ML workloads
         if (args.enableGpu) {
             // Create GPU-enabled launch template
@@ -299,7 +299,7 @@ sudo sysctl -p
                     },
                 ],
             }, { parent: this });
-            
+
             // Create GPU Auto Scaling Group
             this.gpuAutoScalingGroup = new aws.autoscaling.Group(`${name}-gpu-asg`, {
                 vpcZoneIdentifiers: args.subnetIds,
@@ -338,7 +338,7 @@ sudo sysctl -p
                     },
                 ],
             }, { parent: this });
-            
+
             // Create ML-specific auto-scaling policies based on GPU utilization
             const gpuUtilizationPolicy = new aws.autoscaling.Policy(`${name}-gpu-utilization-policy`, {
                 autoscalingGroupName: this.gpuAutoScalingGroup.name,
@@ -351,7 +351,7 @@ sudo sysctl -p
                 },
             }, { parent: this });
         }
-        
+
         // Create Kubernetes resources if provider is available
         if (args.k8sProvider && args.namespace) {
             // Create storage class for model volumes
@@ -369,7 +369,7 @@ sudo sysctl -p
                 volumeBindingMode: "Immediate",
                 allowVolumeExpansion: true,
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create resource quota for ML namespace
             this.mlResourceQuota = new kubernetes.core.v1.ResourceQuota(`${name}-ml-resource-quota`, {
                 metadata: {
@@ -387,7 +387,7 @@ sudo sysctl -p
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create pod disruption budget for ML services
             this.mlPodDisruptionBudget = new kubernetes.policy.v1.PodDisruptionBudget(`${name}-ml-pdb`, {
                 metadata: {
@@ -403,7 +403,7 @@ sudo sysctl -p
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create horizontal pod autoscaler optimized for ML workloads
             this.mlHorizontalPodAutoscaler = new kubernetes.autoscaling.v2.HorizontalPodAutoscaler(`${name}-ml-hpa`, {
                 metadata: {
@@ -471,7 +471,7 @@ sudo sysctl -p
                 },
             }, { provider: args.k8sProvider, parent: this });
         }
-        
+
         // Register outputs
         this.registerOutputs({
             modelArtifactBucket: this.modelArtifactBucket,
@@ -496,22 +496,22 @@ export interface MLDeploymentArgs {
      * Kubernetes namespace
      */
     namespace: string;
-    
+
     /**
      * Model storage class name
      */
     storageClassName: string;
-    
+
     /**
      * Model cache Redis URI
      */
     modelCacheUri: string;
-    
+
     /**
      * Number of replicas
      */
     replicas?: number;
-    
+
     /**
      * Container resource requests
      */
@@ -520,7 +520,7 @@ export interface MLDeploymentArgs {
         memory: string;
         gpu?: string;
     };
-    
+
     /**
      * Container resource limits
      */
@@ -529,22 +529,22 @@ export interface MLDeploymentArgs {
         memory: string;
         gpu?: string;
     };
-    
+
     /**
      * Model volume size
      */
     modelVolumeSize?: string;
-    
+
     /**
      * Environment variables
      */
     env?: { [key: string]: pulumi.Input<string> };
-    
+
     /**
      * Enable custom model cache initialization
      */
     enableModelCacheInit?: boolean;
-    
+
     /**
      * Auto-scaling configuration
      */
@@ -586,7 +586,7 @@ export function createMLDeployment(
             },
         },
     }, { provider: k8sProvider });
-    
+
     // Prepare container with ML-optimized settings
     const containers: kubernetes.types.input.core.v1.Container[] = [
         {
@@ -702,7 +702,7 @@ export function createMLDeployment(
             },
         },
     ];
-    
+
     // Add init container for model cache population if enabled
     if (args.enableModelCacheInit) {
         containers.push({
@@ -744,7 +744,7 @@ export function createMLDeployment(
             },
         });
     }
-    
+
     // Create deployment
     const deployment = new kubernetes.apps.v1.Deployment(`${name}-deployment`, {
         metadata: {
@@ -871,7 +871,7 @@ export function createMLDeployment(
             },
         },
     }, { provider: k8sProvider });
-    
+
     // Create service
     const service = new kubernetes.core.v1.Service(`${name}-service`, {
         metadata: {
@@ -904,7 +904,7 @@ export function createMLDeployment(
             sessionAffinity: "ClientIP",
         },
     }, { provider: k8sProvider });
-    
+
     // Create HPA if auto-scaling is enabled
     let hpa: kubernetes.autoscaling.v2.HorizontalPodAutoscaler | undefined;
     if (args.autoScaling) {
@@ -973,7 +973,7 @@ export function createMLDeployment(
             },
         }, { provider: k8sProvider });
     }
-    
+
     return {
         deployment,
         service,

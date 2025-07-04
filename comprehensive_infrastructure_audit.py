@@ -441,7 +441,9 @@ def main():
         status_emoji = (
             "✅"
             if component["status"] == "healthy"
-            else "⚠️" if component["status"] == "degraded" else "❌"
+            else "⚠️"
+            if component["status"] == "degraded"
+            else "❌"
         )
         print(f"  {status_emoji} {component['name']}: {component['status']}")
 
@@ -455,7 +457,9 @@ def main():
         priority_emoji = (
             "🔴"
             if rec["priority"] == "High"
-            else "🟡" if rec["priority"] == "Medium" else "🟢"
+            else "🟡"
+            if rec["priority"] == "Medium"
+            else "🟢"
         )
         print(f"  {priority_emoji} {rec['component']} ({rec['priority']} Priority)")
         print(f"    Current: {rec['current_state']}")

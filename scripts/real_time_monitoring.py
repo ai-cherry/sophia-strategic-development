@@ -192,7 +192,9 @@ class RealTimeMonitor:
         health_icon = (
             "🟢"
             if summary["health_percentage"] == 100
-            else "🟡" if summary["health_percentage"] >= 80 else "🔴"
+            else "🟡"
+            if summary["health_percentage"] >= 80
+            else "🔴"
         )
 
         print("📈 SYSTEM OVERVIEW")
@@ -237,12 +239,16 @@ class RealTimeMonitor:
             health_trend = (
                 "📈"
                 if recent_health[-1] > recent_health[0]
-                else "📉" if recent_health[-1] < recent_health[0] else "➡️"
+                else "📉"
+                if recent_health[-1] < recent_health[0]
+                else "➡️"
             )
             response_trend = (
                 "📈"
                 if recent_response[-1] > recent_response[0]
-                else "📉" if recent_response[-1] < recent_response[0] else "➡️"
+                else "📉"
+                if recent_response[-1] < recent_response[0]
+                else "➡️"
             )
 
             print(f"Health Trend: {health_trend} {avg_health:.1f}% avg")

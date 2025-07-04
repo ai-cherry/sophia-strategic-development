@@ -27,10 +27,7 @@
     "comprehensive_tests_created",
     "deployment_checklist_created"
   ],
-  "tests_passed": [
-    "all_tests_passed",
-    "final_syntax_validation_passed"
-  ],
+  "tests_passed": ["all_tests_passed", "final_syntax_validation_passed"],
   "deployment_status": "pending",
   "summary": {
     "total_phases": 7,

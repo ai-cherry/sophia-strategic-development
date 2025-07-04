@@ -41,7 +41,7 @@ class SnowflakeLifecycleService:
             "slack_data": {"retention_days": 90, "archive_after": 365},
             "gong_data": {"retention_days": 180, "compress_after": 90}
         }
-        
+
         for schema, policy in policies.items():
             await self.create_retention_task(schema, policy)
 ```
@@ -66,18 +66,18 @@ class EnhancedCacheService:
             "common_queries": {"ttl_minutes": 30, "max_size_mb": 50},
             "user_preferences": {"ttl_minutes": 1440, "max_size_mb": 10}
         }
-    
+
     async def get_cached_response(self, query: str, context: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Retrieve cached response if valid"""
         cache_key = self._generate_cache_key(query, context)
         cached = await self.redis_client.get(cache_key)
-        
+
         if cached:
             data = json.loads(cached)
             if self._is_cache_valid(data):
                 return data["response"]
         return None
-    
+
     def _generate_cache_key(self, query: str, context: Dict[str, Any]) -> str:
         """Generate deterministic cache key"""
         key_data = f"{query}:{json.dumps(context, sort_keys=True)}"
@@ -96,12 +96,12 @@ class OptimizedFileProcessor:
         chunk_size = 1024 * 1024  # 1MB chunks
         total_size = os.path.getsize(file_path)
         processed = 0
-        
+
         async with aiofiles.open(file_path, 'rb') as file:
             while chunk := await file.read(chunk_size):
                 # Process chunk
                 await self._process_chunk(chunk, file_type)
-                
+
                 # Update progress
                 processed += len(chunk)
                 progress = (processed / total_size) * 100
@@ -123,15 +123,15 @@ class EnhancedPortkeyService:
             "reliability": 0.15,
             "cost": 0.10
         }
-        
+
     async def select_optimal_model(self, request: LLMRequest) -> str:
         """Select model based on performance metrics"""
         model_scores = {}
-        
+
         for model in self.available_models:
             # Get real-time performance metrics
             metrics = await self.get_model_metrics(model)
-            
+
             # Calculate weighted score
             score = (
                 metrics["avg_latency_ms"] * self.performance_weights["latency"] +
@@ -139,9 +139,9 @@ class EnhancedPortkeyService:
                 metrics["uptime_percent"] * self.performance_weights["reliability"] +
                 metrics["cost_per_1k_tokens"] * self.performance_weights["cost"]
             )
-            
+
             model_scores[model] = score
-        
+
         return max(model_scores, key=model_scores.get)
 ```
 
@@ -151,7 +151,7 @@ async def execute_with_fallback(self, request: LLMRequest) -> LLMResponse:
     """Execute request with automatic fallback"""
     primary_model = await self.select_optimal_model(request)
     fallback_models = self.get_fallback_models(primary_model)
-    
+
     for model in [primary_model] + fallback_models:
         try:
             response = await self.execute_request(model, request)
@@ -160,7 +160,7 @@ async def execute_with_fallback(self, request: LLMRequest) -> LLMResponse:
         except Exception as e:
             logger.warning(f"Model {model} failed: {e}")
             continue
-    
+
     raise Exception("All models failed")
 ```
 
@@ -181,18 +181,18 @@ class EnhancedSnowflakePool:
             "idle_timeout": 300,
             "health_check_interval": 60
         }
-        
+
     async def get_healthy_connection(self):
         """Get connection with health verification"""
         conn = await self.pool.acquire()
-        
+
         # Verify connection health
         if not await self._verify_connection_health(conn):
             await self.pool.release(conn)
             conn = await self._create_new_connection()
-        
+
         return conn
-    
+
     async def _verify_connection_health(self, conn) -> bool:
         """Check if connection is healthy"""
         try:
@@ -217,7 +217,7 @@ class OptimizedAIMemory:
             "m": 16,
             "distance_metric": "cosine"
         }
-        
+
         # Build index in batches
         batch_size = 1000
         for batch in self.get_memory_batches(batch_size):
@@ -230,11 +230,11 @@ class OptimizedAIMemory:
 async def prune_stale_memories(self):
     """Remove outdated memories to maintain performance"""
     cutoff_date = datetime.now() - timedelta(days=90)
-    
+
     # Keep high-value memories regardless of age
     await self.execute_query("""
-        DELETE FROM ai_memories 
-        WHERE last_accessed < :cutoff_date 
+        DELETE FROM ai_memories
+        WHERE last_accessed < :cutoff_date
         AND importance_score < 0.7
         AND access_count < 5
     """, {"cutoff_date": cutoff_date})
@@ -255,14 +255,14 @@ class HealthMonitor:
             "memory_usage": self.check_memory_usage,
             "api_response_times": self.check_api_latency
         }
-        
+
         results = {}
         for name, check_func in checks.items():
             try:
                 results[name] = await check_func()
             except Exception as e:
                 results[name] = {"status": "error", "message": str(e)}
-        
+
         return results
 ```
 
@@ -287,18 +287,18 @@ class AutoRecoveryService:
 class QueryOptimizer:
     def __init__(self):
         self.query_plan_cache = {}
-        
+
     async def optimize_query(self, query: str) -> str:
         """Optimize query using cached execution plans"""
         query_hash = hashlib.md5(query.encode()).hexdigest()
-        
+
         if query_hash in self.query_plan_cache:
             return self.query_plan_cache[query_hash]
-        
+
         # Analyze query and optimize
         optimized = await self.analyze_and_optimize(query)
         self.query_plan_cache[query_hash] = optimized
-        
+
         return optimized
 ```
 
@@ -312,7 +312,7 @@ async def execute_multi_schema_query(self, schemas: List[str], query: str):
             self.execute_schema_query(schema, query)
         )
         tasks.append(task)
-    
+
     results = await asyncio.gather(*tasks, return_exceptions=True)
     return self.merge_results(results)
 ```
@@ -327,12 +327,12 @@ class BlueGreenDeployment:
         """Deploy new version with automatic rollback on failure"""
         # Deploy to green environment
         green_env = await self.deploy_to_green(new_version)
-        
+
         # Run smoke tests
         if not await self.run_smoke_tests(green_env):
             await self.rollback_green()
             raise Exception("Smoke tests failed")
-        
+
         # Gradual traffic shift
         for percentage in [10, 25, 50, 100]:
             await self.shift_traffic(percentage)

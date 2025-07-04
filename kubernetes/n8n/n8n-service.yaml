@@ -5,8 +5,8 @@ metadata:
   namespace: sophia-ai
 spec:
   ports:
-  - port: 5678
-    targetPort: 5678
+    - port: 5678
+      targetPort: 5678
   selector:
     app: n8n-main
   type: LoadBalancer

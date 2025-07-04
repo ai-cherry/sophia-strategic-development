@@ -109,16 +109,16 @@ CREATE ROLE IF NOT EXISTS MANAGER_ROLE;
 
 -- Row-level security policies
 CREATE ROW ACCESS POLICY Unified_ONLY_POLICY AS (
-    USER_ROLE = 'Unified' OR 
+    USER_ROLE = 'Unified' OR
     CLASSIFICATION_LEVEL <= CURRENT_USER_ACCESS_LEVEL()
 );
 
 -- Secure views with data masking
 CREATE SECURE VIEW Unified_STRATEGIC_DASHBOARD AS
-SELECT 
-    CASE WHEN CURRENT_ROLE() = 'Unified_ROLE' 
-         THEN STRATEGIC_PLAN 
-         ELSE 'CLASSIFIED' 
+SELECT
+    CASE WHEN CURRENT_ROLE() = 'Unified_ROLE'
+         THEN STRATEGIC_PLAN
+         ELSE 'CLASSIFIED'
     END as STRATEGIC_PLAN,
     -- ... other fields with appropriate masking
 FROM Unified_INTELLIGENCE.STRATEGIC_PLANS;
@@ -255,4 +255,4 @@ The completed implementations address **ALL CRITICAL and MOST HIGH-PRIORITY** re
 
 **TOTAL ESTIMATED TIME TO 100% COMPLETION: 1-2 weeks**
 
-With excellent progress already made on the most critical items, Sophia AI is well-positioned for enterprise deployment with world-class performance and reliability. 
+With excellent progress already made on the most critical items, Sophia AI is well-positioned for enterprise deployment with world-class performance and reliability.

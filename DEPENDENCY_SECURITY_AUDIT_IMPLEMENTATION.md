@@ -11,7 +11,7 @@ I've successfully implemented a comprehensive dependency security audit system f
 **File**: `.github/workflows/uv-ci-cd.yml`
 
 - Added dedicated `security` job that runs after lint and test
-- Executes both pip-audit and safety vulnerability scans  
+- Executes both pip-audit and safety vulnerability scans
 - Generates JSON and Markdown reports
 - Automatically comments on PRs with security findings
 - Fails builds if HIGH/CRITICAL vulnerabilities are detected
@@ -96,7 +96,7 @@ I've successfully implemented a comprehensive dependency security audit system f
 
 ### Developer Tools
 - Simple command-line interface
-- Local scanning capabilities  
+- Local scanning capabilities
 - Pre-push reminders
 - Clear actionable feedback
 
@@ -112,7 +112,7 @@ I've successfully implemented a comprehensive dependency security audit system f
    ```bash
    # Before starting work
    ./scripts/audit-deps.sh
-   
+
    # Before committing
    ./scripts/audit-deps.sh --save
    ```
@@ -174,4 +174,4 @@ The system leverages UV's capabilities:
 - Group-based scanning
 - Efficient virtual environments
 
-This implementation provides enterprise-grade dependency security management while maintaining developer productivity and integrating seamlessly with the existing UV-based workflow. 
+This implementation provides enterprise-grade dependency security management while maintaining developer productivity and integrating seamlessly with the existing UV-based workflow.

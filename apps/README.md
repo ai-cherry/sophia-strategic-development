@@ -26,4 +26,4 @@ See the [Monorepo Transition Guide](../docs/monorepo/MONOREPO_TRANSITION_GUIDE.m
 
 ---
 
-**DO NOT USE UNTIL OFFICIALLY ANNOUNCED** 
+**DO NOT USE UNTIL OFFICIALLY ANNOUNCED**

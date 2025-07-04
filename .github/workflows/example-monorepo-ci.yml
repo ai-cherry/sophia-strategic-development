@@ -6,20 +6,20 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/api/**'
-      - 'apps/frontend/**'
-      - 'libs/**'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - 'pnpm-lock.yaml'
+      - "apps/api/**"
+      - "apps/frontend/**"
+      - "libs/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pnpm-lock.yaml"
   pull_request:
     paths:
-      - 'apps/api/**'
-      - 'apps/frontend/**'
-      - 'libs/**'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - 'pnpm-lock.yaml'
+      - "apps/api/**"
+      - "apps/frontend/**"
+      - "libs/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pnpm-lock.yaml"
 
 jobs:
   # Python API Service
@@ -28,7 +28,7 @@ jobs:
     uses: ./.github/workflow-templates/python-ci.yml
     with:
       service-path: apps/api
-      python-version: '3.12'
+      python-version: "3.12"
       run-tests: true
       run-security: true
 
@@ -38,7 +38,7 @@ jobs:
     uses: ./.github/workflow-templates/javascript-ci.yml
     with:
       service-path: apps/frontend
-      node-version: '18.x'
+      node-version: "18.x"
       run-tests: true
       run-build: true
 
@@ -48,9 +48,9 @@ jobs:
     uses: ./.github/workflow-templates/python-ci.yml
     with:
       service-path: libs/core
-      python-version: '3.12'
+      python-version: "3.12"
       run-tests: true
-      run-security: false  # Skip security for libraries
+      run-security: false # Skip security for libraries
 
   # Shared UI Components
   ui-lib-ci:
@@ -58,9 +58,9 @@ jobs:
     uses: ./.github/workflow-templates/javascript-ci.yml
     with:
       service-path: libs/ui
-      node-version: '18.x'
+      node-version: "18.x"
       run-tests: true
-      run-build: false  # Libraries don't need build
+      run-build: false # Libraries don't need build
 
   # Deployment Gate
   deploy:
@@ -68,7 +68,7 @@ jobs:
     needs: [api-ci, frontend-ci, core-lib-ci, ui-lib-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -91,10 +91,9 @@ jobs:
           fields: repo,message,commit,author,action,eventName,ref,workflow
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
 # This workflow demonstrates:
 # 1. Path filtering for efficient CI runs
 # 2. Reusable workflow templates for consistency
 # 3. Parallel execution of independent services
 # 4. Deployment gates requiring all tests to pass
-# 5. Slack notifications for deployment status 
+# 5. Slack notifications for deployment status

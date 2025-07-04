@@ -437,11 +437,9 @@ async def log_requests(request: Request, call_next):
 # webhook_processor will be initialized lazily
 
 
-
-
 # Lazy initialization for components
 _webhook_verifier: GongWebhookVerifier | None = None
-_rate_limiter: AsyncRateLimiter | None = None  
+_rate_limiter: AsyncRateLimiter | None = None
 _retry_manager: RetryManager | None = None
 _data_validator: DataValidator | None = None
 _webhook_processor: WebhookProcessor | None = None
@@ -496,6 +494,7 @@ def get_webhook_processor() -> WebhookProcessor:
             redis_url=config.REDIS_URL,
         )
     return _webhook_processor
+
 
 # Health check endpoint
 @app.get("/health")
@@ -579,15 +578,19 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
 
-async def process_call_webhook_background(webhook_id: str, webhook_data: dict[str, Any]):
+async def process_call_webhook_background(
+    webhook_id: str, webhook_data: dict[str, Any]
+):
     """Process call webhook in the background."""
     async with webhook_processor:
-        await webhook_processor.process_call_webhook_background(webhook_id, webhook_data)
+        await webhook_processor.process_call_webhook_background(
+            webhook_id, webhook_data
+        )
 
 
-
-
-async def process_call_webhook_background(webhook_id: str, webhook_data: dict[str, Any]):
+async def process_call_webhook_background(
+    webhook_id: str, webhook_data: dict[str, Any]
+):
     """Process call webhook in the background."""
     processor = get_webhook_processor()
     async with processor:

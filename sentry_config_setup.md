@@ -41,4 +41,3 @@ The following secrets need to be set in the GitHub organization (ai-cherry):
 - Update `auto_esc_config.py` to include Sentry configuration access
 - Ensure `sentry_setup.py` can access the new configuration structure
 - Update GitHub workflows if needed
-

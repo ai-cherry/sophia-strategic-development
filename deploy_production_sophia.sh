@@ -126,7 +126,7 @@ http {
         server enhanced-backend:8000;
         server sota-gateway:8005 backup;
     }
-    
+
     upstream sophia_api {
         server ai-gateway:8003;
         server mcp-gateway:8090 backup;
@@ -191,7 +191,7 @@ check_service() {
         sleep 5
         ((attempt++))
     done
-    
+
     echo "❌ $service_name: Health check failed"
     return 1
 }
@@ -199,7 +199,7 @@ check_service() {
 # Check all services
 echo "🏥 Performing health checks..."
 check_service "Enhanced Backend" "http://localhost:8000/health"
-check_service "SOTA Gateway" "http://localhost:8005/health" 
+check_service "SOTA Gateway" "http://localhost:8005/health"
 check_service "AI Gateway" "http://localhost:8003/health"
 check_service "MCP Gateway" "http://localhost:8090/health"
 check_service "Streamlit Dashboard" "http://localhost:8501"
@@ -258,7 +258,7 @@ echo "🌟 SOPHIA AI PRODUCTION DEPLOYMENT: COMPLETE!"
 echo ""
 echo "📊 SERVICES DEPLOYED:"
 echo "• Enhanced Backend:      http://localhost:8000"
-echo "• SOTA Gateway:          http://localhost:8005" 
+echo "• SOTA Gateway:          http://localhost:8005"
 echo "• AI Gateway:            http://localhost:8003"
 echo "• MCP Gateway:           http://localhost:8090"
 echo "• Streamlit Dashboard:   http://localhost:8501"
@@ -298,4 +298,4 @@ echo "• Restart: ./deploy_production_sophia.sh"
 echo ""
 
 echo "🎉 Sophia AI is now ready for production demonstrations!"
-echo "🔗 Access the dashboard at: http://localhost:8501" 
+echo "🔗 Access the dashboard at: http://localhost:8501"

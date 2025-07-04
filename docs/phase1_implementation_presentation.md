@@ -209,4 +209,3 @@ Thank you for your attention!
 ## Appendix: Detailed Metrics
 
 [Additional detailed metrics and charts available upon request]
-

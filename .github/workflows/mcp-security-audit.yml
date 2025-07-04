@@ -20,19 +20,19 @@ env
 jobs
   dependency-scan
     runs-on: ubuntu-latest
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -56,7 +56,7 @@ jobs
           p/secrets
           p/python
         generateSarif: "1"
-    
+
     - name: Upload security scan results
       uses: actions/upload-artifact@v3
       if: always()
@@ -69,19 +69,19 @@ jobs
 
   license-compliance
     runs-on: ubuntu-latest
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -93,7 +93,7 @@ jobs
       run: |
         uv add --dev pip-licenses
         uv run pip-licenses --format=json --output-file=license-report.json
-        
+
         # Create license compliance report
         uv run python scripts/check_license_compliance.py
     - name: Upload license report
@@ -106,14 +106,14 @@ jobs
 
   secrets-scan
     runs-on: ubuntu-latest
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Run TruffleHog secrets scan
       uses: trufflesecurity/trufflehog@main
       with
@@ -121,7 +121,7 @@ jobs
         base: main
         head: HEAD
         extra_args: --debug --only-verified
-    
+
     - name: Run GitLeaks secrets scan
       uses: gitleaks/gitleaks-action@v2
       env
@@ -130,19 +130,19 @@ jobs
 
   mcp-specific-security
     runs-on: ubuntu-latest
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -179,19 +179,19 @@ jobs
     runs-on: ubuntu-latest
     needs: [dependency-scan, license-compliance, secrets-scan, mcp-specific-security]
     if: always()
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
-    
+
     - name: Download all artifacts
       uses: actions/download-artifact@v3
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -213,7 +213,7 @@ jobs
       with
         script: |
           const fs = require('fs');
-          
+
           // Read security report
           let report = {};
           try {
@@ -228,13 +228,13 @@ jobs
               repo: context.repo.repo,
               title: '🚨 Security Vulnerabilities Detected in MCP Integration',
               body: `## 🚨 Security Alert
-              
+
               The automated security scan has detected vulnerabilities in the MCP integration
               - **Critical:** ${report.critical_vulnerabilities}
               - **High:** ${report.high_vulnerabilities}
               - **Medium:** ${report.medium_vulnerabilities}
               - **Low:** ${report.low_vulnerabilities}
-              
+
               Please review the security report and take appropriate action.
               **Scan Date:** ${new Date().toISOString()}
               **Workflow:** ${context.workflow}
@@ -248,7 +248,7 @@ jobs
       with
         name: comprehensive-security-report
         path: comprehensive-security-report.json
-    
+
     - name: Notify security team
       if: failure()
       env
@@ -257,4 +257,3 @@ jobs
         curl -X POST -H 'Content-type: application/json' \
           --data '{"text":"🚨 SECURITY ALERT: Vulnerabilities detected in MCP integration. Please review immediately.", "color":"danger"}' \
           $SLACK_WEBHOOK_URL
-

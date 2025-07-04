@@ -34,7 +34,7 @@ export class SophiaIntelligenceDNS {
     constructor() {
         this.domain = escConfig.domain;
         this.lambdaServerIP = ipAddresses.lambda_labs;
-        
+
         // Initialize components
         this.ipDetector = new IPContextDetector(ipAddresses);
         this.dnsManager = new NamecheapDNSManager(namecheapConfig, this.ipDetector);
@@ -84,7 +84,7 @@ export class SophiaIntelligenceDNS {
         for (const [recordKey, recordConfig] of Object.entries(records)) {
             try {
                 const recordName = recordConfig.name === "@" ? this.domain : `${recordConfig.name}.${this.domain}`;
-                
+
                 await this.dnsManager.createRecord({
                     domain: this.domain,
                     name: recordConfig.name,
@@ -120,7 +120,7 @@ export class SophiaIntelligenceDNS {
         console.log("🔒 Setting up SSL certificates...");
 
         const sslDomains = sslConfig.domains;
-        
+
         // Create ACM certificate request
         const certificate = new aws.acm.Certificate("sophia-intel-ssl-cert", {
             domainName: this.domain,
@@ -264,4 +264,4 @@ export const sophiaIntelDNSOutputs = pulumi.all([
 // Run deployment if this file is executed directly
 if (require.main === module) {
     deployInfrastructure().catch(console.error);
-} 
+}

@@ -43,56 +43,56 @@ check_macos() {
 # Check prerequisites
 check_prerequisites() {
     log "🔍 Checking prerequisites..."
-    
+
     # Check Node.js
     if ! command -v node &> /dev/null; then
         error "Node.js is required but not installed. Please install Node.js 18+"
     fi
-    
+
     local node_version=$(node --version | cut -d'v' -f2)
     log "✅ Node.js version: $node_version"
-    
+
     # Check npm
     if ! command -v npm &> /dev/null; then
         error "npm is required but not installed"
     fi
-    
+
     local npm_version=$(npm --version)
     log "✅ npm version: $npm_version"
-    
+
     # Check curl
     if ! command -v curl &> /dev/null; then
         error "curl is required but not installed"
     fi
-    
+
     # Check git
     if ! command -v git &> /dev/null; then
         error "git is required but not installed"
     fi
-    
+
     # Check if we're in the Sophia AI project
     if [[ ! -f "$SOPHIA_ROOT/cursor_mcp_config.json" ]]; then
         error "Not in Sophia AI project directory. Expected: $SOPHIA_ROOT"
     fi
-    
+
     log "✅ All prerequisites met"
 }
 
 # Install Codacy CLI
 install_codacy_cli() {
     log "📦 Installing Codacy CLI..."
-    
+
     # Check if already installed
     if command -v codacy-cli &> /dev/null; then
         local version=$(codacy-cli --version 2>/dev/null || echo "unknown")
         log "✅ Codacy CLI already installed: $version"
         return 0
     fi
-    
+
     # Install via the official script
     log "Downloading and installing Codacy CLI..."
     bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh)
-    
+
     # Verify installation
     if command -v codacy-cli &> /dev/null; then
         local version=$(codacy-cli --version)
@@ -105,10 +105,10 @@ install_codacy_cli() {
 # Setup Codacy configuration for Sophia AI
 setup_codacy_config() {
     log "⚙️  Setting up Codacy configuration for Sophia AI..."
-    
+
     # Create .codacy directory structure
     mkdir -p "$CODACY_CONFIG_DIR"/{config,tools,reports,cache,custom-rules}
-    
+
     # Create main configuration file
     cat > "$CODACY_CONFIG_DIR/config.yml" << 'EOF'
 # Codacy Configuration for Sophia AI
@@ -127,20 +127,20 @@ analysis:
     eslint:
       enabled: true
       config_file: .eslintrc.js
-    
+
     semgrep:
       enabled: true
-      
+
     trivy:
       enabled: true
-      
+
     pylint:
       enabled: true
       config_file: .pylintrc
-    
+
     bandit:
       enabled: true
-      
+
     hadolint:
       enabled: true
 
@@ -158,7 +158,7 @@ analysis:
     - sophia-dashboard/node_modules/
 
   max_allowed_issues: 100
-  
+
 security:
   enabled: true
   high_priority_only: false
@@ -174,15 +174,15 @@ sophia_ai:
   mcp_servers:
     - backend/mcp/
     - mcp-servers/
-  
+
   agents:
     - backend/agents/
-  
+
   infrastructure:
     - infrastructure/
     - docker-compose*.yml
     - Dockerfile*
-  
+
   dashboards:
     - frontend/src/components/dashboard/
     - sophia-dashboard/
@@ -196,12 +196,12 @@ rules:
     severity: error
     pattern: '(password|secret|key|token)\s*[:=]\s*["\'][^"\']*["\']'
     message: "Hardcoded secrets detected. Use Pulumi ESC for secret management."
-    
+
   require-env-vars:
     severity: warning
     pattern: 'os\.getenv\(["\'][^"\']*["\'],\s*["\'][^"\']*["\']'
     message: "Consider using Pulumi ESC integration instead of default values."
-    
+
   mcp-auth-required:
     severity: error
     pattern: 'mcp.*server.*without.*auth'
@@ -216,7 +216,7 @@ rules:
     severity: warning
     pattern: 'def.*api.*\(.*\):(?!.*async)'
     message: "API endpoints should use async/await for better performance."
-    
+
   connection-pooling:
     severity: warning
     pattern: 'create_engine.*pool_size.*None'
@@ -229,24 +229,24 @@ EOF
 # Setup Cursor IDE integration
 setup_cursor_integration() {
     log "🎯 Setting up Cursor IDE integration..."
-    
+
     # Ensure Cursor config directory exists
     mkdir -p "$CURSOR_CONFIG_DIR"
-    
+
     # Update Cursor MCP settings if they exist
     local cursor_mcp_file="$CURSOR_CONFIG_DIR/mcp_settings.json"
-    
+
     if [[ -f "$cursor_mcp_file" ]]; then
         log "Updating existing Cursor MCP settings..."
         # Backup existing file
         cp "$cursor_mcp_file" "$cursor_mcp_file.backup.$(date +%Y%m%d_%H%M%S)"
-        
+
         # The Codacy MCP server should already be in the file from our previous update
         log "✅ Cursor MCP settings updated"
     else
         warn "Cursor MCP settings file not found. You may need to configure Cursor manually."
     fi
-    
+
     # Create Cursor workspace settings for Sophia AI
     cat > "$SOPHIA_ROOT/.vscode/settings.json" << 'EOF'
 {
@@ -280,7 +280,7 @@ EOF
 # Setup environment variables
 setup_environment() {
     log "🔧 Setting up environment variables..."
-    
+
     # Check if environment variables are already set
     if [[ -n "$CODACY_ACCOUNT_TOKEN" ]]; then
         log "✅ CODACY_ACCOUNT_TOKEN already set"
@@ -291,7 +291,7 @@ setup_environment() {
         echo "2. Create a new API token"
         echo "3. Add it to your Pulumi ESC configuration or shell profile"
     fi
-    
+
     # Add to shell profile if not already there
     local shell_profile=""
     if [[ -n "$ZSH_VERSION" ]]; then
@@ -299,7 +299,7 @@ setup_environment() {
     elif [[ -n "$BASH_VERSION" ]]; then
         shell_profile="$HOME/.bash_profile"
     fi
-    
+
     if [[ -n "$shell_profile" ]] && [[ -f "$shell_profile" ]]; then
         if ! grep -q "CODACY_WORKSPACE_PATH" "$shell_profile"; then
             echo "" >> "$shell_profile"
@@ -313,11 +313,11 @@ setup_environment() {
 # Test the installation
 test_installation() {
     log "🧪 Testing Codacy installation..."
-    
+
     # Test CLI
     if command -v codacy-cli &> /dev/null; then
         log "✅ Codacy CLI is accessible"
-        
+
         # Test with a simple command
         if codacy-cli --help &> /dev/null; then
             log "✅ Codacy CLI is working"
@@ -327,14 +327,14 @@ test_installation() {
     else
         error "Codacy CLI not found in PATH"
     fi
-    
+
     # Test configuration
     if [[ -f "$CODACY_CONFIG_DIR/config.yml" ]]; then
         log "✅ Codacy configuration file exists"
     else
         warn "Codacy configuration file not found"
     fi
-    
+
     # Test workspace
     if [[ -d "$SOPHIA_ROOT" ]] && [[ -f "$SOPHIA_ROOT/cursor_mcp_config.json" ]]; then
         log "✅ Sophia AI workspace detected"
@@ -346,16 +346,16 @@ test_installation() {
 # Run a quick analysis
 run_quick_analysis() {
     log "🔍 Running quick analysis on Sophia AI project..."
-    
+
     cd "$SOPHIA_ROOT"
-    
+
     # Create a simple test to verify everything works
     log "Running Codacy CLI test..."
-    
+
     # Test with a specific directory to avoid overwhelming output
     if codacy-cli analyze --tool eslint --directory frontend/src --format json --output .codacy/reports/test-analysis.json 2>/dev/null; then
         log "✅ Quick analysis completed successfully"
-        
+
         if [[ -f ".codacy/reports/test-analysis.json" ]]; then
             local issue_count=$(jq '.issues | length' .codacy/reports/test-analysis.json 2>/dev/null || echo "unknown")
             log "📊 Found $issue_count issues in test analysis"
@@ -368,7 +368,7 @@ run_quick_analysis() {
 # Create health check script
 create_health_check() {
     log "🏥 Creating health check script..."
-    
+
     cat > "$SOPHIA_ROOT/scripts/codacy_health_check.sh" << 'EOF'
 #!/bin/bash
 
@@ -434,9 +434,9 @@ main() {
     echo "║                           with Cursor IDE Integration                       ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
-    
+
     log "🚀 Starting Codacy setup for Sophia AI..."
-    
+
     # Run all setup steps
     check_macos
     check_prerequisites
@@ -446,7 +446,7 @@ main() {
     setup_environment
     test_installation
     create_health_check
-    
+
     # Optional quick analysis
     echo ""
     read -p "Run a quick analysis test? (y/N): " -n 1 -r
@@ -454,7 +454,7 @@ main() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         run_quick_analysis
     fi
-    
+
     echo ""
     log "🎉 Codacy setup completed successfully!"
     echo ""
@@ -477,4 +477,4 @@ main() {
 }
 
 # Run the main function
-main "$@" 
+main "$@"

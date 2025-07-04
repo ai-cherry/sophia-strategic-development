@@ -18,14 +18,14 @@ env
 jobs
   sync-submodules
     runs-on: ubuntu-latest
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Configure Git
       run: |
         git config --global user.name "Sophia AI Bot"
@@ -34,7 +34,7 @@ jobs
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -46,7 +46,7 @@ jobs
         # Initialize variables
         UPDATES_AVAILABLE=false
         UPDATED_SUBMODULES=""
-        
+
         # Define submodules to check
         SUBMODULES=(
           "external/anthropic-mcp-servers"
@@ -64,7 +64,7 @@ jobs
             echo "Checking $submodule..."
             # Get current commit
             CURRENT_COMMIT=$(git submodule status $submodule | awk '{print $1}' | sed 's/^[+-]//')
-            
+
             # Fetch latest from remote
             cd $submodule
             git fetch origin
@@ -83,12 +83,12 @@ jobs
         done
         echo "updates_available=$UPDATES_AVAILABLE" >> $GITHUB_OUTPUT
         echo "updated_submodules=$UPDATED_SUBMODULES" >> $GITHUB_OUTPUT
-    
+
     - name: Update submodules
       if: steps.check-updates.outputs.updates_available == 'true'
       run: |
         echo "Updating submodules: ${{ steps.check-updates.outputs.updated_submodules }}"
-        
+
         # Update submodules to latest commits
         git submodule update --remote --recursive
         # Check if there are changes to commit
@@ -160,4 +160,3 @@ jobs
         curl -X POST -H 'Content-type: application/json' \
           --data '{"text":"✅ MCP Submodules updated successfully. PR created for review.", "color":"good"}' \
           $SLACK_WEBHOOK_URL
-

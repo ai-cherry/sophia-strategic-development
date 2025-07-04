@@ -1,6 +1,6 @@
 ---
 title: Sophia AI - Comprehensive API Documentation
-description: 
+description:
 tags: security, gong, monitoring
 last_updated: 2025-06-23
 dependencies: none

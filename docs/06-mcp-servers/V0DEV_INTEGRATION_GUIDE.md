@@ -12,22 +12,22 @@ graph TB
         A[EnhancedUnifiedChat] --> B[v0devClient.ts]
         B --> C[UIComponentPreview]
     end
-    
+
     subgraph "Backend Orchestrator"
         D[SophiaUnifiedChatService] --> E[Intent Classifier]
         E --> F[V0.dev Agent Router]
     end
-    
+
     subgraph "MCP Layer"
         G[V0.dev MCP Server] --> H[V0.dev API]
         I[Figma MCP Server] --> G
     end
-    
+
     subgraph "Deployment"
         J[Vercel Integration] --> K[GitHub PR]
         K --> L[Argo Rollouts]
     end
-    
+
     A --> D
     F --> G
     C --> J
@@ -118,7 +118,7 @@ const handleGenerateComponent = async (prompt: string) => {
   try {
     // Get Figma context if available
     const designContext = await v0devClient.getFigmaContext();
-    
+
     // Generate component
     const component = await v0devClient.generateComponent({
       prompt,
@@ -126,7 +126,7 @@ const handleGenerateComponent = async (prompt: string) => {
       typescript: true,
       includeTests: true
     });
-    
+
     setGeneratedComponent(component);
   } catch (error) {
     console.error('Failed to generate component:', error);
@@ -414,4 +414,4 @@ const styledComponent = await v0devClient.generateComponent({
 
 ## Conclusion
 
-The V0.dev integration transforms Sophia AI into a powerful UI generation platform, enabling rapid component development with AI assistance. By following this guide, teams can leverage AI-driven design-to-code workflows while maintaining code quality and design consistency. 
+The V0.dev integration transforms Sophia AI into a powerful UI generation platform, enabling rapid component development with AI assistance. By following this guide, teams can leverage AI-driven design-to-code workflows while maintaining code quality and design consistency.

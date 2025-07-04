@@ -61,7 +61,7 @@ chroma_db_async/
 
 # Logs
 logs/
-*.log 
+*.log
 
 data/
 
@@ -86,4 +86,4 @@ node_modules/
 .DS_Store
 # Task files
 tasks.json
-tasks/ 
+tasks/

@@ -2,7 +2,11 @@
   "mcpServers": {
     "sophia-snowflake": {
       "command": "uv",
-      "args": ["run", "python", "mcp-servers/snowflake/production_snowflake_mcp_server.py"],
+      "args": [
+        "run",
+        "python",
+        "mcp-servers/snowflake/production_snowflake_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",
@@ -10,8 +14,12 @@
       }
     },
     "sophia-ai-memory": {
-      "command": "uv", 
-      "args": ["run", "python", "backend/mcp_servers/enhanced_ai_memory_mcp_server.py"],
+      "command": "uv",
+      "args": [
+        "run",
+        "python",
+        "backend/mcp_servers/enhanced_ai_memory_mcp_server.py"
+      ],
       "cwd": "/Users/lynnmusil/sophia-main",
       "env": {
         "ENVIRONMENT": "prod",

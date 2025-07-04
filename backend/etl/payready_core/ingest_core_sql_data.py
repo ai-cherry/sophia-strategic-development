@@ -415,9 +415,7 @@ class PayReadyCoreDataIngestor:
             rows_affected = cursor.rowcount
             cursor.close()
 
-            logger.info(
-                f"✅ Loaded {rows_affected} payment transactions into Snowflake"
-            )
+            logger.info(f"✅ Loaded {rows_affected} payment transactions into Snowflake")
             return rows_affected
 
         except Exception as e:

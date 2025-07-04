@@ -60,9 +60,7 @@ async def create_status_report():
     logger.info("✅ RESOLVED: Account configuration (ZNB04675.snowflakecomputing.com)")
     logger.info("✅ RESOLVED: Cache cleared and environment variables set")
     logger.info("❌ CURRENT ISSUE: User account SCOOBYJAVA15 is temporarily locked")
-    logger.info(
-        "❌ CURRENT ISSUE: Need correct method interface for connection testing"
-    )
+    logger.info("❌ CURRENT ISSUE: Need correct method interface for connection testing")
 
     # Recommendations
     logger.info("\n💡 RECOMMENDATIONS:")

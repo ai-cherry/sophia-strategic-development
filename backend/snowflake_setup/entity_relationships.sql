@@ -4,4 +4,4 @@
 -- Example:
 -- ALTER VIEW SOPHIA_SEMANTIC.CUSTOMER_360
 -- ADD CONSTRAINT fk_employee_owner
--- FOREIGN KEY (account_owner_id) REFERENCES SOPHIA_SEMANTIC.EMPLOYEE_360 (employee_id); 
+-- FOREIGN KEY (account_owner_id) REFERENCES SOPHIA_SEMANTIC.EMPLOYEE_360 (employee_id);

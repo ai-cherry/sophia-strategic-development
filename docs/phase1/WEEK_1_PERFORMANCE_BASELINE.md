@@ -26,7 +26,7 @@ class PerformanceBaseline:
             "cpu_usage": {},
             "concurrent_capacity": {}
         }
-    
+
     async def measure_api_latency(self, endpoints: List[str], iterations: int = 100):
         """Measure API response times"""
         for endpoint in endpoints:
@@ -37,7 +37,7 @@ class PerformanceBaseline:
                     async with session.get(endpoint) as response:
                         await response.text()
                 latencies.append((time.perf_counter() - start) * 1000)
-            
+
             self.results["api_latency"][endpoint] = {
                 "min": min(latencies),
                 "max": max(latencies),
@@ -61,7 +61,7 @@ architecture:
     retry_policy:
       attempts: 3
       backoff: exponential
-      
+
   service_mesh:
     type: istio
     load_balancing: round_robin
@@ -69,7 +69,7 @@ architecture:
       threshold: 0.5
       timeout: 10s
       half_open_requests: 3
-      
+
   cache:
     L1:
       type: lru_cache
@@ -103,12 +103,12 @@ class MultiTierCache:
     def __init__(self):
         # L1: Process memory cache
         self.l1_cache = Cache(
-            Cache.MEMORY, 
+            Cache.MEMORY,
             serializer=PickleSerializer(),
             ttl=60,
             namespace="l1"
         )
-        
+
         # L2: Redis cluster
         self.l2_cache = Cache(
             Cache.REDIS,
@@ -118,26 +118,26 @@ class MultiTierCache:
             ttl=3600,
             namespace="l2"
         )
-    
+
     def cache_key(self, prefix: str, *args, **kwargs) -> str:
         """Generate consistent cache key"""
         key_data = f"{prefix}:{args}:{sorted(kwargs.items())}"
         return hashlib.sha256(key_data.encode()).hexdigest()
-    
+
     async def get(self, key: str) -> Optional[Any]:
         """Get from cache with fallthrough"""
         # Try L1
         value = await self.l1_cache.get(key)
         if value is not None:
             return value
-        
+
         # Try L2
         value = await self.l2_cache.get(key)
         if value is not None:
             # Populate L1
             await self.l1_cache.set(key, value)
             return value
-        
+
         return None
 ```
 
@@ -191,9 +191,9 @@ async def test_concurrent_capacity():
     async def make_request(session, url):
         async with session.get(url) as response:
             return response.status
-    
+
     urls = ["http://localhost:8000/api/v1/health"] * 1000
-    
+
     async with aiohttp.ClientSession() as session:
         start = time.time()
         results = await asyncio.gather(
@@ -201,9 +201,9 @@ async def test_concurrent_capacity():
             return_exceptions=True
         )
         duration = time.time() - start
-    
+
     successful = sum(1 for r in results if r == 200)
-    
+
     assert successful / len(urls) > 0.99  # 99% success rate
     assert duration < 10  # Complete in under 10 seconds
 ```
@@ -227,4 +227,4 @@ Version: 1.0
 2. Implement connection multiplexing
 3. Add read replicas for database
 4. Use msgpack for serialization
-``` 
+```

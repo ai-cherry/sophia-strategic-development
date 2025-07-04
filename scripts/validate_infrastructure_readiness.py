@@ -210,7 +210,9 @@ def generate_readiness_report(checks):
         "status": (
             "ready"
             if readiness_score >= 90
-            else "partial" if readiness_score >= 70 else "not_ready"
+            else "partial"
+            if readiness_score >= 70
+            else "not_ready"
         ),
     }
 

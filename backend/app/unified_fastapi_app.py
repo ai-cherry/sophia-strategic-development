@@ -12,39 +12,41 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-from prometheus_client import Counter, Gauge, Histogram, generate_latest
-from pydantic import BaseModel, Field
+from prometheus_client import Counter, Gauge, Histogram
+from pydantic import BaseModel
 
 # Import all route modules
 from backend.api import (
     asana_integration_routes,
     codacy_integration_routes,
-    data_flow_routes,
     linear_integration_routes,
-    llm_strategy_routes,
     mcp_integration_routes,
     notion_integration_routes,
     slack_linear_knowledge_routes,
     unified_routes,
-    foundational_knowledge_routes as knowledge_base_routes,
+)
+from backend.api import (
     ceo_dashboard_routes as monitoring_routes,
+)
+from backend.api import (
+    foundational_knowledge_routes as knowledge_base_routes,
 )
 from backend.core.config_manager import get_config_value
 from backend.core.config_validator import DeploymentValidator
+from backend.services.chat.unified_chat_service import UnifiedChatService
 from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
-from backend.services.smart_ai_service import SmartAIService
 from backend.services.mcp_orchestration_service import MCPOrchestrationService
 from backend.services.n8n_webhook_service import N8NWebhookService
-from backend.services.chat.unified_chat_service import UnifiedChatService
+from backend.services.unified_llm_service import get_unified_llm_service
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +133,9 @@ class UnifiedFastAPIApp:
                 logger.error(f"❌ Critical configuration errors: {critical_errors}")
                 raise RuntimeError("Critical configuration errors prevent startup")
             else:
-                logger.warning(f"⚠️  Configuration warnings: {validation_report.errors}")
+                logger.warning(
+                    f"⚠️  Configuration warnings: {validation_report.errors}"
+                )
 
     async def _initialize_services(self):
         """Initialize all platform services"""
@@ -142,12 +146,16 @@ class UnifiedFastAPIApp:
             from backend.services.enhanced_mcp_orchestration_service import (
                 EnhancedMCPOrchestrationService,
             )
+
             self.services["mcp_orchestration"] = EnhancedMCPOrchestrationService()
             await self.services["mcp_orchestration"].initialize()
         except Exception as e:
             logger.error(f"Failed to initialize MCP orchestration: {e}")
             # Fallback to basic orchestration
-            from backend.services.mcp_orchestration_service import get_orchestration_service
+            from backend.services.mcp_orchestration_service import (
+                get_orchestration_service,
+            )
+
             self.services["mcp_orchestration"] = get_orchestration_service()
 
         # Chat Service
@@ -157,7 +165,7 @@ class UnifiedFastAPIApp:
         self.services["knowledge"] = FoundationalKnowledgeService()
 
         # AI Service
-        self.services["ai"] = SmartAIService()
+        self.services["ai"] = await get_unified_llm_service()
 
         # Initialize additional services
         mcp_orchestration_service = MCPOrchestrationService()
@@ -291,17 +299,17 @@ class UnifiedFastAPIApp:
         """Configure all API routes"""
 
         @self.app.get("/", tags=["Status"])
-        async def root() -> Dict[str, str]:
+        async def root() -> dict[str, str]:
             """Root endpoint for basic service health checks."""
             return {"status": "ok", "message": "Welcome to Sophia AI Unified Platform"}
 
         @self.app.get("/api/health", tags=["Status"])
-        async def health_check() -> Dict[str, str]:
+        async def health_check() -> dict[str, str]:
             """Provides a simple health check endpoint."""
             return {"status": "ok"}
 
         @self.app.get("/api/status", tags=["Status"])
-        async def get_status() -> Dict[str, Any]:
+        async def get_status() -> dict[str, Any]:
             """Provides a detailed status of the application."""
             # This can be expanded to include database status, MCP server health, etc.
             return {
@@ -331,25 +339,33 @@ class UnifiedFastAPIApp:
                 logger.error(f"Failed to load router {router}: {e}")
 
         @self.app.post("/api/mcp/{tool_name:path}", tags=["MCP"])
-        async def handle_mcp_request(tool_name: str, request: Dict[str, Any]) -> Dict[str, Any]:
+        async def handle_mcp_request(
+            tool_name: str, request: dict[str, Any]
+        ) -> dict[str, Any]:
             """Handles all MCP requests and routes them to the orchestration service."""
-            response = await self.services["mcp_orchestration"].route_tool_request(tool_name, request)
+            response = await self.services["mcp_orchestration"].route_tool_request(
+                tool_name, request
+            )
             return response
 
         @self.app.get("/api/mcp/health", tags=["MCP"])
-        async def mcp_health() -> Dict[str, Any]:
+        async def mcp_health() -> dict[str, Any]:
             """Provides a health check for the MCP orchestration service."""
             # This can be expanded to check the health of all registered MCP servers
             return {"status": "ok", "service": "mcp_orchestration"}
 
         @self.app.post("/api/n8n/webhook/{workflow_type:path}", tags=["N8N"])
-        async def handle_n8n_webhook(workflow_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        async def handle_n8n_webhook(
+            workflow_type: str, payload: dict[str, Any]
+        ) -> dict[str, Any]:
             """Handles all N8N webhooks and routes them to the webhook service."""
-            result = await self.services["n8n_webhook_service"].process_webhook(workflow_type, payload)
+            result = await self.services["n8n_webhook_service"].process_webhook(
+                workflow_type, payload
+            )
             return {"status": "ok", "result": result}
 
         @self.app.get("/api/n8n/health", tags=["N8N"])
-        async def n8n_health() -> Dict[str, Any]:
+        async def n8n_health() -> dict[str, Any]:
             """Provides a health check for the N8N webhook service."""
             return {"status": "ok", "service": "n8n_webhook_service"}
 
@@ -358,17 +374,17 @@ class UnifiedFastAPIApp:
             query: str
             user_id: str
             session_id: str
-            context: Optional[Dict[str, Any]] = None
+            context: Optional[dict[str, Any]] = None
 
         class FileUpload(BaseModel):
             file_name: str
-            file_content: bytes # Using bytes for file content
+            file_content: bytes  # Using bytes for file content
 
         class SyncRequest(BaseModel):
             source: str
 
         @self.app.post("/api/v1/chat", tags=["Chat"])
-        async def chat(request: ChatRequest) -> Dict[str, Any]:
+        async def chat(request: ChatRequest) -> dict[str, Any]:
             """Handles chat requests and returns an AI-generated response."""
             response = await self.services["chat"].process_chat(
                 query=request.query,
@@ -379,7 +395,7 @@ class UnifiedFastAPIApp:
             return response
 
         @self.app.post("/api/v1/knowledge/upload", tags=["Knowledge"])
-        async def upload_knowledge(file: FileUpload) -> Dict[str, Any]:
+        async def upload_knowledge(file: FileUpload) -> dict[str, Any]:
             """Uploads a knowledge document to the system."""
             result = await self.services["knowledge"].upload_document(
                 file_name=file.file_name,
@@ -388,7 +404,7 @@ class UnifiedFastAPIApp:
             return {"status": "ok", "result": result}
 
         @self.app.post("/api/v1/knowledge/sync", tags=["Knowledge"])
-        async def sync_knowledge(request: SyncRequest) -> Dict[str, Any]:
+        async def sync_knowledge(request: SyncRequest) -> dict[str, Any]:
             """Triggers a knowledge sync from a specified source."""
             result = await self.services["knowledge"].sync_source(source=request.source)
             return {"status": "ok", "result": result}

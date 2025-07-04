@@ -1,6 +1,6 @@
 ---
 title: Sophia AI Comprehensive Project Review - Cursor AI Prompt
-description: 
+description:
 tags: mcp, security, gong, monitoring, database, docker, agent
 last_updated: 2025-06-23
 dependencies: none

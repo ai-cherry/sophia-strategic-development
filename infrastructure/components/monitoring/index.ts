@@ -1,6 +1,6 @@
 /**
  * Sophia AI - Monitoring Infrastructure Components
- * 
+ *
  * This module provides monitoring infrastructure components for the Sophia AI platform,
  * including CloudWatch dashboards, alarms, and custom metrics for ML workloads.
  */
@@ -17,7 +17,7 @@ export interface MonitoringArgs {
      * Environment name (e.g., dev, staging, prod)
      */
     environment: string;
-    
+
     /**
      * Resources to monitor
      */
@@ -26,33 +26,33 @@ export interface MonitoringArgs {
          * EKS cluster name
          */
         eksClusterName?: string;
-        
+
         /**
          * Auto Scaling Group names for ML workloads
          */
         mlAutoScalingGroups?: string[];
-        
+
         /**
          * ElastiCache cluster IDs
          */
         elasticacheClusters?: string[];
-        
+
         /**
          * S3 bucket names
          */
         s3Buckets?: string[];
-        
+
         /**
          * Lambda function names
          */
         lambdaFunctions?: string[];
-        
+
         /**
          * API Gateway names
          */
         apiGateways?: string[];
     };
-    
+
     /**
      * Alerting configuration
      */
@@ -61,33 +61,33 @@ export interface MonitoringArgs {
          * SNS topic ARN for alerts
          */
         snsTopicArn?: string;
-        
+
         /**
          * Email addresses for alerts
          */
         emails?: string[];
-        
+
         /**
          * Webhook URLs for alerts
          */
         webhooks?: string[];
     };
-    
+
     /**
      * Kubernetes provider for Kubernetes monitoring
      */
     k8sProvider?: k8s.Provider;
-    
+
     /**
      * Enable cost monitoring
      */
     enableCostMonitoring?: boolean;
-    
+
     /**
      * Enable ML-specific monitoring (model performance, inference latency)
      */
     enableMlMonitoring?: boolean;
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -102,32 +102,32 @@ export interface MonitoringThresholds {
      * CPU utilization threshold (percentage)
      */
     cpuUtilization: number;
-    
+
     /**
      * Memory utilization threshold (percentage)
      */
     memoryUtilization: number;
-    
+
     /**
      * GPU utilization threshold (percentage)
      */
     gpuUtilization: number;
-    
+
     /**
      * Disk utilization threshold (percentage)
      */
     diskUtilization: number;
-    
+
     /**
      * Model inference latency threshold (ms)
      */
     modelInferenceLatency: number;
-    
+
     /**
      * API response time threshold (ms)
      */
     apiResponseTime: number;
-    
+
     /**
      * Daily cost threshold (USD)
      */
@@ -142,7 +142,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
      * CloudWatch log groups
      */
     public readonly logGroups: aws.cloudwatch.LogGroup[];
-    
+
     /**
      * CloudWatch dashboards
      */
@@ -151,22 +151,22 @@ export class MonitoringComponents extends pulumi.ComponentResource {
         ml: aws.cloudwatch.Dashboard;
         cost: aws.cloudwatch.Dashboard;
     };
-    
+
     /**
      * CloudWatch alarms
      */
     public readonly alarms: aws.cloudwatch.MetricAlarm[];
-    
+
     /**
      * SNS topics for alerting
      */
     public readonly snsTopic: aws.sns.Topic;
-    
+
     /**
      * CloudWatch Logs metrics filters
      */
     public readonly metricsFilters: aws.cloudwatch.LogMetricFilter[];
-    
+
     /**
      * Prometheus resources (if Kubernetes provider is available)
      */
@@ -177,7 +177,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
         deployment: k8s.apps.v1.Deployment;
         service: k8s.core.v1.Service;
     };
-    
+
     /**
      * ML metrics resources (if ML monitoring is enabled)
      */
@@ -186,7 +186,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
         dashboard: aws.cloudwatch.Dashboard;
         alarms: aws.cloudwatch.MetricAlarm[];
     };
-    
+
     /**
      * Cost monitoring resources (if cost monitoring is enabled)
      */
@@ -195,10 +195,10 @@ export class MonitoringComponents extends pulumi.ComponentResource {
         dashboard: aws.cloudwatch.Dashboard;
         alarms: aws.cloudwatch.MetricAlarm[];
     };
-    
+
     constructor(name: string, args: MonitoringArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:monitoring:MonitoringComponents", name, {}, opts);
-        
+
         // Assign default tags
         const tags = {
             Environment: args.environment,
@@ -208,12 +208,12 @@ export class MonitoringComponents extends pulumi.ComponentResource {
             CreatedAt: new Date().toISOString(),
             ...args.tags,
         };
-        
+
         // Initialize arrays
         this.logGroups = [];
         this.alarms = [];
         this.metricsFilters = [];
-        
+
         // Create log groups
         const applicationLogGroup = new aws.cloudwatch.LogGroup(`${name}-application-logs`, {
             name: `/sophia-ai/${args.environment}/application`,
@@ -224,7 +224,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "ApplicationLogs",
             },
         }, { parent: this });
-        
+
         const apiLogGroup = new aws.cloudwatch.LogGroup(`${name}-api-logs`, {
             name: `/sophia-ai/${args.environment}/api`,
             retentionInDays: 30,
@@ -234,7 +234,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "APILogs",
             },
         }, { parent: this });
-        
+
         const mlLogGroup = new aws.cloudwatch.LogGroup(`${name}-ml-logs`, {
             name: `/sophia-ai/${args.environment}/ml`,
             retentionInDays: 30,
@@ -244,9 +244,9 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "MLLogs",
             },
         }, { parent: this });
-        
+
         this.logGroups.push(applicationLogGroup, apiLogGroup, mlLogGroup);
-        
+
         // Create SNS topic for alerting
         this.snsTopic = new aws.sns.Topic(`${name}-alerts`, {
             name: `sophia-ai-${args.environment}-alerts`,
@@ -256,7 +256,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "AlertingTopic",
             },
         }, { parent: this });
-        
+
         // Create SNS subscriptions if alerting is configured
         if (args.alerting) {
             if (args.alerting.emails && args.alerting.emails.length > 0) {
@@ -268,7 +268,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     }, { parent: this });
                 });
             }
-            
+
             if (args.alerting.webhooks && args.alerting.webhooks.length > 0) {
                 args.alerting.webhooks.forEach((webhook, i) => {
                     new aws.sns.TopicSubscription(`${name}-webhook-subscription-${i + 1}`, {
@@ -279,9 +279,9 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 });
             }
         }
-        
+
         // Create metrics filters for log groups
-        
+
         // Error count metric filter
         const errorMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-error-metric-filter`, {
             logGroupName: applicationLogGroup.name,
@@ -294,7 +294,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 defaultValue: 0,
             },
         }, { parent: this });
-        
+
         // API latency metric filter
         const apiLatencyMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-api-latency-metric-filter`, {
             logGroupName: apiLogGroup.name,
@@ -307,7 +307,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 defaultValue: 0,
             },
         }, { parent: this });
-        
+
         // ML model inference latency metric filter
         const mlLatencyMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-ml-latency-metric-filter`, {
             logGroupName: mlLogGroup.name,
@@ -320,7 +320,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 defaultValue: 0,
             },
         }, { parent: this });
-        
+
         // Model cold start metric filter
         const mlColdStartMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-ml-cold-start-metric-filter`, {
             logGroupName: mlLogGroup.name,
@@ -333,16 +333,16 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 defaultValue: 0,
             },
         }, { parent: this });
-        
+
         this.metricsFilters.push(
             errorMetricFilter,
             apiLatencyMetricFilter,
             mlLatencyMetricFilter,
             mlColdStartMetricFilter
         );
-        
+
         // Create CloudWatch alarms
-        
+
         // Error rate alarm
         const errorRateAlarm = new aws.cloudwatch.MetricAlarm(`${name}-error-rate-alarm`, {
             alarmDescription: `High error rate in ${args.environment} environment`,
@@ -364,7 +364,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "ErrorRateAlarm",
             },
         }, { parent: this });
-        
+
         // API latency alarm
         const apiLatencyAlarm = new aws.cloudwatch.MetricAlarm(`${name}-api-latency-alarm`, {
             alarmDescription: `High API latency in ${args.environment} environment`,
@@ -386,7 +386,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "APILatencyAlarm",
             },
         }, { parent: this });
-        
+
         // ML model inference latency alarm
         const mlLatencyAlarm = new aws.cloudwatch.MetricAlarm(`${name}-ml-latency-alarm`, {
             alarmDescription: `High ML model inference latency in ${args.environment} environment`,
@@ -408,15 +408,15 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 Type: "MLLatencyAlarm",
             },
         }, { parent: this });
-        
+
         this.alarms.push(
             errorRateAlarm,
             apiLatencyAlarm,
             mlLatencyAlarm
         );
-        
+
         // Create resource-specific alarms if resources are provided
-        
+
         // Monitor ML Auto Scaling Groups
         if (args.resources.mlAutoScalingGroups && args.resources.mlAutoScalingGroups.length > 0) {
             args.resources.mlAutoScalingGroups.forEach((asgName, i) => {
@@ -440,11 +440,11 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                         Type: "ASGCPUAlarm",
                     },
                 }, { parent: this });
-                
+
                 this.alarms.push(cpuAlarm);
             });
         }
-        
+
         // Monitor ElastiCache clusters
         if (args.resources.elasticacheClusters && args.resources.elasticacheClusters.length > 0) {
             args.resources.elasticacheClusters.forEach((clusterId, i) => {
@@ -468,7 +468,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                         Type: "ElastiCacheCPUAlarm",
                     },
                 }, { parent: this });
-                
+
                 const memoryAlarm = new aws.cloudwatch.MetricAlarm(`${name}-elasticache-memory-alarm-${i + 1}`, {
                     alarmDescription: `High memory usage for ElastiCache cluster ${clusterId}`,
                     comparisonOperator: "GreaterThanThreshold",
@@ -489,13 +489,13 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                         Type: "ElastiCacheMemoryAlarm",
                     },
                 }, { parent: this });
-                
+
                 this.alarms.push(cpuAlarm, memoryAlarm);
             });
         }
-        
+
         // Create CloudWatch dashboards
-        
+
         // Main dashboard
         const mainDashboardBody = {
             widgets: [
@@ -556,12 +556,12 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 },
             ],
         };
-        
+
         const mainDashboard = new aws.cloudwatch.Dashboard(`${name}-main-dashboard`, {
             dashboardName: `sophia-ai-${args.environment}-main`,
             dashboardBody: JSON.stringify(mainDashboardBody),
         }, { parent: this });
-        
+
         // ML dashboard
         const mlDashboardBody = {
             widgets: [
@@ -622,12 +622,12 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                 },
             ],
         };
-        
+
         const mlDashboard = new aws.cloudwatch.Dashboard(`${name}-ml-dashboard`, {
             dashboardName: `sophia-ai-${args.environment}-ml`,
             dashboardBody: JSON.stringify(mlDashboardBody),
         }, { parent: this });
-        
+
         // Cost dashboard (if cost monitoring is enabled)
         let costDashboard: aws.cloudwatch.Dashboard;
         let costMonitoringResources: {
@@ -635,7 +635,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
             dashboard: aws.cloudwatch.Dashboard;
             alarms: aws.cloudwatch.MetricAlarm[];
         } | undefined;
-        
+
         if (args.enableCostMonitoring) {
             const costDashboardBody = {
                 widgets: [
@@ -694,12 +694,12 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     },
                 ],
             };
-            
+
             costDashboard = new aws.cloudwatch.Dashboard(`${name}-cost-dashboard`, {
                 dashboardName: `sophia-ai-${args.environment}-cost`,
                 dashboardBody: JSON.stringify(costDashboardBody),
             }, { parent: this });
-            
+
             // Create cost budget
             const dailyBudget = new aws.budgets.Budget(`${name}-daily-budget`, {
                 name: `sophia-ai-${args.environment}-daily-budget`,
@@ -711,7 +711,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     end: pulumi.interpolate`${new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0]}_00:00`,
                 },
                 timeUnit: "DAILY",
-                
+
                 // Notifications when 80% of budget is reached
                 notifications: [{
                     comparisonOperator: "GREATER_THAN",
@@ -721,7 +721,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     subscriberEmailAddresses: args.alerting?.emails || [],
                 }],
             }, { parent: this });
-            
+
             // Create cost alarm
             const costAlarm = new aws.cloudwatch.MetricAlarm(`${name}-cost-alarm`, {
                 alarmDescription: `Daily cost threshold exceeded for ${args.environment} environment`,
@@ -743,23 +743,23 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     Type: "CostAlarm",
                 },
             }, { parent: this });
-            
+
             costMonitoringResources = {
                 budgets: [dailyBudget],
                 dashboard: costDashboard,
                 alarms: [costAlarm],
             };
-            
+
             this.alarms.push(costAlarm);
         }
-        
+
         // Create ML-specific monitoring resources (if ML monitoring is enabled)
         let mlMetricsResources: {
             logGroup: aws.cloudwatch.LogGroup;
             dashboard: aws.cloudwatch.Dashboard;
             alarms: aws.cloudwatch.MetricAlarm[];
         } | undefined;
-        
+
         if (args.enableMlMonitoring) {
             // Create ML metrics log group
             const mlMetricsLogGroup = new aws.cloudwatch.LogGroup(`${name}-ml-metrics-logs`, {
@@ -771,7 +771,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     Type: "MLMetricsLogs",
                 },
             }, { parent: this });
-            
+
             // Create ML metrics filters
             const modelAccuracyMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-model-accuracy-metric-filter`, {
                 logGroupName: mlMetricsLogGroup.name,
@@ -784,7 +784,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     defaultValue: 0,
                 },
             }, { parent: this });
-            
+
             const modelPrecisionMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-model-precision-metric-filter`, {
                 logGroupName: mlMetricsLogGroup.name,
                 name: `${args.environment}-model-precision`,
@@ -796,7 +796,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     defaultValue: 0,
                 },
             }, { parent: this });
-            
+
             const modelRecallMetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-model-recall-metric-filter`, {
                 logGroupName: mlMetricsLogGroup.name,
                 name: `${args.environment}-model-recall`,
@@ -808,7 +808,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     defaultValue: 0,
                 },
             }, { parent: this });
-            
+
             const modelF1MetricFilter = new aws.cloudwatch.LogMetricFilter(`${name}-model-f1-metric-filter`, {
                 logGroupName: mlMetricsLogGroup.name,
                 name: `${args.environment}-model-f1`,
@@ -820,14 +820,14 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     defaultValue: 0,
                 },
             }, { parent: this });
-            
+
             this.metricsFilters.push(
                 modelAccuracyMetricFilter,
                 modelPrecisionMetricFilter,
                 modelRecallMetricFilter,
                 modelF1MetricFilter
             );
-            
+
             // Create ML metrics dashboard
             const mlMetricsDashboardBody = {
                 widgets: [
@@ -939,12 +939,12 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     },
                 ],
             };
-            
+
             const mlMetricsDashboard = new aws.cloudwatch.Dashboard(`${name}-ml-metrics-dashboard`, {
                 dashboardName: `sophia-ai-${args.environment}-ml-metrics`,
                 dashboardBody: JSON.stringify(mlMetricsDashboardBody),
             }, { parent: this });
-            
+
             // Create ML metrics alarms
             const modelAccuracyAlarm = new aws.cloudwatch.MetricAlarm(`${name}-model-accuracy-alarm`, {
                 alarmDescription: `Low model accuracy in ${args.environment} environment`,
@@ -966,7 +966,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     Type: "ModelAccuracyAlarm",
                 },
             }, { parent: this });
-            
+
             const modelPrecisionAlarm = new aws.cloudwatch.MetricAlarm(`${name}-model-precision-alarm`, {
                 alarmDescription: `Low model precision in ${args.environment} environment`,
                 comparisonOperator: "LessThanThreshold",
@@ -987,17 +987,17 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     Type: "ModelPrecisionAlarm",
                 },
             }, { parent: this });
-            
+
             mlMetricsResources = {
                 logGroup: mlMetricsLogGroup,
                 dashboard: mlMetricsDashboard,
                 alarms: [modelAccuracyAlarm, modelPrecisionAlarm],
             };
-            
+
             this.logGroups.push(mlMetricsLogGroup);
             this.alarms.push(modelAccuracyAlarm, modelPrecisionAlarm);
         }
-        
+
         // Create Prometheus resources for Kubernetes monitoring if k8sProvider is available
         let prometheusResources: {
             namespace: k8s.core.v1.Namespace;
@@ -1006,7 +1006,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
             deployment: k8s.apps.v1.Deployment;
             service: k8s.core.v1.Service;
         } | undefined;
-        
+
         if (args.k8sProvider) {
             // Create Prometheus namespace
             const prometheusNamespace = new k8s.core.v1.Namespace(`${name}-prometheus-namespace`, {
@@ -1017,7 +1017,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create Prometheus service account
             const prometheusServiceAccount = new k8s.core.v1.ServiceAccount(`${name}-prometheus-service-account`, {
                 metadata: {
@@ -1025,7 +1025,7 @@ export class MonitoringComponents extends pulumi.ComponentResource {
                     namespace: prometheusNamespace.metadata.name,
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create Prometheus config map
             const prometheusConfigMap = new k8s.core.v1.ConfigMap(`${name}-prometheus-config-map`, {
                 metadata: {
@@ -1105,7 +1105,7 @@ scrape_configs:
     `,
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create Prometheus deployment
             const prometheusDeployment = new k8s.apps.v1.Deployment(`${name}-prometheus-deployment`, {
                 metadata: {
@@ -1185,7 +1185,7 @@ scrape_configs:
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create Prometheus service
             const prometheusService = new k8s.core.v1.Service(`${name}-prometheus-service`, {
                 metadata: {
@@ -1209,7 +1209,7 @@ scrape_configs:
                     ],
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             prometheusResources = {
                 namespace: prometheusNamespace,
                 serviceAccount: prometheusServiceAccount,
@@ -1218,23 +1218,23 @@ scrape_configs:
                 service: prometheusService,
             };
         }
-        
+
         // Assign dashboards
         this.dashboards = {
             main: mainDashboard,
             ml: mlDashboard,
             cost: costDashboard!,
         };
-        
+
         // Assign ML metrics resources
         this.mlMetricsResources = mlMetricsResources;
-        
+
         // Assign cost monitoring resources
         this.costMonitoringResources = costMonitoringResources;
-        
+
         // Assign Prometheus resources
         this.prometheusResources = prometheusResources;
-        
+
         // Register outputs
         this.registerOutputs({
             logGroups: this.logGroups,
@@ -1278,31 +1278,31 @@ export function createComponentDashboard(
             },
         },
     ];
-    
+
     // Add metric widgets dynamically
     metrics.forEach((metric, i) => {
         const x = (i % 2) * 12;
         const y = Math.floor(i / 2) * 6 + 1;
-        
+
         const metricConfig: any[] = [
             [
                 metric.namespace,
                 metric.metricName,
             ],
         ];
-        
+
         // Add dimensions if present
         if (metric.dimensions) {
             Object.entries(metric.dimensions).forEach(([key, value]) => {
                 metricConfig[0].push(key, value);
             });
         }
-        
+
         // Add label if present
         if (metric.label) {
             metricConfig[0].push({ label: metric.label });
         }
-        
+
         widgets.push({
             type: "metric",
             x,
@@ -1319,7 +1319,7 @@ export function createComponentDashboard(
             },
         });
     });
-    
+
     return new aws.cloudwatch.Dashboard(`${name}-${component}-dashboard`, {
         dashboardName: `sophia-ai-${environment}-${component}`,
         dashboardBody: JSON.stringify({ widgets }),

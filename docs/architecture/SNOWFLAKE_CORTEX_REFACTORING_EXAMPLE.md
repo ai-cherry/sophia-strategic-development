@@ -10,25 +10,25 @@ class SnowflakeCortexService:
     def __init__(self):
         # Connection management
         self.connection = snowflake.connector.connect(...)
-        
+
     async def summarize_text_in_snowflake(self, ...):
         # Text summarization logic
-        
+
     async def analyze_sentiment_in_snowflake(self, ...):
         # Sentiment analysis logic
-        
+
     async def generate_embedding_in_snowflake(self, ...):
         # Embedding generation logic
-        
+
     async def vector_search_in_snowflake(self, ...):
         # Vector search logic
-        
+
     async def search_hubspot_deals_with_ai_memory(self, ...):
         # HubSpot-specific business logic
-        
+
     async def search_gong_calls_with_ai_memory(self, ...):
         # Gong-specific business logic
-        
+
     async def log_etl_job_status(self, ...):
         # ETL logging logic
 ```
@@ -50,7 +50,7 @@ class TextAnalysis:
     original_text: str
     summary: Optional[TextSummary] = None
     sentiment: Optional[Sentiment] = None
-    
+
     def needs_review(self) -> bool:
         """Business rule: Negative sentiment texts need human review."""
         return self.sentiment and self.sentiment.is_negative()
@@ -65,13 +65,13 @@ class Sentiment:
     """Value object representing sentiment analysis."""
     score: float  # -1.0 to 1.0
     confidence: float  # 0.0 to 1.0
-    
+
     def is_positive(self) -> bool:
         return self.score > 0.1
-    
+
     def is_negative(self) -> bool:
         return self.score < -0.1
-    
+
     def is_neutral(self) -> bool:
         return -0.1 <= self.score <= 0.1
 ```
@@ -86,17 +86,17 @@ from backend.domain.value_objects import Sentiment, TextSummary, Embedding
 
 class AIService(ABC):
     """Port for AI operations."""
-    
+
     @abstractmethod
     async def summarize_text(self, text: str, max_length: int = 200) -> TextSummary:
         """Generate a summary of the given text."""
         pass
-    
+
     @abstractmethod
     async def analyze_sentiment(self, text: str) -> Sentiment:
         """Analyze sentiment of the given text."""
         pass
-    
+
     @abstractmethod
     async def generate_embedding(self, text: str) -> Embedding:
         """Generate vector embedding for the text."""
@@ -111,10 +111,10 @@ from backend.domain.entities import SearchResult
 
 class VectorSearchService(ABC):
     """Port for vector similarity search."""
-    
+
     @abstractmethod
     async def search_similar(
-        self, 
+        self,
         query_embedding: Embedding,
         collection: str,
         limit: int = 10,
@@ -131,7 +131,7 @@ from backend.domain.entities import TextAnalysis
 
 class AnalyzeTextUseCase:
     """Use case for comprehensive text analysis."""
-    
+
     def __init__(
         self,
         ai_service: AIService,
@@ -139,23 +139,23 @@ class AnalyzeTextUseCase:
     ):
         self._ai_service = ai_service
         self._text_repository = text_repository
-    
+
     async def execute(self, text_id: str, text_content: str) -> TextAnalysis:
         """Analyze text and store results."""
         # Create domain entity
         analysis = TextAnalysis(id=text_id, original_text=text_content)
-        
+
         # Perform AI analysis
         analysis.summary = await self._ai_service.summarize_text(text_content)
         analysis.sentiment = await self._ai_service.analyze_sentiment(text_content)
-        
+
         # Apply business rules
         if analysis.needs_review():
             await self._notify_review_team(analysis)
-        
+
         # Persist results
         await self._text_repository.save(analysis)
-        
+
         return analysis
 ```
 
@@ -169,10 +169,10 @@ from backend.domain.value_objects import Sentiment, TextSummary, Embedding
 
 class SnowflakeCortexClient(AIService):
     """Snowflake Cortex implementation of AI operations."""
-    
+
     def __init__(self, connection_pool):
         self._pool = connection_pool
-    
+
     async def summarize_text(self, text: str, max_length: int = 200) -> TextSummary:
         """Use Snowflake Cortex SUMMARIZE function."""
         async with self._pool.get_connection() as conn:
@@ -185,7 +185,7 @@ class SnowflakeCortexClient(AIService):
                 original_length=len(text),
                 summary_length=len(result[0]['summary'])
             )
-    
+
     async def analyze_sentiment(self, text: str) -> Sentiment:
         """Use Snowflake Cortex SENTIMENT function."""
         async with self._pool.get_connection() as conn:
@@ -197,7 +197,7 @@ class SnowflakeCortexClient(AIService):
                 score=result[0]['sentiment_score'],
                 confidence=0.85  # Cortex doesn't provide confidence
             )
-    
+
     async def generate_embedding(self, text: str) -> Embedding:
         """Use Snowflake Cortex EMBED_TEXT function."""
         async with self._pool.get_connection() as conn:
@@ -221,11 +221,11 @@ from snowflake.connector.pool import ConnectionPool
 
 class SnowflakeConnectionPool:
     """Manages Snowflake database connections."""
-    
+
     def __init__(self, config):
         self._config = config
         self._pool = None
-    
+
     async def initialize(self):
         """Initialize the connection pool."""
         self._pool = ConnectionPool(
@@ -234,7 +234,7 @@ class SnowflakeConnectionPool:
             min_connections=2,
             **self._config
         )
-    
+
     @asynccontextmanager
     async def get_connection(self):
         """Get a connection from the pool."""
@@ -254,10 +254,10 @@ from backend.domain.value_objects import Embedding
 
 class SnowflakeVectorSearch(VectorSearchService):
     """Snowflake implementation of vector search."""
-    
+
     def __init__(self, connection_pool):
         self._pool = connection_pool
-    
+
     async def search_similar(
         self,
         query_embedding: Embedding,
@@ -268,7 +268,7 @@ class SnowflakeVectorSearch(VectorSearchService):
         """Search using Snowflake's VECTOR_COSINE_SIMILARITY."""
         async with self._pool.get_connection() as conn:
             query = f"""
-            SELECT 
+            SELECT
                 id,
                 content,
                 metadata,
@@ -278,12 +278,12 @@ class SnowflakeVectorSearch(VectorSearchService):
             ORDER BY similarity DESC
             LIMIT ?
             """
-            
+
             results = await conn.execute(
-                query, 
+                query,
                 (query_embedding.vector, query_embedding.vector, threshold, limit)
             )
-            
+
             return [
                 SearchResult(
                     id=row['id'],
@@ -317,7 +317,7 @@ async def analyze_text(
             text_id=request.id,
             text_content=request.text
         )
-        
+
         return TextAnalysisResponse(
             id=result.id,
             summary=result.summary.content if result.summary else None,
@@ -351,28 +351,28 @@ from backend.application.use_cases import AnalyzeTextUseCase
 
 class Container(containers.DeclarativeContainer):
     """Dependency injection container."""
-    
+
     # Configuration
     config = providers.Configuration()
-    
+
     # Infrastructure - Connection Pool
     connection_pool = providers.Singleton(
         SnowflakeConnectionPool,
         config=config.snowflake
     )
-    
+
     # Infrastructure - AI Service
     ai_service = providers.Singleton(
         SnowflakeCortexClient,
         connection_pool=connection_pool
     )
-    
+
     # Infrastructure - Vector Search
     vector_search = providers.Singleton(
         SnowflakeVectorSearch,
         connection_pool=connection_pool
     )
-    
+
     # Application - Use Cases
     analyze_text_use_case = providers.Factory(
         AnalyzeTextUseCase,
@@ -395,10 +395,10 @@ class Container(containers.DeclarativeContainer):
 async def test_analyze_text_use_case():
     mock_ai_service = Mock(AIService)
     mock_ai_service.analyze_sentiment.return_value = Sentiment(score=-0.8, confidence=0.9)
-    
+
     use_case = AnalyzeTextUseCase(mock_ai_service, mock_repository)
     result = await use_case.execute("1", "This is terrible!")
-    
+
     assert result.needs_review() is True
 ```
 
@@ -425,4 +425,4 @@ async def test_analyze_text_use_case():
 4. **Phase 4**: Deprecate and remove old monolithic service
 5. **Phase 5**: Delete old code after verification period
 
-This refactoring transforms a 2,134-line monolith into ~15 focused files, each under 200 lines, with clear responsibilities and excellent testability. 
+This refactoring transforms a 2,134-line monolith into ~15 focused files, each under 200 lines, with clear responsibilities and excellent testability.

@@ -1,12 +1,12 @@
 captures:
   Pay_Ready/usergems-capture:
     bindings:
-    - resource:
-        endpoint: contacts
-      target: Pay_Ready/usergems-contacts
-    - resource:
-        endpoint: tracking
-      target: Pay_Ready/usergems-tracking
+      - resource:
+          endpoint: contacts
+        target: Pay_Ready/usergems-contacts
+      - resource:
+          endpoint: tracking
+        target: Pay_Ready/usergems-tracking
     endpoint:
       connector:
         config:
@@ -15,8 +15,8 @@ captures:
             type: bearer
           base_url: https://api.usergems.com/v1
           endpoints:
-          - name: contacts
-            path: /contacts
-          - name: tracking
-            path: /tracking
+            - name: contacts
+              path: /contacts
+            - name: tracking
+              path: /tracking
         image: ghcr.io/estuary/source-http-inbound:dev

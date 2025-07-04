@@ -10,7 +10,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
    ```python
    # backend/services/mem0_integration_service_enhanced.py
    from backend.services.mem0_integration_service import Mem0IntegrationService
-   
+
    class EnhancedMem0Service(Mem0IntegrationService):
        async def store_conversation_with_citations(
            self,
@@ -19,7 +19,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
            citations: List[Citation]
        ):
            """Store conversation with citation context"""
-           
+
        async def get_relevant_memories_for_query(
            self,
            user_id: str,
@@ -47,7 +47,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
        def __init__(self):
            self.memory_service = get_mem0_service()
            self.citation_service = CitationService()
-           
+
        async def process_and_store(self, conversation, citations):
            # Extract key facts from cited sources
            # Store in memory with source tracking
@@ -62,7 +62,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
    // frontend/src/components/shared/EnhancedUnifiedChat.tsx
    import { CitationSidebar, MessageWithCitations } from '../Citations';
    import { IceBreakerPrompts } from '../IceBreakerPrompts';
-   
+
    // Add to existing component:
    const [citations, setCitations] = useState<Citation[]>([]);
    const [showCitations, setShowCitations] = useState(true);
@@ -99,7 +99,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
        onCitationClick={handleCitationClick}
      />
    ))}
-   
+
    // Add citation sidebar
    <CitationSidebar
      citations={citations}
@@ -118,7 +118,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
    # backend/api/unified_routes.py
    from backend.services.citation_service import CitationService
    from backend.services.cortex_router import CortexRouter
-   
+
    @router.post("/chat/message")
    async def chat_message_with_citations(
        request: ChatRequest,
@@ -132,7 +132,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
            intent=request.intent,
            complexity=request.complexity
        )
-       
+
        # Process with citations
        response = await chat_service.process_message(
            request.message,
@@ -140,13 +140,13 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
            temperature=temperature,
            focus_mode=request.focus_mode
        )
-       
+
        # Extract citations
        formatted_response, citations = await citation_service.extract_citations(
            response.content,
            response.sources
        )
-       
+
        return {
            "response": formatted_response,
            "citations": citation_service.format_citations_for_display(citations),
@@ -177,7 +177,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
        citation_service: CitationService = Depends(get_citation_service)
    ):
        return citation_service.get_statistics()
-   
+
    @router.post("/citations/verify")
    async def verify_citations(
        citations: List[dict],
@@ -196,13 +196,13 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
    # tests/test_citation_extraction.py
    async def test_citation_extraction():
        service = CitationService()
-       
+
        # Test with inline citations
        response = "This is based on [cite:source1:title1] data."
        formatted, citations = await service.extract_citations(response)
        assert "[1]" in formatted
        assert len(citations) == 1
-       
+
        # Test with source documents
        sources = [{"id": "1", "title": "Test Doc", "content": "..."}]
        formatted, citations = await service.extract_citations(response, sources)
@@ -214,17 +214,17 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
    # tests/test_cortex_routing.py
    async def test_model_routing():
        router = CortexRouter()
-       
+
        # Test simple query
        model, temp, _ = await router.route_request("What is 2+2?")
        assert model == ModelType.MISTRAL_7B
-       
+
        # Test complex query
        model, temp, _ = await router.route_request(
            "Implement a distributed cache with Redis"
        )
        assert model == ModelType.LLAMA3_70B
-       
+
        # Test cost constraints
        model, temp, _ = await router.route_request(
            "Complex analysis",
@@ -242,7 +242,7 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
            "message": "What were our top revenue drivers?",
            "focus_mode": "business"
        })
-       
+
        assert response.status_code == 200
        data = response.json()
        assert "response" in data
@@ -285,4 +285,4 @@ Since we discovered existing memory services, we'll INTEGRATE, not create new.
 - Existing `EnhancedUnifiedChatService`
 - Existing `EnhancedUnifiedChat.tsx`
 - New `CitationService` (already created)
-- New `CortexRouter` (already created) 
+- New `CortexRouter` (already created)

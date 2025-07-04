@@ -132,7 +132,7 @@
 
 # 1. Generate with Sophia
 """
-@sophia create a secure API endpoint for user profile updates 
+@sophia create a secure API endpoint for user profile updates
 with input validation and rate limiting
 """
 
@@ -158,7 +158,7 @@ with input validation and rate limiting
 
 # 2. Store the decision
 """
-@memory remember: We chose Redis for caching because it supports 
+@memory remember: We chose Redis for caching because it supports
 data persistence and has better data structure support
 """
 
@@ -188,7 +188,7 @@ data persistence and has better data structure support
 fast_tasks:
   - code_completion: "claude-3-haiku"
   - simple_queries: "gpt-3.5-turbo"
-  
+
 quality_tasks:
   - architecture_design: "claude-3-sonnet"
   - complex_debugging: "gpt-4"

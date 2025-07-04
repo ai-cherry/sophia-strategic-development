@@ -67,7 +67,7 @@ class CodeAnalysisRequest(BaseModel):
     code: str = Field(..., description="Code to analyze", min_length=1)
     filename: str = Field("snippet.py", description="Filename for context")
     language: str = Field("python", description="Programming language")
-    
+
     @validator('code')
     def validate_code(cls, v):
         if len(v.strip()) == 0:
@@ -118,7 +118,7 @@ class AnalysisResult(BaseModel):
 
 class AdvancedSecurityAnalyzer:
     """Enhanced security analyzer with Bandit integration and Sophia AI patterns"""
-    
+
     def __init__(self):
         self.sophia_patterns = [
             {
@@ -170,7 +170,7 @@ class AdvancedSecurityAnalyzer:
                 "category": "shell_injection",
             },
         ]
-        
+
         # Infrastructure development patterns
         self.infrastructure_patterns = [
             {
@@ -206,40 +206,40 @@ class AdvancedSecurityAnalyzer:
     async def analyze(self, code: str, filename: str) -> List[CodeIssue]:
         """Comprehensive security analysis"""
         issues = []
-        
+
         # Bandit analysis for Python files
         if BANDIT_AVAILABLE and filename.endswith('.py'):
             issues.extend(await self._analyze_with_bandit(code, filename))
-        
+
         # Custom pattern analysis
         issues.extend(self._analyze_patterns(code, filename, self.sophia_patterns))
-        
+
         # Infrastructure patterns
         issues.extend(self._analyze_patterns(code, filename, self.infrastructure_patterns))
-        
+
         return issues
-    
+
     async def _analyze_with_bandit(self, code: str, filename: str) -> List[CodeIssue]:
         """Advanced Bandit integration"""
         issues = []
-        
+
         try:
             with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as temp_file:
                 temp_file.write(code)
                 temp_path = temp_file.name
-            
+
             try:
                 conf = bandit_config.BanditConfig()
                 b_mgr = bandit_manager.BanditManager(conf, "file")
                 b_mgr.discover_files([temp_path])
                 b_mgr.run_tests()
-                
+
                 severity_map = {
                     "LOW": SeverityLevel.LOW,
                     "MEDIUM": SeverityLevel.MEDIUM,
                     "HIGH": SeverityLevel.HIGH,
                 }
-                
+
                 for result in b_mgr.get_issue_list():
                     issues.append(CodeIssue(
                         category=IssueCategory.SECURITY,
@@ -254,17 +254,17 @@ class AdvancedSecurityAnalyzer:
                     ))
             finally:
                 os.unlink(temp_path)
-                
+
         except Exception as e:
             logger.error(f"Bandit analysis failed: {e}")
-        
+
         return issues
-    
+
     def _analyze_patterns(self, code: str, filename: str, patterns: List[Dict]) -> List[CodeIssue]:
         """Pattern-based analysis"""
         issues = []
         lines = code.split('\n')
-        
+
         for pattern_info in patterns:
             for line_num, line in enumerate(lines, 1):
                 if re.search(pattern_info["pattern"], line, re.IGNORECASE):
@@ -280,12 +280,12 @@ class AdvancedSecurityAnalyzer:
                         rule_id=f"pattern_{pattern_info['category']}",
                         confidence=0.8,
                     ))
-        
+
         return issues
 
 class EnhancedComplexityAnalyzer:
     """Advanced complexity analysis with AST and Radon"""
-    
+
     def __init__(self):
         self.thresholds = {"function": 10, "class": 15, "nesting": 4}
 
@@ -299,18 +299,18 @@ class EnhancedComplexityAnalyzer:
             "max_nesting": 0,
             "maintainability_index": 100.0
         }
-        
+
         try:
             tree = ast.parse(code)
             ast_issues, ast_metrics = self._analyze_ast(tree, filename)
             issues.extend(ast_issues)
             metrics.update(ast_metrics)
-            
+
             if RADON_AVAILABLE:
                 radon_issues, radon_metrics = self._analyze_with_radon(code, filename)
                 issues.extend(radon_issues)
                 metrics.update(radon_metrics)
-                
+
         except SyntaxError as e:
             issues.append(CodeIssue(
                 category=IssueCategory.RELIABILITY,
@@ -321,24 +321,24 @@ class EnhancedComplexityAnalyzer:
                 line_number=e.lineno or 1,
                 rule_id="syntax_error",
             ))
-        
+
         return issues, metrics
-    
+
         def _analyze_ast(self, tree: ast.AST, filename: str) -> tuple[List[CodeIssue], Dict[str, Any]]:
         """AST-based complexity analysis"""
         issues = []
         metrics = {"functions": 0, "classes": 0, "max_nesting": 0}
-        
+
         class ComplexityVisitor(ast.NodeVisitor):
             def __init__(self, thresholds):
                 self.depth = 0
                 self.max_depth = 0
                 self.thresholds = thresholds
-                
+
             def visit_FunctionDef(self, node):
                 metrics["functions"] += 1
                 complexity = self._calc_complexity(node)
-                
+
                 if complexity > self.thresholds["function"]:
                     issues.append(CodeIssue(
                         category=IssueCategory.COMPLEXITY,
@@ -350,13 +350,13 @@ class EnhancedComplexityAnalyzer:
                         suggestion="Consider breaking into smaller functions",
                         rule_id="high_function_complexity",
                     ))
-                
+
                 self.generic_visit(node)
-            
+
             def visit_ClassDef(self, node):
                 metrics["classes"] += 1
                 methods = len([n for n in ast.walk(node) if isinstance(n, ast.FunctionDef)])
-                
+
                 if methods > self.thresholds["class"]:
                     issues.append(CodeIssue(
                         category=IssueCategory.COMPLEXITY,
@@ -368,38 +368,38 @@ class EnhancedComplexityAnalyzer:
                         suggestion="Consider splitting into smaller classes",
                         rule_id="large_class",
                     ))
-                
+
                 self.generic_visit(node)
-            
+
             def visit_If(self, node):
                 self.depth += 1
                 self.max_depth = max(self.max_depth, self.depth)
                 self.generic_visit(node)
                 self.depth -= 1
-            
+
             def visit_For(self, node):
                 self.depth += 1
                 self.max_depth = max(self.max_depth, self.depth)
                 self.generic_visit(node)
                 self.depth -= 1
-            
+
             def visit_While(self, node):
                 self.depth += 1
                 self.max_depth = max(self.max_depth, self.depth)
                 self.generic_visit(node)
                 self.depth -= 1
-            
+
             def _calc_complexity(self, node):
                 complexity = 1
                 for child in ast.walk(node):
                     if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
                         complexity += 1
                 return complexity
-        
+
         visitor = ComplexityVisitor(self.thresholds)
         visitor.visit(tree)
         metrics["max_nesting"] = visitor.max_depth
-        
+
         if visitor.max_depth > self.thresholds["nesting"]:
             issues.append(CodeIssue(
                 category=IssueCategory.COMPLEXITY,
@@ -411,19 +411,19 @@ class EnhancedComplexityAnalyzer:
                 suggestion="Extract nested logic into separate functions",
                 rule_id="deep_nesting",
             ))
-        
+
         return issues, metrics
-    
+
     def _analyze_with_radon(self, code: str, filename: str) -> tuple[List[CodeIssue], Dict[str, Any]]:
         """Radon-based analysis"""
         issues = []
         metrics = {}
-        
+
         try:
             # Maintainability index
             mi_result = radon_metrics.mi_visit(code, multi=True)
             metrics["maintainability_index"] = mi_result
-            
+
             if mi_result < 20:
                 issues.append(CodeIssue(
                     category=IssueCategory.MAINTAINABILITY,
@@ -435,15 +435,15 @@ class EnhancedComplexityAnalyzer:
                     suggestion="Refactor to improve maintainability",
                     rule_id="low_maintainability",
                 ))
-                
+
         except Exception as e:
             logger.error(f"Radon analysis failed: {e}")
-        
+
         return issues, metrics
 
 class InfrastructureAnalyzer:
     """Specialized analyzer for infrastructure and development code"""
-    
+
     def __init__(self):
         self.dev_patterns = [
             {
@@ -477,7 +477,7 @@ class InfrastructureAnalyzer:
         """Analyze infrastructure and development patterns"""
         issues = []
         lines = code.split('\n')
-        
+
         for pattern_info in self.dev_patterns:
             for line_num, line in enumerate(lines, 1):
                 if re.search(pattern_info["pattern"], line, re.IGNORECASE):
@@ -493,48 +493,48 @@ class InfrastructureAnalyzer:
                         rule_id="infrastructure_pattern",
                         confidence=0.9,
                     ))
-        
+
         return issues
 
 class UnifiedCodeAnalyzer:
     """Main analyzer orchestrating all analysis types"""
-    
+
     def __init__(self):
         self.security_analyzer = AdvancedSecurityAnalyzer()
         self.complexity_analyzer = EnhancedComplexityAnalyzer()
         self.infrastructure_analyzer = InfrastructureAnalyzer()
         self.analysis_count = 0
-    
+
     async def analyze_code(self, code: str, filename: str = "snippet.py", language: str = "python") -> AnalysisResult:
         """Perform comprehensive code analysis"""
         start_time = time.time()
         self.analysis_count += 1
-        
+
         all_issues = []
-        
+
         # Security analysis
         security_issues = await self.security_analyzer.analyze(code, filename)
         all_issues.extend(security_issues)
-        
+
         # Complexity analysis
         complexity_issues, complexity_metrics = await self.complexity_analyzer.analyze(code, filename)
         all_issues.extend(complexity_issues)
-        
+
         # Infrastructure analysis
         infra_issues = await self.infrastructure_analyzer.analyze(code, filename)
         all_issues.extend(infra_issues)
-        
+
         # Calculate metrics
         metrics = self._calculate_metrics(code, all_issues, complexity_metrics)
-        
+
         # Generate suggestions
         suggestions = self._generate_suggestions(all_issues, metrics)
-        
+
         # Create summary
         summary = self._create_summary(all_issues, metrics)
-        
+
         analysis_time = (time.time() - start_time) * 1000
-        
+
         return AnalysisResult(
             filename=filename,
             language=language,
@@ -545,25 +545,25 @@ class UnifiedCodeAnalyzer:
             timestamp=datetime.now(),
             summary=summary
         )
-    
+
     def _calculate_metrics(self, code: str, issues: List[CodeIssue], complexity_metrics: Dict) -> CodeMetrics:
         """Calculate comprehensive code metrics"""
         lines = code.split('\n')
         total_lines = len(lines)
         non_empty_lines = len([line for line in lines if line.strip()])
         comment_lines = len([line for line in lines if line.strip().startswith('#')])
-        
+
         # Security score
         security_issues = [i for i in issues if i.category == IssueCategory.SECURITY]
         security_score = max(0, 100 - len(security_issues) * 10)
-        
+
         # Overall score
         critical_issues = len([i for i in issues if i.severity == SeverityLevel.CRITICAL])
         high_issues = len([i for i in issues if i.severity == SeverityLevel.HIGH])
         medium_issues = len([i for i in issues if i.severity == SeverityLevel.MEDIUM])
-        
+
         overall_score = max(0, 100 - (critical_issues * 25 + high_issues * 15 + medium_issues * 5))
-        
+
         return CodeMetrics(
             lines_of_code=total_lines,
             non_empty_lines=non_empty_lines,
@@ -578,44 +578,44 @@ class UnifiedCodeAnalyzer:
                 "max_nesting": complexity_metrics.get("max_nesting", 0)
             }
         )
-    
+
     def _generate_suggestions(self, issues: List[CodeIssue], metrics: CodeMetrics) -> List[str]:
         """Generate actionable suggestions"""
         suggestions = []
-        
+
         critical_issues = [i for i in issues if i.severity == SeverityLevel.CRITICAL]
         if critical_issues:
             suggestions.append(f"🚨 URGENT: Fix {len(critical_issues)} critical issue(s)")
-        
+
         security_issues = [i for i in issues if i.category == IssueCategory.SECURITY]
         if security_issues:
             suggestions.append(f"🔒 Address {len(security_issues)} security issue(s)")
-        
+
         complexity_issues = [i for i in issues if i.category == IssueCategory.COMPLEXITY]
         if complexity_issues:
             suggestions.append(f"📊 Reduce complexity in {len(complexity_issues)} area(s)")
-        
+
         infra_issues = [i for i in issues if i.category == IssueCategory.INFRASTRUCTURE]
         if infra_issues:
             suggestions.append(f"🏗️ Review {len(infra_issues)} infrastructure pattern(s)")
-        
+
         if metrics.maintainability_index < 20:
             suggestions.append("📈 Improve code maintainability")
-        
+
         if not suggestions:
             suggestions.append("✅ Code quality looks excellent!")
-        
+
         return suggestions
-    
+
     def _create_summary(self, issues: List[CodeIssue], metrics: CodeMetrics) -> Dict[str, Any]:
         """Create analysis summary"""
         severity_counts = {}
         category_counts = {}
-        
+
         for issue in issues:
             severity_counts[issue.severity] = severity_counts.get(issue.severity, 0) + 1
             category_counts[issue.category] = category_counts.get(issue.category, 0) + 1
-        
+
         return {
             "total_issues": len(issues),
             "severity_breakdown": severity_counts,
@@ -694,7 +694,7 @@ async def root():
         "status": "running",
         "capabilities": [
             "comprehensive_code_analysis",
-            "advanced_security_scanning", 
+            "advanced_security_scanning",
             "complexity_analysis",
             "infrastructure_analysis",
             "development_assistance",
@@ -738,18 +738,18 @@ async def analyze_code(
     """Comprehensive code analysis endpoint"""
     try:
         result = await analyzer.analyze_code(request.code, request.filename, request.language)
-        
+
         # Background logging
         background_tasks.add_task(
-            log_analysis, 
-            request.filename, 
-            result.summary['overall_score'], 
+            log_analysis,
+            request.filename,
+            result.summary['overall_score'],
             result.summary['total_issues']
         )
-        
+
         logger.info(f"✅ Analyzed {request.filename}: {result.summary['overall_score']}/100")
         return result
-        
+
     except Exception as e:
         logger.error(f"❌ Analysis failed for {request.filename}: {e}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
@@ -762,11 +762,11 @@ async def security_scan(
     """Dedicated security scanning endpoint"""
     try:
         security_issues = await analyzer.security_analyzer.analyze(request.code, request.filename)
-        
+
         severity_summary = {}
         for issue in security_issues:
             severity_summary[issue.severity] = severity_summary.get(issue.severity, 0) + 1
-        
+
         risk_level = "low"
         if any(issue.severity == SeverityLevel.CRITICAL for issue in security_issues):
             risk_level = "critical"
@@ -774,13 +774,13 @@ async def security_scan(
             risk_level = "high"
         elif any(issue.severity == SeverityLevel.MEDIUM for issue in security_issues):
             risk_level = "medium"
-        
+
         recommendations = []
         if severity_summary.get(SeverityLevel.CRITICAL, 0) > 0:
             recommendations.append(f"🚨 URGENT: {severity_summary[SeverityLevel.CRITICAL]} critical security issue(s) require immediate attention")
         if severity_summary.get(SeverityLevel.HIGH, 0) > 0:
             recommendations.append(f"⚠️ {severity_summary[SeverityLevel.HIGH]} high-severity security issue(s) should be addressed soon")
-        
+
         return {
             "filename": request.filename,
             "security_issues": security_issues,
@@ -790,7 +790,7 @@ async def security_scan(
             "recommendations": recommendations,
             "scan_timestamp": datetime.now().isoformat()
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Security scan failed: {e}")
         raise HTTPException(status_code=500, detail=f"Security scan failed: {str(e)}")
@@ -804,21 +804,21 @@ async def analyze_file(
     """File analysis endpoint"""
     try:
         file_path = Path(request.file_path)
-        
+
         if not file_path.exists():
             raise HTTPException(status_code=404, detail="File not found")
-        
+
         if file_path.suffix not in ['.py', '.js', '.ts', '.jsx', '.tsx', '.java', '.cpp', '.hpp']:
             raise HTTPException(status_code=400, detail="Unsupported file type")
-        
+
         code = file_path.read_text(encoding='utf-8')
         result = await analyzer.analyze_code(code, str(file_path))
-        
+
         background_tasks.add_task(log_analysis, str(file_path), result.summary['overall_score'], result.summary['total_issues'])
-        
+
         logger.info(f"✅ Analyzed file {file_path}: {result.summary['overall_score']}/100")
         return result
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -870,7 +870,7 @@ async def log_analysis(filename: str, score: float, issue_count: int):
 async def main():
     """Run the unified server"""
     logger.info("🚀 Starting Unified Codacy MCP Server on port 3008...")
-    
+
     config = uvicorn.Config(
         app=app,
         host="0.0.0.0",
@@ -878,9 +878,9 @@ async def main():
         log_level="info",
         access_log=True
     )
-    
+
     server = uvicorn.Server(config)
     await server.serve()
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

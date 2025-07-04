@@ -30,4 +30,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:9030/health || exit 1
 
 # Run the server
-CMD ["uvicorn", "v0dev_mcp_server:app", "--host", "0.0.0.0", "--port", "9030"] 
+CMD ["uvicorn", "v0dev_mcp_server:app", "--host", "0.0.0.0", "--port", "9030"]

@@ -7,8 +7,6 @@
   "gong_source": {},
   "slack_source": {},
   "connections": [],
-  "errors": [
-    "Failed to create Snowflake destination"
-  ],
+  "errors": ["Failed to create Snowflake destination"],
   "success": false
 }

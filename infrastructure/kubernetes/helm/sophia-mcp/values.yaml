@@ -7,10 +7,10 @@ global:
   imageTag: "latest"
   imagePullPolicy: IfNotPresent
   environment: production
-  
+
   # Pulumi ESC integration
   pulumiEscEnv: scoobyjava-org/sophia-ai-production
-  
+
   # Security settings
   securityContext:
     runAsNonRoot: true
@@ -27,8 +27,8 @@ mcpGateway:
   replicas: 3
   image:
     repository: sophia-mcp-gateway
-    tag: ""  # Uses global.imageTag if empty
-  
+    tag: "" # Uses global.imageTag if empty
+
   service:
     type: LoadBalancer
     port: 80
@@ -36,7 +36,7 @@ mcpGateway:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
       service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-  
+
   resources:
     requests:
       memory: "256Mi"
@@ -44,14 +44,14 @@ mcpGateway:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-  
+
   autoscaling:
     enabled: true
     minReplicas: 3
     maxReplicas: 10
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
-  
+
   config:
     logLevel: INFO
     timeout: 30000
@@ -70,7 +70,7 @@ mcpServers:
     image:
       repository: sophia-ai-memory-mcp
       tag: ""
-    
+
     resources:
       requests:
         nvidia.com/gpu: 0.25
@@ -80,7 +80,7 @@ mcpServers:
         nvidia.com/gpu: 0.25
         memory: "2Gi"
         cpu: "1000m"
-    
+
     env:
       - name: MCP_SERVER_TYPE
         value: "ai_memory"
@@ -88,19 +88,19 @@ mcpServers:
         value: "true"
       - name: AUTO_DISCOVERY_ENABLED
         value: "true"
-    
+
     persistence:
       enabled: true
       size: 10Gi
       storageClass: gp3
-    
+
     readinessProbe:
       httpGet:
         path: /ready
         port: 9000
       initialDelaySeconds: 10
       periodSeconds: 5
-    
+
     livenessProbe:
       httpGet:
         path: /health
@@ -117,7 +117,7 @@ mcpServers:
     image:
       repository: sophia-snowflake-admin-mcp
       tag: ""
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -125,7 +125,7 @@ mcpServers:
       limits:
         memory: "1Gi"
         cpu: "500m"
-    
+
     env:
       - name: MCP_SERVER_TYPE
         value: "snowflake_admin"
@@ -133,14 +133,14 @@ mcpServers:
         value: "true"
       - name: SQL_EXECUTION_ENABLED
         value: "true"
-    
+
     readinessProbe:
       httpGet:
         path: /ready
         port: 8080
       initialDelaySeconds: 10
       periodSeconds: 5
-    
+
     livenessProbe:
       httpGet:
         path: /health
@@ -157,7 +157,7 @@ mcpServers:
     image:
       repository: sophia-linear-mcp
       tag: ""
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -165,20 +165,20 @@ mcpServers:
       limits:
         memory: "512Mi"
         cpu: "300m"
-    
+
     env:
       - name: MCP_SERVER_TYPE
         value: "linear"
       - name: PROJECT_HEALTH_ENABLED
         value: "true"
-    
+
     readinessProbe:
       httpGet:
         path: /ready
         port: 3002
       initialDelaySeconds: 10
       periodSeconds: 5
-    
+
     livenessProbe:
       httpGet:
         path: /health
@@ -195,7 +195,7 @@ mcpServers:
     image:
       repository: sophia-asana-mcp
       tag: ""
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -203,20 +203,20 @@ mcpServers:
       limits:
         memory: "512Mi"
         cpu: "300m"
-    
+
     env:
       - name: MCP_SERVER_TYPE
         value: "asana"
       - name: PROJECT_INTELLIGENCE_ENABLED
         value: "true"
-    
+
     readinessProbe:
       httpGet:
         path: /ready
         port: 3001
       initialDelaySeconds: 10
       periodSeconds: 5
-    
+
     livenessProbe:
       httpGet:
         path: /health
@@ -233,7 +233,7 @@ mcpServers:
     image:
       repository: sophia-gong-mcp
       tag: ""
-    
+
     resources:
       requests:
         memory: "512Mi"
@@ -241,7 +241,7 @@ mcpServers:
       limits:
         memory: "1Gi"
         cpu: "500m"
-    
+
     env:
       - name: MCP_SERVER_TYPE
         value: "gong"
@@ -249,14 +249,14 @@ mcpServers:
         value: "true"
       - name: REAL_TIME_PROCESSING
         value: "true"
-    
+
     readinessProbe:
       httpGet:
         path: /ready
         port: 3004
       initialDelaySeconds: 15
       periodSeconds: 5
-    
+
     livenessProbe:
       httpGet:
         path: /health
@@ -274,7 +274,7 @@ externalServers:
       - code_analysis
       - security_scanning
       - quality_metrics
-  
+
   sophiaIntelligence:
     enabled: true
     endpoint: "http://sophia-intelligence-service:8092"
@@ -292,10 +292,10 @@ monitoring:
     port: 9090
     path: /metrics
     scrapeInterval: 30s
-  
+
   grafana:
-    enabled: false  # External Grafana instance
-  
+    enabled: false # External Grafana instance
+
   alerts:
     enabled: true
     rules:
@@ -303,12 +303,12 @@ monitoring:
         condition: up == 0
         for: 2m
         severity: critical
-      
+
       - name: mcp-high-memory
         condition: memory_usage > 80
         for: 5m
         severity: warning
-      
+
       - name: mcp-high-latency
         condition: response_time > 1000
         for: 3m
@@ -330,9 +330,9 @@ networkPolicy:
           port: 8080
         - protocol: TCP
           port: 9000
-  
+
   egress:
-    - to: []  # Allow all egress (for external API calls)
+    - to: [] # Allow all egress (for external API calls)
       ports:
         - protocol: TCP
           port: 443
@@ -344,12 +344,12 @@ storage:
   storageClass: gp3
   accessModes:
     - ReadWriteOnce
-  
+
   volumes:
     aiMemoryData:
       size: 10Gi
       mountPath: /data/ai-memory
-    
+
     logs:
       size: 5Gi
       mountPath: /logs
@@ -425,7 +425,7 @@ environments:
       linear: 2
       asana: 2
       gong: 2
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -433,7 +433,7 @@ environments:
       limits:
         memory: "1Gi"
         cpu: "1000m"
-  
+
   staging:
     replicas:
       gateway: 2
@@ -442,7 +442,7 @@ environments:
       linear: 1
       asana: 1
       gong: 1
-    
+
     resources:
       requests:
         memory: "128Mi"
@@ -450,7 +450,7 @@ environments:
       limits:
         memory: "512Mi"
         cpu: "500m"
-  
+
   development:
     replicas:
       gateway: 1
@@ -459,11 +459,11 @@ environments:
       linear: 1
       asana: 1
       gong: 1
-    
+
     resources:
       requests:
         memory: "128Mi"
         cpu: "100m"
       limits:
         memory: "256Mi"
-        cpu: "200m" 
+        cpu: "200m"

@@ -39,23 +39,23 @@ export class SecureSecretManager {
         // Automatically loads from Pulumi ESC which syncs from GitHub Org Secrets
         this.secrets = this.loadSecretsFromESC();
     }
-    
+
     private loadSecretsFromESC(): SecretConfig {
         return {
             // AI Intelligence secrets
             openai_api_key: getConfigValue("openai_api_key"),
             anthropic_api_key: getConfigValue("anthropic_api_key"),
             portkey_api_key: getConfigValue("portkey_api_key"),
-            
-            // Infrastructure secrets  
+
+            // Infrastructure secrets
             lambda_labs_api_key: getConfigValue("lambda_labs_api_key"),
             docker_username: getConfigValue("docker_username"),
             docker_token: getConfigValue("docker_personal_access_token"),
-            
+
             // Data infrastructure secrets
             snowflake_password: getConfigValue("snowflake_password"),
             estuary_access_token: getConfigValue("estuary_access_token"),
-            
+
             // Business intelligence secrets
             gong_access_key: getConfigValue("gong_access_key"),
             hubspot_access_token: getConfigValue("hubspot_access_token"),
@@ -199,7 +199,7 @@ CMD ["python", "app.py"]
 ```typescript
 // Data protection configuration for Lambda Labs
 export class LambdaLabsDataProtection {
-    
+
     static createEncryptionConfig() {
         return {
             // Snowflake encryption
@@ -209,21 +209,21 @@ export class LambdaLabsDataProtection {
                 columnLevelEncryption: true,
                 clientSideEncryption: true,
             },
-            
+
             // Container storage encryption
             storage: {
                 encryption: "AES-256-GCM",
                 keyProvider: "kubernetes-secrets",
                 automountServiceAccountToken: false,
             },
-            
+
             // Network encryption
             network: {
                 tlsVersion: "1.3",
                 cipherSuites: ["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"],
                 certificateRotation: "30d",
             },
-            
+
             // AI model encryption
             models: {
                 encryption: "AES-256",
@@ -252,7 +252,7 @@ export class LambdaLabsDataProtection {
 ```typescript
 // AI-specific security controls for Lambda Labs
 export class LambdaLabsAISecurity {
-    
+
     static createModelSecurityConfig() {
         return {
             // Model access control
@@ -262,7 +262,7 @@ export class LambdaLabsAISecurity {
                 auditLogging: true,
                 accessReview: "30d",
             },
-            
+
             // Input validation
             validation: {
                 inputSanitization: true,
@@ -270,7 +270,7 @@ export class LambdaLabsAISecurity {
                 rateLimiting: true,
                 anomalyDetection: true,
             },
-            
+
             // Model integrity
             integrity: {
                 digitalSignatures: true,
@@ -278,7 +278,7 @@ export class LambdaLabsAISecurity {
                 versionControl: true,
                 rollbackCapability: true,
             },
-            
+
             // Constitutional AI framework
             ethics: {
                 biasDetection: true,
@@ -288,7 +288,7 @@ export class LambdaLabsAISecurity {
             },
         };
     }
-    
+
     static validateModelInput(input: any): ValidationResult {
         return {
             isValid: this.performInputValidation(input),
@@ -362,7 +362,7 @@ spec:
 ```typescript
 // Security monitoring configuration for Lambda Labs
 export class LambdaLabsSecurityMonitoring {
-    
+
     static createMonitoringConfig() {
         return {
             // Security event logging
@@ -373,7 +373,7 @@ export class LambdaLabsSecurityMonitoring {
                 realTimeAlerts: true,
                 retention: "2y",
             },
-            
+
             // Threat detection
             detection: {
                 behavioralAnalysis: true,
@@ -381,7 +381,7 @@ export class LambdaLabsSecurityMonitoring {
                 machineLearningDetection: true,
                 threatIntelligence: true,
             },
-            
+
             // Incident response
             response: {
                 automatedResponse: true,
@@ -389,7 +389,7 @@ export class LambdaLabsSecurityMonitoring {
                 escalationMatrix: true,
                 forensicsCapability: true,
             },
-            
+
             // Compliance monitoring
             compliance: {
                 continuousMonitoring: true,
@@ -493,7 +493,7 @@ export class LambdaLabsSecurityMonitoring {
 ```typescript
 // Automated security scanning pipeline
 export class LambdaLabsSecurityAutomation {
-    
+
     static createSecurityPipeline() {
         return {
             // Container image scanning
@@ -507,7 +507,7 @@ export class LambdaLabsSecurityAutomation {
                 },
                 quarantine: true,
             },
-            
+
             // Infrastructure scanning
             infrastructureScan: {
                 tools: ["Checkov", "Terrascan", "Bridgecrew"],
@@ -515,7 +515,7 @@ export class LambdaLabsSecurityAutomation {
                 policies: ["CIS", "NIST", "SOC2"],
                 blocking: true,
             },
-            
+
             // Runtime security
             runtimeScan: {
                 tools: ["Falco", "Sysdig", "Aqua"],
@@ -523,7 +523,7 @@ export class LambdaLabsSecurityAutomation {
                 alerting: "real-time",
                 response: "automated",
             },
-            
+
             // Secret scanning
             secretScan: {
                 tools: ["GitLeaks", "TruffleHog", "detect-secrets"],
@@ -541,7 +541,7 @@ export class LambdaLabsSecurityAutomation {
 ```typescript
 // Automated incident response for Lambda Labs
 export class LambdaLabsIncidentResponse {
-    
+
     static createResponsePlaybooks() {
         return {
             // Container compromise
@@ -549,14 +549,14 @@ export class LambdaLabsIncidentResponse {
                 detection: "behavioral-analysis",
                 response: [
                     "isolate-container",
-                    "preserve-forensics", 
+                    "preserve-forensics",
                     "analyze-impact",
                     "remediate-vulnerability",
                     "restore-service",
                 ],
                 automation: "full",
             },
-            
+
             // Secret exposure
             secretExposure: {
                 detection: "secret-scanning",
@@ -569,7 +569,7 @@ export class LambdaLabsIncidentResponse {
                 ],
                 automation: "partial",
             },
-            
+
             // GPU anomaly
             gpuAnomaly: {
                 detection: "performance-monitoring",

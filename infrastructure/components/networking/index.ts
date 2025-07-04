@@ -1,6 +1,6 @@
 /**
  * Sophia AI - Networking Infrastructure Components
- * 
+ *
  * This module provides reusable networking components for the Sophia AI platform,
  * including VPC, subnets, security groups, and network policies.
  */
@@ -14,12 +14,12 @@ export interface NetworkingArgs {
      * Environment name (e.g., dev, staging, prod)
      */
     environment: string;
-    
+
     /**
      * VPC CIDR block
      */
     vpcCidrBlock: string;
-    
+
     /**
      * Configuration for public subnets
      */
@@ -28,13 +28,13 @@ export interface NetworkingArgs {
          * CIDR blocks for public subnets
          */
         cidrBlocks: string[];
-        
+
         /**
          * Availability zones for public subnets
          */
         availabilityZones?: string[];
     };
-    
+
     /**
      * Configuration for private subnets
      */
@@ -43,13 +43,13 @@ export interface NetworkingArgs {
          * CIDR blocks for private subnets
          */
         cidrBlocks: string[];
-        
+
         /**
          * Availability zones for private subnets
          */
         availabilityZones?: string[];
     };
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -64,65 +64,65 @@ export class NetworkingComponents extends pulumi.ComponentResource {
      * The Virtual Private Cloud (VPC)
      */
     public readonly vpc: aws.ec2.Vpc;
-    
+
     /**
      * Public subnets for internet-facing resources
      */
     public readonly publicSubnets: aws.ec2.Subnet[];
-    
+
     /**
      * Private subnets for internal resources
      */
     public readonly privateSubnets: aws.ec2.Subnet[];
-    
+
     /**
      * Internet Gateway for public internet access
      */
     public readonly internetGateway: aws.ec2.InternetGateway;
-    
+
     /**
      * NAT Gateways for private subnet internet access
      */
     public readonly natGateways: aws.ec2.NatGateway[];
-    
+
     /**
      * Elastic IPs for NAT Gateways
      */
     public readonly elasticIps: aws.ec2.Eip[];
-    
+
     /**
      * Route tables for public subnets
      */
     public readonly publicRouteTable: aws.ec2.RouteTable;
-    
+
     /**
      * Route tables for private subnets
      */
     public readonly privateRouteTables: aws.ec2.RouteTable[];
-    
+
     /**
      * Security group for AI-specific services
      */
     public readonly aiServicesSecurityGroup: aws.ec2.SecurityGroup;
-    
+
     /**
      * Security group for database services
      */
     public readonly databaseSecurityGroup: aws.ec2.SecurityGroup;
-    
+
     /**
      * Security group for web services
      */
     public readonly webServicesSecurityGroup: aws.ec2.SecurityGroup;
-    
+
     /**
      * Network policy for Kubernetes
      */
     public readonly networkPolicy?: kubernetes.networking.v1.NetworkPolicy;
-    
+
     constructor(name: string, args: NetworkingArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:networking:NetworkingComponents", name, {}, opts);
-        
+
         // Assign default tags
         const tags = {
             Environment: args.environment,
@@ -132,7 +132,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
             CreatedAt: new Date().toISOString(),
             ...args.tags,
         };
-        
+
         // Create VPC
         this.vpc = new aws.ec2.Vpc(`${name}-vpc`, {
             cidrBlock: args.vpcCidrBlock,
@@ -143,7 +143,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                 Name: `${name}-vpc-${args.environment}`,
             },
         }, { parent: this });
-        
+
         // Create Internet Gateway
         this.internetGateway = new aws.ec2.InternetGateway(`${name}-igw`, {
             vpcId: this.vpc.id,
@@ -152,7 +152,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                 Name: `${name}-igw-${args.environment}`,
             },
         }, { parent: this });
-        
+
         // Create Public Route Table
         this.publicRouteTable = new aws.ec2.RouteTable(`${name}-public-rt`, {
             vpcId: this.vpc.id,
@@ -165,17 +165,17 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                 Name: `${name}-public-rt-${args.environment}`,
             },
         }, { parent: this });
-        
+
         // Get availability zones if not provided
         const getAvailabilityZones = aws.getAvailabilityZones();
-        
+
         // Create Public Subnets
         this.publicSubnets = [];
         args.publicSubnets.cidrBlocks.forEach((cidrBlock, i) => {
-            const az = args.publicSubnets.availabilityZones 
-                ? args.publicSubnets.availabilityZones[i] 
+            const az = args.publicSubnets.availabilityZones
+                ? args.publicSubnets.availabilityZones[i]
                 : getAvailabilityZones.then(azs => azs.names[i % azs.names.length]);
-            
+
             const subnet = new aws.ec2.Subnet(`${name}-public-subnet-${i + 1}`, {
                 vpcId: this.vpc.id,
                 cidrBlock: cidrBlock,
@@ -187,20 +187,20 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                     "kubernetes.io/role/elb": "1",
                 },
             }, { parent: this });
-            
+
             // Associate with Public Route Table
             new aws.ec2.RouteTableAssociation(`${name}-public-rta-${i + 1}`, {
                 subnetId: subnet.id,
                 routeTableId: this.publicRouteTable.id,
             }, { parent: this });
-            
+
             this.publicSubnets.push(subnet);
         });
-        
+
         // Create Elastic IPs and NAT Gateways for private subnet internet access
         this.elasticIps = [];
         this.natGateways = [];
-        
+
         // Create one NAT Gateway per AZ for high availability
         this.publicSubnets.forEach((subnet, i) => {
             const eip = new aws.ec2.Eip(`${name}-eip-${i + 1}`, {
@@ -210,7 +210,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                     Name: `${name}-eip-${i + 1}-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             const natGateway = new aws.ec2.NatGateway(`${name}-nat-${i + 1}`, {
                 allocationId: eip.id,
                 subnetId: subnet.id,
@@ -219,20 +219,20 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                     Name: `${name}-nat-${i + 1}-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             this.elasticIps.push(eip);
             this.natGateways.push(natGateway);
         });
-        
+
         // Create Private Subnets and Route Tables
         this.privateSubnets = [];
         this.privateRouteTables = [];
-        
+
         args.privateSubnets.cidrBlocks.forEach((cidrBlock, i) => {
-            const az = args.privateSubnets.availabilityZones 
-                ? args.privateSubnets.availabilityZones[i] 
+            const az = args.privateSubnets.availabilityZones
+                ? args.privateSubnets.availabilityZones[i]
                 : getAvailabilityZones.then(azs => azs.names[i % azs.names.length]);
-            
+
             // Create private subnet
             const subnet = new aws.ec2.Subnet(`${name}-private-subnet-${i + 1}`, {
                 vpcId: this.vpc.id,
@@ -244,7 +244,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                     "kubernetes.io/role/internal-elb": "1",
                 },
             }, { parent: this });
-            
+
             // Create route table with route to NAT Gateway
             const natGatewayIndex = i % this.natGateways.length;
             const routeTable = new aws.ec2.RouteTable(`${name}-private-rt-${i + 1}`, {
@@ -258,19 +258,19 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                     Name: `${name}-private-rt-${i + 1}-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             // Associate with Private Route Table
             new aws.ec2.RouteTableAssociation(`${name}-private-rta-${i + 1}`, {
                 subnetId: subnet.id,
                 routeTableId: routeTable.id,
             }, { parent: this });
-            
+
             this.privateSubnets.push(subnet);
             this.privateRouteTables.push(routeTable);
         });
-        
+
         // Create Security Groups
-        
+
         // AI Services Security Group - optimized for ML workloads
         this.aiServicesSecurityGroup = new aws.ec2.SecurityGroup(`${name}-ai-services-sg`, {
             vpcId: this.vpc.id,
@@ -309,7 +309,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                 ResourceType: "AI/ML",
             },
         }, { parent: this });
-        
+
         // Database Security Group
         this.databaseSecurityGroup = new aws.ec2.SecurityGroup(`${name}-database-sg`, {
             vpcId: this.vpc.id,
@@ -348,7 +348,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                 ResourceType: "Database",
             },
         }, { parent: this });
-        
+
         // Web Services Security Group
         this.webServicesSecurityGroup = new aws.ec2.SecurityGroup(`${name}-web-services-sg`, {
             vpcId: this.vpc.id,
@@ -395,7 +395,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
                 ResourceType: "WebServices",
             },
         }, { parent: this });
-        
+
         // Update AI Services Security Group to allow traffic from Web Services
         new aws.ec2.SecurityGroupRule(`${name}-web-to-ai-rule`, {
             type: "ingress",
@@ -406,7 +406,7 @@ export class NetworkingComponents extends pulumi.ComponentResource {
             sourceSecurityGroupId: this.webServicesSecurityGroup.id,
             description: "Web services to AI services",
         }, { parent: this });
-        
+
         // Register all resources
         this.registerOutputs({
             vpc: this.vpc,
@@ -505,27 +505,27 @@ export interface NetworkPolicyArgs {
      * Application name
      */
     appName: string;
-    
+
     /**
      * Kubernetes namespace
      */
     namespace: string;
-    
+
     /**
      * Allowed ingress namespaces
      */
     allowedIngressNamespaces?: string[];
-    
+
     /**
      * Allowed egress namespaces
      */
     allowedEgressNamespaces?: string[];
-    
+
     /**
      * Allowed ingress ports
      */
     allowedIngressPorts?: number[];
-    
+
     /**
      * Allowed egress ports
      */
@@ -542,7 +542,7 @@ export function createCustomNetworkPolicy(
 ): kubernetes.networking.v1.NetworkPolicy {
     const ingressNamespaces = args.allowedIngressNamespaces || [args.namespace];
     const egressNamespaces = args.allowedEgressNamespaces || [args.namespace, "kube-system"];
-    
+
     const ingressRules = ingressNamespaces.map(ns => ({
         from: [
             {
@@ -558,7 +558,7 @@ export function createCustomNetworkPolicy(
             port: port,
         })),
     }));
-    
+
     const egressRules = egressNamespaces.map(ns => ({
         to: [
             {
@@ -574,7 +574,7 @@ export function createCustomNetworkPolicy(
             port: port,
         })),
     }));
-    
+
     // Always add DNS egress rule
     egressRules.push({
         to: [
@@ -593,7 +593,7 @@ export function createCustomNetworkPolicy(
             },
         ],
     });
-    
+
     return new kubernetes.networking.v1.NetworkPolicy(`${name}-network-policy`, {
         metadata: {
             name: `${name}-network-policy`,

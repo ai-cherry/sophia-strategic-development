@@ -51,7 +51,7 @@
 
 ### **Affected Servers**
 - [ ] AI Memory (`ai_memory`)
-- [ ] Codacy (`codacy`) 
+- [ ] Codacy (`codacy`)
 - [ ] Snowflake Admin (`snowflake_admin`)
 - [ ] Asana (`asana`)
 - [ ] Notion (`notion`)
@@ -72,7 +72,7 @@
 
 ### **Environment Impact**
 - [ ] DEV environment
-- [ ] STG environment  
+- [ ] STG environment
 - [ ] PROD environment (requires extra review)
 
 ### **Snowflake Changes**
@@ -221,7 +221,7 @@
 
 ### **CI/CD Status**
 - [ ] Build passing
-- [ ] Tests passing  
+- [ ] Tests passing
 - [ ] Security scan passing
 - [ ] Code quality check passing
 - [ ] Deployment ready
@@ -234,4 +234,4 @@
 
 ---
 
-**✨ This PR was created with Cursor AI assistance and follows Sophia AI development standards.** 
+**✨ This PR was created with Cursor AI assistance and follows Sophia AI development standards.**

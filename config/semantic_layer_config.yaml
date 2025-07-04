@@ -78,4 +78,4 @@ generation_config:
   view_prefix: "" # No prefix, use entity name directly (e.g., CUSTOMER_360)
   view_suffix: "_360"
   run_on_startup: true
-  rebuild_schedule_cron: "0 0 * * *" # Daily at midnight UTC 
+  rebuild_schedule_cron: "0 0 * * *" # Daily at midnight UTC

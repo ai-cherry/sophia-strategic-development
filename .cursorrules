@@ -1,6 +1,6 @@
 ## ⚠️ **MONOREPO TRANSITION IN PROGRESS**
 
-**CRITICAL FOR AI CODERS**: 
+**CRITICAL FOR AI CODERS**:
 - We are transitioning from the old structure (`backend/`, `frontend/`) to a new monorepo structure (`apps/`, `libs/`)
 - **Continue using the OLD structure** for all new code until migration is complete
 - See `docs/monorepo/MONOREPO_TRANSITION_GUIDE.md` for details
@@ -227,7 +227,7 @@ The external repository collection enables:
    ```bash
    # CORRECT - Always default to production
    ENVIRONMENT="${ENV:-prod}"
-   
+
    # WRONG - Never default to staging
    ENVIRONMENT="${ENV:-staging}"  # ❌ FORBIDDEN
    ```
@@ -245,7 +245,7 @@ The external repository collection enables:
    ```python
    STACK_MAPPING = {
        "prod": "sophia-ai-production",          # ✅ Production stack
-       "staging": "sophia-ai-platform-staging", # ✅ Staging stack  
+       "staging": "sophia-ai-platform-staging", # ✅ Staging stack
        "dev": "sophia-ai-platform-dev"          # ✅ Development stack
    }
    ```
@@ -286,7 +286,7 @@ The external repository collection enables:
 
 4. **NEVER use local Docker deployment:**
    - ❌ No `docker-compose up` locally
-   - ❌ No `.env` files  
+   - ❌ No `.env` files
    - ✅ Use `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
    - ✅ All secrets via Pulumi ESC
 
@@ -303,7 +303,7 @@ The external repository collection enables:
    ```python
    # CORRECT - Use centralized environment detection
    from backend.core.auto_esc_config import get_config_value
-   
+
    # WRONG - Direct environment variable access
    os.getenv("SOME_SECRET")  # ❌ Use centralized config instead
    ```
@@ -822,7 +822,7 @@ PROJECT_CONTEXT: |
   Initial User: CEO only (80-employee company)
   Priority: Quality > Stability > Maintainability > Performance > Cost
   Current Phase: Building enhanced chat with citation system
-  
+
 CODING_STANDARDS: |
   Python:
     - Use Python 3.11+ with type hints for all functions
@@ -830,41 +830,41 @@ CODING_STANDARDS: |
     - Use Black formatter (88 char line limit)
     - Include comprehensive docstrings
     - Error handling with proper logging
-    
+
   TypeScript:
     - Strict mode enabled, no 'any' types
     - ESLint + Prettier configured
     - Interfaces over types where possible
     - JSDoc for all exported functions
     - React functional components only
-    
+
   Testing:
     - TDD approach - write tests first
     - pytest for Python, Jest for TypeScript
     - Minimum 80% code coverage
     - Integration tests for all API endpoints
     - Unit tests for business logic
-  
+
 AI_RULES: |
   Planning:
     - Plan-Then-Act: 70% planning, 30% execution
     - Break tasks into micro-tasks (< 5 min each)
     - Define clear success criteria before coding
     - Create tests before implementation
-    
+
   Development:
     - Make minimal, focused changes
     - Micro-commits with descriptive messages
     - Update documentation with each change
     - Run tests after each change
     - Review diffs before committing
-    
+
   Context:
     - Always reference @docs/PROJECT_CONTEXT.md
     - Check @docs/architecture/ for patterns
     - Update @docs/AI_MEMORY.md with learnings
     - Cite all data sources in responses
-    
+
 ARCHITECTURE_PATTERNS: |
   Backend:
     - FastAPI for async REST APIs
@@ -872,14 +872,14 @@ ARCHITECTURE_PATTERNS: |
     - Repository pattern for data access
     - Dependency injection for testability
     - Event-driven communication via Redis
-    
+
   Frontend:
     - React 18 with TypeScript
     - Component composition over inheritance
     - Custom hooks for shared logic
     - Context API for global state
     - TailwindCSS for styling
-    
+
   AI Integration:
     - Snowflake Cortex for all LLM operations
     - Model routing based on task complexity
@@ -894,7 +894,7 @@ SECURITY_RULES: |
   - Sanitize LLM outputs
   - Log security-relevant events
   - Follow principle of least privilege
-  
+
 QUALITY_STANDARDS: |
   - No code duplication
   - Clear variable and function names
@@ -910,12 +910,12 @@ TIMELINE_AND_BUDGET_GUIDELINES: |
     - Focus on technical implementation details only
     - Break down tasks by complexity, not time
     - Describe phases by functionality, not duration
-    
+
   Business Planning:
     - Timeline estimates only when explicitly requested for business planning
     - Budget discussions only for infrastructure/service costs
     - Keep business metrics separate from coding tasks
-    
+
   Documentation:
     - Use phase numbers or functional milestones
     - Describe dependencies and prerequisites

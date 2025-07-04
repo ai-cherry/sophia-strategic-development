@@ -17,11 +17,7 @@
       "default_retries": 3,
       "backoff_factor": 1.0,
       "max_retry_delay": 60,
-      "retryable_errors": [
-        "ConnectionError",
-        "TimeoutError",
-        "ServerError"
-      ]
+      "retryable_errors": ["ConnectionError", "TimeoutError", "ServerError"]
     },
     "circuit_breaker": {
       "failure_threshold": 5,

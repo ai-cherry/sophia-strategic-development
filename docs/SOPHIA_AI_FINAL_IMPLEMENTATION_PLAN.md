@@ -74,13 +74,13 @@ PROJECT_CONTEXT: |
   Sophia AI - Executive AI Orchestrator for Pay Ready
   Initial User: CEO only
   Priority: Quality > Stability > Maintainability > Performance
-  
+
 CODING_STANDARDS: |
   - Python: Type hints, async/await, Black formatting
   - TypeScript: Strict mode, no 'any', ESLint + Prettier
   - Testing: TDD with pytest/Jest, 80%+ coverage
   - Documentation: Comprehensive docstrings/JSDoc
-  
+
 AI_RULES: |
   - Plan-Then-Act: 70% planning, 30% execution
   - Micro-commits: Small, verifiable changes
@@ -99,13 +99,13 @@ interface EnhancedChatFeatures {
     sidebar: SourcePanel;    // Collapsible source list
     preview: HoverCard;      // On-hover previews
   };
-  
+
   blankCanvasSolutions: {
     iceBreakers: string[];   // "What's our revenue trend?"
     templates: Template[];   // Common queries
     followUps: string[];     // Context-aware suggestions
   };
-  
+
   focusModes: {
     business: BusinessMode;  // KPIs, revenue, customers
     code: CodeMode;         // Development tasks
@@ -140,7 +140,7 @@ TEMPERATURE_MAP = {
 ```python
 class EnhancedMemoryService:
     """Mem0-based memory with Snowflake persistence"""
-    
+
     def __init__(self):
         self.mem0_config = {
             "vector_store": "pgvector",
@@ -148,7 +148,7 @@ class EnhancedMemoryService:
             "chunk_size": 512,
             "overlap": 50
         }
-    
+
     async def store_conversation(
         self,
         messages: List[Message],
@@ -157,7 +157,7 @@ class EnhancedMemoryService:
         # Extract decisions and insights
         decisions = await self.extract_decisions(messages)
         insights = await self.extract_insights(messages)
-        
+
         # Store in Mem0 with two-phase pipeline
         memory_entry = await self.mem0_client.add(
             messages=messages,
@@ -169,7 +169,7 @@ class EnhancedMemoryService:
                 "tags": self.auto_tag(messages)
             }
         )
-        
+
         # Sync to Snowflake for analytics
         await self.sync_to_snowflake(memory_entry)
 ```
@@ -205,7 +205,7 @@ class EnhancedMemoryService:
 # Based on emerging MCP standard
 class SophiaMCPServer:
     """MCP server for standardized agent communication"""
-    
+
     async def handle_request(self, request: MCPRequest):
         # JSON-RPC 2.0 messaging
         if request.method == "tools/list":
@@ -214,7 +214,7 @@ class SophiaMCPServer:
             return await self.execute_tool(request.params)
         elif request.method == "resources/list":
             return self.list_resources()
-    
+
     def security_config(self):
         return {
             "auth": "oauth2",
@@ -230,7 +230,7 @@ class SophiaMCPServer:
 # LangGraph-based orchestration
 class SophiaOrchestrator:
     """Hybrid centralized-distributed orchestration"""
-    
+
     def __init__(self):
         self.agents = {
             "business": BusinessIntelligenceAgent(),
@@ -238,11 +238,11 @@ class SophiaOrchestrator:
             "data": DataAnalysisAgent(),
             "memory": MemoryAgent()
         }
-        
+
     async def route_request(self, request: Request):
         # Central routing for critical decisions
         intent = await self.classify_intent(request)
-        
+
         # Distributed execution
         if intent.complexity < 0.7:
             return await self.agents[intent.type].handle(request)
@@ -258,7 +258,7 @@ class SophiaOrchestrator:
 ```python
 class SecurityFramework:
     """Multi-layer security for AI orchestrator"""
-    
+
     def __init__(self):
         self.layers = {
             "input": InputValidation(),
@@ -266,15 +266,15 @@ class SecurityFramework:
             "access": RoleBasedAccess(),
             "audit": ComprehensiveLogging()
         }
-    
+
     async def validate_request(self, request: Request):
         # Input sanitization
         clean_input = await self.layers["input"].sanitize(request)
-        
+
         # Check for prompt injection
         if await self.detect_injection(clean_input):
             raise SecurityException("Potential prompt injection")
-        
+
         return clean_input
 ```
 
@@ -413,9 +413,9 @@ OBSERVABILITY_CONFIG = {
 
 This plan combines the best of all three research documents:
 - Strategic vision from the research strategy
-- Technical depth from the comprehensive report  
+- Technical depth from the comprehensive report
 - Practical implementation from the best practices guide
 
 By focusing on proven patterns (Mem0, LangGraph, Snowflake Cortex) while preparing for emerging standards (MCP), Sophia AI will deliver immediate value to the CEO while building a foundation for company-wide deployment.
 
-Remember: **Quality > Features**. It's better to have a citation system that works perfectly than ten half-broken features. 
+Remember: **Quality > Features**. It's better to have a citation system that works perfectly than ten half-broken features.

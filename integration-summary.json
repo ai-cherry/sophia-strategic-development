@@ -33,9 +33,7 @@
         "Pay_Ready/slack-messages-multimodal",
         "Pay_Ready/hubspot-unified-multimodal"
       ],
-      "materializations": [
-        "Pay_Ready/snowflake-advanced-ai"
-      ],
+      "materializations": ["Pay_Ready/snowflake-advanced-ai"],
       "target_lag": "2 minutes",
       "features": [
         "Real-time CDC",

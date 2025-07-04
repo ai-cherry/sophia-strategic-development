@@ -170,13 +170,13 @@ models:
     cost_per_1k: 0.03
     quality_score: 0.95
     latency_ms: 2000
-  
+
   gpt-3.5-turbo:
     capabilities: ["general_chat", "simple_analysis"]
     cost_per_1k: 0.001
     quality_score: 0.80
     latency_ms: 800
-    
+
   snowflake-cortex:
     capabilities: ["sql_generation", "data_analysis"]
     cost_per_1k: 0.0001
@@ -199,24 +199,24 @@ routing_rules:
 async def process_message(self, message: str, context: Dict):
     # Existing intent classification
     intent = await self.classify_intent(message)
-    
+
     # NEW: Route to optimal model
     model_selection = await self.router.select_model(
         message=message,
         intent=intent,
         context=context
     )
-    
+
     # Execute with selected model
     response = await self.execute_with_model(
         model=model_selection.model,
         message=message,
         context=context
     )
-    
+
     # Track usage and costs
     await self.track_usage(model_selection, response)
-    
+
     return response
 ```
 
@@ -325,4 +325,4 @@ performance_history = await self.memory.recall(
    - Optimize routing rules
    - Add new models
 
-The AI orchestrator will transform Sophia AI into a cost-effective, high-quality platform that intelligently leverages the best AI models for each task. 
+The AI orchestrator will transform Sophia AI into a cost-effective, high-quality platform that intelligently leverages the best AI models for each task.

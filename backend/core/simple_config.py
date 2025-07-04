@@ -275,9 +275,7 @@ if __name__ == "__main__":
     print(
         f"OpenAI Key: {'✅ Available' if config.get_openai_api_key() else '❌ Missing'}"
     )
-    print(
-        f"Gong Key: {'✅ Available' if config.get_gong_access_key() else '❌ Missing'}"
-    )
+    print(f"Gong Key: {'✅ Available' if config.get_gong_access_key() else '❌ Missing'}")
     print(
         f"Pinecone Key: {'✅ Available' if config.get_pinecone_api_key() else '❌ Missing'}"
     )

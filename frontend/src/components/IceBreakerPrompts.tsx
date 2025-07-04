@@ -1,7 +1,7 @@
 import React from 'react';
-import { 
-  ChartBarIcon, 
-  CodeBracketIcon, 
+import {
+  ChartBarIcon,
+  CodeBracketIcon,
   CurrencyDollarIcon,
   UserGroupIcon,
   LightBulbIcon,
@@ -95,7 +95,7 @@ export const IceBreakerPrompts: React.FC<IceBreakerPromptsProps> = ({ onPromptSe
               <button
                 key={prompt.id}
                 onClick={() => onPromptSelect(prompt.prompt, prompt.focusMode)}
-                className="w-full text-left p-4 bg-white rounded-lg border border-gray-200 
+                className="w-full text-left p-4 bg-white rounded-lg border border-gray-200
                          hover:border-blue-400 hover:shadow-md transition-all duration-200
                          focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -125,9 +125,9 @@ export const useDynamicPrompts = (userContext?: any) => {
   const getTimeBasedPrompts = (): IceBreakerPrompt[] => {
     const hour = new Date().getHours();
     const dayOfWeek = new Date().getDay();
-    
+
     const prompts: IceBreakerPrompt[] = [];
-    
+
     // Morning prompts (6 AM - 12 PM)
     if (hour >= 6 && hour < 12) {
       prompts.push({
@@ -138,7 +138,7 @@ export const useDynamicPrompts = (userContext?: any) => {
         focusMode: 'business'
       });
     }
-    
+
     // Monday prompts
     if (dayOfWeek === 1) {
       prompts.push({
@@ -149,7 +149,7 @@ export const useDynamicPrompts = (userContext?: any) => {
         focusMode: 'business'
       });
     }
-    
+
     // Friday prompts
     if (dayOfWeek === 5) {
       prompts.push({
@@ -160,9 +160,9 @@ export const useDynamicPrompts = (userContext?: any) => {
         focusMode: 'business'
       });
     }
-    
+
     return prompts;
   };
-  
+
   return { getTimeBasedPrompts };
-}; 
+};

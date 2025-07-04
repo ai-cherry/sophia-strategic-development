@@ -588,14 +588,14 @@ integrates Estuary credentials, and validates end-to-end functionality.
                 return False
 
             # 2. Analyze GitHub memory system
-            self.analysis_results["github_analysis"] = (
-                self.analyze_github_memory_system()
-            )
+            self.analysis_results[
+                "github_analysis"
+            ] = self.analyze_github_memory_system()
 
             # 3. Analyze Snowflake implementation
-            self.analysis_results["snowflake_analysis"] = (
-                self.analyze_snowflake_implementation()
-            )
+            self.analysis_results[
+                "snowflake_analysis"
+            ] = self.analyze_snowflake_implementation()
 
             # 4. Create alignment fixes
             if not self.create_alignment_fixes():
@@ -606,9 +606,9 @@ integrates Estuary credentials, and validates end-to-end functionality.
                 return False
 
             # 6. Validate end-to-end functionality
-            self.analysis_results["validation"] = (
-                self.validate_end_to_end_functionality()
-            )
+            self.analysis_results[
+                "validation"
+            ] = self.validate_end_to_end_functionality()
 
             # 7. Generate comprehensive report
             report = self.generate_comprehensive_report()

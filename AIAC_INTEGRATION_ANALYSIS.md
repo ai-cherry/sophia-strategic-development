@@ -64,29 +64,29 @@ class AIaCChatIntegration:
     """
     Extend unified chat to handle infrastructure commands
     """
-    
+
     async def process_aiac_intent(self, message: str, user_id: str) -> Dict[str, Any]:
         # Detect infrastructure-related intents
         if self.is_infrastructure_command(message):
             # Route to AIaC workflow
             return await self.initiate_aiac_workflow(message, user_id)
-        
+
         # Continue with regular chat processing
         return await self.process_regular_chat(message, user_id)
-    
+
     async def initiate_aiac_workflow(self, intent: str, user_id: str) -> Dict[str, Any]:
         # Step 1: Intent & Reconcile
         current_state = await self.reconcile_current_state(intent)
-        
+
         # Step 2: Plan
         plan = await self.generate_execution_plan(intent, current_state)
-        
+
         # Step 3: Simulate
         simulation = await self.simulate_plan(plan)
-        
+
         # Step 4: Request Approval (via chat interface)
         approval_request = self.format_approval_request(plan, simulation)
-        
+
         return {
             "type": "approval_required",
             "plan": plan,
@@ -105,25 +105,25 @@ const AIaCApprovalCard: React.FC<{plan: ExecutionPlan}> = ({ plan }) => {
     return (
         <Card className="aiac-approval glassmorphism">
             <h3>🔐 Infrastructure Change Approval Required</h3>
-            
+
             <div className="plan-summary">
                 <h4>Intent:</h4>
                 <p>{plan.intent}</p>
-                
+
                 <h4>Planned Actions:</h4>
                 <ul>
                     {plan.steps.map(step => (
                         <li key={step.id}>{step.description}</li>
                     ))}
                 </ul>
-                
+
                 <h4>Simulation Results:</h4>
                 <pre>{plan.simulation.output}</pre>
-                
+
                 <h4>Risk Assessment:</h4>
                 <RiskLevel level={plan.risk_level} />
             </div>
-            
+
             <div className="approval-actions">
                 <Button variant="success" onClick={() => approveplan(plan.id)}>
                     ✅ Approve & Execute
@@ -147,24 +147,24 @@ class PulumiAIaCServer(StandardizedMCPServer):
     """
     Pulumi MCP with AIaC capabilities
     """
-    
+
     def __init__(self):
         super().__init__()
         self.automation_api = self.init_pulumi_automation()
-    
+
     @mcp_tool(read_only=True)
     async def preview_stack(self, stack_name: str) -> PreviewResult:
         """Read-only preview of changes"""
         stack = auto.select_stack(stack_name=stack_name)
         result = await stack.preview()
         return self.format_preview_result(result)
-    
+
     @mcp_tool(requires_approval=True)
     async def update_stack(self, stack_name: str, approval_token: str) -> UpdateResult:
         """State-changing operation requiring approval"""
         if not self.verify_approval_token(approval_token):
             raise UnauthorizedError("Invalid approval token")
-        
+
         stack = auto.select_stack(stack_name=stack_name)
         result = await stack.up()
         return self.format_update_result(result)
@@ -183,7 +183,7 @@ nodes:
   - name: Check All Stacks
     type: pulumi-mcp
     operation: list_stacks
-    
+
   - name: Preview Each Stack
     type: loop
     operation:
@@ -202,12 +202,12 @@ class UnifiedAIaCOrchestrator:
     """
     Combines LangGraph (interactive) and N8N (background)
     """
-    
+
     def __init__(self):
         self.langgraph = LearningOrchestrator()
         self.n8n_client = N8NClient()
         self.approval_manager = ApprovalManager()
-    
+
     async def handle_request(self, request: AIaCRequest) -> AIaCResponse:
         if request.is_interactive:
             # Use LangGraph for real-time interaction
@@ -332,4 +332,4 @@ The key is to build incrementally, starting with our current Phase 1 foundation 
 3. **Next Sprint**: Implement first AIaC MCP server (Pulumi)
 4. **Next Month**: Deploy full approval workflow
 
-This integration will transform Sophia AI from a business intelligence assistant into a comprehensive executive AI platform capable of managing both business operations and technical infrastructure through a single, unified interface. 
+This integration will transform Sophia AI from a business intelligence assistant into a comprehensive executive AI platform capable of managing both business operations and technical infrastructure through a single, unified interface.

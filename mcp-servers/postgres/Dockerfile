@@ -9,4 +9,4 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-cache
 COPY . .
-CMD ["python", "main.py"] 
+CMD ["python", "main.py"]

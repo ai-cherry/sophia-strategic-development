@@ -4,21 +4,21 @@ on:
   workflow_call:
     inputs:
       service-path:
-        description: 'Path to the service directory'
+        description: "Path to the service directory"
         required: true
         type: string
       node-version:
-        description: 'Node.js version to use'
+        description: "Node.js version to use"
         required: false
         type: string
-        default: '18.x'
+        default: "18.x"
       run-tests:
-        description: 'Whether to run tests'
+        description: "Whether to run tests"
         required: false
         type: boolean
         default: true
       run-build:
-        description: 'Whether to run build'
+        description: "Whether to run build"
         required: false
         type: boolean
         default: true
@@ -26,7 +26,7 @@ on:
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -98,7 +98,7 @@ jobs:
 
   security-scan:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -112,7 +112,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -140,17 +140,17 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             let comment = '## 📦 JavaScript Dependency Analysis\n\n';
-            
+
             try {
               const auditData = JSON.parse(fs.readFileSync('audit-results.json', 'utf8'));
               const vulnerabilities = auditData.vulnerabilities || {};
               const vulnCount = Object.keys(vulnerabilities).length;
-              
+
               if (vulnCount > 0) {
                 comment += `### ⚠️ Found ${vulnCount} vulnerabilities\n\n`;
-                
+
                 let critical = 0, high = 0, moderate = 0, low = 0;
                 Object.values(vulnerabilities).forEach(vuln => {
                   switch(vuln.severity) {
@@ -160,7 +160,7 @@ jobs:
                     case 'low': low++; break;
                   }
                 });
-                
+
                 comment += `- 🔴 Critical: ${critical}\n`;
                 comment += `- 🟠 High: ${high}\n`;
                 comment += `- 🟡 Moderate: ${moderate}\n`;
@@ -171,10 +171,10 @@ jobs:
             } catch (e) {
               comment += '### ⚠️ Could not parse audit results\n';
             }
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
-            }); 
+            });

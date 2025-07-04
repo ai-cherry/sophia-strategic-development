@@ -141,9 +141,7 @@ except KeyboardInterrupt:
                 self.improvements_applied.append(f"Task 2: {file_path}")
                 return True
             else:
-                logger.info(
-                    "📝 Infinite sleep pattern not found - may already be fixed"
-                )
+                logger.info("📝 Infinite sleep pattern not found - may already be fixed")
                 return True
 
         except Exception as e:

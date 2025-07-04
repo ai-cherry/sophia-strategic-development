@@ -418,7 +418,9 @@ class CompletePlatformDeployment:
             status_icon = (
                 "✅"
                 if status["status"] == "completed"
-                else "⚠️" if status["status"] == "partial" else "❌"
+                else "⚠️"
+                if status["status"] == "partial"
+                else "❌"
             )
             print(f"   {status_icon} {component.title()}: {status['status']}")
 

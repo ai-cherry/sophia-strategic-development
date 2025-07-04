@@ -22,11 +22,11 @@ async function sendToSophiaAI(platform, data) {
                 action: 'context_import'
             })
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        
+
         return await response.json();
     } catch (error) {
         console.error('Failed to send to Sophia AI:', error);

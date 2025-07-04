@@ -25,26 +25,26 @@ data:
   HOST: "0.0.0.0"
   PORT: "8080"
   WORKERS: "4"
-  
+
   # Gong API configuration
   GONG_API_BASE_URL: "https://api.gong.io"
   GONG_API_RATE_LIMIT: "2.5"
   GONG_API_BURST_LIMIT: "10"
-  
+
   # Database configuration
   SNOWFLAKE_WAREHOUSE: "SOPHIA_AI_WH"
   SNOWFLAKE_DATABASE: "SOPHIA_AI"
   SNOWFLAKE_SCHEMA: "GONG_WEBHOOKS"
-  
+
   # Redis configuration
   REDIS_URL: "redis://redis-service:6379"
-  
+
   # Processing configuration
   MAX_RETRY_ATTEMPTS: "5"
   INITIAL_RETRY_DELAY: "1.0"
   MAX_RETRY_DELAY: "300.0"
   WEBHOOK_TIMEOUT_SECONDS: "30"
-  
+
   # Application configuration
   ENVIRONMENT: "production"
   LOG_LEVEL: "INFO"
@@ -117,209 +117,209 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       containers:
-      - name: gong-webhook
-        image: sophia-ai/gong-webhook-service:latest
-        imagePullPolicy: Always
-        ports:
-        - name: http
-          containerPort: 8080
-          protocol: TCP
-        - name: metrics
-          containerPort: 8080
-          protocol: TCP
-        env:
-        # Configuration from ConfigMap
-        - name: HOST
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: HOST
-        - name: PORT
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: PORT
-        - name: WORKERS
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: WORKERS
-        - name: GONG_API_BASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: GONG_API_BASE_URL
-        - name: GONG_API_RATE_LIMIT
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: GONG_API_RATE_LIMIT
-        - name: GONG_API_BURST_LIMIT
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: GONG_API_BURST_LIMIT
-        - name: SNOWFLAKE_WAREHOUSE
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: SNOWFLAKE_WAREHOUSE
-        - name: SNOWFLAKE_DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: SNOWFLAKE_DATABASE
-        - name: SNOWFLAKE_SCHEMA
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: SNOWFLAKE_SCHEMA
-        - name: REDIS_URL
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: REDIS_URL
-        - name: MAX_RETRY_ATTEMPTS
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: MAX_RETRY_ATTEMPTS
-        - name: INITIAL_RETRY_DELAY
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: INITIAL_RETRY_DELAY
-        - name: MAX_RETRY_DELAY
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: MAX_RETRY_DELAY
-        - name: WEBHOOK_TIMEOUT_SECONDS
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: WEBHOOK_TIMEOUT_SECONDS
-        - name: ENVIRONMENT
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: ENVIRONMENT
-        - name: LOG_LEVEL
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: LOG_LEVEL
-        - name: PYTHONUNBUFFERED
-          valueFrom:
-            configMapKeyRef:
-              name: gong-webhook-config
-              key: PYTHONUNBUFFERED
-        # Secrets from Secret
-        - name: GONG_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: gong-webhook-secrets
-              key: GONG_API_KEY
-        - name: GONG_WEBHOOK_SECRETS
-          valueFrom:
-            secretKeyRef:
-              name: gong-webhook-secrets
-              key: GONG_WEBHOOK_SECRETS
-        - name: SNOWFLAKE_ACCOUNT
-          valueFrom:
-            secretKeyRef:
-              name: gong-webhook-secrets
-              key: SNOWFLAKE_ACCOUNT
-        - name: SNOWFLAKE_USER
-          valueFrom:
-            secretKeyRef:
-              name: gong-webhook-secrets
-              key: SNOWFLAKE_USER
-        - name: SNOWFLAKE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: gong-webhook-secrets
-              key: SNOWFLAKE_PASSWORD
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-            ephemeral-storage: "1Gi"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
-            ephemeral-storage: "2Gi"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: http
-            scheme: HTTP
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          timeoutSeconds: 10
-          successThreshold: 1
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: http
-            scheme: HTTP
-          initialDelaySeconds: 15
-          periodSeconds: 10
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
-        startupProbe:
-          httpGet:
-            path: /health
-            port: http
-            scheme: HTTP
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 12
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
-          capabilities:
-            drop:
-            - ALL
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp
-        - name: app-cache
-          mountPath: /app/.cache
+        - name: gong-webhook
+          image: sophia-ai/gong-webhook-service:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 8080
+              protocol: TCP
+          env:
+            # Configuration from ConfigMap
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: PORT
+            - name: WORKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: WORKERS
+            - name: GONG_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: GONG_API_BASE_URL
+            - name: GONG_API_RATE_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: GONG_API_RATE_LIMIT
+            - name: GONG_API_BURST_LIMIT
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: GONG_API_BURST_LIMIT
+            - name: SNOWFLAKE_WAREHOUSE
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: SNOWFLAKE_WAREHOUSE
+            - name: SNOWFLAKE_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: SNOWFLAKE_DATABASE
+            - name: SNOWFLAKE_SCHEMA
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: SNOWFLAKE_SCHEMA
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: REDIS_URL
+            - name: MAX_RETRY_ATTEMPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: MAX_RETRY_ATTEMPTS
+            - name: INITIAL_RETRY_DELAY
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: INITIAL_RETRY_DELAY
+            - name: MAX_RETRY_DELAY
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: MAX_RETRY_DELAY
+            - name: WEBHOOK_TIMEOUT_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: WEBHOOK_TIMEOUT_SECONDS
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: ENVIRONMENT
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: LOG_LEVEL
+            - name: PYTHONUNBUFFERED
+              valueFrom:
+                configMapKeyRef:
+                  name: gong-webhook-config
+                  key: PYTHONUNBUFFERED
+            # Secrets from Secret
+            - name: GONG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gong-webhook-secrets
+                  key: GONG_API_KEY
+            - name: GONG_WEBHOOK_SECRETS
+              valueFrom:
+                secretKeyRef:
+                  name: gong-webhook-secrets
+                  key: GONG_WEBHOOK_SECRETS
+            - name: SNOWFLAKE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: gong-webhook-secrets
+                  key: SNOWFLAKE_ACCOUNT
+            - name: SNOWFLAKE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: gong-webhook-secrets
+                  key: SNOWFLAKE_USER
+            - name: SNOWFLAKE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gong-webhook-secrets
+                  key: SNOWFLAKE_PASSWORD
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+              ephemeral-storage: "1Gi"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+              ephemeral-storage: "2Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 12
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: app-cache
+              mountPath: /app/.cache
       volumes:
-      - name: tmp
-        emptyDir: {}
-      - name: app-cache
-        emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: app-cache
+          emptyDir: {}
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       nodeSelector:
         kubernetes.io/arch: amd64
       tolerations:
-      - key: "sophia-ai/workload"
-        operator: "Equal"
-        value: "webhook"
-        effect: "NoSchedule"
+        - key: "sophia-ai/workload"
+          operator: "Equal"
+          value: "webhook"
+          effect: "NoSchedule"
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - gong-webhook-service
-              topologyKey: kubernetes.io/hostname
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - gong-webhook-service
+                topologyKey: kubernetes.io/hostname
 
 ---
 # ServiceAccount for Gong webhook service
@@ -356,14 +356,14 @@ spec:
     app: gong-webhook-service
     component: webhook
   ports:
-  - name: http
-    port: 80
-    targetPort: http
-    protocol: TCP
-  - name: metrics
-    port: 8080
-    targetPort: metrics
-    protocol: TCP
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 8080
+      targetPort: metrics
+      protocol: TCP
   sessionAffinity: None
 
 ---
@@ -391,20 +391,20 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
-  - hosts:
-    - gong-webhook.sophia-ai.com
-    secretName: gong-webhook-tls
+    - hosts:
+        - gong-webhook.sophia-ai.com
+      secretName: gong-webhook-tls
   rules:
-  - host: gong-webhook.sophia-ai.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: gong-webhook-service
-            port:
-              number: 80
+    - host: gong-webhook.sophia-ai.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gong-webhook-service
+                port:
+                  number: 80
 
 ---
 # HorizontalPodAutoscaler for Gong webhook service
@@ -425,35 +425,35 @@ spec:
   minReplicas: 3
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 60
       policies:
-      - type: Percent
-        value: 100
-        periodSeconds: 60
-      - type: Pods
-        value: 2
-        periodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
       selectPolicy: Max
     scaleDown:
       stabilizationWindowSeconds: 300
       policies:
-      - type: Percent
-        value: 10
-        periodSeconds: 60
+        - type: Percent
+          value: 10
+          periodSeconds: 60
       selectPolicy: Min
 
 ---
@@ -474,14 +474,14 @@ spec:
       app: gong-webhook-service
       component: service
   endpoints:
-  - port: metrics
-    path: /metrics
-    interval: 30s
-    scrapeTimeout: 10s
-    honorLabels: true
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      honorLabels: true
   namespaceSelector:
     matchNames:
-    - sophia-ai
+      - sophia-ai
 
 ---
 # NetworkPolicy for Gong webhook service security
@@ -500,60 +500,60 @@ spec:
       app: gong-webhook-service
       component: webhook
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  # Allow traffic from nginx ingress controller
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 8080
-  # Allow traffic from Prometheus for metrics
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: monitoring
-    ports:
-    - protocol: TCP
-      port: 8080
-  # Allow traffic from other Sophia AI services
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: sophia-ai
-    ports:
-    - protocol: TCP
-      port: 8080
+    # Allow traffic from nginx ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow traffic from Prometheus for metrics
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow traffic from other Sophia AI services
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: sophia-ai
+      ports:
+        - protocol: TCP
+          port: 8080
   egress:
-  # Allow DNS resolution
-  - to: []
-    ports:
-    - protocol: UDP
-      port: 53
-  # Allow HTTPS traffic to Gong API
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443
-  # Allow traffic to Redis
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: sophia-ai
-    - podSelector:
-        matchLabels:
-          app: redis
-    ports:
-    - protocol: TCP
-      port: 6379
-  # Allow traffic to Snowflake (HTTPS)
-  - to: []
-    ports:
-    - protocol: TCP
-      port: 443
+    # Allow DNS resolution
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow HTTPS traffic to Gong API
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow traffic to Redis
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: sophia-ai
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow traffic to Snowflake (HTTPS)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
 
 ---
 # PodDisruptionBudget for high availability
@@ -571,4 +571,4 @@ spec:
   selector:
     matchLabels:
       app: gong-webhook-service
-      component: webhook 
+      component: webhook

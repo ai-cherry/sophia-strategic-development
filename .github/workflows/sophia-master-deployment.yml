@@ -8,21 +8,21 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
-        default: 'production'
+        default: "production"
         type: choice
         options:
           - production
           - staging
           - development
       skip_tests:
-        description: 'Skip test execution'
+        description: "Skip test execution"
         required: false
         default: false
         type: boolean
       force_deploy:
-        description: 'Force deployment even if health checks fail'
+        description: "Force deployment even if health checks fail"
         required: false
         default: false
         type: boolean
@@ -47,7 +47,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Detect environment and deployment context
         id: detect
         run: |
@@ -64,13 +64,13 @@ jobs:
             ENV="development"
             SHOULD_DEPLOY="false"
           fi
-          
+
           DEPLOYMENT_ID="sophia-${ENV}-$(date +%s)"
-          
+
           echo "environment=${ENV}" >> $GITHUB_OUTPUT
           echo "should_deploy=${SHOULD_DEPLOY}" >> $GITHUB_OUTPUT
           echo "deployment_id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
-          
+
           echo "🎯 Environment: ${ENV}"
           echo "🚀 Should Deploy: ${SHOULD_DEPLOY}"
           echo "🆔 Deployment ID: ${DEPLOYMENT_ID}"
@@ -83,26 +83,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Run enhanced health gate
         run: |
           echo "ENVIRONMENT=${{ needs.environment-setup.outputs.environment }}" >> $GITHUB_ENV
           echo "PULUMI_ORG=scoobyjava-org" >> $GITHUB_ENV
           uv run python scripts/ci/deployment_health_gate.py
-          
+
       - name: Upload health report
         uses: actions/upload-artifact@v4
         if: always()
@@ -120,28 +120,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Run linting
         run: |
           uv run ruff check . --output-format=github
-          
+
       - name: Run security scan
         run: |
           uv run bandit -r backend/ -f json -o security-report.json || true
-          
+
       - name: Upload security report
         uses: actions/upload-artifact@v4
         if: always()
@@ -159,24 +159,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Run tests
         run: |
           uv run python -m pytest tests/ -v --tb=short --junitxml=test-results.xml
-          
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
@@ -194,25 +194,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Validate MCP server configurations
         run: |
           echo "🔧 Validating MCP server configurations..."
           python scripts/standardise_mcp.py --validate-only
-          
+
       - name: Test MCP server startup (dry run)
         run: |
           echo "🚀 Testing MCP server startup (dry run)..."
@@ -222,9 +222,16 @@ jobs:
   production-deployment:
     name: 🚀 Production Deployment
     runs-on: ubuntu-latest
-    needs: [environment-setup, health-gate, quality-security, build-test, mcp-validation]
+    needs:
+      [
+        environment-setup,
+        health-gate,
+        quality-security,
+        build-test,
+        mcp-validation,
+      ]
     if: |
-      needs.environment-setup.outputs.should_deploy == 'true' && 
+      needs.environment-setup.outputs.should_deploy == 'true' &&
       (needs.health-gate.result == 'success' || github.event.inputs.force_deploy == 'true') &&
       (needs.build-test.result == 'success' || needs.build-test.result == 'skipped') &&
       needs.mcp-validation.result == 'success'
@@ -232,28 +239,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Setup Node.js for infrastructure
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: "20"
+
       - name: Setup Docker
         uses: docker/setup-buildx-action@v3
-        
+
       - name: Run comprehensive deployment
         env:
           DEPLOYMENT_ID: ${{ needs.environment-setup.outputs.deployment_id }}
@@ -261,10 +268,10 @@ jobs:
           echo "🚀 Starting comprehensive deployment..."
           echo "Environment: ${{ needs.environment-setup.outputs.environment }}"
           echo "Deployment ID: ${DEPLOYMENT_ID}"
-          
+
           python scripts/deploy_sophia_production.py \
             --environment ${{ needs.environment-setup.outputs.environment }}
-            
+
       - name: Upload deployment logs
         uses: actions/upload-artifact@v4
         if: always()
@@ -282,31 +289,31 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          
+          python-version: "3.12"
+
       - name: Install UV
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          
+
       - name: Install dependencies
         run: uv sync
-        
+
       - name: Run post-deployment health checks
         run: |
           echo "🏥 Running post-deployment validation..."
           sleep 30  # Wait for services to stabilize
           uv run python scripts/ci/deployment_health_gate.py
-          
+
       - name: Run smoke tests
         run: |
           echo "🔥 Running smoke tests..."
           uv run python -m pytest tests/smoke/ -v --tb=short || true
-          
+
       - name: Validate MCP servers
         run: |
           echo "🔧 Validating MCP servers..."
@@ -316,7 +323,8 @@ jobs:
   deployment-notification:
     name: 📢 Deployment Notification
     runs-on: ubuntu-latest
-    needs: [environment-setup, production-deployment, post-deployment-validation]
+    needs:
+      [environment-setup, production-deployment, post-deployment-validation]
     if: always() && needs.environment-setup.outputs.should_deploy == 'true'
     steps:
       - name: Determine deployment status
@@ -335,7 +343,7 @@ jobs:
             echo "emoji=❌" >> $GITHUB_OUTPUT
             echo "message=Deployment failed" >> $GITHUB_OUTPUT
           fi
-          
+
       - name: Create deployment summary
         run: |
           echo "## ${{ steps.status.outputs.emoji }} Sophia AI Deployment Summary" >> $GITHUB_STEP_SUMMARY
@@ -353,7 +361,7 @@ jobs:
           echo "- MCP Validation: ${{ needs.mcp-validation.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Production Deployment: ${{ needs.production-deployment.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Post-Deployment Validation: ${{ needs.post-deployment-validation.result }}" >> $GITHUB_STEP_SUMMARY
-          
+
       - name: Comment PR with deployment status
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -362,13 +370,13 @@ jobs:
             const status = '${{ steps.status.outputs.status }}';
             const emoji = '${{ steps.status.outputs.emoji }}';
             const message = '${{ steps.status.outputs.message }}';
-            
+
             const comment = `## ${emoji} Sophia AI Deployment Pipeline
-            
+
             **Status:** ${message}
             **Environment:** ${{ needs.environment-setup.outputs.environment }}
             **Deployment ID:** ${{ needs.environment-setup.outputs.deployment_id }}
-            
+
             ### Pipeline Results
             | Job | Status |
             |-----|--------|
@@ -378,10 +386,10 @@ jobs:
             | MCP Validation | ${{ needs.mcp-validation.result }} |
             | Production Deployment | ${{ needs.production-deployment.result }} |
             | Post-Deployment Validation | ${{ needs.post-deployment-validation.result }} |
-            
+
             ${status === 'success' ? '✅ **Ready for merge**' : status === 'partial' ? '⚠️ **Review warnings before merge**' : '❌ **Fix issues before merge**'}
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -400,9 +408,9 @@ jobs:
         run: |
           echo "🧹 Performing cleanup tasks..."
           echo "Deployment completed: ${{ needs.environment-setup.outputs.deployment_id }}"
-          
+
       - name: Update deployment registry
         run: |
           echo "📝 Updating deployment registry..."
           # This would update a deployment tracking system
-          echo "Deployment ${{ needs.environment-setup.outputs.deployment_id }} completed" 
+          echo "Deployment ${{ needs.environment-setup.outputs.deployment_id }} completed"

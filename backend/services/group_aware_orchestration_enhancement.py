@@ -375,9 +375,9 @@ class GroupAwareOrchestrationEnhancement:
             ]
 
         elif synthesis_type == "deal_risk_assessment":
-            synthesis["executive_summary"] = (
-                "Deal risk analysis compiled from CRM, communication, and AI insights"
-            )
+            synthesis[
+                "executive_summary"
+            ] = "Deal risk analysis compiled from CRM, communication, and AI insights"
             synthesis["risk_factors"] = self._identify_deal_risks(group_results)
             synthesis["opportunities"] = [
                 "Leverage AI insights for predictive deal scoring",
@@ -385,15 +385,15 @@ class GroupAwareOrchestrationEnhancement:
             ]
 
         elif synthesis_type == "team_performance_analysis":
-            synthesis["executive_summary"] = (
-                "Team performance metrics synthesized across project management and communication platforms"
-            )
+            synthesis[
+                "executive_summary"
+            ] = "Team performance metrics synthesized across project management and communication platforms"
             synthesis["key_insights"] = self._analyze_team_performance(group_results)
 
         elif synthesis_type == "cost_optimization_strategy":
-            synthesis["executive_summary"] = (
-                "Cost optimization opportunities identified across infrastructure and services"
-            )
+            synthesis[
+                "executive_summary"
+            ] = "Cost optimization opportunities identified across infrastructure and services"
             synthesis["recommendations"] = self._generate_cost_recommendations(
                 group_results
             )

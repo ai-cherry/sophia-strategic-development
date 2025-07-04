@@ -15,21 +15,21 @@ spec:
         app: analyst-agent
     spec:
       containers:
-      - name: agent
-        image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/analyst-agent:latest # Replace with your ECR image URI
-        ports:
-        - containerPort: 8080
-        env:
-        - name: PERSONA
-          value: "You are an expert financial analyst."
-        - name: TOOLS
-          value: "gong_tools,looker_tools,snowflake_tools"
-        - name: KNOWLEDGE_BASES
-          value: "quarterly_reports_kb,sec_filings_kb"
-        # Secrets will be mounted from a Kubernetes Secret object
-        envFrom:
-        - secretRef:
-            name: sophia-esc-secrets
+        - name: agent
+          image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/analyst-agent:latest # Replace with your ECR image URI
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PERSONA
+              value: "You are an expert financial analyst."
+            - name: TOOLS
+              value: "gong_tools,looker_tools,snowflake_tools"
+            - name: KNOWLEDGE_BASES
+              value: "quarterly_reports_kb,sec_filings_kb"
+          # Secrets will be mounted from a Kubernetes Secret object
+          envFrom:
+            - secretRef:
+                name: sophia-esc-secrets
 ---
 apiVersion: v1
 kind: Service
@@ -40,7 +40,7 @@ spec:
   selector:
     app: analyst-agent
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 8080
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
   type: ClusterIP

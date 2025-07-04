@@ -5,17 +5,10 @@ Contains AI operation handlers and business-specific methods
 
 from __future__ import annotations
 
-import json
 import logging
 from typing import Any
 
-from .snowflake_cortex_service_models import (
-    CortexEmbeddingError,
-    InsufficientPermissionsError,
-    InvalidInputError,
-)
 from .snowflake_cortex_service_utils import PerformanceMonitor
-from backend.core.optimized_connection_manager import ConnectionType
 
 logger = logging.getLogger(__name__)
 
@@ -49,4 +42,3 @@ class BusinessHandlers:
     ) -> bool:
         """Store embedding directly in business table"""
         return True  # Simplified for now
-

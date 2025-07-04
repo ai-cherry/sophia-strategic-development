@@ -243,5 +243,5 @@ function App() {
 
 ---
 
-*Last Updated: July 2025*  
-*Component Version: 2.0.0* 
+*Last Updated: July 2025*
+*Component Version: 2.0.0*

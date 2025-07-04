@@ -23,14 +23,14 @@ from typing import List, Dict
 async def measure_api_latency(url: str, requests: int = 1000) -> Dict[str, float]:
     """Measure API latency statistics"""
     latencies = []
-    
+
     async with aiohttp.ClientSession() as session:
         for _ in range(requests):
             start = time.perf_counter()
             async with session.get(url) as resp:
                 await resp.text()
             latencies.append((time.perf_counter() - start) * 1000)
-    
+
     return {
         "p50": statistics.median(latencies),
         "p95": statistics.quantiles(latencies, n=20)[18],
@@ -187,11 +187,11 @@ def profile_async(func):
         profiler.enable()
         result = await func(*args, **kwargs)
         profiler.disable()
-        
+
         stats = pstats.Stats(profiler)
         stats.sort_stats('cumulative')
         stats.print_stats(20)  # Top 20 functions
-        
+
         return result
     return wrapper
 
@@ -219,7 +219,7 @@ class CacheManager:
         self.l1_cache = {}  # In-memory
         self.l2_cache = None  # Redis
         self.l3_cache = None  # Snowflake result cache
-        
+
     async def connect(self):
         self.l2_cache = await redis.Redis(
             host='localhost',
@@ -227,41 +227,41 @@ class CacheManager:
             decode_responses=True,
             connection_pool_size=50
         )
-    
+
     def _get_key(self, prefix: str, params: dict) -> str:
         """Generate cache key from parameters"""
         param_str = json.dumps(params, sort_keys=True)
         hash_val = hashlib.md5(param_str.encode()).hexdigest()
         return f"{prefix}:{hash_val}"
-    
+
     async def get_or_compute(
-        self, 
-        key: str, 
-        compute_fn, 
+        self,
+        key: str,
+        compute_fn,
         ttl: int = 300
     ) -> Any:
         """Get from cache or compute and store"""
         # Check L1 (memory)
         if key in self.l1_cache:
             return self.l1_cache[key]
-        
+
         # Check L2 (Redis)
         if self.l2_cache:
             value = await self.l2_cache.get(key)
             if value:
                 self.l1_cache[key] = json.loads(value)
                 return self.l1_cache[key]
-        
+
         # Compute value
         value = await compute_fn()
-        
+
         # Store in both caches
         self.l1_cache[key] = value
         if self.l2_cache:
             await self.l2_cache.setex(
                 key, ttl, json.dumps(value)
             )
-        
+
         return value
 ```
 
@@ -297,7 +297,7 @@ Example: api:v1:get_deals:a1b2c3d4
 -- scripts/db/analyze_performance.sql
 
 -- Find slow queries
-SELECT 
+SELECT
     query_text,
     execution_time,
     rows_produced,
@@ -309,7 +309,7 @@ ORDER BY execution_time DESC
 LIMIT 20;
 
 -- Check table sizes and clustering
-SELECT 
+SELECT
     table_name,
     row_count,
     bytes,
@@ -340,7 +340,7 @@ class OptimizedDatabasePool:
         self.dsn = dsn
         self.pool: Optional[asyncpg.Pool] = None
         self._lock = asyncio.Lock()
-        
+
     async def initialize(self):
         """Create connection pool with optimal settings"""
         self.pool = await asyncpg.create_pool(
@@ -354,7 +354,7 @@ class OptimizedDatabasePool:
                 'jit': 'off'    # Disable JIT for consistent performance
             }
         )
-    
+
     async def execute_batch(self, queries: list):
         """Execute multiple queries in parallel"""
         async with self.pool.acquire() as conn:
@@ -405,4 +405,4 @@ Week 2 will focus on:
 
 ---
 
-**Remember**: We're building for 1000x scale from day one. Every decision should consider performance, scalability, and stability over everything else. 
+**Remember**: We're building for 1000x scale from day one. Every decision should consider performance, scalability, and stability over everything else.

@@ -206,7 +206,7 @@ const generateComponent = async (prompt: string) => {
       intent: 'UI_GENERATION'
     })
   });
-  
+
   const result = await response.json();
   setGeneratedComponent(result.component_code);
 };
@@ -276,4 +276,4 @@ black v0dev_mcp_server.py
 
 ## License
 
-Part of Sophia AI Platform - Enterprise License 
+Part of Sophia AI Platform - Enterprise License

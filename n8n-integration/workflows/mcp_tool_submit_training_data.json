@@ -6,10 +6,7 @@
       "name": "Start",
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
-      "position": [
-        240,
-        300
-      ]
+      "position": [240, 300]
     },
     {
       "parameters": {
@@ -19,10 +16,7 @@
       "name": "Webhook Trigger (Training)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [
-        440,
-        300
-      ],
+      "position": [440, 300],
       "webhookId": "mcp-submit-training-data"
     },
     {
@@ -50,10 +44,7 @@
       "name": "Call Training Service API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2,
-      "position": [
-        640,
-        300
-      ]
+      "position": [640, 300]
     },
     {
       "parameters": {
@@ -68,10 +59,7 @@
       "name": "Return Result",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [
-        840,
-        300
-      ]
+      "position": [840, 300]
     }
   ],
   "connections": {

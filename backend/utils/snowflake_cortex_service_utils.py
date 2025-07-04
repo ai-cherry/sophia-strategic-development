@@ -36,13 +36,13 @@ class CortexUtils:
         """Format SQL query with parameters"""
         if not params:
             return query
-        
+
         formatted_query = query
         for key, value in params.items():
             if isinstance(value, str):
                 value = f"'{CortexUtils.escape_sql(value)}'"
             formatted_query = formatted_query.replace(f":{key}", str(value))
-        
+
         return formatted_query
 
     @staticmethod
@@ -50,10 +50,11 @@ class CortexUtils:
         """Validate table name format"""
         if not table_name or not isinstance(table_name, str):
             return False
-        
+
         # Basic validation - alphanumeric, underscores, dots for schema.table
         import re
-        pattern = r'^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$'
+
+        pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$"
         return bool(re.match(pattern, table_name))
 
     @staticmethod
@@ -61,10 +62,11 @@ class CortexUtils:
         """Validate column name format"""
         if not column_name or not isinstance(column_name, str):
             return False
-        
+
         # Basic validation - alphanumeric and underscores
         import re
-        pattern = r'^[a-zA-Z_][a-zA-Z0-9_]*$'
+
+        pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*$"
         return bool(re.match(pattern, column_name))
 
     @staticmethod
@@ -72,11 +74,13 @@ class CortexUtils:
         """Split list into chunks of specified size"""
         chunks = []
         for i in range(0, len(items), chunk_size):
-            chunks.append(items[i:i + chunk_size])
+            chunks.append(items[i : i + chunk_size])
         return chunks
 
     @staticmethod
-    def calculate_similarity_threshold(base_threshold: float, result_count: int) -> float:
+    def calculate_similarity_threshold(
+        base_threshold: float, result_count: int
+    ) -> float:
         """Dynamically adjust similarity threshold based on result count"""
         if result_count == 0:
             return max(0.1, base_threshold - 0.2)
@@ -93,31 +97,31 @@ class QueryBuilder:
         self.conditions = []
         self.parameters = {}
 
-    def select(self, columns: list[str]) -> 'QueryBuilder':
+    def select(self, columns: list[str]) -> QueryBuilder:
         """Add SELECT clause"""
         self.query_parts.append(f"SELECT {', '.join(columns)}")
         return self
 
-    def from_table(self, table_name: str) -> 'QueryBuilder':
+    def from_table(self, table_name: str) -> QueryBuilder:
         """Add FROM clause"""
         if not CortexUtils.validate_table_name(table_name):
             raise ValueError(f"Invalid table name: {table_name}")
         self.query_parts.append(f"FROM {table_name}")
         return self
 
-    def where(self, condition: str) -> 'QueryBuilder':
+    def where(self, condition: str) -> QueryBuilder:
         """Add WHERE condition"""
         self.conditions.append(condition)
         return self
 
-    def order_by(self, column: str, direction: str = "ASC") -> 'QueryBuilder':
+    def order_by(self, column: str, direction: str = "ASC") -> QueryBuilder:
         """Add ORDER BY clause"""
         if not CortexUtils.validate_column_name(column):
             raise ValueError(f"Invalid column name: {column}")
         self.query_parts.append(f"ORDER BY {column} {direction}")
         return self
 
-    def limit(self, count: int) -> 'QueryBuilder':
+    def limit(self, count: int) -> QueryBuilder:
         """Add LIMIT clause"""
         self.query_parts.append(f"LIMIT {count}")
         return self
@@ -125,10 +129,10 @@ class QueryBuilder:
     def build(self) -> str:
         """Build the final query"""
         query = " ".join(self.query_parts)
-        
+
         if self.conditions:
             query += f" WHERE {' AND '.join(self.conditions)}"
-        
+
         return CortexUtils.format_query(query, self.parameters)
 
 
@@ -201,16 +205,16 @@ class PerformanceMonitor:
     def end_operation(self, start_time: float, success: bool = True) -> float:
         """End timing an operation and update metrics"""
         processing_time = time.time() - start_time
-        
+
         self.metrics["total_operations"] += 1
         self.metrics["total_processing_time"] += processing_time
         self.metrics["operation_times"].append(processing_time)
-        
+
         if success:
             self.metrics["successful_operations"] += 1
         else:
             self.metrics["failed_operations"] += 1
-        
+
         return processing_time
 
     def get_performance_stats(self) -> dict[str, Any]:
@@ -225,11 +229,11 @@ class PerformanceMonitor:
         stats["success_rate"] = (
             self.metrics["successful_operations"] / self.metrics["total_operations"]
         )
-        
+
         if self.metrics["operation_times"]:
             stats["min_processing_time"] = min(self.metrics["operation_times"])
             stats["max_processing_time"] = max(self.metrics["operation_times"])
-        
+
         return stats
 
     def reset_metrics(self):
@@ -256,12 +260,12 @@ class CacheManager:
         """Get value from cache"""
         if key not in self.cache:
             return None
-        
+
         # Check TTL
         if time.time() - self.timestamps[key] > self.ttl_seconds:
             self.delete(key)
             return None
-        
+
         return self.cache[key]
 
     def set(self, key: str, value: Any):
@@ -270,7 +274,7 @@ class CacheManager:
         if len(self.cache) >= self.max_size:
             oldest_key = min(self.timestamps.keys(), key=lambda k: self.timestamps[k])
             self.delete(oldest_key)
-        
+
         self.cache[key] = value
         self.timestamps[key] = time.time()
 
@@ -290,5 +294,5 @@ class CacheManager:
             "size": len(self.cache),
             "max_size": self.max_size,
             "ttl_seconds": self.ttl_seconds,
-            "hit_rate": getattr(self, '_hit_rate', 0.0),
-        } 
+            "hit_rate": getattr(self, "_hit_rate", 0.0),
+        }

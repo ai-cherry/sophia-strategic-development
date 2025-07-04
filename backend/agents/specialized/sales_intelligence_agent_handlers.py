@@ -10,12 +10,11 @@ from datetime import datetime
 from typing import Any
 
 from .sales_intelligence_agent_models import (
+    CompetitorTalkingPoints,
     DealRiskAssessment,
+    PipelineAnalysis,
     SalesEmailRequest,
     SalesEmailResult,
-    CompetitorTalkingPoints,
-    PipelineAnalysis,
-    DealRiskLevel,
     SalesStage,
 )
 from .sales_intelligence_agent_utils import SalesIntelligenceUtils
@@ -51,7 +50,9 @@ class DealRiskHandler:
 
             if include_gong_analysis:
                 gong_insights = await self._get_gong_insights_for_deal(deal_id)
-                stakeholder_sentiment = await self._analyze_stakeholder_sentiment(deal_id)
+                stakeholder_sentiment = await self._analyze_stakeholder_sentiment(
+                    deal_id
+                )
 
             # Calculate risk factors
             risk_factors = self.utils.generate_risk_factors(
@@ -59,7 +60,9 @@ class DealRiskHandler:
             )
 
             # Calculate overall risk score
-            risk_score = self.utils.calculate_risk_score(risk_factors, stakeholder_sentiment)
+            risk_score = self.utils.calculate_risk_score(
+                risk_factors, stakeholder_sentiment
+            )
             risk_level = self.utils.determine_risk_level(risk_score)
 
             # Generate AI analysis and recommendations
@@ -77,7 +80,9 @@ class DealRiskHandler:
                 deal_name=deal_data.get("DEAL_NAME", "Unknown"),
                 account_name=deal_data.get("COMPANY_NAME", "Unknown"),
                 deal_stage=SalesStage(
-                    deal_data.get("DEAL_STAGE", "qualification").lower().replace(" ", "_")
+                    deal_data.get("DEAL_STAGE", "qualification")
+                    .lower()
+                    .replace(" ", "_")
                 ),
                 deal_value=deal_data.get("AMOUNT", 0.0),
                 close_date=deal_data.get("CLOSE_DATE", datetime.now()),
@@ -143,26 +148,28 @@ class EmailGenerationHandler:
         self.agent = agent
         self.utils = SalesIntelligenceUtils()
 
-    async def generate_sales_email(self, request: SalesEmailRequest) -> SalesEmailResult:
+    async def generate_sales_email(
+        self, request: SalesEmailRequest
+    ) -> SalesEmailResult:
         """Generate personalized sales email"""
         try:
             # Get deal context
             deal_context = await self._get_deal_context(request.deal_id)
-            
+
             # Get Gong context
             gong_context = await self._get_gong_context(request.deal_id)
-            
+
             # Generate email content using SmartAIService
             email_content = await self._generate_email_content(
                 request, deal_context, gong_context
             )
-            
+
             # Generate subject lines
             subject_lines = await self._generate_subject_lines(request, email_content)
-            
+
             # Analyze email quality
             quality_score = self.utils.analyze_email_quality(email_content, request)
-            
+
             # Create result
             result = SalesEmailResult(
                 email_content=email_content,
@@ -256,7 +263,11 @@ class PipelineAnalysisHandler:
         try:
             # Implementation would analyze pipeline data
             deals_by_stage = {"qualification": 10, "proposal": 5, "closing": 3}
-            value_by_stage = {"qualification": 100000, "proposal": 250000, "closing": 180000}
+            value_by_stage = {
+                "qualification": 100000,
+                "proposal": 250000,
+                "closing": 180000,
+            }
             conversion_rates = {"qualification": 0.3, "proposal": 0.6, "closing": 0.8}
 
             health_score = self.utils.calculate_pipeline_health_score(

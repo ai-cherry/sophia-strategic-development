@@ -12,9 +12,7 @@
         "placeholder_secrets": 0,
         "sync_status": "working"
       },
-      "recommendations": [
-        "ESC is properly configured"
-      ]
+      "recommendations": ["ESC is properly configured"]
     },
     {
       "name": "Snowflake Configuration",

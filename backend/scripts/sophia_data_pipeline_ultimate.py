@@ -252,7 +252,6 @@ class GongAPIClient:
 
 
 class SnowflakeDataLoader:
-
     def _validate_schema_name(self, schema_name: str) -> str:
         """Validate schema name to prevent SQL injection"""
         import re

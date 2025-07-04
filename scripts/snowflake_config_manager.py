@@ -167,9 +167,7 @@ class SnowflakeConfigManager:
                     ):
                         try:
                             self.execute_query(statement, fetch_results=False)
-                            print(
-                                f"✅ Executed statement {i + 1}/{len(sql_statements)}"
-                            )
+                            print(f"✅ Executed statement {i + 1}/{len(sql_statements)}")
                         except Exception as e:
                             print(f"⚠️ Warning on statement {i + 1}: {e}")
                             # Continue with other statements

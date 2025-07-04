@@ -6,10 +6,7 @@
       "name": "Start",
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
-      "position": [
-        240,
-        300
-      ]
+      "position": [240, 300]
     },
     {
       "parameters": {
@@ -19,10 +16,7 @@
       "name": "Webhook Trigger (Recommend)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [
-        440,
-        300
-      ],
+      "position": [440, 300],
       "webhookId": "mcp-recommend-pattern"
     },
     {
@@ -35,10 +29,7 @@
       "name": "Execute Analysis Script",
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [
-        640,
-        300
-      ]
+      "position": [640, 300]
     },
     {
       "parameters": {
@@ -48,10 +39,7 @@
       "name": "Parse JSON Output",
       "type": "n8n-nodes-base.parseJson",
       "typeVersion": 1,
-      "position": [
-        840,
-        300
-      ]
+      "position": [840, 300]
     },
     {
       "parameters": {
@@ -66,10 +54,7 @@
       "name": "Return Recommendations",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [
-        1040,
-        300
-      ]
+      "position": [1040, 300]
     }
   ],
   "connections": {

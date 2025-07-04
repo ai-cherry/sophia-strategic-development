@@ -27,36 +27,26 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-# Import all models and exceptions for backward compatibility
-from .snowflake_cortex_service_models import (
-    CortexEmbeddingError,
-    InsufficientPermissionsError,
-    BusinessTableNotFoundError,
-    InvalidInputError,
-    CortexModel,
-    CortexQuery,
-    VectorSearchResult,
-    CortexOperation,
-    ProcessingMode,
-    CortexResult,
-    CortexConfig,
-    CortexPerformanceMetrics,
-)
-
-# Import utility classes
-from .snowflake_cortex_service_utils import (
-    CortexUtils,
-    QueryBuilder,
-    ResultFormatter,
-    PerformanceMonitor,
-    CacheManager,
-)
-
 # Import core service
 from .snowflake_cortex_service_core import SnowflakeCortexService as CoreService
 
 # Import handlers
-from .snowflake_cortex_service_handlers import CortexHandlers, BusinessHandlers
+from .snowflake_cortex_service_handlers import BusinessHandlers, CortexHandlers
+
+# Import all models and exceptions for backward compatibility
+from .snowflake_cortex_service_models import (
+    CortexEmbeddingError,
+    CortexModel,
+    InvalidInputError,
+    VectorSearchResult,
+)
+
+# Import utility classes
+from .snowflake_cortex_service_utils import (
+    CacheManager,
+    CortexUtils,
+    PerformanceMonitor,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -64,18 +54,18 @@ logger = logging.getLogger(__name__)
 class SnowflakeCortexService(CoreService):
     """
     Enhanced Snowflake Cortex Service with decomposed architecture
-    
+
     This facade provides all original functionality while using the new
     decomposed architecture for better maintainability and performance.
     """
 
     def __init__(self):
         super().__init__()
-        
+
         # Initialize handlers
         self.cortex_handlers = CortexHandlers(self)
         self.business_handlers = BusinessHandlers(self)
-        
+
         # Initialize utils
         self.utils = CortexUtils()
         self.performance_monitor = PerformanceMonitor()
@@ -193,7 +183,7 @@ class SnowflakeCortexService(CoreService):
 
         try:
             results = await self.connection_manager.execute_query(query)
-            
+
             vector_results = []
             for row in results:
                 result = VectorSearchResult(
@@ -205,7 +195,9 @@ class SnowflakeCortexService(CoreService):
                 )
                 vector_results.append(result)
 
-            logger.info(f"Found {len(vector_results)} similar results for query: {query_text[:50]}...")
+            logger.info(
+                f"Found {len(vector_results)} similar results for query: {query_text[:50]}..."
+            )
             return vector_results
 
         except Exception as e:
@@ -239,7 +231,7 @@ class SnowflakeCortexService(CoreService):
 
         try:
             results = await self.connection_manager.execute_query(query)
-            
+
             if results and len(results) > 0:
                 completion = results[0][0] if results[0][0] else ""
             else:
@@ -264,7 +256,7 @@ class SnowflakeCortexService(CoreService):
             await self.initialize()
 
         entity_types_str = ", ".join([f"'{et}'" for et in entity_types])
-        
+
         query = f"""
         SELECT
             id,
@@ -339,19 +331,25 @@ class SnowflakeCortexService(CoreService):
         ALLOWED_MODELS = {"e5-base-v2", "multilingual-e5-large"}
 
         if table_name not in ALLOWED_TABLES:
-            raise InvalidInputError(f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}")
+            raise InvalidInputError(
+                f"Table {table_name} not allowed. Allowed: {ALLOWED_TABLES}"
+            )
 
         if embedding_column not in ALLOWED_EMBEDDING_COLUMNS:
             raise InvalidInputError(f"Embedding column {embedding_column} not allowed")
 
         if model not in ALLOWED_MODELS:
-            raise InvalidInputError(f"Model {model} not allowed. Allowed: {ALLOWED_MODELS}")
+            raise InvalidInputError(
+                f"Model {model} not allowed. Allowed: {ALLOWED_MODELS}"
+            )
 
         if not query_text or not query_text.strip():
             raise InvalidInputError("Query text cannot be empty")
 
         if len(query_text) > 8000:
-            logger.warning(f"Query text truncated from {len(query_text)} to 8000 characters")
+            logger.warning(
+                f"Query text truncated from {len(query_text)} to 8000 characters"
+            )
             query_text = query_text[:8000]
 
         # Simplified implementation for facade
@@ -359,17 +357,23 @@ class SnowflakeCortexService(CoreService):
             # Generate query embedding
             embed_query = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('{model}', '{query_text}') as query_vector"
             embed_results = await self.connection_manager.execute_query(embed_query)
-            
+
             if not embed_results or not embed_results[0][0]:
-                raise CortexEmbeddingError(f"Failed to generate query embedding with model {model}")
+                raise CortexEmbeddingError(
+                    f"Failed to generate query embedding with model {model}"
+                )
 
             query_embedding = embed_results[0][0]
 
             # Build search query
             where_conditions = [f"{embedding_column} IS NOT NULL"]
-            
+
             if metadata_filters:
-                ALLOWED_FILTER_COLUMNS = {"deal_stage", "sentiment_category", "primary_user_name"}
+                ALLOWED_FILTER_COLUMNS = {
+                    "deal_stage",
+                    "sentiment_category",
+                    "primary_user_name",
+                }
                 for key, value in metadata_filters.items():
                     if key in ALLOWED_FILTER_COLUMNS:
                         where_conditions.append(f"{key} = '{value}'")
@@ -405,11 +409,13 @@ class SnowflakeCortexService(CoreService):
             logger.error(f"Error in vector search: {e}")
             raise
 
-    async def _store_embeddings(self, embeddings: list[dict[str, Any]], source_table: str):
+    async def _store_embeddings(
+        self, embeddings: list[dict[str, Any]], source_table: str
+    ):
         """Store embeddings in dedicated vector table"""
         try:
             vector_table = "AI_MEMORY_EMBEDDINGS"
-            
+
             for embedding in embeddings:
                 insert_query = f"""
                 INSERT INTO {vector_table} (
@@ -417,7 +423,7 @@ class SnowflakeCortexService(CoreService):
                     source_table, source_id, embedding_model
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """
-                
+
                 await self.connection_manager.execute_query(
                     insert_query,
                     (
@@ -428,11 +434,11 @@ class SnowflakeCortexService(CoreService):
                         source_table,
                         embedding["id"],
                         embedding["embedding_model"],
-                    )
+                    ),
                 )
-            
+
             logger.info(f"Stored {len(embeddings)} embeddings in {vector_table}")
-            
+
         except Exception as e:
             logger.error(f"Error storing embeddings: {e}")
 
@@ -450,7 +456,7 @@ class SnowflakeCortexService(CoreService):
         metadata_filters = {}
         if deal_stage:
             metadata_filters["deal_stage"] = deal_stage
-            
+
         return await self.vector_search_business_table(
             query_text=query_text,
             table_name="ENRICHED_HUBSPOT_DEALS",
@@ -472,7 +478,7 @@ class SnowflakeCortexService(CoreService):
         metadata_filters = {}
         if sentiment_filter:
             metadata_filters["sentiment_category"] = sentiment_filter
-            
+
         return await self.vector_search_business_table(
             query_text=query_text,
             table_name="ENRICHED_GONG_CALLS",
@@ -489,11 +495,11 @@ class SnowflakeCortexService(CoreService):
         try:
             insert_query = """
             INSERT INTO ETL_JOB_LOGS (
-                job_name, status, start_time, end_time, 
+                job_name, status, start_time, end_time,
                 records_processed, error_message, metadata
             ) VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            
+
             await self.connection_manager.execute_query(
                 insert_query,
                 (
@@ -504,12 +510,12 @@ class SnowflakeCortexService(CoreService):
                     job_log.get("records_processed", 0),
                     job_log.get("error_message"),
                     str(job_log.get("metadata", {})),
-                )
+                ),
             )
-            
+
             logger.info(f"Logged ETL job status: {job_log.get('job_name')}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error logging ETL job status: {e}")
             return False
@@ -537,7 +543,7 @@ async def summarize_hubspot_contact_notes(
 ) -> dict[str, Any]:
     """Summarize HubSpot contact notes"""
     service = await get_cortex_service()
-    
+
     try:
         results = await service.summarize_text_in_snowflake(
             text_column="notes",
@@ -545,7 +551,7 @@ async def summarize_hubspot_contact_notes(
             conditions=f"contact_id = '{contact_id}'",
             max_length=max_length,
         )
-        
+
         if results:
             return {
                 "contact_id": contact_id,
@@ -560,7 +566,7 @@ async def summarize_hubspot_contact_notes(
                 "original_notes_count": 0,
                 "processed_at": None,
             }
-            
+
     except Exception as e:
         logger.error(f"Error summarizing contact notes: {e}")
         return {
@@ -574,27 +580,31 @@ async def summarize_hubspot_contact_notes(
 async def analyze_gong_call_sentiment(call_id: str) -> dict[str, Any]:
     """Analyze sentiment of a Gong call"""
     service = await get_cortex_service()
-    
+
     try:
         results = await service.analyze_sentiment_in_snowflake(
             text_column="transcript",
             table_name="GONG_CALL_TRANSCRIPTS",
             conditions=f"call_id = '{call_id}'",
         )
-        
+
         if results:
             avg_sentiment = sum(r["sentiment_score"] for r in results) / len(results)
             sentiment_distribution = {}
             for result in results:
                 label = result["sentiment_label"]
                 sentiment_distribution[label] = sentiment_distribution.get(label, 0) + 1
-                
+
             return {
                 "call_id": call_id,
                 "average_sentiment": avg_sentiment,
                 "sentiment_distribution": sentiment_distribution,
                 "segments_analyzed": len(results),
-                "overall_sentiment": "POSITIVE" if avg_sentiment > 0.1 else "NEGATIVE" if avg_sentiment < -0.1 else "NEUTRAL",
+                "overall_sentiment": "POSITIVE"
+                if avg_sentiment > 0.1
+                else "NEGATIVE"
+                if avg_sentiment < -0.1
+                else "NEUTRAL",
             }
         else:
             return {
@@ -604,7 +614,7 @@ async def analyze_gong_call_sentiment(call_id: str) -> dict[str, Any]:
                 "segments_analyzed": 0,
                 "overall_sentiment": "UNKNOWN",
             }
-            
+
     except Exception as e:
         logger.error(f"Error analyzing call sentiment: {e}")
         return {

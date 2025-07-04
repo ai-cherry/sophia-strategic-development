@@ -1,6 +1,6 @@
 /**
  * Sophia AI - Storage Infrastructure Components
- * 
+ *
  * This module provides storage infrastructure components for the Sophia AI platform,
  * including S3 buckets, EFS file systems, RDS instances, and DynamoDB tables.
  */
@@ -17,22 +17,22 @@ export interface StorageArgs {
      * Environment name (e.g., dev, staging, prod)
      */
     environment: string;
-    
+
     /**
      * VPC ID where storage resources will be created
      */
     vpcId: pulumi.Input<string>;
-    
+
     /**
      * Subnet IDs where storage resources will be created
      */
     subnetIds: pulumi.Input<string>[];
-    
+
     /**
      * Security group IDs for storage resources
      */
     securityGroupIds: pulumi.Input<string>[];
-    
+
     /**
      * KMS key ARNs for encryption
      */
@@ -41,13 +41,13 @@ export interface StorageArgs {
          * KMS key ARN for data encryption
          */
         dataKey?: pulumi.Input<string>;
-        
+
         /**
          * KMS key ARN for log encryption
          */
         logKey?: pulumi.Input<string>;
     };
-    
+
     /**
      * S3 bucket configurations
      */
@@ -56,17 +56,17 @@ export interface StorageArgs {
          * Enable versioning for S3 buckets
          */
         enableVersioning?: boolean;
-        
+
         /**
          * Enable replication for S3 buckets
          */
         enableReplication?: boolean;
-        
+
         /**
          * Enable intelligent tiering for S3 buckets
          */
         enableIntelligentTiering?: boolean;
-        
+
         /**
          * Transition days for S3 lifecycle policies
          */
@@ -75,24 +75,24 @@ export interface StorageArgs {
              * Days until transition to STANDARD_IA
              */
             standardIa?: number;
-            
+
             /**
              * Days until transition to GLACIER
              */
             glacier?: number;
-            
+
             /**
              * Days until transition to DEEP_ARCHIVE
              */
             deepArchive?: number;
-            
+
             /**
              * Days until expiration
              */
             expiration?: number;
         };
     };
-    
+
     /**
      * RDS instance configurations
      */
@@ -101,28 +101,28 @@ export interface StorageArgs {
          * RDS instance class
          */
         instanceClass?: string;
-        
+
         /**
          * RDS storage size in GB
          */
         allocatedStorage?: number;
-        
+
         /**
          * RDS engine (e.g., postgres, mysql)
          */
         engine?: string;
-        
+
         /**
          * RDS engine version
          */
         engineVersion?: string;
-        
+
         /**
          * Enable Multi-AZ deployment
          */
         multiAz?: boolean;
     };
-    
+
     /**
      * DynamoDB configurations
      */
@@ -135,32 +135,32 @@ export interface StorageArgs {
              * Table name
              */
             name: string;
-            
+
             /**
              * Hash key
              */
             hashKey: string;
-            
+
             /**
              * Range key
              */
             rangeKey?: string;
-            
+
             /**
              * Read capacity units
              */
             readCapacity?: number;
-            
+
             /**
              * Write capacity units
              */
             writeCapacity?: number;
-            
+
             /**
              * Enable point-in-time recovery
              */
             pointInTimeRecovery?: boolean;
-            
+
             /**
              * Table attributes
              */
@@ -169,13 +169,13 @@ export interface StorageArgs {
                  * Attribute name
                  */
                 name: string;
-                
+
                 /**
                  * Attribute type
                  */
                 type: string;
             }[];
-            
+
             /**
              * Global secondary indexes
              */
@@ -184,40 +184,40 @@ export interface StorageArgs {
                  * Index name
                  */
                 name: string;
-                
+
                 /**
                  * Hash key
                  */
                 hashKey: string;
-                
+
                 /**
                  * Range key
                  */
                 rangeKey?: string;
-                
+
                 /**
                  * Read capacity units
                  */
                 readCapacity?: number;
-                
+
                 /**
                  * Write capacity units
                  */
                 writeCapacity?: number;
-                
+
                 /**
                  * Projection type
                  */
                 projectionType?: string;
             }[];
         }[];
-        
+
         /**
          * Enable auto scaling
          */
         enableAutoScaling?: boolean;
     };
-    
+
     /**
      * EFS configurations
      */
@@ -226,28 +226,28 @@ export interface StorageArgs {
          * Performance mode (e.g., generalPurpose, maxIO)
          */
         performanceMode?: string;
-        
+
         /**
          * Throughput mode (e.g., bursting, provisioned)
          */
         throughputMode?: string;
-        
+
         /**
          * Provisioned throughput in MiB/s
          */
         provisionedThroughputInMibps?: number;
-        
+
         /**
          * Enable encryption
          */
         encrypted?: boolean;
-        
+
         /**
          * Enable lifecycle policy
          */
         enableLifecycle?: boolean;
     };
-    
+
     /**
      * ElastiCache configurations
      */
@@ -256,28 +256,28 @@ export interface StorageArgs {
          * Engine (e.g., redis, memcached)
          */
         engine?: string;
-        
+
         /**
          * Node type
          */
         nodeType?: string;
-        
+
         /**
          * Number of nodes
          */
         numNodes?: number;
-        
+
         /**
          * Parameter group name
          */
         parameterGroupName?: string;
     };
-    
+
     /**
      * Kubernetes provider for StorageClass resources
      */
     k8sProvider?: k8s.Provider;
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -296,23 +296,23 @@ export class StorageComponents extends pulumi.ComponentResource {
          * Model artifacts bucket
          */
         modelArtifacts: aws.s3.Bucket;
-        
+
         /**
          * Training data bucket
          */
         trainingData: aws.s3.Bucket;
-        
+
         /**
          * Logs bucket
          */
         logs: aws.s3.Bucket;
-        
+
         /**
          * Data lake bucket
          */
         dataLake: aws.s3.Bucket;
     };
-    
+
     /**
      * RDS instances
      */
@@ -321,18 +321,18 @@ export class StorageComponents extends pulumi.ComponentResource {
          * Primary RDS instance
          */
         primary: aws.rds.Instance;
-        
+
         /**
          * Read replica RDS instance
          */
         readReplica?: aws.rds.Instance;
     };
-    
+
     /**
      * DynamoDB tables
      */
     public readonly dynamoTables?: aws.dynamodb.Table[];
-    
+
     /**
      * DynamoDB auto scaling settings
      */
@@ -341,23 +341,23 @@ export class StorageComponents extends pulumi.ComponentResource {
          * Read capacity auto scaling
          */
         readCapacity: aws.appautoscaling.Target[];
-        
+
         /**
          * Write capacity auto scaling
          */
         writeCapacity: aws.appautoscaling.Target[];
-        
+
         /**
          * Read capacity scaling policy
          */
         readScalingPolicy: aws.appautoscaling.Policy[];
-        
+
         /**
          * Write capacity scaling policy
          */
         writeScalingPolicy: aws.appautoscaling.Policy[];
     };
-    
+
     /**
      * EFS file systems
      */
@@ -366,13 +366,13 @@ export class StorageComponents extends pulumi.ComponentResource {
          * Model file system
          */
         modelFs: aws.efs.FileSystem;
-        
+
         /**
          * Mount targets
          */
         mountTargets: aws.efs.MountTarget[];
     };
-    
+
     /**
      * ElastiCache clusters
      */
@@ -381,13 +381,13 @@ export class StorageComponents extends pulumi.ComponentResource {
          * Model cache cluster
          */
         modelCache: aws.elasticache.Cluster;
-        
+
         /**
          * Subnet group
          */
         subnetGroup: aws.elasticache.SubnetGroup;
     };
-    
+
     /**
      * Kubernetes storage classes
      */
@@ -396,16 +396,16 @@ export class StorageComponents extends pulumi.ComponentResource {
          * EFS storage class
          */
         efs: k8s.storage.v1.StorageClass;
-        
+
         /**
          * GP3 storage class
          */
         gp3: k8s.storage.v1.StorageClass;
     };
-    
+
     constructor(name: string, args: StorageArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:storage:StorageComponents", name, {}, opts);
-        
+
         // Assign default tags
         const tags = {
             Environment: args.environment,
@@ -415,7 +415,7 @@ export class StorageComponents extends pulumi.ComponentResource {
             CreatedAt: new Date().toISOString(),
             ...args.tags,
         };
-        
+
         // Set default S3 lifecycle days
         const lifecycleDays = {
             standardIa: args.s3Config?.lifecycleDays?.standardIa || 30,
@@ -423,9 +423,9 @@ export class StorageComponents extends pulumi.ComponentResource {
             deepArchive: args.s3Config?.lifecycleDays?.deepArchive || 180,
             expiration: args.s3Config?.lifecycleDays?.expiration || 365,
         };
-        
+
         // Create S3 buckets
-        
+
         // Model artifacts bucket - optimized for ML model storage
         const modelArtifactsBucket = new aws.s3.Bucket(`${name}-model-artifacts`, {
             acl: "private",
@@ -487,7 +487,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                 StorageType: "ModelArtifacts",
             },
         }, { parent: this });
-        
+
         // Training data bucket - optimized for large dataset storage
         const trainingDataBucket = new aws.s3.Bucket(`${name}-training-data`, {
             acl: "private",
@@ -559,7 +559,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                 StorageType: "TrainingData",
             },
         }, { parent: this });
-        
+
         // Logs bucket - optimized for log storage
         const logsBucket = new aws.s3.Bucket(`${name}-logs`, {
             acl: "private",
@@ -601,7 +601,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                 StorageType: "Logs",
             },
         }, { parent: this });
-        
+
         // Data lake bucket - optimized for analytics and large-scale data storage
         const dataLakeBucket = new aws.s3.Bucket(`${name}-data-lake`, {
             acl: "private",
@@ -672,7 +672,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                 StorageType: "DataLake",
             },
         }, { parent: this });
-        
+
         // Assign S3 buckets
         this.s3Buckets = {
             modelArtifacts: modelArtifactsBucket,
@@ -680,7 +680,7 @@ export class StorageComponents extends pulumi.ComponentResource {
             logs: logsBucket,
             dataLake: dataLakeBucket,
         };
-        
+
         // Create RDS instance if configured
         if (args.rdsConfig) {
             // Create RDS subnet group
@@ -691,7 +691,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                     Name: `${name}-rds-subnet-group-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             // Create RDS parameter group
             const rdsParameterGroup = new aws.rds.ParameterGroup(`${name}-rds-parameter-group`, {
                 family: args.rdsConfig.engine === "postgres" ? "postgres14" : "mysql8.0",
@@ -738,7 +738,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                     Name: `${name}-rds-parameter-group-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             // Create RDS instance
             const rdsInstance = new aws.rds.Instance(`${name}-rds`, {
                 engine: args.rdsConfig.engine || "postgres",
@@ -773,7 +773,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                     ResourceType: "RDSInstance",
                 },
             }, { parent: this });
-            
+
             // Create RDS read replica for production environment
             let rdsReadReplica: aws.rds.Instance | undefined;
             if (args.environment === "prod") {
@@ -796,28 +796,28 @@ export class StorageComponents extends pulumi.ComponentResource {
                     },
                 }, { parent: this });
             }
-            
+
             // Assign RDS instances
             this.rdsInstances = {
                 primary: rdsInstance,
                 readReplica: rdsReadReplica,
             };
         }
-        
+
         // Create DynamoDB tables if configured
         if (args.dynamoConfig?.tables && args.dynamoConfig.tables.length > 0) {
             this.dynamoTables = [];
-            
+
             // Arrays for auto scaling resources
             const readCapacityTargets: aws.appautoscaling.Target[] = [];
             const writeCapacityTargets: aws.appautoscaling.Target[] = [];
             const readScalingPolicies: aws.appautoscaling.Policy[] = [];
             const writeScalingPolicies: aws.appautoscaling.Policy[] = [];
-            
+
             // Create tables
             args.dynamoConfig.tables.forEach((tableConfig, i) => {
                 const tableName = `${name}-${tableConfig.name}-${args.environment}`;
-                
+
                 // Create table
                 const table = new aws.dynamodb.Table(`${name}-dynamo-table-${i + 1}`, {
                     name: tableName,
@@ -841,11 +841,11 @@ export class StorageComponents extends pulumi.ComponentResource {
                         ResourceType: "DynamoDBTable",
                     },
                 }, { parent: this });
-                
+
                 if (this.dynamoTables) {
                     this.dynamoTables.push(table);
                 }
-                
+
                 // Set up auto scaling if enabled
                 if (args.dynamoConfig?.enableAutoScaling) {
                     // Read capacity auto scaling
@@ -856,9 +856,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                         scalableDimension: "dynamodb:table:ReadCapacityUnits",
                         serviceNamespace: "dynamodb",
                     }, { parent: this });
-                    
+
                     readCapacityTargets.push(readCapacityTarget);
-                    
+
                     // Read capacity scaling policy
                     const readScalingPolicy = new aws.appautoscaling.Policy(`${name}-dynamo-read-policy-${i + 1}`, {
                         policyType: "TargetTrackingScaling",
@@ -874,9 +874,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                             scaleOutCooldown: 60,
                         },
                     }, { parent: this });
-                    
+
                     readScalingPolicies.push(readScalingPolicy);
-                    
+
                     // Write capacity auto scaling
                     const writeCapacityTarget = new aws.appautoscaling.Target(`${name}-dynamo-write-target-${i + 1}`, {
                         maxCapacity: 100,
@@ -885,9 +885,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                         scalableDimension: "dynamodb:table:WriteCapacityUnits",
                         serviceNamespace: "dynamodb",
                     }, { parent: this });
-                    
+
                     writeCapacityTargets.push(writeCapacityTarget);
-                    
+
                     // Write capacity scaling policy
                     const writeScalingPolicy = new aws.appautoscaling.Policy(`${name}-dynamo-write-policy-${i + 1}`, {
                         policyType: "TargetTrackingScaling",
@@ -903,9 +903,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                             scaleOutCooldown: 60,
                         },
                     }, { parent: this });
-                    
+
                     writeScalingPolicies.push(writeScalingPolicy);
-                    
+
                     // Set up GSI auto scaling
                     if (tableConfig.globalSecondaryIndexes) {
                         tableConfig.globalSecondaryIndexes.forEach((gsi, gsiIndex) => {
@@ -917,9 +917,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                                 scalableDimension: "dynamodb:index:ReadCapacityUnits",
                                 serviceNamespace: "dynamodb",
                             }, { parent: this });
-                            
+
                             readCapacityTargets.push(gsiReadCapacityTarget);
-                            
+
                             // GSI read capacity scaling policy
                             const gsiReadScalingPolicy = new aws.appautoscaling.Policy(`${name}-dynamo-gsi-read-policy-${i + 1}-${gsiIndex + 1}`, {
                                 policyType: "TargetTrackingScaling",
@@ -935,9 +935,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                                     scaleOutCooldown: 60,
                                 },
                             }, { parent: this });
-                            
+
                             readScalingPolicies.push(gsiReadScalingPolicy);
-                            
+
                             // GSI write capacity auto scaling
                             const gsiWriteCapacityTarget = new aws.appautoscaling.Target(`${name}-dynamo-gsi-write-target-${i + 1}-${gsiIndex + 1}`, {
                                 maxCapacity: 100,
@@ -946,9 +946,9 @@ export class StorageComponents extends pulumi.ComponentResource {
                                 scalableDimension: "dynamodb:index:WriteCapacityUnits",
                                 serviceNamespace: "dynamodb",
                             }, { parent: this });
-                            
+
                             writeCapacityTargets.push(gsiWriteCapacityTarget);
-                            
+
                             // GSI write capacity scaling policy
                             const gsiWriteScalingPolicy = new aws.appautoscaling.Policy(`${name}-dynamo-gsi-write-policy-${i + 1}-${gsiIndex + 1}`, {
                                 policyType: "TargetTrackingScaling",
@@ -964,13 +964,13 @@ export class StorageComponents extends pulumi.ComponentResource {
                                     scaleOutCooldown: 60,
                                 },
                             }, { parent: this });
-                            
+
                             writeScalingPolicies.push(gsiWriteScalingPolicy);
                         });
                     }
                 }
             });
-            
+
             // Assign DynamoDB auto scaling resources
             if (args.dynamoConfig.enableAutoScaling) {
                 this.dynamoAutoScaling = {
@@ -981,7 +981,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                 };
             }
         }
-        
+
         // Create EFS file system if configured
         if (args.efsConfig) {
             // Create EFS file system
@@ -1002,7 +1002,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                     ResourceType: "EFSFileSystem",
                 },
             }, { parent: this });
-            
+
             // Create EFS mount targets in each subnet
             const mountTargets: aws.efs.MountTarget[] = [];
             args.subnetIds.forEach((subnetId, i) => {
@@ -1011,17 +1011,17 @@ export class StorageComponents extends pulumi.ComponentResource {
                     subnetId: subnetId,
                     securityGroups: args.securityGroupIds,
                 }, { parent: this });
-                
+
                 mountTargets.push(mountTarget);
             });
-            
+
             // Assign EFS resources
             this.efsFileSystems = {
                 modelFs: modelFileSystem,
                 mountTargets: mountTargets,
             };
         }
-        
+
         // Create ElastiCache cluster if configured
         if (args.elastiCacheConfig) {
             // Create subnet group
@@ -1032,7 +1032,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                     Name: `${name}-cache-subnet-group-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             // Create ElastiCache cluster
             const modelCache = new aws.elasticache.Cluster(`${name}-model-cache`, {
                 engine: args.elastiCacheConfig.engine || "redis",
@@ -1053,14 +1053,14 @@ export class StorageComponents extends pulumi.ComponentResource {
                     ResourceType: "ElastiCacheCluster",
                 },
             }, { parent: this });
-            
+
             // Assign ElastiCache resources
             this.elastiCacheClusters = {
                 modelCache: modelCache,
                 subnetGroup: subnetGroup,
             };
         }
-        
+
         // Create Kubernetes storage classes if provider is available
         if (args.k8sProvider) {
             // Create GP3 storage class
@@ -1080,7 +1080,7 @@ export class StorageComponents extends pulumi.ComponentResource {
                 volumeBindingMode: "WaitForFirstConsumer",
                 allowVolumeExpansion: true,
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create EFS storage class if EFS is configured
             let efsStorageClass: k8s.storage.v1.StorageClass | undefined;
             if (this.efsFileSystems) {
@@ -1099,14 +1099,14 @@ export class StorageComponents extends pulumi.ComponentResource {
                     allowVolumeExpansion: true,
                 }, { provider: args.k8sProvider, parent: this });
             }
-            
+
             // Assign Kubernetes storage classes
             this.k8sStorageClasses = {
                 gp3: gp3StorageClass,
                 efs: efsStorageClass!,
             };
         }
-        
+
         // Register outputs
         super.registerOutputs({
             s3Buckets: this.s3Buckets,
@@ -1151,7 +1151,7 @@ export function createMlOptimizedBucket(
         deepArchive: options.lifecycleDays?.deepArchive || 180,
         expiration: options.lifecycleDays?.expiration || 365,
     };
-    
+
     // Default tags
     const tags = {
         Environment: environment,
@@ -1163,7 +1163,7 @@ export function createMlOptimizedBucket(
         StorageType: bucketType,
         ...options.tags,
     };
-    
+
     // Create bucket
     const bucket = new aws.s3.Bucket(`${name}-${bucketType}`, {
         acl: "private",
@@ -1231,7 +1231,7 @@ export function createMlOptimizedBucket(
             Name: `${name}-${bucketType}-${environment}`,
         },
     }, { parent });
-    
+
     // Set up replication if enabled
     if (options.enableReplication && options.replicationBucket && options.replicationRoleArn) {
         new aws.s3.BucketReplicationConfiguration(`${name}-${bucketType}-replication`, {
@@ -1253,6 +1253,6 @@ export function createMlOptimizedBucket(
             ],
         }, { parent });
     }
-    
+
     return bucket;
 }

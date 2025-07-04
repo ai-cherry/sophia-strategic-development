@@ -23,7 +23,7 @@ async def get_user_data(user_id: str) -> Dict[str, Any]:
         profile_task = tg.create_task(
             db.async_query("SELECT * FROM profiles WHERE user_id = $1", user_id)
         )
-    
+
     return {"user": user_task.result(), "profile": profile_task.result()}
 ```
 
@@ -38,7 +38,7 @@ class DatabaseService:
             max_inactive_connection_lifetime=300,
             command_timeout=60
         )
-    
+
     async def query(self, sql: str, *args) -> List[Dict]:
         async with self.pool.acquire() as conn:
             return await conn.fetch(sql, *args)
@@ -128,13 +128,13 @@ const BigList = ({ items }) => (
 ### 3. Code Splitting
 ```typescript
 // ✅ Dynamic imports for routes
-const Dashboard = lazy(() => 
+const Dashboard = lazy(() =>
     import(/* webpackChunkName: "dashboard" */ './Dashboard')
 );
 
 // ✅ Conditional loading
-const AdminPanel = lazy(() => 
-    userRole === 'admin' 
+const AdminPanel = lazy(() =>
+    userRole === 'admin'
         ? import('./AdminPanel')
         : Promise.resolve({ default: () => null })
 );
@@ -161,14 +161,14 @@ import Image from 'next/image';
 ### 1. Index Usage
 ```sql
 -- ✅ ALWAYS check query plans
-EXPLAIN (ANALYZE, BUFFERS) 
-SELECT * FROM users 
-WHERE created_at > '2024-01-01' 
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM users
+WHERE created_at > '2024-01-01'
 AND status = 'active';
 
 -- ✅ Create appropriate indexes
-CREATE INDEX CONCURRENTLY idx_users_created_status 
-ON users(created_at, status) 
+CREATE INDEX CONCURRENTLY idx_users_created_status
+ON users(created_at, status)
 WHERE status = 'active';
 ```
 
@@ -176,7 +176,7 @@ WHERE status = 'active';
 ```sql
 -- ✅ For expensive aggregations
 CREATE MATERIALIZED VIEW daily_revenue AS
-SELECT 
+SELECT
     DATE_TRUNC('day', created_at) as day,
     SUM(amount) as revenue,
     COUNT(*) as transaction_count
@@ -216,7 +216,7 @@ const userLoader = new DataLoader(async (userIds) => {
         'SELECT * FROM users WHERE id = ANY($1)',
         [userIds]
     );
-    return userIds.map(id => 
+    return userIds.map(id =>
         users.find(user => user.id === id)
     );
 });
@@ -244,16 +244,16 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # ✅ Cursor-based pagination for large datasets
 async def get_items(cursor: Optional[str] = None, limit: int = 20):
     query = """
-        SELECT * FROM items 
+        SELECT * FROM items
         WHERE ($1::uuid IS NULL OR id > $1)
         ORDER BY id
         LIMIT $2
     """
     items = await db.fetch(query, cursor, limit + 1)
-    
+
     has_more = len(items) > limit
     items = items[:limit]
-    
+
     return {
         "items": items,
         "next_cursor": items[-1]["id"] if has_more else None
@@ -339,7 +339,7 @@ data = original_data.copy() if needed
 class Cache:
     def __init__(self):
         self.data = {}  # Never cleaned up
-    
+
 # ✅ Bounded cache with TTL
 from cachetools import TTLCache
 cache = TTLCache(maxsize=10000, ttl=300)
@@ -350,7 +350,7 @@ cache = TTLCache(maxsize=10000, ttl=300)
 # ❌ CPU-intensive work in async
 async def process_data(data):
     result = expensive_cpu_operation(data)  # Blocks event loop
-    
+
 # ✅ Use thread pool
 async def process_data(data):
     loop = asyncio.get_event_loop()
@@ -384,5 +384,5 @@ async def process_data(data):
 
 **Remember**: Performance is not optional. It's a core feature of every component we build.
 
-**Last Updated**: December 31, 2024  
-**Next Review**: January 15, 2025 
+**Last Updated**: December 31, 2024
+**Next Review**: January 15, 2025

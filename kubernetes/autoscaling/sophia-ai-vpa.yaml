@@ -6,13 +6,13 @@ metadata:
 spec:
   resourcePolicy:
     containerPolicies:
-    - containerName: sophia-ai
-      maxAllowed:
-        cpu: '4'
-        memory: 8Gi
-      minAllowed:
-        cpu: 100m
-        memory: 128Mi
+      - containerName: sophia-ai
+        maxAllowed:
+          cpu: "4"
+          memory: 8Gi
+        minAllowed:
+          cpu: 100m
+          memory: 128Mi
   targetRef:
     apiVersion: apps/v1
     kind: Deployment

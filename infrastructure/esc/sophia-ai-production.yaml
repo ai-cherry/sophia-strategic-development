@@ -3,7 +3,7 @@ imports:
       organization: scoobyjava-org
       project: default
       environment: shared-secrets
-      
+
 values:
   ai_intelligence:
     # LangGraph is now the sole orchestration framework - Agno deprecated

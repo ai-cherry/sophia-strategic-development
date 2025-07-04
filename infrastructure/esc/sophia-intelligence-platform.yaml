@@ -2,7 +2,7 @@
 # DNS and Infrastructure Management with IP Whitelisting
 
 imports:
-  - sophia-ai-platform-base  # Inherit from existing base configuration
+  - sophia-ai-platform-base # Inherit from existing base configuration
 
 values:
   # Platform Identity
@@ -15,15 +15,15 @@ values:
   # IP Address Management (from GitHub Organization Secrets)
   ip_addresses:
     lambda_labs:
-      fn::secret: "${LAMBDA_IP_ADDRESS}"  # 170.9.9.253 - Production server
+      fn::secret: "${LAMBDA_IP_ADDRESS}" # 170.9.9.253 - Production server
     github_actions:
-      fn::secret: "${GH_IP_ADDRESS}"     # 140.82.112.2 - CI/CD context
+      fn::secret: "${GH_IP_ADDRESS}" # 140.82.112.2 - CI/CD context
     pulumi_cloud:
       fn::secret: "${PULUMI_IP_ADDRESS}" # 34.74.88.2 - Deployment context
-    
+
     # Derived configurations
-    primary_server: "${ip_addresses.lambda_labs}"  # Main server for DNS records
-    whitelisted_ips: 
+    primary_server: "${ip_addresses.lambda_labs}" # Main server for DNS records
+    whitelisted_ips:
       - "${ip_addresses.lambda_labs}"
       - "${ip_addresses.github_actions}"
       - "${ip_addresses.pulumi_cloud}"
@@ -39,33 +39,33 @@ values:
         type: "A"
         value: "${ip_addresses.lambda_labs}"
         name: "@"
-      
+
       # Core subdomains
       api:
         type: "A"
         value: "${ip_addresses.lambda_labs}"
         name: "api"
-      
+
       webhooks:
         type: "A"
         value: "${ip_addresses.lambda_labs}"
         name: "webhooks"
-      
+
       dashboard:
         type: "A"
         value: "${ip_addresses.lambda_labs}"
         name: "dashboard"
-      
+
       sophia:
-        type: "A" 
+        type: "A"
         value: "${ip_addresses.lambda_labs}"
         name: "sophia"
-      
+
       dev:
         type: "A"
         value: "${ip_addresses.lambda_labs}"
         name: "dev"
-      
+
       # Wildcard for future subdomains
       wildcard:
         type: "A"
@@ -82,7 +82,7 @@ values:
       fn::secret: "${NAMECHEAP_USERNAME}"
     sandbox: false
     endpoint: "https://api.namecheap.com/xml.response"
-    
+
     # IP Context Detection for API calls
     client_ip_detection:
       local_dev: "${ip_addresses.lambda_labs}"
@@ -113,10 +113,10 @@ values:
   deployment:
     context_detection:
       environment_variables:
-        - "GITHUB_ACTIONS"      # GitHub Actions context
-        - "PULUMI_COMMAND"      # Pulumi CLI context  
+        - "GITHUB_ACTIONS" # GitHub Actions context
+        - "PULUMI_COMMAND" # Pulumi CLI context
         - "LAMBDA_LABS_CONTEXT" # Local dev context
-      
+
       ip_mapping:
         github_actions: "${ip_addresses.github_actions}"
         pulumi_cloud: "${ip_addresses.pulumi_cloud}"
@@ -128,4 +128,4 @@ values:
     api_rate_limiting: true
     dns_sec: true
     ip_whitelist_enforcement: true
-    secret_rotation_days: 90 
+    secret_rotation_days: 90

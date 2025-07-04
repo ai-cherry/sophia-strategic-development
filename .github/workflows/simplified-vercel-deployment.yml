@@ -4,15 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'api/**'
-      - 'frontend/**'
-      - 'vercel.json'
-      - 'requirements.txt'
-      - 'package.json'
+      - "api/**"
+      - "frontend/**"
+      - "vercel.json"
+      - "requirements.txt"
+      - "package.json"
   workflow_dispatch:
     inputs:
       force_deploy:
-        description: 'Force deployment even if no changes detected'
+        description: "Force deployment even if no changes detected"
         required: false
         default: false
         type: boolean
@@ -27,7 +27,7 @@ jobs:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -37,60 +37,60 @@ jobs:
       - name: Validate Environment
         run: |
           echo "🔍 Validating deployment environment..."
-          
+
           # Check required secrets
           if [ -z "${{ env.VERCEL_TOKEN }}" ]; then
             echo "❌ VERCEL_TOKEN is missing"
             exit 1
           fi
-          
+
           if [ -z "${{ env.VERCEL_ORG_ID }}" ]; then
             echo "❌ VERCEL_ORG_ID is missing"
             exit 1
           fi
-          
+
           if [ -z "${{ env.VERCEL_PROJECT_ID }}" ]; then
             echo "❌ VERCEL_PROJECT_ID is missing"
             exit 1
           fi
-          
+
           echo "✅ All required secrets are present"
 
       - name: Validate Configuration Files
         run: |
           echo "🔧 Validating configuration files..."
-          
+
           # Check vercel.json
           if [ ! -f "vercel.json" ]; then
             echo "❌ vercel.json not found"
             exit 1
           fi
-          
+
           # Verify functions pattern is correct
           if grep -q "app/\*\*/\*.js" vercel.json; then
             echo "❌ ERROR: vercel.json still contains old app/**/*.js pattern!"
             echo "This is the root cause of deployment failures!"
             exit 1
           fi
-          
+
           echo "✅ vercel.json validation passed"
-          
+
           # Check API files
           if [ ! -f "api/index.py" ]; then
             echo "❌ api/index.py not found"
             exit 1
           fi
-          
+
           if [ ! -f "api/n8n/webhook.py" ]; then
             echo "❌ api/n8n/webhook.py not found"
             exit 1
           fi
-          
+
           if [ ! -f "api/mcp/index.py" ]; then
             echo "❌ api/mcp/index.py not found"
             exit 1
           fi
-          
+
           echo "✅ All API files present"
 
       - name: Install Vercel CLI
@@ -103,34 +103,34 @@ jobs:
         id: deploy
         run: |
           echo "🚀 Deploying to Vercel..."
-          
+
           # Pull Vercel environment
           vercel pull --yes --environment=production --token=${{ env.VERCEL_TOKEN }}
-          
+
           # Build project
           vercel build --prod --token=${{ env.VERCEL_TOKEN }}
-          
+
           # Deploy
           DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ env.VERCEL_TOKEN }})
-          
+
           echo "deployment-url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "🎯 Deployment URL: $DEPLOYMENT_URL"
 
       - name: Validate Deployment
         run: |
           echo "🔍 Validating deployment..."
-          
+
           DEPLOYMENT_URL="${{ steps.deploy.outputs.deployment-url }}"
-          
+
           if [ -z "$DEPLOYMENT_URL" ]; then
             echo "❌ Deployment URL not found"
             exit 1
           fi
-          
+
           # Wait for deployment to be ready
           echo "⏳ Waiting for deployment to stabilize..."
           sleep 60
-          
+
           # Test frontend
           if curl -f -s "$DEPLOYMENT_URL/" > /dev/null; then
             echo "✅ Frontend is accessible"
@@ -138,7 +138,7 @@ jobs:
             echo "❌ Frontend test failed"
             exit 1
           fi
-          
+
           echo "🎉 Deployment validation successful!"
 
       - name: Report Success
@@ -147,7 +147,7 @@ jobs:
           echo "✅ Sophia AI deployed to: ${{ steps.deploy.outputs.deployment-url }}"
           echo "🔧 vercel.json functions pattern corrected"
           echo "📊 This should resolve the 95%+ failure rate"
-          
+
           # Create success marker
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .deployment-success
           echo "Deployment URL: ${{ steps.deploy.outputs.deployment-url }}" >> .deployment-success
@@ -165,7 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     if: failure()
-    
+
     steps:
       - name: Report Failure
         run: |
@@ -173,4 +173,3 @@ jobs:
           echo "🔍 Check the deployment logs for details"
           echo "🛠️  Consider running the force deployment script manually"
           echo "📋 Verify that all GitHub secrets are properly configured"
-

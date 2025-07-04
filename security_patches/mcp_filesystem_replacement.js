@@ -23,7 +23,7 @@ class SecureFilesystemServer {
                 },
             }
         );
-        
+
         this.setupHandlers();
     }
 
@@ -33,16 +33,16 @@ class SecureFilesystemServer {
     validatePath(requestedPath) {
         try {
             const resolvedPath = path.resolve(requestedPath);
-            
+
             for (const allowedRoot of this.allowedRoots) {
                 const relativePath = path.relative(allowedRoot, resolvedPath);
-                
+
                 // Security check: ensure path is within allowed root
                 if (!relativePath.startsWith('..') && !path.isAbsolute(relativePath)) {
                     return resolvedPath;
                 }
             }
-            
+
             throw new Error(`Access denied: Path '${requestedPath}' is outside allowed directories`);
         } catch (error) {
             throw new Error(`Invalid path: ${error.message}`);
@@ -149,7 +149,7 @@ class SecureFilesystemServer {
 
     async readFile(filePath) {
         const validatedPath = this.validatePath(filePath);
-        
+
         try {
             const content = await fs.readFile(validatedPath, 'utf8');
             return {
@@ -167,12 +167,12 @@ class SecureFilesystemServer {
 
     async writeFile(filePath, content) {
         const validatedPath = this.validatePath(filePath);
-        
+
         try {
             // Ensure directory exists
             const dir = path.dirname(validatedPath);
             await fs.mkdir(dir, { recursive: true });
-            
+
             await fs.writeFile(validatedPath, content, 'utf8');
             return {
                 content: [
@@ -189,7 +189,7 @@ class SecureFilesystemServer {
 
     async listDirectory(dirPath) {
         const validatedPath = this.validatePath(dirPath);
-        
+
         try {
             const entries = await fs.readdir(validatedPath, { withFileTypes: true });
             const formattedEntries = entries.map(entry => ({
@@ -197,7 +197,7 @@ class SecureFilesystemServer {
                 type: entry.isDirectory() ? 'directory' : 'file',
                 path: path.join(validatedPath, entry.name),
             }));
-            
+
             return {
                 content: [
                     {
@@ -213,7 +213,7 @@ class SecureFilesystemServer {
 
     async createDirectory(dirPath) {
         const validatedPath = this.validatePath(dirPath);
-        
+
         try {
             await fs.mkdir(validatedPath, { recursive: true });
             return {
@@ -243,9 +243,9 @@ if (require.main === module) {
     if (allowedRoots.length === 0) {
         allowedRoots.push(process.cwd());
     }
-    
+
     const server = new SecureFilesystemServer(allowedRoots);
     server.run().catch(console.error);
 }
 
-module.exports = { SecureFilesystemServer }; 
+module.exports = { SecureFilesystemServer };

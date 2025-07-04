@@ -44,22 +44,22 @@ spec:
       serviceAccountName: {{ $.Values.serviceAccount.name }}
       securityContext:
         {{- toYaml $.Values.global.securityContext | nindent 8 }}
-      
+
       {{- if $.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml $.Values.nodeSelector | nindent 8 }}
       {{- end }}
-      
+
       {{- if $.Values.tolerations }}
       tolerations:
         {{- toYaml $.Values.tolerations | nindent 8 }}
       {{- end }}
-      
+
       {{- if $.Values.affinity }}
       affinity:
         {{- toYaml $.Values.affinity | nindent 8 }}
       {{- end }}
-      
+
       initContainers:
         - name: config-loader
           image: alpine:3.18
@@ -78,12 +78,12 @@ spec:
               mountPath: /shared
           securityContext:
             runAsUser: 0  # Need root to set ownership
-      
+
       containers:
         - name: mcp-server
           image: {{ $.Values.global.imageRegistry }}/{{ $config.image.repository }}:{{ $config.image.tag | default $.Values.global.imageTag }}
           imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
-          
+
           ports:
             - name: http
               containerPort: {{ $config.port }}
@@ -91,7 +91,7 @@ spec:
             - name: metrics
               containerPort: 9090
               protocol: TCP
-          
+
           env:
             # Standard environment variables
             - name: PORT
@@ -114,13 +114,13 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            
+
             # Server-specific environment variables
             {{- range $config.env }}
             - name: {{ .name }}
               value: {{ .value | quote }}
             {{- end }}
-          
+
           envFrom:
             # Load secrets from Kubernetes secret
             - secretRef:
@@ -130,7 +130,7 @@ spec:
             - configMapRef:
                 name: sophia-mcp-config
                 optional: true
-          
+
           volumeMounts:
             - name: shared-config
               mountPath: /config
@@ -141,10 +141,10 @@ spec:
             - name: ai-memory-data
               mountPath: /data/ai-memory
             {{- end }}
-          
+
           resources:
             {{- toYaml $config.resources | nindent 12 }}
-          
+
           {{- if $config.readinessProbe }}
           readinessProbe:
             {{- toYaml $config.readinessProbe | nindent 12 }}
@@ -152,7 +152,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           {{- end }}
-          
+
           {{- if $config.livenessProbe }}
           livenessProbe:
             {{- toYaml $config.livenessProbe | nindent 12 }}
@@ -160,7 +160,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
           {{- end }}
-          
+
           # Startup probe for slower-starting servers
           startupProbe:
             httpGet:
@@ -170,7 +170,7 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 30  # 5 minutes to start
-          
+
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
@@ -179,7 +179,7 @@ spec:
             capabilities:
               drop:
                 - ALL
-      
+
       volumes:
         - name: shared-config
           emptyDir: {}
@@ -188,7 +188,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ $config.name }}-data
         {{- end }}
-      
+
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
@@ -257,4 +257,4 @@ spec:
       timeoutSeconds: 10800
 
 {{- end }}
-{{- end }} 
+{{- end }}

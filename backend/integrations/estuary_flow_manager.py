@@ -281,9 +281,7 @@ class EstuaryFlowManager:
                 except json.JSONDecodeError:
                     return {"output": result.stdout, "stderr": result.stderr}
             else:
-                logger.error(
-                    f"❌ Command failed: {' '.join(command)} - {result.stderr}"
-                )
+                logger.error(f"❌ Command failed: {' '.join(command)} - {result.stderr}")
                 return None
 
         except subprocess.TimeoutExpired:

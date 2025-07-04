@@ -79,7 +79,7 @@ class MCPEcosystemValidator:
             # Core services
             "sophia_ai_orchestrator": 9000,
             "enhanced_ai_memory": 9001,
-            "portkey_gateway": 9002,
+            "llm_service": 9002,
             "code_intelligence": 9003,
             "business_intelligence": 9004,
             # Official integrations
@@ -190,9 +190,9 @@ class MCPEcosystemValidator:
         ]
 
         # Validate configuration structure
-        results["configuration_validation"] = (
-            await self._validate_configuration_structure(config)
-        )
+        results[
+            "configuration_validation"
+        ] = await self._validate_configuration_structure(config)
 
         # Check port availability
         results["port_availability"] = await self._check_port_availability()
@@ -271,9 +271,9 @@ class MCPEcosystemValidator:
         results["workflow_tests"] = await self._test_key_workflows(config)
 
         # Test cross-server communication
-        results["cross_server_communication"] = (
-            await self._test_cross_server_communication(config)
-        )
+        results[
+            "cross_server_communication"
+        ] = await self._test_cross_server_communication(config)
 
         # Validate data flows
         results["data_flow_validation"] = await self._validate_data_flows(config)

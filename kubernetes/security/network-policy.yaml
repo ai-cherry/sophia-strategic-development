@@ -5,32 +5,32 @@ metadata:
   namespace: sophia-ai
 spec:
   egress:
-  - ports:
-    - port: 5432
-      protocol: TCP
-    - port: 6379
-      protocol: TCP
-    to:
-    - podSelector:
-        matchLabels:
-          app: postgresql
-    - podSelector:
-        matchLabels:
-          app: redis
+    - ports:
+        - port: 5432
+          protocol: TCP
+        - port: 6379
+          protocol: TCP
+      to:
+        - podSelector:
+            matchLabels:
+              app: postgresql
+        - podSelector:
+            matchLabels:
+              app: redis
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          app: n8n-main
-    - podSelector:
-        matchLabels:
-          app: nginx-ingress
-    ports:
-    - port: 8000
-      protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
+              app: n8n-main
+        - podSelector:
+            matchLabels:
+              app: nginx-ingress
+      ports:
+        - port: 8000
+          protocol: TCP
   podSelector:
     matchLabels:
       app: sophia-ai
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress

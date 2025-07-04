@@ -7,7 +7,7 @@ import json
 import logging
 import os
 import subprocess
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from backend.core.base import BaseConfig, service_registry
 
@@ -19,74 +19,74 @@ class ConfigManager(BaseConfig):
     Main configuration manager that implements BaseConfig
     with no dependencies on other modules
     """
-    
+
     def __init__(self):
-        self._config_cache: Dict[str, Any] = {}
-        self._esc_cache: Optional[Dict[str, Any]] = None
+        self._config_cache: dict[str, Any] = {}
+        self._esc_cache: Optional[dict[str, Any]] = None
         self._esc_org = os.getenv("PULUMI_ORG", "scoobyjava-org")
         self._esc_env = os.getenv("PULUMI_ENV", "default/sophia-ai-production")
-        
+
         # Register self with service registry
-        service_registry.register('config_manager', self)
-        
+        service_registry.register("config_manager", self)
+
         # Initialize configuration
         self._initialize_defaults()
-    
+
     def get_value(self, key: str, default: Any = None) -> Any:
         """Get a configuration value"""
         # Check cache first
         if key in self._config_cache:
             return self._config_cache[key]
-        
+
         # Check environment variables (highest priority)
         env_value = os.getenv(key.upper())
         if env_value is not None:
             self._config_cache[key] = env_value
             return env_value
-        
+
         # Check with original case
         env_value = os.getenv(key)
         if env_value is not None:
             self._config_cache[key] = env_value
             return env_value
-        
+
         # Try to load from Pulumi ESC
         esc_value = self._get_from_esc(key)
         if esc_value is not None:
             self._config_cache[key] = esc_value
             return esc_value
-        
+
         # Return default
         self._config_cache[key] = default
         return default
-    
+
     def set_value(self, key: str, value: Any) -> None:
         """Set a configuration value"""
         self._config_cache[key] = value
-    
+
     def _get_from_esc(self, key: str) -> Optional[Any]:
         """Get value from Pulumi ESC"""
         if self._esc_cache is None:
             self._load_esc_environment()
-        
+
         if self._esc_cache:
             # Try direct key
             value = self._esc_cache.get(key)
             if value and value != "[secret]":
                 return value
-            
+
             # Try with quotes
             quoted_key = f'"{key}"'
             value = self._esc_cache.get(quoted_key)
             if value and value != "[secret]":
                 return value
-            
+
             # If it's a secret, try to get it with --show-secrets
             if value == "[secret]":
                 return self._get_secret_from_esc(key)
-        
+
         return None
-    
+
     def _load_esc_environment(self) -> None:
         """Load configuration from Pulumi ESC"""
         try:
@@ -96,14 +96,14 @@ class ConfigManager(BaseConfig):
                 text=True,
                 timeout=30,
             )
-            
+
             if result.returncode == 0:
                 self._esc_cache = self._parse_esc_output(result.stdout)
                 logger.info(f"Loaded {len(self._esc_cache)} items from Pulumi ESC")
             else:
                 logger.warning(f"Failed to load Pulumi ESC: {result.stderr}")
                 self._esc_cache = {}
-                
+
         except subprocess.TimeoutExpired:
             logger.warning("Timeout loading Pulumi ESC environment")
             self._esc_cache = {}
@@ -113,11 +113,11 @@ class ConfigManager(BaseConfig):
         except Exception as e:
             logger.warning(f"Failed to load Pulumi ESC: {e}")
             self._esc_cache = {}
-    
-    def _parse_esc_output(self, output: str) -> Dict[str, Any]:
+
+    def _parse_esc_output(self, output: str) -> dict[str, Any]:
         """Parse Pulumi ESC output"""
         esc_data = {}
-        
+
         for line in output.strip().split("\n"):
             if ":" in line and not line.strip().startswith("#"):
                 if "[secret]" in line:
@@ -132,23 +132,25 @@ class ConfigManager(BaseConfig):
                             esc_data[key] = value
                     except Exception:
                         continue
-        
+
         return esc_data
-    
+
     def _get_secret_from_esc(self, key: str) -> Optional[str]:
         """Get secret value from ESC with --show-secrets"""
         try:
             result = subprocess.run(
                 [
-                    "pulumi", "env", "get", 
+                    "pulumi",
+                    "env",
+                    "get",
                     f"{self._esc_org}/{self._esc_env}",
-                    "--show-secrets"
+                    "--show-secrets",
                 ],
                 capture_output=True,
                 text=True,
                 timeout=30,
             )
-            
+
             if result.returncode == 0:
                 # Try JSON parsing first
                 try:
@@ -167,9 +169,9 @@ class ConfigManager(BaseConfig):
                                 continue
         except Exception as e:
             logger.debug(f"Failed to get secret {key}: {e}")
-        
+
         return None
-    
+
     def _initialize_defaults(self) -> None:
         """Initialize default configuration values"""
         # Snowflake defaults
@@ -188,13 +190,13 @@ class ConfigManager(BaseConfig):
             "jwt_algorithm": "HS256",
             "jwt_expiration_hours": "24",
         }
-        
+
         # Only set if not already available
         for key, value in defaults.items():
             if not self.get_value(key):
                 self.set_value(key, value)
-    
-    def get_snowflake_config(self) -> Dict[str, Any]:
+
+    def get_snowflake_config(self) -> dict[str, Any]:
         """Get Snowflake configuration"""
         return {
             "account": self.get_value("snowflake_account"),
@@ -205,8 +207,8 @@ class ConfigManager(BaseConfig):
             "database": self.get_value("snowflake_database"),
             "schema": self.get_value("snowflake_schema"),
         }
-    
-    def get_integration_config(self) -> Dict[str, Any]:
+
+    def get_integration_config(self) -> dict[str, Any]:
         """Get integration configuration"""
         return {
             "gong": {
@@ -222,7 +224,9 @@ class ConfigManager(BaseConfig):
             "hubspot": {
                 "access_token": self.get_value("hubspot_access_token"),
                 "portal_id": self.get_value("hubspot_portal_id"),
-                "endpoint": self.get_value("hubspot_endpoint", "https://api.hubapi.com"),
+                "endpoint": self.get_value(
+                    "hubspot_endpoint", "https://api.hubapi.com"
+                ),
             },
         }
 
@@ -242,12 +246,12 @@ def set_config_value(key: str, value: Any) -> None:
     _config_manager.set_value(key, value)
 
 
-def get_snowflake_config() -> Dict[str, Any]:
+def get_snowflake_config() -> dict[str, Any]:
     """Get Snowflake configuration (backward compatibility)"""
     return _config_manager.get_snowflake_config()
 
 
-def get_integration_config() -> Dict[str, Any]:
+def get_integration_config() -> dict[str, Any]:
     """Get integration configuration (backward compatibility)"""
     return _config_manager.get_integration_config()
 
@@ -261,4 +265,4 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     "auto_commit": True,
     "warehouse_auto_suspend": 60,
     "warehouse_auto_resume": True,
-} 
+}

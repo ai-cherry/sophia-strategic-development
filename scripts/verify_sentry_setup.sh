@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 check_file() {
     local file=$1
     local description=$2
-    
+
     if [ -f "$file" ]; then
         echo -e "${GREEN}✅${NC} $description: $file"
         return 0
@@ -33,7 +33,7 @@ check_file() {
 check_command() {
     local cmd=$1
     local description=$2
-    
+
     if command -v "$cmd" &> /dev/null; then
         echo -e "${GREEN}✅${NC} $description: $cmd"
         return 0
@@ -137,4 +137,3 @@ echo ""
 echo -e "${GREEN}✅ Verification complete!${NC}"
 echo ""
 echo "📖 For detailed instructions, see: docs/SENTRY_COMPLETE_SETUP_GUIDE.md"
-

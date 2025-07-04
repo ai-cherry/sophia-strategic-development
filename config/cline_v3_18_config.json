@@ -97,14 +97,8 @@
       "sophia-ai-intelligence",
       "competitive_monitor"
     ],
-    "self_knowledge_servers": [
-      "all"
-    ],
-    "improved_diff_servers": [
-      "ai_memory",
-      "codacy",
-      "sophia-infrastructure"
-    ]
+    "self_knowledge_servers": ["all"],
+    "improved_diff_servers": ["ai_memory", "codacy", "sophia-infrastructure"]
   },
   "performance_optimizations": {
     "parallel_processing": true,

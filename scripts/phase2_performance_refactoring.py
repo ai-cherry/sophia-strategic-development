@@ -171,7 +171,7 @@ class Phase2PerformanceRefactorer:
             self.backup_files.append(backup_path)
 
             # Find and refactor the function
-            pattern = r"async def create_transformation_procedures\(self\) -> None:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+            pattern = r"async def create_transformation_procedures\\(self\\) -> None:(.*?)(?=\n    async def|\n    def|\nclass|\\Z)"
 
             replacement = '''async def create_transformation_procedures(self) -> None:
         """
@@ -567,7 +567,7 @@ class Phase2PerformanceRefactorer:
             self.backup_files.append(backup_path)
 
             # Find and refactor the function
-            pattern = r"async def orchestrate_concurrent_workflow\((.*?)\) -> Dict\[str, Any\]:(.*?)(?=\n    async def|\n    def|\nclass|\Z)"
+            pattern = r"async def orchestrate_concurrent_workflow\\((.*?)\\) -> Dict\\[str, Any\\]:(.*?)(?=\n    async def|\n    def|\nclass|\\Z)"
 
             replacement = '''async def orchestrate_concurrent_workflow(
         self,

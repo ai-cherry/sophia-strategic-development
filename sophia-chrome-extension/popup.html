@@ -17,22 +17,22 @@
         <div class="logo">🤖 Sophia AI</div>
         <p>Advanced AI Coding Assistant</p>
     </div>
-    
+
     <button class="button primary" id="openChat">Open Chat</button>
     <button class="button secondary" id="checkStatus">Check Status</button>
     <button class="button secondary" id="settings">Settings</button>
-    
+
     <div id="status" style="margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 12px;"></div>
-    
+
     <script>
         document.getElementById('openChat').addEventListener('click', () => {
             chrome.tabs.create({url: 'http://localhost:3000'});
         });
-        
+
         document.getElementById('checkStatus').addEventListener('click', async () => {
             const status = document.getElementById('status');
             status.textContent = 'Checking...';
-            
+
             try {
                 const response = await fetch('http://localhost:8000/health');
                 if (response.ok) {
@@ -48,7 +48,7 @@
                 status.textContent = '❌ Sophia AI is offline';
             }
         });
-        
+
         // Check status on load
         document.getElementById('checkStatus').click();
     </script>

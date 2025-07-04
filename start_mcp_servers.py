@@ -168,9 +168,7 @@ if __name__ == '__main__':
                         if self.check_server_health(port):
                             print(f"🟢 {name}: HEALTHY (port {port})")
                         else:
-                            print(
-                                f"🟡 {name}: RUNNING but not responding (port {port})"
-                            )
+                            print(f"🟡 {name}: RUNNING but not responding (port {port})")
                     else:
                         print(f"🔴 {name}: STOPPED (port {port})")
 

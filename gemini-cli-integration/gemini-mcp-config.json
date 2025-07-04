@@ -148,9 +148,7 @@
     },
     "sophia-figma-dev-mode": {
       "command": "python",
-      "args": [
-        "ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"
-      ],
+      "args": ["ui-ux-agent/mcp-servers/figma-dev-mode/figma_mcp_server.py"],
       "env": {
         "FIGMA_PERSONAL_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN_HERE",
         "PYTHONPATH": "/app"
@@ -170,9 +168,7 @@
     },
     "sophia-ui-ux-agent": {
       "command": "python",
-      "args": [
-        "ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"
-      ],
+      "args": ["ui-ux-agent/mcp-servers/langchain-agents/ui_ux_agent.py"],
       "env": {
         "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
         "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
@@ -186,9 +182,7 @@
         "accessibility_optimization"
       ],
       "auto_start": false,
-      "depends_on": [
-        "sophia-figma-dev-mode"
-      ],
+      "depends_on": ["sophia-figma-dev-mode"],
       "health_check": {
         "enabled": true,
         "interval": 60,
@@ -197,10 +191,7 @@
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequentialthinking"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-sequentialthinking"],
       "description": "Sequential Thinking MCP Server - Enhanced reasoning capabilities",
       "capabilities": [
         "step_by_step_reasoning",
@@ -305,20 +296,14 @@
           "sophia-figma-dev-mode.extract_design_context",
           "sophia-ui-ux-agent.validate_design_system"
         ],
-        "conditions": [
-          "figma_url_detected",
-          "design_file_modified"
-        ]
+        "conditions": ["figma_url_detected", "design_file_modified"]
       },
       "on_business_intelligence": {
         "triggers": [
           "sophia-business-intelligence.generate_insights",
           "sophia-data-intelligence.query_warehouse"
         ],
-        "conditions": [
-          "business_query_detected",
-          "dashboard_access_requested"
-        ]
+        "conditions": ["business_query_detected", "dashboard_access_requested"]
       }
     }
   },
@@ -363,15 +348,8 @@
     "geminiCliSecurity": {
       "enableSandboxing": true,
       "restrictFileAccess": true,
-      "allowedDirectories": [
-        "/app",
-        "/tmp/gemini-workspace"
-      ],
-      "blockedCommands": [
-        "rm -rf",
-        "sudo",
-        "chmod 777"
-      ]
+      "allowedDirectories": ["/app", "/tmp/gemini-workspace"],
+      "blockedCommands": ["rm -rf", "sudo", "chmod 777"]
     }
   },
   "performance": {

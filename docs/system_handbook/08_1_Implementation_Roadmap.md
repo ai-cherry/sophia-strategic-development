@@ -1,7 +1,7 @@
 # The Sophia AI Implementation Roadmap
 
-> **Version:** 1.0  
-> **Status:** Planning  
+> **Version:** 1.0
+> **Status:** Planning
 > **Parent:** [SOPHIA_AI_SYSTEM_HANDBOOK.md](./00_SOPHIA_AI_SYSTEM_HANDBOOK.md)
 
 ---

@@ -582,9 +582,7 @@ class EnhancedBatchEmbeddingProcessor:
     async def process_all_embeddings(self) -> dict[str, dict[str, int]]:
         """Process embeddings for all schemas"""
         try:
-            logger.info(
-                "🚀 Starting comprehensive embedding processing for all schemas"
-            )
+            logger.info("🚀 Starting comprehensive embedding processing for all schemas")
 
             all_results = {}
 

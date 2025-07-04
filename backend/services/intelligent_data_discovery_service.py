@@ -41,7 +41,7 @@ except ImportError:
     SnowflakeCortexService = None
 
 try:
-    from backend.services.smart_ai_service import SmartAIService
+    from backend.services.unified_llm_service import TaskType, get_unified_llm_service
 except ImportError:
     SmartAIService = None
 
@@ -147,7 +147,7 @@ class IntelligentDataDiscoveryService:
         self.cortex_service = (
             SnowflakeCortexService() if SnowflakeCortexService else None
         )
-        self.ai_service = SmartAIService() if SmartAIService else None
+        self.ai_service = await get_unified_llm_service() if SmartAIService else None
         self.target_schemas = {
             "SALESFORCE": [
                 "account",

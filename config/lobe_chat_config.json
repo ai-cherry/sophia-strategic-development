@@ -2,12 +2,12 @@
   "version": "2.0",
   "name": "Sophia AI Enhanced Unified Chat",
   "description": "Enterprise AI orchestrator with 11-provider intelligent routing via Portkey",
-  
+
   "api_configuration": {
     "base_url": "http://localhost:8000/api/v1/enhanced-ceo-chat",
     "endpoints": {
       "chat": "/chat",
-      "code_expert": "/code-expert", 
+      "code_expert": "/code-expert",
       "business_analyst": "/business-analyst",
       "research_assistant": "/research-assistant",
       "provider_status": "/provider-status",
@@ -22,11 +22,11 @@
       }
     }
   },
-  
+
   "ui_configuration": {
     "theme": {
       "primary_color": "#8B5CF6",
-      "secondary_color": "#06B6D4", 
+      "secondary_color": "#06B6D4",
       "background": "rgba(15, 23, 42, 0.95)",
       "glassmorphism": {
         "enabled": true,
@@ -52,7 +52,7 @@
       "show_system_health": true
     }
   },
-  
+
   "agent_personas": {
     "ceo_assistant": {
       "name": "Sophia - Unified AI Assistant",
@@ -74,7 +74,7 @@
       }
     },
     "code_expert": {
-      "name": "Sophia Code Expert", 
+      "name": "Sophia Code Expert",
       "avatar": "/assets/sophia-code.png",
       "description": "AI coding specialist optimized for development workflows",
       "capabilities": [
@@ -94,7 +94,7 @@
     },
     "research_assistant": {
       "name": "Sophia Research AI",
-      "avatar": "/assets/sophia-research.png", 
+      "avatar": "/assets/sophia-research.png",
       "description": "AI research specialist with real-time data access",
       "capabilities": [
         "Real-time web research",
@@ -106,13 +106,13 @@
       ],
       "default_config": {
         "complexity": "research",
-        "cost_preference": "balanced", 
+        "cost_preference": "balanced",
         "context_type": "research",
         "urgency": "normal"
       }
     }
   },
-  
+
   "provider_intelligence": {
     "display_provider_selection": true,
     "show_cost_breakdown": true,
@@ -126,14 +126,14 @@
         "description": "Optimized for speed and real-time responses"
       },
       "cost_efficient": {
-        "name": "Cost Efficient", 
+        "name": "Cost Efficient",
         "color": "#3B82F6",
         "providers": ["deepseek", "qwen"],
         "description": "Best value for routine tasks"
       },
       "premium": {
         "name": "Premium",
-        "color": "#8B5CF6", 
+        "color": "#8B5CF6",
         "providers": ["openai", "anthropic"],
         "description": "Highest quality for critical decisions"
       },
@@ -151,7 +151,7 @@
       }
     }
   },
-  
+
   "workflow_templates": {
     "business_analysis": {
       "name": "Strategic Business Analysis",
@@ -163,7 +163,7 @@
         },
         {
           "type": "research",
-          "complexity": "research", 
+          "complexity": "research",
           "prompt_template": "Research market trends related to: {analysis_topic}"
         },
         {
@@ -182,7 +182,7 @@
           "prompt_template": "Generate {language} code for: {requirements}"
         },
         {
-          "type": "code_expert", 
+          "type": "code_expert",
           "complexity": "moderate",
           "prompt_template": "Review and test the generated code"
         },
@@ -202,7 +202,7 @@
           "prompt_template": "Research current market conditions for: {topic}"
         },
         {
-          "type": "research", 
+          "type": "research",
           "complexity": "research",
           "prompt_template": "Analyze competitive landscape"
         },
@@ -214,7 +214,7 @@
       ]
     }
   },
-  
+
   "integration_settings": {
     "cursor_ide": {
       "enabled": true,
@@ -238,7 +238,7 @@
       "live_performance_metrics": true
     }
   },
-  
+
   "advanced_features": {
     "ai_artifacts": {
       "enabled": true,
@@ -264,7 +264,7 @@
       "real_time_collaboration": true
     }
   },
-  
+
   "performance_optimization": {
     "caching": {
       "enabled": true,
@@ -283,7 +283,7 @@
       "provider_rotation": true
     }
   },
-  
+
   "security_settings": {
     "content_filtering": {
       "enabled": true,
@@ -301,12 +301,12 @@
       "cost_per_hour_limit": 10.0
     }
   },
-  
+
   "monitoring_dashboard": {
     "enabled": true,
     "metrics": [
       "provider_performance",
-      "cost_tracking", 
+      "cost_tracking",
       "response_times",
       "quality_scores",
       "usage_patterns",
@@ -318,4 +318,4 @@
       "provider_failure_threshold": 3
     }
   }
-} 
+}

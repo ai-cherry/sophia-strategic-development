@@ -41,7 +41,7 @@ class UnifiedLLMService:
     """
     Single point of access for all LLM operations in Sophia AI
     """
-    
+
     def __init__(self):
         # Primary gateway - Portkey for production
         self.portkey = PortkeyClient(
@@ -51,18 +51,18 @@ class UnifiedLLMService:
                 "anthropic": get_config_value("portkey_virtual_key_anthropic"),
             }
         )
-        
+
         # Secondary gateway - OpenRouter for experimentation
         self.openrouter = OpenRouterClient(
             api_key=get_config_value("openrouter_api_key")
         )
-        
+
         # Snowflake for analytics
         self.analytics = SnowflakeLLMAnalytics()
-        
+
         # Model registry
         self.models = self._load_model_registry()
-        
+
     async def complete(
         self,
         prompt: str,
@@ -76,18 +76,18 @@ class UnifiedLLMService:
         """
         # Select gateway based on task and configuration
         gateway = self._select_gateway(task_type, gateway_override)
-        
+
         # Select model based on task requirements
         model = self._select_model(task_type, model_preference)
-        
+
         # Execute request with monitoring
         response = await self._execute_request(
             gateway, model, prompt, use_cache
         )
-        
+
         # Track analytics
         await self._track_usage(response)
-        
+
         return response
 ```
 
@@ -100,7 +100,7 @@ gateways:
     priority: 1
     use_for: [production, critical, real_time]
     features: [semantic_cache, observability, fallback]
-    
+
   openrouter:
     priority: 2
     use_for: [experimentation, bulk, cost_sensitive]
@@ -115,7 +115,7 @@ models:
     cost_per_1k_output: 0.03
     capabilities: [reasoning, code, vision]
     use_for: [executive_insights, complex_analysis]
-    
+
   claude-3-opus:
     gateway: portkey
     provider: anthropic
@@ -123,7 +123,7 @@ models:
     cost_per_1k_output: 0.075
     capabilities: [reasoning, creativity, long_context]
     use_for: [strategic_planning, creative_tasks]
-    
+
   # Tier 2 - Balanced Models (via either gateway)
   gpt-4-turbo:
     gateway: [portkey, openrouter]
@@ -132,7 +132,7 @@ models:
     cost_per_1k_output: 0.03
     capabilities: [reasoning, code, fast]
     use_for: [code_generation, analysis]
-    
+
   # Tier 3 - Cost-Optimized Models (via OpenRouter)
   deepseek-v3:
     gateway: openrouter
@@ -152,12 +152,12 @@ interface LLMControlPanel {
   currentCost: number;
   dailyBudget: number;
   modelUsage: ModelUsageStats[];
-  
+
   // Configuration controls
   preferredModels: ModelPreference[];
   routingRules: RoutingRule[];
   cacheSettings: CacheConfig;
-  
+
   // Actions
   onModelPreferenceChange: (model: string, preference: number) => void;
   onBudgetUpdate: (budget: number) => void;
@@ -245,4 +245,4 @@ The hybrid Portkey + OpenRouter strategy provides the best of both worlds:
 - CEO dashboard for control
 - Significant cost savings through optimization
 
-This approach aligns with Sophia AI's priorities of quality, stability, and maintainability while providing the flexibility needed for rapid innovation. 
+This approach aligns with Sophia AI's priorities of quality, stability, and maintainability while providing the flexibility needed for rapid innovation.

@@ -204,29 +204,30 @@ routing_rules:
     primary: "portkey"
     portkey_endpoint: "https://api.portkey.ai/v1/chat/completions"
     portkey_api_key_env: "PORTKEY_API_KEY"
-    
+
     # OpenRouter as backend provider through Portkey
     backend_provider: "openrouter"
     openrouter_api_key_env: "OPENROUTER_API_KEY"
-    
+
     # Intelligent routing configuration
     routing_strategy:
       # Performance-optimized model selection
       performance_tier_1:
         models: ["gpt-4o", "claude-3-opus", "gemini-1.5-pro"]
-        use_case: ["complex_reasoning", "executive_insights", "strategic_analysis"]
+        use_case:
+          ["complex_reasoning", "executive_insights", "strategic_analysis"]
         cost_multiplier: 1.0
-        
-      performance_tier_2: 
+
+      performance_tier_2:
         models: ["claude-3-haiku", "gpt-4-turbo", "deepseek-v3"]
         use_case: ["code_generation", "document_analysis", "routine_queries"]
         cost_multiplier: 0.6
-        
+
       cost_optimized:
         models: ["llama-3-70b", "qwen2-72b", "mixtral-8x22b"]
         use_case: ["bulk_processing", "training_data", "cost_sensitive"]
         cost_multiplier: 0.2
-    
+
     # Portkey-specific configurations
     portkey_config:
       # Semantic caching for cost optimization
@@ -235,13 +236,13 @@ routing_rules:
         similarity_threshold: 0.92
         ttl_hours: 24
         cache_size_gb: 50
-        
+
       # Smart routing and load balancing
       load_balancing:
         strategy: "weighted_round_robin"
         health_check_interval: 30
         fallback_enabled: true
-        
+
       # Cost and performance monitoring
       monitoring:
         track_costs: true
@@ -251,7 +252,7 @@ routing_rules:
           cost_spike_percentage: 50
           latency_spike_ms: 2000
           error_rate_percentage: 5
-    
+
     # Model selection rules with business context
     model_selection:
       - condition: "dashboard_type == 'ceo' AND task_type == 'executive_summary'"
@@ -259,49 +260,49 @@ routing_rules:
         provider: "openrouter"
         cache_ttl: 3600
         priority: "high"
-        
+
       - condition: "dashboard_type == 'ceo' AND task_type == 'competitive_analysis'"
         model: "claude-3-opus"
-        provider: "openrouter" 
+        provider: "openrouter"
         cache_ttl: 7200
         priority: "high"
-        
+
       - condition: "task_type == 'code_generation' OR task_type == 'technical_analysis'"
         model: "deepseek-v3"
         provider: "openrouter"
         cache_ttl: 1800
         priority: "medium"
-        
+
       - condition: "task_type == 'long_context' OR prompt_tokens > 16000"
         model: "gemini-1.5-pro"
         provider: "openrouter"
         cache_ttl: 3600
         priority: "medium"
-        
+
       - condition: "task_type == 'chat' OR task_type == 'general'"
         model: "gpt-4o"
         provider: "openrouter"
         cache_ttl: 900
         priority: "medium"
-        
+
       - condition: "cost_sensitive == true OR budget_constraint == true"
         model: "llama-3-70b"
         provider: "openrouter"
         cache_ttl: 7200
         priority: "low"
-        
+
       - condition: "task_type == 'multi_modal' OR has_images == true"
         model: "gpt-4o"
         provider: "openrouter"
         cache_ttl: 1800
         priority: "high"
-        
+
       - condition: "task_type == 'summarization' AND content_length < 10000"
         model: "claude-3-haiku"
         provider: "openrouter"
         cache_ttl: 3600
         priority: "medium"
-    
+
     # Fallback strategy
     fallback_strategy:
       primary_fallback: "openrouter_direct"
@@ -316,7 +317,7 @@ routing_rules:
         anthropic_direct:
           endpoint: "https://api.anthropic.com/v1/messages"
           api_key_env: "ANTHROPIC_API_KEY"
-    
+
     # Unified Dashboard specific configurations
     ceo_dashboard_config:
       # Model performance tracking
@@ -325,7 +326,7 @@ routing_rules:
         - business_relevance_score
         - cost_efficiency_ratio
         - user_satisfaction_rating
-        
+
       # Strategic model assignments
       strategic_model_assignments:
         executive_insights: "gpt-4o"
@@ -333,14 +334,14 @@ routing_rules:
         financial_analysis: "gpt-4o"
         market_analysis: "gemini-1.5-pro"
         operational_efficiency: "claude-3-haiku"
-        
+
       # Cost management
       cost_controls:
         monthly_budget_usd: 2000
         alert_at_percentage: 75
         auto_downgrade_at_percentage: 90
         emergency_fallback_model: "llama-3-70b"
-        
+
       # A/B testing for model optimization
       ab_testing:
         enabled: true

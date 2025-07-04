@@ -4,8 +4,8 @@
 
 packages:
   # Applications (NOT YET ACTIVE)
-  - 'apps/*'
+  - "apps/*"
   # Shared libraries (NOT YET ACTIVE)
-  - 'libs/*'
+  - "libs/*"
   # Configuration packages (NOT YET ACTIVE)
-  - 'config/*'
+  - "config/*"

@@ -14,7 +14,6 @@ TODO: Implement file decomposition
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
@@ -22,12 +21,10 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
-
 from backend.agents.core.langgraph_agent_base import LangGraphAgentBase
-from backend.services.smart_ai_service import SmartAIService
-from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.services.unified_llm_service import get_unified_llm_service
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +114,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         super().__init__(config)
         self.cortex_service = None
         self.ai_memory_service = None
-        self.smart_ai_service = None
+        self.llm_service = None
 
     async def initialize(self) -> None:
         """Initialize the Asana intelligence agent"""
@@ -131,8 +128,8 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             self.ai_memory_service = EnhancedAiMemoryMCPServer()
             await self.ai_memory_service.initialize()
 
-            self.smart_ai_service = SmartAIService()
-            await self.smart_ai_service.initialize()
+            self.llm_service = await get_unified_llm_service()
+            await self.llm_service.initialize()
 
             logger.info("✅ Asana Project Intelligence Agent initialized")
 
@@ -661,7 +658,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             Format as JSON with 'risk_factors' and 'mitigation_suggestions' arrays.
             """
 
-            ai_response = await self.smart_ai_service.generate_text(
+            ai_response = await self.llm_service.generate_text(
                 prompt=insights_prompt, model_tier="tier_2", max_tokens=500
             )
 
@@ -843,9 +840,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 "summary": summary,
             }
 
-            logger.info(
-                f"✅ Generated intelligence report for {len(projects)} projects"
-            )
+            logger.info(f"✅ Generated intelligence report for {len(projects)} projects")
             return report
 
         except Exception as e:
@@ -992,8 +987,8 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 await self.cortex_service.close()
             if self.ai_memory_service:
                 await self.ai_memory_service.close()
-            if self.smart_ai_service:
-                await self.smart_ai_service.close()
+            if self.llm_service:
+                await self.llm_service.close()
             await super().close()
         except Exception as e:
             logger.error(f"❌ Error closing Asana intelligence agent: {e}")

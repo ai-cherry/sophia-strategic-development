@@ -5,14 +5,12 @@ Designed for Salesforce→Intercom support ticket migration
 """
 
 import asyncio
-import json
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any
 
-from mcp import Server
 import requests
-from requests.auth import HTTPBasicAuth
+from mcp import Server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -51,7 +49,7 @@ class IntercomMCPServer:
         """Register Intercom MCP tools"""
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check Intercom API connection health"""
             try:
                 if not self.access_token:
@@ -63,9 +61,7 @@ class IntercomMCPServer:
 
                 # Test API connection by getting workspace details
                 response = requests.get(
-                    f"{self.api_base}/me",
-                    headers=self.headers,
-                    timeout=10
+                    f"{self.api_base}/me", headers=self.headers, timeout=10
                 )
 
                 if response.status_code == 200:
@@ -98,8 +94,8 @@ class IntercomMCPServer:
             email: str,
             name: str = "",
             phone: str = "",
-            custom_attributes: Dict[str, Any] = None,
-        ) -> Dict[str, Any]:
+            custom_attributes: dict[str, Any] = None,
+        ) -> dict[str, Any]:
             """Create a new contact in Intercom"""
             try:
                 contact_data = {
@@ -118,7 +114,7 @@ class IntercomMCPServer:
                     f"{self.api_base}/contacts",
                     headers=self.headers,
                     json=contact_data,
-                    timeout=30
+                    timeout=30,
                 )
 
                 if response.status_code in [200, 201]:
@@ -148,7 +144,7 @@ class IntercomMCPServer:
             body: str,
             priority: str = "normal",
             assignee_id: str = "",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Create a new conversation (support ticket) in Intercom"""
             try:
                 conversation_data = {
@@ -166,7 +162,7 @@ class IntercomMCPServer:
                     f"{self.api_base}/conversations",
                     headers=self.headers,
                     json=conversation_data,
-                    timeout=30
+                    timeout=30,
                 )
 
                 if response.status_code in [200, 201]:
@@ -195,7 +191,7 @@ class IntercomMCPServer:
             state: str = "all",
             per_page: int = 50,
             starting_after: str = "",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Get conversations from Intercom"""
             try:
                 params = {
@@ -211,7 +207,7 @@ class IntercomMCPServer:
                     f"{self.api_base}/conversations",
                     headers=self.headers,
                     params=params,
-                    timeout=30
+                    timeout=30,
                 )
 
                 if response.status_code == 200:
@@ -219,16 +215,25 @@ class IntercomMCPServer:
                     conversations = []
 
                     for conv in data.get("conversations", []):
-                        conversations.append({
-                            "id": conv["id"],
-                            "created_at": conv["created_at"],
-                            "updated_at": conv["updated_at"],
-                            "state": conv["state"],
-                            "priority": conv.get("priority", "normal"),
-                            "assignee": conv.get("assignee", {}),
-                            "contact_ids": [part["id"] for part in conv.get("contacts", {}).get("contacts", [])],
-                            "conversation_parts_count": conv.get("conversation_parts", {}).get("total_count", 0),
-                        })
+                        conversations.append(
+                            {
+                                "id": conv["id"],
+                                "created_at": conv["created_at"],
+                                "updated_at": conv["updated_at"],
+                                "state": conv["state"],
+                                "priority": conv.get("priority", "normal"),
+                                "assignee": conv.get("assignee", {}),
+                                "contact_ids": [
+                                    part["id"]
+                                    for part in conv.get("contacts", {}).get(
+                                        "contacts", []
+                                    )
+                                ],
+                                "conversation_parts_count": conv.get(
+                                    "conversation_parts", {}
+                                ).get("total_count", 0),
+                            }
+                        )
 
                     return {
                         "success": True,
@@ -248,9 +253,9 @@ class IntercomMCPServer:
 
         @self.mcp_server.tool("migrate_salesforce_cases")
         async def migrate_salesforce_cases(
-            salesforce_cases: List[Dict[str, Any]],
+            salesforce_cases: list[dict[str, Any]],
             create_contacts: bool = True,
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Migrate Salesforce cases to Intercom conversations"""
             try:
                 migration_results = {
@@ -300,25 +305,33 @@ class IntercomMCPServer:
                         if conversation_result["success"]:
                             migration_results["successful_migrations"] += 1
                             migration_results["conversation_creations"] += 1
-                            migration_results["migrated_conversations"].append({
-                                "salesforce_case_id": case_id,
-                                "intercom_conversation_id": conversation_result["conversation_id"],
-                                "subject": subject,
-                                "url": conversation_result["url"],
-                            })
+                            migration_results["migrated_conversations"].append(
+                                {
+                                    "salesforce_case_id": case_id,
+                                    "intercom_conversation_id": conversation_result[
+                                        "conversation_id"
+                                    ],
+                                    "subject": subject,
+                                    "url": conversation_result["url"],
+                                }
+                            )
                         else:
                             migration_results["failed_migrations"] += 1
-                            migration_results["errors"].append({
-                                "case_id": case_id,
-                                "error": conversation_result["error"],
-                            })
+                            migration_results["errors"].append(
+                                {
+                                    "case_id": case_id,
+                                    "error": conversation_result["error"],
+                                }
+                            )
 
                     except Exception as case_error:
                         migration_results["failed_migrations"] += 1
-                        migration_results["errors"].append({
-                            "case_id": case.get("Id", "unknown"),
-                            "error": str(case_error),
-                        })
+                        migration_results["errors"].append(
+                            {
+                                "case_id": case.get("Id", "unknown"),
+                                "error": str(case_error),
+                            }
+                        )
 
                 return {
                     "success": True,
@@ -334,7 +347,7 @@ class IntercomMCPServer:
         async def get_contacts(
             per_page: int = 50,
             starting_after: str = "",
-        ) -> Dict[str, Any]:
+        ) -> dict[str, Any]:
             """Get contacts from Intercom"""
             try:
                 params = {
@@ -348,7 +361,7 @@ class IntercomMCPServer:
                     f"{self.api_base}/contacts",
                     headers=self.headers,
                     params=params,
-                    timeout=30
+                    timeout=30,
                 )
 
                 if response.status_code == 200:
@@ -356,15 +369,17 @@ class IntercomMCPServer:
                     contacts = []
 
                     for contact in data.get("data", []):
-                        contacts.append({
-                            "id": contact["id"],
-                            "email": contact.get("email", ""),
-                            "name": contact.get("name", ""),
-                            "phone": contact.get("phone", ""),
-                            "created_at": contact["created_at"],
-                            "updated_at": contact["updated_at"],
-                            "last_seen_at": contact.get("last_seen_at"),
-                        })
+                        contacts.append(
+                            {
+                                "id": contact["id"],
+                                "email": contact.get("email", ""),
+                                "name": contact.get("name", ""),
+                                "phone": contact.get("phone", ""),
+                                "created_at": contact["created_at"],
+                                "updated_at": contact["updated_at"],
+                                "last_seen_at": contact.get("last_seen_at"),
+                            }
+                        )
 
                     return {
                         "success": True,
@@ -383,25 +398,28 @@ class IntercomMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp_server.tool("get_migration_readiness")
-        async def get_migration_readiness() -> Dict[str, Any]:
+        async def get_migration_readiness() -> dict[str, Any]:
             """Check Intercom workspace readiness for migration"""
             try:
                 # Check workspace info
                 me_response = requests.get(f"{self.api_base}/me", headers=self.headers)
-                
+
                 # Check current data counts
                 contacts_response = requests.get(
-                    f"{self.api_base}/contacts", 
-                    headers=self.headers, 
-                    params={"per_page": 1}
+                    f"{self.api_base}/contacts",
+                    headers=self.headers,
+                    params={"per_page": 1},
                 )
                 conversations_response = requests.get(
-                    f"{self.api_base}/conversations", 
-                    headers=self.headers, 
-                    params={"per_page": 1}
+                    f"{self.api_base}/conversations",
+                    headers=self.headers,
+                    params={"per_page": 1},
                 )
 
-                if all(r.status_code == 200 for r in [me_response, contacts_response, conversations_response]):
+                if all(
+                    r.status_code == 200
+                    for r in [me_response, contacts_response, conversations_response]
+                ):
                     me_data = me_response.json()
                     contacts_data = contacts_response.json()
                     conversations_data = conversations_response.json()
@@ -415,7 +433,9 @@ class IntercomMCPServer:
                         },
                         "current_data": {
                             "contacts_count": contacts_data.get("total_count", 0),
-                            "conversations_count": conversations_data.get("total_count", 0),
+                            "conversations_count": conversations_data.get(
+                                "total_count", 0
+                            ),
                         },
                         "api_limits": {
                             "rate_limit": "1000 requests per minute",
@@ -441,26 +461,28 @@ class IntercomMCPServer:
         """Register Intercom MCP resources"""
 
         @self.mcp_server.resource("workspace_info")
-        async def get_workspace_info() -> Dict[str, Any]:
+        async def get_workspace_info() -> dict[str, Any]:
             """Get Intercom workspace information"""
             try:
                 response = requests.get(f"{self.api_base}/me", headers=self.headers)
-                
+
                 if response.status_code == 200:
                     return response.json()
                 else:
-                    return {"error": f"Failed to get workspace info: {response.status_code}"}
+                    return {
+                        "error": f"Failed to get workspace info: {response.status_code}"
+                    }
 
             except Exception as e:
                 logger.error(f"Error getting workspace info: {e}")
                 return {"error": str(e)}
 
         @self.mcp_server.resource("admins")
-        async def get_admins() -> List[Dict[str, Any]]:
+        async def get_admins() -> list[dict[str, Any]]:
             """Get Intercom workspace admins"""
             try:
                 response = requests.get(f"{self.api_base}/admins", headers=self.headers)
-                
+
                 if response.status_code == 200:
                     data = response.json()
                     return data.get("admins", [])
@@ -503,13 +525,21 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {
-            "status": "ok", 
-            "version": "1.0.0", 
-            "features": ["contact_management", "conversation_creation", "salesforce_migration", "support_workflows"]
+            "status": "ok",
+            "version": "1.0.0",
+            "features": [
+                "contact_management",
+                "conversation_creation",
+                "salesforce_migration",
+                "support_workflows",
+            ],
         }
+
 except ImportError:
     pass

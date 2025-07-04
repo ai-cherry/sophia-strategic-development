@@ -6,7 +6,7 @@
 - **Purpose**: Primary production deployment workflow
 - **Triggers**: Push to main branch, manual dispatch
 - **Environment**: Production only
-- **Features**: 
+- **Features**:
   - Pulumi ESC integration
   - Backend + Frontend + Infrastructure deployment
   - Security scanning

@@ -19,7 +19,7 @@ ATTRIBUTES call_transcript, message_text, document_content
 WAREHOUSE = AI_COMPUTE_WH
 TARGET_LAG = '1 minute'
 
--- Customer Intelligence Search  
+-- Customer Intelligence Search
 CREATE OR REPLACE CORTEX SEARCH SERVICE CUSTOMER_INTELLIGENCE_SEARCH
 ON customer_intelligence_view
 ATTRIBUTES customer_name, interaction_summary, sentiment_analysis
@@ -81,7 +81,7 @@ CASE WHEN CURRENT_ROLE() IN ('ACCOUNTADMIN', 'COMPLIANCE_OFFICER') THEN val...
 
 ```sql
 -- Extended Retention for Compliance
-ALTER TABLE COMPLIANCE_MONITORING.COMPLIANCE_ALERTS 
+ALTER TABLE COMPLIANCE_MONITORING.COMPLIANCE_ALERTS
 SET DATA_RETENTION_TIME_IN_DAYS = 2555; -- 7 years
 
 -- Audit Trail with Time Travel
@@ -102,8 +102,8 @@ FROM table_name CHANGES(INFORMATION => DEFAULT)
 ```sql
 -- Customer Churn Prediction
 CREATE OR REPLACE VIEW CUSTOMER_INTELLIGENCE.CHURN_PREDICTION AS
-SELECT customer_id, 
-       SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet', 
+SELECT customer_id,
+       SNOWFLAKE.CORTEX.COMPLETE('claude-3-5-sonnet',
            'Predict churn risk: ' || customer_data) as churn_analysis...
 
 -- Intelligent Deal Scoring
@@ -218,4 +218,3 @@ These advanced features will position your Sophia AI platform as the **most tech
 - **Predictive analytics** enabling proactive business strategies
 
 The implementation is **ready to deploy immediately** when Snowflake access is restored!
-

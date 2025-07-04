@@ -18,7 +18,7 @@ DECLARE
     execution_start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP();
     execution_id STRING DEFAULT CONCAT('GONG_CALLS_', TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HHMMSS'));
 BEGIN
-    
+
     -- Log procedure start
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_PROCESSING_LOG (
         EXECUTION_ID,
@@ -33,11 +33,11 @@ BEGIN
         :execution_start_time,
         'Starting enhanced Gong calls transformation'
     );
-    
+
     -- Transform and validate data quality
     MERGE INTO SOPHIA_AI_DEV.STG_TRANSFORMED.STG_GONG_CALLS AS target
     USING (
-        SELECT 
+        SELECT
             _AIRBYTE_DATA:id::VARCHAR AS CALL_ID,
             _AIRBYTE_DATA:title::VARCHAR AS CALL_TITLE,
             _AIRBYTE_DATA:started::TIMESTAMP_LTZ AS CALL_DATETIME_UTC,
@@ -52,7 +52,7 @@ BEGIN
             ) AS PRIMARY_USER_NAME,
             _AIRBYTE_DATA:customData.hubspotDealId::VARCHAR AS HUBSPOT_DEAL_ID,
             CURRENT_TIMESTAMP() AS UPDATED_AT
-        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW 
+        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW
         WHERE PROCESSED = FALSE
     ) AS source
     ON target.CALL_ID = source.CALL_ID
@@ -69,14 +69,14 @@ BEGIN
         source.CALL_DIRECTION, source.PRIMARY_USER_ID, source.PRIMARY_USER_EMAIL, source.PRIMARY_USER_NAME,
         source.HUBSPOT_DEAL_ID, source.UPDATED_AT
     );
-    
+
     GET DIAGNOSTICS processed_count = ROW_COUNT;
-    
+
     -- Mark raw records as processed
-    UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW 
+    UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.RAW_GONG_CALLS_RAW
     SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP()
     WHERE PROCESSED = FALSE;
-    
+
     -- Log completion
     INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_PROCESSING_LOG (
         EXECUTION_ID,
@@ -93,9 +93,9 @@ BEGIN
         :processed_count,
         CONCAT('Successfully processed ', :processed_count, ' Gong call records')
     );
-    
+
     RETURN CONCAT('Enhanced Gong calls transformation completed. Processed: ', :processed_count, ' records');
-    
+
 EXCEPTION
     WHEN OTHER THEN
         INSERT INTO SOPHIA_AI_DEV.OPS_MONITORING.ETL_ERROR_LOG (
@@ -109,7 +109,7 @@ EXCEPTION
             CONCAT('TRANSFORM_GONG_CALLS_ENHANCED failed: ', SQLERRM),
             CURRENT_TIMESTAMP()
         );
-        
+
         RETURN CONCAT('Enhanced Gong calls transformation failed: ', SQLERRM);
 END;
 $$;

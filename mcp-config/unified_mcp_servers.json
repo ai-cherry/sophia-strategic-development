@@ -2,7 +2,12 @@
   "mcpServers": {
     "sophia-ai-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "ai-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "ai-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "ai-intelligence",
@@ -27,7 +32,12 @@
     },
     "sophia-data-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "data-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "data-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "data-intelligence",
@@ -52,19 +62,19 @@
     },
     "sophia-infrastructure": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "infrastructure"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "infrastructure"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "infrastructure",
         "MCP_SERVER_PORT": "8093"
       },
       "description": "Infrastructure management and deployment",
-      "services": [
-        "lambda_labs",
-        "docker",
-        "pulumi",
-        "github"
-      ],
+      "services": ["lambda_labs", "docker", "pulumi", "github"],
       "features": [
         "gpu_orchestration",
         "container_management",
@@ -74,20 +84,19 @@
     },
     "sophia-business-intelligence": {
       "command": "python",
-      "args": ["-m", "backend.mcp.unified_mcp_servers", "--server", "business-intelligence"],
+      "args": [
+        "-m",
+        "backend.mcp.unified_mcp_servers",
+        "--server",
+        "business-intelligence"
+      ],
       "env": {
         "PYTHONPATH": "/app",
         "MCP_SERVER_TYPE": "business-intelligence",
         "MCP_SERVER_PORT": "8094"
       },
       "description": "Business tools and communication platforms",
-      "services": [
-        "linear",
-        "slack",
-        "gong",
-        "intercom",
-        "hubspot"
-      ],
+      "services": ["linear", "slack", "gong", "intercom", "hubspot"],
       "features": [
         "project_management",
         "team_communication",
@@ -135,11 +144,7 @@
     "grafana": {
       "enabled": true,
       "port": 3001,
-      "dashboards": [
-        "mcp-overview",
-        "service-health",
-        "performance-metrics"
-      ]
+      "dashboards": ["mcp-overview", "service-health", "performance-metrics"]
     }
   },
   "security": {

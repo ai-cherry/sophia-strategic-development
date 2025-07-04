@@ -6,117 +6,84 @@
       {
         "path": "/webhook/gong/calls",
         "platform": "gong",
-        "events": [
-          "call.recorded",
-          "call.transcribed"
-        ],
+        "events": ["call.recorded", "call.transcribed"],
         "auth_type": "jwt",
         "handler": "handle_gong_webhook"
       },
       {
         "path": "/webhook/gong/emails",
         "platform": "gong",
-        "events": [
-          "email.received",
-          "email.sent"
-        ],
+        "events": ["email.received", "email.sent"],
         "auth_type": "jwt",
         "handler": "handle_gong_webhook"
       },
       {
         "path": "/webhook/gong/meetings",
         "platform": "gong",
-        "events": [
-          "meeting.scheduled",
-          "meeting.completed"
-        ],
+        "events": ["meeting.scheduled", "meeting.completed"],
         "auth_type": "jwt",
         "handler": "handle_gong_webhook"
       },
       {
         "path": "/webhook/slack/events",
         "platform": "slack",
-        "events": [
-          "message",
-          "app_mention",
-          "reaction_added"
-        ],
+        "events": ["message", "app_mention", "reaction_added"],
         "auth_type": "signature",
         "handler": "handle_slack_webhook"
       },
       {
         "path": "/webhook/slack/commands",
         "platform": "slack",
-        "events": [
-          "slash_command"
-        ],
+        "events": ["slash_command"],
         "auth_type": "signature",
         "handler": "handle_slack_webhook"
       },
       {
         "path": "/webhook/slack/interactions",
         "platform": "slack",
-        "events": [
-          "button_click",
-          "menu_select"
-        ],
+        "events": ["button_click", "menu_select"],
         "auth_type": "signature",
         "handler": "handle_slack_webhook"
       },
       {
         "path": "/webhook/hubspot/contacts",
         "platform": "hubspot",
-        "events": [
-          "contact.creation",
-          "contact.propertyChange"
-        ],
+        "events": ["contact.creation", "contact.propertyChange"],
         "auth_type": "signature",
         "handler": "handle_hubspot_webhook"
       },
       {
         "path": "/webhook/hubspot/deals",
         "platform": "hubspot",
-        "events": [
-          "deal.creation",
-          "deal.propertyChange"
-        ],
+        "events": ["deal.creation", "deal.propertyChange"],
         "auth_type": "signature",
         "handler": "handle_hubspot_webhook"
       },
       {
         "path": "/webhook/hubspot/companies",
         "platform": "hubspot",
-        "events": [
-          "company.creation",
-          "company.propertyChange"
-        ],
+        "events": ["company.creation", "company.propertyChange"],
         "auth_type": "signature",
         "handler": "handle_hubspot_webhook"
       },
       {
         "path": "/webhook/estuary/sync-completed",
         "platform": "estuary",
-        "events": [
-          "sync.completed"
-        ],
+        "events": ["sync.completed"],
         "auth_type": "bearer",
         "handler": "handle_estuary_webhook"
       },
       {
         "path": "/webhook/estuary/sync-failed",
         "platform": "estuary",
-        "events": [
-          "sync.failed"
-        ],
+        "events": ["sync.failed"],
         "auth_type": "bearer",
         "handler": "handle_estuary_webhook"
       },
       {
         "path": "/webhook/estuary/connection-status",
         "platform": "estuary",
-        "events": [
-          "connection.status_change"
-        ],
+        "events": ["connection.status_change"],
         "auth_type": "bearer",
         "handler": "handle_estuary_webhook"
       },
@@ -134,57 +101,42 @@
       {
         "path": "/webhook/linear/issues",
         "platform": "linear",
-        "events": [
-          "Issue",
-          "IssueUpdate"
-        ],
+        "events": ["Issue", "IssueUpdate"],
         "auth_type": "signature",
         "handler": "handle_linear_webhook"
       },
       {
         "path": "/webhook/linear/projects",
         "platform": "linear",
-        "events": [
-          "Project",
-          "ProjectUpdate"
-        ],
+        "events": ["Project", "ProjectUpdate"],
         "auth_type": "signature",
         "handler": "handle_linear_webhook"
       },
       {
         "path": "/webhook/figma/file-update",
         "platform": "figma",
-        "events": [
-          "FILE_UPDATE"
-        ],
+        "events": ["FILE_UPDATE"],
         "auth_type": "signature",
         "handler": "handle_figma_webhook"
       },
       {
         "path": "/webhook/figma/comment",
         "platform": "figma",
-        "events": [
-          "FILE_COMMENT"
-        ],
+        "events": ["FILE_COMMENT"],
         "auth_type": "signature",
         "handler": "handle_figma_webhook"
       },
       {
         "path": "/webhook/asana/tasks",
         "platform": "asana",
-        "events": [
-          "task",
-          "story"
-        ],
+        "events": ["task", "story"],
         "auth_type": "signature",
         "handler": "handle_asana_webhook"
       },
       {
         "path": "/webhook/asana/projects",
         "platform": "asana",
-        "events": [
-          "project"
-        ],
+        "events": ["project"],
         "auth_type": "signature",
         "handler": "handle_asana_webhook"
       }

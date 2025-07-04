@@ -19,7 +19,7 @@ const productionConfig = {
   },
 
   // ===========================================
-  // ENHANCED Unified DASHBOARD CONFIGURATION  
+  // ENHANCED Unified DASHBOARD CONFIGURATION
   // ===========================================
   dashboard: {
     // Figma Integration (Required for Enhanced Unified Dashboard)
@@ -28,14 +28,14 @@ const productionConfig = {
       fileKey: process.env.VITE_FIGMA_FILE_KEY,
       enabled: process.env.VITE_ENABLE_FIGMA_INTEGRATION === 'true'
     },
-    
+
     // Design System Configuration
     designSystem: {
       mode: process.env.VITE_DESIGN_SYSTEM_MODE || 'production',
       glassmorphismEnabled: process.env.VITE_GLASSMORPHISM_ENABLED !== 'false',
       theme: 'executive'
     },
-    
+
     // Dashboard Feature Flags
     features: {
       enhancedDashboard: process.env.VITE_ENABLE_ENHANCED_DASHBOARD !== 'false',
@@ -132,7 +132,7 @@ function validateProductionConfig() {
  */
 function getProductionUrls() {
   const baseUrl = productionConfig.backend.apiUrl;
-  
+
   return {
     api: {
       health: `${baseUrl}/health`,
@@ -160,14 +160,14 @@ const performanceConfig = {
     chunkSize: 244000, // 244KB
     maxChunks: 20
   },
-  
+
   // Asset optimization
   assets: {
     imageOptimization: true,
     compression: 'gzip',
     caching: 'aggressive'
   },
-  
+
   // Runtime optimization
   runtime: {
     prefetch: true,
@@ -203,4 +203,4 @@ console.log('🚀 Production Configuration Loaded:', {
   monitoring: productionConfig.monitoring,
   figmaEnabled: productionConfig.dashboard.figma.enabled,
   validationStatus: validation.errors.length === 0 ? 'valid' : 'invalid'
-}); 
+});

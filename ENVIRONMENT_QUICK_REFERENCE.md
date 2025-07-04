@@ -105,4 +105,4 @@ git status --short
 
 ---
 
-**🎯 Bottom Line:** When in doubt, run `./restore_sophia_env.sh` and you'll be back in business! 
+**🎯 Bottom Line:** When in doubt, run `./restore_sophia_env.sh` and you'll be back in business!

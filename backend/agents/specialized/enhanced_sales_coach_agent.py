@@ -494,7 +494,9 @@ class EnhancedSalesCoachAgent(BaseAgent):
             "coaching_impact": (
                 "positive"
                 if improvement_rate > 0
-                else "negative" if improvement_rate < 0 else "neutral"
+                else "negative"
+                if improvement_rate < 0
+                else "neutral"
             ),
             "recommendation": self._get_effectiveness_recommendation(
                 effectiveness, trend

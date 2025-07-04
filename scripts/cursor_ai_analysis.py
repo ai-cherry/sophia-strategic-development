@@ -434,9 +434,7 @@ class CursorAIAnalyzer:
         # Cursor-specific recommendations
         mcp_health = self.analysis_results.get("mcp_integration_health", {})
         if not mcp_health.get("auto_triggers_enabled", False):
-            recommendations.append(
-                "🔄 Enable auto-triggers in Cursor MCP configuration"
-            )
+            recommendations.append("🔄 Enable auto-triggers in Cursor MCP configuration")
 
         if not mcp_health.get("workflow_automation", False):
             recommendations.append(

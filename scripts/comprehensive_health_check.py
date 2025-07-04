@@ -490,9 +490,7 @@ class SophiaHealthChecker:
             f"Components: {summary['healthy_count']}/{summary['total_components']} healthy"
         )
         print(f"Execution Time: {summary['total_execution_time']}s")
-        print(
-            f"Production Ready: {'✅ YES' if summary['production_ready'] else '❌ NO'}"
-        )
+        print(f"Production Ready: {'✅ YES' if summary['production_ready'] else '❌ NO'}")
 
         print("\n📊 Component Status:")
         for result in report["detailed_results"]:

@@ -10,7 +10,7 @@
 #### **Find High-Value Business Conversations**
 ```sql
 -- Find Slack conversations with high business value
-SELECT 
+SELECT
     conv.CONVERSATION_TITLE,
     sc.CHANNEL_NAME,
     conv.PARTICIPANT_COUNT,
@@ -29,12 +29,12 @@ LIMIT 20;
 #### **Semantic Search Across Slack Conversations**
 ```sql
 -- Vector search for Slack conversations about competitors
-SELECT 
+SELECT
     conv.CONVERSATION_TITLE,
     sc.CHANNEL_NAME,
     conv.CONVERSATION_SUMMARY,
     VECTOR_COSINE_SIMILARITY(
-        conv.AI_MEMORY_EMBEDDING, 
+        conv.AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'competitor analysis pricing strategy')
     ) as similarity_score
 FROM SLACK_DATA.STG_SLACK_CONVERSATIONS conv
@@ -47,7 +47,7 @@ LIMIT 10;
 #### **Customer Feedback from Slack**
 ```sql
 -- Extract customer feedback discussions from Slack
-SELECT 
+SELECT
     conv.CONVERSATION_TITLE,
     sc.CHANNEL_NAME,
     conv.CONVERSATION_SUMMARY,
@@ -67,7 +67,7 @@ ORDER BY conv.SENTIMENT_SCORE DESC;
 #### **Most Valuable Channels for Knowledge**
 ```sql
 -- Rank channels by knowledge value
-SELECT 
+SELECT
     sc.CHANNEL_NAME,
     sc.BUSINESS_FUNCTION,
     COUNT(DISTINCT conv.CONVERSATION_ID) as conversation_count,
@@ -84,7 +84,7 @@ ORDER BY sc.KNOWLEDGE_VALUE_SCORE DESC, insights_generated DESC;
 #### **Team Communication Patterns**
 ```sql
 -- Analyze team communication effectiveness
-SELECT 
+SELECT
     su.DEPARTMENT,
     COUNT(DISTINCT sm.MESSAGE_ID) as message_count,
     COUNT(DISTINCT sm.CONVERSATION_ID) as conversation_count,
@@ -106,7 +106,7 @@ ORDER BY avg_message_importance DESC;
 #### **Development Velocity by Project**
 ```sql
 -- Calculate team velocity and cycle times
-SELECT 
+SELECT
     PROJECT_NAME,
     COUNT(*) as total_issues,
     COUNT(CASE WHEN STATUS = 'Done' THEN 1 END) as completed_issues,
@@ -122,7 +122,7 @@ ORDER BY completion_rate DESC;
 #### **High-Priority Issue Tracking**
 ```sql
 -- Track urgent and high priority issues
-SELECT 
+SELECT
     ISSUE_TITLE,
     PROJECT_NAME,
     PRIORITY,
@@ -130,7 +130,7 @@ SELECT
     ASSIGNEE_NAME,
     DATEDIFF('day', CREATED_AT, CURRENT_DATE()) as age_days,
     LABELS,
-    CASE 
+    CASE
         WHEN PRIORITY = 'Urgent' AND age_days > 3 THEN 'OVERDUE'
         WHEN PRIORITY = 'High' AND age_days > 7 THEN 'ATTENTION_NEEDED'
         ELSE 'ON_TRACK'
@@ -138,7 +138,7 @@ SELECT
 FROM LINEAR_DATA.STG_LINEAR_ISSUES
 WHERE PRIORITY IN ('Urgent', 'High')
 AND STATUS NOT IN ('Done', 'Canceled')
-ORDER BY 
+ORDER BY
     CASE PRIORITY WHEN 'Urgent' THEN 1 WHEN 'High' THEN 2 END,
     age_days DESC;
 ```
@@ -146,14 +146,14 @@ ORDER BY
 #### **Semantic Search for Linear Issues**
 ```sql
 -- Vector search for Linear issues about specific features
-SELECT 
+SELECT
     ISSUE_TITLE,
     PROJECT_NAME,
     ISSUE_DESCRIPTION,
     PRIORITY,
     STATUS,
     VECTOR_COSINE_SIMILARITY(
-        AI_MEMORY_EMBEDDING, 
+        AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'payment processing API integration')
     ) as similarity_score
 FROM LINEAR_DATA.STG_LINEAR_ISSUES
@@ -168,7 +168,7 @@ LIMIT 15;
 ```sql
 -- Analyze sprint performance and trends
 WITH sprint_data AS (
-    SELECT 
+    SELECT
         PROJECT_NAME,
         DATE_TRUNC('week', CREATED_AT) as sprint_week,
         COUNT(*) as issues_created,
@@ -178,7 +178,7 @@ WITH sprint_data AS (
     WHERE CREATED_AT >= DATEADD('week', -8, CURRENT_DATE())
     GROUP BY PROJECT_NAME, sprint_week
 )
-SELECT 
+SELECT
     PROJECT_NAME,
     sprint_week,
     issues_created,
@@ -194,7 +194,7 @@ ORDER BY PROJECT_NAME, sprint_week;
 #### **Feature Request Prioritization**
 ```sql
 -- Analyze feature requests and their business impact
-SELECT 
+SELECT
     ISSUE_TITLE,
     PROJECT_NAME,
     PRIORITY,
@@ -219,7 +219,7 @@ ORDER BY value_effort_ratio DESC, BUSINESS_VALUE_SCORE DESC;
 #### **Team Expertise Mapping**
 ```sql
 -- Map team skills and expertise
-SELECT 
+SELECT
     DEPARTMENT,
     TEAM,
     COUNT(*) as team_size,
@@ -235,13 +235,13 @@ ORDER BY team_size DESC;
 #### **Semantic Search for Employee Expertise**
 ```sql
 -- Find employees with specific skills using vector search
-SELECT 
+SELECT
     FULL_NAME,
     JOB_TITLE,
     DEPARTMENT,
     PRIMARY_SKILLS,
     VECTOR_COSINE_SIMILARITY(
-        AI_MEMORY_EMBEDDING, 
+        AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'Python machine learning data science')
     ) as skill_match_score
 FROM FOUNDATIONAL_KNOWLEDGE.EMPLOYEES
@@ -256,7 +256,7 @@ LIMIT 10;
 #### **Customer Segmentation Analysis**
 ```sql
 -- Analyze customer segments and characteristics
-SELECT 
+SELECT
     CUSTOMER_TIER,
     INDUSTRY,
     COUNT(*) as customer_count,
@@ -272,7 +272,7 @@ ORDER BY customer_count DESC;
 ```sql
 -- Analyze which products appeal to which customer segments
 WITH customer_product_context AS (
-    SELECT 
+    SELECT
         c.CUSTOMER_TIER,
         c.INDUSTRY,
         c.COMPANY_SIZE,
@@ -281,10 +281,10 @@ WITH customer_product_context AS (
         VECTOR_COSINE_SIMILARITY(c.AI_MEMORY_EMBEDDING, p.AI_MEMORY_EMBEDDING) as affinity_score
     FROM FOUNDATIONAL_KNOWLEDGE.CUSTOMERS c
     CROSS JOIN FOUNDATIONAL_KNOWLEDGE.PRODUCTS_SERVICES p
-    WHERE c.AI_MEMORY_EMBEDDING IS NOT NULL 
+    WHERE c.AI_MEMORY_EMBEDDING IS NOT NULL
     AND p.AI_MEMORY_EMBEDDING IS NOT NULL
 )
-SELECT 
+SELECT
     CUSTOMER_TIER,
     INDUSTRY,
     PRODUCT_CATEGORY,
@@ -301,7 +301,7 @@ ORDER BY avg_affinity DESC;
 #### **Competitive Landscape Analysis**
 ```sql
 -- Analyze competitive positioning
-SELECT 
+SELECT
     COMPETITIVE_TIER,
     MARKET_SEGMENT,
     COUNT(*) as competitor_count,
@@ -316,7 +316,7 @@ ORDER BY avg_threat_level DESC, avg_market_share DESC;
 #### **Competitive Feature Gap Analysis**
 ```sql
 -- Compare our products against competitor strengths
-SELECT 
+SELECT
     p.PRODUCT_NAME,
     p.PRODUCT_CATEGORY,
     c.COMPANY_NAME as competitor,
@@ -341,7 +341,7 @@ ORDER BY competitive_overlap DESC;
 #### **Knowledge Article Effectiveness**
 ```sql
 -- Analyze knowledge article usage and effectiveness
-SELECT 
+SELECT
     ARTICLE_CATEGORY,
     COUNT(*) as article_count,
     AVG(ARTICLE_QUALITY_SCORE) as avg_quality,
@@ -363,22 +363,22 @@ WITH common_queries AS (
     SELECT 'security best practices' UNION ALL
     SELECT 'product feature comparison'
 )
-SELECT 
+SELECT
     cq.query_topic,
     COUNT(ka.ARTICLE_ID) as relevant_articles,
     MAX(VECTOR_COSINE_SIMILARITY(
-        ka.AI_MEMORY_EMBEDDING, 
+        ka.AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', cq.query_topic)
     )) as best_match_score,
-    CASE 
+    CASE
         WHEN COUNT(ka.ARTICLE_ID) = 0 THEN 'CRITICAL_GAP'
         WHEN best_match_score < 0.7 THEN 'CONTENT_GAP'
         ELSE 'ADEQUATE_COVERAGE'
     END as gap_status
 FROM common_queries cq
-LEFT JOIN KNOWLEDGE_BASE.KB_ARTICLES ka ON 
+LEFT JOIN KNOWLEDGE_BASE.KB_ARTICLES ka ON
     VECTOR_COSINE_SIMILARITY(
-        ka.AI_MEMORY_EMBEDDING, 
+        ka.AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', cq.query_topic)
     ) > 0.5
 WHERE ka.ARTICLE_STATUS = 'Published' OR ka.ARTICLE_ID IS NULL
@@ -393,7 +393,7 @@ ORDER BY gap_status, best_match_score;
 -- Search across all knowledge sources for comprehensive insights
 WITH unified_knowledge AS (
     -- Foundational Knowledge
-    SELECT 
+    SELECT
         'FOUNDATIONAL' as source_type,
         'EMPLOYEE' as knowledge_type,
         FULL_NAME as title,
@@ -402,11 +402,11 @@ WITH unified_knowledge AS (
         UPDATED_AT
     FROM FOUNDATIONAL_KNOWLEDGE.EMPLOYEES
     WHERE AI_MEMORY_EMBEDDING IS NOT NULL
-    
+
     UNION ALL
-    
+
     -- Slack Conversations
-    SELECT 
+    SELECT
         'SLACK' as source_type,
         'CONVERSATION' as knowledge_type,
         CONVERSATION_TITLE as title,
@@ -415,11 +415,11 @@ WITH unified_knowledge AS (
         UPDATED_AT
     FROM SLACK_DATA.STG_SLACK_CONVERSATIONS
     WHERE AI_MEMORY_EMBEDDING IS NOT NULL
-    
+
     UNION ALL
-    
+
     -- Linear Issues
-    SELECT 
+    SELECT
         'LINEAR' as source_type,
         'ISSUE' as knowledge_type,
         ISSUE_TITLE as title,
@@ -428,11 +428,11 @@ WITH unified_knowledge AS (
         UPDATED_AT
     FROM LINEAR_DATA.STG_LINEAR_ISSUES
     WHERE AI_MEMORY_EMBEDDING IS NOT NULL
-    
+
     UNION ALL
-    
+
     -- Knowledge Base Articles
-    SELECT 
+    SELECT
         'KNOWLEDGE_BASE' as source_type,
         'ARTICLE' as knowledge_type,
         ARTICLE_TITLE as title,
@@ -442,13 +442,13 @@ WITH unified_knowledge AS (
     FROM KNOWLEDGE_BASE.KB_ARTICLES
     WHERE AI_MEMORY_EMBEDDING IS NOT NULL
 )
-SELECT 
+SELECT
     source_type,
     knowledge_type,
     title,
     description,
     VECTOR_COSINE_SIMILARITY(
-        AI_MEMORY_EMBEDDING, 
+        AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', 'payment processing customer integration')
     ) as relevance_score,
     UPDATED_AT
@@ -462,7 +462,7 @@ LIMIT 20;
 ```sql
 -- Find related knowledge across different sources
 WITH slack_customer_discussions AS (
-    SELECT 
+    SELECT
         CONVERSATION_ID,
         CONVERSATION_TITLE,
         MENTIONS_CUSTOMERS,
@@ -471,7 +471,7 @@ WITH slack_customer_discussions AS (
     WHERE ARRAY_SIZE(MENTIONS_CUSTOMERS) > 0
 ),
 related_foundational AS (
-    SELECT 
+    SELECT
         scd.CONVERSATION_ID,
         scd.CONVERSATION_TITLE,
         fc.COMPANY_NAME,
@@ -481,12 +481,12 @@ related_foundational AS (
     CROSS JOIN FOUNDATIONAL_KNOWLEDGE.CUSTOMERS fc
     WHERE fc.AI_MEMORY_EMBEDDING IS NOT NULL
 )
-SELECT 
+SELECT
     CONVERSATION_TITLE,
     COMPANY_NAME,
     CUSTOMER_TIER,
     relationship_strength,
-    CASE 
+    CASE
         WHEN relationship_strength > 0.8 THEN 'STRONG_RELATION'
         WHEN relationship_strength > 0.6 THEN 'MODERATE_RELATION'
         ELSE 'WEAK_RELATION'
@@ -507,47 +507,47 @@ ORDER BY relationship_strength DESC;
 -- Analyze business impact across all knowledge sources
 WITH business_insights AS (
     -- High-value Slack conversations
-    SELECT 
+    SELECT
         'Slack Conversation' as insight_type,
         CONVERSATION_TITLE as title,
         BUSINESS_VALUE_SCORE as impact_score,
         'Communication' as category
     FROM SLACK_DATA.STG_SLACK_CONVERSATIONS
     WHERE BUSINESS_VALUE_SCORE > 0.7
-    
+
     UNION ALL
-    
+
     -- Critical Linear issues
-    SELECT 
+    SELECT
         'Linear Issue' as insight_type,
         ISSUE_TITLE as title,
-        CASE PRIORITY 
-            WHEN 'Urgent' THEN 1.0 
-            WHEN 'High' THEN 0.8 
-            WHEN 'Medium' THEN 0.6 
-            ELSE 0.4 
+        CASE PRIORITY
+            WHEN 'Urgent' THEN 1.0
+            WHEN 'High' THEN 0.8
+            WHEN 'Medium' THEN 0.6
+            ELSE 0.4
         END as impact_score,
         'Development' as category
     FROM LINEAR_DATA.STG_LINEAR_ISSUES
     WHERE STATUS NOT IN ('Done', 'Canceled')
-    
+
     UNION ALL
-    
+
     -- Strategic customers
-    SELECT 
+    SELECT
         'Customer' as insight_type,
         COMPANY_NAME as title,
-        CASE CUSTOMER_TIER 
-            WHEN 'Strategic' THEN 1.0 
-            WHEN 'Key' THEN 0.8 
-            WHEN 'Standard' THEN 0.6 
-            ELSE 0.4 
+        CASE CUSTOMER_TIER
+            WHEN 'Strategic' THEN 1.0
+            WHEN 'Key' THEN 0.8
+            WHEN 'Standard' THEN 0.6
+            ELSE 0.4
         END as impact_score,
         'Customer' as category
     FROM FOUNDATIONAL_KNOWLEDGE.CUSTOMERS
     WHERE CUSTOMER_STATUS = 'Active'
 )
-SELECT 
+SELECT
     category,
     insight_type,
     COUNT(*) as count,
@@ -562,7 +562,7 @@ ORDER BY avg_impact DESC;
 #### **Knowledge Utilization Trends**
 ```sql
 -- Track knowledge creation and utilization trends
-SELECT 
+SELECT
     DATE_TRUNC('week', created_date) as week,
     source_type,
     COUNT(*) as items_created,
@@ -570,19 +570,19 @@ SELECT
 FROM (
     SELECT CREATED_AT::DATE as created_date, 'Slack' as source_type
     FROM SLACK_DATA.STG_SLACK_CONVERSATIONS
-    
+
     UNION ALL
-    
+
     SELECT CREATED_AT::DATE as created_date, 'Linear' as source_type
     FROM LINEAR_DATA.STG_LINEAR_ISSUES
-    
+
     UNION ALL
-    
+
     SELECT CREATED_AT::DATE as created_date, 'Foundational' as source_type
     FROM FOUNDATIONAL_KNOWLEDGE.EMPLOYEES
-    
+
     UNION ALL
-    
+
     SELECT CREATED_AT::DATE as created_date, 'Knowledge_Base' as source_type
     FROM KNOWLEDGE_BASE.KB_ARTICLES
 ) knowledge_items
@@ -600,7 +600,7 @@ ORDER BY week, source_type;
 #### **Embedding Coverage Analysis**
 ```sql
 -- Check embedding coverage across all tables
-SELECT 
+SELECT
     'Slack Conversations' as table_name,
     COUNT(*) as total_records,
     COUNT(AI_MEMORY_EMBEDDING) as embedded_records,
@@ -609,7 +609,7 @@ FROM SLACK_DATA.STG_SLACK_CONVERSATIONS
 
 UNION ALL
 
-SELECT 
+SELECT
     'Linear Issues' as table_name,
     COUNT(*) as total_records,
     COUNT(AI_MEMORY_EMBEDDING) as embedded_records,
@@ -618,7 +618,7 @@ FROM LINEAR_DATA.STG_LINEAR_ISSUES
 
 UNION ALL
 
-SELECT 
+SELECT
     'Foundational Employees' as table_name,
     COUNT(*) as total_records,
     COUNT(AI_MEMORY_EMBEDDING) as embedded_records,
@@ -627,7 +627,7 @@ FROM FOUNDATIONAL_KNOWLEDGE.EMPLOYEES
 
 UNION ALL
 
-SELECT 
+SELECT
     'Knowledge Articles' as table_name,
     COUNT(*) as total_records,
     COUNT(AI_MEMORY_EMBEDDING) as embedded_records,
@@ -647,43 +647,43 @@ WITH search_terms AS (
     SELECT 'competitive market analysis'
 ),
 search_results AS (
-    SELECT 
+    SELECT
         st.search_term,
         'Slack' as source,
         COUNT(*) as result_count,
         AVG(VECTOR_COSINE_SIMILARITY(
-            sc.AI_MEMORY_EMBEDDING, 
+            sc.AI_MEMORY_EMBEDDING,
             SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', st.search_term)
         )) as avg_similarity
     FROM search_terms st
     CROSS JOIN SLACK_DATA.STG_SLACK_CONVERSATIONS sc
     WHERE sc.AI_MEMORY_EMBEDDING IS NOT NULL
     AND VECTOR_COSINE_SIMILARITY(
-        sc.AI_MEMORY_EMBEDDING, 
+        sc.AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', st.search_term)
     ) > 0.5
     GROUP BY st.search_term
-    
+
     UNION ALL
-    
-    SELECT 
+
+    SELECT
         st.search_term,
         'Linear' as source,
         COUNT(*) as result_count,
         AVG(VECTOR_COSINE_SIMILARITY(
-            li.AI_MEMORY_EMBEDDING, 
+            li.AI_MEMORY_EMBEDDING,
             SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', st.search_term)
         )) as avg_similarity
     FROM search_terms st
     CROSS JOIN LINEAR_DATA.STG_LINEAR_ISSUES li
     WHERE li.AI_MEMORY_EMBEDDING IS NOT NULL
     AND VECTOR_COSINE_SIMILARITY(
-        li.AI_MEMORY_EMBEDDING, 
+        li.AI_MEMORY_EMBEDDING,
         SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', st.search_term)
     ) > 0.5
     GROUP BY st.search_term
 )
-SELECT 
+SELECT
     search_term,
     source,
     result_count,
@@ -726,4 +726,4 @@ These extended sample queries demonstrate the powerful capabilities of the integ
 - **Performance monitoring** and optimization opportunities
 - **Comprehensive analytics** across all organizational knowledge sources
 
-The queries serve as templates that can be adapted for specific business needs and use cases within the Sophia AI platform. 
+The queries serve as templates that can be adapted for specific business needs and use cases within the Sophia AI platform.

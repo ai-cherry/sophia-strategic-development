@@ -1,7 +1,7 @@
 # Deep Dive: Contextualized Memory Architecture
 
-> **Version:** 1.0  
-> **Status:** In Development  
+> **Version:** 1.0
+> **Status:** In Development
 > **Parent:** [SOPHIA_AI_SYSTEM_HANDBOOK.md](./00_SOPHIA_AI_SYSTEM_HANDBOOK.md)
 
 ---
@@ -31,13 +31,13 @@ graph TD
         D[L1: Session Cache<br>(Redis)]
         E[L2: AI Memory Service<br>(FastAPI/Postgres)]
     end
-    
+
     subgraph Deep Knowledge Layer
         F[Vector Search<br>(Pinecone/Weaviate)]
         G[Structured Data<br>(Snowflake)]
         H[AI SQL Generation<br>(Snowflake Cortex)]
     end
-    
+
     subgraph AI Model Layer
         I[LLM Orchestrator<br>(OpenRouter)]
         J[Final Synthesis<br>(GPT/Claude)]
@@ -49,7 +49,7 @@ graph TD
     C -- 4. Keyword/Vector Search --> F
     C -- 5. Structured Data Query --> G
     G -- 6. Generate AI SQL --> H
-    
+
     subgraph Synthesis
         K(Synthesizer)
         D -- Context --> K
@@ -57,13 +57,13 @@ graph TD
         F -- Context --> K
         H -- Context --> K
     end
-    
+
     K -- 7. Build Prompt --> I
     I -- 8. Route to Best LLM --> J
     J -- 9. Final Response --> A
-    
+
     J -- 10. Store new knowledge --> E
-    
+
     style A fill:#C5E1A5,stroke:#333,stroke-width:2px
     style B fill:#7E57C2,stroke:#FFF,stroke-width:2px,color:#FFF
     style D fill:#FFCC80,stroke:#333
@@ -189,31 +189,31 @@ graph TD
     subgraph "N8N Orchestration Layer"
         GW(MCP Gateway)
         NW_Gap(N8N Gap Analysis<br>Workflow)
-        
+
         GW -- triggers --> NW_Submit
         NW_Submit(N8N Submit Training<br>Workflow)
     end
-    
+
     subgraph "Backend Services & AI"
         TS(Training Service)
         GS(Gap Analysis Script<br>w/ Snowflake Cortex)
     end
-    
+
     subgraph "Snowflake Database"
         AK[authoritative_knowledge]
         KG[knowledge_gaps]
     end
-    
+
     subgraph "Curation Dashboard"
         DB(AI Training & Curation Dashboard)
     end
 
     NW_Submit -- calls --> TS
     TS -- writes to --> AK
-    
+
     NW_Gap -- executes --> GS
     GS -- identifies gaps --> KG
-    
+
     DB -- reads from --> AK
     DB -- reads from --> KG
     U -- views/manages --> DB
@@ -261,31 +261,31 @@ graph TD
     subgraph "N8N Orchestration Layer"
         GW(MCP Gateway)
         NW_Gap(N8N Gap Analysis<br>Workflow)
-        
+
         GW -- triggers --> NW_Submit
         NW_Submit(N8N Submit Training<br>Workflow)
     end
-    
+
     subgraph "Backend Services & AI"
         TS(Training Service)
         GS(Gap Analysis Script<br>w/ Snowflake Cortex)
     end
-    
+
     subgraph "Snowflake Database"
         AK[authoritative_knowledge]
         KG[knowledge_gaps]
     end
-    
+
     subgraph "Curation Dashboard"
         DB(AI Training & Curation Dashboard)
     end
 
     NW_Submit -- calls --> TS
     TS -- writes to --> AK
-    
+
     NW_Gap -- executes --> GS
     GS -- identifies gaps --> KG
-    
+
     DB -- reads from --> AK
     DB -- reads from --> KG
     U -- views/manages --> DB

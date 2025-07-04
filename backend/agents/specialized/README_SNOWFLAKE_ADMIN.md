@@ -379,7 +379,7 @@ async def test_basic_operations():
         target_environment="dev"
     )
     assert response.success
-    
+
     # Test safe creation
     response = await execute_snowflake_admin_task(
         "Create schema TEST_SCHEMA if it doesn't exist",
@@ -445,7 +445,7 @@ from langchain.tools import BaseTool
 class CreateNetworkPolicyTool(BaseTool):
     name = "create_network_policy"
     description = "Create a Snowflake network policy using REST API"
-    
+
     def _run(self, policy_name: str, allowed_ip_list: List[str]) -> str:
         # Implementation using Snowflake REST API
         pass
@@ -495,4 +495,4 @@ class CreateNetworkPolicyTool(BaseTool):
 
 ---
 
-**The Snowflake Admin Agent represents a significant advancement in database administration automation, bringing natural language interfaces to complex Snowflake operations while maintaining enterprise-grade security and auditability.** 🚀 
+**The Snowflake Admin Agent represents a significant advancement in database administration automation, bringing natural language interfaces to complex Snowflake operations while maintaining enterprise-grade security and auditability.** 🚀

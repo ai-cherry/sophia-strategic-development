@@ -7,7 +7,7 @@ Lizard code complexity analyzer has identified **200+ functions exceeding the 50
 
 ### Highest Priority (>150 lines)
 1. **`enhance_sophia_intelligence_mcp`** (313 lines) - MCP orchestration
-2. **`create_chrome_extension`** (291 lines) - Chrome extension setup  
+2. **`create_chrome_extension`** (291 lines) - Chrome extension setup
 3. **`JSON.stringify` instances** (214-277 lines) - Infrastructure configs
 4. **`pulumi.output` functions** (170-223 lines) - Infrastructure deployment
 5. **`create_transformation_procedures`** (233 lines) - ETL procedures
@@ -42,12 +42,12 @@ def create_application_router() -> APIRouter:
 def create_application_router() -> APIRouter:
     """Create and configure the main application router"""
     router = APIRouter()
-    
+
     _setup_core_routes(router)
     _setup_integration_routes(router)
     _setup_data_routes(router)
     _setup_admin_routes(router)
-    
+
     return router
 
 def _setup_core_routes(router: APIRouter) -> None:
@@ -97,15 +97,15 @@ infrastructure_config = JSON.stringify({
 class InfrastructureConfigBuilder:
     def __init__(self):
         self.config = {}
-    
-    def with_networking(self, vpc_config): 
+
+    def with_networking(self, vpc_config):
         self.config['networking'] = vpc_config
         return self
-    
+
     def with_storage(self, storage_config):
         self.config['storage'] = storage_config
         return self
-    
+
     def build(self):
         return JSON.stringify(self.config)
 
@@ -336,8 +336,8 @@ The phased approach outlined here will transform Sophia AI into a more maintaina
 
 ---
 
-**Next Steps**: 
+**Next Steps**:
 1. Begin Phase 1 with `create_application_router` refactoring
 2. Set up automated complexity monitoring
 3. Train team on refactoring patterns
-4. Track progress weekly with metrics dashboard 
+4. Track progress weekly with metrics dashboard

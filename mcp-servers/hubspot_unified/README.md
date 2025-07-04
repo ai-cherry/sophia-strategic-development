@@ -1,5 +1,5 @@
 # HubSpot MCP Server
-[![Docker Hub](https://img.shields.io/docker/pulls/buryhuang/mcp-hubspot?label=Docker%20Hub)](https://hub.docker.com/r/buryhuang/mcp-hubspot) 
+[![Docker Hub](https://img.shields.io/docker/pulls/buryhuang/mcp-hubspot?label=Docker%20Hub)](https://hub.docker.com/r/buryhuang/mcp-hubspot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
@@ -111,4 +111,4 @@ pip install -e .
 
 ## License
 
-MIT License 
+MIT License

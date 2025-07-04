@@ -1,6 +1,6 @@
 /**
  * Sophia AI - Compute Infrastructure Components
- * 
+ *
  * This module provides optimized compute resources for AI/ML workloads,
  * including EC2, EKS, and auto-scaling configurations.
  */
@@ -18,22 +18,22 @@ export interface ComputeArgs {
      * Environment name (e.g., dev, staging, prod)
      */
     environment: string;
-    
+
     /**
      * VPC ID where compute resources will be created
      */
     vpcId: pulumi.Input<string>;
-    
+
     /**
      * Subnet IDs where compute resources will be created
      */
     subnetIds: pulumi.Input<string>[];
-    
+
     /**
      * Security group IDs for compute resources
      */
     securityGroupIds: pulumi.Input<string>[];
-    
+
     /**
      * EKS cluster configuration options
      */
@@ -42,48 +42,48 @@ export interface ComputeArgs {
          * Kubernetes version
          */
         version: string;
-        
+
         /**
          * Instance types for worker nodes
          */
         instanceTypes: string[];
-        
+
         /**
          * Minimum number of nodes per nodegroup
          */
         minSize: number;
-        
+
         /**
          * Maximum number of nodes per nodegroup
          */
         maxSize: number;
-        
+
         /**
          * Desired number of nodes per nodegroup
          */
         desiredCapacity: number;
-        
+
         /**
          * Map of node labels
          */
         labels?: { [key: string]: string };
-        
+
         /**
          * Map of node taints
          */
         taints?: { [key: string]: string };
-        
+
         /**
          * Enable GPU node group
          */
         enableGpu?: boolean;
-        
+
         /**
          * GPU instance types
          */
         gpuInstanceTypes?: string[];
     };
-    
+
     /**
      * Bastion host configuration
      */
@@ -92,18 +92,18 @@ export interface ComputeArgs {
          * Enable bastion host
          */
         enabled: boolean;
-        
+
         /**
          * Instance type for bastion host
          */
         instanceType: string;
-        
+
         /**
          * SSH key name for bastion host
          */
         keyName: string;
     };
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -118,39 +118,39 @@ export class ComputeComponents extends pulumi.ComponentResource {
      * EKS cluster for Kubernetes workloads
      */
     public readonly eksCluster?: eks.Cluster;
-    
+
     /**
      * Kubernetes provider
      */
     public readonly k8sProvider?: k8s.Provider;
-    
+
     /**
      * Bastion host for secure access
      */
     public readonly bastionHost?: aws.ec2.Instance;
-    
+
     /**
      * Node groups for EKS cluster
      */
     public readonly nodeGroups: eks.NodeGroup[];
-    
+
     /**
      * GPU node group for ML workloads
      */
     public readonly gpuNodeGroup?: eks.NodeGroup;
-    
+
     /**
      * Auto-scaling policies
      */
     public readonly scalingPolicies: aws.autoscaling.Policy[];
-    
+
     constructor(name: string, args: ComputeArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:compute:ComputeComponents", name, {}, opts);
-        
+
         // Initialize arrays
         this.nodeGroups = [];
         this.scalingPolicies = [];
-        
+
         // Assign default tags
         const tags = {
             Environment: args.environment,
@@ -160,14 +160,14 @@ export class ComputeComponents extends pulumi.ComponentResource {
             CreatedAt: new Date().toISOString(),
             ...args.tags,
         };
-        
+
         // Create EKS cluster if configured
         if (args.eksConfig) {
             const clusterTags = {
                 ...tags,
                 KubernetesCluster: `${name}-eks-${args.environment}`,
             };
-            
+
             // Create EKS cluster with advanced configuration
             this.eksCluster = new eks.Cluster(`${name}-eks`, {
                 vpcId: args.vpcId,
@@ -205,14 +205,14 @@ export class ComputeComponents extends pulumi.ComponentResource {
                 // Set cluster encryption config for security
                 encryptionConfigKeyArn: undefined, // Set to KMS key ARN for encryption
             }, { parent: this });
-            
+
             // Create Kubernetes provider
             this.k8sProvider = new k8s.Provider(`${name}-k8s-provider`, {
                 kubeconfig: this.eksCluster.kubeconfig,
             }, { parent: this });
-            
+
             // Create optimized node groups for different workloads
-            
+
             // Create node group for general workloads
             const generalNodeGroup = new eks.NodeGroup(`${name}-general-ng`, {
                 cluster: this.eksCluster,
@@ -237,9 +237,9 @@ export class ComputeComponents extends pulumi.ComponentResource {
                     NodeGroupType: "General",
                 },
             }, { parent: this });
-            
+
             this.nodeGroups.push(generalNodeGroup);
-            
+
             // Create node group for CPU-intensive workloads (optimized for inference)
             const cpuNodeGroup = new eks.NodeGroup(`${name}-cpu-optimized-ng`, {
                 cluster: this.eksCluster,
@@ -268,9 +268,9 @@ export class ComputeComponents extends pulumi.ComponentResource {
                     NodeGroupType: "CPUOptimized",
                 },
             }, { parent: this });
-            
+
             this.nodeGroups.push(cpuNodeGroup);
-            
+
             // Create node group for memory-intensive workloads (optimized for ML model loading)
             const memoryNodeGroup = new eks.NodeGroup(`${name}-memory-optimized-ng`, {
                 cluster: this.eksCluster,
@@ -298,9 +298,9 @@ export class ComputeComponents extends pulumi.ComponentResource {
                     NodeGroupType: "MemoryOptimized",
                 },
             }, { parent: this });
-            
+
             this.nodeGroups.push(memoryNodeGroup);
-            
+
             // Create GPU node group if enabled
             if (args.eksConfig.enableGpu && args.eksConfig.gpuInstanceTypes && args.eksConfig.gpuInstanceTypes.length > 0) {
                 this.gpuNodeGroup = new eks.NodeGroup(`${name}-gpu-ng`, {
@@ -330,9 +330,9 @@ export class ComputeComponents extends pulumi.ComponentResource {
                         NodeGroupType: "GPUAccelerated",
                     },
                 }, { parent: this });
-                
+
                 this.nodeGroups.push(this.gpuNodeGroup);
-                
+
                 // Create GPU utilization scaling policy
                 const gpuScalingPolicy = new aws.autoscaling.Policy(`${name}-gpu-scaling-policy`, {
                     autoscalingGroupName: this.gpuNodeGroup.nodeGroupName,
@@ -352,10 +352,10 @@ export class ComputeComponents extends pulumi.ComponentResource {
                         targetValue: 75.0, // Target 75% GPU utilization
                     },
                 }, { parent: this });
-                
+
                 this.scalingPolicies.push(gpuScalingPolicy);
             }
-            
+
             // Create Cluster Autoscaler policy for dynamic scaling
             if (this.eksCluster) {
                 const clusterAutoscalerPolicy = new aws.iam.Policy(`${name}-cluster-autoscaler-policy`, {
@@ -383,7 +383,7 @@ export class ComputeComponents extends pulumi.ComponentResource {
                         Name: `${name}-cluster-autoscaler-policy-${args.environment}`,
                     },
                 }, { parent: this });
-                
+
                 // Deploy Cluster Autoscaler if we have a k8s provider
                 if (this.k8sProvider) {
                     const clusterAutoscalerServiceAccount = new k8s.core.v1.ServiceAccount(`${name}-cluster-autoscaler-sa`, {
@@ -395,17 +395,17 @@ export class ComputeComponents extends pulumi.ComponentResource {
                             },
                         },
                     }, { provider: this.k8sProvider, parent: this });
-                    
+
                     // Note: In a real implementation, you would deploy the actual Cluster Autoscaler deployment here
                 }
             }
         }
-        
+
         // Create bastion host if configured
         if (args.bastionConfig && args.bastionConfig.enabled) {
             // Get public subnet for bastion (assuming first subnet is public)
             const bastionSubnetId = args.subnetIds[0];
-            
+
             // Create security group for bastion
             const bastionSg = new aws.ec2.SecurityGroup(`${name}-bastion-sg`, {
                 vpcId: args.vpcId,
@@ -433,7 +433,7 @@ export class ComputeComponents extends pulumi.ComponentResource {
                     Name: `${name}-bastion-sg-${args.environment}`,
                 },
             }, { parent: this });
-            
+
             // Create bastion host
             this.bastionHost = new aws.ec2.Instance(`${name}-bastion`, {
                 ami: aws.ec2.getAmi({
@@ -483,7 +483,7 @@ systemctl restart sshd
 `,
             }, { parent: this });
         }
-        
+
         // Register outputs
         this.registerOutputs({
             eksCluster: this.eksCluster,
@@ -504,42 +504,42 @@ export interface SpotNodePoolArgs {
      * EKS cluster
      */
     cluster: eks.Cluster;
-    
+
     /**
      * Node pool name
      */
     name: string;
-    
+
     /**
      * List of instance types to use for spot instances
      */
     instanceTypes: string[];
-    
+
     /**
      * Minimum size of node pool
      */
     minSize: number;
-    
+
     /**
      * Maximum size of node pool
      */
     maxSize: number;
-    
+
     /**
      * Desired capacity of node pool
      */
     desiredCapacity: number;
-    
+
     /**
      * Node labels
      */
     labels?: { [key: string]: string };
-    
+
     /**
      * Node taints
      */
     taints?: { [key: string]: string };
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -558,7 +558,7 @@ export function createSpotNodePool(
         "workload-type": "batch",
         ...args.labels,
     };
-    
+
     // Create mixed instance policy node group
     return new eks.NodeGroup(`${args.name}-spot-ng`, {
         cluster: args.cluster,
@@ -598,7 +598,7 @@ export function createOptimizedScalingPolicy(
 ): aws.autoscaling.Policy {
     let predefinedMetricType: string | undefined;
     let customizedMetricSpecification: any | undefined;
-    
+
     // Configure metric type
     switch (metricType) {
         case "CPU":
@@ -647,7 +647,7 @@ export function createOptimizedScalingPolicy(
             };
             break;
     }
-    
+
     // Create the policy
     return new aws.autoscaling.Policy(`${name}-${metricType.toLowerCase()}-scaling-policy`, {
         autoscalingGroupName: nodeGroupName,

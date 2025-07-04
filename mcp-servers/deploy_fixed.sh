@@ -21,22 +21,22 @@ start_server() {
     local server_name=$1
     local port=$2
     local server_dir="$server_name"
-    
+
     if [ -d "$server_dir" ] && [ -f "$server_dir/${server_name}_mcp_server.py" ]; then
         echo "🚀 Starting $server_name on port $port..."
         cd "$server_dir"
-        
+
         # Set environment variables
         export MCP_SERVER_PORT=$port
         export ENVIRONMENT=prod
         export PULUMI_ORG=scoobyjava-org
-        
+
         # Start the server in background
         python "${server_name}_mcp_server.py" --port $port > "../${server_name}.log" 2>&1 &
         local pid=$!
         echo "  ✅ Started $server_name (PID: $pid) on port $port"
         echo "$pid" > "../${server_name}.pid"
-        
+
         cd ..
         sleep 2
     else

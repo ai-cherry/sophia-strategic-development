@@ -12,10 +12,10 @@ values:
     version: "v2.0.0"
     environment: "${pulumi.stack}"
     deployment_strategy: "blue-green"
-  
+
   # Enhanced webhook configuration
   webhook:
-    domain: 
+    domain:
       fn::secret: "${WEBHOOK_DOMAIN}"
     port: 5000
     base_url: "https://${webhook.domain}/webhook/gong"
@@ -31,12 +31,12 @@ values:
       allowed_origins: ["*"]
       allowed_methods: ["GET", "POST", "PUT", "DELETE"]
       allowed_headers: ["Authorization", "Content-Type"]
-  
+
   # Enhanced Snowflake configuration (aligned with existing GONG_ANALYTICS)
   snowflake:
     account:
       fn::secret: "${SNOWFLAKE_ACCOUNT}"
-    user: "SCOOBYJAVA15" 
+    user: "SCOOBYJAVA15"
     password:
       fn::secret: "${SNOWFLAKE_PASSWORD}"
     database: "GONG_ANALYTICS"
@@ -58,7 +58,7 @@ values:
       min_connections: 5
       connection_timeout: 30
       idle_timeout: 300
-  
+
   # Enhanced Redis configuration for agent pub/sub
   redis:
     # Cluster configuration
@@ -85,8 +85,8 @@ values:
       retry_policy:
         max_retries: 3
         backoff_factor: 2
-  
-  # Enhanced agent orchestration configuration  
+
+  # Enhanced agent orchestration configuration
   agents:
     # Core orchestrator settings
     orchestrator:
@@ -97,7 +97,7 @@ values:
       health_check_interval: 30
       failure_threshold: 3
       recovery_timeout: 300
-    
+
     # Performance configuration (aligned with existing AgnoPerformanceOptimizer)
     performance:
       agno_optimization: true
@@ -105,7 +105,7 @@ values:
       memory_optimization: true
       connection_pooling: true
       batch_processing: true
-      
+
     # Agent-specific configurations
     types:
       call_analysis:
@@ -113,7 +113,7 @@ values:
         max_memory_mb: 512
         timeout_seconds: 60
       sales_intelligence:
-        instances: 8  
+        instances: 8
         max_memory_mb: 768
         timeout_seconds: 90
       business_intelligence:
@@ -128,7 +128,7 @@ values:
         instances: 12
         max_memory_mb: 512
         timeout_seconds: 45
-    
+
     # Communication settings
     communication:
       secret:
@@ -136,7 +136,7 @@ values:
       encryption_enabled: true
       message_ttl: 3600
       dead_letter_queue: true
-  
+
   # Enhanced Gong integration (aligned with existing setup)
   gong:
     api:
@@ -148,7 +148,7 @@ values:
       rate_limit: 2.5
       timeout: 30
       retry_attempts: 3
-    # OAuth configuration for enhanced security  
+    # OAuth configuration for enhanced security
     oauth:
       client_id:
         fn::secret: "${GONG_OAUTH_CLIENT_ID}"
@@ -166,7 +166,7 @@ values:
       retry_policy:
         max_retries: 5
         retry_delay: 300
-  
+
   # Enhanced monitoring and observability (extends existing)
   monitoring:
     # Extend existing Arize configuration
@@ -178,7 +178,7 @@ values:
       project_name: "sophia-ai-platform"
       model_id: "sophia-orchestrator"
       model_version: "v2.0.0"
-    
+
     # Prometheus metrics
     prometheus:
       enabled: true
@@ -187,7 +187,7 @@ values:
       auth_token:
         fn::secret: "${PROMETHEUS_AUTH_TOKEN}"
       scrape_interval: 15
-    
+
     # Grafana dashboards
     grafana:
       url:
@@ -200,7 +200,7 @@ values:
         fn::secret: "${GRAFANA_ADMIN_PASSWORD}"
       org_id: 1
       dashboard_refresh: 30
-  
+
   # Enhanced MCP server integrations (for existing 15+ MCP servers)
   mcp_servers:
     # Authentication tokens for all MCP servers
@@ -230,7 +230,7 @@ values:
       account: "${snowflake.account}"
       user: "${snowflake.user}"
       password: "${snowflake.password}"
-  
+
   # Enhanced security configuration
   security:
     # JWT configuration for webhook authentication
@@ -241,14 +241,14 @@ values:
       expiration: 3600
       issuer: "sophia-ai-platform"
       audience: "webhook-clients"
-    
+
     # Encryption settings
     encryption:
       key:
         fn::secret: "${ENCRYPTION_KEY}"
       algorithm: "AES-256-GCM"
       key_rotation_days: 90
-    
+
     # OIDC configuration for GitHub Actions
     oidc:
       github:
@@ -261,14 +261,14 @@ values:
         fn::secret: "${AZURE_OIDC_CLIENT_ID}"
       gcp_service_account:
         fn::secret: "${GCP_OIDC_SERVICE_ACCOUNT}"
-    
+
     # Audit logging
     audit:
       enabled: true
       log_level: "INFO"
       retention_days: 365
       storage_backend: "snowflake"
-  
+
   # Enhanced Kubernetes integration
   kubernetes:
     namespace: "sophia-ai"
@@ -278,7 +278,7 @@ values:
     resources:
       webhook_server:
         cpu_request: "500m"
-        cpu_limit: "2000m" 
+        cpu_limit: "2000m"
         memory_request: "1Gi"
         memory_limit: "4Gi"
       agent_pool:
@@ -316,47 +316,47 @@ rotation:
 # Environment variable mappings (extends existing)
 environmentVariables:
   # Extend all existing environment variables from sophia-ai-production
-  
+
   # Platform-specific additions
   WEBHOOK_DOMAIN: ${webhook.domain}
   WEBHOOK_BASE_URL: ${webhook.base_url}
   WEBHOOK_JWT_PRIVATE_KEY: ${webhook.jwt_private_key}
   WEBHOOK_JWT_PUBLIC_KEY: ${webhook.jwt_public_key}
-  
+
   # Enhanced Snowflake OAuth
   SNOWFLAKE_OAUTH_CLIENT_ID: ${snowflake.oauth.client_id}
   SNOWFLAKE_OAUTH_CLIENT_SECRET: ${snowflake.oauth.client_secret}
   SNOWFLAKE_OAUTH_REFRESH_TOKEN: ${snowflake.oauth.refresh_token}
-  
+
   # Redis cluster authentication
   REDIS_CLUSTER_PASSWORD: ${redis.cluster.password}
-  
+
   # Agent orchestration
   AGENT_ORCHESTRATOR_AUTH_TOKEN: ${agents.orchestrator.auth_token}
   AGENT_COMMUNICATION_SECRET: ${agents.communication.secret}
-  
+
   # Enhanced Gong OAuth
   GONG_OAUTH_CLIENT_ID: ${gong.oauth.client_id}
   GONG_OAUTH_CLIENT_SECRET: ${gong.oauth.client_secret}
   GONG_OAUTH_REFRESH_TOKEN: ${gong.oauth.refresh_token}
   GONG_WEBHOOK_SECRET: ${gong.webhook.secret}
-  
+
   # Enhanced monitoring
   PROMETHEUS_AUTH_TOKEN: ${monitoring.prometheus.auth_token}
   GRAFANA_ADMIN_PASSWORD: ${monitoring.grafana.admin_password}
-  
+
   # MCP server tokens
   MCP_GITHUB_TOKEN: ${mcp_servers.github.token}
   MCP_SLACK_TOKEN: ${mcp_servers.slack.token}
   MCP_LINEAR_TOKEN: ${mcp_servers.linear.token}
   MCP_DOCKER_REGISTRY_TOKEN: ${mcp_servers.docker.registry_token}
   MCP_POSTGRES_CONNECTION_STRING: ${mcp_servers.postgres.connection_string}
-  
+
   # OIDC configuration
   AWS_OIDC_ROLE_ARN: ${security.oidc.aws_role_arn}
-  AZURE_OIDC_CLIENT_ID: ${security.oidc.azure_client_id} 
+  AZURE_OIDC_CLIENT_ID: ${security.oidc.azure_client_id}
   GCP_OIDC_SERVICE_ACCOUNT: ${security.oidc.gcp_service_account}
-  
+
   # Platform metadata
   PLATFORM_NAME: ${platform.name}
   PLATFORM_VERSION: ${platform.version}
@@ -372,7 +372,7 @@ n8n:
     fn::secret: "${N8N_BASIC_AUTH_PASSWORD}"
   webhook_secret:
     fn::secret: "${N8N_WEBHOOK_SECRET}"
-  # Add other integration secrets as needed 
+  # Add other integration secrets as needed
 
 # LLM gateway credentials and endpoints
 llm_gateway:
@@ -380,13 +380,13 @@ llm_gateway:
   portkey_api_key:
     fn::secret: "${PORTKEY_API_KEY}"
   portkey_endpoint: "https://api.portkey.ai/v1/chat/completions"
-  
+
   # OpenRouter Backend Configuration
   api_key:
     fn::secret: "${OPENROUTER_API_KEY}"
   endpoint: "https://openrouter.ai/api/v1/chat/completions"
-  
+
   # Fallback endpoints for high availability
   fallback_endpoints:
     - "https://api.openai.com/v1/chat/completions"
-    - "https://api.anthropic.com/v1/messages" 
+    - "https://api.anthropic.com/v1/messages"

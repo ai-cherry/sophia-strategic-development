@@ -9,10 +9,7 @@
   "servers": {
     "ai_memory": {
       "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.ai_memory.ai_memory_mcp_server"
-      ],
+      "args": ["-m", "mcp-servers.ai_memory.ai_memory_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
@@ -32,10 +29,7 @@
     },
     "codacy": {
       "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.codacy.codacy_mcp_server"
-      ],
+      "args": ["-m", "mcp-servers.codacy.codacy_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org"
@@ -49,10 +43,7 @@
     },
     "asana": {
       "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.asana.asana_mcp_server"
-      ],
+      "args": ["-m", "mcp-servers.asana.asana_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
@@ -66,10 +57,7 @@
     },
     "notion": {
       "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.notion.notion_mcp_server"
-      ],
+      "args": ["-m", "mcp-servers.notion.notion_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
@@ -83,10 +71,7 @@
     },
     "linear": {
       "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.linear.linear_mcp_server"
-      ],
+      "args": ["-m", "mcp-servers.linear.linear_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
@@ -171,10 +156,7 @@
     },
     "snowflake_admin": {
       "command": "python",
-      "args": [
-        "-m",
-        "mcp-servers.snowflake_admin.snowflake_admin_mcp_server"
-      ],
+      "args": ["-m", "mcp-servers.snowflake_admin.snowflake_admin_mcp_server"],
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
@@ -225,25 +207,13 @@
     "LOG_LEVEL": "INFO"
   },
   "autoTriggers": {
-    "onFileChange": [
-      "ai_memory.auto_store_context",
-      "codacy.analyze_file"
-    ],
-    "onCommit": [
-      "ai_memory.store_conversation",
-      "codacy.security_scan"
-    ],
-    "onPullRequest": [
-      "codacy.analyze_code",
-      "ai_memory.recall_memory"
-    ]
+    "onFileChange": ["ai_memory.auto_store_context", "codacy.analyze_file"],
+    "onCommit": ["ai_memory.store_conversation", "codacy.security_scan"],
+    "onPullRequest": ["codacy.analyze_code", "ai_memory.recall_memory"]
   },
   "workflows": {
     "code_review": {
-      "triggers": [
-        "file_save",
-        "commit"
-      ],
+      "triggers": ["file_save", "commit"],
       "sequence": [
         "codacy.analyze_code",
         "ai_memory.smart_recall",
@@ -251,31 +221,13 @@
       ]
     },
     "architecture_discussion": {
-      "triggers": [
-        "conversation_keywords"
-      ],
-      "keywords": [
-        "architecture",
-        "design",
-        "pattern",
-        "structure"
-      ],
-      "sequence": [
-        "ai_memory.recall_memory",
-        "ai_memory.store_conversation"
-      ]
+      "triggers": ["conversation_keywords"],
+      "keywords": ["architecture", "design", "pattern", "structure"],
+      "sequence": ["ai_memory.recall_memory", "ai_memory.store_conversation"]
     },
     "bug_analysis": {
-      "triggers": [
-        "error_detection",
-        "bug_keywords"
-      ],
-      "keywords": [
-        "bug",
-        "error",
-        "issue",
-        "fix"
-      ],
+      "triggers": ["error_detection", "bug_keywords"],
+      "keywords": ["bug", "error", "issue", "fix"],
       "sequence": [
         "ai_memory.recall_memory",
         "codacy.security_scan",

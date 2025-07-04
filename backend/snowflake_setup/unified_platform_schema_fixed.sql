@@ -1,7 +1,7 @@
 -- =========================================================================
 -- SOPHIA AI PHOENIX PLATFORM - UNIFIED SCHEMA
 -- The Single Source of Truth for All Data Architecture
--- 
+--
 -- Version: Phoenix 1.0
 -- Created: January 2025
 -- Status: AUTHORITATIVE - This DDL supersedes all previous schemas
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS SOPHIA_AI_MEMORY.MEMORY_RECORDS (
     tags ARRAY,
     source_data_id VARCHAR(255),
     user_id VARCHAR(100),
-    CONSTRAINT fk_source_data FOREIGN KEY (source_data_id) 
+    CONSTRAINT fk_source_data FOREIGN KEY (source_data_id)
         REFERENCES SOPHIA_CORE.UNIFIED_DATA_CATALOG(data_id)
 ) COMMENT = 'AI Memory system with Cortex native embeddings for semantic search';
 
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS SOPHIA_AI_MEMORY.MEMORY_INTERACTIONS (
     relevance_score FLOAT,
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
     context VARIANT,
-    CONSTRAINT fk_memory FOREIGN KEY (memory_id) 
+    CONSTRAINT fk_memory FOREIGN KEY (memory_id)
         REFERENCES SOPHIA_AI_MEMORY.MEMORY_RECORDS(memory_id)
 ) COMMENT = 'Track how AI memories are accessed and used';
 
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS SOPHIA_PROJECT_MANAGEMENT.PROJECT_HEALTH_ANALYTICS (
     ai_recommendations ARRAY,
     predicted_completion DATE,
     confidence_level FLOAT,
-    CONSTRAINT fk_project FOREIGN KEY (project_id) 
+    CONSTRAINT fk_project FOREIGN KEY (project_id)
         REFERENCES SOPHIA_PROJECT_MANAGEMENT.UNIFIED_PROJECTS(project_id)
 ) COMMENT = 'AI-powered project health analysis and predictions';
 
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS SOPHIA_KNOWLEDGE_BASE.KNOWLEDGE_CATEGORIES (
     description TEXT,
     ai_learning_priority INTEGER DEFAULT 5,
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    CONSTRAINT fk_parent_category FOREIGN KEY (parent_category_id) 
+    CONSTRAINT fk_parent_category FOREIGN KEY (parent_category_id)
         REFERENCES SOPHIA_KNOWLEDGE_BASE.KNOWLEDGE_CATEGORIES(category_id)
 ) COMMENT = 'Hierarchical knowledge categorization system';
 
@@ -247,7 +247,7 @@ ATTRIBUTES metadata, category, tags, business_context
 WAREHOUSE = COMPUTE_WH
 TARGET_LAG = '1 minute'
 AS (
-    SELECT 
+    SELECT
         memory_id,
         content,
         metadata,
@@ -264,21 +264,21 @@ AS (
 
 -- Executive Dashboard Summary
 CREATE OR REPLACE VIEW SOPHIA_BUSINESS_INTELLIGENCE.EXECUTIVE_DASHBOARD_SUMMARY AS
-SELECT 
+SELECT
     'system_health' as metric_category,
     COUNT(CASE WHEN status = 'healthy' THEN 1 END) as healthy_components,
     COUNT(*) as total_components,
     ROUND((COUNT(CASE WHEN status = 'healthy' THEN 1 END) * 100.0 / COUNT(*)), 2) as health_percentage
 FROM SOPHIA_CORE.SYSTEM_HEALTH
 UNION ALL
-SELECT 
+SELECT
     'project_health' as metric_category,
     COUNT(CASE WHEN health_score >= 0.7 THEN 1 END) as healthy_projects,
     COUNT(*) as total_projects,
     ROUND(AVG(health_score) * 100, 2) as avg_health_score
 FROM SOPHIA_PROJECT_MANAGEMENT.UNIFIED_PROJECTS
 UNION ALL
-SELECT 
+SELECT
     'ai_memory' as metric_category,
     COUNT(*) as total_memories,
     COUNT(CASE WHEN importance_score >= 0.7 THEN 1 END) as important_memories,
@@ -287,12 +287,12 @@ FROM SOPHIA_AI_MEMORY.MEMORY_RECORDS;
 
 -- MCP Server Status Overview
 CREATE OR REPLACE VIEW SOPHIA_CORE.MCP_SERVER_STATUS AS
-SELECT 
+SELECT
     server_name,
     server_type,
     port_number,
     status,
-    CASE 
+    CASE
         WHEN last_heartbeat > DATEADD('minute', -5, CURRENT_TIMESTAMP()) THEN 'online'
         WHEN last_heartbeat > DATEADD('minute', -15, CURRENT_TIMESTAMP()) THEN 'degraded'
         ELSE 'offline'
@@ -314,18 +314,18 @@ AS
 $$
 BEGIN
     -- Update processing status
-    UPDATE SOPHIA_CORE.UNIFIED_DATA_CATALOG 
+    UPDATE SOPHIA_CORE.UNIFIED_DATA_CATALOG
     SET processing_status = 'processing', updated_at = CURRENT_TIMESTAMP()
     WHERE data_id = DATA_ID;
-    
+
     -- Generate embedding if content exists
     -- This would integrate with Cortex embedding functions
-    
+
     -- Update completion status
-    UPDATE SOPHIA_CORE.UNIFIED_DATA_CATALOG 
+    UPDATE SOPHIA_CORE.UNIFIED_DATA_CATALOG
     SET ai_processed = TRUE, processing_status = 'completed', updated_at = CURRENT_TIMESTAMP()
     WHERE data_id = DATA_ID;
-    
+
     RETURN 'Data processing completed for ID: ' || DATA_ID;
 END;
 $$;
@@ -339,7 +339,7 @@ CREATE OR REPLACE TASK SOPHIA_CORE.CLEANUP_EXPIRED_CACHE
     WAREHOUSE = COMPUTE_WH
     SCHEDULE = 'USING CRON 0 2 * * * UTC'  -- Daily at 2 AM UTC
 AS
-DELETE FROM SOPHIA_CORE.QUERY_CACHE 
+DELETE FROM SOPHIA_CORE.QUERY_CACHE
 WHERE expires_at < CURRENT_TIMESTAMP();
 
 -- Update system health scores
@@ -378,7 +378,7 @@ GRANT ALL ON ALL TABLES IN SCHEMA SOPHIA_KNOWLEDGE_BASE TO ROLE SOPHIA_UNIFIED_R
 -- =========================================================================
 
 -- Insert MCP server registry entries
-INSERT INTO SOPHIA_CORE.MCP_SERVER_REGISTRY 
+INSERT INTO SOPHIA_CORE.MCP_SERVER_REGISTRY
 (server_id, server_name, server_type, port_number, status, capabilities) VALUES
 ('ai-memory-001', 'ai_memory', 'core_intelligence', 9000, 'active', ['memory_storage', 'semantic_search']),
 ('codacy-001', 'codacy', 'core_intelligence', 3008, 'active', ['code_analysis', 'security_scan']),
@@ -390,7 +390,7 @@ INSERT INTO SOPHIA_CORE.MCP_SERVER_REGISTRY
 ('slack-001', 'slack_unified', 'business_intelligence', 9005, 'active', ['communication_analytics', 'team_insights']);
 
 -- Insert initial knowledge categories
-INSERT INTO SOPHIA_KNOWLEDGE_BASE.KNOWLEDGE_CATEGORIES 
+INSERT INTO SOPHIA_KNOWLEDGE_BASE.KNOWLEDGE_CATEGORIES
 (category_id, category_name, description, ai_learning_priority) VALUES
 ('cat-business-001', 'Business Strategy', 'Strategic business documents and plans', 1),
 ('cat-technical-001', 'Technical Documentation', 'Technical specifications and architecture', 2),
@@ -406,13 +406,13 @@ INSERT INTO SOPHIA_KNOWLEDGE_BASE.KNOWLEDGE_CATEGORIES
 -- Verify schema creation
 SELECT 'Schema Creation Complete' as status,
        COUNT(*) as total_schemas
-FROM INFORMATION_SCHEMA.SCHEMATA 
+FROM INFORMATION_SCHEMA.SCHEMATA
 WHERE SCHEMA_NAME LIKE 'SOPHIA_%';
 
 -- Verify table creation
 SELECT 'Table Creation Complete' as status,
        COUNT(*) as total_tables
-FROM INFORMATION_SCHEMA.TABLES 
+FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA LIKE 'SOPHIA_%';
 
 -- =========================================================================
@@ -420,7 +420,7 @@ WHERE TABLE_SCHEMA LIKE 'SOPHIA_%';
 -- =========================================================================
 
 -- Final status message
-SELECT 
+SELECT
     '🔥 PHOENIX PLATFORM SCHEMA DEPLOYMENT COMPLETE 🔥' as message,
     CURRENT_TIMESTAMP() as deployed_at,
     'Snowflake is now the center of the universe' as architecture_status;

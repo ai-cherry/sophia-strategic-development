@@ -234,9 +234,9 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
         roi_data["buzz_performance"] = buzz_metrics
 
         # Add competitive comparison
-        roi_data["competitive_advantage"] = (
-            await self._calculate_competitive_roi_advantage(roi_data)
-        )
+        roi_data[
+            "competitive_advantage"
+        ] = await self._calculate_competitive_roi_advantage(roi_data)
 
         return roi_data
 
@@ -360,7 +360,9 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             "recommendation": (
                 "High priority"
                 if potential_score > 0.7
-                else "Medium priority" if potential_score > 0.4 else "Low priority"
+                else "Medium priority"
+                if potential_score > 0.4
+                else "Low priority"
             ),
         }
 
@@ -721,7 +723,9 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             priority_text = (
                 "high priority"
                 if priority > 0.7
-                else "medium priority" if priority > 0.4 else "lower priority"
+                else "medium priority"
+                if priority > 0.4
+                else "lower priority"
             )
 
             return f"""

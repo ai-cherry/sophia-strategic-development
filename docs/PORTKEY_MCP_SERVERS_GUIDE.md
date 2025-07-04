@@ -198,14 +198,14 @@ class MCPOrchestrator:
         # Direct integrations for vector DBs
         self.pinecone = pinecone.Index('sophia-ai')
         self.weaviate = weaviate.Client(url=WEAVIATE_URL)
-    
+
     async def process_request(self, user_query: str):
         # Determine intent via Portkey
         intent = await self.portkey.complete(
             prompt=f"Classify intent: {user_query}",
             model="gpt-3.5-turbo"
         )
-        
+
         # Route to appropriate MCP or service
         if "database" in intent:
             result = await self._handle_database_query(user_query)
@@ -215,13 +215,13 @@ class MCPOrchestrator:
             result = await self._handle_code_query(user_query)
         elif "memory" in intent:
             result = await self._handle_vector_search(user_query)
-        
+
         # Enhance result via Portkey
         enhanced = await self.portkey.complete(
             prompt=f"Format this result for the user: {result}",
             model="gpt-3.5-turbo"
         )
-        
+
         return enhanced
 ```
 
@@ -258,4 +258,4 @@ Implement a gateway pattern where Portkey handles:
 - Audit logging
 - Error handling
 
-For all MCP operations, ensuring consistent behavior and monitoring across all tool usage. 
+For all MCP operations, ensuring consistent behavior and monitoring across all tool usage.

@@ -18,10 +18,10 @@ RETURNS TABLE (
 )
 AS
 $$
-WITH 
+WITH
 -- Step 1: Intelligent Query Decomposition
 query_analysis AS (
-    SELECT 
+    SELECT
         AI_CLASSIFY(
             natural_language_query,
             'financial_analysis,operational_metrics,strategic_planning,competitive_intelligence'
@@ -32,7 +32,7 @@ query_analysis AS (
 
 -- Step 2: Hybrid Search Across All Sources
 cortex_search_results AS (
-    SELECT 
+    SELECT
         CORTEX_SEARCH(
             'sophia_unified_knowledge',
             natural_language_query,
@@ -47,25 +47,25 @@ cortex_search_results AS (
 
 -- Step 3: Multimodal AI Processing
 ai_enhanced_analysis AS (
-    SELECT 
+    SELECT
         -- Text analysis with business context
         AI_AGGREGATE_INSIGHTS(
             search_data:content::STRING,
             CONCAT('Analyze from perspective: ', query_analysis.query_category)
         ) as text_insights,
-        
+
         -- Similarity scoring for relevance
         AI_SIMILARITY(
             CORTEX_EMBED_TEXT('e5-base-v2', natural_language_query),
             CORTEX_EMBED_TEXT('e5-base-v2', search_data:content::STRING)
         ) as relevance_score,
-        
+
         -- Business impact classification
         AI_CLASSIFY(
             search_data:content::STRING,
             'high_business_impact,medium_business_impact,low_business_impact'
         ) as impact_level,
-        
+
         -- Cost efficiency calculation
         0.001 as processing_cost -- Placeholder for actual cost calculation
     FROM cortex_search_results, query_analysis
@@ -73,7 +73,7 @@ ai_enhanced_analysis AS (
 
 -- Step 4: Self-Optimization Integration
 optimized_results AS (
-    SELECT 
+    SELECT
         OBJECT_CONSTRUCT(
             'insights', text_insights,
             'relevance', relevance_score,
@@ -84,22 +84,22 @@ optimized_results AS (
             'query_category', query_analysis.query_category,
             'business_entities', query_analysis.business_entities
         ) as unified_results,
-        
+
         -- Confidence scoring based on multiple factors
-        (relevance_score * 0.4 + 
-         CASE impact_level 
-             WHEN 'high_business_impact' THEN 0.9 
-             WHEN 'medium_business_impact' THEN 0.6 
-             ELSE 0.3 
+        (relevance_score * 0.4 +
+         CASE impact_level
+             WHEN 'high_business_impact' THEN 0.9
+             WHEN 'medium_business_impact' THEN 0.6
+             ELSE 0.3
          END * 0.4 +
          0.8 * 0.2 -- Data quality score placeholder
         ) as confidence_score,
-        
+
         processing_cost,
-        
+
         OBJECT_CONSTRUCT(
             'query_optimization', 'Consider adding specific time ranges or entity names',
-            'cost_optimization', CASE 
+            'cost_optimization', CASE
                 WHEN optimization_mode = 'cost_optimized' THEN 'Using cost-efficient models'
                 WHEN optimization_mode = 'performance_optimized' THEN 'Using high-performance models'
                 ELSE 'Balanced approach between cost and performance'
@@ -110,7 +110,7 @@ optimized_results AS (
                 'total_latency_ms', 200
             )
         ) as optimization_insights
-        
+
     FROM ai_enhanced_analysis, query_analysis
 )
 
@@ -130,7 +130,7 @@ ATTRIBUTES (
 WAREHOUSE = SOPHIA_AI_WH
 TARGET_LAG = '1 minute'
 AS (
-    SELECT 
+    SELECT
         content,
         metadata,
         business_context,
@@ -148,7 +148,7 @@ RETURNS FLOAT
 AS
 $$
     -- Simple cost calculation based on content length and model
-    CASE 
+    CASE
         WHEN model_used = 'e5-base-v2' THEN LENGTH(content) * 0.000001
         WHEN model_used = 'multilingual-e5-large' THEN LENGTH(content) * 0.000002
         ELSE LENGTH(content) * 0.000001
@@ -163,7 +163,7 @@ RETURNS FLOAT
 AS
 $$
     -- Assess data quality based on metadata
-    CASE 
+    CASE
         WHEN metadata:source_verified = true AND metadata:last_updated > DATEADD(day, -7, CURRENT_DATE()) THEN 0.95
         WHEN metadata:source_verified = true THEN 0.85
         WHEN metadata:last_updated > DATEADD(day, -30, CURRENT_DATE()) THEN 0.75
@@ -187,7 +187,7 @@ $$
             'Consider breaking complex queries into sub-queries'
         ),
         'cost_suggestions', ARRAY_CONSTRUCT(
-            CASE 
+            CASE
                 WHEN cost > 0.01 THEN 'Consider using cached results for similar queries'
                 ELSE 'Cost is optimal'
             END,
@@ -198,4 +198,4 @@ $$
             'Leverage pre-computed embeddings when possible'
         )
     )
-$$; 
+$$;

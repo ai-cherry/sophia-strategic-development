@@ -74,4 +74,3 @@ values:
     GITHUB_TOKEN: ${deployment.github_token}
     PULUMI_ACCESS_TOKEN:
       fn::secret: ${github-org-secrets.PULUMI_ACCESS_TOKEN}
-

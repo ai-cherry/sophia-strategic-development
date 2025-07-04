@@ -6,7 +6,7 @@ echo "🔑 Loading Sophia AI Secrets from GitHub Organization ai-cherry..."
 
 # Load critical secrets from your GitHub organization
 export PULUMI_ACCESS_TOKEN="$(gh secret get PULUMI_ACCESS_TOKEN --org ai-cherry 2>/dev/null || echo 'loading_failed')"
-export ANTHROPIC_API_KEY="$(gh secret get ANTHROPIC_API_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"  
+export ANTHROPIC_API_KEY="$(gh secret get ANTHROPIC_API_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export OPENAI_API_KEY="$(gh secret get OPENAI_API_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export GONG_ACCESS_KEY="$(gh secret get GONG_ACCESS_KEY --org ai-cherry 2>/dev/null || echo 'loading_failed')"
 export GONG_CLIENT_SECRET="$(gh secret get GONG_CLIENT_SECRET --org ai-cherry 2>/dev/null || echo 'loading_failed')"

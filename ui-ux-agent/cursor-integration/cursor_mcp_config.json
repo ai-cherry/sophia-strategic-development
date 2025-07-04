@@ -9,14 +9,14 @@
       "description": "Sophia AI Figma Dev Mode MCP Server for design-to-code automation",
       "capabilities": [
         "design_token_extraction",
-        "component_analysis", 
+        "component_analysis",
         "design_context_parsing"
       ],
       "port": 9001,
       "auto_start": true
     },
     "sophia-ui-ux-agent": {
-      "command": "python", 
+      "command": "python",
       "args": ["../mcp-servers/langchain-agents/ui_ux_agent.py"],
       "env": {
         "OPENAI_API_KEY": "",
@@ -43,7 +43,7 @@
       },
       "on_component_creation": {
         "pattern": "*.component.tsx",
-        "action": "validate_design_system", 
+        "action": "validate_design_system",
         "server": "sophia-ui-ux-agent"
       }
     }

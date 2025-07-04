@@ -33,9 +33,9 @@ test_server_startup() {
     local server_name=$1
     local port=$2
     local timeout=10
-    
+
     print_status $BLUE "🧪 Testing $server_name startup..."
-    
+
     for i in $(seq 1 $timeout); do
         if curl -s "http://localhost:$port/health" >/dev/null 2>&1; then
             print_status $GREEN "✅ $server_name is responding on port $port"
@@ -43,7 +43,7 @@ test_server_startup() {
         fi
         sleep 1
     done
-    
+
     print_status $RED "❌ $server_name failed to start or not responding"
     return 1
 }

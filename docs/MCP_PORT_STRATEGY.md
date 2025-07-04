@@ -90,4 +90,4 @@ Adding a new server is now a simple, standardized process:
     ```
 3.  **Implement the Server**: Create your server, ensuring it inherits from `StandardizedMCPServer`. The base class will automatically handle reading the port from the config file.
 4.  **Update Deployment Script**: Add your new server to the list of `implemented_servers` in `scripts/run_all_mcp_servers.py` so it can be started automatically.
-5.  **Done**: Your server is now fully integrated into the deployment, testing, and monitoring framework. 
+5.  **Done**: Your server is now fully integrated into the deployment, testing, and monitoring framework.

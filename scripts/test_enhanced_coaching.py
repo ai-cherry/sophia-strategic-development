@@ -113,7 +113,9 @@ async def test_riley_coaching_analysis():
             priority_emoji = (
                 "🚨"
                 if insight["priority"] == "critical"
-                else "⚠️" if insight["priority"] == "high" else "ℹ️"
+                else "⚠️"
+                if insight["priority"] == "high"
+                else "ℹ️"
             )
             print(f"  {priority_emoji} {insight['type']}: {insight['message']}")
 
@@ -163,7 +165,9 @@ async def test_riley_coaching_analysis():
             priority_emoji = (
                 "��"
                 if insight["priority"] == "critical"
-                else "⚠️" if insight["priority"] == "high" else "ℹ️"
+                else "⚠️"
+                if insight["priority"] == "high"
+                else "ℹ️"
             )
             print(f"  {priority_emoji} {insight['type']}: {insight['message']}")
             print(f"    💡 Action: {insight['action']}")

@@ -20,4 +20,3 @@ template:
     namecheap:clientIp:
       description: Client IP address for Namecheap API (optional)
       default: "127.0.0.1"
-

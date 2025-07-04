@@ -36,7 +36,7 @@ const ComponentSkeleton = () => (
 // Safe component renderer using iframe
 const SafeComponentRenderer: React.FC<{ code: string }> = ({ code }) => {
   const [error, setError] = useState<string | null>(null);
-  
+
   const iframeContent = useMemo(() => {
     try {
       // Create a complete HTML document with the component
@@ -69,7 +69,7 @@ const SafeComponentRenderer: React.FC<{ code: string }> = ({ code }) => {
           <div id="root"></div>
           <script type="text/babel">
             ${code}
-            
+
             const App = () => {
               try {
                 return <Component />;
@@ -81,7 +81,7 @@ const SafeComponentRenderer: React.FC<{ code: string }> = ({ code }) => {
                 );
               }
             };
-            
+
             const root = ReactDOM.createRoot(document.getElementById('root'));
             root.render(<App />);
           </script>
@@ -127,7 +127,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
 
   const handleCopyCode = async () => {
     if (!component?.componentCode) return;
-    
+
     try {
       await navigator.clipboard.writeText(component.componentCode);
       setIsCopied(true);
@@ -139,7 +139,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
 
   const handleDownloadCode = () => {
     if (!component?.componentCode) return;
-    
+
     const blob = new Blob([component.componentCode], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -151,13 +151,13 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
 
   const handleDeploy = () => {
     if (!component?.componentCode || !onDeploy) return;
-    
+
     const componentName = component.metadata.prompt
       .split(' ')
       .slice(0, 3)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join('');
-    
+
     onDeploy(component.componentCode, componentName);
   };
 
@@ -274,13 +274,13 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
               </TabsTrigger>
             )}
           </TabsList>
-          
+
           <TabsContent value="preview" className="mt-0">
             <Suspense fallback={<ComponentSkeleton />}>
               <SafeComponentRenderer code={component.componentCode} />
             </Suspense>
           </TabsContent>
-          
+
           <TabsContent value="code" className="mt-0">
             <div className="max-h-[600px] overflow-auto rounded-lg">
               <SyntaxHighlighter
@@ -295,7 +295,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
               </SyntaxHighlighter>
             </div>
           </TabsContent>
-          
+
           {component.testCode && (
             <TabsContent value="test" className="mt-0">
               <div className="max-h-[600px] overflow-auto rounded-lg">
@@ -313,7 +313,7 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
             </TabsContent>
           )}
         </Tabs>
-        
+
         <div className="mt-4 text-sm text-muted-foreground">
           <div className="flex flex-wrap gap-4">
             <span>Style: {component.metadata.styling}</span>
@@ -326,4 +326,4 @@ export const UIComponentPreview: React.FC<UIComponentPreviewProps> = ({
   );
 };
 
-export default UIComponentPreview; 
+export default UIComponentPreview;

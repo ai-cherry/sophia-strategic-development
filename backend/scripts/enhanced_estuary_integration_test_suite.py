@@ -1077,9 +1077,7 @@ class EstuaryIntegrationTestSuite:
             )
 
         if not failed_tests and not error_tests:
-            recommendations.append(
-                "✅ All tests passed - pipeline ready for production"
-            )
+            recommendations.append("✅ All tests passed - pipeline ready for production")
 
         return recommendations
 

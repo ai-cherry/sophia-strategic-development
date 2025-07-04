@@ -264,9 +264,9 @@ class N8NWorkflowAutomation:
                     if response.status == 200:
                         health_results[workflow_name] = "healthy"
                     else:
-                        health_results[workflow_name] = (
-                            f"unhealthy (status: {response.status})"
-                        )
+                        health_results[
+                            workflow_name
+                        ] = f"unhealthy (status: {response.status})"
             except Exception as e:
                 health_results[workflow_name] = f"error: {str(e)}"
 

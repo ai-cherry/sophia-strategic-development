@@ -81,7 +81,7 @@ class SophiaUnifiedIntelligenceService:
         # Placeholder implementations for now
         self.vector_router = None
         self.constitutional_ai = None
-        self.portkey_gateway = None
+        self.llm_service = None
 
         logger.info("✅ Unified capabilities initialized (placeholder mode)")
 
@@ -301,7 +301,7 @@ class SophiaUnifiedIntelligenceService:
         context: dict[str, Any],
     ) -> str:
         """Synthesize results from multiple sources using Portkey"""
-        if not self.portkey_gateway:
+        if not self.llm_service:
             # Fallback to simple synthesis
             return self._simple_synthesis(cortex_results, memory_context, business_data)
 
@@ -327,7 +327,7 @@ class SophiaUnifiedIntelligenceService:
             """
 
             # Use Portkey for synthesis
-            response = await self.portkey_gateway.constitutional_complete(
+            response = await self.llm_service.constitutional_complete(
                 {
                     "messages": [
                         {

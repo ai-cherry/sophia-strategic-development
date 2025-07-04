@@ -41,27 +41,27 @@ def audit_secret_usage():
         'os_environ': r'os\.environ\[["\']([^"\']+)["\']\]',
         'env_var_ref': r'\$\{?([A-Z_]+(?:_KEY|_TOKEN|_SECRET|_PASSWORD))\}?'
     }
-    
+
     results = {
         'by_pattern': {},
         'by_file': {},
         'unique_secrets': set()
     }
-    
+
     # Scan all Python files
     for py_file in Path('.').rglob('*.py'):
         if '.git' in str(py_file) or 'node_modules' in str(py_file):
             continue
-            
+
         with open(py_file, 'r') as f:
             content = f.read()
-            
+
         for pattern_name, pattern in patterns.items():
             matches = re.findall(pattern, content)
             if matches:
                 results['by_file'][str(py_file)] = matches
                 results['unique_secrets'].update(matches)
-                
+
     return results
 ```
 
@@ -75,7 +75,7 @@ python -c "
 import json
 with open('esc_structure.json') as f:
     data = json.load(f)
-    
+
 # Check for both flat and nested structures
 print('Flat keys:', [k for k in data.keys() if not isinstance(data[k], dict)])
 print('Nested structure:', json.dumps(data.get('values', {}), indent=2))
@@ -95,7 +95,7 @@ sync_script_path = Path('scripts/ci/sync_from_gh_to_pulumi.py')
 with open(sync_script_path) as f:
     content = f.read()
     # Extract mappings (lines 44-155 in the file)
-    
+
 # Load backend expectations from auto_esc_config.py
 config_path = Path('backend/core/auto_esc_config.py')
 with open(config_path) as f:
@@ -110,13 +110,13 @@ KNOWN_ISSUES = {
         "backend_expects": "asana_api_token",  # Mismatch!
     },
     "GH_API_TOKEN": {
-        "github_name": "GH_API_TOKEN", 
+        "github_name": "GH_API_TOKEN",
         "sync_maps_to": "github_token",
         "backend_expects": "github_token",  # OK
     },
     "NOTION_API_KEY": {
         "github_name": "NOTION_API_KEY",
-        "sync_maps_to": "notion_api_token", 
+        "sync_maps_to": "notion_api_token",
         "backend_expects": "notion_api_key",  # Mismatch!
     }
 }
@@ -164,17 +164,17 @@ def audit_env_files():
         r'.*config.*\.json',
         r'.*secrets.*'
     ]
-    
+
     issues = []
-    
+
     for pattern in env_patterns:
         for file in Path('.').rglob(pattern):
             if '.git' in str(file):
                 continue
-                
+
             with open(file) as f:
                 content = f.read()
-                
+
             # Check for placeholder values
             if re.search(r'(placeholder|your_|example|test_|demo_)', content, re.I):
                 issues.append({
@@ -182,7 +182,7 @@ def audit_env_files():
                     'type': 'placeholder',
                     'content': content
                 })
-                
+
     return issues
 ```
 
@@ -197,21 +197,21 @@ from pathlib import Path
 def audit_workflows():
     workflow_path = Path('.github/workflows')
     secret_references = {}
-    
+
     for workflow_file in workflow_path.glob('*.yml'):
         with open(workflow_file) as f:
             workflow = yaml.safe_load(f)
-            
+
         # Extract all secret references
         secrets = extract_secrets_from_workflow(workflow)
         secret_references[workflow_file.name] = secrets
-        
+
     return secret_references
 
 def extract_secrets_from_workflow(obj, secrets=None):
     if secrets is None:
         secrets = set()
-        
+
     if isinstance(obj, dict):
         for key, value in obj.items():
             if isinstance(value, str) and 'secrets.' in value:
@@ -222,7 +222,7 @@ def extract_secrets_from_workflow(obj, secrets=None):
     elif isinstance(obj, list):
         for item in obj:
             extract_secrets_from_workflow(item, secrets)
-            
+
     return secrets
 ```
 
@@ -245,10 +245,10 @@ from pathlib import Path
 class SecretAccessAnalyzer(ast.NodeVisitor):
     def __init__(self):
         self.issues = []
-        
+
     def visit_Call(self, node):
         # Check for os.getenv() usage
-        if (isinstance(node.func, ast.Attribute) and 
+        if (isinstance(node.func, ast.Attribute) and
             node.func.attr == 'getenv' and
             isinstance(node.func.value, ast.Name) and
             node.func.value.id == 'os'):
@@ -257,7 +257,7 @@ class SecretAccessAnalyzer(ast.NodeVisitor):
                 'line': node.lineno,
                 'should_use': 'get_config_value'
             })
-            
+
         # Check for os.environ[] usage
         if (isinstance(node.func, ast.Subscript) and
             isinstance(node.func.value, ast.Attribute) and
@@ -267,7 +267,7 @@ class SecretAccessAnalyzer(ast.NodeVisitor):
                 'line': node.lineno,
                 'should_use': 'get_config_value'
             })
-            
+
         self.generic_visit(node)
 
 def analyze_file(filepath):
@@ -287,7 +287,7 @@ FIXES_REQUIRED = {
     # In scripts/ci/sync_from_gh_to_pulumi.py
     "ASANA_API_TOKEN": "asana_api_token",  # Change from asana_access_token
     "NOTION_API_KEY": "notion_api_key",     # Change from notion_api_token
-    
+
     # In backend/core/auto_esc_config.py - ensure mappings match
 }
 
@@ -295,7 +295,7 @@ def apply_fixes():
     # Update sync script
     sync_script = Path('scripts/ci/sync_from_gh_to_pulumi.py')
     # Apply fixes...
-    
+
     # Update backend config
     config_file = Path('backend/core/auto_esc_config.py')
     # Apply fixes...
@@ -324,18 +324,18 @@ def remove_placeholders():
 def fix_secret_access(file_path):
     with open(file_path) as f:
         content = f.read()
-        
+
     # Replace os.getenv patterns
     content = re.sub(
         r'os\.getenv\(["\']([^"\']+)["\']\)',
         r'get_config_value("\1".lower())',
         content
     )
-    
+
     # Add import if needed
     if 'get_config_value' in content and 'from backend.core.auto_esc_config' not in content:
         content = 'from backend.core.auto_esc_config import get_config_value\n' + content
-        
+
     return content
 ```
 
@@ -354,11 +354,11 @@ def test_secret_flow():
         'pulumi_to_backend': {},
         'service_auth': {}
     }
-    
+
     # Test 1: GitHub → Pulumi sync
     print("Testing GitHub → Pulumi ESC sync...")
     # Trigger sync workflow or run sync script
-    
+
     # Test 2: Pulumi ESC → Backend loading
     print("Testing Pulumi ESC → Backend loading...")
     critical_secrets = [
@@ -366,7 +366,7 @@ def test_secret_flow():
         'pinecone_api_key', 'hubspot_access_token', 'slack_bot_token',
         'snowflake_password', 'lambda_api_key'
     ]
-    
+
     for secret in critical_secrets:
         value = get_config_value(secret)
         results['pulumi_to_backend'][secret] = {
@@ -374,11 +374,11 @@ def test_secret_flow():
             'length': len(value) if value else 0,
             'starts_with': value[:10] if value else None
         }
-        
+
     # Test 3: Service authentication
     print("Testing service authentication...")
     # Test actual API calls with loaded secrets
-    
+
     return results
 ```
 
@@ -395,10 +395,10 @@ def create_dashboard():
         'issues_found': [],
         'recommendations': []
     }
-    
+
     # Generate HTML report
     generate_html_report(dashboard)
-    
+
     return dashboard
 ```
 
@@ -453,4 +453,4 @@ def create_dashboard():
 - ✅ Consistent naming across entire pipeline
 - ✅ All external service authentications working
 
-**Begin execution and report progress at each phase completion.** 
+**Begin execution and report progress at each phase completion.**

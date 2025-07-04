@@ -1,7 +1,7 @@
 # Deep Dive: GitHub Strategy & Operations
 
-> **Version:** 1.0  
-> **Status:** Implemented  
+> **Version:** 1.0
+> **Status:** Implemented
 > **Parent:** [SOPHIA_AI_SYSTEM_HANDBOOK.md](./00_SOPHIA_AI_SYSTEM_HANDBOOK.md)
 
 ---

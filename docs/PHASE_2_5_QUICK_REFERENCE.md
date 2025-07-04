@@ -154,4 +154,4 @@ Before considering complete:
 - Focus mode selector changes response style
 - Ice breakers help start conversations
 - Model routing saves costs
-- Memories include citation context 
+- Memories include citation context

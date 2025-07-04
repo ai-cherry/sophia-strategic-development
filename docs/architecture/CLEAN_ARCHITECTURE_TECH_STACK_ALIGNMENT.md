@@ -193,4 +193,4 @@ const sophiaDeployment = new k8s.apps.v1.Deployment("sophia-api", {
 ### ML Optimization
 - GPU support for Lambda Labs
 - Optimized Docker images
-- Efficient model loading 
+- Efficient model loading

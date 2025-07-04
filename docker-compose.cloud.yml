@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 # Docker Swarm/Cloud Configuration for Lambda Labs Deployment
 # This file configures Sophia AI for production deployment on Lambda Labs infrastructure
@@ -31,10 +31,10 @@ services:
           - node.labels.gpu == true
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 4G
         reservations:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 2G
       restart_policy:
         condition: on-failure
@@ -91,10 +91,10 @@ services:
           - node.labels.memory_optimized == true
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 2G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 1G
       restart_policy:
         condition: on-failure
@@ -143,14 +143,14 @@ services:
           - node.labels.gpu == true
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 8G
           generic_resources:
             - discrete_resource_spec:
-                kind: 'NVIDIA-GPU'
+                kind: "NVIDIA-GPU"
                 value: 1
         reservations:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 4G
       restart_policy:
         condition: on-failure
@@ -190,10 +190,10 @@ services:
           - node.role == worker
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 2G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 1G
       restart_policy:
         condition: on-failure
@@ -221,9 +221,9 @@ services:
   redis:
     image: redis:7-alpine
     command: >
-      redis-server 
-      --appendonly yes 
-      --maxmemory 512mb 
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
       --maxmemory-policy allkeys-lru
       --cluster-enabled yes
       --cluster-config-file nodes.conf
@@ -245,10 +245,10 @@ services:
           - spread: node.labels.zone
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 1G
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 512M
       restart_policy:
         condition: on-failure
@@ -288,10 +288,10 @@ services:
           - node.labels.storage == ssd
       resources:
         limits:
-          cpus: '2.0'
+          cpus: "2.0"
           memory: 4G
         reservations:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 2G
       restart_policy:
         condition: on-failure
@@ -344,10 +344,10 @@ services:
           - node.role == manager
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
       restart_policy:
         condition: on-failure
@@ -366,12 +366,12 @@ services:
   prometheus:
     image: prom/prometheus:latest
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
     ports:
       - target: 9090
         published: 9090
@@ -386,10 +386,10 @@ services:
           - node.role == worker
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 2G
         reservations:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 1G
     networks:
       - sophia-overlay
@@ -417,10 +417,10 @@ services:
           - node.role == worker
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 1G
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 512M
     networks:
       - sophia-overlay
@@ -488,4 +488,4 @@ networks:
   traefik-public:
     driver: overlay
     attachable: true
-    external: true 
+    external: true

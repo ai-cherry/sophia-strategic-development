@@ -67,8 +67,8 @@ Migrated from `auto_esc_config` to `config_manager` to break circular dependenci
 - backend/services/cortex_agent_service.py
 - backend/services/chat_driven_metadata_service.py
 - backend/services/comprehensive_memory_service.py
-- backend/services/portkey_gateway.py
-- backend/services/smart_ai_service.py
+- backend/services/llm_service.py
+- backend/services/llm_service.py
 - backend/services/vector_indexing_service.py
 - backend/services/event_driven_ingestion_service.py
 - backend/services/infrastructure_chat/sophia_infrastructure_chat.py

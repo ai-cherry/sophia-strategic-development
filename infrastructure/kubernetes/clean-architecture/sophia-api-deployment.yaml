@@ -21,110 +21,115 @@ spec:
         environment: production
     spec:
       serviceAccountName: sophia-api
-      
+
       # Lambda Labs specific node selector
       nodeSelector:
-        lambdalabs.com/gpu-type: "rtx-4090"  # or appropriate GPU type
-      
+        lambdalabs.com/gpu-type: "rtx-4090" # or appropriate GPU type
+
       containers:
-      - name: sophia-api
-        image: sophia-ai:clean-arch-optimized
-        imagePullPolicy: Always
-        
-        ports:
-        - containerPort: 8000
-          name: http
-          protocol: TCP
-        
-        # Environment variables from Pulumi ESC
-        envFrom:
-        - secretRef:
-            name: sophia-api-secrets
-        
-        env:
-        - name: ENVIRONMENT
-          value: "prod"
-        - name: PULUMI_ORG
-          value: "scoobyjava-org"
-        - name: SNOWFLAKE_ACCOUNT
-          valueFrom:
-            secretKeyRef:
-              name: sophia-snowflake-secrets
-              key: account
-        - name: SNOWFLAKE_DATABASE
-          value: "SOPHIA_AI"
-        - name: PORTKEY_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: sophia-ai-secrets
-              key: portkey-api-key
-        
-        # Resource allocation for ML workloads
-        resources:
-          requests:
-            memory: "4Gi"
-            cpu: "2"
-            nvidia.com/gpu: 1  # Lambda Labs GPU
-          limits:
-            memory: "8Gi"
-            cpu: "4"
-            nvidia.com/gpu: 1
-        
-        # Health checks
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: http
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: http
-          initialDelaySeconds: 20
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
-        
-        # Volume mounts for ML models
-        volumeMounts:
-        - name: model-cache
-          mountPath: /app/models
-        - name: config
-          mountPath: /app/config
-          readOnly: true
-      
+        - name: sophia-api
+          image: sophia-ai:clean-arch-optimized
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8000
+              name: http
+              protocol: TCP
+
+          # Environment variables from Pulumi ESC
+          envFrom:
+            - secretRef:
+                name: sophia-api-secrets
+
+          env:
+            - name: ENVIRONMENT
+              value: "prod"
+            - name: PULUMI_ORG
+              value: "scoobyjava-org"
+            - name: SNOWFLAKE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: sophia-snowflake-secrets
+                  key: account
+            - name: SNOWFLAKE_DATABASE
+              value: "SOPHIA_AI"
+            - name: PORTKEY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: sophia-ai-secrets
+                  key: portkey-api-key
+
+          # Resource allocation for ML workloads
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2"
+              nvidia.com/gpu: 1 # Lambda Labs GPU
+            limits:
+              memory: "8Gi"
+              cpu: "4"
+              nvidia.com/gpu: 1
+
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Volume mounts for ML models
+          volumeMounts:
+            - name: model-cache
+              mountPath: /app/models
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+
       # Init container to ensure dependencies are ready
       initContainers:
-      - name: wait-for-snowflake
-        image: busybox:1.35
-        command: ['sh', '-c', 'echo "Waiting for Snowflake connection..." && sleep 5']
-      
+        - name: wait-for-snowflake
+          image: busybox:1.35
+          command:
+            [
+              "sh",
+              "-c",
+              'echo "Waiting for Snowflake connection..." && sleep 5',
+            ]
+
       # Volumes
       volumes:
-      - name: model-cache
-        persistentVolumeClaim:
-          claimName: sophia-model-cache
-      - name: config
-        configMap:
-          name: sophia-api-config
-      
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: sophia-model-cache
+        - name: config
+          configMap:
+            name: sophia-api-config
+
       # Pod disruption budget for high availability
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - sophia-api
-              topologyKey: kubernetes.io/hostname
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - sophia-api
+                topologyKey: kubernetes.io/hostname
 
 ---
 apiVersion: v1
@@ -138,10 +143,10 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 8000
-    protocol: TCP
-    name: http
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http
   selector:
     app: sophia-api
     architecture: clean
@@ -154,11 +159,11 @@ metadata:
   namespace: sophia-ai
 spec:
   accessModes:
-  - ReadWriteMany
+    - ReadWriteMany
   resources:
     requests:
       storage: 50Gi
-  storageClassName: lambda-labs-ssd  # Lambda Labs SSD storage class
+  storageClassName: lambda-labs-ssd # Lambda Labs SSD storage class
 
 ---
 apiVersion: v1
@@ -173,20 +178,20 @@ data:
       host: "0.0.0.0"
       port: 8000
       workers: 4
-      
+
     snowflake:
       warehouse: "SOPHIA_AI_WH"
       role: "SOPHIA_AI_ROLE"
       schema: "PRODUCTION"
-      
+
     portkey:
       base_url: "https://api.portkey.ai/v1"
       default_model: "gpt-4"
-      
+
     estuary:
       connector: "sophia-ai-production"
-      
+
     ml:
       model_cache_dir: "/app/models"
       enable_gpu: true
-      batch_size: 32 
+      batch_size: 32

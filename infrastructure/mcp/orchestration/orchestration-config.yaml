@@ -16,20 +16,20 @@ routing_rules:
   tool_operations: integrations
 server_groups:
   business_intelligence:
-  - sophia_business_intelligence
-  - sophia_data_intelligence
+    - sophia_business_intelligence
+    - sophia_data_intelligence
   core_ai:
-  - ai_memory
-  - sophia_ai_intelligence
+    - ai_memory
+    - sophia_ai_intelligence
   data_infrastructure:
-  - snowflake
-  - postgres
-  - pulumi
+    - snowflake
+    - postgres
+    - pulumi
   integrations:
-  - asana
-  - linear
-  - notion
-  - slack
-  - github
+    - asana
+    - linear
+    - notion
+    - slack
+    - github
   quality_security:
-  - codacy
+    - codacy

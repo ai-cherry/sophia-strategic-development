@@ -249,5 +249,5 @@ requests.post("/api/v1/chat", {
 
 ---
 
-*Last Updated: July 2025*  
-*API Version: 2.0.0* 
+*Last Updated: July 2025*
+*API Version: 2.0.0*

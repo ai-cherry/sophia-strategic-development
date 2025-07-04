@@ -56,7 +56,7 @@ cd frontend && npm run dev
 
 ### Core Documentation
 - **[🏗️ Architecture](ARCHITECTURE.md)** - System design and components
-- **[🛠️ Development](DEVELOPMENT.md)** - Development setup and workflow  
+- **[🛠️ Development](DEVELOPMENT.md)** - Development setup and workflow
 - **[🚀 Deployment](DEPLOYMENT.md)** - Production deployment guide
 - **[📡 API Reference](API_REFERENCE.md)** - Complete API documentation
 
@@ -76,7 +76,7 @@ cd frontend && npm run dev
 
 ### 🔌 Integrations
 - **Gong**: Sales call analysis and insights
-- **HubSpot**: CRM data and customer intelligence  
+- **HubSpot**: CRM data and customer intelligence
 - **Slack**: Team communication and notifications
 - **Linear**: Project management and tracking
 - **Snowflake**: Data warehouse and analytics
@@ -95,7 +95,7 @@ cd frontend && npm run dev
 - Customer health monitoring
 - Competitive intelligence
 
-### Sales Intelligence  
+### Sales Intelligence
 - Call analysis and coaching
 - Pipeline health assessment
 - Deal risk identification

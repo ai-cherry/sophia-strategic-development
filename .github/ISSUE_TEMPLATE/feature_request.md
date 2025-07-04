@@ -253,4 +253,4 @@ assignees: ''
 
 ---
 
-**✨ This feature request was created with Cursor AI assistance and follows Sophia AI development standards.** 
+**✨ This feature request was created with Cursor AI assistance and follows Sophia AI development standards.**

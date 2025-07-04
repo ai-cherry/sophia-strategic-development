@@ -3,7 +3,6 @@
 import asyncio
 import logging
 import os
-from typing import Optional
 
 from . import server
 from .hubspot_client import HubSpotClient

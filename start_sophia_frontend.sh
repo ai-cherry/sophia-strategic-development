@@ -6,4 +6,4 @@ if [ -d "frontend" ]; then
 else
     echo "❌ Frontend directory not found"
     exit 1
-fi 
+fi

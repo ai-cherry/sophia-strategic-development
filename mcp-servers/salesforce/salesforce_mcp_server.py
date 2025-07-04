@@ -5,14 +5,12 @@ Designed for enterprise-grade CRM migration projects
 """
 
 import asyncio
-import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from mcp import Server
 import requests
-from requests.auth import HTTPBasicAuth
+from mcp import Server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -36,7 +34,9 @@ class SalesforceMCPServer:
         self.username = get_config_value("salesforce_username", "")
         self.password = get_config_value("salesforce_password", "")
         self.security_token = get_config_value("salesforce_security_token", "")
-        self.instance_url = get_config_value("salesforce_instance_url", "https://login.salesforce.com")
+        self.instance_url = get_config_value(
+            "salesforce_instance_url", "https://login.salesforce.com"
+        )
 
         # OAuth and session management
         self.access_token = None
@@ -51,16 +51,16 @@ class SalesforceMCPServer:
         """Register Salesforce MCP tools"""
 
         @self.mcp_server.tool("health_check")
-        async def health_check() -> Dict[str, Any]:
+        async def health_check() -> dict[str, Any]:
             """Check Salesforce API connection health"""
             try:
                 # Test authentication
                 auth_result = await self._authenticate()
-                
+
                 if auth_result["success"]:
                     # Test a simple API call
                     limits = await self._get_api_limits()
-                    
+
                     return {
                         "healthy": True,
                         "authenticated": True,
@@ -85,12 +85,12 @@ class SalesforceMCPServer:
                 }
 
         @self.mcp_server.tool("authenticate")
-        async def authenticate() -> Dict[str, Any]:
+        async def authenticate() -> dict[str, Any]:
             """Authenticate with Salesforce using OAuth2"""
             try:
                 # OAuth2 Username-Password flow
                 auth_url = f"{self.instance_url}/services/oauth2/token"
-                
+
                 data = {
                     "grant_type": "password",
                     "client_id": self.client_id,
@@ -100,15 +100,15 @@ class SalesforceMCPServer:
                 }
 
                 response = requests.post(auth_url, data=data)
-                
+
                 if response.status_code == 200:
                     auth_data = response.json()
                     self.access_token = auth_data["access_token"]
                     self.instance_url_actual = auth_data["instance_url"]
-                    
+
                     # Set expiration (default 2 hours)
                     self.session_expires = datetime.now() + timedelta(hours=2)
-                    
+
                     return {
                         "success": True,
                         "access_token": self.access_token[:20] + "...",  # Masked
@@ -126,11 +126,11 @@ class SalesforceMCPServer:
 
         @self.mcp_server.tool("query_objects")
         async def query_objects(
-            object_type: str, 
-            fields: str = "*", 
-            where_clause: str = "", 
-            limit: int = 1000
-        ) -> Dict[str, Any]:
+            object_type: str,
+            fields: str = "*",
+            where_clause: str = "",
+            limit: int = 1000,
+        ) -> dict[str, Any]:
             """Query Salesforce objects with SOQL"""
             try:
                 if not await self._ensure_authenticated():
@@ -142,11 +142,17 @@ class SalesforceMCPServer:
                     describe_result = await self._describe_object(object_type)
                     if describe_result["success"]:
                         common_fields = [
-                            field["name"] for field in describe_result["fields"]
-                            if field.get("queryable", True) and field["name"] not in [
-                                "CreatedById", "LastModifiedById"  # Skip complex relationships
+                            field["name"]
+                            for field in describe_result["fields"]
+                            if field.get("queryable", True)
+                            and field["name"]
+                            not in [
+                                "CreatedById",
+                                "LastModifiedById",  # Skip complex relationships
                             ]
-                        ][:20]  # Limit to first 20 fields to avoid query complexity
+                        ][
+                            :20
+                        ]  # Limit to first 20 fields to avoid query complexity
                         fields = ", ".join(common_fields)
                     else:
                         fields = "Id, Name"  # Fallback
@@ -163,11 +169,7 @@ class SalesforceMCPServer:
                     "Content-Type": "application/json",
                 }
 
-                response = requests.get(
-                    query_url,
-                    headers=headers,
-                    params={"q": soql}
-                )
+                response = requests.get(query_url, headers=headers, params={"q": soql})
 
                 if response.status_code == 200:
                     result = response.json()
@@ -190,7 +192,7 @@ class SalesforceMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp_server.tool("get_migration_data")
-        async def get_migration_data() -> Dict[str, Any]:
+        async def get_migration_data() -> dict[str, Any]:
             """Get comprehensive data for HubSpot/Intercom migration"""
             try:
                 if not await self._ensure_authenticated():
@@ -202,34 +204,73 @@ class SalesforceMCPServer:
                 migration_objects = {
                     "Account": {
                         "hubspot_target": "Company",
-                        "key_fields": ["Id", "Name", "Website", "Phone", "BillingAddress", "Industry", "AnnualRevenue"],
+                        "key_fields": [
+                            "Id",
+                            "Name",
+                            "Website",
+                            "Phone",
+                            "BillingAddress",
+                            "Industry",
+                            "AnnualRevenue",
+                        ],
                         "where_clause": "IsDeleted = FALSE",
                     },
                     "Contact": {
                         "hubspot_target": "Contact",
-                        "key_fields": ["Id", "FirstName", "LastName", "Email", "Phone", "AccountId", "Title"],
+                        "key_fields": [
+                            "Id",
+                            "FirstName",
+                            "LastName",
+                            "Email",
+                            "Phone",
+                            "AccountId",
+                            "Title",
+                        ],
                         "where_clause": "IsDeleted = FALSE AND Email != NULL",
                     },
                     "Lead": {
                         "hubspot_target": "Contact",
-                        "key_fields": ["Id", "FirstName", "LastName", "Email", "Phone", "Company", "Status"],
+                        "key_fields": [
+                            "Id",
+                            "FirstName",
+                            "LastName",
+                            "Email",
+                            "Phone",
+                            "Company",
+                            "Status",
+                        ],
                         "where_clause": "IsDeleted = FALSE AND IsConverted = FALSE",
                     },
                     "Opportunity": {
                         "hubspot_target": "Deal",
-                        "key_fields": ["Id", "Name", "AccountId", "Amount", "CloseDate", "StageName", "Probability"],
+                        "key_fields": [
+                            "Id",
+                            "Name",
+                            "AccountId",
+                            "Amount",
+                            "CloseDate",
+                            "StageName",
+                            "Probability",
+                        ],
                         "where_clause": "IsDeleted = FALSE",
                     },
                     "Case": {
                         "intercom_target": "Conversation",
-                        "key_fields": ["Id", "Subject", "Description", "Status", "Priority", "ContactId"],
+                        "key_fields": [
+                            "Id",
+                            "Subject",
+                            "Description",
+                            "Status",
+                            "Priority",
+                            "ContactId",
+                        ],
                         "where_clause": "IsDeleted = FALSE",
                     },
                 }
 
                 for obj_name, config in migration_objects.items():
                     logger.info(f"Extracting {obj_name} data for migration...")
-                    
+
                     result = await query_objects(
                         object_type=obj_name,
                         fields=", ".join(config["key_fields"]),
@@ -241,18 +282,21 @@ class SalesforceMCPServer:
                         migration_data[obj_name] = {
                             "records": result["records"],
                             "total_size": result["total_size"],
-                            "target_system": config.get("hubspot_target") or config.get("intercom_target"),
+                            "target_system": config.get("hubspot_target")
+                            or config.get("intercom_target"),
                             "migration_mapping": config,
                         }
                     else:
                         migration_data[obj_name] = {
                             "error": result["error"],
-                            "target_system": config.get("hubspot_target") or config.get("intercom_target"),
+                            "target_system": config.get("hubspot_target")
+                            or config.get("intercom_target"),
                         }
 
                 # Calculate migration statistics
                 total_records = sum(
-                    data.get("total_size", 0) for data in migration_data.values()
+                    data.get("total_size", 0)
+                    for data in migration_data.values()
                     if isinstance(data, dict) and "total_size" in data
                 )
 
@@ -264,11 +308,13 @@ class SalesforceMCPServer:
                         "total_records": total_records,
                         "extraction_timestamp": datetime.now().isoformat(),
                         "hubspot_objects": [
-                            obj for obj, config in migration_objects.items()
+                            obj
+                            for obj, config in migration_objects.items()
                             if "hubspot_target" in config
                         ],
                         "intercom_objects": [
-                            obj for obj, config in migration_objects.items()
+                            obj
+                            for obj, config in migration_objects.items()
                             if "intercom_target" in config
                         ],
                     },
@@ -279,12 +325,12 @@ class SalesforceMCPServer:
                 return {"success": False, "error": str(e)}
 
         @self.mcp_server.tool("describe_object")
-        async def describe_object(object_type: str) -> Dict[str, Any]:
+        async def describe_object(object_type: str) -> dict[str, Any]:
             """Get detailed object schema information"""
             return await self._describe_object(object_type)
 
         @self.mcp_server.tool("get_api_limits")
-        async def get_api_limits() -> Dict[str, Any]:
+        async def get_api_limits() -> dict[str, Any]:
             """Get current API usage and limits"""
             try:
                 limits = await self._get_api_limits()
@@ -292,18 +338,20 @@ class SalesforceMCPServer:
             except Exception as e:
                 return {"success": False, "error": str(e)}
 
-    async def _authenticate(self) -> Dict[str, Any]:
+    async def _authenticate(self) -> dict[str, Any]:
         """Internal authentication method"""
         return await self.mcp_server.call_tool("authenticate", {})
 
     async def _ensure_authenticated(self) -> bool:
         """Ensure we have a valid authentication"""
-        if not self.access_token or (self.session_expires and datetime.now() > self.session_expires):
+        if not self.access_token or (
+            self.session_expires and datetime.now() > self.session_expires
+        ):
             auth_result = await self._authenticate()
             return auth_result.get("success", False)
         return True
 
-    async def _describe_object(self, object_type: str) -> Dict[str, Any]:
+    async def _describe_object(self, object_type: str) -> dict[str, Any]:
         """Internal method to describe Salesforce object"""
         try:
             if not await self._ensure_authenticated():
@@ -337,7 +385,7 @@ class SalesforceMCPServer:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    async def _get_api_limits(self) -> Dict[str, Any]:
+    async def _get_api_limits(self) -> dict[str, Any]:
         """Get API usage limits"""
         try:
             if not await self._ensure_authenticated():
@@ -363,13 +411,15 @@ class SalesforceMCPServer:
         """Register Salesforce MCP resources"""
 
         @self.mcp_server.resource("objects")
-        async def get_objects() -> List[Dict[str, Any]]:
+        async def get_objects() -> list[dict[str, Any]]:
             """Get list of available Salesforce objects"""
             try:
                 if not await self._ensure_authenticated():
                     return []
 
-                sobjects_url = f"{self.instance_url_actual}/services/data/v57.0/sobjects/"
+                sobjects_url = (
+                    f"{self.instance_url_actual}/services/data/v57.0/sobjects/"
+                )
                 headers = {
                     "Authorization": f"Bearer {self.access_token}",
                     "Content-Type": "application/json",
@@ -411,7 +461,9 @@ class SalesforceMCPServer:
             logger.info("   📊 Migration data extraction ready")
             logger.info("   🎯 HubSpot/Intercom migration capabilities enabled")
         else:
-            logger.warning("⚠️ Salesforce MCP Server started with limited functionality")
+            logger.warning(
+                "⚠️ Salesforce MCP Server started with limited functionality"
+            )
 
     async def stop(self):
         """Stop the Salesforce MCP server"""
@@ -428,13 +480,20 @@ if __name__ == "__main__":
 # --- Auto-inserted health endpoint ---
 try:
     from fastapi import APIRouter
+
     router = APIRouter()
+
     @router.get("/health")
     async def health():
         return {
-            "status": "ok", 
-            "version": "1.0.0", 
-            "features": ["data_extraction", "migration_preparation", "oauth_authentication"]
+            "status": "ok",
+            "version": "1.0.0",
+            "features": [
+                "data_extraction",
+                "migration_preparation",
+                "oauth_authentication",
+            ],
         }
+
 except ImportError:
     pass

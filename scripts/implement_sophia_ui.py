@@ -599,7 +599,11 @@ export default UnifiedDashboard;
 """
 
         ceo_file = (
-            self.frontend_dir / "src" / "components" / "dashboard" / "UnifiedDashboard.tsx"
+            self.frontend_dir
+            / "src"
+            / "components"
+            / "dashboard"
+            / "UnifiedDashboard.tsx"
         )
         with open(ceo_file, "w") as f:
             f.write(ceo_dashboard_content)

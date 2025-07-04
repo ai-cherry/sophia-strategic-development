@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from enum import Enum
 import asyncio
 
-from backend.services.smart_ai_service import SmartAIService
+from backend.services.unified_llm_service import get_unified_llm_service, TaskType
 from backend.services.unified_chat_service import ChatContext
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 
@@ -43,17 +43,17 @@ class CodeModificationIntent:
     description: str
     constraints: Dict[str, Any]
     requires_approval: bool
-    
+
 class SophiaIntentEngine:
     """
     Core intent classification engine
     """
-    
+
     def __init__(self):
-        self.smart_ai = SmartAIService()
+        self.smart_ai = await get_unified_llm_service()
         self.ai_memory = EnhancedAiMemoryMCPServer()
         self.code_patterns = self._load_code_patterns()
-        
+
     async def classify_intent(self, message: str, context: ChatContext) -> Tuple[IntentCategory, Any]:
         """
         Classify user intent with code modification detection
@@ -62,10 +62,10 @@ class SophiaIntentEngine:
         if self._is_code_modification(message):
             intent = await self._parse_code_intent(message, context)
             return IntentCategory.CODE_MODIFICATION, intent
-            
+
         # Other intent classifications...
         return await self._classify_general_intent(message, context)
-        
+
     def _is_code_modification(self, message: str) -> bool:
         """Detect code modification requests"""
         code_keywords = [
@@ -73,16 +73,16 @@ class SophiaIntentEngine:
             "add", "create", "implement", "write",
             "delete", "remove", "rename"
         ]
-        
+
         file_indicators = [
             ".py", ".ts", ".tsx", ".js", ".jsx",
             "file", "function", "class", "method"
         ]
-        
+
         message_lower = message.lower()
         has_code_keyword = any(kw in message_lower for kw in code_keywords)
         has_file_indicator = any(ind in message_lower for ind in file_indicators)
-        
+
         return has_code_keyword and has_file_indicator
 ```
 
@@ -97,19 +97,19 @@ import difflib
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from backend.services.smart_ai_service import SmartAIService
+from backend.services.unified_llm_service import get_unified_llm_service, TaskType
 from backend.core.config_manager import ConfigManager
 
 class CodeModificationService:
     """
     Service for modifying code through natural language
     """
-    
+
     def __init__(self):
-        self.smart_ai = SmartAIService()
+        self.smart_ai = await get_unified_llm_service()
         self.config = ConfigManager()
         self.workspace_root = Path(os.getcwd())
-        
+
     async def modify_code(
         self,
         file_path: str,
@@ -126,9 +126,9 @@ class CodeModificationService:
                 "success": False,
                 "error": f"File not found: {file_path}"
             }
-            
+
         current_code = full_path.read_text()
-        
+
         # Generate modifications using AI
         modified_code = await self._generate_modifications(
             current_code,
@@ -136,17 +136,17 @@ class CodeModificationService:
             file_path,
             context
         )
-        
+
         # Create diff for review
         diff = self._create_diff(current_code, modified_code)
-        
+
         # Validate modifications
         validation = await self._validate_modifications(
             file_path,
             current_code,
             modified_code
         )
-        
+
         return {
             "success": True,
             "file_path": file_path,
@@ -155,7 +155,7 @@ class CodeModificationService:
             "modified_code": modified_code,
             "requires_approval": self._requires_approval(diff)
         }
-        
+
     async def _generate_modifications(
         self,
         current_code: str,
@@ -164,26 +164,26 @@ class CodeModificationService:
         context: Dict[str, Any]
     ) -> str:
         """Generate code modifications using AI"""
-        
+
         prompt = f"""
         Modify the following code based on these instructions:
-        
+
         File: {file_path}
         Instructions: {instructions}
-        
+
         Current code:
         ```
         {current_code}
         ```
-        
+
         Context:
         - Project: Sophia AI
         - Language: {self._detect_language(file_path)}
         - Recent changes: {context.get('recent_changes', 'None')}
-        
+
         Generate the complete modified code following best practices.
         """
-        
+
         return await self.smart_ai.generate_code(prompt)
 ```
 
@@ -201,13 +201,13 @@ class EnhancedUnifiedChatService(UnifiedChatService):
     """
     Enhanced chat service with code modification capabilities
     """
-    
+
     def __init__(self):
         super().__init__()
         self.intent_engine = SophiaIntentEngine()
         self.code_service = CodeModificationService()
         self.mcp_orchestrator = MCPOrchestrationService()
-        
+
     async def process_message(
         self,
         message: str,
@@ -223,13 +223,13 @@ class EnhancedUnifiedChatService(UnifiedChatService):
             user_id,
             limit=5
         )
-        
+
         # Classify intent
         intent_category, intent_details = await self.intent_engine.classify_intent(
             message,
             context
         )
-        
+
         # Route based on intent
         if intent_category == IntentCategory.CODE_MODIFICATION:
             return await self._handle_code_modification(
@@ -246,7 +246,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
         else:
             # Handle other intents...
             return await super().process_message(message, user_id, context)
-            
+
     async def _handle_code_modification(
         self,
         intent: CodeModificationIntent,
@@ -254,27 +254,27 @@ class EnhancedUnifiedChatService(UnifiedChatService):
         user_id: str
     ) -> ChatResponse:
         """Handle code modification requests"""
-        
+
         # Check if we need to find the file
         if not intent.target_file:
             intent.target_file = await self._find_relevant_file(
                 intent.description,
                 memory_context
             )
-            
+
         if not intent.target_file:
             return ChatResponse(
                 response="I couldn't determine which file to modify. Could you specify the file path?",
                 suggestions=["Specify the exact file path", "Show me the file structure"]
             )
-            
+
         # Perform modification
         result = await self.code_service.modify_code(
             intent.target_file,
             intent.description,
             {"memory_context": memory_context}
         )
-        
+
         if result["success"]:
             # Store in memory
             await self.ai_memory.store_memory(
@@ -283,7 +283,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
                 tags=["code", "modification", intent.target_file],
                 user_id=user_id
             )
-            
+
             if result["requires_approval"]:
                 return ChatResponse(
                     response=f"I've prepared the modifications for {intent.target_file}. Here's what will change:",
@@ -300,7 +300,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
                     intent.target_file,
                     result["modified_code"]
                 )
-                
+
                 return ChatResponse(
                     response=f"I've successfully modified {intent.target_file}. The changes have been applied.",
                     code_diff=result["diff"]
@@ -340,7 +340,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Codacy Server - Port 3008  
+  # Codacy Server - Port 3008
   codacy:
     build:
       context: ./mcp-servers/codacy
@@ -405,7 +405,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
     """
     MCP server for code modification operations
     """
-    
+
     def __init__(self):
         super().__init__(
             name="code_modifier",
@@ -414,7 +414,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
         )
         self.code_service = CodeModificationService()
         self.workspace_root = Path(os.getenv("WORKSPACE_ROOT", "/workspace"))
-        
+
     @mcp_tool(
         name="modify_file",
         description="Modify a code file based on instructions"
@@ -426,13 +426,13 @@ class CodeModifierMCPServer(StandardizedMCPServer):
         preview_only: bool = True
     ) -> Dict[str, Any]:
         """Modify a file based on natural language instructions"""
-        
+
         result = await self.code_service.modify_code(
             file_path,
             instructions,
             {"workspace_root": str(self.workspace_root)}
         )
-        
+
         if result["success"] and not preview_only:
             # Apply the changes
             full_path = self.workspace_root / file_path
@@ -440,9 +440,9 @@ class CodeModifierMCPServer(StandardizedMCPServer):
             result["applied"] = True
         else:
             result["applied"] = False
-            
+
         return result
-        
+
     @mcp_tool(
         name="create_file",
         description="Create a new file with content"
@@ -454,22 +454,22 @@ class CodeModifierMCPServer(StandardizedMCPServer):
         description: str
     ) -> Dict[str, Any]:
         """Create a new file"""
-        
+
         full_path = self.workspace_root / file_path
-        
+
         # Ensure directory exists
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Generate content if needed
         if not content:
             content = await self.code_service.generate_file_content(
                 file_path,
                 description
             )
-            
+
         # Write file
         full_path.write_text(content)
-        
+
         return {
             "success": True,
             "file_path": file_path,
@@ -494,58 +494,58 @@ export const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [activeWorkflows, setActiveWorkflows] = useState([]);
-  
+
   // Subscribe to real-time updates
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:8000/ws');
-    
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      
+
       if (data.type === 'approval_required') {
         setPendingApprovals(prev => [...prev, data]);
       } else if (data.type === 'workflow_update') {
-        setActiveWorkflows(prev => 
+        setActiveWorkflows(prev =>
           prev.map(w => w.id === data.workflow_id ? {...w, ...data} : w)
         );
       }
     };
-    
+
     return () => ws.close();
   }, []);
-  
+
   const handleApproval = async (approvalData: any) => {
     const response = await fetch('/api/v1/approve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(approvalData)
     });
-    
+
     if (response.ok) {
-      setPendingApprovals(prev => 
+      setPendingApprovals(prev =>
         prev.filter(a => a.id !== approvalData.id)
       );
     }
   };
-  
+
   return (
     <div className="unified-dashboard">
       <div className="dashboard-header">
         <h1>Sophia AI Command Center</h1>
         <div className="tab-navigation">
-          <button 
+          <button
             className={activeTab === 'chat' ? 'active' : ''}
             onClick={() => setActiveTab('chat')}
           >
             AI Chat
           </button>
-          <button 
+          <button
             className={activeTab === 'workflows' ? 'active' : ''}
             onClick={() => setActiveTab('workflows')}
           >
             Active Workflows
           </button>
-          <button 
+          <button
             className={activeTab === 'approvals' ? 'active' : ''}
             onClick={() => setActiveTab('approvals')}
           >
@@ -553,29 +553,29 @@ export const UnifiedDashboard: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="dashboard-content">
         {activeTab === 'chat' && (
           <div className="chat-container">
-            <EnhancedUnifiedChat 
+            <EnhancedUnifiedChat
               onApprovalRequired={(data) => setPendingApprovals(prev => [...prev, data])}
               onWorkflowStarted={(workflow) => setActiveWorkflows(prev => [...prev, workflow])}
             />
           </div>
         )}
-        
+
         {activeTab === 'workflows' && (
           <div className="workflows-container">
             <h2>Active Workflows</h2>
             {activeWorkflows.map(workflow => (
-              <WorkflowVisualizer 
+              <WorkflowVisualizer
                 key={workflow.id}
                 workflow={workflow}
               />
             ))}
           </div>
         )}
-        
+
         {activeTab === 'approvals' && (
           <div className="approvals-container">
             <h2>Pending Approvals</h2>
@@ -587,13 +587,13 @@ export const UnifiedDashboard: React.FC = () => {
                   <CodeDiffViewer diff={approval.code_diff} />
                 )}
                 <div className="approval-actions">
-                  <button 
+                  <button
                     className="approve"
                     onClick={() => handleApproval({...approval, approved: true})}
                   >
                     Approve & Apply
                   </button>
-                  <button 
+                  <button
                     className="reject"
                     onClick={() => handleApproval({...approval, approved: false})}
                   >
@@ -685,7 +685,7 @@ async def chat_endpoint(request: ChatRequest):
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket for real-time updates"""
     await websocket.accept()
-    
+
     # Handle real-time communication
     async for message in websocket.iter_text():
         # Process and broadcast updates
@@ -725,12 +725,12 @@ from pathlib import Path
 class Phase2Deployer:
     def __init__(self):
         self.root = Path(__file__).parent.parent
-        
+
     async def deploy(self):
         """Deploy all Phase 2 components"""
-        
+
         print("🚀 Deploying Phase 2 Foundation...")
-        
+
         # 1. Deploy MCP servers
         print("\n📦 Deploying MCP servers...")
         subprocess.run([
@@ -738,26 +738,26 @@ class Phase2Deployer:
             "-f", "docker-compose.mcp-critical.yml",
             "up", "-d"
         ], cwd=self.root)
-        
+
         # 2. Start backend services
         print("\n🔧 Starting backend services...")
         subprocess.Popen([
             sys.executable,
             "backend/app/main.py"
         ], cwd=self.root)
-        
+
         # 3. Deploy frontend
         print("\n🎨 Building frontend...")
         subprocess.run([
             "npm", "run", "build"
         ], cwd=self.root / "frontend")
-        
+
         # 4. Deploy to Vercel
         print("\n☁️ Deploying to Vercel...")
         subprocess.run([
             "vercel", "--prod"
         ], cwd=self.root / "frontend")
-        
+
         print("\n✅ Phase 2 deployment complete!")
         print("\n📋 Next steps:")
         print("1. Access dashboard at: https://app.sophia-ai.com")
@@ -794,7 +794,7 @@ VERCEL_PROJECT_ID=your-project-id
       "description": "Code modification through natural language"
     },
     "ai_memory": {
-      "command": "curl", 
+      "command": "curl",
       "args": ["-X", "POST", "http://localhost:9000/"],
       "description": "Contextual memory for development"
     }
@@ -834,7 +834,7 @@ Expected: Recalls previous modifications from memory
 ### 3. End-to-End Workflow Test
 ```
 User: "Create a new API endpoint for user preferences"
-Expected: 
+Expected:
 - Creates new file
 - Adds route to API
 - Updates types
@@ -858,4 +858,4 @@ This foundation gives us:
 3. **Live dashboard interface** ✅
 4. **Working MCP infrastructure** ✅
 
-Ready to start implementation! 
+Ready to start implementation!

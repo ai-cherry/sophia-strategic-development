@@ -174,4 +174,3 @@ RUN python -m pytest tests/ -v --tb=short || true
 
 # Default to running tests
 CMD ["pytest", "tests/", "-v"]
-

@@ -154,7 +154,7 @@ jobs:
           pip install safety bandit
           safety check --json
           bandit -r . -f json
-      
+
       - name: Auto-merge critical security PRs
         if: contains(github.event.pull_request.labels.*.name, 'security')
         run: |
@@ -178,25 +178,25 @@ class SecurityMonitor:
     def __init__(self):
         self.github_token = os.getenv('GITHUB_TOKEN')
         self.repo = 'ai-cherry/sophia-main'
-        
+
     def check_vulnerabilities(self):
         """Check for new security vulnerabilities"""
         url = f"https://api.github.com/repos/{self.repo}/vulnerability-alerts"
         headers = {'Authorization': f'token {self.github_token}'}
-        
+
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             alerts = response.json()
             critical_alerts = [a for a in alerts if a['severity'] == 'critical']
-            
+
             if critical_alerts:
                 self.send_alert(critical_alerts)
-                
+
     def send_alert(self, alerts):
         """Send immediate alert for critical vulnerabilities"""
         # Implementation for Slack/email alerts
         pass
-        
+
     def auto_create_security_pr(self, vulnerability):
         """Automatically create PR for security fixes"""
         # Implementation for automated PR creation
@@ -387,7 +387,6 @@ Net ROI: 6,250% first year, 5,000% annually
 
 ---
 
-*Plan Generated: 2025-07-01 14:53 UTC*  
-*Status: Phase 1 Complete, Phase 2 Ready for Implementation*  
+*Plan Generated: 2025-07-01 14:53 UTC*
+*Status: Phase 1 Complete, Phase 2 Ready for Implementation*
 *Priority: EXTREME - Critical vulnerabilities require immediate action*
-

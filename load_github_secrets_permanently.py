@@ -279,9 +279,7 @@ class PermanentSecretsLoader:
         logger.info("🎯 PERMANENT FIX SUMMARY:")
         logger.info(f"   GitHub Secrets: {len(github_secrets)} discovered")
         logger.info(f"   Critical Secrets: {success_count}/{total_count} working")
-        logger.info(
-            f"   Pulumi ESC: {'✅ Connected' if pulumi_success else '❌ Failed'}"
-        )
+        logger.info(f"   Pulumi ESC: {'✅ Connected' if pulumi_success else '❌ Failed'}")
         logger.info("   Environment: ✅ .env.sophia created")
 
         return success_count >= (total_count * 0.8)  # 80% success rate

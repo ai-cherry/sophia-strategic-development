@@ -1,6 +1,6 @@
 /**
  * Sophia AI - Security Infrastructure Components
- * 
+ *
  * This module provides security infrastructure components for the Sophia AI platform,
  * including IAM roles, security groups, KMS keys, and encryption policies.
  */
@@ -17,32 +17,32 @@ export interface SecurityArgs {
      * Environment name (e.g., dev, staging, prod)
      */
     environment: string;
-    
+
     /**
      * VPC ID where security resources will be created
      */
     vpcId: pulumi.Input<string>;
-    
+
     /**
      * Kubernetes provider for RBAC and policy resources
      */
     k8sProvider?: k8s.Provider;
-    
+
     /**
      * Enable advanced security features
      */
     enableAdvancedSecurity?: boolean;
-    
+
     /**
      * AWS account ID for resource ARNs
      */
     accountId?: string;
-    
+
     /**
      * AWS region for resource ARNs
      */
     region?: string;
-    
+
     /**
      * Tags to apply to all resources
      */
@@ -57,17 +57,17 @@ export class SecurityComponents extends pulumi.ComponentResource {
      * KMS key for data encryption
      */
     public readonly dataEncryptionKey: aws.kms.Key;
-    
+
     /**
      * KMS key for log encryption
      */
     public readonly logEncryptionKey: aws.kms.Key;
-    
+
     /**
      * KMS key for secret encryption
      */
     public readonly secretEncryptionKey: aws.kms.Key;
-    
+
     /**
      * Service roles for various components
      */
@@ -76,7 +76,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
         dataProcessing: aws.iam.Role;
         monitoring: aws.iam.Role;
     };
-    
+
     /**
      * IAM policies for various components
      */
@@ -88,7 +88,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
         s3Access: aws.iam.Policy;
         kmsAccess: aws.iam.Policy;
     };
-    
+
     /**
      * VPC Endpoint for secure AWS service access
      */
@@ -100,12 +100,12 @@ export class SecurityComponents extends pulumi.ComponentResource {
         ecr?: aws.ec2.VpcEndpoint;
         ecrApi?: aws.ec2.VpcEndpoint;
     };
-    
+
     /**
      * IAM OIDC provider for Kubernetes service accounts
      */
     public readonly oidcProvider?: aws.iam.OpenIdConnectProvider;
-    
+
     /**
      * K8s security policies and service accounts
      */
@@ -114,10 +114,10 @@ export class SecurityComponents extends pulumi.ComponentResource {
         networkPolicies: k8s.networking.v1.NetworkPolicy[];
         serviceAccounts: k8s.core.v1.ServiceAccount[];
     };
-    
+
     constructor(name: string, args: SecurityArgs, opts?: pulumi.ComponentResourceOptions) {
         super("sophia:security:SecurityComponents", name, {}, opts);
-        
+
         // Assign default tags
         const tags = {
             Environment: args.environment,
@@ -127,7 +127,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
             CreatedAt: new Date().toISOString(),
             ...args.tags,
         };
-        
+
         // Create KMS keys for encryption
         this.dataEncryptionKey = new aws.kms.Key(`${name}-data-encryption-key`, {
             description: "KMS key for encrypting Sophia AI data",
@@ -163,7 +163,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "DataEncryption",
             },
         }, { parent: this });
-        
+
         this.logEncryptionKey = new aws.kms.Key(`${name}-log-encryption-key`, {
             description: "KMS key for encrypting Sophia AI logs",
             enableKeyRotation: true,
@@ -198,7 +198,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "LogEncryption",
             },
         }, { parent: this });
-        
+
         this.secretEncryptionKey = new aws.kms.Key(`${name}-secret-encryption-key`, {
             description: "KMS key for encrypting Sophia AI secrets",
             enableKeyRotation: true,
@@ -233,9 +233,9 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "SecretEncryption",
             },
         }, { parent: this });
-        
+
         // Create IAM policies with least privilege
-        
+
         // ML workloads policy
         const mlWorkloadsPolicy = new aws.iam.Policy(`${name}-ml-workloads-policy`, {
             description: "IAM policy for ML workloads with least privilege",
@@ -292,7 +292,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMPolicy",
             },
         }, { parent: this });
-        
+
         // Data processing policy
         const dataProcessingPolicy = new aws.iam.Policy(`${name}-data-processing-policy`, {
             description: "IAM policy for data processing with least privilege",
@@ -343,7 +343,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMPolicy",
             },
         }, { parent: this });
-        
+
         // Monitoring policy
         const monitoringPolicy = new aws.iam.Policy(`${name}-monitoring-policy`, {
             description: "IAM policy for monitoring with least privilege",
@@ -387,7 +387,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMPolicy",
             },
         }, { parent: this });
-        
+
         // Secrets access policy
         const secretsAccessPolicy = new aws.iam.Policy(`${name}-secrets-access-policy`, {
             description: "IAM policy for secrets access with least privilege",
@@ -417,7 +417,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMPolicy",
             },
         }, { parent: this });
-        
+
         // S3 access policy
         const s3AccessPolicy = new aws.iam.Policy(`${name}-s3-access-policy`, {
             description: "IAM policy for S3 access with least privilege",
@@ -450,7 +450,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMPolicy",
             },
         }, { parent: this });
-        
+
         // KMS access policy
         const kmsAccessPolicy = new aws.iam.Policy(`${name}-kms-access-policy`, {
             description: "IAM policy for KMS access with least privilege",
@@ -476,9 +476,9 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMPolicy",
             },
         }, { parent: this });
-        
+
         // Create IAM roles with least privilege
-        
+
         // ML workloads role
         const mlWorkloadsRole = new aws.iam.Role(`${name}-ml-workloads-role`, {
             description: "IAM role for ML workloads with least privilege",
@@ -500,13 +500,13 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMRole",
             },
         }, { parent: this });
-        
+
         // Attach policy to ML workloads role
         new aws.iam.RolePolicyAttachment(`${name}-ml-workloads-policy-attachment`, {
             role: mlWorkloadsRole,
             policyArn: mlWorkloadsPolicy.arn,
         }, { parent: this });
-        
+
         // Data processing role
         const dataProcessingRole = new aws.iam.Role(`${name}-data-processing-role`, {
             description: "IAM role for data processing with least privilege",
@@ -528,13 +528,13 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMRole",
             },
         }, { parent: this });
-        
+
         // Attach policy to data processing role
         new aws.iam.RolePolicyAttachment(`${name}-data-processing-policy-attachment`, {
             role: dataProcessingRole,
             policyArn: dataProcessingPolicy.arn,
         }, { parent: this });
-        
+
         // Monitoring role
         const monitoringRole = new aws.iam.Role(`${name}-monitoring-role`, {
             description: "IAM role for monitoring with least privilege",
@@ -556,20 +556,20 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "IAMRole",
             },
         }, { parent: this });
-        
+
         // Attach policy to monitoring role
         new aws.iam.RolePolicyAttachment(`${name}-monitoring-policy-attachment`, {
             role: monitoringRole,
             policyArn: monitoringPolicy.arn,
         }, { parent: this });
-        
+
         // Assign roles
         this.serviceRoles = {
             mlWorkloads: mlWorkloadsRole,
             dataProcessing: dataProcessingRole,
             monitoring: monitoringRole,
         };
-        
+
         // Assign policies
         this.policies = {
             mlWorkloads: mlWorkloadsPolicy,
@@ -579,9 +579,9 @@ export class SecurityComponents extends pulumi.ComponentResource {
             s3Access: s3AccessPolicy,
             kmsAccess: kmsAccessPolicy,
         };
-        
+
         // Create VPC endpoints for secure AWS service access
-        
+
         // S3 VPC endpoint
         const s3VpcEndpoint = new aws.ec2.VpcEndpoint(`${name}-s3-vpc-endpoint`, {
             vpcId: args.vpcId,
@@ -611,7 +611,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "VPCEndpoint",
             },
         }, { parent: this });
-        
+
         // DynamoDB VPC endpoint
         const dynamodbVpcEndpoint = new aws.ec2.VpcEndpoint(`${name}-dynamodb-vpc-endpoint`, {
             vpcId: args.vpcId,
@@ -639,13 +639,13 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 Type: "VPCEndpoint",
             },
         }, { parent: this });
-        
+
         // Advanced security features
         let secretsManagerVpcEndpoint: aws.ec2.VpcEndpoint | undefined;
         let kmsVpcEndpoint: aws.ec2.VpcEndpoint | undefined;
         let ecrVpcEndpoint: aws.ec2.VpcEndpoint | undefined;
         let ecrApiVpcEndpoint: aws.ec2.VpcEndpoint | undefined;
-        
+
         if (args.enableAdvancedSecurity) {
             // Secrets Manager VPC endpoint
             secretsManagerVpcEndpoint = new aws.ec2.VpcEndpoint(`${name}-secretsmanager-vpc-endpoint`, {
@@ -661,7 +661,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     Type: "VPCEndpoint",
                 },
             }, { parent: this });
-            
+
             // KMS VPC endpoint
             kmsVpcEndpoint = new aws.ec2.VpcEndpoint(`${name}-kms-vpc-endpoint`, {
                 vpcId: args.vpcId,
@@ -676,7 +676,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     Type: "VPCEndpoint",
                 },
             }, { parent: this });
-            
+
             // ECR VPC endpoint
             ecrVpcEndpoint = new aws.ec2.VpcEndpoint(`${name}-ecr-vpc-endpoint`, {
                 vpcId: args.vpcId,
@@ -691,7 +691,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     Type: "VPCEndpoint",
                 },
             }, { parent: this });
-            
+
             // ECR API VPC endpoint
             ecrApiVpcEndpoint = new aws.ec2.VpcEndpoint(`${name}-ecr-api-vpc-endpoint`, {
                 vpcId: args.vpcId,
@@ -707,7 +707,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 },
             }, { parent: this });
         }
-        
+
         // Assign VPC endpoints
         this.vpcEndpoints = {
             s3: s3VpcEndpoint,
@@ -717,7 +717,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
             ecr: ecrVpcEndpoint,
             ecrApi: ecrApiVpcEndpoint,
         };
-        
+
         // Kubernetes security resources
         if (args.k8sProvider) {
             // Create network policies
@@ -731,7 +731,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     policyTypes: ["Ingress"],
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             const allowInternalIngressPolicy = new k8s.networking.v1.NetworkPolicy(`${name}-allow-internal-ingress`, {
                 metadata: {
                     name: "allow-internal-ingress",
@@ -751,7 +751,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     policyTypes: ["Ingress"],
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create Pod Security Policy
             const podSecurityPolicy = new k8s.policy.v1beta1.PodSecurityPolicy(`${name}-restricted-psp`, {
                 metadata: {
@@ -799,7 +799,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     readOnlyRootFilesystem: true,
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create service accounts for ML workloads
             const mlServiceAccount = new k8s.core.v1.ServiceAccount(`${name}-ml-service-account`, {
                 metadata: {
@@ -810,7 +810,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create service account for data processing
             const dataServiceAccount = new k8s.core.v1.ServiceAccount(`${name}-data-service-account`, {
                 metadata: {
@@ -821,7 +821,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Create service account for monitoring
             const monitoringServiceAccount = new k8s.core.v1.ServiceAccount(`${name}-monitoring-service-account`, {
                 metadata: {
@@ -832,7 +832,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                     },
                 },
             }, { provider: args.k8sProvider, parent: this });
-            
+
             // Assign Kubernetes security resources
             this.k8sSecurityResources = {
                 psp: podSecurityPolicy,
@@ -847,7 +847,7 @@ export class SecurityComponents extends pulumi.ComponentResource {
                 ],
             };
         }
-        
+
         // Register outputs
         this.registerOutputs({
             dataEncryptionKey: this.dataEncryptionKey,
@@ -886,7 +886,7 @@ export function createEncryptionKey(
         ],
         Resource: "*",
     }));
-    
+
     // Create KMS key
     const key = new aws.kms.Key(`${name}-key`, {
         description,
@@ -908,7 +908,7 @@ export function createEncryptionKey(
         }),
         tags,
     }, { parent });
-    
+
     // Create alias if provided
     if (keyAlias) {
         new aws.kms.Alias(`${name}-alias`, {
@@ -916,7 +916,7 @@ export function createEncryptionKey(
             targetKeyId: key.id,
         }, { parent });
     }
-    
+
     return key;
 }
 

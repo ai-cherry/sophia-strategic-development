@@ -303,4 +303,3 @@ const stagingProject = new vercel.Project("sophia-ai-staging", {
 ## 📄 License
 
 This infrastructure code is part of the Sophia AI project and follows the same licensing terms.
-

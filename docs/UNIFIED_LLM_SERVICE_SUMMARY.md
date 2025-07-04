@@ -25,9 +25,9 @@
 
 ### 3. Cleaned Up Stale Services ✅
 - **Deleted Files**:
-  - `backend/services/portkey_gateway.py`
-  - `backend/services/smart_ai_service.py`
-  - `backend/services/simplified_portkey_service.py`
+  - `backend/services/llm_service.py`
+  - `backend/services/llm_service.py`
+  - `backend/services/simplified_llm_service.py`
   - `backend/services/enhanced_portkey_orchestrator.py`
 - **Backup Location**: `backups/llm_cleanup_20250704_010200/`
 - **Script Created**: `scripts/cleanup_stale_llm_files.py`
@@ -135,4 +135,4 @@ async for chunk in llm_service.complete(
 - ✅ Created migration path
 - 🔄 77 files pending migration
 
-The UnifiedLLMService is now the single source of truth for all LLM interactions in Sophia AI! 
+The UnifiedLLMService is now the single source of truth for all LLM interactions in Sophia AI!

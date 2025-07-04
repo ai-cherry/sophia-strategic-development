@@ -4,7 +4,7 @@
 
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     github = {
       source  = "integrations/github"
@@ -23,7 +23,7 @@ terraform {
       version = "~> 4.0"
     }
   }
-  
+
   backend "remote" {
     organization = "sophia-ai"
     workspaces {
@@ -67,14 +67,14 @@ variable "environment" {
 locals {
   project_name = "sophia-ai"
   environment  = var.environment
-  
+
   # Infrastructure configuration
   lambda_config = {
     region        = "us-west-1"
     instance_type = "gpu_1x_a10"
     storage_size  = 500
   }
-  
+
   # Database configuration
   postgresql_config = {
     version         = "15"
@@ -83,14 +83,14 @@ locals {
     username       = "sophia_user"
     max_connections = 100
   }
-  
+
   # Redis configuration
   redis_config = {
     port               = 6379
     max_memory         = "2gb"
     max_memory_policy  = "allkeys-lru"
   }
-  
+
   # Snowflake configuration
   snowflake_config = {
     account   = var.snowflake_account
@@ -100,7 +100,7 @@ locals {
     database  = "SOPHIA_AI"
     schema    = "PUBLIC"
   }
-  
+
   # Common tags
   common_tags = {
     Project     = local.project_name
@@ -130,7 +130,7 @@ resource "random_password" "redis_password" {
 # Lambda Labs instance configuration
 data "http" "lambda_instance_types" {
   url = "https://cloud.lambdalabs.com/api/v1/instance-types"
-  
+
   request_headers = {
     Authorization = "Bearer ${var.lambda_api_key}"
   }
@@ -141,7 +141,7 @@ resource "null_resource" "lambda_instance" {
   triggers = {
     instance_config = jsonencode(local.lambda_config)
   }
-  
+
   provisioner "local-exec" {
     command = <<-EOT
       python3 ${path.module}/lambda-labs-deployment.py \
@@ -152,7 +152,7 @@ resource "null_resource" "lambda_instance" {
         --postgresql-password "${random_password.postgresql_password.result}" \
         --redis-password "${random_password.redis_password.result}"
     EOT
-    
+
     environment = {
       LAMBDA_API_KEY = var.lambda_api_key
     }
@@ -166,15 +166,15 @@ resource "github_actions_organization_secret" "infrastructure_secrets" {
     LAMBDA_API_KEY         = var.lambda_api_key
     LAMBDA_SSH_PRIVATE_KEY = tls_private_key.lambda_ssh_key.private_key_pem
     LAMBDA_SSH_PUBLIC_KEY  = tls_private_key.lambda_ssh_key.public_key_openssh
-    
+
     # Database secrets
     POSTGRESQL_PASSWORD = random_password.postgresql_password.result
     REDIS_PASSWORD     = random_password.redis_password.result
-    
+
     # Estuary Flow secrets
     ESTUARY_FLOW_ACCESS_TOKEN = var.estuary_access_token
     ESTUARY_FLOW_TENANT      = "sophia-ai"
-    
+
     # Snowflake secrets
     SNOWFLAKE_ACCOUNT = local.snowflake_config.account
     SNOWFLAKE_USER    = local.snowflake_config.user
@@ -184,7 +184,7 @@ resource "github_actions_organization_secret" "infrastructure_secrets" {
     SNOWFLAKE_DATABASE  = local.snowflake_config.database
     SNOWFLAKE_SCHEMA    = local.snowflake_config.schema
   }
-  
+
   secret_name     = each.key
   plaintext_value = each.value
   visibility      = "all"
@@ -193,17 +193,17 @@ resource "github_actions_organization_secret" "infrastructure_secrets" {
 # Pulumi ESC configuration file generation
 resource "local_file" "pulumi_esc_config" {
   filename = "${path.module}/generated-esc-config.yaml"
-  
+
   content = templatefile("${path.module}/templates/esc-config.yaml.tpl", {
     project_name = local.project_name
     environment  = local.environment
-    
+
     # Infrastructure configuration
     lambda_config     = local.lambda_config
     postgresql_config = local.postgresql_config
     redis_config      = local.redis_config
     snowflake_config  = local.snowflake_config
-    
+
     # Generated secrets
     postgresql_password = random_password.postgresql_password.result
     redis_password     = random_password.redis_password.result
@@ -214,12 +214,12 @@ resource "local_file" "pulumi_esc_config" {
 # Estuary Flow configuration
 resource "local_file" "estuary_flow_config" {
   filename = "${path.module}/generated-estuary-config.json"
-  
+
   content = jsonencode({
     tenant      = "sophia-ai"
     api_url     = "https://api.estuary.dev"
     access_token = var.estuary_access_token
-    
+
     sources = {
       hubspot = {
         connector_type = "source-hubspot"
@@ -231,14 +231,14 @@ resource "local_file" "estuary_flow_config" {
         }
         streams = [
           "contacts",
-          "companies", 
+          "companies",
           "deals",
           "engagements",
           "owners",
           "pipelines"
         ]
       }
-      
+
       gong = {
         connector_type = "source-gong"
         config = {
@@ -256,7 +256,7 @@ resource "local_file" "estuary_flow_config" {
           "answered_scorecards"
         ]
       }
-      
+
       slack = {
         connector_type = "source-slack"
         config = {
@@ -275,7 +275,7 @@ resource "local_file" "estuary_flow_config" {
         ]
       }
     }
-    
+
     destinations = {
       postgresql = {
         connector_type = "destination-postgres"
@@ -293,7 +293,7 @@ resource "local_file" "estuary_flow_config" {
           }
         }
       }
-      
+
       snowflake = {
         connector_type = "destination-snowflake"
         config = {
@@ -307,7 +307,7 @@ resource "local_file" "estuary_flow_config" {
         }
       }
     }
-    
+
     flows = [
       {
         name        = "hubspot-to-postgresql"
@@ -352,7 +352,7 @@ resource "local_file" "estuary_flow_config" {
 # Infrastructure monitoring configuration
 resource "local_file" "monitoring_config" {
   filename = "${path.module}/generated-monitoring-config.yaml"
-  
+
   content = yamlencode({
     monitoring = {
       health_checks = {
@@ -377,7 +377,7 @@ resource "local_file" "monitoring_config" {
           timeout  = "30s"
         }
       }
-      
+
       alerts = {
         channels = [
           {
@@ -389,7 +389,7 @@ resource "local_file" "monitoring_config" {
             recipients = ["alerts@sophia-ai.com"]
           }
         ]
-        
+
         rules = [
           {
             name        = "Database Connection Failure"
@@ -421,24 +421,24 @@ output "infrastructure_summary" {
   value = {
     project_name = local.project_name
     environment  = local.environment
-    
+
     lambda_config = {
       region        = local.lambda_config.region
       instance_type = local.lambda_config.instance_type
     }
-    
+
     database_config = {
       postgresql_port = local.postgresql_config.port
       postgresql_db   = local.postgresql_config.database_name
       redis_port      = local.redis_config.port
     }
-    
+
     snowflake_config = {
       account   = local.snowflake_config.account
       database  = local.snowflake_config.database
       warehouse = local.snowflake_config.warehouse
     }
-    
+
     generated_files = [
       local_file.pulumi_esc_config.filename,
       local_file.estuary_flow_config.filename,
@@ -473,4 +473,3 @@ output "deployment_commands" {
     "# Deploy ${local_file.monitoring_config.filename} to monitoring system"
   ]
 }
-

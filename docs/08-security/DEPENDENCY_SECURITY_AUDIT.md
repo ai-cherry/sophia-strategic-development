@@ -20,14 +20,14 @@ graph TD
     A[UV Dependencies] --> B[Security Scanners]
     B --> C[pip-audit]
     B --> D[safety]
-    
+
     C --> E[Vulnerability Reports]
     D --> E
-    
+
     E --> F[CI/CD Pipeline]
     E --> G[Baseline Scans]
     E --> H[Metrics Exporter]
-    
+
     F --> I[PR Checks]
     G --> J[GitHub Issues]
     H --> K[Prometheus/Grafana]
@@ -293,4 +293,4 @@ Consider additional tools:
 - [pip-audit Documentation](https://pypi.org/project/pip-audit/)
 - [Safety Documentation](https://pyup.io/safety/)
 - [UV Documentation](https://github.com/astral-sh/uv)
-- [OWASP Dependency Check](https://owasp.org/www-project-dependency-check/) 
+- [OWASP Dependency Check](https://owasp.org/www-project-dependency-check/)

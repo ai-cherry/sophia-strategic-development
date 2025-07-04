@@ -7,76 +7,76 @@ values:
   # =============================================================================
   # AI/ML Service API Keys (SECRETS - Managed via Pulumi ESC CLI)
   # =============================================================================
-  
+
   # Core AI Services
   openai_api_key: "PLACEHOLDER_OPENAI_API_KEY"
   # OpenAI API key for GPT models
-  
-  anthropic_api_key: "PLACEHOLDER_ANTHROPIC_API_KEY" 
+
+  anthropic_api_key: "PLACEHOLDER_ANTHROPIC_API_KEY"
   # Anthropic API key for Claude models
-  
+
   pinecone_api_key: "PLACEHOLDER_PINECONE_API_KEY"
   # Pinecone API key for vector database
-  
+
   # =============================================================================
   # Database Credentials (SECRETS)
   # =============================================================================
-  
+
   snowflake_password: os.getenv("SNOWFLAKE_PASSWORD")
   # Snowflake database password/PAT
-  
+
   redis_password: "PLACEHOLDER_REDIS_PASSWORD"
   # Redis password for caching
-  
+
   # =============================================================================
   # Business Integration API Keys (SECRETS)
   # =============================================================================
-  
+
   gong_access_key: "PLACEHOLDER_GONG_ACCESS_KEY"
   # Gong API access key for call analytics
-  
+
   gong_client_secret: "PLACEHOLDER_GONG_CLIENT_SECRET"
   # Gong OAuth client secret
-  
+
   hubspot_access_token: "PLACEHOLDER_HUBSPOT_ACCESS_TOKEN"
   # HubSpot API access token
-  
+
   slack_bot_token: "PLACEHOLDER_SLACK_BOT_TOKEN"
   # Slack bot token for integrations
-  
+
   slack_signing_secret: "PLACEHOLDER_SLACK_SIGNING_SECRET"
   # Slack webhook signing secret
-  
+
   asana_access_token: "PLACEHOLDER_ASANA_ACCESS_TOKEN"
   # Asana API access token
-  
+
   # =============================================================================
   # Application Security (SECRETS)
   # =============================================================================
-  
+
   jwt_secret: "PLACEHOLDER_JWT_SECRET"
   # JWT signing secret for authentication
-  
+
   encryption_key: "PLACEHOLDER_ENCRYPTION_KEY"
   # Application-level encryption key
-  
+
   # =============================================================================
   # Infrastructure & CI/CD (SECRETS)
   # =============================================================================
-  
+
   github_token: "PLACEHOLDER_GITHUB_TOKEN"
   # GitHub personal access token
-  
+
   github_webhook_secret: "PLACEHOLDER_GITHUB_WEBHOOK_SECRET"
   # GitHub webhook secret for CI/CD
-  
+
   pulumi_access_token: "PLACEHOLDER_PULUMI_ACCESS_TOKEN"
   # Pulumi Cloud access token
-  
+
   # =============================================================================
   # Non-Secret Configuration (Safe to store in plain text)
   # =============================================================================
-  
+
   # Snowflake Connection Details
   snowflake_account: "ZNB04675.us-east-1"
   snowflake_user: "SCOOBYJAVA15"
@@ -84,43 +84,43 @@ values:
   snowflake_warehouse: "SOPHIA_AI_WH"
   snowflake_database: "SOPHIA_AI"
   snowflake_schema: "PROCESSED_AI"
-  
+
   # Redis Configuration
   redis_host: "localhost"
   redis_port: "6379"
   redis_db: "0"
-  
+
   # Application Configuration
   environment: "production"
   log_level: "INFO"
   debug: "false"
-  
+
   # Service URLs
   gong_base_url: "https://api.gong.io"
   hubspot_api_base_url: "https://api.hubapi.com"
   slack_api_base_url: "https://slack.com/api"
   asana_api_base_url: "https://app.asana.com/api/1.0"
-  
+
   # Pulumi Configuration
   pulumi_org: "scoobyjava-org"
   pulumi_project: "sophia-ai"
   pulumi_stack: "production"
-  
+
   # =============================================================================
   # Environment Variables Mapping
   # Export all values as environment variables for application consumption
   # =============================================================================
-  
+
   environmentVariables:
     # AI/ML Service API Keys
     OPENAI_API_KEY: ${openai_api_key}
     ANTHROPIC_API_KEY: ${anthropic_api_key}
     PINECONE_API_KEY: ${pinecone_api_key}
-    
+
     # Database Credentials
     SNOWFLAKE_PASSWORD: ${snowflake_password}
     REDIS_PASSWORD: ${redis_password}
-    
+
     # Business Integration API Keys
     GONG_ACCESS_KEY: ${gong_access_key}
     GONG_CLIENT_SECRET: ${gong_client_secret}
@@ -128,16 +128,16 @@ values:
     SLACK_BOT_TOKEN: ${slack_bot_token}
     SLACK_SIGNING_SECRET: ${slack_signing_secret}
     ASANA_ACCESS_TOKEN: ${asana_access_token}
-    
+
     # Application Security
     JWT_SECRET: ${jwt_secret}
     ENCRYPTION_KEY: ${encryption_key}
-    
+
     # Infrastructure & CI/CD
     GITHUB_TOKEN: ${github_token}
     GITHUB_WEBHOOK_SECRET: ${github_webhook_secret}
     PULUMI_ACCESS_TOKEN: ${pulumi_access_token}
-    
+
     # Non-Secret Configuration
     SNOWFLAKE_ACCOUNT: ${snowflake_account}
     SNOWFLAKE_USER: ${snowflake_user}
@@ -157,4 +157,4 @@ values:
     ASANA_API_BASE_URL: ${asana_api_base_url}
     PULUMI_ORG: ${pulumi_org}
     PULUMI_PROJECT: ${pulumi_project}
-    PULUMI_STACK: ${pulumi_stack} 
+    PULUMI_STACK: ${pulumi_stack}

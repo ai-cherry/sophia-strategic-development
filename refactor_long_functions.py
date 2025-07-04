@@ -536,12 +536,8 @@ def main():
     logger.info(f"📊 Results: {results}")
 
     if results["functions_refactored"] > 0:
-        logger.info(
-            "📝 Refactoring report saved to LONG_FUNCTION_REFACTORING_REPORT.md"
-        )
-        logger.info(
-            "🔍 Please review refactored functions and update tests accordingly"
-        )
+        logger.info("📝 Refactoring report saved to LONG_FUNCTION_REFACTORING_REPORT.md")
+        logger.info("🔍 Please review refactored functions and update tests accordingly")
 
 
 if __name__ == "__main__":

@@ -61,4 +61,3 @@ echo "Access N8N at: http://localhost:5678"
 echo "Username: sophia_admin"
 echo "Password: $N8N_PASSWORD"
 echo "Sophia AI Bridge: http://localhost:9099/health"
-

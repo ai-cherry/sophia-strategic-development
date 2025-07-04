@@ -178,7 +178,9 @@ class SophiaPerformanceOptimizer:
                 severity_icon = (
                     "🔴"
                     if bottleneck["severity"] == "critical"
-                    else "🟠" if bottleneck["severity"] == "high" else "🟡"
+                    else "🟠"
+                    if bottleneck["severity"] == "high"
+                    else "🟡"
                 )
                 print(
                     f"  {severity_icon} {bottleneck['service']}: {bottleneck['issue']}"

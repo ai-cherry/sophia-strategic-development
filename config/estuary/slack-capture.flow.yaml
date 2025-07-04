@@ -1,20 +1,20 @@
 captures:
   Pay_Ready/slack-capture:
     bindings:
-    - resource:
-        stream: messages
-      target: Pay_Ready/slack-messages
-    - resource:
-        stream: channels
-      target: Pay_Ready/slack-channels
+      - resource:
+          stream: messages
+        target: Pay_Ready/slack-messages
+      - resource:
+          stream: channels
+        target: Pay_Ready/slack-channels
     endpoint:
       connector:
         config:
           api_token: ${SLACK_API_TOKEN}
           channels:
-          - general
-          - development
-          - sales
-          - support
-          start_date: '2024-01-01T00:00:00Z'
+            - general
+            - development
+            - sales
+            - support
+          start_date: "2024-01-01T00:00:00Z"
         image: ghcr.io/estuary/source-slack:dev

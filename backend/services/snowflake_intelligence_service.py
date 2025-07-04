@@ -139,16 +139,16 @@ class SnowflakeIntelligenceService:
         # This is a simplified logic. A more advanced version would use a query builder.
         if "customer" in query_analysis.get("entities", []):
             customer_query = "SELECT * FROM SOPHIA_SEMANTIC.CUSTOMER_360 ORDER BY last_activity DESC LIMIT 20;"
-            structured_results["customers"] = (
-                await self.semantic_service._execute_query(customer_query)
-            )
+            structured_results[
+                "customers"
+            ] = await self.semantic_service._execute_query(customer_query)
             sql_queries_executed.append(customer_query)
 
         if "employee" in query_analysis.get("entities", []):
             employee_query = "SELECT * FROM SOPHIA_SEMANTIC.EMPLOYEE_360 ORDER BY calls_participated DESC LIMIT 20;"
-            structured_results["employees"] = (
-                await self.semantic_service._execute_query(employee_query)
-            )
+            structured_results[
+                "employees"
+            ] = await self.semantic_service._execute_query(employee_query)
             sql_queries_executed.append(employee_query)
 
         if query_analysis.get("intent") == "metrics":

@@ -15,7 +15,7 @@ This integration provides free access to Gemini models through the Gemini CLI, e
    ```bash
    # Install the Gemini CLI
    curl -sSL https://gemini.google.com/cli/install.sh | bash
-   
+
    # Or using npm
    npm install -g @google/gemini-cli
    ```

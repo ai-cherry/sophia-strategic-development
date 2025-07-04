@@ -1,7 +1,7 @@
 # Estuary Flow Setup Status
 
-**Date:** January 7, 2025  
-**Credentials Used:** 
+**Date:** January 7, 2025
+**Credentials Used:**
 - ESTUARY_API_TOKEN: eyJpZCI6IjExOjdlOjM4OmYwOjRkOjdjOjM4OjAwIiwic2VjcmV0IjoiM2MwODBjOTMtODE2Mi00ODA2LWI4MzItMWRmNzA4NGQ2ZmQwIn0=
 - ESTUARY_ACCESS_TOKEN: eyJhbGciOiJIUzI1NiIsImtpZCI6IlhaYXZsWHkrajczYUxwYlEiLCJ0eXAiOiJKV1QifQ...
 
@@ -45,7 +45,7 @@
 - Data Plane: Pay_Ready/
 
 **Current Issue:** OAuth popup may be blocked or authentication in progress
-**Next Steps:** 
+**Next Steps:**
 1. Complete OAuth authentication with HubSpot
 2. Configure data streams and collections
 3. Test connection and proceed to next step
@@ -60,7 +60,7 @@ The HubSpot (deprecated) connector requires additional OAuth configuration field
 
 **Missing Required Properties:**
 - `client_id` - OAuth client ID
-- `client_secret` - OAuth client secret  
+- `client_secret` - OAuth client secret
 - `refresh_token` - OAuth refresh token
 - `credentials_title` - Name of the credentials set
 
@@ -73,4 +73,3 @@ The HubSpot (deprecated) connector requires additional OAuth configuration field
 3. **Skip HubSpot temporarily** - Proceed with Gong and Slack connectors first
 
 **Recommendation:** Proceed with Gong and Slack connectors while obtaining proper HubSpot OAuth credentials.
-

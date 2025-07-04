@@ -158,4 +158,3 @@
 2. Map all found secrets to infrastructure code
 3. Update Pulumi ESC configurations with correct secret names
 4. Align GitHub Actions workflows with existing secret names
-

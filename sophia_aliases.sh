@@ -20,4 +20,4 @@ alias sophia-status="cd ~/sophia-main && source .venv/bin/activate && export ENV
 # 2. Add them to your ~/.zshrc file: echo "$(cat sophia_aliases.sh)" >> ~/.zshrc
 # 3. Set your Pulumi token: export PULUMI_ACCESS_TOKEN=your_token
 # 4. Reload your shell: source ~/.zshrc
-# 5. Use: sophia (to restore environment), sophia-api (to run API), sophia-test (to test), sophia-status (to check) 
+# 5. Use: sophia (to restore environment), sophia-api (to run API), sophia-test (to test), sophia-status (to check)

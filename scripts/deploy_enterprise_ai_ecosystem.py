@@ -6,13 +6,14 @@ using Pulumi and Helm.
 """
 
 import asyncio
-import logging
 import json
-from pathlib import Path
-from typing import Dict, Any, List
+import logging
 import subprocess
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
 
 class EnterpriseAIEcosystemDeployer:
     """
@@ -20,25 +21,27 @@ class EnterpriseAIEcosystemDeployer:
     This orchestrator is responsible for applying infrastructure-as-code
     definitions and ensuring all components are running and healthy.
     """
-    
+
     def __init__(self, environment: str = "production"):
         self.environment = environment
         self.pulumi_stack = f"scoobyjava-org/sophia-ai-{environment}"
         self.kubeconfig_path = f"~/.kube/config_{environment}"
-        
+
         self.deployment_phases = [
             "validate_prerequisites",
             "deploy_core_infrastructure",
             "deploy_mcp_servers",
             "validate_deployment",
-            "run_integration_tests"
+            "run_integration_tests",
         ]
 
-    async def deploy_ecosystem(self) -> Dict[str, Any]:
+    async def deploy_ecosystem(self) -> dict[str, Any]:
         """Deploy the complete Enterprise AI Ecosystem."""
-        logger.info(f"🚀 Starting Enterprise AI Ecosystem Deployment to '{self.environment}'")
+        logger.info(
+            f"🚀 Starting Enterprise AI Ecosystem Deployment to '{self.environment}'"
+        )
         results = {}
-        
+
         for phase in self.deployment_phases:
             logger.info(f"📋 Executing Phase: {phase}")
             try:
@@ -50,7 +53,7 @@ class EnterpriseAIEcosystemDeployer:
                 results[phase] = {"status": "failed", "error": str(e)}
                 # Stop deployment on failure
                 break
-                
+
         return results
 
     async def _execute_phase(self, phase: str) -> Any:
@@ -68,7 +71,7 @@ class EnterpriseAIEcosystemDeployer:
         else:
             raise ValueError(f"Unknown deployment phase: {phase}")
 
-    async def _validate_prerequisites(self) -> Dict[str, bool]:
+    async def _validate_prerequisites(self) -> dict[str, bool]:
         """Check for necessary tools like pulumi, helm, kubectl."""
         tools = ["pulumi", "helm", "kubectl", "gh"]
         checks = {}
@@ -78,29 +81,31 @@ class EnterpriseAIEcosystemDeployer:
                 checks[tool] = True
             except subprocess.CalledProcessError:
                 checks[tool] = False
-                raise EnvironmentError(f"Prerequisite '{tool}' not found in PATH.")
-        
+                raise OSError(f"Prerequisite '{tool}' not found in PATH.")
+
         # Check Pulumi login status
         try:
             await self._run_command("pulumi whoami")
         except subprocess.CalledProcessError:
-            raise EnvironmentError("Not logged into Pulumi. Please run 'pulumi login'.")
-            
+            raise OSError("Not logged into Pulumi. Please run 'pulumi login'.")
+
         return checks
 
     async def _run_pulumi_update(self, path: str) -> str:
         """Run 'pulumi up' for a specific infrastructure component."""
         logger.info(f"Running Pulumi update for: {path}")
-        
+
         # Install dependencies for TypeScript/JavaScript projects
         if (Path(path) / "package.json").exists():
-            logger.info(f"Found package.json in {path}, installing dependencies with npm...")
+            logger.info(
+                f"Found package.json in {path}, installing dependencies with npm..."
+            )
             await self._run_command(f"npm install --prefix {path}")
 
         command = f"pulumi up -C {path} -s {self.pulumi_stack} --yes --skip-preview"
         return await self._run_command(command)
 
-    async def _deploy_all_mcp_servers(self) -> Dict[str, str]:
+    async def _deploy_all_mcp_servers(self) -> dict[str, str]:
         """Use Helm to deploy all MCP servers defined in our infrastructure."""
         logger.info("Deploying all MCP servers via Helm chart...")
         # This assumes a single parent Helm chart that manages all MCP servers as sub-charts
@@ -110,63 +115,73 @@ class EnterpriseAIEcosystemDeployer:
         await self._run_command(command)
         return {"status": "Helm deployment command executed for all MCP servers."}
 
-    async def _validate_k8s_deployment(self) -> List[Dict[str, str]]:
+    async def _validate_k8s_deployment(self) -> list[dict[str, str]]:
         """Check the status of all pods in the 'sophia-ai' namespace."""
         logger.info("Validating Kubernetes deployment...")
-        command = f"kubectl get pods -n sophia-ai -o json"
+        command = "kubectl get pods -n sophia-ai -o json"
         result_json = await self._run_command(command)
         pods = json.loads(result_json).get("items", [])
-        
+
         pod_statuses = []
         for pod in pods:
-            pod_statuses.append({
-                "name": pod["metadata"]["name"],
-                "status": pod["status"]["phase"],
-                "ready": all(c["ready"] for c in pod["status"].get("containerStatuses", [])),
-            })
-        
+            pod_statuses.append(
+                {
+                    "name": pod["metadata"]["name"],
+                    "status": pod["status"]["phase"],
+                    "ready": all(
+                        c["ready"] for c in pod["status"].get("containerStatuses", [])
+                    ),
+                }
+            )
+
         if not all(p["status"] == "Running" and p["ready"] for p in pod_statuses):
             logger.warning("Some pods are not in a healthy state.")
-        
+
         return pod_statuses
 
     async def _run_integration_tests(self) -> str:
         """Trigger integration tests, potentially as a K8s Job."""
         logger.info("Triggering integration test suite...")
-        command = "kubectl apply -f infrastructure/kubernetes/tests/integration-test-job.yaml"
+        command = (
+            "kubectl apply -f infrastructure/kubernetes/tests/integration-test-job.yaml"
+        )
         return await self._run_command(command)
 
     async def _run_command(self, command: str) -> str:
         """Execute a shell command asynchronously and capture output."""
         process = await asyncio.create_subprocess_shell(
-            command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await process.communicate()
 
         if process.returncode != 0:
             return_code = process.returncode if process.returncode is not None else -1
             error_message = f"Command '{command}' failed with exit code {return_code}:\n{stderr.decode()}"
-            raise subprocess.CalledProcessError(return_code, command, output=stdout, stderr=stderr)
-        
+            raise subprocess.CalledProcessError(
+                return_code, command, output=stdout, stderr=stderr
+            )
+
         return stdout.decode()
+
 
 async def main():
     """Main deployment entrypoint."""
     deployer = EnterpriseAIEcosystemDeployer()
     results = await deployer.deploy_ecosystem()
-    
+
     print("\n🎉 Enterprise AI Ecosystem Deployment Complete!")
-    print(f"============== PHOENIX 1.4 DEPLOYMENT REPORT ==============")
+    print("============== PHOENIX 1.4 DEPLOYMENT REPORT ==============")
     print(json.dumps(results, indent=2))
     print("==========================================================")
-    
+
     if any(phase["status"] == "failed" for phase in results.values()):
         print("\n❌ Deployment finished with errors.")
     else:
         print("\n✅ Deployment completed successfully.")
 
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    asyncio.run(main()) 
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    asyncio.run(main())

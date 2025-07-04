@@ -34,7 +34,7 @@ GitHub Repository → Docker Registry (scoobyjava15) → Lambda Labs Infrastruct
 ### Core Configuration Files
 
 #### 1. `docker-compose.cloud.yml`
-**Purpose**: Docker Swarm stack configuration for Lambda Labs  
+**Purpose**: Docker Swarm stack configuration for Lambda Labs
 **Features**:
 - Multi-replica services with auto-scaling
 - GPU resource allocation for AI workloads
@@ -44,7 +44,7 @@ GitHub Repository → Docker Registry (scoobyjava15) → Lambda Labs Infrastruct
 - Docker secrets for secure credential management
 
 #### 2. `Dockerfile` (Multi-stage)
-**Purpose**: Production-optimized container builds  
+**Purpose**: Production-optimized container builds
 **Features**:
 - UV-based dependency management (6x faster)
 - Multi-stage builds for minimal image size
@@ -52,7 +52,7 @@ GitHub Repository → Docker Registry (scoobyjava15) → Lambda Labs Infrastruct
 - Health checks for all services
 
 #### 3. `docker/Dockerfile.mcp-server`
-**Purpose**: Specialized MCP server containers  
+**Purpose**: Specialized MCP server containers
 **Features**:
 - Parameterized builds for different MCP servers
 - Optimized for AI/ML workloads
@@ -366,4 +366,4 @@ docker node ls
 
 ---
 
-**Note**: This configuration is specifically designed for Lambda Labs infrastructure and Docker Cloud deployment. All services run in containers with no local execution required. 
+**Note**: This configuration is specifically designed for Lambda Labs infrastructure and Docker Cloud deployment. All services run in containers with no local execution required.

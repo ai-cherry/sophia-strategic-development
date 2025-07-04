@@ -4,26 +4,26 @@ on:
   push:
     branches: [main, strategic-plan-comprehensive-improvements]
     paths:
-      - 'api/**'
-      - 'frontend/**'
-      - 'requirements.txt'
-      - 'vercel.json'
-      - 'package.json'
-      - '.github/workflows/vercel-deployment.yml'
+      - "api/**"
+      - "frontend/**"
+      - "requirements.txt"
+      - "vercel.json"
+      - "package.json"
+      - ".github/workflows/vercel-deployment.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'api/**'
-      - 'frontend/**'
-      - 'requirements.txt'
-      - 'vercel.json'
-      - 'package.json'
+      - "api/**"
+      - "frontend/**"
+      - "requirements.txt"
+      - "vercel.json"
+      - "package.json"
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Deployment environment'
+        description: "Deployment environment"
         required: true
-        default: 'production'
+        default: "production"
         type: choice
         options:
           - production
@@ -33,8 +33,8 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-  NODE_VERSION: '20'
-  PYTHON_VERSION: '3.11'
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
 
 jobs:
   # Quality Assurance and Testing
@@ -56,8 +56,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
+          cache: "npm"
+          cache-dependency-path: "frontend/package-lock.json"
 
       - name: Install Python dependencies
         run: |
@@ -128,16 +128,16 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v3
@@ -188,16 +188,16 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: `🚀 **Preview Deployment Ready!**
-              
+
               **Preview URL:** ${{ steps.deploy.outputs.preview-url }}
-              
+
               **API Endpoints:**
               - Health Check: ${{ steps.deploy.outputs.preview-url }}/api/health
               - n8n Webhook: ${{ steps.deploy.outputs.preview-url }}/api/n8n/webhook
               - MCP Server: ${{ steps.deploy.outputs.preview-url }}/api/mcp
-              
+
               **Frontend:** ${{ steps.deploy.outputs.preview-url }}
-              
+
               This preview will be automatically updated with new commits.`
             })
 
@@ -234,15 +234,15 @@ jobs:
         run: |
           echo "Running comprehensive deployment health checks..."
           sleep 60  # Wait for deployment to be fully ready
-          
+
           # Test API endpoints
           curl -f "${{ steps.deploy.outputs.production-url }}/api/health" || exit 1
           curl -f "${{ steps.deploy.outputs.production-url }}/api/n8n/health" || exit 1
           curl -f "${{ steps.deploy.outputs.production-url }}/api/mcp/health" || exit 1
-          
+
           # Test frontend
           curl -f "${{ steps.deploy.outputs.production-url }}/" || exit 1
-          
+
           echo "All health checks passed!"
 
       - name: Update Pulumi ESC with deployment info
@@ -338,4 +338,3 @@ jobs:
           echo "Updating deployment metrics..."
           # Add metrics update commands here
           echo "Metrics updated!"
-

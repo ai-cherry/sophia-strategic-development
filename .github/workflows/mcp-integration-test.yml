@@ -31,19 +31,19 @@ jobs
       matrix
         python-version: [3.11, 3.12]
         server: [ai_memory, notion, slack, snowflake, codacy, asana, linear]
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -58,7 +58,7 @@ jobs
       run: |
         uv run python scripts/test_mcp_server_startup.py --server ${{ matrix.server }}
       timeout-minutes: 5
-    
+
     - name: Run MCP protocol compliance tests
       run: |
         uv run python scripts/test_mcp_protocol_compliance.py --server ${{ matrix.server }}
@@ -74,26 +74,26 @@ jobs
   mcp-inspector-validation
     runs-on: ubuntu-latest
     needs: mcp-server-validation
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: external/anthropic-mcp-inspector/package-lock.json
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -109,7 +109,7 @@ jobs
       run: |
         uv run python scripts/run_mcp_inspector_tests.py
       timeout-minutes: 10
-    
+
     - name: Upload inspector results
       uses: actions/upload-artifact@v3
       if: always()
@@ -122,19 +122,19 @@ jobs
   integration-test
     runs-on: ubuntu-latest
     needs: [mcp-server-validation, mcp-inspector-validation]
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -162,7 +162,7 @@ jobs
       run: |
         uv run python scripts/run_integration_tests.py
       timeout-minutes: 15
-    
+
     - name: Generate test report
       if: always()
       run: |
@@ -179,19 +179,19 @@ jobs
 
   security-scan
     runs-on: ubuntu-latest
-    
+
     steps
     - name: Checkout repository
       uses: actions/checkout@v4
       with
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with
         python-version: 3.12
-    
+
     - name: Install UV
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -220,7 +220,7 @@ jobs
     runs-on: ubuntu-latest
     needs: [mcp-server-validation, mcp-inspector-validation, integration-test, security-scan]
     if: always()
-    
+
     steps
     - name: Notify test results
       env
@@ -237,4 +237,3 @@ jobs
         curl -X POST -H 'Content-type: application/json' \
           --data "{\"text\":\"MCP Integration Tests: $STATUS\", \"color\":\"$COLOR\"}" \
           $SLACK_WEBHOOK_URL
-

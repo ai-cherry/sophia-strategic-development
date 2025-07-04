@@ -38,4 +38,4 @@ jobs
           docker build -t mcp-${{ matrix.server }}:${COMMIT_SHA} .
           # Push to registry would go here
           # Use Kustomize to apply environment-specific overlay
-          kustomize build overlays/${{ inputs.environment }} | kubectl apply -f - 
+          kustomize build overlays/${{ inputs.environment }} | kubectl apply -f -

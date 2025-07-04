@@ -2,7 +2,7 @@
 # Comprehensive Docker Compose configuration for full data pipeline
 # Includes: PostgreSQL, Redis, Weaviate, Estuary Flow, Monitoring, and Sophia AI services
 
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL - Primary structured data storage
@@ -55,11 +55,11 @@ services:
       - "8080:8080"
     environment:
       QUERY_DEFAULTS_LIMIT: 25
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
-      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
-      DEFAULT_VECTORIZER_MODULE: 'none'
-      ENABLE_MODULES: 'text2vec-openai,text2vec-cohere,text2vec-huggingface,generative-openai'
-      CLUSTER_HOSTNAME: 'node1'
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: "text2vec-openai,text2vec-cohere,text2vec-huggingface,generative-openai"
+      CLUSTER_HOSTNAME: "node1"
     volumes:
       - weaviate_data:/var/lib/weaviate
     restart: unless-stopped
@@ -101,16 +101,16 @@ services:
       DATABASE_NAME: sophia_ai
       DATABASE_USER: sophia_user
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      
+
       # Redis connection
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      
+
       # Weaviate connection
       WEAVIATE_HOST: weaviate
       WEAVIATE_PORT: 8080
-      
+
       # Snowflake connection
       SNOWFLAKE_ACCOUNT: ${SNOWFLAKE_ACCOUNT}
       SNOWFLAKE_USER: SCOOBYJAVA15
@@ -119,18 +119,18 @@ services:
       SNOWFLAKE_WAREHOUSE: ${SNOWFLAKE_WAREHOUSE}
       SNOWFLAKE_DATABASE: ${SNOWFLAKE_DATABASE}
       SNOWFLAKE_SCHEMA: ${SNOWFLAKE_SCHEMA}
-      
+
       # API Keys
       GONG_ACCESS_KEY: ${GONG_ACCESS_KEY}
       GONG_ACCESS_KEY_SECRET: ${GONG_ACCESS_KEY_SECRET}
       HUBSPOT_ACCESS_TOKEN: ${HUBSPOT_ACCESS_TOKEN}
       ESTUARY_ACCESS_TOKEN: ${ESTUARY_ACCESS_TOKEN}
-      
+
       # AI Service Keys
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       GROQ_API_KEY: ${GROQ_API_KEY}
-      
+
       # Vector DB Keys
       PINECONE_API_KEY: ${PINECONE_API_KEY}
       PINECONE_ENVIRONMENT: ${PINECONE_ENVIRONMENT}
@@ -184,12 +184,12 @@ services:
     networks:
       - sophia-network
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
 
   # Grafana - Monitoring dashboards
   grafana:
@@ -224,10 +224,10 @@ services:
     networks:
       - sophia-network
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
 
   # Nginx - Reverse proxy and load balancer
   nginx:
@@ -294,4 +294,3 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
-

@@ -15,15 +15,8 @@
       "portkey_admin",
       "snowflake_cli_enhanced"
     ],
-    "good_servers": [
-      "ai_memory",
-      "ag_ui",
-      "codacy"
-    ],
-    "needs_work": [
-      "snowflake_admin",
-      "apify_intelligence"
-    ],
+    "good_servers": ["ai_memory", "ag_ui", "codacy"],
+    "needs_work": ["snowflake_admin", "apify_intelligence"],
     "critical_servers": [
       "sophia_business_intelligence",
       "docker",
@@ -70,9 +63,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -96,9 +87,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -148,9 +137,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -270,9 +257,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -296,9 +281,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -469,9 +452,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -495,9 +476,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -553,9 +532,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -579,9 +556,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -806,9 +781,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -832,9 +805,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0
@@ -918,9 +889,7 @@
       "is_operational": false,
       "health_status": "unknown",
       "response_time_ms": 0.0,
-      "critical_issues": [
-        "No main server file found"
-      ],
+      "critical_issues": ["No main server file found"],
       "warnings": [],
       "recommendations": [],
       "compliance_score": 0.0

@@ -161,4 +161,4 @@ gh project create "Monorepo Transformation" \
 
 ---
 
-*This document will be updated throughout Phase 0 with actual names, dates, and links.* 
+*This document will be updated throughout Phase 0 with actual names, dates, and links.*

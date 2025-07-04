@@ -129,7 +129,7 @@ class LangGraphAgentBase(ABC):
         self.performance_target_ms = performance_target_ms
 
         # Core services (will be initialized later to avoid circular imports)
-        self.smart_ai_service = None
+        self.llm_service = None
         self.cortex_service = None
         self.ai_memory = None
         self.integration_registry = IntegrationRegistry()
@@ -191,11 +191,14 @@ class LangGraphAgentBase(ABC):
             from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
                 EnhancedAiMemoryMCPServer,
             )
-            from backend.services.smart_ai_service import SmartAIService
+            from backend.services.unified_llm_service import (
+                TaskType,
+                get_unified_llm_service,
+            )
             from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
-            self.smart_ai_service = SmartAIService()
-            await self.smart_ai_service.initialize()
+            self.llm_service = await get_unified_llm_service()
+            await self.llm_service.initialize()
 
             self.cortex_service = SnowflakeCortexService()
             await self.cortex_service.initialize()

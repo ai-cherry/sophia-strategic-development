@@ -6,10 +6,7 @@
       "name": "Start",
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
-      "position": [
-        240,
-        300
-      ]
+      "position": [240, 300]
     },
     {
       "parameters": {
@@ -19,10 +16,7 @@
       "name": "Webhook Trigger (Linear)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [
-        440,
-        300
-      ],
+      "position": [440, 300],
       "webhookId": "mcp-linear-create-issue"
     },
     {
@@ -37,10 +31,7 @@
       "name": "Create Linear Issue",
       "type": "n8n-nodes-base.linear",
       "typeVersion": 1,
-      "position": [
-        640,
-        300
-      ],
+      "position": [640, 300],
       "credentials": {
         "linearApi": {
           "id": "sophia-linear-prod",
@@ -61,10 +52,7 @@
       "name": "Return Issue Result",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [
-        840,
-        300
-      ]
+      "position": [840, 300]
     }
   ],
   "connections": {

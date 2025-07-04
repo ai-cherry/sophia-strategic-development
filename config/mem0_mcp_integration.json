@@ -4,9 +4,7 @@
       "port": 9010,
       "name": "Mem0 Persistent Memory",
       "description": "Cross-session learning and adaptive intelligence",
-      "memory_integration": [
-        "L3"
-      ],
+      "memory_integration": ["L3"],
       "capabilities": [
         "persistent_store",
         "cross_session_recall",

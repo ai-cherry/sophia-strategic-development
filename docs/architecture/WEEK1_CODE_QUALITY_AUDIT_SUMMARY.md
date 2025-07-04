@@ -124,5 +124,5 @@ rm scripts/ceo_intelligence_ingestion_stub.py
 
 ---
 
-*Generated: January 2025*  
-*Next Review: End of Week 2* 
+*Generated: January 2025*
+*Next Review: End of Week 2*

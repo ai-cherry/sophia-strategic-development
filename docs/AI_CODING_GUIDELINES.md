@@ -138,4 +138,4 @@ Focus on:
 - **Understanding over Estimation**
 - **Implementation over Planning**
 
-This approach aligns with the CEO's priorities and the reality of AI-assisted development. 
+This approach aligns with the CEO's priorities and the reality of AI-assisted development.

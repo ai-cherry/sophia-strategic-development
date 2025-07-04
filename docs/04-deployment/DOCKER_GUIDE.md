@@ -36,7 +36,7 @@ docker stack services sophia-ai-prod
 Our canonical `Dockerfile` uses multi-stage builds:
 
 1. **base**: Common setup for all stages
-2. **dependencies**: UV-based dependency installation  
+2. **dependencies**: UV-based dependency installation
 3. **production**: Minimal runtime with only necessary files
 4. **development**: Full source (for building only)
 5. **testing**: Test execution environment
@@ -58,7 +58,7 @@ Our canonical `Dockerfile` uses multi-stage builds:
 - Replicas: 3-10 (auto-scaling)
 - Health endpoint: `/api/health`
 
-#### mem0-server  
+#### mem0-server
 - Memory management MCP server
 - Port: 8080 (published)
 - Replicas: 2-5
@@ -222,7 +222,7 @@ networks:
 
 Internal service communication via service names:
 - Backend → Redis: `redis:6379`
-- Backend → Postgres: `postgres:5432`  
+- Backend → Postgres: `postgres:5432`
 - Backend → MCP: `mem0-server:8080`
 
 ## Volumes
@@ -307,11 +307,11 @@ GitHub Actions workflow for Docker Cloud:
   run: |
     # Build production image
     docker build --target production -t scoobyjava15/sophia-ai:${{ github.sha }} .
-    
+
     # Push to registry
     echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
     docker push scoobyjava15/sophia-ai:${{ github.sha }}
-    
+
     # Deploy to Lambda Labs (via SSH action)
     ssh ubuntu@104.171.202.64 "IMAGE_TAG=${{ github.sha }} docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod"
 ```
@@ -336,4 +336,4 @@ docker service rollback sophia-ai-prod_sophia-backend
 
 # Deploy specific version
 IMAGE_TAG=v1.2.2 docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod
-``` 
+```

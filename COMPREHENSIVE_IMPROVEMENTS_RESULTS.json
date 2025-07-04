@@ -6,9 +6,7 @@
       "result": {
         "test_file_created": "/Users/lynnmusil/sophia-main/tests/test_connection_pool_health_check.py",
         "test_count": 1,
-        "coverage_areas": [
-          "shutdown_event_responsiveness"
-        ]
+        "coverage_areas": ["shutdown_event_responsiveness"]
       }
     },
     {
@@ -89,10 +87,7 @@
       "result": {
         "test_file_created": "/Users/lynnmusil/sophia-main/tests/test_cortex_service_decomposition.py",
         "test_count": 1,
-        "modules_tested": [
-          "models_module",
-          "utils_module"
-        ]
+        "modules_tested": ["models_module", "utils_module"]
       }
     },
     {

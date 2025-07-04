@@ -2,7 +2,10 @@
   "mcpServers": {
     "sophia_ai_intelligence": {
       "command": "python",
-      "args": ["-m", "mcp-servers.sophia_ai_intelligence.sophia_ai_intelligence_mcp_server"],
+      "args": [
+        "-m",
+        "mcp-servers.sophia_ai_intelligence.sophia_ai_intelligence_mcp_server"
+      ],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
         "ARIZE_SPACE_ID": "${ESC_ARIZE_SPACE_ID}",
@@ -16,7 +19,10 @@
     },
     "sophia_data_intelligence": {
       "command": "python",
-      "args": ["-m", "mcp-servers.sophia_data_intelligence.sophia_data_intelligence_mcp_server"],
+      "args": [
+        "-m",
+        "mcp-servers.sophia_data_intelligence.sophia_data_intelligence_mcp_server"
+      ],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
         "APIFY_API_TOKEN": "${ESC_APIFY_API_TOKEN}",
@@ -28,7 +34,10 @@
     },
     "sophia_infrastructure": {
       "command": "python",
-      "args": ["-m", "mcp-servers.sophia_infrastructure.sophia_infrastructure_mcp_server"],
+      "args": [
+        "-m",
+        "mcp-servers.sophia_infrastructure.sophia_infrastructure_mcp_server"
+      ],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
         "LAMBDA_LABS_API_KEY": "${ESC_LAMBDA_LABS_API_KEY}",
@@ -39,7 +48,10 @@
     },
     "sophia_business_intelligence": {
       "command": "python",
-      "args": ["-m", "mcp-servers.sophia_business_intelligence.sophia_business_intelligence_mcp_server"],
+      "args": [
+        "-m",
+        "mcp-servers.sophia_business_intelligence.sophia_business_intelligence_mcp_server"
+      ],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
         "SNOWFLAKE_ACCOUNT": "${ESC_SNOWFLAKE_ACCOUNT}",

@@ -6,38 +6,38 @@
 
 declare module '@pulumi/pulumi' {
     export * from '@pulumi/pulumi';
-    
+
     export interface Input<T> {
         // Marker interface for Input types
     }
-    
+
     export type Output<T> = {
         // Simplified Output type for reference
         apply<U>(func: (t: T) => Input<U>): Output<U>;
         apply<U>(func: (t: T) => U): Output<U>;
     };
-    
+
     export function interpolate(literals: TemplateStringsArray, ...placeholders: any[]): Output<string>;
-    
+
     export function output<T>(val: Input<T>): Output<T>;
-    
+
     // Base resource class for all Pulumi resources
     export class Resource {
         constructor(type: string, name: string, custom: boolean, props?: any, opts?: ResourceOptions);
     }
-    
+
     export class ComponentResource extends Resource {
         constructor(type: string, name: string, props?: any, opts?: ComponentResourceOptions);
         registerOutputs(outputs: { [key: string]: any }): void;
     }
-    
+
     export interface ResourceOptions {
         parent?: Resource;
         provider?: any;
         dependsOn?: any[];
         protect?: boolean;
     }
-    
+
     export interface ComponentResourceOptions extends ResourceOptions {
         // Additional component resource options
     }
@@ -45,11 +45,11 @@ declare module '@pulumi/pulumi' {
 
 declare module '@pulumi/kubernetes' {
     export * from '@pulumi/kubernetes';
-    
+
     export class Provider {
         constructor(name: string, args: any, opts?: any);
     }
-    
+
     export namespace apps {
         export namespace v1 {
             export class Deployment {
@@ -58,13 +58,13 @@ declare module '@pulumi/kubernetes' {
                 public readonly status: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class StatefulSet {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class DaemonSet {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
@@ -72,7 +72,7 @@ declare module '@pulumi/kubernetes' {
             }
         }
     }
-    
+
     export namespace core {
         export namespace v1 {
             export class Service {
@@ -80,36 +80,36 @@ declare module '@pulumi/kubernetes' {
                 public readonly spec: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class ConfigMap {
                 public readonly metadata: Output<any>;
                 public readonly data: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class Secret {
                 public readonly metadata: Output<any>;
                 public readonly data: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class Namespace {
                 public readonly metadata: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class PersistentVolume {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class PersistentVolumeClaim {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class Pod {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
@@ -117,7 +117,7 @@ declare module '@pulumi/kubernetes' {
             }
         }
     }
-    
+
     export namespace networking {
         export namespace v1 {
             export class NetworkPolicy {
@@ -125,7 +125,7 @@ declare module '@pulumi/kubernetes' {
                 public readonly spec: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class Ingress {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
@@ -133,7 +133,7 @@ declare module '@pulumi/kubernetes' {
             }
         }
     }
-    
+
     export namespace rbac {
         export namespace v1 {
             export class Role {
@@ -141,19 +141,19 @@ declare module '@pulumi/kubernetes' {
                 public readonly rules: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class RoleBinding {
                 public readonly metadata: Output<any>;
                 public readonly subjects: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class ClusterRole {
                 public readonly metadata: Output<any>;
                 public readonly rules: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class ClusterRoleBinding {
                 public readonly metadata: Output<any>;
                 public readonly subjects: Output<any>;
@@ -161,7 +161,7 @@ declare module '@pulumi/kubernetes' {
             }
         }
     }
-    
+
     export namespace storage {
         export namespace v1 {
             export class StorageClass {
@@ -171,7 +171,7 @@ declare module '@pulumi/kubernetes' {
             }
         }
     }
-    
+
     export namespace autoscaling {
         export namespace v2 {
             export class HorizontalPodAutoscaler {
@@ -181,7 +181,7 @@ declare module '@pulumi/kubernetes' {
             }
         }
     }
-    
+
     export namespace batch {
         export namespace v1 {
             export class Job {
@@ -189,7 +189,7 @@ declare module '@pulumi/kubernetes' {
                 public readonly spec: Output<any>;
                 constructor(name: string, args: any, opts?: any);
             }
-            
+
             export class CronJob {
                 public readonly metadata: Output<any>;
                 public readonly spec: Output<any>;
@@ -201,31 +201,31 @@ declare module '@pulumi/kubernetes' {
 
 declare module '@pulumi/docker' {
     export * from '@pulumi/docker';
-    
+
     export class Image {
         public readonly imageName: Output<string>;
         public readonly repoDigest: Output<string>;
         constructor(name: string, args: any, opts?: any);
     }
-    
+
     export class Registry {
         public readonly id: Output<string>;
         public readonly server: Output<string>;
         constructor(name: string, args: any, opts?: any);
     }
-    
+
     export class Container {
         public readonly id: Output<string>;
         public readonly name: Output<string>;
         constructor(name: string, args: any, opts?: any);
     }
-    
+
     export class Network {
         public readonly id: Output<string>;
         public readonly name: Output<string>;
         constructor(name: string, args: any, opts?: any);
     }
-    
+
     export class Volume {
         public readonly id: Output<string>;
         public readonly name: Output<string>;
@@ -242,14 +242,14 @@ declare module '@pulumi/lambda-labs' {
         userData?: string;
         tags?: { [key: string]: string };
     }
-    
+
     export class Instance {
         public readonly id: Output<string>;
         public readonly publicIp: Output<string>;
         public readonly privateIp: Output<string>;
         constructor(name: string, args: LambdaLabsInstanceArgs, opts?: any);
     }
-    
+
     export interface LambdaLabsKubernetesArgs {
         instanceType: string;
         nodeCount: number;
@@ -257,7 +257,7 @@ declare module '@pulumi/lambda-labs' {
         gpuType: string;
         region: string;
     }
-    
+
     export class KubernetesCluster {
         public readonly id: Output<string>;
         public readonly kubeconfig: Output<string>;
@@ -287,7 +287,7 @@ declare module 'sophia-ai/components' {
             };
         };
     }
-    
+
     export interface SnowflakeCortexArgs {
         account: string;
         user: string;
@@ -297,7 +297,7 @@ declare module 'sophia-ai/components' {
         schema: string;
         role?: string;
     }
-    
+
     export interface PortkeyGatewayArgs {
         apiKey: string;
         virtualKey: string;
@@ -309,7 +309,7 @@ declare module 'sophia-ai/components' {
             maxBackoffTime: number;
         };
     }
-    
+
     export interface EstuaryFlowArgs {
         accessToken: string;
         flowName: string;
@@ -317,7 +317,7 @@ declare module 'sophia-ai/components' {
         destinationConnector: string;
         transformations?: any[];
     }
-    
+
     export interface SecretManagerArgs {
         environment: string;
         pulumiOrg: string;
@@ -342,7 +342,7 @@ declare module 'sophia-ai/ml' {
         };
         environment: string;
     }
-    
+
     export interface VectorDatabaseArgs {
         provider: 'pinecone' | 'weaviate' | 'qdrant';
         dimension: number;
@@ -350,7 +350,7 @@ declare module 'sophia-ai/ml' {
         environment: string;
         apiKey: string;
     }
-    
+
     export interface InferenceEndpointArgs {
         modelName: string;
         endpoint: string;
@@ -376,7 +376,7 @@ declare module 'sophia-ai/security' {
         secretScanning: boolean;
         vulnerabilityScanning: boolean;
     }
-    
+
     export interface MonitoringStackArgs {
         prometheus: {
             enabled: boolean;
@@ -416,7 +416,7 @@ declare module 'sophia-ai/data' {
         }>;
         schedule?: string;
     }
-    
+
     export interface EmbeddingPipelineArgs {
         modelName: string;
         inputSource: string;

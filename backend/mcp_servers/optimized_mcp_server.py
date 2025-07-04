@@ -631,9 +631,7 @@ class OptimizedMCPServer(ABC):
 
             # Initialize network layer
             await self.network.initialize()
-            logger.info(
-                f"✅ Optimized network layer initialized for {self.server_name}"
-            )
+            logger.info(f"✅ Optimized network layer initialized for {self.server_name}")
 
             # Initialize Snowflake Cortex service ONLY if explicitly enabled AND needed
             if self.config.enable_ai_processing:

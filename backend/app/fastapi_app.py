@@ -20,4 +20,4 @@ app.include_router(codacy_integration_routes.router, tags=["Codacy"])
 # Remove old chat route imports - these are now in unified_routes
 # app.include_router(unified_chat_routes.router, tags=["Chat"])
 # app.include_router(enhanced_unified_chat_routes.router, tags=["Enhanced Chat"])
-# app.include_router(unified_chat_routes_v2.router, tags=["Chat V2"]) 
+# app.include_router(unified_chat_routes_v2.router, tags=["Chat V2"])

@@ -260,7 +260,9 @@ async def main():
         print("=" * 80)
         print(f"📊 Instance ID: {result.get('instance_id')}")
         print(f"🌐 IP Address: {result.get('ip_address')}")
-        print(f"🗄️ PostgreSQL: {result.get('connection_strings', {}).get('postgresql')}")
+        print(
+            f"🗄️ PostgreSQL: {result.get('connection_strings', {}).get('postgresql')}"
+        )
         print(f"⚡ Redis: {result.get('connection_strings', {}).get('redis')}")
         print(f"📈 Health Monitor: http://{result.get('ip_address')}:8080/health")
         print(f"🔄 Data Pipeline: {result.get('data_pipeline', {})}")

@@ -75,7 +75,7 @@ Type these directly in the unified chat:
 
 **Natural Language Request:**
 ```
-"Create an executive dashboard component with KPI cards showing revenue, 
+"Create an executive dashboard component with KPI cards showing revenue,
 user growth, and performance metrics with glassmorphism styling"
 ```
 
@@ -113,7 +113,7 @@ export default ExecutiveDashboard;
 
 **Natural Language Request:**
 ```
-"Build a data table component for customer management with sorting, 
+"Build a data table component for customer management with sorting,
 filtering, and action buttons for edit and delete"
 ```
 
@@ -137,12 +137,12 @@ const CustomerDataTable = ({ data }) => {
   const [filter, setFilter] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
-  
+
   // Sorting and filtering logic
   const filteredData = data.filter(customer =>
     customer.name.toLowerCase().includes(filter.toLowerCase())
   );
-  
+
   return (
     <div>
       <TextField
@@ -329,4 +329,4 @@ As part of the platform-wide migration to FastAPI (10-week plan), the V0.dev int
 - **Auto-generated OpenAPI docs** at `/docs`
 - **Built-in CORS and middleware** support
 
-This ensures the V0.dev integration is future-proof and aligned with the FastAPI migration strategy. 
+This ensures the V0.dev integration is future-proof and aligned with the FastAPI migration strategy.

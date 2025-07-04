@@ -3,7 +3,7 @@
 ## Executive Summary
 Following our successful Docker Cloud cleanup (1.8GB freed, 102 files removed, 100% validation passing), we're now ready to implement the enterprise-grade Sophia AI platform with a structured 12-month roadmap.
 
-**Current State**: 
+**Current State**:
 - ✅ Clean codebase with professional standards
 - ✅ Docker infrastructure validated and ready
 - ✅ Lambda Labs deployment configuration complete
@@ -24,7 +24,7 @@ Tasks:
     ✓ Frontend: React/TypeScript dashboard
     ✓ Infrastructure: Docker Swarm on Lambda Labs
     ✓ Secrets: Pulumi ESC with GitHub sync
-    
+
   - Finalize tech stack versions:
     - Python: 3.12 (confirmed in pyproject.toml)
     - Node: 20.x LTS
@@ -47,17 +47,17 @@ tasks:
      - sophia-ai-dev (development)
      - sophia-ai-staging (staging)
      - sophia-ai-production (production)
-  
+
   2. Lambda Labs Kubernetes:
      - Provision GPU-enabled cluster
      - Configure node pools (CPU/GPU)
      - Setup ingress controllers
-  
+
   3. Dockcloud Integration:
      - Create Dockcloud project
      - Configure registry (scoobyjava15)
      - Setup automated builds
-  
+
   4. GitHub → Pulumi ESC:
      - Verify secret sync workflow
      - Add new environment secrets
@@ -177,9 +177,9 @@ interface ComponentTemplateProps {
 export const ComponentTemplate: React.FC<ComponentTemplateProps> = (props) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  
+
   // Component logic
-  
+
   return (
     <div className={theme.container}>
       {/* Component JSX */}
@@ -201,23 +201,23 @@ class ChatIntent(BaseModel):
     type: str  # query, command, analysis
     entities: Dict[str, any]
     confidence: float
-    
+
 class SophiaUnifiedChatService:
     def __init__(self):
         self.mcp_registry = {}
         self.memory_tiers = self._init_memory_tiers()
         self.intent_router = IntentRouter()
-        
+
     async def process_message(self, message: str, context: Dict) -> Dict:
         # 1. Intent detection
         intent = await self.intent_router.detect(message)
-        
+
         # 2. Memory retrieval (L1 → L2 → L3)
         memories = await self.retrieve_memories(intent, context)
-        
+
         # 3. Route to appropriate MCP servers
         responses = await self.route_to_services(intent, memories)
-        
+
         # 4. Synthesize response
         return await self.synthesize_response(responses, memories)
 ```
@@ -246,7 +246,7 @@ CREATE OR REPLACE FUNCTION SOPHIA_MEMORY.SEMANTIC_SEARCH(
 )
 RETURNS TABLE (id VARCHAR, content TEXT, score FLOAT)
 AS $$
-    SELECT 
+    SELECT
         id,
         content,
         VECTOR_COSINE_SIMILARITY(embedding, query_embedding) as score
@@ -265,22 +265,22 @@ class MultiTierMemoryClient:
         self.l1_cache = RedisCache()  # In-memory, <50ms
         self.l2_cortex = SnowflakeCortexClient()  # <100ms
         self.l3_persistent = SnowflakeClient()  # <500ms
-        
+
     async def get(self, key: str) -> Optional[Dict]:
         # Try L1 first
         if value := await self.l1_cache.get(key):
             return value
-            
+
         # Try L2 Cortex
         if value := await self.l2_cortex.search(key):
             await self.l1_cache.set(key, value)  # Promote to L1
             return value
-            
+
         # Fall back to L3
         if value := await self.l3_persistent.query(key):
             await self.promote_to_l2(key, value)
             return value
-            
+
         return None
 ```
 
@@ -296,7 +296,7 @@ import { ExecutiveKPICards } from '@/components/kpi/ExecutiveKPICards';
 export const UnifiedDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [chatContext, setChatContext] = useState({});
-  
+
   return (
     <div className="unified-dashboard">
       <Tabs value={activeTab} onChange={setActiveTab}>
@@ -334,7 +334,7 @@ from unittest.mock import AsyncMock, patch
 @pytest.mark.asyncio
 async def test_intent_detection():
     service = SophiaUnifiedChatService()
-    
+
     # Test query intent
     result = await service.process_message(
         "What were our Q3 revenue numbers?",
@@ -342,7 +342,7 @@ async def test_intent_detection():
     )
     assert result["intent"]["type"] == "query"
     assert "revenue" in result["intent"]["entities"]
-    
+
 @pytest.mark.asyncio
 async def test_memory_retrieval():
     with patch('memory_client.get') as mock_get:
@@ -358,15 +358,15 @@ import { test, expect } from '@playwright/test';
 test.describe('Unified Dashboard', () => {
   test('should navigate between tabs', async ({ page }) => {
     await page.goto('/dashboard');
-    
+
     // Test tab navigation
     await page.click('[data-testid="tab-chat"]');
     await expect(page.locator('.enhanced-chat')).toBeVisible();
-    
+
     // Test chat interaction
     await page.fill('[data-testid="chat-input"]', 'Show revenue metrics');
     await page.keyboard.press('Enter');
-    
+
     // Verify response
     await expect(page.locator('.chat-response')).toContainText('revenue');
   });
@@ -388,12 +388,12 @@ services:
       - "5678:5678"  # Remote debugging
     volumes:
       - ./services/orchestrator:/app
-      
+
   snowflake-emulator:
     image: sophia/snowflake-emulator:latest
     ports:
       - "8082:8082"
-      
+
   frontend:
     build: ./frontend
     environment:
@@ -495,14 +495,14 @@ from locust import HttpUser, task, between
 
 class SophiaUser(HttpUser):
     wait_time = between(1, 3)
-    
+
     @task(3)
     def chat_query(self):
         self.client.post("/api/chat", json={
             "message": "What are our top deals this quarter?",
             "context": {"user_id": "test_user"}
         })
-    
+
     @task(1)
     def dashboard_metrics(self):
         self.client.get("/api/metrics/executive")
@@ -666,6 +666,6 @@ kubectl apply -k infrastructure/kubernetes/overlays/production
 
 ---
 
-**Last Updated**: 2025-07-03  
-**Status**: Ready for Phase 1 Implementation  
-**Next Review**: 2025-07-17 
+**Last Updated**: 2025-07-03
+**Status**: Ready for Phase 1 Implementation
+**Next Review**: 2025-07-17

@@ -134,7 +134,7 @@ Sophia AI is an advanced business intelligence platform with AI-powered regulato
 
 ### MCP Server Architecture
 1. **sophia-ai-intelligence** (Port 8091) - AI model routing and optimization
-2. **sophia-data-intelligence** (Port 8092) - Data warehousing and ETL pipelines  
+2. **sophia-data-intelligence** (Port 8092) - Data warehousing and ETL pipelines
 3. **sophia-infrastructure** (Port 8093) - Container and infrastructure management
 4. **sophia-business-intelligence** (Port 8094) - CRM and business analytics
 
@@ -425,7 +425,7 @@ done
 echo "Testing Gemini CLI with MCP configuration..."
 if [ -f ".gemini/settings.json" ]; then
     echo "✓ MCP configuration file exists"
-    
+
     # Validate JSON syntax
     if python3 -m json.tool .gemini/settings.json > /dev/null; then
         echo "✓ MCP configuration JSON is valid"
@@ -493,4 +493,3 @@ echo "- Stop servers: ./gemini-cli-integration/stop-mcp-servers.sh"
 echo "- Test integration: ./gemini-cli-integration/test-integration.sh"
 echo ""
 echo "🚀 Ready to enhance your Sophia AI development workflow with Gemini CLI!"
-

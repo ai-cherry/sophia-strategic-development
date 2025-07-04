@@ -46,7 +46,7 @@ Raw Data Sources → Estuary/Estuary → Lambda Labs Processing → Snowflake + 
 │   ├── call_transcripts (chunked, tagged, scored)
 │   ├── conversation_insights (AI-generated summaries)
 │   └── talking_points_effectiveness (training feedback)
-├── HUBSPOT_INTELLIGENCE  
+├── HUBSPOT_INTELLIGENCE
 │   ├── contact_enrichment (CoStar + Apollo data)
 │   ├── deal_progression_analysis
 │   └── pipeline_health_metrics
@@ -147,7 +147,7 @@ User Query: "Summarize last week's Gong calls and tell me the top talking points
 
 #### **Stage 3: Contextual Ranking & Synthesis**
 - **Relevance Scoring**: Query-specific ranking algorithms
-- **Freshness Weighting**: Time-based importance adjustments  
+- **Freshness Weighting**: Time-based importance adjustments
 - **User Context**: Role-based filtering and personalization
 - **Business Priority**: Strategic importance and impact weighting
 
@@ -276,7 +276,7 @@ Sophia → Updates talking point effectiveness scoring → Retrains retrieval we
 OPENROUTER_API_KEY=<secure_key>
 LLM_STRATEGY_ENDPOINT=https://sophia-intel.ai/api/v1/llm
 
-# Data Infrastructure  
+# Data Infrastructure
 SNOWFLAKE_ACCOUNT=<pay_ready_account>
 PINECONE_API_KEY=<secure_key>
 LAMBDA_LABS_TOKEN=<secure_key>
@@ -296,12 +296,12 @@ ESTUARY_URL=https://estuary.sophia-intel.ai
 data_classification:
   auto_classify: true
   sensitivity_levels: [public, internal, confidential, restricted]
-  
+
 access_controls:
   rbac_enabled: true
   audit_logging: comprehensive
   session_timeout: 8h
-  
+
 encryption:
   at_rest: AES-256
   in_transit: TLS-1.3
@@ -313,10 +313,10 @@ encryption:
 ## **✅ Next Steps**
 
 1. **Deploy Core Infrastructure**: Snowflake schemas, Pinecone indexes, MCP servers
-2. **Configure Data Pipelines**: Estuary Flow connectors, Lambda processing, n8n workflows  
+2. **Configure Data Pipelines**: Estuary Flow connectors, Lambda processing, n8n workflows
 3. **Implement AI Agents**: Deploy specialized intelligence agents
 4. **Enable Conversational Training**: Executive training interface
 5. **Validate SOC2 Compliance**: Security audit and certification
 6. **Launch Production Environment**: Full deployment with monitoring
 
-**This comprehensive architecture positions Sophia AI as the central nervous system for Pay Ready's business intelligence, enabling data-driven decision making at every level of the organization.** 
+**This comprehensive architecture positions Sophia AI as the central nervous system for Pay Ready's business intelligence, enabling data-driven decision making at every level of the organization.**

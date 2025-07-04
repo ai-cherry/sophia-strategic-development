@@ -11,7 +11,7 @@
 # Microsoft Graph API Integration
 class MicrosoftGraphConnector:
     """Enhanced Microsoft 365 integration for comprehensive email analysis"""
-    
+
     async def get_outlook_emails(self, user_email: str, days: int = 7):
         """Get Outlook emails with advanced sentiment analysis"""
         return {
@@ -50,7 +50,7 @@ class MicrosoftGraphConnector:
 ```python
 class RealTimeCoachingEngine:
     """Live coaching suggestions during active calls"""
-    
+
     async def analyze_live_call(self, call_stream):
         """Provide real-time coaching via smart notifications"""
         insights = {
@@ -59,7 +59,7 @@ class RealTimeCoachingEngine:
             "buying_signal": "They mentioned 'budget approval' - this is a buying signal!",
             "objection_pattern": "This is the 3rd time they've mentioned timeline - dig deeper"
         }
-        
+
         # Send to Riley's coaching dashboard
         await self.send_coaching_notification(insights)
 ```
@@ -68,7 +68,7 @@ class RealTimeCoachingEngine:
 ```python
 class CompetitiveIntelligenceCoaching:
     """Enhance coaching with competitive insights"""
-    
+
     async def analyze_competitive_mentions(self, call_transcript):
         """Detect competitor mentions and suggest responses"""
         return {
@@ -88,7 +88,7 @@ class CompetitiveIntelligenceCoaching:
 ```python
 class EmotionalIntelligenceAnalyzer:
     """Advanced emotional analysis beyond basic sentiment"""
-    
+
     async def analyze_emotional_patterns(self, multi_source_data):
         """Deep emotional intelligence analysis"""
         return {
@@ -110,14 +110,14 @@ class EmotionalIntelligenceAnalyzer:
 ```python
 class PredictiveCoachingEngine:
     """Machine learning-powered coaching predictions"""
-    
+
     async def predict_coaching_outcomes(self, riley_data):
         """Predict success probability of coaching recommendations"""
         return {
             "coaching_receptivity": 0.85,  # High likelihood to accept feedback
             "improvement_timeline": {
                 "sentiment": "2-3 days",
-                "talk_ratio": "1 week", 
+                "talk_ratio": "1 week",
                 "email_response": "2 weeks"
             },
             "risk_factors": {
@@ -144,7 +144,7 @@ class PredictiveCoachingEngine:
 ```python
 class AdvancedGongAnalytics:
     """Enhanced Gong integration with deeper insights"""
-    
+
     async def analyze_conversation_intelligence(self, calls):
         """Advanced conversation analysis"""
         return {
@@ -172,7 +172,7 @@ class AdvancedGongAnalytics:
 ```python
 class HubSpotIntelligenceEngine:
     """Enhanced HubSpot analysis for coaching"""
-    
+
     async def analyze_deal_progression(self, riley_deals):
         """Analyze deal progression patterns"""
         return {
@@ -205,7 +205,7 @@ class HubSpotIntelligenceEngine:
 ```python
 class AdaptiveCoachingPersona:
     """Personalized coaching based on Riley's personality and learning style"""
-    
+
     def get_coaching_style(self, riley_profile):
         """Adapt coaching style to individual needs"""
         return {
@@ -226,7 +226,7 @@ class AdaptiveCoachingPersona:
 ```python
 class ContextualCoachingScenarios:
     """Situation-specific coaching recommendations"""
-    
+
     async def generate_scenario_coaching(self, context):
         """Provide coaching for specific scenarios"""
         scenarios = {
@@ -254,7 +254,7 @@ class ContextualCoachingScenarios:
 ```python
 class AIRolePlayPartner:
     """AI-powered practice partner for sales scenarios"""
-    
+
     async def simulate_prospect_conversation(self, scenario):
         """AI prospect for practice sessions"""
         return {
@@ -269,7 +269,7 @@ class AIRolePlayPartner:
 ```python
 class PredictiveCustomerIntelligence:
     """Predict prospect behavior and optimize approach"""
-    
+
     async def predict_prospect_behavior(self, prospect_data):
         """Predict optimal sales approach"""
         return {

@@ -18,7 +18,7 @@ interface CitationMarkerProps {
 
 export const CitationMarker: React.FC<CitationMarkerProps> = ({ citationId, onClick }) => {
   return (
-    <sup 
+    <sup
       className="text-blue-600 hover:text-blue-800 cursor-pointer ml-0.5 font-medium text-xs"
       onClick={() => onClick(citationId)}
     >
@@ -34,11 +34,11 @@ interface CitationSidebarProps {
   highlightedCitation?: number;
 }
 
-export const CitationSidebar: React.FC<CitationSidebarProps> = ({ 
-  citations, 
-  isOpen, 
+export const CitationSidebar: React.FC<CitationSidebarProps> = ({
+  citations,
+  isOpen,
   onToggle,
-  highlightedCitation 
+  highlightedCitation
 }) => {
   return (
     <div className={`
@@ -58,14 +58,14 @@ export const CitationSidebar: React.FC<CitationSidebarProps> = ({
       {isOpen && (
         <div className="p-4 overflow-y-auto h-full">
           <h3 className="text-lg font-semibold mb-4">Sources</h3>
-          
+
           {citations.length === 0 ? (
             <p className="text-gray-500 text-sm">No citations available</p>
           ) : (
             <div className="space-y-3">
               {citations.map((citation) => (
-                <CitationCard 
-                  key={citation.id} 
+                <CitationCard
+                  key={citation.id}
                   citation={citation}
                   isHighlighted={citation.id === highlightedCitation}
                 />
@@ -112,11 +112,11 @@ const CitationCard: React.FC<CitationCardProps> = ({ citation, isHighlighted }) 
           </span>
         )}
       </div>
-      
+
       <h4 className="font-medium text-sm mb-1 line-clamp-2">{citation.title}</h4>
       <p className="text-xs text-gray-600 mb-2">{citation.source}</p>
       <p className="text-xs text-gray-700 line-clamp-3">{citation.excerpt}</p>
-      
+
       {citation.url && (
         <a
           href={citation.url}
@@ -138,24 +138,24 @@ interface MessageWithCitationsProps {
   onCitationClick: (id: number) => void;
 }
 
-export const MessageWithCitations: React.FC<MessageWithCitationsProps> = ({ 
-  content, 
+export const MessageWithCitations: React.FC<MessageWithCitationsProps> = ({
+  content,
   citations,
-  onCitationClick 
+  onCitationClick
 }) => {
   // Parse content and replace citation markers with interactive components
   const renderContentWithCitations = () => {
     const citationPattern = /\[(\d+)\]/g;
     const parts = content.split(citationPattern);
-    
+
     return parts.map((part, index) => {
       // Every odd index is a citation number
       if (index % 2 === 1) {
         const citationId = parseInt(part);
         return (
-          <CitationMarker 
-            key={`citation-${index}`} 
-            citationId={citationId} 
+          <CitationMarker
+            key={`citation-${index}`}
+            citationId={citationId}
             onClick={onCitationClick}
           />
         );
@@ -165,4 +165,4 @@ export const MessageWithCitations: React.FC<MessageWithCitationsProps> = ({
   };
 
   return <div className="message-content">{renderContentWithCitations()}</div>;
-}; 
+};
