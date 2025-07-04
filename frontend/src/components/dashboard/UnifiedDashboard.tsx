@@ -5,6 +5,7 @@ import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import apiClient from '../../services/apiClient';
 import EnhancedUnifiedChat from '../shared/EnhancedUnifiedChat';
+import { CacheMonitoringWidget } from './CacheMonitoringWidget';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
@@ -288,6 +289,39 @@ const UnifiedDashboard = () => {
                     changeType="increase"
                     icon={Database}
                 />
+            </div>
+
+            {/* Cache Monitoring Widget */}
+            <div className="grid gap-6 md:grid-cols-2">
+                <CacheMonitoringWidget />
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Cache Optimization Tips</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <div className="flex items-start gap-2">
+                            <div className="h-2 w-2 rounded-full bg-green-500 mt-1.5"></div>
+                            <div>
+                                <p className="text-sm font-medium">Pre-warm common queries</p>
+                                <p className="text-xs text-gray-500">CEO dashboard queries are pre-cached for instant response</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <div className="h-2 w-2 rounded-full bg-blue-500 mt-1.5"></div>
+                            <div>
+                                <p className="text-sm font-medium">Semantic similarity matching</p>
+                                <p className="text-xs text-gray-500">Similar queries use cached results with 85%+ similarity</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <div className="h-2 w-2 rounded-full bg-purple-500 mt-1.5"></div>
+                            <div>
+                                <p className="text-sm font-medium">Intelligent TTL management</p>
+                                <p className="text-xs text-gray-500">Cache duration based on data volatility</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Provider Breakdown */}

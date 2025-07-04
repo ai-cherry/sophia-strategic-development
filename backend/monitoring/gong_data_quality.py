@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Comprehensive Data Quality Monitoring for Gong Webhook Integration.
 
@@ -18,8 +20,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import time
 from collections import defaultdict, deque

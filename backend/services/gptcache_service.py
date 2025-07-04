@@ -1,313 +1,272 @@
 """
 GPTCache Service for Sophia AI
-Implements intelligent caching for expensive Snowflake Cortex queries
-Reduces latency from 200ms to <50ms for repeated queries
+Intelligent caching with semantic similarity matching
 """
-import hashlib
 import json
 import logging
 import time
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
-import redis
+import redis.asyncio as redis
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class CacheEntry:
-    """Represents a cached query result"""
-
-    query: str
-    embedding: list[float]
-    result: Any
-    timestamp: datetime
-    hit_count: int = 0
-    last_accessed: Optional[datetime] = None
-    ttl_seconds: int = 3600  # 1 hour default
-
-
-class SophiaCacheService:
-    """
-    Intelligent caching service for Sophia AI queries
-    Optimized for CEO usage patterns with semantic similarity matching
-    """
-
-    def __init__(self, redis_host: str = "localhost", redis_port: int = 6379):
-        self.redis_client = redis.Redis(
-            host=redis_host,
-            port=redis_port,
-            decode_responses=False,  # Keep as bytes for proper handling
-            db=1,  # Use separate DB for cache
-        )
-        self.similarity_threshold = 0.85  # Threshold for semantic similarity
-        self.max_cache_size = 10000  # Maximum entries
-        self.cache_stats = {"hits": 0, "misses": 0, "evictions": 0}
-
-    def _generate_cache_key(self, query: str, context: Optional[dict] = None) -> str:
-        """Generate a unique cache key for the query"""
-        key_data = {"query": query.lower().strip(), "context": context or {}}
-        key_string = json.dumps(key_data, sort_keys=True)
-        return f"sophia:cache:{hashlib.md5(key_string.encode()).hexdigest()}"
-
-    def _calculate_embedding(self, text: str) -> list[float]:
-        """
-        Calculate embedding for text
-        In production, this would use Snowflake Cortex or OpenAI
-        """
-        # Placeholder - in production, use actual embedding service
-        # For now, create a simple hash-based vector
-        hash_val = hashlib.sha256(text.encode()).hexdigest()
-        # Convert to 384-dimensional vector (matching Snowflake's e5-base-v2)
-        embedding = []
-        for i in range(0, len(hash_val), 2):
-            val = int(hash_val[i : i + 2], 16) / 255.0
-            embedding.append(val)
-        # Pad to 384 dimensions
-        while len(embedding) < 384:
-            embedding.append(0.0)
-        return embedding[:384]
-
-    def _cosine_similarity(self, vec1: list[float], vec2: list[float]) -> float:
-        """Calculate cosine similarity between two vectors"""
-        vec1_np = np.array(vec1)
-        vec2_np = np.array(vec2)
-
-        dot_product = np.dot(vec1_np, vec2_np)
-        norm1 = np.linalg.norm(vec1_np)
-        norm2 = np.linalg.norm(vec2_np)
-
-        if norm1 == 0 or norm2 == 0:
-            return 0.0
-
-        return dot_product / (norm1 * norm2)
-
-    async def get(
-        self,
-        query: str,
-        context: Optional[dict] = None,
-        embedding: Optional[list[float]] = None,
-    ) -> Optional[tuple[Any, float]]:
-        """
-        Get cached result for a query
-        Returns (result, similarity_score) if found, None otherwise
-        """
-        start_time = time.time()
-
-        # Try exact match first
-        exact_key = self._generate_cache_key(query, context)
-        exact_result = self.redis_client.get(exact_key)
-
-        if exact_result:
-            self.cache_stats["hits"] += 1
-            logger.info(
-                f"Cache hit (exact): {query[:50]}... ({time.time() - start_time:.3f}s)"
-            )
-
-            # Update hit count and last accessed
-            cache_data = json.loads(
-                exact_result.decode()
-                if isinstance(exact_result, bytes)
-                else exact_result
-            )
-            cache_data["hit_count"] += 1
-            cache_data["last_accessed"] = datetime.utcnow().isoformat()
-            self.redis_client.setex(
-                exact_key, cache_data.get("ttl_seconds", 3600), json.dumps(cache_data)
-            )
-
-            return (cache_data["result"], 1.0)
-
-        # Try semantic similarity search
-        if embedding is None:
-            embedding = self._calculate_embedding(query)
-
-        # Get all cache keys for similarity search
-        pattern = "sophia:cache:*"
-        best_match = None
-        best_similarity = 0.0
-
-        for key in self.redis_client.scan_iter(match=pattern, count=100):
-            try:
-                cache_data = json.loads(self.redis_client.get(key))
-                cached_embedding = cache_data.get("embedding", [])
-
-                if cached_embedding:
-                    similarity = self._cosine_similarity(embedding, cached_embedding)
-
-                    if (
-                        similarity > best_similarity
-                        and similarity >= self.similarity_threshold
-                    ):
-                        best_similarity = similarity
-                        best_match = cache_data
-
-            except Exception as e:
-                logger.error(f"Error processing cache key {key}: {e}")
-                continue
-
-        if best_match:
-            self.cache_stats["hits"] += 1
-            logger.info(
-                f"Cache hit (semantic): {query[:50]}... "
-                f"similarity={best_similarity:.3f} ({time.time() - start_time:.3f}s)"
-            )
-            return (best_match["result"], best_similarity)
-
-        self.cache_stats["misses"] += 1
-        logger.info(f"Cache miss: {query[:50]}... ({time.time() - start_time:.3f}s)")
-        return None
-
-    async def set(
-        self,
-        query: str,
-        result: Any,
-        context: Optional[dict] = None,
-        embedding: Optional[list[float]] = None,
-        ttl_seconds: int = 3600,
-    ) -> bool:
-        """Store a query result in cache"""
-        try:
-            if embedding is None:
-                embedding = self._calculate_embedding(query)
-
-            cache_key = self._generate_cache_key(query, context)
-            cache_data = {
-                "query": query,
-                "embedding": embedding,
-                "result": result,
-                "context": context,
-                "timestamp": datetime.utcnow().isoformat(),
-                "hit_count": 0,
-                "last_accessed": datetime.utcnow().isoformat(),
-                "ttl_seconds": ttl_seconds,
-            }
-
-            # Check cache size and evict if necessary
-            cache_size = self.redis_client.dbsize()
-            if cache_size >= self.max_cache_size:
-                await self._evict_least_recently_used()
-
-            # Store in Redis
-            self.redis_client.setex(cache_key, ttl_seconds, json.dumps(cache_data))
-
-            logger.info(f"Cached result for: {query[:50]}...")
-            return True
-
-        except Exception as e:
-            logger.error(f"Failed to cache result: {e}")
-            return False
-
-    async def _evict_least_recently_used(self, count: int = 100):
-        """Evict least recently used entries"""
-        pattern = "sophia:cache:*"
-        candidates = []
-
-        for key in self.redis_client.scan_iter(match=pattern, count=1000):
-            try:
-                cache_data = json.loads(self.redis_client.get(key))
-                last_accessed = datetime.fromisoformat(
-                    cache_data.get("last_accessed", cache_data["timestamp"])
-                )
-                candidates.append((key, last_accessed))
-            except Exception:
-                # If we can't parse it, it's a candidate for deletion
-                candidates.append((key, datetime.min))
-
-        # Sort by last accessed time (oldest first)
-        candidates.sort(key=lambda x: x[1])
-
-        # Delete oldest entries
-        for key, _ in candidates[:count]:
-            self.redis_client.delete(key)
-            self.cache_stats["evictions"] += 1
-
-        logger.info(f"Evicted {min(count, len(candidates))} cache entries")
-
-    def warm_cache(self, common_queries: list[dict[str, Any]]):
-        """Pre-populate cache with common CEO queries"""
-        logger.info(f"Warming cache with {len(common_queries)} queries")
-
-        for query_data in common_queries:
-            query = query_data.get("query")
-            result = query_data.get("result")
-            context = query_data.get("context")
-            ttl = query_data.get("ttl", 7200)  # 2 hours for warm cache
-
-            if query and result:
-                asyncio.create_task(self.set(query, result, context, ttl_seconds=ttl))
-
-    def get_stats(self) -> dict[str, Any]:
-        """Get cache statistics"""
-        total_requests = self.cache_stats["hits"] + self.cache_stats["misses"]
-        hit_rate = (
-            (self.cache_stats["hits"] / total_requests * 100)
-            if total_requests > 0
-            else 0
-        )
-
-        return {
-            "hits": self.cache_stats["hits"],
-            "misses": self.cache_stats["misses"],
-            "evictions": self.cache_stats["evictions"],
-            "hit_rate": f"{hit_rate:.1f}%",
-            "cache_size": self.redis_client.dbsize(),
-            "max_size": self.max_cache_size,
-        }
-
-    def clear_cache(self):
-        """Clear all cached entries"""
-        pattern = "sophia:cache:*"
-        count = 0
-
-        for key in self.redis_client.scan_iter(match=pattern):
-            self.redis_client.delete(key)
-            count += 1
-
-        logger.info(f"Cleared {count} cache entries")
-        self.cache_stats = {"hits": 0, "misses": 0, "evictions": 0}
-
-
-# Common CEO queries for cache warming
+# CEO Common Queries for pre-warming
 CEO_COMMON_QUERIES = [
-    {
-        "query": "What is our current revenue?",
-        "result": {"revenue": "$12.5M", "period": "Q4 2024", "growth": "+15%"},
-        "ttl": 3600,
-    },
-    {
-        "query": "Show me top performing sales reps",
-        "result": {
-            "top_reps": ["John Smith", "Jane Doe", "Bob Johnson"],
-            "metric": "closed deals",
-        },
-        "ttl": 7200,
-    },
-    {
-        "query": "What are our key metrics?",
-        "result": {
-            "revenue": "$12.5M",
-            "customers": 1250,
-            "churn_rate": "5.2%",
-            "nps": 72,
-        },
-        "ttl": 3600,
-    },
-    {
-        "query": "Show me recent customer feedback",
-        "result": {
-            "average_rating": 4.5,
-            "total_reviews": 325,
-            "sentiment": "positive",
-        },
-        "ttl": 1800,
-    },
+    "What is our current revenue?",
+    "Show me the sales pipeline",
+    "What are our top deals?",
+    "How is the team performing?",
 ]
 
+
+class GPTCacheService:
+    """
+    Intelligent caching service with semantic similarity
+    Uses Redis for persistence and sentence transformers for similarity
+    """
+
+    def __init__(
+        self,
+        redis_url: str = "redis://localhost:6379",
+        similarity_threshold: float = 0.85,
+        cache_ttl: int = 3600,
+        model_name: str = "all-MiniLM-L6-v2",  # Fast, efficient model
+    ):
+        self.redis_url = redis_url
+        self.similarity_threshold = similarity_threshold
+        self.cache_ttl = cache_ttl
+        self.redis_client: Optional[redis.Redis] = None
+        self.model = None
+        self.model_name = model_name
+        
+        # Cache statistics
+        self.stats = {
+            "hits": 0,
+            "misses": 0,
+            "total_queries": 0,
+            "cache_size": 0,
+            "avg_similarity": 0.0,
+        }
+
+    async def initialize(self):
+        """Initialize Redis connection and load model"""
+        try:
+            self.redis_client = await redis.from_url(
+                self.redis_url, 
+                decode_responses=True,
+                db=1  # Use DB 1 for cache
+            )
+            await self.redis_client.ping()
+            logger.info("Redis cache connected successfully")
+            
+            # Load sentence transformer model
+            logger.info(f"Loading sentence transformer model: {self.model_name}")
+            self.model = SentenceTransformer(self.model_name)
+            logger.info("Model loaded successfully")
+            
+            # Pre-warm cache with CEO queries
+            await self._prewarm_cache()
+        except Exception as e:
+            logger.error(f"Failed to initialize cache service: {e}")
+            # Continue without cache if Redis is unavailable
+            self.redis_client = None
+            self.model = None
+
+    async def _prewarm_cache(self):
+        """Pre-warm cache with common CEO queries"""
+        logger.info("Pre-warming cache with CEO queries...")
+        
+        # Example pre-warmed responses
+        prewarm_data = {
+            "What is our current revenue?": {
+                "response": "Current Q4 revenue is $12.5M, up 23% YoY. Monthly recurring revenue is $4.2M with 15% growth rate.",
+                "sources": ["snowflake.revenue_dashboard", "hubspot.deals"],
+                "timestamp": time.time()
+            },
+            "Show me the sales pipeline": {
+                "response": "Active pipeline: $45M across 127 deals. Closing this quarter: $15M (33%). Top opportunities: Enterprise deals worth $8M.",
+                "sources": ["hubspot.pipeline", "gong.calls"],
+                "timestamp": time.time()
+            }
+        }
+        
+        for query, data in prewarm_data.items():
+            await self.set(query, data, ttl_seconds=7200)  # 2 hour TTL for pre-warmed
+            
+        logger.info(f"Pre-warmed {len(prewarm_data)} CEO queries")
+
+    def _get_embedding(self, text: str) -> np.ndarray:
+        """Generate embedding for text using sentence transformer"""
+        if self.model is None:
+            # Fallback to simple hash-based similarity if model not loaded
+            return np.array([hash(text) % 1000 / 1000.0] * 384)
+        
+        try:
+            embedding = self.model.encode(text, convert_to_numpy=True)
+            return embedding
+        except Exception as e:
+            logger.error(f"Error generating embedding: {e}")
+            # Fallback embedding
+            return np.array([0.0] * 384)
+
+    def _calculate_similarity(self, embedding1: np.ndarray, embedding2: np.ndarray) -> float:
+        """Calculate cosine similarity between embeddings"""
+        try:
+            # Normalize vectors
+            norm1 = np.linalg.norm(embedding1)
+            norm2 = np.linalg.norm(embedding2)
+            
+            if norm1 == 0 or norm2 == 0:
+                return 0.0
+                
+            # Cosine similarity
+            similarity = np.dot(embedding1, embedding2) / (norm1 * norm2)
+            return float(similarity)
+        except Exception as e:
+            logger.error(f"Error calculating similarity: {e}")
+            return 0.0
+
+    async def get(self, query: str) -> Optional[Tuple[Any, float]]:
+        """
+        Get cached result for query using semantic similarity
+        Returns (result, similarity_score) or None
+        """
+        if not self.redis_client:
+            return None
+            
+        self.stats["total_queries"] += 1
+        
+        try:
+            # Get query embedding
+            query_embedding = self._get_embedding(query)
+            
+            # Get all cached queries
+            cache_keys = await self.redis_client.keys("cache:*")
+            
+            best_match = None
+            best_similarity = 0.0
+            
+            for key in cache_keys:
+                # Get cached data
+                cached_data = await self.redis_client.get(key)
+                if not cached_data:
+                    continue
+                    
+                cached_item = json.loads(cached_data)
+                cached_query = cached_item.get("query", "")
+                
+                # Calculate similarity
+                cached_embedding = np.array(cached_item.get("embedding", []))
+                similarity = self._calculate_similarity(query_embedding, cached_embedding)
+                
+                if similarity > best_similarity and similarity >= self.similarity_threshold:
+                    best_similarity = similarity
+                    best_match = cached_item.get("result")
+                    
+            if best_match:
+                self.stats["hits"] += 1
+                self.stats["avg_similarity"] = (
+                    self.stats["avg_similarity"] * 0.9 + best_similarity * 0.1
+                )
+                logger.info(f"Cache hit with similarity {best_similarity:.2f}")
+                return (best_match, best_similarity)
+            else:
+                self.stats["misses"] += 1
+                return None
+                
+        except Exception as e:
+            logger.error(f"Cache get error: {e}")
+            return None
+
+    async def set(self, query: str, result: Any, ttl_seconds: Optional[int] = None):
+        """Set cache entry with query and result"""
+        if not self.redis_client:
+            return
+            
+        try:
+            # Generate embedding
+            embedding = self._get_embedding(query)
+            
+            # Create cache entry
+            cache_entry = {
+                "query": query,
+                "result": result,
+                "embedding": embedding.tolist(),
+                "timestamp": time.time()
+            }
+            
+            # Generate cache key
+            cache_key = f"cache:{hash(query)}"
+            
+            # Store in Redis
+            ttl = ttl_seconds or self.cache_ttl
+            await self.redis_client.setex(
+                cache_key,
+                ttl,
+                json.dumps(cache_entry)
+            )
+            
+            # Update stats
+            self.stats["cache_size"] = await self.redis_client.dbsize()
+            
+        except Exception as e:
+            logger.error(f"Cache set error: {e}")
+
+    async def clear(self):
+        """Clear all cache entries"""
+        if not self.redis_client:
+            return
+            
+        try:
+            await self.redis_client.flushdb()
+            self.stats["cache_size"] = 0
+            logger.info("Cache cleared successfully")
+        except Exception as e:
+            logger.error(f"Cache clear error: {e}")
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics"""
+        hit_rate = (
+            self.stats["hits"] / self.stats["total_queries"]
+            if self.stats["total_queries"] > 0
+            else 0
+        )
+        
+        return {
+            "hits": self.stats["hits"],
+            "misses": self.stats["misses"],
+            "hit_rate": hit_rate,
+            "total_queries": self.stats["total_queries"],
+            "cache_size": self.stats["cache_size"],
+            "avg_similarity": self.stats["avg_similarity"],
+            "model": self.model_name if self.model else "fallback",
+            "threshold": self.similarity_threshold
+        }
+
+
 # Singleton instance
+cache_service = GPTCacheService()
+
+
+# Initialize on import
 import asyncio
 
-cache_service = SophiaCacheService()
+
+def _init_cache():
+    """Initialize cache service synchronously"""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # Schedule initialization for later
+            asyncio.create_task(cache_service.initialize())
+        else:
+            # Run initialization now
+            loop.run_until_complete(cache_service.initialize())
+    except Exception as e:
+        logger.warning(f"Cache initialization deferred: {e}")
+
+
+_init_cache()

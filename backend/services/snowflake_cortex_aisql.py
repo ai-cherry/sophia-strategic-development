@@ -7,10 +7,12 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, List, Dict
 
 import snowflake.connector
 from snowflake.connector import DictCursor
+
+from backend.core.auto_esc_config import get_snowflake_config
 
 logger = logging.getLogger(__name__)
 
@@ -33,27 +35,35 @@ class SnowflakeCortexAISQLService:
     Replaces external vector databases and Python processing
     """
 
-    def __init__(self, connection_params: Optional[dict] = None):
-        self.connection_params = connection_params or self._get_default_connection()
+    def __init__(self):
+        # Get Snowflake configuration from Pulumi ESC
+        self.config = get_snowflake_config()
         self.conn = None
         self.warehouse = os.getenv("SNOWFLAKE_WAREHOUSE", "SOPHIA_COMPUTE_WH")
 
-    def _get_default_connection(self) -> dict:
-        """Get connection parameters from environment"""
-        return {
-            "account": os.getenv("SNOWFLAKE_ACCOUNT"),
-            "user": os.getenv("SNOWFLAKE_USER"),
-            "password": os.getenv("SNOWFLAKE_PASSWORD"),
-            "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE", "SOPHIA_COMPUTE_WH"),
-            "database": os.getenv("SNOWFLAKE_DATABASE", "SOPHIA_AI"),
-            "schema": os.getenv("SNOWFLAKE_SCHEMA", "BUSINESS_DATA"),
-            "role": os.getenv("SNOWFLAKE_ROLE", "SOPHIA_ADMIN"),
-        }
+    def _get_connection(self):
+        """Get Snowflake connection using ESC configuration"""
+        if not self.conn or self.conn.is_closed():
+            try:
+                self.conn = snowflake.connector.connect(
+                    account=self.config['account'],
+                    user=self.config['user'],
+                    password=self.config['password'],
+                    role=self.config['role'],
+                    warehouse=self.config['warehouse'],
+                    database=self.config['database'],
+                    schema=self.config['schema']
+                )
+                logger.info(f"Connected to Snowflake: {self.config['account']}")
+            except Exception as e:
+                logger.error(f"Failed to connect to Snowflake: {e}")
+                raise
+        return self.conn
 
     def connect(self):
         """Establish connection to Snowflake"""
         if not self.conn:
-            self.conn = snowflake.connector.connect(**self.connection_params)
+            self.conn = snowflake.connector.connect(**self.config)
             logger.info("Connected to Snowflake Cortex AISQL")
 
     def close(self):
