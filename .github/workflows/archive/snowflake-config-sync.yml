@@ -11,20 +11,20 @@ on:
 jobs:
   sync-snowflake-config:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Install Pulumi
         uses: pulumi/actions@v4
-          
+
       - name: Configure Pulumi ESC
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
           pulumi login
-          
+
       - name: Sync Snowflake Configuration
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
@@ -38,7 +38,7 @@ jobs:
         run: |
           # Set Snowflake configuration in Pulumi ESC
           echo "Setting Snowflake configuration in Pulumi ESC..."
-          
+
           pulumi env set scoobyjava-org/default/sophia-ai-production \
             snowflake_account "$SNOWFLAKE_ACCOUNT" \
             snowflake_user "$SNOWFLAKE_USER" \
@@ -47,12 +47,12 @@ jobs:
             snowflake_warehouse "$SNOWFLAKE_WAREHOUSE" \
             snowflake_database "$SNOWFLAKE_DATABASE" \
             snowflake_schema "$SNOWFLAKE_SCHEMA"
-            
+
           echo "✅ Snowflake configuration synced to Pulumi ESC"
-          
+
       - name: Verify Configuration
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
         run: |
           echo "Verifying Snowflake configuration..."
-          pulumi env get scoobyjava-org/default/sophia-ai-production | grep snowflake || echo "No Snowflake config found" 
+          pulumi env get scoobyjava-org/default/sophia-ai-production | grep snowflake || echo "No Snowflake config found"

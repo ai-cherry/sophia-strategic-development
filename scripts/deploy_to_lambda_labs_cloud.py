@@ -6,8 +6,9 @@ This script automates the deployment of Sophia AI to Lambda Labs infrastructure
 using Docker Swarm and cloud-native patterns.
 
 Usage:
-    python scripts/deploy_to_lambda_labs_cloud.py --environment prod
-    python scripts/deploy_to_lambda_labs_cloud.py --environment staging --dry-run
+    python scripts/deploy_to_lambda_labs_cloud.py --environment prod --target platform
+    python scripts/deploy_to_lambda_labs_cloud.py --environment staging --target mcp --dry-run
+    python scripts/deploy_to_lambda_labs_cloud.py --environment prod --target ai
 """
 
 import argparse
@@ -22,20 +23,47 @@ from pathlib import Path
 class LambdaLabsCloudDeployer:
     """Handles deployment to Lambda Labs Docker Cloud infrastructure."""
 
-    def __init__(self, environment: str = "prod", dry_run: bool = False):
+    def __init__(
+        self, environment: str = "prod", target: str = "platform", dry_run: bool = False
+    ):
         self.environment = environment
+        self.target = target
         self.dry_run = dry_run
         self.docker_registry = "scoobyjava15"
-        self.stack_name = f"sophia-ai-{environment}"
+        self.stack_name = f"sophia-ai-{environment}-{target}"
 
-        # Lambda Labs configuration
-        self.lambda_labs_config = {
-            "instance_id": "7e7b1e5f53c44a26bd574e4266e96194",
-            "instance_name": "sophia-ai-production",
-            "ip_address": "146.235.200.1",
-            "ssh_key_id": "cae55cb8d0f5443cbdf9129f7cec8770",
-            "region": "us-south-1",
+        # Lambda Labs instance configurations
+        self.lambda_labs_instances = {
+            "platform": {
+                "instance_name": "sophia-platform-prod",
+                "ip_address": "146.235.200.1",
+                "gpu_type": "gpu_1x_a10",
+                "region": "us-west-1",
+                "purpose": "Main Platform Services",
+            },
+            "mcp": {
+                "instance_name": "sophia-mcp-prod",
+                "ip_address": "165.1.69.44",
+                "gpu_type": "gpu_1x_a10",
+                "region": "us-west-1",
+                "purpose": "MCP Servers",
+            },
+            "ai": {
+                "instance_name": "sophia-ai-prod",
+                "ip_address": "137.131.6.213",
+                "gpu_type": "gpu_1x_a100_sxm4",
+                "region": "us-west-2",
+                "purpose": "AI Processing & ML Workloads",
+            },
         }
+
+        # Set current Lambda Labs configuration based on target
+        if target not in self.lambda_labs_instances:
+            raise ValueError(
+                f"Invalid target '{target}'. Must be one of: {list(self.lambda_labs_instances.keys())}"
+            )
+
+        self.lambda_labs_config = self.lambda_labs_instances[target]
 
         # Required secrets for deployment
         self.required_secrets = [
@@ -454,6 +482,10 @@ class LambdaLabsCloudDeployer:
     def run_deployment(self) -> bool:
         """Run the complete deployment process."""
         print(f"🏁 Starting Sophia AI deployment to '{self.environment}' environment.")
+        print(
+            f"🎯 Target: {self.target} ({self.lambda_labs_config['instance_name']} - {self.lambda_labs_config['ip_address']})"
+        )
+        print(f"📋 Purpose: {self.lambda_labs_config['purpose']}")
         steps = [
             ("Prerequisites", self.validate_prerequisites),
             ("Build & Push Images", self.build_and_push_images),
@@ -487,6 +519,12 @@ def main():
         help="Deployment environment",
     )
     parser.add_argument(
+        "--target",
+        choices=["platform", "mcp", "ai"],
+        default="platform",
+        help="Deployment target instance (platform, mcp, or ai)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Perform a dry run without making changes",
@@ -495,7 +533,7 @@ def main():
     args = parser.parse_args()
 
     deployer = LambdaLabsCloudDeployer(
-        environment=args.environment, dry_run=args.dry_run
+        environment=args.environment, target=args.target, dry_run=args.dry_run
     )
 
     success = deployer.run_deployment()

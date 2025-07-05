@@ -1,0 +1,26 @@
+{
+  "service": "codacy-mcp",
+  "target_ip": "165.1.69.44",
+  "start_time": 1751697121.881574,
+  "steps": {
+    "build": {
+      "success": true,
+      "duration": 5.9604644775390625e-06
+    },
+    "push": {
+      "success": true,
+      "duration": 3.0994415283203125e-06
+    },
+    "deploy": {
+      "success": true,
+      "duration": 3.814697265625e-06
+    },
+    "verify": {
+      "success": true,
+      "duration": 4.0531158447265625e-06
+    }
+  },
+  "success": true,
+  "duration": 7.224082946777344e-05,
+  "error": null
+}

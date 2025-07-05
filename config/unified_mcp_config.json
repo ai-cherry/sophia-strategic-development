@@ -9,7 +9,7 @@
   },
   "mcpServers": {
     "ai_memory": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/ai_memory/enhanced_ai_memory_server.py"
       ],
@@ -40,7 +40,7 @@
       }
     },
     "snowflake_admin": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "backend/mcp_servers/snowflake_admin_mcp_server.py"
       ],
@@ -71,7 +71,7 @@
       }
     },
     "codacy": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/codacy/production_codacy_server.py"
       ],
@@ -102,7 +102,7 @@
       }
     },
     "linear": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/linear/linear_mcp_server.py"
       ],
@@ -121,7 +121,7 @@
       "health_endpoint": "/health"
     },
     "github": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/github/github_mcp_server.py"
       ],
@@ -140,7 +140,7 @@
       "health_endpoint": "/health"
     },
     "asana": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/asana/asana_mcp_server.py"
       ],
@@ -159,7 +159,7 @@
       "health_endpoint": "/health"
     },
     "notion": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/notion/enhanced_notion_mcp_server.py"
       ],
@@ -178,7 +178,7 @@
       "health_endpoint": "/health"
     },
     "ui_ux_agent": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py"
       ],
@@ -209,7 +209,7 @@
       }
     },
     "portkey_admin": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/portkey_admin/portkey_admin_mcp_server.py"
       ],
@@ -240,16 +240,16 @@
       }
     },
     "lambda_labs_cli": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "PORT": "9020",
+        "PORT": "9040",
         "LAMBDA_LABS_HOST": "165.1.69.44"
       },
-      "port": 9020,
+      "port": 9040,
       "cwd": ".",
       "capabilities": [
         "instance_management",
@@ -271,7 +271,7 @@
       }
     },
     "snowflake_cortex": {
-      "command": "python",
+      "command": "python3",
       "args": [
         "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py"
       ],

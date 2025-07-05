@@ -1,0 +1,234 @@
+{
+  "timestamp": "2025-07-05T09:55:39.606330",
+  "total_servers": 11,
+  "healthy_servers": 0,
+  "degraded_servers": 0,
+  "failed_servers": 0,
+  "unreachable_servers": 11,
+  "config_issues": [
+    "snowflake_admin: Unexpected command: python3 (expected: python)",
+    "codacy: Unexpected command: python3 (expected: python)",
+    "linear: Unexpected command: python3 (expected: python)",
+    "github: Unexpected command: python3 (expected: python)",
+    "ai_memory: Unexpected command: python3 (expected: python)",
+    "ui_ux_agent: Unexpected command: python3 (expected: python)",
+    "portkey_admin: Unexpected command: python3 (expected: python)",
+    "asana: Unexpected command: python3 (expected: python)",
+    "notion: Unexpected command: python3 (expected: python)",
+    "lambda_labs_cli: Unexpected command: python3 (expected: python)",
+    "snowflake_cortex: Unexpected command: python3 (expected: python)"
+  ],
+  "port_conflicts": [],
+  "missing_files": [],
+  "server_details": [
+    {
+      "name": "snowflake_admin",
+      "port": 9020,
+      "expected_path": "backend/mcp_servers/snowflake_admin_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10005.751132965088,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "schema_sync",
+        "query_execution",
+        "performance_optimization"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "codacy",
+      "port": 3008,
+      "expected_path": "mcp-servers/codacy/production_codacy_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10005.382061004639,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "code_analysis",
+        "security_scan",
+        "quality_metrics"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "linear",
+      "port": 9004,
+      "expected_path": "mcp-servers/linear/linear_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10005.561113357544,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "project_management",
+        "issue_tracking",
+        "team_analytics"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "github",
+      "port": 9103,
+      "expected_path": "mcp-servers/github/github_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10005.444049835205,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "repository_management",
+        "issue_tracking",
+        "code_review"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "ai_memory",
+      "port": 9001,
+      "expected_path": "mcp-servers/ai_memory/enhanced_ai_memory_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10005.979061126709,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "memory_storage",
+        "memory_recall",
+        "semantic_search"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "ui_ux_agent",
+      "port": 9002,
+      "expected_path": "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10004.611015319824,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "ui_generation",
+        "design_analysis",
+        "component_creation"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "portkey_admin",
+      "port": 9013,
+      "expected_path": "mcp-servers/portkey_admin/portkey_admin_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10003.067255020142,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "ai_routing",
+        "cost_optimization",
+        "model_selection"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "asana",
+      "port": 9100,
+      "expected_path": "mcp-servers/asana/asana_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10004.818201065063,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "task_management",
+        "project_tracking",
+        "team_collaboration"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "notion",
+      "port": 9005,
+      "expected_path": "mcp-servers/notion/enhanced_notion_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10003.818035125732,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "documentation",
+        "knowledge_base",
+        "wiki_management"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "lambda_labs_cli",
+      "port": 9040,
+      "expected_path": "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10002.41470336914,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "instance_management",
+        "gpu_monitoring",
+        "cost_tracking"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    },
+    {
+      "name": "snowflake_cortex",
+      "port": 9030,
+      "expected_path": "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py",
+      "host": "165.1.69.44",
+      "status": "unreachable",
+      "response_time": 10002.820014953613,
+      "error_message": "Connection timeout",
+      "capabilities": [
+        "cortex_ai",
+        "embeddings",
+        "sentiment_analysis"
+      ],
+      "health_data": null,
+      "file_exists": true,
+      "config_issues": [
+        "Unexpected command: python3 (expected: python)"
+      ]
+    }
+  ]
+}

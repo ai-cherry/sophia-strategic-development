@@ -68,7 +68,6 @@ services:
   # MCP Gateway
   mcp-gateway:
     image: ${DOCKER_REGISTRY}/sophia-mcp-gateway:${IMAGE_TAG:-latest}
-    build:
     environment:
       <<: *common-env
     ports:

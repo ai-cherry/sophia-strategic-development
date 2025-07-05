@@ -1,0 +1,35 @@
+{
+  "deployment_info": {
+    "environment": "prod",
+    "stack_name": "sophia-ai-prod-platform",
+    "registry": "scoobyjava15",
+    "timestamp": "2025-07-05 06:42:07 UTC"
+  },
+  "lambda_labs_config": {
+    "instance_name": "sophia-platform-prod",
+    "ip_address": "146.235.200.1",
+    "gpu_type": "gpu_1x_a10",
+    "region": "us-west-1",
+    "purpose": "Main Platform Services"
+  },
+  "docker_images": [
+    "scoobyjava15/sophia-ai:latest",
+    "scoobyjava15/sophia-ai-mem0:latest",
+    "scoobyjava15/sophia-ai-cortex:latest"
+  ],
+  "access_urls": {
+    "main_api": "http://146.235.200.1:8000",
+    "mem0_server": "http://146.235.200.1:8080",
+    "cortex_server": "http://146.235.200.1:8081",
+    "traefik_dashboard": "http://146.235.200.1:8090",
+    "grafana": "http://146.235.200.1:3000",
+    "prometheus": "http://146.235.200.1:9090"
+  },
+  "next_steps": [
+    "Update Docker secrets with real values from Pulumi ESC",
+    "Configure DNS records for custom domains",
+    "Set up SSL certificates via Traefik",
+    "Configure monitoring alerts",
+    "Test all service endpoints"
+  ]
+}

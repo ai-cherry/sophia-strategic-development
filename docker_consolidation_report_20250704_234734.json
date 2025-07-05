@@ -1,0 +1,24 @@
+{
+  "phase": "",
+  "timestamp": "2025-07-04T23:47:26.987539",
+  "dockerfiles_found": 50,
+  "dockerfiles_consolidated": 0,
+  "compose_files_found": 19,
+  "compose_files_consolidated": 0,
+  "workflows_found": 47,
+  "workflows_consolidated": 0,
+  "deployment_scripts_found": 44,
+  "deployment_scripts_consolidated": 0,
+  "security_issues": [
+    "Insecure or outdated base images detected",
+    "No image signing or verification detected"
+  ],
+  "recommendations": [
+    "CRITICAL: Consolidate 50 Dockerfiles to 1 multi-stage Dockerfile",
+    "HIGH: Reduce 19 compose files to 3-5 environment-specific files",
+    "HIGH: Consolidate 47 workflows to 8-10 core workflows",
+    "MEDIUM: Consolidate 44 deployment scripts into GitHub Actions",
+    "CRITICAL: Address 2 security issues immediately"
+  ],
+  "next_steps": []
+}

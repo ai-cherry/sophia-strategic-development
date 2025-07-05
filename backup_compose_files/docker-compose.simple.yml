@@ -29,4 +29,4 @@ services:
 
 networks:
   sophia-main_sophia-network:
-    external: true 
+    external: true
