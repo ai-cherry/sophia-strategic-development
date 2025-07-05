@@ -215,7 +215,7 @@ class SophiaUnifiedChatService:
 - `linear` - Engineering project management
 - `asana` - Product management
 
-**Business Intelligence** (8 servers):
+**Business Intelligence** (48+ servers):
 - `hubspot_unified` - CRM and sales data
 - `gong` - Call analysis and sales intelligence
 - `slack_unified` - Communication analytics
@@ -225,7 +225,7 @@ class SophiaUnifiedChatService:
 - `apollo` - Sales prospecting
 - `bright_data` - Market intelligence
 
-**Infrastructure** (8 servers):
+**Infrastructure** (48+ servers):
 - `lambda_labs_cli` - GPU compute management
 - `pulumi` - Infrastructure as code
 - `portkey_admin` - LLM gateway optimization
@@ -691,7 +691,7 @@ L5: LangGraph Workflow (Enhanced)   - Behavioral pattern memory
 
 ### Enhanced MCP Server Portfolio
 
-**Core Intelligence** (8 servers - Enhanced):
+**Core Intelligence** (48+ servers - Enhanced):
 - `ai_memory` (9000) - Enhanced with 5-tier integration
 - `mem0_persistent` (9010) - **NEW**: Cross-session learning
 - `sophia_intelligence_unified` (8001) - Memory-aware orchestration

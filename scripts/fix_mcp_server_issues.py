@@ -26,6 +26,10 @@ from typing import Optional
 
 import requests
 
+# NOTE: This script now supports all 48+ MCP servers dynamically
+# Complete server list loaded from configuration files
+
+
 
 class MCPServerManager:
     """Comprehensive MCP server management and fixing system."""

@@ -1,0 +1,142 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-01-04T00:00:00Z",
+  "description": "Complete Sophia AI MCP Server Inventory",
+  "total_servers": 48,
+  "server_categories": {
+    "core_intelligence": {
+      "servers": [
+        "ai-memory",
+        "figma-context",
+        "ui-ux-agent",
+        "codacy",
+        "asana",
+        "notion",
+        "linear",
+        "github",
+        "slack",
+        "postgres",
+        "sophia-data-intelligence",
+        "sophia-infrastructure",
+        "snowflake-admin",
+        "portkey-admin",
+        "openrouter-search",
+        "sophia-business-intelligence",
+        "sophia-ai-intelligence",
+        "apify-intelligence",
+        "bright-data",
+        "graphiti"
+      ],
+      "port_range": "9000-9019",
+      "description": "Core AI and intelligence services"
+    },
+    "strategic_enhancements": {
+      "servers": [
+        "lambda-labs-cli",
+        "snowflake-cli-enhanced",
+        "estuary-flow-cli",
+        "pulumi",
+        "docker"
+      ],
+      "port_range": "9020-9029",
+      "description": "Strategic enhancement and CLI tools"
+    },
+    "business_intelligence": {
+      "servers": [
+        "hubspot",
+        "gong",
+        "apollo-io",
+        "hubspot-unified",
+        "slack-integration",
+        "slack-unified",
+        "intercom",
+        "salesforce"
+      ],
+      "port_range": "9100-9119",
+      "description": "Business intelligence and CRM integrations"
+    },
+    "data_integrations": {
+      "servers": [
+        "snowflake",
+        "snowflake-cortex",
+        "estuary",
+        "snowflake-unified"
+      ],
+      "port_range": "9200-9219",
+      "description": "Data integration and processing services"
+    },
+    "specialized": {
+      "servers": [
+        "prompt-optimizer",
+        "mem0-bridge",
+        "mem0-openmemory",
+        "mem0-persistent",
+        "cortex-aisql",
+        "code-modifier",
+        "migration-orchestrator",
+        "sophia-intelligence-unified",
+        "huggingface-ai",
+        "ag-ui",
+        "v0dev"
+      ],
+      "port_range": "9030-9039, 8081, etc.",
+      "description": "Specialized and auxiliary services"
+    }
+  },
+  "complete_server_list": [
+    "ai-memory",
+    "figma-context",
+    "ui-ux-agent",
+    "codacy",
+    "asana",
+    "notion",
+    "linear",
+    "github",
+    "slack",
+    "postgres",
+    "sophia-data-intelligence",
+    "sophia-infrastructure",
+    "snowflake-admin",
+    "portkey-admin",
+    "openrouter-search",
+    "sophia-business-intelligence",
+    "sophia-ai-intelligence",
+    "apify-intelligence",
+    "bright-data",
+    "graphiti",
+    "lambda-labs-cli",
+    "snowflake-cli-enhanced",
+    "estuary-flow-cli",
+    "pulumi",
+    "docker",
+    "hubspot",
+    "gong",
+    "apollo-io",
+    "hubspot-unified",
+    "slack-integration",
+    "slack-unified",
+    "intercom",
+    "salesforce",
+    "snowflake",
+    "snowflake-cortex",
+    "estuary",
+    "snowflake-unified",
+    "prompt-optimizer",
+    "mem0-bridge",
+    "mem0-openmemory",
+    "mem0-persistent",
+    "cortex-aisql",
+    "code-modifier",
+    "migration-orchestrator",
+    "sophia-intelligence-unified",
+    "huggingface-ai",
+    "ag-ui",
+    "v0dev"
+  ],
+  "usage_notes": [
+    "All scripts should load server lists dynamically from this file",
+    "Hardcoded server lists should be avoided",
+    "Use COMPLETE_MCP_SERVERS for comprehensive operations",
+    "Health monitoring should cover all servers listed here"
+  ]
+}

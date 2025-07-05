@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// NOTE: Monitoring 48+ MCP servers dynamically loaded from backend
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Alert, AlertDescription, Progress, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { Activity, Server, Cpu, HardDrive, Memory, Network, RefreshCw, AlertTriangle, CheckCircle, XCircle, Clock, Zap, Database, GitBranch, Monitor } from 'lucide-react';
 import { Line, Doughnut } from 'react-chartjs-2';

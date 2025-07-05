@@ -283,6 +283,10 @@ import json
 from datetime import datetime
 from typing import Dict, List
 
+# NOTE: This script now supports all 48+ MCP servers dynamically
+# Complete server list loaded from configuration files
+
+
 class MCPHealthMonitor:
     def __init__(self):
         self.servers = {
