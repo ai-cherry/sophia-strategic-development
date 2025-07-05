@@ -352,7 +352,7 @@ GitHub Organization Secrets (ai-cherry)
 
 #### Three-Tier Security Architecture
 - **Tier 1 (CLI-Based)**: GitHub, Pulumi, Docker, Vercel - CRITICAL risk operations
-- **Tier 2 (Enhanced API)**: Snowflake, Lambda Labs, Estuary Flow - HIGH risk operations  
+- **Tier 2 (Enhanced API)**: Snowflake, Lambda Labs, Estuary Flow - HIGH risk operations
 - **Tier 3 (Secure API)**: OpenAI, Anthropic, Slack, Linear, HubSpot - MEDIUM risk operations
 
 #### Agent Types & Permissions
@@ -376,7 +376,7 @@ from backend.security.unified_service_auth_manager import UnifiedServiceAuthMana
 auth_manager = UnifiedServiceAuthManager()
 await auth_manager.execute_operation(
     agent_type="infrastructure_agent",
-    service="pulumi", 
+    service="pulumi",
     operation="infrastructure_deployment",
     params={"stack": "production"}
 )
@@ -426,6 +426,17 @@ await auth_manager.execute_operation(
   GROUP BY customer_name
   ORDER BY total_revenue DESC LIMIT 5;
 ```
+
+### AI SQL and Cortex Agent Interaction
+
+**Complete Lifecycle Documentation**: See [AI SQL and Cortex Agent Interaction Lifecycle](./09_AI_SQL_CORTEX_AGENT_LIFECYCLE.md)
+
+This comprehensive guide covers the complete journey from natural language input to Snowflake Cortex execution, including:
+- **Phase-by-Phase Processing**: Intent detection → Agent selection → SQL generation → Execution
+- **Cortex Agent Specifications**: Snowflake Ops, Semantic Memory, and Business Intelligence agents
+- **Performance Optimization**: Connection pooling, batch processing, intelligent caching
+- **Integration Patterns**: Chat interface integration and error handling strategies
+- **Monitoring & Analytics**: Performance metrics and quality assurance frameworks
 
 ### Natural Language UI Generation (V0.dev Integration)
 

@@ -312,7 +312,9 @@ class MCPVersionValidator:
             if len(pattern_parts) != 3:
                 return False
 
-            for i, (v_part, p_part) in enumerate(zip(version_parts, pattern_parts, strict=False)):
+            for i, (v_part, p_part) in enumerate(
+                zip(version_parts, pattern_parts, strict=False)
+            ):
                 if p_part != "x" and v_part != p_part:
                     return False
             return True
