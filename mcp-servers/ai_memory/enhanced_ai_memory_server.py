@@ -23,6 +23,8 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 from backend.mcp_servers.base.standardized_mcp_server import (
+    HealthCheckResult,
+    HealthStatus,
     MCPServerConfig,
     ModelProvider,
     ServerCapability,
@@ -53,17 +55,17 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
     async def server_specific_init(self) -> None:
         """Initialize AI Memory specific components"""
         try:
-            # Initialize memory service
+            # Initialize memory service (no initialize method needed)
             self.memory_service = ComprehensiveMemoryService()
-            await self.memory_service.initialize()
-
+            
             # Load conversation history
             await self._load_conversation_history()
 
             self.logger.info("AI Memory server initialized successfully")
         except Exception as e:
             self.logger.error(f"Failed to initialize AI Memory server: {e}")
-            raise
+            # Don't raise - allow server to start with limited capabilities
+            self.memory_service = None
 
     async def check_external_api(self) -> bool:
         """Check if Pinecone/Weaviate are accessible"""
@@ -547,42 +549,47 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         except Exception as e:
             self.logger.error(f"Error during AI Memory server cleanup: {e}")
 
-    async def server_specific_health_check(self) -> dict[str, Any]:
+    async def server_specific_health_check(self) -> HealthCheckResult:
         """Perform AI Memory specific health checks"""
         try:
-            health_result = {
-                "component": "ai_memory",
-                "status": "healthy",
-                "response_time_ms": 0,
-                "metadata": {}
-            }
-            
             start_time = time.time()
             
             # Check memory service health
             if self.memory_service:
-                # Try a simple memory operation
-                test_memory = await self.memory_service.search_memories(
-                    query="health_check", limit=1
-                )
-                health_result["metadata"]["memory_service"] = "operational"
+                # Try a simple memory operation to test connectivity
+                try:
+                    test_memories = await self.memory_service.recall_memories(
+                        query="health_check", top_k=1
+                    )
+                    memory_service_status = "operational"
+                    status = HealthStatus.HEALTHY
+                except Exception as e:
+                    memory_service_status = f"error: {str(e)}"
+                    status = HealthStatus.DEGRADED
             else:
-                health_result["status"] = "degraded"
-                health_result["metadata"]["memory_service"] = "not_initialized"
+                memory_service_status = "not_initialized"
+                status = HealthStatus.DEGRADED
             
-            # Check conversation history
-            health_result["metadata"]["conversation_history_size"] = len(self.conversation_history)
+            response_time = (time.time() - start_time) * 1000
             
-            health_result["response_time_ms"] = (time.time() - start_time) * 1000
-            return health_result
+            return HealthCheckResult(
+                component="ai_memory",
+                status=status,
+                response_time_ms=response_time,
+                metadata={
+                    "memory_service": memory_service_status,
+                    "conversation_history_size": len(self.conversation_history),
+                    "capabilities": len(self.server_capabilities)
+                }
+            )
             
         except Exception as e:
-            return {
-                "component": "ai_memory", 
-                "status": "unhealthy",
-                "error_message": str(e),
-                "response_time_ms": 0
-            }
+            return HealthCheckResult(
+                component="ai_memory",
+                status=HealthStatus.CRITICAL,
+                response_time_ms=0,
+                error_message=str(e)
+            )
 
     async def sync_data(self) -> dict[str, Any]:
         """Sync AI Memory data (process and vectorize available data)"""
