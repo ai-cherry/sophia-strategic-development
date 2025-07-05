@@ -1,24 +1,31 @@
-# Use an official Python runtime as a parent image
-FROM python:3.12-slim
+FROM python:3.11-slim
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Install uv for fast dependency management
-RUN pip install uv
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy only the dependency files to leverage Docker layer caching
-COPY pyproject.toml uv.lock ./
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install project dependencies using uv
-# --system flag installs into the system python, which is fine for our container
-RUN uv pip install --system --no-cache -r requirements.txt
-
-# Copy the rest of the application's code into the container
+# Copy application code
 COPY . .
 
-# Expose the port the app runs on
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose port
 EXPOSE 3008
 
-# Define the command to run the application
-CMD ["uv", "run", "python", "mcp-servers/codacy/enhanced_codacy_mcp_server.py"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:3008/health || exit 1
+
+# Run application
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3008"]

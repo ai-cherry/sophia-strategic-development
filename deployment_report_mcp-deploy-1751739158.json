@@ -1,0 +1,152 @@
+{
+  "deployment_id": "mcp-deploy-1751739158",
+  "environment": "prod",
+  "strategy": "rolling",
+  "dry_run": true,
+  "start_time": "2025-07-05T11:12:38.855156",
+  "phases": {
+    "phase_1_validation": {
+      "status": "success",
+      "duration": 6.103515625e-05,
+      "results": {
+        "infrastructure_health": true,
+        "secrets_available": true,
+        "docker_connectivity": true,
+        "images_available": true,
+        "network_connectivity": true
+      }
+    },
+    "phase_2_infrastructure_prep": {
+      "status": "success",
+      "duration": 4.506111145019531e-05,
+      "results": {
+        "docker_swarm_initialized": true,
+        "networks_created": true,
+        "secrets_configured": true,
+        "volumes_prepared": true
+      }
+    },
+    "phase_3_build_and_push": {
+      "status": "success",
+      "duration": 9.083747863769531e-05,
+      "results": {
+        "codacy-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "linear-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "ai-memory-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "asana-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "notion-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "github-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "snowflake-admin-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        },
+        "lambda-labs-cli-mcp": {
+          "success": true,
+          "status": "skipped (dry run)"
+        }
+      }
+    },
+    "phase_4_deploy_services": {
+      "status": "success",
+      "duration": 9.894371032714844e-05,
+      "results": {
+        "success": true,
+        "deployed_services": [
+          "ai-memory-mcp",
+          "codacy-mcp",
+          "linear-mcp",
+          "snowflake-admin-mcp",
+          "asana-mcp",
+          "notion-mcp",
+          "github-mcp",
+          "lambda-labs-cli-mcp"
+        ],
+        "failed_services": [],
+        "rollback_performed": false
+      }
+    },
+    "phase_5_health_verification": {
+      "status": "success",
+      "duration": 0.0001499652862548828,
+      "results": {
+        "codacy-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "linear-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "ai-memory-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "asana-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "notion-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "github-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "snowflake-admin-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        },
+        "lambda-labs-cli-mcp": {
+          "healthy": true,
+          "status": "skipped (dry run)"
+        }
+      }
+    },
+    "phase_6_post_deployment": {
+      "status": "success",
+      "duration": 5.793571472167969e-05,
+      "results": {
+        "monitoring_configured": true,
+        "logging_configured": true,
+        "alerts_configured": true,
+        "backup_configured": true,
+        "performance_tuned": true
+      }
+    },
+    "phase_7_final_validation": {
+      "status": "success",
+      "duration": 5.507469177246094e-05,
+      "results": {
+        "end_to_end_tests": true,
+        "performance_tests": true,
+        "security_tests": true,
+        "load_tests": true,
+        "smoke_tests": true
+      }
+    }
+  },
+  "services": {},
+  "overall_status": "success",
+  "error": null,
+  "end_time": "2025-07-05T11:12:38.856093",
+  "duration": 0.0009410381317138672
+}
