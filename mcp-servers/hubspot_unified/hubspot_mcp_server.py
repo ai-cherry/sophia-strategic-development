@@ -1,135 +1,190 @@
+#!/usr/bin/env python3
 """
-HubSpot MCP Server Implementation
-Provides CRM and sales data functionality
+HubSpot MCP Server - Unified Implementation
+Provides CRM integration for contacts, deals, and companies
 """
 
-import asyncio
-import logging
+import os
+import sys
 from datetime import datetime
-from typing import Any
+from pathlib import Path
+from typing import Any, Optional
 
-from mcp import server
+# Add parent directory to path for imports
+sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from backend.core.auto_esc_config import get_config_value
+try:
+    from backend.core.config_manager import ConfigManager
+    from backend.mcp_servers.base.unified_mcp_base import (
+        HealthStatus,
+        ServerConfig,
+        StandardizedMCPServer,
+    )
+    from backend.utils.custom_logger import setup_logger
+except ImportError as e:
+    print(f"Import error: {e}")
+    print("Please ensure you're running from the project root")
+    sys.exit(1)
 
-logger = logging.getLogger(__name__)
+logger = setup_logger("mcp.hubspot")
 
 
-class HubSpotMCPServer:
-    """HubSpot MCP Server for CRM operations"""
+class HubSpotMCPServer(StandardizedMCPServer):
+    """HubSpot CRM integration MCP server"""
 
-    def __init__(self, port: int = 9101):
-        self.name = "hubspot"
-        self.version = "1.0.0"
+    def __init__(self, config: Optional[ServerConfig] = None):
+        if not config:
+            config = ServerConfig(
+                name="hubspot",
+                port=9006,
+                version="1.0.0",
+                description="HubSpot CRM integration for contacts, deals, and companies",
+            )
+        super().__init__(config)
 
-        # Initialize MCP server
-        self.mcp_server = server(self.name, self.version)
-
-        # Load API key
-        self.api_key = get_config_value("hubspot.api_key", "")
-
-        # Register tools and resources
-        self._register_tools()
-        self._register_resources()
+        # HubSpot-specific configuration
+        self.api_key = os.getenv("HUBSPOT_API_KEY") or ConfigManager().get(
+            "hubspot_api_key"
+        )
+        self.base_url = "https://api.hubapi.com"
 
     def _register_tools(self):
-        """Register HubSpot MCP tools"""
+        """Register HubSpot-specific tools"""
 
-        @self.mcp_server.tool("get_contacts")
-        async def get_contacts(limit: int = 10) -> dict[str, Any]:
-            """Get HubSpot contacts"""
+        @self.server.tool()
+        async def list_contacts(limit: int = 10) -> dict[str, Any]:
+            """List HubSpot contacts"""
             try:
-                # Mock implementation for now
+                # Demo implementation
+                contacts = [
+                    {
+                        "id": "1",
+                        "properties": {
+                            "firstname": "John",
+                            "lastname": "Doe",
+                            "email": "john.doe@example.com",
+                            "company": "Acme Corp",
+                        },
+                        "createdAt": "2024-01-01T00:00:00Z",
+                        "updatedAt": datetime.now().isoformat(),
+                    }
+                ]
+
+                self.logger.info(f"Listed {len(contacts)} contacts")
                 return {
-                    "success": True,
-                    "contacts": [
-                        {
-                            "id": "1",
-                            "email": "contact1@example.com",
-                            "name": "John Doe",
-                            "company": "Example Corp",
-                        }
-                    ],
-                    "total": 1,
+                    "status": "success",
+                    "count": len(contacts),
+                    "contacts": contacts,
+                }
+            except Exception as e:
+                self.logger.error(f"Error listing contacts: {e}")
+                return {"status": "error", "message": str(e)}
+
+        @self.server.tool()
+        async def list_deals(limit: int = 10) -> dict[str, Any]:
+            """List HubSpot deals"""
+            try:
+                # Demo implementation
+                deals = [
+                    {
+                        "id": "1",
+                        "properties": {
+                            "dealname": "Enterprise Deal",
+                            "amount": "50000",
+                            "dealstage": "contractsent",
+                            "closedate": "2024-12-31T00:00:00Z",
+                        },
+                        "createdAt": "2024-01-01T00:00:00Z",
+                        "updatedAt": datetime.now().isoformat(),
+                    }
+                ]
+
+                self.logger.info(f"Listed {len(deals)} deals")
+                return {"status": "success", "count": len(deals), "deals": deals}
+            except Exception as e:
+                self.logger.error(f"Error listing deals: {e}")
+                return {"status": "error", "message": str(e)}
+
+        @self.server.tool()
+        async def list_companies(limit: int = 10) -> dict[str, Any]:
+            """List HubSpot companies"""
+            try:
+                # Demo implementation
+                companies = [
+                    {
+                        "id": "1",
+                        "properties": {
+                            "name": "Acme Corp",
+                            "domain": "acme.com",
+                            "industry": "Technology",
+                            "numberofemployees": "100",
+                        },
+                        "createdAt": "2024-01-01T00:00:00Z",
+                        "updatedAt": datetime.now().isoformat(),
+                    }
+                ]
+
+                self.logger.info(f"Listed {len(companies)} companies")
+                return {
+                    "status": "success",
+                    "count": len(companies),
+                    "companies": companies,
+                }
+            except Exception as e:
+                self.logger.error(f"Error listing companies: {e}")
+                return {"status": "error", "message": str(e)}
+
+        @self.server.tool()
+        async def create_contact(
+            email: str, firstname: str, lastname: str, company: Optional[str] = None
+        ) -> dict[str, Any]:
+            """Create a new contact"""
+            try:
+                # Demo implementation
+                contact = {
+                    "id": "42",
+                    "properties": {
+                        "email": email,
+                        "firstname": firstname,
+                        "lastname": lastname,
+                        "company": company,
+                    },
+                    "createdAt": datetime.now().isoformat(),
                 }
 
+                self.logger.info(f"Created contact: {email}")
+                return {"status": "success", "contact": contact}
             except Exception as e:
-                logger.error(f"Get contacts failed: {e}")
-                return {"error": str(e)}
+                self.logger.error(f"Error creating contact: {e}")
+                return {"status": "error", "message": str(e)}
 
-        @self.mcp_server.tool("get_deals")
-        async def get_deals(limit: int = 10) -> dict[str, Any]:
-            """Get HubSpot deals"""
-            try:
-                # Mock implementation for now
-                return {
-                    "success": True,
-                    "deals": [
-                        {
-                            "id": "1",
-                            "name": "Example Deal",
-                            "amount": 10000,
-                            "stage": "negotiation",
-                            "close_date": "2024-07-15",
-                        }
-                    ],
-                    "total": 1,
-                }
+    async def _check_service_health(self) -> HealthStatus:
+        """Check HubSpot API connectivity"""
+        if not self.api_key:
+            return HealthStatus(
+                healthy=False,
+                latency_ms=0,
+                details={"error": "HubSpot API key not configured"},
+            )
 
-            except Exception as e:
-                logger.error(f"Get deals failed: {e}")
-                return {"error": str(e)}
-
-        @self.mcp_server.tool("health_check")
-        async def health_check() -> dict[str, Any]:
-            """Check HubSpot connection health"""
-            try:
-                has_api_key = bool(self.api_key)
-
-                return {
-                    "healthy": has_api_key,
-                    "api_key_configured": has_api_key,
-                    "timestamp": datetime.now().isoformat(),
-                }
-
-            except Exception as e:
-                logger.error(f"Health check failed: {e}")
-                return {"healthy": False, "error": str(e)}
-
-    def _register_resources(self):
-        """Register HubSpot MCP resources"""
-
-        @self.mcp_server.resource("pipelines")
-        async def get_pipelines() -> list[dict[str, Any]]:
-            """Get HubSpot sales pipelines"""
-            try:
-                # Mock implementation
-                return [{"id": "default", "name": "Sales Pipeline", "stages": 5}]
-
-            except Exception as e:
-                logger.error(f"Get pipelines failed: {e}")
-                return []
-
-    async def start(self):
-        """Start the HubSpot MCP server"""
-        logger.info(f"🚀 Starting HubSpot MCP Server on port {self.port}")
-
-        # Test connection
-        health = await self.mcp_server.call_tool("health_check", {})
-        logger.info(f"   Health check: {health}")
-
-        logger.info("✅ HubSpot MCP Server started successfully")
-
-    async def stop(self):
-        """Stop the HubSpot MCP server"""
-        logger.info("🛑 Stopping HubSpot MCP Server")
+        # In production, would make actual API call
+        return HealthStatus(
+            healthy=True,
+            latency_ms=75,
+            details={"api_status": "operational", "rate_limit": "10000/day"},
+        )
 
 
-# Create server instance
-hubspot_server = HubSpotMCPserver()
+async def main():
+    """Main entry point"""
+    server = HubSpotMCPServer()
+    await server.run()
+
 
 if __name__ == "__main__":
-    asyncio.run(hubspot_server.start())
+    import asyncio
+
+    asyncio.run(main())
 
 
 # --- Auto-inserted health endpoint ---

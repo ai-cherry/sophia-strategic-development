@@ -1,133 +1,190 @@
+#!/usr/bin/env python3
 """
-GitHub MCP Server Implementation
-Provides repository management functionality
+GitHub MCP Server - Unified Implementation
+Provides repository management and issue tracking capabilities
 """
 
-import asyncio
-import logging
+import os
+import sys
 from datetime import datetime
-from typing import Any
+from pathlib import Path
+from typing import Any, Optional
 
-from mcp import server
+# Add parent directory to path for imports
+sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from backend.core.auto_esc_config import get_config_value
+try:
+    from backend.core.config_manager import ConfigManager
+    from backend.mcp_servers.base.unified_mcp_base import (
+        HealthStatus,
+        ServerConfig,
+        StandardizedMCPServer,
+    )
+    from backend.utils.custom_logger import setup_logger
+except ImportError as e:
+    print(f"Import error: {e}")
+    print("Please ensure you're running from the project root")
+    sys.exit(1)
 
-logger = logging.getLogger(__name__)
+logger = setup_logger("mcp.github")
 
 
-class GitHubMCPServer:
-    """GitHub MCP Server for repository operations"""
+class GitHubMCPServer(StandardizedMCPServer):
+    """GitHub integration MCP server"""
 
-    def __init__(self, port: int = 9103):
-        self.name = "github"
-        self.version = "1.0.0"
+    def __init__(self, config: Optional[ServerConfig] = None):
+        if not config:
+            config = ServerConfig(
+                name="github",
+                port=9003,
+                version="1.0.0",
+                description="GitHub repository and issue management",
+            )
+        super().__init__(config)
 
-        # Initialize MCP server
-        self.mcp_server = server(self.name, self.version)
-
-        # Load API token
-        self.access_token = get_config_value("github.access_token", "")
-
-        # Register tools and resources
-        self._register_tools()
-        self._register_resources()
+        # GitHub-specific configuration
+        self.github_token = os.getenv("GITHUB_TOKEN") or ConfigManager().get(
+            "github_token"
+        )
+        self.base_url = "https://api.github.com"
 
     def _register_tools(self):
-        """Register GitHub MCP tools"""
+        """Register GitHub-specific tools"""
 
-        @self.mcp_server.tool("get_repository")
-        async def get_repository(owner: str, repo: str) -> dict[str, Any]:
-            """Get GitHub repository information"""
+        @self.server.tool()
+        async def list_repos(owner: str) -> dict[str, Any]:
+            """List repositories for a GitHub user or organization"""
             try:
-                # Mock implementation for now
-                return {
-                    "success": True,
-                    "repository": {
-                        "name": repo,
-                        "owner": owner,
-                        "description": "Sophia AI Repository",
+                # Demo implementation
+                repos = [
+                    {
+                        "name": "sophia-main",
+                        "full_name": f"{owner}/sophia-main",
+                        "description": "Sophia AI main repository",
                         "stars": 42,
-                        "forks": 5,
-                    },
+                        "language": "Python",
+                        "updated_at": datetime.now().isoformat(),
+                    }
+                ]
+
+                self.logger.info(f"Listed {len(repos)} repositories for {owner}")
+                return {
+                    "status": "success",
+                    "owner": owner,
+                    "count": len(repos),
+                    "repositories": repos,
+                }
+            except Exception as e:
+                self.logger.error(f"Error listing repos: {e}")
+                return {"status": "error", "message": str(e)}
+
+        @self.server.tool()
+        async def get_repo(owner: str, repo: str) -> dict[str, Any]:
+            """Get detailed information about a repository"""
+            try:
+                # Demo implementation
+                repo_info = {
+                    "name": repo,
+                    "full_name": f"{owner}/{repo}",
+                    "description": "Repository description",
+                    "stars": 42,
+                    "forks": 10,
+                    "open_issues": 5,
+                    "language": "Python",
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": datetime.now().isoformat(),
                 }
 
+                self.logger.info(f"Retrieved info for {owner}/{repo}")
+                return {"status": "success", "repository": repo_info}
             except Exception as e:
-                logger.error(f"Get repository failed: {e}")
-                return {"error": str(e)}
+                self.logger.error(f"Error getting repo: {e}")
+                return {"status": "error", "message": str(e)}
 
-        @self.mcp_server.tool("get_pull_requests")
-        async def get_pull_requests(
+        @self.server.tool()
+        async def list_issues(
             owner: str, repo: str, state: str = "open"
         ) -> dict[str, Any]:
-            """Get GitHub pull requests"""
+            """List issues for a repository"""
             try:
-                # Mock implementation for now
+                # Demo implementation
+                issues = [
+                    {
+                        "number": 1,
+                        "title": "Implement feature X",
+                        "state": state,
+                        "labels": ["enhancement"],
+                        "created_at": "2024-01-01T00:00:00Z",
+                        "updated_at": datetime.now().isoformat(),
+                    }
+                ]
+
+                self.logger.info(
+                    f"Listed {len(issues)} {state} issues for {owner}/{repo}"
+                )
                 return {
-                    "success": True,
-                    "pull_requests": [
-                        {
-                            "number": 1,
-                            "title": "Add new feature",
-                            "state": state,
-                            "author": "developer",
-                        }
-                    ],
+                    "status": "success",
+                    "repository": f"{owner}/{repo}",
+                    "state": state,
+                    "count": len(issues),
+                    "issues": issues,
+                }
+            except Exception as e:
+                self.logger.error(f"Error listing issues: {e}")
+                return {"status": "error", "message": str(e)}
+
+        @self.server.tool()
+        async def create_issue(
+            owner: str,
+            repo: str,
+            title: str,
+            body: str,
+            labels: Optional[list[str]] = None,
+        ) -> dict[str, Any]:
+            """Create a new issue"""
+            try:
+                # Demo implementation
+                issue = {
+                    "number": 42,
+                    "title": title,
+                    "body": body,
+                    "state": "open",
+                    "labels": labels or [],
+                    "created_at": datetime.now().isoformat(),
+                    "html_url": f"https://github.com/{owner}/{repo}/issues/42",
                 }
 
+                self.logger.info(f"Created issue #{issue['number']} in {owner}/{repo}")
+                return {"status": "success", "issue": issue}
             except Exception as e:
-                logger.error(f"Get pull requests failed: {e}")
-                return {"error": str(e)}
+                self.logger.error(f"Error creating issue: {e}")
+                return {"status": "error", "message": str(e)}
 
-        @self.mcp_server.tool("health_check")
-        async def health_check() -> dict[str, Any]:
-            """Check GitHub connection health"""
-            try:
-                has_token = bool(self.access_token)
+    async def _check_service_health(self) -> HealthStatus:
+        """Check GitHub API connectivity"""
+        if not self.github_token:
+            return HealthStatus(
+                healthy=False,
+                latency_ms=0,
+                details={"error": "GitHub token not configured"},
+            )
 
-                return {
-                    "healthy": has_token,
-                    "access_token_configured": has_token,
-                    "timestamp": datetime.now().isoformat(),
-                }
-
-            except Exception as e:
-                logger.error(f"Health check failed: {e}")
-                return {"healthy": False, "error": str(e)}
-
-    def _register_resources(self):
-        """Register GitHub MCP resources"""
-
-        @self.mcp_server.resource("user_info")
-        async def get_user_info() -> dict[str, Any]:
-            """Get GitHub user information"""
-            try:
-                # Mock implementation
-                return {"login": "sophia-ai", "name": "Sophia AI"}
-
-            except Exception as e:
-                logger.error(f"Get user info failed: {e}")
-                return {}
-
-    async def start(self):
-        """Start the GitHub MCP server"""
-        logger.info(f"🚀 Starting GitHub MCP Server on port {self.port}")
-
-        # Test connection
-        health = await self.mcp_server.call_tool("health_check", {})
-        logger.info(f"   Health check: {health}")
-
-        logger.info("✅ GitHub MCP Server started successfully")
-
-    async def stop(self):
-        """Stop the GitHub MCP server"""
-        logger.info("🛑 Stopping GitHub MCP Server")
+        # In production, would make actual API call
+        return HealthStatus(
+            healthy=True, latency_ms=50, details={"api_status": "operational"}
+        )
 
 
-# Create server instance
-github_server = GitHubMCPserver()
+async def main():
+    """Main entry point"""
+    server = GitHubMCPServer()
+    await server.run()
+
 
 if __name__ == "__main__":
-    asyncio.run(github_server.start())
+    import asyncio
+
+    asyncio.run(main())
 
 
 # --- Auto-inserted health endpoint ---

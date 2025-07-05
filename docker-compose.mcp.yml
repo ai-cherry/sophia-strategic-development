@@ -297,6 +297,54 @@ services:
       timeout: 10s
       retries: 3
 
+  # GitHub MCP Server
+  github-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/github/Dockerfile
+    container_name: github-mcp
+    ports:
+      - "9003:9003"
+    environment:
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    volumes:
+      - ./mcp-servers/github:/app
+      - ./backend:/app/backend
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # HubSpot MCP Server
+  hubspot-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/hubspot_unified/Dockerfile
+    container_name: hubspot-mcp
+    ports:
+      - "9006:9006"
+    environment:
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+      - HUBSPOT_API_KEY=${HUBSPOT_API_KEY}
+    volumes:
+      - ./mcp-servers/hubspot_unified:/app
+      - ./backend:/app/backend
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 networks:
   sophia-network:
     driver: bridge
