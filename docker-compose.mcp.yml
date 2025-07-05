@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  mcp-gateway:
+    build: ./mcp-gateway
+    ports:
+      - "9000:9000"
+    environment:
+      - ENVIRONMENT=prod
+    restart: unless-stopped
+
+  ai-memory:
+    build: ./mcp-servers/ai-memory
+    ports:
+      - "9001:9001"
+    restart: unless-stopped
+
+  codacy:
+    build: ./mcp-servers/codacy
+    ports:
+      - "9002:9002"
+    restart: unless-stopped
+
+  github:
+    build: ./mcp-servers/github
+    ports:
+      - "9003:9003"
+    restart: unless-stopped
+
+  linear:
+    build: ./mcp-servers/linear
+    ports:
+      - "9004:9004"
+    restart: unless-stopped
+
+  snowflake-admin:
+    build: ./mcp-servers/snowflake-admin
+    ports:
+      - "9005:9005"
+    restart: unless-stopped
