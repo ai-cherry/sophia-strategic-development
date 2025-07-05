@@ -1,0 +1,144 @@
+{
+  "test_info": {
+    "host": "165.1.69.44",
+    "timestamp": "2025-07-04T23:08:42.049481",
+    "total_services": 19,
+    "accessible_services": 0,
+    "healthy_services": 0
+  },
+  "results": [
+    {
+      "service": "Main API",
+      "port": 8000,
+      "status": "not_accessible",
+      "error": "Connection refused",
+      "response_time": 0
+    },
+    {
+      "service": "Codacy MCP",
+      "port": 3008,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "AI Memory",
+      "port": 9001,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Snowflake Admin",
+      "port": 9020,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Linear",
+      "port": 9004,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "GitHub",
+      "port": 9103,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Asana",
+      "port": 9100,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Notion",
+      "port": 9005,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "UI/UX Agent",
+      "port": 9002,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Portkey Admin",
+      "port": 9013,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Lambda Labs CLI",
+      "port": 9020,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Snowflake Cortex",
+      "port": 9030,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Grafana",
+      "port": 3000,
+      "status": "not_accessible",
+      "error": "Connection refused",
+      "response_time": 0
+    },
+    {
+      "service": "Prometheus",
+      "port": 9090,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "MCP Gateway",
+      "port": 8080,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "Loki",
+      "port": 3100,
+      "status": "not_accessible",
+      "error": "Timeout",
+      "response_time": 5000.0
+    },
+    {
+      "service": "HTTP",
+      "port": 80,
+      "status": "not_accessible",
+      "error": "Connection refused",
+      "response_time": 0
+    },
+    {
+      "service": "HTTPS",
+      "port": 443,
+      "status": "not_accessible",
+      "error": "Connection refused",
+      "response_time": 0
+    },
+    {
+      "service": "SSH",
+      "port": 22,
+      "status": "not_accessible",
+      "error": "Error: 400, message=\"Expected HTTP/, RTSP/ or ICE/:\\n\\n  ",
+      "response_time": 0
+    }
+  ]
+}

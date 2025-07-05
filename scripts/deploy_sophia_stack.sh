@@ -27,26 +27,26 @@ echo ""
 # Function to check prerequisites
 check_prerequisites() {
     echo -e "${BLUE}Checking prerequisites...${NC}"
-    
+
     # Check if we're on a manager node
     if ! docker node ls &>/dev/null; then
         echo -e "${RED}ERROR: This script must be run on a Docker Swarm manager node${NC}"
         echo "Connect to Lambda Labs: ssh ubuntu@$LAMBDA_LABS_HOST"
         exit 1
     fi
-    
+
     # Check for required files
     if [ ! -f "docker-compose.cloud.yml.optimized" ]; then
         echo -e "${YELLOW}Optimized config not found. Running optimization...${NC}"
         python scripts/optimize_docker_swarm_resources.py docker-compose.cloud.yml
     fi
-    
+
     # Check for MCP server configs
     if [ ! -f "docker-compose.mcp-servers.yml" ]; then
         echo -e "${YELLOW}Creating MCP servers configuration...${NC}"
         create_mcp_servers_config
     fi
-    
+
     echo -e "${GREEN}✓ Prerequisites checked${NC}"
 }
 
@@ -276,7 +276,7 @@ EOF
 # Function to create secrets
 create_secrets() {
     echo -e "${BLUE}Creating Docker secrets...${NC}"
-    
+
     # List of required secrets
     declare -A secrets=(
         ["postgres_password"]="POSTGRES_PASSWORD"
@@ -288,7 +288,7 @@ create_secrets() {
         ["snowflake_password"]="SNOWFLAKE_PASSWORD"
         ["vercel_v0dev_api_key"]="VERCEL_V0DEV_API_KEY"
     )
-    
+
     for secret_name in "${!secrets[@]}"; do
         env_var="${secrets[$secret_name]}"
         if docker secret ls | grep -q "$secret_name"; then
@@ -307,41 +307,41 @@ create_secrets() {
 # Function to deploy the stack
 deploy_stack() {
     echo -e "${BLUE}Deploying Sophia AI stack...${NC}"
-    
+
     # Deploy core services
     echo "Deploying core services..."
     docker stack deploy -c docker-compose.cloud.yml.optimized "$STACK_NAME"
-    
+
     # Wait for core services to be ready
     echo "Waiting for core services to initialize..."
     sleep 30
-    
+
     # Deploy MCP servers
     echo "Deploying MCP servers..."
     docker stack deploy -c docker-compose.mcp-servers.yml "$STACK_NAME"
-    
+
     echo -e "${GREEN}✓ Stack deployment initiated${NC}"
 }
 
 # Function to monitor deployment
 monitor_deployment() {
     echo -e "${BLUE}Monitoring deployment...${NC}"
-    
+
     # Wait for services to start
     sleep 10
-    
+
     # Check service status
     echo -e "\n${BLUE}=== Service Status ===${NC}"
     docker service ls --filter label=com.docker.stack.namespace=$STACK_NAME
-    
+
     # Check for any failed services
     failed_services=$(docker service ls --filter label=com.docker.stack.namespace=$STACK_NAME --format "{{.Name}}:{{.Replicas}}" | grep ':0/' || true)
-    
+
     if [ -n "$failed_services" ]; then
         echo -e "\n${RED}⚠ Failed services detected:${NC}"
         echo "$failed_services"
         echo -e "\nChecking logs for failed services..."
-        
+
         for service in $(echo "$failed_services" | cut -d':' -f1); do
             echo -e "\n${YELLOW}Logs for $service:${NC}"
             docker service logs "$service" --tail 50 2>&1 || true
@@ -354,7 +354,7 @@ monitor_deployment() {
 # Function to run performance monitoring
 run_performance_monitor() {
     echo -e "\n${BLUE}Running performance monitor...${NC}"
-    
+
     if [ -x "scripts/monitor_swarm_performance.sh" ]; then
         ./scripts/monitor_swarm_performance.sh
     else
@@ -383,7 +383,7 @@ display_access_urls() {
 # Function to create remediation report
 create_remediation_report() {
     echo -e "\n${BLUE}Creating remediation report...${NC}"
-    
+
     cat > deployment_remediation_report.md << EOF
 # Sophia AI Deployment Remediation Report
 
@@ -416,14 +416,14 @@ $(docker service ls --filter label=com.docker.stack.namespace=$STACK_NAME --form
 4. Adjust resource limits based on actual usage
 
 EOF
-    
+
     echo -e "${GREEN}✓ Remediation report created: deployment_remediation_report.md${NC}"
 }
 
 # Main execution
 main() {
     echo -e "${BLUE}Starting Sophia AI deployment with optimizations...${NC}\n"
-    
+
     check_prerequisites
     create_secrets
     deploy_stack
@@ -431,7 +431,7 @@ main() {
     run_performance_monitor
     display_access_urls
     create_remediation_report
-    
+
     echo -e "\n${GREEN}=== Deployment Complete ===${NC}"
     echo "Monitor the stack with: docker stack ps $STACK_NAME"
     echo "View service logs with: docker service logs <service-name>"
@@ -439,4 +439,4 @@ main() {
 }
 
 # Run main function
-main "$@" 
+main "$@"

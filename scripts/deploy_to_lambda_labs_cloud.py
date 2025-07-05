@@ -73,7 +73,7 @@ class LambdaLabsCloudDeployer:
         # Check required files
         if not self._check_required_files():
             return False
-        
+
         print("✅ Prerequisites validated.")
         return True
 
@@ -160,7 +160,7 @@ class LambdaLabsCloudDeployer:
                 ["docker", "info"], capture_output=True, text=True, check=True
             )
             if "Index: https://index.docker.io/v1/" in result.stdout:
-                print(f"  - Logged into Docker registry.")
+                print("  - Logged into Docker registry.")
                 return True
             else:
                 print("  - ❌ Not logged into Docker Hub.")
@@ -191,8 +191,9 @@ class LambdaLabsCloudDeployer:
         """Build and push all Docker images defined in the compose file."""
         print("\n📦 Building and pushing Docker images...")
         import yaml
+
         try:
-            with open("docker-compose.cloud.yml", "r") as f:
+            with open("docker-compose.cloud.yml") as f:
                 compose_config = yaml.safe_load(f)
         except FileNotFoundError:
             print("  - ❌ docker-compose.cloud.yml not found.")
@@ -204,18 +205,24 @@ class LambdaLabsCloudDeployer:
         services = compose_config.get("services", {})
         for service_name, service_config in services.items():
             if "build" in service_config:
-                image_name = service_config.get("image", f"{self.docker_registry}/{service_name}:latest")
+                image_name = service_config.get(
+                    "image", f"{self.docker_registry}/{service_name}:latest"
+                )
                 print(f"  - Processing service: {service_name} -> {image_name}")
-                if not self._build_and_push_image({
-                    "name": image_name,
-                    "dockerfile": service_config["build"].get("dockerfile", "Dockerfile"),
-                    "context": service_config["build"].get("context", "."),
-                    "target": service_config["build"].get("target"),
-                    "build_args": service_config["build"].get("args"),
-                }):
+                if not self._build_and_push_image(
+                    {
+                        "name": image_name,
+                        "dockerfile": service_config["build"].get(
+                            "dockerfile", "Dockerfile"
+                        ),
+                        "context": service_config["build"].get("context", "."),
+                        "target": service_config["build"].get("target"),
+                        "build_args": service_config["build"].get("args"),
+                    }
+                ):
                     print(f"  - ❌ Failed to build or push image for {service_name}.")
                     return False
-        
+
         print("✅ All images built and pushed successfully.")
         return True
 
@@ -272,7 +279,7 @@ class LambdaLabsCloudDeployer:
             if not self._create_docker_secret(secret_name):
                 print(f"  - ❌ Failed to create secret: {secret_name}")
                 return False
-        
+
         print("✅ Docker secrets set up.")
         return True
 
@@ -285,7 +292,9 @@ class LambdaLabsCloudDeployer:
         try:
             # Check if secret exists
             check_cmd = ["docker", "secret", "ls", "--filter", f"name={secret_name}"]
-            result = subprocess.run(check_cmd, capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                check_cmd, capture_output=True, text=True, check=True
+            )
             if secret_name in result.stdout:
                 print(f"  - Secret '{secret_name}' already exists. Skipping.")
                 return True
@@ -335,7 +344,7 @@ class LambdaLabsCloudDeployer:
             return True
 
         except subprocess.CalledProcessError as e:
-            print(f"  - ❌ Stack deployment failed.")
+            print("  - ❌ Stack deployment failed.")
             if e.stdout:
                 print(f"    - STDOUT: {e.stdout}")
             if e.stderr:
@@ -379,7 +388,9 @@ class LambdaLabsCloudDeployer:
 
                 replicas = result.stdout.strip().split("\n")
                 all_ready = all(
-                    "/" in replica and replica.split("/")[0] == replica.split("/")[1] and replica.split('/')[0] != '0'
+                    "/" in replica
+                    and replica.split("/")[0] == replica.split("/")[1]
+                    and replica.split("/")[0] != "0"
                     for replica in replicas
                     if replica.strip()
                 )
@@ -391,7 +402,7 @@ class LambdaLabsCloudDeployer:
                 time.sleep(10)
             else:
                 print("  - ⚠️ Timed out waiting for services to become ready.")
-                pass # Continue anyway, maybe it's just slow
+                pass  # Continue anyway, maybe it's just slow
 
             return True
 
@@ -436,7 +447,7 @@ class LambdaLabsCloudDeployer:
         report_file = f"deployment_report_{self.environment}_{int(time.time())}.json"
         with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
-        
+
         print(f"✅ Deployment report saved to {report_file}")
         return report
 
@@ -459,7 +470,7 @@ class LambdaLabsCloudDeployer:
 
         # Generate final report
         self.generate_deployment_report()
-        
+
         print("\n🎉 Deployment successful! 🎉")
         return True
 

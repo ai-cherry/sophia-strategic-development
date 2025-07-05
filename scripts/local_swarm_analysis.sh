@@ -18,24 +18,24 @@ echo ""
 # Function to analyze the compose file
 analyze_compose_file() {
     local compose_file="${1:-docker-compose.cloud.yml}"
-    
+
     if [ ! -f "$compose_file" ]; then
         echo -e "${RED}ERROR: $compose_file not found${NC}"
         exit 1
     fi
-    
+
     echo -e "${BLUE}Analyzing: $compose_file${NC}\n"
-    
+
     # Check for services without resource limits
     echo -e "${YELLOW}1. Services without resource limits:${NC}"
     grep -A 20 "services:" "$compose_file" | grep -B 5 "image:" | grep -B 5 -v "limits:" || echo "  None found (or all have limits)"
     echo ""
-    
+
     # Check for single replica services
     echo -e "${YELLOW}2. Single replica services (potential SPOFs):${NC}"
     grep -B 2 "replicas: 1" "$compose_file" || echo "  None found"
     echo ""
-    
+
     # Check for missing health checks
     echo -e "${YELLOW}3. Services potentially missing health checks:${NC}"
     # This is a simple check - may have false positives
@@ -46,7 +46,7 @@ analyze_compose_file() {
         fi
     done
     echo ""
-    
+
     # Check network configuration
     echo -e "${YELLOW}4. Network configuration:${NC}"
     if grep -q "networks:" "$compose_file"; then
@@ -56,7 +56,7 @@ analyze_compose_file() {
         echo "  No custom networks defined (using default)"
     fi
     echo ""
-    
+
     # Check volume configuration
     echo -e "${YELLOW}5. Volume configuration:${NC}"
     if grep -q "volumes:" "$compose_file"; then
@@ -71,23 +71,23 @@ analyze_compose_file() {
 # Function to generate recommendations
 generate_recommendations() {
     echo -e "${BLUE}=== Recommendations ===${NC}\n"
-    
+
     echo "1. **Resource Limits**: Add CPU and memory limits to prevent node saturation"
     echo "   Run: python scripts/optimize_docker_swarm_resources.py docker-compose.cloud.yml"
     echo ""
-    
+
     echo "2. **High Availability**: Scale single-replica services"
     echo "   Critical services should have at least 2-3 replicas"
     echo ""
-    
+
     echo "3. **Health Checks**: Add health checks to all services"
     echo "   This ensures automatic recovery from failures"
     echo ""
-    
+
     echo "4. **Network Optimization**: Use multiple overlay networks"
     echo "   Separate frontend, backend, and data layers"
     echo ""
-    
+
     echo "5. **Monitoring**: Deploy Prometheus and Grafana"
     echo "   Already included in the optimized configuration"
     echo ""
@@ -96,21 +96,21 @@ generate_recommendations() {
 # Function to show deployment commands
 show_deployment_commands() {
     echo -e "${BLUE}=== Deployment Commands ===${NC}\n"
-    
+
     echo "# 1. Generate optimized configuration"
     echo "python scripts/optimize_docker_swarm_resources.py docker-compose.cloud.yml"
     echo ""
-    
+
     echo "# 2. Review the optimized configuration"
     echo "cat docker-compose.cloud.yml.optimized"
     echo ""
-    
+
     echo "# 3. Deploy to Lambda Labs"
     echo "ssh ubuntu@146.235.200.1"
     echo "cd /path/to/sophia-ai"
     echo "./scripts/deploy_sophia_stack.sh"
     echo ""
-    
+
     echo "# 4. Monitor performance"
     echo "./scripts/monitor_swarm_performance.sh"
     echo ""
@@ -171,7 +171,7 @@ create_bottleneck_summary() {
 - 30% better resource utilization
 
 EOF
-    
+
     echo -e "${GREEN}✓ Analysis summary created: bottleneck_analysis_summary.md${NC}"
 }
 
@@ -181,11 +181,11 @@ main() {
     generate_recommendations
     show_deployment_commands
     create_bottleneck_summary
-    
+
     echo -e "\n${GREEN}=== Analysis Complete ===${NC}"
     echo "Review bottleneck_analysis_summary.md for details"
     echo "Run the optimization script to fix these issues"
 }
 
 # Run main function
-main "$@" 
+main "$@"

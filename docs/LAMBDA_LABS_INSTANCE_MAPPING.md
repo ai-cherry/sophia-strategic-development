@@ -36,7 +36,7 @@
 
 - **Old IP**: `104.171.202.64` (deprecated)
 - **Codacy MCP Server**: Now deploys to `165.1.69.44` (sophia-mcp-prod)
-- **Main Platform**: Now targets `146.235.200.1` (sophia-platform-prod)  
+- **Main Platform**: Now targets `146.235.200.1` (sophia-platform-prod)
 - **AI Processing**: Now targets `137.131.6.213` (sophia-ai-prod)
 
 ## Access URLs
@@ -61,7 +61,7 @@
 # Test Codacy MCP Server
 python scripts/monitor_codacy_mcp_server.py
 
-# Test all connectivity  
+# Test all connectivity
 python scripts/test_lambda_labs_connectivity.py
 
 # Check deployment status

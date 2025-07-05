@@ -35,4 +35,4 @@ docker service logs sophia-ai_chat-mcp --tail 50
 # 8. Access services:
 # Dashboard: https://api.sophia-ai.lambda.cloud/dashboard
 # Chat: https://chat-mcp.sophia-ai.lambda.cloud
-# Grafana: https://sophia-ai.lambda.cloud:3000 
+# Grafana: https://sophia-ai.lambda.cloud:3000

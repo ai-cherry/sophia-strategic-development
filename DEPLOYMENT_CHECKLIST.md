@@ -1,7 +1,7 @@
 # 🚀 Sophia AI Docker Swarm Deployment Checklist
 
-**Deployment Package**: `sophia-deployment-20250704-022911.tar.gz`  
-**Target**: Lambda Labs (137.131.6.213)  
+**Deployment Package**: `sophia-deployment-20250704-022911.tar.gz`
+**Target**: Lambda Labs (137.131.6.213)
 **Date**: January 4, 2025
 
 ## ✅ Pre-Deployment Verification
