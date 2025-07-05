@@ -6,6 +6,24 @@
 - See `docs/monorepo/MONOREPO_TRANSITION_GUIDE.md` for details
 - Target completion: February 2025
 
+## 🚀 **THE GOLDEN RULE OF DEPLOYMENT (MANDATORY)**
+
+**ALL DEPLOYMENTS ARE AUTOMATED VIA GITHUB ACTIONS. NEVER DEPLOY FROM A LOCAL MACHINE.**
+
+### **Core Principles (Non-Negotiable):**
+1.  **Single Point of Truth**: The `main` branch on GitHub is the single source of truth for what is deployed.
+2.  **Push-to-Deploy**: All deployments to any environment (Production, Staging) are triggered **exclusively** by a `git push` to the relevant branch.
+3.  **No Local Operations**: You MUST NOT run `docker build`, `docker push`, or `docker stack deploy` from your local machine for deployment purposes. Your role is to write the code and the GitHub Actions workflows; the cloud does the rest.
+4.  **Automated Secret Management**: All secrets (`DOCKER_HUB_ACCESS_TOKEN`, `LAMBDA_LABS_SSH_KEY`, etc.) are managed in GitHub Organization Secrets and injected into the GitHub Actions workflow at runtime. You MUST NOT handle credentials locally.
+
+### **The Correct Workflow:**
+1.  **Write Code**: Implement the feature or fix.
+2.  **Write/Update Workflow**: Ensure the `.github/workflows/` configuration is correct for building and deploying the service.
+3.  **Push to GitHub**: `git push origin main`.
+4.  **Monitor Action**: Observe the deployment progress in the GitHub Actions tab.
+
+This is the **only** approved method. Any deviation from this (e.g., suggesting `docker login` locally) is a violation of core operating principles.
+
 ## 🌟 **NEW: The System Handbook is the Ultimate Source of Truth**
 
 **CRITICAL DIRECTIVE:** The `docs/system_handbook/` directory, and specifically `00_SOPHIA_AI_SYSTEM_HANDBOOK.md`, is the **single, definitive source of truth** for the Sophia AI platform's architecture, standards, and roadmap.
