@@ -2,7 +2,7 @@
 ## The Definitive Source of Truth
 
 **Version**: Phoenix 1.0
-**Last Updated**: January 2025
+**Last Updated**: July 2025
 **Status**: AUTHORITATIVE - This document supersedes all previous architecture documentation
 
 ---
@@ -122,6 +122,37 @@ CREATE TABLE SOPHIA_CORE.QUERY_CACHE (
 **No Redis. No Pinecone. No Weaviate. No PostgreSQL for business data.**
 
 ---
+
+
+## 🗄️ SNOWFLAKE ALIGNMENT
+
+### Complete Database Structure (Verified December 2024)
+
+**Database**: SOPHIA_AI_PRODUCTION
+**Schemas** (11 total):
+- SOPHIA_CORE - Core business data
+- SOPHIA_AI_MEMORY - AI memory storage
+- SOPHIA_BUSINESS_INTELLIGENCE - BI analytics
+- CORTEX_AI - Cortex AI functions
+- AI_MEMORY - Memory architecture
+- ANALYTICS - Analytics views
+- CHAT - Chat context storage
+- MONITORING - System monitoring
+- GONG_INTEGRATION - Gong data
+- HUBSPOT_INTEGRATION - HubSpot data
+- SLACK_INTEGRATION - Slack data
+
+**Warehouses**:
+- SOPHIA_AI_COMPUTE_WH (MEDIUM) - General compute
+- SOPHIA_AI_ANALYTICS_WH (LARGE) - Analytics workloads
+- SOPHIA_AI_CORTEX_WH (MEDIUM) - AI operations
+
+**Memory Architecture** (5-Tier):
+- L1: Session cache (<50ms)
+- L2: Cortex cache (<100ms)
+- L3: Persistent memory (<200ms)
+- L4: Knowledge graph (<300ms)
+- L5: Workflow memory (<400ms)
 
 ## 🧠 THE SOPHIA AI BRAIN
 

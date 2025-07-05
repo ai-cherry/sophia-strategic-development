@@ -2,7 +2,7 @@
 title: Sophia AI - Comprehensive API Documentation
 description:
 tags: security, gong, monitoring
-last_updated: 2025-06-23
+last_updated: 2025-07-04
 dependencies: none
 related_docs: none
 ---
@@ -159,6 +159,45 @@ Manage deployments and projects.
 - `GET /api/vercel/deployments` - List deployments
 - `POST /api/vercel/deploy` - Create new deployment
 - `GET /api/vercel/projects` - List projects
+
+
+## 🧠 Snowflake Cortex Endpoints
+
+### **Embedding Generation**
+Generate vector embeddings using Cortex AI.
+
+**Endpoint:** `POST /api/cortex/embed`
+
+**Request:**
+```json
+{
+  "text": "Text to embed",
+  "model": "e5-base-v2"
+}
+```
+
+**Response:**
+```json
+{
+  "embedding": [0.123, -0.456, ...],
+  "model": "e5-base-v2",
+  "dimensions": 768
+}
+```
+
+### **Text Completion**
+Generate text completions using Cortex models.
+
+**Endpoint:** `POST /api/cortex/complete`
+
+**Request:**
+```json
+{
+  "prompt": "Complete this text",
+  "model": "mixtral-8x7b",
+  "max_tokens": 100
+}
+```
 
 ## 🔄 **Webhook Endpoints**
 

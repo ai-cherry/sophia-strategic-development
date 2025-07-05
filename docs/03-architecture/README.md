@@ -85,3 +85,39 @@ Our Clean Architecture implementation is designed to work seamlessly with:
 - **Pulumi** for infrastructure as code
 - **Docker** with optimized multi-stage builds
 - **Vercel** for frontend deployment
+
+
+## Snowflake Architecture
+
+### Database Structure
+
+The Sophia AI platform uses Snowflake as the single source of truth with the following structure:
+
+```sql
+SOPHIA_AI_PRODUCTION (Database)
+├── SOPHIA_CORE (Core business data)
+├── SOPHIA_AI_MEMORY (AI memory storage)
+├── SOPHIA_BUSINESS_INTELLIGENCE (BI analytics)
+├── CORTEX_AI (AI functions and embeddings)
+├── AI_MEMORY (Memory architecture tables)
+├── ANALYTICS (Analytics views and aggregations)
+├── CHAT (Chat context and history)
+├── MONITORING (System health and metrics)
+├── GONG_INTEGRATION (Gong call data)
+├── HUBSPOT_INTEGRATION (HubSpot CRM data)
+└── SLACK_INTEGRATION (Slack analytics)
+```
+
+### Warehouse Strategy
+
+- **SOPHIA_AI_COMPUTE_WH** (MEDIUM): General compute and API queries
+- **SOPHIA_AI_ANALYTICS_WH** (LARGE): Heavy analytics and reporting
+- **SOPHIA_AI_CORTEX_WH** (MEDIUM): AI operations and embeddings
+
+### Performance Optimizations
+
+1. **Result Caching**: Enabled for all warehouses
+2. **Clustering Keys**: On frequently queried columns
+3. **Materialized Views**: For common aggregations
+4. **Auto-suspend**: 5 minutes for cost optimization
+5. **Multi-cluster**: Auto-scaling for peak loads
