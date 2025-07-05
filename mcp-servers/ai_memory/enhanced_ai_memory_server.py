@@ -11,6 +11,7 @@ Implements WebFetch, Self-Knowledge, Improved Diff, and Model Routing
 import asyncio
 import json
 import os
+import time
 
 # Import the standardized base class
 import sys
@@ -37,15 +38,15 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
     def __init__(self):
         config = MCPServerConfig(
             server_name="ai_memory",
-            port=9000,
-            sync_priority=SyncPriority.CRITICAL,
+            port=9001,  # Fixed port based on our testing
+            sync_priority=SyncPriority.HIGH,
             enable_webfetch=True,
             enable_self_knowledge=True,
             enable_improved_diff=True,
             preferred_model=ModelProvider.CLAUDE_4,
-            max_context_size=200000,  # 200K tokens
         )
         super().__init__(config)
+        self.logger = logger  # Initialize logger
         self.memory_service = None
         self.conversation_history = []
 
@@ -534,7 +535,122 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         }
         return examples.get(capability, [])
 
+    # Abstract methods implementation required by StandardizedMCPServer
+    
+    async def server_specific_cleanup(self) -> None:
+        """Cleanup AI Memory specific resources"""
+        try:
+            if self.memory_service:
+                # Close any open connections in memory service
+                await self.memory_service.shutdown()
+            self.logger.info("AI Memory server cleanup completed")
+        except Exception as e:
+            self.logger.error(f"Error during AI Memory server cleanup: {e}")
+
+    async def server_specific_health_check(self) -> dict[str, Any]:
+        """Perform AI Memory specific health checks"""
+        try:
+            health_result = {
+                "component": "ai_memory",
+                "status": "healthy",
+                "response_time_ms": 0,
+                "metadata": {}
+            }
+            
+            start_time = time.time()
+            
+            # Check memory service health
+            if self.memory_service:
+                # Try a simple memory operation
+                test_memory = await self.memory_service.search_memories(
+                    query="health_check", limit=1
+                )
+                health_result["metadata"]["memory_service"] = "operational"
+            else:
+                health_result["status"] = "degraded"
+                health_result["metadata"]["memory_service"] = "not_initialized"
+            
+            # Check conversation history
+            health_result["metadata"]["conversation_history_size"] = len(self.conversation_history)
+            
+            health_result["response_time_ms"] = (time.time() - start_time) * 1000
+            return health_result
+            
+        except Exception as e:
+            return {
+                "component": "ai_memory", 
+                "status": "unhealthy",
+                "error_message": str(e),
+                "response_time_ms": 0
+            }
+
+    async def sync_data(self) -> dict[str, Any]:
+        """Sync AI Memory data (process and vectorize available data)"""
+        try:
+            if not self.memory_service:
+                return {"status": "failed", "error": "Memory service not initialized"}
+            
+            # Process Gong data
+            gong_processed = await self.memory_service.process_and_vectorize_gong_data(batch_size=50)
+            
+            # Process Slack data  
+            slack_processed = await self.memory_service.process_and_vectorize_slack_data(batch_size=100)
+            
+            # Create integrated conversation memories
+            integrated_created = await self.memory_service.create_integrated_conversation_memories(limit=50)
+            
+            return {
+                "status": "completed",
+                "records_synced": gong_processed + slack_processed + integrated_created,
+                "gong_records": gong_processed,
+                "slack_records": slack_processed,
+                "integrated_conversations": integrated_created,
+                "timestamp": datetime.now(UTC).isoformat()
+            }
+            
+        except Exception as e:
+            self.logger.error(f"AI Memory sync failed: {e}")
+            return {
+                "status": "failed", 
+                "error": str(e),
+                "records_synced": 0
+            }
+
+    async def process_with_ai(self, data: Any, model: ModelProvider | None = None) -> Any:
+        """Process data using AI models"""
+        try:
+            # Route to appropriate model if not specified
+            if not model:
+                model, _ = await self.route_to_model(
+                    task="process ai memory data",
+                    context_size=len(str(data)) if isinstance(data, (str, dict)) else 1000
+                )
+            
+            # Extract prompt from data
+            if isinstance(data, dict) and "prompt" in data:
+                prompt = data["prompt"]
+            else:
+                prompt = str(data)
+            
+            # Use Snowflake Cortex for processing
+            if self.cortex_service and model == ModelProvider.SNOWFLAKE_CORTEX:
+                result = await self.cortex_service.generate_completion(prompt)
+                return {"response": result, "model_used": "snowflake_cortex"}
+            
+            # Use Claude/OpenAI (would need API integration)
+            else:
+                # For now, return a mock response since we don't have direct API access in this context
+                return {
+                    "response": f"AI processing completed for: {prompt[:100]}...",
+                    "model_used": str(model.value),
+                    "mock": True
+                }
+                
+        except Exception as e:
+            self.logger.error(f"AI processing failed: {e}")
+            return {"error": str(e), "response": None}
+
 
 if __name__ == "__main__":
     server = EnhancedAIMemoryServer()
-    asyncio.run(server.run())
+    asyncio.run(server.start())
