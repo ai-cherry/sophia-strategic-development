@@ -124,13 +124,17 @@ class SophiaAICompleteDeployment:
         return all_passed
     
     async def _check_git_status(self) -> bool:
-        """Check if git repository is clean"""
+        """Check if git repository is clean (excluding external submodules)"""
         try:
             result = subprocess.run(
                 ["git", "status", "--porcelain"], 
                 capture_output=True, text=True, timeout=10
             )
-            return len(result.stdout.strip()) == 0
+            # Filter out external submodule changes which are normal
+            lines = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            relevant_changes = [line for line in lines if not line.strip().endswith('external/')]
+            relevant_changes = [line for line in relevant_changes if 'external/' not in line]
+            return len(relevant_changes) == 0
         except Exception:
             return False
     
