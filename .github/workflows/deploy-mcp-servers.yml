@@ -1,0 +1,25 @@
+name: Deploy MCP Servers
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'mcp-servers/**'
+      - 'infrastructure/**'
+
+jobs:
+  deploy-mcp:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        server: [ai-memory, codacy, github, linear, snowflake-admin]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy ${{ matrix.server }}
+        run: |
+          cd mcp-servers/${{ matrix.server }}
+          docker build -t sophia-${{ matrix.server }}:latest .
+          # Deploy to Lambda Labs
+          python ../../scripts/deploy_mcp_server.py --server ${{ matrix.server }}

@@ -1,0 +1,55 @@
+collections:
+- name: sophia-ai/gong-calls
+  schema:
+    properties:
+      call_id:
+        type: string
+      embedding:
+        items:
+          type: number
+        type: array
+      sentiment:
+        type: number
+      topics:
+        items:
+          type: string
+        type: array
+      transcript:
+        type: string
+    type: object
+- name: sophia-ai/hubspot-deals
+  schema:
+    properties:
+      ai_insights:
+        type: object
+      amount:
+        type: number
+      deal_id:
+        type: string
+      probability:
+        type: number
+      stage:
+        type: string
+    type: object
+- name: sophia-ai/slack-messages
+  schema:
+    properties:
+      action_items:
+        type: array
+      channel:
+        type: string
+      message_id:
+        type: string
+      sentiment:
+        type: number
+      text:
+        type: string
+    type: object
+materializations:
+- config:
+    account: UHDECNO-CVB64222
+    database: SOPHIA_AI_PROD
+    schema: RAW_DATA
+    warehouse: SOPHIA_AI_COMPUTE_WH
+  connector: snowflake
+  name: sophia-ai/to-snowflake

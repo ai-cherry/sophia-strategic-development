@@ -1,0 +1,19 @@
+coverage:
+  enabled: true
+  exclude_paths:
+  - tests/**
+  - scripts/**
+engines:
+  bandit:
+    enabled: true
+  prospector:
+    enabled: true
+  pylint:
+    enabled: true
+  radon:
+    enabled: true
+exclude_paths:
+- tests/**
+- scripts/**
+- external/**
+- '**/__pycache__/**'
