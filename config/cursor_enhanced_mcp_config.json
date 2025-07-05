@@ -12,7 +12,13 @@
       },
       "port": 9000,
       "cwd": ".",
-      "capabilities": [],
+      "capabilities": [
+        "memory_storage",
+        "context_recall", 
+        "ai_agent_authentication",
+        "security_decision_tracking",
+        "audit_trail_integration"
+      ],
       "health_endpoint": "/health"
     },
     "snowflake_unified": {
@@ -27,7 +33,12 @@
       },
       "port": 9000,
       "cwd": ".",
-      "capabilities": [],
+      "capabilities": [
+        "data_operations",
+        "ai_agent_database_access",
+        "schema_management",
+        "real_infrastructure_changes"
+      ],
       "health_endpoint": "/health"
     },
     "codacy": {
@@ -46,7 +57,9 @@
         "code_analysis",
         "security_scanning",
         "complexity_analysis",
-        "quality_metrics"
+        "quality_metrics",
+        "ai_agent_code_validation",
+        "real_time_security_analysis"
       ],
       "health_endpoint": "/health"
     },
@@ -62,7 +75,12 @@
       },
       "port": 9000,
       "cwd": ".",
-      "capabilities": [],
+      "capabilities": [
+        "ui_generation",
+        "design_automation",
+        "ai_agent_frontend_changes",
+        "component_deployment"
+      ],
       "health_endpoint": "/health"
     },
     "portkey_admin": {
@@ -77,7 +95,12 @@
       },
       "port": 9000,
       "cwd": ".",
-      "capabilities": [],
+      "capabilities": [
+        "ai_gateway_management",
+        "cost_optimization",
+        "ai_agent_model_routing",
+        "real_infrastructure_control"
+      ],
       "health_endpoint": "/health"
     },
     "lambda_labs_cli": {
@@ -92,13 +115,50 @@
       },
       "port": 9000,
       "cwd": ".",
-      "capabilities": [],
+      "capabilities": [
+        "gpu_instance_management",
+        "ai_agent_infrastructure_control",
+        "real_cloud_operations",
+        "cost_optimization"
+      ],
       "health_endpoint": "/health"
     }
   },
-  "version": "5.0-unified",
-  "description": "Unified MCP Configuration with Lambda Labs Integration",
-  "last_updated": "2025-01-03T15:00:00.000000Z",
+  "version": "5.1-ai-agent-auth",
+  "description": "Unified MCP Configuration with AI Agent Authentication System",
+  "last_updated": "2025-01-03T17:00:00.000000Z",
+  "ai_agent_authentication": {
+    "enabled": true,
+    "description": "Revolutionary AI Agent Authentication System enabling real infrastructure changes",
+    "security_tiers": {
+      "tier_1_cli_auth": {
+        "services": ["github", "pulumi", "docker", "vercel"],
+        "risk_level": "critical",
+        "agent_types": ["infrastructure_agent"]
+      },
+      "tier_2_enhanced_api": {
+        "services": ["snowflake", "lambda_labs", "estuary_flow"],
+        "risk_level": "high",
+        "agent_types": ["data_agent", "infrastructure_agent"]
+      },
+      "tier_3_secure_api": {
+        "services": ["openai", "anthropic", "slack", "linear", "hubspot"],
+        "risk_level": "medium",
+        "agent_types": ["integration_agent", "data_agent", "infrastructure_agent"]
+      }
+    },
+    "audit_trail": {
+      "enabled": true,
+      "storage": "snowflake",
+      "retention_days": 365,
+      "compliance": ["SOX", "GDPR", "enterprise_audit"]
+    },
+    "confirmation_workflows": {
+      "critical_operations": ["pulumi:destroy", "lambda_labs:terminate_instance"],
+      "high_risk_operations": ["snowflake:drop_table", "docker:push"],
+      "confirmation_timeout_seconds": 300
+    }
+  },
   "lambda_labs": {
     "host": "165.1.69.44",
     "monitoring_enabled": true,

@@ -72,6 +72,13 @@ class MemoryCategory(Enum):
     TRAINING = "training"
     INFERENCE = "inference"
     DATA_PIPELINE = "data_pipeline"
+    
+    # AI Agent Authentication Categories
+    AI_AGENT_AUTH = "ai_agent_auth"
+    AUTH_PATTERNS = "auth_patterns"
+    SECURITY_DECISIONS = "security_decisions"
+    AGENT_OPERATIONS = "agent_operations"
+    AUDIT_TRAIL = "audit_trail"
 
 
 class MemoryPriority(Enum):
@@ -500,6 +507,89 @@ def create_technical_decision_memory(
         category=MemoryCategory.ARCHITECTURE,
         priority=MemoryPriority.HIGH,
         context=context,
+        **{k: v for k, v in kwargs.items() if k != "context"},
+    )
+
+
+def create_ai_agent_auth_memory(
+    content: str, 
+    agent_type: str, 
+    service: str, 
+    operation: str, 
+    risk_level: str,
+    success: bool = True,
+    **kwargs
+) -> MemoryRecord:
+    """Create an AI agent authentication memory record"""
+    context = {
+        "agent_type": agent_type,
+        "service": service,
+        "operation": operation,
+        "risk_level": risk_level,
+        "success": success,
+        "timestamp": kwargs.get("timestamp", ""),
+        "audit_trail": True,
+    }
+    context.update(kwargs.get("context", {}))
+
+    return MemoryRecord(
+        content=content,
+        memory_type=MemoryType.SECURITY_EVENT,
+        category=MemoryCategory.AI_AGENT_AUTH,
+        context=context,
+        priority=MemoryPriority.CRITICAL if risk_level == "CRITICAL" else MemoryPriority.HIGH,
+        **{k: v for k, v in kwargs.items() if k != "context"},
+    )
+
+
+def create_auth_pattern_memory(
+    content: str,
+    service: str,
+    auth_method: str,
+    security_tier: str,
+    **kwargs
+) -> MemoryRecord:
+    """Create an authentication pattern memory record"""
+    context = {
+        "service": service,
+        "auth_method": auth_method,
+        "security_tier": security_tier,
+        "pattern_type": "authentication",
+    }
+    context.update(kwargs.get("context", {}))
+
+    return MemoryRecord(
+        content=content,
+        memory_type=MemoryType.CODE_PATTERN,
+        category=MemoryCategory.AUTH_PATTERNS,
+        context=context,
+        priority=MemoryPriority.HIGH,
+        **{k: v for k, v in kwargs.items() if k != "context"},
+    )
+
+
+def create_security_decision_memory(
+    content: str,
+    decision_category: str,
+    impact_level: str,
+    stakeholders: list[str],
+    **kwargs
+) -> MemoryRecord:
+    """Create a security decision memory record"""
+    context = {
+        "decision_category": decision_category,
+        "impact_level": impact_level,
+        "stakeholders": stakeholders,
+        "security_relevance": True,
+    }
+    context.update(kwargs.get("context", {}))
+
+    return MemoryRecord(
+        content=content,
+        memory_type=MemoryType.TECHNICAL_DECISION,
+        category=MemoryCategory.SECURITY_DECISIONS,
+        context=context,
+        priority=MemoryPriority.CRITICAL if impact_level == "HIGH" else MemoryPriority.HIGH,
         **{k: v for k, v in kwargs.items() if k != "context"},
     )
 
