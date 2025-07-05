@@ -2,7 +2,6 @@
 """Comprehensive monitoring and testing for Sophia AI infrastructure."""
 
 import asyncio
-import json
 import statistics
 import time
 from datetime import datetime
@@ -23,8 +22,8 @@ class SophiaInfrastructureMonitor:
             "linear": {"url": "http://localhost:9004", "name": "Linear MCP"},
         }
 
-        self.metrics = {service: [] for service in self.services.keys()}
-        self.test_results = {service: [] for service in self.services.keys()}
+        self.metrics = {service: [] for service in self.services}
+        self.test_results = {service: [] for service in self.services}
 
     async def check_service_health(self, service_key: str) -> dict[str, Any]:
         """Check health of a specific service."""
@@ -179,19 +178,13 @@ class SophiaInfrastructureMonitor:
         cycle_start = time.time()
         results = {}
 
-        print(
-            f"\n🔍 Starting comprehensive test cycle at {datetime.now().strftime('%H:%M:%S')}"
-        )
-
         # Health checks
-        health_tasks = [
-            self.check_service_health(service) for service in self.services.keys()
-        ]
+        health_tasks = [self.check_service_health(service) for service in self.services]
         health_results = await asyncio.gather(*health_tasks)
 
         # Functionality tests
         functionality_results = []
-        for service_key in self.services.keys():
+        for service_key in self.services:
             func_result = await self.test_service_functionality(service_key)
             func_result["service"] = service_key
             functionality_results.append(func_result)
@@ -250,44 +243,31 @@ class SophiaInfrastructureMonitor:
 
     def print_results(self, results: dict[str, Any]):
         """Print formatted results."""
-        print(f"\n📊 Test Cycle Results ({results['cycle_time_ms']:.1f}ms)")
-        print("=" * 60)
 
         # Health summary
-        health = results["health_summary"]
-        print(
-            f"🏥 Health: {health['healthy_services']}/{health['total_services']} services ({health['health_percentage']:.1f}%)"
-        )
+        results["health_summary"]
 
         # Functionality summary
-        func = results["functionality_summary"]
-        print(
-            f"⚡ Tests: {func['passed_tests']}/{func['total_tests']} passed ({func['pass_percentage']:.1f}%)"
-        )
+        results["functionality_summary"]
 
         # Response times
-        print(f"⏱️  Avg Response: {results['average_response_time']:.1f}ms")
 
         # Service details
-        print("\n🔧 Service Details:")
         for detail in results["health_details"]:
-            status_icon = "✅" if detail["status"] == "healthy" else "❌"
-            print(f"  {status_icon} {detail['name']}: {detail['response_time']:.1f}ms")
+            "✅" if detail["status"] == "healthy" else "❌"
 
         # Functionality details
-        print("\n🧪 Functionality Tests:")
         for detail in results["functionality_details"]:
-            status_icon = "✅" if detail["status"] == "passed" else "❌"
-            test_name = detail.get("test", "unknown")
-            print(f"  {status_icon} {detail['service']}: {test_name}")
+            "✅" if detail["status"] == "passed" else "❌"
+            detail.get("test", "unknown")
 
             # Additional test-specific info
-            if "quality_score" in detail:
-                print(f"      Quality Score: {detail['quality_score']}/100")
-            elif "repo_count" in detail:
-                print(f"      Repositories: {detail['repo_count']}")
-            elif "health_score" in detail:
-                print(f"      Health Score: {detail['health_score']}/100")
+            if (
+                "quality_score" in detail
+                or "repo_count" in detail
+                or "health_score" in detail
+            ):
+                pass
 
     def get_performance_trends(self) -> dict[str, Any]:
         """Analyze performance trends."""
@@ -321,15 +301,12 @@ class SophiaInfrastructureMonitor:
         self, duration_minutes: int = 5, interval_seconds: int = 30
     ):
         """Run continuous monitoring for specified duration."""
-        print(f"🚀 Starting continuous monitoring for {duration_minutes} minutes")
-        print(f"📊 Test interval: {interval_seconds} seconds")
 
         end_time = time.time() + (duration_minutes * 60)
         cycle_count = 0
 
         while time.time() < end_time:
             cycle_count += 1
-            print(f"\n--- Cycle {cycle_count} ---")
 
             results = await self.run_comprehensive_test_cycle()
             self.print_results(results)
@@ -338,16 +315,12 @@ class SophiaInfrastructureMonitor:
             if cycle_count % 5 == 0:
                 trends = self.get_performance_trends()
                 if trends:
-                    print("\n📈 Performance Trends (Last 10 measurements):")
-                    for service, trend in trends.items():
-                        print(
-                            f"  {service}: {trend['average_response_time']:.1f}ms avg, {trend['uptime_percentage']:.1f}% uptime"
-                        )
+                    for _service, _trend in trends.items():
+                        pass
 
             if time.time() < end_time:
                 await asyncio.sleep(interval_seconds)
 
-        print(f"\n🏁 Monitoring complete! Ran {cycle_count} test cycles.")
         return self.get_final_report()
 
     def get_final_report(self) -> dict[str, Any]:
@@ -387,7 +360,7 @@ class SophiaInfrastructureMonitor:
                         else 0
                     ),
                 }
-                for service in self.services.keys()
+                for service in self.services
             },
         }
 
@@ -396,26 +369,14 @@ async def main():
     """Main monitoring function."""
     monitor = SophiaInfrastructureMonitor()
 
-    print("🔍 Sophia AI Infrastructure Monitor")
-    print("=" * 50)
-
     # Run single test cycle first
-    print("\n1️⃣ Running initial comprehensive test...")
     results = await monitor.run_comprehensive_test_cycle()
     monitor.print_results(results)
 
     # Ask user for continuous monitoring
-    print("\n🤖 All systems tested! Would you like to run continuous monitoring?")
-    print("   This will run tests every 30 seconds for 5 minutes...")
 
     # For automated execution, run a short continuous test
-    print("\n🚀 Running automated 2-minute monitoring session...")
-    final_report = await monitor.continuous_monitoring(
-        duration_minutes=2, interval_seconds=20
-    )
-
-    print("\n📋 Final Report:")
-    print(json.dumps(final_report, indent=2))
+    await monitor.continuous_monitoring(duration_minutes=2, interval_seconds=20)
 
 
 if __name__ == "__main__":

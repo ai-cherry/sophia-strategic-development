@@ -486,8 +486,7 @@ if __name__ == "__main__":
     # Example usage
     async def main():
         # Initialize orchestrator
-        result = await initialize_mcp_orchestration()
-        print(f"Initialization result: {result}")
+        await initialize_mcp_orchestration()
 
         # Start scheduler
         await start_mcp_sync_scheduler()
@@ -496,8 +495,7 @@ if __name__ == "__main__":
         await asyncio.sleep(60)
 
         # Check status
-        status = get_mcp_orchestrator_status()
-        print(f"Orchestrator status: {status}")
+        get_mcp_orchestrator_status()
 
         # Stop
         await stop_mcp_orchestration()

@@ -162,9 +162,14 @@ class FunctionComplexityAnalyzer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler | ast.With | ast.AsyncWith):
+            if isinstance(
+                child,
+                ast.If
+                | ast.While
+                | ast.For
+                | ast.AsyncFor
+                | (ast.ExceptHandler | ast.With | ast.AsyncWith),
+            ):
                 complexity += 1
             elif isinstance(child, ast.Try):
                 complexity += len(child.handlers)

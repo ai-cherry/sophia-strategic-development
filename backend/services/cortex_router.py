@@ -8,7 +8,7 @@ based on intent, complexity, and cost optimization.
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from backend.utils.snowflake_cortex_service import CortexModel, SnowflakeCortexService
 
@@ -76,10 +76,10 @@ class CortexRouter:
     async def route_request(
         self,
         query: str,
-        intent: Optional[IntentType] = None,
-        complexity: Optional[float] = None,
-        max_cost: Optional[float] = None,
-        required_capabilities: Optional[list] = None,
+        intent: IntentType | None = None,
+        complexity: float | None = None,
+        max_cost: float | None = None,
+        required_capabilities: list | None = None,
     ) -> tuple[ModelType, float, dict[str, Any]]:
         """
         Route request to appropriate model.
@@ -130,11 +130,11 @@ class CortexRouter:
     async def execute_with_routing(
         self,
         query: str,
-        intent: Optional[IntentType] = None,
-        complexity: Optional[float] = None,
-        max_cost: Optional[float] = None,
-        required_capabilities: Optional[list] = None,
-        context: Optional[str] = None,
+        intent: IntentType | None = None,
+        complexity: float | None = None,
+        max_cost: float | None = None,
+        required_capabilities: list | None = None,
+        context: str | None = None,
         max_tokens: int = 500,
     ) -> tuple[str, dict[str, Any]]:
         """
@@ -254,8 +254,8 @@ class CortexRouter:
         self,
         intent: IntentType,
         complexity: float,
-        max_cost: Optional[float],
-        required_capabilities: Optional[list],
+        max_cost: float | None,
+        required_capabilities: list | None,
     ) -> ModelType:
         """Select appropriate model based on constraints"""
         # Start with rule-based selection

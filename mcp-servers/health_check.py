@@ -5,7 +5,6 @@ Monitors all MCP servers and provides consolidated health status
 """
 
 import asyncio
-import json
 from datetime import datetime
 
 import aiohttp
@@ -114,8 +113,6 @@ class MCPHealthMonitor:
 async def main():
     monitor = MCPHealthMonitor()
     health_status = await monitor.check_all_servers()
-
-    print(json.dumps(health_status, indent=2))
 
     # Exit with error code if any servers are unhealthy
     if health_status["summary"]["unhealthy_servers"] > 0:

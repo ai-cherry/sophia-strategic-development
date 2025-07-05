@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from backend.core.config_manager import ConfigManager
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
@@ -46,10 +46,10 @@ class ChatRequest:
 
     message: str
     user_id: str
-    session_id: Optional[str] = None
+    session_id: str | None = None
     context: ChatContext = ChatContext.BLENDED_INTELLIGENCE
     access_level: AccessLevel = AccessLevel.EMPLOYEE
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -57,9 +57,9 @@ class ChatResponse:
     """Unified chat response model"""
 
     response: str
-    sources: Optional[list] = None
-    suggestions: Optional[list] = None
-    metadata: Optional[dict[str, Any]] = None
+    sources: list | None = None
+    suggestions: list | None = None
+    metadata: dict[str, Any] | None = None
     timestamp: str = None
 
     def __post_init__(self):
@@ -168,7 +168,7 @@ class UnifiedChatService:
         try:
             # Check for specific infrastructure queries
             query_lower = request.message.lower()
-            
+
             if "health" in query_lower or "status" in query_lower:
                 # Get real system health status
                 health_data = {
@@ -187,22 +187,22 @@ class UnifiedChatService:
                         "uptime": "99.9%",
                         "response_time": "< 200ms",
                         "active_sessions": 5,
-                    }
+                    },
                 }
-                
+
                 response = "🟢 System Health Status:\n\n"
                 response += "**MCP Servers:**\n"
                 for server, status in health_data["mcp_servers"].items():
                     response += f"- {server}: {status}\n"
-                
+
                 response += "\n**Core Services:**\n"
                 for service, status in health_data["services"].items():
                     response += f"- {service}: {status}\n"
-                
+
                 response += "\n**System Metrics:**\n"
                 for metric, value in health_data["system"].items():
                     response += f"- {metric}: {value}\n"
-                
+
                 return ChatResponse(
                     response=response,
                     metadata=health_data,
@@ -211,9 +211,9 @@ class UnifiedChatService:
                         "View performance metrics",
                         "Check error logs",
                         "View deployment history",
-                    ]
+                    ],
                 )
-            
+
             elif "deploy" in query_lower:
                 return ChatResponse(
                     response="To deploy Sophia AI:\n\n1. Build Docker image: `docker build -t sophia-ai .`\n2. Run health checks: `python scripts/health_check.py`\n3. Deploy: `docker-compose up -d`\n4. Verify: `curl http://localhost:8000/health`\n\nFor production deployment, use the GitHub Actions workflow.",
@@ -221,16 +221,16 @@ class UnifiedChatService:
                         "View deployment checklist",
                         "Check pre-deployment requirements",
                         "Run deployment validation",
-                    ]
+                    ],
                 )
-            
+
             else:
                 # Use Snowflake Cortex for general infrastructure queries
                 result = await self.cortex_service.generate_response(
                     prompt=f"As an infrastructure expert, answer this query about Sophia AI infrastructure: {request.message}",
-                    context="infrastructure_management"
+                    context="infrastructure_management",
                 )
-                
+
                 return ChatResponse(
                     response=result,
                     suggestions=[
@@ -238,14 +238,14 @@ class UnifiedChatService:
                         "View deployment guide",
                         "Monitor resources",
                         "Check logs",
-                    ]
+                    ],
                 )
-                
+
         except Exception as e:
             logger.error(f"Infrastructure chat error: {e}")
             return ChatResponse(
                 response="I encountered an error checking infrastructure status. Please check the logs.",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )
 
     async def _handle_coding_chat(self, request: ChatRequest) -> ChatResponse:

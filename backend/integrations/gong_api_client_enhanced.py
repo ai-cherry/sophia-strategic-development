@@ -115,7 +115,7 @@ class GongCallTranscript(BaseModel):
     sentiment_summary: dict[str, float] | None = None
 
     @validator("transcript_segments")
-    def validate_segments(cls, segments):
+    def validate_segments(self, segments):
         """Ensure segments are chronologically ordered."""
         if segments:
             sorted_segments = sorted(segments, key=lambda s: s.start_time)
@@ -141,7 +141,7 @@ class GongParticipant(BaseModel):
     is_key_stakeholder: bool = False
 
     @validator("company_domain")
-    def extract_domain(cls, v, values):
+    def extract_domain(self, v, values):
         """Extract domain from email if not provided."""
         if not v and "email" in values:
             email = values["email"]

@@ -9,6 +9,7 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [searchContext, setSearchContext] = useState(initialContext);
+    const [userId, setUserId] = useState('ceo-user-123'); // Example user ID
     const ws = useRef(null);
     const messagesEndRef = useRef(null);
 
@@ -20,7 +21,8 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
 
     useEffect(() => {
         const connect = () => {
-            const wsUrl = apiClient.defaults.baseURL.replace(/^http/, 'ws') + '/api/v1/ceo/chat/ws';
+            // Use a dynamic URL with the user ID
+            const wsUrl = apiClient.defaults.baseURL.replace(/^http/, 'ws') + `/api/v1/chat/ws/${userId}`;
             ws.current = new WebSocket(wsUrl);
 
             ws.current.onopen = () => console.log("WebSocket Connected");
@@ -44,7 +46,7 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
         return () => {
             if (ws.current) ws.current.close();
         };
-    }, []);
+    }, [userId]);
 
     const handleSendMessage = () => {
         if (!input.trim() || !ws.current || ws.current.readyState !== WebSocket.OPEN) return;
@@ -54,7 +56,12 @@ const EnhancedUnifiedChat = ({ initialContext = 'business_intelligence' }) => {
         setIsLoading(true);
         setError(null);
 
-        ws.current.send(JSON.stringify({ message: input, search_context: searchContext }));
+        ws.current.send(JSON.stringify({
+            message: input,
+            search_context: searchContext,
+            // Future-proofing: send access level if available
+            // access_level: "ceo"
+        }));
         setInput('');
     };
 

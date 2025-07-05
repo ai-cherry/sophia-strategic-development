@@ -13,7 +13,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -31,7 +31,6 @@ except ImportError:
     types = None
 
 # Import Sophia AI utilities - use absolute imports when running as MCP server
-import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -40,7 +39,7 @@ try:
     from backend.core.auto_esc_config import get_config_value
 except ImportError:
     # Fallback for MCP server environment
-    def get_config_value(key: str) -> Optional[str]:
+    def get_config_value(key: str) -> str | None:
         return os.environ.get(f"SOPHIA_{key.upper()}")
 
 
@@ -73,7 +72,7 @@ class ComponentRequest(BaseModel):
     prompt: str = Field(
         ..., description="Natural language description of the component"
     )
-    design_context: Optional[dict[str, Any]] = Field(
+    design_context: dict[str, Any] | None = Field(
         None, description="Figma design tokens and context"
     )
     component_type: str = Field("react", description="Type of component to generate")
@@ -89,7 +88,7 @@ class StreamComponentRequest(BaseModel):
     """Request model for streaming component generation."""
 
     prompt: str
-    design_context: Optional[dict[str, Any]] = None
+    design_context: dict[str, Any] | None = None
     stream: bool = Field(True)
 
 
@@ -352,7 +351,7 @@ async def startup_event():
         # Register MCP tools
         @mcp_server.tool()
         async def generateComponent(
-            prompt: str, design_context: Optional[dict] = None
+            prompt: str, design_context: dict | None = None
         ) -> dict:
             """Generate a UI component from a prompt."""
             request = ComponentRequest(prompt=prompt, design_context=design_context)
@@ -360,7 +359,7 @@ async def startup_event():
 
         @mcp_server.tool()
         async def streamComponent(
-            prompt: str, design_context: Optional[dict] = None
+            prompt: str, design_context: dict | None = None
         ) -> dict:
             """Stream component generation for live preview."""
             # For MCP, we'll return the streaming endpoint info

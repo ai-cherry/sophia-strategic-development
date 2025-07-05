@@ -7,12 +7,14 @@ Cleans up everything and sets up optimal infrastructure for Sophia AI
 import os
 import time
 from datetime import datetime
-from typing import Optional
 
 import requests
 
 # Configuration
-API_KEY = os.getenv("LAMBDA_LABS_API_KEY", "secret_sophia-july-25_989f13097e374c779f28629f5a1ac571.iH4OIeM78TWyzDiltkpLAzlPeaTw68HJ")
+API_KEY = os.getenv(
+    "LAMBDA_LABS_API_KEY",
+    "secret_sophia-july-25_989f13097e374c779f28629f5a1ac571.iH4OIeM78TWyzDiltkpLAzlPeaTw68HJ",
+)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 BASE_URL = "https://cloud.lambda.ai/api/v1"
 
@@ -32,18 +34,12 @@ class LambdaLabsOptimizer:
 
     def terminate_instance(self, instance_id: str, name: str) -> bool:
         """Terminate a specific instance"""
-        print(f"  Terminating {name}...")
         response = requests.post(
             f"{BASE_URL}/instance-operations/terminate",
             auth=self.auth,
             json={"instance_ids": [instance_id]},
         )
-        if response.status_code in [200, 202]:
-            print("  ✅ Terminated successfully")
-            return True
-        else:
-            print(f"  ❌ Error: {response.text}")
-            return False
+        return response.status_code in [200, 202]
 
     def list_ssh_keys(self) -> list[dict]:
         """List all SSH keys"""
@@ -72,9 +68,8 @@ class LambdaLabsOptimizer:
         name: str,
         ssh_key_names: list[str],
         region: str = "us-west-1",
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """Launch a new instance"""
-        print(f"\n🚀 Launching {name} ({instance_type}) in {region}...")
 
         payload = {
             "region_name": region,
@@ -89,40 +84,29 @@ class LambdaLabsOptimizer:
         )
 
         if response.status_code in [200, 201]:
-            print("✅ Launched successfully")
             return response.json()
         else:
-            print(f"❌ Error: {response.text}")
             return None
 
 
 def phase1_cleanup(optimizer: LambdaLabsOptimizer):
     """Phase 1: Clean up all instances and keys"""
-    print("\n" + "=" * 60)
-    print("🧹 PHASE 1: COMPLETE CLEANUP")
-    print("=" * 60)
 
     # Get current instances
     instances = optimizer.list_instances()
-    print(f"\n📊 Current instances: {len(instances)}")
 
     # Calculate current monthly cost
-    total_cost = (
+    (
         sum(inst["instance_type"]["price_cents_per_hour"] for inst in instances)
         * 24
         * 30
         / 100
     )
-    print(f"💰 Current monthly cost: ${total_cost:,.2f}")
 
     # Show what we'll remove
-    print("\n🗑️  Instances to terminate:")
     for inst in instances:
         hourly = inst["instance_type"]["price_cents_per_hour"] / 100
-        monthly = hourly * 24 * 30
-        print(
-            f"  - {inst['name']} ({inst['instance_type']['name']}) - ${monthly:,.2f}/month - IP: {inst['ip']}"
-        )
+        hourly * 24 * 30
 
     confirm = input("\n⚠️  Terminate ALL instances? (yes/no): ")
     if confirm.lower() == "yes":
@@ -131,41 +115,17 @@ def phase1_cleanup(optimizer: LambdaLabsOptimizer):
             time.sleep(1)  # Rate limiting
 
     # Clean up SSH keys
-    print("\n🔑 Cleaning up SSH keys...")
     keys = optimizer.list_ssh_keys()
 
     # Keep only lambda_labs_key
     for key in keys:
         if key["name"] != "lambda_labs_key":
-            print(f"  Deleting {key['name']}...")
             if optimizer.delete_ssh_key(key["id"]):
-                print("  ✅ Deleted")
+                pass
 
 
 def phase2_optimal_setup(optimizer: LambdaLabsOptimizer):
     """Phase 2: Create optimal instance configuration"""
-    print("\n" + "=" * 60)
-    print("🏗️  PHASE 2: OPTIMAL INFRASTRUCTURE SETUP")
-    print("=" * 60)
-
-    print("\n📋 Recommended Architecture for Sophia AI:")
-    print("\n1. PRIMARY PLATFORM SERVER")
-    print("   - Type: gpu_1x_a10 (Good balance of cost/performance)")
-    print("   - Purpose: Main API, PostgreSQL, Redis, MCP Gateway")
-    print("   - Cost: $75/hour ($540/month)")
-
-    print("\n2. AI PROCESSING SERVER")
-    print("   - Type: gpu_1x_a100_sxm4 (High performance AI)")
-    print("   - Purpose: Snowflake Cortex AI, LLM operations, embeddings")
-    print("   - Cost: $129/hour ($929/month)")
-
-    print("\n3. MCP ORCHESTRATION SERVER")
-    print("   - Type: gpu_1x_a10 (Cost-effective)")
-    print("   - Purpose: 20+ MCP servers, monitoring, orchestration")
-    print("   - Cost: $75/hour ($540/month)")
-
-    print("\n💰 Total Monthly Cost: $2,009 (vs current $5,000+)")
-    print("💡 Savings: $3,000+/month while improving performance")
 
     confirm = input("\n✅ Create this optimized setup? (yes/no): ")
     if confirm.lower() != "yes":
@@ -174,7 +134,6 @@ def phase2_optimal_setup(optimizer: LambdaLabsOptimizer):
     # Ensure we have lambda_labs_key
     keys = optimizer.list_ssh_keys()
     if not any(k["name"] == "lambda_labs_key" for k in keys):
-        print("❌ lambda_labs_key not found. Please run the setup script first.")
         return
 
     # Launch instances
@@ -216,9 +175,6 @@ def phase2_optimal_setup(optimizer: LambdaLabsOptimizer):
 
 def phase3_deployment_prep():
     """Phase 3: Prepare deployment scripts"""
-    print("\n" + "=" * 60)
-    print("🚀 PHASE 3: DEPLOYMENT PREPARATION")
-    print("=" * 60)
 
     # Create optimized deployment script
     deployment_script = f"""#!/bin/bash
@@ -292,8 +248,6 @@ echo -e "${{GREEN}}✅ Deployment preparation complete!${{NC}}"
     with open("scripts/deploy_sophia_optimized.sh", "w") as f:
         f.write(deployment_script)
     os.chmod("scripts/deploy_sophia_optimized.sh", 0o755)
-
-    print("✅ Created deployment script: scripts/deploy_sophia_optimized.sh")
 
     # Create docker-compose for each server
     create_docker_configs()
@@ -436,24 +390,13 @@ services:
     for filename, content in configs.items():
         with open(filename, "w") as f:
             f.write(content)
-        print(f"✅ Created {filename}")
 
 
 def main():
-    print("🎯 Lambda Labs Complete Reset and Optimization")
-    print("=" * 60)
-    print("\nThis script will:")
-    print("1. Terminate ALL existing instances")
-    print("2. Clean up SSH keys (keeping only lambda_labs_key)")
-    print("3. Launch 3 optimized instances")
-    print("4. Save $3,000+/month while improving performance")
-    print("5. Prepare deployment scripts")
-
     confirm = input(
         "\n⚠️  This will DELETE all current instances. Continue? (yes/no): "
     )
     if confirm.lower() != "yes":
-        print("Cancelled.")
         return
 
     optimizer = LambdaLabsOptimizer()
@@ -462,7 +405,6 @@ def main():
     phase1_cleanup(optimizer)
 
     # Wait for terminations to complete
-    print("\n⏳ Waiting 30 seconds for terminations to complete...")
     time.sleep(30)
 
     # Phase 2: Optimal setup
@@ -470,19 +412,6 @@ def main():
 
     # Phase 3: Deployment preparation
     phase3_deployment_prep()
-
-    print("\n" + "=" * 60)
-    print("✅ COMPLETE! Next steps:")
-    print("1. Wait 2-3 minutes for instances to be ready")
-    print(
-        "2. Get instance IPs: curl -u {API_KEY}: https://cloud.lambda.ai/api/v1/instances"
-    )
-    print("3. Update deploy_sophia_optimized.sh with the IPs")
-    print("4. Run: ./scripts/deploy_sophia_optimized.sh")
-    print("5. Access your services:")
-    print("   - Platform API: http://PLATFORM_IP:8000")
-    print("   - AI Services: http://AI_IP:8080")
-    print("   - MCP Gateway: http://MCP_IP:9000")
 
 
 if __name__ == "__main__":

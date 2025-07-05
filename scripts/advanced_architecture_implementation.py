@@ -272,7 +272,7 @@ class AdvancedArchitectureImplementation:
             )
 
             f.write("## ✅ Components Implemented\n\n")
-            for component in results.keys():
+            for component in results:
                 f.write(
                     f"- **{component.replace('_', ' ').title()}**: Foundation ready\n"
                 )
@@ -344,12 +344,9 @@ async def main():
     result = await implementation.run_implementation()
 
     if result["status"] == "success":
-        print("\n🎉 SUCCESS: Advanced Architecture Foundation Complete!")
-        print(f"📊 Components Implemented: {result['components']}")
-        print("📋 Report Generated: Ready for production deployment")
+        pass
     else:
-        print(f"\n❌ ERROR: {result['error']}")
-        print(f"📊 Components Completed: {result['components_completed']}")
+        pass
 
 
 if __name__ == "__main__":

@@ -323,8 +323,8 @@ class MarketingAnalysisAgent(BaseAgent):
                     if recommendations_text:
                         optimization_recommendations = [
                             rec.strip()
-                            for rec in recommendations_text.split("\n")
-                            if rec.strip() and any(char.isdigit() for char in rec[:5])
+                            for rec in recommendations_text.split("\n"):
+                            if rec.strip() and any(char.isdigit() for char in rec[:5]):
                         ]
 
                 # Analyze audience segments
@@ -436,7 +436,7 @@ class MarketingAnalysisAgent(BaseAgent):
                     context["product_context"] = "\n".join(
                         [
                             f"- {item['name']}: {item['description']}"
-                            for item in product_info
+                            for item in product_info:
                         ]
                     )
 
@@ -448,7 +448,7 @@ class MarketingAnalysisAgent(BaseAgent):
                 context["competitor_context"] = "\n".join(
                     [
                         f"- {item['name']}: {item['description']}"
-                        for item in competitor_info
+                        for item in competitor_info:
                     ]
                 )
 
@@ -611,11 +611,11 @@ class MarketingAnalysisAgent(BaseAgent):
                 if segmentation_analysis:
                     segment_lines = [
                         line.strip()
-                        for line in segmentation_analysis.split("\n")
-                        if line.strip()
+                        for line in segmentation_analysis.split("\n"):
+                        if line.strip():
                         and any(
                             keyword in line.lower()
-                            for keyword in ["segment", "group", "audience"]
+                            for keyword in ["segment", "group", "audience"]:
                         )
                     ]
 

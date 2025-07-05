@@ -17,53 +17,26 @@ from backend.services.structured_output_service import StructuredOutputService
 
 async def test_project_intelligence():
     """Test Project Intelligence Service."""
-    print("\n=== Testing Project Intelligence Service ===")
 
     try:
-        service = ProjectIntelligenceService()
-        print("✅ Service initialized")
+        ProjectIntelligenceService()
 
         # Note: These will fail without actual Snowflake data
         # but we can test the service structure
-        print(
-            "- Service has get_project_summary method:",
-            hasattr(service, "get_project_summary"),
-        )
-        print(
-            "- Service has get_team_performance method:",
-            hasattr(service, "get_team_performance"),
-        )
-        print(
-            "- Service has get_milestone_tracking method:",
-            hasattr(service, "get_milestone_tracking"),
-        )
 
         return True
 
-    except Exception as e:
-        print(f"❌ Error: {e}")
+    except Exception:
         return False
 
 
 async def test_structured_output():
     """Test Structured Output Service."""
-    print("\n=== Testing Structured Output Service ===")
 
     try:
-        service = StructuredOutputService()
-        print("✅ Service initialized")
+        StructuredOutputService()
 
         # Test the service structure
-        print(
-            "- Service has get_structured_output method:",
-            hasattr(service, "get_structured_output"),
-        )
-        print(
-            "- Service has get_executive_summary method:",
-            hasattr(service, "get_executive_summary"),
-        )
-        print("- Service has analyze_deal method:", hasattr(service, "analyze_deal"))
-        print("- Service has analyze_call method:", hasattr(service, "analyze_call"))
 
         # Test schema classes
         from backend.services.structured_output_service import (
@@ -73,7 +46,7 @@ async def test_structured_output():
         )
 
         # Create test instances
-        exec_summary = ExecutiveSummary(
+        ExecutiveSummary(
             title="Test Summary",
             key_points=["Point 1", "Point 2", "Point 3"],
             metrics={"revenue": 100000, "growth": 15},
@@ -81,9 +54,8 @@ async def test_structured_output():
             risk_level="low",
             confidence_score=0.85,
         )
-        print("✅ ExecutiveSummary schema working")
 
-        deal = DealAnalysis(
+        DealAnalysis(
             deal_id="test-123",
             deal_name="Test Deal",
             probability=75.0,
@@ -93,9 +65,8 @@ async def test_structured_output():
             estimated_close_date=datetime.now(),
             competitor_threats=["Competitor 1"],
         )
-        print("✅ DealAnalysis schema working")
 
-        call = CallInsights(
+        CallInsights(
             call_id="call-123",
             sentiment_score=0.7,
             key_topics=["Topic 1"],
@@ -105,22 +76,18 @@ async def test_structured_output():
             follow_up_required=True,
             urgency_level="medium",
         )
-        print("✅ CallInsights schema working")
 
         return True
 
-    except Exception as e:
-        print(f"❌ Error: {e}")
+    except Exception:
         return False
 
 
 async def test_fast_document_processor():
     """Test Fast Document Processor."""
-    print("\n=== Testing Fast Document Processor ===")
 
     try:
         processor = FastDocumentProcessor(max_workers=4)
-        print("✅ Processor initialized")
 
         # Test processing a sample document
         test_docs = [
@@ -136,33 +103,22 @@ async def test_fast_document_processor():
             },
         ]
 
-        print("\nProcessing test documents...")
         results = await processor.process_documents_batch(test_docs)
 
-        print(f"✅ Processed {len(results)} documents")
-        for result in results:
-            print(
-                f"  - Document {result.document_id}: {result.status}, {result.chunks_processed} chunks"
-            )
+        for _result in results:
+            pass
 
         # Get metrics
-        metrics = processor.get_metrics()
-        print("\nMetrics:")
-        print(f"  - Documents per second: {metrics.documents_per_second:.2f}")
-        print(f"  - Average chunk time: {metrics.average_chunk_time_ms:.2f}ms")
-        print(f"  - Cache hit rate: {metrics.cache_hit_rate:.2%}")
+        processor.get_metrics()
 
         return True
 
-    except Exception as e:
-        print(f"❌ Error: {e}")
+    except Exception:
         return False
 
 
 async def main():
     """Run all tests."""
-    print("Testing Strategic Enhancement Services")
-    print("=" * 50)
 
     results = {
         "project_intelligence": await test_project_intelligence(),
@@ -170,14 +126,10 @@ async def main():
         "fast_document_processor": await test_fast_document_processor(),
     }
 
-    print("\n" + "=" * 50)
-    print("Test Results Summary:")
-    for service, passed in results.items():
-        status = "✅ PASSED" if passed else "❌ FAILED"
-        print(f"  {service}: {status}")
+    for _service, _passed in results.items():
+        pass
 
     total_passed = sum(results.values())
-    print(f"\nTotal: {total_passed}/{len(results)} services working")
 
     return total_passed == len(results)
 

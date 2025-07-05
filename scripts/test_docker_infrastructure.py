@@ -25,12 +25,10 @@ class DockerInfrastructureTester:
                 ["docker", "--version"], capture_output=True, text=True
             )
             if result.returncode == 0:
-                print(f"✅ Docker installed: {result.stdout.strip()}")
                 return True
         except Exception:
             pass
 
-        print("❌ Docker not installed or not running")
         return False
 
     def check_docker_compose_installed(self) -> bool:
@@ -41,7 +39,6 @@ class DockerInfrastructureTester:
                 ["docker", "compose", "version"], capture_output=True, text=True
             )
             if result.returncode == 0:
-                print(f"✅ Docker Compose installed: {result.stdout.strip()}")
                 return True
 
             # Try old docker-compose command
@@ -49,12 +46,10 @@ class DockerInfrastructureTester:
                 ["docker-compose", "--version"], capture_output=True, text=True
             )
             if result.returncode == 0:
-                print(f"✅ Docker Compose installed: {result.stdout.strip()}")
                 return True
         except Exception:
             pass
 
-        print("❌ Docker Compose not installed")
         return False
 
     def check_critical_files(self) -> dict[str, bool]:
@@ -69,12 +64,9 @@ class DockerInfrastructureTester:
         }
 
         results = {}
-        print("\n📄 Checking critical files:")
         for name, path in critical_files.items():
             exists = path.exists()
             results[name] = exists
-            status = "✅" if exists else "❌"
-            print(f"  {status} {name}: {path}")
 
         self.results["docker_files"] = results
         return results
@@ -89,13 +81,11 @@ class DockerInfrastructureTester:
         ]
 
         results = {}
-        print("\n🔍 Validating Docker Compose files:")
 
         for compose_file in compose_files:
             filepath = self.root_dir / compose_file
             if not filepath.exists():
                 results[compose_file] = (False, "File not found")
-                print(f"  ❌ {compose_file}: File not found")
                 continue
 
             # Validate syntax
@@ -107,13 +97,10 @@ class DockerInfrastructureTester:
                 )
                 if result.returncode == 0:
                     results[compose_file] = (True, "Valid")
-                    print(f"  ✅ {compose_file}: Valid syntax")
                 else:
                     results[compose_file] = (False, result.stderr)
-                    print(f"  ❌ {compose_file}: {result.stderr}")
             except Exception as e:
                 results[compose_file] = (False, str(e))
-                print(f"  ❌ {compose_file}: {e}")
 
         self.results["compose_files"] = results
         return results
@@ -143,20 +130,16 @@ class DockerInfrastructureTester:
         }
 
         results = {}
-        print("\n📦 Checking MCP server Dockerfiles:")
 
         for name, path in mcp_servers.items():
             exists = path.exists()
             results[name] = exists
-            status = "✅" if exists else "❌"
-            print(f"  {status} {name}: {path.name if exists else 'Missing'}")
 
         return results
 
     def test_docker_build(self, service: str, compose_file: str) -> tuple[bool, str]:
         """Test building a specific Docker service"""
         try:
-            print(f"\n🔨 Testing build for {service}...")
             result = subprocess.run(
                 [
                     "docker",
@@ -205,20 +188,15 @@ class DockerInfrastructureTester:
         report_path = self.root_dir / "docker_infrastructure_test_report.json"
         with open(report_path, "w") as f:
             json.dump(self.results, f, indent=2)
-        print(f"\n📄 Report saved to: {report_path}")
 
     def run(self):
         """Run all infrastructure tests"""
-        print("🐳 Docker Infrastructure Test Suite")
-        print("=" * 60)
 
         # Check prerequisites
         if not self.check_docker_installed():
-            print("\n❌ Docker is required to continue")
             return
 
         if not self.check_docker_compose_installed():
-            print("\n❌ Docker Compose is required to continue")
             return
 
         # Run tests
@@ -230,25 +208,15 @@ class DockerInfrastructureTester:
         self.generate_summary()
 
         # Print summary
-        print("\n" + "=" * 60)
-        print("📊 Test Summary")
-        print("=" * 60)
-        print(f"Docker Files: {self.results['summary']['docker_files']}")
-        print(f"Compose Files: {self.results['summary']['compose_files']}")
-        print(f"Overall Readiness: {self.results['summary']['overall_readiness']}")
 
         # Save report
         self.save_report()
 
         # Recommendations
-        print("\n💡 Recommendations:")
         if float(self.results["summary"]["overall_readiness"].rstrip("%")) < 100:
-            print("  1. Fix any missing or invalid files")
-            print("  2. Run docker-compose config to validate syntax")
-            print("  3. Create missing Dockerfiles for MCP servers")
+            pass
         else:
-            print("  ✅ Infrastructure is ready for build testing!")
-            print("  Next step: docker-compose -f docker-compose.mcp.yml build")
+            pass
 
 
 if __name__ == "__main__":

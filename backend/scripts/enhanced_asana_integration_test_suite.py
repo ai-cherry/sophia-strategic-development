@@ -1154,41 +1154,25 @@ async def main():
 
         # Print summary
         summary = report["test_suite_summary"]
-        print("\n🧪 Asana Integration Test Suite Results")
-        print("=" * 50)
-        print(f"Environment: {summary['environment']}")
-        print(f"Total Tests: {summary['total_tests']}")
-        print(f"Passed: {summary['passed_tests']}")
-        print(f"Failed: {summary['failed_tests']}")
-        print(f"Success Rate: {summary['success_rate']:.1%}")
-        print(f"Execution Time: {summary['total_execution_time']:.1f}s")
 
         # Print category breakdown
-        print("\n📊 Category Breakdown:")
-        for category, stats in report["category_statistics"].items():
-            print(
-                f"  {category}: {stats['passed']}/{stats['total']} ({stats['success_rate']:.1%})"
-            )
+        for _category, _stats in report["category_statistics"].items():
+            pass
 
         # Print failed tests
         if report["failed_tests"]:
-            print("\n❌ Failed Tests:")
-            for failed_test in report["failed_tests"]:
-                print(
-                    f"  - {failed_test['test_name']} ({failed_test['category']}): {failed_test['message']}"
-                )
+            for _failed_test in report["failed_tests"]:
+                pass
 
         # Save to file if specified
         if args.output:
             with open(args.output, "w") as f:
                 json.dump(report, f, indent=2, default=str)
-            print(f"\n💾 Detailed results saved to: {args.output}")
 
         # Return appropriate exit code
         return 0 if summary["failed_tests"] == 0 else 1
 
-    except Exception as e:
-        print(f"❌ Test suite execution failed: {e}")
+    except Exception:
         return 1
 
 

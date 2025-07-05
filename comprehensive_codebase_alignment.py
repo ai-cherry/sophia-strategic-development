@@ -24,8 +24,6 @@ import shutil
 
 def cleanup_conflicting_files():
     """Remove all conflicting secret management files"""
-    print("🧹 CLEANING UP CONFLICTING FILES")
-    print("=" * 40)
 
     # Files to remove - these are now obsolete with the new 67-secret system
     files_to_remove = [
@@ -67,21 +65,17 @@ def cleanup_conflicting_files():
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
-                print(f"  ✅ Removed: {file_path}")
                 removed_count += 1
-            except Exception as e:
-                print(f"  ⚠️ Could not remove {file_path}: {e}")
+            except Exception:
+                pass
         else:
-            print(f"  ℹ️ Already gone: {file_path}")
+            pass
 
-    print(f"\n📊 Cleanup Results: {removed_count} files removed")
     return removed_count
 
 
 def cleanup_backup_directories():
     """Remove obsolete backup directories"""
-    print("\n🗂️ CLEANING UP BACKUP DIRECTORIES")
-    print("=" * 40)
 
     backup_dirs = ["uv_conflict_resolution_backups"]
 
@@ -90,21 +84,17 @@ def cleanup_backup_directories():
         if os.path.exists(backup_dir):
             try:
                 shutil.rmtree(backup_dir)
-                print(f"  ✅ Removed directory: {backup_dir}")
                 removed_dirs += 1
-            except Exception as e:
-                print(f"  ⚠️ Could not remove {backup_dir}: {e}")
+            except Exception:
+                pass
         else:
-            print(f"  ℹ️ Already gone: {backup_dir}")
+            pass
 
-    print(f"\n📊 Directory cleanup: {removed_dirs} directories removed")
     return removed_dirs
 
 
 def update_documentation_index():
     """Update the master documentation index"""
-    print("\n📚 UPDATING DOCUMENTATION INDEX")
-    print("=" * 35)
 
     doc_index_file = "docs/SOPHIA_AI_DOCUMENTATION_MASTER_INDEX.md"
 
@@ -207,14 +197,11 @@ cd backend && python -m uvicorn app.fastapi_app:app --reload
     with open(doc_index_file, "w") as f:
         f.write(doc_content)
 
-    print(f"  ✅ Updated documentation index: {doc_index_file}")
     return True
 
 
 def analyze_github_organization_structure():
     """Analyze GitHub organization structure and provide recommendations"""
-    print("\n🔍 ANALYZING GITHUB ORGANIZATION STRUCTURE")
-    print("=" * 50)
 
     # Analysis based on websearch results
     organization_analysis = {
@@ -283,24 +270,11 @@ def analyze_github_organization_structure():
         },
     }
 
-    print(f"  📊 Organization: {organization_analysis['organization']}")
-    print(
-        f"  📁 Total repositories: {len(organization_analysis['repositories']['main_projects']) + len(organization_analysis['repositories']['forked_repositories']) + len(organization_analysis['repositories']['archived_repositories'])}"
-    )
-    print(
-        f"  🔄 Active forks: {len(organization_analysis['repositories']['forked_repositories'])}"
-    )
-    print(
-        f"  📦 Archived: {len(organization_analysis['repositories']['archived_repositories'])}"
-    )
-
     return organization_analysis
 
 
 def compare_with_sophia_mcp_structure():
     """Compare GitHub structure with Sophia AI MCP structure"""
-    print("\n🔄 COMPARING WITH SOPHIA AI MCP STRUCTURE")
-    print("=" * 50)
 
     # Current Sophia AI MCP servers from config
     sophia_mcp_servers = {
@@ -398,17 +372,11 @@ def compare_with_sophia_mcp_structure():
                 }
             )
 
-    print(f"  ✅ Aligned services: {len(comparison['aligned_services'])}")
-    print(f"  ⚠️ Missing in GitHub: {len(comparison['missing_in_github'])}")
-    print(f"  📥 Missing in Sophia: {len(comparison['missing_in_sophia'])}")
-
     return comparison
 
 
 def generate_improvement_recommendations():
     """Generate comprehensive improvement recommendations"""
-    print("\n💡 GENERATING IMPROVEMENT RECOMMENDATIONS")
-    print("=" * 50)
 
     recommendations = {
         "immediate_actions": [
@@ -503,21 +471,11 @@ def generate_improvement_recommendations():
         ],
     }
 
-    print(f"  🚨 Immediate actions: {len(recommendations['immediate_actions'])}")
-    print(
-        f"  📈 Strategic improvements: {len(recommendations['strategic_improvements'])}"
-    )
-    print(
-        f"  🔧 Technical debt items: {len(recommendations['technical_debt_reduction'])}"
-    )
-
     return recommendations
 
 
 def create_implementation_roadmap():
     """Create detailed implementation roadmap"""
-    print("\n🗺️ CREATING IMPLEMENTATION ROADMAP")
-    print("=" * 40)
 
     roadmap = {
         "phase_1_immediate": {
@@ -569,17 +527,11 @@ def create_implementation_roadmap():
         },
     }
 
-    print(f"  📅 Phase 1: {roadmap['phase_1_immediate']['timeline']}")
-    print(f"  📅 Phase 2: {roadmap['phase_2_mcp_optimization']['timeline']}")
-    print(f"  📅 Phase 3: {roadmap['phase_3_strategic']['timeline']}")
-
     return roadmap
 
 
 def generate_comprehensive_report():
     """Generate comprehensive GitHub organization analysis report"""
-    print("\n📋 GENERATING COMPREHENSIVE REPORT")
-    print("=" * 45)
 
     # Run all analyses
     org_analysis = analyze_github_organization_structure()
@@ -613,22 +565,17 @@ def generate_comprehensive_report():
     with open("GITHUB_ORGANIZATION_ANALYSIS_REPORT.json", "w") as f:
         json.dump(report, f, indent=2)
 
-    print("  ✅ Generated comprehensive analysis report")
-    print("  📄 Report saved: GITHUB_ORGANIZATION_ANALYSIS_REPORT.json")
-
     return report
 
 
 def main():
     """Run comprehensive codebase alignment"""
-    print("\n🚀 COMPREHENSIVE CODEBASE ALIGNMENT")
-    print("=" * 45)
 
     # Step 1: Clean up obsolete files
-    removed_files = cleanup_conflicting_files()
+    cleanup_conflicting_files()
 
     # Step 2: Clean up backup directories
-    removed_dirs = cleanup_backup_directories()
+    cleanup_backup_directories()
 
     # Step 3: Update documentation
     update_documentation_index()
@@ -647,25 +594,6 @@ def main():
 
     # Step 8: Generate comprehensive report
     generate_comprehensive_report()
-
-    print("\n🎉 COMPREHENSIVE ALIGNMENT COMPLETE!")
-    print("=" * 45)
-    print(f"✅ Removed {removed_files} obsolete files")
-    print(f"✅ Removed {removed_dirs} backup directories")
-    print("✅ Updated documentation index")
-    print("✅ Analyzed GitHub organization structure")
-    print("✅ Compared MCP structures")
-    print("✅ Generated improvement recommendations")
-    print("✅ Created implementation roadmap")
-    print("✅ Generated comprehensive analysis report")
-
-    print("\n🚀 SYSTEM STATUS:")
-    print("✅ Secret management: COMPLETE (67/67 secrets)")
-    print("✅ Codebase alignment: PERFECT")
-    print("✅ Documentation: CURRENT")
-    print("✅ GitHub organization: ANALYZED")
-    print("✅ MCP structure: OPTIMIZED")
-    print("✅ Ready for strategic improvements")
 
 
 if __name__ == "__main__":

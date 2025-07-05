@@ -509,24 +509,17 @@ cortex_server = ProductionSnowflakeCortexMCP()
 
 
 if __name__ == "__main__":
-    print("🚀 Starting Production Snowflake Cortex MCP Server...")
-
     # Test connection on startup
     try:
         health_result = asyncio.run(cortex_server.cortex_health_check())
         if health_result["status"] == "healthy":
-            print("✅ Snowflake Cortex MCP Server ready!")
-            print(f"   Snowflake Version: {health_result['snowflake_version']}")
-            print(f"   Account: {health_result['account']}")
-            print(f"   Warehouse: {health_result['warehouse']}")
-            print(f"   Database: {health_result['database']}")
+            pass
         else:
-            print(f"❌ Health check failed: {health_result.get('error')}")
-    except Exception as e:
-        print(f"❌ Startup failed: {e}")
+            pass
+    except Exception:
+        pass
 
     # In production, this would start the actual MCP server
-    print("🔄 MCP Server running...")
 
 
 # Health endpoint for monitoring

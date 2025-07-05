@@ -326,18 +326,6 @@ MAX_CLUSTER_COUNT = 3;
         )
 
         # Print summary
-        print("\n" + "=" * 60)
-        print("SNOWFLAKE VERIFICATION SUMMARY")
-        print("=" * 60)
-        print(f"Database Exists: {report['summary']['database_exists']}")
-        print(f"Schemas Missing: {report['summary']['schemas_missing']}")
-        print(f"Warehouses Missing: {report['summary']['warehouses_missing']}")
-        print(f"Tables Missing: {report['summary']['tables_missing']}")
-        print(f"Cortex AI Working: {report['summary']['cortex_ai_working']}")
-        print(
-            f"\nTotal Recommendations: {len(self.verification_results['recommendations'])}"
-        )
-        print("=" * 60)
 
     def run_verification(self):
         """Run complete verification"""

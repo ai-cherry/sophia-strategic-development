@@ -636,25 +636,11 @@ async def main():
         if args.status:
             # Show status
             status = await processor.get_processing_status()
-            print("\n=== Embedding Processing Status ===")
-            for table_name, table_status in status.items():
-                print(f"\n{table_name}:")
+            for _table_name, table_status in status.items():
                 if "error" in table_status:
-                    print(f"  Error: {table_status['error']}")
+                    pass
                 else:
-                    print(f"  Total records: {table_status['total_records']:,}")
-                    print(
-                        f"  Records with embeddings: {table_status['records_with_embeddings']:,}"
-                    )
-                    print(
-                        f"  Records without embeddings: {table_status['records_without_embeddings']:,}"
-                    )
-                    print(
-                        f"  Embedding coverage: {table_status['embedding_coverage']:.2%}"
-                    )
-                    print(
-                        f"  Needs processing: {'Yes' if table_status['needs_processing'] else 'No'}"
-                    )
+                    pass
 
         elif args.all_tables:
             # Process all tables
@@ -663,28 +649,18 @@ async def main():
             )
 
             # Print summary
-            print("\n=== Processing Summary ===")
-            for table_name, stats in results.items():
-                print(
-                    f"{table_name}: {stats.successful_embeddings}/{stats.total_records} successful ({stats.success_rate:.2%})"
-                )
+            for _table_name, _stats in results.items():
+                pass
 
         else:
             # Process specific table
             table_enum = EmbeddingTable(args.table)
-            stats = await processor.process_table(
+            await processor.process_table(
                 table_enum,
                 force_refresh=args.force_refresh,
                 dry_run=args.dry_run,
                 limit=args.limit,
             )
-
-            print("\n=== Processing Complete ===")
-            print(f"Table: {args.table}")
-            print(
-                f"Successful: {stats.successful_embeddings}/{stats.total_records} ({stats.success_rate:.2%})"
-            )
-            print(f"Duration: {stats.duration_seconds:.2f} seconds")
 
     except KeyboardInterrupt:
         logger.info("Processing interrupted by user")

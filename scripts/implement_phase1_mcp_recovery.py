@@ -148,18 +148,17 @@ class Phase1MCPRecovery:
                 if (
                     "from backend.mcp_servers.enhanced_ai_memory_mcp_server import"
                     in content
+                ) and (
+                    "MemoryCategory" in content
+                    and "EnhancedMemoryCategory" not in content
                 ):
-                    if (
-                        "MemoryCategory" in content
-                        and "EnhancedMemoryCategory" not in content
-                    ):
-                        content = content.replace(
-                            "MemoryCategory", "EnhancedMemoryCategory"
-                        )
-                        ai_memory_file.write_text(content)
-                        self.results["critical_issues_resolved"].append(
-                            "Fixed MemoryCategory import in AI Memory server"
-                        )
+                    content = content.replace(
+                        "MemoryCategory", "EnhancedMemoryCategory"
+                    )
+                    ai_memory_file.write_text(content)
+                    self.results["critical_issues_resolved"].append(
+                        "Fixed MemoryCategory import in AI Memory server"
+                    )
 
                 logger.info("✅ Fixed AI Memory import conflicts")
 
@@ -582,42 +581,20 @@ class Phase1MCPRecovery:
         """Print Phase 1 execution summary"""
         summary = report["execution_summary"]
 
-        print("\n" + "=" * 70)
-        print("🚀 PHASE 1 RECOVERY EXECUTION SUMMARY")
-        print("=" * 70)
-
-        print("\n📊 RESULTS:")
-        print(f"   Target Servers: {summary['target_servers']}")
-        print(f"   Operational: {summary['operational_servers']}")
-        print(f"   Fixed: {summary['fixed_servers']}")
-        print(f"   Failed: {summary['failed_servers']}")
-        print(
-            f"   Operational Rate: {summary['operational_rate']:.1f}% (target: {summary['target_rate']}%)"
-        )
-
         if summary["phase1_success"]:
-            print("\n🎉 PHASE 1 SUCCESS!")
-            print("   ✅ Target operational rate achieved")
-            print("   ✅ Ready to proceed to Phase 2")
+            pass
         else:
-            print("\n⚠️ PHASE 1 PARTIAL SUCCESS")
-            print("   🔧 Additional work needed to reach target")
-            print("   📈 Significant progress made")
+            pass
 
-        print("\n🔧 FIXES APPLIED:")
-        for fix in self.results.get("fixed_servers", []):
-            print(f"   • {fix}")
+        for _fix in self.results.get("fixed_servers", []):
+            pass
 
         if self.results.get("warnings"):
-            print("\n⚠️ WARNINGS:")
-            for warning in self.results["warnings"]:
-                print(f"   • {warning}")
+            for _warning in self.results["warnings"]:
+                pass
 
-        print("\n🎯 NEXT STEPS:")
-        for step in report["next_steps"]:
-            print(f"   • {step}")
-
-        print("\n" + "=" * 70)
+        for _step in report["next_steps"]:
+            pass
 
     async def _get_server_config(self, server_name: str) -> dict[str, Any]:
         """Get server configuration"""

@@ -849,8 +849,6 @@ async def main():
             }
             json.dump(report_dict, f, indent=2)
 
-        print(f"Validation report saved to: {args.output}")
-
     # Exit with appropriate code
     if report.overall_status == "NOT_READY":
         exit(1)

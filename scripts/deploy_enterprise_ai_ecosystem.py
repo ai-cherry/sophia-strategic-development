@@ -156,7 +156,7 @@ class EnterpriseAIEcosystemDeployer:
 
         if process.returncode != 0:
             return_code = process.returncode if process.returncode is not None else -1
-            error_message = f"Command '{command}' failed with exit code {return_code}:\n{stderr.decode()}"
+            f"Command '{command}' failed with exit code {return_code}:\n{stderr.decode()}"
             raise subprocess.CalledProcessError(
                 return_code, command, output=stdout, stderr=stderr
             )
@@ -169,15 +169,10 @@ async def main():
     deployer = EnterpriseAIEcosystemDeployer()
     results = await deployer.deploy_ecosystem()
 
-    print("\n🎉 Enterprise AI Ecosystem Deployment Complete!")
-    print("============== PHOENIX 1.4 DEPLOYMENT REPORT ==============")
-    print(json.dumps(results, indent=2))
-    print("==========================================================")
-
     if any(phase["status"] == "failed" for phase in results.values()):
-        print("\n❌ Deployment finished with errors.")
+        pass
     else:
-        print("\n✅ Deployment completed successfully.")
+        pass
 
 
 if __name__ == "__main__":

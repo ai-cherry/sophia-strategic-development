@@ -371,38 +371,19 @@ class CodebaseAuditor:
 
     def run_full_audit(self) -> dict:
         """Run complete codebase audit"""
-        print("=== Sophia AI Codebase Audit ===\n")
 
-        print("1. Auditing modules...")
         self.audit_modules()
-        print(f"   Found {len(self.audit_results['modules'])} modules")
 
-        print("2. Auditing agents...")
         self.audit_agents()
-        print(f"   Found {len(self.audit_results['agents'])} agents")
 
-        print("3. Auditing integrations...")
         self.audit_integrations()
-        print(f"   Found {len(self.audit_results['integrations'])} integrations")
 
-        print("4. Auditing compliance...")
         self.audit_compliance()
-        print(
-            f"   Found {len(self.audit_results['compliance_sensitive'])} sensitive flows"
-        )
 
-        print("5. Auditing documentation...")
         self.audit_documentation()
-        doc_status = self.audit_results["documentation_status"]
-        print(
-            f"   Documentation coverage: {doc_status['documented_modules']}/{doc_status['total_modules']}"
-        )
+        self.audit_results["documentation_status"]
 
-        print("6. Generating recommendations...")
         self.generate_recommendations()
-        print(
-            f"   Generated {len(self.audit_results['recommendations'])} recommendations"
-        )
 
         return self.audit_results
 
@@ -410,7 +391,6 @@ class CodebaseAuditor:
         """Save audit results to file"""
         with open(output_file, "w") as f:
             json.dump(self.audit_results, f, indent=2)
-        print(f"\nAudit report saved to {output_file}")
 
 
 def main():
@@ -419,14 +399,8 @@ def main():
     results = auditor.run_full_audit()
     auditor.save_audit_report()
 
-    print("\n=== Audit Summary ===")
-    print(f"Dead code files: {len(results['dead_code'])}")
-    print(f"Compliance-sensitive flows: {len(results['compliance_sensitive'])}")
-    print(f"Recommendations: {len(results['recommendations'])}")
-
-    print("\n=== Top Recommendations ===")
-    for rec in results["recommendations"][:3]:
-        print(f"[{rec['priority']}] {rec['category']}: {rec['action']}")
+    for _rec in results["recommendations"][:3]:
+        pass
 
 
 if __name__ == "__main__":

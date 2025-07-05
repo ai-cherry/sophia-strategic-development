@@ -471,10 +471,8 @@ def main():
     success = fixer.run_fixes()
 
     if success:
-        print("🎉 ALIGNMENT FIXES COMPLETED SUCCESSFULLY!")
         return 0
     else:
-        print("❌ ALIGNMENT FIXES FAILED!")
         return 1
 
 

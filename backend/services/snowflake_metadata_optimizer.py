@@ -196,7 +196,7 @@ class SnowflakeMetadataOptimizer:
         """
         results = {}
 
-        for schema in self.optimization_configs.keys():
+        for schema in self.optimization_configs:
             try:
                 # Get tables in schema
                 tables_query = f"""

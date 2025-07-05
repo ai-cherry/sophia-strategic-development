@@ -1096,24 +1096,19 @@ if __name__ == "__main__":
             "is_new_file": False,
         }
 
-        result = await analyze_conversation_auto(
+        await analyze_conversation_auto(
             conversation=test_conversation,
             participants=["developer", "architect"],
             file_context=file_context,
             auto_store=True,
         )
 
-        print(json.dumps(result, indent=2, default=str))
-
         # Test smart recall
-        recall_result = await smart_memory_recall(
+        await smart_memory_recall(
             query="vector embedding architecture decision",
             context_hint="architecture",
             file_context=file_context,
             limit=3,
         )
-
-        print("\n--- Smart Recall Results ---")
-        print(json.dumps(recall_result, indent=2, default=str))
 
     asyncio.run(test_auto_discovery())

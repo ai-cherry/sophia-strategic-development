@@ -15,7 +15,6 @@ sys.path.insert(0, str(project_root))
 
 def apply_permanent_snowflake_fix():
     """Apply permanent Snowflake configuration fix"""
-    print("🔧 Applying PERMANENT Snowflake configuration fix...")
 
     # Force correct environment variables
     correct_config = {
@@ -29,7 +28,6 @@ def apply_permanent_snowflake_fix():
 
     for key, value in correct_config.items():
         os.environ[key] = value
-        print(f"   ✅ Set {key}: {value}")
 
     # Clear any Python cache that might have old values
     import subprocess
@@ -55,11 +53,9 @@ def apply_permanent_snowflake_fix():
             capture_output=True,
             check=False,
         )
-        print("   ✅ Cleared Python cache")
     except Exception:
         pass
 
-    print("🎉 Permanent Snowflake fix applied!")
     return correct_config
 
 
@@ -71,14 +67,11 @@ if __name__ == "__main__":
         from backend.core.snowflake_override import get_snowflake_connection_params
 
         params = get_snowflake_connection_params()
-        print(f"🧪 Test: Snowflake account is {params['account']}")
 
         if params["account"] == "ZNB04675":
-            print("✅ PERMANENT FIX VERIFIED - Ready to start Sophia AI!")
+            pass
         else:
-            print(f"❌ Fix verification failed - account is {params['account']}")
             sys.exit(1)
 
-    except Exception as e:
-        print(f"❌ Fix verification error: {e}")
+    except Exception:
         sys.exit(1)

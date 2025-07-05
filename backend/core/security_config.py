@@ -330,10 +330,10 @@ values:
         # Add environment variables mapping
         template += "\n  # Environment Variables Mapping\n"
         template += "  environmentVariables:\n"
-        for secret_key in cls.SECRETS_REGISTRY.keys():
+        for secret_key in cls.SECRETS_REGISTRY:
             template += f"    {secret_key.upper()}: ${{{secret_key}}}\n"
 
-        for config_key in cls.NON_SECRET_CONFIG.keys():
+        for config_key in cls.NON_SECRET_CONFIG:
             template += f"    {config_key.upper()}: ${{{config_key}}}\n"
 
         return template

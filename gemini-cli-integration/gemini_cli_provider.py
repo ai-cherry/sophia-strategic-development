@@ -261,10 +261,7 @@ class GeminiCLIModelRouter:
             return True
 
         # Use if explicitly requested
-        if os.getenv("PREFER_GEMINI_CLI", "false").lower() == "true":
-            return True
-
-        return False
+        return os.getenv("PREFER_GEMINI_CLI", "false").lower() == "true"
 
     async def route_request(
         self, prompt: str, context: dict[str, Any], **kwargs

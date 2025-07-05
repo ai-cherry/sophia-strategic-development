@@ -80,7 +80,7 @@ class SnowflakeCortexService:
 
     async def _create_vector_tables(self):
         """Create vector storage tables if they don't exist"""
-        for table_type, table_name in self.vector_tables.items():
+        for _table_type, table_name in self.vector_tables.items():
             create_query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
                 id VARCHAR(255) PRIMARY KEY,

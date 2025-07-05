@@ -39,7 +39,6 @@ class MCPServerDeployer:
 
     def create_instance(self, instance_name: str):
         """Create a new Lambda Labs instance"""
-        print(f"Creating Lambda Labs instance: {instance_name}")
 
         instance_config = {
             "name": instance_name,
@@ -57,20 +56,15 @@ class MCPServerDeployer:
 
         if response.status_code == 200:
             instance = response.json()
-            print(f"✅ Instance created: {instance['id']}")
             return instance
         else:
-            print(f"❌ Failed to create instance: {response.text}")
             return None
 
     def deploy_to_instance(self, instance_ip: str):
         """Deploy MCP server to instance"""
-        print(f"Deploying {self.server_name} to {instance_ip}")
 
         # Check if SSH key exists
         if not Path(self.ssh_key_path).exists():
-            print(f"❌ SSH key not found at {self.ssh_key_path}")
-            print("Please set LAMBDA_SSH_KEY_PATH environment variable")
             return False
 
         try:
@@ -112,11 +106,9 @@ class MCPServerDeployer:
                     check=True,
                 )
 
-            print(f"✅ {self.server_name} deployed successfully!")
             return True
 
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Deployment failed: {e}")
+        except subprocess.CalledProcessError:
             return False
 
     def deploy(self):
@@ -133,7 +125,6 @@ class MCPServerDeployer:
                 sys.exit(1)
 
             # Wait for instance to be ready
-            print("Waiting for instance to be ready...")
             import time
 
             time.sleep(60)  # Give it time to boot
@@ -141,7 +132,6 @@ class MCPServerDeployer:
         # Get instance IP
         instance_ip = instance.get("ip")
         if not instance_ip:
-            print("❌ No IP address found for instance")
             sys.exit(1)
 
         # Deploy to instance
@@ -170,8 +160,6 @@ class MCPServerDeployer:
         with open(config_file, "w") as f:
             json.dump(config, f, indent=2)
 
-        print(f"✅ Updated MCP configuration for {self.server_name}")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Deploy MCP server to Lambda Labs")
@@ -183,13 +171,9 @@ def main():
     if os.getenv("LAMBDA_LABS_API_KEY") == "PLACEHOLDER" or not os.getenv(
         "LAMBDA_LABS_API_KEY"
     ):
-        print("❌ Please set LAMBDA_LABS_API_KEY environment variable")
-        print("You can get it from Pulumi ESC or set it directly")
         sys.exit(1)
 
     if not os.getenv("LAMBDA_SSH_KEY_PATH"):
-        print("❌ Please set LAMBDA_SSH_KEY_PATH environment variable")
-        print("This should point to your Lambda Labs SSH private key")
         sys.exit(1)
 
     deployer = MCPServerDeployer(args.server)

@@ -8,7 +8,7 @@ from all LLM interactions using Pydantic models and validation.
 import json
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, TypeVar, Union
+from typing import Any, TypeVar
 
 import structlog
 from pydantic import BaseModel, Field, ValidationError, validator
@@ -46,7 +46,7 @@ class ValidationResult(BaseModel):
     is_valid: bool
     errors: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
-    cleaned_output: Optional[dict[str, Any]] = None
+    cleaned_output: dict[str, Any] | None = None
 
 
 # Common structured output schemas
@@ -55,13 +55,13 @@ class ExecutiveSummary(BaseModel):
 
     title: str
     key_points: list[str] = Field(min_items=3, max_items=5)
-    metrics: dict[str, Union[float, int]]
+    metrics: dict[str, float | int]
     recommendations: list[str] = Field(min_items=1)
     risk_level: str = Field(regex="^(low|medium|high|critical)$")
     confidence_score: float = Field(ge=0, le=1)
 
     @validator("key_points")
-    def validate_key_points(cls, v):
+    def validate_key_points(self, v):
         """Ensure key points are concise."""
         for point in v:
             if len(point) > 200:
@@ -78,7 +78,7 @@ class DealAnalysis(BaseModel):
     risk_factors: list[str]
     opportunities: list[str]
     next_steps: list[str]
-    estimated_close_date: Optional[datetime]
+    estimated_close_date: datetime | None
     competitor_threats: list[str] = Field(default_factory=list)
 
 
@@ -114,8 +114,8 @@ class StructuredOutputService:
         self,
         prompt: str,
         output_class: type[T],
-        examples: Optional[list[T]] = None,
-        context: Optional[dict[str, Any]] = None,
+        examples: list[T] | None = None,
+        context: dict[str, Any] | None = None,
         max_retries: int = 3,
     ) -> T:
         """
@@ -297,8 +297,8 @@ class StructuredOutputService:
         self,
         base_prompt: str,
         output_class: type[BaseModel],
-        examples: Optional[list[BaseModel]] = None,
-        context: Optional[dict[str, Any]] = None,
+        examples: list[BaseModel] | None = None,
+        context: dict[str, Any] | None = None,
     ) -> str:
         """Build prompt with structure requirements."""
         schema = output_class.schema()
@@ -387,7 +387,7 @@ Required fields: {', '.join(schema.get('required', []))}
         return response
 
     def _enhance_prompt_for_retry(
-        self, original_prompt: str, error: str, failed_response: Optional[str]
+        self, original_prompt: str, error: str, failed_response: str | None
     ) -> str:
         """Enhance prompt based on previous failure."""
         enhanced = (

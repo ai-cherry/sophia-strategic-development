@@ -317,17 +317,8 @@ class InfrastructureModernizationKickoff:
         logger.info(f"📊 Report saved to: {report_path}")
 
         # Print summary
-        print("\n" + "=" * 60)
-        print("SOPHIA AI INFRASTRUCTURE MODERNIZATION - KICKOFF SUMMARY")
-        print("=" * 60)
-        print(f"Legacy files found: {len(self.legacy_files)}")
-        print(f"TypeScript files to migrate: {len(self.typescript_files)}")
-        print(f"Workflows to consolidate: {len(self.workflow_files)} → 5")
-        print(f"Report location: {report_path}")
-        print("\nNext Steps:")
-        for i, action in enumerate(self.report["summary"]["immediate_actions"], 1):
-            print(f"{i}. {action}")
-        print("=" * 60)
+        for _i, _action in enumerate(self.report["summary"]["immediate_actions"], 1):
+            pass
 
 
 if __name__ == "__main__":

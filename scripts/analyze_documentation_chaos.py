@@ -71,11 +71,9 @@ def analyze_docs():
     docs_dir = "docs"
     categories = defaultdict(list)
 
-    print("📚 Analyzing Documentation Structure...\n")
-
     # Walk through docs directory
     total_docs = 0
-    for root, dirs, files in os.walk(docs_dir):
+    for root, _dirs, files in os.walk(docs_dir):
         # Skip archive directories
         if "archive" in root:
             continue
@@ -98,31 +96,20 @@ def analyze_docs():
                 )
 
     # Print analysis
-    print(f"📊 Total Documents: {total_docs}\n")
 
     # Print by category
     for category, docs in sorted(categories.items()):
-        print(f"\n{'='*60}")
-        print(f"📁 {category} ({len(docs)} documents)")
-        print(f"{'='*60}")
-
         # Sort by size descending
         docs.sort(key=lambda x: x["size"], reverse=True)
 
-        for doc in docs:
-            print(f"  📄 {doc['path']:<50} {doc['size']:>6.1f} KB")
-            print(f"     {doc['description']}")
+        for _doc in docs:
+            pass
 
     # Recommendations
-    print(f"\n\n{'='*60}")
-    print("🎯 RECOMMENDATIONS")
-    print(f"{'='*60}\n")
 
-    print("1. KEEP (Core Documents):")
-    for doc in categories.get("CORE", []):
-        print(f"   ✅ {doc['path']}")
+    for _doc in categories.get("CORE", []):
+        pass
 
-    print("\n2. ARCHIVE (Historical Documents):")
     archive_categories = [
         "PLAN",
         "STATUS",
@@ -131,17 +118,12 @@ def analyze_docs():
         "WEEK",
         "IMPLEMENTATION",
     ]
-    archive_count = sum(len(categories.get(cat, [])) for cat in archive_categories)
-    print(f"   📦 {archive_count} documents should be moved to archive/")
+    sum(len(categories.get(cat, [])) for cat in archive_categories)
 
-    print("\n3. REVIEW (Need Manual Review):")
     review_categories = ["TECHNICAL", "STRATEGY", "RESEARCH", "OTHER"]
-    review_count = sum(len(categories.get(cat, [])) for cat in review_categories)
-    print(f"   🔍 {review_count} documents need manual review")
+    sum(len(categories.get(cat, [])) for cat in review_categories)
 
     # Generate archive script
-    print("\n4. ARCHIVE SCRIPT:")
-    print("   📝 Run: python scripts/archive_obsolete_docs.py")
 
     # Create archive script
     create_archive_script(categories)

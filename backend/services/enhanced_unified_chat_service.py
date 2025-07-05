@@ -378,7 +378,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
 
         # Format memory results
         memory_summary = []
-        for memory in memory_context[:3]:  # Top 3 memories
+        for memory in memory_context[:3]:  # Top 3 memories:
             content = memory.get("content", "")
             timestamp = memory.get("timestamp", "")
             category = memory.get("category", "")

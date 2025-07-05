@@ -316,7 +316,7 @@ class MCPOrchestrationService:
 
         # Start servers in parallel with error handling
         tasks = []
-        for server_name in self.servers.keys():
+        for server_name in self.servers:
             tasks.append(self._start_mcp_server(server_name))
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -539,7 +539,7 @@ class MCPOrchestrationService:
 
         # Check all servers in parallel
         tasks = []
-        for server_name in self.servers.keys():
+        for server_name in self.servers:
             tasks.append(self._check_server_health(server_name))
 
         await asyncio.gather(*tasks, return_exceptions=True)

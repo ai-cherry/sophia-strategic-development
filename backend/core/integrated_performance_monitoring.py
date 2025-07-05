@@ -247,9 +247,7 @@ class PerformanceMonitoringIntegration:
         if (
             response_time <= rt_thresholds["excellent"]
             and error_rate <= er_thresholds["excellent"]
-        ):
-            return "healthy"
-        elif (
+        ) or (
             response_time <= rt_thresholds["good"]
             and error_rate <= er_thresholds["good"]
         ):
@@ -684,27 +682,22 @@ async def track_metric(
 if __name__ == "__main__":
 
     async def main():
-        print("🚀 Starting Performance Monitoring Integration...")
-
         # Initialize monitoring
         success = await initialize_performance_monitoring()
 
         if success:
-            print("✅ Performance monitoring initialized successfully!")
-
             # Test tracking some metrics
             await track_metric("test_service", "response_time", 0.05)
             await track_metric("test_service", "cache_hit_ratio", 0.95)
 
             # Get dashboard data
-            dashboard = await get_performance_dashboard()
-            print(f"Dashboard data: {json.dumps(dashboard, indent=2, default=str)}")
+            await get_performance_dashboard()
 
             # Wait a bit to see monitoring in action
             await asyncio.sleep(5)
 
         else:
-            print("❌ Failed to initialize performance monitoring")
+            pass
 
         # Cleanup
         await performance_monitoring.close()

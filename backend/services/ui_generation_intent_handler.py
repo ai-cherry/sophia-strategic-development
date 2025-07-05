@@ -10,7 +10,7 @@ within the unified dashboard. No direct API access or separate commands.
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from backend.services.mcp_orchestration_service import (
     BusinessTask,
@@ -26,12 +26,12 @@ class UIGenerationRequest:
     """Request for UI component generation"""
 
     description: str
-    component_type: Optional[str] = None
-    style_preferences: Optional[dict[str, Any]] = None
+    component_type: str | None = None
+    style_preferences: dict[str, Any] | None = None
     target_framework: str = "react"
     include_preview: bool = True
-    user_id: Optional[str] = None
-    session_id: Optional[str] = None
+    user_id: str | None = None
+    session_id: str | None = None
 
 
 @dataclass
@@ -39,13 +39,13 @@ class UIGenerationResponse:
     """Response from UI generation"""
 
     success: bool
-    component_code: Optional[str] = None
-    preview_url: Optional[str] = None
-    design_tokens: Optional[dict[str, Any]] = None
-    accessibility_score: Optional[float] = None
-    code_quality_score: Optional[float] = None
+    component_code: str | None = None
+    preview_url: str | None = None
+    design_tokens: dict[str, Any] | None = None
+    accessibility_score: float | None = None
+    code_quality_score: float | None = None
     suggestions: list[str] = field(default_factory=list)
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class UIGenerationIntentHandler:
@@ -228,8 +228,8 @@ class UIGenerationIntentHandler:
     async def generate_ui_from_chat(
         self,
         message: str,
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Main entry point from chat service

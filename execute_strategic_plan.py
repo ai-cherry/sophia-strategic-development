@@ -135,9 +135,11 @@ class StrategicPlanExecutor:
                         and not line.strip().endswith(",")
                     ):
                         # Add closing parenthesis if it seems to be missing
-                        if line.strip().endswith("("):
-                            lines[i] = line + ")"
-                        elif "(" in line and line.count("(") > line.count(")"):
+                        if (
+                            line.strip().endswith("(")
+                            or "(" in line
+                            and line.count("(") > line.count(")")
+                        ):
                             lines[i] = line + ")"
 
                 # Write back the fixed content
@@ -187,18 +189,21 @@ class StrategicPlanExecutor:
                     for i, line in enumerate(lines):
                         # Fix missing colons after keys
                         if (
-                            line.strip()
-                            and not line.startswith("#")
-                            and not line.startswith("-")
-                        ):
-                            if (
+                            (
+                                line.strip()
+                                and not line.startswith("#")
+                                and not line.startswith("-")
+                            )
+                            and (
                                 line.count(":") == 0
                                 and "=" not in line
                                 and line.strip().endswith("")
-                            ):
-                                if i + 1 < len(lines) and lines[i + 1].startswith("  "):
-                                    lines[i] = line + ":"
-                                    modified = True
+                            )
+                            and i + 1 < len(lines)
+                            and lines[i + 1].startswith("  ")
+                        ):
+                            lines[i] = line + ":"
+                            modified = True
 
                     if modified:
                         yaml_file.write_text("\n".join(lines))
@@ -1346,17 +1351,6 @@ async def main():
     """Main execution function."""
     executor = StrategicPlanExecutor()
     results = await executor.execute_plan()
-
-    print("\n" + "=" * 60)
-    print("🎉 STRATEGIC PLAN EXECUTION COMPLETE!")
-    print("=" * 60)
-    print(f"✅ Phases Completed: {len(results['phases_completed'])}/7")
-    print(f"🔧 Issues Fixed: {len(results['issues_fixed'])}")
-    print(f"⚡ Improvements Made: {len(results['improvements_made'])}")
-    print(f"🧪 Tests Passed: {len(results['tests_passed'])}")
-    print(f"📊 Success Rate: {results['summary']['success_rate']:.1f}%")
-    print(f"🚀 Deployment Status: {results['deployment_status']}")
-    print("=" * 60)
 
     return results
 

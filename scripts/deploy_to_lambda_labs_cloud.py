@@ -48,15 +48,8 @@ class LambdaLabsCloudDeployer:
             "grafana_password",
         ]
 
-        print("🚀 Initializing Lambda Labs Cloud Deployment")
-        print(f"   Environment: {environment}")
-        print(f"   Registry: {self.docker_registry}")
-        print(f"   Stack: {self.stack_name}")
-        print(f"   Dry Run: {dry_run}")
-
     def validate_prerequisites(self) -> bool:
         """Validate all prerequisites for deployment."""
-        print("\n📋 Validating Prerequisites...")
 
         # Check Docker
         if not self._check_docker():
@@ -75,22 +68,16 @@ class LambdaLabsCloudDeployer:
             return False
 
         # Check required files
-        if not self._check_required_files():
-            return False
-
-        print("✅ All prerequisites validated successfully")
-        return True
+        return self._check_required_files()
 
     def _check_docker(self) -> bool:
         """Check Docker availability and version."""
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ["docker", "--version"], capture_output=True, text=True, check=True
             )
-            print(f"   ✅ Docker: {result.stdout.strip()}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("   ❌ Docker not found or not running")
             return False
 
     def _check_docker_swarm(self) -> bool:
@@ -104,29 +91,23 @@ class LambdaLabsCloudDeployer:
             )
 
             if result.stdout.strip() == "active":
-                print("   ✅ Docker Swarm: Active")
                 return True
             else:
-                print("   ⚠️  Docker Swarm not active - initializing...")
                 return self._initialize_swarm()
 
         except subprocess.CalledProcessError:
-            print("   ❌ Failed to check Docker Swarm status")
             return False
 
     def _initialize_swarm(self) -> bool:
         """Initialize Docker Swarm if not active."""
         try:
             if self.dry_run:
-                print("   🔍 DRY RUN: Would initialize Docker Swarm")
                 return True
 
             subprocess.run(["docker", "swarm", "init"], check=True, capture_output=True)
-            print("   ✅ Docker Swarm initialized successfully")
             return True
 
-        except subprocess.CalledProcessError as e:
-            print(f"   ❌ Failed to initialize Docker Swarm: {e}")
+        except subprocess.CalledProcessError:
             return False
 
     def _check_lambda_labs_connectivity(self) -> bool:
@@ -140,44 +121,30 @@ class LambdaLabsCloudDeployer:
             )
 
             if result.returncode == 0:
-                print(
-                    f"   ✅ Lambda Labs connectivity: {self.lambda_labs_config['ip_address']}"
-                )
                 return True
             else:
-                print(
-                    f"   ⚠️  Lambda Labs instance may not be ready: {self.lambda_labs_config['ip_address']}"
-                )
                 # Continue anyway as instance might be booting
                 return True
 
         except subprocess.TimeoutExpired:
-            print("   ⚠️  Lambda Labs connectivity timeout - continuing anyway")
             return True
-        except Exception as e:
-            print(f"   ⚠️  Lambda Labs connectivity check failed: {e}")
+        except Exception:
             return True  # Continue anyway
 
     def _check_registry_access(self) -> bool:
         """Check Docker registry access."""
         try:
             if self.dry_run:
-                print(
-                    f"   🔍 DRY RUN: Would check registry access to {self.docker_registry}"
-                )
                 return True
 
             # Check if logged in to Docker Hub
-            result = subprocess.run(
+            subprocess.run(
                 ["docker", "info"], capture_output=True, text=True, check=True
             )
 
-            print(f"   ✅ Docker registry access: {self.docker_registry}")
             return True
 
         except subprocess.CalledProcessError:
-            print(f"   ❌ Failed to access Docker registry: {self.docker_registry}")
-            print("   💡 Run: docker login")
             return False
 
     def _check_required_files(self) -> bool:
@@ -189,17 +156,12 @@ class LambdaLabsCloudDeployer:
             if not Path(file_path).exists():
                 missing_files.append(file_path)
             else:
-                print(f"   ✅ Required file: {file_path}")
+                pass
 
-        if missing_files:
-            print(f"   ❌ Missing required files: {missing_files}")
-            return False
-
-        return True
+        return not missing_files
 
     def build_and_push_images(self) -> bool:
         """Build and push Docker images to registry."""
-        print("\n🏗️  Building and Pushing Docker Images...")
 
         images_to_build = [
             {
@@ -234,7 +196,6 @@ class LambdaLabsCloudDeployer:
             if not self._build_and_push_image(image_config):
                 return False
 
-        print("✅ All images built and pushed successfully")
         return True
 
     def _build_and_push_image(self, image_config: dict) -> bool:
@@ -242,10 +203,7 @@ class LambdaLabsCloudDeployer:
         image_name = image_config["name"]
         tag = f"{image_name}:latest"
 
-        print(f"   🔨 Building: {tag}")
-
         if self.dry_run:
-            print(f"   🔍 DRY RUN: Would build and push {tag}")
             return True
 
         try:
@@ -264,30 +222,24 @@ class LambdaLabsCloudDeployer:
             )
 
             # Build image
-            result = subprocess.run(
-                build_cmd, check=True, capture_output=True, text=True
-            )
-            print(f"   ✅ Built: {tag}")
+            subprocess.run(build_cmd, check=True, capture_output=True, text=True)
 
             # Push image
-            push_result = subprocess.run(
+            subprocess.run(
                 ["docker", "push", tag], check=True, capture_output=True, text=True
             )
-            print(f"   📤 Pushed: {tag}")
 
             return True
 
         except subprocess.CalledProcessError as e:
-            print(f"   ❌ Failed to build/push {tag}: {e}")
             if e.stdout:
-                print(f"   STDOUT: {e.stdout}")
+                pass
             if e.stderr:
-                print(f"   STDERR: {e.stderr}")
+                pass
             return False
 
     def setup_docker_secrets(self) -> bool:
         """Setup Docker secrets for the deployment."""
-        print("\n🔐 Setting up Docker Secrets...")
 
         # Note: In production, these would be retrieved from Pulumi ESC
         # For now, we'll create placeholder secrets that will be updated
@@ -296,13 +248,11 @@ class LambdaLabsCloudDeployer:
             if not self._create_docker_secret(secret_name):
                 return False
 
-        print("✅ All Docker secrets configured")
         return True
 
     def _create_docker_secret(self, secret_name: str) -> bool:
         """Create a Docker secret."""
         if self.dry_run:
-            print(f"   🔍 DRY RUN: Would create secret {secret_name}")
             return True
 
         try:
@@ -323,7 +273,6 @@ class LambdaLabsCloudDeployer:
             )
 
             if secret_name in result.stdout:
-                print(f"   ✅ Secret exists: {secret_name}")
                 return True
 
             # Create placeholder secret (will be updated with real values)
@@ -336,19 +285,15 @@ class LambdaLabsCloudDeployer:
                 check=True,
             )
 
-            print(f"   ✅ Created secret: {secret_name}")
             return True
 
-        except subprocess.CalledProcessError as e:
-            print(f"   ❌ Failed to create secret {secret_name}: {e}")
+        except subprocess.CalledProcessError:
             return False
 
     def deploy_stack(self) -> bool:
         """Deploy the Docker stack to Lambda Labs."""
-        print(f"\n🚀 Deploying Stack: {self.stack_name}")
 
         if self.dry_run:
-            print("   🔍 DRY RUN: Would deploy stack with docker-compose.cloud.yml")
             return True
 
         try:
@@ -372,29 +317,23 @@ class LambdaLabsCloudDeployer:
                 self.stack_name,
             ]
 
-            result = subprocess.run(
+            subprocess.run(
                 deploy_cmd, env=env, check=True, capture_output=True, text=True
             )
-
-            print(f"   ✅ Stack deployed: {self.stack_name}")
-            print(f"   Output: {result.stdout}")
 
             return True
 
         except subprocess.CalledProcessError as e:
-            print(f"   ❌ Failed to deploy stack: {e}")
             if e.stdout:
-                print(f"   STDOUT: {e.stdout}")
+                pass
             if e.stderr:
-                print(f"   STDERR: {e.stderr}")
+                pass
             return False
 
     def verify_deployment(self) -> bool:
         """Verify the deployment is successful."""
-        print(f"\n🔍 Verifying Deployment: {self.stack_name}")
 
         if self.dry_run:
-            print("   🔍 DRY RUN: Would verify deployment status")
             return True
 
         try:
@@ -406,14 +345,10 @@ class LambdaLabsCloudDeployer:
                 check=True,
             )
 
-            print("   📊 Stack Services:")
-            print(f"   {result.stdout}")
-
             # Wait for services to be ready
-            print("   ⏳ Waiting for services to be ready...")
             max_retries = 30
 
-            for i in range(max_retries):
+            for _i in range(max_retries):
                 result = subprocess.run(
                     [
                         "docker",
@@ -436,23 +371,19 @@ class LambdaLabsCloudDeployer:
                 )
 
                 if all_ready:
-                    print("   ✅ All services are ready!")
                     break
 
-                print(f"   ⏳ Waiting... ({i+1}/{max_retries})")
                 time.sleep(10)
             else:
-                print("   ⚠️  Services may still be starting up")
+                pass
 
             return True
 
-        except subprocess.CalledProcessError as e:
-            print(f"   ❌ Failed to verify deployment: {e}")
+        except subprocess.CalledProcessError:
             return False
 
     def generate_deployment_report(self) -> dict:
         """Generate a comprehensive deployment report."""
-        print("\n📋 Generating Deployment Report...")
 
         report = {
             "deployment_info": {
@@ -489,13 +420,10 @@ class LambdaLabsCloudDeployer:
         with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"   📄 Report saved: {report_file}")
         return report
 
     def run_deployment(self) -> bool:
         """Run the complete deployment process."""
-        print("🌟 Starting Lambda Labs Docker Cloud Deployment")
-        print("=" * 60)
 
         steps = [
             ("Prerequisites", self.validate_prerequisites),
@@ -505,22 +433,12 @@ class LambdaLabsCloudDeployer:
             ("Verify Deployment", self.verify_deployment),
         ]
 
-        for step_name, step_func in steps:
-            print(f"\n{'='*20} {step_name} {'='*20}")
-
+        for _step_name, step_func in steps:
             if not step_func():
-                print(f"\n❌ Deployment failed at step: {step_name}")
                 return False
 
         # Generate final report
-        report = self.generate_deployment_report()
-
-        print("\n🎉 DEPLOYMENT SUCCESSFUL!")
-        print("=" * 60)
-        print(f"Stack Name: {self.stack_name}")
-        print(f"Main API: {report['access_urls']['main_api']}")
-        print(f"Traefik Dashboard: {report['access_urls']['traefik_dashboard']}")
-        print("\n⚠️  IMPORTANT: Update Docker secrets with real values from Pulumi ESC")
+        self.generate_deployment_report()
 
         return True
 

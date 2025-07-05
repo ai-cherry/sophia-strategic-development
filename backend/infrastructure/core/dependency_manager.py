@@ -7,6 +7,7 @@ Manages dependencies and execution order between infrastructure platforms
 """
 
 import asyncio
+import contextlib
 from dataclasses import dataclass
 from enum import Enum
 
@@ -488,7 +489,6 @@ class DependencyManager:
 async def main():
     """CLI interface for dependency management."""
     import argparse
-    import json
 
     parser = argparse.ArgumentParser(description="Infrastructure Dependency Manager")
     parser.add_argument("command", choices=["analyze", "validate", "order", "suggest"])
@@ -500,27 +500,20 @@ async def main():
     dep_manager = DependencyManager()
 
     if args.command == "analyze":
-        analysis = await dep_manager.analyze_dependencies()
-        print(json.dumps(analysis, indent=2))
+        await dep_manager.analyze_dependencies()
 
     elif args.command == "validate":
-        validation = await dep_manager.validate_dependencies()
-        print(json.dumps(validation, indent=2))
+        await dep_manager.validate_dependencies()
 
     elif args.command == "order":
         if not args.platforms:
-            print("Platforms required for order command")
             return
 
-        try:
-            order = await dep_manager.get_execution_order(args.platforms)
-            print(f"Execution order: {' -> '.join(order)}")
-        except ValueError as e:
-            print(f"Error: {e}")
+        with contextlib.suppress(ValueError):
+            await dep_manager.get_execution_order(args.platforms)
 
     elif args.command == "suggest":
-        suggestions = await dep_manager.suggest_optimizations()
-        print(json.dumps(suggestions, indent=2))
+        await dep_manager.suggest_optimizations()
 
 
 if __name__ == "__main__":

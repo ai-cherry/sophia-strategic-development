@@ -23,11 +23,8 @@ alternatives = [
     },
 ]
 
-print("🔍 Trying to launch AI server in alternative regions/types...")
 
 for alt in alternatives:
-    print(f"\nTrying {alt['name']} in {alt['region']}...")
-
     response = requests.post(
         f"{BASE_URL}/instance-operations/launch",
         auth=(API_KEY, ""),
@@ -41,20 +38,15 @@ for alt in alternatives:
     )
 
     if response.status_code in [200, 201]:
-        print(f"✅ SUCCESS! Launched in {alt['region']} with {alt['type']}")
         break
     else:
         error = response.json().get("error", {})
-        print(f"❌ Failed: {error.get('message', 'Unknown error')}")
         time.sleep(1)
 else:
-    print("\n😞 Could not launch AI server in any region. Try again later.")
+    pass
 
 # Check all instances
-print("\n📊 Current instances:")
 response = requests.get(f"{BASE_URL}/instances", auth=(API_KEY, ""))
 if response.status_code == 200:
-    for inst in response.json()["data"]:
-        print(
-            f"- {inst['name']}: {inst.get('ip', 'booting...')} ({inst['instance_type']['name']})"
-        )
+    for _inst in response.json()["data"]:
+        pass

@@ -283,11 +283,10 @@ class PortkeyGatewayService:
             "x-portkey-config": json.dumps(self.routing_config),
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self.base_url}/chat/completions", headers=headers, json=payload
-            ) as response:
-                return await response.json()
+        async with aiohttp.ClientSession() as session, session.post(
+            f"{self.base_url}/chat/completions", headers=headers, json=payload
+        ) as response:
+            return await response.json()
 
     async def _stream_portkey_request(
         self, messages: list[dict[str, str]], target_model: ModelTarget, **kwargs
@@ -306,23 +305,22 @@ class PortkeyGatewayService:
             "x-portkey-config": json.dumps(self.routing_config),
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self.base_url}/chat/completions", headers=headers, json=payload
-            ) as response:
-                async for line in response.content:
-                    if line:
-                        try:
-                            chunk = json.loads(line.decode())
-                            content = (
-                                chunk.get("choices", [{}])[0]
-                                .get("delta", {})
-                                .get("content", "")
-                            )
-                            if content:
-                                yield content
-                        except json.JSONDecodeError:
-                            continue
+        async with aiohttp.ClientSession() as session, session.post(
+            f"{self.base_url}/chat/completions", headers=headers, json=payload
+        ) as response:
+            async for line in response.content:
+                if line:
+                    try:
+                        chunk = json.loads(line.decode())
+                        content = (
+                            chunk.get("choices", [{}])[0]
+                            .get("delta", {})
+                            .get("content", "")
+                        )
+                        if content:
+                            yield content
+                    except json.JSONDecodeError:
+                        continue
 
     def _generate_mock_response(
         self, task_type: str, messages: list[dict[str, str]], target_model: ModelTarget

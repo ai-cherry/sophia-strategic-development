@@ -100,8 +100,8 @@ class VercelOptimizer:
                     .get("vercel", {})
                     .get("access_token", "")
                 )
-        except Exception as e:
-            print(f"Failed to get token from Pulumi ESC: {e}")
+        except Exception:
+            pass
 
         raise ValueError("VERCEL_ACCESS_TOKEN not found in environment or Pulumi ESC")
 
@@ -127,44 +127,42 @@ class VercelOptimizer:
         url = f"{self.base_url}/v6/deployments"
         params = {"projectId": project_id, "teamId": self.team_id, "limit": limit}
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, headers=self.headers, params=params
-            ) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    deployments = []
+        async with aiohttp.ClientSession() as session, session.get(
+            url, headers=self.headers, params=params
+        ) as response:
+            if response.status == 200:
+                data = await response.json()
+                deployments = []
 
-                    for deployment in data.get("deployments", []):
-                        build_time = None
-                        if deployment.get("buildingAt") and deployment.get("readyAt"):
-                            build_time = (
-                                deployment["readyAt"] - deployment["buildingAt"]
-                            ) / 1000
+                for deployment in data.get("deployments", []):
+                    build_time = None
+                    if deployment.get("buildingAt") and deployment.get("readyAt"):
+                        build_time = (
+                            deployment["readyAt"] - deployment["buildingAt"]
+                        ) / 1000
 
-                        deployments.append(
-                            DeploymentInfo(
-                                id=deployment["uid"],
-                                url=deployment["url"],
-                                state=deployment["state"],
-                                created_at=datetime.fromtimestamp(
-                                    deployment["createdAt"] / 1000
-                                ).isoformat(),
-                                environment=deployment.get("target", "preview"),
-                                branch=deployment.get("meta", {}).get(
-                                    "githubCommitRef", "unknown"
-                                ),
-                                commit_sha=deployment.get("meta", {}).get(
-                                    "githubCommitSha", "unknown"
-                                ),
-                                build_time=build_time,
-                            )
+                    deployments.append(
+                        DeploymentInfo(
+                            id=deployment["uid"],
+                            url=deployment["url"],
+                            state=deployment["state"],
+                            created_at=datetime.fromtimestamp(
+                                deployment["createdAt"] / 1000
+                            ).isoformat(),
+                            environment=deployment.get("target", "preview"),
+                            branch=deployment.get("meta", {}).get(
+                                "githubCommitRef", "unknown"
+                            ),
+                            commit_sha=deployment.get("meta", {}).get(
+                                "githubCommitSha", "unknown"
+                            ),
+                            build_time=build_time,
                         )
+                    )
 
-                    return deployments
-                else:
-                    print(f"Failed to get deployments: {response.status}")
-                    return []
+                return deployments
+            else:
+                return []
 
     async def get_performance_metrics(self, deployment_url: str) -> PerformanceMetrics:
         """Get performance metrics for a deployment using web APIs."""
@@ -189,7 +187,6 @@ class VercelOptimizer:
                         load_time=load_time,
                     )
             except TimeoutError:
-                print(f"Timeout accessing {deployment_url}")
                 return PerformanceMetrics(
                     first_contentful_paint=10.0,
                     largest_contentful_paint=15.0,
@@ -347,8 +344,6 @@ class VercelOptimizer:
         if not project_id:
             raise ValueError(f"Project ID not found for environment: {environment}")
 
-        print(f"🔍 Running performance audit for {environment} environment...")
-
         # Get recent deployments
         deployments = await self.get_deployment_info(project_id, limit=5)
 
@@ -371,7 +366,6 @@ class VercelOptimizer:
 
         for deployment in deployments:
             if deployment.state == "READY":
-                print(f"  📊 Analyzing deployment: {deployment.id}")
                 metrics = await self.get_performance_metrics(deployment.url)
 
                 deployment_result = {
@@ -518,8 +512,6 @@ class VercelOptimizer:
 
     async def generate_optimization_report(self) -> dict:
         """Generate comprehensive optimization report."""
-        print("🚀 Generating Vercel Optimization Report")
-        print("=" * 50)
 
         # Run audits for all environments
         audits = {}
@@ -528,7 +520,6 @@ class VercelOptimizer:
                 try:
                     audits[env] = await self.run_performance_audit(env)
                 except Exception as e:
-                    print(f"❌ Failed to audit {env}: {e}")
                     audits[env] = {"error": str(e)}
 
         # Generate optimized config
@@ -555,38 +546,26 @@ class VercelOptimizer:
         with open("vercel_optimization_report.json", "w") as f:
             json.dump(report, f, indent=2)
 
-        print("\n📊 OPTIMIZATION SUMMARY")
-        print("-" * 30)
         for env, audit in audits.items():
             if "error" not in audit:
-                score = audit.get("performance_summary", {}).get("overall_score", 0)
-                print(f"{env.upper()}: {score}/100 performance score")
-
-        print("\n✅ Optimization report saved: vercel_optimization_report.json")
+                audit.get("performance_summary", {}).get("overall_score", 0)
 
         return report
 
 
 async def main():
     """Main execution function."""
-    print("🚀 Sophia AI - Vercel Optimization & Monitoring")
-    print("=" * 50)
 
     try:
         optimizer = VercelOptimizer()
         report = await optimizer.generate_optimization_report()
 
-        print("\n🎯 KEY RECOMMENDATIONS:")
-        print("-" * 30)
-
-        for env, audit in report["audits"].items():
+        for _env, audit in report["audits"].items():
             if "error" not in audit and "recommendations" in audit:
-                print(f"\n{env.upper()} Environment:")
-                for rec in audit["recommendations"][:3]:  # Show top 3
-                    print(f"  {rec}")
+                for _rec in audit["recommendations"][:3]:  # Show top 3
+                    pass
 
-    except Exception as e:
-        print(f"❌ Optimization failed: {e}")
+    except Exception:
         raise
 
 

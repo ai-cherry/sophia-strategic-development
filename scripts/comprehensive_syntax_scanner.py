@@ -390,17 +390,14 @@ def main():
     scanner.save_results()
 
     # Determine exit code based on results
-    if results["summary"]["overall_success_rate"] >= 95.0:
-        print("\n🎉 EXCELLENT: Syntax validation passed with flying colors!")
-        return 0
-    elif results["summary"]["overall_success_rate"] >= 85.0:
-        print("\n✅ GOOD: Syntax validation passed with minor issues")
+    if (
+        results["summary"]["overall_success_rate"] >= 95.0
+        or results["summary"]["overall_success_rate"] >= 85.0
+    ):
         return 0
     elif results["summary"]["overall_success_rate"] >= 70.0:
-        print("\n⚠️ WARNING: Syntax validation passed but needs attention")
         return 1
     else:
-        print("\n❌ CRITICAL: Syntax validation failed - immediate attention required")
         return 2
 
 

@@ -494,17 +494,6 @@ if __name__ == "__main__":
 
     try:
         deployment = deploy_lambda_labs_infrastructure()
-        print("🚀 Lambda Labs Infrastructure Deployment Complete!")
-        print(
-            f"PostgreSQL: {deployment['database']['postgresql']['host']}:{deployment['database']['postgresql']['port']}"
-        )
-        print(
-            f"Redis: {deployment['database']['redis']['host']}:{deployment['database']['redis']['port']}"
-        )
-        print(
-            f"Health Check: {deployment['database']['monitoring']['health_check_url']}"
-        )
 
-    except Exception as e:
-        print(f"❌ Deployment failed: {e}")
+    except Exception:
         raise

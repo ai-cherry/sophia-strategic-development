@@ -753,7 +753,7 @@ async def main():
             json.dump(report, f, indent=2, default=str)
         logger.info(f"📄 Test report saved to {args.output_file}")
     else:
-        print(json.dumps(report, indent=2, default=str))
+        pass
 
     # Exit with appropriate code
     success_rate = report["summary"]["success_rate"]

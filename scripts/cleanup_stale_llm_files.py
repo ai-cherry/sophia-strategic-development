@@ -78,7 +78,6 @@ def backup_file(file_path: Path, backup_dir: Path) -> bool:
         backup_path = backup_dir / relative_path
         backup_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(file_path, backup_path)
-        print(f"✅ Backed up: {file_path} -> {backup_path}")
         return True
     return False
 
@@ -94,9 +93,8 @@ def delete_stale_files(backup_dir: Path) -> list[str]:
             if backup_file(file_path, backup_dir):
                 file_path.unlink()
                 deleted_files.append(str(file_path))
-                print(f"🗑️  Deleted: {file_path}")
         else:
-            print(f"⚠️  File not found: {file_path}")
+            pass
 
     return deleted_files
 
@@ -104,7 +102,6 @@ def delete_stale_files(backup_dir: Path) -> list[str]:
 def update_imports_in_file(file_path: Path) -> int:
     """Update imports in a single file"""
     if not file_path.exists():
-        print(f"⚠️  File not found: {file_path}")
         return 0
 
     content = file_path.read_text()
@@ -120,7 +117,6 @@ def update_imports_in_file(file_path: Path) -> int:
 
     if content != original_content:
         file_path.write_text(content)
-        print(f"✅ Updated imports in: {file_path} ({replacements_made} replacements)")
 
     return replacements_made
 
@@ -189,53 +185,30 @@ def find_additional_references() -> list[tuple[str, list[str]]]:
 
 def main():
     """Main cleanup function"""
-    print("🧹 Starting LLM files cleanup...")
-    print("=" * 60)
 
     # Create backup directory
     backup_dir = create_backup_directory()
-    print(f"📁 Backup directory: {backup_dir}")
-    print()
 
     # Delete stale files
-    print("🗑️  Deleting stale LLM files...")
     deleted_files = delete_stale_files(backup_dir)
-    print(f"Deleted {len(deleted_files)} files")
-    print()
 
     # Update imports
-    print("📝 Updating imports...")
     updates = update_all_imports()
-    print(
-        f"Updated {len(updates)} files with {sum(updates.values())} total replacements"
-    )
-    print()
 
     # Find additional references
-    print("🔍 Finding additional references...")
     references = find_additional_references()
 
     if references:
-        print("\n⚠️  Additional files with references to old LLM services:")
         for pattern, files in references:
-            print(f"\nPattern '{pattern}' found in:")
             for file in files[:10]:  # Limit to 10 files per pattern
-                print(f"  - {file}")
+                pass
             if len(files) > 10:
-                print(f"  ... and {len(files) - 10} more files")
+                pass
 
     # Summary
-    print("\n" + "=" * 60)
-    print("✅ LLM cleanup complete!")
-    print(f"  - Deleted: {len(deleted_files)} files")
-    print(f"  - Updated: {len(updates)} files")
-    print(f"  - Backups: {backup_dir}")
 
     if references:
-        print(
-            f"\n⚠️  Found {sum(len(files) for _, files in references)} additional files with references"
-        )
-        print("   Review these files manually and update as needed.")
+        pass
 
     # Create summary file
     summary_path = backup_dir / "cleanup_summary.txt"
@@ -258,8 +231,6 @@ def main():
                 f.write(f"\n  Pattern '{pattern}':\n")
                 for file in files:
                     f.write(f"    - {file}\n")
-
-    print(f"\n📄 Summary saved to: {summary_path}")
 
 
 if __name__ == "__main__":

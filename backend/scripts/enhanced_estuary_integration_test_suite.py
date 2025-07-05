@@ -1185,8 +1185,6 @@ async def main():
         with open(args.output, "w") as f:
             json.dump(report_dict, f, indent=2)
 
-        print(f"Test report saved to: {args.output}")
-
     # Exit with appropriate code
     if report.overall_status in ["ERROR", "FAILED"]:
         exit(1)

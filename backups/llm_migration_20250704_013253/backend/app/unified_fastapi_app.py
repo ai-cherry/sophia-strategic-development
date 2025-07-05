@@ -12,7 +12,7 @@ import logging
 import time
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
-from typing import Any, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -168,12 +168,12 @@ class UnifiedFastAPIApp:
         self.services["ai"] = SmartAIService()
 
         # Initialize additional services
-        mcp_orchestration_service = MCPOrchestrationService()
-        n8n_webhook_service = N8NWebhookService()
+        MCPOrchestrationService()
+        N8NWebhookService()
 
         # Initialize new services
-        unified_chat_service = UnifiedChatService()
-        knowledge_service = FoundationalKnowledgeService()
+        UnifiedChatService()
+        FoundationalKnowledgeService()
 
         logger.info("✅ All services initialized")
 
@@ -374,7 +374,7 @@ class UnifiedFastAPIApp:
             query: str
             user_id: str
             session_id: str
-            context: Optional[dict[str, Any]] = None
+            context: dict[str, Any] | None = None
 
         class FileUpload(BaseModel):
             file_name: str

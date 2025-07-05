@@ -414,12 +414,7 @@ def main():
         standardizer.run_standardization()
         standardizer.generate_summary_report()
 
-        print("\n🎉 MCP Server Standardization Complete!")
-        print("📋 Review MCP_STANDARDIZATION_REPORT.md for details")
-        print("🚀 Deploy with: cd mcp-servers && ./deploy.sh")
-
-    except Exception as e:
-        print(f"❌ Standardization failed: {e}")
+    except Exception:
         exit(1)
 
 

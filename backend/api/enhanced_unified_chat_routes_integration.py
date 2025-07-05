@@ -8,7 +8,7 @@ to integrate with the unified service registry and orchestrators.
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import Field
@@ -42,7 +42,7 @@ router = APIRouter(prefix="/api/v1/chat", tags=["Enhanced Chat Integration"])
 class IntegratedChatRequest(ChatRequest):
     """Extended chat request with orchestration hints"""
 
-    orchestration_mode: Optional[str] = Field(
+    orchestration_mode: str | None = Field(
         default="unified_intelligence", description="Orchestration mode hint"
     )
     require_business_intelligence: bool = Field(
@@ -59,7 +59,7 @@ class IntegratedChatResponse(ChatResponse):
     services_used: list[str] = Field(
         default_factory=list, description="Services that processed this request"
     )
-    orchestration_details: Optional[dict[str, Any]] = Field(
+    orchestration_details: dict[str, Any] | None = Field(
         default=None, description="Details from orchestration"
     )
     cache_hit: bool = Field(

@@ -9,8 +9,6 @@ import os
 
 def update_sophia_env_config():
     """Update sophia_env_config.py to clarify .env usage is for legacy detection only"""
-    print("🔧 UPDATING SOPHIA ENV CONFIG")
-    print("=" * 30)
 
     config_file = "backend/core/sophia_env_config.py"
 
@@ -27,15 +25,12 @@ def update_sophia_env_config():
         with open(config_file, "w") as f:
             f.write(content)
 
-        print(f"  ✅ Updated {config_file} with clarifying comment")
     else:
-        print(f"  ℹ️ {config_file} already properly commented")
+        pass
 
 
 def create_migration_guide():
     """Create a migration guide for the new secret system"""
-    print("\n📚 CREATING SECRET MIGRATION GUIDE")
-    print("=" * 35)
 
     guide_content = """# Secret Management Migration Guide
 
@@ -179,13 +174,9 @@ pulumi config get hubspot_access_token --stack sophia-ai-production
     with open("docs/SECRET_MANAGEMENT_MIGRATION_GUIDE.md", "w") as f:
         f.write(guide_content)
 
-    print("  ✅ Created migration guide: docs/SECRET_MANAGEMENT_MIGRATION_GUIDE.md")
-
 
 def update_readme_references():
     """Update any README files with new secret management info"""
-    print("\n📝 UPDATING README REFERENCES")
-    print("=" * 30)
 
     # Update main README if it exists
     readme_files = ["README.md", "docs/README.md", "docs/01-getting-started/README.md"]
@@ -200,17 +191,13 @@ def update_readme_references():
                 term in content.lower()
                 for term in [".env", "manual secret", "setup_pulumi"]
             ):
-                print(
-                    f"  ⚠️ {readme_file} may need manual review for secret management references"
-                )
+                pass
             else:
-                print(f"  ✅ {readme_file} looks clean")
+                pass
 
 
 def generate_final_status_report():
     """Generate final comprehensive status report"""
-    print("\n📋 GENERATING FINAL STATUS REPORT")
-    print("=" * 35)
 
     status_report = {
         "final_alignment_timestamp": "2025-06-29 17:20:00",
@@ -266,14 +253,9 @@ def generate_final_status_report():
 
         json.dump(status_report, f, indent=2)
 
-    print("  ✅ Generated final status report: FINAL_CODEBASE_ALIGNMENT_STATUS.json")
-
 
 def main():
     """Run final codebase alignment updates"""
-    print("🎯 FINAL CODEBASE ALIGNMENT UPDATE")
-    print("=" * 40)
-    print("Completing all remaining updates and documentation")
 
     # Update sophia env config
     update_sophia_env_config()
@@ -286,20 +268,6 @@ def main():
 
     # Generate final status report
     generate_final_status_report()
-
-    print("\n🎉 FINAL ALIGNMENT COMPLETE!")
-    print("=" * 35)
-    print("✅ Updated environment config clarifications")
-    print("✅ Created comprehensive migration guide")
-    print("✅ Reviewed README references")
-    print("✅ Generated final status report")
-
-    print("\n🚀 SOPHIA AI STATUS: 100% ALIGNED")
-    print("✅ Secret management: COMPLETE (67/67 secrets)")
-    print("✅ Codebase cleanup: COMPLETE")
-    print("✅ Documentation: CURRENT & COMPREHENSIVE")
-    print("✅ Dependencies: FULLY ALIGNED")
-    print("✅ Production deployment: READY")
 
 
 if __name__ == "__main__":

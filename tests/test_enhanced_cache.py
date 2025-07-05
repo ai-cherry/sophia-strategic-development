@@ -135,7 +135,7 @@ async def test_performance(cache: EnhancedCacheManager):
 
     # Test get performance (cached)
     start_time = time.time()
-    for key in test_data.keys():
+    for key in test_data:
         await cache.get(key, "performance_test")
     get_time = time.time() - start_time
     logger.info(

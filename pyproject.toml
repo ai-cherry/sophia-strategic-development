@@ -107,6 +107,13 @@ dependencies = [
     "pip>=25.1.1",
     "asana>=5.2.0",
     "portkey-ai>=1.14.0",
+    "loguru>=0.7.2",
+    "langchain-core>=0.2.0",
+    "langchain-openai>=0.1.7",
+    "langchain-text-splitters>=0.2.0",
+    "langgraph>=0.0.64",
+    "langsmith>=0.1.56",
+    "lxml>=5.2.2",
 ]
 
 [project.optional-dependencies]

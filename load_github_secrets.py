@@ -85,7 +85,7 @@ class GitHubSecretsLoader:
         """Load secrets from local environment variables"""
         secrets = {}
 
-        for secret_name in self.required_secrets.keys():
+        for secret_name in self.required_secrets:
             value = os.getenv(secret_name)
             if value and value != "" and not value.startswith("test-"):
                 secrets[secret_name] = value
@@ -170,31 +170,23 @@ class GitHubSecretsLoader:
 
     def print_status_report(self, secrets: dict[str, str]) -> None:
         """Print status report of loaded secrets"""
-        print("\n🔐 SOPHIA AI SECRETS STATUS REPORT")
-        print("=" * 50)
 
-        for secret_name, description in self.required_secrets.items():
+        for secret_name, _description in self.required_secrets.items():
             if secret_name in secrets:
                 value = secrets[secret_name]
-                if value.startswith("dev-") or value.startswith("sk-development"):
-                    status = "🟡 DEVELOPMENT"
-                elif "github" in value.lower():
-                    status = "🟢 GITHUB ORG"
+                if (
+                    value.startswith("dev-")
+                    or value.startswith("sk-development")
+                    or "github" in value.lower()
+                ):
+                    pass
                 else:
-                    status = "🟢 LOADED"
+                    pass
 
-                print(f"{status} {secret_name}: {description}")
             else:
-                print(f"🔴 MISSING {secret_name}: {description}")
-
-        print(f"\n📊 Total secrets: {len(secrets)}/{len(self.required_secrets)}")
+                pass
 
         # Show integration status
-        print("\n🔗 INTEGRATION STATUS:")
-        print("   • GitHub Organization: ai-cherry")
-        print("   • Pulumi ESC: scoobyjava-org/default/sophia-ai-production")
-        print(f"   • Local Environment: {len(self.load_from_local_env())} variables")
-        print("   • Auto-sync: GitHub Actions → Pulumi ESC → Backend")
 
 
 def main():
@@ -212,11 +204,6 @@ def main():
 
     # Print status report
     loader.print_status_report(secrets)
-
-    print("\n🚀 Secrets loaded! Use: source .env.secrets")
-    print(
-        "   Or run: python load_github_secrets.py && source .env.secrets && python start_enhanced_mcp_servers.py"
-    )
 
 
 if __name__ == "__main__":

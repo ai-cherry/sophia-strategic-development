@@ -11,7 +11,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -50,7 +50,7 @@ except ImportError:
 class LinearMCPServer(StandardizedMCPServer):
     """Linear integration MCP server."""
 
-    def __init__(self, config: Optional[MCPServerConfig] = None):
+    def __init__(self, config: MCPServerConfig | None = None):
         if config is None:
             config = MCPServerConfig(name="linear", port=9004, version="1.0.0")
         super().__init__(config)

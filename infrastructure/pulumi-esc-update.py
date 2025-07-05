@@ -520,11 +520,5 @@ if __name__ == "__main__":
     with open("comprehensive-esc-config.yaml", "w") as f:
         f.write(config_yaml)
 
-    print("📋 Comprehensive Pulumi ESC configuration generated!")
-    print("   File: comprehensive-esc-config.yaml")
-    print("   Ready for deployment with: pulumi env init")
-
     # Sync GitHub secrets
     updater.sync_github_secrets_to_esc()
-
-    print("✅ Pulumi ESC update script ready for execution!")

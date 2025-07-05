@@ -593,7 +593,7 @@ class EnhancedMicrosoftGongIntegration:
         for call in calls_data:
             transcript = call.get("transcript", "").lower()
 
-            for competitor in competitors.keys():
+            for competitor in competitors:
                 if competitor in transcript:
                     competitors[competitor]["mentions"] += 1
                     competitors[competitor]["context"].append(
@@ -628,7 +628,7 @@ class EnhancedMicrosoftGongIntegration:
                     for call in calls_data
                     if any(
                         comp in call.get("transcript", "").lower()
-                        for comp in competitors.keys()
+                        for comp in competitors
                     )
                 ]
             ),

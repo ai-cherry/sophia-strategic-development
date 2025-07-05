@@ -4,7 +4,6 @@ Clean implementation without any manus contamination
 """
 
 from datetime import datetime
-from typing import Optional
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,8 +29,8 @@ app.add_middleware(
 # Pydantic models
 class ChatMessage(BaseModel):
     message: str
-    search_context: Optional[str] = "business_intelligence"
-    user_id: Optional[str] = "ceo"
+    search_context: str | None = "business_intelligence"
+    user_id: str | None = "ceo"
 
 
 class HealthResponse(BaseModel):

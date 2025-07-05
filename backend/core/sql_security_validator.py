@@ -433,13 +433,10 @@ if __name__ == "__main__":
         table = SQLSecurityValidator.validate_table("ENRICHED_GONG_CALLS")
         warehouse = SQLSecurityValidator.validate_warehouse("AI_SOPHIA_AI_WH")
 
-        print("✅ All validations passed")
-
         # Test sanitization
         safe_input = SQLSecurityValidator.sanitize_string(
             "Hello World! This is safe input."
         )
-        print(f"✅ Sanitization test: {safe_input}")
 
-    except (ValueError, SecurityError) as e:
-        print(f"❌ Validation failed: {e}")
+    except (ValueError, SecurityError):
+        pass

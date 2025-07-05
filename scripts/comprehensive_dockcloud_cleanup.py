@@ -287,7 +287,7 @@ class DockcloudAwareCleanup:
         """Remove backup files matching patterns."""
         logger.info("💾 Removing backup files...")
 
-        for root, dirs, files in os.walk(self.project_root):
+        for root, _dirs, files in os.walk(self.project_root):
             # Skip external directories and git
             if "/.git/" in root or "/external/" in root or "/node_modules/" in root:
                 continue

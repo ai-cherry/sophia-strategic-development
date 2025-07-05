@@ -12,7 +12,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -52,7 +52,7 @@ except ImportError:
 class AsanaMCPServer(StandardizedMCPServer):
     """Asana integration MCP server."""
 
-    def __init__(self, config: Optional[MCPServerConfig] = None):
+    def __init__(self, config: MCPServerConfig | None = None):
         if config is None:
             config = MCPServerConfig(name="asana", port=9006, version="1.0.0")
         super().__init__(config)
@@ -218,7 +218,7 @@ class AsanaMCPServer(StandardizedMCPServer):
                 }
 
             # Real Asana API call would go here
-            tasks_api = asana.TasksApi(self.asana_client)
+            asana.TasksApi(self.asana_client)
             # Implementation would query tasks
             return {"tasks": [], "total": 0}
 

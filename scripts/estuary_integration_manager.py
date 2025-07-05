@@ -76,7 +76,6 @@ class EstuaryIntegrationManager:
 
     async def create_snowflake_destination(self) -> dict[str, Any]:
         """Create Snowflake destination in Estuary."""
-        print("🏔️ Creating Snowflake destination...")
 
         destination_config = {
             "name": "Sophia AI Snowflake",
@@ -103,26 +102,19 @@ class EstuaryIntegrationManager:
 
             if response.status_code == 200:
                 result = response.json()
-                print("✅ Snowflake destination created successfully")
                 return {
                     "success": True,
                     "destination_id": result.get("destinationId"),
                     "data": result,
                 }
             else:
-                print(
-                    f"❌ Failed to create Snowflake destination: {response.status_code}"
-                )
-                print(f"Response: {response.text}")
                 return {"success": False, "error": response.text}
 
         except Exception as e:
-            print(f"❌ Error creating Snowflake destination: {e}")
             return {"success": False, "error": str(e)}
 
     async def create_gong_source(self) -> dict[str, Any]:
         """Create Gong source in Estuary."""
-        print("📞 Creating Gong source...")
 
         source_config = {
             "name": "Sophia AI Gong",
@@ -141,24 +133,19 @@ class EstuaryIntegrationManager:
 
             if response.status_code == 200:
                 result = response.json()
-                print("✅ Gong source created successfully")
                 return {
                     "success": True,
                     "source_id": result.get("sourceId"),
                     "data": result,
                 }
             else:
-                print(f"❌ Failed to create Gong source: {response.status_code}")
-                print(f"Response: {response.text}")
                 return {"success": False, "error": response.text}
 
         except Exception as e:
-            print(f"❌ Error creating Gong source: {e}")
             return {"success": False, "error": str(e)}
 
     async def create_slack_source(self) -> dict[str, Any]:
         """Create Slack source in Estuary."""
-        print("💬 Creating Slack source...")
 
         source_config = {
             "name": "Sophia AI Slack",
@@ -183,26 +170,21 @@ class EstuaryIntegrationManager:
 
             if response.status_code == 200:
                 result = response.json()
-                print("✅ Slack source created successfully")
                 return {
                     "success": True,
                     "source_id": result.get("sourceId"),
                     "data": result,
                 }
             else:
-                print(f"❌ Failed to create Slack source: {response.status_code}")
-                print(f"Response: {response.text}")
                 return {"success": False, "error": response.text}
 
         except Exception as e:
-            print(f"❌ Error creating Slack source: {e}")
             return {"success": False, "error": str(e)}
 
     async def create_connection(
         self, source_id: str, destination_id: str, connection_name: str
     ) -> dict[str, Any]:
         """Create connection between source and destination."""
-        print(f"🔗 Creating connection: {connection_name}")
 
         connection_config = {
             "name": connection_name,
@@ -225,26 +207,19 @@ class EstuaryIntegrationManager:
 
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Connection '{connection_name}' created successfully")
                 return {
                     "success": True,
                     "connection_id": result.get("connectionId"),
                     "data": result,
                 }
             else:
-                print(
-                    f"❌ Failed to create connection '{connection_name}': {response.status_code}"
-                )
-                print(f"Response: {response.text}")
                 return {"success": False, "error": response.text}
 
         except Exception as e:
-            print(f"❌ Error creating connection '{connection_name}': {e}")
             return {"success": False, "error": str(e)}
 
     async def setup_complete_integration(self) -> dict[str, Any]:
         """Set up complete Estuary integration for Sophia AI."""
-        print("🚀 Setting up complete Estuary integration for Sophia AI...")
 
         results = {
             "timestamp": datetime.now().isoformat(),
@@ -305,13 +280,11 @@ class EstuaryIntegrationManager:
             error_msg = f"Integration setup error: {str(e)}"
             results["errors"].append(error_msg)
             results["success"] = False
-            print(f"❌ {error_msg}")
 
         return results
 
     async def get_integration_status(self) -> dict[str, Any]:
         """Get status of all Estuary integrations."""
-        print("📊 Getting Estuary integration status...")
 
         status = {
             "timestamp": datetime.now().isoformat(),
@@ -354,21 +327,18 @@ class EstuaryIntegrationManager:
                     if sync_response.status_code == 200:
                         status["sync_status"][connection_id] = sync_response.json()
 
-        except Exception as e:
-            print(f"⚠️ Error getting integration status: {e}")
+        except Exception:
+            pass
 
         return status
 
 
 async def main():
     """Main entry point for Estuary integration setup."""
-    print("🚀 SOPHIA AI ESTUARY INTEGRATION SETUP")
-    print("=" * 60)
 
     manager = EstuaryIntegrationManager()
 
     # Setup complete integration
-    print("\n🔧 Setting up complete integration...")
     setup_results = await manager.setup_complete_integration()
 
     # Save results
@@ -376,39 +346,18 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(setup_results, f, indent=2)
 
-    print(f"\n📄 Results saved to: {results_file}")
-
     # Print summary
-    print("\n🎯 INTEGRATION SUMMARY:")
-    print(f"✅ Overall Success: {setup_results['success']}")
-    print(
-        f"✅ Snowflake Destination: {setup_results['snowflake_destination'].get('success', False)}"
-    )
-    print(f"✅ Gong Source: {setup_results['gong_source'].get('success', False)}")
-    print(f"✅ Slack Source: {setup_results['slack_source'].get('success', False)}")
-    print(
-        f"✅ Connections Created: {len([c for c in setup_results['connections'] if c.get('success', False)])}"
-    )
 
     if setup_results["errors"]:
-        print("\n⚠️ ERRORS:")
-        for error in setup_results["errors"]:
-            print(f"  - {error}")
+        for _error in setup_results["errors"]:
+            pass
 
     # Get current status
-    print("\n📊 Getting current integration status...")
     status = await manager.get_integration_status()
 
     status_file = os.path.join(project_root, "estuary_integration_status.json")
     with open(status_file, "w") as f:
         json.dump(status, f, indent=2)
-
-    print(f"📄 Status saved to: {status_file}")
-    print(f"📊 Sources: {len(status['sources'])}")
-    print(f"📊 Destinations: {len(status['destinations'])}")
-    print(f"📊 Connections: {len(status['connections'])}")
-
-    print("\n🎉 Estuary integration setup completed!")
 
 
 if __name__ == "__main__":

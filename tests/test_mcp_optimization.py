@@ -186,25 +186,9 @@ async def main():
 
     # Run performance tests
     test = PerformanceTest(test_data_size=100)
-    results = await test.run_all_tests()
+    await test.run_all_tests()
 
     # Print summary
-    print("\n" + "=" * 50)
-    print("MCP OPTIMIZATION PERFORMANCE TEST RESULTS")
-    print("=" * 50)
-    print(
-        f"Network Performance Improvement: {results['network']['time_improvement_percent']:.2f}%"
-    )
-    print(
-        f"Client Performance Improvement: {results['client']['time_improvement_percent']:.2f}%"
-    )
-    print(
-        f"I/O Performance Improvement: {results['io']['time_improvement_percent']:.2f}%"
-    )
-    print(
-        f"Overall Performance Improvement: {results['overall_improvement_percent']:.2f}%"
-    )
-    print("=" * 50)
 
     logger.info("Performance tests completed")
 

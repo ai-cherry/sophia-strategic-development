@@ -251,10 +251,7 @@ class OptimizedMCPClient:
             return False
 
         # Check for error field
-        if isinstance(response_data, dict) and "error" in response_data:
-            return False
-
-        return True
+        return not (isinstance(response_data, dict) and "error" in response_data)
 
     async def call_mcp_tool(
         self,
@@ -471,15 +468,14 @@ async def example():
 
     try:
         # Single call
-        result = await client.call_mcp_tool(
+        await client.call_mcp_tool(
             server_name="example_server",
             tool_name="analyze_data",
             arguments={"data_id": "12345"},
         )
-        print(f"Result: {result}")
 
         # Batch call
-        batch_results = await client.batch_call_mcp_tool(
+        await client.batch_call_mcp_tool(
             server_name="example_server",
             tool_name="analyze_data",
             batch_arguments=[
@@ -487,11 +483,9 @@ async def example():
                 {"data_id": "67890"},
             ],
         )
-        print(f"Batch results: {batch_results}")
 
         # Get statistics
-        stats = client.get_statistics()
-        print(f"Client stats: {stats}")
+        client.get_statistics()
     finally:
         await client.shutdown()
 

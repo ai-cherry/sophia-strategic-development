@@ -1011,24 +1011,12 @@ async def main():
         # Generate comprehensive intelligence report
         report = await agent.generate_project_intelligence_report()
 
-        print("🧠 Asana Project Intelligence Report")
-        print("=" * 50)
-        print(f"Generated: {report['generated_at']}")
-        print(f"Projects analyzed: {report['summary']['total_projects']}")
-        print(f"Overall health score: {report['summary']['overall_health_score']}")
-        print(f"Average completion: {report['summary']['average_completion']}%")
-
         if report["summary"]["projects_needing_attention"]:
-            print("\n⚠️ Projects needing attention:")
-            for project in report["summary"]["projects_needing_attention"]:
-                print(
-                    f"  - {project['name']}: {project['health_score']} health, {project['risk_level']} risk"
-                )
+            for _project in report["summary"]["projects_needing_attention"]:
+                pass
 
-        print("\n✅ Asana Project Intelligence Agent test completed")
-
-    except Exception as e:
-        print(f"❌ Test failed: {e}")
+    except Exception:
+        pass
     finally:
         await agent.close()
 

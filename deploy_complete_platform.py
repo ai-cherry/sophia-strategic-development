@@ -401,45 +401,24 @@ class CompletePlatformDeployment:
 
     def _print_deployment_summary(self, report: dict[str, Any]):
         """Print deployment summary to console"""
-        print("\n" + "=" * 80)
-        print("🎉 SOPHIA AI PLATFORM DEPLOYMENT COMPLETE!")
-        print("=" * 80)
 
-        print("\n📊 Deployment Summary:")
-        print(
-            f"   Duration: {report['deployment_summary']['duration_seconds']:.1f} seconds"
-        )
-        print(
-            f"   Overall Status: {report['deployment_summary']['overall_status'].upper()}"
-        )
-
-        print("\n🏗️ Component Status:")
-        for component, status in self.deployment_status.items():
-            status_icon = (
+        for _component, status in self.deployment_status.items():
+            (
                 "✅"
                 if status["status"] == "completed"
                 else "⚠️"
                 if status["status"] == "partial"
                 else "❌"
             )
-            print(f"   {status_icon} {component.title()}: {status['status']}")
 
-        print("\n🚀 Capabilities Deployed:")
-        for capability, deployed in report["capabilities_deployed"].items():
-            icon = "✅" if deployed else "❌"
-            print(f"   {icon} {capability.replace('_', ' ').title()}")
+        for _capability, _deployed in report["capabilities_deployed"].items():
+            pass
 
-        print("\n💡 Business Impact:")
-        for impact, value in report["business_impact"].items():
-            print(f"   🎯 {impact.replace('_', ' ').title()}: {value}")
+        for _impact, _value in report["business_impact"].items():
+            pass
 
-        print("\n📋 Next Steps:")
-        for i, step in enumerate(report["next_steps"], 1):
-            print(f"   {i}. {step}")
-
-        print("\n" + "=" * 80)
-        print("🎉 Your Sophia AI platform is ready for enterprise deployment!")
-        print("=" * 80 + "\n")
+        for _i, _step in enumerate(report["next_steps"], 1):
+            pass
 
 
 async def main():

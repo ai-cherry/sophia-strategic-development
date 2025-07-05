@@ -6,7 +6,7 @@ Integrates with Mem0 for learning and advanced orchestration
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from langgraph.checkpoint import MemorySaver
@@ -42,16 +42,16 @@ class EnhancedWorkflowState(TypedDict):
     # Learning and memory
     memories: list[dict[str, Any]]
     memory_context: str
-    learning_feedback: Optional[dict[str, Any]]
+    learning_feedback: dict[str, Any] | None
 
     # Business context
-    business_data: Optional[dict[str, Any]]
-    analysis_results: Optional[dict[str, Any]]
-    recommendations: Optional[list[str]]
+    business_data: dict[str, Any] | None
+    analysis_results: dict[str, Any] | None
+    recommendations: list[str] | None
 
     # Metadata
     started_at: datetime
-    completed_at: Optional[datetime]
+    completed_at: datetime | None
     performance_metrics: dict[str, float]
 
 
@@ -194,15 +194,9 @@ class LearningOrchestrator:
         logger.info("Gathering business data")
 
         # Extract entities and timeframe from the message
-        message = state["messages"][-1].content if state["messages"] else ""
+        state["messages"][-1].content if state["messages"] else ""
 
         # Use Cortex to understand what data is needed
-        data_query = f"""
-        Based on this request: "{message}"
-
-        Generate a SQL query to get relevant business data.
-        Focus on: revenue, customer metrics, or operational KPIs.
-        """
 
         # For demo, return sample data structure
         business_data = {
@@ -433,7 +427,7 @@ async def run_learning_workflow(
     user_query: str,
     workflow_type: WorkflowType,
     user_id: str = "ceo",
-    session_id: Optional[str] = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Run a learning-enabled workflow

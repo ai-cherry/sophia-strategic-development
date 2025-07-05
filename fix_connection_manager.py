@@ -42,5 +42,3 @@ fixed_content = content.replace(
 # Write the fixed content
 with open("backend/core/optimized_connection_manager.py", "w") as f:
     f.write(fixed_content)
-
-print("✅ Fixed OptimizedConnectionManager indentation")

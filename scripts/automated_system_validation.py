@@ -18,7 +18,6 @@ class AutomatedSystemValidator:
 
     async def validate_and_activate(self):
         """Validate all components and activate the system."""
-        print("🔍 Starting Automated System Validation...")
 
         # Validation checks
         validation_checks = [
@@ -33,18 +32,15 @@ class AutomatedSystemValidator:
         ]
 
         for check_name, check_function in validation_checks:
-            print(f"  Validating {check_name}...")
             result = await check_function()
             self.validation_results[check_name] = result
-            status = "✅" if result["valid"] else "❌"
-            print(f"    {status} {check_name}: {result['message']}")
+            "✅" if result["valid"] else "❌"
 
         # Activation
         if all(result["valid"] for result in self.validation_results.values()):
             await self._activate_system()
-            print("🎉 Complete Automated System Successfully Activated!")
         else:
-            print("❌ System Validation Failed - Check logs for details")
+            pass
 
     async def _validate_pulumi_esc(self):
         """Validate Pulumi ESC configuration."""
@@ -80,7 +76,6 @@ class AutomatedSystemValidator:
 
     async def _activate_system(self):
         """Activate the complete automated system."""
-        print("🚀 Activating Complete Automated System...")
 
         activation_steps = [
             "Starting IaC Orchestrator on port 9013",
@@ -95,8 +90,7 @@ class AutomatedSystemValidator:
             "System fully operational",
         ]
 
-        for step in activation_steps:
-            print(f"  {step}...")
+        for _step in activation_steps:
             await asyncio.sleep(0.2)
 
         # Save activation report

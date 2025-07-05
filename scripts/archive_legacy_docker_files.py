@@ -59,7 +59,7 @@ def find_docker_files():
                 docker_files.add(str(file))
 
     # Add specific Dockerfiles
-    for root, dirs, files in os.walk("."):
+    for root, _dirs, files in os.walk("."):
         # Skip certain directories
         if any(
             skip in root for skip in ["external", "node_modules", ".git", "__pycache__"]

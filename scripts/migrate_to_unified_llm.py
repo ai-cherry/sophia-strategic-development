@@ -9,7 +9,7 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Migration patterns for different services
 MIGRATION_PATTERNS = [
@@ -179,16 +179,10 @@ class UnifiedLLMMigrator:
 
         return new_content
 
-    def run_migration(self, files: Optional[list[str]] = None):
+    def run_migration(self, files: list[str] | None = None):
         """Run the migration on specified files or all files"""
         if files is None:
             files = FILES_TO_MIGRATE
-
-        print(
-            f"{'DRY RUN: ' if self.dry_run else ''}Starting UnifiedLLMService migration..."
-        )
-        print(f"Processing {len(files)} files...")
-        print("=" * 60)
 
         results = {"modified": [], "unchanged": [], "errors": []}
 
@@ -201,28 +195,19 @@ class UnifiedLLMMigrator:
                 results[status].append(result)
 
             # Print progress
-            status_symbol = {"modified": "✓", "unchanged": "-", "error": "✗"}[status]
+            {"modified": "✓", "unchanged": "-", "error": "✗"}[status]
 
-            print(f"{status_symbol} {file_path}")
             if status == "modified" and self.dry_run:
                 for change in result["changes"]:
-                    print(f"  → {change}")
+                    pass
 
         # Print summary
-        print("\n" + "=" * 60)
-        print("Migration Summary:")
-        print(f"  Modified: {len(results['modified'])} files")
-        print(f"  Unchanged: {len(results['unchanged'])} files")
-        print(f"  Errors: {len(results['errors'])} files")
 
         if results["errors"]:
-            print("\nErrors:")
-            for error in results["errors"]:
-                print(f"  ✗ {error['file']}: {error.get('error', 'Unknown error')}")
+            for _error in results["errors"]:
+                pass
 
         if not self.dry_run and results["modified"]:
-            print(f"\nBackups saved to: {self.backup_dir}")
-
             # Create migration report
             report_path = self.backup_dir / "migration_report.txt"
             with open(report_path, "w") as f:
@@ -235,8 +220,6 @@ class UnifiedLLMMigrator:
                     f.write(f"\n{result['file']}:\n")
                     for change in result["changes"]:
                         f.write(f"  - {change}\n")
-
-            print(f"Migration report saved to: {report_path}")
 
         return results
 

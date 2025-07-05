@@ -48,7 +48,7 @@ class HealthMonitoringSystem:
         logger.info("🏥 Starting health monitoring system...")
 
         # Start monitoring tasks for each registered service
-        for service_name in self.health_checkers.keys():
+        for service_name in self.health_checkers:
             asyncio.create_task(self._monitor_service(service_name))
 
         logger.info("✅ Health monitoring system started")

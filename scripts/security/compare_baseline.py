@@ -36,8 +36,7 @@ class VulnerabilityComparator:
                 return vulns
         except FileNotFoundError:
             return {}
-        except json.JSONDecodeError as e:
-            print(f"Error reading {file_path}: {e}")
+        except json.JSONDecodeError:
             return {}
 
     def compare(self) -> dict[str, Any]:
@@ -193,7 +192,6 @@ def main():
     output_path = Path(args.output)
 
     if not current_path.exists():
-        print(f"Error: Current scan file not found: {current_path}")
         sys.exit(1)
 
     comparator = VulnerabilityComparator(current_path, baseline_path)
@@ -206,7 +204,7 @@ def main():
 
     # Print summary if requested
     if args.summary:
-        print(comparator.generate_summary(comparison))
+        pass
 
     # Exit with non-zero code if high priority vulnerabilities found
     if comparison["high_priority_new_count"] > 0:

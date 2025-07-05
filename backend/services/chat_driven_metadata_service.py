@@ -847,11 +847,8 @@ if __name__ == "__main__":
             metrics = await metadata_service.get_service_metrics()
             logger.info(f"📊 Service metrics: {metrics}")
 
-            print("✅ Chat-driven metadata service test PASSED")
-
         except Exception as e:
             logger.error(f"❌ Test failed: {e}")
-            print("❌ Chat-driven metadata service test FAILED")
         finally:
             await ingestion_service.shutdown()
 

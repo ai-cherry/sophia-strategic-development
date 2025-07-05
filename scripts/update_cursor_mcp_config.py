@@ -353,7 +353,7 @@ class CursorMCPConfigUpdater:
         # Server Summary
         servers = self.config.get("mcpServers", {})
         report.append(f"## 📊 Server Summary ({len(servers)} servers)")
-        for server_name in servers.keys():
+        for server_name in servers:
             report.append(f"- ✅ {server_name}")
         report.append("")
 
@@ -444,17 +444,14 @@ def main():
         if args.validate:
             issues = updater.validate_configuration()
             if issues:
-                print("❌ Configuration Issues:")
                 for issue in issues:
-                    print(f"  - {issue}")
+                    pass
                 return 1
             else:
-                print("✅ Configuration is valid!")
                 return 0
 
         if args.report:
-            report = updater.generate_configuration_report()
-            print(report)
+            updater.generate_configuration_report()
             return 0
 
         if args.server:

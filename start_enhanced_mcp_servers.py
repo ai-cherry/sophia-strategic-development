@@ -225,11 +225,10 @@ class EnhancedMCPServerManager:
         try:
             import aiohttp
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"http://localhost:{port}/health", timeout=3
-                ) as response:
-                    return response.status == 200
+            async with aiohttp.ClientSession() as session, session.get(
+                f"http://localhost:{port}/health", timeout=3
+            ) as response:
+                return response.status == 200
         except Exception:
             return False
 
@@ -239,16 +238,13 @@ class EnhancedMCPServerManager:
 
         try:
             while True:
-                print(f"\n⏰ {time.strftime('%H:%M:%S')} - Health Check")
-                print("-" * 40)
-
-                for name, server_info in self.servers.items():
+                for _name, server_info in self.servers.items():
                     port = server_info["port"]
 
                     if await self.check_server_health(port):
-                        print(f"🟢 {name}: HEALTHY (port {port})")
+                        pass
                     else:
-                        print(f"🔴 {name}: UNREACHABLE (port {port})")
+                        pass
 
                 await asyncio.sleep(30)
 
@@ -292,9 +288,6 @@ async def main():
     manager = EnhancedMCPServerManager()
 
     try:
-        print("🚀 Enhanced Sophia AI MCP Server Manager")
-        print("=" * 50)
-
         # Setup environment
         manager.setup_environment()
         logger.info("✅ Environment configured")
@@ -306,37 +299,16 @@ async def main():
         started_count = await manager.start_all_servers()
 
         if started_count > 0:
-            print(f"\n🎉 {started_count} servers started successfully!")
-            print("🔗 Available endpoints:")
-            for name, server_info in manager.servers.items():
-                port = server_info["port"]
-                print(f"   • {name}: http://localhost:{port}")
-                print(f"     - Health: http://localhost:{port}/health")
-                print(f"     - Tools: http://localhost:{port}/tools")
-                print(f"     - Execute: http://localhost:{port}/execute")
-
-            print("\n📚 Usage Examples:")
-            print("   • Test AI Memory: curl -X POST http://localhost:9000/execute \\")
-            print('     -H "Content-Type: application/json" \\')
-            print(
-                '     -d \'{"tool_name": "recall_memory", "parameters": {"query": "test"}}\''
-            )
-            print("   • Test Codacy: curl -X POST http://localhost:3008/execute \\")
-            print('     -H "Content-Type: application/json" \\')
-            print(
-                '     -d \'{"tool_name": "analyze_code", "parameters": {"code": "print(\\"hello\\")"}}\''
-            )
-
-            print("\nPress Ctrl+C to stop all servers")
+            for _name, server_info in manager.servers.items():
+                server_info["port"]
 
             # Monitor servers
             await manager.monitor_servers()
         else:
-            print("\n❌ No servers started successfully")
             return 1
 
     except KeyboardInterrupt:
-        print("\n🛑 Shutdown requested")
+        pass
     except Exception as e:
         logger.error(f"💥 Unexpected error: {e}")
         return 1
@@ -350,5 +322,4 @@ if __name__ == "__main__":
     try:
         sys.exit(asyncio.run(main()))
     except KeyboardInterrupt:
-        print("\n🛑 Interrupted")
         sys.exit(0)

@@ -2,7 +2,7 @@ import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException
@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Global httpx client with connection pooling
-client: Optional[httpx.AsyncClient] = None
+client: httpx.AsyncClient | None = None
 
 
 @asynccontextmanager
@@ -83,7 +83,7 @@ class Mem0RestClient:
     ) -> httpx.Response:
         """Execute HTTP request with exponential backoff retry"""
         config = RetryConfig()
-        last_exception: Optional[Exception] = None
+        last_exception: Exception | None = None
 
         for attempt in range(config.max_retries):
             try:
@@ -120,7 +120,7 @@ class Mem0RestClient:
         messages: list[dict[str, Any]],
         user_id: str,
         memory_type: str,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         payload = {
             "user_id": user_id,
@@ -196,10 +196,10 @@ class MemoryEntry(BaseModel):
     memory_type: str = Field(
         ..., description="Memory type: working, episodic, semantic, factual"
     )
-    metadata: Optional[dict[str, Any]] = Field(None, description="Additional metadata")
+    metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
     @validator("memory_type")
-    def validate_memory_type(cls, v):
+    def validate_memory_type(self, v):
         valid_types = ["working", "episodic", "semantic", "factual"]
         if v not in valid_types:
             raise ValueError(f"Memory type must be one of: {', '.join(valid_types)}")
@@ -209,13 +209,11 @@ class MemoryEntry(BaseModel):
 class MemoryQuery(BaseModel):
     query: str = Field(..., description="Search query")
     user_id: str = Field(..., description="User ID")
-    memory_types: Optional[list[str]] = Field(
-        None, description="Memory types to search"
-    )
-    limit: Optional[int] = Field(10, ge=1, le=100, description="Max results")
+    memory_types: list[str] | None = Field(None, description="Memory types to search")
+    limit: int | None = Field(10, ge=1, le=100, description="Max results")
 
     @validator("memory_types")
-    def validate_memory_types(cls, v):
+    def validate_memory_types(self, v):
         if v:
             valid_types = ["working", "episodic", "semantic", "factual"]
             invalid = [t for t in v if t not in valid_types]

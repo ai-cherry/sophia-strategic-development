@@ -12,7 +12,7 @@ import signal
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class MCPServerStarter:
 
     def start_server(
         self, server_name: str, detached: bool = False
-    ) -> Optional[subprocess.Popen]:
+    ) -> subprocess.Popen | None:
         """Start a specific MCP server"""
         servers = self.cursor_config.get("mcpServers", {})
 

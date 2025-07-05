@@ -8,7 +8,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 from fastapi import FastAPI, Response
@@ -196,7 +196,7 @@ class SecurityMetricsExporter:
         except Exception as e:
             logger.error(f"Error updating security metrics: {e}")
 
-    def _find_latest_report(self) -> Optional[Path]:
+    def _find_latest_report(self) -> Path | None:
         """Find the most recent vulnerability report."""
         reports_path = Path(self.settings.reports_dir)
         if not reports_path.exists():
@@ -305,7 +305,7 @@ class SecurityMetricsExporter:
 
         return metrics
 
-    def _find_latest_comparison(self) -> Optional[Path]:
+    def _find_latest_comparison(self) -> Path | None:
         """Find the most recent baseline comparison report."""
         reports_path = Path(self.settings.reports_dir)
         comparison_files = list(reports_path.glob("*comparison*.json"))

@@ -131,13 +131,11 @@ class UnifiedAICodingAssistant:
 
     async def initialize(self):
         """Initialize all available AI solutions"""
-        print("🚀 Initializing Unified AI Coding Assistant...")
 
         # Check available solutions
         await self._discover_solutions()
         await self._check_service_health()
 
-        print("✅ Unified AI Coding Assistant Ready!")
         self._display_capabilities()
 
     async def _discover_solutions(self):
@@ -171,18 +169,16 @@ class UnifiedAICodingAssistant:
     async def _check_claude_cli(self) -> bool:
         """Check Claude CLI availability"""
         try:
-            if os.path.exists("claude-cli-integration/claude"):
-                return True
-            return False
+            return bool(os.path.exists("claude-cli-integration/claude"))
         except Exception:
             return False
 
     async def _check_gemini_cli(self) -> bool:
         """Check Gemini CLI availability"""
         try:
-            if os.path.exists("gemini-cli-integration/gemini_mcp_integration.py"):
-                return True
-            return False
+            return bool(
+                os.path.exists("gemini-cli-integration/gemini_mcp_integration.py")
+            )
         except Exception:
             return False
 
@@ -211,35 +207,15 @@ class UnifiedAICodingAssistant:
 
     def _display_capabilities(self):
         """Display available capabilities"""
-        print("\n" + "=" * 60)
-        print("🎯 UNIFIED AI CODING ASSISTANT - CAPABILITIES")
-        print("=" * 60)
 
-        print("\n🔧 CLI Tools:")
-        for tool, available in self.cli_tools.items():
-            status = "✅" if available else "❌"
-            print(f"   {status} {tool}")
+        for _tool, _available in self.cli_tools.items():
+            pass
 
-        print("\n🤖 MCP Servers:")
-        for server, available in self.mcp_servers.items():
-            status = "✅" if available else "❌"
-            print(f"   {status} {server}")
+        for _server, _available in self.mcp_servers.items():
+            pass
 
-        print("\n🎨 Main Services:")
-        for service, available in self.agents.items():
-            status = "✅" if available else "❌"
-            print(f"   {status} {service}")
-
-        print("\n💬 Natural Language Commands You Can Use:")
-        print("   • 'Help me write a Python function to process CSV files'")
-        print("   • 'Check our infrastructure health and performance'")
-        print("   • 'Query Snowflake for recent sales data'")
-        print("   • 'Analyze our marketing campaign performance'")
-        print("   • 'Generate a React component for user login'")
-        print("   • 'Show me project status across all teams'")
-        print("   • 'Remember this architectural decision'")
-        print("   • 'Scan my code for security vulnerabilities'")
-        print("\n🛑 Type 'exit' to quit\n")
+        for _service, _available in self.agents.items():
+            pass
 
     async def process_request(self, user_input: str) -> dict[str, Any]:
         """Process natural language request and route to appropriate solution"""
@@ -296,7 +272,6 @@ class UnifiedAICodingAssistant:
 
     async def _handle_coding_request(self, user_input: str) -> dict[str, Any]:
         """Handle coding-related requests"""
-        print("🔧 Routing to coding solutions...")
 
         # Prefer Claude CLI for coding tasks
         if self.cli_tools.get("claude_cli", False):
@@ -308,7 +283,6 @@ class UnifiedAICodingAssistant:
 
     async def _handle_infrastructure_request(self, user_input: str) -> dict[str, Any]:
         """Handle infrastructure-related requests"""
-        print("🏗️ Routing to infrastructure solutions...")
 
         # Use infrastructure chat interface
         try:
@@ -337,20 +311,17 @@ class UnifiedAICodingAssistant:
 
     async def _handle_database_request(self, user_input: str) -> dict[str, Any]:
         """Handle database-related requests"""
-        print("🗃️ Routing to database solutions...")
 
         # Route to Snowflake admin agent or main chat
         return await self._call_sophia_main_chat(f"Snowflake: {user_input}")
 
     async def _handle_business_request(self, user_input: str) -> dict[str, Any]:
         """Handle business intelligence requests"""
-        print("📊 Routing to business intelligence solutions...")
 
         return await self._call_sophia_main_chat(f"Business Intelligence: {user_input}")
 
     async def _handle_design_request(self, user_input: str) -> dict[str, Any]:
         """Handle design-related requests"""
-        print("🎨 Routing to design solutions...")
 
         # Check if UI/UX agent is available
         if self.mcp_servers.get("ui_ux_agent", False):
@@ -376,19 +347,16 @@ class UnifiedAICodingAssistant:
 
     async def _handle_project_request(self, user_input: str) -> dict[str, Any]:
         """Handle project management requests"""
-        print("📋 Routing to project management solutions...")
 
         return await self._call_sophia_main_chat(f"Project Management: {user_input}")
 
     async def _handle_communication_request(self, user_input: str) -> dict[str, Any]:
         """Handle communication requests"""
-        print("💬 Routing to communication solutions...")
 
         return await self._call_sophia_main_chat(f"Slack: {user_input}")
 
     async def _handle_memory_request(self, user_input: str) -> dict[str, Any]:
         """Handle AI memory requests"""
-        print("🧠 Routing to AI memory solutions...")
 
         # Use AI Memory MCP server if available
         if self.mcp_servers.get("ai_memory", False):
@@ -399,7 +367,6 @@ class UnifiedAICodingAssistant:
 
     async def _handle_quality_request(self, user_input: str) -> dict[str, Any]:
         """Handle code quality requests"""
-        print("🔍 Routing to code quality solutions...")
 
         # Use Codacy MCP server if available
         if self.mcp_servers.get("codacy", False):
@@ -410,7 +377,6 @@ class UnifiedAICodingAssistant:
 
     async def _handle_general_request(self, user_input: str) -> dict[str, Any]:
         """Handle general requests"""
-        print("🤖 Routing to general AI assistant...")
 
         return await self._call_sophia_main_chat(user_input)
 
@@ -485,41 +451,29 @@ class UnifiedAICodingAssistant:
 
     async def interactive_session(self):
         """Start interactive chat session"""
-        print("\n🤖 Unified AI Coding Assistant")
-        print(
-            "Ask me anything about coding, infrastructure, data, business, or design!"
-        )
-        print("I'll automatically route your request to the best AI solution.\n")
 
         while True:
             try:
                 user_input = input("You: ").strip()
 
                 if user_input.lower() in ["exit", "quit", "bye"]:
-                    print("\nSophia: Goodbye! Happy coding! 👋")
                     break
 
                 if not user_input:
                     continue
-
-                print("\nSophia: ", end="", flush=True)
 
                 # Process the request
                 result = await self.process_request(user_input)
 
                 # Display response
                 if result["success"]:
-                    print(f"[{result['solution']}] {result['response']}")
+                    pass
                 else:
-                    print(f"❌ Error with {result['solution']}: {result['response']}")
-
-                print()  # Empty line for readability
+                    pass
 
             except KeyboardInterrupt:
-                print("\n\nSophia: Session interrupted. Goodbye! 👋")
                 break
-            except Exception as e:
-                print(f"\nSophia: I encountered an error: {str(e)}. Let me try again.")
+            except Exception:
                 continue
 
 

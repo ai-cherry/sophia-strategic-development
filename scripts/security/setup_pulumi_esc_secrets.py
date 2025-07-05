@@ -197,11 +197,6 @@ class PulumiESCManager:
             if config is None:
                 continue
 
-            print(f"\n📝 Setting up: {secret_key}")
-            print(f"   Description: {config.description}")
-            print(f"   Required: {'Yes' if config.required else 'No'}")
-            print(f"   Type: {config.secret_type.value}")
-
             if not config.required:
                 skip = input("   Skip this optional secret? (y/N): ").lower()
                 if skip == "y":
@@ -217,7 +212,7 @@ class PulumiESCManager:
                 if value.strip():
                     break
                 elif config.required:
-                    print("   ❌ This secret is required. Please enter a value.")
+                    pass
                 else:
                     break
 
@@ -360,14 +355,6 @@ def main():
 
     # Interactive menu
     while True:
-        print("\n🔐 Pulumi ESC Management Menu:")
-        print("1. Interactive Secret Setup")
-        print("2. Test Secret Loading")
-        print("3. Validate All Secrets")
-        print("4. Export Environment Template")
-        print("5. Cleanup Placeholder Secrets")
-        print("6. Exit")
-
         choice = input("\nSelect an option (1-6): ").strip()
 
         if choice == "1":
@@ -389,7 +376,7 @@ def main():
             logger.info("👋 Goodbye!")
             break
         else:
-            print("❌ Invalid choice. Please select 1-6.")
+            pass
 
 
 if __name__ == "__main__":

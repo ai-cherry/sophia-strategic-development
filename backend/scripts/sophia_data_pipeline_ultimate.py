@@ -714,20 +714,19 @@ class SophiaDataPipelineUltimate:
         """Phase 1: Ingest raw data from Gong API"""
         logger.info("📥 PHASE 1: Data Ingestion - Starting")
 
-        async with self.gong_client as gong:
-            async with self.snowflake_loader as snowflake:
-                # Ingest calls data
-                calls_processed = await self._ingest_calls_data(
+        async with self.gong_client as gong, self.snowflake_loader as snowflake:
+            # Ingest calls data
+            calls_processed = await self._ingest_calls_data(
+                gong, snowflake, from_date, to_date
+            )
+            self.metrics.calls_processed = calls_processed
+
+            # Ingest transcripts data (if enabled)
+            if self.config.include_transcripts:
+                transcripts_processed = await self._ingest_transcripts_data(
                     gong, snowflake, from_date, to_date
                 )
-                self.metrics.calls_processed = calls_processed
-
-                # Ingest transcripts data (if enabled)
-                if self.config.include_transcripts:
-                    transcripts_processed = await self._ingest_transcripts_data(
-                        gong, snowflake, from_date, to_date
-                    )
-                    self.metrics.transcripts_processed = transcripts_processed
+                self.metrics.transcripts_processed = transcripts_processed
 
         logger.info(
             f"✅ PHASE 1 Complete - Calls: {self.metrics.calls_processed}, Transcripts: {self.metrics.transcripts_processed}"

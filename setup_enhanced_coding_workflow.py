@@ -25,35 +25,25 @@ from pathlib import Path
 
 def setup_enhanced_workflow():
     """Setup enhanced coding workflow capabilities"""
-    print("🚀 Setting up Sophia AI Enhanced Coding Workflow...")
-    print("   Combining Zencoder + cursor-companion + Sophia AI capabilities")
-    print("=" * 70)
 
     # 1. Create enhanced workflow structure
-    print("\n📁 Creating enhanced workspace structure...")
     create_workspace_structure()
 
     # 2. Install VS Code extension preparation
-    print("\n💻 Preparing VS Code integration...")
     prepare_vscode_integration()
 
     # 3. Create Chrome extension manifest
-    print("\n🌐 Creating Chrome extension for platform integration...")
     create_chrome_extension()
 
     # 4. Setup prompt and rule management
-    print("\n📝 Setting up prompt and rule management...")
     setup_prompt_management()
 
     # 5. Create workflow automation scripts
-    print("\n🤖 Creating workflow automation...")
     create_workflow_automation()
 
     # 6. Test integration
-    print("\n🧪 Testing integration...")
     test_integration()
 
-    print("\n✅ Enhanced Coding Workflow setup complete!")
     show_usage_examples()
 
 
@@ -72,7 +62,6 @@ def create_workspace_structure():
 
     for directory in directories:
         Path(directory).mkdir(exist_ok=True)
-        print(f"  ✅ Created: {directory}")
 
 
 def prepare_vscode_integration():
@@ -308,8 +297,6 @@ export function deactivate() {}
     extension_file.parent.mkdir(exist_ok=True)
     with open(extension_file, "w") as f:
         f.write(extension_code)
-
-    print("  ✅ VS Code extension prepared")
 
 
 def create_chrome_extension():
@@ -609,8 +596,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     with open(chrome_dir / "popup.html", "w") as f:
         f.write(popup_html)
 
-    print("  ✅ Chrome extension created")
-
 
 def setup_prompt_management():
     """Setup prompt and rule management system"""
@@ -740,8 +725,6 @@ if __name__ == "__main__":
 
     os.chmod("sophia_prompt_manager.py", 0o644)  # SECURITY FIX: Reduced permissions
 
-    print("  ✅ Prompt management CLI created")
-
 
 def create_workflow_automation():
     """Create workflow automation scripts"""
@@ -853,8 +836,6 @@ if __name__ == "__main__":
 
     os.chmod("sophia_workflow_runner.py", 0o644)  # SECURITY FIX: Reduced permissions
 
-    print("  ✅ Workflow automation created")
-
 
 def test_integration():
     """Test the integration"""
@@ -868,9 +849,9 @@ def test_integration():
         )
 
         if result.returncode == 0:
-            print("  ✅ Unified AI assistant working")
+            pass
         else:
-            print("  ⚠️ Unified AI assistant issues detected")
+            pass
 
         # Test Claude CLI
         result = subprocess.run(
@@ -881,18 +862,16 @@ def test_integration():
         )
 
         if result.returncode == 0:
-            print("  ✅ Claude CLI working")
+            pass
         else:
-            print("  ⚠️ Claude CLI issues detected")
+            pass
 
-    except Exception as e:
-        print(f"  ⚠️ Testing error: {e}")
+    except Exception:
+        pass
 
 
 def show_usage_examples():
     """Show usage examples"""
-    print("\n🎯 **ENHANCED CODING WORKFLOW - USAGE EXAMPLES**")
-    print("=" * 60)
 
     examples = [
         (
@@ -918,18 +897,8 @@ def show_usage_examples():
         ),
     ]
 
-    for desc, cmd in examples:
-        print(f"\n{desc}:")
-        print(f"   {cmd}")
-
-    print("\n🚀 **YOUR ADVANTAGES OVER ZENCODER & CURSOR-COMPANION:**")
-    print("✅ Latest Claude Sonnet 4 with intelligent routing")
-    print("✅ Business intelligence integration (unique)")
-    print("✅ Real-time dashboard and metrics (unique)")
-    print("✅ Infrastructure automation (unique)")
-    print("✅ Cross-platform workflow (CLI + Web + Extensions)")
-    print("✅ Enterprise-grade security with Pulumi ESC")
-    print("✅ MCP server orchestration for specialized tasks")
+    for _desc, _cmd in examples:
+        pass
 
 
 if __name__ == "__main__":

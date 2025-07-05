@@ -341,9 +341,7 @@ class SecurityRemediator:
         }
 
         # Check for specific patterns
-        if "estuary" in secret_value.lower():
-            return "estuary_access_token"
-        elif "estuary" in secret_value.lower():
+        if "estuary" in secret_value.lower() or "estuary" in secret_value.lower():
             return "estuary_access_token"
 
         return config_map.get(secret_type, "api_token")

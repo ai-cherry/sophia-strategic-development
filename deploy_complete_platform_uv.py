@@ -28,7 +28,6 @@ class UVDeploymentManager:
             "details": details,
         }
         self.deployment_log.append(entry)
-        print(f"[{status}] {step}: {details}")
 
     async def ensure_uv_environment(self):
         """Ensure UV environment is properly set up"""
@@ -349,9 +348,6 @@ async def main():
     project_root = Path("/home/ubuntu/sophia-main")
     deployment_manager = UVDeploymentManager(project_root)
 
-    print("🚀 Starting Comprehensive Sophia AI Deployment with UV")
-    print("=" * 60)
-
     # Execute deployment phases
     phases = [
         ("UV Environment Setup", deployment_manager.ensure_uv_environment),
@@ -362,38 +358,22 @@ async def main():
     ]
 
     success_count = 0
-    for phase_name, phase_func in phases:
-        print(f"\n📋 Phase: {phase_name}")
-        print("-" * 40)
-
+    for _phase_name, phase_func in phases:
         try:
             success = await phase_func()
             if success:
                 success_count += 1
-                print(f"✅ {phase_name} completed successfully")
             else:
-                print(f"⚠️ {phase_name} completed with issues")
-        except Exception as e:
-            print(f"❌ {phase_name} failed: {e}")
+                pass
+        except Exception:
+            pass
 
     # Generate final report
-    report = await deployment_manager.generate_deployment_report()
-
-    print("\n" + "=" * 60)
-    print("🎉 DEPLOYMENT SUMMARY")
-    print("=" * 60)
-    print(f"✅ Successful phases: {success_count}/{len(phases)}")
-    print(f"📊 Total steps executed: {report['summary']['total_steps']}")
-    print(
-        f"🎯 Success rate: {report['summary']['successful_steps']}/{report['summary']['total_steps']}"
-    )
-    print("📄 Full report: deployment_report_uv.json")
+    await deployment_manager.generate_deployment_report()
 
     if success_count >= len(phases) * 0.8:  # 80% success rate
-        print("\n🚀 DEPLOYMENT SUCCESSFUL - Sophia AI Platform Ready!")
         return 0
     else:
-        print("\n⚠️ DEPLOYMENT COMPLETED WITH ISSUES - Review logs")
         return 1
 
 

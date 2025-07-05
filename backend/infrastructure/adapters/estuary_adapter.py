@@ -560,23 +560,17 @@ async def main():
     adapter = EstuaryAdapter("estuary", PlatformType.DATA_STACK)
 
     if args.command == "status":
-        status = await adapter.get_status()
-        print(f"Status: {status.status}")
-        print(f"Metrics: {json.dumps(status.metrics, indent=2)}")
+        await adapter.get_status()
 
     elif args.command == "configure":
         if args.config:
             config = json.loads(args.config)
-            result = await adapter.configure(config)
-            print(json.dumps(result, indent=2))
+            await adapter.configure(config)
         else:
-            print("Configuration JSON required")
+            pass
 
     elif args.command == "create-source":
-        result = await adapter.execute_create_gong_source(
-            {"start_date": "2024-01-01T00:00:00Z"}
-        )
-        print(json.dumps(result, indent=2))
+        await adapter.execute_create_gong_source({"start_date": "2024-01-01T00:00:00Z"})
 
 
 if __name__ == "__main__":

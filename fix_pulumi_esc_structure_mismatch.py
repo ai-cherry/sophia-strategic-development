@@ -9,8 +9,6 @@ import subprocess
 
 def analyze_esc_structure():
     """Analyze the current ESC structure to understand the mismatch"""
-    print("🔍 ANALYZING PULUMI ESC STRUCTURE MISMATCH")
-    print("=" * 60)
 
     try:
         result = subprocess.run(
@@ -59,27 +57,14 @@ def analyze_esc_structure():
                     if "" in line:
                         nested_placeholders += 1
 
-            print("📊 STRUCTURE ANALYSIS:")
-            print(f"  Top-level REAL values: {top_level_real}")
-            print(f"  Top-level PLACEHOLDERS: {top_level_placeholders}")
-            print(f"  Nested PLACEHOLDERS: {nested_placeholders}")
-
-            print("\n🔍 ROOT CAUSE IDENTIFIED:")
-            print("  - Backend reads from TOP-LEVEL structure (working)")
-            print("  - Sync script writes to NESTED structure (placeholders)")
-            print("  - This creates a MISMATCH causing persistent placeholders")
-
             return True
 
-    except Exception as e:
-        print(f"❌ Error analyzing structure: {e}")
+    except Exception:
         return False
 
 
 def fix_sync_script_structure():
     """Fix the sync script to use top-level structure instead of nested"""
-    print("\n🔧 FIXING SYNC SCRIPT STRUCTURE")
-    print("=" * 40)
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
@@ -132,15 +117,9 @@ def fix_sync_script_structure():
     with open(sync_file, "w") as f:
         f.write(content)
 
-    print("✅ Updated sync script to use top-level structure")
-
 
 def test_structure_fix():
     """Test if the structure fix will work"""
-    print("\n🧪 TESTING STRUCTURE FIX")
-    print("=" * 30)
-
-    print("Testing backend config access patterns...")
 
     try:
         from backend.core.auto_esc_config import get_config_value
@@ -155,32 +134,20 @@ def test_structure_fix():
 
         for key in working_keys:
             value = get_config_value(key)
-            status = "✅ WORKING" if value and len(value) > 20 else "❌ MISSING"
-            print(f"  {key}: {status}")
+            "✅ WORKING" if value and len(value) > 20 else "❌ MISSING"
 
         # Test keys that should work after sync
         target_keys = ["lambda_api_key", "hubspot_access_token", "slack_bot_token"]
 
-        print("\nKeys that will work after sync:")
         for key in target_keys:
             value = get_config_value(key)
-            status = "✅ READY" if value else "🔧 WILL BE SYNCED"
-            print(f"  {key}: {status}")
 
-        print("\n💡 SOLUTION CONFIRMED:")
-        print("  - Sync script now writes to TOP-LEVEL structure")
-        print("  - Backend reads from TOP-LEVEL structure")
-        print("  - This eliminates the structure mismatch")
-        print("  - Placeholders will be replaced with real values")
-
-    except Exception as e:
-        print(f"❌ Test error: {e}")
+    except Exception:
+        pass
 
 
 def main():
     """Apply the definitive fix"""
-    print("🚀 DEFINITIVE FIX: PULUMI ESC STRUCTURE MISMATCH")
-    print("=" * 70)
 
     # Analyze current structure
     if not analyze_esc_structure():
@@ -191,19 +158,6 @@ def main():
 
     # Test the fix
     test_structure_fix()
-
-    print("\n🎉 DEFINITIVE FIX COMPLETE!")
-    print("=" * 40)
-    print("✅ Identified root cause: Structure mismatch")
-    print("✅ Fixed sync script to use top-level structure")
-    print("✅ Verified backend compatibility")
-    print("✅ Eliminated placeholder persistence")
-
-    print("\n🚀 NEXT STEPS:")
-    print("1. Commit and push this fix")
-    print("2. GitHub Actions will sync to correct structure")
-    print("3. Backend will read real values instead of placeholders")
-    print("4. Lambda Labs credentials will be accessible")
 
     return True
 

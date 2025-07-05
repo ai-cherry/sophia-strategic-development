@@ -295,7 +295,7 @@ class MigrationOrchestratorMCPServer:
                         "error": f"Migration plan {plan_id} not found",
                     }
 
-                plan = self.migration_sessions[plan_id]["plan"]
+                self.migration_sessions[plan_id]["plan"]
                 logger.info(
                     f"🚀 Executing migration {plan_id}, phase: {phase}, dry_run: {dry_run}"
                 )
@@ -326,7 +326,7 @@ class MigrationOrchestratorMCPServer:
                 # Execute phases based on plan
                 if phase == "all" or phase == "phase_1":
                     logger.info("📋 Executing Phase 1: Infrastructure Enhancement")
-                    phase1_result = await self._execute_phase_1(execution, dry_run)
+                    await self._execute_phase_1(execution, dry_run)
                     execution["phases_completed"].append("phase_1")
                     execution["ai_insights"].append(
                         {
@@ -338,7 +338,7 @@ class MigrationOrchestratorMCPServer:
 
                 if phase == "all" or phase == "phase_2":
                     logger.info("🔄 Executing Phase 2: Migration Execution")
-                    phase2_result = await self._execute_phase_2(execution, dry_run)
+                    await self._execute_phase_2(execution, dry_run)
                     execution["phases_completed"].append("phase_2")
                     execution["ai_insights"].append(
                         {
@@ -352,7 +352,7 @@ class MigrationOrchestratorMCPServer:
                     logger.info(
                         "📊 Executing Phase 3: Business Intelligence Integration"
                     )
-                    phase3_result = await self._execute_phase_3(execution, dry_run)
+                    await self._execute_phase_3(execution, dry_run)
                     execution["phases_completed"].append("phase_3")
                     execution["ai_insights"].append(
                         {

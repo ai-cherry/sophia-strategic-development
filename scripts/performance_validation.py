@@ -27,14 +27,13 @@ class PerformanceValidator:
 
     async def test_api_response_times(self) -> dict[str, float]:
         """Test API response times with concurrent requests"""
-        print("🔍 Testing API response times...")
 
         async with aiohttp.ClientSession() as session:
             start_time = time.time()
             tasks = []
 
             # Send 100 concurrent requests
-            for i in range(100):
+            for _i in range(100):
                 task = session.get(f"http://{self.lambda_ip}:8000/api/health")
                 tasks.append(task)
 
@@ -59,7 +58,6 @@ class PerformanceValidator:
 
     async def test_n8n_throughput(self) -> dict[str, float]:
         """Test N8N workflow execution throughput"""
-        print("⚡ Testing N8N workflow throughput...")
 
         async with aiohttp.ClientSession() as session:
             start_time = time.time()
@@ -91,7 +89,6 @@ class PerformanceValidator:
 
     async def test_estuary_latency(self) -> dict[str, float]:
         """Test Estuary Flow end-to-end latency"""
-        print("🌊 Testing Estuary Flow latency...")
 
         async with aiohttp.ClientSession() as session:
             test_start = time.time()
@@ -137,8 +134,6 @@ class PerformanceValidator:
 
     async def validate_all_targets(self) -> dict[str, dict]:
         """Run all performance validations"""
-        print("🚀 Starting comprehensive performance validation...")
-        print(f"Target metrics: {self.targets}")
 
         results = {}
 
@@ -174,19 +169,6 @@ class PerformanceValidator:
         }
 
         # Print results
-        print("\n📊 Performance Validation Results:")
-        print(
-            f"  {'✅' if api_passed else '❌'} API Response Time: {api_results['avg_response_time_ms']:.2f}ms (target: <{self.targets['api_response_time_ms']}ms)"
-        )
-        print(
-            f"  {'✅' if n8n_passed else '❌'} N8N Throughput: {n8n_results['throughput_per_second']:.2f}/s (target: >{self.targets['n8n_throughput_per_second']}/s)"
-        )
-        print(
-            f"  {'✅' if estuary_passed else '❌'} Estuary Latency: {estuary_results['latency_ms']:.2f}ms (target: <{self.targets['estuary_latency_ms']}ms)"
-        )
-        print(
-            f"  {'🎉' if results['validation_summary']['overall_passed'] else '⚠️'} Overall: {'PASSED' if results['validation_summary']['overall_passed'] else 'FAILED'}"
-        )
 
         return results
 

@@ -6,7 +6,6 @@ Deploy Estuary Foundation for Sophia AI
 Complete deployment of Estuary Flow captures and materializations
 """
 
-import json
 import logging
 import os
 import sys
@@ -329,7 +328,6 @@ class EstuaryFoundationDeployment:
             if catalog_result:
                 logger.info("✅ Deployment verification successful")
                 logger.info("📋 Current catalog items:")
-                print(json.dumps(catalog_result, indent=2))
 
             logger.info("🎉 Estuary Flow foundation deployment completed!")
             logger.info("📝 Next steps:")

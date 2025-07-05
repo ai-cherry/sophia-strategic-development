@@ -12,8 +12,6 @@ import snowflake.connector
 def update_snowflake_schemas():
     """Update all Snowflake schemas for Sophia AI"""
 
-    print("🏔️ Updating Snowflake schemas for Sophia AI...")
-
     try:
         # Connect using PAT
         conn = snowflake.connector.connect(
@@ -29,7 +27,6 @@ def update_snowflake_schemas():
         cursor.execute("USE DATABASE SOPHIA_AI_PROD")
 
         # Create AI Memory tables
-        print("Creating AI Memory tables...")
         cursor.execute("USE SCHEMA AI_MEMORY")
 
         cursor.execute(
@@ -60,7 +57,6 @@ def update_snowflake_schemas():
         )
 
         # Create Business Intelligence tables
-        print("Creating Business Intelligence tables...")
         cursor.execute("USE SCHEMA BUSINESS_INTELLIGENCE")
 
         cursor.execute(
@@ -117,7 +113,6 @@ def update_snowflake_schemas():
         )
 
         # Create Executive Dashboard views
-        print("Creating Executive Dashboard views...")
         cursor.execute("USE SCHEMA EXECUTIVE_DASHBOARD")
 
         cursor.execute(
@@ -168,7 +163,6 @@ def update_snowflake_schemas():
         )
 
         # Create AI-powered procedures
-        print("Creating AI-powered procedures...")
         cursor.execute("USE SCHEMA PUBLIC")
 
         cursor.execute(
@@ -206,7 +200,6 @@ def update_snowflake_schemas():
         )
 
         # Create MCP data tables
-        print("Creating MCP data tables...")
         cursor.execute("USE SCHEMA MCP_DATA")
 
         cursor.execute(
@@ -238,7 +231,6 @@ def update_snowflake_schemas():
         )
 
         # Create data quality monitoring
-        print("Creating data quality monitoring...")
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS PUBLIC.DATA_QUALITY_METRICS (
@@ -254,7 +246,6 @@ def update_snowflake_schemas():
         )
 
         # Create scheduled tasks
-        print("Creating scheduled tasks...")
         cursor.execute(
             """
             CREATE OR REPLACE TASK REFRESH_EXECUTIVE_VIEWS
@@ -295,8 +286,6 @@ def update_snowflake_schemas():
         cursor.execute("ALTER TASK REFRESH_EXECUTIVE_VIEWS RESUME")
         cursor.execute("ALTER TASK MONITOR_DATA_QUALITY RESUME")
 
-        print("✅ Snowflake schemas updated successfully!")
-
         # Generate summary
         cursor.execute(
             """
@@ -311,14 +300,12 @@ def update_snowflake_schemas():
         """
         )
 
-        print("\n📊 Schema Summary:")
-        for row in cursor.fetchall():
-            print(f"  {row[0]}: {row[1]} tables")
+        for _row in cursor.fetchall():
+            pass
 
         conn.close()
 
-    except Exception as e:
-        print(f"❌ Error updating Snowflake schemas: {e}")
+    except Exception:
         sys.exit(1)
 
 

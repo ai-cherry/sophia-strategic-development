@@ -21,11 +21,8 @@ from backend.services.unified_intelligence_service import (
 
 async def test_unified_intelligence():
     """Test the unified intelligence system"""
-    print("\n🚀 SOPHIA AI UNIFIED INTELLIGENCE SYSTEM TEST")
-    print("=" * 60)
 
     # Initialize services
-    print("\n1️⃣ Initializing Unified Intelligence Service...")
     unified_service = get_unified_intelligence_service()
 
     # Test queries
@@ -57,45 +54,28 @@ async def test_unified_intelligence():
     ]
 
     # Execute test queries
-    for i, test in enumerate(test_queries, 1):
-        print(f"\n2️⃣.{i} Testing Query: {test['query'][:80]}...")
-        print(f"   Context: {test['context']}")
-
+    for _i, test in enumerate(test_queries, 1):
         try:
             result = await unified_service.unified_business_query(
                 query=test["query"], context=test["context"]
             )
 
-            print("\n   ✅ RESULTS:")
-            print(f"   - Unified Insights: {result['unified_insights'][:200]}...")
-            print(
-                f"   - Constitutional Compliance: {result['constitutional_compliance']:.2f}"
-            )
-            print(f"   - Confidence Score: {result['confidence_score']:.2f}")
-
             if result.get("memory_context"):
-                print(
-                    f"   - Memory Context: {len(result['memory_context'])} memories found"
-                )
+                pass
 
             if result.get("business_data"):
-                print(
-                    f"   - Business Data Sources: {list(result['business_data'].keys())}"
-                )
+                pass
 
             if result.get("optimization_insights"):
-                print("   - Optimization Insights:")
-                for key, value in result["optimization_insights"].items():
-                    print(f"     • {key}: {value}")
+                for _key, _value in result["optimization_insights"].items():
+                    pass
 
-        except Exception as e:
-            print(f"   ❌ Error: {e}")
+        except Exception:
+            pass
 
 
 async def test_constitutional_ai():
     """Test the constitutional AI framework"""
-    print("\n\n3️⃣ TESTING CONSTITUTIONAL AI FRAMEWORK")
-    print("=" * 60)
 
     framework = SophiaConstitutionalFramework()
 
@@ -124,30 +104,23 @@ async def test_constitutional_ai():
     ]
 
     for test in test_cases:
-        print(f"\n   Testing: {test['query']}")
-        print(f"   User Role: {test['context']['user_role']}")
-
         result = await framework.validate_query(test["query"], test["context"])
 
-        status = "✅ Approved" if result["approved"] else "❌ Rejected"
-        print(f"   Result: {status} (Score: {result['compliance_score']:.2f})")
+        "✅ Approved" if result["approved"] else "❌ Rejected"
 
         if result.get("violations"):
-            print(f"   Violations: {[v['principle'] for v in result['violations']]}")
+            pass
 
         if result.get("suggestions"):
-            print(f"   Suggestions: {result['suggestions']}")
+            pass
 
 
 async def test_self_optimization():
     """Test the self-optimization engine"""
-    print("\n\n4️⃣ TESTING SELF-OPTIMIZATION ENGINE")
-    print("=" * 60)
 
     optimizer = SophiaSelfOptimizer()
 
     # Record some sample metrics
-    print("\n   Recording sample performance metrics...")
 
     # Simulate performance metrics
     metrics = [
@@ -159,7 +132,6 @@ async def test_self_optimization():
 
     for metric_name, value in metrics:
         optimizer.record_performance_metric(metric_name, value)
-        print(f"   • {metric_name}: {value}")
 
     # Get optimization opportunities
     performance_data = await optimizer.performance_tracker.collect_metrics()
@@ -167,29 +139,17 @@ async def test_self_optimization():
         performance_data
     )
 
-    print(f"\n   Found {len(opportunities)} optimization opportunities:")
     for opp in opportunities:
-        print(f"   • {opp['type']} (Priority: {opp['priority']})")
-        print(
-            f"     Current: {opp['current_value']:.3f} → Target: {opp['target_value']:.3f}"
-        )
-        print(f"     Actions: {', '.join(opp['actions'])}")
+        pass
 
     # Test constitutional validation of optimizations
-    print("\n   Validating optimizations with Constitutional AI...")
     for opp in opportunities[:2]:  # Test first two
         validation = await optimizer.constitutional_ai.validate_optimization(opp)
-        status = "✅ Approved" if validation["approved"] else "❌ Rejected"
-        print(
-            f"   • {opp['type']}: {status} (Score: {validation['compliance_score']:.2f})"
-        )
+        "✅ Approved" if validation["approved"] else "❌ Rejected"
 
 
 async def main():
     """Main test function"""
-    print("\n🌟 SOPHIA AI UNIFIED INTELLIGENCE ECOSYSTEM TEST")
-    print("Revolutionary AI System with Constitutional Constraints")
-    print("=" * 80)
 
     try:
         # Test unified intelligence
@@ -201,16 +161,7 @@ async def main():
         # Test self-optimization
         await test_self_optimization()
 
-        print("\n\n✅ ALL TESTS COMPLETED SUCCESSFULLY!")
-        print("\n📊 SUMMARY:")
-        print("• Unified Intelligence: Operational")
-        print("• Constitutional AI: Active and Validating")
-        print("• Self-Optimization: Ready for Continuous Improvement")
-        print("• Vector Intelligence: Routing Optimally")
-        print("\n🚀 The revolutionary AI ecosystem is ready for deployment!")
-
-    except Exception as e:
-        print(f"\n❌ Test failed with error: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()

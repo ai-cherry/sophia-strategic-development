@@ -1,5 +1,4 @@
 import asyncio
-import json
 import logging
 from datetime import datetime
 
@@ -100,7 +99,6 @@ async def main():
         health_report["unhealthyServices"] = unhealthy_services
 
     # Print results as a JSON object to be captured by N8N
-    print(json.dumps(health_report, indent=2))
     logging.info("Internal service health check complete.")
 
 

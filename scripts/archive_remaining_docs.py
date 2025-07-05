@@ -43,7 +43,6 @@ def archive_remaining_docs():
 
             # Skip if it's a core document
             if file in CORE_DOCS:
-                print(f"✅ KEEPING: {file} (core document)")
                 kept_count += 1
                 continue
 
@@ -66,10 +65,9 @@ def archive_remaining_docs():
             dst = os.path.join(archive_dir, category, file)
             try:
                 shutil.move(file_path, dst)
-                print(f"📦 Archived: {file} → {category}/")
                 archived_count += 1
-            except Exception as e:
-                print(f"❌ Error archiving {file}: {e}")
+            except Exception:
+                pass
 
     # Create index
     with open(f"{archive_dir}/INDEX.md", "w") as f:
@@ -83,18 +81,12 @@ def archive_remaining_docs():
         for doc in CORE_DOCS:
             f.write(f"- {doc}\n")
 
-    print("\n📊 Summary:")
-    print(f"   Archived: {archived_count} files")
-    print(f"   Kept: {kept_count} core files")
-    print(f"📝 Index created: {archive_dir}/INDEX.md")
-
     # Create missing core documents
     create_missing_core_docs()
 
 
 def create_missing_core_docs():
     """Create any missing core documents"""
-    print("\n📝 Creating missing core documents...")
 
     # Create DEPLOYMENT_CHECKLIST.md if missing
     if not os.path.exists("docs/DEPLOYMENT_CHECKLIST.md"):
@@ -121,7 +113,6 @@ def create_missing_core_docs():
 - [ ] Check performance metrics
 """
             )
-        print("✅ Created DEPLOYMENT_CHECKLIST.md")
 
     # Create DEVELOPMENT_QUICKSTART.md if missing
     if not os.path.exists("docs/DEVELOPMENT_QUICKSTART.md"):
@@ -178,7 +169,6 @@ See the [System Handbook](system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md) for d
 - Review [Immediate Actions](IMMEDIATE_REMEDIATION_ACTIONS.md) for ongoing work
 """
             )
-        print("✅ Created DEVELOPMENT_QUICKSTART.md")
 
 
 if __name__ == "__main__":

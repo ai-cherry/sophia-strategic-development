@@ -434,30 +434,22 @@ async def main():
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python enhanced_n8n_cli_manager.py <command>")
-        print(
-            "Commands: export, import, backup, monitor, create-workflows, install-nodes"
-        )
         return
 
     command = sys.argv[1]
 
     async with N8NCliManager() as n8n_manager:
         if command == "export":
-            result = await n8n_manager.export_workflows()
-            print(f"Export result: {result}")
+            await n8n_manager.export_workflows()
 
         elif command == "backup":
-            result = await n8n_manager.backup_n8n_data()
-            print(f"Backup result: {result}")
+            await n8n_manager.backup_n8n_data()
 
         elif command == "monitor":
-            result = await n8n_manager.monitor_workflows()
-            print(f"Monitoring result: {result}")
+            await n8n_manager.monitor_workflows()
 
         elif command == "create-workflows":
-            result = await n8n_manager.create_sophia_ai_workflows()
-            print(f"Workflow creation result: {result}")
+            await n8n_manager.create_sophia_ai_workflows()
 
         elif command == "install-nodes":
             # Install common Sophia AI community nodes
@@ -466,11 +458,10 @@ async def main():
                 "n8n-nodes-hubspot-enhanced",
                 "n8n-nodes-snowflake",
             ]
-            result = await n8n_manager.install_community_nodes(nodes)
-            print(f"Node installation result: {result}")
+            await n8n_manager.install_community_nodes(nodes)
 
         else:
-            print(f"Unknown command: {command}")
+            pass
 
 
 if __name__ == "__main__":

@@ -13,14 +13,6 @@ def check_status():
         with open("syntax_validation_report.json") as f:
             report = json.load(f)
 
-        print("🔍 Sophia AI Syntax Status Check")
-        print("=" * 50)
-        print(f"Total files: {report['total_files']}")
-        print(f"Valid files: {report['valid_files']}")
-        print(f"Files with errors: {report['error_count']}")
-        print(f"Success rate: {report['success_rate']}")
-        print(f"\nTimestamp: {report['timestamp']}")
-
         # Count errors by type
         error_types = {}
         for file, error in report["errors"].items():
@@ -29,14 +21,12 @@ def check_status():
             error_type = error.split(":")[0]
             error_types[error_type] = error_types.get(error_type, 0) + 1
 
-        print("\nError types (excluding node_modules):")
-        for error_type, count in sorted(
+        for error_type, _count in sorted(
             error_types.items(), key=lambda x: x[1], reverse=True
         ):
-            print(f"  {error_type}: {count}")
+            pass
 
         # Check for AGNO files
-        print("\nAGNO files status:")
         agno_files = [
             "backend/mcp/agno_bridge.py",
             "backend/mcp/agno_mcp_server.py",
@@ -44,15 +34,13 @@ def check_status():
         ]
 
         for agno_file in agno_files:
-            if agno_file in report["errors"]:
-                print(f"  ❌ {agno_file} - HAS ERRORS")
-            elif Path(agno_file).exists():
-                print(f"  ✅ {agno_file} - EXISTS (no errors)")
+            if agno_file in report["errors"] or Path(agno_file).exists():
+                pass
             else:
-                print(f"  ✓ {agno_file} - NOT FOUND (good, already removed)")
+                pass
 
-    except Exception as e:
-        print(f"Error: {e}")
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":

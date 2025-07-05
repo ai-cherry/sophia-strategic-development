@@ -476,11 +476,6 @@ def main():
         result = analyzer.analyze_codebase(args.github_event, args.branch, args.commit)
         analyzer.save_results(result, args.output)
 
-        print(f"✅ Analysis complete - Quality Score: {result.quality_score}/100")
-        print(f"📊 Security Issues: {result.security_issues}")
-        print(f"⚡ Performance Opportunities: {result.performance_opportunities}")
-        print(f"🎯 Recommendations: {len(result.recommendations)}")
-
         return 0
 
     except Exception as e:

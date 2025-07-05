@@ -9,8 +9,6 @@ import re
 
 def extract_github_workflow_secrets():
     """Extract all secrets from GitHub Actions workflow"""
-    print("🔍 EXTRACTING SECRETS FROM GITHUB ACTIONS WORKFLOW")
-    print("=" * 60)
 
     workflow_file = ".github/workflows/sync_secrets.yml"
 
@@ -23,8 +21,6 @@ def extract_github_workflow_secrets():
 
     # Remove duplicates and sort
     unique_secrets = sorted(set(secrets))
-
-    print(f"📊 Found {len(unique_secrets)} unique secrets in GitHub Actions workflow:")
 
     # Categorize secrets
     categories = {
@@ -100,19 +96,16 @@ def extract_github_workflow_secrets():
         else:
             categories["Security"].append(secret)  # Default to security
 
-    for category, secrets_list in categories.items():
+    for _category, secrets_list in categories.items():
         if secrets_list:
-            print(f"\n  📂 {category} ({len(secrets_list)} secrets):")
             for secret in secrets_list:
-                print(f"    - {secret}")
+                pass
 
     return unique_secrets, categories
 
 
 def extract_sync_script_mappings():
     """Extract current mappings from sync script"""
-    print("\n🔍 EXTRACTING CURRENT SYNC SCRIPT MAPPINGS")
-    print("=" * 50)
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
@@ -123,17 +116,14 @@ def extract_sync_script_mappings():
     mappings_pattern = r'"([A-Z_]+)":\s*"([a-z_]+)"'
     mappings = re.findall(mappings_pattern, content)
 
-    print(f"📊 Found {len(mappings)} mappings in sync script:")
-    for github_secret, pulumi_key in mappings:
-        print(f"  {github_secret} → {pulumi_key}")
+    for _github_secret, _pulumi_key in mappings:
+        pass
 
     return dict(mappings)
 
 
 def generate_complete_mappings(github_secrets, categories):
     """Generate complete mappings for all GitHub secrets"""
-    print("\n🔧 GENERATING COMPLETE MAPPINGS FOR ALL SECRETS")
-    print("=" * 55)
 
     complete_mappings = {}
 
@@ -143,22 +133,17 @@ def generate_complete_mappings(github_secrets, categories):
         pulumi_key = secret.lower()
         complete_mappings[secret] = pulumi_key
 
-    print(f"📊 Generated {len(complete_mappings)} complete mappings:")
-
     # Group by category for display
-    for category, secrets_list in categories.items():
+    for _category, secrets_list in categories.items():
         if secrets_list:
-            print(f"\n  📂 {category}:")
             for secret in secrets_list:
-                print(f'    "{secret}": "{complete_mappings[secret]}",')
+                pass
 
     return complete_mappings
 
 
 def identify_conflicts_and_gaps(github_secrets, current_mappings):
     """Identify conflicts and gaps between GitHub and sync script"""
-    print("\n🔍 IDENTIFYING CONFLICTS AND GAPS")
-    print("=" * 40)
 
     github_set = set(github_secrets)
     sync_set = set(current_mappings.keys())
@@ -166,29 +151,19 @@ def identify_conflicts_and_gaps(github_secrets, current_mappings):
     missing_from_sync = github_set - sync_set
     extra_in_sync = sync_set - github_set
 
-    print("📊 ANALYSIS RESULTS:")
-    print(f"  GitHub secrets: {len(github_secrets)}")
-    print(f"  Sync mappings: {len(current_mappings)}")
-    print(f"  Missing from sync: {len(missing_from_sync)}")
-    print(f"  Extra in sync: {len(extra_in_sync)}")
-
     if missing_from_sync:
-        print(f"\n❌ MISSING FROM SYNC SCRIPT ({len(missing_from_sync)} secrets):")
-        for secret in sorted(missing_from_sync):
-            print(f"    - {secret}")
+        for _secret in sorted(missing_from_sync):
+            pass
 
     if extra_in_sync:
-        print(f"\n⚠️ EXTRA IN SYNC SCRIPT ({len(extra_in_sync)} secrets):")
-        for secret in sorted(extra_in_sync):
-            print(f"    - {secret}")
+        for _secret in sorted(extra_in_sync):
+            pass
 
     return missing_from_sync, extra_in_sync
 
 
 def update_sync_script_with_complete_mappings(complete_mappings):
     """Update sync script with complete mappings"""
-    print("\n🔧 UPDATING SYNC SCRIPT WITH COMPLETE MAPPINGS")
-    print("=" * 55)
 
     sync_file = "scripts/ci/sync_from_gh_to_pulumi.py"
 
@@ -215,7 +190,7 @@ def update_sync_script_with_complete_mappings(complete_mappings):
         ],
         "Extended AI Services": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(
                 x in k
                 for x in [
@@ -236,16 +211,16 @@ def update_sync_script_with_complete_mappings(complete_mappings):
         ],
         "Business Intelligence": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(
                 x in k for x in ["GONG", "HUBSPOT", "SALESFORCE", "LINEAR", "NOTION"]
             )
             and k not in ["GONG_ACCESS_KEY"]
         ],
-        "Communication": [k for k in complete_mappings.keys() if "SLACK" in k],
+        "Communication": [k for k in complete_mappings if "SLACK" in k],
         "Data Infrastructure": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(
                 x in k
                 for x in ["SNOWFLAKE", "PINECONE", "WEAVIATE", "DATABASE", "REDIS"]
@@ -254,34 +229,34 @@ def update_sync_script_with_complete_mappings(complete_mappings):
         ],
         "Cloud Infrastructure": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(x in k for x in ["LAMBDA", "VERCEL", "VULTR", "PULUMI"])
         ],
         "Observability": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(x in k for x in ["ARIZE", "GRAFANA", "PROMETHEUS"])
         ],
         "Research Tools": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(
                 x in k for x in ["APIFY", "SERP", "TAVILY", "EXA", "BRAVE", "ZENROWS"]
             )
         ],
         "Development Tools": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(x in k for x in ["GH_API", "RETOOL", "DOCKER", "NPM"])
         ],
         "Data Integration": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(x in k for x in ["ESTUARY", "PIPEDREAM"])
         ],
         "Security": [
             k
-            for k in complete_mappings.keys()
+            for k in complete_mappings
             if any(x in k for x in ["JWT", "ENCRYPTION", "API_SECRET"])
         ],
     }
@@ -307,13 +282,9 @@ def update_sync_script_with_complete_mappings(complete_mappings):
     with open(sync_file, "w") as f:
         f.write(content)
 
-    print(f"✅ Updated sync script with {len(complete_mappings)} complete mappings")
-
 
 def main():
     """Run comprehensive secrets audit and alignment"""
-    print("🚀 COMPREHENSIVE GITHUB ORGANIZATION SECRETS AUDIT")
-    print("=" * 70)
 
     # Extract secrets from GitHub workflow
     github_secrets, categories = extract_github_workflow_secrets()
@@ -329,20 +300,6 @@ def main():
 
     # Update sync script
     update_sync_script_with_complete_mappings(complete_mappings)
-
-    print("\n🎉 COMPREHENSIVE AUDIT COMPLETE!")
-    print("=" * 40)
-    print(f"✅ Analyzed {len(github_secrets)} GitHub secrets")
-    print(f"✅ Generated {len(complete_mappings)} complete mappings")
-    print("✅ Updated sync script with ALL secrets")
-    print(f"✅ Eliminated {len(missing)} missing mappings")
-    print("✅ Ready for complete GitHub→Pulumi ESC sync")
-
-    print("\n🚀 NEXT STEPS:")
-    print("1. Commit updated sync script")
-    print("2. Push to trigger GitHub Actions")
-    print("3. Verify all secrets sync to Pulumi ESC")
-    print("4. Test Lambda Labs and other service access")
 
 
 if __name__ == "__main__":

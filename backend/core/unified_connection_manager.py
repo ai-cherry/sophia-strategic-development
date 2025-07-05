@@ -288,9 +288,10 @@ class ConnectionPool:
                     connection.close()
 
                 await asyncio.to_thread(_sync_close)
-            elif self.connection_type == ConnectionType.POSTGRES:
-                await connection.close()
-            elif self.connection_type == ConnectionType.REDIS:
+            elif (
+                self.connection_type == ConnectionType.POSTGRES
+                or self.connection_type == ConnectionType.REDIS
+            ):
                 await connection.close()
         except Exception as e:
             logger.error(f"Error closing {self.connection_type} connection: {e}")

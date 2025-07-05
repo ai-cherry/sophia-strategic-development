@@ -7,7 +7,7 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional, List, Dict
+from typing import Any
 
 import snowflake.connector
 from snowflake.connector import DictCursor
@@ -23,7 +23,7 @@ class AIQueryResult:
 
     query_id: str
     results: list[dict[str, Any]]
-    ai_insights: Optional[str] = None
+    ai_insights: str | None = None
     confidence_score: float = 0.0
     processing_time_ms: float = 0.0
     cost_estimate: float = 0.0
@@ -46,13 +46,13 @@ class SnowflakeCortexAISQLService:
         if not self.conn or self.conn.is_closed():
             try:
                 self.conn = snowflake.connector.connect(
-                    account=self.config['account'],
-                    user=self.config['user'],
-                    password=self.config['password'],
-                    role=self.config['role'],
-                    warehouse=self.config['warehouse'],
-                    database=self.config['database'],
-                    schema=self.config['schema']
+                    account=self.config["account"],
+                    user=self.config["user"],
+                    password=self.config["password"],
+                    role=self.config["role"],
+                    warehouse=self.config["warehouse"],
+                    database=self.config["database"],
+                    schema=self.config["schema"],
                 )
                 logger.info(f"Connected to Snowflake: {self.config['account']}")
             except Exception as e:
@@ -163,7 +163,7 @@ class SnowflakeCortexAISQLService:
     async def ai_knowledge_search(
         self,
         search_query: str,
-        document_types: Optional[list[str]] = None,
+        document_types: list[str] | None = None,
         use_multimodal: bool = True,
     ) -> AIQueryResult:
         """
@@ -345,7 +345,7 @@ class SnowflakeCortexAISQLService:
         Knowledge Search Results:
         - Found {len(results)} relevant documents
         - Highest relevance score: {results[0].get('similarity_score', 0):.2f}
-        - Document types: {', '.join(set(r.get('document_type', 'unknown') for r in results[:5]))}
+        - Document types: {', '.join({r.get('document_type', 'unknown') for r in results[:5]})}
         """
 
     def _calculate_search_confidence(self, results: list[dict]) -> float:

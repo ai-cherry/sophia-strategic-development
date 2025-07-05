@@ -158,10 +158,9 @@ class User:
             return True
 
         # Sales managers can view their team's deals
-        if self.role == UserRole.SALES_MANAGER and deal_team_id == self.team_id:
-            return True
-
-        return False
+        return bool(
+            self.role == UserRole.SALES_MANAGER and deal_team_id == self.team_id
+        )
 
     def can_modify_deal(self, deal_owner_id: str) -> bool:
         """

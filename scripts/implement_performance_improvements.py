@@ -353,12 +353,8 @@ async def main():
         success = await implementer.run_implementation()
 
         if success:
-            print("🎉 Critical performance improvements implemented successfully!")
-            print("📝 See PERFORMANCE_IMPROVEMENTS_REPORT.md for details")
             return 0
         else:
-            print("⚠️ Some improvements failed or need attention")
-            print("📝 Check PERFORMANCE_IMPROVEMENTS_REPORT.md for details")
             return 1
 
     except Exception as e:

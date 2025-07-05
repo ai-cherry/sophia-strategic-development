@@ -179,7 +179,7 @@ class EnhancedKnowledgeBaseService:
             result = {
                 "success": True,
                 "session_id": session_id,
-                "improvements_made": {"tags_updated": True if knowledge_id else False},
+                "improvements_made": {"tags_updated": bool(knowledge_id)},
             }
 
             logger.info(f"Teaching session completed: {session_id}")

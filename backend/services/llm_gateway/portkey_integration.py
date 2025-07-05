@@ -4,9 +4,8 @@ Portkey AI Integration
 Quality-optimized LLM routing with intelligent caching and fallback
 """
 
-import asyncio
 import time
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 
@@ -77,8 +76,8 @@ class PortkeyIntegration:
     async def execute(
         self,
         query: str,
-        context: Optional[str] = None,
-        settings: Optional[dict[str, Any]] = None,
+        context: str | None = None,
+        settings: dict[str, Any] | None = None,
     ) -> str:
         """
         Execute query through Portkey with quality optimization
@@ -114,8 +113,8 @@ class PortkeyIntegration:
             return await self._quality_fallback(query, context, settings)
 
     async def _check_semantic_cache(
-        self, query: str, context: Optional[str]
-    ) -> Optional[str]:
+        self, query: str, context: str | None
+    ) -> str | None:
         """Check semantic cache for similar queries"""
         cache_key = self._generate_cache_key(query, context)
 
@@ -133,7 +132,7 @@ class PortkeyIntegration:
             "semantic_similarity_threshold"
         ]
 
-        for cached_key, cache_entry in self.response_cache.items():
+        for _cached_key, cache_entry in self.response_cache.items():
             if (
                 time.time() - cache_entry["timestamp"]
                 < self.quality_config["intelligent_caching"]["cache_ttl_seconds"]
@@ -148,7 +147,7 @@ class PortkeyIntegration:
         return None
 
     def _prepare_quality_request(
-        self, query: str, context: Optional[str], settings: Optional[dict[str, Any]]
+        self, query: str, context: str | None, settings: dict[str, Any] | None
     ) -> dict[str, Any]:
         """Prepare request with quality optimization settings"""
         # Base request
@@ -225,7 +224,7 @@ class PortkeyIntegration:
                         )
                         raise Exception(f"API error: {response.status}")
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.error("Portkey API timeout")
                 raise
             except Exception as e:
@@ -260,7 +259,7 @@ class PortkeyIntegration:
         return True
 
     async def _quality_fallback(
-        self, query: str, context: Optional[str], settings: Optional[dict[str, Any]]
+        self, query: str, context: str | None, settings: dict[str, Any] | None
     ) -> str:
         """Quality-based fallback mechanism"""
         logger.info("Executing quality fallback")
@@ -292,7 +291,7 @@ class PortkeyIntegration:
             "may not meet our usual quality standards."
         )
 
-    async def _update_cache(self, query: str, context: Optional[str], response: str):
+    async def _update_cache(self, query: str, context: str | None, response: str):
         """Update semantic cache with new response"""
         cache_key = self._generate_cache_key(query, context)
 
@@ -314,7 +313,7 @@ class PortkeyIntegration:
             for key in sorted_keys[: len(self.response_cache) - max_size]:
                 del self.response_cache[key]
 
-    def _generate_cache_key(self, query: str, context: Optional[str]) -> str:
+    def _generate_cache_key(self, query: str, context: str | None) -> str:
         """Generate cache key from query and context"""
         import hashlib
 
@@ -347,10 +346,7 @@ class PortkeyIntegration:
             return False
 
         # Check for repetition
-        if len(set(complete_sentences)) < len(complete_sentences) * 0.8:
-            return False
-
-        return True
+        return not len(set(complete_sentences)) < len(complete_sentences) * 0.8
 
     def _check_business_terms(self, response: str) -> bool:
         """Check if response contains business-relevant terms"""

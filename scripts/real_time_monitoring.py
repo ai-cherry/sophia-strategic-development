@@ -181,15 +181,10 @@ class RealTimeMonitor:
         self.clear_screen()
 
         # Header
-        print("🔍 SOPHIA AI REAL-TIME MONITORING DASHBOARD")
-        print("=" * 60)
-        print(f"🕒 Last Updated: {datetime.now().strftime('%H:%M:%S')}")
-        print(f"📊 Check Duration: {results['summary']['check_duration']}ms")
-        print()
 
         # Overall Status
         summary = results["summary"]
-        health_icon = (
+        (
             "🟢"
             if summary["health_percentage"] == 100
             else "🟡"
@@ -197,53 +192,35 @@ class RealTimeMonitor:
             else "🔴"
         )
 
-        print("📈 SYSTEM OVERVIEW")
-        print("-" * 30)
-        print(
-            f"{health_icon} Health: {summary['health_percentage']}% ({summary['healthy_services']}/{summary['total_services']})"
-        )
-        print(f"⚡ Avg Response: {summary['avg_response_time']}ms")
-        print(f"🎖️  Grade: {summary['performance_grade']}")
-        print()
-
         # Service Details
-        print("🔧 SERVICE STATUS")
-        print("-" * 30)
         for _service_id, service_data in results["services"].items():
-            icon = self.get_status_icon(service_data["status"])
-            name = service_data["name"]
-            port = service_data["port"]
+            self.get_status_icon(service_data["status"])
+            service_data["name"]
+            service_data["port"]
 
             if service_data["status"] == "healthy":
-                response_time = service_data["response_time"]
-                print(f"{icon} {name:<20} Port {port:<5} {response_time:>6.1f}ms")
+                service_data["response_time"]
             else:
-                error = service_data.get("error", "Unknown error")[:30]
-                print(f"{icon} {name:<20} Port {port:<5} {error}")
-
-        print()
+                service_data.get("error", "Unknown error")[:30]
 
         # Trends (if we have history)
         if len(self.metrics_history) > 1:
-            print("📊 TRENDS (Last 10 checks)")
-            print("-" * 30)
-
             recent_health = [m["health_percentage"] for m in self.metrics_history[-10:]]
             recent_response = [
                 m["avg_response_time"] for m in self.metrics_history[-10:]
             ]
 
-            avg_health = statistics.mean(recent_health)
-            avg_response = statistics.mean(recent_response)
+            statistics.mean(recent_health)
+            statistics.mean(recent_response)
 
-            health_trend = (
+            (
                 "📈"
                 if recent_health[-1] > recent_health[0]
                 else "📉"
                 if recent_health[-1] < recent_health[0]
                 else "➡️"
             )
-            response_trend = (
+            (
                 "📈"
                 if recent_response[-1] > recent_response[0]
                 else "📉"
@@ -251,20 +228,10 @@ class RealTimeMonitor:
                 else "➡️"
             )
 
-            print(f"Health Trend: {health_trend} {avg_health:.1f}% avg")
-            print(f"Response Trend: {response_trend} {avg_response:.1f}ms avg")
-            print()
-
         # Controls
-        print("🎮 CONTROLS")
-        print("-" * 30)
-        print("Press Ctrl+C to stop monitoring")
-        print("Refreshing every 5 seconds...")
 
     async def run_monitoring(self):
         """Run continuous monitoring"""
-        print("🚀 Starting Real-Time Monitoring...")
-        print("Press Ctrl+C to stop")
 
         try:
             while self.running:
@@ -278,10 +245,8 @@ class RealTimeMonitor:
                 await asyncio.sleep(5)
 
         except KeyboardInterrupt:
-            print("\n\n🛑 Monitoring stopped by user")
             self.running = False
-        except Exception as e:
-            print(f"\n\n💥 Monitoring error: {e}")
+        except Exception:
             self.running = False
 
 

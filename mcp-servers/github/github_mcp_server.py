@@ -8,7 +8,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -21,9 +21,7 @@ try:
         StandardizedMCPServer,
     )
     from backend.utils.custom_logger import setup_logger
-except ImportError as e:
-    print(f"Import error: {e}")
-    print("Please ensure you're running from the project root")
+except ImportError:
     sys.exit(1)
 
 logger = setup_logger("mcp.github")
@@ -32,7 +30,7 @@ logger = setup_logger("mcp.github")
 class GitHubMCPServer(StandardizedMCPServer):
     """GitHub integration MCP server"""
 
-    def __init__(self, config: Optional[ServerConfig] = None):
+    def __init__(self, config: ServerConfig | None = None):
         if not config:
             config = ServerConfig(
                 name="github",
@@ -139,7 +137,7 @@ class GitHubMCPServer(StandardizedMCPServer):
             repo: str,
             title: str,
             body: str,
-            labels: Optional[list[str]] = None,
+            labels: list[str] | None = None,
         ) -> dict[str, Any]:
             """Create a new issue"""
             try:

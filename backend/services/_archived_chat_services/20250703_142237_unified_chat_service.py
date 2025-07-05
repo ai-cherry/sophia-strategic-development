@@ -117,7 +117,7 @@ class UnifiedChatService:
 
     def get_supported_modes(self) -> list:
         """Get list of supported chat modes"""
-        return [mode.value for mode in self._services.keys()]
+        return [mode.value for mode in self._services]
 
     def get_service_capabilities(self, mode: ChatMode) -> list:
         """Get capabilities for a specific chat mode"""

@@ -6,7 +6,7 @@ to prevent circular imports.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 
 class BaseConfig(ABC):
@@ -27,7 +27,7 @@ class BaseSecurityConfig(BaseConfig):
     """Base security configuration interface."""
 
     @abstractmethod
-    def get_secret(self, key: str) -> Optional[str]:
+    def get_secret(self, key: str) -> str | None:
         """Get a secret value."""
         pass
 
@@ -66,7 +66,7 @@ class ServiceRegistry:
         """Register a service."""
         self._services[name] = service
 
-    def get(self, name: str) -> Optional[Any]:
+    def get(self, name: str) -> Any | None:
         """Get a registered service."""
         return self._services.get(name)
 

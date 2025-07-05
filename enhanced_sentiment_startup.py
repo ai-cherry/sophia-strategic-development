@@ -154,11 +154,13 @@ async def analyze_sentiment(data: dict[str, Any]):
             urgency = "high"
 
         # Urgency assessment
-        if any(
-            word in text_lower for word in ["urgent", "asap", "immediately", "critical"]
+        if (
+            any(
+                word in text_lower
+                for word in ["urgent", "asap", "immediately", "critical"]
+            )
+            or sentiment_score < -0.5
         ):
-            urgency = "high"
-        elif sentiment_score < -0.5:
             urgency = "high"
         elif sentiment_score < -0.2:
             urgency = "medium"

@@ -1,5 +1,4 @@
 import argparse
-import json
 import logging
 from pathlib import Path
 
@@ -96,10 +95,9 @@ def main():
     )
     args = parser.parse_args()
 
-    results = analyze_repositories(args.query)
+    analyze_repositories(args.query)
 
     # Print results as a JSON object to be captured by N8N or other scripts
-    print(json.dumps(results, indent=2))
 
 
 if __name__ == "__main__":

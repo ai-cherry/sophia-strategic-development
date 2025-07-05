@@ -58,12 +58,10 @@ async def get_chat_service() -> SophiaUnifiedChatService:
             try:
                 _chat_service_instance = SophiaUnifiedChatService()
                 # Add any initialization logic here
-            except Exception as e:
-                print(f"Warning: Failed to initialize chat service: {e}")
+            except Exception:
                 # Create a mock instance
                 _chat_service_instance = SophiaUnifiedChatService()
         else:
-            print("Warning: Chat service not available, using mock")
             _chat_service_instance = SophiaUnifiedChatService()
 
     return _chat_service_instance

@@ -6,6 +6,7 @@ Manages chat session state and persistence
 """
 
 import asyncio
+import contextlib
 import logging
 from datetime import timedelta
 
@@ -249,10 +250,8 @@ class SessionManager:
         """Close session manager and cleanup resources"""
         if self._cleanup_task:
             self._cleanup_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._cleanup_task
-            except asyncio.CancelledError:
-                pass
 
         self.logger.info("Session manager closed")
 

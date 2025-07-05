@@ -6,7 +6,7 @@ project health monitoring and insights for the unified dashboard.
 """
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, Field
@@ -23,7 +23,7 @@ class ProjectStatus(BaseModel):
     name: str
     status: str  # on_track, at_risk, delayed
     completion_percentage: float = Field(ge=0, le=100)
-    due_date: Optional[datetime] = None
+    due_date: datetime | None = None
     team_members: int
     open_issues: int
     completed_issues: int

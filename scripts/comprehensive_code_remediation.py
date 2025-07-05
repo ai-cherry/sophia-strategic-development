@@ -201,10 +201,11 @@ class ComprehensiveCodeRemediator:
 
                 # Find insertion point
                 for i, line in enumerate(lines):
-                    if line.strip().startswith(("import ", "from ")):
-                        insert_pos = i
-                        break
-                    elif line.strip() and not line.strip().startswith("#"):
+                    if (
+                        line.strip().startswith(("import ", "from "))
+                        or line.strip()
+                        and not line.strip().startswith("#")
+                    ):
                         insert_pos = i
                         break
 

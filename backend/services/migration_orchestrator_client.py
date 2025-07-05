@@ -10,7 +10,7 @@ Provides real-time monitoring, natural language commands, and executive oversigh
 import logging
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from pydantic import BaseModel
@@ -60,7 +60,7 @@ class MigrationMetrics(BaseModel):
     total_records: int
     success_rate: float  # 0-100
     errors_count: int
-    estimated_completion: Optional[datetime]
+    estimated_completion: datetime | None
     processing_speed: float  # records per minute
 
 
@@ -83,7 +83,7 @@ class MigrationOrchestratorClient:
         self.base_url = "http://localhost:9030"  # Migration orchestrator MCP server
         self.client = httpx.AsyncClient(timeout=30.0)
         self.current_status = MigrationStatus.NOT_STARTED
-        self.current_metrics: Optional[MigrationMetrics] = None
+        self.current_metrics: MigrationMetrics | None = None
         self.alerts: list[MigrationAlert] = []
         self.migration_history: list[dict[str, Any]] = []
 

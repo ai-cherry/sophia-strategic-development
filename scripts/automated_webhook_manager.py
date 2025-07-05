@@ -175,9 +175,8 @@ class AutomatedWebhookManager:
             "details": details,
         }
         self.deployment_log.append(log_entry)
-        print(f"[{timestamp}] {status}: {step}")
         if details:
-            print(f"    {details}")
+            pass
 
     async def deploy_all_webhooks(self) -> dict[str, Any]:
         """Deploy all webhook configurations automatically."""
@@ -488,6 +487,6 @@ async def deploy_automated_webhooks():
 if __name__ == "__main__":
     result = asyncio.run(deploy_automated_webhooks())
     if result["success"]:
-        print("🎉 All Webhooks Deployed Successfully!")
+        pass
     else:
-        print("❌ Webhook Deployment Had Issues - Check logs for details")
+        pass

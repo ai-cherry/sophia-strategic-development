@@ -7,7 +7,7 @@ unified, role-aware chat API for Sophia AI Platform.
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/api/chat", tags=["Unified Chat"])
 # Request/Response Models
 class ChatRequest(BaseModel):
     message: str = Field(..., description="User message")
-    session_id: Optional[str] = Field(default=None, description="Session ID")
+    session_id: str | None = Field(default=None, description="Session ID")
     user_id: str = Field(default="user", description="User ID")
     context: dict[str, Any] = Field(default={}, description="Additional context")
 

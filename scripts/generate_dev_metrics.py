@@ -762,15 +762,10 @@ def main():
                 f.write(output)
             logger.info(f"📊 Metrics saved to {args.output}")
         else:
-            print(output)
+            pass
 
         # Print summary
-        scores = metrics["overall_scores"]
-        print("\n📊 Development Health Summary:")
-        print(f"Overall Health: {scores['overall_health']:.1f}/100")
-        print(f"Quality: {scores['code_quality']:.1f}/100")
-        print(f"Testing: {scores['testing_maturity']:.1f}/100")
-        print(f"Integration: {scores['integration_completeness']:.1f}/100")
+        metrics["overall_scores"]
 
         return 0
 

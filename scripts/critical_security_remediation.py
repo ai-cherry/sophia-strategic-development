@@ -291,22 +291,7 @@ def main():
     results = remediator.fix_all_critical_vulnerabilities()
 
     # Print summary
-    total_fixes = sum(results["vulnerabilities_fixed"].values())
-    print("\n" + "=" * 60)
-    print("🚨 CRITICAL SECURITY REMEDIATION COMPLETE")
-    print("=" * 60)
-    print(f"Total vulnerabilities fixed: {total_fixes}")
-    print(f"Files modified: {len(results['files_modified'])}")
-    print(
-        f"SQL Injection fixes: {results['vulnerabilities_fixed'].get('sql_injection', 0)}"
-    )
-    print(
-        f"Command Injection fixes: {results['vulnerabilities_fixed'].get('command_injection', 0)}"
-    )
-    print(
-        f"Hardcoded Secret fixes: {results['vulnerabilities_fixed'].get('hardcoded_secrets', 0)}"
-    )
-    print("=" * 60)
+    sum(results["vulnerabilities_fixed"].values())
 
     # Exit with appropriate code
     sys.exit(0 if results["success"] else 1)

@@ -33,15 +33,21 @@
     "codacy": {
       "command": "python",
       "args": [
-        "mcp-servers/codacy/production_codacy_server.py"
+        "mcp-servers/codacy/simple_codacy_server.py"
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "PYTHONPATH": ".",
+        "PORT": "3008"
       },
-      "port": 9000,
+      "port": 3008,
       "cwd": ".",
-      "capabilities": [],
+      "capabilities": [
+        "code_analysis",
+        "security_scanning",
+        "complexity_analysis",
+        "quality_metrics"
+      ],
       "health_endpoint": "/health"
     },
     "ui_ux_agent": {

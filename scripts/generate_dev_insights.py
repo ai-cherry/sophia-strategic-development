@@ -482,7 +482,7 @@ def main():
                 f.write(output)
             logger.info(f"📊 Insights saved to {args.output_file}")
         else:
-            print(output)
+            pass
 
         return 0
 

@@ -21,6 +21,6 @@ class Config(BaseModel):
 
         esc_config = AutoESCConfig()
         data: dict[str, Any] = {
-            field: esc_config.get(field) for field in cls.model_fields.keys()
+            field: esc_config.get(field) for field in cls.model_fields
         }
         return cls(**data)

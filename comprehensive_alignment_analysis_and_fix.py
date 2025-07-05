@@ -636,11 +636,8 @@ def main():
     success = analyzer.run_comprehensive_analysis()
 
     if success:
-        print("🎉 COMPREHENSIVE ALIGNMENT ANALYSIS COMPLETED SUCCESSFULLY!")
-        print("📊 Report saved to: /home/ubuntu/comprehensive_alignment_report.md")
         return 0
     else:
-        print("❌ COMPREHENSIVE ALIGNMENT ANALYSIS FAILED!")
         return 1
 
 

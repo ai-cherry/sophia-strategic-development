@@ -6,7 +6,7 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
@@ -355,7 +355,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
 
     async def _find_relevant_file(
         self, description: str, memory_context: list[dict]
-    ) -> Optional[str]:
+    ) -> str | None:
         """Find relevant file from description and memory"""
 
         # Check memory for recent file modifications

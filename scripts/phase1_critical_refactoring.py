@@ -844,29 +844,13 @@ def main():
     refactorer = Phase1CriticalRefactorer()
 
     if args.dry_run:
-        print("DRY RUN - Phase 1 would refactor:")
-        print("1. store_gong_call_insight (MCP Operations)")
-        print("2. analyze_pipeline_health (Sales Intelligence)")
-        print("3. unified_business_query (Executive Dashboard)")
         return
 
     results = refactorer.run_phase1_refactoring()
 
-    print("\n" + "=" * 60)
-    print("PHASE 1 CRITICAL REFACTORING COMPLETE")
-    print("=" * 60)
-    print(f"Functions Refactored: {results['functions_refactored']}")
-    print(f"Files Modified: {results['files_modified']}")
-    print(f"Categories Completed: {results['categories_completed']}/3")
-    print(f"Errors: {results['errors']}")
-
     if results["errors"] > 0:
-        print("\nErrors encountered:")
-        for error in refactorer.errors:
-            print(f"  - {error}")
-
-    print("\nSee PHASE1_CRITICAL_REFACTORING_REPORT.md for detailed results")
-    print("=" * 60)
+        for _error in refactorer.errors:
+            pass
 
 
 if __name__ == "__main__":

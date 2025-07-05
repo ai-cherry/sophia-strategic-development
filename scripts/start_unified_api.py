@@ -16,7 +16,6 @@ sys.path.insert(0, str(backend_path.parent))
 
 def fix_immediate_issues():
     """Fix immediate blocking issues"""
-    print("🔧 Fixing immediate issues...")
 
     # Fix snowflake_cortex_service.py indentation
     cortex_file = backend_path / "utils" / "snowflake_cortex_service.py"
@@ -41,8 +40,6 @@ def fix_immediate_issues():
         with open(cortex_file, "w") as f:
             f.write("\n".join(fixed_lines))
 
-        print("✅ Fixed snowflake_cortex_service.py indentation")
-
     # Fix MCPServerEndpoint in mcp_orchestration_service.py
     mcp_file = backend_path / "services" / "mcp_orchestration_service.py"
     if mcp_file.exists():
@@ -58,10 +55,7 @@ def fix_immediate_issues():
         with open(mcp_file, "w") as f:
             f.write(content)
 
-        print("✅ Fixed MCPServerEndpoint initialization")
-
     # Install missing dependencies
-    print("📦 Installing missing dependencies...")
     deps = ["slowapi", "python-multipart", "prometheus-client"]
     for dep in deps:
         subprocess.run(
@@ -69,12 +63,10 @@ def fix_immediate_issues():
             capture_output=True,
             text=True,
         )
-    print("✅ Installed dependencies")
 
 
 def create_simple_unified_api():
     """Create a simple unified API that works"""
-    print("\n🏗️ Creating simple unified API...")
 
     api_content = '''"""
 Sophia AI Unified API - Simple Working Version
@@ -146,13 +138,11 @@ if __name__ == "__main__":
     with open(api_file, "w") as f:
         f.write(api_content)
 
-    print("✅ Created simple_unified_api.py")
     return api_file
 
 
 def start_api(api_file):
     """Start the unified API"""
-    print(f"\n🚀 Starting Unified API from {api_file}...")
 
     # Change to backend directory
     os.chdir(backend_path.parent)
@@ -160,21 +150,16 @@ def start_api(api_file):
     # Start the API
     cmd = [sys.executable, str(api_file)]
 
-    print(f"Running: {' '.join(cmd)}")
-    print("=" * 60)
-
     try:
         subprocess.run(cmd)
     except KeyboardInterrupt:
-        print("\n\n👋 API stopped by user")
-    except Exception as e:
-        print(f"\n❌ Error starting API: {e}")
+        pass
+    except Exception:
+        pass
 
 
 def main():
     """Main execution"""
-    print("🚀 Sophia AI Unified API Starter")
-    print("=" * 60)
 
     # Fix immediate issues
     fix_immediate_issues()

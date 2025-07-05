@@ -72,11 +72,9 @@ class MCPServerSync:
         # For local, we'd restart the process
 
         self.results["actions_taken"].append(f"Restarted {server_name}")
-        print(f"🔄 Restarted {server_name}")
 
     async def sync_all_servers(self):
         """Sync all MCP servers"""
-        print("🔄 Syncing all MCP servers...")
 
         config = await self.load_config()
         servers = config.get("mcpServers", {})
@@ -107,18 +105,16 @@ class MCPServerSync:
 
             # Take action based on health
             if health["status"] == "offline":
-                print(f"❌ {server_name} is offline")
                 # Try to restart
                 await self.restart_server(server_name)
             elif health["status"] == "unhealthy":
-                print(f"⚠️ {server_name} is unhealthy: {health.get('error')}")
+                pass
             else:
-                print(f"✅ {server_name} is healthy (v{health.get('version')})")
+                pass
 
         # Add missing servers
         for server_name in expected_servers:
             if server_name not in servers:
-                print(f"➕ Adding configuration for {server_name}")
                 await self.update_server_config(
                     server_name,
                     {
@@ -185,14 +181,11 @@ class MCPServerSync:
 
             self.results["actions_taken"].append("Updated Snowflake MCP_SERVER_STATUS")
 
-        except Exception as e:
-            print(f"⚠️ Failed to update Snowflake: {e}")
+        except Exception:
+            pass
 
     def generate_report(self):
         """Generate sync report"""
-        print("\n" + "=" * 60)
-        print("📊 MCP SERVER SYNC REPORT")
-        print("=" * 60)
 
         # Server status summary
         total = len(self.results["servers"])
@@ -200,14 +193,10 @@ class MCPServerSync:
             1 for s in self.results["servers"].values() if s["status"] == "healthy"
         )
 
-        print(f"\n✅ Healthy: {healthy}/{total}")
-        print(f"⚠️ Issues: {total - healthy}/{total}")
-
         # Actions taken
         if self.results["actions_taken"]:
-            print("\n📝 Actions Taken:")
             for action in self.results["actions_taken"]:
-                print(f"   - {action}")
+                pass
 
         # Save report
         report_file = Path("docs/MCP_SYNC_REPORT.md")
@@ -242,8 +231,6 @@ class MCPServerSync:
                 f.write("\n## Actions Taken\n\n")
                 for action in self.results["actions_taken"]:
                     f.write(f"- {action}\n")
-
-        print(f"\n📄 Full report saved to: {report_file}")
 
 
 async def main():

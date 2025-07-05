@@ -6,7 +6,7 @@ Extends unified chat to handle infrastructure commands
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -39,9 +39,9 @@ class IntentClassification(BaseModel):
     """Result of intent classification"""
 
     category: IntentCategory
-    intent_type: Optional[str] = None
+    intent_type: str | None = None
     is_read_only: bool = True
-    target: Optional[str] = None
+    target: str | None = None
     confidence: float = Field(ge=0, le=1)
     requires_approval: bool = False
     extracted_params: dict[str, Any] = Field(default_factory=dict)
@@ -76,12 +76,12 @@ class ExecutionPlan(BaseModel):
     intent: str
     user_id: str
     steps: list[ExecutionStep]
-    simulation: Optional[SimulationResult] = None
+    simulation: SimulationResult | None = None
     risk_level: RiskLevel
     estimated_duration: int  # seconds
     created_at: datetime
     expires_at: datetime
-    rollback_plan: Optional[dict[str, Any]] = None
+    rollback_plan: dict[str, Any] | None = None
 
 
 class AIaCResponse(BaseModel):
@@ -89,7 +89,7 @@ class AIaCResponse(BaseModel):
 
     type: str  # "approval_required", "executed", "info", "error"
     content: Any
-    plan_id: Optional[str] = None
+    plan_id: str | None = None
     requires_approval: bool = False
 
 
@@ -205,7 +205,7 @@ class AIaCIntentClassifier:
         else:
             return "unknown"
 
-    def _extract_target(self, message: str) -> Optional[str]:
+    def _extract_target(self, message: str) -> str | None:
         """Extract the target service"""
         for service, patterns in self.target_patterns.items():
             if any(pattern in message for pattern in patterns):

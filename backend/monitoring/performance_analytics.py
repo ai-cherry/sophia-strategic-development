@@ -201,9 +201,11 @@ class PerformanceAnalytics:
         compliance = {}
 
         for name, metric in metrics.items():
-            if "error_rate" in name.lower():
-                compliance[name] = metric.current_value <= metric.target_value
-            elif "response_time" in name.lower() or "query_time" in name.lower():
+            if (
+                "error_rate" in name.lower()
+                or "response_time" in name.lower()
+                or "query_time" in name.lower()
+            ):
                 compliance[name] = metric.current_value <= metric.target_value
             else:
                 compliance[name] = metric.current_value >= metric.target_value

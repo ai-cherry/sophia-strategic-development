@@ -3,8 +3,7 @@ import json
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Any, Optional
-from typing import Optional as OptionalType
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Connection pool configuration
-pool: OptionalType[Any] = None
+pool: Any | None = None
 
 
 @asynccontextmanager
@@ -67,13 +66,13 @@ app.add_middleware(
 # Models
 class AISQLQuery(BaseModel):
     query: str = Field(..., description="Natural language query")
-    context: Optional[dict[str, Any]] = Field(None, description="Additional context")
+    context: dict[str, Any] | None = Field(None, description="Additional context")
     model: str = Field("llama3.1-70b", description="Cortex model to use")
     temperature: float = Field(0.7, ge=0, le=1)
     max_tokens: int = Field(2000, ge=100, le=8000)
 
     @validator("query")
-    def validate_query(cls, v):
+    def validate_query(self, v):
         if not v or len(v.strip()) < 3:
             raise ValueError("Query must be at least 3 characters")
         if len(v) > 5000:
@@ -109,7 +108,7 @@ async def health() -> dict[str, Any]:
 def execute_with_retry(func, *args, **kwargs):
     """Execute function with exponential backoff retry"""
     config = RetryConfig()
-    last_exception: Optional[Exception] = None
+    last_exception: Exception | None = None
 
     for attempt in range(config.max_retries):
         try:

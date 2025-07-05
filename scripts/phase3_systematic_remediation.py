@@ -185,11 +185,9 @@ class Phase3SystematicRemediator:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.With, ast.AsyncWith):
+            if isinstance(
+                child, ast.If | ast.While | ast.For | ast.AsyncFor | ast.ExceptHandler
+            ) or isinstance(child, ast.With, ast.AsyncWith):
                 complexity += 1
             elif isinstance(child, ast.BoolOp):
                 complexity += len(child.values) - 1
@@ -799,28 +797,14 @@ def main():
     remediator.max_workers = min(args.max_workers, multiprocessing.cpu_count())
 
     if args.dry_run:
-        print("DRY RUN - Phase 3 would process:")
         categorized_issues = remediator.analyze_remaining_complexity_issues(
             args.root_path
         )
-        for pattern_type, issues in categorized_issues.items():
-            print(f"- {pattern_type}: {len(issues)} issues")
+        for _pattern_type, _issues in categorized_issues.items():
+            pass
         return
 
-    results = remediator.run_phase3_systematic_remediation(args.root_path)
-
-    print("\n" + "=" * 60)
-    print("PHASE 3 SYSTEMATIC REMEDIATION COMPLETE")
-    print("=" * 60)
-    print(f"Issues Processed: {results['total_processed']}")
-    print(f"Successful Refactoring: {results['successful_refactoring']}")
-    print(f"Files Modified: {results['files_modified']}")
-    print(f"Processing Rate: {results['processing_rate']:.1f} issues/second")
-    print(f"Execution Time: {results['execution_time_seconds']:.1f} seconds")
-    print(f"Errors: {results['errors_encountered']}")
-
-    print("\nSee PHASE3_SYSTEMATIC_REMEDIATION_REPORT.md for detailed results")
-    print("=" * 60)
+    remediator.run_phase3_systematic_remediation(args.root_path)
 
 
 if __name__ == "__main__":

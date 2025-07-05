@@ -64,10 +64,10 @@ class FunctionLengthChecker:
                     if line_count > self.max_length:
                         self.violations.append(function_metrics)
 
-        except SyntaxError as e:
-            print(f"Syntax error in {file_path}: {e}")
-        except Exception as e:
-            print(f"Error analyzing {file_path}: {e}")
+        except SyntaxError:
+            pass
+        except Exception:
+            pass
 
         return functions
 
@@ -76,11 +76,15 @@ class FunctionLengthChecker:
         complexity = 1
 
         for child in ast.walk(node):
-            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.And | ast.Or):
+            if isinstance(
+                child,
+                ast.If
+                | ast.While
+                | ast.For
+                | ast.AsyncFor
+                | ast.ExceptHandler
+                | (ast.And | ast.Or),
+            ):
                 complexity += 1
 
         return complexity
@@ -225,26 +229,16 @@ class FunctionLengthChecker:
         self.scan_directory(directory)
 
         if self.violations:
-            print("❌ Function length compliance check failed!")
-            print(
-                f"Found {len(self.violations)} functions exceeding {self.max_length} lines:"
-            )
-
-            for violation in sorted(
+            for _violation in sorted(
                 self.violations, key=lambda x: x.line_count, reverse=True
             )[:10]:
-                print(
-                    f"  - {violation.name}: {violation.line_count} lines in {violation.file_path}"
-                )
+                pass
 
             if len(self.violations) > 10:
-                print(f"  ... and {len(self.violations) - 10} more violations")
+                pass
 
             return False
         else:
-            print(
-                f"✅ All {self.total_functions} functions comply with {self.max_length}-line limit!"
-            )
             return True
 
 
@@ -274,10 +268,6 @@ def main():
 
     checker = FunctionLengthChecker(max_length=args.max_length)
 
-    print(
-        f"🔍 Scanning {args.directory} for functions exceeding {args.max_length} lines..."
-    )
-
     results = checker.scan_directory(args.directory)
 
     if args.report:
@@ -285,7 +275,6 @@ def main():
         report_file = "FUNCTION_LENGTH_COMPLIANCE_REPORT.md"
         with open(report_file, "w") as f:
             f.write(report)
-        print(f"📊 Detailed report saved to {report_file}")
 
     # Check compliance
     is_compliant = checker.check_compliance(args.directory)

@@ -110,7 +110,7 @@ class IntelligentCache:
 
     async def invalidate_pattern(self, pattern: str) -> int:
         """Invalidate cache entries matching pattern"""
-        keys_to_remove = [key for key in self.memory_cache.keys() if pattern in key]
+        keys_to_remove = [key for key in self.memory_cache if pattern in key]
 
         for key in keys_to_remove:
             del self.memory_cache[key]

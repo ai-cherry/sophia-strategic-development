@@ -36,9 +36,7 @@ class MCPFixTester:
         results = {}
 
         # Test snowflake_admin_mcp_server.py import
-        snowflake_admin_file = (
-            self.project_root / "backend/mcp_servers/snowflake_admin_mcp_server.py"
-        )
+        (self.project_root / "backend/mcp_servers/snowflake_admin_mcp_server.py")
 
         try:
             # Try to import the module
@@ -244,7 +242,7 @@ class MCPFixTester:
         # Calculate summary
         for category, tests in self.test_results.items():
             if category != "summary" and isinstance(tests, dict):
-                for test_name, passed in tests.items():
+                for _test_name, passed in tests.items():
                     self.test_results["summary"]["total_tests"] += 1
                     if passed:
                         self.test_results["summary"]["passed"] += 1

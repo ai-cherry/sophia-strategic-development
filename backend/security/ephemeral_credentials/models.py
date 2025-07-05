@@ -97,7 +97,7 @@ class EphemeralCredential(BaseModel):
     metadata: TokenMetadata = Field(default_factory=TokenMetadata)
 
     @validator("expires_at")
-    def validate_expiration(cls, v, values):
+    def validate_expiration(self, v, values):
         """Validate that expiration is in the future."""
         if "created_at" in values and v <= values["created_at"]:
             raise ValueError("Expiration time must be in the future")
@@ -142,7 +142,7 @@ class CredentialRequest(BaseModel):
     metadata: TokenMetadata | None = None
 
     @validator("ttl_seconds")
-    def validate_ttl(cls, v):
+    def validate_ttl(self, v):
         """Validate TTL is within allowed range."""
         min_ttl = 60  # 1 minute
         max_ttl = 86400 * 7  # 7 days

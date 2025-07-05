@@ -57,7 +57,6 @@ content = re.sub(pattern, snowflake_method, content, flags=re.DOTALL)
 with open(connection_manager_file, "w") as f:
     f.write(content)
 
-print("✅ Updated OptimizedConnectionManager with forced override")
 
 # 2. Create a comprehensive startup script that forces the fix
 startup_script_content = '''#!/usr/bin/env python3
@@ -130,16 +129,14 @@ with open("start_sophia_fixed.py", "w") as f:
     f.write(startup_script_content)
 
 os.chmod("start_sophia_fixed.py", 0o644)  # SECURITY FIX: Reduced permissions
-print("✅ Created startup script with permanent fix")
 
 # 3. Test the fix immediately
-print("\n🧪 Testing the fix...")
 
 try:
     # Clear any cached imports
     import sys
 
-    modules_to_clear = [m for m in sys.modules.keys() if m.startswith("backend.core")]
+    modules_to_clear = [m for m in sys.modules if m.startswith("backend.core")]
     for module in modules_to_clear:
         del sys.modules[module]
 
@@ -148,16 +145,10 @@ try:
 
     params = get_snowflake_connection_params()
 
-    print(f"   Account: {params['account']}")
-    print(f"   User: {params['user']}")
-    print(f"   Database: {params['database']}")
-
     if params["account"] == "ZNB04675":
-        print("✅ Fix is working correctly!")
+        pass
     else:
-        print(f"❌ Fix failed - still using {params['account']}")
+        pass
 
-except Exception as e:
-    print(f"❌ Test failed: {e}")
-
-print("\n🚀 Final fix complete - ready to push to GitHub!")
+except Exception:
+    pass

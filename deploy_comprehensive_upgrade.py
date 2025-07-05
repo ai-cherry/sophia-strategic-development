@@ -797,17 +797,6 @@ class SophiaAIComprehensiveUpgrade:
         logger.info(f"✅ Deployment report generated: {report_file}")
 
         # Print summary
-        print("\n" + "=" * 80)
-        print("🎉 SOPHIA AI COMPREHENSIVE UPGRADE COMPLETED SUCCESSFULLY!")
-        print("=" * 80)
-        print(
-            f"📊 Total Steps Completed: {len(self.deployment_status['steps_completed'])}"
-        )
-        print(f"⚠️ Warnings: {len(self.deployment_status['warnings'])}")
-        print(f"❌ Errors: {len(self.deployment_status['errors'])}")
-        print(f"⏱️ Total Duration: {self.deployment_status['total_duration']}")
-        print(f"📋 Report: {report_file}")
-        print("=" * 80)
 
     async def _handle_deployment_failure(self, error: Exception):
         """Handle deployment failure"""
@@ -824,14 +813,6 @@ class SophiaAIComprehensiveUpgrade:
 
         with open(failure_report, "w") as f:
             json.dump(self.deployment_status, f, indent=2)
-
-        print("\n" + "=" * 80)
-        print("💥 SOPHIA AI UPGRADE DEPLOYMENT FAILED")
-        print("=" * 80)
-        print(f"❌ Failure Reason: {error}")
-        print(f"📋 Failure Report: {failure_report}")
-        print(f"💾 Backup Location: {self.backup_dir}")
-        print("=" * 80)
 
 
 async def main():

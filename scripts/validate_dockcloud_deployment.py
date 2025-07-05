@@ -22,7 +22,6 @@ import subprocess
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
@@ -42,7 +41,7 @@ class ValidationResult:
     check_name: str
     passed: bool
     message: str
-    details: Optional[dict] = None
+    details: dict | None = None
 
 
 @dataclass

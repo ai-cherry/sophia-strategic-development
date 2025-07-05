@@ -7,7 +7,7 @@ Prevents duplicate instances and provides unified access.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from backend.services.advanced_ui_ux_agent_service import AdvancedUIUXAgentService
 from backend.services.enhanced_knowledge_base_service import (
@@ -98,7 +98,7 @@ class UnifiedServiceRegistry:
             self._initialized = True
             logger.info("UnifiedServiceRegistry initialized")
 
-    async def get_service(self, service_name: str) -> Optional[Any]:
+    async def get_service(self, service_name: str) -> Any | None:
         """
         Get or create a service instance
 
@@ -215,28 +215,26 @@ registry = UnifiedServiceRegistry()
 
 
 # Convenience functions
-async def get_service(service_name: str) -> Optional[Any]:
+async def get_service(service_name: str) -> Any | None:
     """Get a service from the registry"""
     return await registry.get_service(service_name)
 
 
-async def get_sophia_orchestrator() -> Optional[SophiaAIOrchestrator]:
+async def get_sophia_orchestrator() -> SophiaAIOrchestrator | None:
     """Get the Sophia AI orchestrator"""
     return await registry.get_service("sophia_orchestrator")
 
 
-async def get_mcp_orchestrator() -> Optional[MCPOrchestrationService]:
+async def get_mcp_orchestrator() -> MCPOrchestrationService | None:
     """Get the MCP orchestrator"""
     return await registry.get_service("mcp_orchestrator")
 
 
-async def get_business_intelligence() -> Optional[
-    PayReadyBusinessIntelligenceOrchestrator
-]:
+async def get_business_intelligence() -> PayReadyBusinessIntelligenceOrchestrator | None:
     """Get the business intelligence service"""
     return await registry.get_service("business_intelligence")
 
 
-async def get_cache_service() -> Optional[GPTCacheService]:
+async def get_cache_service() -> GPTCacheService | None:
     """Get the cache service"""
     return await registry.get_service("cache_service")

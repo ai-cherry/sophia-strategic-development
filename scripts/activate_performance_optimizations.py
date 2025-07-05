@@ -596,23 +596,10 @@ async def activate_sophia_ai_performance() -> dict[str, Any]:
 if __name__ == "__main__":
 
     async def main():
-        print("🚀 SOPHIA AI PERFORMANCE OPTIMIZATION ACTIVATION")
-        print("=" * 70)
-        print("This script will activate all performance optimizations:")
-        print("• Redis L2 Cache (5x cache improvement)")
-        print("• Connection Pooling (95% overhead reduction)")
-        print("• N+1 Query Elimination (Massive DB load reduction)")
-        print("• Concurrent Agent Processing (3x speed improvement)")
-        print("• Performance Monitoring (Real-time tracking)")
-        print("• Circuit Breaker Patterns (Reliability improvement)")
-        print("=" * 70)
-        print()
-
         # Run activation
         results = await activate_sophia_ai_performance()
 
         # Print summary
-        print(performance_activator.get_activation_summary())
 
         # Save results to file
         results_file = Path(
@@ -621,21 +608,12 @@ if __name__ == "__main__":
         with open(results_file, "w") as f:
             json.dump(results, f, indent=2, default=str)
 
-        print(f"📄 Detailed results saved to: {results_file}")
-
         if results.get("activation_status") == "completed":
             if performance_activator.activation_results["overall_success"]:
-                print(
-                    "\n🎉 SUCCESS: Sophia AI performance optimizations are now ACTIVE!"
-                )
-                print("🚀 You should see 3-5x performance improvements immediately!")
+                pass
             else:
-                print(
-                    "\n⚠️  PARTIAL SUCCESS: Some optimizations are active, others may need attention"
-                )
-                print("📋 Check the recommendations above for next steps")
+                pass
         else:
-            print(f"\n❌ ACTIVATION FAILED: {results.get('error')}")
-            print("📋 Check the logs above for troubleshooting information")
+            pass
 
     asyncio.run(main())

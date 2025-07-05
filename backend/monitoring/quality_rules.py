@@ -233,9 +233,11 @@ class CallMetadataRule(ValidationRule):
             # Validate action item structure
             invalid_items = 0
             for item in action_items:
-                if not isinstance(item, dict):
-                    invalid_items += 1
-                elif not item.get("description") or not item.get("assignee"):
+                if (
+                    not isinstance(item, dict)
+                    or not item.get("description")
+                    or not item.get("assignee")
+                ):
                     invalid_items += 1
             if invalid_items > 0:
                 issues.append(f"{invalid_items} invalid action items")
@@ -397,9 +399,11 @@ class AnalyticsQualityRule(ValidationRule):
             # Validate key moment structure
             invalid_moments = 0
             for moment in key_moments:
-                if not isinstance(moment, dict):
-                    invalid_moments += 1
-                elif not moment.get("timestamp") or not moment.get("description"):
+                if (
+                    not isinstance(moment, dict)
+                    or not moment.get("timestamp")
+                    or not moment.get("description")
+                ):
                     invalid_moments += 1
             if invalid_moments > 0:
                 issues.append(f"{invalid_moments} invalid key moments")

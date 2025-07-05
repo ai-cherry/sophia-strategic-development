@@ -113,56 +113,43 @@ def validate_backend_config() -> list[tuple[bool, str]]:
 
 def main():
     """Main validation function"""
-    print("=== Sophia AI Infrastructure Validation ===\n")
 
     all_results = []
 
     # Run all validations
-    print("Pulumi Configuration:")
     pulumi_results = validate_pulumi_config()
     all_results.extend(pulumi_results)
-    for _, msg in pulumi_results:
-        print(f"  {msg}")
+    for _, _msg in pulumi_results:
+        pass
 
-    print("\nESC Configuration:")
     esc_results = validate_esc_config()
     all_results.extend(esc_results)
-    for _, msg in esc_results:
-        print(f"  {msg}")
+    for _, _msg in esc_results:
+        pass
 
-    print("\nGitHub Actions:")
     gh_results = validate_github_actions()
     all_results.extend(gh_results)
-    for _, msg in gh_results:
-        print(f"  {msg}")
+    for _, _msg in gh_results:
+        pass
 
-    print("\nDocker Configuration:")
     docker_results = validate_docker_config()
     all_results.extend(docker_results)
-    for _, msg in docker_results:
-        print(f"  {msg}")
+    for _, _msg in docker_results:
+        pass
 
-    print("\nBackend Configuration:")
     backend_results = validate_backend_config()
     all_results.extend(backend_results)
-    for _, msg in backend_results:
-        print(f"  {msg}")
+    for _, _msg in backend_results:
+        pass
 
     # Summary
     total = len(all_results)
     passed = sum(1 for success, _ in all_results if success)
     failed = total - passed
 
-    print("\n=== Summary ===")
-    print(f"Total checks: {total}")
-    print(f"Passed: {passed}")
-    print(f"Failed: {failed}")
-
     if failed > 0:
-        print("\n⚠️  Some infrastructure components are missing or misconfigured")
         sys.exit(1)
     else:
-        print("\n✅ All infrastructure components are properly configured")
         sys.exit(0)
 
 

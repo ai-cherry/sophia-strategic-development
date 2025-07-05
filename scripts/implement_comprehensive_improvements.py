@@ -529,19 +529,12 @@ async def main():
     implementor = ComprehensiveImprovementImplementor()
     results = await implementor.run_all_improvements()
 
-    print("\n🎯 COMPREHENSIVE IMPROVEMENTS SUMMARY")
-    print(f"Success Rate: {results['success_rate']:.1f}%")
-    print(f"Improvements Implemented: {len(results['improvements_implemented'])}")
-    print(f"Errors Encountered: {len(results['errors'])}")
-
     if results["errors"]:
-        print("\n❌ Errors:")
-        for error in results["errors"]:
-            print(f"  - {error['description']}: {error['error']}")
+        for _error in results["errors"]:
+            pass
 
-    print("\n✅ Successfully Implemented:")
-    for improvement in results["improvements_implemented"]:
-        print(f"  - {improvement['description']}")
+    for _improvement in results["improvements_implemented"]:
+        pass
 
     # Save results to file
     results_file = (
@@ -550,7 +543,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(results, f, indent=2, default=str)
 
-    print(f"\n📊 Detailed results saved to: {results_file}")
     return results
 
 

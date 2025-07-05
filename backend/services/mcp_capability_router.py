@@ -7,7 +7,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +132,7 @@ class MCPCapabilityRouter:
         self.server_health = health_data
 
     def _calculate_server_score(
-        self, capability: ServerCapability, health_status: Optional[str] = None
+        self, capability: ServerCapability, health_status: str | None = None
     ) -> float:
         """Calculate overall score for a server capability"""
         # Base score from capability performance and reliability
@@ -160,9 +160,9 @@ class MCPCapabilityRouter:
     async def route_request(
         self,
         capability: Capability,
-        context: Optional[dict] = None,
-        prefer_servers: Optional[list[str]] = None,
-        avoid_servers: Optional[list[str]] = None,
+        context: dict | None = None,
+        prefer_servers: list[str] | None = None,
+        avoid_servers: list[str] | None = None,
     ) -> RoutingDecision:
         """
         Route a request to the best available server for the capability

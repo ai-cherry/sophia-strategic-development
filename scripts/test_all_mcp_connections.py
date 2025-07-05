@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 
@@ -34,8 +34,8 @@ class TestResult:
     server_name: str
     port: int
     status: str  # healthy, unhealthy, not_running, error
-    response_time_ms: Optional[float] = None
-    error: Optional[str] = None
+    response_time_ms: float | None = None
+    error: str | None = None
     tools_available: list[str] = None
     lambda_labs_connected: bool = False
     details: dict[str, Any] = None
@@ -48,9 +48,9 @@ class RemediationAction:
     server_name: str
     issue: str
     action: str
-    command: Optional[str] = None
+    command: str | None = None
     success: bool = False
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class MCPConnectionTester:
@@ -173,7 +173,7 @@ class MCPConnectionTester:
                         error=f"HTTP {response.status}",
                     )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return TestResult(
                 server_name=server_name,
                 port=port,

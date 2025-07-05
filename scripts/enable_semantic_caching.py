@@ -16,7 +16,6 @@ def enable_semantic_caching():
     service_path = Path("backend/services/unified_llm_service.py")
 
     if not service_path.exists():
-        print("❌ UnifiedLLMService not found at expected path")
         return False
 
     # Read the current file
@@ -46,11 +45,9 @@ def enable_semantic_caching():
         # Create backup
         backup_path = service_path.with_suffix(".py.backup")
         service_path.rename(backup_path)
-        print(f"✅ Created backup at: {backup_path}")
 
         # Write updated content
         service_path.write_text(updated_content)
-        print("✅ Updated UnifiedLLMService with enhanced semantic caching")
 
         # Create configuration report
         report = {
@@ -73,12 +70,9 @@ def enable_semantic_caching():
 
         report_path = Path("semantic_caching_enabled.json")
         report_path.write_text(json.dumps(report, indent=2))
-        print(f"✅ Created configuration report: {report_path}")
 
         return True
     else:
-        print("⚠️  Cache configuration not found in expected format")
-        print("   The service may already be updated or has a different configuration")
         return False
 
 
@@ -91,14 +85,10 @@ def verify_portkey_config():
         "cache_endpoint": "Optional - uses default if not set",
     }
 
-    print("\n🔍 Verifying Portkey configuration...")
-
     # In a real implementation, this would check actual config
     # For now, we'll just print the requirements
-    for key, description in config_checks.items():
-        print(f"   - {key}: {description}")
-
-    print("\n✅ Portkey configuration requirements documented")
+    for _key, _description in config_checks.items():
+        pass
 
 
 def create_monitoring_script():
@@ -145,13 +135,10 @@ if __name__ == "__main__":
     monitor_path = Path("scripts/monitor_semantic_cache.py")
     monitor_path.write_text(monitor_script)
     monitor_path.chmod(0o755)
-    print(f"✅ Created cache monitoring script: {monitor_path}")
 
 
 def main():
     """Main execution"""
-    print("🚀 Enabling Semantic Caching for UnifiedLLMService")
-    print("=" * 50)
 
     # Enable caching
     success = enable_semantic_caching()
@@ -163,20 +150,8 @@ def main():
         # Create monitoring script
         create_monitoring_script()
 
-        print("\n✅ Semantic caching successfully enabled!")
-        print("\n📈 Expected Benefits:")
-        print("   - 30-50% cost reduction")
-        print("   - 35%+ cache hit rate")
-        print("   - 50-70% faster responses for cached queries")
-        print("\n🎯 Next Steps:")
-        print("   1. Restart the backend service")
-        print(
-            "   2. Monitor cache performance with: python scripts/monitor_semantic_cache.py"
-        )
-        print("   3. Check LLM Metrics dashboard for cost savings")
     else:
-        print("\n❌ Failed to enable semantic caching")
-        print("   Please check the configuration manually")
+        pass
 
 
 if __name__ == "__main__":

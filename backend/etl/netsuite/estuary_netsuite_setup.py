@@ -671,13 +671,9 @@ async def main():
 
     try:
         await orchestrator.initialize()
-        pipeline_info = await orchestrator.setup_complete_netsuite_pipeline()
+        await orchestrator.setup_complete_netsuite_pipeline()
 
-        print("✅ NetSuite Estuary pipeline setup completed successfully!")
-        print(f"📊 Pipeline info: {pipeline_info}")
-
-    except Exception as e:
-        print(f"❌ NetSuite pipeline setup failed: {e}")
+    except Exception:
         return 1
 
     return 0

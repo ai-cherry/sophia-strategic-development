@@ -54,7 +54,6 @@ class LambdaLabsManager:
 
     def get_api_key(self) -> str:
         """Get Lambda Labs API key from various sources"""
-        print("🔍 Searching for Lambda Labs API key...")
 
         # Try environment variables
         env_keys = [
@@ -67,7 +66,6 @@ class LambdaLabsManager:
         for key in env_keys:
             value = os.getenv(key)
             if value:
-                print(f"✅ Found API key in environment variable: {key}")
                 return value
 
         # Try Pulumi ESC
@@ -85,11 +83,10 @@ class LambdaLabsManager:
             for key in esc_keys:
                 value = get_config_value(key)
                 if value and value != "None" and len(value) > 10:
-                    print(f"✅ Found API key in Pulumi ESC: {key}")
                     return value
 
-        except Exception as e:
-            print(f"⚠️ Could not check Pulumi ESC: {e}")
+        except Exception:
+            pass
 
         # Try reading from common config files
         config_files = [
@@ -106,27 +103,22 @@ class LambdaLabsManager:
                         if config_file.endswith(".json"):
                             config = json.load(f)
                             if "api_key" in config:
-                                print(f"✅ Found API key in config file: {config_file}")
                                 return config["api_key"]
                         else:
                             # Plain text file
                             content = f.read().strip()
                             if len(content) > 10:
-                                print(f"✅ Found API key in config file: {config_file}")
                                 return content
-                except Exception as e:
-                    print(f"⚠️ Could not read {config_file}: {e}")
+                except Exception:
+                    pass
 
-        print("❌ Lambda Labs API key not found in any source")
         return None
 
     def initialize(self) -> bool:
         """Initialize Lambda Labs connection"""
-        print("🚀 Initializing Lambda Labs connection...")
 
         self.api_key = self.get_api_key()
         if not self.api_key:
-            print("❌ Cannot initialize without API key")
             return False
 
         self.headers = {
@@ -139,39 +131,18 @@ class LambdaLabsManager:
             response = requests.get(
                 f"{self.base_url}/instance-types", headers=self.headers, timeout=10
             )
-            if response.status_code == 200:
-                print("✅ Lambda Labs connection successful")
-                return True
-            else:
-                print(
-                    f"❌ Lambda Labs connection failed: {response.status_code} - {response.text}"
-                )
-                return False
-        except Exception as e:
-            print(f"❌ Lambda Labs connection error: {e}")
+            return response.status_code == 200
+        except Exception:
             return False
 
 
 def main():
     """Main execution function"""
-    print("🚀 LAMBDA LABS ACCESS & CONFIGURATION OPTIMIZER")
-    print("=" * 70)
 
     # Initialize Lambda Labs manager
     manager = LambdaLabsManager()
 
-    if not manager.initialize():
-        print("\n❌ LAMBDA LABS ACCESS FAILED")
-        print("Please ensure you have a valid Lambda Labs API key configured.")
-        print("\nOptions to configure API key:")
-        print("1. Set environment variable: export LAMBDA_API_KEY=" "")
-        print("2. Add to Pulumi ESC under 'lambda_labs_api_key'")
-        print("3. Create ~/.lambda/config file with API key")
-        print("4. Add to project config/lambda_config.json")
-        return False
-
-    print("✅ Lambda Labs access successful!")
-    return True
+    return manager.initialize()
 
 
 if __name__ == "__main__":

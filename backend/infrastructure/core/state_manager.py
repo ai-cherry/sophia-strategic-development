@@ -139,8 +139,7 @@ class InfrastructureStateManager:
                 conn.commit()
                 return True
 
-        except Exception as e:
-            print(f"Failed to update platform state for {platform}: {e}")
+        except Exception:
             return False
 
     async def get_platform_state(self, platform: str) -> dict[str, Any] | None:
@@ -170,8 +169,7 @@ class InfrastructureStateManager:
 
                 return None
 
-        except Exception as e:
-            print(f"Failed to get platform state for {platform}: {e}")
+        except Exception:
             return None
 
     async def create_checkpoint(
@@ -204,8 +202,7 @@ class InfrastructureStateManager:
                 conn.commit()
                 return checkpoint_id
 
-        except Exception as e:
-            print(f"Failed to create checkpoint for {platform}: {e}")
+        except Exception:
             return ""
 
     async def get_checkpoint(
@@ -236,8 +233,7 @@ class InfrastructureStateManager:
 
                 return None
 
-        except Exception as e:
-            print(f"Failed to get checkpoint {checkpoint_id} for {platform}: {e}")
+        except Exception:
             return None
 
     async def list_checkpoints(
@@ -268,8 +264,7 @@ class InfrastructureStateManager:
                     for row in rows
                 ]
 
-        except Exception as e:
-            print(f"Failed to list checkpoints for {platform}: {e}")
+        except Exception:
             return []
 
     async def record_change(
@@ -306,8 +301,7 @@ class InfrastructureStateManager:
                 conn.commit()
                 return True
 
-        except Exception as e:
-            print(f"Failed to record change for {platform}: {e}")
+        except Exception:
             return False
 
     async def get_change_history(
@@ -341,8 +335,7 @@ class InfrastructureStateManager:
                     for row in rows
                 ]
 
-        except Exception as e:
-            print(f"Failed to get change history for {platform}: {e}")
+        except Exception:
             return []
 
     async def set_platform_dependency(
@@ -365,8 +358,7 @@ class InfrastructureStateManager:
                 conn.commit()
                 return True
 
-        except Exception as e:
-            print(f"Failed to set dependency {platform} -> {depends_on}: {e}")
+        except Exception:
             return False
 
     async def get_platform_dependencies(self, platform: str) -> list[dict[str, Any]]:
@@ -394,8 +386,7 @@ class InfrastructureStateManager:
                     for row in rows
                 ]
 
-        except Exception as e:
-            print(f"Failed to get dependencies for {platform}: {e}")
+        except Exception:
             return []
 
     async def get_all_platform_states(self) -> dict[str, dict[str, Any]]:
@@ -423,8 +414,7 @@ class InfrastructureStateManager:
                     for row in rows
                 }
 
-        except Exception as e:
-            print(f"Failed to get all platform states: {e}")
+        except Exception:
             return {}
 
     async def cleanup_old_checkpoints(self, days_to_keep: int = 30) -> int:
@@ -447,8 +437,7 @@ class InfrastructureStateManager:
 
                 return deleted_count
 
-        except Exception as e:
-            print(f"Failed to cleanup old checkpoints: {e}")
+        except Exception:
             return 0
 
     async def export_state(self, output_file: str) -> bool:
@@ -463,7 +452,7 @@ class InfrastructureStateManager:
             }
 
             # Add dependency information
-            for platform in all_states.keys():
+            for platform in all_states:
                 export_data["dependencies"][
                     platform
                 ] = await self.get_platform_dependencies(platform)
@@ -473,8 +462,7 @@ class InfrastructureStateManager:
 
             return True
 
-        except Exception as e:
-            print(f"Failed to export state: {e}")
+        except Exception:
             return False
 
     async def import_state(self, input_file: str) -> bool:
@@ -502,8 +490,7 @@ class InfrastructureStateManager:
 
             return True
 
-        except Exception as e:
-            print(f"Failed to import state: {e}")
+        except Exception:
             return False
 
 
@@ -528,47 +515,36 @@ async def main():
 
     if args.command == "status":
         if args.platform:
-            state = await state_manager.get_platform_state(args.platform)
-            print(json.dumps(state, indent=2, default=str))
+            await state_manager.get_platform_state(args.platform)
         else:
-            states = await state_manager.get_all_platform_states()
-            print(json.dumps(states, indent=2, default=str))
+            await state_manager.get_all_platform_states()
 
     elif args.command == "checkpoints":
         if not args.platform:
-            print("Platform required for checkpoints command")
             return
 
-        checkpoints = await state_manager.list_checkpoints(args.platform, args.limit)
-        print(json.dumps(checkpoints, indent=2, default=str))
+        await state_manager.list_checkpoints(args.platform, args.limit)
 
     elif args.command == "history":
         if not args.platform:
-            print("Platform required for history command")
             return
 
-        history = await state_manager.get_change_history(args.platform, args.limit)
-        print(json.dumps(history, indent=2, default=str))
+        await state_manager.get_change_history(args.platform, args.limit)
 
     elif args.command == "export":
         if not args.file:
-            print("File path required for export command")
             return
 
-        success = await state_manager.export_state(args.file)
-        print(f"Export {'successful' if success else 'failed'}")
+        await state_manager.export_state(args.file)
 
     elif args.command == "import":
         if not args.file:
-            print("File path required for import command")
             return
 
-        success = await state_manager.import_state(args.file)
-        print(f"Import {'successful' if success else 'failed'}")
+        await state_manager.import_state(args.file)
 
     elif args.command == "cleanup":
-        deleted = await state_manager.cleanup_old_checkpoints(args.days)
-        print(f"Cleaned up {deleted} old checkpoints")
+        await state_manager.cleanup_old_checkpoints(args.days)
 
 
 if __name__ == "__main__":

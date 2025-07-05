@@ -104,10 +104,7 @@ class ReadinessValidator:
                 }
 
         # Calculate overall readiness
-        if max_score > 0:
-            overall_score = int((total_score / max_score) * 100)
-        else:
-            overall_score = 0
+        overall_score = int(total_score / max_score * 100) if max_score > 0 else 0
 
         self.validation_results["readiness_score"] = overall_score
         self.validation_results["overall_ready"] = overall_score >= 80
@@ -1056,64 +1053,32 @@ class ReadinessValidator:
     def print_summary(self):
         """Print validation summary"""
 
-        print("\n" + "=" * 80)
-        print("🔍 N8N ENTERPRISE ENHANCEMENT READINESS VALIDATION SUMMARY")
-        print("=" * 80)
-
-        print(
-            f"\n📊 Overall Readiness Score: {self.validation_results['readiness_score']}/100"
-        )
-
         if self.validation_results["overall_ready"]:
-            print("🎉 Status: READY FOR DEPLOYMENT")
+            pass
         else:
-            print("⚠️  Status: NEEDS ATTENTION BEFORE DEPLOYMENT")
+            pass
 
-        print("\n📋 Category Breakdown:")
-        for category_key, category_data in self.validation_results[
+        for _category_key, category_data in self.validation_results[
             "categories"
         ].items():
-            score = category_data.get("score", 0)
-            max_score = category_data.get("max_score", 100)
-            status = category_data.get("status", "unknown")
-
-            status_emoji = (
-                "✅"
-                if status == "ready"
-                else "⚠️"
-                if status == "needs_attention"
-                else "❌"
-            )
-            print(
-                f"  {status_emoji} {category_key.replace('_', ' ').title()}: {score}/{max_score}"
-            )
+            category_data.get("score", 0)
+            category_data.get("max_score", 100)
+            category_data.get("status", "unknown")
 
         if self.validation_results["recommendations"]:
-            print("\n🎯 Recommendations:")
-            for i, rec in enumerate(self.validation_results["recommendations"][:5], 1):
-                priority_emoji = (
+            for _i, rec in enumerate(self.validation_results["recommendations"][:5], 1):
+                (
                     "🔴"
                     if rec["priority"] == "critical"
                     else "🟡"
                     if rec["priority"] == "high"
                     else "🟢"
                 )
-                print(f"  {i}. {priority_emoji} {rec['action']}")
-                print(f"     {rec['details']}")
 
-        print("\n🚀 Next Steps:")
         if self.validation_results["overall_ready"]:
-            print("  1. Run: python scripts/deploy_n8n_enterprise_enhancement.py")
-            print("  2. Monitor deployment progress")
-            print("  3. Validate deployment success")
+            pass
         else:
-            print("  1. Address high-priority recommendations")
-            print(
-                "  2. Re-run validation: python scripts/validate_n8n_enterprise_readiness.py"
-            )
-            print("  3. Proceed with deployment when ready")
-
-        print("\n" + "=" * 80)
+            pass
 
 
 async def main():

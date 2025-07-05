@@ -564,35 +564,19 @@ if __name__ == "__main__":
         env_config = get_sophia_environment()
 
         if command == "status":
-            print("🔍 Sophia AI Environment Status")
-            print("=" * 40)
             status = env_config.get_health_status()
-            print(f"Environment: {status['environment']}")
-            print(f"Stack: {status['stack_name']}")
-            print(f"Organization: {status['pulumi_org']}")
-            print(
-                f"Overall Health: {'✅ Healthy' if status['overall_health'] else '❌ Issues'}"
-            )
-            print("\nHealth Checks:")
-            for check, result in status["health_checks"].items():
+            for _check, result in status["health_checks"].items():
                 if isinstance(result, bool):
-                    print(f"  {check}: {'✅' if result else '❌'}")
+                    pass
 
         elif command == "repair":
-            print("🔧 Attempting environment repair...")
             env_config.refresh_health()
-            print("✅ Repair completed")
 
         elif command == "secrets":
-            print("🔑 Loading secrets...")
             secrets = env_config.load_secrets()
-            print(f"✅ Loaded {len(secrets)} secrets")
 
         else:
-            print(f"Unknown command: {command}")
-            print("Available commands: status, repair, secrets")
+            pass
     else:
         # Default: show status
         env_config = get_sophia_environment()
-        print(f"🎯 {env_config}")
-        print(f"📊 Health: {'✅' if validate_environment() else '❌'}")

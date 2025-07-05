@@ -255,23 +255,9 @@ async def main():
         manager = SophiaInfrastructureManager()
         result = await manager.deploy_complete_infrastructure()
 
-        print("\n" + "=" * 80)
-        print("🎉 SOPHIA AI INFRASTRUCTURE DEPLOYMENT COMPLETE!")
-        print("=" * 80)
-        print(f"📊 Instance ID: {result.get('instance_id')}")
-        print(f"🌐 IP Address: {result.get('ip_address')}")
-        print(
-            f"🗄️ PostgreSQL: {result.get('connection_strings', {}).get('postgresql')}"
-        )
-        print(f"⚡ Redis: {result.get('connection_strings', {}).get('redis')}")
-        print(f"📈 Health Monitor: http://{result.get('ip_address')}:8080/health")
-        print(f"🔄 Data Pipeline: {result.get('data_pipeline', {})}")
-        print("=" * 80)
-
         return result
 
-    except Exception as e:
-        print(f"\n❌ DEPLOYMENT FAILED: {e}")
+    except Exception:
         raise
 
 

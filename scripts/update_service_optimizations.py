@@ -457,22 +457,14 @@ if __name__ == "__main__":
     import time
 
     async def main():
-        print("🚀 Updating Sophia AI Services for Performance Optimization...")
-
         # Update all services
         results = await update_all_sophia_services()
 
         # Print summary
-        print(service_updater.get_update_summary())
 
         if results.get("status") == "completed":
-            print("✅ All services updated successfully!")
-            print("Expected performance improvements:")
-            print("  • 95% connection overhead reduction")
-            print("  • 5x cache performance improvement")
-            print("  • 3x agent processing speed improvement")
-            print("  • Comprehensive monitoring integration")
+            pass
         else:
-            print(f"❌ Update failed: {results.get('error')}")
+            pass
 
     asyncio.run(main())

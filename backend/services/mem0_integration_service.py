@@ -5,7 +5,7 @@ Provides persistent cross-session memory with learning capabilities
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -50,7 +50,7 @@ class Mem0IntegrationService:
         self,
         user_id: str,
         conversation: list[dict[str, str]],
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Store conversation with learning metadata
@@ -102,7 +102,7 @@ class Mem0IntegrationService:
         user_id: str,
         query: str,
         limit: int = 5,
-        filters: Optional[dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """
         Recall relevant memories for a user based on query
@@ -146,7 +146,7 @@ class Mem0IntegrationService:
         memory_id: str,
         feedback_type: str,
         feedback_score: float,
-        feedback_text: Optional[str] = None,
+        feedback_text: str | None = None,
     ) -> bool:
         """
         Update memory with RLHF feedback
@@ -232,9 +232,9 @@ class Mem0IntegrationService:
 
     async def get_learning_analytics(
         self,
-        user_id: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        user_id: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> dict[str, Any]:
         """
         Get learning analytics for memories
@@ -274,7 +274,7 @@ class Mem0IntegrationService:
 
 
 # Global instance
-_mem0_service: Optional[Mem0IntegrationService] = None
+_mem0_service: Mem0IntegrationService | None = None
 
 
 def get_mem0_service() -> Mem0IntegrationService:

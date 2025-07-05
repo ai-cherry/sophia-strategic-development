@@ -561,16 +561,6 @@ async def main():
     async with LambdaLabsProvisioner(config) as provisioner:
         result = await provisioner.deploy_complete_infrastructure(private_key_path)
 
-        print("\n" + "=" * 60)
-        print("🎉 LAMBDA LABS DEPLOYMENT SUCCESSFUL!")
-        print("=" * 60)
-        print(f"Instance ID: {result['instance_id']}")
-        print(f"IP Address: {result['ip_address']}")
-        print(f"PostgreSQL: {result['connection_strings']['postgresql']}")
-        print(f"Redis: {result['connection_strings']['redis']}")
-        print(f"Health Monitor: http://{result['ip_address']}:8080/health")
-        print("=" * 60)
-
         return result
 
 

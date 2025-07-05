@@ -4,6 +4,7 @@ Emergency Script to Remove All Exposed Secrets from Sophia AI Codebase
 This script replaces hardcoded secrets with secure configuration calls
 """
 
+import contextlib
 from pathlib import Path
 
 # Define the exposed secret that needs to be replaced
@@ -31,7 +32,6 @@ CRITICAL_FILES = [
 def fix_file_secrets(file_path: Path) -> bool:
     """Fix secrets in a single file"""
     if not file_path.exists():
-        print(f"⚠️  File not found: {file_path}")
         return False
 
     try:
@@ -115,14 +115,11 @@ def fix_file_secrets(file_path: Path) -> bool:
         if content != original_content:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
-            print(f"✅ Fixed secrets in: {file_path}")
             return True
         else:
-            print(f"ℹ️  No secrets found in: {file_path}")
             return False
 
-    except Exception as e:
-        print(f"❌ Error fixing {file_path}: {e}")
+    except Exception:
         return False
 
 
@@ -139,19 +136,13 @@ def delete_files_with_exposed_secrets():
     for file_name in files_to_delete:
         for file_path in project_root.rglob(file_name):
             if file_path.exists():
-                try:
+                with contextlib.suppress(Exception):
                     file_path.unlink()
-                    print(f"🗑️  Deleted file with exposed secrets: {file_path}")
-                except Exception as e:
-                    print(f"❌ Failed to delete {file_path}: {e}")
 
 
 def main():
     """Main function to remove all exposed secrets"""
     project_root = Path(__file__).parent.parent.parent
-
-    print("🚨 EMERGENCY SECRET REMOVAL")
-    print("=" * 50)
 
     fixed_count = 0
 
@@ -165,7 +156,6 @@ def main():
     delete_files_with_exposed_secrets()
 
     # Fix any other Python files with the exposed password
-    print("\n🔍 Scanning for other files with exposed secrets...")
 
     for py_file in project_root.rglob("*.py"):
         if py_file.name in [
@@ -183,13 +173,6 @@ def main():
                     fixed_count += 1
         except Exception:
             continue
-
-    print(f"\n✅ Fixed {fixed_count} files")
-    print("🔐 All exposed secrets have been removed!")
-    print("\n⚠️  IMPORTANT: You must now set the real secrets in Pulumi ESC:")
-    print("   1. Run: python scripts/security/setup_pulumi_esc_secrets.py")
-    print("   2. Set all required secrets interactively")
-    print("   3. Test the application startup")
 
 
 if __name__ == "__main__":

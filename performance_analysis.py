@@ -246,60 +246,26 @@ class PerformanceAnalyzer:
 def main():
     analyzer = PerformanceAnalyzer()
 
-    print("🔍 Starting Sophia AI Performance Analysis...")
-
     # Analyze codebase structure
-    print("📊 Analyzing codebase structure...")
     structure_analysis = analyzer.analyze_codebase_structure()
 
     # Analyze resource patterns
-    print("🔧 Analyzing resource patterns...")
     pattern_analysis = analyzer.analyze_resource_patterns()
 
     # Generate recommendations
-    print("💡 Generating recommendations...")
     recommendations = analyzer.generate_recommendations(
         structure_analysis, pattern_analysis
     )
 
     # Print results
-    print("\n" + "=" * 60)
-    print("📈 SOPHIA AI PERFORMANCE ANALYSIS RESULTS")
-    print("=" * 60)
 
-    print("\n📁 CODEBASE OVERVIEW:")
-    print(f"   Total Python files: {structure_analysis['total_files']}")
-    print(
-        f"   Total lines of code: {structure_analysis['total_metrics']['lines_of_code']:,}"
-    )
-    print(f"   Total functions: {structure_analysis['total_metrics']['functions']:,}")
-    print(f"   Total classes: {structure_analysis['total_metrics']['classes']:,}")
-    print(
-        f"   Total database calls: {structure_analysis['total_metrics']['database_calls']:,}"
-    )
-
-    print("\n🔥 TOP COMPLEX FILES:")
-    for i, (file_path, score) in enumerate(
+    for _i, (_file_path, _score) in enumerate(
         structure_analysis["top_complex_files"][:5], 1
     ):
-        print(f"   {i}. {file_path} (score: {score:.1f})")
+        pass
 
-    print("\n🔧 RESOURCE USAGE PATTERNS:")
-    print(
-        f"   Files with database operations: {len(pattern_analysis['database_patterns'])}"
-    )
-    print(
-        f"   Files with connection patterns: {len(pattern_analysis['connection_patterns'])}"
-    )
-    print(f"   Files with async patterns: {len(pattern_analysis['async_patterns'])}")
-    print(f"   Files with cache usage: {len(pattern_analysis['cache_patterns'])}")
-
-    print("\n💡 OPTIMIZATION RECOMMENDATIONS:")
-    for rec in recommendations:
-        print(f"   {rec}")
-
-    print("\n" + "=" * 60)
-    print("✅ Analysis complete!")
+    for _rec in recommendations:
+        pass
 
 
 if __name__ == "__main__":

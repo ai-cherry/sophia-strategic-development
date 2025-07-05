@@ -4,7 +4,6 @@
 import json
 import os
 import subprocess
-from datetime import datetime
 
 
 def check_environment_variables():
@@ -58,50 +57,31 @@ def check_stack_access():
 
 
 def main():
-    print("🏥 Sophia AI Environment Health Check")
-    print("=" * 40)
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    print()
-
     overall_health = True
 
     # Check 1: Environment Variables
     env_ok, env_issues = check_environment_variables()
-    print(f"Environment Variables: {'✅' if env_ok else '❌'}")
     if not env_ok:
         overall_health = False
-        for issue in env_issues:
-            print(f"  - {issue}")
-    print()
+        for _issue in env_issues:
+            pass
 
     # Check 2: Pulumi Authentication
     auth_ok, auth_error = check_pulumi_auth()
-    print(f"Pulumi Authentication: {'✅' if auth_ok else '❌'}")
     if not auth_ok:
         overall_health = False
-        print(f"  - {auth_error}")
-    print()
 
     # Check 3: Stack Access
     stack_ok, stack_info = check_stack_access()
-    print(f"Stack Access: {'✅' if stack_ok else '❌'}")
     if stack_ok:
-        print(f"  - {stack_info}")
+        pass
     else:
         overall_health = False
-        print(f"  - {stack_info}")
-    print()
 
     # Overall Status
-    print(f"Overall Health: {'✅ HEALTHY' if overall_health else '❌ ISSUES DETECTED'}")
 
     if not overall_health:
-        print()
-        print("🔧 To fix issues:")
-        print("1. Run: export ENVIRONMENT=prod")
-        print("2. Run: export PULUMI_ORG=scoobyjava-org")
-        print("3. Run: export PULUMI_ACCESS_TOKEN=your_token")
-        print("4. Re-run this check")
+        pass
 
     return 0 if overall_health else 1
 

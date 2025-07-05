@@ -130,7 +130,6 @@ class PulumiESCSync:
             "DOCKER_PERSONAL_ACCESS_TOKEN": "docker_personal_access_token",
             "NPM_API_TOKEN": "npm_api_token",
             "RETOOL_API_TOKEN": "retool_api_token",
-            "CODACY_API_TOKEN": "codacy_api_token",
             # Integration Platforms
             "PIPEDREAM_API_KEY": "pipedream_api_key",
             "N8N_API_KEY": "n8n_api_key",

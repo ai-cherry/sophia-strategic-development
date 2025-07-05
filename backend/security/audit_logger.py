@@ -186,8 +186,8 @@ class AuditLogger:
                 file_handler = logging.FileHandler(self.file_path)
                 file_handler.setFormatter(logging.Formatter("%(message)s"))
                 audit_logger.addHandler(file_handler)
-            except Exception as e:
-                print(f"Failed to configure file logging: {e}")
+            except Exception:
+                pass
 
     def _initialize_sentry(self):
         """Initialize Sentry integration"""
@@ -219,7 +219,6 @@ class AuditLogger:
             )
 
         except ImportError:
-            print("Sentry SDK not installed. Sentry integration disabled.")
             self.enable_sentry = False
 
     def _redact_sentry_event(self, event: dict[str, Any]) -> dict[str, Any]:

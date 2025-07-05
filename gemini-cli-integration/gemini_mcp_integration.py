@@ -4,6 +4,7 @@ Provides advanced integration between Google Gemini CLI and Sophia AI MCP server
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -243,7 +244,7 @@ class GeminiMCPIntegration:
         """Stop all MCP servers."""
         results = {}
 
-        for server_name in self.servers.keys():
+        for server_name in self.servers:
             results[server_name] = await self.stop_server(server_name)
 
         return results
@@ -336,7 +337,7 @@ class GeminiMCPIntegration:
         """Get status of all MCP servers."""
         status = {}
 
-        for server_name in self.servers.keys():
+        for server_name in self.servers:
             status[server_name] = await self.get_server_status(server_name)
 
         return status
@@ -354,10 +355,8 @@ class GeminiMCPIntegration:
         """Stop health monitoring."""
         if self.monitoring_task:
             self.monitoring_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self.monitoring_task
-            except asyncio.CancelledError:
-                pass
             self.monitoring_task = None
             logger.info("Stopped health monitoring")
 
@@ -462,39 +461,33 @@ async def main():
     async with GeminiMCPIntegration(args.config) as integration:
         if args.action == "start":
             if args.server:
-                result = await integration.start_server(args.server)
-                print(f"Server {args.server}: {'Started' if result else 'Failed'}")
+                await integration.start_server(args.server)
             else:
                 results = await integration.start_all_servers()
-                for server, success in results.items():
-                    print(f"Server {server}: {'Started' if success else 'Failed'}")
+                for _server, _success in results.items():
+                    pass
 
         elif args.action == "stop":
             if args.server:
-                result = await integration.stop_server(args.server)
-                print(f"Server {args.server}: {'Stopped' if result else 'Failed'}")
+                await integration.stop_server(args.server)
             else:
                 results = await integration.stop_all_servers()
-                for server, success in results.items():
-                    print(f"Server {server}: {'Stopped' if success else 'Failed'}")
+                for _server, _success in results.items():
+                    pass
 
         elif args.action == "status":
             if args.server:
-                status = await integration.get_server_status(args.server)
-                print(json.dumps(status, indent=2))
+                await integration.get_server_status(args.server)
             else:
-                status = await integration.get_all_server_status()
-                print(json.dumps(status, indent=2))
+                await integration.get_all_server_status()
 
         elif args.action == "monitor":
-            print(f"Starting monitoring (interval: {args.interval}s)...")
             await integration.start_monitoring(args.interval)
             try:
                 # Keep monitoring running
                 while True:
                     await asyncio.sleep(1)
             except KeyboardInterrupt:
-                print("\nStopping monitoring...")
                 await integration.stop_monitoring()
 
 

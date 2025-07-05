@@ -29,7 +29,6 @@ class MCPServerManager:
 
     def start_infrastructure(self):
         """Start infrastructure services"""
-        print("🔧 Starting infrastructure services...")
 
         # Start PostgreSQL and Redis if not running
         try:
@@ -38,14 +37,12 @@ class MCPServerManager:
                 check=True,
                 capture_output=True,
             )
-            print("✅ PostgreSQL and Redis started")
             time.sleep(3)  # Wait for services to be ready
-        except subprocess.CalledProcessError as e:
-            print(f"⚠️  Infrastructure services may already be running: {e}")
+        except subprocess.CalledProcessError:
+            pass
 
     def start_server(self, name: str, module: str, port: int, wait_time: int = 2):
         """Start an individual MCP server"""
-        print(f"🚀 Starting {name} on port {port}...")
 
         try:
             # Create a simple server script that doesn't depend on complex imports
@@ -113,15 +110,12 @@ if __name__ == '__main__':
 
             # Check if process is still running
             if proc.poll() is None:
-                print(f"✅ {name} started successfully on port {port}")
                 return True
             else:
                 stdout, stderr = proc.communicate()
-                print(f"❌ {name} failed to start: {stderr.decode()}")
                 return False
 
-        except Exception as e:
-            print(f"❌ Error starting {name}: {e}")
+        except Exception:
             return False
 
     def start_all_servers(self):
@@ -138,7 +132,6 @@ if __name__ == '__main__':
             if self.start_server(name, module, port):
                 started_count += 1
 
-        print(f"\n📊 Started {started_count}/{len(servers)} MCP servers")
         return started_count
 
     def check_server_health(self, port: int):
@@ -153,59 +146,47 @@ if __name__ == '__main__':
 
     def monitor_servers(self):
         """Monitor running servers"""
-        print("\n🔍 Monitoring servers...")
         while True:
             try:
-                print(f"\n⏰ {time.strftime('%H:%M:%S')} - Health Check")
-                print("-" * 30)
-
                 for server_info in self.processes:
-                    name = server_info["name"]
+                    server_info["name"]
                     port = server_info["port"]
                     proc = server_info["process"]
 
                     if proc.poll() is None:  # Process is running
                         if self.check_server_health(port):
-                            print(f"🟢 {name}: HEALTHY (port {port})")
+                            pass
                         else:
-                            print(f"🟡 {name}: RUNNING but not responding (port {port})")
+                            pass
                     else:
-                        print(f"🔴 {name}: STOPPED (port {port})")
+                        pass
 
                 time.sleep(30)
 
             except KeyboardInterrupt:
-                print("\n🛑 Stopping monitoring...")
                 break
 
     def stop_all_servers(self):
         """Stop all running servers"""
-        print("\n🛑 Stopping all servers...")
 
         for server_info in self.processes:
-            name = server_info["name"]
+            server_info["name"]
             proc = server_info["process"]
             script_path = server_info["script_path"]
 
             if proc.poll() is None:
-                print(f"🔄 Stopping {name}...")
                 proc.terminate()
                 try:
                     proc.wait(timeout=5)
-                    print(f"✅ {name} stopped")
                 except subprocess.TimeoutExpired:
                     proc.kill()
-                    print(f"⚠️  {name} force killed")
 
             # Clean up temporary script
             if script_path.exists():
                 script_path.unlink()
 
-        print("✅ All servers stopped and cleaned up")
-
     def signal_handler(self, signum, frame):
         """Handle shutdown signals"""
-        print(f"\n📡 Received signal {signum}")
         self.stop_all_servers()
         sys.exit(0)
 
@@ -218,12 +199,8 @@ def main():
     signal.signal(signal.SIGTERM, manager.signal_handler)
 
     try:
-        print("🚀 Sophia AI MCP Server Manager")
-        print("=" * 40)
-
         # Setup environment
         manager.setup_environment()
-        print("✅ Environment configured")
 
         # Start infrastructure
         manager.start_infrastructure()
@@ -232,19 +209,14 @@ def main():
         started_count = manager.start_all_servers()
 
         if started_count > 0:
-            print(f"\n🎉 {started_count} servers started successfully!")
-            print("Press Ctrl+C to stop all servers")
-
             # Monitor servers
             manager.monitor_servers()
         else:
-            print("\n❌ No servers started successfully")
             return 1
 
     except KeyboardInterrupt:
-        print("\n🛑 Shutdown requested")
-    except Exception as e:
-        print(f"\n💥 Unexpected error: {e}")
+        pass
+    except Exception:
         return 1
     finally:
         manager.stop_all_servers()

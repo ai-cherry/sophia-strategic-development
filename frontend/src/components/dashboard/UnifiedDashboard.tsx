@@ -6,6 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import apiClient from '../../services/apiClient';
 import EnhancedUnifiedChat from '../shared/EnhancedUnifiedChat';
 import { CacheMonitoringWidget } from './CacheMonitoringWidget';
+import WorkflowDesignerTab from './tabs/WorkflowDesignerTab';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
@@ -222,8 +223,8 @@ const UnifiedDashboard = () => {
                         <div>
                             <p className="text-sm text-gray-500">Daily Budget</p>
                             <p className="text-xl font-bold">${data.llm?.budget_status?.daily_budget || 100}</p>
-                            <Progress 
-                                value={(data.llm?.daily_cost / data.llm?.budget_status?.daily_budget) * 100 || 0} 
+                            <Progress
+                                value={(data.llm?.daily_cost / data.llm?.budget_status?.daily_budget) * 100 || 0}
                                 className={`mt-2 ${(data.llm?.daily_cost / data.llm?.budget_status?.daily_budget) > 0.8 ? 'bg-red-100' : ''}`}
                             />
                             <p className="text-xs text-gray-500 mt-1">
@@ -233,8 +234,8 @@ const UnifiedDashboard = () => {
                         <div>
                             <p className="text-sm text-gray-500">Monthly Budget</p>
                             <p className="text-xl font-bold">${data.llm?.budget_status?.monthly_budget || 3000}</p>
-                            <Progress 
-                                value={(data.llm?.monthly_cost / data.llm?.budget_status?.monthly_budget) * 100 || 0} 
+                            <Progress
+                                value={(data.llm?.monthly_cost / data.llm?.budget_status?.monthly_budget) * 100 || 0}
                                 className={`mt-2 ${(data.llm?.monthly_cost / data.llm?.budget_status?.monthly_budget) > 0.8 ? 'bg-red-100' : ''}`}
                             />
                             <p className="text-xs text-gray-500 mt-1">
@@ -428,6 +429,32 @@ const UnifiedDashboard = () => {
                 </Card>
             </div>
 
+            {/* Agent & Workflow Metrics */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                        <Activity />
+                        <span>Agent & Workflow Metrics</span>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <div className="text-center">
+                            <p className="text-2xl font-bold">12</p>
+                            <p className="text-sm text-gray-500">Active Workflows</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-green-600">98%</p>
+                            <p className="text-sm text-gray-500">Workflow Success Rate</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold">250ms</p>
+                            <p className="text-sm text-gray-500">Avg. Agent Task Time</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Snowflake Data Locality Savings */}
             <Card>
                 <CardHeader>
@@ -479,12 +506,13 @@ const UnifiedDashboard = () => {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
                     <TabsTrigger value="unified_overview">Unified Overview</TabsTrigger>
                     <TabsTrigger value="projects">Projects & OKRs</TabsTrigger>
                     <TabsTrigger value="knowledge">Knowledge AI</TabsTrigger>
                     <TabsTrigger value="sales">Sales Intelligence</TabsTrigger>
                     <TabsTrigger value="llm_metrics">LLM Metrics</TabsTrigger>
+                    <TabsTrigger value="workflow_designer">Workflow Designer</TabsTrigger>
                     <TabsTrigger value="unified_chat">Unified Chat</TabsTrigger>
                 </TabsList>
 
@@ -493,6 +521,7 @@ const UnifiedDashboard = () => {
                 <TabsContent value="knowledge" className="mt-6">{renderKnowledge()}</TabsContent>
                 <TabsContent value="sales" className="mt-6">{renderSales()}</TabsContent>
                 <TabsContent value="llm_metrics" className="mt-6">{renderLLMMetrics()}</TabsContent>
+                <TabsContent value="workflow_designer" className="mt-6"><WorkflowDesignerTab /></TabsContent>
                 <TabsContent value="unified_chat" className="mt-6">
                     <EnhancedUnifiedChat initialContext={activeTab} />
                 </TabsContent>

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 from backend.utils.snowflake_cortex_service_core import SnowflakeCortexServiceCore
 
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class MemoryStorageHandler:
     """Handler for memory storage operations"""
 
-    def __init__(self, cortex_service: Optional[SnowflakeCortexServiceCore] = None):
+    def __init__(self, cortex_service: SnowflakeCortexServiceCore | None = None):
         self.cortex_service = cortex_service
         self.cache = {}  # Simple in-memory cache
         self.cache_ttl = 300  # 5 minutes
@@ -69,7 +69,7 @@ class MemoryStorageHandler:
             logger.error(f"❌ Failed to store memory: {e}")
             raise MemoryStorageError(f"Storage failed: {e}")
 
-    async def retrieve_memory(self, memory_id: str) -> Optional[MemoryRecord]:
+    async def retrieve_memory(self, memory_id: str) -> MemoryRecord | None:
         """Retrieve a memory by ID"""
         try:
             # Check cache first
@@ -183,7 +183,7 @@ class MemoryStorageHandler:
         # Simplified storage - in production would use proper table
         logger.debug(f"💾 Storing memory in Snowflake: {memory.id}")
 
-    async def _retrieve_from_snowflake(self, memory_id: str) -> Optional[MemoryRecord]:
+    async def _retrieve_from_snowflake(self, memory_id: str) -> MemoryRecord | None:
         """Retrieve memory from Snowflake"""
         # Simplified retrieval - in production would query actual table
         logger.debug(f"🔍 Retrieving memory from Snowflake: {memory_id}")
@@ -199,7 +199,7 @@ class MemoryStorageHandler:
         self.cache[memory_id] = memory
         self.cache_timestamps[memory_id] = datetime.now()
 
-    def _get_from_cache(self, memory_id: str) -> Optional[MemoryRecord]:
+    def _get_from_cache(self, memory_id: str) -> MemoryRecord | None:
         """Get memory from cache if not expired"""
         if memory_id not in self.cache:
             return None
@@ -369,7 +369,7 @@ class MemorySearchHandler:
         """Update search cache"""
         self.search_cache[cache_key] = {"results": results, "timestamp": datetime.now()}
 
-    def _get_search_from_cache(self, cache_key: str) -> Optional[list[SearchResult]]:
+    def _get_search_from_cache(self, cache_key: str) -> list[SearchResult] | None:
         """Get search results from cache if not expired"""
         if cache_key not in self.search_cache:
             return None
@@ -426,7 +426,7 @@ class MemoryAnalyticsHandler:
         """Get recent memory activity"""
         try:
             # Simplified activity calculation
-            cutoff_date = datetime.now() - timedelta(days=days)
+            datetime.now() - timedelta(days=days)
 
             activity = {
                 "new_memories": 0,
@@ -609,7 +609,7 @@ class MemoryMaintenanceHandler:
 
 # Factory function to create all handlers
 async def create_memory_handlers(
-    cortex_service: Optional[SnowflakeCortexServiceCore] = None,
+    cortex_service: SnowflakeCortexServiceCore | None = None,
 ) -> dict[str, Any]:
     """Create all memory handlers"""
     storage_handler = MemoryStorageHandler(cortex_service)

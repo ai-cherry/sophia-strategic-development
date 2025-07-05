@@ -8,7 +8,6 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 import httpx
 from prometheus_client import Counter, Gauge, Histogram
@@ -43,8 +42,8 @@ class ServerHealth:
     status: HealthStatus
     response_time_ms: float
     last_check: datetime
-    error_message: Optional[str] = None
-    capabilities: Optional[list[str]] = None
+    error_message: str | None = None
+    capabilities: list[str] | None = None
     consecutive_failures: int = 0
 
 
@@ -203,7 +202,7 @@ class MCPHealthMonitor:
 
     async def check_all_servers(self) -> dict[str, ServerHealth]:
         """Check health of all configured servers"""
-        tasks = [self.check_server_health(name) for name in self.servers.keys()]
+        tasks = [self.check_server_health(name) for name in self.servers]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         health_status = {}

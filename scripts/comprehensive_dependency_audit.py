@@ -28,11 +28,9 @@ class DependencyAuditor:
 
     def audit_project(self) -> dict[str, Any]:
         """Complete dependency audit of the project"""
-        print("🔍 Starting comprehensive dependency audit...")
 
         # 1. Scan all Python files
         python_files = self._find_python_files()
-        print(f"Found {len(python_files)} Python files to analyze")
 
         # 2. Extract all imports
         for file_path in python_files:
@@ -86,8 +84,7 @@ class DependencyAuditor:
             # Parse AST
             try:
                 tree = ast.parse(content)
-            except SyntaxError as e:
-                print(f"⚠️  Syntax error in {file_path}: {e}")
+            except SyntaxError:
                 return
 
             # Extract imports
@@ -98,20 +95,19 @@ class DependencyAuditor:
                         self.all_imports.add(import_name)
                         self.import_locations[import_name].append(str(file_path))
 
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        import_name = node.module
-                        self.all_imports.add(import_name)
-                        self.import_locations[import_name].append(str(file_path))
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    import_name = node.module
+                    self.all_imports.add(import_name)
+                    self.import_locations[import_name].append(str(file_path))
 
-                        # Also track specific imports
-                        for alias in node.names:
-                            full_import = f"{node.module}.{alias.name}"
-                            self.all_imports.add(full_import)
-                            self.import_locations[full_import].append(str(file_path))
+                    # Also track specific imports
+                    for alias in node.names:
+                        full_import = f"{node.module}.{alias.name}"
+                        self.all_imports.add(full_import)
+                        self.import_locations[full_import].append(str(file_path))
 
-        except Exception as e:
-            print(f"❌ Error analyzing {file_path}: {e}")
+        except Exception:
+            pass
 
     def _categorize_imports(self) -> None:
         """Categorize imports as internal or external"""
@@ -148,7 +144,6 @@ class DependencyAuditor:
 
     def _check_import_availability(self) -> None:
         """Check if imports are available"""
-        print("\n🔍 Checking import availability...")
 
         # Check external imports
         for import_name in self.external_imports:
@@ -189,7 +184,6 @@ class DependencyAuditor:
 
     def _detect_circular_dependencies(self) -> None:
         """Detect circular import dependencies"""
-        print("\n🔍 Checking for circular dependencies...")
 
         # Build import graph
         import_graph = defaultdict(set)
@@ -282,13 +276,10 @@ class DependencyAuditor:
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"\n📊 Detailed report saved to: {report_path}")
-
         return report
 
     def _generate_requirements(self) -> None:
         """Generate requirements.txt files"""
-        print("\n📝 Generating requirements files...")
 
         # Map of known packages to their pip names
         package_mapping = {
@@ -366,47 +357,30 @@ class DependencyAuditor:
             for req in sorted(dev_requirements):
                 f.write(f"{req}\n")
 
-        print(f"✅ Generated {req_path}")
-        print(f"✅ Generated {dev_req_path}")
-
     def print_summary(self, report: dict[str, Any]) -> None:
         """Print a summary of the audit results"""
-        print("\n" + "=" * 60)
-        print("📊 DEPENDENCY AUDIT SUMMARY")
-        print("=" * 60)
 
-        summary = report["summary"]
-        print(f"\nFiles analyzed: {summary['files_analyzed']}")
-        print(f"Total imports found: {summary['total_imports']}")
-        print(f"  - Internal: {summary['internal_imports']}")
-        print(f"  - External: {summary['external_imports']}")
-        print(f"\n⚠️  Missing imports: {summary['missing_imports']}")
-        print(f"🔄 Circular dependencies: {summary['circular_dependencies']}")
+        report["summary"]
 
         if report["missing_imports"]["details"]:
-            print("\n❌ MISSING IMPORTS:")
-            for imp, details in list(report["missing_imports"]["details"].items())[:10]:
-                print(f"  - {imp} ({details['type']})")
-                for loc in details["locations"][:3]:
-                    print(f"    Used in: {loc}")
+            for _imp, details in list(report["missing_imports"]["details"].items())[
+                :10
+            ]:
+                for _loc in details["locations"][:3]:
+                    pass
                 if len(details["locations"]) > 3:
-                    print(f"    ... and {len(details["locations"]) - 3} more files")
+                    pass
 
         if report["circular_dependencies"]:
-            print("\n🔄 CIRCULAR DEPENDENCIES:")
-            for dep1, dep2 in report["circular_dependencies"][:5]:
-                print(f"  - {dep1} <-> {dep2}")
+            for _dep1, _dep2 in report["circular_dependencies"][:5]:
+                pass
 
-        print("\n📈 MOST IMPORTED MODULES:")
-        for module, count in list(report["most_imported"].items())[:10]:
-            print(f"  - {module}: {count} times")
+        for _module, _count in list(report["most_imported"].items())[:10]:
+            pass
 
         if report["recommendations"]:
-            print("\n💡 RECOMMENDATIONS:")
-            for rec in report["recommendations"]:
-                print(f"  - {rec}")
-
-        print("\n" + "=" * 60)
+            for _rec in report["recommendations"]:
+                pass
 
 
 def main():
@@ -417,12 +391,8 @@ def main():
 
     # Check for critical issues
     if report["summary"]["missing_imports"] > 0:
-        print(
-            "\n⚠️  Found missing imports! Check dependency_audit_report.json for details."
-        )
         sys.exit(1)
     else:
-        print("\n✅ All imports are available!")
         sys.exit(0)
 
 

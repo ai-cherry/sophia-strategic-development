@@ -81,11 +81,15 @@ class LongFunctionRefactorer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.And | ast.Or):
+            if isinstance(
+                child,
+                ast.If
+                | ast.While
+                | ast.For
+                | ast.AsyncFor
+                | ast.ExceptHandler
+                | (ast.And | ast.Or),
+            ):
                 complexity += 1
 
         return complexity

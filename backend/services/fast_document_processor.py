@@ -10,7 +10,7 @@ import hashlib
 import time
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, Field
@@ -37,8 +37,8 @@ class DocumentChunk(BaseModel):
     chunk_id: str
     content: str
     metadata: dict[str, Any]
-    embedding: Optional[list[float]] = None
-    processing_time_ms: Optional[float] = None
+    embedding: list[float] | None = None
+    processing_time_ms: float | None = None
 
 
 class ProcessingResult(BaseModel):
@@ -98,7 +98,7 @@ class FastDocumentProcessor:
         self.cache_ttl = timedelta(hours=1)
 
     async def process_documents_batch(
-        self, documents: list[dict[str, Any]], metadata: Optional[dict[str, Any]] = None
+        self, documents: list[dict[str, Any]], metadata: dict[str, Any] | None = None
     ) -> list[ProcessingResult]:
         """
         Process multiple documents in parallel.
@@ -163,7 +163,7 @@ class FastDocumentProcessor:
         return processed_results
 
     async def process_document(
-        self, document: dict[str, Any], metadata: Optional[dict[str, Any]] = None
+        self, document: dict[str, Any], metadata: dict[str, Any] | None = None
     ) -> ProcessingResult:
         """
         Process a single document with caching.
@@ -332,7 +332,7 @@ class FastDocumentProcessor:
         self,
         chunks: list[DocumentChunk],
         doc_id: str,
-        metadata: Optional[dict[str, Any]],
+        metadata: dict[str, Any] | None,
     ) -> list[DocumentChunk]:
         """
         Process chunks in parallel with batching.
@@ -401,7 +401,7 @@ class FastDocumentProcessor:
                 metadata=chunk.metadata,
             )
 
-    async def _check_cache(self, doc_id: str) -> Optional[ProcessingResult]:
+    async def _check_cache(self, doc_id: str) -> ProcessingResult | None:
         """Check if document is already processed."""
         # Check memory cache
         if doc_id in self.memory_cache:

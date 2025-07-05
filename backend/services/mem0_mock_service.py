@@ -5,7 +5,7 @@ Provides in-memory storage for testing without Kubernetes
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class MockMem0Service:
         self,
         user_id: str,
         conversation: list[dict[str, str]],
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Store conversation in memory"""
         memory_id = str(uuid4())
@@ -47,7 +47,7 @@ class MockMem0Service:
         user_id: str,
         query: str,
         limit: int = 5,
-        filters: Optional[dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """Recall memories for a user"""
         if user_id not in self.user_memories:

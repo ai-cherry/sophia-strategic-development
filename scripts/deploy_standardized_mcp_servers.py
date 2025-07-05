@@ -56,10 +56,7 @@ class MCPServerDeployer:
 
     def check_port_availability(self, port: int) -> bool:
         """Check if a port is available"""
-        for conn in psutil.net_connections():
-            if conn.laddr.port == port:
-                return False
-        return True
+        return all(conn.laddr.port != port for conn in psutil.net_connections())
 
     def kill_process_on_port(self, port: int):
         """Kill any process using the specified port"""

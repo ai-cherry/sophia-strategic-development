@@ -955,33 +955,17 @@ async def main():
     modernizer = FastAPIModernizer()
     results = await modernizer.modernize_all_fastapi_apps()
 
-    print("\n" + "=" * 60)
-    print("🚀 FASTAPI MODERNIZATION COMPLETE")
-    print("=" * 60)
-    print(f"Status: {results['status']}")
-
     if results["status"] == "success":
         summary = results["summary"]
-        print(f"Files Processed: {summary['files_processed']}")
-        print(f"Files Modernized: {summary['files_modernized']}")
-        print(f"Patterns Applied: {len(summary['patterns_applied'])}")
 
-        print("\n✅ Modernization patterns applied:")
-        for pattern in summary["patterns_applied"]:
-            print(f"  • {pattern}")
+        for _pattern in summary["patterns_applied"]:
+            pass
 
-        print("\n💡 Recommendations for further improvement:")
-        for recommendation in results["recommendations"]:
-            print(f"  • {recommendation}")
+        for _recommendation in results["recommendations"]:
+            pass
 
-        print("\n🎯 Next Steps:")
-        print("  1. Test all modernized applications")
-        print("  2. Update deployment scripts")
-        print("  3. Run comprehensive test suite")
-        print("  4. Update documentation")
-        print("  5. Deploy to staging environment")
     else:
-        print(f"\n❌ Modernization failed: {results.get('error', 'Unknown error')}")
+        pass
 
 
 if __name__ == "__main__":

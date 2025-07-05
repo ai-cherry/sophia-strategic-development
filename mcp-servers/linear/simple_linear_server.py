@@ -17,7 +17,6 @@ try:
     from fastapi import FastAPI, HTTPException
     from fastapi.middleware.cors import CORSMiddleware
 except ImportError:
-    print("FastAPI not available. Install with: pip install fastapi uvicorn")
     sys.exit(1)
 
 # Configure logging

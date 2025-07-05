@@ -26,21 +26,14 @@ logger = logging.getLogger(__name__)
 async def test_riley_coaching_analysis():
     """Test comprehensive coaching analysis for Riley Martinez"""
 
-    print("🎯 Testing Enhanced Sales Coaching System")
-    print("=" * 60)
-
     try:
         # Test 1: Performance Analysis
-        print("\n📊 Test 1: Comprehensive Performance Analysis")
-        print("-" * 50)
 
         result = await enhanced_sales_coach_agent.execute_task(
             {"type": "analyze_performance", "sales_rep": "Riley Martinez", "days": 7}
         )
 
         if "error" in result:
-            print(f"⚠️  Using demo data (no real Gong connection): {result['error']}")
-
             # Create demo coaching analysis
             demo_result = {
                 "success": True,
@@ -102,46 +95,25 @@ async def test_riley_coaching_analysis():
             }
             result = demo_result
 
-        print(f"✅ Analysis completed for {result['sales_rep']}")
-        print(f"�� Performance Score: {result['performance_score']:.2f}")
-        print(f"🔍 Insights Found: {len(result['insights'])}")
-        print(f"📋 Action Items: {len(result['action_items'])}")
-
         # Display insights
-        print("\n🚨 Critical & High Priority Insights:")
         for insight in result["insights"]:
-            priority_emoji = (
+            (
                 "🚨"
                 if insight["priority"] == "critical"
                 else "⚠️"
                 if insight["priority"] == "high"
                 else "ℹ️"
             )
-            print(f"  {priority_emoji} {insight['type']}: {insight['message']}")
 
         # Display email intelligence
         email_intel = result.get("email_intelligence", {})
-        email_summary = email_intel.get("summary", {})
-        print("\n📧 Email Intelligence:")
-        print(f"  Response Rate: {email_summary.get('response_rate', 0):.1f}%")
-        print(
-            f"  Personalization Score: {email_summary.get('avg_personalization_score', 0):.2f}"
-        )
-        print(f"  Total Emails Sent: {email_summary.get('total_emails_sent', 0)}")
+        email_intel.get("summary", {})
 
         # Display call performance
         call_perf = result.get("call_performance", {})
-        call_summary = call_perf.get("summary", {})
-        print("\n📞 Call Performance:")
-        print(f"  Average Sentiment: {call_summary.get('avg_sentiment', 0):.2f}")
-        print(f"  Average Talk Ratio: {call_summary.get('avg_talk_ratio', 0):.1%}")
-        print(
-            f"  Calls Needing Coaching: {call_summary.get('calls_needing_coaching', 0)}"
-        )
+        call_perf.get("summary", {})
 
         # Test 2: Real-time Coaching
-        print("\n📞 Test 2: Real-time Coaching During Call")
-        print("-" * 50)
 
         real_time_result = await enhanced_sales_coach_agent.execute_task(
             {
@@ -156,25 +128,16 @@ async def test_riley_coaching_analysis():
             }
         )
 
-        print("✅ Real-time coaching provided")
-        print(
-            f"🔍 Insights Generated: {len(real_time_result.get('real_time_insights', []))}"
-        )
-
         for insight in real_time_result.get("real_time_insights", []):
-            priority_emoji = (
+            (
                 "��"
                 if insight["priority"] == "critical"
                 else "⚠️"
                 if insight["priority"] == "high"
                 else "ℹ️"
             )
-            print(f"  {priority_emoji} {insight['type']}: {insight['message']}")
-            print(f"    💡 Action: {insight['action']}")
 
         # Test 3: Improvement Tracking
-        print("\n📈 Test 3: Improvement Progress Tracking")
-        print("-" * 50)
 
         improvement_result = await enhanced_sales_coach_agent.execute_task(
             {
@@ -184,32 +147,19 @@ async def test_riley_coaching_analysis():
             }
         )
 
-        print("✅ Improvement tracking completed")
-        trends = improvement_result.get("improvement_trends", {})
-        print(f"📊 Trend: {trends.get('trend', 'unknown')}")
-        print(f"📈 Recent Average: {trends.get('recent_average', 0):.2f}")
-        print(f"📉 Earlier Average: {trends.get('earlier_average', 0):.2f}")
+        improvement_result.get("improvement_trends", {})
 
-        effectiveness = improvement_result.get("coaching_effectiveness", {})
-        print(
-            f"🎯 Coaching Effectiveness: {effectiveness.get('effectiveness_score', 0):.2f}"
-        )
-        print(f"💡 Recommendation: {effectiveness.get('recommendation', 'N/A')}")
+        improvement_result.get("coaching_effectiveness", {})
 
         # Display coaching message if available
         coaching_message = result.get("coaching_message")
         if coaching_message:
-            print("\n💬 Coaching Message Preview:")
-            print("-" * 50)
             # Show first few lines of the coaching message
             lines = coaching_message.split("\n")
-            for _i, line in enumerate(lines[:8]):
-                print(line)
+            for _i, _line in enumerate(lines[:8]):
+                pass
             if len(lines) > 8:
-                print("... (message continues)")
-
-        print("\n🎉 Enhanced Sales Coaching Test Completed Successfully!")
-        print("=" * 60)
+                pass
 
         return {
             "success": True,
@@ -226,9 +176,6 @@ async def test_riley_coaching_analysis():
 async def test_microsoft_gong_integration():
     """Test Microsoft+Gong integration directly"""
 
-    print("\n🔗 Testing Microsoft+Gong Integration")
-    print("-" * 50)
-
     try:
         # Test the integration layer
         analysis = (
@@ -238,11 +185,9 @@ async def test_microsoft_gong_integration():
         )
 
         if "error" in analysis:
-            print(f"⚠️  Integration test shows expected behavior: {analysis['error']}")
-            print("✅ Integration layer is properly configured for production use")
+            pass
         else:
-            print("✅ Integration working with live data")
-            print(f"📊 Overall Score: {analysis.get('overall_score', 0):.2f}")
+            pass
 
         return {"success": True, "integration_test": "passed"}
 
@@ -254,11 +199,6 @@ async def test_microsoft_gong_integration():
 async def main():
     """Main test function"""
 
-    print("🚀 Starting Enhanced Sales Coaching System Tests")
-    print("🎯 Focus: Microsoft Email Intelligence via Gong.io")
-    print("👨‍💼 Demo Rep: Riley Martinez")
-    print("=" * 60)
-
     # Test the integration layer
     integration_result = await test_microsoft_gong_integration()
 
@@ -266,30 +206,15 @@ async def main():
     coaching_result = await test_riley_coaching_analysis()
 
     # Summary
-    print("\n📋 Test Summary:")
-    print("-" * 30)
     if integration_result.get("success"):
-        print("✅ Microsoft+Gong Integration: PASSED")
+        pass
     else:
-        print("❌ Microsoft+Gong Integration: FAILED")
+        pass
 
     if coaching_result.get("success"):
-        print("✅ Enhanced Coaching System: PASSED")
+        pass
     else:
-        print("❌ Enhanced Coaching System: FAILED")
-
-    print("\n🎯 Key Features Demonstrated:")
-    print("  📧 Email thread analysis with personalization scoring")
-    print("  📞 Call performance analysis with sentiment tracking")
-    print("  🚨 Real-time coaching insights and alerts")
-    print("  📈 Improvement progress tracking over time")
-    print("  💬 Friendly but stern coaching messages")
-    print("  🏆 Competitive intelligence and battle cards")
-
-    print("\n🔗 Integration Architecture:")
-    print("  Microsoft Emails → Gong.io → Sophia AI → Enhanced Coaching")
-
-    print("\n✨ Ready for production deployment!")
+        pass
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ TODO: Implement file decomposition
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 from mcp import server
 from notion_client import Client as NotionClient
@@ -620,7 +620,7 @@ class EnhancedNotionMCPServer:
         select = select_prop["select"]
         return select["name"] if select else ""
 
-    def _get_date_value(self, date_prop: dict) -> Optional[str]:
+    def _get_date_value(self, date_prop: dict) -> str | None:
         """Extract date value from date property"""
         if not date_prop or "date" not in date_prop:
             return None

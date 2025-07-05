@@ -310,37 +310,21 @@ Always provide practical, actionable responses that leverage the available MCP c
 
     async def demonstrate_integration(self) -> None:
         """Demonstrate Claude CLI integration with latest models and MCP servers"""
-        print("🚀 Sophia AI - Claude CLI (Latest Models + MCP Integration)")
-        print("=" * 70)
 
         # Show model configuration
-        model_config = self.config.get("globalSettings", {}).get(
-            "modelConfiguration", {}
-        )
-        print("\n🧠 **Model Configuration:**")
-        print(f"   Primary Model: {model_config.get('primaryModel', 'N/A')}")
-        print(f"   Coding Model: {model_config.get('codingModel', 'N/A')}")
-        print(f"   Analysis Model: {model_config.get('analysisModel', 'N/A')}")
-        print(
-            f"   API Status: {'✅ Connected' if self.anthropic_api_key else '❌ API Key Missing'}"
-        )
+        self.config.get("globalSettings", {}).get("modelConfiguration", {})
 
         # Check server health
-        print("\n📊 **MCP Server Health Check:**")
         servers = await self.list_servers()
 
-        for server_name, server_info in servers.items():
+        for _server_name, server_info in servers.items():
             health = server_info["health"]
             status = health.get("status", "unknown")
-            emoji = "✅" if status == "healthy" else "❌"
-            print(f"   {emoji} {server_name}: {status}")
 
             if status == "healthy":
-                capabilities = server_info["config"].get("capabilities", [])
-                print(f"      🔧 Capabilities: {', '.join(capabilities)}")
+                server_info["config"].get("capabilities", [])
 
         # Test Claude integration
-        print("\n🤖 **Claude Enhanced Integration Test:**")
 
         test_queries = [
             "Generate a Python function to analyze sales data",
@@ -349,13 +333,9 @@ Always provide practical, actionable responses that leverage the available MCP c
         ]
 
         for query in test_queries:
-            print(f"\n🔍 **Test Query:** {query}")
-            selected_model = self._select_model(query)
-            print(f"🧠 **Model Selected:** {selected_model}")
+            self._select_model(query)
 
-            response = await self.claude_enhanced_query(query)
-            print(f"💬 {response}")
-            print("-" * 50)
+            await self.claude_enhanced_query(query)
 
 
 async def main_async():
@@ -386,48 +366,22 @@ async def main_async():
 
     try:
         if args.command == "chat":
-            print("🤖 Processing with intelligent model selection...")
-            response = await claude_mcp.claude_enhanced_query(args.message)
-            print(f"\n{response}")
+            await claude_mcp.claude_enhanced_query(args.message)
 
         elif args.command == "servers":
             servers = await claude_mcp.list_servers()
-            print("\n📊 **MCP Servers:**")
-            for name, info in servers.items():
-                status = info["health"].get("status", "unknown")
-                emoji = "✅" if status == "healthy" else "❌"
-                print(f"   {emoji} {name}: {status}")
-                print(f"      📝 {info['config']['description']}")
-                print(
-                    f"      🔧 Capabilities: {', '.join(info['config'].get('capabilities', []))}"
-                )
+            for _name, info in servers.items():
+                info["health"].get("status", "unknown")
 
         elif args.command == "health":
             servers = await claude_mcp.list_servers()
-            print("\n💚 **MCP Server Health Status:**")
-            for name, info in servers.items():
-                health = info["health"]
-                print(f"\n**{name}:**")
-                print(json.dumps(health, indent=2))
+            for _name, info in servers.items():
+                info["health"]
 
         elif args.command == "models":
-            model_config = claude_mcp.config.get("globalSettings", {}).get(
-                "modelConfiguration", {}
-            )
-            print("\n🧠 **Model Configuration:**")
-            print(json.dumps(model_config, indent=2))
+            claude_mcp.config.get("globalSettings", {}).get("modelConfiguration", {})
 
-            routing_config = claude_mcp.config.get("globalSettings", {}).get(
-                "intelligentRouting", {}
-            )
-            print(
-                f"\n🎯 **Intelligent Routing:** {'✅ Enabled' if routing_config.get('enabled') else '❌ Disabled'}"
-            )
-
-            api_status = (
-                "✅ Connected" if claude_mcp.anthropic_api_key else "❌ API Key Missing"
-            )
-            print(f"🔗 **API Status:** {api_status}")
+            claude_mcp.config.get("globalSettings", {}).get("intelligentRouting", {})
 
         elif args.command == "demo":
             await claude_mcp.demonstrate_integration()

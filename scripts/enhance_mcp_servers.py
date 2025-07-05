@@ -32,29 +32,6 @@ class MCPEnhancer:
         """Add comprehensive health check information to all servers"""
         logger.info("🏥 Enhancing health endpoints...")
 
-        health_template = """
-    async def get_health_details(self) -> dict:
-        \"\"\"Get detailed health information\"\"\"
-        return {
-            "status": "healthy",
-            "server_name": self.__class__.__name__,
-            "version": "1.0.0",
-            "uptime_seconds": time.time() - self.start_time if hasattr(self, 'start_time') else 0,
-            "capabilities": len(self.server.list_tools()) if hasattr(self, 'server') else 0,
-            "environment": os.getenv("ENVIRONMENT", "unknown"),
-            "lambda_labs_host": os.getenv("LAMBDA_LABS_HOST", "not_configured"),
-            "memory_usage_mb": self.get_memory_usage(),
-            "last_request": getattr(self, 'last_request_time', None),
-            "request_count": getattr(self, 'request_count', 0)
-        }
-
-    def get_memory_usage(self) -> float:
-        \"\"\"Get current memory usage in MB\"\"\"
-        import psutil
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / 1024 / 1024
-"""
-
         self.enhancements_applied.append(
             {
                 "type": "health_endpoints",
@@ -67,26 +44,6 @@ class MCPEnhancer:
         """Add comprehensive request logging to all servers"""
         logger.info("📝 Adding request logging...")
 
-        logging_middleware = """
-    async def log_request(self, request_type: str, tool_name: str = None, duration: float = None):
-        \"\"\"Log request details for monitoring\"\"\"
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "request_type": request_type,
-            "tool_name": tool_name,
-            "duration_ms": duration * 1000 if duration else None,
-            "environment": os.getenv("ENVIRONMENT", "unknown"),
-            "server": self.__class__.__name__
-        }
-
-        # Update metrics
-        self.request_count = getattr(self, 'request_count', 0) + 1
-        self.last_request_time = datetime.now().isoformat()
-
-        # Log to structured logger
-        logger.info(f"MCP_REQUEST: {json.dumps(log_entry)}")
-"""
-
         self.enhancements_applied.append(
             {
                 "type": "request_logging",
@@ -98,26 +55,6 @@ class MCPEnhancer:
     def add_error_recovery(self):
         """Add automatic error recovery mechanisms"""
         logger.info("🔄 Adding error recovery...")
-
-        error_recovery = """
-    async def with_retry(self, func, *args, max_retries=3, backoff_factor=2, **kwargs):
-        \"\"\"Execute function with automatic retry on failure\"\"\"
-        last_error = None
-
-        for attempt in range(max_retries):
-            try:
-                return await func(*args, **kwargs)
-            except Exception as e:
-                last_error = e
-                if attempt < max_retries - 1:
-                    wait_time = backoff_factor ** attempt
-                    logger.warning(f"Attempt {attempt + 1} failed, retrying in {wait_time}s: {e}")
-                    await asyncio.sleep(wait_time)
-                else:
-                    logger.error(f"All {max_retries} attempts failed: {e}")
-
-        raise last_error
-"""
 
         self.enhancements_applied.append(
             {
@@ -175,21 +112,6 @@ class MCPEnhancer:
     def add_lambda_labs_integration(self):
         """Enhance Lambda Labs integration for all servers"""
         logger.info("🌐 Enhancing Lambda Labs integration...")
-
-        lambda_integration = """
-    def get_lambda_labs_config(self) -> dict:
-        \"\"\"Get Lambda Labs specific configuration\"\"\"
-        return {
-            "host": os.getenv("LAMBDA_LABS_HOST", "104.171.202.64"),
-            "enable_gpu": os.getenv("ENABLE_GPU", "false").lower() == "true",
-            "docker_swarm": True,
-            "replicas": int(os.getenv("REPLICAS", "1")),
-            "resource_limits": {
-                "memory": os.getenv("MEMORY_LIMIT", "2G"),
-                "cpu": os.getenv("CPU_LIMIT", "1.0")
-            }
-        }
-"""
 
         self.enhancements_applied.append(
             {

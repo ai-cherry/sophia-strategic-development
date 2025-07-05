@@ -231,8 +231,8 @@ class OptimizedGongDataIntegration:
 
         return {
             "semaphores": pools,
-            "task_queues": {stage: [] for stage in pools.keys()},
-            "active_tasks": {stage: [] for stage in pools.keys()},
+            "task_queues": {stage: [] for stage in pools},
+            "active_tasks": {stage: [] for stage in pools},
         }
 
     async def _execute_concurrent_stages(
@@ -802,9 +802,12 @@ class OptimizedGongDataIntegration:
         self, insight_type: str, insights: list[Any]
     ) -> str:
         """Calculate priority for insight type"""
-        if insight_type == "risk" and len(insights) > 2:
-            return "high"
-        elif insight_type == "revenue" and len(insights) > 1:
+        if (
+            insight_type == "risk"
+            and len(insights) > 2
+            or insight_type == "revenue"
+            and len(insights) > 1
+        ):
             return "high"
         elif len(insights) > 3:
             return "medium"

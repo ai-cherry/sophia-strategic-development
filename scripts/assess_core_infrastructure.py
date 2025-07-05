@@ -449,17 +449,9 @@ async def main():
     with open("infrastructure_assessment_report.json", "w") as f:
         json.dump(report, f, indent=2)
 
-    print("\n=== INFRASTRUCTURE ASSESSMENT COMPLETE ===")
-    print(
-        f"Healthy Components: {report['assessment_summary']['healthy_components']}/{report['assessment_summary']['total_components']}"
-    )
-
     if report["recommendations"]:
-        print("\nCRITICAL RECOMMENDATIONS:")
-        for rec in report["recommendations"]:
-            print(f"  - {rec}")
-
-    print("\nFull report saved to: infrastructure_assessment_report.json")
+        for _rec in report["recommendations"]:
+            pass
 
     return report
 

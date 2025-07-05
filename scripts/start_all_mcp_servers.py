@@ -29,8 +29,7 @@ class MCPServerOrchestrator:
         try:
             with open(PORT_REGISTRY_PATH) as f:
                 return json.load(f)
-        except Exception as e:
-            print(f"❌ Failed to load port registry: {e}")
+        except Exception:
             return {}
 
     def _get_server_config(self) -> dict[str, dict]:
@@ -145,10 +144,7 @@ class MCPServerOrchestrator:
         server_dir = MCP_SERVERS_DIR / config["path"]
 
         if not server_dir.exists():
-            print(f"⚠️ Server directory not found: {server_dir}")
             return False
-
-        print(f"🚀 Starting {server_name} on port {config['port']}...")
 
         try:
             # Change to server directory and start
@@ -166,24 +162,17 @@ class MCPServerOrchestrator:
             for _attempt in range(10):
                 await asyncio.sleep(1)
                 if await self.check_health(server_name, config["port"]):
-                    print(
-                        f"✅ {server_name} started successfully on port {config['port']}"
-                    )
                     return True
 
-            print(f"❌ {server_name} failed to start or become healthy")
             return False
 
-        except Exception as e:
-            print(f"❌ Failed to start {server_name}: {e}")
+        except Exception:
             return False
 
     async def wait_for_dependencies(self, dependencies: list[str]) -> bool:
         """Wait for dependency servers to be healthy"""
         if not dependencies:
             return True
-
-        print(f"⏳ Waiting for dependencies: {', '.join(dependencies)}")
 
         for dep in dependencies:
             if dep not in self.servers:
@@ -195,7 +184,6 @@ class MCPServerOrchestrator:
                     break
                 await asyncio.sleep(1)
             else:
-                print(f"❌ Dependency {dep} not healthy")
                 return False
 
         return True
@@ -215,8 +203,6 @@ class MCPServerOrchestrator:
 
         # Start servers by priority group
         for priority in sorted(priority_groups.keys()):
-            print(f"\n🎯 Starting Priority {priority} servers...")
-
             # Start all servers in this priority group
             tasks = []
             for server_name, config in priority_groups[priority]:
@@ -224,7 +210,6 @@ class MCPServerOrchestrator:
                 if await self.wait_for_dependencies(config["dependencies"]):
                     tasks.append(self.start_server(server_name, config))
                 else:
-                    print(f"❌ Skipping {server_name} due to dependency failures")
                     results[server_name] = False
 
             # Wait for all servers in this priority to start
@@ -253,57 +238,34 @@ class MCPServerOrchestrator:
 
     def stop_all_servers(self):
         """Stop all running servers"""
-        print("\n🛑 Stopping all MCP servers...")
 
-        for server_name, process in self.processes.items():
+        for _server_name, process in self.processes.items():
             try:
                 process.terminate()
                 process.wait(timeout=5)
-                print(f"✅ Stopped {server_name}")
             except subprocess.TimeoutExpired:
                 process.kill()
-                print(f"🔪 Force killed {server_name}")
-            except Exception as e:
-                print(f"❌ Error stopping {server_name}: {e}")
+            except Exception:
+                pass
 
     def print_status_report(
         self, start_results: dict[str, bool], health_results: dict[str, bool]
     ):
         """Print a comprehensive status report"""
-        print("\n" + "=" * 60)
-        print("🏥 SOPHIA AI MCP SERVER STATUS REPORT")
-        print("=" * 60)
 
         total_servers = len(self.servers)
-        started_servers = sum(1 for result in start_results.values() if result)
+        sum(1 for result in start_results.values() if result)
         healthy_servers = sum(1 for result in health_results.values() if result)
 
-        print(f"📊 Overview: {healthy_servers}/{total_servers} servers healthy")
-        print(f"🚀 Started: {started_servers}/{total_servers} servers")
-        print()
-
         for server_name in self.servers:
-            config = self.servers[server_name]
-            started = start_results.get(server_name, False)
-            healthy = health_results.get(server_name, False)
+            self.servers[server_name]
+            start_results.get(server_name, False)
+            health_results.get(server_name, False)
 
-            status_icon = "✅" if healthy else "❌" if started else "⏸️"
-            status_text = (
-                "HEALTHY" if healthy else "UNHEALTHY" if started else "NOT_STARTED"
-            )
-
-            print(
-                f"{status_icon} {server_name:20} | Port {config['port']:5} | {status_text}"
-            )
-
-        print("\n" + "=" * 60)
-
-        if healthy_servers == total_servers:
-            print("🎉 All MCP servers are operational!")
-        elif healthy_servers > 0:
-            print(f"⚠️ {total_servers - healthy_servers} servers need attention")
+        if healthy_servers == total_servers or healthy_servers > 0:
+            pass
         else:
-            print("❌ No servers are healthy - check logs and configuration")
+            pass
 
 
 async def main():
@@ -311,10 +273,6 @@ async def main():
     orchestrator = MCPServerOrchestrator()
 
     try:
-        print("🎬 Starting Sophia AI MCP Server Orchestration...")
-        print(f"📂 Project root: {PROJECT_ROOT}")
-        print(f"🔧 MCP servers directory: {MCP_SERVERS_DIR}")
-
         # Start all servers
         start_results = await orchestrator.start_all_servers()
 
@@ -328,7 +286,6 @@ async def main():
         orchestrator.print_status_report(start_results, health_results)
 
         # Keep servers running
-        print("\n🔄 MCP servers are running. Press Ctrl+C to stop all servers...")
 
         try:
             while True:
@@ -339,16 +296,14 @@ async def main():
                     name for name, healthy in current_health.items() if not healthy
                 ]
                 if unhealthy:
-                    print(f"⚠️ Unhealthy servers detected: {', '.join(unhealthy)}")
+                    pass
         except KeyboardInterrupt:
-            print("\n🛑 Shutdown requested...")
+            pass
 
-    except Exception as e:
-        print(f"❌ Orchestration failed: {e}")
+    except Exception:
         sys.exit(1)
     finally:
         orchestrator.stop_all_servers()
-        print("👋 MCP Server Orchestration completed")
 
 
 if __name__ == "__main__":

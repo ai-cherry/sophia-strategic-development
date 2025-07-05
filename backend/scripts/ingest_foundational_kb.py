@@ -400,10 +400,7 @@ class FoundationalKBIngestionService:
         if format == IngestionFormat.JSON:
             with open(file_path) as f:
                 data = json.load(f)
-                if isinstance(data, list):
-                    records = data
-                else:
-                    records = [data]
+                records = data if isinstance(data, list) else [data]
 
         elif format == IngestionFormat.JSONL:
             with open(file_path) as f:
@@ -625,18 +622,14 @@ async def main():
                 ),
             )
 
-            stats = await service.ingest_data_file(config)
-            print(f"✅ Ingestion completed: {stats}")
+            await service.ingest_data_file(config)
 
         else:
             # Ingest all foundational data
             results = await service.ingest_all_foundational_data()
 
-            print("\n📊 Ingestion Results:")
-            for data_type, stats in results.items():
-                print(
-                    f"  {data_type}: {stats.processed_records}/{stats.total_records} records ({stats.success_rate:.1%} success)"
-                )
+            for _data_type, _stats in results.items():
+                pass
 
     finally:
         await service.close()

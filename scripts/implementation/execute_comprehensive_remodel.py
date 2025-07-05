@@ -44,21 +44,6 @@ class SophiaAIComprehensiveRemodel:
 
     def print_banner(self):
         """Print the remodel banner"""
-        banner = """
-╔══════════════════════════════════════════════════════════════════╗
-║                    SOPHIA AI COMPREHENSIVE REMODEL               ║
-║                     Research-Validated Architecture              ║
-╠══════════════════════════════════════════════════════════════════╣
-║ Performance Targets:                                             ║
-║ • 39× faster Docker builds (Docker Build Cloud)                 ║
-║ • 10-100× faster package management (UV)                        ║
-║ • 220+ workflow executions/second (N8N Queue Mode)              ║
-║ • Sub-100ms data latency (Estuary Flow CDC)                     ║
-║ • Automated secret rotation (Pulumi ESC)                        ║
-║ • 99.9% system availability                                     ║
-╚══════════════════════════════════════════════════════════════════╝
-        """
-        print(banner)
 
     def check_prerequisites(self) -> bool:
         """Check if all prerequisites are met"""
@@ -670,23 +655,12 @@ gzip_types text/plain text/css application/json application/javascript;
         report = self.generate_final_report()
 
         # Print summary
-        print("\n" + "=" * 80)
-        print("🎉 SOPHIA AI COMPREHENSIVE REMODEL COMPLETE")
-        print("=" * 80)
-        print(f"Overall Status: {report['remodel_summary']['overall_status']}")
-        print(f"Success Rate: {report['remodel_summary']['success_rate_percent']:.1f}%")
-        print(
-            f"Phases Completed: {report['remodel_summary']['successful_phases']}/{report['remodel_summary']['total_phases']}"
-        )
 
         if overall_success:
-            print("\n🚀 Next Steps:")
-            for step in report["next_steps"]:
-                print(f"  • {step}")
+            for _step in report["next_steps"]:
+                pass
         else:
-            print(
-                "\n⚠️ Some phases failed. Please review the logs and retry failed phases."
-            )
+            pass
 
         return overall_success
 
@@ -723,7 +697,6 @@ async def main():
         end_phase = args.end_phase
 
     if start_phase > end_phase:
-        print("❌ Start phase cannot be greater than end phase")
         return 1
 
     remodel = SophiaAIComprehensiveRemodel()

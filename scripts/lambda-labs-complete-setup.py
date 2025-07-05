@@ -546,13 +546,8 @@ async def main():
     try:
         success = await setup.run_complete_setup()
         if success:
-            print("🎉 Lambda Labs complete infrastructure setup successful!")
-            print(f"🌐 Instance IP: {setup.instance_ip}")
-            print("📊 Access Grafana: http://{setup.instance_ip}:3000")
-            print("🔍 Access Weaviate: http://{setup.instance_ip}:8080")
             sys.exit(0)
         else:
-            print("❌ Setup failed!")
             sys.exit(1)
     except Exception as e:
         logger.error(f"❌ Setup failed with exception: {e}")

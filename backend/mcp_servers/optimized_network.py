@@ -515,12 +515,8 @@ async def example():
 
     try:
         status, data, headers = await network.get("https://api.example.com/data")
-        print(f"Status: {status}")
-        print(f"Data: {data}")
-        print(f"Headers: {headers}")
 
-        stats = network.get_stats()
-        print(f"Network stats: {stats}")
+        network.get_stats()
     finally:
         await network.shutdown()
 

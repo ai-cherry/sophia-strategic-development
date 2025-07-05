@@ -215,14 +215,11 @@ related_docs: {", ".join(metadata["related_docs"]) if metadata["related_docs"] e
             if content != original_content:
                 filepath.write_text(content)
                 self.enhanced_files.append(str(filepath))
-                print(f"✓ Enhanced: {filepath}")
                 return True
             else:
-                print(f"  No changes needed: {filepath}")
                 return False
 
-        except Exception as e:
-            print(f"✗ Failed to enhance {filepath}: {e}")
+        except Exception:
             return False
 
     def create_index_file(self):
@@ -286,7 +283,6 @@ Use the tags in each document to find related content quickly.
         # Write index file
         index_path = self.docs_path / "README.md"
         index_path.write_text(index_content)
-        print(f"✓ Created documentation index: {index_path}")
 
     def generate_enhancement_report(self):
         """Generate a report of all enhancements"""
@@ -300,29 +296,21 @@ Use the tags in each document to find related content quickly.
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"\n✓ Enhancement report saved to {report_path}")
-
     def run(self):
         """Execute the enhancement process"""
-        print("=== Sophia AI Documentation Enhancement ===\n")
 
         # Enhance all markdown files in docs directory
-        print("Enhancing documentation files...")
         for doc_file in self.docs_path.rglob("*.md"):
             if doc_file.name != "README.md":
                 self.enhance_file(doc_file)
 
         # Create index file
-        print("\nCreating documentation index...")
         self.create_index_file()
 
         # Generate report
         self.generate_enhancement_report()
 
         # Summary
-        print("\n=== Summary ===")
-        print(f"Files enhanced: {len(self.enhanced_files)}")
-        print("\nDocumentation is now optimized for AI coders!")
 
 
 def main():

@@ -142,34 +142,6 @@ class SophiaLiveDeployment:
 
     def show_access_info(self):
         """Show access information"""
-        print("\n" + "=" * 60)
-        print("🎉 SOPHIA AI IS NOW RUNNING!")
-        print("=" * 60)
-        print()
-        print("📊 Frontend Dashboard:")
-        print("   🌐 http://localhost:3000")
-        print("   💼 Executive Dashboard with Live Chat")
-        print()
-        print("🔧 Backend API:")
-        print("   🌐 http://localhost:8000")
-        print("   📚 API Documentation: http://localhost:8000/docs")
-        print("   💚 Health Check: http://localhost:8000/health")
-        print()
-        print("💬 Features Available:")
-        print("   ✅ Live WebSocket Chat with Sophia AI")
-        print("   ✅ Document Upload & Knowledge Base")
-        print("   ✅ Real-time Dashboard Updates")
-        print("   ✅ Executive KPI Monitoring")
-        print()
-        print("📝 Test Steps:")
-        print("   1. Open http://localhost:3000 in your browser")
-        print("   2. Click on the AI Assistant tab in the sidebar")
-        print("   3. Start chatting with Sophia AI!")
-        print("   4. Try uploading a document via the Upload button")
-        print()
-        print("🛑 To stop: Press Ctrl+C")
-        print("=" * 60)
-        print()
 
     def cleanup(self):
         """Clean up processes"""

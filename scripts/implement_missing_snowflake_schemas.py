@@ -955,23 +955,15 @@ async def main():
         f.write(summary)
 
     # Create deployment script
-    deployment_script = await implementor.create_deployment_script()
+    await implementor.create_deployment_script()
 
     # Print results
-    print(summary)
-    print(f"\n📄 Summary written to: {summary_path}")
-    print(f"🚀 Deployment script created: {deployment_script}")
 
     # Check overall success
     total_success = all(results.values())
     if total_success:
-        print("\n🎉 ALL SCHEMAS IMPLEMENTED SUCCESSFULLY!")
-        print("📊 Database architecture is now 100% complete")
-        print("🔒 Enterprise-grade security implemented")
-        print("🤖 Unified Chat Interface ready for full integration")
         return 0
     else:
-        print("\n⚠️  Some schemas failed to implement")
         return 1
 
 

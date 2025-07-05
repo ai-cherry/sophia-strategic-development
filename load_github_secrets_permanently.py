@@ -287,23 +287,14 @@ class PermanentSecretsLoader:
 
 def main():
     """Main execution"""
-    print("🔧 SOPHIA AI - PERMANENT SECRETS FIX")
-    print("Solving the GitHub→Environment pipeline ONCE AND FOR ALL")
-    print("=" * 70)
 
     loader = PermanentSecretsLoader()
     success = loader.run_complete_fix()
 
     if success:
-        print("\n🎉 SUCCESS: Permanent secrets fix completed!")
-        print("✅ All critical secrets are now available")
-        print("✅ Pulumi ESC pipeline is working")
-        print("✅ Environment variables are set")
-        print("\n💡 To use: source .env.sophia")
+        pass
     else:
-        print("\n⚠️  PARTIAL SUCCESS: Some issues remain")
-        print("📝 Check the logs above for specific problems")
-        print("🔧 You may need to manually set PULUMI_ACCESS_TOKEN")
+        pass
 
 
 if __name__ == "__main__":

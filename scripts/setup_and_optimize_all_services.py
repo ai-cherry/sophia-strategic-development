@@ -31,7 +31,6 @@ class SophiaInfrastructureOptimizer:
 
     async def setup_snowflake(self):
         """Set up and optimize Snowflake for Sophia AI"""
-        print("\n🏔️ Setting up Snowflake...")
 
         try:
             # Use the PAT as password
@@ -45,7 +44,6 @@ class SophiaInfrastructureOptimizer:
             cursor = conn.cursor()
 
             # Create optimized warehouse for Sophia AI
-            print("Creating optimized warehouses...")
             cursor.execute(
                 """
                 CREATE WAREHOUSE IF NOT EXISTS SOPHIA_AI_COMPUTE_WH
@@ -77,7 +75,6 @@ class SophiaInfrastructureOptimizer:
             )
 
             # Create Sophia AI database and schemas
-            print("Creating Sophia AI database structure...")
             cursor.execute("CREATE DATABASE IF NOT EXISTS SOPHIA_AI_PROD")
             cursor.execute("USE DATABASE SOPHIA_AI_PROD")
 
@@ -95,7 +92,6 @@ class SophiaInfrastructureOptimizer:
                 cursor.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
 
             # Set up Cortex AI functions
-            print("Enabling Snowflake Cortex AI...")
             cursor.execute("USE SCHEMA PUBLIC")
 
             # Create optimized tables for AI operations
@@ -147,7 +143,6 @@ class SophiaInfrastructureOptimizer:
 
     async def setup_lambda_labs(self):
         """Set up and optimize Lambda Labs for Sophia AI"""
-        print("\n🖥️ Setting up Lambda Labs...")
 
         try:
             api_key = "secret_pulumi_87a092f03b5e4896a56542ed6e07d249.bHCTOCe4mkvm9jiT53DWZpnewReAoGic"
@@ -220,7 +215,6 @@ class SophiaInfrastructureOptimizer:
 
     async def setup_github_actions(self):
         """Set up and optimize GitHub Actions for Sophia AI"""
-        print("\n🐙 Setting up GitHub Actions...")
 
         try:
             # Update GitHub Actions workflows
@@ -345,7 +339,6 @@ jobs:
 
     async def setup_estuary_flow(self):
         """Set up and optimize Estuary Flow for Sophia AI"""
-        print("\n🌊 Setting up Estuary Flow...")
 
         try:
             # Create Estuary configuration
@@ -438,7 +431,6 @@ jobs:
 
     async def setup_kubernetes(self):
         """Set up Kubernetes configuration for Sophia AI"""
-        print("\n☸️ Setting up Kubernetes...")
 
         try:
             # Create Kubernetes manifests
@@ -545,7 +537,6 @@ spec:
 
     async def setup_vercel(self):
         """Set up Vercel deployment for Sophia AI"""
-        print("\n▲ Setting up Vercel...")
 
         try:
             # Create Vercel configuration
@@ -583,7 +574,6 @@ spec:
 
     async def setup_portkey_openrouter(self):
         """Set up Portkey and OpenRouter for optimal LLM routing"""
-        print("\n🔀 Setting up Portkey & OpenRouter...")
 
         try:
             # Create Portkey configuration
@@ -648,7 +638,6 @@ spec:
 
     async def setup_codacy(self):
         """Set up Codacy for code quality"""
-        print("\n🔍 Setting up Codacy...")
 
         try:
             # Create Codacy configuration
@@ -694,7 +683,6 @@ spec:
 
     async def optimize_pulumi_infrastructure(self):
         """Optimize Pulumi infrastructure configuration"""
-        print("\n🏗️ Optimizing Pulumi infrastructure...")
 
         try:
             # Update Pulumi configuration for all services
@@ -763,8 +751,6 @@ pulumi.export("environment", env)
 
     async def run_all_optimizations(self):
         """Run all infrastructure setup and optimizations"""
-        print("🚀 Starting Sophia AI Infrastructure Setup & Optimization")
-        print("=" * 60)
 
         # Run all setups concurrently
         tasks = [
@@ -786,24 +772,18 @@ pulumi.export("environment", env)
 
     def generate_report(self):
         """Generate comprehensive setup report"""
-        print("\n" + "=" * 60)
-        print("📊 SOPHIA AI INFRASTRUCTURE SETUP REPORT")
-        print("=" * 60)
 
         # Service status
-        print("\n✅ Service Setup Status:")
         for service, details in self.results["services"].items():
-            status_icon = "✅" if details["status"] == "success" else "❌"
-            print(f"{status_icon} {service.upper()}: {details['status']}")
+            "✅" if details["status"] == "success" else "❌"
             if details["status"] == "success" and "optimizations" in details:
                 for opt in details["optimizations"]:
-                    print(f"   - {opt}")
+                    pass
 
         # Errors
         if self.results["errors"]:
-            print("\n❌ Errors Encountered:")
             for error in self.results["errors"]:
-                print(f"   - {error}")
+                pass
 
         # Save report
         report_file = Path("docs/INFRASTRUCTURE_SETUP_REPORT.md")
@@ -827,8 +807,6 @@ pulumi.export("environment", env)
                 f.write("## Errors\n\n")
                 for error in self.results["errors"]:
                     f.write(f"- {error}\n")
-
-        print(f"\n📄 Full report saved to: {report_file}")
 
 
 async def main():

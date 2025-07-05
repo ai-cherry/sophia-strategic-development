@@ -858,22 +858,19 @@ async def main():
         await manager.initialize()
 
         if args.action == "setup" and args.source:
-            results = await manager.setup_source_pipeline(args.source)
-            print(f"✅ {args.source.title()} pipeline setup completed: {results}")
+            await manager.setup_source_pipeline(args.source)
 
         elif args.action == "test" and args.source:
-            result = await manager.test_source_connection(args.source)
-            print(f"🔍 {args.source.title()} connection test: {result.status.value}")
+            await manager.test_source_connection(args.source)
 
         elif args.action == "health":
-            health = await manager.perform_health_check()
-            print(f"🏥 Health check: {health['overall_status']}")
+            await manager.perform_health_check()
 
         else:
-            print("❌ Invalid action or missing source parameter")
+            pass
 
-    except Exception as e:
-        print(f"❌ Operation failed: {e}")
+    except Exception:
+        pass
     finally:
         await manager.cleanup()
 

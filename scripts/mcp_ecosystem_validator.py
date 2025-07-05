@@ -577,7 +577,7 @@ class MCPEcosystemValidator:
                 "concurrent_connections": 10,
                 "success_rate": 99.5,
             }
-            for name in servers.keys()
+            for name in servers
         ]
 
     async def _measure_resource_usage(self) -> dict:
@@ -846,7 +846,7 @@ Status: {'✅ PASSED' if results['success'] else '❌ FAILED'}
             f.write(output)
         logger.info(f"Results written to {args.output}")
     else:
-        print(output)
+        pass
 
     # Exit with appropriate code
     exit_code = 0 if results["success"] else 1

@@ -15,7 +15,6 @@ sys.path.insert(0, str(project_root))
 
 async def automated_platform_integration():
     """Execute automated integration of all platforms."""
-    print("🔧 Starting Automated Platform Integration...")
 
     # Platform integration commands
     integration_commands = [
@@ -40,13 +39,10 @@ async def automated_platform_integration():
         "Setup Apollo.io outreach optimization",
     ]
 
-    for i, command in enumerate(integration_commands, 1):
-        print(f"  [{i:2d}/{len(integration_commands)}] {command}")
+    for _i, _command in enumerate(integration_commands, 1):
         # Here you would execute the actual integration command
         # using the IaC orchestrator
         await asyncio.sleep(0.1)  # Simulate processing
-
-    print("✅ All Platform Integration Complete")
 
 
 if __name__ == "__main__":

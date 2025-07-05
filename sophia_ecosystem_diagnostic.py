@@ -143,9 +143,6 @@ def test_codacy_mcp() -> dict[str, Any]:
 
 def main():
     """Main diagnostic execution"""
-    print("🚀 Sophia AI Ecosystem Diagnostic Tool")
-    print("Addressing PULUMI_ACCESS_TOKEN issue & testing complete ecosystem")
-    print("=" * 70)
 
     # Run diagnostics
     pulumi_status = check_pulumi_auth()
@@ -154,72 +151,35 @@ def main():
     codacy_status = test_codacy_mcp()
 
     # Print results
-    print("\n📊 DIAGNOSTIC RESULTS:")
-    print("-" * 30)
 
-    status_emoji = "✅" if pulumi_status["status"] == "success" else "❌"
-    print(f"{status_emoji} PULUMI AUTH: {pulumi_status['status']}")
+    "✅" if pulumi_status["status"] == "success" else "❌"
     if "message" in pulumi_status:
-        print(f"   └─ {pulumi_status['message']}")
+        pass
 
-    status_emoji = "✅" if github_status["status"] == "success" else "⚠️"
-    print(
-        f"{status_emoji} GITHUB SECRETS: {github_status['available_count']}/{github_status['total_expected']} available"
-    )
+    "✅" if github_status["status"] == "success" else "⚠️"
 
-    status_emoji = "✅" if mcp_status["status"] == "success" else "⚠️"
-    print(f"{status_emoji} MCP SERVERS: {mcp_status['online_count']} online")
+    "✅" if mcp_status["status"] == "success" else "⚠️"
 
-    status_emoji = "✅" if codacy_status["status"] == "online" else "❌"
-    print(f"{status_emoji} CODACY MCP: {codacy_status['status']}")
+    "✅" if codacy_status["status"] == "online" else "❌"
 
     # Print specific issues and fixes
-    print("\n🔧 KEY ISSUES & FIXES:")
-    print("-" * 30)
 
     if pulumi_status["status"] == "error":
-        print("❌ CRITICAL: PULUMI_ACCESS_TOKEN invalid")
-        print("   💡 Fix: Update in GitHub Organization Secrets (ai-cherry org)")
-        print("   🔄 Then run GitHub Action to sync to Pulumi ESC")
+        pass
 
     if github_status["missing_secrets"]:
-        print(f"⚠️  Missing {len(github_status['missing_secrets'])} GitHub secrets")
-        print(f"   📝 Missing: {', '.join(github_status['missing_secrets'][:3])}...")
+        pass
 
     if codacy_status["status"] != "online":
-        print("❌ Codacy MCP server offline")
-        print(
-            f"   🚀 Start: {codacy_status.get('start_command', 'See mcp-servers/codacy/')}"
-        )
+        pass
 
     # Explain Codacy MCP integration (user asked specifically)
-    print("\n🤖 CODACY MCP SERVER INTEGRATION:")
-    print("-" * 40)
-    print("The Codacy MCP server provides comprehensive code quality analysis:")
 
     if "capabilities" in codacy_status:
-        for cap in codacy_status["capabilities"]:
-            print(f"  • {cap}")
-
-    print("\n🔗 Integration with Cursor IDE:")
-    print("  1. Runs on port 3008 as MCP server")
-    print("  2. Provides real-time code analysis tools")
-    print("  3. Enforces Sophia AI-specific patterns")
-    print("  4. Prevents security issues before commit")
-    print("  5. Natural language commands: 'analyze code', 'check security', etc.")
+        for _cap in codacy_status["capabilities"]:
+            pass
 
     # Expected workflow after fix
-    print("\n✅ EXPECTED WORKFLOW AFTER FIX:")
-    print("-" * 35)
-    print("GitHub Org Secrets (ai-cherry) → Pulumi ESC → Sophia AI Backend")
-    print("  ↓")
-    print("All MCP servers get secrets automatically")
-    print("  ↓")
-    print("Cursor IDE + MCP integration provides:")
-    print("  • AI Memory (learning & context)")
-    print("  • Codacy (code quality & security)")
-    print("  • Business intelligence (Gong, HubSpot, Linear)")
-    print("  • Infrastructure automation (Pulumi, Docker)")
 
     # Save report
     report = {
@@ -233,8 +193,6 @@ def main():
     with open("sophia_ecosystem_report.json", "w") as f:
         json.dump(report, f, indent=2)
 
-    print("\n📄 Full report saved: sophia_ecosystem_report.json")
-
     # Summary
     issues = []
     if pulumi_status["status"] == "error":
@@ -245,10 +203,9 @@ def main():
         issues.append("MCP servers")
 
     if not issues:
-        print("\n🎉 SUCCESS: Ecosystem is healthy!")
+        pass
     else:
-        print(f"\n⚠️  ACTION REQUIRED: Fix {', '.join(issues)}")
-        print("💡 Most critical: Update PULUMI_ACCESS_TOKEN in GitHub Organization")
+        pass
 
 
 if __name__ == "__main__":

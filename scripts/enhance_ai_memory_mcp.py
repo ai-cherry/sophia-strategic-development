@@ -60,19 +60,16 @@ class AIMemoryEnhancer:
                 "timestamp": datetime.now().isoformat(),
             }
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    f"{self.ai_memory_url}/api/v1/memory/store", json=memory_data
-                ) as response:
-                    if response.status == 200:
-                        await response.json()
-                        logger.info(f"✅ Stored enhancement memory: {enhancement_type}")
-                        return True
-                    else:
-                        logger.error(
-                            f"❌ Failed to store memory: HTTP {response.status}"
-                        )
-                        return False
+            async with aiohttp.ClientSession() as session, session.post(
+                f"{self.ai_memory_url}/api/v1/memory/store", json=memory_data
+            ) as response:
+                if response.status == 200:
+                    await response.json()
+                    logger.info(f"✅ Stored enhancement memory: {enhancement_type}")
+                    return True
+                else:
+                    logger.error(f"❌ Failed to store memory: HTTP {response.status}")
+                    return False
         except Exception as e:
             logger.error(f"❌ Error storing enhancement memory: {e}")
             return False
@@ -363,7 +360,6 @@ async def main():
 
         # Generate and display report
         report = enhancer.generate_enhancement_report(results)
-        print(report)
 
         # Save report
         report_path = "AI_MEMORY_ENHANCEMENT_REPORT.md"

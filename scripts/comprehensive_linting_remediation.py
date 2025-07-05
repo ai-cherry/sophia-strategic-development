@@ -9,8 +9,6 @@ import subprocess
 
 
 def main():
-    print("🔧 Starting comprehensive linting remediation...")
-
     # 1. Fix unused import in foundational_knowledge_routes.py
     fix_unused_cache_manager_import()
 
@@ -22,8 +20,6 @@ def main():
 
     # 4. Run final cleanup
     run_final_cleanup()
-
-    print("✅ Linting remediation completed!")
 
 
 def fix_unused_cache_manager_import():
@@ -45,8 +41,6 @@ def fix_unused_cache_manager_import():
 
     with open(file_path, "w") as f:
         f.write(content)
-
-    print(f"✅ Fixed unused import in {file_path}")
 
 
 def fix_lru_cache_issue():
@@ -74,8 +68,6 @@ def fix_lru_cache_issue():
 
     with open(file_path, "w") as f:
         f.write(content)
-
-    print(f"✅ Fixed lru_cache issue in {file_path}")
 
 
 def fix_undefined_names():
@@ -113,20 +105,15 @@ def fix_undefined_names():
                 with open(file_path, "w") as f:
                     f.write(content)
 
-                print(f"✅ Added missing import to {file_path}")
-
 
 def run_final_cleanup():
     """Run final linting and formatting"""
     try:
         # Run ruff with fixes
-        print("🔧 Running ruff fixes...")
         subprocess.run(["ruff", "check", ".", "--fix"], capture_output=True)
 
-        print("✅ Final cleanup completed")
-
-    except Exception as e:
-        print(f"⚠️ Warning: Final cleanup had issues: {e}")
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":

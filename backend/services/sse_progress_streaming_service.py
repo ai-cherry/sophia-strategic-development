@@ -631,11 +631,8 @@ if __name__ == "__main__":
             metrics = await streaming_service.get_service_metrics()
             logger.info(f"📊 Service metrics: {metrics}")
 
-            print("✅ Hybrid progress streaming service test PASSED")
-
         except Exception as e:
             logger.error(f"❌ Test failed: {e}")
-            print("❌ Hybrid progress streaming service test FAILED")
         finally:
             await ingestion_service.shutdown()
 

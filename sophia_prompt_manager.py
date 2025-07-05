@@ -19,53 +19,37 @@ class SophiaPromptManager:
     def list_prompts(self):
         """List available prompts"""
         if not self.prompts_dir.exists():
-            print("No prompts directory found. Run 'sophia init' first.")
             return
 
         prompts = list(self.prompts_dir.glob("*.json"))
         if not prompts:
-            print("No prompts installed.")
             return
 
-        print("📝 Installed Prompts:")
         for prompt_file in prompts:
             with open(prompt_file) as f:
-                data = json.load(f)
-            print(
-                f"  • {prompt_file.stem}: {data.get('description', 'No description')}"
-            )
+                json.load(f)
 
     def list_rules(self):
         """List available rules"""
         if not self.rules_dir.exists():
-            print("No rules directory found. Run 'sophia init' first.")
             return
 
         rules = list(self.rules_dir.glob("*.json"))
         if not rules:
-            print("No rules installed.")
             return
 
-        print("📋 Installed Rules:")
         for rule_file in rules:
             with open(rule_file) as f:
-                data = json.load(f)
-            print(f"  • {rule_file.stem}: {data.get('description', 'No description')}")
+                json.load(f)
 
     def show_prompt(self, name):
         """Show prompt details"""
         prompt_file = self.prompts_dir / f"{name}.json"
         if not prompt_file.exists():
-            print(f"Prompt '{name}' not found.")
             return
 
         with open(prompt_file) as f:
-            data = json.load(f)
-
-        print(f"📝 Prompt: {name}")
-        print(f"Description: {data.get('description', 'No description')}")
-        print("\nTemplate:")
-        print(data.get("template", "No template"))
+            json.load(f)
 
     def create_prompt(self, name, description, template):
         """Create a new prompt"""
@@ -80,8 +64,6 @@ class SophiaPromptManager:
         prompt_file = self.prompts_dir / f"{name}.json"
         with open(prompt_file, "w") as f:
             json.dump(prompt_data, f, indent=2)
-
-        print(f"✅ Created prompt: {name}")
 
 
 def main():

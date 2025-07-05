@@ -584,7 +584,7 @@ class GroupHealthMonitor:
         """
         recommendations = []
 
-        for group_name in self.monitoring_intervals.keys():
+        for group_name in self.monitoring_intervals:
             # Get current metrics
             current_metrics = await self.monitor_group_health(group_name)
 
@@ -691,7 +691,7 @@ class GroupHealthMonitor:
         group_count = 0
 
         # Collect metrics for each group
-        for group_name in self.monitoring_intervals.keys():
+        for group_name in self.monitoring_intervals:
             metrics = await self.monitor_group_health(group_name)
 
             dashboard["groups"][group_name] = {

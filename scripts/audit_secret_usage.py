@@ -194,8 +194,6 @@ class SecretUsageAuditor:
 
 
 def main():
-    print("🔍 Starting Sophia AI Secret Usage Audit...")
-
     auditor = SecretUsageAuditor()
     auditor.audit_directory()
 
@@ -206,27 +204,16 @@ def main():
         json.dump(report, f, indent=2)
 
     # Print summary
-    print("\n📊 Audit Summary:")
-    print(f"Total files scanned: {report['summary']['total_files_scanned']}")
-    print(f"Unique secrets found: {report['summary']['unique_secrets_found']}")
-    print(f"Potential issues: {report['summary']['potential_issues']}")
 
-    print("\n🔑 Access Patterns:")
-    for pattern, count in report["summary"]["access_patterns"].items():
-        print(f"  {pattern}: {count} occurrences")
+    for _pattern, count in report["summary"]["access_patterns"].items():
+        pass
 
-    print("\n📝 Naming Conventions:")
-    for convention, count in report["naming_conventions"].items():
+    for _convention, count in report["naming_conventions"].items():
         if count > 0:
-            print(f"  {convention}: {count} secrets")
+            pass
 
-    print("\n⚠️  Top Issues:")
-    for issue in report["potential_issues"][:5]:
-        print(
-            f"  - {issue['file']}: {issue.get('type', 'unknown')} - {issue.get('key_type', '')}"
-        )
-
-    print("\n✅ Full report saved to: secret_usage_audit_report.json")
+    for _issue in report["potential_issues"][:5]:
+        pass
 
 
 if __name__ == "__main__":

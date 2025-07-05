@@ -242,81 +242,63 @@ def vulnerable_function(user_input):
 
     async def run_comprehensive_test(self):
         """Run comprehensive tests on all coding MCP servers"""
-        print("🧪 TESTING SOPHIA AI CODING MCP SERVERS")
-        print("=" * 50)
-        print()
 
         # Test server health first
-        print("📡 Testing Server Health...")
         for server_name, config in self.servers.items():
-            print(f"   {config['name']} (port {config['port']})...", end=" ")
             health = await self.test_server_health(server_name, config["port"])
             self.test_results[f"{server_name}_health"] = health
 
             if health["status"] == "healthy":
-                print("✅ HEALTHY")
+                pass
             else:
-                print(f"❌ {health['status'].upper()}")
-
-        print()
+                pass
 
         # Test specific functionality
-        print("🔧 Testing Server Functionality...")
 
         # Test Codacy
-        print("   🛡️ Codacy Code Analysis...", end=" ")
         codacy_result = await self.test_codacy_analysis()
         self.test_results["codacy_analysis"] = codacy_result
         if codacy_result.get("success"):
-            print(f"✅ Found {codacy_result.get('issues_found', 0)} issues")
+            pass
         else:
-            print("❌ Failed")
+            pass
 
         # Test AI Memory
-        print("   🧠 AI Memory Storage & Recall...", end=" ")
         memory_result = await self.test_ai_memory_storage()
         self.test_results["ai_memory"] = memory_result
         if memory_result.get("success"):
-            print(
-                f"✅ Stored & recalled {memory_result.get('memories_recalled', 0)} memories"
-            )
+            pass
         else:
-            print("❌ Failed")
+            pass
 
         # Test GitHub
-        print("   📁 GitHub Integration...", end=" ")
         github_result = await self.test_github_integration()
         self.test_results["github"] = github_result
         if github_result.get("success"):
-            print("✅ Repository access working")
+            pass
         else:
-            print("❌ Failed")
+            pass
 
         # Test UI/UX
-        print("   🎨 UI/UX Component Generation...", end=" ")
         ui_result = await self.test_ui_ux_generation()
         self.test_results["ui_ux"] = ui_result
         if ui_result.get("success"):
-            print("✅ Component generated")
+            pass
         else:
-            print("❌ Failed")
+            pass
 
         # Test Hugging Face
-        print("   🤖 Hugging Face AI...", end=" ")
         hf_result = await self.test_huggingface_ai()
         self.test_results["huggingface"] = hf_result
         if hf_result.get("success"):
-            print(f"✅ Sentiment: {hf_result.get('sentiment', 'unknown')}")
+            pass
         else:
-            print("❌ Failed")
+            pass
 
-        print()
         await self.generate_report()
 
     async def generate_report(self):
         """Generate a comprehensive test report"""
-        print("📊 COMPREHENSIVE TEST REPORT")
-        print("=" * 50)
 
         # Summary
         total_servers = len(self.servers)
@@ -331,97 +313,48 @@ def vulnerable_function(user_input):
             if not k.endswith("_health") and v.get("success")
         )
 
-        print("📈 Overall Status:")
-        print(
-            f"   Servers Running: {healthy_servers}/{total_servers} ({healthy_servers/total_servers*100:.0f}%)"
-        )
-        print(
-            f"   Functions Working: {working_functions}/{len(self.servers)} ({working_functions/len(self.servers)*100:.0f}%)"
-        )
-        print()
-
         # Detailed results
-        print("🔍 Detailed Results:")
 
-        for server_name, config in self.servers.items():
-            print(f"\n   🔧 {config['name']}:")
-
+        for server_name, _config in self.servers.items():
             # Health status
             health = self.test_results.get(f"{server_name}_health", {})
             if health.get("status") == "healthy":
-                print(f"      ✅ Server: Running on port {config['port']}")
+                pass
             else:
-                print(f"      ❌ Server: {health.get('error', 'Not running')}")
                 continue
 
             # Functionality test
             func_result = self.test_results.get(server_name, {})
             if func_result.get("success"):
-                print("      ✅ Function: Working correctly")
-
                 # Server-specific details
-                if server_name == "codacy":
-                    print(
-                        f"         Issues detected: {func_result.get('issues_found', 0)}"
-                    )
-                    print(
-                        f"         Security issues: {func_result.get('security_issues', 0)}"
-                    )
-                elif server_name == "ai_memory":
-                    print(
-                        f"         Memories recalled: {func_result.get('memories_recalled', 0)}"
-                    )
-                elif server_name == "ui_ux":
-                    print(
-                        f"         Accessibility score: {func_result.get('accessibility_score', 0)}/100"
-                    )
-                elif server_name == "huggingface":
-                    print(
-                        f"         Sentiment confidence: {func_result.get('confidence', 0):.2f}"
-                    )
+                if (
+                    server_name == "codacy"
+                    or server_name == "ai_memory"
+                    or server_name == "ui_ux"
+                    or server_name == "huggingface"
+                ):
+                    pass
 
             else:
-                print(f"      ❌ Function: {func_result.get('error', 'Failed')}")
-
-        print()
-        print("🎯 RECOMMENDATIONS:")
+                pass
 
         if healthy_servers == total_servers:
-            print("   ✅ All servers are running - excellent!")
+            pass
         else:
-            print("   ⚠️  Some servers are not running. To start them:")
-            for server_name, config in self.servers.items():
+            for server_name, _config in self.servers.items():
                 health = self.test_results.get(f"{server_name}_health", {})
                 if health.get("status") != "healthy":
-                    print(
-                        f"      cd mcp-servers/{server_name} && python {server_name}_mcp_server.py"
-                    )
+                    pass
 
         if working_functions == len(self.servers):
-            print("   ✅ All functionality is working - ready for development!")
+            pass
         else:
-            print("   ⚠️  Some functionality needs attention - check server logs")
-
-        print()
-        print("🚀 NEXT STEPS:")
-        print("   1. Ensure all servers are running")
-        print("   2. Configure Cursor IDE with MCP integration")
-        print("   3. Start using @server_name commands in your development")
-        print("   4. Check CODING_MCP_SERVERS_DEMO.md for detailed usage examples")
+            pass
 
 
 def main():
     """Main function to run the test"""
     if len(sys.argv) > 1 and sys.argv[1] == "--help":
-        print("🧪 Sophia AI Coding MCP Servers Test")
-        print("Usage: python test_coding_mcp_servers.py")
-        print()
-        print("This script tests all coding-focused MCP servers:")
-        print("  - Codacy (Code Analysis)")
-        print("  - AI Memory (Knowledge Storage)")
-        print("  - GitHub (Repository Management)")
-        print("  - UI/UX (Component Generation)")
-        print("  - Hugging Face (AI Integration)")
         return
 
     tester = CodingMCPTester()
@@ -429,9 +362,9 @@ def main():
     try:
         asyncio.run(tester.run_comprehensive_test())
     except KeyboardInterrupt:
-        print("\n⚠️  Test interrupted by user")
-    except Exception as e:
-        print(f"\n❌ Test failed with error: {e}")
+        pass
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":

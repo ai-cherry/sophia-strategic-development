@@ -26,14 +26,10 @@ class SophiaPerformanceOptimizer:
 
     async def run_performance_benchmark(self) -> dict[str, Any]:
         """Run comprehensive performance benchmarks."""
-        print("🚀 Running Performance Benchmarks...")
-        print("=" * 50)
 
         results = {}
 
         for service_key, service in self.services.items():
-            print(f"\n🔧 Testing {service['name']}...")
-
             # Test response time under load
             response_times = []
             errors = 0
@@ -82,7 +78,6 @@ class SophiaPerformanceOptimizer:
                     "successful_requests": len(response_times),
                 }
 
-                print(f"  ✅ Avg: {avg_response:.1f}ms, Grade: {grade}")
             else:
                 results[service_key] = {
                     "name": service["name"],
@@ -90,7 +85,6 @@ class SophiaPerformanceOptimizer:
                     "error_rate": 100,
                     "performance_grade": "F",
                 }
-                print("  ❌ All requests failed")
 
         return results
 
@@ -100,9 +94,6 @@ class SophiaPerformanceOptimizer:
         """Analyze performance results and identify bottlenecks."""
         bottlenecks = []
         recommendations = []
-
-        print("\n🔍 Performance Analysis:")
-        print("=" * 50)
 
         for service_key, metrics in results.items():
             if "error" in metrics:
@@ -119,10 +110,6 @@ class SophiaPerformanceOptimizer:
             avg_time = metrics["avg_response_time"]
             error_rate = metrics["error_rate"]
             grade = metrics["performance_grade"]
-
-            print(f"\n📊 {metrics['name']}:")
-            print(f"   Response Time: {avg_time:.1f}ms (Grade: {grade})")
-            print(f"   Error Rate: {error_rate:.1f}%")
 
             # Identify issues
             if avg_time > 50:
@@ -171,38 +158,28 @@ class SophiaPerformanceOptimizer:
                 )
 
         if not bottlenecks:
-            print("\n🎉 No significant performance bottlenecks detected!")
+            pass
         else:
-            print(f"\n⚠️ Found {len(bottlenecks)} performance issues:")
             for bottleneck in bottlenecks:
-                severity_icon = (
+                (
                     "🔴"
                     if bottleneck["severity"] == "critical"
                     else "🟠"
                     if bottleneck["severity"] == "high"
                     else "🟡"
                 )
-                print(
-                    f"  {severity_icon} {bottleneck['service']}: {bottleneck['issue']}"
-                )
-                print(f"     💡 {bottleneck['recommendation']}")
 
-        print("\n📋 Recommendations:")
-        for rec in recommendations:
-            print(f"  {rec}")
+        for _rec in recommendations:
+            pass
 
         return bottlenecks
 
     async def test_load_handling(self) -> dict[str, Any]:
         """Test how services handle concurrent load."""
-        print("\n🏋️ Load Testing (Concurrent Requests)...")
-        print("=" * 50)
 
         results = {}
 
         for service_key, service in self.services.items():
-            print(f"\n🔧 Load testing {service['name']}...")
-
             # Create 20 concurrent requests
             async def make_request():
                 start_time = time.time()
@@ -241,7 +218,6 @@ class SophiaPerformanceOptimizer:
                     "total_test_time": total_time,
                 }
 
-                print(f"  ✅ {len(successful)}/20 successful ({throughput:.1f} req/s)")
             else:
                 results[service_key] = {
                     "name": service["name"],
@@ -251,7 +227,6 @@ class SophiaPerformanceOptimizer:
                     "success_rate": 0,
                     "error": "All concurrent requests failed",
                 }
-                print("  ❌ All concurrent requests failed")
 
         return results
 
@@ -341,8 +316,6 @@ class SophiaPerformanceOptimizer:
 
     async def run_comprehensive_optimization(self):
         """Run complete performance optimization analysis."""
-        print("🎯 Sophia AI Performance Optimization")
-        print("=" * 50)
 
         # Run performance benchmarks
         perf_results = await self.run_performance_benchmark()
@@ -356,24 +329,15 @@ class SophiaPerformanceOptimizer:
         # Generate optimization plan
         plan = self.generate_optimization_plan(perf_results, load_results)
 
-        print("\n📋 Optimization Plan Generated")
-        print("=" * 50)
-        print(f"Overall Health: {plan['overall_health'].upper()}")
-
         if plan["optimizations"]:
-            print("\n🔧 Recommended Optimizations:")
             for opt in plan["optimizations"]:
-                print(f"  📊 {opt['service']} ({opt['type']}):")
-                print(f"     Current: {opt['current_value']}")
-                print(f"     Target: {opt['target_value']}")
-                for action in opt["actions"]:
-                    print(f"     • {action}")
+                for _action in opt["actions"]:
+                    pass
         else:
-            print("\n🎉 No immediate optimizations needed!")
+            pass
 
-        print("\n📈 Monitoring Recommendations:")
-        for rec in plan["monitoring_recommendations"]:
-            print(f"  • {rec}")
+        for _rec in plan["monitoring_recommendations"]:
+            pass
 
         return {
             "performance_results": perf_results,
@@ -391,8 +355,6 @@ async def main():
     # Save results
     with open("performance_optimization_report.json", "w") as f:
         json.dump(results, f, indent=2)
-
-    print("\n💾 Full report saved to: performance_optimization_report.json")
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ import json
 import logging
 import os
 import subprocess
-from typing import Any, Optional
+from typing import Any
 
 from backend.core.base import BaseConfig, service_registry
 
@@ -22,7 +22,7 @@ class ConfigManager(BaseConfig):
 
     def __init__(self):
         self._config_cache: dict[str, Any] = {}
-        self._esc_cache: Optional[dict[str, Any]] = None
+        self._esc_cache: dict[str, Any] | None = None
         self._esc_org = os.getenv("PULUMI_ORG", "scoobyjava-org")
         self._esc_env = os.getenv("PULUMI_ENV", "default/sophia-ai-production")
 
@@ -64,7 +64,7 @@ class ConfigManager(BaseConfig):
         """Set a configuration value"""
         self._config_cache[key] = value
 
-    def _get_from_esc(self, key: str) -> Optional[Any]:
+    def _get_from_esc(self, key: str) -> Any | None:
         """Get value from Pulumi ESC"""
         if self._esc_cache is None:
             self._load_esc_environment()
@@ -135,7 +135,7 @@ class ConfigManager(BaseConfig):
 
         return esc_data
 
-    def _get_secret_from_esc(self, key: str) -> Optional[str]:
+    def _get_secret_from_esc(self, key: str) -> str | None:
         """Get secret value from ESC with --show-secrets"""
         try:
             result = subprocess.run(

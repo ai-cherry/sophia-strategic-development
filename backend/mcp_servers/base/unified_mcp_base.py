@@ -12,7 +12,7 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
@@ -85,7 +85,7 @@ class MCPServerConfig:
     enable_metrics: bool = True
     enable_health_check: bool = True
     log_level: str = "INFO"
-    cors_origins: Optional[list[str]] = None
+    cors_origins: list[str] | None = None
 
     def __post_init__(self):
         if self.cors_origins is None:
@@ -106,7 +106,7 @@ class MCPServerConfig:
 
     # Security
     enable_auth: bool = False
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class UnifiedMCPMetrics:

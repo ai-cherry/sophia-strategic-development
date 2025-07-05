@@ -60,10 +60,12 @@ async def analyze_code(code: str, filename: str = "snippet.py") -> dict:
 async def store_memory(
     content: str,
     category: str = "general",
-    tags: list = [],
+    tags: list = None,
     importance_score: float = 0.5,
 ) -> dict:
     """Stores a memory (a piece of text) for later recall."""
+    if tags is None:
+        tags = []
     logger.info(f"Gateway: Storing memory in category '{category}'")
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:

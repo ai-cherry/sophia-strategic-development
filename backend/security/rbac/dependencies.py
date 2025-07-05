@@ -535,7 +535,7 @@ def requires_permission(
     return decorator
 
 
-def requires_system_admin(func: T) -> T:
+def requires_system_admin[T: Callable](func: T) -> T:
     """
     Decorator for requiring system administrator access to an endpoint.
 

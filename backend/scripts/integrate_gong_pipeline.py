@@ -280,7 +280,6 @@ async def main():
 
     if args.test_integration:
         test_results = await integrator.test_integration()
-        print(json.dumps(test_results, indent=2))
 
         if args.output:
             with open(args.output, "w") as f:
@@ -294,8 +293,7 @@ async def main():
             results = [result]
 
         for result in results:
-            status = "✅" if result.success else "❌"
-            print(f"{status} {result.component.value}: {result.message}")
+            pass
 
         if args.output:
             results_dict = {

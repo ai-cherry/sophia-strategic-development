@@ -35,7 +35,6 @@ TODO: Implement file decomposition
 
 import argparse
 import asyncio
-import json
 import logging
 import sys
 import time
@@ -872,20 +871,16 @@ async def main():
         await orchestrator.initialize()
 
         if args.mode == "setup":
-            result = await orchestrator.setup_complete_pipeline()
-            print(json.dumps(result, indent=2))
+            await orchestrator.setup_complete_pipeline()
 
         elif args.mode == "monitor":
-            status = await orchestrator.monitor_sync_jobs()
-            print(json.dumps(status, indent=2))
+            await orchestrator.monitor_sync_jobs()
 
         elif args.mode == "test":
-            test_result = await orchestrator._test_connection()
-            print(f"Connection test: {'PASSED' if test_result else 'FAILED'}")
+            await orchestrator._test_connection()
 
         elif args.mode == "sync":
-            sync_result = await orchestrator._trigger_sync()
-            print(json.dumps(sync_result, indent=2))
+            await orchestrator._trigger_sync()
 
     except Exception as e:
         logger.error(f"Operation failed: {e}")

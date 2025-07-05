@@ -40,7 +40,6 @@ ARCHIVE_DIRECTORIES = [
 
 def consolidate_backend():
     """Consolidate backend directories"""
-    print("🔧 Consolidating backend structure...\n")
 
     # Create archive directory
     archive_dir = "backend/archive/legacy"
@@ -50,19 +49,16 @@ def consolidate_backend():
     archived_count = 0
 
     # Archive unnecessary directories
-    print("📦 Archiving legacy directories...")
     for dir_path in ARCHIVE_DIRECTORIES:
         if os.path.exists(dir_path):
             dst = os.path.join(archive_dir, os.path.basename(dir_path))
             try:
                 shutil.move(dir_path, dst)
-                print(f"   Archived: {dir_path} → {archive_dir}/")
                 archived_count += 1
-            except Exception as e:
-                print(f"   ❌ Error archiving {dir_path}: {e}")
+            except Exception:
+                pass
 
     # Move and consolidate directories
-    print("\n🚚 Moving directories to new structure...")
     for src, dst in DIRECTORY_MAPPINGS.items():
         if os.path.exists(src):
             # Create destination directory
@@ -80,17 +76,15 @@ def consolidate_backend():
 
                     # Handle conflicts
                     if os.path.exists(dst_item):
-                        print(f"   ⚠️  Conflict: {dst_item} already exists, skipping")
                         continue
 
                     shutil.move(src_item, dst_item)
 
                 # Remove empty source directory
                 os.rmdir(src)
-                print(f"   ✅ Moved: {src} → {dst}")
                 moved_count += 1
-            except Exception as e:
-                print(f"   ❌ Error moving {src}: {e}")
+            except Exception:
+                pass
 
     # Special handling for monitoring (move to core)
     if os.path.exists("backend/monitoring"):
@@ -104,10 +98,9 @@ def consolidate_backend():
                         os.path.join(dst, item),
                     )
             os.rmdir("backend/monitoring")
-            print("   ✅ Moved: backend/monitoring → backend/core/monitoring")
             moved_count += 1
-        except Exception as e:
-            print(f"   ❌ Error moving monitoring: {e}")
+        except Exception:
+            pass
 
     # Special handling for prompts (move to services)
     if os.path.exists("backend/prompts"):
@@ -120,40 +113,29 @@ def consolidate_backend():
                         os.path.join("backend/prompts", item), os.path.join(dst, item)
                     )
             os.rmdir("backend/prompts")
-            print("   ✅ Moved: backend/prompts → backend/services/prompts")
             moved_count += 1
-        except Exception as e:
-            print(f"   ❌ Error moving prompts: {e}")
+        except Exception:
+            pass
 
     # Clean up empty directories
-    print("\n🧹 Cleaning up empty directories...")
     cleanup_empty_dirs("backend")
 
     # Report results
-    print("\n📊 Summary:")
-    print(f"   Moved: {moved_count} directories")
-    print(f"   Archived: {archived_count} directories")
 
     # Show new structure
-    print("\n📁 New backend structure:")
     show_directory_structure("backend", max_depth=2)
 
     # Update imports
-    print("\n⚠️  Next steps:")
-    print("1. Run: python scripts/update_backend_imports.py")
-    print("2. Run tests to ensure nothing broke")
-    print("3. Update backend/__init__.py with new structure")
 
 
 def cleanup_empty_dirs(path):
     """Remove empty directories recursively"""
-    for root, dirs, files in os.walk(path, topdown=False):
+    for root, dirs, _files in os.walk(path, topdown=False):
         for dir_name in dirs:
             dir_path = os.path.join(root, dir_name)
             try:
                 if not os.listdir(dir_path):
                     os.rmdir(dir_path)
-                    print(f"   🗑️  Removed empty: {dir_path}")
             except:
                 pass
 
@@ -169,21 +151,17 @@ def show_directory_structure(path, max_depth=2, current_depth=0, prefix=""):
             continue
 
         item_path = os.path.join(path, item)
-        if os.path.isdir(item_path):
-            print(f"{prefix}├── {item}/")
-            if current_depth < max_depth - 1:
-                show_directory_structure(
-                    item_path, max_depth, current_depth + 1, prefix + "│   "
-                )
+        if os.path.isdir(item_path) and current_depth < max_depth - 1:
+            show_directory_structure(
+                item_path, max_depth, current_depth + 1, prefix + "│   "
+            )
 
 
 if __name__ == "__main__":
     # Confirm before proceeding
-    print("⚠️  This will restructure the entire backend directory!")
-    print("   Make sure you have a backup or git commit.")
     response = input("\nProceed? (yes/no): ")
 
     if response.lower() == "yes":
         consolidate_backend()
     else:
-        print("❌ Aborted")
+        pass

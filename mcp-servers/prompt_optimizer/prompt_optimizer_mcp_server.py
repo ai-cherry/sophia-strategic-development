@@ -6,7 +6,7 @@ Provides intelligent prompt optimization and management
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -72,29 +72,29 @@ app = FastAPI(
 class PromptTemplate(BaseModel):
     """Model for prompt templates"""
 
-    template_id: Optional[str] = None
+    template_id: str | None = None
     name: str = Field(..., description="Template name")
     category: str = Field(..., description="Template category")
     template: str = Field(..., description="Prompt template with placeholders")
     variables: list[str] = Field(default_factory=list, description="Required variables")
     performance_score: float = Field(default=0.0, description="Performance score")
     usage_count: int = Field(default=0, description="Usage count")
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class PromptOptimizationRequest(BaseModel):
     """Request model for prompt optimization"""
 
     prompt: str = Field(..., description="Original prompt to optimize")
-    context: Optional[dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default=None, description="Context for optimization"
     )
     optimization_level: str = Field(
         default="balanced",
         description="Optimization level: minimal, balanced, aggressive",
     )
-    target_model: Optional[str] = Field(default=None, description="Target LLM model")
+    target_model: str | None = Field(default=None, description="Target LLM model")
 
 
 class PromptAnalysisResult(BaseModel):
@@ -198,7 +198,7 @@ class PromptOptimizerService:
     async def optimize_prompt(
         self,
         prompt: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
         optimization_level: str = "balanced",
     ) -> str:
         """
@@ -288,13 +288,11 @@ class PromptOptimizerService:
         self.templates[template.template_id] = template
         return template
 
-    async def get_template(self, template_id: str) -> Optional[PromptTemplate]:
+    async def get_template(self, template_id: str) -> PromptTemplate | None:
         """Get a template by ID"""
         return self.templates.get(template_id)
 
-    async def list_templates(
-        self, category: Optional[str] = None
-    ) -> list[PromptTemplate]:
+    async def list_templates(self, category: str | None = None) -> list[PromptTemplate]:
         """List all templates, optionally filtered by category"""
         templates = list(self.templates.values())
         if category:
@@ -408,7 +406,7 @@ async def create_template(template: PromptTemplate):
 
 
 @app.get("/templates", response_model=list[PromptTemplate])
-async def list_templates(category: Optional[str] = None):
+async def list_templates(category: str | None = None):
     """List all templates"""
     if not optimizer_service:
         raise HTTPException(status_code=503, detail="Service not initialized")

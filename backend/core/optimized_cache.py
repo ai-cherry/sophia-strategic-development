@@ -20,6 +20,8 @@ try:
 except ImportError:
     REDIS_AVAILABLE = False
 
+import contextlib
+
 from backend.core.config_manager import get_config_value as config
 
 logger = logging.getLogger(__name__)
@@ -554,10 +556,8 @@ class OptimizedHierarchicalCache:
         """Close cache system and cleanup resources"""
         if self._cleanup_task:
             self._cleanup_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._cleanup_task
-            except asyncio.CancelledError:
-                pass
 
         if self.redis_client:
             await self.redis_client.close()

@@ -422,7 +422,7 @@ class EnhancedPortkeyOrchestrator:
                 # Select next best provider
                 remaining_providers = [
                     name
-                    for name in self.providers.keys()
+                    for name in self.providers
                     if name != selected_provider and name not in fallbacks_attempted
                 ]
 
@@ -741,8 +741,6 @@ if __name__ == "__main__":
 
     async def test_enhanced_orchestrator():
         """Test the enhanced orchestrator"""
-        print("🧪 Testing Enhanced Portkey Orchestrator with 11 Providers")
-        print("=" * 60)
 
         # Test different complexity levels
         tests = [
@@ -761,29 +759,17 @@ if __name__ == "__main__":
         ]
 
         for message, complexity, cost_pref in tests:
-            print(f"\n🧪 Testing: {complexity.value} - {cost_pref}")
             response = await SophiaAI.chat(message, complexity, cost_pref)
 
             if response.success:
-                print(f"✅ Provider: {response.provider_used}")
-                print(f"   Model: {response.model_used}")
-                print(f"   Cost: ${response.cost_estimate:.4f}")
-                print(f"   Time: {response.processing_time_ms}ms")
-                print(f"   Quality: {response.quality_score:.2f}")
+                pass
             else:
-                print(f"❌ Failed: {response.error}")
+                pass
 
         # Test system status
-        print("\n📊 System Status:")
         status = await SophiaAI.get_status()
-        print(
-            f"   Active Providers: {status['active_providers']}/{status['total_providers']}"
-        )
 
-        for name, details in status["provider_details"].items():
-            active_status = "🟢" if details["active"] else "🔴"
-            print(
-                f"   {active_status} {name}: {details['tier']} - ${details['cost_per_1k']:.4f}/1k"
-            )
+        for _name, details in status["provider_details"].items():
+            "🟢" if details["active"] else "🔴"
 
     asyncio.run(test_enhanced_orchestrator())

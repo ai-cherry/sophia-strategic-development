@@ -9,7 +9,7 @@ import hashlib
 import logging
 import re
 from dataclasses import asdict, dataclass
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,10 @@ class Citation:
     source: str
     title: str
     excerpt: str
-    url: Optional[str] = None
-    confidence: Optional[float] = None
+    url: str | None = None
+    confidence: float | None = None
     type: str = "document"  # document, web, database, api
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
@@ -48,7 +48,7 @@ class CitationService:
         }
 
     async def extract_citations(
-        self, response: str, sources: Optional[list[dict[str, Any]]] = None
+        self, response: str, sources: list[dict[str, Any]] | None = None
     ) -> tuple[str, list[Citation]]:
         """
         Extract citations from LLM response.
@@ -195,9 +195,8 @@ class CitationService:
             return source["type"]
 
         # Infer from other fields
-        if "url" in source and source["url"]:
-            if "http" in source["url"]:
-                return "web"
+        if "url" in source and source["url"] and "http" in source["url"]:
+            return "web"
 
         if "table" in source or "database" in source:
             return "database"
@@ -238,7 +237,7 @@ class CitationService:
         return True
 
     async def verify_citations(
-        self, citations: list[Citation], context: Optional[dict[str, Any]] = None
+        self, citations: list[Citation], context: dict[str, Any] | None = None
     ) -> list[Citation]:
         """
         Verify citations against available sources.

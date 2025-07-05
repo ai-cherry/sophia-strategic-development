@@ -21,6 +21,9 @@ from fastapi.responses import JSONResponse
 
 # Core imports
 from backend.api import unified_routes
+from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.services.unified_llm_service import get_unified_llm_service
+from backend.services.unified_sophia_service import get_unified_sophia_service
 
 logger = logging.getLogger(__name__)
 
@@ -31,18 +34,13 @@ services = {}
 async def initialize_core_services():
     """Initialize core services with proper error handling"""
     try:
-        # Initialize chat service
-        from backend.services.unified_chat_service import UnifiedChatService
-
-        services["chat"] = UnifiedChatService()
-        logger.info("✅ Chat service initialized")
+        # Initialize the unified Sophia service
+        services["sophia"] = get_unified_sophia_service()
+        await services["sophia"].initialize()
+        logger.info("✅ Unified Sophia Service initialized")
 
         # Initialize knowledge service if available
         try:
-            from backend.services.foundational_knowledge_service import (
-                FoundationalKnowledgeService,
-            )
-
             services["knowledge"] = FoundationalKnowledgeService()
             logger.info("✅ Knowledge service initialized")
         except ImportError:
@@ -50,8 +48,6 @@ async def initialize_core_services():
 
         # Initialize LLM service if available
         try:
-            from backend.services.unified_llm_service import get_unified_llm_service
-
             services["llm"] = await get_unified_llm_service()
             logger.info("✅ LLM service initialized")
         except ImportError:
@@ -60,20 +56,6 @@ async def initialize_core_services():
     except Exception as e:
         logger.error(f"❌ Error initializing services: {e}")
         raise
-
-
-async def start_health_monitoring():
-    """Start health monitoring if available"""
-    try:
-        from backend.monitoring.health_monitor import HealthMonitor
-
-        services["health_monitor"] = HealthMonitor()
-        await services["health_monitor"].start()
-        logger.info("✅ Health monitoring started")
-    except ImportError:
-        logger.warning("⚠️ Health monitoring not available")
-    except Exception as e:
-        logger.error(f"❌ Error starting health monitoring: {e}")
 
 
 async def cleanup_services():
@@ -89,87 +71,75 @@ async def cleanup_services():
             logger.error(f"❌ Error cleaning up {service_name}: {e}")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Manage application lifecycle"""
-    logger.info("🚀 Starting Sophia AI Platform...")
+def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
 
-    # Initialize services
-    await initialize_core_services()
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        """Application lifespan manager"""
+        logger.info("🚀 Starting up Sophia AI Platform...")
+        await initialize_core_services()
+        yield
+        logger.info("🌙 Shutting down Sophia AI Platform...")
+        await cleanup_services()
 
-    # Start health monitoring
-    await start_health_monitoring()
-
-    logger.info("✅ Sophia AI Platform started successfully")
-
-    yield
-
-    # Cleanup
-    logger.info("🛑 Shutting down Sophia AI Platform...")
-    await cleanup_services()
-    logger.info("✅ Shutdown complete")
-
-
-# Create FastAPI app
-app = FastAPI(
-    title="Sophia AI Platform",
-    description="Unified AI Orchestrator for Pay Ready - Single Source of Truth",
-    version="3.0.0",
-    lifespan=lifespan,
-)
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Configure based on environment
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include routers
-app.include_router(unified_routes.router, prefix="/api/v1", tags=["API v1"])
-
-
-# Root endpoint
-@app.get("/")
-async def root():
-    """Root endpoint"""
-    return {
-        "service": "Sophia AI Platform",
-        "version": "3.0.0",
-        "status": "operational",
-        "message": "Unified AI Orchestrator for Pay Ready",
-        "environment": os.getenv("ENVIRONMENT", "unknown"),
-        "timestamp": datetime.now(UTC).isoformat(),
-        "date": "2025-07-04",  # Today's date
-    }
-
-
-# Health endpoint
-@app.get("/health")
-async def health():
-    """Health check endpoint"""
-    return JSONResponse(
-        status_code=200,
-        content={
-            "status": "healthy",
-            "service": "sophia-ai",
-            "version": "3.0.0",
-            "timestamp": datetime.now(UTC).isoformat(),
-            "services": {
-                name: "operational" if service else "not_initialized"
-                for name, service in services.items()
-            },
-        },
+    app = FastAPI(
+        title="Sophia AI Platform",
+        description="Unified API for all Sophia AI services",
+        version="3.0.0",
+        lifespan=lifespan,
     )
 
+    # Add middleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # TODO: Restrict in production
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-# API health endpoint
-@app.get("/api/health")
-async def api_health():
-    """API health check endpoint"""
-    return await health()
+    # Include routers
+    app.include_router(unified_routes.router)
+
+    @app.get("/", tags=["Root"])
+    async def read_root():
+        """Root endpoint"""
+        return {
+            "service": "Sophia AI Platform",
+            "version": "3.0.0",
+            "status": "operational",
+            "message": "Unified AI Orchestrator for Pay Ready",
+            "environment": os.getenv("ENVIRONMENT", "unknown"),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "date": "2025-07-04",
+        }
+
+    # Health endpoint
+    @app.get("/health")
+    async def health():
+        """Health check endpoint"""
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "healthy",
+                "service": "sophia-ai",
+                "version": "3.0.0",
+                "timestamp": datetime.now(UTC).isoformat(),
+                "services": {
+                    name: "operational" if service else "not_initialized"
+                    for name, service in services.items()
+                },
+            },
+        )
+
+    # API health endpoint
+    @app.get("/api/health")
+    async def api_health():
+        """API health check endpoint"""
+        return await health()
+
+    return app
 
 
 if __name__ == "__main__":
@@ -177,5 +147,8 @@ if __name__ == "__main__":
 
     # Run the application
     uvicorn.run(
-        app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)), log_level="info"
+        create_app(),
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000)),
+        log_level="info",
     )

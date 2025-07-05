@@ -383,22 +383,17 @@ async def main():
     adapter = SnowflakeAdapter("snowflake", PlatformType.DATA_STACK)
 
     if args.command == "status":
-        status = await adapter.get_status()
-        print(f"Status: {status.status}")
-        print(f"Metrics: {json.dumps(status.metrics, indent=2)}")
-        print(f"Configuration: {json.dumps(status.configuration, indent=2)}")
+        await adapter.get_status()
 
     elif args.command == "configure":
         if args.config:
             config = json.loads(args.config)
-            result = await adapter.configure(config)
-            print(json.dumps(result, indent=2))
+            await adapter.configure(config)
         else:
-            print("Configuration JSON required")
+            pass
 
     elif args.command == "stats":
-        stats = await adapter.get_data_statistics()
-        print(json.dumps(stats, indent=2))
+        await adapter.get_data_statistics()
 
 
 if __name__ == "__main__":

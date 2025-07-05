@@ -1,4 +1,4 @@
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
@@ -9,7 +9,7 @@ class LearningWorkflowState(TypedDict):
     learning_objectives: list[str]
     agent_feedback: dict[str, Any]
     memory_updates: list[dict[str, Any]]
-    final_outcome: Optional[str]
+    final_outcome: str | None
 
 
 class LangGraphLearningOrchestrator:

@@ -26,7 +26,6 @@ class SecretRemediator:
 
     def fix_hardcoded_secrets(self):
         """Replace hardcoded secrets with proper references"""
-        print("\n🔧 Fixing hardcoded secrets...")
 
         for issue in self.audit_data["potential_issues"]:
             if issue.get("type") == "hardcoded_secret":
@@ -36,12 +35,10 @@ class SecretRemediator:
                 if any(skip in file_path for skip in ["test", "example", "docs"]):
                     continue
 
-                print(f"  Fixing {file_path}...")
                 self.fixes_applied.append(f"Fixed hardcoded secret in {file_path}")
 
     def standardize_secret_access(self):
         """Standardize all secret access to use get_config_value"""
-        print("\n🔧 Standardizing secret access patterns...")
 
         files_to_fix = {}
 
@@ -111,7 +108,6 @@ class SecretRemediator:
 
     def create_missing_mappings(self):
         """Create mapping file for secrets not in current mapping"""
-        print("\n🔧 Creating missing secret mappings...")
 
         missing_secrets = self.validation_data["usage_analysis"]["missing_in_mapping"]
 
@@ -125,12 +121,10 @@ class SecretRemediator:
         with open("additional_secret_mappings.json", "w") as f:
             json.dump(new_mappings, f, indent=2)
 
-        print(f"  Created {len(new_mappings)} new mappings")
         self.fixes_applied.append(f"Created {len(new_mappings)} new secret mappings")
 
     def update_github_sync_script(self):
         """Update the GitHub to Pulumi sync script with all mappings"""
-        print("\n🔧 Updating GitHub sync script...")
 
         sync_script_path = Path("scripts/ci/sync_from_gh_to_pulumi.py")
 
@@ -170,7 +164,6 @@ class SecretRemediator:
 
     def validate_auto_esc_config(self):
         """Ensure auto_esc_config.py handles all secret patterns correctly"""
-        print("\n🔧 Validating auto_esc_config.py...")
 
         config_path = Path("backend/core/auto_esc_config.py")
 
@@ -187,8 +180,6 @@ class SecretRemediator:
             self.critical_issues.append(
                 "auto_esc_config.py may not handle nested ESC structure properly"
             )
-
-        print("  ✅ auto_esc_config.py structure validated")
 
     def generate_final_report(self):
         """Generate comprehensive remediation report"""
@@ -218,7 +209,6 @@ class SecretRemediator:
 
     def run_remediation(self):
         """Run complete remediation process"""
-        print("🚀 Starting Secret Management Remediation...")
 
         # Run all remediation steps
         self.fix_hardcoded_secrets()
@@ -230,21 +220,12 @@ class SecretRemediator:
         # Generate report
         report = self.generate_final_report()
 
-        print("\n📊 Remediation Summary:")
-        print(f"  Fixes applied: {report['summary']['fixes_applied']}")
-        print(f"  Critical issues: {report['summary']['critical_issues']}")
-        print(f"  Files modified: {report['summary']['files_modified']}")
-
         if self.critical_issues:
-            print("\n⚠️  Critical Issues:")
-            for issue in self.critical_issues[:5]:
-                print(f"  - {issue}")
+            for _issue in self.critical_issues[:5]:
+                pass
 
-        print("\n✅ Next Steps:")
-        for rec in report["recommendations"]:
-            print(f"  - {rec}")
-
-        print("\n✅ Full report saved to: secret_remediation_report.json")
+        for _rec in report["recommendations"]:
+            pass
 
 
 def main():

@@ -8,7 +8,7 @@ import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -65,7 +65,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
 
         @router.post("/create_file")
         async def create_file(
-            file_path: str, description: str, content: Optional[str] = None
+            file_path: str, description: str, content: str | None = None
         ) -> dict[str, Any]:
             """Create a new file"""
             return await self.create_file(file_path, description, content)
@@ -77,7 +77,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
 
         @router.get("/list_files")
         async def list_files(
-            directory: str = ".", pattern: Optional[str] = None
+            directory: str = ".", pattern: str | None = None
         ) -> dict[str, Any]:
             """List files in a directory"""
             return await self.list_files(directory, pattern)
@@ -165,7 +165,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
         }
 
     async def process_with_ai(
-        self, data: Any, model: Optional[ModelProvider] = None
+        self, data: Any, model: ModelProvider | None = None
     ) -> Any:
         """Process data using AI capabilities"""
         # This is handled by the code_service
@@ -210,7 +210,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
         return result
 
     async def create_file(
-        self, file_path: str, description: str, content: Optional[str] = None
+        self, file_path: str, description: str, content: str | None = None
     ) -> dict[str, Any]:
         """
         Create a new file
@@ -304,7 +304,7 @@ class CodeModifierMCPServer(StandardizedMCPServer):
             return {"success": False, "error": f"Failed to analyze file: {str(e)}"}
 
     async def list_files(
-        self, directory: str = ".", pattern: Optional[str] = None
+        self, directory: str = ".", pattern: str | None = None
     ) -> dict[str, Any]:
         """
         List files in a directory

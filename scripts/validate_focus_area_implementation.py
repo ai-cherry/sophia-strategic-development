@@ -747,40 +747,18 @@ async def main():
         results = await validator.validate_all_focus_areas()
 
         # Save report
-        report_path = await validator.save_validation_report()
+        await validator.save_validation_report()
 
         # Print summary
-        print("\n" + "=" * 80)
-        print("🎯 FOCUS AREA IMPLEMENTATION VALIDATION RESULTS")
-        print("=" * 80)
 
-        print(f"\n📊 OVERALL SCORE: {results['overall_score']:.1f}/100")
-        print(f"📈 STATUS: {results['summary']['overall_status']}")
+        for _name, _score in results["summary"]["focus_area_scores"].items():
+            pass
 
-        print(
-            f"\n🧪 TESTS: {results['summary']['passed_tests']}/{results['summary']['total_tests']} passed ({results['summary']['test_pass_rate']:.1f}%)"
-        )
-        print(
-            f"🖥️  SERVERS: {results['summary']['operational_servers']}/{results['summary']['total_servers']} operational ({results['summary']['server_operational_rate']:.1f}%)"
-        )
+        for _i, _rec in enumerate(results["summary"]["recommendations"], 1):
+            pass
 
-        print("\n📋 FOCUS AREA SCORES:")
-        for name, score in results["summary"]["focus_area_scores"].items():
-            status_emoji = "✅" if score >= 80 else "⚠️" if score >= 70 else "❌"
-            print(
-                f"   {status_emoji} {name.replace('_', ' ').title()}: {score:.1f}/100"
-            )
-
-        print("\n💡 RECOMMENDATIONS:")
-        for i, rec in enumerate(results["summary"]["recommendations"], 1):
-            print(f"   {i}. {rec}")
-
-        print("\n🚀 NEXT STEPS:")
-        for i, step in enumerate(results["summary"]["next_steps"], 1):
-            print(f"   {i}. {step}")
-
-        print(f"\n📄 Full report saved to: {report_path}")
-        print("=" * 80)
+        for _i, _step in enumerate(results["summary"]["next_steps"], 1):
+            pass
 
     finally:
         await validator.shutdown()

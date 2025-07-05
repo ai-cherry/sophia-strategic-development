@@ -16,7 +16,6 @@ class MCPMigrationAnalyzer:
 
     def analyze_all_servers(self):
         """Analyze all MCP servers"""
-        print("🔍 Analyzing MCP servers for migration...")
 
         # Find all MCP server files
         server_paths = []
@@ -32,8 +31,6 @@ class MCPMigrationAnalyzer:
             for subdir in mcp_path.iterdir():
                 if subdir.is_dir():
                     server_paths.extend(subdir.rglob("*_mcp_server.py"))
-
-        print(f"Found {len(server_paths)} MCP server files")
 
         for server_path in server_paths:
             self.analyze_server(server_path)
@@ -78,21 +75,19 @@ class MCPMigrationAnalyzer:
 
             self.servers_analyzed.append(server_info)
 
-        except Exception as e:
-            print(f"❌ Error analyzing {file_path}: {e}")
+        except Exception:
+            pass
 
     def calculate_complexity(self, tree) -> int:
         """Calculate cyclomatic complexity"""
         complexity = 0
         for node in ast.walk(tree):
-            if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
+            if isinstance(node, ast.If | ast.While | ast.For | ast.ExceptHandler):
                 complexity += 1
         return complexity
 
     def generate_migration_plan(self):
         """Generate migration plan"""
-        print("\n📋 Migration Plan:")
-        print("=" * 60)
 
         # Group by base class
         base_class_groups = {}
@@ -103,12 +98,10 @@ class MCPMigrationAnalyzer:
                 base_class_groups[base_class].append(server)
 
         # Print analysis
-        print("\n🔍 Base Class Distribution:")
-        for base_class, servers in base_class_groups.items():
-            print(f"  {base_class}: {len(servers)} servers")
+        for base_class, _servers in base_class_groups.items():
+            pass
 
         # Identify high priority migrations
-        print("\n🚨 High Priority Migrations (>1000 lines or complexity >50):")
         high_priority = [
             s
             for s in self.servers_analyzed
@@ -116,12 +109,9 @@ class MCPMigrationAnalyzer:
         ]
 
         for server in high_priority:
-            print(
-                f"  - {server['name']}: {server['lines']} lines, complexity {server['complexity']}"
-            )
+            pass
 
         # Generate migration steps
-        print("\n📝 Migration Steps:")
 
         for i, server in enumerate(self.servers_analyzed, 1):
             migration_step = {
@@ -182,8 +172,6 @@ class MCPMigrationAnalyzer:
                 for action in step["actions"]:
                     f.write(f"- {action}\n")
                 f.write("\n")
-
-        print("\n✅ Migration plan saved to MCP_MIGRATION_PLAN.md")
 
     def generate_example_migration(self):
         """Generate an example migration"""
@@ -264,8 +252,6 @@ if __name__ == "__main__":
 
         with open("example_unified_mcp_server.py", "w") as f:
             f.write(example)
-
-        print("✅ Example migration saved to example_unified_mcp_server.py")
 
 
 def main():

@@ -710,9 +710,11 @@ class OptimizedSnowflakeCortexService:
         avg_text_length = sum(len(text) for text in texts) / total_texts if texts else 0
 
         # Simple heuristics for processing mode selection
-        if total_texts <= self.optimal_batch_size:
-            return ProcessingMode.BATCH
-        elif total_texts <= self.max_batch_size and avg_text_length < 1000:
+        if (
+            total_texts <= self.optimal_batch_size
+            or total_texts <= self.max_batch_size
+            and avg_text_length < 1000
+        ):
             return ProcessingMode.BATCH
         elif total_texts > self.max_batch_size:
             return ProcessingMode.CONCURRENT

@@ -113,7 +113,6 @@ class DocumentationIndexGenerator:
 
     def scan_documentation(self) -> None:
         """Scan the docs directory and collect document information"""
-        print(f"📁 Scanning documentation in {self.docs_root}...")
 
         for root, dirs, files in os.walk(self.docs_root):
             # Skip hidden directories and __pycache__
@@ -125,8 +124,6 @@ class DocumentationIndexGenerator:
                     doc_info = self._extract_document_info(file_path)
                     if doc_info:
                         self.documents.append(doc_info)
-
-        print(f"✅ Found {len(self.documents)} documentation files")
 
     def _extract_document_info(self, file_path: Path) -> DocumentInfo | None:
         """Extract information from a documentation file"""
@@ -156,8 +153,7 @@ class DocumentationIndexGenerator:
                 last_modified=last_modified,
                 tags=tags,
             )
-        except Exception as e:
-            print(f"⚠️ Error processing {file_path}: {e}")
+        except Exception:
             return None
 
     def _determine_category(self, relative_path: Path) -> str:
@@ -231,8 +227,8 @@ class DocumentationIndexGenerator:
             if tags_match:
                 tags = [tag.strip() for tag in tags_match.group(1).split(",")]
 
-        except Exception as e:
-            print(f"⚠️ Error parsing {file_path}: {e}")
+        except Exception:
+            pass
 
         return title, description, tags
 
@@ -269,7 +265,6 @@ class DocumentationIndexGenerator:
 
     def generate_index(self) -> str:
         """Generate the master documentation index"""
-        print("📝 Generating documentation index...")
 
         # Sort documents by category and priority
         self.documents.sort(
@@ -477,19 +472,13 @@ python scripts/docs/generate_documentation_index.py
 
     def write_index(self, content: str) -> None:
         """Write the generated index to file"""
-        print(f"💾 Writing index to {self.output_file}...")
 
         with open(self.output_file, "w", encoding="utf-8") as f:
             f.write(content)
 
-        print("✅ Documentation index generated successfully!")
-        print(f"📊 {len(self.documents)} documents indexed")
-
 
 def main():
     """Main function to generate the documentation index"""
-    print("🚀 Sophia AI Documentation Index Generator")
-    print("=" * 50)
 
     generator = DocumentationIndexGenerator()
 
@@ -503,10 +492,7 @@ def main():
         # Write to file
         generator.write_index(index_content)
 
-        print("\n🎉 Documentation index generation completed!")
-
-    except Exception as e:
-        print(f"❌ Error generating documentation index: {e}")
+    except Exception:
         raise
 
 

@@ -279,15 +279,12 @@ if __name__ == "__main__":
         # Test request
         request = AgentRequest(action="ping", payload={})
 
-        response = await agent.execute_with_telemetry(request)
-        print(f"Response: {response.status}")
+        await agent.execute_with_telemetry(request)
 
         # Check health
-        health = await agent.health_check()
-        print(f"Health: {health.value}")
+        await agent.health_check()
 
         # Get metrics
-        metrics = await agent.get_metrics()
-        print(f"Metrics: {metrics}")
+        await agent.get_metrics()
 
     asyncio.run(main())

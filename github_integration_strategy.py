@@ -1187,8 +1187,6 @@ jobs:
 
 def main():
     """Main execution function."""
-    print("🚀 GitHub Integration Strategy Analysis")
-    print("=" * 60)
 
     try:
         # Initialize strategy analyzer
@@ -1198,37 +1196,15 @@ def main():
         results = strategy.execute_analysis()
 
         # Print summary
-        print("\n" + "=" * 60)
-        print("📊 ANALYSIS SUMMARY")
-        print("=" * 60)
 
         if "error" not in results:
-            org_analysis = results.get("organization_analysis", {})
-            repo_analysis = results.get("repository_analysis", [])
+            results.get("organization_analysis", {})
+            results.get("repository_analysis", [])
 
-            print(
-                f"✅ Organization: {org_analysis.get('organization', {}).get('name', 'Unknown')}"
-            )
-            print(f"📦 Repositories analyzed: {len(repo_analysis)}")
-            print(
-                f"🔧 GitHub configurations: {len(results.get('github_configurations', []))}"
-            )
-            print(
-                f"📋 Implementation phases: {len(results.get('implementation_plan', {}).get('phases', []))}"
-            )
-            print(f"🎯 Recommendations: {len(results.get('recommendations', []))}")
-
-            print("\n🎉 Analysis completed successfully!")
-            print(
-                "📄 Check the generated files for detailed results and implementation scripts."
-            )
         else:
-            print(f"❌ Analysis failed: {results['error']}")
+            pass
 
-        print("=" * 60)
-
-    except Exception as e:
-        print(f"❌ Execution failed: {e}")
+    except Exception:
         return 1
 
     return 0

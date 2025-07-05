@@ -118,10 +118,4 @@ async def get_insights():
 
 
 if __name__ == "__main__":
-    print("🚀 Starting Unified Dashboard Test Server...")
-    print(f"📍 Server will be available at: http://localhost:{PORT}")
-    print(f"📚 API Documentation: http://localhost:{PORT}/docs")
-    print(f"🔍 Health Check: http://localhost:{PORT}{API_PREFIX}/health")
-    print(f"💬 Chat Endpoint: http://localhost:{PORT}{API_PREFIX}/chat")
-
     uvicorn.run(app, host="0.0.0.0", port=PORT)

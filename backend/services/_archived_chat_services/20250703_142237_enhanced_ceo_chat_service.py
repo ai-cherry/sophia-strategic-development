@@ -10,7 +10,7 @@ and executive-level intelligence for Unified dashboard integration.
 import logging
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -55,9 +55,9 @@ class UnifiedChatResponse(BaseModel):
     timestamp: datetime
     actions_taken: list[dict[str, Any]] = []
     suggestions: list[str] = []
-    metrics: Optional[dict[str, Any]] = None
+    metrics: dict[str, Any] | None = None
     requires_confirmation: bool = False
-    confirmation_message: Optional[str] = None
+    confirmation_message: str | None = None
 
 
 class EnhancedUnifiedChatService:
@@ -123,7 +123,7 @@ class EnhancedUnifiedChatService:
         self, request: UnifiedChatRequest
     ) -> UnifiedChatResponse:
         """Handle migration control commands"""
-        message = request.message.lower().strip()
+        request.message.lower().strip()
         actions_taken = []
 
         try:

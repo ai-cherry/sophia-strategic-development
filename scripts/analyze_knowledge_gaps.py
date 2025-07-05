@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 
@@ -89,8 +88,7 @@ class KnowledgeGapAnalyzer:
 
 async def main():
     analyzer = KnowledgeGapAnalyzer()
-    gaps = await analyzer.analyze()
-    print(json.dumps(gaps, indent=2))
+    await analyzer.analyze()
 
 
 if __name__ == "__main__":

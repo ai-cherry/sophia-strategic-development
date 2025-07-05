@@ -98,9 +98,7 @@ class TypeAnnotationAdder(ast.NodeTransformer):
             return "Dict[str, Any]"
         elif param_name in ["items", "values", "results"]:
             return "List[Any]"
-        elif param_name.endswith("_id"):
-            return "str"
-        elif param_name.endswith("_name"):
+        elif param_name.endswith("_id") or param_name.endswith("_name"):
             return "str"
         elif param_name in ["exclude_dirs", "tags"]:
             return "Optional[List[str]]"
@@ -151,12 +149,13 @@ def add_imports_if_needed(content: str) -> str:
             insert_index = i + 1
             continue
 
-        if not in_docstring and (
-            line.startswith("import ") or line.startswith("from ")
+        if (
+            not in_docstring
+            and (line.startswith("import ") or line.startswith("from "))
+            or not in_docstring
+            and line.strip()
+            and not line.startswith("#")
         ):
-            insert_index = i
-            break
-        elif not in_docstring and line.strip() and not line.startswith("#"):
             insert_index = i
             break
 

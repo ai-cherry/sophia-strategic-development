@@ -316,9 +316,8 @@ async def main():
             logger.info(f"📊 Results saved to {args.output}")
 
         # Print summary
-        print(f"✅ Validation complete for {args.server}")
         if "overall_status" in results:
-            print(f"📊 Overall Status: {results['overall_status']}")
+            pass
 
         # Exit with appropriate code
         if "overall_status" in results and results["overall_status"] != "healthy":

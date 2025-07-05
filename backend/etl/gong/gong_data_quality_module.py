@@ -29,7 +29,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 from backend.utils.snowflake_cortex_service_core import SnowflakeCortexServiceCore
 
@@ -91,7 +91,7 @@ class GongDataRecord:
     record_id: str
     record_type: str  # call, transcript, user, etc.
     raw_data: dict[str, Any]
-    quality_metrics: Optional[QualityMetrics] = None
+    quality_metrics: QualityMetrics | None = None
     enriched_data: dict[str, Any] = field(default_factory=dict)
     processing_status: str = "pending"
     created_at: datetime = field(default_factory=datetime.now)
@@ -131,7 +131,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.timeout = timeout
         self.failure_count = 0
-        self.last_failure_time: Optional[datetime] = None
+        self.last_failure_time: datetime | None = None
         self.state = "closed"  # closed, open, half-open
 
     async def call(self, func, *args, **kwargs):
@@ -662,15 +662,10 @@ async def main():
     }
 
     # Process the data
-    result = await module.process_gong_data(sample_call_data, "call")
-
-    print(f"Processing result: {result.processing_status}")
-    print(f"Quality score: {result.quality_metrics.overall_score:.2f}")
-    print(f"Issues: {result.quality_metrics.issues_detected}")
+    await module.process_gong_data(sample_call_data, "call")
 
     # Get stats
-    stats = await module.get_processing_stats()
-    print(f"Processing stats: {stats}")
+    await module.get_processing_stats()
 
 
 if __name__ == "__main__":

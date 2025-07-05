@@ -727,16 +727,8 @@ async def main():
     success = await setup.run_phase2_setup()
 
     if success:
-        print("\n🚀 Next Steps:")
-        print("1. Configure Estuary Flow with your data sources")
-        print("2. Set up Pulumi ESC environment with encrypted secrets")
-        print(
-            "3. Run Phase 3 setup: python scripts/implementation/phase3_production_optimization.py"
-        )
-        print("4. Test performance: python scripts/performance_validation.py")
         return 0
     else:
-        print("\n❌ Setup failed. Please review logs and retry.")
         return 1
 
 

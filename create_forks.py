@@ -27,8 +27,7 @@ def get_github_token():
                 if start != -1 and end != -1:
                     return remote_url[start:end]
         return None
-    except Exception as e:
-        print(f"Error extracting token: {e}")
+    except Exception:
         return None
 
 
@@ -42,8 +41,6 @@ def fork_repository(owner, repo, org, token):
 
     fork_data = {"organization": org}
 
-    print(f"🔄 Forking {owner}/{repo} to {org}...")
-
     response = requests.post(
         f"https://api.github.com/repos/{owner}/{repo}/forks",
         headers=headers,
@@ -51,25 +48,18 @@ def fork_repository(owner, repo, org, token):
     )
 
     if response.status_code == 202:
-        print(f"✅ Successfully forked {owner}/{repo} to {org}")
         return response.json()
     elif response.status_code == 422:
-        print(f"ℹ️ Fork already exists for {owner}/{repo}")
         return {"message": "fork_exists"}
     else:
-        print(f"❌ Failed to fork {owner}/{repo}: {response.status_code}")
-        print(f"Response: {response.text}")
         return None
 
 
 def main():
     """Main fork creation function."""
-    print("🚀 Creating forks of target MCP repositories")
-    print("=" * 60)
 
     token = get_github_token()
     if not token:
-        print("❌ Could not extract GitHub token")
         return 1
 
     forks_to_create = [
@@ -85,7 +75,6 @@ def main():
             # Wait a bit between forks to avoid rate limiting
             time.sleep(2)
 
-    print("\n🎉 Fork creation process completed!")
     return 0
 
 

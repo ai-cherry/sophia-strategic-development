@@ -554,22 +554,18 @@ async def main():
     orchestrator = SophiaIaCOrchestrator()
 
     if args.command == "status":
-        result = await orchestrator._get_platform_status(args.platforms)
-        print(result)
+        await orchestrator._get_platform_status(args.platforms)
     elif args.command == "health":
-        result = await orchestrator.health_check()
-        print(json.dumps(result, indent=2))
+        await orchestrator.health_check()
     elif args.command.startswith("configure"):
         if args.config and args.platforms:
             with open(args.config) as f:
                 config = json.load(f)
             for platform in args.platforms:
-                result = await orchestrator._configure_platform(platform, config)
-                print(f"{platform}: {result}")
+                await orchestrator._configure_platform(platform, config)
     else:
         # Process as natural language command
-        result = await orchestrator.process_natural_language_command(args.command)
-        print(result)
+        await orchestrator.process_natural_language_command(args.command)
 
 
 if __name__ == "__main__":

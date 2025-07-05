@@ -38,25 +38,24 @@ class MCPServerTester:
         url = f"http://localhost:{server['port']}{server['health_endpoint']}"
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, timeout=aiohttp.ClientTimeout(total=5)
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return {
-                            "server": server["name"],
-                            "status": "healthy",
-                            "response_time_ms": data.get("latency_ms", 0),
-                            "details": data,
-                        }
-                    else:
-                        return {
-                            "server": server["name"],
-                            "status": "unhealthy",
-                            "error": f"HTTP {response.status}",
-                        }
-        except asyncio.TimeoutError:
+            async with aiohttp.ClientSession() as session, session.get(
+                url, timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return {
+                        "server": server["name"],
+                        "status": "healthy",
+                        "response_time_ms": data.get("latency_ms", 0),
+                        "details": data,
+                    }
+                else:
+                    return {
+                        "server": server["name"],
+                        "status": "unhealthy",
+                        "error": f"HTTP {response.status}",
+                    }
+        except TimeoutError:
             return {
                 "server": server["name"],
                 "status": "timeout",
@@ -70,31 +69,30 @@ class MCPServerTester:
         url = f"http://localhost:{server['port']}/metrics"
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, timeout=aiohttp.ClientTimeout(total=5)
-                ) as response:
-                    if response.status == 200:
-                        text = await response.text()
-                        # Parse Prometheus metrics
-                        metrics = {}
-                        for line in text.split("\n"):
-                            if line and not line.startswith("#"):
-                                parts = line.split(" ")
-                                if len(parts) == 2:
-                                    metrics[parts[0]] = float(parts[1])
+            async with aiohttp.ClientSession() as session, session.get(
+                url, timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                if response.status == 200:
+                    text = await response.text()
+                    # Parse Prometheus metrics
+                    metrics = {}
+                    for line in text.split("\n"):
+                        if line and not line.startswith("#"):
+                            parts = line.split(" ")
+                            if len(parts) == 2:
+                                metrics[parts[0]] = float(parts[1])
 
-                        return {
-                            "server": server["name"],
-                            "status": "success",
-                            "metrics": metrics,
-                        }
-                    else:
-                        return {
-                            "server": server["name"],
-                            "status": "failed",
-                            "error": f"HTTP {response.status}",
-                        }
+                    return {
+                        "server": server["name"],
+                        "status": "success",
+                        "metrics": metrics,
+                    }
+                else:
+                    return {
+                        "server": server["name"],
+                        "status": "failed",
+                        "error": f"HTTP {response.status}",
+                    }
         except Exception as e:
             return {"server": server["name"], "status": "error", "error": str(e)}
 
@@ -103,23 +101,22 @@ class MCPServerTester:
         url = f"http://localhost:{server['port']}/tools/list"
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    url, json={}, timeout=aiohttp.ClientTimeout(total=5)
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return {
-                            "server": server["name"],
-                            "status": "success",
-                            "tools": data.get("tools", []),
-                        }
-                    else:
-                        return {
-                            "server": server["name"],
-                            "status": "failed",
-                            "error": f"HTTP {response.status}",
-                        }
+            async with aiohttp.ClientSession() as session, session.post(
+                url, json={}, timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return {
+                        "server": server["name"],
+                        "status": "success",
+                        "tools": data.get("tools", []),
+                    }
+                else:
+                    return {
+                        "server": server["name"],
+                        "status": "failed",
+                        "error": f"HTTP {response.status}",
+                    }
         except Exception as e:
             return {"server": server["name"], "status": "error", "error": str(e)}
 

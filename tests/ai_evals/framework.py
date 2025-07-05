@@ -449,9 +449,7 @@ class AIEvaluationFramework:
 
         # Penalize very short or very long sentences
         for sentence in sentences:
-            if len(sentence) < 10:
-                coherence_score -= 0.1
-            elif len(sentence) > 200:
+            if len(sentence) < 10 or len(sentence) > 200:
                 coherence_score -= 0.1
 
         return max(0.0, coherence_score)
@@ -723,8 +721,6 @@ async def main():
 
     # Save report
     eval_framework.save_evaluation_report(results, "mock_evaluation")
-
-    print(f"Evaluation completed: {results['summary']}")
 
 
 if __name__ == "__main__":

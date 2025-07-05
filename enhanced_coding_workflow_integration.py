@@ -117,7 +117,6 @@ class SophiaEnhancedCodingWorkflow:
 
     async def init_project(self, project_type: str = "full-stack"):
         """Initialize enhanced coding workflow for project"""
-        print("🚀 Initializing Sophia AI Enhanced Coding Workflow...")
 
         # Install default prompts based on project type
         await self._install_default_prompts(project_type)
@@ -128,7 +127,6 @@ class SophiaEnhancedCodingWorkflow:
         # Set up platform integrations
         await self._setup_platform_integrations()
 
-        print("✅ Sophia AI Enhanced Coding Workflow initialized!")
         return True
 
     async def _install_default_prompts(self, project_type: str):
@@ -232,7 +230,6 @@ Include:
             prompt_file = self.prompts_dir / f"{prompt['name']}.json"
             with open(prompt_file, "w") as f:
                 json.dump(prompt, f, indent=2)
-            print(f"  ✅ Installed prompt: {prompt['name']}")
 
     async def _install_default_rules(self, project_type: str):
         """Install default coding rules"""
@@ -282,7 +279,6 @@ Include:
             rule_file = self.rules_dir / f"{rule['name']}.json"
             with open(rule_file, "w") as f:
                 json.dump(rule, f, indent=2)
-            print(f"  ✅ Installed rule: {rule['name']}")
 
     async def _setup_platform_integrations(self):
         """Set up platform integrations"""
@@ -311,8 +307,6 @@ Include:
 
         with open(integrations_file, "w") as f:
             json.dump(integration_config, f, indent=2)
-
-        print("  ✅ Platform integrations configured")
 
     async def gather_context_from_platform(
         self, platform: str, resource_id: str
@@ -601,21 +595,17 @@ async def main():
 
     elif args.command == "generate":
         context = json.loads(args.context) if args.context else {}
-        result = await workflow.enhanced_code_generation(args.prompt, context)
-        print(result)
+        await workflow.enhanced_code_generation(args.prompt, context)
 
     elif args.command == "workflow":
         context = json.loads(args.context) if args.context else {}
-        result = await workflow.workflow_automation(args.type, context)
-        print(json.dumps(result, indent=2))
+        await workflow.workflow_automation(args.type, context)
 
     elif args.command == "list":
         if args.type == "prompts":
-            prompts = workflow.list_prompts()
-            print("Available prompts:", ", ".join(prompts))
+            workflow.list_prompts()
         else:
-            rules = workflow.list_rules()
-            print("Available rules:", ", ".join(rules))
+            workflow.list_rules()
 
     else:
         parser.print_help()

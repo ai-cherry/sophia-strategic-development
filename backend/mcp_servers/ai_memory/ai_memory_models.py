@@ -15,7 +15,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field, validator
@@ -114,13 +114,13 @@ class MemoryMetadata:
     confidence_score: float = 1.0
     relevance_score: float = 1.0
     access_count: int = 0
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
     tags: list[str] = field(default_factory=list)
     related_memory_ids: list[str] = field(default_factory=list)
     context_window: dict[str, Any] = field(default_factory=dict)
     validation_status: str = "unvalidated"
-    business_impact: Optional[str] = None
-    technical_complexity: Optional[str] = None
+    business_impact: str | None = None
+    technical_complexity: str | None = None
 
     def update_access(self):
         """Update access tracking"""
@@ -183,7 +183,7 @@ class MemoryRecord(BaseModel):
     # Core Fields
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     content: str = Field(..., min_length=1, max_length=50000)
-    summary: Optional[str] = Field(None, max_length=500)
+    summary: str | None = Field(None, max_length=500)
 
     # Classification
     memory_type: MemoryType
@@ -194,18 +194,18 @@ class MemoryRecord(BaseModel):
     # Temporal
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
 
     # Context
     context: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     # Relationships
-    parent_id: Optional[str] = None
-    thread_id: Optional[str] = None
+    parent_id: str | None = None
+    thread_id: str | None = None
 
     # Search and AI
-    embedding: Optional[MemoryEmbedding] = None
+    embedding: MemoryEmbedding | None = None
     keywords: list[str] = Field(default_factory=list)
 
     class Config:
@@ -216,21 +216,21 @@ class MemoryRecord(BaseModel):
         arbitrary_types_allowed = True
 
     @validator("content")
-    def validate_content(cls, v):
+    def validate_content(self, v):
         """Validate content is meaningful"""
         if not v or v.isspace():
             raise ValueError("Content cannot be empty or whitespace only")
         return v.strip()
 
     @validator("expires_at")
-    def validate_expiration(cls, v, values):
+    def validate_expiration(self, v, values):
         """Validate expiration is in the future"""
         if v and v <= datetime.now():
             raise ValueError("Expiration date must be in the future")
         return v
 
     @validator("priority")
-    def validate_priority_context(cls, v, values):
+    def validate_priority_context(self, v, values):
         """Validate priority matches context"""
         # Critical memories should have business impact
         if v == MemoryPriority.CRITICAL:
@@ -354,9 +354,9 @@ class SearchQuery:
 
     text: str
     scope: SearchScope = SearchScope.ALL
-    category: Optional[MemoryCategory] = None
-    memory_type: Optional[MemoryType] = None
-    priority: Optional[MemoryPriority] = None
+    category: MemoryCategory | None = None
+    memory_type: MemoryType | None = None
+    priority: MemoryPriority | None = None
     limit: int = 10
     similarity_threshold: float = 0.7
     include_expired: bool = False
@@ -384,7 +384,7 @@ class SearchResult:
 
     memory: MemoryRecord
     relevance_score: float
-    similarity_score: Optional[float] = None
+    similarity_score: float | None = None
     match_reasons: list[str] = field(default_factory=list)
 
     def __lt__(self, other):
@@ -427,7 +427,7 @@ class MemoryStorageError(Exception):
 
 # Factory functions for common memory types
 def create_conversation_memory(
-    content: str, participants: list[str], topic: Optional[str] = None, **kwargs
+    content: str, participants: list[str], topic: str | None = None, **kwargs
 ) -> MemoryRecord:
     """Create a conversation memory record"""
     context = {"participants": participants, "topic": topic or "General Discussion"}
@@ -466,7 +466,7 @@ def create_business_insight_memory(
     content: str,
     impact: str,
     stakeholders: list[str],
-    metrics: Optional[dict[str, Any]] = None,
+    metrics: dict[str, Any] | None = None,
     **kwargs,
 ) -> MemoryRecord:
     """Create a business insight memory record"""

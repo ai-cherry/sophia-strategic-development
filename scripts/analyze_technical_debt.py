@@ -396,18 +396,20 @@ class TechnicalDebtAnalyzer:
 
         for file in file_metrics:
             # Configuration-related files
-            if any(
-                keyword in file.path.lower()
-                for keyword in ["config", "settings", "env"]
+            if (
+                any(
+                    keyword in file.path.lower()
+                    for keyword in ["config", "settings", "env"]
+                )
+                and file.change_frequency > 5
             ):
-                if file.change_frequency > 5:
-                    patterns["configuration_files"].append(
-                        {
-                            "path": file.path,
-                            "changes": file.change_frequency,
-                            "complexity": file.complexity_score,
-                        }
-                    )
+                patterns["configuration_files"].append(
+                    {
+                        "path": file.path,
+                        "changes": file.change_frequency,
+                        "complexity": file.complexity_score,
+                    }
+                )
 
             # Import-heavy files
             if "Too many imports" in file.issues:
@@ -520,53 +522,14 @@ class TechnicalDebtAnalyzer:
 
     def print_summary(self, report: TechnicalDebtReport):
         """Print a summary of the analysis"""
-        print("\n" + "=" * 80)
-        print("🔍 SOPHIA AI TECHNICAL DEBT ANALYSIS SUMMARY")
-        print("=" * 80)
 
-        print("\n📊 OVERVIEW:")
-        print(
-            f"   • Total files analyzed: {report.summary_metrics['total_files_analyzed']}"
-        )
-        print(
-            f"   • Total lines of code: {report.summary_metrics['total_lines_of_code']:,}"
-        )
-        print(
-            f"   • Average complexity score: {report.summary_metrics['average_complexity_score']}"
-        )
-        print(
-            f"   • Average debt score: {report.summary_metrics['average_debt_score']}"
-        )
+        report.summary_metrics["files_needing_immediate_attention"]
 
-        print("\n🚨 CRITICAL ISSUES:")
-        critical_count = report.summary_metrics["files_needing_immediate_attention"]
-        print(f"   • Files needing immediate attention: {critical_count}")
-        print(
-            f"   • High churn files (>10 changes): {report.summary_metrics['files_with_high_churn']}"
-        )
-        print(
-            f"   • Complex files (>200 complexity): {report.summary_metrics['files_with_high_complexity']}"
-        )
+        for _i, _file in enumerate(report.debt_hotspots[:5], 1):
+            pass
 
-        print("\n🔥 TOP 5 TECHNICAL DEBT HOTSPOTS:")
-        for i, file in enumerate(report.debt_hotspots[:5], 1):
-            print(f"   {i}. {file.path}")
-            print(f"      • Debt Score: {file.technical_debt_score}")
-            print(f"      • Complexity: {file.complexity_score}")
-            print(f"      • Changes: {file.change_frequency}")
-            print(f"      • Priority: {file.refactoring_priority}")
-            print(f"      • Issues: {', '.join(file.issues[:2])}")
-            print()
-
-        print("\n⚡ IMMEDIATE ACTIONS REQUIRED:")
-        for i, rec in enumerate(report.recommendations[:3], 1):
-            print(f"   {i}. {rec['title']} ({rec['priority']})")
-            print(f"      • {rec['description']}")
-            print(f"      • Effort: {rec['estimated_effort']}")
-            print(f"      • Impact: {rec['impact']}")
-            print()
-
-        print("=" * 80)
+        for _i, _rec in enumerate(report.recommendations[:3], 1):
+            pass
 
 
 def main():

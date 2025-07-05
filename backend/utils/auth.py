@@ -5,7 +5,7 @@ Provides JWT token handling and user session management.
 
 import os
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 # Try to import jose, fallback to basic implementation if not available
 try:
@@ -33,7 +33,7 @@ logger = setup_logger(__name__)
 class AuthManager:
     """Authentication and authorization manager."""
 
-    def __init__(self, secret_key: Optional[str] = None, algorithm: str = "HS256"):
+    def __init__(self, secret_key: str | None = None, algorithm: str = "HS256"):
         self.secret_key = secret_key or os.getenv(
             "JWT_SECRET_KEY", "default-secret-key-change-in-production"
         )
@@ -45,7 +45,7 @@ class AuthManager:
             logger.warning("passlib not available, using basic hashing")
 
     def create_access_token(
-        self, data: dict[str, Any], expires_delta: Optional[timedelta] = None
+        self, data: dict[str, Any], expires_delta: timedelta | None = None
     ) -> str:
         """Create JWT access token."""
         to_encode = data.copy()
@@ -77,7 +77,7 @@ class AuthManager:
             logger.error("Failed to create access token", error=str(e))
             raise
 
-    def verify_token(self, token: str) -> Optional[dict[str, Any]]:
+    def verify_token(self, token: str) -> dict[str, Any] | None:
         """Verify and decode JWT token."""
         try:
             if JOSE_AVAILABLE:
@@ -127,7 +127,7 @@ class AuthManager:
 auth_manager = AuthManager()
 
 
-def get_current_user(token: str) -> Optional[dict[str, Any]]:
+def get_current_user(token: str) -> dict[str, Any] | None:
     """Get current user from token - used by API routes."""
     return auth_manager.verify_token(token)
 

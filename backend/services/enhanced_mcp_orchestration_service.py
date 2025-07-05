@@ -543,10 +543,7 @@ class EnhancedMCPOrchestrationService(MCPOrchestrationService):
             return False
 
         # Don't use if health score too low
-        if metrics.health_score < 50:
-            return False
-
-        return True
+        return not metrics.health_score < 50
 
     def _get_server_health_score(self, server_name: str) -> float:
         """Get health score for a server"""

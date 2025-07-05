@@ -54,15 +54,13 @@ class AIEnhancedDNSManager(SophiaDNSManager):
         # Load historical data for learning
         await self._load_historical_patterns()
 
-        print("✨ AI-Enhanced DNS Manager initialized")
-
     async def ai_analyze_and_optimize(self):
         """AI-driven analysis and optimization of DNS configuration"""
 
         # Gather current DNS state
-        current_records = await self.list_records()
-        health_status = await self._check_all_dns_health()
-        ssl_status = await self._check_all_ssl_status()
+        await self.list_records()
+        await self._check_all_dns_health()
+        await self._check_all_ssl_status()
 
         # Analyze traffic patterns
         traffic_analysis = await self._analyze_traffic_patterns()
@@ -73,19 +71,11 @@ class AIEnhancedDNSManager(SophiaDNSManager):
         )
 
         # Display AI insights
-        print("\n🤖 AI Analysis Results:")
-        print(f"├── Current DNS Records: {len(current_records)}")
-        print(f"├── Health Status: {health_status['summary']}")
-        print(f"├── SSL Status: {ssl_status['summary']}")
-        print(
-            f"└── AI Recommendations: {len(ai_recommendations)} optimizations identified"
-        )
 
         # Show detailed recommendations
-        for category, recommendations in ai_recommendations.items():
-            print(f"\n📊 {category.replace('_', ' ').title()}:")
-            for rec in recommendations:
-                print(f"  • {rec}")
+        for _category, recommendations in ai_recommendations.items():
+            for _rec in recommendations:
+                pass
 
         return ai_recommendations
 
@@ -105,123 +95,83 @@ class AIEnhancedDNSManager(SophiaDNSManager):
         # Get AI prediction
         decision = await self.ai_agent.analyze_infrastructure(context)
 
-        print("\n🔮 AI Prediction:")
-        print(f"├── Action: {decision.action}")
-        print(f"├── Reasoning: {decision.reasoning}")
-        print(f"├── Confidence: {decision.confidence * 100:.0f}%")
-        print(f"├── Risk Level: {decision.risk_level}")
-        print(f"└── Recommendations: {len(decision.recommendations)} actions")
-
         # Auto-execute if safe
         if decision.risk_level == "low" and decision.confidence > 0.8:
-            print("\n✅ Auto-executing safe optimization...")
-            result = await self.ai_agent.execute_decision(decision, auto_execute=True)
-            print(f"Result: {result['status']}")
+            await self.ai_agent.execute_decision(decision, auto_execute=True)
         else:
-            print("\n⚠️  Manual approval required for this action")
+            pass
 
         return decision
 
     async def ai_self_heal(self):
         """Self-healing DNS configuration"""
 
-        print("\n🔧 Running AI Self-Healing Analysis...")
-
         # Check for issues
         issues = await self._detect_dns_issues()
 
         if not issues:
-            print("✅ No issues detected - DNS configuration is healthy")
             return
 
-        print(f"\n⚠️  Detected {len(issues)} issues:")
-        for issue in issues:
-            print(f"  • {issue['description']}")
+        for _issue in issues:
+            pass
 
         # Generate healing plan
         healing_plan = await self._generate_healing_plan(issues)
 
-        print("\n🏥 Healing Plan:")
         for step in healing_plan:
-            print(f"  {step['order']}. {step['action']}")
+            pass
 
         # Execute healing with safety checks
         for step in healing_plan:
             if step["risk_level"] == "low":
-                print(f"\n  Executing: {step['action']}...")
                 await self._execute_healing_step(step)
-                print("  ✅ Complete")
             else:
-                print(f"\n  ⚠️  Skipping high-risk action: {step['action']}")
+                pass
 
     async def natural_language_command(self, command: str):
         """Process natural language commands for DNS management"""
 
-        print(f"\n💬 Processing command: '{command}'")
-
         # Get AI interpretation
         result = await self.ai_agent.natural_language_command(command)
 
-        print("\n🤖 AI Understanding:")
-        print(f"├── Interpreted: {result['understood_command']}")
-        print(f"├── Action: {result['proposed_action']}")
-        print(f"├── Confidence: {result['confidence']}")
-        print(f"└── Risk: {result['risk_level']}")
-
-        print(f"\n💭 AI Response: {result['natural_language_response']}")
-
         # Show execution plan
         if result["execution_plan"]:
-            print("\n📋 Execution Plan:")
-            for step, details in result["execution_plan"].items():
-                print(f"  • {step}: {details}")
+            for _step, _details in result["execution_plan"].items():
+                pass
 
         return result
 
     async def continuous_optimization_mode(self):
         """Run continuous AI optimization loop"""
 
-        print("\n🔄 Starting Continuous AI Optimization Mode...")
-        print("Press Ctrl+C to stop")
-
         try:
             iteration = 0
             while True:
                 iteration += 1
-                print(f"\n--- Optimization Cycle {iteration} ---")
 
                 # Gather metrics
                 metrics = await self._gather_real_time_metrics()
 
                 # AI analysis
                 if metrics["requires_optimization"]:
-                    print("🔍 Optimization opportunity detected")
                     await self.ai_analyze_and_optimize()
 
                 # Predictive scaling check
                 if metrics["load_trending_up"]:
-                    print("📈 Load increase detected")
                     await self.ai_predict_and_scale()
 
                 # Self-healing check
                 if metrics["errors_detected"]:
-                    print("⚠️  Errors detected")
                     await self.ai_self_heal()
 
                 # Display status
-                print(
-                    f"\n📊 Status: Load={metrics['current_load']:.1%}, "
-                    f"Errors={metrics['error_rate']:.2%}, "
-                    f"Performance={metrics['performance_score']:.0f}/100"
-                )
 
                 # Intelligent sleep duration based on system state
                 sleep_duration = self._calculate_sleep_duration(metrics)
-                print(f"\n💤 Sleeping for {sleep_duration}s...")
                 await asyncio.sleep(sleep_duration)
 
         except KeyboardInterrupt:
-            print("\n\n✋ Continuous optimization stopped")
+            pass
 
     async def _analyze_traffic_patterns(self) -> dict[str, Any]:
         """Analyze traffic patterns for AI optimization"""
@@ -378,28 +328,6 @@ async def main():
     """Enhanced main function with AI capabilities"""
 
     if len(sys.argv) < 2:
-        print("🤖 AI-Enhanced Sophia DNS Manager")
-        print("\nUsage:")
-        print("  Basic commands (inherited from original):")
-        print("    python ai_enhanced_dns_manager.py list")
-        print("    python ai_enhanced_dns_manager.py validate")
-        print("    python ai_enhanced_dns_manager.py deploy")
-        print("\n  AI-Enhanced commands:")
-        print(
-            "    python ai_enhanced_dns_manager.py ai-analyze      - AI analysis and optimization"
-        )
-        print(
-            "    python ai_enhanced_dns_manager.py ai-predict      - Predictive scaling"
-        )
-        print(
-            "    python ai_enhanced_dns_manager.py ai-heal         - Self-healing mode"
-        )
-        print(
-            "    python ai_enhanced_dns_manager.py ai-continuous   - Continuous optimization"
-        )
-        print(
-            '    python ai_enhanced_dns_manager.py ai-command "<natural language command>"'
-        )
         return
 
     command = sys.argv[1]
@@ -427,7 +355,7 @@ async def main():
             await manager.natural_language_command(nl_command)
 
         else:
-            print(f"❌ Unknown AI command: {command}")
+            pass
 
     else:
         # Fall back to original DNS manager commands

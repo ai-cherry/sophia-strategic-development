@@ -888,10 +888,7 @@ class GongDataQualityMonitor:
             return False
         if isinstance(current, str) and not current.strip():
             return False
-        if isinstance(current, list | dict) and not current:
-            return False
-
-        return True
+        return not (isinstance(current, list | dict) and not current)
 
     def _extract_all_fields(self, data: dict[str, Any], prefix: str = "") -> set[str]:
         """Extract all field paths from nested data structure."""

@@ -68,8 +68,8 @@ class DockerPathFixer:
                     f.write(content)
                 self.fixes_applied.append((str(filepath), fixes))
 
-        except Exception as e:
-            print(f"Error processing {filepath}: {e}")
+        except Exception:
+            pass
 
         return fixes
 
@@ -77,10 +77,9 @@ class DockerPathFixer:
         """Fix the deploy_mcp_servers.py script"""
         deploy_script = self.root_dir / "scripts" / "deploy_mcp_servers.py"
         if deploy_script.exists():
-            print(f"Fixing {deploy_script}")
             fixes = self.fix_file(deploy_script)
             if fixes:
-                print(f"  Applied {len(fixes)} fixes")
+                pass
 
     def fix_docker_compose_files(self):
         """Fix all docker-compose files"""
@@ -94,10 +93,9 @@ class DockerPathFixer:
         for compose_file in compose_files:
             filepath = self.root_dir / compose_file
             if filepath.exists():
-                print(f"Fixing {filepath}")
                 fixes = self.fix_file(filepath)
                 if fixes:
-                    print(f"  Applied {len(fixes)} fixes")
+                    pass
 
     def fix_dockerfile_references(self):
         """Fix references in Dockerfiles"""
@@ -106,17 +104,15 @@ class DockerPathFixer:
 
         for dockerfile in dockerfiles:
             if dockerfile.is_file():
-                print(f"Fixing {dockerfile}")
                 fixes = self.fix_file(dockerfile)
                 if fixes:
-                    print(f"  Applied {len(fixes)} fixes")
+                    pass
 
     def create_missing_dockerfiles(self):
         """Create missing Dockerfiles for MCP servers"""
         template_path = self.root_dir / "docker" / "Dockerfile.mcp-server"
 
         if not template_path.exists():
-            print(f"Warning: Template Dockerfile not found at {template_path}")
             return
 
         # MCP servers that need Dockerfiles
@@ -173,7 +169,6 @@ class DockerPathFixer:
                 with open(dockerfile_path, "w") as f:
                     f.write(dockerfile_content)
 
-                print(f"Created Dockerfile for {server_dir}")
                 self.fixes_applied.append(
                     (str(dockerfile_path), ["Created new Dockerfile"])
                 )
@@ -198,14 +193,8 @@ class DockerPathFixer:
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"\nReport saved to: {report_path}")
-        print(f"Total files modified: {report['summary']['total_files_modified']}")
-        print(f"Total fixes applied: {report['summary']['total_fixes']}")
-
     def run(self):
         """Run all fixes"""
-        print("🔧 Fixing Docker path references...")
-        print("=" * 60)
 
         # Fix specific files
         self.fix_deploy_script()
@@ -213,14 +202,10 @@ class DockerPathFixer:
         self.fix_dockerfile_references()
 
         # Create missing Dockerfiles
-        print("\n📄 Creating missing Dockerfiles...")
         self.create_missing_dockerfiles()
 
         # Generate report
-        print("\n📊 Generating report...")
         self.generate_report()
-
-        print("\n✅ Docker path fixes complete!")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ Intelligent caching with semantic similarity matching
 import json
 import logging
 import time
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import numpy as np
 import redis.asyncio as redis
@@ -38,10 +38,10 @@ class GPTCacheService:
         self.redis_url = redis_url
         self.similarity_threshold = similarity_threshold
         self.cache_ttl = cache_ttl
-        self.redis_client: Optional[redis.Redis] = None
+        self.redis_client: redis.Redis | None = None
         self.model = None
         self.model_name = model_name
-        
+
         # Cache statistics
         self.stats = {
             "hits": 0,
@@ -55,18 +55,16 @@ class GPTCacheService:
         """Initialize Redis connection and load model"""
         try:
             self.redis_client = await redis.from_url(
-                self.redis_url, 
-                decode_responses=True,
-                db=1  # Use DB 1 for cache
+                self.redis_url, decode_responses=True, db=1  # Use DB 1 for cache
             )
             await self.redis_client.ping()
             logger.info("Redis cache connected successfully")
-            
+
             # Load sentence transformer model
             logger.info(f"Loading sentence transformer model: {self.model_name}")
             self.model = SentenceTransformer(self.model_name)
             logger.info("Model loaded successfully")
-            
+
             # Pre-warm cache with CEO queries
             await self._prewarm_cache()
         except Exception as e:
@@ -78,24 +76,24 @@ class GPTCacheService:
     async def _prewarm_cache(self):
         """Pre-warm cache with common CEO queries"""
         logger.info("Pre-warming cache with CEO queries...")
-        
+
         # Example pre-warmed responses
         prewarm_data = {
             "What is our current revenue?": {
                 "response": "Current Q4 revenue is $12.5M, up 23% YoY. Monthly recurring revenue is $4.2M with 15% growth rate.",
                 "sources": ["snowflake.revenue_dashboard", "hubspot.deals"],
-                "timestamp": time.time()
+                "timestamp": time.time(),
             },
             "Show me the sales pipeline": {
                 "response": "Active pipeline: $45M across 127 deals. Closing this quarter: $15M (33%). Top opportunities: Enterprise deals worth $8M.",
                 "sources": ["hubspot.pipeline", "gong.calls"],
-                "timestamp": time.time()
-            }
+                "timestamp": time.time(),
+            },
         }
-        
+
         for query, data in prewarm_data.items():
             await self.set(query, data, ttl_seconds=7200)  # 2 hour TTL for pre-warmed
-            
+
         logger.info(f"Pre-warmed {len(prewarm_data)} CEO queries")
 
     def _get_embedding(self, text: str) -> np.ndarray:
@@ -103,7 +101,7 @@ class GPTCacheService:
         if self.model is None:
             # Fallback to simple hash-based similarity if model not loaded
             return np.array([hash(text) % 1000 / 1000.0] * 384)
-        
+
         try:
             embedding = self.model.encode(text, convert_to_numpy=True)
             return embedding
@@ -112,16 +110,18 @@ class GPTCacheService:
             # Fallback embedding
             return np.array([0.0] * 384)
 
-    def _calculate_similarity(self, embedding1: np.ndarray, embedding2: np.ndarray) -> float:
+    def _calculate_similarity(
+        self, embedding1: np.ndarray, embedding2: np.ndarray
+    ) -> float:
         """Calculate cosine similarity between embeddings"""
         try:
             # Normalize vectors
             norm1 = np.linalg.norm(embedding1)
             norm2 = np.linalg.norm(embedding2)
-            
+
             if norm1 == 0 or norm2 == 0:
                 return 0.0
-                
+
             # Cosine similarity
             similarity = np.dot(embedding1, embedding2) / (norm1 * norm2)
             return float(similarity)
@@ -129,43 +129,48 @@ class GPTCacheService:
             logger.error(f"Error calculating similarity: {e}")
             return 0.0
 
-    async def get(self, query: str) -> Optional[Tuple[Any, float]]:
+    async def get(self, query: str) -> tuple[Any, float] | None:
         """
         Get cached result for query using semantic similarity
         Returns (result, similarity_score) or None
         """
         if not self.redis_client:
             return None
-            
+
         self.stats["total_queries"] += 1
-        
+
         try:
             # Get query embedding
             query_embedding = self._get_embedding(query)
-            
+
             # Get all cached queries
             cache_keys = await self.redis_client.keys("cache:*")
-            
+
             best_match = None
             best_similarity = 0.0
-            
+
             for key in cache_keys:
                 # Get cached data
                 cached_data = await self.redis_client.get(key)
                 if not cached_data:
                     continue
-                    
+
                 cached_item = json.loads(cached_data)
-                cached_query = cached_item.get("query", "")
-                
+                cached_item.get("query", "")
+
                 # Calculate similarity
                 cached_embedding = np.array(cached_item.get("embedding", []))
-                similarity = self._calculate_similarity(query_embedding, cached_embedding)
-                
-                if similarity > best_similarity and similarity >= self.similarity_threshold:
+                similarity = self._calculate_similarity(
+                    query_embedding, cached_embedding
+                )
+
+                if (
+                    similarity > best_similarity
+                    and similarity >= self.similarity_threshold
+                ):
                     best_similarity = similarity
                     best_match = cached_item.get("result")
-                    
+
             if best_match:
                 self.stats["hits"] += 1
                 self.stats["avg_similarity"] = (
@@ -176,42 +181,38 @@ class GPTCacheService:
             else:
                 self.stats["misses"] += 1
                 return None
-                
+
         except Exception as e:
             logger.error(f"Cache get error: {e}")
             return None
 
-    async def set(self, query: str, result: Any, ttl_seconds: Optional[int] = None):
+    async def set(self, query: str, result: Any, ttl_seconds: int | None = None):
         """Set cache entry with query and result"""
         if not self.redis_client:
             return
-            
+
         try:
             # Generate embedding
             embedding = self._get_embedding(query)
-            
+
             # Create cache entry
             cache_entry = {
                 "query": query,
                 "result": result,
                 "embedding": embedding.tolist(),
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
-            
+
             # Generate cache key
             cache_key = f"cache:{hash(query)}"
-            
+
             # Store in Redis
             ttl = ttl_seconds or self.cache_ttl
-            await self.redis_client.setex(
-                cache_key,
-                ttl,
-                json.dumps(cache_entry)
-            )
-            
+            await self.redis_client.setex(cache_key, ttl, json.dumps(cache_entry))
+
             # Update stats
             self.stats["cache_size"] = await self.redis_client.dbsize()
-            
+
         except Exception as e:
             logger.error(f"Cache set error: {e}")
 
@@ -219,7 +220,7 @@ class GPTCacheService:
         """Clear all cache entries"""
         if not self.redis_client:
             return
-            
+
         try:
             await self.redis_client.flushdb()
             self.stats["cache_size"] = 0
@@ -227,14 +228,14 @@ class GPTCacheService:
         except Exception as e:
             logger.error(f"Cache clear error: {e}")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics"""
         hit_rate = (
             self.stats["hits"] / self.stats["total_queries"]
             if self.stats["total_queries"] > 0
             else 0
         )
-        
+
         return {
             "hits": self.stats["hits"],
             "misses": self.stats["misses"],
@@ -243,7 +244,7 @@ class GPTCacheService:
             "cache_size": self.stats["cache_size"],
             "avg_similarity": self.stats["avg_similarity"],
             "model": self.model_name if self.model else "fallback",
-            "threshold": self.similarity_threshold
+            "threshold": self.similarity_threshold,
         }
 
 

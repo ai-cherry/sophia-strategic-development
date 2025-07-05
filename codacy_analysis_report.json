@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-07-04T21:35:42.446094",
+  "summary": {
+    "total_files": 0,
+    "total_issues": 0,
+    "critical_issues": 0,
+    "high_issues": 0,
+    "total_debt_hours": 0,
+    "total_cost": 0,
+    "files_by_score": {
+      "excellent": [],
+      "good": [],
+      "fair": [],
+      "poor": []
+    }
+  },
+  "quality_distribution": {
+    "excellent": 0,
+    "good": 0,
+    "fair": 0,
+    "poor": 0
+  },
+  "business_impact": {
+    "total_technical_debt_cost": "$0",
+    "estimated_fix_time": "0.0 hours",
+    "critical_risk_files": 0,
+    "immediate_action_required": false
+  },
+  "recommendations": []
+}

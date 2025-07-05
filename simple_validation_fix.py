@@ -431,9 +431,9 @@ def main():
     success = validator.run_validation()
 
     if success:
-        print("\n🎉 VALIDATION COMPLETE: All components are properly implemented!")
+        pass
     else:
-        print("\n⚠️ VALIDATION COMPLETE: Some components need attention.")
+        pass
 
     return success
 

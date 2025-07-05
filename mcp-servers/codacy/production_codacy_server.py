@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, status
@@ -71,7 +71,7 @@ class FileAnalysisRequest(BaseModel):
 class SecurityScanRequest(BaseModel):
     code: str = Field(..., description="Code to scan for security issues")
     filename: str = Field("snippet.py", description="Filename for context")
-    severity_filter: Optional[list[SeverityLevel]] = Field(
+    severity_filter: list[SeverityLevel] | None = Field(
         None, description="Filter by severity levels"
     )
 
@@ -83,10 +83,10 @@ class CodeIssue(BaseModel):
     description: str
     file_path: str
     line_number: int
-    column_number: Optional[int] = None
-    code_snippet: Optional[str] = None
-    suggestion: Optional[str] = None
-    rule_id: Optional[str] = None
+    column_number: int | None = None
+    code_snippet: str | None = None
+    suggestion: str | None = None
+    rule_id: str | None = None
     confidence: float = Field(1.0, ge=0.0, le=1.0)
 
 
@@ -285,7 +285,7 @@ class ComplexityAnalyzer:
 
                 elif isinstance(node, ast.If):
                     metrics["conditionals"] += 1
-                elif isinstance(node, (ast.For, ast.While)):
+                elif isinstance(node, ast.For | ast.While):
                     metrics["loops"] += 1
 
             # Check nesting depth
@@ -327,7 +327,7 @@ class ComplexityAnalyzer:
         """Calculate cyclomatic complexity for a function"""
         complexity = 1  # Base complexity
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.ExceptHandler):
                 complexity += 1
             elif isinstance(child, ast.BoolOp):
                 complexity += len(child.values) - 1
@@ -341,7 +341,7 @@ class ComplexityAnalyzer:
             nonlocal max_depth
             max_depth = max(max_depth, depth)
 
-            if isinstance(node, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+            if isinstance(node, ast.If | ast.For | ast.While | ast.With | ast.Try):
                 for child in ast.iter_child_nodes(node):
                     visit_node(child, depth + 1)
             else:

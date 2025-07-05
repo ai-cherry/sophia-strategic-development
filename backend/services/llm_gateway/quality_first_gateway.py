@@ -7,7 +7,7 @@ Prioritizes response quality over cost with dashboard-based monitoring
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from backend.core.config_manager import ConfigManager
 from backend.services.llm_gateway.openrouter_integration import OpenRouterIntegration
@@ -25,7 +25,7 @@ class LLMRequest:
     """Request structure for LLM gateway"""
 
     query: str
-    context: Optional[str] = None
+    context: str | None = None
     user_role: str = "user"
     business_criticality: str = "normal"
     accuracy_requirements: float = 0.85
@@ -424,7 +424,7 @@ class QualityFirstLLMGateway:
         else:
             return "complex"
 
-    def _assess_context_importance(self, context: Optional[str]) -> str:
+    def _assess_context_importance(self, context: str | None) -> str:
         """Assess importance of context"""
         if not context:
             return "none"

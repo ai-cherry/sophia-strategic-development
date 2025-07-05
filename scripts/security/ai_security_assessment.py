@@ -742,8 +742,6 @@ async def main():
     ]
 
     for i, test_case in enumerate(test_cases):
-        print(f"\n--- Running Security Assessment {i+1} ---")
-
         result = await security_assessment.run_comprehensive_assessment(
             user_input=test_case["user_input"],
             ai_response=test_case["ai_response"],
@@ -752,8 +750,7 @@ async def main():
         )
 
         # Generate and print summary
-        summary = security_assessment.generate_summary_report(result)
-        print(summary)
+        security_assessment.generate_summary_report(result)
 
         # Save detailed report
         await security_assessment.save_assessment_report(result, f"test_case_{i+1}")

@@ -419,8 +419,6 @@ if __name__ == "__main__":
 
     async def test_simplified_service():
         """Test the simplified service"""
-        print("🧪 Testing Simplified Portkey Service")
-        print("=" * 50)
 
         # Test business analysis
         response = await SophiaLLM.analyze_business(
@@ -429,14 +427,9 @@ if __name__ == "__main__":
         )
 
         if response.success:
-            print("✅ Business Analysis Successful")
-            print(f"Model: {response.model_used}")
-            print(f"Tokens: {response.tokens_used}")
-            print(f"Cost: ${response.cost_estimate:.4f}")
-            print(f"Time: {response.processing_time_ms}ms")
-            print(f"Response: {response.content[:200]}...")
+            pass
         else:
-            print(f"❌ Error: {response.error}")
+            pass
 
         # Test code generation
         code_response = await SophiaLLM.generate_code(
@@ -444,11 +437,8 @@ if __name__ == "__main__":
         )
 
         if code_response.success:
-            print("\n✅ Code Generation Successful")
-            print(f"Model: {code_response.model_used}")
-            print(f"Tokens: {code_response.tokens_used}")
-            print(f"Cost: ${code_response.cost_estimate:.4f}")
+            pass
         else:
-            print(f"❌ Code Error: {code_response.error}")
+            pass
 
     asyncio.run(test_simplified_service())

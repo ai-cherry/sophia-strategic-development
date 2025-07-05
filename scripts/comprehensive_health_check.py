@@ -474,41 +474,27 @@ class SophiaHealthChecker:
         """Print formatted health check summary"""
         summary = report["summary"]
 
-        print("\n" + "=" * 60)
-        print("🎯 SOPHIA AI HEALTH CHECK SUMMARY")
-        print("=" * 60)
-
-        status_emoji = {
+        {
             HealthCheckStatus.HEALTHY: "✅",
             HealthCheckStatus.WARNING: "⚠️",
             HealthCheckStatus.CRITICAL: "❌",
         }.get(summary["overall_status"], "❓")
 
-        print(f"Overall Status: {status_emoji} {summary['overall_status'].upper()}")
-        print(f"Health Score: {summary['health_percentage']}%")
-        print(
-            f"Components: {summary['healthy_count']}/{summary['total_components']} healthy"
-        )
-        print(f"Execution Time: {summary['total_execution_time']}s")
-        print(f"Production Ready: {'✅ YES' if summary['production_ready'] else '❌ NO'}")
-
-        print("\n📊 Component Status:")
         for result in report["detailed_results"]:
-            status_emoji = {
+            {
                 HealthCheckStatus.HEALTHY: "✅",
                 HealthCheckStatus.WARNING: "⚠️",
                 HealthCheckStatus.CRITICAL: "❌",
                 HealthCheckStatus.UNKNOWN: "❓",
             }.get(result["status"], "❓")
 
-            exec_time = result.get("execution_time", 0)
-            print(f"  {status_emoji} {result['component']} ({exec_time:.2f}s)")
+            result.get("execution_time", 0)
 
             # Show critical details for non-healthy components
             if result["status"] != HealthCheckStatus.HEALTHY:
                 details = result.get("details", {})
                 if "error" in details:
-                    print(f"    Error: {details['error']}")
+                    pass
                 elif isinstance(details, dict):
                     for _key, value in details.items():
                         if isinstance(value, dict) and not all(
@@ -516,9 +502,7 @@ class SophiaHealthChecker:
                         ):
                             failed_checks = [k for k, v in value.items() if not v]
                             if failed_checks:
-                                print(f"    Failed: {', '.join(failed_checks)}")
-
-        print("\n" + "=" * 60)
+                                pass
 
 
 async def main():
@@ -542,12 +526,10 @@ async def main():
     report = await health_checker.run_all_checks()
 
     # Save detailed report
-    report_file = health_checker.save_report(report, args.output)
+    health_checker.save_report(report, args.output)
 
     # Print summary
     health_checker.print_summary(report)
-
-    print(f"\n📄 Detailed report saved to: {report_file}")
 
     # Exit with appropriate code
     overall_status = report["summary"]["overall_status"]

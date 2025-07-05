@@ -66,14 +66,10 @@ class PulumiESCIntegration:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return json.loads(result.stdout)
 
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Failed to get Pulumi ESC configuration: {e}")
-            print(f"Command: {' '.join(cmd)}")
-            print(f"Error output: {e.stderr}")
+        except subprocess.CalledProcessError:
             raise
 
-        except json.JSONDecodeError as e:
-            print(f"❌ Failed to parse Pulumi ESC configuration: {e}")
+        except json.JSONDecodeError:
             raise
 
     async def get_secret(self, secret_name: str) -> str | None:
@@ -92,7 +88,6 @@ class PulumiESCIntegration:
             return result.stdout.strip()
 
         except subprocess.CalledProcessError:
-            print(f"⚠️  Secret '{secret_name}' not found in Pulumi ESC")
             return None
 
 
@@ -176,8 +171,6 @@ class NamecheapDNSManager:
     async def create_dns_record(self, domain: str, record: DNSRecord) -> bool:
         """Create or update a DNS record"""
         try:
-            print(f"📝 Creating DNS record: {record.name}.{domain} → {record.value}")
-
             # Get current records
             current_records = await self.get_host_records(domain)
 
@@ -188,14 +181,13 @@ class NamecheapDNSManager:
             success = await self.set_host_records(domain, updated_records)
 
             if success:
-                print("  ✅ Successfully created/updated DNS record")
+                pass
             else:
-                print("  ❌ Failed to create DNS record")
+                pass
 
             return success
 
-        except Exception as e:
-            print(f"  ❌ Error creating DNS record: {e}")
+        except Exception:
             return False
 
     async def get_host_records(self, domain: str) -> list[DNSRecord]:
@@ -232,8 +224,7 @@ class NamecheapDNSManager:
 
             return records
 
-        except Exception as e:
-            print(f"❌ Error getting host records: {e}")
+        except Exception:
             return []
 
     async def set_host_records(self, domain: str, records: list[DNSRecord]) -> bool:
@@ -264,8 +255,7 @@ class NamecheapDNSManager:
             root = ET.fromstring(response.text)
             return root.get("Status") == "OK" and root.find(".//Errors") is None
 
-        except Exception as e:
-            print(f"❌ Error setting host records: {e}")
+        except Exception:
             return False
 
     def _split_domain(self, domain: str) -> tuple[str, str]:
@@ -310,11 +300,9 @@ class SophiaDNSManager:
 
     async def initialize(self):
         """Initialize DNS manager with Pulumi ESC configuration"""
-        print("🚀 Initializing Sophia DNS Manager...")
 
         try:
             # Load configuration from Pulumi ESC
-            print("📡 Loading configuration from Pulumi ESC...")
             self.config = await self.pulumi_esc.get_configuration()
 
             # Get secrets
@@ -340,10 +328,6 @@ class SophiaDNSManager:
             ip_detector = IPContextDetector(ip_addresses)
             context = ip_detector.detect_context()
 
-            print(
-                f"🔍 IP Context: {context.environment} ({context.ip_address}) - {context.details}"
-            )
-
             # Initialize Namecheap DNS manager
             self.dns_manager = NamecheapDNSManager(
                 api_user=api_user,
@@ -353,10 +337,7 @@ class SophiaDNSManager:
                 sandbox=False,
             )
 
-            print("✅ Sophia DNS Manager initialized successfully")
-
-        except Exception as e:
-            print(f"❌ Failed to initialize DNS manager: {e}")
+        except Exception:
             raise
 
     async def setup_domain_records(
@@ -368,8 +349,6 @@ class SophiaDNSManager:
 
         if not server_ip:
             server_ip = await self.pulumi_esc.get_secret("LAMBDA_IP_ADDRESS")
-
-        print(f"🌐 Setting up DNS records for {domain} → {server_ip}")
 
         # Define all DNS records
         records = [
@@ -387,9 +366,6 @@ class SophiaDNSManager:
             if await self.dns_manager.create_dns_record(domain, record):
                 success_count += 1
 
-        print(
-            f"📊 DNS Setup Summary: {success_count}/{len(records)} records created successfully"
-        )
         return success_count == len(records)
 
     async def validate_dns_records(
@@ -398,8 +374,6 @@ class SophiaDNSManager:
         """Validate DNS record propagation"""
         if not expected_ip:
             expected_ip = await self.pulumi_esc.get_secret("LAMBDA_IP_ADDRESS")
-
-        print(f"🔍 Validating DNS records for {domain}...")
 
         subdomains = ["", "api", "webhooks", "dashboard", "sophia", "dev"]
         results = []
@@ -421,9 +395,6 @@ class SophiaDNSManager:
 
                 results.append(result)
 
-                status = "✅" if is_valid else "❌"
-                print(f"  {status} {hostname} → {', '.join(ip_addresses)}")
-
             except socket.gaierror as e:
                 result = {
                     "hostname": hostname,
@@ -433,10 +404,8 @@ class SophiaDNSManager:
                     "error": str(e),
                 }
                 results.append(result)
-                print(f"  ❌ {hostname} → DNS resolution failed: {e}")
 
-        valid_count = sum(1 for r in results if r["is_valid"])
-        print(f"📊 DNS Validation Summary: {valid_count}/{len(results)} records valid")
+        sum(1 for r in results if r["is_valid"])
 
         return results
 
@@ -465,10 +434,8 @@ async def main():
             await dns_manager.validate_dns_records(args.domain, args.ip)
         elif args.action == "status":
             await dns_manager.initialize()
-            print("✅ DNS Manager is operational")
 
-    except Exception as e:
-        print(f"❌ Operation failed: {e}")
+    except Exception:
         sys.exit(1)
 
 

@@ -355,11 +355,8 @@ if __name__ == "__main__":
             metrics = await service.get_service_metrics()
             logger.info(f"📊 Service metrics: {metrics}")
 
-            print("✅ Event-driven ingestion service test PASSED")
-
         except Exception as e:
             logger.error(f"❌ Test failed: {e}")
-            print("❌ Event-driven ingestion service test FAILED")
         finally:
             await service.shutdown()
 

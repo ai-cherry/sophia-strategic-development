@@ -303,7 +303,7 @@ class MCPFixImplementation:
                                 "http_status": response.status,
                             }
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     self.test_results[server_name] = {
                         "status": "timeout",
                         "port": port,

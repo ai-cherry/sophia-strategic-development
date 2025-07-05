@@ -263,10 +263,7 @@ class PortkeyGateway:
             return False
 
         # Check circuit breaker
-        if self.circuit_breakers.get(model_name, {}).get("is_open", False):
-            return False
-
-        return True
+        return not self.circuit_breakers.get(model_name, {}).get("is_open", False)
 
     def _estimate_cost(
         self, config: ModelConfig, input_tokens: float, output_tokens: float

@@ -17,8 +17,6 @@ async def test_infrastructure():
         ("Linear MCP", "http://localhost:9004/health"),
     ]
 
-    print("=== Testing Core Infrastructure ===\n")
-
     results = []
     timeout = aiohttp.ClientTimeout(total=5)
 
@@ -28,24 +26,16 @@ async def test_infrastructure():
                 async with session.get(url) as response:
                     success = response.status == 200
                     results.append((name, success))
-                    print(
-                        f"{'✅' if success else '❌'} {name}: {'OK' if success else 'FAIL'}"
-                    )
-            except Exception as e:
+            except Exception:
                 results.append((name, False))
-                print(f"❌ {name}: {e}")
 
     successful = sum(1 for _, success in results if success)
-    print("\n=== Test Results ===")
-    print(f"Passed: {successful}/{len(tests)} tests")
 
     success_rate = successful / len(tests)
-    if success_rate >= 0.8:
-        print("✅ Infrastructure is stable and ready for development")
-    elif success_rate >= 0.6:
-        print("⚠️  Infrastructure partially operational - some issues need attention")
+    if success_rate >= 0.8 or success_rate >= 0.6:
+        pass
     else:
-        print("❌ Infrastructure has critical issues - immediate attention required")
+        pass
 
     return success_rate >= 0.8
 

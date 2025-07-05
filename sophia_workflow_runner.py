@@ -27,15 +27,12 @@ class SophiaWorkflowRunner:
         }
 
         if workflow_type not in workflows:
-            print(f"❌ Unknown workflow: {workflow_type}")
             return
 
-        print(f"🤖 Running workflow: {workflow_type}")
         await workflows[workflow_type](context)
 
     async def workflow_issue_to_code(self, context):
         """Automated workflow: Issue to Code"""
-        print("🔄 Analyzing issue...")
 
         # 1. Use Sophia AI to analyze issue
         analysis_result = subprocess.run(
@@ -48,8 +45,6 @@ class SophiaWorkflowRunner:
             text=True,
         )
 
-        print("📋 Implementation plan created")
-
         # 2. Generate code using Claude
         code_result = subprocess.run(
             [
@@ -61,10 +56,7 @@ class SophiaWorkflowRunner:
             text=True,
         )
 
-        print("💻 Code generated")
-
         # 3. Run security scan
-        print("🔒 Running security scan...")
 
         # 4. Save results
         results = {
@@ -82,14 +74,11 @@ class SophiaWorkflowRunner:
         with open(results_file, "w") as f:
             json.dump(results, f, indent=2)
 
-        print(f"✅ Workflow completed. Results saved to {results_file}")
-
     async def workflow_code_review(self, context):
         """Automated code review workflow"""
-        print("🔍 Performing automated code review...")
 
         # Use Sophia AI for comprehensive review
-        review_result = subprocess.run(
+        subprocess.run(
             [
                 "python",
                 "unified_ai_assistant.py",
@@ -99,16 +88,9 @@ class SophiaWorkflowRunner:
             text=True,
         )
 
-        print("📊 Code review completed")
-        print(review_result.stdout)
-
 
 async def main():
     if len(sys.argv) < 3:
-        print("Usage: python sophia_workflow_runner.py <workflow_type> <context_json>")
-        print(
-            "Available workflows: issue_to_code, code_review, bug_fix, performance_optimization, security_scan"
-        )
         return
 
     workflow_type = sys.argv[1]

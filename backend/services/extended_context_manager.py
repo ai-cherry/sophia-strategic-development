@@ -8,7 +8,7 @@ import hashlib
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -101,7 +101,7 @@ class ExtendedContextManager:
         self,
         query: str,
         context_type: str,
-        business_context: Optional[dict[str, Any]] = None,
+        business_context: dict[str, Any] | None = None,
     ) -> ContextBundle:
         """
         High-performance contextual retrieval with semantic ranking
@@ -346,7 +346,7 @@ class ExtendedContextManager:
         self, contexts: list[dict[str, Any]]
     ) -> dict[str, Any]:
         """Generate metadata about retrieved contexts"""
-        tiers_accessed = list(set(c.get("tier", "unknown") for c in contexts))
+        tiers_accessed = list({c.get("tier", "unknown") for c in contexts})
 
         return {
             "total_contexts": len(contexts),

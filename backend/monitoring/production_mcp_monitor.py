@@ -4,13 +4,14 @@ Enhanced monitoring with circuit breakers, automatic fallback, and Grafana integ
 Achieves 99.9% uptime visibility for 28 MCP servers
 """
 import asyncio
+import contextlib
 import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from prometheus_client import Counter, Gauge, Histogram, Info
@@ -61,7 +62,7 @@ class CircuitBreaker:
     state: CircuitBreakerState = CircuitBreakerState.CLOSED
     failure_count: int = 0
     success_count: int = 0
-    last_failure_time: Optional[datetime] = None
+    last_failure_time: datetime | None = None
 
     def record_success(self):
         """Record a successful request"""
@@ -114,12 +115,12 @@ class ServerHealth:
     port: int
     status: str = "unknown"
     response_time_ms: float = 0.0
-    last_check: Optional[datetime] = None
+    last_check: datetime | None = None
     error_count: int = 0
     success_count: int = 0
     circuit_breaker: CircuitBreaker = field(default_factory=CircuitBreaker)
     capabilities: list[str] = field(default_factory=list)
-    version: Optional[str] = None
+    version: str | None = None
 
 
 class ProductionMCPMonitor:
@@ -462,7 +463,7 @@ class ProductionMCPMonitor:
                     self.check_server_health(server) for server in self.servers.values()
                 ]
 
-                results = await asyncio.gather(*tasks, return_exceptions=True)
+                await asyncio.gather(*tasks, return_exceptions=True)
 
                 # Log summary
                 healthy_count = sum(
@@ -488,10 +489,8 @@ class ProductionMCPMonitor:
         """Stop the monitoring loop"""
         if self.monitoring_task:
             self.monitoring_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self.monitoring_task
-            except asyncio.CancelledError:
-                pass
             logger.info("Production MCP monitoring stopped")
 
     def get_dashboard_data(self) -> dict[str, Any]:

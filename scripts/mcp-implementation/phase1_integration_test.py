@@ -7,7 +7,6 @@ Tests the 5 game-changing servers with mock environment variables
 import json
 import os
 import subprocess
-from datetime import datetime
 
 
 class MCPIntegrationTester:
@@ -24,7 +23,6 @@ class MCPIntegrationTester:
 
     def test_playwright_mcp(self) -> dict[str, any]:
         """Test Microsoft Playwright MCP capabilities"""
-        print("🎭 Testing Microsoft Playwright MCP...")
 
         # Check if package.json exists
         package_path = "mcp-servers/playwright/microsoft-playwright-mcp/package.json"
@@ -55,7 +53,6 @@ class MCPIntegrationTester:
 
     def test_snowflake_cortex(self) -> dict[str, any]:
         """Test Snowflake Cortex Agent MCP"""
-        print("❄️  Testing Snowflake Cortex Agent MCP...")
 
         script_path = "mcp-servers/snowflake_cortex/snowflake_cortex_mcp_server.py"
         if os.path.exists(script_path):
@@ -101,7 +98,6 @@ class MCPIntegrationTester:
 
     def test_apollo_mcp(self) -> dict[str, any]:
         """Test Apollo.io MCP Server"""
-        print("🚀 Testing Apollo.io MCP Server...")
 
         package_path = "mcp-servers/apollo/apollo-io-mcp/package.json"
         if os.path.exists(package_path):
@@ -131,7 +127,6 @@ class MCPIntegrationTester:
 
     def test_apify_config(self) -> dict[str, any]:
         """Test Apify MCP configuration"""
-        print("🕷️  Testing Apify Official MCP configuration...")
 
         config_path = "config/mcp/phase1/apify_config.json"
         if os.path.exists(config_path):
@@ -156,7 +151,6 @@ class MCPIntegrationTester:
 
     def test_figma_context(self) -> dict[str, any]:
         """Test Figma Context MCP"""
-        print("🎨 Testing Figma Context MCP...")
 
         # Check multiple possible locations
         paths = [
@@ -202,7 +196,6 @@ class MCPIntegrationTester:
 
     def test_integration_workflow(self) -> dict[str, any]:
         """Test a sample integration workflow"""
-        print("\n🔄 Testing Integration Workflow...")
 
         workflow = {
             "name": "Design-to-Deployment Pipeline",
@@ -245,11 +238,6 @@ class MCPIntegrationTester:
 
     def generate_report(self):
         """Generate integration test report"""
-        print("\n" + "=" * 60)
-        print("🧪 PHASE 1 MCP INTEGRATION TEST REPORT")
-        print("=" * 60)
-        print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print()
 
         # Test each server
         servers = [
@@ -261,59 +249,34 @@ class MCPIntegrationTester:
         ]
 
         # Server Status
-        print("📊 SERVER STATUS:")
         ready_count = 0
 
         for server in servers:
             status = server.get("status", "unknown")
-            icon = "✅" if status in ["installed", "ready", "configured"] else "❌"
-
-            print(f"\n{icon} {server['name']}")
-            print(f"   Status: {status}")
 
             if "capabilities" in server:
-                print("   Capabilities:")
-                for cap in server["capabilities"][:3]:  # Show first 3
-                    print(f"     • {cap}")
+                for _cap in server["capabilities"][:3]:  # Show first 3
+                    pass
                 if len(server["capabilities"]) > 3:
-                    print(f"     • ... and {len(server['capabilities']) - 3} more")
+                    pass
 
             if "business_value" in server:
-                print(f"   Business Value: {server['business_value']}")
                 if status in ["installed", "ready", "configured"]:
                     ready_count += 1
 
             if "error" in server:
-                print(f"   ⚠️  Error: {server['error']}")
+                pass
 
         # Integration Workflow
         workflow = self.test_integration_workflow()
-        print(f"\n�� INTEGRATION WORKFLOW: {workflow['name']}")
-        for step in workflow["steps"]:
-            print(f"   Step {step['step']}: {step['server']} → {step['action']}")
-        print(f"   Total Value: {workflow['total_value']}")
+        for _step in workflow["steps"]:
+            pass
 
         # Summary
-        print("\n📈 SUMMARY:")
-        print(f"   Servers Ready: {ready_count}/5")
-        print(f"   Integration Status: {'Ready' if ready_count >= 3 else 'Partial'}")
-        print("   Business Value: $1.7M+ potential")
 
         # Next Steps
-        print("\n📝 NEXT STEPS:")
         if ready_count < 5:
-            print("   1. Install missing Node.js dependencies:")
-            print(
-                "      cd mcp-servers/playwright/microsoft-playwright-mcp && npm install"
-            )
-            print("      cd mcp-servers/apollo/apollo-io-mcp && npm install")
-            print("      cd mcp-servers/figma_context/figma-context-mcp && npm install")
-
-        print("   2. Set environment variables (see health check)")
-        print("   3. Configure Cursor with config/cursor_phase1_mcp_config.json")
-        print("   4. Start testing individual servers")
-
-        print("\n" + "=" * 60)
+            pass
 
 
 if __name__ == "__main__":

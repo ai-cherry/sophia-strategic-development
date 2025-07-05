@@ -386,10 +386,7 @@ class SmartAIService:
                 if request.task_type.value in tier_config["use_cases"]
             ]
 
-            if suitable_models:
-                model = suitable_models[0]
-            else:
-                model = tier_config["models"][0]
+            model = suitable_models[0] if suitable_models else tier_config["models"][0]
 
             return {
                 "provider": tier_config["preferred_provider"],

@@ -664,13 +664,9 @@ async def main():
         await ingestor.initialize()
 
         # Run incremental sync by default
-        results = await ingestor.run_incremental_sync()
+        await ingestor.run_incremental_sync()
 
-        print("✅ Pay Ready Core Data ingestion completed successfully!")
-        print(f"📊 Results: {results}")
-
-    except Exception as e:
-        print(f"❌ Pay Ready Core Data ingestion failed: {e}")
+    except Exception:
         return 1
     finally:
         await ingestor.close()

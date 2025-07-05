@@ -490,23 +490,13 @@ class MCPMonitoringConfig:
 
         async def console_handler(alert: Alert) -> bool:
             """Simple console alert handler"""
-            timestamp = alert.triggered_at.strftime("%Y-%m-%d %H:%M:%S")
-            severity_icon = {
+            alert.triggered_at.strftime("%Y-%m-%d %H:%M:%S")
+            {
                 AlertSeverity.INFO: "ℹ️",
                 AlertSeverity.WARNING: "⚠️",
                 AlertSeverity.ERROR: "❌",
                 AlertSeverity.CRITICAL: "🚨",
             }.get(alert.severity, "📢")
-
-            print(
-                f"\n{severity_icon} ALERT [{alert.severity.value.upper()}] - {timestamp}"
-            )
-            print(f"Server: {alert.server_name}")
-            print(f"Metric: {alert.metric_name}")
-            print(f"Message: {alert.message}")
-            print(f"Current Value: {alert.current_value}")
-            print(f"Threshold: {alert.threshold_value}")
-            print("-" * 50)
 
             return True
 
@@ -936,15 +926,13 @@ if __name__ == "__main__":
     # Example usage
     async def main():
         # Initialize monitoring
-        result = await initialize_mcp_monitoring(MonitoringLevel.DEVELOPMENT)
-        print(f"Monitoring initialization result: {result}")
+        await initialize_mcp_monitoring(MonitoringLevel.DEVELOPMENT)
 
         # Let it run for a while
         await asyncio.sleep(30)
 
         # Check status
-        status = get_mcp_monitoring_status()
-        print(f"Monitoring status: {status}")
+        get_mcp_monitoring_status()
 
         # Stop
         await stop_mcp_monitoring()

@@ -262,20 +262,8 @@ def get_snowflake_config() -> dict[str, Any]:
 
 if __name__ == "__main__":
     # Test the configuration
-    print("🔧 Testing Sophia AI Configuration")
-    print("=" * 40)
 
     # Test critical secrets
     validation = config.validate_critical_secrets()
-    for key, valid in validation.items():
+    for _key, valid in validation.items():
         status = "✅" if valid else "❌"
-        print(f"{status} {key}: {'Valid' if valid else 'Missing/Invalid'}")
-
-    print(f"\nTotal config items: {len(config.get_all_config())}")
-    print(
-        f"OpenAI Key: {'✅ Available' if config.get_openai_api_key() else '❌ Missing'}"
-    )
-    print(f"Gong Key: {'✅ Available' if config.get_gong_access_key() else '❌ Missing'}")
-    print(
-        f"Pinecone Key: {'✅ Available' if config.get_pinecone_api_key() else '❌ Missing'}"
-    )

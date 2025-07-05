@@ -366,7 +366,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "total_monthly_cost": cost_analysis.get("total_cost", 0),
                 "potential_savings": sum(
                     opt.get("savings", 0)
-                    for opt in cost_analysis.get("cost_optimizations", [])
+                    for opt in cost_analysis.get("cost_optimizations", []):
                 ),
             },
         }
@@ -381,8 +381,9 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
         # Use SmartAIService for general infrastructure questions
         if self.llm_service:
             try:
-                ai_response = await self.async for chunk in llm_service.complete(
-    prompt={
+                # Use synchronous completion for now
+                ai_response = await self.llm_service.complete(
+                    prompt={
                         "messages": [
                             {
                                 "role": "system",
@@ -392,11 +393,10 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                         ],
                         "task_type": "infrastructure_guidance",
                         "model_preference": "balanced",
-                    }
-                ,
-    task_type=TaskType.CHAT_CONVERSATION,  # TODO: Set appropriate task type
-    stream=True
-)
+                    },
+                    task_type="chat_conversation",
+                    stream=False
+                )
 
                 return {
                     "success": True,

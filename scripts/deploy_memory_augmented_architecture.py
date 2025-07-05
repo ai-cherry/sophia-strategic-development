@@ -110,19 +110,6 @@ class Mem0PersistentMCPServer(StandardizedMCPServer):
         mem0_server_path.write_text(mem0_server_code)
 
         # 2. Update Snowflake schema
-        schema_updates = """
-        ALTER TABLE SOPHIA_AI_MEMORY.MEMORY_RECORDS
-        ADD COLUMN IF NOT EXISTS mem0_memory_id VARCHAR(255);
-
-        CREATE TABLE IF NOT EXISTS SOPHIA_AI_MEMORY.MEMORY_LEARNING_ANALYTICS (
-            analytics_id VARCHAR(255) PRIMARY KEY,
-            memory_id VARCHAR(255),
-            learning_type VARCHAR(50),
-            feedback_score FLOAT,
-            learning_outcome TEXT,
-            created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
-        );
-        """
 
         # 3. Create Kubernetes deployment
         k8s_deployment = """
@@ -317,14 +304,6 @@ class MemoryMonitoringService:
         """Deploy system integration and documentation updates"""
 
         # Update MCP configuration
-        mcp_config = {
-            "mem0_persistent": {
-                "command": "python",
-                "args": ["backend/mcp_servers/mem0_persistent/mem0_mcp_server.py"],
-                "env": {"PORT": "9010"},
-                "description": "Mem0 persistent memory with cross-session learning",
-            }
-        }
 
         # Create deployment validation script
         validation_code = '''
@@ -365,9 +344,6 @@ async def main():
     """Main deployment function"""
     deployer = MemoryAugmentedArchitectureDeployer()
     results = await deployer.deploy_full_architecture()
-
-    print("🎉 Memory-Augmented Architecture Deployment Complete!")
-    print(f"📊 Results: {results}")
 
     return results
 

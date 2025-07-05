@@ -28,7 +28,6 @@ class SnowflakeAdminMCPServer(StandardizedMCPServer):
     async def initialize(self):
         """Initialize the Snowflake MCP server."""
         await super().initialize()
-        print("🏔️ Snowflake Administration MCP Server initialized")
 
     async def handle_tool_call(
         self, tool_name: str, arguments: dict[str, Any]

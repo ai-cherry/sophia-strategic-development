@@ -1023,10 +1023,7 @@ class LangGraphAgentWorkflowOrchestrator:
     ) -> dict[str, Any]:
         """Route data to LangGraph-compatible agent."""
         # Convert Pydantic model to dict if necessary
-        if hasattr(data, "dict"):
-            data_dict = data.dict()
-        else:
-            data_dict = data
+        data_dict = data.dict() if hasattr(data, "dict") else data
 
         # Create agent context
         agent_context = AgentContext(

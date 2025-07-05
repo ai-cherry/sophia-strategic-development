@@ -19,7 +19,6 @@ TODO: Implement file decomposition
 """
 
 import asyncio
-import json
 import logging
 from dataclasses import dataclass
 from typing import Any
@@ -661,29 +660,19 @@ async def main():
         await processor.initialize()
 
         # Generate statistics before processing
-        print("📊 Embedding Coverage Statistics (Before):")
         before_stats = await processor.generate_schema_statistics()
-        for table, stats in before_stats.items():
-            print(
-                f"  {table}: {stats['embedding_coverage_percent']}% coverage ({stats['records_with_embeddings']}/{stats['total_records']} records)"
-            )
+        for _table, _stats in before_stats.items():
+            pass
 
         # Process all embeddings
-        results = await processor.process_all_embeddings()
+        await processor.process_all_embeddings()
 
         # Generate statistics after processing
-        print("\n📊 Embedding Coverage Statistics (After):")
         after_stats = await processor.generate_schema_statistics()
-        for table, stats in after_stats.items():
-            print(
-                f"  {table}: {stats['embedding_coverage_percent']}% coverage ({stats['records_with_embeddings']}/{stats['total_records']} records)"
-            )
+        for _table, _stats in after_stats.items():
+            pass
 
-        print("\n✅ Enhanced batch embedding processing completed successfully!")
-        print(f"📈 Processing results: {json.dumps(results, indent=2)}")
-
-    except Exception as e:
-        print(f"❌ Enhanced batch embedding processing failed: {e}")
+    except Exception:
         return 1
     finally:
         await processor.close()

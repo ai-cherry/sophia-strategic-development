@@ -86,14 +86,13 @@ async def main():
     try:
         # This is an example and assumes a 'codacy' server is configured and running
         # with a tool named 'analyze_file'.
-        analysis_result = await mcp_client.call_mcp_tool(
+        await mcp_client.call_mcp_tool(
             server_name="codacy",
             tool_name="analyze_file",
             arguments={"file_path": "backend/services/semantic_layer_service.py"},
         )
-        print("Analysis Result:", analysis_result)
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except Exception:
+        pass
     finally:
         await mcp_client.close()
 

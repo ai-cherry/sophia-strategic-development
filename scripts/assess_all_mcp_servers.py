@@ -198,10 +198,7 @@ class MCPServerAssessor:
                     if (
                         isinstance(base, ast.Name)
                         and base.id == "StandardizedMCPServer"
-                    ):
-                        assessment.standardized_base = True
-                        break
-                    elif (
+                    ) or (
                         isinstance(base, ast.Attribute)
                         and base.attr == "StandardizedMCPServer"
                     ):
@@ -502,46 +499,23 @@ class MCPServerAssessor:
 
     def _print_summary(self, report: dict):
         """Print assessment summary to console"""
-        summary = report["summary"]
+        report["summary"]
         categorization = report["categorization"]
 
-        print("\n" + "=" * 70)
-        print("🔍 MCP SERVER ASSESSMENT SUMMARY")
-        print("=" * 70)
-
-        print("\n📊 OVERVIEW:")
-        print(f"   Total Servers: {summary['total_servers']}")
-        print(
-            f"   Operational: {summary['operational_servers']} ({summary['operational_percentage']}%)"
-        )
-        print(
-            f"   Standardized: {summary['standardized_servers']} ({summary['standardized_percentage']}%)"
-        )
-        print(f"   Average Compliance: {summary['average_compliance_score']}/100")
-
-        print("\n🏆 SERVER CATEGORIES:")
         if categorization["excellent_servers"]:
-            print(
-                f"   ✅ Excellent (90-100): {', '.join(categorization['excellent_servers'])}"
-            )
+            pass
         if categorization["good_servers"]:
-            print(f"   🟢 Good (70-89): {', '.join(categorization['good_servers'])}")
+            pass
         if categorization["needs_work"]:
-            print(f"   🟡 Needs Work (50-69): {', '.join(categorization['needs_work'])}")
+            pass
         if categorization["critical_servers"]:
-            print(
-                f"   🔴 Critical (<50): {', '.join(categorization['critical_servers'])}"
-            )
+            pass
 
-        print("\n🎯 IMMEDIATE ACTIONS NEEDED:")
-        for action in report["recommendations"]["immediate_actions"]:
-            print(f"   • {action}")
+        for _action in report["recommendations"]["immediate_actions"]:
+            pass
 
-        print("\n🚀 STRATEGIC IMPROVEMENTS:")
-        for improvement in report["recommendations"]["strategic_improvements"]:
-            print(f"   • {improvement}")
-
-        print("\n" + "=" * 70)
+        for _improvement in report["recommendations"]["strategic_improvements"]:
+            pass
 
 
 async def main():

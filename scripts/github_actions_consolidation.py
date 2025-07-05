@@ -70,21 +70,18 @@ class GitHubActionsConsolidator:
 
     def analyze_existing_workflows(self) -> list[WorkflowAnalysis]:
         """Analyze all existing GitHub Actions workflows."""
-        print("🔍 Analyzing existing GitHub Actions workflows...")
 
         if not self.workflows_dir.exists():
-            print("❌ No .github/workflows directory found")
             return []
 
         workflow_files = list(self.workflows_dir.glob("*.yml"))
-        print(f"📁 Found {len(workflow_files)} workflow files")
 
         for workflow_file in workflow_files:
             try:
                 analysis = self._analyze_single_workflow(workflow_file)
                 self.analysis_results.append(analysis)
-            except Exception as e:
-                print(f"⚠️  Failed to analyze {workflow_file.name}: {e}")
+            except Exception:
+                pass
 
         return self.analysis_results
 
@@ -195,7 +192,6 @@ class GitHubActionsConsolidator:
 
     def generate_consolidation_report(self) -> dict:
         """Generate comprehensive consolidation report."""
-        print("📊 Generating consolidation report...")
 
         # Analyze existing workflows
         self.analyze_existing_workflows()
@@ -283,28 +279,14 @@ class GitHubActionsConsolidator:
 
 def main():
     """Main execution function."""
-    print("🔧 Sophia AI - GitHub Actions Workflow Consolidation")
-    print("=" * 60)
 
     consolidator = GitHubActionsConsolidator()
     report = consolidator.generate_consolidation_report()
 
-    print("\n📊 CONSOLIDATION SUMMARY")
-    print("-" * 40)
-    summary = report["consolidation_summary"]
-    print(f"Total workflows analyzed: {summary['total_workflows_analyzed']}")
-    print(f"Consolidatable workflows: {summary['consolidatable_workflows']}")
-    print(f"Estimated templates needed: {summary['estimated_templates_needed']}")
-    print(f"Consolidation ratio: {summary['consolidation_ratio']}")
-    print(f"Maintenance reduction: {summary['estimated_maintenance_reduction']}")
+    report["consolidation_summary"]
 
-    print("\n🔧 CONSOLIDATION GROUPS")
-    print("-" * 40)
-    for group, count in report["consolidation_groups"].items():
-        print(f"{group.title().replace('_', ' ')}: {count} workflows")
-
-    print("\n✅ Consolidation report saved: github_actions_consolidation_report.json")
-    print("🎯 Next: Create reusable workflow templates")
+    for _group, _count in report["consolidation_groups"].items():
+        pass
 
 
 if __name__ == "__main__":

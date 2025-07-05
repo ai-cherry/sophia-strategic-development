@@ -10,5 +10,3 @@ Combines AI, Business, Data, and Infrastructure intelligence
 # - sophia_business_intelligence
 # - sophia_data_intelligence
 # - sophia_infrastructure
-
-print("Unified Sophia Intelligence Server - Coming Soon")

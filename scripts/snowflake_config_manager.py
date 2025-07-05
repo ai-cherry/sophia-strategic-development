@@ -33,6 +33,8 @@ from typing import Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+import contextlib
+
 import snowflake.connector
 from snowflake.connector import DictCursor
 
@@ -73,15 +75,14 @@ class SnowflakeConfigManager:
                     for key, value in file_config.items():
                         if key not in config or not config[key]:
                             config[key] = value
-            except Exception as e:
-                print(f"Warning: Could not load config file {self.config_file}: {e}")
+            except Exception:
+                pass
 
         return config
 
     async def connect(self) -> bool:
         """Establish connection to Snowflake using secure credentials."""
         try:
-            print("🔗 Connecting to Snowflake...")
             self.connection = snowflake.connector.connect(
                 account=self.config["account"],
                 user=self.config["user"],
@@ -90,10 +91,8 @@ class SnowflakeConfigManager:
                 warehouse=self.config["warehouse"],
                 database=self.config["database"],
             )
-            print("✅ Successfully connected to Snowflake!")
             return True
-        except Exception as e:
-            print(f"❌ Failed to connect to Snowflake: {e}")
+        except Exception:
             return False
 
     def execute_query(
@@ -127,14 +126,11 @@ class SnowflakeConfigManager:
                     cursor.close()
                     return []
 
-        except Exception as e:
-            print(f"❌ Query execution failed: {e}")
-            print(f"Query: {query}")
+        except Exception:
             raise
 
     async def sync_github_schemas(self) -> dict[str, Any]:
         """Synchronize Snowflake schemas with GitHub codebase definitions."""
-        print("🔄 Synchronizing Snowflake schemas with GitHub codebase...")
 
         results = {
             "timestamp": datetime.now().isoformat(),
@@ -156,20 +152,16 @@ class SnowflakeConfigManager:
                     schema_sql = f.read()
 
                 # Execute schema creation/updates - split by semicolon and execute separately
-                print("📊 Executing schema updates...")
                 sql_statements = [
                     stmt.strip() for stmt in schema_sql.split(";") if stmt.strip()
                 ]
 
-                for i, statement in enumerate(sql_statements):
+                for _i, statement in enumerate(sql_statements):
                     if statement.upper().startswith(
                         ("CREATE", "ALTER", "INSERT", "UPDATE", "DELETE")
                     ):
-                        try:
+                        with contextlib.suppress(Exception):
                             self.execute_query(statement, fetch_results=False)
-                            print(f"✅ Executed statement {i + 1}/{len(sql_statements)}")
-                        except Exception as e:
-                            print(f"⚠️ Warning on statement {i + 1}: {e}")
                             # Continue with other statements
 
                 results["schemas_updated"].append("ai_memory_schema")
@@ -186,13 +178,11 @@ class SnowflakeConfigManager:
         except Exception as e:
             error_msg = f"Schema synchronization error: {str(e)}"
             results["errors"].append(error_msg)
-            print(f"❌ {error_msg}")
 
         return results
 
     async def _create_estuary_schemas(self, results: dict[str, Any]):
         """Create schemas and tables for Estuary data integration."""
-        print("🔗 Creating Estuary integration schemas...")
 
         # Gong schema and tables
         gong_schema_sql = """
@@ -281,16 +271,12 @@ class SnowflakeConfigManager:
             results["schemas_created"].append("SOPHIA_SLACK_RAW")
             results["tables_created"].extend(["slack_messages", "slack_channels"])
 
-            print("✅ Estuary schemas created successfully")
-
         except Exception as e:
             error_msg = f"Estuary schema creation error: {str(e)}"
             results["errors"].append(error_msg)
-            print(f"❌ {error_msg}")
 
     async def _create_memory_integration(self, results: dict[str, Any]):
         """Create memory system integration views and functions."""
-        print("🧠 Creating memory system integration...")
 
         memory_integration_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_MEMORY;
@@ -346,16 +332,13 @@ class SnowflakeConfigManager:
             self.execute_query(memory_integration_sql, fetch_results=False)
             results["schemas_created"].append("SOPHIA_AI_MEMORY")
             results["views_created"].append("unified_conversations")
-            print("✅ Memory integration created successfully")
 
         except Exception as e:
             error_msg = f"Memory integration error: {str(e)}"
             results["errors"].append(error_msg)
-            print(f"❌ {error_msg}")
 
     async def _create_semantic_layer(self, results: dict[str, Any]):
         """Create semantic layer for business intelligence."""
-        print("📊 Creating semantic layer...")
 
         semantic_sql = """
         CREATE SCHEMA IF NOT EXISTS SOPHIA_SEMANTIC;
@@ -388,16 +371,13 @@ class SnowflakeConfigManager:
             results["views_created"].extend(
                 ["conversation_analytics", "cross_platform_insights"]
             )
-            print("✅ Semantic layer created successfully")
 
         except Exception as e:
             error_msg = f"Semantic layer error: {str(e)}"
             results["errors"].append(error_msg)
-            print(f"❌ {error_msg}")
 
     async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive Snowflake system status."""
-        print("📊 Gathering system status...")
 
         status = {
             "timestamp": datetime.now().isoformat(),
@@ -470,8 +450,8 @@ class SnowflakeConfigManager:
             # Data statistics
             await self._gather_data_stats(status)
 
-        except Exception as e:
-            print(f"⚠️ Error gathering system status: {e}")
+        except Exception:
+            pass
 
         return status
 
@@ -496,12 +476,11 @@ class SnowflakeConfigManager:
                 except Exception:
                     status["data_stats"][table] = "N/A"
 
-        except Exception as e:
-            print(f"⚠️ Error gathering data stats: {e}")
+        except Exception:
+            pass
 
     async def optimize_performance(self) -> dict[str, Any]:
         """Optimize Snowflake performance settings."""
-        print("⚡ Optimizing Snowflake performance...")
 
         optimization_results = {
             "timestamp": datetime.now().isoformat(),
@@ -555,7 +534,6 @@ class SnowflakeConfigManager:
         except Exception as e:
             error_msg = f"Performance optimization error: {str(e)}"
             optimization_results["errors"].append(error_msg)
-            print(f"❌ {error_msg}")
 
         return optimization_results
 
@@ -563,7 +541,6 @@ class SnowflakeConfigManager:
         """Close Snowflake connection."""
         if self.connection:
             self.connection.close()
-            print("🔒 Snowflake connection closed")
 
 
 class SnowflakeCLI:
@@ -610,7 +587,6 @@ async def main():
     if args.config:
         cli.manager.config_file = args.config
 
-    print(f"🚀 Executing Snowflake {args.command} command...")
     result = await cli.run_command(args.command)
 
     # Output results
@@ -641,9 +617,8 @@ Data Statistics:
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"📄 Results saved to {args.output}")
     else:
-        print(output)
+        pass
 
 
 if __name__ == "__main__":

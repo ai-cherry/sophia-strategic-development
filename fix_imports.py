@@ -44,11 +44,9 @@ def fix_future_imports(file_path):
         with open(file_path, "w", encoding="utf-8") as f:
             f.writelines(lines)
 
-        print(f"Fixed: {file_path}")
         return True
 
-    except Exception as e:
-        print(f"Error fixing {file_path}: {e}")
+    except Exception:
         return False
 
 
@@ -65,9 +63,7 @@ def main():
             if fix_future_imports(file_path):
                 fixed_count += 1
         else:
-            print(f"File not found: {file_path}")
-
-    print(f"\nFixed {fixed_count} files")
+            pass
 
 
 if __name__ == "__main__":

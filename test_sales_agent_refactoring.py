@@ -12,33 +12,21 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
 
 def test_imports():
     """Test that all refactored modules can be imported"""
-    print("🧪 Testing refactored Sales Intelligence Agent imports...")
 
     try:
         # Test models import
 
-        print("✅ Models module imported successfully")
-
         # Test utils import
-
-        print("✅ Utils module imported successfully")
 
         # Test handlers import
 
-        print("✅ Handlers module imported successfully")
-
         # Test core import
-
-        print("✅ Core module imported successfully")
 
         # Test facade import
 
-        print("✅ Facade module imported successfully")
-
         return True
 
-    except Exception as e:
-        print(f"❌ Import failed: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
@@ -47,28 +35,17 @@ def test_imports():
 
 def test_enums_and_models():
     """Test that enums and models work correctly"""
-    print("\n🧪 Testing enums and models...")
 
     try:
         from backend.agents.specialized.sales_intelligence_agent_models import (
-            DealRiskLevel,
             EmailType,
             SalesEmailRequest,
-            SalesStage,
         )
 
         # Test enums
-        risk_level = DealRiskLevel.HIGH
-        print(f"✅ Risk level enum works: {risk_level.value}")
-
-        stage = SalesStage.QUALIFICATION
-        print(f"✅ Sales stage enum works: {stage.value}")
-
-        email_type = EmailType.FOLLOW_UP
-        print(f"✅ Email type enum works: {email_type.value}")
 
         # Test model creation
-        email_request = SalesEmailRequest(
+        SalesEmailRequest(
             email_type=EmailType.FOLLOW_UP,
             deal_id="test_deal",
             recipient_name="John Doe",
@@ -77,12 +54,10 @@ def test_enums_and_models():
             key_points=["Point 1", "Point 2"],
             call_to_action="Schedule a call",
         )
-        print(f"✅ Email request model created: {email_request.recipient_name}")
 
         return True
 
-    except Exception as e:
-        print(f"❌ Enums/models test failed: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
@@ -91,7 +66,6 @@ def test_enums_and_models():
 
 def test_utilities():
     """Test utility functions"""
-    print("\n🧪 Testing utility functions...")
 
     try:
         from backend.agents.specialized.sales_intelligence_agent_models import (
@@ -107,24 +81,19 @@ def test_utilities():
         risk_score = SalesIntelligenceUtils.calculate_risk_score(
             risk_factors, sentiment
         )
-        print(f"✅ Risk score calculation works: {risk_score}")
 
         # Test risk level determination
-        risk_level = SalesIntelligenceUtils.determine_risk_level(risk_score)
-        print(f"✅ Risk level determination works: {risk_level.value}")
+        SalesIntelligenceUtils.determine_risk_level(risk_score)
 
         # Test currency formatting
-        formatted = SalesIntelligenceUtils.format_currency(125000)
-        print(f"✅ Currency formatting works: {formatted}")
+        SalesIntelligenceUtils.format_currency(125000)
 
         # Test stage probability
-        prob = SalesIntelligenceUtils.get_stage_probability(SalesStage.PROPOSAL)
-        print(f"✅ Stage probability works: {prob}")
+        SalesIntelligenceUtils.get_stage_probability(SalesStage.PROPOSAL)
 
         return True
 
-    except Exception as e:
-        print(f"❌ Utilities test failed: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
@@ -133,7 +102,6 @@ def test_utilities():
 
 def test_backward_compatibility():
     """Test that the facade maintains backward compatibility"""
-    print("\n🧪 Testing backward compatibility...")
 
     try:
         # Test that all original imports still work
@@ -141,22 +109,15 @@ def test_backward_compatibility():
             create_sales_intelligence_agent,
         )
 
-        print("✅ All backward compatibility imports work")
-
         # Test factory function
         agent = create_sales_intelligence_agent()
-        print(f"✅ Factory function works: {agent.name}")
 
         # Test agent capabilities
-        capabilities = agent.get_agent_capabilities()
-        print(
-            f"✅ Agent capabilities accessible: {len(capabilities.primary_capabilities)} capabilities"
-        )
+        agent.get_agent_capabilities()
 
         return True
 
-    except Exception as e:
-        print(f"❌ Backward compatibility test failed: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()
@@ -165,7 +126,6 @@ def test_backward_compatibility():
 
 def main():
     """Run all tests"""
-    print("🚀 Starting Sales Intelligence Agent Refactoring Tests\n")
 
     tests = [
         test_imports,
@@ -183,20 +143,7 @@ def main():
         else:
             break  # Stop on first failure
 
-    print(f"\n📊 Test Results: {passed}/{total} tests passed")
-
-    if passed == total:
-        print("🎉 All tests passed! Sales Intelligence Agent refactoring successful!")
-        print("\n✨ Task 2 (Decompose Sales Intelligence Agent) - COMPLETED")
-        print("   - ✅ 1,315 lines split into 4 focused modules")
-        print("   - ✅ Facade pattern maintains 100% backward compatibility")
-        print("   - ✅ All imports and models working correctly")
-        print("   - ✅ Utility functions operational")
-        print("   - ✅ Handler architecture implemented")
-        return True
-    else:
-        print("❌ Some tests failed. Please review the errors above.")
-        return False
+    return passed == total
 
 
 if __name__ == "__main__":

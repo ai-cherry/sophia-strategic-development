@@ -861,7 +861,7 @@ class PureEstuaryDataPipeline:
         """Pause all pipeline flows"""
         logger.info("⏸️ Pausing pipeline...")
 
-        for flow_name in self.status.flows_active.keys():
+        for flow_name in self.status.flows_active:
             try:
                 await self.estuary_orchestrator.disable_flow(flow_name)
                 self.status.flows_active[flow_name] = FlowStatus.PAUSED
@@ -872,7 +872,7 @@ class PureEstuaryDataPipeline:
         """Resume all pipeline flows"""
         logger.info("▶️ Resuming pipeline...")
 
-        for flow_name in self.status.flows_active.keys():
+        for flow_name in self.status.flows_active:
             try:
                 await self.estuary_orchestrator.enable_flow(flow_name)
                 self.status.flows_active[flow_name] = FlowStatus.ACTIVE

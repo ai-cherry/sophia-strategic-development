@@ -696,28 +696,13 @@ def main():
     refactorer = CriticalRefactorer()
 
     if args.dry_run:
-        print("DRY RUN - Would refactor:")
-        print("1. smart_recall_enhanced (AI Memory MCP)")
-        print("2. generate_marketing_content (Marketing Agent)")
-        print("3. handle_list_tools (MCP Servers)")
         return
 
     results = refactorer.run_critical_refactoring()
 
-    print("\n" + "=" * 60)
-    print("CRITICAL COMPLEXITY REFACTORING COMPLETE")
-    print("=" * 60)
-    print(f"Functions Refactored: {results['functions_refactored']}")
-    print(f"Files Modified: {results['files_modified']}")
-    print(f"Errors: {results['errors']}")
-
     if results["errors"] > 0:
-        print("\nErrors encountered:")
-        for error in refactorer.errors:
-            print(f"  - {error}")
-
-    print("\nSee CRITICAL_COMPLEXITY_REFACTORING_REPORT.md for detailed results")
-    print("=" * 60)
+        for _error in refactorer.errors:
+            pass
 
 
 if __name__ == "__main__":

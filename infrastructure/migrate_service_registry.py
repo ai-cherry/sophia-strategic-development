@@ -45,7 +45,6 @@ def main() -> None:
 
     with unified_file.open("w") as f:
         json.dump(unified, f, indent=2)
-    print(f"Wrote {len(unified)} services to {unified_file}")
 
 
 if __name__ == "__main__":

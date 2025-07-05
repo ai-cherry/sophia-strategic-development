@@ -276,9 +276,10 @@ class EnhancedUnifiedDataPipeline:
             results["destinations_configured"].append("postgresql_schemas")
 
             # Configure data sources based on engine
-            if engine_to_use == PipelineEngine.ESTUARY_FLOW:
-                source_results = await self._setup_estuary_sources()
-            elif engine_to_use == PipelineEngine.estuary:
+            if (
+                engine_to_use == PipelineEngine.ESTUARY_FLOW
+                or engine_to_use == PipelineEngine.estuary
+            ):
                 source_results = await self._setup_estuary_sources()
             else:  # HYBRID
                 source_results = await self._setup_hybrid_sources()

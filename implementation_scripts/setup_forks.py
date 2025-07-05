@@ -22,10 +22,8 @@ def fork_repository(owner, repo, org):
     )
 
     if response.status_code == 202:
-        print(f"✅ Successfully forked {owner}/{repo} to {org}")
         return response.json()
     else:
-        print(f"❌ Failed to fork {owner}/{repo}: {response.status_code}")
         return None
 
 

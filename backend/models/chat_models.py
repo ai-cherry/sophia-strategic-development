@@ -100,11 +100,11 @@ class ChatRequest(BaseModel):
     stream: bool = Field(default=False, description="Enable streaming response")
 
     @validator("session_id", pre=True, always=True)
-    def generate_session_id(cls, v):
+    def generate_session_id(self, v):
         return v or str(uuid.uuid4())
 
     @validator("configuration", pre=True, always=True)
-    def set_default_config(cls, v, values):
+    def set_default_config(self, v, values):
         if v is None:
             mode = values.get("mode", ChatMode.UNIVERSAL)
             return ChatConfiguration(mode=mode)

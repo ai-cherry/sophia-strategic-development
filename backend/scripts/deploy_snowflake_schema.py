@@ -501,19 +501,12 @@ async def main():
 
 
 if __name__ == "__main__":
-    print("🔥 SOPHIA AI PHOENIX PLATFORM SCHEMA DEPLOYMENT 🔥")
-    print("Deploying the single source of truth architecture...")
-    print()
-
     # Run the deployment
     success = asyncio.run(main())
 
     if success:
-        print("\n🎉 DEPLOYMENT SUCCESSFUL!")
-        print("The Phoenix has risen! Snowflake is now the center of the universe.")
-        print("\nNext: Run the unified dashboard to see the Phoenix in action!")
+        pass
     else:
-        print("\n❌ DEPLOYMENT FAILED!")
-        print("Check the logs for details and retry.")
+        pass
 
     sys.exit(0 if success else 1)

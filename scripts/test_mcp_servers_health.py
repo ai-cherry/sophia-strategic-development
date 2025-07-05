@@ -52,27 +52,26 @@ class MCPHealthChecker:
         url = f"http://{host}:{port}/health"
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url, timeout=aiohttp.ClientTimeout(total=5)
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        return {
-                            "status": "healthy",
-                            "response_time_ms": response.headers.get(
-                                "X-Response-Time", "N/A"
-                            ),
-                            "data": data,
-                            "url": url,
-                        }
-                    else:
-                        return {
-                            "status": "unhealthy",
-                            "http_status": response.status,
-                            "url": url,
-                        }
-        except asyncio.TimeoutError:
+            async with aiohttp.ClientSession() as session, session.get(
+                url, timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return {
+                        "status": "healthy",
+                        "response_time_ms": response.headers.get(
+                            "X-Response-Time", "N/A"
+                        ),
+                        "data": data,
+                        "url": url,
+                    }
+                else:
+                    return {
+                        "status": "unhealthy",
+                        "http_status": response.status,
+                        "url": url,
+                    }
+        except TimeoutError:
             return {"status": "timeout", "error": "Connection timeout", "url": url}
         except Exception as e:
             return {"status": "unreachable", "error": str(e), "url": url}
@@ -223,7 +222,7 @@ class MCPHealthChecker:
     async def run(self):
         """Run all health checks"""
         # Check server files
-        file_status = self.check_server_files()
+        self.check_server_files()
 
         # Check server health
         await self.check_all_servers()

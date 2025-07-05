@@ -311,10 +311,7 @@ class CodeModificationService:
                 return True
 
         # Require approval for any errors
-        if validation["errors"]:
-            return True
-
-        return False
+        return bool(validation["errors"])
 
     def _detect_language(self, file_path: str) -> str:
         """Detect programming language from file extension"""

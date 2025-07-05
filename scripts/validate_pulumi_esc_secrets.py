@@ -97,7 +97,6 @@ class PulumiESCValidator:
             result = subprocess.run(cmd.split(), capture_output=True, text=True)
 
             if result.returncode != 0:
-                print(f"❌ Failed to open Pulumi environment: {result.stderr}")
                 return {}
 
             env_data = json.loads(result.stdout)
@@ -109,8 +108,7 @@ class PulumiESCValidator:
 
             return secrets
 
-        except Exception as e:
-            print(f"❌ Error getting Pulumi secrets: {e}")
+        except Exception:
             return {}
 
     def _extract_secrets(self, data: dict, secrets: dict, prefix: str = ""):
@@ -226,53 +224,32 @@ fi
             f.write(fix_script)
 
         os.chmod("fix_missing_esc_secrets.sh", 0o755)
-        print("✅ Generated fix script: fix_missing_esc_secrets.sh")
 
     def run_validation(self):
         """Run complete validation"""
-        print("🔍 Validating Pulumi ESC Secrets...")
 
         # Get current Pulumi secrets
         pulumi_secrets = self.get_pulumi_secrets()
         if not pulumi_secrets:
-            print("❌ Could not retrieve Pulumi secrets")
             return
-
-        print(f"\n📊 Found {len(pulumi_secrets)} secrets in Pulumi ESC")
 
         # Analyze usage
         usage_analysis = self.analyze_secret_usage()
-        print("\n🔑 Secret Usage Analysis:")
-        print(
-            f"  get_config_value calls: {len(set(usage_analysis['get_config_value_calls']))}"
-        )
-        print(
-            f"  Environment var references: {len(set(usage_analysis['env_var_references']))}"
-        )
-        print(f"  Missing from mapping: {len(usage_analysis['missing_in_mapping'])}")
 
         # Validate structure
         validation_results = self.validate_esc_structure(pulumi_secrets)
-        print("\n✅ Validation Results:")
-        print(f"  Valid secrets: {len(validation_results['valid_secrets'])}")
-        print(f"  Missing secrets: {len(validation_results['missing_secrets'])}")
-        print(f"  Extra secrets: {len(validation_results['extra_secrets'])}")
 
         # Show missing secrets
         if validation_results["missing_secrets"]:
-            print("\n⚠️  Missing Secrets in Pulumi ESC:")
-            for secret in sorted(validation_results["missing_secrets"])[:10]:
-                print(f"    - {secret}")
+            for _secret in sorted(validation_results["missing_secrets"])[:10]:
+                pass
             if len(validation_results["missing_secrets"]) > 10:
-                print(
-                    f"    ... and {len(validation_results['missing_secrets']) - 10} more"
-                )
+                pass
 
         # Show secrets not in mapping
         if usage_analysis["missing_in_mapping"]:
-            print("\n⚠️  Secrets used but not in mapping:")
-            for secret in sorted(set(usage_analysis["missing_in_mapping"]))[:10]:
-                print(f"    - {secret}")
+            for _secret in sorted(set(usage_analysis["missing_in_mapping"]))[:10]:
+                pass
 
         # Generate fix script
         if validation_results["missing_secrets"]:
@@ -288,8 +265,6 @@ fi
 
         with open("pulumi_esc_validation_report.json", "w") as f:
             json.dump(report, f, indent=2)
-
-        print("\n✅ Detailed report saved to: pulumi_esc_validation_report.json")
 
 
 def main():

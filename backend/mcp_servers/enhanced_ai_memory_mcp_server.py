@@ -835,17 +835,16 @@ class EnhancedAiMemoryMCPServer:
                             if sentiment_filter:
                                 sentiment_score = metadata.get("sentiment_score", 0)
                                 if (
-                                    sentiment_filter.lower() == "positive"
-                                    and sentiment_score <= 0.3
-                                ):
-                                    continue
-                                elif (
-                                    sentiment_filter.lower() == "negative"
-                                    and sentiment_score >= -0.3
-                                ):
-                                    continue
-                                elif sentiment_filter.lower() == "neutral" and not (
-                                    -0.3 <= sentiment_score <= 0.3
+                                    (
+                                        sentiment_filter.lower() == "positive"
+                                        and sentiment_score <= 0.3
+                                    )
+                                    or (
+                                        sentiment_filter.lower() == "negative"
+                                        and sentiment_score >= -0.3
+                                    )
+                                    or sentiment_filter.lower() == "neutral"
+                                    and not (-0.3 <= sentiment_score <= 0.3)
                                 ):
                                     continue
 

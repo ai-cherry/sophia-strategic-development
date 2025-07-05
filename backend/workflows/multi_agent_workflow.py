@@ -228,9 +228,8 @@ class MultiAgentWorkflow:
             return False
 
         for task in self.workflow_def.tasks:
-            if task.task_id not in visited:
-                if dfs(task.task_id):
-                    return True
+            if task.task_id not in visited and dfs(task.task_id):
+                return True
 
         return False
 

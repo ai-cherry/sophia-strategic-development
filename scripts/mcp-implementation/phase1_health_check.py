@@ -4,9 +4,9 @@ Phase 1 MCP Server Health Check
 Validates all game-changing servers are operational
 """
 
+import contextlib
 import os
 import subprocess
-from datetime import datetime
 
 
 class MCPHealthChecker:
@@ -131,29 +131,17 @@ class MCPHealthChecker:
 
     def generate_report(self):
         """Generate health check report"""
-        print("\n" + "=" * 60)
-        print("🏥 PHASE 1 MCP HEALTH CHECK REPORT")
-        print("=" * 60)
-        print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print()
 
         # Prerequisites
-        print("📋 PREREQUISITES:")
         prereqs = self.check_prerequisites()
-        for name, status, info in prereqs:
-            icon = "✅" if status else "❌"
-            print(f"  {icon} {name}: {info}")
-        print()
+        for _name, _status, _info in prereqs:
+            pass
 
         # MCP Servers
-        print("🚀 MCP SERVERS:")
         servers = self.check_mcp_servers()
         total_value = 0
         for server in servers:
-            icon = "✅" if server["exists"] else "❌"
-            print(f"  {icon} {server['name']}")
-            print(f"     Path: {server['path']}")
-            print(f"     Business Value: {server['value']}")
+            "✅" if server["exists"] else "❌"
             if server["exists"]:
                 value_str = (
                     server["value"]
@@ -161,57 +149,30 @@ class MCPHealthChecker:
                     .replace("K+", "000")
                     .replace(" ", "")
                 )
-                try:
+                with contextlib.suppress(Exception):
                     total_value += int(value_str.split()[0])
-                except Exception:
-                    pass
-        print()
-        print(f"  💰 Total Business Value: ${total_value:,}+")
-        print()
 
         # Environment Variables
-        print("�� ENVIRONMENT VARIABLES:")
         env_vars = self.check_environment_variables()
         missing_vars = []
         for var, exists in env_vars:
-            icon = "✅" if exists else "❌"
-            status = "Set" if exists else "Missing"
-            print(f"  {icon} {var}: {status}")
             if not exists:
                 missing_vars.append(var)
-        print()
 
         # Summary
         all_servers_exist = all(s["exists"] for s in servers)
         all_vars_set = len(missing_vars) == 0
         all_prereqs_met = all(p[1] for p in prereqs)
 
-        print("📊 SUMMARY:")
-        print(
-            f"  Prerequisites: {'✅ All met' if all_prereqs_met else '❌ Missing dependencies'}"
-        )
-        print(
-            f"  MCP Servers: {'✅ All installed' if all_servers_exist else '❌ Some missing'}"
-        )
-        print(
-            f"  Environment: {'✅ All variables set' if all_vars_set else '❌ Missing variables'}"
-        )
-        print()
-
         if missing_vars:
-            print("⚠️  ACTION REQUIRED:")
-            print("  Set the following environment variables:")
             for var in missing_vars:
-                print(f"    export {var}='your-value-here'")
-            print()
+                pass
 
         overall_ready = all_servers_exist and all_vars_set and all_prereqs_met
         if overall_ready:
-            print("🎉 PHASE 1 READY FOR DEPLOYMENT!")
+            pass
         else:
-            print("🔧 Please address the issues above before deployment.")
-
-        print("=" * 60)
+            pass
 
 
 if __name__ == "__main__":

@@ -278,19 +278,19 @@ class SmartComplexityAnalyzer:
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, ast.If | ast.While | ast.For | ast.AsyncFor):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, ast.And | ast.Or):
-                complexity += 1
-            elif isinstance(child, ast.ListComp):
-                complexity += 1
-            elif isinstance(child, ast.DictComp):
-                complexity += 1
-            elif isinstance(child, ast.SetComp):
-                complexity += 1
-            elif isinstance(child, ast.GeneratorExp):
+            if isinstance(
+                child,
+                ast.If
+                | ast.While
+                | ast.For
+                | ast.AsyncFor
+                | ast.ExceptHandler
+                | (ast.And | ast.Or)
+                | ast.ListComp
+                | ast.DictComp
+                | ast.SetComp
+                | ast.GeneratorExp,
+            ):
                 complexity += 1
 
         return complexity
@@ -346,46 +346,18 @@ def main():
     issues = analyzer.analyze_codebase(args.root_path)
 
     if not issues:
-        print("✅ No complexity issues found!")
         return
 
     # Categorize issues
     critical_issues = [i for i in issues if i.priority == Priority.CRITICAL]
     high_issues = [i for i in issues if i.priority == Priority.HIGH]
-    medium_issues = [i for i in issues if i.priority == Priority.MEDIUM]
+    [i for i in issues if i.priority == Priority.MEDIUM]
 
-    print("\n" + "=" * 60)
-    print("SMART COMPLEXITY ANALYSIS COMPLETE")
-    print("=" * 60)
-    print(f"Total Issues Found: {len(issues)}")
-    print(f"Critical Issues: {len(critical_issues)}")
-    print(f"High Priority Issues: {len(high_issues)}")
-    print(f"Medium Priority Issues: {len(medium_issues)}")
-    print(
-        f"Estimated Total Effort: {sum(i.estimated_effort_hours for i in issues):.1f} hours"
-    )
+    for _i, _issue in enumerate(critical_issues[:10], 1):
+        pass
 
-    print("\n🔴 TOP 10 CRITICAL ISSUES:")
-    for i, issue in enumerate(critical_issues[:10], 1):
-        print(f"{i:2d}. {issue.function_name} ({issue.file_path})")
-        print(
-            f"    {issue.issue_type.value}: {issue.metric_value}, Strategy: {issue.recommended_strategy.value}"
-        )
-
-    print("\n�� TOP 10 HIGH PRIORITY ISSUES:")
-    for i, issue in enumerate(high_issues[:10], 1):
-        print(f"{i:2d}. {issue.function_name} ({issue.file_path})")
-        print(
-            f"    {issue.issue_type.value}: {issue.metric_value}, Strategy: {issue.recommended_strategy.value}"
-        )
-
-    print("\n" + "=" * 60)
-    print("RECOMMENDED NEXT STEPS:")
-    print("1. Review critical issues immediately")
-    print("2. Begin refactoring with Extract Method pattern")
-    print("3. Set up automated complexity monitoring")
-    print("4. Implement pre-commit hooks for complexity checks")
-    print("=" * 60)
+    for _i, _issue in enumerate(high_issues[:10], 1):
+        pass
 
 
 if __name__ == "__main__":

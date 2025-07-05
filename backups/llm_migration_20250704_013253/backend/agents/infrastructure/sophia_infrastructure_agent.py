@@ -815,9 +815,7 @@ class SophiaSecurityAgent(SophiaInfrastructureAgent):
     async def _validate_decision_safety(self, decision: InfrastructureDecision) -> bool:
         """Validate if decision is safe to execute"""
         # Basic safety checks
-        if decision.risk_level == "high" and decision.confidence < 0.7:
-            return False
-        return True
+        return not (decision.risk_level == "high" and decision.confidence < 0.7)
 
     async def _execute_infrastructure_action(
         self, decision: InfrastructureDecision

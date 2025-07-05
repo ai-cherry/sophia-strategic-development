@@ -19,7 +19,6 @@ class SecurityUpdater:
         """Log security fix actions"""
         fix_record = {"component": component, "action": action, "status": status}
         self.fixes_applied.append(fix_record)
-        print(f"🔧 {component}: {action} - {status}")
 
     def run_command(self, cmd: list[str], cwd: str = None) -> tuple[bool, str]:
         """Run shell command and return success status and output"""
@@ -43,8 +42,6 @@ class SecurityUpdater:
         npm_dir = self.project_root / directory
         if not (npm_dir / "package.json").exists():
             return True  # No package.json, nothing to update
-
-        print(f"📦 Updating NPM dependencies in {directory}")
 
         # Update package-lock.json if needed
         if not (npm_dir / "package-lock.json").exists():
@@ -75,7 +72,6 @@ class SecurityUpdater:
 
     def update_python_dependencies(self) -> bool:
         """Update Python dependencies"""
-        print("🐍 Updating Python dependencies")
 
         # Update pip itself
         success, output = self.run_command(
@@ -131,7 +127,6 @@ class SecurityUpdater:
 
     def fix_specific_vulnerabilities(self) -> bool:
         """Fix specific known vulnerabilities"""
-        print("🎯 Fixing specific vulnerabilities")
 
         # Fix brace-expansion vulnerability in external repos
         external_dirs = [
@@ -157,7 +152,6 @@ class SecurityUpdater:
 
     def create_security_config(self) -> bool:
         """Create security configuration files"""
-        print("⚙️ Creating security configuration")
 
         # Create .nvmrc for Node.js version pinning
         nvmrc_content = "18.19.0"  # LTS version with security fixes
@@ -205,8 +199,6 @@ Please report security vulnerabilities to the maintainers privately.
 
     def run_comprehensive_update(self) -> bool:
         """Run comprehensive security update"""
-        print("🚀 Starting comprehensive security update")
-        print("=" * 50)
 
         # Update Python dependencies
         self.update_python_dependencies()
@@ -275,9 +267,6 @@ Generated: {subprocess.check_output(['date'], text=True).strip()}
 def main():
     updater = SecurityUpdater()
 
-    print("🔒 Sophia AI Security Update Tool")
-    print("=" * 40)
-
     try:
         success = updater.run_comprehensive_update()
 
@@ -286,19 +275,12 @@ def main():
         with open("SECURITY_UPDATE_REPORT.md", "w") as f:
             f.write(report)
 
-        print("\n" + "=" * 50)
-        print("🎉 Security update completed!")
-        print("📋 Report saved to: SECURITY_UPDATE_REPORT.md")
-
         if success:
-            print("✅ All critical vulnerabilities addressed")
             return 0
         else:
-            print("⚠️  Some issues may require manual intervention")
             return 1
 
-    except Exception as e:
-        print(f"❌ Security update failed: {e}")
+    except Exception:
         return 1
 
 

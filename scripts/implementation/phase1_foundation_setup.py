@@ -589,15 +589,8 @@ async def main():
     success = await setup.run_phase1_setup()
 
     if success:
-        print("\n🚀 Next Steps:")
-        print("1. Commit and push changes to trigger GitHub Actions")
-        print(
-            "2. Run Phase 2 setup: python scripts/implementation/phase2_advanced_integration.py"
-        )
-        print("3. Monitor build performance in Docker Hub")
         return 0
     else:
-        print("\n❌ Setup failed. Please review logs and retry.")
         return 1
 
 

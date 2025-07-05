@@ -8,7 +8,6 @@ import time
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 try:
     from portkey_ai import AsyncPortkey
@@ -84,7 +83,7 @@ class UnifiedLLMService:
             self.initialized = True
             logger.info("✅ UnifiedLLMService initialized successfully")
 
-    async def _init_portkey(self) -> Optional[AsyncPortkey]:
+    async def _init_portkey(self) -> AsyncPortkey | None:
         """Initialize Portkey client"""
         if AsyncPortkey is None:
             logger.warning("Portkey package not installed")
@@ -109,7 +108,7 @@ class UnifiedLLMService:
                     "threshold": 0.95,
                     "ttl": 3600,
                     "max_size": 1000,  # Maximum cached items
-                    "enabled": True,   # Explicitly enable caching
+                    "enabled": True,  # Explicitly enable caching
                 },
                 "retry": {
                     "attempts": 3,
@@ -119,7 +118,7 @@ class UnifiedLLMService:
             },
         )
 
-    def _init_openrouter(self) -> Optional[AsyncOpenAI]:
+    def _init_openrouter(self) -> AsyncOpenAI | None:
         """Initialize OpenRouter client"""
         api_key = self.config.get_value("openrouter_api_key")
         if not api_key:
@@ -171,8 +170,8 @@ class UnifiedLLMService:
         prompt: str,
         task_type: TaskType,
         stream: bool = True,
-        metadata: Optional[dict] = None,
-        model_override: Optional[str] = None,
+        metadata: dict | None = None,
+        model_override: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 2000,
     ) -> AsyncGenerator[str, None]:
@@ -358,7 +357,7 @@ class UnifiedLLMService:
         tier: ModelTier,
         stream: bool,
         metadata: dict,
-        model_override: Optional[str],
+        model_override: str | None,
         temperature: float,
         max_tokens: int,
     ) -> AsyncGenerator[str, None]:
@@ -417,7 +416,7 @@ class UnifiedLLMService:
         prompt: str,
         stream: bool,
         metadata: dict,
-        model_override: Optional[str],
+        model_override: str | None,
         temperature: float,
         max_tokens: int,
     ) -> AsyncGenerator[str, None]:
@@ -487,7 +486,7 @@ class UnifiedLLMService:
         return models
 
     async def estimate_cost(
-        self, prompt: str, task_type: TaskType, model_override: Optional[str] = None
+        self, prompt: str, task_type: TaskType, model_override: str | None = None
     ) -> dict[str, float]:
         """Estimate cost for a completion"""
         # Rough token estimation (4 chars per token)

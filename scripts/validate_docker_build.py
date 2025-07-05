@@ -37,9 +37,7 @@ def validate_toml_syntax():
         # Check for invalid entries
         invalid_deps = []
         for dep in deps:
-            if not isinstance(dep, str):
-                invalid_deps.append(dep)
-            elif dep.startswith("#") or "MISSING" in dep:
+            if not isinstance(dep, str) or dep.startswith("#") or "MISSING" in dep:
                 invalid_deps.append(dep)
 
         if invalid_deps:

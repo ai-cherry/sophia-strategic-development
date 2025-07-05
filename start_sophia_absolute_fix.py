@@ -19,7 +19,6 @@ os.environ["SNOWFLAKE_WAREHOUSE"] = "SOPHIA_AI_WH"
 os.environ["SNOWFLAKE_ROLE"] = "ACCOUNTADMIN"
 os.environ["SNOWFLAKE_SCHEMA"] = "PROCESSED_AI"
 
-print("🔧 ABSOLUTE Snowflake environment configured")
 
 # Import absolute override to force settings
 
@@ -28,21 +27,16 @@ try:
     from backend.core.absolute_snowflake_override import get_snowflake_connection_params
 
     params = get_snowflake_connection_params()
-    print(f"✅ VERIFIED: Snowflake account is {params['account']}")
 
     if params["account"] == "ZNB04675":
-        print("🎉 ABSOLUTE FIX SUCCESSFUL - Ready to start Sophia AI!")
+        pass
     else:
-        print(f"❌ ABSOLUTE FIX FAILED - account is {params['account']}")
         sys.exit(1)
 
-except Exception as e:
-    print(f"❌ ABSOLUTE FIX ERROR: {e}")
+except Exception:
     sys.exit(1)
 
 if __name__ == "__main__":
-    print("🚀 Starting Sophia AI with ABSOLUTE Snowflake fix...")
-
     # Start the FastAPI application
     import uvicorn
 

@@ -14,10 +14,7 @@ def main() -> None:
     args = parser.parse_args()
 
     test_dir = Path(__file__).resolve().parent
-    if args.quick:
-        target = test_dir / "unit"
-    else:
-        target = test_dir
+    target = test_dir / "unit" if args.quick else test_dir
 
     cmd = ["pytest", str(target)]
     subprocess.run(cmd, check=False)

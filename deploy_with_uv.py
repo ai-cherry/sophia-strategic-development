@@ -11,7 +11,6 @@ import subprocess
 
 def main():
     """Main deployment function using UV."""
-    print("🚀 Starting UV-based deployment...")
 
     # Install dependencies with UV
     subprocess.run(["uv", "uv", "sync"], check=True)

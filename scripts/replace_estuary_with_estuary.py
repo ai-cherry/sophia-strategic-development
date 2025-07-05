@@ -569,23 +569,6 @@ if __name__ == "__main__":
     success = migrator.run_migration()
 
     if success:
-        print("\n🎉 estuary TO ESTUARY MIGRATION COMPLETED!")
-        print("=" * 60)
-        print(f"📁 Files modified: {len(migrator.files_modified)}")
-        print(f"🔄 Total changes: {len(migrator.migration_log)}")
-        print(f"💾 Backup location: {migrator.backup_dir}")
-        print("")
-        print("🎯 Next Steps:")
-        print("1. Update API keys in Pulumi ESC or environment")
-        print("2. Test Estuary Flow connections")
-        print("3. Deploy captures and materializations")
-        print("4. Verify real-time data processing")
-        print("")
-        print("🔧 New Estuary Manager:")
-        print(
-            "   from backend.integrations.estuary_flow_manager import EstuaryFlowManager"
-        )
-        print("   manager = EstuaryFlowManager()")
-        print("   manager.create_sophia_ai_foundation()")
+        pass
     else:
-        print("❌ Migration failed. Check logs for details.")
+        pass

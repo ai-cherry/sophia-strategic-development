@@ -4,7 +4,6 @@ Integration layer between Enhanced Unified Chat Service and Snowflake Admin Agen
 """
 
 import asyncio
-import json
 import logging
 import re
 from dataclasses import dataclass
@@ -533,12 +532,9 @@ if __name__ == "__main__":
         ]
 
         for query in test_queries:
-            print(f"\n--- Query: {query} ---")
-
             if is_snowflake_admin_query(query):
-                response = await process_snowflake_admin_query(query, "test_user")
-                print(f"Response: {json.dumps(response, indent=2, default=str)}")
+                await process_snowflake_admin_query(query, "test_user")
             else:
-                print("Not a Snowflake admin query")
+                pass
 
     asyncio.run(test_admin_integration())

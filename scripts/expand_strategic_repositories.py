@@ -24,8 +24,7 @@ class StrategicRepositoryExpander:
         """Log a message with timestamp"""
         import datetime
 
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {level}: {message}")
+        datetime.datetime.now().strftime("%H:%M:%S")
 
     def run_command(self, cmd: list[str], cwd: str = None) -> bool:
         """Run a command and return success status"""
@@ -225,9 +224,11 @@ class StrategicRepositoryExpander:
             info["technologies"].append("Docker")
 
         # Assess AI potential based on stars/popularity indicators
-        if "microsoft" in repo_path.name or "official" in repo_path.name:
-            info["ai_potential"] = "high"
-        elif "mcp" in repo_path.name:
+        if (
+            "microsoft" in repo_path.name
+            or "official" in repo_path.name
+            or "mcp" in repo_path.name
+        ):
             info["ai_potential"] = "high"
 
         return info

@@ -127,7 +127,7 @@ class PerformanceOptimizer:
         cutoff = now - timedelta(minutes=2)
         old_keys = [
             k
-            for k in self._request_counts.keys()
+            for k in self._request_counts
             if datetime.strptime(k.split(":")[1], "%Y-%m-%d:%H:%M") < cutoff
         ]
         for old_key in old_keys:

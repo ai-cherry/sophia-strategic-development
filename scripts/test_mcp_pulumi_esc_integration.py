@@ -510,20 +510,11 @@ async def main():
         results = await validator.run_comprehensive_validation()
 
         # Save test report
-        report_path = await validator.save_test_report()
+        await validator.save_test_report()
 
         # Print summary
-        print("\n" + "=" * 60)
-        print("MCP PULUMI ESC INTEGRATION TEST SUMMARY")
-        print("=" * 60)
-        print(f"Overall Status: {results['overall_status'].upper()}")
-        print(f"Overall Score: {results['overall_score']:.1f}/100")
-        print(f"Test Date: {results['validation_timestamp']}")
-        print(f"Report: {report_path}")
-        print("\nRecommendations:")
-        for i, rec in enumerate(results["recommendations"], 1):
-            print(f"{i}. {rec}")
-        print("=" * 60)
+        for _i, _rec in enumerate(results["recommendations"], 1):
+            pass
 
         # Exit with appropriate code
         exit_code = 0 if results["overall_score"] >= 75 else 1

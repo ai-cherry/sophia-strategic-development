@@ -50,7 +50,6 @@ class SophiaInfrastructureChatInterface:
     async def initialize(self):
         """Initialize the infrastructure chat interface"""
         await self.infrastructure_agent.initialize()
-        print("🤖 Sophia Infrastructure Chat Interface initialized")
 
     async def _call_llm_gateway(self, prompt: str, context: str | None = None) -> str:
         """Call the centralized LLM gateway (Portkey/OpenRouter) for completions."""
@@ -249,70 +248,43 @@ class SophiaInfrastructureChatInterface:
     async def interactive_session(self):
         """Start an interactive chat session for infrastructure management"""
 
-        print("\n🤖 Sophia Infrastructure Assistant")
-        print("=" * 50)
-        print("I can help you manage your infrastructure using natural language.")
-        print("Try commands like:")
-        print("  • 'Check the health of our infrastructure'")
-        print("  • 'Optimize our DNS configuration for better performance'")
-        print("  • 'Scale up to handle increased traffic'")
-        print("  • 'Fix any issues with our SSL certificates'")
-        print("  • 'Reduce our infrastructure costs'")
-        print("\nType 'exit' to end the session.\n")
-
         while True:
             try:
                 # Get user input
                 user_message = input("You: ").strip()
 
                 if user_message.lower() in ["exit", "quit", "bye"]:
-                    print("\nSophia: Goodbye! Your infrastructure is in good hands. 👋")
                     break
 
                 if not user_message:
                     continue
 
                 # Process message
-                print("\nSophia: ", end="", flush=True)
                 response = await self.process_message(user_message)
 
                 # Display response
-                print(response["message"])
 
                 # Show visual elements if any
                 if response.get("visual_elements"):
                     for element in response["visual_elements"]:
-                        print(f"\n📊 {element['data']['title']}")
                         if element["type"] == "metrics":
-                            for metric in element["data"]["metrics"]:
-                                print(
-                                    f"  • {metric['name']}: {metric['improvement']} improvement"
-                                )
+                            for _metric in element["data"]["metrics"]:
+                                pass
 
                 # Show execution steps if any
                 if response.get("execution_steps"):
-                    print("\n📋 Execution Plan:")
-                    for i, step in enumerate(response["execution_steps"], 1):
-                        print(f"  {i}. {step['step']}: {step['description']}")
+                    for _i, _step in enumerate(response["execution_steps"], 1):
+                        pass
 
                 # Show suggestions
                 if response.get("suggested_actions"):
-                    print("\n💡 Suggestions:")
-                    for suggestion in response["suggested_actions"]:
-                        print(f"  • {suggestion}")
-
-                print()  # Empty line for readability
+                    for _suggestion in response["suggested_actions"]:
+                        pass
 
             except KeyboardInterrupt:
-                print(
-                    "\n\nSophia: Session interrupted. Your infrastructure is still being monitored. 👋"
-                )
                 break
 
-            except Exception as e:
-                print(
-                    f"\nSophia: I encountered an error: {str(e)}. Let me try to help you differently."
-                )
+            except Exception:
                 continue
 
 
@@ -329,18 +301,13 @@ class InfrastructureScenarios:
         chat = SophiaInfrastructureChatInterface()
         await chat.initialize()
 
-        print("\n🎯 DEMO: Predictive Scaling Scenario")
-        print("-" * 40)
-
         # Simulate traffic spike prediction
         response = await chat.process_message(
             "Our traffic is increasing rapidly, what should we do?"
         )
 
-        print("Sophia:", response["message"])
-        print("\nPredicted Actions:")
-        for step in response.get("execution_steps", []):
-            print(f"  • {step['description']}")
+        for _step in response.get("execution_steps", []):
+            pass
 
     @staticmethod
     async def demo_self_healing():
@@ -349,15 +316,8 @@ class InfrastructureScenarios:
         chat = SophiaInfrastructureChatInterface()
         await chat.initialize()
 
-        print("\n🏥 DEMO: Self-Healing Scenario")
-        print("-" * 40)
-
         # Simulate infrastructure issue
-        response = await chat.process_message(
-            "I'm seeing errors with our SSL certificates"
-        )
-
-        print("Sophia:", response["message"])
+        await chat.process_message("I'm seeing errors with our SSL certificates")
 
     @staticmethod
     async def demo_cost_optimization():
@@ -366,21 +326,16 @@ class InfrastructureScenarios:
         chat = SophiaInfrastructureChatInterface()
         await chat.initialize()
 
-        print("\n💰 DEMO: Cost Optimization Scenario")
-        print("-" * 40)
-
         # Request cost optimization
         response = await chat.process_message(
             "Can you help reduce our infrastructure costs?"
         )
 
-        print("Sophia:", response["message"])
         if response.get("visual_elements"):
             for element in response["visual_elements"]:
                 if element["type"] == "metrics":
-                    print("\nPotential Savings:")
-                    for metric in element["data"]["metrics"]:
-                        print(f"  • {metric['name']}: {metric['improvement']}")
+                    for _metric in element["data"]["metrics"]:
+                        pass
 
 
 async def main():
@@ -400,8 +355,7 @@ async def main():
             await chat.initialize()
 
             command = " ".join(sys.argv[1:])
-            response = await chat.process_message(command)
-            print("Sophia:", response["message"])
+            await chat.process_message(command)
     else:
         # Interactive mode
         chat = SophiaInfrastructureChatInterface()

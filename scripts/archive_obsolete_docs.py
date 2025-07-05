@@ -106,10 +106,9 @@ def archive_docs():
 
             try:
                 shutil.move(src, dst)
-                print(f"✅ Archived: {src} → {dst}")
                 archived_count += 1
-            except Exception as e:
-                print(f"❌ Error archiving {src}: {e}")
+            except Exception:
+                pass
 
     # Create index
     with open(f"{archive_dir}/INDEX.md", "w") as f:
@@ -121,9 +120,6 @@ def archive_docs():
         f.write("## Files\n")
         for src, category in sorted(ARCHIVE_FILES.items()):
             f.write(f"- {src} ({category})\n")
-
-    print(f"\n📊 Archived {archived_count} files")
-    print(f"📝 Index created: {archive_dir}/INDEX.md")
 
 
 if __name__ == "__main__":

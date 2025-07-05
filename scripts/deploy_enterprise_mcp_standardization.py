@@ -926,13 +926,8 @@ async def main():
     deployer = EnterpriseMCPStandardizationDeployer()
     results = await deployer.deploy_full_standardization()
 
-    print("🎉 Enterprise MCP Standardization Deployment Complete!")
-    print("📋 Phoenix 1.3: Memory-Augmented, AI Coder Agnostic MCP Ecosystem")
-    print("📊 Results Summary:")
-
-    for phase, result in results.items():
-        status = "✅ SUCCESS" if result["status"] == "success" else "❌ FAILED"
-        print(f"  {phase}: {status}")
+    for _phase, result in results.items():
+        "✅ SUCCESS" if result["status"] == "success" else "❌ FAILED"
 
     return results
 

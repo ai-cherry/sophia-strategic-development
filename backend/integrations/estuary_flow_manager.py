@@ -809,6 +809,3 @@ if __name__ == "__main__":
     # Example usage
     manager = EstuaryFlowManager()
     results = manager.create_sophia_ai_foundation()
-
-    print("🎉 Estuary Flow Manager initialized successfully!")
-    print(f"📊 Deployment results: {json.dumps(results, indent=2)}")

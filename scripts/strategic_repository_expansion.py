@@ -20,7 +20,6 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -45,7 +44,7 @@ class StrategicRepositoryExpander:
         self.config_dir.mkdir(exist_ok=True)
 
     def run_command(
-        self, cmd: list[str], cwd: Optional[Path] = None, check: bool = True
+        self, cmd: list[str], cwd: Path | None = None, check: bool = True
     ) -> tuple[int, str, str]:
         """Execute a command and return results"""
         try:
@@ -768,7 +767,7 @@ site:github.com/anthropic "MCP server"
                 [r for r in results if r["status"] in ["added", "updated"]]
             ),
             "failed_additions": len([r for r in results if r["status"] == "failed"]),
-            "categories": list(set(r.get("category", "unknown") for r in results)),
+            "categories": list({r.get("category", "unknown") for r in results}),
             "priority_distribution": {
                 p: len([r for r in results if r.get("priority") == p])
                 for p in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
@@ -819,10 +818,6 @@ def main():
 """
             )
 
-        print(f"\n🎉 Strategic expansion completed! Report saved to: {report_path}")
-        print(
-            f"📚 Web search prompt available at: {summary['web_search_prompt_location']}"
-        )
         return 0
 
     except Exception as e:

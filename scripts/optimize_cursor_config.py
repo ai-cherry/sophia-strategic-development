@@ -405,10 +405,9 @@ def main():
         optimizer.save_config()
 
         # Validate if requested
-        if args.validate:
-            if not optimizer.validate_config():
-                logger.error("Configuration validation failed")
-                return 1
+        if args.validate and not optimizer.validate_config():
+            logger.error("Configuration validation failed")
+            return 1
 
         # Generate report if requested
         if args.report:

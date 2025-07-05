@@ -180,10 +180,6 @@ class UnifiedAIAssistant:
         intent = self.detect_intent(query)
         selected_model = self.select_best_model(intent)
 
-        print(f"🎯 Intent: {intent.upper()}")
-        print(f"🧠 Selected Model: {selected_model}")
-        print("🔄 Processing...")
-
         try:
             if intent == "coding":
                 return await self._handle_coding(query, selected_model)
@@ -437,33 +433,22 @@ class UnifiedAIAssistant:
 
     async def interactive_mode(self):
         """Interactive chat mode"""
-        print("🤖 Sophia AI Unified Assistant - Interactive Mode")
-        print("✨ Latest Claude models with intelligent routing")
-        print("Type 'exit' to quit, 'status' for system status\n")
 
         while True:
             try:
                 query = input("You: ").strip()
 
                 if query.lower() in ["exit", "quit", "bye"]:
-                    print("👋 Goodbye!")
                     break
-                elif query.lower() == "status":
-                    print(self.show_status())
-                    continue
-                elif not query:
+                elif query.lower() == "status" or not query:
                     continue
 
-                print("🔄 Processing...\n")
-                response = await self.process_query(query)
-                print(f"{response}\n")
-                print("-" * 50)
+                await self.process_query(query)
 
             except KeyboardInterrupt:
-                print("\n👋 Goodbye!")
                 break
-            except Exception as e:
-                print(f"❌ Error: {str(e)}")
+            except Exception:
+                pass
 
 
 async def main():
@@ -471,14 +456,13 @@ async def main():
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "status":
-            print(assistant.show_status())
+            pass
         elif sys.argv[1] == "interactive":
             await assistant.interactive_mode()
         else:
             # Single query mode
             query = " ".join(sys.argv[1:])
-            response = await assistant.process_query(query)
-            print(response)
+            await assistant.process_query(query)
     else:
         await assistant.interactive_mode()
 

@@ -1,7 +1,7 @@
 """Snowflake pooled connection helper for Sophia AI."""
 
 import logging
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from queue import Empty, Full, Queue
 from typing import Any
 
@@ -74,10 +74,8 @@ class SnowflakeConnectionPool:
         except Full:
             # Pool is full, close the extra connection
             logger.warning("Connection pool full, closing extra connection")
-            try:
+            with suppress(Exception):
                 conn.close()
-            except Exception:
-                pass
 
     @asynccontextmanager
     async def connection(self):

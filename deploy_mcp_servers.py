@@ -4,6 +4,7 @@ Simple MCP Server Deployment Script
 Starts essential MCP servers for Sophia AI
 """
 
+import contextlib
 import logging
 import os
 import subprocess
@@ -23,7 +24,6 @@ class MCPServerDeployer:
 
     def start_server(self, name: str, module: str, port: int):
         """Start an MCP server"""
-        print(f"🚀 Starting {name} MCP Server on port {port}...")
 
         # Set environment variables
         env = os.environ.copy()
@@ -44,11 +44,9 @@ class MCPServerDeployer:
                 {"name": name, "module": module, "port": port, "process": proc}
             )
 
-            print(f"✅ {name} MCP Server started (PID: {proc.pid})")
             return True
 
-        except Exception as e:
-            print(f"❌ Failed to start {name} MCP Server: {e}")
+        except Exception:
             return False
 
     def check_server_health(self, port: int):
@@ -62,8 +60,6 @@ class MCPServerDeployer:
 
     def deploy_essential_servers(self):
         """Deploy the essential MCP servers"""
-        print("🎯 Deploying Essential Sophia AI MCP Servers")
-        print("=" * 50)
 
         # Essential servers to deploy
         essential_servers = [
@@ -81,35 +77,21 @@ class MCPServerDeployer:
                 # Give the server time to start
                 time.sleep(2)
 
-        print("\n📊 Deployment Summary:")
-        print(
-            f"   ✅ Successfully started: {success_count}/{len(essential_servers)} servers"
-        )
-
         if success_count > 0:
-            print("\n🔗 Server Status:")
             for server in self.servers:
-                status = (
-                    "🟢 Running" if server["process"].poll() is None else "🔴 Stopped"
-                )
-                print(f"   {server['name']}: {status} (Port {server['port']})")
+                ("🟢 Running" if server["process"].poll() is None else "🔴 Stopped")
 
         return success_count > 0
 
     def stop_all_servers(self):
         """Stop all running servers"""
-        print("\n🛑 Stopping all MCP servers...")
         for server in self.servers:
             try:
                 server["process"].terminate()
                 server["process"].wait(timeout=5)
-                print(f"✅ Stopped {server['name']}")
             except Exception:
-                try:
+                with contextlib.suppress(Exception):
                     server["process"].kill()
-                    print(f"🔴 Force killed {server['name']}")
-                except Exception as e:
-                    print(f"❌ Failed to stop {server['name']}: {e}")
 
 
 def main():
@@ -119,31 +101,20 @@ def main():
         success = deployer.deploy_essential_servers()
 
         if success:
-            print("\n🎉 MCP Servers deployed successfully!")
-            print("\n💡 Next steps:")
-            print("   1. Test server connectivity")
-            print("   2. Deploy additional servers as needed")
-            print("   3. Configure Cursor IDE integration")
-            print("\n⚠️  Press Ctrl+C to stop all servers")
-
             # Keep the script running
             while True:
                 time.sleep(10)
                 # Check if any servers have died
                 for server in deployer.servers:
                     if server["process"].poll() is not None:
-                        print(f"⚠️  {server['name']} server has stopped!")
+                        pass
         else:
-            print("\n❌ Failed to deploy MCP servers")
             return 1
 
     except KeyboardInterrupt:
-        print("\n\n🛑 Shutdown requested...")
         deployer.stop_all_servers()
-        print("✅ All servers stopped")
         return 0
-    except Exception as e:
-        print(f"\n❌ Deployment failed: {e}")
+    except Exception:
         deployer.stop_all_servers()
         return 1
 

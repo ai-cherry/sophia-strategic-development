@@ -437,24 +437,20 @@ async def main():
 
         if args.source in ["slack", "both"]:
             if args.step == "all":
-                slack_results = await service.run_full_slack_pipeline()
-                print(f"✅ Slack pipeline completed: {slack_results}")
+                await service.run_full_slack_pipeline()
             else:
                 # Run specific step
                 if args.step == "messages":
-                    result = await service.transform_slack_messages()
+                    await service.transform_slack_messages()
                 elif args.step == "conversations":
-                    result = await service.create_slack_conversations()
+                    await service.create_slack_conversations()
                 elif args.step == "cortex":
-                    result = await service.process_slack_with_cortex()
+                    await service.process_slack_with_cortex()
                 elif args.step == "insights":
-                    result = await service.extract_slack_insights()
-
-                print(f"✅ Slack {args.step} completed: {result}")
+                    await service.extract_slack_insights()
 
         if args.source in ["linear", "both"]:
-            linear_results = await service.run_full_linear_pipeline()
-            print(f"✅ Linear pipeline completed: {linear_results}")
+            await service.run_full_linear_pipeline()
 
     finally:
         await service.close()

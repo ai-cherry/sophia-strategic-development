@@ -43,10 +43,7 @@ EXCLUDE_PATTERNS = [
 
 def should_exclude_file(file_path: str) -> bool:
     """Check if file should be excluded"""
-    for pattern in EXCLUDE_PATTERNS:
-        if pattern in file_path:
-            return True
-    return False
+    return any(pattern in file_path for pattern in EXCLUDE_PATTERNS)
 
 
 def search_file(file_path: Path) -> list[str]:
@@ -57,8 +54,8 @@ def search_file(file_path: Path) -> list[str]:
         for pattern in SEARCH_PATTERNS:
             if re.search(pattern, content):
                 matches.append(pattern)
-    except Exception as e:
-        print(f"Error reading {file_path}: {e}")
+    except Exception:
+        pass
     return matches
 
 
@@ -89,31 +86,20 @@ def find_files_to_migrate() -> list[str]:
                 matches = search_file(file_path)
                 if matches:
                     files_to_migrate.append(str(file_path))
-                    print(f"✓ {file_path}: {', '.join(set(matches))}")
 
     return sorted(set(files_to_migrate))
 
 
 def main():
-    print("Searching for files that need UnifiedLLMService migration...")
-    print("=" * 60)
-
     files = find_files_to_migrate()
 
-    print("\n" + "=" * 60)
-    print(f"Found {len(files)} files that need migration:")
-    print("\nPython list format (for migration script):")
-    print("FILES_TO_MIGRATE = [")
     for file in files:
-        print(f'    "{file}",')
-    print("]")
+        pass
 
     # Save to file
     with open("files_to_migrate.txt", "w") as f:
         for file in files:
             f.write(f"{file}\n")
-
-    print("\nFile list saved to: files_to_migrate.txt")
 
 
 if __name__ == "__main__":

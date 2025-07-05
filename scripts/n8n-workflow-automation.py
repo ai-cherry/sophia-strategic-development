@@ -369,13 +369,11 @@ async def main():
             result = {"status": "error", "error": "Unknown workflow"}
 
         # Output results
-        print(json.dumps(result, indent=2))
 
         # Save to file if requested
         if args.output_file:
             with open(args.output_file, "w") as f:
                 json.dump(result, f, indent=2)
-            print(f"Results saved to {args.output_file}")
 
 
 if __name__ == "__main__":

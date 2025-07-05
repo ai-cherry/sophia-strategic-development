@@ -269,10 +269,7 @@ class QualifyDealUseCase:
                 criteria.has_timeline,
             ]
         )
-        if bant_count >= 3 and criteria.decision_maker_engaged:
-            return True
-
-        return False
+        return bool(bant_count >= 3 and criteria.decision_maker_engaged)
 
     def _generate_next_steps(
         self, deal: Deal, criteria: QualificationCriteria, is_qualified: bool

@@ -38,7 +38,6 @@ class MCPOrchestrationAuditor:
 
     def audit_mcp_servers(self) -> dict[str, Any]:
         """Audit all MCP servers and their capabilities"""
-        print("🔍 Auditing MCP servers...")
 
         mcp_servers = {
             "infrastructure_cluster": {
@@ -95,7 +94,7 @@ class MCPOrchestrationAuditor:
                         config = json.load(f)
                         self._analyze_mcp_config(config, config_path)
                     except json.JSONDecodeError:
-                        print(f"  ⚠️  Invalid JSON in {config_path}")
+                        pass
 
         # Check Docker compose files for MCP services
         docker_files = glob.glob(str(self.project_root / "docker-compose*.yml"))
@@ -107,7 +106,6 @@ class MCPOrchestrationAuditor:
 
     def audit_ai_agents(self) -> dict[str, Any]:
         """Audit all AI agents and their orchestration patterns"""
-        print("🤖 Auditing AI agents...")
 
         agents = {}
         agent_paths = ["backend/agents", "infrastructure/agents"]
@@ -126,7 +124,6 @@ class MCPOrchestrationAuditor:
 
     def audit_llm_usage(self) -> dict[str, Any]:
         """Audit LLM usage patterns across the codebase"""
-        print("🧠 Auditing LLM usage patterns...")
 
         llm_patterns = {
             "openai_calls": [],
@@ -155,7 +152,6 @@ class MCPOrchestrationAuditor:
 
     def identify_orchestration_gaps(self) -> list[dict[str, Any]]:
         """Identify gaps in current orchestration"""
-        print("🔍 Identifying orchestration gaps...")
 
         gaps = []
 
@@ -208,7 +204,6 @@ class MCPOrchestrationAuditor:
 
     def analyze_agno_readiness(self) -> dict[str, Any]:
         """Analyze readiness for Agno framework integration"""
-        print("⚡ Analyzing Agno framework readiness...")
 
         agno_readiness = {
             "current_performance": {},
@@ -247,7 +242,6 @@ class MCPOrchestrationAuditor:
 
     def generate_executive_summary(self) -> dict[str, Any]:
         """Generate executive-level summary of findings"""
-        print("📊 Generating executive summary...")
 
         summary = {
             "total_mcp_servers": self._count_mcp_servers(),
@@ -296,7 +290,7 @@ class MCPOrchestrationAuditor:
                                 "ports": service_config.get("ports", []),
                             }
             except yaml.YAMLError:
-                print(f"  ⚠️  Invalid YAML in {docker_file}")
+                pass
 
     def _analyze_agent_file(self, agent_file: Path) -> dict[str, Any]:
         """Analyze an agent Python file"""
@@ -361,10 +355,7 @@ class MCPOrchestrationAuditor:
         """Check for cross-server communication patterns"""
         # Check for message bus or event system
         patterns = ["MessageBus", "EventBus", "PubSub", "CrossServerClient"]
-        for pattern in patterns:
-            if self._search_pattern(pattern):
-                return True
-        return False
+        return any(self._search_pattern(pattern) for pattern in patterns)
 
     def _check_executive_dashboard(self) -> bool:
         """Check for executive dashboard components"""
@@ -392,12 +383,10 @@ class MCPOrchestrationAuditor:
         report_file = f"MCP_ORCHESTRATION_AUDIT_{self.timestamp}.json"
         with open(report_file, "w") as f:
             json.dump(self.audit_results, f, indent=2)
-        print(f"\n✅ Audit report saved to: {report_file}")
 
         # Generate markdown summary
         summary_file = f"MCP_ORCHESTRATION_AUDIT_SUMMARY_{self.timestamp}.md"
         self._generate_markdown_summary(summary_file)
-        print(f"📄 Summary report saved to: {summary_file}")
 
     def _generate_markdown_summary(self, filename: str):
         """Generate markdown summary of audit findings"""
@@ -447,8 +436,6 @@ def main():
 
     args = parser.parse_args()
 
-    print("🚀 Starting MCP Orchestration Audit...\n")
-
     auditor = MCPOrchestrationAuditor(args.project_root)
 
     # Run audit phases
@@ -464,9 +451,6 @@ def main():
 
     # Save results
     auditor.save_report()
-
-    print("\n✨ MCP Orchestration Audit Complete!")
-    print("Next step: Review findings and begin modernization implementation")
 
 
 if __name__ == "__main__":
