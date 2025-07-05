@@ -7,6 +7,7 @@ import apiClient from '../../services/apiClient';
 import EnhancedUnifiedChat from '../shared/EnhancedUnifiedChat';
 import { CacheMonitoringWidget } from './CacheMonitoringWidget';
 import WorkflowDesignerTab from './tabs/WorkflowDesignerTab';
+import LambdaLabsHealthTab from './tabs/LambdaLabsHealthTab';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
@@ -506,12 +507,13 @@ const UnifiedDashboard = () => {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-8">
                     <TabsTrigger value="unified_overview">Unified Overview</TabsTrigger>
                     <TabsTrigger value="projects">Projects & OKRs</TabsTrigger>
                     <TabsTrigger value="knowledge">Knowledge AI</TabsTrigger>
                     <TabsTrigger value="sales">Sales Intelligence</TabsTrigger>
                     <TabsTrigger value="llm_metrics">LLM Metrics</TabsTrigger>
+                    <TabsTrigger value="lambda_labs_health">Lambda Labs Health</TabsTrigger>
                     <TabsTrigger value="workflow_designer">Workflow Designer</TabsTrigger>
                     <TabsTrigger value="unified_chat">Unified Chat</TabsTrigger>
                 </TabsList>
@@ -521,6 +523,7 @@ const UnifiedDashboard = () => {
                 <TabsContent value="knowledge" className="mt-6">{renderKnowledge()}</TabsContent>
                 <TabsContent value="sales" className="mt-6">{renderSales()}</TabsContent>
                 <TabsContent value="llm_metrics" className="mt-6">{renderLLMMetrics()}</TabsContent>
+                <TabsContent value="lambda_labs_health" className="mt-6"><LambdaLabsHealthTab /></TabsContent>
                 <TabsContent value="workflow_designer" className="mt-6"><WorkflowDesignerTab /></TabsContent>
                 <TabsContent value="unified_chat" className="mt-6">
                     <EnhancedUnifiedChat initialContext={activeTab} />
