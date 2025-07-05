@@ -1,0 +1,152 @@
+{
+  "mem0_openmemory": {
+    "path": "backend/mcp_servers/mem0_openmemory/enhanced_mem0_server.py",
+    "dir": "backend/mcp_servers/mem0_openmemory",
+    "relative_path": "backend/mcp_servers/mem0_openmemory/enhanced_mem0_server.py"
+  },
+  "mem0_persistent": {
+    "path": "backend/mcp_servers/mem0_persistent/mem0_mcp_server.py",
+    "dir": "backend/mcp_servers/mem0_persistent",
+    "relative_path": "backend/mcp_servers/mem0_persistent/mem0_mcp_server.py"
+  },
+  "cortex_aisql": {
+    "path": "backend/mcp_servers/cortex_aisql/cortex_mcp_server.py",
+    "dir": "backend/mcp_servers/cortex_aisql",
+    "relative_path": "backend/mcp_servers/cortex_aisql/cortex_mcp_server.py"
+  },
+  "base": {
+    "path": "backend/mcp_servers/base/standardized_mcp_server.py",
+    "dir": "backend/mcp_servers/base",
+    "relative_path": "backend/mcp_servers/base/standardized_mcp_server.py"
+  },
+  "hubspot_unified": {
+    "path": "mcp-servers/hubspot_unified/hubspot_mcp_server.py",
+    "dir": "mcp-servers/hubspot_unified",
+    "relative_path": "mcp-servers/hubspot_unified/hubspot_mcp_server.py"
+  },
+  "snowflake_unified": {
+    "path": "mcp-servers/snowflake_unified/unified_snowflake_server.py",
+    "dir": "mcp-servers/snowflake_unified",
+    "relative_path": "mcp-servers/snowflake_unified/unified_snowflake_server.py"
+  },
+  "code_modifier": {
+    "path": "mcp-servers/code_modifier/code_modifier_mcp_server.py",
+    "dir": "mcp-servers/code_modifier",
+    "relative_path": "mcp-servers/code_modifier/code_modifier_mcp_server.py"
+  },
+  "slack_integration": {
+    "path": "mcp-servers/slack_integration/simple_slack_integration_server.py",
+    "dir": "mcp-servers/slack_integration",
+    "relative_path": "mcp-servers/slack_integration/simple_slack_integration_server.py"
+  },
+  "lambda_labs_cli": {
+    "path": "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py",
+    "dir": "mcp-servers/lambda_labs_cli",
+    "relative_path": "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py"
+  },
+  "slack_unified": {
+    "path": "mcp-servers/slack_unified/simple_slack_integration_server.py",
+    "dir": "mcp-servers/slack_unified",
+    "relative_path": "mcp-servers/slack_unified/simple_slack_integration_server.py"
+  },
+  "migration_orchestrator": {
+    "path": "mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py",
+    "dir": "mcp-servers/migration_orchestrator",
+    "relative_path": "mcp-servers/migration_orchestrator/migration_orchestrator_mcp_server.py"
+  },
+  "linear": {
+    "path": "mcp-servers/linear/linear_mcp_server.py",
+    "dir": "mcp-servers/linear",
+    "relative_path": "mcp-servers/linear/linear_mcp_server.py"
+  },
+  "intercom": {
+    "path": "mcp-servers/intercom/intercom_mcp_server.py",
+    "dir": "mcp-servers/intercom",
+    "relative_path": "mcp-servers/intercom/intercom_mcp_server.py"
+  },
+  "prompt_optimizer": {
+    "path": "mcp-servers/prompt_optimizer/prompt_optimizer_mcp_server.py",
+    "dir": "mcp-servers/prompt_optimizer",
+    "relative_path": "mcp-servers/prompt_optimizer/prompt_optimizer_mcp_server.py"
+  },
+  "graphiti": {
+    "path": "mcp-servers/graphiti/graphiti_mcp_server.py",
+    "dir": "mcp-servers/graphiti",
+    "relative_path": "mcp-servers/graphiti/graphiti_mcp_server.py"
+  },
+  "notion": {
+    "path": "mcp-servers/notion/enhanced_notion_mcp_server.py",
+    "dir": "mcp-servers/notion",
+    "relative_path": "mcp-servers/notion/enhanced_notion_mcp_server.py"
+  },
+  "ui_ux_agent": {
+    "path": "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py",
+    "dir": "mcp-servers/ui_ux_agent",
+    "relative_path": "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py"
+  },
+  "apify_intelligence": {
+    "path": "mcp-servers/apify_intelligence/apify_intelligence_mcp_server.py",
+    "dir": "mcp-servers/apify_intelligence",
+    "relative_path": "mcp-servers/apify_intelligence/apify_intelligence_mcp_server.py"
+  },
+  "sophia_intelligence_unified": {
+    "path": "mcp-servers/sophia_intelligence_unified/unified_sophia_intelligence_server.py",
+    "dir": "mcp-servers/sophia_intelligence_unified",
+    "relative_path": "mcp-servers/sophia_intelligence_unified/unified_sophia_intelligence_server.py"
+  },
+  "github": {
+    "path": "mcp-servers/github/github_mcp_server.py",
+    "dir": "mcp-servers/github",
+    "relative_path": "mcp-servers/github/github_mcp_server.py"
+  },
+  "ai_memory": {
+    "path": "mcp-servers/ai_memory/enhanced_ai_memory_server.py",
+    "dir": "mcp-servers/ai_memory",
+    "relative_path": "mcp-servers/ai_memory/enhanced_ai_memory_server.py"
+  },
+  "huggingface_ai": {
+    "path": "mcp-servers/huggingface_ai/huggingface_ai_mcp_server.py",
+    "dir": "mcp-servers/huggingface_ai",
+    "relative_path": "mcp-servers/huggingface_ai/huggingface_ai_mcp_server.py"
+  },
+  "ag_ui": {
+    "path": "mcp-servers/ag_ui/enhanced_ag_ui_mcp_server.py",
+    "dir": "mcp-servers/ag_ui",
+    "relative_path": "mcp-servers/ag_ui/enhanced_ag_ui_mcp_server.py"
+  },
+  "bright_data": {
+    "path": "mcp-servers/bright_data/bright_data_mcp_server.py",
+    "dir": "mcp-servers/bright_data",
+    "relative_path": "mcp-servers/bright_data/bright_data_mcp_server.py"
+  },
+  "portkey_admin": {
+    "path": "mcp-servers/portkey_admin/portkey_admin_mcp_server.py",
+    "dir": "mcp-servers/portkey_admin",
+    "relative_path": "mcp-servers/portkey_admin/portkey_admin_mcp_server.py"
+  },
+  "codacy": {
+    "path": "mcp-servers/codacy/production_codacy_server.py",
+    "dir": "mcp-servers/codacy",
+    "relative_path": "mcp-servers/codacy/production_codacy_server.py"
+  },
+  "salesforce": {
+    "path": "mcp-servers/salesforce/salesforce_mcp_server.py",
+    "dir": "mcp-servers/salesforce",
+    "relative_path": "mcp-servers/salesforce/salesforce_mcp_server.py"
+  },
+  "v0dev": {
+    "path": "mcp-servers/v0dev/v0dev_mcp_server.py",
+    "dir": "mcp-servers/v0dev",
+    "relative_path": "mcp-servers/v0dev/v0dev_mcp_server.py"
+  },
+  "asana": {
+    "path": "mcp-servers/asana/asana_mcp_server.py",
+    "dir": "mcp-servers/asana",
+    "relative_path": "mcp-servers/asana/asana_mcp_server.py"
+  },
+  "snowflake_cortex": {
+    "path": "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py",
+    "dir": "mcp-servers/snowflake_cortex",
+    "relative_path": "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py"
+  }
+}

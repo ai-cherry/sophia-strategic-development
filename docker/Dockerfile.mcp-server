@@ -1,70 +1,50 @@
-# syntax=docker/dockerfile:1
-# Specialized Dockerfile for MCP Servers
-# Lightweight, single-purpose containers for individual MCP services
+# Standardized Dockerfile for MCP Servers
+# This template can be used for all MCP servers with minimal modifications
 
-ARG PYTHON_VERSION=3.12
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    UV_SYSTEM_PYTHON=1
+# Build arguments
+ARG MODULE_PATH
+ARG PORT=8000
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN adduser --disabled-password --gecos "" appuser && \
-    mkdir -p /app && \
-    chown -R appuser:appuser /app
+RUN groupadd -r mcp && useradd -r -g mcp mcp
 
+# Set working directory
 WORKDIR /app
 
-# ============================================
-# Dependencies stage
-# ============================================
-FROM base AS dependencies
+# Copy requirements first for better caching
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install dependencies using regular pip (more reliable in slim containers)
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-        fastapi>=0.115.0 \
-        uvicorn>=0.32.0 \
-        mcp>=0.5.0 \
-        fastmcp>=0.1.0 \
-        pydantic>=2.5.0 \
-        snowflake-connector-python>=3.6.0 \
-        redis>=5.0.1 \
-        aioredis>=2.0.1 \
-        requests>=2.31.0 \
-        aiofiles>=24.1.0
+# Copy application code
+COPY . .
 
-# ============================================
-# Runtime stage
-# ============================================
-FROM base AS runtime
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=prod
+ENV PULUMI_ORG=scoobyjava-org
+ENV PORT=${PORT}
+ENV MODULE_PATH=${MODULE_PATH}
 
-# Copy installed packages (use simple path that works with python slim images)
-COPY --from=dependencies /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=dependencies /usr/local/bin /usr/local/bin
-
-# Copy common backend utilities needed by MCP servers
-COPY --chown=appuser:appuser backend/core/auto_esc_config.py ./backend/core/
-COPY --chown=appuser:appuser backend/core/__init__.py ./backend/core/
-
-# The specific MCP server code will be copied at build time using build args
-ARG MCP_SERVER_PATH
-ARG MCP_SERVER_MODULE
-ARG MCP_SERVER_PORT=8080
-
-# Copy the specific MCP server
-COPY --chown=appuser:appuser ${MCP_SERVER_PATH} ./
+# Change ownership to non-root user
+RUN chown -R mcp:mcp /app
 
 # Switch to non-root user
-USER appuser
-
-# Expose the MCP server port
-EXPOSE ${MCP_SERVER_PORT}
+USER mcp
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${MCP_SERVER_PORT}/health').read()"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Expose port
+EXPOSE ${PORT}
 
 # Run the MCP server
-CMD ["sh", "-c", "uvicorn ${MCP_SERVER_MODULE}:app --host 0.0.0.0 --port ${MCP_SERVER_PORT}"]
+CMD ["sh", "-c", "python -m uvicorn ${MODULE_PATH}:app --host 0.0.0.0 --port ${PORT}"]

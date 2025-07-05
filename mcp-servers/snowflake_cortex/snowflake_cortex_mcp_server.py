@@ -11,19 +11,21 @@ from typing import Any
 
 try:
     from backend.mcp_servers.server.fastmcp import FastMCP
+except Exception as e:
+    # Can't use logger here as it's not defined yet
+    print(f'Error importing FastMCP: {e}')
+    raise
+
 from backend.core.auto_esc_config import get_config_value
+
+try:
+    from backend.mcp_servers.base.unified_mcp_base import StandardizedMCPServer
 except ImportError:
-    # Fallback implementation for testing
-    class FastMCP:
-        def __init__(self, name: str):
-            self.name = name
-        def tool(self):
-            def decorator(func):
-                return func
-            return decorator
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        raise
+    # Fallback for testing
+    from pathlib import Path
+    import sys
+    sys.path.append(str(Path(__file__).parent.parent.parent))
+    from backend.mcp_servers.base.unified_mcp_base import StandardizedMCPServer
 
 # Initialize MCP server
 app = FastMCP("Snowflake Cortex Agent MCP")

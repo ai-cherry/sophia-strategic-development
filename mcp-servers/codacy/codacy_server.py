@@ -324,7 +324,7 @@ class EnhancedComplexityAnalyzer:
 
         return issues, metrics
 
-        def _analyze_ast(self, tree: ast.AST, filename: str) -> tuple[List[CodeIssue], Dict[str, Any]]:
+    def _analyze_ast(self, tree: ast.AST, filename: str) -> tuple[List[CodeIssue], Dict[str, Any]]:
         """AST-based complexity analysis"""
         issues = []
         metrics = {"functions": 0, "classes": 0, "max_nesting": 0}

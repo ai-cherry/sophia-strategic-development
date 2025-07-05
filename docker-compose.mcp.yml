@@ -1,39 +1,306 @@
 version: '3.8'
+
+x-common-env: &common-env
+  ENVIRONMENT: prod
+  PULUMI_ORG: scoobyjava-org
+  PYTHONPATH: /app
+
 services:
-  mcp-gateway:
-    build: ./mcp-gateway
+  # CORE INTELLIGENCE BLOCK (9000-9099)
+  ai-memory:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/ai_memory
+    container_name: sophia-ai-memory
     ports:
       - "9000:9000"
     environment:
-      - ENVIRONMENT=prod
+      - MCP_SERVER_NAME=ai-memory
+      - MCP_SERVER_PORT=9000
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    volumes:
+      - ./data/mem0:/app/data
+    networks:
+      - sophia-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  ai-memory:
-    build: ./mcp-servers/ai-memory
-    ports:
-      - "9001:9001"
-    restart: unless-stopped
-
-  codacy:
-    build: ./mcp-servers/codacy
-    ports:
-      - "9002:9002"
-    restart: unless-stopped
-
-  github:
-    build: ./mcp-servers/github
-    ports:
-      - "9003:9003"
-    restart: unless-stopped
-
-  linear:
-    build: ./mcp-servers/linear
-    ports:
-      - "9004:9004"
-    restart: unless-stopped
-
-  snowflake-admin:
-    build: ./mcp-servers/snowflake-admin
+  notion:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/notion
+    container_name: sophia-notion
     ports:
       - "9005:9005"
+    environment:
+      - MCP_SERVER_NAME=notion
+      - MCP_SERVER_PORT=9005
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  linear:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/linear
+    container_name: sophia-linear
+    ports:
+      - "9004:9004"
+    environment:
+      - MCP_SERVER_NAME=linear
+      - MCP_SERVER_PORT=9004
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  asana:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/asana
+    container_name: sophia-asana
+    ports:
+      - "9006:9006"
+    environment:
+      - MCP_SERVER_NAME=asana
+      - MCP_SERVER_PORT=9006
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  github:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/github
+    container_name: sophia-github
+    ports:
+      - "9007:9007"
+    environment:
+      - MCP_SERVER_NAME=github
+      - MCP_SERVER_PORT=9007
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ui-ux-agent:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/ui_ux_agent
+    container_name: sophia-ui-ux-agent
+    ports:
+      - "9008:9008"
+    environment:
+      - MCP_SERVER_NAME=ui-ux-agent
+      - MCP_SERVER_PORT=9008
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # INFRASTRUCTURE BLOCK (9200-9299)
+  lambda-labs-cli:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/lambda_labs_cli
+    container_name: sophia-lambda-labs-cli
+    ports:
+      - "9200:9200"  # Changed from 9020 to avoid conflict
+    environment:
+      - MCP_SERVER_NAME=lambda-labs-cli
+      - MCP_SERVER_PORT=9200
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  snowflake-cortex:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/snowflake_cortex
+    container_name: sophia-snowflake-cortex
+    ports:
+      - "9201:9201"
+    environment:
+      - MCP_SERVER_NAME=snowflake-cortex
+      - MCP_SERVER_PORT=9201
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9201/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  snowflake-admin:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: backend/mcp_servers
+    container_name: sophia-snowflake-admin
+    ports:
+      - "9202:9202"  # Changed from 9020 to avoid conflict
+    environment:
+      - MCP_SERVER_NAME=snowflake-admin
+      - MCP_SERVER_PORT=9202
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9202/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # COMMUNICATION BLOCK (9100-9199)
+  slack-unified:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/slack_unified
+    container_name: sophia-slack-unified
+    ports:
+      - "9105:9105"  # Changed from 9005 to avoid conflict with notion
+    environment:
+      - MCP_SERVER_NAME=slack-unified
+      - MCP_SERVER_PORT=9105
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9105/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # BUSINESS INTELLIGENCE BLOCK (9300-9399)
+  hubspot-unified:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/hubspot_unified
+    container_name: sophia-hubspot-unified
+    ports:
+      - "9301:9301"
+    environment:
+      - MCP_SERVER_NAME=hubspot-unified
+      - MCP_SERVER_PORT=9301
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9301/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # GATEWAY & ORCHESTRATION BLOCK (8000-8099)
+  mcp-gateway:
+    build:
+      context: .
+      dockerfile: ./mcp-gateway/Dockerfile
+    container_name: sophia-mcp-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    volumes:
+      - ./mcp-config:/etc/mcp
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  sophia-intelligence-unified:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mcp-server
+      args:
+        SERVICE_PATH: mcp-servers/sophia_intelligence_unified
+    container_name: sophia-intelligence-unified
+    ports:
+      - "8081:8081"
+    environment:
+      - MCP_SERVER_NAME=sophia-intelligence-unified
+      - MCP_SERVER_PORT=8081
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+    networks:
+      - sophia-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  sophia-network:
+    driver: bridge
+
+volumes:
+  mem0-data:
+  snowflake-cache:

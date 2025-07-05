@@ -8,7 +8,7 @@ services:
   ai-memory-mcp:
     build:
       context: .
-      dockerfile: mcp-servers/ai-memory/Dockerfile.production
+      dockerfile: backend/mcp_servers/ai-memory/Dockerfile.production
     depends_on:
       - redis-cluster
     deploy:

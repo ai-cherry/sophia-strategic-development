@@ -1,0 +1,274 @@
+version: '3.8'
+
+services:
+  mcp-gateway:
+    image: sophia-ai/mcp-gateway:latest
+    deploy:
+      replicas: 3
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+    environment:
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "8080:8080"
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  ai-memory:
+    image: sophia-ai/ai-memory:latest
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+          - node.labels.gpu == true
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+        reservations:
+          cpus: '2'
+          memory: 8G
+          generic_resources:
+            - discrete_resource_spec:
+                kind: 'gpu'
+                value: 1
+    environment:
+      PORT: 9000
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "9000:9000"
+    networks:
+      - sophia-network
+    volumes:
+      - ai-memory-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  snowflake-unified:
+    image: sophia-ai/snowflake-unified:latest
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 4G
+    environment:
+      PORT: 9200
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "9200:9200"
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  codacy:
+    image: sophia-ai/codacy:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 2G
+    environment:
+      PORT: 9003
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "9003:9003"
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ui-ux-agent:
+    image: sophia-ai/ui-ux-agent:latest
+    deploy:
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 4G
+    environment:
+      PORT: 9002
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "9002:9002"
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  portkey-admin:
+    image: sophia-ai/portkey-admin:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 2G
+    environment:
+      PORT: 9013
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "9013:9013"
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9013/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  lambda-labs-cli:
+    image: sophia-ai/lambda-labs-cli:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    environment:
+      PORT: 9020
+      LAMBDA_LABS_HOST: 104.171.202.64
+      ENVIRONMENT: prod
+      PULUMI_ORG: scoobyjava-org
+    ports:
+      - "9020:9020"
+    networks:
+      - sophia-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+    ports:
+      - "9090:9090"
+    networks:
+      - sophia-network
+    volumes:
+      - prometheus-data:/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+
+  grafana:
+    image: grafana/grafana:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.type == lambda-labs
+    ports:
+      - "3000:3000"
+    networks:
+      - sophia-network
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=sophia-ai-admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+networks:
+  sophia-network:
+    driver: overlay
+    attachable: true
+
+volumes:
+  ai-memory-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+configs:
+  prometheus-config:
+    file: ./monitoring/prometheus.yml

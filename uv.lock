@@ -259,6 +259,21 @@ wheels = [
 ]
 
 [[package]]
+name = "asana"
+version = "5.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "python-dateutil" },
+    { name = "six" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f8/eb/4c55e5b38f432e03c5e4fbece847e750225e29ae3f06b1a1a207510f55ad/asana-5.2.0.tar.gz", hash = "sha256:8048195c3507b9256a0d944bb64c6e2728b824d6ba19d4bd25e1d26f28ebf6f8", size = 121127, upload-time = "2025-06-17T18:54:01.57Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/7b/99770247810bc8c1d2aa05befee7d12a4c2663e7040ccee03676e7545084/asana-5.2.0-py3-none-any.whl", hash = "sha256:be9cd2b49f51c624d60b0fb146970ad3b5d22a6722f35d8efd61e4dbbd25a118", size = 193797, upload-time = "2025-06-17T18:53:59.141Z" },
+]
+
+[[package]]
 name = "asn1crypto"
 version = "1.5.1"
 source = { registry = "https://pypi.org/simple" }
@@ -701,6 +716,15 @@ wheels = [
 filecache = [
     { name = "filelock", version = "3.12.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "filelock", version = "3.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
+]
+
+[[package]]
+name = "cached-property"
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/4b/3d870836119dbe9a5e3c9a61af8cc1a8b69d75aea564572e385882d5aefb/cached_property-2.0.1.tar.gz", hash = "sha256:484d617105e3ee0e4f1f58725e72a8ef9e93deee462222dbd51cd91230897641", size = 10574, upload-time = "2024-10-25T15:43:55.667Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/11/0e/7d8225aab3bc1a0f5811f8e1b557aa034ac04bdf641925b30d3caf586b28/cached_property-2.0.1-py3-none-any.whl", hash = "sha256:f617d70ab1100b7bcf6e42228f9ddcb78c676ffa167278d9f730d1c2fba69ccb", size = 7428, upload-time = "2024-10-25T15:43:54.711Z" },
 ]
 
 [[package]]
@@ -4206,6 +4230,28 @@ wheels = [
 ]
 
 [[package]]
+name = "portkey-ai"
+version = "1.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "cached-property" },
+    { name = "distro" },
+    { name = "httpx" },
+    { name = "jiter" },
+    { name = "pydantic", version = "2.9.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
+    { name = "pydantic", version = "2.11.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
+    { name = "sniffio" },
+    { name = "tqdm" },
+    { name = "types-requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9c/5e/5ed436fdb481965eea8605519995c66d114f428ed67cbe27983c291c3f78/portkey_ai-1.14.0.tar.gz", hash = "sha256:10118a3993b153ea32b2ea57acfdf95cdcee01ecc82e0809e0e939b541c5c53a", size = 438582, upload-time = "2025-06-18T09:19:58.641Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/63/ae/1dc0724b5649c5ae20a035d1bd58ff2d1a71dac557401a686e4958eb6404/portkey_ai-1.14.0-py3-none-any.whl", hash = "sha256:cee17eb93eb3a8b54212d7ae3ccbe346ca55cdf3377c822c7f2215d5e8e01cd8", size = 873178, upload-time = "2025-06-18T09:19:56.93Z" },
+]
+
+[[package]]
 name = "posthog"
 version = "5.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -5871,6 +5917,7 @@ dependencies = [
     { name = "anthropic" },
     { name = "anyio" },
     { name = "apscheduler" },
+    { name = "asana" },
     { name = "asyncpg" },
     { name = "azure-storage-blob" },
     { name = "bcrypt" },
@@ -5905,6 +5952,7 @@ dependencies = [
     { name = "passlib" },
     { name = "pinecone-client" },
     { name = "pip" },
+    { name = "portkey-ai" },
     { name = "prometheus-client" },
     { name = "psutil", version = "6.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "psutil", version = "6.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
@@ -6059,6 +6107,7 @@ requires-dist = [
     { name = "anthropic", specifier = ">=0.25.0" },
     { name = "anyio", specifier = ">=4.0.0" },
     { name = "apscheduler", specifier = ">=3.10.4" },
+    { name = "asana", specifier = ">=5.2.0" },
     { name = "asyncpg", specifier = ">=0.29.0" },
     { name = "azure-storage-blob", specifier = ">=12.19.0" },
     { name = "bandit", marker = "extra == 'dev'", specifier = ">=1.7.5" },
@@ -6114,6 +6163,7 @@ requires-dist = [
     { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.7.0" },
     { name = "pip-audit", marker = "extra == 'security'", specifier = ">=2.0" },
     { name = "plotly", marker = "extra == 'ui'", specifier = ">=5.17.0" },
+    { name = "portkey-ai", specifier = ">=1.14.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.6.0" },
     { name = "prometheus-client", specifier = ">=0.19.0" },
     { name = "psutil", specifier = ">=5.9.6" },
@@ -6648,6 +6698,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ef/88/d65ed807393285204ab6e2801e5d11fbbea811adcaa979a2ed3b67a5ef41/types_python_dateutil-2.9.0.20250516.tar.gz", hash = "sha256:13e80d6c9c47df23ad773d54b2826bd52dbbb41be87c3f339381c1700ad21ee5", size = 13943, upload-time = "2025-05-16T03:06:58.385Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c5/3f/b0e8db149896005adc938a1e7f371d6d7e9eca4053a29b108978ed15e0c2/types_python_dateutil-2.9.0.20250516-py3-none-any.whl", hash = "sha256:2b2b3f57f9c6a61fba26a9c0ffb9ea5681c9b83e69cd897c6b5f668d9c0cab93", size = 14356, upload-time = "2025-05-16T03:06:57.249Z" },
+]
+
+[[package]]
+name = "types-requests"
+version = "2.32.4.20250611"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6d/7f/73b3a04a53b0fd2a911d4ec517940ecd6600630b559e4505cc7b68beb5a0/types_requests-2.32.4.20250611.tar.gz", hash = "sha256:741c8777ed6425830bf51e54d6abe245f79b4dcb9019f1622b773463946bf826", size = 23118, upload-time = "2025-06-11T03:11:41.272Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/ea/0be9258c5a4fa1ba2300111aa5a0767ee6d18eb3fd20e91616c12082284d/types_requests-2.32.4.20250611-py3-none-any.whl", hash = "sha256:ad2fe5d3b0cb3c2c902c8815a70e7fb2302c4b8c1f77bdcd738192cdb3878072", size = 20643, upload-time = "2025-06-11T03:11:40.186Z" },
 ]
 
 [[package]]

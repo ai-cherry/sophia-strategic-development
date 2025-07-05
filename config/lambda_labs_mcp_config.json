@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "description": "Lambda Labs MCP Server Configuration",
+  "host": "104.171.202.64",
+  "services": {
+    "mcp_gateway": {
+      "port": 8080,
+      "replicas": 3,
+      "health_check": "/health",
+      "load_balancer": true
+    },
+    "monitoring": {
+      "prometheus_port": 9090,
+      "grafana_port": 3000,
+      "metrics_retention": "30d"
+    },
+    "servers": {
+      "ai_memory": {
+        "port": 9000,
+        "gpu_enabled": true,
+        "memory": "16Gi"
+      },
+      "snowflake": {
+        "port": 9200,
+        "gpu_enabled": false,
+        "memory": "8Gi"
+      },
+      "codacy": {
+        "port": 9003,
+        "gpu_enabled": false,
+        "memory": "4Gi"
+      }
+    }
+  }
+}

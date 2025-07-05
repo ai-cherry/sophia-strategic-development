@@ -1,0 +1,50 @@
+{
+  "dashboard_name": "MCP Server Monitoring",
+  "refresh_interval": 30,
+  "panels": [
+    {
+      "title": "Server Health Status",
+      "type": "health_matrix",
+      "servers": [
+        "snowflake_admin",
+        "lambda_labs_cli",
+        "ui_ux_agent",
+        "ai_memory",
+        "codacy",
+        "portkey_admin",
+        "snowflake_cortex"
+      ],
+      "metrics": [
+        "status",
+        "uptime",
+        "memory_usage",
+        "request_count"
+      ]
+    },
+    {
+      "title": "Request Performance",
+      "type": "time_series",
+      "metric": "request_duration",
+      "aggregation": "avg"
+    },
+    {
+      "title": "Error Rate",
+      "type": "gauge",
+      "metric": "error_rate",
+      "thresholds": {
+        "green": 0.01,
+        "yellow": 0.05,
+        "red": 0.1
+      }
+    },
+    {
+      "title": "Lambda Labs Integration",
+      "type": "status_list",
+      "items": [
+        "connectivity",
+        "gpu_usage",
+        "swarm_status"
+      ]
+    }
+  ]
+}

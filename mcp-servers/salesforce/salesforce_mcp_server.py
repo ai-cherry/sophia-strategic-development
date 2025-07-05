@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import requests
-from mcp import Server
+from mcp import server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -26,7 +26,7 @@ class SalesforceMCPServer:
         self.version = "1.0.0"
 
         # Initialize MCP server
-        self.mcp_server = Server(self.name, self.version)
+        self.mcp_server = server(self.name, self.version)
 
         # Load Salesforce credentials from Pulumi ESC
         self.client_id = get_config_value("salesforce_client_id", "")
@@ -471,7 +471,7 @@ class SalesforceMCPServer:
 
 
 # Create server instance
-salesforce_server = SalesforceMCPServer()
+salesforce_server = SalesforceMCPserver()
 
 if __name__ == "__main__":
     asyncio.run(salesforce_server.start())

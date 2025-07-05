@@ -13,7 +13,7 @@ RUN useradd -m -u 1000 aimemory
 WORKDIR /app
 
 # Copy MCP server code
-COPY mcp-servers/ai_memory/ ./
+COPY backend/mcp_servers/ai_memory/ ./
 COPY backend/core/auto_esc_config.py ./backend/core/
 COPY backend/core/__init__.py ./backend/core/
 

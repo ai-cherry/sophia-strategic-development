@@ -1,7 +1,229 @@
 {
   "version": "4.0",
-  "deprecated": true,
-  "redirect_to": "config/unified_mcp_ports.json",
-  "message": "This configuration is deprecated. Use config/unified_mcp_ports.json instead.",
-  "last_updated": "2025-07-01T00:33:24.165391"
+  "description": "Consolidated MCP Server Port Configuration",
+  "last_updated": "2025-07-03T13:39:27",
+  "active_servers": {
+    "ai_memory": 9000,
+    "figma_context": 9001,
+    "ui_ux_agent": 9002,
+    "codacy": 9003,
+    "asana": 9004,
+    "notion": 9005,
+    "linear": 9006,
+    "github": 9007,
+    "slack": 9008,
+    "postgres": 9009,
+    "sophia_data_intelligence": 9010,
+    "sophia_infrastructure": 9011,
+    "snowflake_admin": 9012,
+    "portkey_admin": 9013,
+    "openrouter_search": 9014,
+    "sophia_business_intelligence": 9015,
+    "sophia_ai_intelligence": 9016,
+    "apify_intelligence": 9017,
+    "bright_data": 9018,
+    "graphiti": 9019,
+    "lambda_labs_cli": 9020,
+    "snowflake_cli_enhanced": 9021,
+    "estuary_flow_cli": 9022,
+    "pulumi": 9023,
+    "docker": 9024,
+    "hubspot": 9100,
+    "gong": 9101,
+    "apollo_io": 9102,
+    "snowflake": 9200,
+    "snowflake_cortex": 9201,
+    "estuary": 9202,
+    "prompt_optimizer": 9030,
+    "mem0_bridge": 9031
+  },
+  "lambda_labs": {
+    "host": "104.171.202.64",
+    "gateway_port": 8080,
+    "monitoring_port": 9090
+  },
+  "server_groups": {
+    "core_intelligence": [
+      9000,
+      9001,
+      9002,
+      9003,
+      9004,
+      9005,
+      9006,
+      9007,
+      9008,
+      9009,
+      9010,
+      9011,
+      9012,
+      9013,
+      9014,
+      9015,
+      9016,
+      9017,
+      9018,
+      9019
+    ],
+    "strategic_enhancements": [
+      9020,
+      9021,
+      9022,
+      9023,
+      9024,
+      9025,
+      9026,
+      9027,
+      9028,
+      9029
+    ],
+    "business_intelligence": [
+      9100,
+      9101,
+      9102,
+      9103,
+      9104,
+      9105,
+      9106,
+      9107,
+      9108,
+      9109,
+      9110,
+      9111,
+      9112,
+      9113,
+      9114,
+      9115,
+      9116,
+      9117,
+      9118,
+      9119
+    ],
+    "data_integrations": [
+      9200,
+      9201,
+      9202,
+      9203,
+      9204,
+      9205,
+      9206,
+      9207,
+      9208,
+      9209,
+      9210,
+      9211,
+      9212,
+      9213,
+      9214,
+      9215,
+      9216,
+      9217,
+      9218,
+      9219
+    ],
+    "development_tools": [
+      9300,
+      9301,
+      9302,
+      9303,
+      9304,
+      9305,
+      9306,
+      9307,
+      9308,
+      9309,
+      9310,
+      9311,
+      9312,
+      9313,
+      9314,
+      9315,
+      9316,
+      9317,
+      9318,
+      9319
+    ]
+  },
+  "mcp_servers": {
+    "core_intelligence": {
+      "ai_memory": {
+        "port": 9000,
+        "description": "AI Memory and context management"
+      },
+      "notion": {
+        "port": 9005,
+        "description": "Notion integration for task management"
+      },
+      "linear": {
+        "port": 9004,
+        "description": "Linear project management"
+      },
+      "asana": {
+        "port": 9006,
+        "description": "Asana task and project management"
+      },
+      "github": {
+        "port": 9007,
+        "description": "GitHub integration"
+      },
+      "ui_ux_agent": {
+        "port": 9008,
+        "description": "UI/UX generation agent"
+      }
+    },
+    "infrastructure": {
+      "lambda_labs_cli": {
+        "port": 9200,
+        "description": "Lambda Labs infrastructure management"
+      },
+      "snowflake_cortex": {
+        "port": 9201,
+        "description": "Snowflake Cortex AI operations"
+      },
+      "snowflake_admin": {
+        "port": 9202,
+        "description": "Snowflake administration"
+      }
+    },
+    "communication": {
+      "slack_unified": {
+        "port": 9105,
+        "description": "Slack integration"
+      }
+    },
+    "business_intelligence": {
+      "hubspot_unified": {
+        "port": 9301,
+        "description": "HubSpot CRM integration"
+      },
+      "gong": {
+        "port": 9302,
+        "description": "Gong call intelligence"
+      }
+    },
+    "gateway_orchestration": {
+      "mcp_gateway": {
+        "port": 8080,
+        "description": "MCP Gateway and router"
+      },
+      "sophia_intelligence_unified": {
+        "port": 8081,
+        "description": "Sophia AI orchestration"
+      }
+    },
+    "development_tools": {
+      "codacy": {
+        "port": 3008,
+        "description": "Code quality analysis"
+      }
+    }
+  },
+  "port_ranges": {
+    "core_intelligence": "9000-9099",
+    "communication": "9100-9199",
+    "infrastructure": "9200-9299",
+    "business_intelligence": "9300-9399",
+    "gateway_orchestration": "8000-8099",
+    "development_tools": "3000-3099"
+  }
 }

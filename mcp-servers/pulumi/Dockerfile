@@ -18,6 +18,6 @@ RUN apt-get update && apt-get install -y curl gnupg && \
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-cache
 
-COPY mcp-servers/pulumi/main.py .
+COPY backend/mcp_servers/pulumi/main.py .
 
 CMD ["python", "main.py"]

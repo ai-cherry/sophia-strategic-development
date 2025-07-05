@@ -1,0 +1,392 @@
+version: '3.8'
+
+x-common-env: &common-env
+  ENVIRONMENT: prod
+  PULUMI_ORG: scoobyjava-org
+  LAMBDA_LABS_HOST: 104.171.202.64
+  REDIS_URL: redis://redis:6379
+  POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
+
+x-deploy-config: &deploy-config
+  replicas: 2
+  update_config:
+    parallelism: 1
+    delay: 10s
+    failure_action: rollback
+  restart_policy:
+    condition: any
+    delay: 5s
+    max_attempts: 3
+  resources:
+    limits:
+      cpus: '2'
+      memory: 4G
+    reservations:
+      cpus: '1'
+      memory: 2G
+
+services:
+  # Core Infrastructure
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: sophia_ai
+      POSTGRES_USER: sophia
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sophia-overlay
+    secrets:
+      - postgres_password
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sophia"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - sophia-overlay
+    deploy:
+      <<: *deploy-config
+      replicas: 1
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MCP Gateway
+  mcp-gateway:
+    image: scoobyjava15/sophia-mcp-gateway:latest
+    environment:
+      <<: *common-env
+    ports:
+      - "8080:8080"
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+      replicas: 3
+      placement:
+        constraints:
+          - node.labels.gpu == true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MCP Servers
+  ai-memory:
+    image: scoobyjava15/sophia-ai-memory:latest
+    environment:
+      <<: *common-env
+      PORT: 9001
+      MODULE: backend.mcp_servers.ai_memory.ai_memory_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  snowflake-admin:
+    image: scoobyjava15/sophia-snowflake-admin:latest
+    environment:
+      <<: *common-env
+      PORT: 9020
+      MODULE: backend.mcp_servers.snowflake_admin_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+      - snowflake_credentials
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  codacy:
+    image: scoobyjava15/sophia-codacy:latest
+    environment:
+      <<: *common-env
+      PORT: 3008
+      MODULE: mcp-servers.codacy.production_codacy_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  linear:
+    image: scoobyjava15/sophia-linear:latest
+    environment:
+      <<: *common-env
+      PORT: 9004
+      MODULE: mcp-servers.linear.linear_mcp_server
+      RUN_AS_FASTAPI: "true"
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  github:
+    image: scoobyjava15/sophia-github:latest
+    environment:
+      <<: *common-env
+      PORT: 9103
+      MODULE: mcp-servers.github.github_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9103/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  asana:
+    image: scoobyjava15/sophia-asana:latest
+    environment:
+      <<: *common-env
+      PORT: 9100
+      MODULE: mcp-servers.asana.asana_mcp_server
+      RUN_AS_FASTAPI: "true"
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  notion:
+    image: scoobyjava15/sophia-notion:latest
+    environment:
+      <<: *common-env
+      PORT: 9005
+      MODULE: mcp-servers.notion.enhanced_notion_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  ui-ux-agent:
+    image: scoobyjava15/sophia-ui-ux-agent:latest
+    environment:
+      <<: *common-env
+      PORT: 9002
+      MODULE: mcp-servers.ui_ux_agent.ui_ux_agent_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  portkey-admin:
+    image: scoobyjava15/sophia-portkey-admin:latest
+    environment:
+      <<: *common-env
+      PORT: 9013
+      MODULE: mcp-servers.portkey_admin.portkey_admin_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9013/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  lambda-labs-cli:
+    image: scoobyjava15/sophia-lambda-labs-cli:latest
+    environment:
+      <<: *common-env
+      PORT: 9020
+      MODULE: mcp-servers.lambda_labs_cli.lambda_labs_cli_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+    deploy:
+      <<: *deploy-config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  snowflake-cortex:
+    image: scoobyjava15/sophia-snowflake-cortex:latest
+    environment:
+      <<: *common-env
+      PORT: 9030
+      MODULE: mcp-servers.snowflake_cortex.production_snowflake_cortex_mcp_server
+    networks:
+      - sophia-overlay
+    secrets:
+      - pulumi_esc
+      - snowflake_credentials
+    deploy:
+      <<: *deploy-config
+      placement:
+        constraints:
+          - node.labels.gpu == true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - sophia-overlay
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD_FILE=/run/secrets/grafana_password
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - sophia-overlay
+    secrets:
+      - grafana_password
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  # Log Aggregation
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+    networks:
+      - sophia-overlay
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./monitoring/promtail.yml:/etc/promtail/promtail.yml:ro
+    command: -config.file=/etc/promtail/promtail.yml
+    networks:
+      - sophia-overlay
+    deploy:
+      mode: global
+
+networks:
+  sophia-overlay:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: "true"
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+
+secrets:
+  pulumi_esc:
+    external: true
+    name: sophia-ai-pulumi-esc
+  postgres_password:
+    external: true
+    name: sophia-ai-postgres-password
+  snowflake_credentials:
+    external: true
+    name: sophia-ai-snowflake-credentials
+  grafana_password:
+    external: true
+    name: sophia-ai-grafana-password

@@ -22,7 +22,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
-from mcp import Server
+from mcp import server
 from notion_client import Client as NotionClient
 from notion_client.errors import APIResponseError
 
@@ -40,7 +40,7 @@ class EnhancedNotionMCPServer:
         self.version = "2.0.0"
 
         # Initialize MCP server
-        self.mcp_server = Server(self.name, self.version)
+        self.mcp_server = server(self.name, self.version)
 
         # Load API token from Pulumi ESC
         self.api_token = get_config_value("notion_api_token", "")
@@ -755,7 +755,7 @@ class EnhancedNotionMCPServer:
 
 
 # Create server instance
-enhanced_notion_server = EnhancedNotionMCPServer()
+enhanced_notion_server = EnhancedNotionMCPserver()
 
 if __name__ == "__main__":
     asyncio.run(enhanced_notion_server.start())

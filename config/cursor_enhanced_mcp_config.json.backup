@@ -1,0 +1,85 @@
+{
+  "mcpServers": {
+    "ai_memory": {
+      "command": "uvicorn",
+      "args": [
+        "backend.mcp_servers.enhanced_ai_memory_mcp_server:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "9000"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      }
+    },
+    "snowflake_unified": {
+      "command": "python",
+      "args": [
+        "mcp-servers/snowflake_unified/unified_snowflake_server.py"
+      ],
+      "env": {
+        "PORT": "9200",
+        "ENVIRONMENT": "prod",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      }
+    },
+    "codacy": {
+      "command": "uvicorn",
+      "args": [
+        "backend.mcp_servers.codacy.codacy_mcp_server:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "9003"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      }
+    },
+    "ui_ux_agent": {
+      "command": "python",
+      "args": [
+        "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py"
+      ],
+      "env": {
+        "PORT": "9002",
+        "ENVIRONMENT": "prod",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      }
+    },
+    "portkey_admin": {
+      "command": "python",
+      "args": [
+        "mcp-servers/portkey_admin/portkey_admin_mcp_server.py"
+      ],
+      "env": {
+        "PORT": "9013",
+        "ENVIRONMENT": "prod",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      }
+    },
+    "lambda_labs_cli": {
+      "command": "python",
+      "args": [
+        "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py"
+      ],
+      "env": {
+        "PORT": "9020",
+        "ENVIRONMENT": "prod",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      }
+    }
+  },
+  "version": "5.0-unified",
+  "description": "Unified MCP Configuration with Lambda Labs Integration",
+  "last_updated": "2025-01-03T15:00:00.000000Z",
+  "lambda_labs": {
+    "host": "104.171.202.64",
+    "monitoring_enabled": true,
+    "health_check_interval": 30
+  }
+}

@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from mcp import Server
+from mcp import server
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class MigrationOrchestratorMCPServer:
         self.version = "1.0.0"
 
         # Initialize MCP server
-        self.mcp_server = Server(self.name, self.version)
+        self.mcp_server = server(self.name, self.version)
 
         # Migration state management
         self.migration_sessions = {}
@@ -590,7 +590,7 @@ class MigrationOrchestratorMCPServer:
 
 
 # Create server instance
-migration_orchestrator_server = MigrationOrchestratorMCPServer()
+migration_orchestrator_server = MigrationOrchestratorMCPserver()
 
 if __name__ == "__main__":
     asyncio.run(migration_orchestrator_server.start())

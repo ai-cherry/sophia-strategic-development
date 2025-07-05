@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from mcp import Server
+from mcp import server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -23,7 +23,7 @@ class GitHubMCPServer:
         self.version = "1.0.0"
 
         # Initialize MCP server
-        self.mcp_server = Server(self.name, self.version)
+        self.mcp_server = server(self.name, self.version)
 
         # Load API token
         self.access_token = get_config_value("github.access_token", "")
@@ -124,7 +124,7 @@ class GitHubMCPServer:
 
 
 # Create server instance
-github_server = GitHubMCPServer()
+github_server = GitHubMCPserver()
 
 if __name__ == "__main__":
     asyncio.run(github_server.start())

@@ -1,0 +1,328 @@
+{
+  "version": "5.0-unified",
+  "description": "Unified MCP Configuration with Lambda Labs Integration",
+  "last_updated": "2025-01-03T20:00:00.000Z",
+  "lambda_labs": {
+    "host": "104.171.202.64",
+    "docker_swarm": true,
+    "health_check_interval": 30
+  },
+  "mcpServers": {
+    "ai_memory": {
+      "command": "python",
+      "args": [
+        "mcp-servers/ai_memory/enhanced_ai_memory_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9001,
+      "cwd": ".",
+      "capabilities": [
+        "memory_storage",
+        "memory_recall",
+        "semantic_search"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10001,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    },
+    "snowflake_admin": {
+      "command": "python",
+      "args": [
+        "backend/mcp_servers/snowflake_admin_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PULUMI_ORG": "scoobyjava-org",
+        "PORT": "9020",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9020,
+      "health_endpoint": "/health",
+      "capabilities": [
+        "schema_sync",
+        "query_execution",
+        "performance_optimization"
+      ],
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10020,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    },
+    "codacy": {
+      "command": "python",
+      "args": [
+        "mcp-servers/codacy/production_codacy_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "3008",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 3008,
+      "cwd": ".",
+      "capabilities": [
+        "code_analysis",
+        "security_scan",
+        "quality_metrics"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 4008,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    },
+    "linear": {
+      "command": "python",
+      "args": [
+        "mcp-servers/linear/linear_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9004",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9004,
+      "cwd": ".",
+      "capabilities": [
+        "project_management",
+        "issue_tracking",
+        "team_analytics"
+      ],
+      "health_endpoint": "/health"
+    },
+    "github": {
+      "command": "python",
+      "args": [
+        "mcp-servers/github/github_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9103",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9103,
+      "cwd": ".",
+      "capabilities": [
+        "repository_management",
+        "issue_tracking",
+        "code_review"
+      ],
+      "health_endpoint": "/health"
+    },
+    "asana": {
+      "command": "python",
+      "args": [
+        "mcp-servers/asana/asana_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9100",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9100,
+      "cwd": ".",
+      "capabilities": [
+        "task_management",
+        "project_tracking",
+        "team_collaboration"
+      ],
+      "health_endpoint": "/health"
+    },
+    "notion": {
+      "command": "python",
+      "args": [
+        "mcp-servers/notion/enhanced_notion_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9005",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9005,
+      "cwd": ".",
+      "capabilities": [
+        "documentation",
+        "knowledge_base",
+        "wiki_management"
+      ],
+      "health_endpoint": "/health"
+    },
+    "ui_ux_agent": {
+      "command": "python",
+      "args": [
+        "mcp-servers/ui_ux_agent/ui_ux_agent_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9002",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9002,
+      "cwd": ".",
+      "capabilities": [
+        "ui_generation",
+        "design_analysis",
+        "component_creation"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10002,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    },
+    "portkey_admin": {
+      "command": "python",
+      "args": [
+        "mcp-servers/portkey_admin/portkey_admin_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9013",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9013,
+      "cwd": ".",
+      "capabilities": [
+        "ai_routing",
+        "cost_optimization",
+        "model_selection"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10013,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    },
+    "lambda_labs_cli": {
+      "command": "python",
+      "args": [
+        "mcp-servers/lambda_labs_cli/lambda_labs_cli_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9020",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9020,
+      "cwd": ".",
+      "capabilities": [
+        "instance_management",
+        "gpu_monitoring",
+        "cost_tracking"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10020,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    },
+    "snowflake_cortex": {
+      "command": "python",
+      "args": [
+        "mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9030",
+        "LAMBDA_LABS_HOST": "104.171.202.64"
+      },
+      "port": 9030,
+      "cwd": ".",
+      "capabilities": [
+        "cortex_ai",
+        "embeddings",
+        "sentiment_analysis"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 10,
+        "request_timeout_seconds": 30,
+        "cache_ttl_seconds": 300,
+        "enable_request_batching": true
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10030,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
+    }
+  },
+  "orchestration": {
+    "startup_order": [
+      "snowflake_admin",
+      "ai_memory",
+      "codacy",
+      "linear",
+      "github",
+      "asana",
+      "notion",
+      "ui_ux_agent",
+      "portkey_admin",
+      "lambda_labs_cli",
+      "snowflake_cortex"
+    ],
+    "health_check_timeout": 30,
+    "retry_attempts": 3,
+    "retry_delay": 5
+  },
+  "monitoring": {
+    "prometheus_endpoint": "http://104.171.202.64:9090",
+    "grafana_endpoint": "http://104.171.202.64:3000",
+    "alert_webhook": "https://hooks.slack.com/services/sophia-ai-alerts"
+  }
+}

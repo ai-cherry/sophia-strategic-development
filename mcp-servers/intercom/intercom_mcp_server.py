@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 
 import requests
-from mcp import Server
+from mcp import server
 
 from backend.core.auto_esc_config import get_config_value
 
@@ -26,7 +26,7 @@ class IntercomMCPServer:
         self.version = "1.0.0"
 
         # Initialize MCP server
-        self.mcp_server = Server(self.name, self.version)
+        self.mcp_server = server(self.name, self.version)
 
         # Load Intercom credentials from Pulumi ESC
         self.access_token = get_config_value("intercom_access_token", "")
@@ -516,7 +516,7 @@ class IntercomMCPServer:
 
 
 # Create server instance
-intercom_server = IntercomMCPServer()
+intercom_server = IntercomMCPserver()
 
 if __name__ == "__main__":
     asyncio.run(intercom_server.start())

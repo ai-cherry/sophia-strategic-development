@@ -1,0 +1,32 @@
+{
+  "docker_files": {
+    "docker-compose.cloud.yml": true,
+    "Dockerfile.uv.production": true,
+    "docker-compose.mcp.yml": true,
+    "MCP Dockerfile Template": true
+  },
+  "compose_files": {
+    "docker-compose.yml": [
+      true,
+      "Valid"
+    ],
+    "docker-compose.mcp.yml": [
+      true,
+      "Valid"
+    ],
+    "docker-compose.cloud.yml": [
+      false,
+      "time=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\ntime=\"2025-07-04T19:52:50-07:00\" level=warning msg=\"The \\\"POSTGRES_PASSWORD\\\" variable is not set. Defaulting to a blank string.\"\nvalidating /Users/lynnmusil/sophia-main/docker-compose.cloud.yml: secrets.grafana_password Additional property external_name is not allowed\n"
+    ],
+    "docker-compose.production.yml": [
+      true,
+      "Valid"
+    ]
+  },
+  "build_tests": {},
+  "summary": {
+    "docker_files": "4/4",
+    "compose_files": "3/4",
+    "overall_readiness": "87.5%"
+  }
+}

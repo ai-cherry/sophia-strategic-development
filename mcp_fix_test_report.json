@@ -1,0 +1,28 @@
+{
+  "import_fixes": {
+    "snowflake_admin_import": true
+  },
+  "configuration": {
+    "cursor_config_exists": true,
+    "lambda_labs_configured": true,
+    "consolidated_ports_exists": true,
+    "lambda_config_exists": true
+  },
+  "lambda_labs": {
+    "gateway_reachable": false
+  },
+  "server_startup": {
+    "ai_memory_import": true,
+    "codacy_import": false
+  },
+  "unified_integration": {
+    "service_registry_exists": true,
+    "dashboard_exists": true,
+    "docker_swarm_exists": true
+  },
+  "summary": {
+    "total_tests": 11,
+    "passed": 9,
+    "failed": 2
+  }
+}

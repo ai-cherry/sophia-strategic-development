@@ -1,60 +1,71 @@
-# Multi-stage production Dockerfile with UV
-FROM python:3.12-slim AS builder
+# Production Dockerfile using UV package manager
+# Optimized for Lambda Labs deployment
+
+FROM python:3.11-slim as builder
+
+# Install system dependencies and UV
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install UV
-RUN pip install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Set working directory
 WORKDIR /app
 
 # Copy dependency files
-COPY pyproject.toml uv.lock ./
-COPY README.md ./
+COPY pyproject.toml uv.lock* ./
 
-# Install dependencies with UV
-RUN uv sync --frozen --no-dev
+# Create virtual environment and install dependencies
+RUN uv venv .venv
+ENV VIRTUAL_ENV=/app/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install production dependencies
+RUN uv pip sync --no-dev
 
 # Production stage
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN useradd -m -u 1000 sophia
+RUN groupadd -r sophia && useradd -r -g sophia sophia
 
 # Set working directory
 WORKDIR /app
 
-# Copy UV and dependencies from builder
-COPY --from=builder /root/.local /root/.local
+# Copy virtual environment from builder
 COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code
-COPY backend/ ./backend/
-COPY config/ ./config/
-COPY pyproject.toml uv.lock ./
+COPY . .
 
 # Set environment variables
-ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH="/app"
+ENV VIRTUAL_ENV=/app/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
 ENV ENVIRONMENT=prod
 ENV PULUMI_ORG=scoobyjava-org
 
-# Change ownership
+# Change ownership to non-root user
 RUN chown -R sophia:sophia /app
 
 # Switch to non-root user
 USER sophia
 
-# Expose port
-EXPOSE 8000
-
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 
-# Run the application
-CMD ["python", "-m", "uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command (can be overridden)
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
