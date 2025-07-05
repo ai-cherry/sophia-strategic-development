@@ -341,20 +341,11 @@ class AsanaMCPServer(StandardizedMCPServer):
             return {"error": str(e), "projects": []}
 
 
-async def main():
+def main():
     """Main entry point for the Asana MCP server."""
     # Create and run the server
     asana_server = AsanaMCPServer()
-
-    # Run the server
-    from mcp.server.stdio import stdio_server
-
-    async with stdio_server() as (read_stream, write_stream):
-        await asana_server.server.run(
-            read_stream,
-            write_stream,
-            asana_server.server.create_initialization_options(),
-        )
+    asana_server.run()
 
 
 if __name__ == "__main__":
@@ -376,4 +367,4 @@ if __name__ == "__main__":
         uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "9100")))
     else:
         # Run as MCP server
-        asyncio.run(main())
+        main()

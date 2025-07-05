@@ -755,7 +755,7 @@ class EnhancedNotionMCPServer:
 
 
 # Create server instance
-enhanced_notion_server = EnhancedNotionMCPserver()
+enhanced_notion_server = EnhancedNotionMCPServer()
 
 if __name__ == "__main__":
     asyncio.run(enhanced_notion_server.start())
