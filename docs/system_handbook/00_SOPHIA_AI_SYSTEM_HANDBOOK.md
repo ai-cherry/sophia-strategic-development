@@ -113,13 +113,47 @@ CREATE TABLE SOPHIA_CORE.QUERY_CACHE (
 );
 ```
 
-### Tiered Memory System
+### Multi-Tier Data Architecture
 
-1. **L3 - Deep Storage**: All raw business data in Snowflake tables
-2. **L2 - Semantic Memory**: Cortex embeddings with vector search
-3. **L1 - Fast Cache**: Materialized views and result caching
+While Snowflake remains the **central analytical data warehouse** and ultimate source of truth for business data, Sophia AI employs a pragmatic multi-tier architecture optimized for different data workloads:
 
-**No Redis. No Pinecone. No Weaviate. No PostgreSQL for business data.**
+#### Tier 1: Ephemeral & Real-time (Redis)
+- **Purpose**: Session management, caching, pub/sub events
+- **Use Cases**:
+  - API response caching (<50ms access)
+  - Real-time notifications
+  - Rate limiting
+  - Session storage
+- **Data Retention**: Hours to days
+- **Implementation**: Redis Cluster with persistence for critical ephemeral data
+
+#### Tier 2: Vector & AI Memory (Pinecone)
+- **Purpose**: Semantic search and AI memory storage
+- **Use Cases**:
+  - AI conversation embeddings
+  - Document similarity search
+  - Knowledge base vectors
+  - Context retrieval
+- **Integration**: Works alongside Snowflake Cortex for hybrid vector search
+
+#### Tier 3: ETL Staging (PostgreSQL)
+- **Purpose**: Temporary staging for external data ingestion
+- **Use Cases**:
+  - HubSpot data staging
+  - Gong call data processing
+  - Slack message buffering
+- **Data Flow**: External API → PostgreSQL → Transformation → Snowflake
+
+#### Tier 4: Analytical Truth (Snowflake)
+- **Purpose**: Central data warehouse and analytical processing
+- **Use Cases**:
+  - Business intelligence
+  - Historical analysis
+  - Complex queries
+  - Cortex AI operations
+- **Data Retention**: Permanent business records
+
+**Note**: This multi-tier approach reflects the current implementation reality. While Snowflake remains central for business data, specialized databases handle specific workloads for optimal performance.
 
 ---
 
@@ -274,16 +308,16 @@ const UnifiedDashboard = () => {
 };
 ```
 
-### Tab Definitions
+### Tab Definitions (Actual Implementation)
 
-1. **Unified Chat** - Primary interface, contextualized AI chat
-2. **Projects & OKRs** - Cross-platform project health (Linear + Asana + Slack)
-3. **Knowledge AI** - File upload, learning status, AI training metrics
-4. **Sales Intelligence** - Revenue engine, deal analysis, forecasting
-5. **System Health** - MCP server status, API health, performance metrics
-6. **Financials** - NetSuite integration, revenue analytics
-7. **Employees** - HR systems (Lattice, Trinet), team management
-8. **Sophia Persona** - AI personality customization, skills management
+1. **Unified Overview** - Executive KPIs: Project Health, Budget Usage, Team Utilization, On-Time Delivery
+2. **Projects & OKRs** - Cross-platform project health with health scores, progress tracking, and OKR alignment
+3. **Knowledge AI** - Data ingestion status, AI learning metrics, manual upload, and data source sync
+4. **Sales Intelligence** - Pipeline value, active deals, win rate, and calls analyzed
+5. **LLM Metrics** - Cost monitoring, budget tracking, provider usage, cache performance, and Snowflake savings
+6. **Lambda Labs Health** - Infrastructure health monitoring for GPU compute resources
+7. **Workflow Designer** - Visual workflow creation and management interface
+8. **Unified Chat** - Primary AI chat interface with contextual awareness
 
 ---
 
@@ -298,7 +332,7 @@ const UnifiedDashboard = () => {
 **Monitoring**: Grafana + Prometheus
 
 **Note on IaC Scope and SSH Key Management:**
-The current Pulumi IaC primarily manages Lambda Labs GPU instances and Kubernetes clusters for core AI services, core Snowflake configurations, and Portkey API key management. While Pulumi ESC is used for secret management, SSH keys for Lambda Labs currently require manual configuration due to Pulumi CLI limitations with multi-line secrets. This is a known area for future automation.
+The current Pulumi IaC manages Lambda Labs GPU instances, Kubernetes clusters, core Snowflake configurations, and Portkey API key management. **SSH key automation has been implemented (July 2025)** using base64 encoding to bypass Pulumi CLI's multi-line secret limitations. SSH keys are now automatically provisioned through cloud-init templates, eliminating manual configuration. See `infrastructure/esc/ssh_key_manager.py` for implementation details.
 
 ### Environment Configuration
 
@@ -351,41 +385,17 @@ GitHub Organization Secrets (ai-cherry)
 
 ### AI Agent Authentication System
 
-**REVOLUTIONARY CAPABILITY**: Unified AI Agent Authentication System enables AI coding agents to make **REAL CHANGES** across the entire technology stack with enterprise-grade security.
+**DEPRECATED**: The Unified AI Agent Authentication System has been removed from the codebase (July 2025). The related files (`backend/security/unified_service_auth_manager.py`, `scripts/setup_unified_ai_agent_auth.py`) have been deleted as part of the code hygiene enforcement.
 
-#### Three-Tier Security Architecture
-- **Tier 1 (CLI-Based)**: GitHub, Pulumi, Docker, Vercel - CRITICAL risk operations
-- **Tier 2 (Enhanced API)**: Snowflake, Lambda Labs, Estuary Flow - HIGH risk operations
-- **Tier 3 (Secure API)**: OpenAI, Anthropic, Slack, Linear, HubSpot - MEDIUM risk operations
+For infrastructure operations, use standard authentication methods:
+- GitHub CLI: `gh auth login`
+- Pulumi CLI: `pulumi login`
+- Docker: `docker login`
+- Vercel: `vercel login`
 
-#### Agent Types & Permissions
-- **Infrastructure Agent**: Can deploy infrastructure, manage containers, control deployments
-- **Data Agent**: Can execute database queries, manage schemas, control data flows
-- **Integration Agent**: Can create tickets, send messages, update business tools
+All secrets continue to be managed through the GitHub Organization Secrets → Pulumi ESC pipeline.
 
-#### Enterprise Security Features
-- **Zero Trust Authentication**: Every operation explicitly authenticated and audited
-- **Risk-Based Workflows**: CRITICAL/HIGH/MEDIUM/LOW risk classification with confirmations
-- **Complete Audit Trail**: All AI agent operations logged with full traceability
-- **Permission Validation**: Agent type permissions enforced for all operations
-
-#### Setup & Usage
-```bash
-# Setup authentication system
-python scripts/setup_unified_ai_agent_auth.py
-
-# Example AI agent operation
-from backend.security.unified_service_auth_manager import UnifiedServiceAuthManager
-auth_manager = UnifiedServiceAuthManager()
-await auth_manager.execute_operation(
-    agent_type="infrastructure_agent",
-    service="pulumi",
-    operation="infrastructure_deployment",
-    params={"stack": "production"}
-)
-```
-
-**Business Value**: AI agents can make real infrastructure changes with enterprise security, natural language interface for technical operations, zero credential exposure, and complete audit compliance.
+### Business Value**: AI agents can make real infrastructure changes with enterprise security, natural language interface for technical operations, zero credential exposure, and complete audit compliance.
 
 ---
 

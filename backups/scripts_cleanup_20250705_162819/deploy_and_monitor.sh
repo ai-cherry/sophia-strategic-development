@@ -28,7 +28,7 @@ check_docker() {
 check_ports() {
     local ports=("8000" "5432" "6379" "9091" "3001" "80" "8080" "9100")
     local all_clear=true
-    
+
     echo -e "${YELLOW}Checking port availability...${NC}"
     for port in "${ports[@]}"; do
         if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
@@ -36,7 +36,7 @@ check_ports() {
             all_clear=false
         fi
     done
-    
+
     if [ "$all_clear" = true ]; then
         echo -e "${GREEN}✅ All ports are available${NC}"
     else
@@ -48,23 +48,23 @@ check_ports() {
 # Function to deploy the stack
 deploy_stack() {
     echo -e "${YELLOW}🔧 Deploying Sophia AI stack...${NC}"
-    
+
     # Stop any existing containers
     docker-compose -f docker-compose.monitoring.yml down 2>/dev/null || true
-    
+
     # Start the stack
     docker-compose -f docker-compose.monitoring.yml up -d
-    
+
     echo -e "${GREEN}✅ Stack deployed${NC}"
 }
 
 # Function to wait for services to be healthy
 wait_for_services() {
     echo -e "${YELLOW}⏳ Waiting for services to be healthy...${NC}"
-    
+
     local services=("sophia-backend" "sophia-postgres" "sophia-redis")
     local max_attempts=30
-    
+
     for service in "${services[@]}"; do
         echo -n "Waiting for $service..."
         local attempts=0
@@ -77,7 +77,7 @@ wait_for_services() {
             sleep 2
             echo -n "."
         done
-        
+
         if [ $attempts -eq $max_attempts ]; then
             echo -e " ${RED}✗${NC}"
             echo -e "${RED}Service $service failed to become healthy${NC}"
@@ -89,9 +89,9 @@ wait_for_services() {
 display_status() {
     echo -e "\n${BLUE}📊 Service Status${NC}"
     echo "=================="
-    
+
     docker-compose -f docker-compose.monitoring.yml ps
-    
+
     echo -e "\n${BLUE}🌐 Access Points${NC}"
     echo "================"
     echo -e "Sophia API:        ${GREEN}http://localhost:8000${NC}"
@@ -112,10 +112,10 @@ show_logs() {
 # Function to create monitoring dashboard
 setup_monitoring() {
     echo -e "\n${YELLOW}📈 Setting up monitoring dashboards...${NC}"
-    
+
     # Wait for Grafana to be ready
     sleep 10
-    
+
     # Check if Grafana is accessible
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/health | grep -q "200"; then
         echo -e "${GREEN}✅ Grafana is ready${NC}"
@@ -130,7 +130,7 @@ monitor_realtime() {
     echo -e "\n${BLUE}📊 Real-time Monitoring${NC}"
     echo "====================="
     echo -e "${YELLOW}Press Ctrl+C to stop monitoring${NC}\n"
-    
+
     # Show container stats
     docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
 }
@@ -138,28 +138,28 @@ monitor_realtime() {
 # Main execution
 main() {
     echo -e "${BLUE}Starting deployment process...${NC}\n"
-    
+
     # Run checks
     check_docker
     check_ports
-    
+
     # Deploy
     deploy_stack
     wait_for_services
-    
+
     # Display information
     display_status
     setup_monitoring
     show_logs
-    
+
     echo -e "\n${GREEN}🎉 Deployment complete!${NC}"
     echo -e "${YELLOW}Would you like to monitor in real-time? (y/n)${NC}"
     read -r response
-    
+
     if [[ "$response" =~ ^[Yy]$ ]]; then
         monitor_realtime
     fi
 }
 
 # Run main function
-main 
+main
