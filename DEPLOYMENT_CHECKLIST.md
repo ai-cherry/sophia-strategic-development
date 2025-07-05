@@ -1,13 +1,13 @@
 # 🚀 Sophia AI Docker Swarm Deployment Checklist
 
 **Deployment Package**: `sophia-deployment-20250704-022911.tar.gz`  
-**Target**: Lambda Labs (104.171.202.64)  
+**Target**: Lambda Labs (137.131.6.213)  
 **Date**: January 4, 2025
 
 ## ✅ Pre-Deployment Verification
 
 ### Infrastructure Ready ✅
-- [x] **Lambda Labs Instance**: `sophia-ai-production` (104.171.202.64) - Active
+- [x] **Lambda Labs Instance**: `sophia-ai-production` (137.131.6.213) - Active
 - [x] **Docker Cloud Setup**: `scoobyjava15` registry authenticated
 - [x] **SSH Access**: Key `cae55cb8d0f5443cbdf9129f7cec8770` configured
 - [x] **Docker Swarm**: Ready for initialization on Lambda Labs instance
@@ -29,7 +29,7 @@
 ### Step 1: SSH into Lambda Labs Instance
 ```bash
 # Use the SSH key provided in the infrastructure setup
-ssh -i ~/.ssh/sophia-ai-key ubuntu@104.171.202.64
+ssh -i ~/.ssh/sophia-ai-key ubuntu@137.131.6.213
 ```
 
 ### Step 2: Initialize Docker Swarm (First Time Only)
@@ -81,28 +81,28 @@ All secrets are automatically managed through Pulumi ESC:
 ### Production URLs
 | Service | URL | Purpose |
 |---------|-----|---------|
-| **Main API** | `http://104.171.202.64:8000` | Sophia AI Backend |
-| **API Docs** | `http://104.171.202.64:8000/docs` | OpenAPI Documentation |
-| **Health Check** | `http://104.171.202.64:8000/api/health` | Service Health |
-| **Mem0 Server** | `http://104.171.202.64:8080` | Memory Management |
-| **Cortex Server** | `http://104.171.202.64:8081` | AI SQL Processing |
-| **Traefik Dashboard** | `http://104.171.202.64:8090` | Load Balancer |
-| **Grafana** | `http://104.171.202.64:3000` | Monitoring Dashboard |
-| **Prometheus** | `http://104.171.202.64:9090` | Metrics Collection |
+| **Main API** | `http://137.131.6.213:8000` | Sophia AI Backend |
+| **API Docs** | `http://137.131.6.213:8000/docs` | OpenAPI Documentation |
+| **Health Check** | `http://137.131.6.213:8000/api/health` | Service Health |
+| **Mem0 Server** | `http://137.131.6.213:8080` | Memory Management |
+| **Cortex Server** | `http://137.131.6.213:8081` | AI SQL Processing |
+| **Traefik Dashboard** | `http://137.131.6.213:8090` | Load Balancer |
+| **Grafana** | `http://137.131.6.213:3000` | Monitoring Dashboard |
+| **Prometheus** | `http://137.131.6.213:9090` | Metrics Collection |
 
 ### Health Check Commands
 ```bash
 # Main API health
-curl http://104.171.202.64:8000/api/health
+curl http://137.131.6.213:8000/api/health
 
 # Mem0 server health
-curl http://104.171.202.64:8080/health
+curl http://137.131.6.213:8080/health
 
 # Cortex server health
-curl http://104.171.202.64:8081/health
+curl http://137.131.6.213:8081/health
 
 # Traefik dashboard
-curl http://104.171.202.64:8090/api/overview
+curl http://137.131.6.213:8090/api/overview
 ```
 
 ## 📊 Monitoring & Scaling

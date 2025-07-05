@@ -284,7 +284,7 @@ services:
           memory: 4G
     environment:
       - ENVIRONMENT=prod
-      - LAMBDA_LABS_HOST=104.171.202.64
+      - LAMBDA_LABS_HOST=146.235.200.1
       - PULUMI_ORG=scoobyjava-org
     networks:
       - lambda-labs-overlay

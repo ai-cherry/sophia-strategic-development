@@ -3,7 +3,7 @@ version: '3.8'
 x-common-env: &common-env
   ENVIRONMENT: prod
   PULUMI_ORG: scoobyjava-org
-  LAMBDA_LABS_HOST: 104.171.202.64
+  LAMBDA_LABS_HOST: 137.131.6.213
   REDIS_URL: redis://redis:6379
   POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
 
@@ -67,7 +67,8 @@ services:
 
   # MCP Gateway
   mcp-gateway:
-    image: scoobyjava15/sophia-mcp-gateway:latest
+    image: ${DOCKER_REGISTRY}/sophia-mcp-gateway:${IMAGE_TAG:-latest}
+    build:
     environment:
       <<: *common-env
     ports:
@@ -143,6 +144,34 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  codacy-mcp:
+    build:
+      context: .
+      dockerfile: mcp-servers/codacy/Dockerfile
+    image: ${DOCKER_REGISTRY}/sophia-codacy-mcp:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '2G'
+    ports:
+      - "3008:3008"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - PULUMI_ORG=${PULUMI_ORG:-scoobyjava-org}
+    networks:
+      - sophia-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   linear:
     image: scoobyjava15/sophia-linear:latest

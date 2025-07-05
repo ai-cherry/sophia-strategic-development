@@ -13,7 +13,7 @@
 ```yaml
 Infrastructure:
   Docker: ✅ All builds successful
-  Kubernetes: ✅ Lambda Labs configured (104.171.202.64)
+  Kubernetes: ✅ Lambda Labs configured (146.235.200.1)
   Secrets: ✅ Pulumi ESC with GitHub sync
   CI/CD: ✅ 55 GitHub Actions workflows
 
@@ -119,7 +119,7 @@ pulumi stack init sophia-ai-staging
 ### Day 3-4: Infrastructure Setup
 ```bash
 # Lambda Labs Kubernetes
-ssh ubuntu@104.171.202.64
+ssh ubuntu@146.235.200.1
 curl -sfL https://get.k3s.io | sh -
 
 # Dockcloud configuration

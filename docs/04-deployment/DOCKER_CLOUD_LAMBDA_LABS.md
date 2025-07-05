@@ -17,7 +17,7 @@ GitHub Repository → Docker Registry (scoobyjava15) → Lambda Labs Infrastruct
 ### Lambda Labs Configuration
 - **Instance ID**: `7e7b1e5f53c44a26bd574e4266e96194`
 - **Instance Name**: `sophia-ai-production`
-- **IP Address**: `104.171.202.64`
+- **IP Address**: `146.235.200.1`
 - **Type**: `gpu_8x_v100` (8x Tesla V100 16GB)
 - **Region**: `us-south-1` (Texas, USA)
 - **Specs**: 92 vCPUs, 448 GiB RAM, 6041 GiB storage
@@ -73,7 +73,7 @@ GitHub Repository → Docker Registry (scoobyjava15) → Lambda Labs Infrastruct
    ```bash
    # Instance already launched and configured
    # SSH Key: cae55cb8d0f5443cbdf9129f7cec8770
-   # IP: 104.171.202.64
+   # IP: 146.235.200.1
    ```
 
 3. **Docker Swarm Initialization**
@@ -192,24 +192,24 @@ pulumi env get scoobyjava-org/default/sophia-ai-production values.sophia.platfor
 
 | Service | Internal Port | External Port | URL |
 |---------|---------------|---------------|-----|
-| Sophia Backend | 8000 | 8000 | `http://104.171.202.64:8000` |
-| Mem0 MCP Server | 8080 | 8080 | `http://104.171.202.64:8080` |
-| Cortex MCP Server | 8080 | 8081 | `http://104.171.202.64:8081` |
-| Traefik Dashboard | 8080 | 8090 | `http://104.171.202.64:8090` |
-| Grafana | 3000 | 3000 | `http://104.171.202.64:3000` |
-| Prometheus | 9090 | 9090 | `http://104.171.202.64:9090` |
+| Sophia Backend | 8000 | 8000 | `http://146.235.200.1:8000` |
+| Mem0 MCP Server | 8080 | 8080 | `http://146.235.200.1:8080` |
+| Cortex MCP Server | 8080 | 8081 | `http://146.235.200.1:8081` |
+| Traefik Dashboard | 8080 | 8090 | `http://146.235.200.1:8090` |
+| Grafana | 3000 | 3000 | `http://146.235.200.1:3000` |
+| Prometheus | 9090 | 9090 | `http://146.235.200.1:9090` |
 
 ### Health Checks
 
 ```bash
 # Main API health
-curl http://104.171.202.64:8000/api/health
+curl http://146.235.200.1:8000/api/health
 
 # Mem0 server health
-curl http://104.171.202.64:8080/health
+curl http://146.235.200.1:8080/health
 
 # Cortex server health
-curl http://104.171.202.64:8081/health
+curl http://146.235.200.1:8081/health
 ```
 
 ## 📊 Monitoring & Scaling

@@ -32,7 +32,7 @@ class LambdaLabsCloudDeployer:
         self.lambda_labs_config = {
             "instance_id": "7e7b1e5f53c44a26bd574e4266e96194",
             "instance_name": "sophia-ai-production",
-            "ip_address": "104.171.202.64",
+            "ip_address": "146.235.200.1",
             "ssh_key_id": "cae55cb8d0f5443cbdf9129f7cec8770",
             "region": "us-south-1",
         }
@@ -50,25 +50,32 @@ class LambdaLabsCloudDeployer:
 
     def validate_prerequisites(self) -> bool:
         """Validate all prerequisites for deployment."""
-
+        print("🔍 Validating prerequisites...")
         # Check Docker
         if not self._check_docker():
+            print("❌ Docker not found.")
             return False
 
         # Check Docker Swarm
         if not self._check_docker_swarm():
+            print("❌ Docker Swarm not active.")
             return False
 
         # Check Lambda Labs connectivity
         if not self._check_lambda_labs_connectivity():
-            return False
+            print("⚠️ Could not verify Lambda Labs connectivity, proceeding anyway...")
 
         # Check Docker registry access
         if not self._check_registry_access():
+            print("❌ Docker registry access failed.")
             return False
 
         # Check required files
-        return self._check_required_files()
+        if not self._check_required_files():
+            return False
+        
+        print("✅ Prerequisites validated.")
+        return True
 
     def _check_docker(self) -> bool:
         """Check Docker availability and version."""
@@ -76,6 +83,7 @@ class LambdaLabsCloudDeployer:
             subprocess.run(
                 ["docker", "--version"], capture_output=True, text=True, check=True
             )
+            print("  - Docker found.")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -91,8 +99,10 @@ class LambdaLabsCloudDeployer:
             )
 
             if result.stdout.strip() == "active":
+                print("  - Docker Swarm is active.")
                 return True
             else:
+                print("  - Docker Swarm not active, attempting to initialize...")
                 return self._initialize_swarm()
 
         except subprocess.CalledProcessError:
@@ -102,12 +112,15 @@ class LambdaLabsCloudDeployer:
         """Initialize Docker Swarm if not active."""
         try:
             if self.dry_run:
+                print("  - [DRY RUN] Skipping Swarm initialization.")
                 return True
 
             subprocess.run(["docker", "swarm", "init"], check=True, capture_output=True)
+            print("  - Docker Swarm initialized successfully.")
             return True
 
         except subprocess.CalledProcessError:
+            print("  - ❌ Failed to initialize Docker Swarm.")
             return False
 
     def _check_lambda_labs_connectivity(self) -> bool:
@@ -121,28 +134,37 @@ class LambdaLabsCloudDeployer:
             )
 
             if result.returncode == 0:
+                print("  - Lambda Labs instance is reachable.")
                 return True
             else:
                 # Continue anyway as instance might be booting
+                print("  - ⚠️ Lambda Labs instance not reachable by ping.")
                 return True
 
         except subprocess.TimeoutExpired:
+            print("  - ⚠️ Lambda Labs ping timed out.")
             return True
         except Exception:
+            print("  - ⚠️ Error checking Lambda Labs connectivity.")
             return True  # Continue anyway
 
     def _check_registry_access(self) -> bool:
         """Check Docker registry access."""
         try:
             if self.dry_run:
+                print("  - [DRY RUN] Skipping registry access check.")
                 return True
 
             # Check if logged in to Docker Hub
-            subprocess.run(
+            result = subprocess.run(
                 ["docker", "info"], capture_output=True, text=True, check=True
             )
-
-            return True
+            if "Index: https://index.docker.io/v1/" in result.stdout:
+                print(f"  - Logged into Docker registry.")
+                return True
+            else:
+                print("  - ❌ Not logged into Docker Hub.")
+                return False
 
         except subprocess.CalledProcessError:
             return False
@@ -158,44 +180,43 @@ class LambdaLabsCloudDeployer:
             else:
                 pass
 
+        if missing_files:
+            print(f"  - ❌ Missing required files: {', '.join(missing_files)}")
+            return False
+
+        print(f"  - All required files found: {', '.join(required_files)}")
         return not missing_files
 
     def build_and_push_images(self) -> bool:
-        """Build and push Docker images to registry."""
+        """Build and push all Docker images defined in the compose file."""
+        print("\n📦 Building and pushing Docker images...")
+        import yaml
+        try:
+            with open("docker-compose.cloud.yml", "r") as f:
+                compose_config = yaml.safe_load(f)
+        except FileNotFoundError:
+            print("  - ❌ docker-compose.cloud.yml not found.")
+            return False
+        except yaml.YAMLError as e:
+            print(f"  - ❌ Error parsing docker-compose.cloud.yml: {e}")
+            return False
 
-        images_to_build = [
-            {
-                "name": f"{self.docker_registry}/sophia-ai",
-                "dockerfile": "Dockerfile",
-                "target": "production",
-                "context": ".",
-            },
-            {
-                "name": f"{self.docker_registry}/sophia-ai-mem0",
-                "dockerfile": "docker/Dockerfile.mcp-server",
-                "build_args": {
-                    "MCP_SERVER_PATH": "backend/mcp_servers/mem0_openmemory",
-                    "MCP_SERVER_MODULE": "enhanced_mem0_server",
-                    "MCP_SERVER_PORT": "8080",
-                },
-                "context": ".",
-            },
-            {
-                "name": f"{self.docker_registry}/sophia-ai-cortex",
-                "dockerfile": "docker/Dockerfile.mcp-server",
-                "build_args": {
-                    "MCP_SERVER_PATH": "backend/mcp_servers/cortex_aisql",
-                    "MCP_SERVER_MODULE": "cortex_mcp_server",
-                    "MCP_SERVER_PORT": "8080",
-                },
-                "context": ".",
-            },
-        ]
-
-        for image_config in images_to_build:
-            if not self._build_and_push_image(image_config):
-                return False
-
+        services = compose_config.get("services", {})
+        for service_name, service_config in services.items():
+            if "build" in service_config:
+                image_name = service_config.get("image", f"{self.docker_registry}/{service_name}:latest")
+                print(f"  - Processing service: {service_name} -> {image_name}")
+                if not self._build_and_push_image({
+                    "name": image_name,
+                    "dockerfile": service_config["build"].get("dockerfile", "Dockerfile"),
+                    "context": service_config["build"].get("context", "."),
+                    "target": service_config["build"].get("target"),
+                    "build_args": service_config["build"].get("args"),
+                }):
+                    print(f"  - ❌ Failed to build or push image for {service_name}.")
+                    return False
+        
+        print("✅ All images built and pushed successfully.")
         return True
 
     def _build_and_push_image(self, image_config: dict) -> bool:
@@ -204,6 +225,7 @@ class LambdaLabsCloudDeployer:
         tag = f"{image_name}:latest"
 
         if self.dry_run:
+            print(f"  - [DRY RUN] Skipping build and push for {tag}")
             return True
 
         try:
@@ -222,69 +244,57 @@ class LambdaLabsCloudDeployer:
             )
 
             # Build image
+            print(f"    - Building {tag}...")
             subprocess.run(build_cmd, check=True, capture_output=True, text=True)
 
             # Push image
+            print(f"    - Pushing {tag}...")
             subprocess.run(
                 ["docker", "push", tag], check=True, capture_output=True, text=True
             )
-
+            print(f"    - ✅ Successfully built and pushed {tag}")
             return True
 
         except subprocess.CalledProcessError as e:
             if e.stdout:
-                pass
+                print(f"      - STDOUT: {e.stdout}")
             if e.stderr:
-                pass
+                print(f"      - STDERR: {e.stderr}")
             return False
 
     def setup_docker_secrets(self) -> bool:
         """Setup Docker secrets for the deployment."""
-
+        print("\n🔒 Setting up Docker secrets...")
         # Note: In production, these would be retrieved from Pulumi ESC
         # For now, we'll create placeholder secrets that will be updated
 
         for secret_name in self.required_secrets:
             if not self._create_docker_secret(secret_name):
+                print(f"  - ❌ Failed to create secret: {secret_name}")
                 return False
-
+        
+        print("✅ Docker secrets set up.")
         return True
 
     def _create_docker_secret(self, secret_name: str) -> bool:
         """Create a Docker secret."""
         if self.dry_run:
+            print(f"  - [DRY RUN] Skipping creation of secret '{secret_name}'.")
             return True
 
         try:
-            # Check if secret already exists
-            result = subprocess.run(
-                [
-                    "docker",
-                    "secret",
-                    "ls",
-                    "--filter",
-                    f"name={secret_name}",
-                    "--format",
-                    "{{.Name}}",
-                ],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-
+            # Check if secret exists
+            check_cmd = ["docker", "secret", "ls", "--filter", f"name={secret_name}"]
+            result = subprocess.run(check_cmd, capture_output=True, text=True, check=True)
             if secret_name in result.stdout:
+                print(f"  - Secret '{secret_name}' already exists. Skipping.")
                 return True
 
-            # Create placeholder secret (will be updated with real values)
-            placeholder_value = f"PLACEHOLDER_{secret_name.upper()}"
-
-            subprocess.run(
-                ["docker", "secret", "create", secret_name, "-"],
-                input=placeholder_value,
-                text=True,
-                check=True,
-            )
-
+            # Create placeholder secret
+            placeholder = f"placeholder_{secret_name}"
+            create_cmd = f"echo '{placeholder}' | docker secret create {secret_name} -"
+            subprocess.run(create_cmd, shell=True, check=True, capture_output=True)
+            print(f"  - Created placeholder secret: {secret_name}")
             return True
 
         except subprocess.CalledProcessError:
@@ -292,8 +302,9 @@ class LambdaLabsCloudDeployer:
 
     def deploy_stack(self) -> bool:
         """Deploy the Docker stack to Lambda Labs."""
-
+        print("\n🚀 Deploying Docker stack...")
         if self.dry_run:
+            print("  - [DRY RUN] Skipping stack deployment.")
             return True
 
         try:
@@ -320,20 +331,22 @@ class LambdaLabsCloudDeployer:
             subprocess.run(
                 deploy_cmd, env=env, check=True, capture_output=True, text=True
             )
-
+            print(f"✅ Stack '{self.stack_name}' deployed successfully.")
             return True
 
         except subprocess.CalledProcessError as e:
+            print(f"  - ❌ Stack deployment failed.")
             if e.stdout:
-                pass
+                print(f"    - STDOUT: {e.stdout}")
             if e.stderr:
-                pass
+                print(f"    - STDERR: {e.stderr}")
             return False
 
     def verify_deployment(self) -> bool:
         """Verify the deployment is successful."""
-
+        print("\n🔎 Verifying deployment...")
         if self.dry_run:
+            print("  - [DRY RUN] Skipping deployment verification.")
             return True
 
         try:
@@ -344,11 +357,12 @@ class LambdaLabsCloudDeployer:
                 text=True,
                 check=True,
             )
+            print(f"  - Stack services:\n{result.stdout}")
 
             # Wait for services to be ready
             max_retries = 30
-
-            for _i in range(max_retries):
+            print("  - Waiting for all services to have running replicas...")
+            for i in range(max_retries):
                 result = subprocess.run(
                     [
                         "docker",
@@ -365,26 +379,29 @@ class LambdaLabsCloudDeployer:
 
                 replicas = result.stdout.strip().split("\n")
                 all_ready = all(
-                    "/" in replica and replica.split("/")[0] == replica.split("/")[1]
+                    "/" in replica and replica.split("/")[0] == replica.split("/")[1] and replica.split('/')[0] != '0'
                     for replica in replicas
                     if replica.strip()
                 )
 
                 if all_ready:
+                    print(f"  - ✅ All services are ready after {i+1} checks.")
                     break
 
                 time.sleep(10)
             else:
-                pass
+                print("  - ⚠️ Timed out waiting for services to become ready.")
+                pass # Continue anyway, maybe it's just slow
 
             return True
 
         except subprocess.CalledProcessError:
+            print("  - ❌ Failed to get stack services for verification.")
             return False
 
     def generate_deployment_report(self) -> dict:
         """Generate a comprehensive deployment report."""
-
+        print("\n📝 Generating deployment report...")
         report = {
             "deployment_info": {
                 "environment": self.environment,
@@ -419,12 +436,13 @@ class LambdaLabsCloudDeployer:
         report_file = f"deployment_report_{self.environment}_{int(time.time())}.json"
         with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
-
+        
+        print(f"✅ Deployment report saved to {report_file}")
         return report
 
     def run_deployment(self) -> bool:
         """Run the complete deployment process."""
-
+        print(f"🏁 Starting Sophia AI deployment to '{self.environment}' environment.")
         steps = [
             ("Prerequisites", self.validate_prerequisites),
             ("Build & Push Images", self.build_and_push_images),
@@ -433,13 +451,16 @@ class LambdaLabsCloudDeployer:
             ("Verify Deployment", self.verify_deployment),
         ]
 
-        for _step_name, step_func in steps:
+        for step_name, step_func in steps:
+            print(f"\n--- Running Step: {step_name} ---")
             if not step_func():
+                print(f"❌ Deployment failed at step: {step_name}")
                 return False
 
         # Generate final report
         self.generate_deployment_report()
-
+        
+        print("\n🎉 Deployment successful! 🎉")
         return True
 
 

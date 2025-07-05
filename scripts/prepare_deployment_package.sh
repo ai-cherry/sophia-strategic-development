@@ -44,7 +44,7 @@ cat > "$DEPLOY_DIR/DEPLOYMENT_INSTRUCTIONS.md" << 'EOF'
 # Sophia AI Deployment Instructions
 
 ## Prerequisites
-1. SSH access to Lambda Labs (104.171.202.64)
+1. SSH access to Lambda Labs (146.235.200.1)
 2. Docker Swarm initialized
 3. Required secrets set as environment variables
 
@@ -53,12 +53,12 @@ cat > "$DEPLOY_DIR/DEPLOYMENT_INSTRUCTIONS.md" << 'EOF'
 ### 1. Upload deployment package
 ```bash
 # From your local machine
-scp sophia-deployment-*.tar.gz ubuntu@104.171.202.64:~/
+scp sophia-deployment-*.tar.gz ubuntu@146.235.200.1:~/
 ```
 
 ### 2. Connect to Lambda Labs
 ```bash
-ssh ubuntu@104.171.202.64
+ssh ubuntu@146.235.200.1
 ```
 
 ### 3. Extract deployment package
@@ -162,10 +162,10 @@ echo -e "${GREEN}✅ Deployment package created: $DEPLOY_DIR.tar.gz${NC}"
 echo ""
 echo -e "${BLUE}=== Next Steps ===${NC}"
 echo "1. Upload to Lambda Labs:"
-echo "   scp $DEPLOY_DIR.tar.gz ubuntu@104.171.202.64:~/"
+echo "   scp $DEPLOY_DIR.tar.gz ubuntu@146.235.200.1:~/"
 echo ""
 echo "2. SSH to Lambda Labs:"
-echo "   ssh ubuntu@104.171.202.64"
+echo "   ssh ubuntu@146.235.200.1"
 echo ""
 echo "3. Extract and deploy:"
 echo "   tar -xzf $DEPLOY_DIR.tar.gz"

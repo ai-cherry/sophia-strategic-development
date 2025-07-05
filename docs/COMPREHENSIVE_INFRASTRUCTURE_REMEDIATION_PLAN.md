@@ -49,7 +49,7 @@ python scripts/test_all_mcp_connections.py
 **Action Plan**:
 ```yaml
 # Create docker-compose.cloud.yml with:
-- Lambda Labs configuration (104.171.202.64)
+- Lambda Labs configuration (146.235.200.1)
 - Docker Swarm mode
 - Pulumi ESC secrets integration
 - Health monitoring
@@ -274,7 +274,7 @@ Deploy to Lambda Labs infrastructure
 
 class LambdaLabsDeployer:
     def __init__(self):
-        self.host = "104.171.202.64"
+        self.host = "146.235.200.1"
         self.registry = "scoobyjava15"
 
     async def deploy(self):

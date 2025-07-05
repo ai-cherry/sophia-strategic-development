@@ -18,10 +18,10 @@ echo ""
 # Check if we're on Lambda Labs
 if ! docker node ls &>/dev/null; then
     echo -e "${RED}ERROR: Not on a Docker Swarm manager node${NC}"
-    echo "This script must be run on Lambda Labs (104.171.202.64)"
+    echo "This script must be run on Lambda Labs (146.235.200.1)"
     echo ""
     echo "To initialize Swarm (if needed):"
-    echo "  docker swarm init --advertise-addr 104.171.202.64"
+    echo "  docker swarm init --advertise-addr 146.235.200.1"
     exit 1
 fi
 
@@ -30,7 +30,7 @@ DEPLOY_PACKAGE=$(ls -t sophia-deployment-*.tar.gz 2>/dev/null | head -1)
 if [ -z "$DEPLOY_PACKAGE" ]; then
     echo -e "${RED}ERROR: No deployment package found${NC}"
     echo "Upload the package first:"
-    echo "  scp sophia-deployment-*.tar.gz ubuntu@104.171.202.64:~/"
+    echo "  scp sophia-deployment-*.tar.gz ubuntu@146.235.200.1:~/"
     exit 1
 fi
 
@@ -209,8 +209,8 @@ echo -e "${BLUE}=== Access URLs ===${NC}"
 echo "Dashboard: https://api.sophia-ai.lambda.cloud/dashboard"
 echo "Chat: https://chat-mcp.sophia-ai.lambda.cloud"
 echo "API Docs: https://api.sophia-ai.lambda.cloud/docs"
-echo "Grafana: http://104.171.202.64:3000 (admin/$GRAFANA_PASSWORD)"
-echo "Prometheus: http://104.171.202.64:9090"
+echo "Grafana: http://146.235.200.1:3000 (admin/$GRAFANA_PASSWORD)"
+echo "Prometheus: http://146.235.200.1:9090"
 
 echo -e "${BLUE}=== Next Steps ===${NC}"
 echo "1. Monitor services: docker service ls"

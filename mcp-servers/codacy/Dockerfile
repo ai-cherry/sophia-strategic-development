@@ -1,38 +1,24 @@
-FROM python:3.12-slim AS builder
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
 
-# Install UV
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
-
-# Set working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install UV
+# Install uv for fast dependency management
 RUN pip install uv
 
-# Copy requirements and install dependencies
+# Copy only the dependency files to leverage Docker layer caching
 COPY pyproject.toml uv.lock ./
-RUN uv pip install --system -r requirements.txt
 
-# Copy application code
+# Install project dependencies using uv
+# --system flag installs into the system python, which is fine for our container
+RUN uv pip install --system --no-cache -r requirements.txt
+
+# Copy the rest of the application's code into the container
 COPY . .
 
-# Set environment variables
-ENV ENVIRONMENT=prod
-ENV PULUMI_ORG=scoobyjava-org
-ENV MCP_SERVER_PORT=${MCP_SERVER_PORT:-9000}
+# Expose the port the app runs on
+EXPOSE 3008
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${MCP_SERVER_PORT}/health || exit 1
-
-# Expose port
-EXPOSE ${MCP_SERVER_PORT}
-
-# Run the server
-CMD ["python", "-m", "server"]
+# Define the command to run the application
+CMD ["uv", "run", "python", "mcp-servers/codacy/enhanced_codacy_mcp_server.py"]

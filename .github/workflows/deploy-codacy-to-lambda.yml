@@ -47,7 +47,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa 104.171.202.64 >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa 165.1.69.44 >> ~/.ssh/known_hosts
 
       - name: Deploy to Lambda Labs
         env:
@@ -56,7 +56,7 @@ jobs:
           PULUMI_ORG: "scoobyjava-org"
           ENVIRONMENT: "prod"
         run: |
-          ssh ubuntu@104.171.202.64 << 'EOF'
+          ssh ubuntu@165.1.69.44 << 'EOF'
             # Pull the new image from Docker Hub
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/sophia-ai-codacy-mcp:${{ steps.meta.outputs.version }}
 

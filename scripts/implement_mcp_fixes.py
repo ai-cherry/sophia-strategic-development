@@ -27,7 +27,7 @@ class MCPFixImplementation:
     """Implements all MCP server fixes"""
 
     def __init__(self):
-        self.lambda_labs_host = "104.171.202.64"
+        self.lambda_labs_host = "165.1.69.44"
         self.issues_found = []
         self.fixes_applied = []
         self.test_results = {}

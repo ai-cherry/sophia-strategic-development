@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 STACK_NAME="${SOPHIA_STACK_NAME:-sophia-ai}"
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-scoobyjava15}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
-LAMBDA_LABS_HOST="${LAMBDA_LABS_HOST:-104.171.202.64}"
+LAMBDA_LABS_HOST="${LAMBDA_LABS_HOST:-146.235.200.1}"
 
 echo -e "${BLUE}=== Sophia AI Stack Deployment ===${NC}"
 echo "Stack: $STACK_NAME"

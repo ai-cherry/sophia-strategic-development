@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "Lambda Labs MCP Server Configuration",
-  "host": "104.171.202.64",
+  "host": "165.1.69.44",
   "services": {
     "mcp_gateway": {
       "port": 8080,

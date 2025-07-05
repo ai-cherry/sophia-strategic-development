@@ -12,7 +12,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       }
     },
     "snowflake_unified": {
@@ -23,7 +23,7 @@
       "env": {
         "PORT": "9200",
         "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       }
     },
     "codacy": {
@@ -37,7 +37,7 @@
       ],
       "env": {
         "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       }
     },
     "ui_ux_agent": {
@@ -48,7 +48,7 @@
       "env": {
         "PORT": "9002",
         "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       }
     },
     "portkey_admin": {
@@ -59,7 +59,7 @@
       "env": {
         "PORT": "9013",
         "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       }
     },
     "lambda_labs_cli": {
@@ -70,7 +70,7 @@
       "env": {
         "PORT": "9020",
         "ENVIRONMENT": "prod",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       }
     }
   },
@@ -78,7 +78,7 @@
   "description": "Unified MCP Configuration with Lambda Labs Integration",
   "last_updated": "2025-01-03T15:00:00.000000Z",
   "lambda_labs": {
-    "host": "104.171.202.64",
+    "host": "165.1.69.44",
     "monitoring_enabled": true,
     "health_check_interval": 30
   }

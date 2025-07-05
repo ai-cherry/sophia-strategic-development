@@ -17,7 +17,7 @@ This enhanced plan addresses all critical issues identified in the MCP server an
 - Phantom servers in cursor_mcp_config.json
 
 ### 3. **Lambda Labs Integration Gap** ⚠️ CRITICAL
-- No servers configured for 104.171.202.64
+- No servers configured for 165.1.69.44
 - Missing Docker Swarm configurations
 - No health monitoring for Lambda Labs
 
@@ -68,7 +68,7 @@ services:
         constraints:
           - node.labels.type == lambda-labs
     environment:
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 165.1.69.44
 ```
 
 ## Phase 3: Unified System Integration (Week 2)
@@ -135,7 +135,7 @@ services:
 
 ### Technical Metrics
 - **Server Startup**: 100% success rate
-- **Lambda Labs**: Full connectivity to 104.171.202.64
+- **Lambda Labs**: Full connectivity to 165.1.69.44
 - **Response Time**: <200ms for all operations
 - **Architecture**: Single unified base class
 

@@ -79,7 +79,7 @@ build: ./mcp-gateway                                      # ❌ DOES NOT EXIST
 **Problem:** No Docker configuration specifically designed for Lambda Labs deployment.
 
 **Missing Components:**
-- Lambda Labs host configuration (104.171.202.64)
+- Lambda Labs host configuration (165.1.69.44)
 - Docker Swarm service definitions for Lambda Labs
 - Lambda Labs specific networking and resource allocation
 - Lambda Labs secret management integration
@@ -199,7 +199,7 @@ services:
     environment:
       - ENVIRONMENT=prod
       - PULUMI_ORG=scoobyjava-org
-      - LAMBDA_LABS_HOST=104.171.202.64
+      - LAMBDA_LABS_HOST=165.1.69.44
     networks:
       - sophia-cloud-network
 
@@ -224,7 +224,7 @@ networks:
 #### 2.1 Docker Swarm Setup
 ```bash
 # Initialize Docker Swarm on Lambda Labs
-docker swarm init --advertise-addr 104.171.202.64
+docker swarm init --advertise-addr 165.1.69.44
 docker network create --driver overlay sophia-cloud-network
 ```
 
@@ -319,7 +319,7 @@ CMD ["uvicorn", "${MCP_MODULE}:app", "--host", "0.0.0.0", "--port", "${MCP_PORT}
 ### Technical Success Criteria:
 1. **100% Docker Build Success**: All compose files build without errors
 2. **MCP Server Containerization**: All MCP servers running in containers
-3. **Lambda Labs Deployment**: Successful deployment to 104.171.202.64
+3. **Lambda Labs Deployment**: Successful deployment to 165.1.69.44
 4. **Health Monitoring**: All services reporting healthy status
 5. **Scaling Capability**: Services can scale up/down on Lambda Labs
 

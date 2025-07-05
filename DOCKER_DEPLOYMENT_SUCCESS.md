@@ -41,7 +41,7 @@ docker run -p 8000:8000 -e ENVIRONMENT=prod scoobyjava15/sophia-backend:latest
 1. **On Lambda Labs**:
    ```bash
    # SSH into Lambda Labs
-   ssh ubuntu@104.171.202.64
+   ssh ubuntu@146.235.200.1
 
    # Pull the image
    docker pull scoobyjava15/sophia-backend:latest

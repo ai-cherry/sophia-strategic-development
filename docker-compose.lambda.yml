@@ -24,7 +24,7 @@ services:
         delay: 5s
         max_attempts: 3
     environment:
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:
@@ -59,7 +59,7 @@ services:
                 value: 1
     environment:
       PORT: 9000
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:
@@ -90,7 +90,7 @@ services:
           memory: 4G
     environment:
       PORT: 9200
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:
@@ -119,7 +119,7 @@ services:
           memory: 2G
     environment:
       PORT: 9003
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:
@@ -148,7 +148,7 @@ services:
           memory: 4G
     environment:
       PORT: 9002
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:
@@ -177,7 +177,7 @@ services:
           memory: 2G
     environment:
       PORT: 9013
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:
@@ -206,7 +206,7 @@ services:
           memory: 1G
     environment:
       PORT: 9020
-      LAMBDA_LABS_HOST: 104.171.202.64
+      LAMBDA_LABS_HOST: 137.131.6.213
       ENVIRONMENT: prod
       PULUMI_ORG: scoobyjava-org
     ports:

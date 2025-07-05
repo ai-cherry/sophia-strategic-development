@@ -48,7 +48,7 @@ Multiple servers have indentation errors that prevent startup:
 - Mix of FastAPI, raw MCP, and custom implementations
 
 ### 4. Lambda Labs Integration
-- **0% of servers** configured for Lambda Labs (104.171.202.64)
+- **0% of servers** configured for Lambda Labs (165.1.69.44)
 - No Docker Swarm configurations
 - Missing health monitoring for remote deployment
 

@@ -1,0 +1,120 @@
+{
+  "timestamp": "2025-07-04T22:56:30.866872",
+  "lambda_labs_ip": "104.171.202.64",
+  "docker_status": {
+    "sophia-ai-codacy-mcp": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-ai-memory": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-snowflake-admin": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-codacy": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-linear": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-github": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-asana": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    },
+    "sophia-notion": {
+      "exists": false,
+      "error": "Cannot connect to host hub.docker.com:443 ssl:True [SSLCertVerificationError: (1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')]",
+      "status": "\u274c Error: Cannot connect to host hub.doc"
+    }
+  },
+  "git_status": {
+    "commits": [
+      {
+        "hash": "78ad41c1e",
+        "message": "chore(ci): Add automated deployment workflow for Codacy MCP",
+        "timestamp": "2025-07-04T22:40:45",
+        "age_minutes": 15.46367825
+      },
+      {
+        "hash": "a326b474c",
+        "message": "feat(orchestration): Implement Intelligent Orchestration Architecture",
+        "timestamp": "2025-07-04T22:23:39",
+        "age_minutes": 32.56382946666667
+      },
+      {
+        "hash": "656cb094f",
+        "message": "feat: Complete unified chat Phase 1 implementation",
+        "timestamp": "2025-07-04T20:44:06",
+        "age_minutes": 132.11396133333332
+      },
+      {
+        "hash": "ee4e3177e",
+        "message": "feat: Implement unified chat architecture enhancements phase 1",
+        "timestamp": "2025-07-04T20:39:41",
+        "age_minutes": 136.53075253333333
+      },
+      {
+        "hash": "68d7c413e",
+        "message": "feat: Implement technical remediation phase 1 - StandardizedMCPServer framework",
+        "timestamp": "2025-07-04T20:24:18",
+        "age_minutes": 151.91420359999998
+      }
+    ],
+    "latest_commit_age_minutes": 15.46367825
+  },
+  "connectivity_status": {
+    "Codacy MCP": {
+      "status": "\u274c Timeout",
+      "port": 3008
+    },
+    "Main API": {
+      "status": "\u274c Timeout",
+      "port": 8000
+    },
+    "MCP Gateway": {
+      "status": "\u274c Timeout",
+      "port": 8080
+    },
+    "AI Memory": {
+      "status": "\u274c Timeout",
+      "port": 9001
+    },
+    "Grafana": {
+      "status": "\u274c Timeout",
+      "port": 3000
+    },
+    "Prometheus": {
+      "status": "\u274c Timeout",
+      "port": 9090
+    }
+  },
+  "analysis": {
+    "phase": "Not Started",
+    "phase_emoji": "\u23f3",
+    "metrics": {
+      "images_available": "0/8",
+      "services_healthy": "0/6",
+      "latest_commit_age_minutes": 15.46367825
+    },
+    "recommendations": [
+      "Check if GitHub Actions workflow is triggered",
+      "Verify Docker Hub credentials in GitHub secrets"
+    ]
+  }
+}

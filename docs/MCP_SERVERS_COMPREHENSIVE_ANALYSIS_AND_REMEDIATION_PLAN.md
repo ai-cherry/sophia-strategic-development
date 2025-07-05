@@ -47,7 +47,7 @@ from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServ
 **Problem:** MCP servers lack proper Lambda Labs infrastructure configuration.
 
 **Missing Components:**
-- Lambda Labs specific connection parameters (104.171.202.64)
+- Lambda Labs specific connection parameters (165.1.69.44)
 - Docker Swarm service definitions for MCP servers
 - Lambda Labs resource allocation and scaling configs
 - Network topology alignment with Lambda Labs infrastructure
@@ -142,7 +142,7 @@ from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServ
 
 | Component | Configured | Missing | Priority |
 |-----------|------------|---------|----------|
-| Server Host (104.171.202.64) | ❌ | ✅ | CRITICAL |
+| Server Host (165.1.69.44) | ❌ | ✅ | CRITICAL |
 | Docker Swarm Integration | ❌ | ✅ | CRITICAL |
 | Pulumi ESC Secrets | 🔶 | 50% | HIGH |
 | Health Monitoring | 🔶 | 30% | HIGH |

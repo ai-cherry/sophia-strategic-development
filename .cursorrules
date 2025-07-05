@@ -296,7 +296,7 @@ The external repository collection enables:
 1. **ALL Docker deployments target Lambda Labs (NOT local):**
    ```yaml
    # Primary deployment: docker-compose.cloud.yml
-   # Target: 104.171.202.64 (Lambda Labs)
+   # Target: 146.235.200.1 (Lambda Labs)
    # Registry: scoobyjava15 (Docker Hub)
    # Orchestration: Docker Swarm
    ```
@@ -694,7 +694,7 @@ config/               # Centralized configurations
 - Include confidence scores in AI responses
 
 ## Deployment Considerations
-- **Target**: Lambda Labs infrastructure ONLY (104.171.202.64)
+- **Target**: Lambda Labs infrastructure ONLY (146.235.200.1)
 - **Docker Cloud**: Use docker-compose.cloud.yml with Docker Swarm
 - **Registry**: Push all images to scoobyjava15 Docker Hub
 - **Secrets**: All secrets via Pulumi ESC (NO .env files)

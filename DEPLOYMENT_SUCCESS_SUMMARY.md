@@ -94,7 +94,7 @@
 ## 🎯 Lambda Labs Deployment Readiness
 
 ### Target Infrastructure
-- **Instance**: sophia-ai-production (104.171.202.64)
+- **Instance**: sophia-ai-production (146.235.200.1)
 - **Hardware**: 8x Tesla V100 GPUs
 - **Registry**: scoobyjava15 (Docker Hub)
 - **Orchestration**: Docker Swarm on Lambda Labs
@@ -141,10 +141,10 @@ docker stack ps sophia-ai
 ### 2. Health Verification
 ```bash
 # Check main backend
-curl http://104.171.202.64:8000/api/health
+curl http://146.235.200.1:8000/api/health
 
 # Check MCP servers
-curl http://104.171.202.64:8080/health
+curl http://146.235.200.1:8080/health
 
 # Monitor services
 docker service logs sophia-ai_sophia-backend

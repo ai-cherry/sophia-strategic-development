@@ -126,7 +126,7 @@ class MCPFixTester:
         logger.info("\n🌐 Testing Lambda Labs Connectivity...")
 
         results = {}
-        lambda_host = "104.171.202.64"
+        lambda_host = "146.235.200.1"
 
         # Test basic connectivity
         try:

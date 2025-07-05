@@ -59,7 +59,7 @@ class MCPConnectionTester:
     def __init__(self):
         self.test_results: dict[str, TestResult] = {}
         self.remediation_actions: list[RemediationAction] = []
-        self.lambda_labs_host = os.getenv("LAMBDA_LABS_HOST", "104.171.202.64")
+        self.lambda_labs_host = os.getenv("LAMBDA_LABS_HOST", "165.1.69.44")
 
     async def test_all_servers(self):
         """Test all configured servers"""

@@ -56,7 +56,7 @@ class MCPConfigurationFixer:
                 "env": {
                     "ENVIRONMENT": "prod",
                     "PULUMI_ORG": "scoobyjava-org",
-                    "LAMBDA_LABS_HOST": "104.171.202.64",
+                    "LAMBDA_LABS_HOST": "165.1.69.44",
                 },
             },
             "snowflake_unified": {
@@ -65,7 +65,7 @@ class MCPConfigurationFixer:
                 "env": {
                     "PORT": str(active_servers.get("snowflake", 9200)),
                     "ENVIRONMENT": "prod",
-                    "LAMBDA_LABS_HOST": "104.171.202.64",
+                    "LAMBDA_LABS_HOST": "165.1.69.44",
                 },
             },
             "codacy": {
@@ -77,7 +77,7 @@ class MCPConfigurationFixer:
                     "--port",
                     str(active_servers.get("codacy", 9003)),
                 ],
-                "env": {"ENVIRONMENT": "prod", "LAMBDA_LABS_HOST": "104.171.202.64"},
+                "env": {"ENVIRONMENT": "prod", "LAMBDA_LABS_HOST": "165.1.69.44"},
             },
             "ui_ux_agent": {
                 "command": "python",
@@ -85,7 +85,7 @@ class MCPConfigurationFixer:
                 "env": {
                     "PORT": str(active_servers.get("ui_ux_agent", 9002)),
                     "ENVIRONMENT": "prod",
-                    "LAMBDA_LABS_HOST": "104.171.202.64",
+                    "LAMBDA_LABS_HOST": "165.1.69.44",
                 },
             },
             "portkey_admin": {
@@ -94,7 +94,7 @@ class MCPConfigurationFixer:
                 "env": {
                     "PORT": str(active_servers.get("portkey_admin", 9013)),
                     "ENVIRONMENT": "prod",
-                    "LAMBDA_LABS_HOST": "104.171.202.64",
+                    "LAMBDA_LABS_HOST": "165.1.69.44",
                 },
             },
             "lambda_labs_cli": {
@@ -103,7 +103,7 @@ class MCPConfigurationFixer:
                 "env": {
                     "PORT": str(active_servers.get("lambda_labs_cli", 9020)),
                     "ENVIRONMENT": "prod",
-                    "LAMBDA_LABS_HOST": "104.171.202.64",
+                    "LAMBDA_LABS_HOST": "165.1.69.44",
                 },
             },
         }
@@ -115,7 +115,7 @@ class MCPConfigurationFixer:
             "description"
         ] = "Unified MCP Configuration with Lambda Labs Integration"
         cursor_config["lambda_labs"] = {
-            "host": "104.171.202.64",
+            "host": "165.1.69.44",
             "monitoring_enabled": True,
             "health_check_interval": 30,
         }
@@ -140,7 +140,7 @@ class MCPConfigurationFixer:
             "last_updated": unified_config.get("last_updated"),
             "active_servers": unified_config.get("active_servers", {}),
             "lambda_labs": {
-                "host": "104.171.202.64",
+                "host": "165.1.69.44",
                 "gateway_port": 8080,
                 "monitoring_port": 9090,
             },
@@ -166,7 +166,7 @@ class MCPConfigurationFixer:
         lambda_config = {
             "version": "1.0",
             "description": "Lambda Labs MCP Server Configuration",
-            "host": "104.171.202.64",
+            "host": "165.1.69.44",
             "services": {
                 "mcp_gateway": {
                     "port": 8080,
@@ -238,7 +238,7 @@ class MCPConfigurationFixer:
         logger.info("   - Fixed cursor MCP configuration")
         logger.info("   - Created consolidated ports configuration")
         logger.info("   - Created Lambda Labs configuration")
-        logger.info("   - All servers now configured for Lambda Labs (104.171.202.64)")
+        logger.info("   - All servers now configured for Lambda Labs (165.1.69.44)")
 
 
 if __name__ == "__main__":

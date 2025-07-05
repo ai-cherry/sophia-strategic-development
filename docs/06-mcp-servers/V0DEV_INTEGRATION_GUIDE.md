@@ -74,12 +74,12 @@ docker build -t scoobyjava15/sophia-ai-v0dev:latest .
 docker push scoobyjava15/sophia-ai-v0dev:latest
 
 # Deploy to Lambda Labs
-ssh ubuntu@104.171.202.64
+ssh ubuntu@165.1.69.44
 docker stack deploy -c docker-compose.cloud.yml sophia-ai
 
 # Verify deployment
 docker service ps v0dev-mcp
-curl http://104.171.202.64:9030/health
+curl http://165.1.69.44:9030/health
 ```
 
 ### 3. Update Backend Orchestrator
@@ -225,7 +225,7 @@ await v0devClient.streamComponent(
 
 ### Prometheus Metrics
 
-Access metrics at `http://104.171.202.64:9030/metrics`:
+Access metrics at `http://165.1.69.44:9030/metrics`:
 
 - `v0dev_component_generations_total` - Total generations by status
 - `v0dev_component_generation_duration_seconds` - Generation time histogram
@@ -235,7 +235,7 @@ Access metrics at `http://104.171.202.64:9030/metrics`:
 
 Import the dashboard from `monitoring/dashboards/v0dev-dashboard.json`:
 
-1. Open Grafana: `http://104.171.202.64:3000`
+1. Open Grafana: `http://165.1.69.44:3000`
 2. Go to Dashboards → Import
 3. Upload the JSON file
 4. Select Prometheus data source
@@ -244,10 +244,10 @@ Import the dashboard from `monitoring/dashboards/v0dev-dashboard.json`:
 
 ```bash
 # Check service health
-curl http://104.171.202.64:9030/health
+curl http://165.1.69.44:9030/health
 
 # Check API connectivity
-curl http://104.171.202.64:9030/ready
+curl http://165.1.69.44:9030/ready
 
 # View service logs
 docker service logs v0dev-mcp --follow

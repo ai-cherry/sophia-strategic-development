@@ -71,7 +71,7 @@ def cleanup_instances(manager: LambdaLabsManager, dry_run: bool = True):
 
     # Instances to keep
     keep_ips = {
-        "104.171.202.64",  # sophia-ai-production (8x V100)
+        "146.235.200.1",  # sophia-ai-production (8x V100)
         "150.230.47.71",  # orchestra-sophia-prod
         "129.153.123.54",  # sophia-ai-production-gpu (A100)
     }
@@ -171,7 +171,7 @@ def deploy_to_instances(ssh_key_path: str, github_token: str):
     """Deploy Sophia AI to Lambda Labs instances"""
 
     instances = {
-        "main": {"ip": "104.171.202.64", "role": "Main Platform (8x V100)"},
+        "main": {"ip": "146.235.200.1", "role": "Main Platform (8x V100)"},
         "mcp": {"ip": "150.230.47.71", "role": "MCP Servers"},
         "ai": {"ip": "129.153.123.54", "role": "AI Services (A100)"},
     }

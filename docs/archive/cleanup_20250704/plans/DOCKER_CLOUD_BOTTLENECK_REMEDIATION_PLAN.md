@@ -2,7 +2,7 @@
 
 **Status**: IMMEDIATE ACTION REQUIRED
 **Date**: January 2025
-**Environment**: Docker Swarm on Lambda Labs (104.171.202.64)
+**Environment**: Docker Swarm on Lambda Labs (146.235.200.1)
 **Priority**: CRITICAL - Performance and stability issues
 
 ## Executive Summary

@@ -5,7 +5,7 @@
 The MCP server infrastructure has critical issues preventing proper operation:
 - **Fatal Import Error**: Snowflake Admin server has broken syntax
 - **Configuration Chaos**: cursor_mcp_config.json has misaligned ports and missing servers
-- **Zero Lambda Labs Integration**: No servers configured for 104.171.202.64
+- **Zero Lambda Labs Integration**: No servers configured for 165.1.69.44
 - **Architecture Fragmentation**: 4+ competing base classes
 
 ## Phase 1: Critical Infrastructure Fixes (Immediate)
@@ -34,7 +34,7 @@ from backend.mcp_servers.base.standardized_mcp_server import StandardizedMCPServ
 All servers need Lambda Labs integration:
 ```json
 {
-  "lambda_labs_endpoint": "http://104.171.202.64:PORT",
+  "lambda_labs_endpoint": "http://165.1.69.44:PORT",
   "docker_swarm_mode": true,
   "health_check_endpoint": "/health"
 }
@@ -68,7 +68,7 @@ async def health():
 Standardize environment handling:
 ```python
 ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
-LAMBDA_LABS_HOST = os.getenv("LAMBDA_LABS_HOST", "104.171.202.64")
+LAMBDA_LABS_HOST = os.getenv("LAMBDA_LABS_HOST", "165.1.69.44")
 ```
 
 ## Phase 3: System Integration

@@ -29,7 +29,7 @@ All services are configured to use Docker images from Docker Hub:
 ### 1. **Lambda Labs Access**
 You need:
 - Lambda Labs API key
-- SSH access to your Lambda Labs instance (104.171.202.64)
+- SSH access to your Lambda Labs instance (146.235.200.1)
 - The correct SSH private key that matches your Lambda Labs instance
 
 ### 2. **Set Up SSH Key**
@@ -44,7 +44,7 @@ EOF
 chmod 600 ~/.ssh/lambda_labs_sophia
 
 # Test connection
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 'echo "Connected!"'
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'echo "Connected!"'
 ```
 
 ## 🚀 Deployment Steps
@@ -79,10 +79,10 @@ export PULUMI_ACCESS_TOKEN="your-pulumi-token"
 ./scripts/prepare_deployment_package.sh
 
 # 2. Upload to Lambda Labs
-scp -i ~/.ssh/lambda_labs_sophia sophia-deployment-*.tar.gz ubuntu@104.171.202.64:~/
+scp -i ~/.ssh/lambda_labs_sophia sophia-deployment-*.tar.gz ubuntu@146.235.200.1:~/
 
 # 3. SSH to Lambda Labs
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1
 
 # 4. On Lambda Labs, extract and deploy
 tar -xzf sophia-deployment-*.tar.gz
@@ -95,34 +95,34 @@ cd sophia-deployment-*
 After deployment, access your services at:
 
 ### Direct IP Access (Immediate)
-- **Backend API**: http://104.171.202.64:8000
-- **Frontend**: http://104.171.202.64:3000
-- **API Documentation**: http://104.171.202.64:8000/docs
-- **Grafana**: http://104.171.202.64:3001
-- **Prometheus**: http://104.171.202.64:9090
+- **Backend API**: http://146.235.200.1:8000
+- **Frontend**: http://146.235.200.1:3000
+- **API Documentation**: http://146.235.200.1:8000/docs
+- **Grafana**: http://146.235.200.1:3001
+- **Prometheus**: http://146.235.200.1:9090
 
 ### MCP Servers
-- **AI Memory**: http://104.171.202.64:9001
-- **Dashboard**: http://104.171.202.64:9100
-- **Chat**: http://104.171.202.64:9101
-- **Codacy**: http://104.171.202.64:3008
-- **Prompt Optimizer**: http://104.171.202.64:9030
+- **AI Memory**: http://146.235.200.1:9001
+- **Dashboard**: http://146.235.200.1:9100
+- **Chat**: http://146.235.200.1:9101
+- **Codacy**: http://146.235.200.1:3008
+- **Prompt Optimizer**: http://146.235.200.1:9030
 
 ## 🔧 Managing Your Deployment
 
 ### Check Service Status
 ```bash
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 'docker service ls'
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'docker service ls'
 ```
 
 ### View Logs
 ```bash
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 'docker service logs sophia-ai_backend'
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'docker service logs sophia-ai_backend'
 ```
 
 ### Scale Services
 ```bash
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 'docker service scale sophia-ai_backend=5'
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'docker service scale sophia-ai_backend=5'
 ```
 
 ### Update Services
@@ -132,7 +132,7 @@ docker build -t scoobyjava15/sophia-backend:latest .
 docker push scoobyjava15/sophia-backend:latest
 
 # Update on Lambda Labs
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 \
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
   'docker service update --image scoobyjava15/sophia-backend:latest sophia-ai_backend'
 ```
 
@@ -151,20 +151,20 @@ ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 \
 ls -la ~/.ssh/lambda_labs_sophia
 
 # Test with verbose output
-ssh -vvv -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64
+ssh -vvv -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1
 ```
 
 ### Docker Swarm Issues
 ```bash
 # Initialize Swarm if needed
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 \
-  'docker swarm init --advertise-addr 104.171.202.64'
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
+  'docker swarm init --advertise-addr 146.235.200.1'
 ```
 
 ### Service Not Starting
 ```bash
 # Check service status
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@104.171.202.64 \
+ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
   'docker service ps sophia-ai_backend --no-trunc'
 ```
 

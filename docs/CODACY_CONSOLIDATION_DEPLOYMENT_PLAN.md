@@ -1,4 +1,6 @@
-# Codacy MCP Servers Consolidation, Deployment & Testing Plan
+sophia-platform-prod: 146.235.200.1 (gpu_1x_a10)
+sophia-mcp-prod: 165.1.69.44 (gpu_1x_a10)
+sophia-ai-prod: 137.131.6.213 (gpu_1x_a100_sxm4)# Codacy MCP Servers Consolidation, Deployment & Testing Plan
 
 **Date:** July 4, 2025
 **Author:** Sophia AI / Cline

@@ -80,7 +80,7 @@ class MCPHealthChecker:
         """Check connectivity to Lambda Labs host"""
         logger.info("\n🔍 Checking Lambda Labs connectivity...")
 
-        lambda_host = self.lambda_config.get("host", "104.171.202.64")
+        lambda_host = self.lambda_config.get("host", "165.1.69.44")
         gateway_port = (
             self.lambda_config.get("services", {})
             .get("mcp_gateway", {})
@@ -171,7 +171,7 @@ class MCPHealthChecker:
             **self.results,
             "lambda_labs": {
                 "configured": True,
-                "host": self.lambda_config.get("host", "104.171.202.64"),
+                "host": self.lambda_config.get("host", "165.1.69.44"),
                 "services": self.lambda_config.get("services", {}),
             },
             "configuration": {

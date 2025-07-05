@@ -2,7 +2,7 @@
 # Lambda Labs Deployment Script for Sophia AI
 
 # Configuration
-MAIN_INSTANCE="104.171.202.64"  # 8x V100 instance
+MAIN_INSTANCE="146.235.200.1"  # 8x V100 instance
 MCP_INSTANCE="150.230.47.71"    # Orchestra instance
 AI_INSTANCE="129.153.123.54"    # A100 instance
 

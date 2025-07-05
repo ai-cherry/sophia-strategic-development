@@ -3,7 +3,7 @@
   "description": "Unified MCP Configuration with Lambda Labs Integration",
   "last_updated": "2025-01-03T20:00:00.000Z",
   "lambda_labs": {
-    "host": "104.171.202.64",
+    "host": "165.1.69.44",
     "docker_swarm": true,
     "health_check_interval": 30
   },
@@ -16,7 +16,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9001,
       "cwd": ".",
@@ -48,7 +48,7 @@
         "ENVIRONMENT": "prod",
         "PULUMI_ORG": "scoobyjava-org",
         "PORT": "9020",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9020,
       "health_endpoint": "/health",
@@ -78,7 +78,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "3008",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 3008,
       "cwd": ".",
@@ -109,7 +109,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9004",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9004,
       "cwd": ".",
@@ -128,7 +128,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9103",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9103,
       "cwd": ".",
@@ -147,7 +147,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9100",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9100,
       "cwd": ".",
@@ -166,7 +166,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9005",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9005,
       "cwd": ".",
@@ -185,7 +185,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9002",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9002,
       "cwd": ".",
@@ -216,7 +216,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9013",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9013,
       "cwd": ".",
@@ -247,7 +247,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9020",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9020,
       "cwd": ".",
@@ -278,7 +278,7 @@
       "env": {
         "ENVIRONMENT": "prod",
         "PORT": "9030",
-        "LAMBDA_LABS_HOST": "104.171.202.64"
+        "LAMBDA_LABS_HOST": "165.1.69.44"
       },
       "port": 9030,
       "cwd": ".",
@@ -321,8 +321,8 @@
     "retry_delay": 5
   },
   "monitoring": {
-    "prometheus_endpoint": "http://104.171.202.64:9090",
-    "grafana_endpoint": "http://104.171.202.64:3000",
+    "prometheus_endpoint": "http://165.1.69.44:9090",
+    "grafana_endpoint": "http://165.1.69.44:3000",
     "alert_webhook": "https://hooks.slack.com/services/sophia-ai-alerts"
   }
 }

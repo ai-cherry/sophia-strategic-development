@@ -47,7 +47,7 @@
    - Result: Syntactically correct, fails on missing API key (expected)
 
 3. **Created docker-compose.cloud.yml**
-   - Lambda Labs configuration (104.171.202.64)
+   - Lambda Labs configuration (165.1.69.44)
    - Docker Swarm mode with replicas
    - Pulumi ESC secrets integration
    - Health monitoring for all services

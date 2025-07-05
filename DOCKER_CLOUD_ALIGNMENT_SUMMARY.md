@@ -32,7 +32,7 @@ Comprehensive review and update of all Docker-related files to align with our Do
 
 ### Primary Configuration
 - **Main File**: `docker-compose.cloud.yml` - Docker Swarm production config
-- **Target**: Lambda Labs (104.171.202.64)
+- **Target**: Lambda Labs (146.235.200.1)
 - **Registry**: scoobyjava15 (Docker Hub)
 - **Orchestration**: Docker Swarm
 - **Secrets**: Pulumi ESC (no .env files)

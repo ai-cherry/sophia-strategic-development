@@ -106,7 +106,7 @@ show_deployment_commands() {
     echo ""
     
     echo "# 3. Deploy to Lambda Labs"
-    echo "ssh ubuntu@104.171.202.64"
+    echo "ssh ubuntu@146.235.200.1"
     echo "cd /path/to/sophia-ai"
     echo "./scripts/deploy_sophia_stack.sh"
     echo ""

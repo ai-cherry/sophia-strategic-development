@@ -45,12 +45,12 @@ This creates `sophia-deployment-<timestamp>.tar.gz` with everything needed.
 
 ### Step 2: Upload to Lambda Labs
 ```bash
-scp sophia-deployment-*.tar.gz ubuntu@104.171.202.64:~/
+scp sophia-deployment-*.tar.gz ubuntu@146.235.200.1:~/
 ```
 
 ### Step 3: SSH to Lambda Labs and Deploy
 ```bash
-ssh ubuntu@104.171.202.64
+ssh ubuntu@146.235.200.1
 
 # Extract and run one-command deployment
 tar -xzf sophia-deployment-*.tar.gz
@@ -107,14 +107,14 @@ That's it! The script handles everything:
 ### Immediate Access (Using IP Address)
 After deployment, you can immediately access your services at:
 
-- **Backend API**: http://104.171.202.64:8000
-- **Frontend Dashboard**: http://104.171.202.64:3000
-- **API Documentation**: http://104.171.202.64:8000/docs
-- **Grafana Monitoring**: http://104.171.202.64:3000 (port 3000 for Grafana)
-- **Prometheus Metrics**: http://104.171.202.64:9090
-- **Dashboard MCP**: http://104.171.202.64:9100
-- **Chat MCP**: http://104.171.202.64:9101
-- **Codacy MCP**: http://104.171.202.64:3008
+- **Backend API**: http://146.235.200.1:8000
+- **Frontend Dashboard**: http://146.235.200.1:3000
+- **API Documentation**: http://146.235.200.1:8000/docs
+- **Grafana Monitoring**: http://146.235.200.1:3000 (port 3000 for Grafana)
+- **Prometheus Metrics**: http://146.235.200.1:9090
+- **Dashboard MCP**: http://146.235.200.1:9100
+- **Chat MCP**: http://146.235.200.1:9101
+- **Codacy MCP**: http://146.235.200.1:3008
 
 ### Future Access (After DNS Setup)
 Once you configure DNS (see instructions below), you'll access via:
@@ -128,15 +128,15 @@ Once you configure DNS (see instructions below), you'll access via:
 To use the custom domain names, you need to:
 
 1. **Own a domain** (e.g., sophia-ai.lambda.cloud)
-2. **Configure DNS records** pointing to Lambda Labs IP (104.171.202.64)
+2. **Configure DNS records** pointing to Lambda Labs IP (146.235.200.1)
 3. **Set up SSL certificates** (Let's Encrypt recommended)
 
 ### Example DNS Records:
 ```
 Type  Name                          Value
-A     api.sophia-ai.lambda.cloud    104.171.202.64
-A     chat-mcp.sophia-ai.lambda.cloud  104.171.202.64
-A     *.sophia-ai.lambda.cloud      104.171.202.64
+A     api.sophia-ai.lambda.cloud    146.235.200.1
+A     chat-mcp.sophia-ai.lambda.cloud  146.235.200.1
+A     *.sophia-ai.lambda.cloud      146.235.200.1
 ```
 
 ## 🔒 Security
@@ -190,7 +190,7 @@ You know deployment is successful when:
 - ✅ All services show desired replicas
 - ✅ Health checks passing (green in Grafana)
 - ✅ Can access services via IP address
-- ✅ API docs load at http://104.171.202.64:8000/docs
+- ✅ API docs load at http://146.235.200.1:8000/docs
 - ✅ No error logs in services
 
 ## 📈 Next Steps

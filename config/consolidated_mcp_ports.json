@@ -38,7 +38,7 @@
     "mem0_bridge": 9031
   },
   "lambda_labs": {
-    "host": "104.171.202.64",
+    "host": "165.1.69.44",
     "gateway_port": 8080,
     "monitoring_port": 9090
   },

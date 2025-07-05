@@ -86,7 +86,7 @@ class MCPServerStarter:
         full_env.update(env)
 
         # Ensure Lambda Labs host is set
-        full_env["LAMBDA_LABS_HOST"] = "104.171.202.64"
+        full_env["LAMBDA_LABS_HOST"] = "165.1.69.44"
         full_env["ENVIRONMENT"] = "prod"
         full_env["PULUMI_ORG"] = "scoobyjava-org"
 

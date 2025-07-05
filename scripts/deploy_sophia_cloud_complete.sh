@@ -16,7 +16,7 @@ echo ""
 
 # Configuration
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-scoobyjava15}"
-LAMBDA_LABS_IP="104.171.202.64"
+LAMBDA_LABS_IP="146.235.200.1"
 LAMBDA_LABS_USER="${LAMBDA_LABS_USER:-ubuntu}"
 
 # Step 1: Build Docker Images Locally

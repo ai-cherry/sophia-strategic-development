@@ -74,7 +74,7 @@ After fixing syntax errors, run `python scripts/test_all_mcp_connections.py` to 
 
 ### 3. Lambda Labs Deployment (2 hours)
 - Use the created `docker-compose.lambda.yml`
-- Deploy operational servers to 104.171.202.64
+- Deploy operational servers to 165.1.69.44
 - Configure health monitoring
 
 ### 4. Architecture Migration (1 week)

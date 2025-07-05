@@ -10,7 +10,7 @@ Sophia AI uses Docker Cloud deployment with Docker Swarm orchestration on Lambda
 
 ```bash
 # SSH to Lambda Labs instance
-ssh ubuntu@104.171.202.64
+ssh ubuntu@137.131.6.213
 
 # Initialize Docker Swarm (first time only)
 docker swarm init
@@ -249,7 +249,7 @@ volumes:
 
 ```bash
 # Connect to instance
-ssh ubuntu@104.171.202.64
+ssh ubuntu@137.131.6.213
 
 # Check Docker status
 docker node ls
@@ -313,7 +313,7 @@ GitHub Actions workflow for Docker Cloud:
     docker push scoobyjava15/sophia-ai:${{ github.sha }}
 
     # Deploy to Lambda Labs (via SSH action)
-    ssh ubuntu@104.171.202.64 "IMAGE_TAG=${{ github.sha }} docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod"
+    ssh ubuntu@137.131.6.213 "IMAGE_TAG=${{ github.sha }} docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod"
 ```
 
 ## Disaster Recovery

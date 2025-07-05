@@ -2,7 +2,7 @@
 
 **Date**: January 2025
 **Status**: Tools Created & Ready for Deployment
-**Target**: Lambda Labs Docker Swarm (104.171.202.64)
+**Target**: Lambda Labs Docker Swarm (146.235.200.1)
 
 ## Overview
 
@@ -131,7 +131,7 @@ cat docker-compose.production.yml.optimized
 ### Step 2: Deploy to Lambda Labs
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@104.171.202.64
+ssh ubuntu@146.235.200.1
 
 # Navigate to project
 cd /path/to/sophia-ai

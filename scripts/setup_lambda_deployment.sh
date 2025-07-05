@@ -35,10 +35,10 @@ setup_ssh_key() {
     fi
 
     # Add to SSH config
-    if ! grep -q "104.171.202.64" ~/.ssh/config 2>/dev/null; then
+    if ! grep -q "146.235.200.1" ~/.ssh/config 2>/dev/null; then
         echo "" >> ~/.ssh/config
         echo "Host lambda-sophia" >> ~/.ssh/config
-        echo "    HostName 104.171.202.64" >> ~/.ssh/config
+        echo "    HostName 146.235.200.1" >> ~/.ssh/config
         echo "    User ubuntu" >> ~/.ssh/config
         echo "    IdentityFile $SSH_KEY_PATH" >> ~/.ssh/config
         echo "    StrictHostKeyChecking no" >> ~/.ssh/config
@@ -60,7 +60,7 @@ create_env_file() {
 # Generated on $(date)
 
 # Lambda Labs
-LAMBDA_INSTANCE_IP=104.171.202.64
+LAMBDA_INSTANCE_IP=146.235.200.1
 LAMBDA_SSH_KEY_PATH=~/.ssh/lambda_labs_sophia
 DOCKER_REGISTRY=scoobyjava15
 
