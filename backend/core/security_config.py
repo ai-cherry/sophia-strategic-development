@@ -1,4 +1,3 @@
-import os
 
 """
 Comprehensive Security Configuration for Sophia AI
@@ -8,6 +7,7 @@ Centralized secrets management with Pulumi ESC integration and best practices
 import logging
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +16,10 @@ class SecretType(Enum):
     """Types of secrets for proper categorization and handling"""
 
     API_KEY = "api_key"
-    DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
-    JWT_SECRET = os.getenv("JWT_SECRET")
+    DATABASE_PASSWORD = "database_password"
+    JWT_SECRET = "jwt_secret"
     OAUTH_TOKEN = "oauth_token"
-    WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
+    WEBHOOK_SECRET = "webhook_secret"
     ENCRYPTION_KEY = "encryption_key"
 
 
@@ -136,8 +136,8 @@ class SecurityConfig:
             rotation_days=90,
         ),
         # Application Security
-        os.getenv("JWT_SECRET"): SecretConfig(
-            key=os.getenv("JWT_SECRET"),
+        "jwt_secret": SecretConfig(
+            key="jwt_secret",
             secret_type=SecretType.JWT_SECRET,
             required=True,
             description="JWT signing secret for authentication",
@@ -177,6 +177,79 @@ class SecurityConfig:
             description="Pulumi Cloud access token",
             rotation_enabled=True,
             rotation_days=60,
+        ),
+        # Enhanced GitHub Organization Secrets (200+ total)
+        "lambda_labs_api_key": SecretConfig(
+            key="lambda_labs_api_key",
+            secret_type=SecretType.API_KEY,
+            required=False,
+            description="Lambda Labs API key for GPU instances",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "vercel_token": SecretConfig(
+            key="vercel_token",
+            secret_type=SecretType.OAUTH_TOKEN,
+            required=False,
+            description="Vercel deployment token",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "docker_hub_token": SecretConfig(
+            key="docker_hub_token",
+            secret_type=SecretType.OAUTH_TOKEN,
+            required=False,
+            description="Docker Hub access token",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "mem0_api_key": SecretConfig(
+            key="mem0_api_key",
+            secret_type=SecretType.API_KEY,
+            required=False,
+            description="Mem0 AI Memory service API key",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "portkey_api_key": SecretConfig(
+            key="portkey_api_key",
+            secret_type=SecretType.API_KEY,
+            required=False,
+            description="Portkey AI gateway API key",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "openrouter_api_key": SecretConfig(
+            key="openrouter_api_key",
+            secret_type=SecretType.API_KEY,
+            required=False,
+            description="OpenRouter API key for model access",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "figma_pat": SecretConfig(
+            key="figma_pat",
+            secret_type=SecretType.OAUTH_TOKEN,
+            required=False,
+            description="Figma Personal Access Token",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "linear_api_key": SecretConfig(
+            key="linear_api_key",
+            secret_type=SecretType.API_KEY,
+            required=False,
+            description="Linear project management API key",
+            rotation_enabled=True,
+            rotation_days=90,
+        ),
+        "notion_api_key": SecretConfig(
+            key="notion_api_key",
+            secret_type=SecretType.API_KEY,
+            required=False,
+            description="Notion API integration token",
+            rotation_enabled=True,
+            rotation_days=90,
         ),
     }
 
@@ -260,7 +333,7 @@ class SecurityConfig:
     @classmethod
     def validate_environment_secrets(cls) -> dict[str, bool]:
         """Validate that all required secrets are available"""
-        from backend.core.config_manager import get_config_value
+        from backend.core.auto_esc_config import get_config_value
 
         validation_results = {}
         for key, config in cls.SECRETS_REGISTRY.items():
@@ -337,6 +410,36 @@ values:
             template += f"    {config_key.upper()}: ${{{config_key}}}\n"
 
         return template
+
+    @classmethod
+    def generate_github_secret_mapping(cls) -> dict[str, str]:
+        """Generate mapping between GitHub Organization Secret names and ESC keys"""
+        # Map GitHub secret names (typically UPPER_CASE) to ESC keys (lower_case)
+        mapping = {}
+
+        for secret_key in cls.SECRETS_REGISTRY.keys():
+            # Convert to GitHub convention (UPPER_CASE with underscores)
+            github_name = secret_key.upper()
+            mapping[github_name] = secret_key
+
+        return mapping
+
+    @classmethod
+    def get_comprehensive_secret_inventory(cls) -> dict[str, Any]:
+        """Get comprehensive inventory of all secrets for audit purposes"""
+        return {
+            "total_secrets": len(cls.SECRETS_REGISTRY),
+            "required_secrets": len(cls.get_required_secrets()),
+            "optional_secrets": len(cls.SECRETS_REGISTRY)
+            - len(cls.get_required_secrets()),
+            "rotatable_secrets": len(cls.get_rotatable_secrets()),
+            "secrets_by_type": {
+                secret_type.value: len(cls.get_secrets_by_type(secret_type))
+                for secret_type in SecretType
+            },
+            "github_mapping": cls.generate_github_secret_mapping(),
+            "pulumi_esc_template": cls.generate_pulumi_esc_template(),
+        }
 
 
 # Initialize security configuration on import

@@ -42,7 +42,7 @@ def _load_esc_environment() -> dict[str, Any]:
     try:
         # Get the ESC environment using pulumi env get
         result = subprocess.run(
-            ["pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production"],
+            ["pulumi", "env", "get", "default/sophia-ai-production"],
             capture_output=True,
             text=True,
             timeout=30,
@@ -197,7 +197,7 @@ def get_config_value(key: str, default: Any = None) -> Any:
                     "pulumi",
                     "env",
                     "get",
-                    "scoobyjava-org/default/sophia-ai-production",
+                    "default/sophia-ai-production",
                     "--show-secrets",
                 ],
                 capture_output=True,
