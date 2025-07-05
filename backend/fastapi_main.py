@@ -4,14 +4,23 @@ Sophia AI FastAPI - Minimal Deployment
 Modern FastAPI with streaming chat support
 """
 
-import asyncio
 import logging
-from collections.abc import AsyncGenerator
+from datetime import datetime
+from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+
+from backend.services.unified_chat_service import (
+    AccessLevel,
+    ChatContext,
+    UnifiedChatService,
+)
+from backend.services.unified_chat_service import (
+    ChatRequest as InternalChatRequest,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -34,16 +43,27 @@ app.add_middleware(
 )
 
 
-# Pydantic models
+# Pydantic models for API (align with internal models but use Pydantic)
 class ChatRequest(BaseModel):
     message: str
     user_id: str = "user"
+    session_id: Optional[str] = None
+    context: ChatContext = ChatContext.BLENDED_INTELLIGENCE
+    access_level: AccessLevel = AccessLevel.EMPLOYEE
+    metadata: Optional[dict[str, Any]] = None
     stream: bool = False
 
 
 class ChatResponse(BaseModel):
-    content: str
-    user_id: str
+    response: str
+    sources: Optional[list[Any]] = None
+    suggestions: Optional[list[Any]] = None
+    metadata: Optional[dict[str, Any]] = None
+    timestamp: str = datetime.now().isoformat()
+
+
+# Initialize the unified chat service
+chat_service = UnifiedChatService()
 
 
 # Health check
@@ -62,34 +82,28 @@ async def root():
     }
 
 
-# Mock AI response generator
-async def generate_ai_response(message: str, user_id: str) -> AsyncGenerator[str, None]:
-    response_parts = [
-        f"Hello {user_id}! ",
-        "I understand you said: ",
-        f'"{message}". ',
-        "This is a streaming response from Sophia AI. ",
-        "I'm processing your request using advanced AI capabilities. ",
-        "The system is working perfectly with FastAPI 2025 best practices. ",
-        "Thank you for using Sophia AI!",
-    ]
-
-    for part in response_parts:
-        await asyncio.sleep(0.2)  # Simulate processing
-        yield part
-
-
 # Streaming chat endpoint
 @app.post("/api/v1/chat")
 async def chat_endpoint(request: ChatRequest):
     try:
+        internal_request = InternalChatRequest(
+            message=request.message,
+            user_id=request.user_id,
+            session_id=request.session_id,
+            context=request.context,
+            access_level=request.access_level,
+            metadata=request.metadata,
+        )
+
         if request.stream:
-            # Return streaming response
+            # For streaming, we'll need to adapt the internal service's response
+            # This mock currently doesn't support streaming from the internal service
+            # A full implementation would require the internal service to yield tokens
             async def stream_response():
-                async for token in generate_ai_response(
-                    request.message, request.user_id
-                ):
-                    yield f"data: {token}\n\n"
+                # Placeholder for actual streaming from UnifiedChatService
+                # For now, it will return the full response as a single chunk
+                full_response_obj = await chat_service.process_chat(internal_request)
+                yield f"data: {full_response_obj.response}\n\n"
                 yield "data: [DONE]\n\n"
 
             return StreamingResponse(
@@ -102,14 +116,17 @@ async def chat_endpoint(request: ChatRequest):
             )
         else:
             # Return complete response
-            full_response = ""
-            async for token in generate_ai_response(request.message, request.user_id):
-                full_response += token
-
-            return ChatResponse(content=full_response, user_id=request.user_id)
+            internal_response = await chat_service.process_chat(internal_request)
+            return ChatResponse(
+                response=internal_response.response,
+                sources=internal_response.sources,
+                suggestions=internal_response.suggestions,
+                metadata=internal_response.metadata,
+                timestamp=internal_response.timestamp,
+            )
 
     except Exception as e:
-        logger.error(f"Chat endpoint error: {e}")
+        logger.error(f"Chat endpoint error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
 
 

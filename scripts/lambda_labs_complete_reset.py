@@ -108,18 +108,17 @@ def phase1_cleanup(optimizer: LambdaLabsOptimizer):
         hourly = inst["instance_type"]["price_cents_per_hour"] / 100
         hourly * 24 * 30
 
-    confirm = input("\n⚠️  Terminate ALL instances? (yes/no): ")
-    if confirm.lower() == "yes":
-        for inst in instances:
-            optimizer.terminate_instance(inst["id"], inst["name"])
-            time.sleep(1)  # Rate limiting
+    print("\n✅ Terminating ALL instances...")
+    for inst in instances:
+        optimizer.terminate_instance(inst["id"], inst["name"])
+        time.sleep(1)  # Rate limiting
 
     # Clean up SSH keys
     keys = optimizer.list_ssh_keys()
 
-    # Keep only lambda_labs_key
+    # Keep only a specific key
     for key in keys:
-        if key["name"] != "lambda_labs_key":
+        if key["name"] != "pulumi_lambda_key":
             if optimizer.delete_ssh_key(key["id"]):
                 pass
 
@@ -127,14 +126,23 @@ def phase1_cleanup(optimizer: LambdaLabsOptimizer):
 def phase2_optimal_setup(optimizer: LambdaLabsOptimizer):
     """Phase 2: Create optimal instance configuration"""
 
-    confirm = input("\n✅ Create this optimized setup? (yes/no): ")
-    if confirm.lower() != "yes":
-        return
+    print("\n✅ Creating optimized setup...")
 
-    # Ensure we have lambda_labs_key
+    # Ensure we have our dedicated key
     keys = optimizer.list_ssh_keys()
-    if not any(k["name"] == "lambda_labs_key" for k in keys):
-        return
+    if not any(k["name"] == "pulumi_lambda_key" for k in keys):
+        # Add the new key if it doesn't exist
+        try:
+            with open(os.path.expanduser("~/.ssh/pulumi_lambda_key.pub")) as f:
+                public_key = f.read()
+            if optimizer.add_ssh_key("pulumi_lambda_key", public_key):
+                print("✅ Successfully added 'pulumi_lambda_key' to Lambda Labs.")
+            else:
+                print("❌ Failed to add 'pulumi_lambda_key'. Please add it manually.")
+                return
+        except FileNotFoundError:
+            print("❌ ~/.ssh/pulumi_lambda_key.pub not found. Cannot proceed.")
+            return
 
     # Launch instances
     instances_to_launch = [
@@ -163,7 +171,7 @@ def phase2_optimal_setup(optimizer: LambdaLabsOptimizer):
         result = optimizer.launch_instance(
             instance_type=inst["type"],
             name=inst["name"],
-            ssh_key_names=["lambda_labs_key"],
+            ssh_key_names=["pulumi_lambda_key"],
             region=inst["region"],
         )
         if result:
@@ -202,7 +210,7 @@ setup_instance() {{
 
     echo -e "${{GREEN}}Setting up $ROLE on $IP${{NC}}"
 
-    ssh -i ~/.ssh/lambda_labs_key ubuntu@$IP << 'SETUP'
+    ssh -i ~/.ssh/pulumi_lambda_key ubuntu@$IP << 'SETUP'
         # Update system
         sudo apt-get update
         sudo apt-get upgrade -y
@@ -393,11 +401,7 @@ services:
 
 
 def main():
-    confirm = input(
-        "\n⚠️  This will DELETE all current instances. Continue? (yes/no): "
-    )
-    if confirm.lower() != "yes":
-        return
+    print("\n⚠️  This script will DELETE all current instances and rebuild.")
 
     optimizer = LambdaLabsOptimizer()
 

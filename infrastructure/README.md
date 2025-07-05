@@ -6,10 +6,11 @@ This directory contains the Infrastructure as Code (IaC) implementation for the 
 
 The Sophia AI platform uses Pulumi to manage infrastructure resources across multiple environments (development, staging, production). This includes:
 
-- **Snowflake**: Data warehouse for storing and analyzing data
-- **Gong**: Integration with Gong for call analysis
-- **Vercel**: Deployment platform for the frontend
-- **Estuary**: Data flow management for real-time data processing
+- **Lambda Labs**: GPU instances and Kubernetes clusters for core AI services.
+- **Snowflake**: Core configurations for data warehousing.
+- **Portkey**: API key management for AI gateway.
+
+**Note on SSH Key Management:** SSH keys for Lambda Labs currently require manual configuration due to Pulumi CLI limitations with multi-line secrets. This is a known area for future automation.
 
 ## Prerequisites
 
@@ -33,17 +34,7 @@ This will create three stacks:
 - `staging`
 - `production`
 
-### 2. Import Secrets
-
-Import secrets from a `.env` file to Pulumi ESC:
-
-```bash
-./import_secrets.sh ../.env development
-```
-
-Replace `development` with the appropriate stack name (`staging` or `production`).
-
-### 3. Deploy Infrastructure
+### 2. Deploy Infrastructure
 
 Deploy the infrastructure to the selected stack:
 
@@ -54,15 +45,11 @@ pulumi up
 
 ## Project Structure
 
-- `__main__.py`: Main Pulumi program that brings together all resources
-- `snowflake.py`: Snowflake resources definition
-- `gong.py`: Gong integration resources definition
-- `vercel.py`: Vercel deployment resources definition
-- `estuary.py`: Estuary data flow resources definition
-- `Pulumi.yaml`: Pulumi project configuration
-- `requirements.txt`: Python dependencies
-- `init_stacks.sh`: Script to initialize Pulumi stacks
-- `import_secrets.sh`: Script to import secrets from a `.env` file to Pulumi ESC
+- `infrastructure/index.py`: Python Pulumi program for Lambda Labs and Snowflake configurations.
+- `infrastructure/pulumi/clean-architecture-stack.ts`: TypeScript Pulumi program for Kubernetes deployments on Lambda Labs.
+- `Pulumi.yaml`: Pulumi project configuration.
+- `requirements.txt`: Python dependencies.
+- `init_stacks.sh`: Script to initialize Pulumi stacks.
 
 ## Environment-Specific Configuration
 

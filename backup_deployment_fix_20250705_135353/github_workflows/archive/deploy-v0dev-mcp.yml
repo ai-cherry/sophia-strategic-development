@@ -1,0 +1,247 @@
+name: Deploy V0.dev MCP Server
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "mcp-servers/v0dev/**"
+      - ".github/workflows/deploy-v0dev-mcp.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "mcp-servers/v0dev/**"
+  workflow_dispatch:
+    inputs:
+      deploy_to_production:
+        description: "Deploy to production"
+        required: true
+        default: "false"
+
+env:
+  DOCKER_REGISTRY: scoobyjava15
+  IMAGE_NAME: sophia-ai-v0dev
+  MCP_PORT: 9030
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: mcp-servers/v0dev
+          file: mcp-servers/v0dev/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Generate deployment artifact
+        run: |
+          echo "IMAGE_TAG=${{ steps.meta.outputs.tags }}" >> deployment.env
+          echo "IMAGE_DIGEST=${{ steps.build.outputs.digest }}" >> deployment.env
+          echo "DEPLOY_TIME=$(date -u +%Y%m%d%H%M%S)" >> deployment.env
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-env
+          path: deployment.env
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-env
+
+      - name: Load deployment variables
+        run: |
+          source deployment.env
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+      - name: Test V0.dev MCP Server
+        run: |
+          # Start the container
+          docker run -d --name v0dev-test \
+            -p ${MCP_PORT}:${MCP_PORT} \
+            -e SOPHIA_VERCEL_V0DEV_API_KEY="test-key" \
+            -e ENVIRONMENT=test \
+            -e PULUMI_ORG=scoobyjava-org \
+            ${IMAGE_TAG}
+
+          # Wait for server to start
+          sleep 10
+
+          # Test health endpoint
+          curl -f http://localhost:${MCP_PORT}/health || exit 1
+
+          # Test readiness endpoint (will fail without real API key, but should return 503)
+          curl -s http://localhost:${MCP_PORT}/ready | grep -q "V0.dev API not accessible" || exit 1
+
+          # Test metrics endpoint
+          curl -f http://localhost:${MCP_PORT}/metrics || exit 1
+
+          # Cleanup
+          docker stop v0dev-test
+          docker rm v0dev-test
+
+  deploy:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    if: |
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event.inputs.deploy_to_production == 'true')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-env
+
+      - name: Load deployment variables
+        run: |
+          source deployment.env
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "DEPLOY_TIME=${DEPLOY_TIME}" >> $GITHUB_ENV
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa 165.1.69.44 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Lambda Labs
+        run: |
+          ssh ubuntu@165.1.69.44 << 'EOF'
+            # Pull the new image
+            docker pull ${IMAGE_TAG}
+
+            # Update or create the service
+            if docker service ls | grep -q v0dev-mcp; then
+              echo "Updating existing service..."
+              docker service update \
+                --image ${IMAGE_TAG} \
+                --update-parallelism 1 \
+                --update-delay 30s \
+                v0dev-mcp
+            else
+              echo "Creating new service..."
+              docker service create \
+                --name v0dev-mcp \
+                --replicas 2 \
+                --publish ${MCP_PORT}:${MCP_PORT} \
+                --secret vercel_v0dev_api_key \
+                --env VERCEL_V0DEV_API_KEY_FILE=/run/secrets/vercel_v0dev_api_key \
+                --env ENVIRONMENT=prod \
+                --env PULUMI_ORG=scoobyjava-org \
+                --constraint 'node.role == worker' \
+                --restart-condition on-failure \
+                --restart-delay 5s \
+                --restart-max-attempts 3 \
+                --health-cmd "curl -f http://localhost:${MCP_PORT}/health || exit 1" \
+                --health-interval 30s \
+                --health-retries 3 \
+                --health-start-period 60s \
+                ${IMAGE_TAG}
+            fi
+
+            # Verify deployment
+            sleep 30
+            docker service ps v0dev-mcp --no-trunc
+          EOF
+
+      - name: Verify deployment health
+        run: |
+          sleep 10
+          curl -f http://165.1.69.44:${MCP_PORT}/health || exit 1
+          echo "V0.dev MCP Server deployed successfully!"
+
+      - name: Update deployment status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}';
+            const deployTime = '${{ env.DEPLOY_TIME }}';
+            const imageTag = '${{ env.IMAGE_TAG }}';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## V0.dev MCP Server Deployment ${status === 'success' ? '✅' : '❌'}
+
+              - **Status**: ${status}
+              - **Image**: ${imageTag}
+              - **Deploy Time**: ${deployTime}
+              - **Service**: http://v0dev.sophia-ai.lambda.cloud
+              `
+            });
+
+  rollback:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa 165.1.69.44 >> ~/.ssh/known_hosts
+
+      - name: Rollback deployment
+        run: |
+          ssh ubuntu@165.1.69.44 << 'EOF'
+            # Rollback to previous version
+            docker service rollback v0dev-mcp
+
+            # Verify rollback
+            sleep 30
+            docker service ps v0dev-mcp --no-trunc
+          EOF

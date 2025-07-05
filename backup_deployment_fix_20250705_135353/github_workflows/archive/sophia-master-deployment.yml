@@ -1,0 +1,416 @@
+name: Sophia AI Master Deployment Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      skip_tests:
+        description: "Skip test execution"
+        required: false
+        default: false
+        type: boolean
+      force_deploy:
+        description: "Force deployment even if health checks fail"
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  PULUMI_ORG: scoobyjava-org
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+jobs:
+  # Job 1: Environment Detection and Validation
+  environment-setup:
+    name: 🔍 Environment Setup & Validation
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.detect.outputs.environment }}
+      should_deploy: ${{ steps.detect.outputs.should_deploy }}
+      deployment_id: ${{ steps.detect.outputs.deployment_id }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect environment and deployment context
+        id: detect
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENV="${{ github.event.inputs.environment }}"
+            SHOULD_DEPLOY="true"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENV="production"
+            SHOULD_DEPLOY="true"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ENV="development"
+            SHOULD_DEPLOY="false"  # Only validate for PRs
+          else
+            ENV="development"
+            SHOULD_DEPLOY="false"
+          fi
+
+          DEPLOYMENT_ID="sophia-${ENV}-$(date +%s)"
+
+          echo "environment=${ENV}" >> $GITHUB_OUTPUT
+          echo "should_deploy=${SHOULD_DEPLOY}" >> $GITHUB_OUTPUT
+          echo "deployment_id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
+
+          echo "🎯 Environment: ${ENV}"
+          echo "🚀 Should Deploy: ${SHOULD_DEPLOY}"
+          echo "🆔 Deployment ID: ${DEPLOYMENT_ID}"
+
+  # Job 2: Health Gate Validation
+  health-gate:
+    name: 🏥 Deployment Health Gate
+    runs-on: ubuntu-latest
+    needs: environment-setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run enhanced health gate
+        run: |
+          echo "ENVIRONMENT=${{ needs.environment-setup.outputs.environment }}" >> $GITHUB_ENV
+          echo "PULUMI_ORG=scoobyjava-org" >> $GITHUB_ENV
+          uv run python scripts/ci/deployment_health_gate.py
+
+      - name: Upload health report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: health-gate-report-${{ needs.environment-setup.outputs.deployment_id }}
+          path: health_gate_report.json
+          retention-days: 30
+
+  # Job 3: Code Quality and Security
+  quality-security:
+    name: 🔒 Code Quality & Security
+    runs-on: ubuntu-latest
+    needs: environment-setup
+    if: needs.environment-setup.outputs.should_deploy == 'true' || github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run linting
+        run: |
+          uv run ruff check . --output-format=github
+
+      - name: Run security scan
+        run: |
+          uv run bandit -r backend/ -f json -o security-report.json || true
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-report-${{ needs.environment-setup.outputs.deployment_id }}
+          path: security-report.json
+          retention-days: 30
+
+  # Job 4: Build and Test
+  build-test:
+    name: 🧪 Build & Test
+    runs-on: ubuntu-latest
+    needs: [environment-setup, health-gate]
+    if: needs.environment-setup.outputs.should_deploy == 'true' && !github.event.inputs.skip_tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run tests
+        run: |
+          uv run python -m pytest tests/ -v --tb=short --junitxml=test-results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ needs.environment-setup.outputs.deployment_id }}
+          path: test-results.xml
+          retention-days: 30
+
+  # Job 5: MCP Server Validation
+  mcp-validation:
+    name: 🔧 MCP Server Validation
+    runs-on: ubuntu-latest
+    needs: [environment-setup, health-gate]
+    if: needs.environment-setup.outputs.should_deploy == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Validate MCP server configurations
+        run: |
+          echo "🔧 Validating MCP server configurations..."
+          python scripts/standardise_mcp.py --validate-only
+
+      - name: Test MCP server startup (dry run)
+        run: |
+          echo "🚀 Testing MCP server startup (dry run)..."
+          timeout 60s python scripts/start_all_mcp_servers.py --dry-run || true
+
+  # Job 6: Production Deployment
+  production-deployment:
+    name: 🚀 Production Deployment
+    runs-on: ubuntu-latest
+    needs:
+      [
+        environment-setup,
+        health-gate,
+        quality-security,
+        build-test,
+        mcp-validation,
+      ]
+    if: |
+      needs.environment-setup.outputs.should_deploy == 'true' &&
+      (needs.health-gate.result == 'success' || github.event.inputs.force_deploy == 'true') &&
+      (needs.build-test.result == 'success' || needs.build-test.result == 'skipped') &&
+      needs.mcp-validation.result == 'success'
+    environment: ${{ needs.environment-setup.outputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Setup Node.js for infrastructure
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run comprehensive deployment
+        env:
+          DEPLOYMENT_ID: ${{ needs.environment-setup.outputs.deployment_id }}
+        run: |
+          echo "🚀 Starting comprehensive deployment..."
+          echo "Environment: ${{ needs.environment-setup.outputs.environment }}"
+          echo "Deployment ID: ${DEPLOYMENT_ID}"
+
+          python scripts/deploy_sophia_production.py \
+            --environment ${{ needs.environment-setup.outputs.environment }}
+
+      - name: Upload deployment logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-logs-${{ needs.environment-setup.outputs.deployment_id }}
+          path: logs/deployments/
+          retention-days: 90
+
+  # Job 7: Post-Deployment Validation
+  post-deployment-validation:
+    name: ✅ Post-Deployment Validation
+    runs-on: ubuntu-latest
+    needs: [environment-setup, production-deployment]
+    if: needs.production-deployment.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run post-deployment health checks
+        run: |
+          echo "🏥 Running post-deployment validation..."
+          sleep 30  # Wait for services to stabilize
+          uv run python scripts/ci/deployment_health_gate.py
+
+      - name: Run smoke tests
+        run: |
+          echo "🔥 Running smoke tests..."
+          uv run python -m pytest tests/smoke/ -v --tb=short || true
+
+      - name: Validate MCP servers
+        run: |
+          echo "🔧 Validating MCP servers..."
+          python scripts/start_all_mcp_servers.py --health-check-only || true
+
+  # Job 8: Deployment Notification and Reporting
+  deployment-notification:
+    name: 📢 Deployment Notification
+    runs-on: ubuntu-latest
+    needs:
+      [environment-setup, production-deployment, post-deployment-validation]
+    if: always() && needs.environment-setup.outputs.should_deploy == 'true'
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          if [[ "${{ needs.production-deployment.result }}" == "success" && "${{ needs.post-deployment-validation.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+            echo "message=Deployment completed successfully" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.production-deployment.result }}" == "success" ]]; then
+            echo "status=partial" >> $GITHUB_OUTPUT
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+            echo "message=Deployment completed with validation warnings" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "message=Deployment failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create deployment summary
+        run: |
+          echo "## ${{ steps.status.outputs.emoji }} Sophia AI Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment ID:** ${{ needs.environment-setup.outputs.deployment_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ needs.environment-setup.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Health Gate: ${{ needs.health-gate.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Quality & Security: ${{ needs.quality-security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build & Test: ${{ needs.build-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- MCP Validation: ${{ needs.mcp-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Production Deployment: ${{ needs.production-deployment.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Post-Deployment Validation: ${{ needs.post-deployment-validation.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR with deployment status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.status.outputs.status }}';
+            const emoji = '${{ steps.status.outputs.emoji }}';
+            const message = '${{ steps.status.outputs.message }}';
+
+            const comment = `## ${emoji} Sophia AI Deployment Pipeline
+
+            **Status:** ${message}
+            **Environment:** ${{ needs.environment-setup.outputs.environment }}
+            **Deployment ID:** ${{ needs.environment-setup.outputs.deployment_id }}
+
+            ### Pipeline Results
+            | Job | Status |
+            |-----|--------|
+            | Health Gate | ${{ needs.health-gate.result }} |
+            | Quality & Security | ${{ needs.quality-security.result }} |
+            | Build & Test | ${{ needs.build-test.result }} |
+            | MCP Validation | ${{ needs.mcp-validation.result }} |
+            | Production Deployment | ${{ needs.production-deployment.result }} |
+            | Post-Deployment Validation | ${{ needs.post-deployment-validation.result }} |
+
+            ${status === 'success' ? '✅ **Ready for merge**' : status === 'partial' ? '⚠️ **Review warnings before merge**' : '❌ **Fix issues before merge**'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Job 9: Cleanup and Maintenance
+  cleanup:
+    name: 🧹 Cleanup & Maintenance
+    runs-on: ubuntu-latest
+    needs: [environment-setup, deployment-notification]
+    if: always()
+    steps:
+      - name: Cleanup temporary artifacts
+        run: |
+          echo "🧹 Performing cleanup tasks..."
+          echo "Deployment completed: ${{ needs.environment-setup.outputs.deployment_id }}"
+
+      - name: Update deployment registry
+        run: |
+          echo "📝 Updating deployment registry..."
+          # This would update a deployment tracking system
+          echo "Deployment ${{ needs.environment-setup.outputs.deployment_id }} completed"

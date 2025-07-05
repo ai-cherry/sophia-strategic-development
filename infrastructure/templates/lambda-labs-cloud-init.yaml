@@ -1,0 +1,32 @@
+#cloud-config
+# Lambda Labs instance initialization with SSH key injection
+
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+# Install essential packages
+packages:
+  - docker.io
+  - docker-compose
+  - kubectl
+  - python3-pip
+  - git
+  - htop
+  - tmux
+
+# Enable Docker
+runcmd:
+  - systemctl enable docker
+  - systemctl start docker
+  - usermod -aG docker ubuntu
+
+# Write deployment marker
+write_files:
+  - path: /home/ubuntu/.sophia-ai-deployed
+    content: |
+      DEPLOYED_BY=pulumi
+      DEPLOYED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+      SSH_KEY_NAME=${ssh_key_name}

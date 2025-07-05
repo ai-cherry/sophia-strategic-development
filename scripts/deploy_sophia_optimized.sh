@@ -1,12 +1,12 @@
 #!/bin/bash
 # Sophia AI Optimized Deployment Script
-# Generated: 2025-07-04 18:04:56
+# Generated: 2025-07-05 15:43:34
 
 # Configuration
-GITHUB_TOKEN="${GITHUB_TOKEN:-}"  # Set via environment variable
-PLATFORM_IP="146.235.200.1"  # sophia-platform-prod
-AI_IP="137.131.6.213"        # sophia-ai-prod (A100)
-MCP_IP="165.1.69.44"         # sophia-mcp-prod
+GITHUB_TOKEN=""
+PLATFORM_IP=""  # Will be set after instances launch
+AI_IP=""        # Will be set after instances launch
+MCP_IP=""       # Will be set after instances launch
 
 # Colors
 GREEN='\033[0;32m'
@@ -23,7 +23,7 @@ setup_instance() {
 
     echo -e "${GREEN}Setting up $ROLE on $IP${NC}"
 
-    ssh -i ~/.ssh/lambda_labs_key ubuntu@$IP << 'SETUP'
+    ssh -i ~/.ssh/pulumi_lambda_key ubuntu@$IP << 'SETUP'
         # Update system
         sudo apt-get update
         sudo apt-get upgrade -y

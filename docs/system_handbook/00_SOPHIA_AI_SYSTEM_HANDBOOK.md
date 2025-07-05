@@ -297,6 +297,9 @@ const UnifiedDashboard = () => {
 **Unified IaC & Container Orchestration**: Pulumi + Kubernetes (Lambda Labs)
 **Monitoring**: Grafana + Prometheus
 
+**Note on IaC Scope and SSH Key Management:**
+The current Pulumi IaC primarily manages Lambda Labs GPU instances and Kubernetes clusters for core AI services, core Snowflake configurations, and Portkey API key management. While Pulumi ESC is used for secret management, SSH keys for Lambda Labs currently require manual configuration due to Pulumi CLI limitations with multi-line secrets. This is a known area for future automation.
+
 ### Environment Configuration
 
 ```yaml

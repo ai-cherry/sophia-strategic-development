@@ -1,0 +1,67 @@
+name: Deploy Sophia AI to Lambda Labs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build, Push, and Deploy to Lambda Labs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Extract Metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_HUB_USERNAME }}/sophia-ai-codacy-mcp
+          tags: |
+            type=sha,prefix=,format=short
+
+      - name: Build and push Codacy MCP Image
+        id: build-and-push-codacy
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./mcp-servers/codacy/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa 165.1.69.44 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Lambda Labs
+        env:
+          DOCKER_REGISTRY: ${{ secrets.DOCKER_HUB_USERNAME }}
+          IMAGE_TAG: ${{ steps.meta.outputs.version }}
+          PULUMI_ORG: "scoobyjava-org"
+          ENVIRONMENT: "prod"
+        run: |
+          ssh ubuntu@165.1.69.44 << 'EOF'
+            # Pull the new image from Docker Hub
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/sophia-ai-codacy-mcp:${{ steps.meta.outputs.version }}
+
+            # Deploy the stack using the compose file
+            docker stack deploy -c /home/ubuntu/sophia-main/docker-compose.cloud.yml sophia-ai-prod
+
+            echo "Deployment triggered successfully!"
+          EOF

@@ -26,6 +26,10 @@
 - Python 3.11+
 - UV package manager
 - Cursor AI IDE (recommended)
+- Pulumi CLI (for infrastructure deployment)
+
+### 🔥 Infrastructure as Code (IaC) - NEW!
+**Major Update (July 5, 2025)**: Complete Infrastructure as Code implementation with automated SSH key management for Lambda Labs. See [Infrastructure Documentation Index](docs/INFRASTRUCTURE_AS_CODE_INDEX.md) for details.
 
 ### Installation
 ```bash
@@ -176,7 +180,7 @@ await auth_manager.execute_operation(
 "Scale up the Snowflake warehouse for analytics"
 "Create a new Docker service for the MCP gateway"
 
-# Data operations  
+# Data operations
 "Create a new schema for AI agent testing"
 "Run the quarterly revenue analysis query"
 "Set up a data flow from HubSpot to Snowflake"

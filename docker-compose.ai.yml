@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  ai-inference:
+    build: ./ai-services
+    runtime: nvidia
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=prod
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./models:/models
+      - ./cache:/cache
+    restart: unless-stopped
+
+  embedding-service:
+    build: ./embedding-service
+    runtime: nvidia
+    ports:
+      - "8081:8081"
+    environment:
+      - ENVIRONMENT=prod
+    restart: unless-stopped
+
+  snowflake-cortex:
+    build: ./snowflake-cortex
+    ports:
+      - "8082:8082"
+    environment:
+      - ENVIRONMENT=prod
+    restart: unless-stopped
