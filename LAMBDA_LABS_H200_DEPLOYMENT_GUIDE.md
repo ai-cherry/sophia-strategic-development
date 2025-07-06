@@ -8,7 +8,7 @@
 
 ## 🎯 **Executive Summary**
 
-We have successfully completed the Lambda Labs H200 GPU integration for Sophia AI, including:
+We have successfully completed the Lambda Labs GH200 GPU integration for Sophia AI, including:
 - ✅ **Perfect alignment achieved** - 10 H200 secrets configured, legacy secrets removed
 - ✅ **PR #137 created** - Fixes all integration issues identified
 - ✅ **Comprehensive documentation** - Complete guides for deployment
@@ -52,7 +52,7 @@ We have successfully completed the Lambda Labs H200 GPU integration for Sophia A
 ## 🔧 **What Was Implemented**
 
 ### **1. Infrastructure Files Created**
-- `infrastructure/esc/lambda-labs-h200-config.yaml` - Pulumi ESC configuration
+- `infrastructure/esc/lambda-labs-gh200-config.yaml` - Pulumi ESC configuration
 - `scripts/validate_lambda_labs_integration.py` - Comprehensive validation
 - `scripts/verify_lambda_labs_h200_setup.py` - H200 setup verification
 - `scripts/pre_deployment_checklist.py` - Pre-deployment validation
@@ -131,7 +131,7 @@ pulumi up -s sophia-ai-h200-production
   - `lynn-sophia-h200-master-01`
   - `lynn-sophia-h200-worker-01`
   - `lynn-sophia-h200-worker-02`
-- **GPU Type**: `gpu_1x_h200` (141GB HBM3e)
+- **GPU Type**: `gpu_1x_gh200` (96GB HBM3e)
 - **Region**: `us-west-1`
 - **Shared Storage**: `lynn-sophia-shared-fs` (10TB)
 - **Auto-scaling**: 3-16 nodes
@@ -141,7 +141,7 @@ pulumi up -s sophia-ai-h200-production
 2. `LAMBDA_LABS_SSH_KEY_NAME` = "lynn-sophia-h200-key"
 3. `LAMBDA_LABS_SSH_PRIVATE_KEY`
 4. `LAMBDA_LABS_REGION` = "us-west-1"
-5. `LAMBDA_LABS_INSTANCE_TYPE` = "gpu_1x_h200"
+5. `LAMBDA_LABS_INSTANCE_TYPE` = "gpu_1x_gh200"
 6. `LAMBDA_LABS_CLUSTER_SIZE` = "3"
 7. `LAMBDA_LABS_MAX_CLUSTER_SIZE` = "16"
 8. `LAMBDA_LABS_SHARED_FS_ID` = "lynn-sophia-shared-fs"
@@ -165,7 +165,7 @@ pulumi up -s sophia-ai-h200-production
 - ✅ Post-deployment verification
 
 ### **H200 Performance**
-- 6x memory increase (141GB vs 24GB)
+- 6x memory increase (96GB vs 24GB)
 - 4x faster inference
 - Auto-scaling 3-16 nodes
 - $1,600/month cost savings
@@ -195,6 +195,6 @@ With PR #137 merged and the quick start commands above:
 
 ## 🎉 **Conclusion**
 
-The Lambda Labs H200 GPU integration is complete and ready for deployment. All infrastructure code is in place, validation tools are working, and the CI/CD pipeline is configured. Once PR #137 is merged and the SSH key is generated, the system is ready for immediate H200 deployment.
+The Lambda Labs GH200 GPU integration is complete and ready for deployment. All infrastructure code is in place, validation tools are working, and the CI/CD pipeline is configured. Once PR #137 is merged and the SSH key is generated, the system is ready for immediate H200 deployment.
 
 **Next Action: Merge PR #137 and follow the Quick Start Commands above.**

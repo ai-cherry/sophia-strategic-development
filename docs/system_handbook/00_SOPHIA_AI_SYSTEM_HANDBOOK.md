@@ -180,10 +180,10 @@ While Snowflake remains the **central analytical data warehouse** and ultimate s
 - SOPHIA_AI_COMPUTE_WH (LARGE) - General compute with GPU acceleration
 - SOPHIA_AI_ANALYTICS_WH (X-LARGE) - Enhanced analytics workloads
 - SOPHIA_AI_CORTEX_WH (MEDIUM) - AI operations with H200 integration
-- SOPHIA_AI_H200_WH (X-LARGE) - Dedicated H200 GPU processing
+- SOPHIA_AI_H200_WH (X-LARGE) - Dedicated GH200 GPU processing
 
 **Enhanced Memory Architecture** (6-Tier with GPU Acceleration):
-- L0: GPU memory (<10ms) - H200 HBM3e 141GB
+- L0: GPU memory (<10ms) - H200 HBM3e 96GB
 - L1: Session cache (<50ms) - Redis enhanced
 - L2: Cortex cache (<100ms) - Snowflake + GPU acceleration
 - L3: Persistent memory (<200ms) - Snowflake native
@@ -359,31 +359,31 @@ const UnifiedDashboard = () => {
 
 ## 🚀 ENHANCED DEPLOYMENT ARCHITECTURE
 
-### Infrastructure Stack (H200 GPU Enhanced)
+### Infrastructure Stack (GH200 GPU Enhanced)
 
 **Primary Deployment**: Vercel (Frontend) + Lambda Labs H200 Clusters (Backend)
 **Database**: Snowflake (Enhanced with GPU acceleration)
 **Secrets Management**: Pulumi ESC (Automated pipeline)
 **Container Orchestration**: Kubernetes on Lambda Labs H200 clusters
-**GPU Architecture**: NVIDIA H200 (141GB HBM3e, 4.8TB/s bandwidth)
+**GPU Architecture**: NVIDIA GH200 (96GB HBM3e, 4.8TB/s bandwidth)
 **Memory Architecture**: 6-Tier with GPU acceleration
 **Monitoring**: Enhanced Grafana + Prometheus + GPU metrics
 
 ### Enhanced Infrastructure Components
 
 **Lambda Labs H200 Cluster**:
-- **GPU Type**: NVIDIA H200 with 141GB HBM3e memory
+- **GPU Type**: NVIDIA GH200 with 96GB HBM3e memory
 - **Cluster Size**: 3-16 nodes with auto-scaling
 - **Kubernetes**: Managed clusters with GPU operator
 - **Auto-scaling**: Horizontal and vertical pod autoscaling
 - **Monitoring**: GPU metrics, performance tracking, cost optimization
 
 **6-Tier Memory Architecture**:
-- **L0 (GPU Memory)**: 141GB HBM3e per node (<10ms latency)
-  - Active Models: 60GB pool
-  - Inference Cache: 40GB pool
-  - Vector Cache: 30GB pool
-  - Buffer: 11GB pool
+- **L0 (GPU Memory)**: 96GB HBM3e per node (<10ms latency)
+  - Active Models: 41GB pool
+  - Inference Cache: 27GB pool
+  - Vector Cache: 20GB pool
+  - Buffer: 8GB pool
 - **L1 (Session Cache)**: Redis with enhanced performance
 - **L2 (Cortex Cache)**: Snowflake + GPU acceleration
 - **L3-L5**: Snowflake native with vector search

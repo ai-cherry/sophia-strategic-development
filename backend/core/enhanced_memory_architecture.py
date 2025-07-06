@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Enhanced 6-Tier Memory Architecture for Sophia AI Platform
-Optimized for H200 GPUs with 141GB HBM3e memory and Snowflake Cortex integration
+Optimized for GH200 GPUs with 96GB HBM3e memory and Snowflake Cortex integration
 """
 
 import asyncio
@@ -13,6 +13,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 import redis
+
 from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
@@ -20,17 +21,19 @@ logger = logging.getLogger(__name__)
 
 class MemoryTier(Enum):
     """Enhanced memory tier enumeration"""
-    L0_GPU_MEMORY = "l0_gpu_memory"      # <10ms - H200 HBM3e
-    L1_SESSION_CACHE = "l1_session_cache" # <50ms - Redis
-    L2_CORTEX_CACHE = "l2_cortex_cache"   # <100ms - Snowflake + GPU
+
+    L0_GPU_MEMORY = "l0_gpu_memory"  # <10ms - H200 HBM3e
+    L1_SESSION_CACHE = "l1_session_cache"  # <50ms - Redis
+    L2_CORTEX_CACHE = "l2_cortex_cache"  # <100ms - Snowflake + GPU
     L3_PERSISTENT_MEMORY = "l3_persistent_memory"  # <200ms - Snowflake
-    L4_KNOWLEDGE_GRAPH = "l4_knowledge_graph"      # <300ms - Snowflake Vector
-    L5_WORKFLOW_MEMORY = "l5_workflow_memory"      # <400ms - Snowflake Long-term
+    L4_KNOWLEDGE_GRAPH = "l4_knowledge_graph"  # <300ms - Snowflake Vector
+    L5_WORKFLOW_MEMORY = "l5_workflow_memory"  # <400ms - Snowflake Long-term
 
 
 @dataclass
 class MemoryTierConfig:
     """Configuration for each memory tier"""
+
     tier: MemoryTier
     size_limit: str
     latency_target: str
@@ -42,17 +45,18 @@ class MemoryTierConfig:
 @dataclass
 class GPUMemoryPool:
     """GPU memory pool configuration for L0 tier"""
+
     active_models: str = "60GB"
     inference_cache: str = "40GB"
     vector_cache: str = "30GB"
     buffer: str = "11GB"
-    total_memory: str = "141GB"
+    total_memory: str = "96GB"
 
 
 class EnhancedMemoryArchitecture:
     """
     Enhanced 6-Tier Memory Architecture Manager
-    Optimized for H200 GPUs and Snowflake Cortex integration
+    Optimized for GH200 GPUs and Snowflake Cortex integration
     """
 
     def __init__(self):
@@ -72,12 +76,12 @@ class EnhancedMemoryArchitecture:
             "avg_latency": 0.0,
         }
 
-    def _initialize_tier_configs(self) -> Dict[MemoryTier, MemoryTierConfig]:
+    def _initialize_tier_configs(self) -> dict[MemoryTier, MemoryTierConfig]:
         """Initialize configuration for all memory tiers"""
         return {
             MemoryTier.L0_GPU_MEMORY: MemoryTierConfig(
                 tier=MemoryTier.L0_GPU_MEMORY,
-                size_limit="141GB",
+                size_limit="96GB",
                 latency_target="<10ms",
                 eviction_policy="lru",
                 compression=False,
@@ -136,11 +140,11 @@ class EnhancedMemoryArchitecture:
                 "socket_timeout": 5,
                 "socket_connect_timeout": 5,
             }
-            
+
             redis_password = get_config_value("redis_password")
             if redis_password:
                 redis_config["password"] = redis_password
-            
+
             client = redis.Redis(**redis_config)
             client.ping()
             logger.info("✅ Redis connection established for L1 tier")
@@ -152,7 +156,7 @@ class EnhancedMemoryArchitecture:
     async def initialize_gpu_memory_manager(self):
         """Initialize GPU memory manager for L0 tier"""
         try:
-            # This would integrate with Lambda Labs H200 GPU
+            # This would integrate with Lambda Labs GH200 GPU
             # For now, we'll simulate the GPU memory management
             self.gpu_memory_manager = {
                 "active_models": {},
@@ -160,7 +164,7 @@ class EnhancedMemoryArchitecture:
                 "vector_cache": {},
                 "buffer": {},
                 "total_usage": 0,
-                "max_memory": 141 * 1024**3,  # 141GB in bytes
+                "max_memory": 141 * 1024**3,  # 96GB in bytes
             }
             logger.info("✅ GPU memory manager initialized for L0 tier")
         except Exception as e:
@@ -171,12 +175,14 @@ class EnhancedMemoryArchitecture:
         """Initialize Snowflake connection for L2-L5 tiers"""
         try:
             import snowflake.connector
-            
+
             self.snowflake_conn = snowflake.connector.connect(
                 user=get_config_value("snowflake_username"),
                 password=get_config_value("snowflake_password"),
                 account=get_config_value("snowflake_account"),
-                warehouse=get_config_value("snowflake_warehouse", "SOPHIA_AI_COMPUTE_WH"),
+                warehouse=get_config_value(
+                    "snowflake_warehouse", "SOPHIA_AI_COMPUTE_WH"
+                ),
                 database=get_config_value("snowflake_database", "SOPHIA_AI_PRODUCTION"),
                 schema=get_config_value("snowflake_schema", "PRODUCTION"),
                 role=get_config_value("snowflake_role", "SOPHIA_AI_ROLE"),
@@ -192,11 +198,11 @@ class EnhancedMemoryArchitecture:
         value: Any,
         tier: MemoryTier,
         ttl: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> bool:
         """Store data in the specified memory tier"""
         start_time = time.time()
-        
+
         try:
             if tier == MemoryTier.L0_GPU_MEMORY:
                 success = await self._store_gpu_memory(key, value, ttl, metadata)
@@ -213,12 +219,12 @@ class EnhancedMemoryArchitecture:
             else:
                 logger.error(f"❌ Unknown memory tier: {tier}")
                 return False
-            
+
             latency = (time.time() - start_time) * 1000  # Convert to milliseconds
             self._update_performance_metrics(tier, latency, success)
-            
+
             return success
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to store data in {tier}: {e}")
             return False
@@ -230,7 +236,7 @@ class EnhancedMemoryArchitecture:
     ) -> Optional[Any]:
         """Retrieve data with intelligent tier selection"""
         start_time = time.time()
-        
+
         # Define tier search order (fastest to slowest)
         search_order = [
             MemoryTier.L0_GPU_MEMORY,
@@ -240,11 +246,13 @@ class EnhancedMemoryArchitecture:
             MemoryTier.L4_KNOWLEDGE_GRAPH,
             MemoryTier.L5_WORKFLOW_MEMORY,
         ]
-        
+
         # If preferred tier is specified, try that first
         if preferred_tier:
-            search_order = [preferred_tier] + [t for t in search_order if t != preferred_tier]
-        
+            search_order = [preferred_tier] + [
+                t for t in search_order if t != preferred_tier
+            ]
+
         for tier in search_order:
             try:
                 if tier == MemoryTier.L0_GPU_MEMORY:
@@ -261,20 +269,20 @@ class EnhancedMemoryArchitecture:
                     result = await self._retrieve_workflow_memory(key)
                 else:
                     continue
-                
+
                 if result is not None:
                     latency = (time.time() - start_time) * 1000
                     self._update_performance_metrics(tier, latency, True)
-                    
+
                     # Promote to faster tier if appropriate
                     await self._promote_to_faster_tier(key, result, tier)
-                    
+
                     return result
-                    
+
             except Exception as e:
                 logger.warning(f"⚠️ Failed to retrieve from {tier}: {e}")
                 continue
-        
+
         # Data not found in any tier
         self.performance_metrics["total_requests"] += 1
         return None
@@ -284,22 +292,27 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         ttl: Optional[int],
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """Store data in GPU memory (L0 tier)"""
         if not self.gpu_memory_manager:
             return False
-        
+
         try:
             # Serialize value
-            serialized_value = json.dumps(value) if not isinstance(value, str) else value
-            value_size = len(serialized_value.encode('utf-8'))
-            
+            serialized_value = (
+                json.dumps(value) if not isinstance(value, str) else value
+            )
+            value_size = len(serialized_value.encode("utf-8"))
+
             # Check if we have enough GPU memory
-            if self.gpu_memory_manager["total_usage"] + value_size > self.gpu_memory_manager["max_memory"]:
+            if (
+                self.gpu_memory_manager["total_usage"] + value_size
+                > self.gpu_memory_manager["max_memory"]
+            ):
                 # Evict least recently used items
                 await self._evict_gpu_memory()
-            
+
             # Store in appropriate pool based on metadata
             pool = self._determine_gpu_memory_pool(metadata)
             self.gpu_memory_manager[pool][key] = {
@@ -309,13 +322,13 @@ class EnhancedMemoryArchitecture:
                 "metadata": metadata,
                 "size": value_size,
             }
-            
+
             self.gpu_memory_manager["total_usage"] += value_size
             self.performance_metrics["l0_hits"] += 1
-            
+
             logger.debug(f"✅ Stored {key} in GPU memory pool: {pool}")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ GPU memory storage failed: {e}")
             return False
@@ -324,30 +337,33 @@ class EnhancedMemoryArchitecture:
         """Retrieve data from GPU memory (L0 tier)"""
         if not self.gpu_memory_manager:
             return None
-        
+
         try:
             # Search all GPU memory pools
             for pool_name, pool in self.gpu_memory_manager.items():
                 if isinstance(pool, dict) and key in pool:
                     item = pool[key]
-                    
+
                     # Check TTL
-                    if item.get("ttl") and time.time() - item["timestamp"] > item["ttl"]:
+                    if (
+                        item.get("ttl")
+                        and time.time() - item["timestamp"] > item["ttl"]
+                    ):
                         del pool[key]
                         self.gpu_memory_manager["total_usage"] -= item["size"]
                         continue
-                    
+
                     # Update timestamp for LRU
                     item["timestamp"] = time.time()
-                    
+
                     # Deserialize value
                     try:
                         return json.loads(item["value"])
                     except (json.JSONDecodeError, TypeError):
                         return item["value"]
-            
+
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ GPU memory retrieval failed: {e}")
             return None
@@ -357,7 +373,7 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         ttl: Optional[int],
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """Store data in Redis cache (L1 tier)"""
         try:
@@ -367,18 +383,18 @@ class EnhancedMemoryArchitecture:
                 "metadata": metadata,
                 "timestamp": time.time(),
             }
-            
+
             serialized_data = json.dumps(cache_data)
-            
+
             if ttl:
                 self.redis_client.setex(f"l1:{key}", ttl, serialized_data)
             else:
                 self.redis_client.set(f"l1:{key}", serialized_data)
-            
+
             self.performance_metrics["l1_hits"] += 1
             logger.debug(f"✅ Stored {key} in Redis cache")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Redis cache storage failed: {e}")
             return False
@@ -391,7 +407,7 @@ class EnhancedMemoryArchitecture:
                 data = json.loads(cached_data)
                 return data["value"]
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ Redis cache retrieval failed: {e}")
             return None
@@ -401,34 +417,37 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         ttl: Optional[int],
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """Store data in Snowflake Cortex cache (L2 tier)"""
         try:
             if not self.snowflake_conn:
                 return False
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Insert or update cache entry
             insert_query = """
             INSERT INTO SOPHIA_AI_MEMORY.CORTEX_CACHE (
                 cache_key, cache_value, metadata, ttl, created_at, updated_at
             ) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
             """
-            
-            cursor.execute(insert_query, (
-                key,
-                json.dumps(value),
-                json.dumps(metadata) if metadata else None,
-                ttl,
-            ))
-            
+
+            cursor.execute(
+                insert_query,
+                (
+                    key,
+                    json.dumps(value),
+                    json.dumps(metadata) if metadata else None,
+                    ttl,
+                ),
+            )
+
             cursor.close()
             self.performance_metrics["l2_hits"] += 1
             logger.debug(f"✅ Stored {key} in Cortex cache")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Cortex cache storage failed: {e}")
             return False
@@ -438,9 +457,9 @@ class EnhancedMemoryArchitecture:
         try:
             if not self.snowflake_conn:
                 return None
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Query with TTL check
             select_query = """
             SELECT cache_value, metadata
@@ -448,15 +467,15 @@ class EnhancedMemoryArchitecture:
             WHERE cache_key = ?
             AND (ttl IS NULL OR DATEDIFF(second, created_at, CURRENT_TIMESTAMP()) < ttl)
             """
-            
+
             cursor.execute(select_query, (key,))
             result = cursor.fetchone()
             cursor.close()
-            
+
             if result:
                 return json.loads(result[0])
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ Cortex cache retrieval failed: {e}")
             return None
@@ -466,35 +485,38 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         ttl: Optional[int],
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """Store data in Snowflake persistent memory (L3 tier)"""
         try:
             if not self.snowflake_conn:
                 return False
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             # Insert into persistent memory table
             insert_query = """
             INSERT INTO SOPHIA_AI_MEMORY.MEMORY_RECORDS (
                 memory_id, category, content, metadata, importance_score, created_at
             ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
             """
-            
-            cursor.execute(insert_query, (
-                key,
-                metadata.get("category", "general") if metadata else "general",
-                json.dumps(value),
-                json.dumps(metadata) if metadata else None,
-                metadata.get("importance_score", 0.5) if metadata else 0.5,
-            ))
-            
+
+            cursor.execute(
+                insert_query,
+                (
+                    key,
+                    metadata.get("category", "general") if metadata else "general",
+                    json.dumps(value),
+                    json.dumps(metadata) if metadata else None,
+                    metadata.get("importance_score", 0.5) if metadata else 0.5,
+                ),
+            )
+
             cursor.close()
             self.performance_metrics["l3_hits"] += 1
             logger.debug(f"✅ Stored {key} in persistent memory")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Persistent memory storage failed: {e}")
             return False
@@ -504,23 +526,23 @@ class EnhancedMemoryArchitecture:
         try:
             if not self.snowflake_conn:
                 return None
-            
+
             cursor = self.snowflake_conn.cursor()
-            
+
             select_query = """
             SELECT content, metadata
             FROM SOPHIA_AI_MEMORY.MEMORY_RECORDS
             WHERE memory_id = ?
             """
-            
+
             cursor.execute(select_query, (key,))
             result = cursor.fetchone()
             cursor.close()
-            
+
             if result:
                 return json.loads(result[0])
             return None
-            
+
         except Exception as e:
             logger.error(f"❌ Persistent memory retrieval failed: {e}")
             return None
@@ -530,7 +552,7 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         ttl: Optional[int],
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """Store data in Snowflake knowledge graph (L4 tier)"""
         # Implementation for knowledge graph storage
@@ -547,7 +569,7 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         ttl: Optional[int],
-        metadata: Optional[Dict[str, Any]],
+        metadata: Optional[dict[str, Any]],
     ) -> bool:
         """Store data in Snowflake workflow memory (L5 tier)"""
         # Implementation for workflow memory storage
@@ -558,13 +580,13 @@ class EnhancedMemoryArchitecture:
         # Implementation for workflow memory retrieval
         return None
 
-    def _determine_gpu_memory_pool(self, metadata: Optional[Dict[str, Any]]) -> str:
+    def _determine_gpu_memory_pool(self, metadata: Optional[dict[str, Any]]) -> str:
         """Determine which GPU memory pool to use based on metadata"""
         if not metadata:
             return "buffer"
-        
+
         data_type = metadata.get("type", "unknown")
-        
+
         if data_type in ["model", "weights", "parameters"]:
             return "active_models"
         elif data_type in ["inference", "prediction", "response"]:
@@ -579,35 +601,39 @@ class EnhancedMemoryArchitecture:
         try:
             # Find oldest items across all pools
             oldest_items = []
-            
+
             for pool_name, pool in self.gpu_memory_manager.items():
                 if isinstance(pool, dict):
                     for key, item in pool.items():
-                        oldest_items.append((item["timestamp"], pool_name, key, item["size"]))
-            
+                        oldest_items.append(
+                            (item["timestamp"], pool_name, key, item["size"])
+                        )
+
             # Sort by timestamp (oldest first)
             oldest_items.sort(key=lambda x: x[0])
-            
+
             # Evict items until we have enough space (25% of total memory)
             target_free_space = self.gpu_memory_manager["max_memory"] * 0.25
             freed_space = 0
-            
+
             for timestamp, pool_name, key, size in oldest_items:
                 if freed_space >= target_free_space:
                     break
-                
+
                 del self.gpu_memory_manager[pool_name][key]
                 self.gpu_memory_manager["total_usage"] -= size
                 freed_space += size
-                
+
                 logger.debug(f"🗑️ Evicted {key} from GPU memory pool: {pool_name}")
-            
+
             logger.info(f"✅ Freed {freed_space / 1024**3:.2f}GB from GPU memory")
-            
+
         except Exception as e:
             logger.error(f"❌ GPU memory eviction failed: {e}")
 
-    async def _promote_to_faster_tier(self, key: str, value: Any, current_tier: MemoryTier):
+    async def _promote_to_faster_tier(
+        self, key: str, value: Any, current_tier: MemoryTier
+    ):
         """Promote frequently accessed data to faster tiers"""
         try:
             if current_tier == MemoryTier.L1_SESSION_CACHE:
@@ -617,14 +643,16 @@ class EnhancedMemoryArchitecture:
                 # Promote to L1 (Redis)
                 await self._store_redis_cache(key, value, 3600, {"promoted": True})
             # Add more promotion logic as needed
-            
+
         except Exception as e:
             logger.warning(f"⚠️ Failed to promote {key} to faster tier: {e}")
 
-    def _update_performance_metrics(self, tier: MemoryTier, latency: float, success: bool):
+    def _update_performance_metrics(
+        self, tier: MemoryTier, latency: float, success: bool
+    ):
         """Update performance metrics"""
         self.performance_metrics["total_requests"] += 1
-        
+
         if success:
             if tier == MemoryTier.L0_GPU_MEMORY:
                 self.performance_metrics["l0_hits"] += 1
@@ -638,56 +666,70 @@ class EnhancedMemoryArchitecture:
                 self.performance_metrics["l4_hits"] += 1
             elif tier == MemoryTier.L5_WORKFLOW_MEMORY:
                 self.performance_metrics["l5_hits"] += 1
-        
+
         # Update average latency
         current_avg = self.performance_metrics["avg_latency"]
         total_requests = self.performance_metrics["total_requests"]
         self.performance_metrics["avg_latency"] = (
-            (current_avg * (total_requests - 1) + latency) / total_requests
+            current_avg * (total_requests - 1) + latency
+        ) / total_requests
+
+    async def get_performance_metrics(self) -> dict[str, Any]:
+        """Get current performance metrics"""
+        total_hits = sum(
+            [
+                self.performance_metrics["l0_hits"],
+                self.performance_metrics["l1_hits"],
+                self.performance_metrics["l2_hits"],
+                self.performance_metrics["l3_hits"],
+                self.performance_metrics["l4_hits"],
+                self.performance_metrics["l5_hits"],
+            ]
         )
 
-    async def get_performance_metrics(self) -> Dict[str, Any]:
-        """Get current performance metrics"""
-        total_hits = sum([
-            self.performance_metrics["l0_hits"],
-            self.performance_metrics["l1_hits"],
-            self.performance_metrics["l2_hits"],
-            self.performance_metrics["l3_hits"],
-            self.performance_metrics["l4_hits"],
-            self.performance_metrics["l5_hits"],
-        ])
-        
         hit_rate = total_hits / max(self.performance_metrics["total_requests"], 1)
-        
+
         return {
             **self.performance_metrics,
             "hit_rate": hit_rate,
             "tier_distribution": {
-                "l0_percentage": self.performance_metrics["l0_hits"] / max(total_hits, 1),
-                "l1_percentage": self.performance_metrics["l1_hits"] / max(total_hits, 1),
-                "l2_percentage": self.performance_metrics["l2_hits"] / max(total_hits, 1),
-                "l3_percentage": self.performance_metrics["l3_hits"] / max(total_hits, 1),
-                "l4_percentage": self.performance_metrics["l4_hits"] / max(total_hits, 1),
-                "l5_percentage": self.performance_metrics["l5_hits"] / max(total_hits, 1),
+                "l0_percentage": self.performance_metrics["l0_hits"]
+                / max(total_hits, 1),
+                "l1_percentage": self.performance_metrics["l1_hits"]
+                / max(total_hits, 1),
+                "l2_percentage": self.performance_metrics["l2_hits"]
+                / max(total_hits, 1),
+                "l3_percentage": self.performance_metrics["l3_hits"]
+                / max(total_hits, 1),
+                "l4_percentage": self.performance_metrics["l4_hits"]
+                / max(total_hits, 1),
+                "l5_percentage": self.performance_metrics["l5_hits"]
+                / max(total_hits, 1),
             },
             "gpu_memory_usage": {
-                "total_usage": self.gpu_memory_manager["total_usage"] if self.gpu_memory_manager else 0,
-                "max_memory": self.gpu_memory_manager["max_memory"] if self.gpu_memory_manager else 0,
+                "total_usage": self.gpu_memory_manager["total_usage"]
+                if self.gpu_memory_manager
+                else 0,
+                "max_memory": self.gpu_memory_manager["max_memory"]
+                if self.gpu_memory_manager
+                else 0,
                 "usage_percentage": (
-                    self.gpu_memory_manager["total_usage"] / self.gpu_memory_manager["max_memory"]
-                    if self.gpu_memory_manager else 0
+                    self.gpu_memory_manager["total_usage"]
+                    / self.gpu_memory_manager["max_memory"]
+                    if self.gpu_memory_manager
+                    else 0
                 ),
             },
         }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Perform health check on all memory tiers"""
         health_status = {
             "overall_health": "healthy",
             "tiers": {},
             "timestamp": time.time(),
         }
-        
+
         # Check L0 (GPU Memory)
         try:
             if self.gpu_memory_manager:
@@ -705,7 +747,7 @@ class EnhancedMemoryArchitecture:
                 "status": "unhealthy",
                 "error": str(e),
             }
-        
+
         # Check L1 (Redis)
         try:
             self.redis_client.ping()
@@ -718,7 +760,7 @@ class EnhancedMemoryArchitecture:
                 "status": "unhealthy",
                 "error": str(e),
             }
-        
+
         # Check L2-L5 (Snowflake)
         try:
             if self.snowflake_conn:
@@ -726,34 +768,50 @@ class EnhancedMemoryArchitecture:
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
                 cursor.close()
-                
-                for tier in ["l2_cortex_cache", "l3_persistent_memory", "l4_knowledge_graph", "l5_workflow_memory"]:
+
+                for tier in [
+                    "l2_cortex_cache",
+                    "l3_persistent_memory",
+                    "l4_knowledge_graph",
+                    "l5_workflow_memory",
+                ]:
                     health_status["tiers"][tier] = {
                         "status": "healthy",
                         "connection": "active",
                     }
             else:
-                for tier in ["l2_cortex_cache", "l3_persistent_memory", "l4_knowledge_graph", "l5_workflow_memory"]:
+                for tier in [
+                    "l2_cortex_cache",
+                    "l3_persistent_memory",
+                    "l4_knowledge_graph",
+                    "l5_workflow_memory",
+                ]:
                     health_status["tiers"][tier] = {
                         "status": "not_initialized",
                     }
         except Exception as e:
-            for tier in ["l2_cortex_cache", "l3_persistent_memory", "l4_knowledge_graph", "l5_workflow_memory"]:
+            for tier in [
+                "l2_cortex_cache",
+                "l3_persistent_memory",
+                "l4_knowledge_graph",
+                "l5_workflow_memory",
+            ]:
                 health_status["tiers"][tier] = {
                     "status": "unhealthy",
                     "error": str(e),
                 }
-        
+
         # Determine overall health
         unhealthy_tiers = [
-            tier for tier, status in health_status["tiers"].items()
+            tier
+            for tier, status in health_status["tiers"].items()
             if status["status"] == "unhealthy"
         ]
-        
+
         if unhealthy_tiers:
             health_status["overall_health"] = "degraded"
             health_status["unhealthy_tiers"] = unhealthy_tiers
-        
+
         return health_status
 
 
@@ -764,14 +822,14 @@ enhanced_memory_architecture = EnhancedMemoryArchitecture()
 async def initialize_enhanced_memory_architecture():
     """Initialize the enhanced memory architecture"""
     logger.info("🚀 Initializing Enhanced 6-Tier Memory Architecture...")
-    
+
     try:
         await enhanced_memory_architecture.initialize_gpu_memory_manager()
         await enhanced_memory_architecture.initialize_snowflake_connection()
-        
+
         logger.info("✅ Enhanced Memory Architecture initialized successfully")
         return enhanced_memory_architecture
-        
+
     except Exception as e:
         logger.error(f"❌ Enhanced Memory Architecture initialization failed: {e}")
         raise

@@ -1,4 +1,4 @@
-# Enhanced Dockerfile for H200 GPU Optimization
+# Enhanced Dockerfile for GH200 GPU Optimization
 # Optimized for Sophia AI Platform with 6-tier memory architecture
 FROM nvidia/cuda:12.3-devel-ubuntu20.04 as base
 
@@ -7,7 +7,7 @@ ARG PYTHON_VERSION=3.11
 ARG NODE_VERSION=18
 ARG CUDA_VERSION=12.3
 ARG GPU_ARCHITECTURE=h200
-ARG GPU_MEMORY=141GB
+ARG GPU_MEMORY=96GB
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -47,12 +47,12 @@ WORKDIR /app
 
 # Copy requirements first for better caching
 COPY requirements.txt .
-COPY requirements-h200.txt .
+COPY requirements-gh200.txt .
 
 # Install Python dependencies with H200 optimizations
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir -r requirements-h200.txt
+    pip install --no-cache-dir -r requirements-gh200.txt
 
 # Install GPU-specific packages
 RUN pip install --no-cache-dir \
@@ -110,7 +110,7 @@ python -c "import torch; print(f\"CUDA available: {torch.cuda.is_available()}\")
 # Check GPU memory\n\
 python -c "import torch; print(f\"GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB\")" || exit 1\n\
 \n\
-echo "✅ Health check passed - H200 GPU ready"\n\
+echo "✅ Health check passed - GH200 GPU ready"\n\
 ' > /app/health_check.sh && chmod +x /app/health_check.sh
 
 # Create GPU memory monitoring script
@@ -125,7 +125,7 @@ done\n\
 RUN echo '#!/bin/bash\n\
 set -e\n\
 \n\
-echo "🚀 Starting Sophia AI Enhanced - H200 GPU Platform"\n\
+echo "🚀 Starting Sophia AI Enhanced - GH200 GPU Platform"\n\
 echo "GPU Architecture: ${GPU_ARCHITECTURE}"\n\
 echo "GPU Memory: ${GPU_MEMORY}"\n\
 echo "Memory Architecture: ${MEMORY_ARCHITECTURE}"\n\
@@ -174,7 +174,7 @@ CMD ["/app/start.sh"]
 LABEL maintainer="Sophia AI Platform"
 LABEL version="2.0.0"
 LABEL gpu.architecture="h200"
-LABEL gpu.memory="141GB"
+LABEL gpu.memory="96GB"
 LABEL memory.architecture="6-tier"
 LABEL snowflake.integration="enabled"
-LABEL description="Enhanced Sophia AI Platform optimized for H200 GPUs with 6-tier memory architecture"
+LABEL description="Enhanced Sophia AI Platform optimized for GH200 GPUs with 6-tier memory architecture"

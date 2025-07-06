@@ -24,19 +24,19 @@ const namespace = new k8s.core.v1.Namespace("sophia-ai-enhanced", {
     },
 }, { provider: lambdaLabsProvider });
 
-// Enhanced Docker image for H200 GPU optimization
+// Enhanced Docker image for GH200 GPU optimization
 const sophiaEnhancedImage = new docker.Image("sophia-h200-optimized", {
     imageName: pulumi.interpolate`${dockerRegistry}/sophia-ai:h200-optimized`,
     build: {
         context: "../../",
-        dockerfile: "../../Dockerfile.h200",
+        dockerfile: "../../Dockerfile.gh200",
         target: "production",
         args: {
             PYTHON_VERSION: "3.11",
             NODE_VERSION: "18",
             CUDA_VERSION: "12.3",
             GPU_ARCHITECTURE: "h200",
-            GPU_MEMORY: "141GB",
+            GPU_MEMORY: "96GB",
         },
         cacheFrom: {
             images: [`${dockerRegistry}/sophia-ai:h200-cache`],
@@ -61,21 +61,21 @@ const sophiaEnhancedSecrets = new k8s.core.v1.Secret("sophia-enhanced-secrets", 
         "ANTHROPIC_API_KEY": config.requireSecret("anthropicApiKey"),
         "PORTKEY_API_KEY": config.requireSecret("portkeyApiKey"),
         "OPENROUTER_API_KEY": config.requireSecret("openrouterApiKey"),
-        
+
         // Business Intelligence
         "GONG_ACCESS_KEY": config.requireSecret("gongAccessKey"),
         "GONG_ACCESS_KEY_SECRET": config.requireSecret("gongAccessKeySecret"),
         "HUBSPOT_ACCESS_TOKEN": config.requireSecret("hubspotAccessToken"),
         "SLACK_BOT_TOKEN": config.requireSecret("slackBotToken"),
         "LINEAR_API_KEY": config.requireSecret("linearApiKey"),
-        
+
         // Infrastructure
         "LAMBDA_LABS_API_KEY": config.requireSecret("lambdaLabsApiKey"),
         "PINECONE_API_KEY": config.requireSecret("pineconeApiKey"),
         "PULUMI_ACCESS_TOKEN": config.requireSecret("pulumiAccessToken"),
-        
+
         // Enhanced GPU configuration
-        "GPU_MEMORY_POOL_SIZE": "141GB",
+        "GPU_MEMORY_POOL_SIZE": "96GB",
         "GPU_INFERENCE_CACHE_SIZE": "40GB",
         "GPU_MODEL_CACHE_SIZE": "60GB",
         "GPU_VECTOR_CACHE_SIZE": "30GB",
@@ -112,7 +112,7 @@ const enhancedConfigMap = new k8s.core.v1.ConfigMap("sophia-enhanced-config", {
     },
     data: {
         "app_config.yaml": `
-# Enhanced Sophia AI Configuration - H200 GPU Optimization
+# Enhanced Sophia AI Configuration - GH200 GPU Optimization
 server:
   host: "0.0.0.0"
   port: 8000
@@ -130,7 +130,7 @@ snowflake:
 # 6-Tier Memory Architecture
 memory_architecture:
   l0_gpu_memory:
-    size: "141GB"
+    size: "96GB"
     latency: "<10ms"
     type: "HBM3e"
     pools:
@@ -138,31 +138,31 @@ memory_architecture:
       inference_cache: "40GB"
       vector_cache: "30GB"
       buffer: "11GB"
-  
+
   l1_session_cache:
     size: "16GB"
     latency: "<50ms"
     type: "Redis"
     eviction_policy: "allkeys-lru"
-  
+
   l2_cortex_cache:
     size: "unlimited"
     latency: "<100ms"
     type: "Snowflake"
     gpu_acceleration: true
-  
+
   l3_persistent_memory:
     size: "unlimited"
     latency: "<200ms"
     type: "Snowflake"
     tables: ["SOPHIA_AI_MEMORY.MEMORY_RECORDS"]
-  
+
   l4_knowledge_graph:
     size: "unlimited"
     latency: "<300ms"
     type: "Snowflake"
     vector_search: true
-  
+
   l5_workflow_memory:
     size: "unlimited"
     latency: "<400ms"
@@ -179,7 +179,7 @@ llm_routing:
 # GPU Optimization
 gpu:
   type: "H200"
-  memory: "141GB"
+  memory: "96GB"
   bandwidth: "4.8TB/s"
   compute_capability: "9.0"
   tensor_cores: true
@@ -289,7 +289,7 @@ const enhancedDeployment = new k8s.apps.v1.Deployment("sophia-enhanced-deploymen
                 serviceAccountName: enhancedServiceAccount.metadata.name,
                 nodeSelector: {
                     "lambdalabs.com/gpu-type": "h200",
-                    "lambdalabs.com/gpu-memory": "141GB",
+                    "lambdalabs.com/gpu-memory": "96GB",
                 },
                 tolerations: [{
                     key: "nvidia.com/gpu",
@@ -556,5 +556,5 @@ export const enhancedServiceEndpoint = pulumi.interpolate`http://${enhancedServi
 export const enhancedImageUri = sophiaEnhancedImage.imageName;
 export const gpuTier = "h200";
 export const memoryArchitecture = "6-tier";
-export const gpuMemorySize = "141GB";
+export const gpuMemorySize = "96GB";
 export const snowflakeIntegration = "enabled";

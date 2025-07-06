@@ -8,7 +8,7 @@
 
 ## 🎯 **Executive Summary**
 
-This document provides the complete integration strategy for Lambda Labs H200 GPU infrastructure using GitHub CLI and Pulumi ESC, based on the Perfect Alignment achieved on January 7, 2025.
+This document provides the complete integration strategy for Lambda Labs GH200 GPU infrastructure using GitHub CLI and Pulumi ESC, based on the Perfect Alignment achieved on January 7, 2025.
 
 ### **Key Achievements:**
 - ✅ 10 GitHub secrets perfectly aligned with Lambda Labs requirements
@@ -41,7 +41,7 @@ Lambda Labs Secrets (10 total):
   LAMBDA_LABS_SSH_KEY_NAME: lynn-sophia-h200-key
   LAMBDA_LABS_SSH_PRIVATE_KEY: (ED25519 private key)
   LAMBDA_LABS_REGION: us-west-1
-  LAMBDA_LABS_INSTANCE_TYPE: gpu_1x_h200
+  LAMBDA_LABS_INSTANCE_TYPE: gpu_1x_gh200
   LAMBDA_LABS_CLUSTER_SIZE: 3
   LAMBDA_LABS_MAX_CLUSTER_SIZE: 16
   LAMBDA_LABS_SHARED_FS_ID: lynn-sophia-shared-fs
@@ -91,11 +91,11 @@ pulumi env init scoobyjava-org/sophia-ai-h200-production
 
 # Import configuration
 pulumi env set scoobyjava-org/sophia-ai-h200-production \
-  --file infrastructure/esc/lambda-labs-h200-config.yaml
+  --file infrastructure/esc/lambda-labs-gh200-config.yaml
 ```
 
 ### **Step 2: ESC Configuration File**
-Create `infrastructure/esc/lambda-labs-h200-config.yaml`:
+Create `infrastructure/esc/lambda-labs-gh200-config.yaml`:
 ```yaml
 values:
   sophia:
@@ -413,9 +413,9 @@ class IntegrationValidator:
                     h200_available = any('h200' in t.get('name', '').lower()
                                        for t in data.get('data', []))
                     if h200_available:
-                        self.successes.append("✅ H200 GPU instances available")
+                        self.successes.append("✅ GH200 GPU instances available")
                     else:
-                        self.warnings.append("⚠️  H200 GPU instances not currently available")
+                        self.warnings.append("⚠️  GH200 GPU instances not currently available")
                     return True
                 else:
                     self.errors.append(f"❌ Lambda Labs API key invalid: {response.status_code}")
@@ -456,7 +456,7 @@ class IntegrationValidator:
         # Overall status
         if not self.errors:
             print("🎉 OVERALL: Integration validation PASSED!")
-            print("   Ready for H200 GPU deployment")
+            print("   Ready for GH200 GPU deployment")
         else:
             print("❌ OVERALL: Integration validation FAILED")
             print("   Please fix the errors above before proceeding")
@@ -521,7 +521,7 @@ pulumi env init scoobyjava-org/sophia-ai-h200-production
 
 # Step 4: Import configuration
 pulumi env set scoobyjava-org/sophia-ai-h200-production \
-  --file infrastructure/esc/lambda-labs-h200-config.yaml
+  --file infrastructure/esc/lambda-labs-gh200-config.yaml
 
 # Step 5: Sync secrets from GitHub
 python scripts/ci/sync_from_gh_to_pulumi.py
@@ -634,4 +634,4 @@ chmod 644 ~/.ssh/lynn_sophia_h200_key.pub
 
 ---
 
-**🚀 READY FOR H200 GPU DEPLOYMENT WITH PERFECT INTEGRATION!**
+**🚀 READY FOR GH200 GPU DEPLOYMENT WITH PERFECT INTEGRATION!**

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pre-deployment checklist for Lambda Labs H200 GPU Infrastructure
+Pre-deployment checklist for Lambda Labs GH200 GPU Infrastructure
 Validates all prerequisites before deploying H200 instances
 """
 import json
@@ -243,7 +243,7 @@ class PreDeploymentChecker:
     def check_infrastructure_files(self):
         """Check required infrastructure files"""
         files_to_check = [
-            ("ESC Config", "infrastructure/esc/lambda-labs-h200-config.yaml"),
+            ("ESC Config", "infrastructure/esc/lambda-labs-gh200-config.yaml"),
             ("Sync Script", "scripts/ci/sync_from_gh_to_pulumi.py"),
             ("GitHub Workflow", ".github/workflows/sync_secrets.yml"),
             ("Validation Script", "scripts/validate_lambda_labs_integration.py"),

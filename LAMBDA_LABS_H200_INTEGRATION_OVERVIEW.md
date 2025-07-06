@@ -21,7 +21,7 @@ Created comprehensive infrastructure for Lambda Labs H200 + GitHub CLI + Pulumi 
 #### **Documentation Created:**
 - `docs/implementation/LAMBDA_LABS_PULUMI_ESC_INTEGRATION.md` - Complete integration guide
 - `docs/implementation/LAMBDA_LABS_H200_INTEGRATION_GUIDE.md` - Current status and next steps
-- `infrastructure/esc/lambda-labs-h200-config.yaml` - Pulumi ESC configuration
+- `infrastructure/esc/lambda-labs-gh200-config.yaml` - Pulumi ESC configuration
 
 #### **Scripts Updated/Created:**
 - `scripts/ci/sync_from_gh_to_pulumi.py` - Added all 10 H200 secret mappings
@@ -60,7 +60,7 @@ pulumi env init scoobyjava-org/sophia-ai-h200-production
 
 # Import configuration
 pulumi env set scoobyjava-org/sophia-ai-h200-production \
-  --file infrastructure/esc/lambda-labs-h200-config.yaml
+  --file infrastructure/esc/lambda-labs-gh200-config.yaml
 ```
 
 ### **3. Set Lambda Labs API Key (2 minutes)**
@@ -101,7 +101,7 @@ Pulumi ESC (sophia-ai-h200-production)
     ↓
 Lambda Labs API
     ↓
-H200 GPU Cluster (3-16 nodes)
+GH200 GPU Cluster (3-16 nodes)
 ```
 
 ---
@@ -118,7 +118,7 @@ H200 GPU Cluster (3-16 nodes)
    - Validation results
    - Quick start commands
 
-3. **ESC Configuration**: `infrastructure/esc/lambda-labs-h200-config.yaml`
+3. **ESC Configuration**: `infrastructure/esc/lambda-labs-gh200-config.yaml`
    - Complete H200 configuration
    - GPU memory pools
    - Auto-scaling settings
@@ -140,7 +140,7 @@ H200 GPU Cluster (3-16 nodes)
 
 ## 🚀 **Business Value**
 
-- **6x Memory Increase**: 141GB HBM3e vs 24GB on A10
+- **6x Memory Increase**: 96GB HBM3e vs 24GB on A10
 - **4x Performance**: 50ms response times
 - **24% Cost Reduction**: $1,600/month savings
 - **Auto-Scaling**: 3-16 nodes based on demand

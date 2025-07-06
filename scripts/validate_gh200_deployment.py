@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Validate GH200 GPU Deployment on Lambda Labs
+Validate GGH200 GPU Deployment on Lambda Labs
 Checks actual deployment against PR specifications
 """
 
@@ -30,7 +30,7 @@ class GH200DeploymentValidator:
 
         self.pr136_specs = {
             "gpu_type": "H200",
-            "gpu_memory_per_instance": "141GB",
+            "gpu_memory_per_instance": "96GB",
             "memory_pools": {
                 "active_models": "60GB",
                 "inference_cache": "40GB",
@@ -79,7 +79,7 @@ class GH200DeploymentValidator:
         """Calculate adjusted memory pools for GH200 (96GB)"""
         print("📊 Calculating Memory Pool Adjustments...")
 
-        # Original H200 allocations (141GB total)
+        # Original H200 allocations (96GB total)
         h200_pools = self.pr136_specs["memory_pools"]
         h200_total = 141  # GB
 
@@ -114,12 +114,12 @@ class GH200DeploymentValidator:
         print("📁 Identifying Files to Update...")
 
         files_to_check = [
-            ("Dockerfile.h200", "Dockerfile.gh200"),
-            ("requirements-h200.txt", "requirements-gh200.txt"),
+            ("Dockerfile.gh200", "Dockerfile.gh200"),
+            ("requirements-gh200.txt", "requirements-gh200.txt"),
             ("infrastructure/enhanced_lambda_labs_provisioner.py", None),
             ("backend/core/enhanced_memory_architecture.py", None),
             (
-                "infrastructure/pulumi/enhanced-h200-stack.ts",
+                "infrastructure/pulumi/enhanced-gh200-stack.ts",
                 "infrastructure/pulumi/enhanced-gh200-stack.ts",
             ),
             ("infrastructure/ENHANCED_LAMBDA_LABS_SETUP_GUIDE.md", None),
@@ -135,7 +135,7 @@ class GH200DeploymentValidator:
                 "changes": [
                     "Replace 'H200' with 'GH200'",
                     "Replace 'h200' with 'gh200'",
-                    "Replace '141GB' with '96GB'",
+                    "Replace '96GB' with '96GB'",
                     "Update memory pool allocations",
                 ],
             }
@@ -161,9 +161,9 @@ def update_h200_to_gh200():
 
     # Files to rename
     renames = [
-        ("Dockerfile.h200", "Dockerfile.gh200"),
-        ("requirements-h200.txt", "requirements-gh200.txt"),
-        ("infrastructure/pulumi/enhanced-h200-stack.ts", "infrastructure/pulumi/enhanced-gh200-stack.ts")
+        ("Dockerfile.gh200", "Dockerfile.gh200"),
+        ("requirements-gh200.txt", "requirements-gh200.txt"),
+        ("infrastructure/pulumi/enhanced-gh200-stack.ts", "infrastructure/pulumi/enhanced-gh200-stack.ts")
     ]
 
     # Perform renames
@@ -188,9 +188,9 @@ def update_h200_to_gh200():
     replacements = [
         (r'H200', 'GH200'),
         (r'h200', 'gh200'),
-        (r'141GB', '96GB'),
+        (r'96GB', '96GB'),
         (r'141\\s*GB', '96 GB'),
-        (r'gpu_1x_h200', 'gpu_1x_gh200'),
+        (r'gpu_1x_gh200', 'gpu_1x_gh200'),
         (r'active_models:\\s*str\\s*=\\s*"60GB"', 'active_models: str = "40GB"'),
         (r'inference_cache:\\s*str\\s*=\\s*"40GB"', 'inference_cache: str = "30GB"'),
         (r'vector_cache:\\s*str\\s*=\\s*"30GB"', 'vector_cache: str = "20GB"'),
@@ -251,7 +251,7 @@ if __name__ == "__main__":
             {
                 "priority": "MEDIUM",
                 "action": "Update monitoring dashboards",
-                "reason": "Adjust GPU memory thresholds from 141GB to 96GB",
+                "reason": "Adjust GPU memory thresholds from 96GB to 96GB",
             },
             {
                 "priority": "LOW",
@@ -279,7 +279,7 @@ if __name__ == "__main__":
         if self.validation_results["memory_adjustments"]:
             adj = self.validation_results["memory_adjustments"]
             print(f"\n  Scaling Factor: {adj['scaling_factor']}")
-            print("\n  Original H200 Allocation (141GB):")
+            print("\n  Original H200 Allocation (96GB):")
             for pool, size in adj["original_h200"].items():
                 print(f"    - {pool}: {size}")
             print("\n  Adjusted GH200 Allocation (96GB):")

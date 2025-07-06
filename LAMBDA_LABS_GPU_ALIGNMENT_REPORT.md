@@ -9,12 +9,12 @@
 ## 🚨 **Critical Discrepancy Identified**
 
 ### **What PR #136 Implements**
-- **GPU Type**: NVIDIA H200
-- **Memory per GPU**: 141GB HBM3e
-- **Architecture**: 6-tier memory with L0 GPU tier (141GB)
+- **GPU Type**: NVIDIA GH200
+- **Memory per GPU**: 96GB HBM3e
+- **Architecture**: 6-tier memory with L0 GPU tier (96GB)
 - **Cost**: Same as A10 ($2.49/hour)
-- **Docker Image**: Dockerfile.h200
-- **Configuration**: All references to "h200" and "141GB"
+- **Docker Image**: Dockerfile.gh200
+- **Configuration**: All references to "h200" and "96GB"
 
 ### **What Was Actually Deployed (Per Completion Report)**
 - **GPU Type**: NVIDIA GH200 ✅
@@ -28,10 +28,10 @@
 | Component | PR #136 (H200) | Actual Deployment (GH200) | Impact |
 |-----------|----------------|---------------------------|---------|
 | GPU Model | H200 | GH200 | Different hardware |
-| Memory/GPU | 141GB | 96GB | 32% less memory |
+| Memory/GPU | 96GB | 96GB | 32% less memory |
 | Memory Pools | 60+40+30+11GB | Needs adjustment | Overallocation |
 | Cost/hour | $2.49 | $1.49 | 40% cheaper |
-| Architecture | 6-tier (141GB L0) | 6-tier (96GB L0) | Needs update |
+| Architecture | 6-tier (96GB L0) | 6-tier (96GB L0) | Needs update |
 
 ---
 
@@ -41,21 +41,21 @@
 
 #### **Files That Need Updates**:
 
-1. **Dockerfile.h200** → Should be **Dockerfile.gh200**
-   - Line 9: `ARG GPU_MEMORY=141GB` → `ARG GPU_MEMORY=96GB`
+1. **Dockerfile.gh200** → Should be **Dockerfile.gh200**
+   - Line 9: `ARG GPU_MEMORY=96GB` → `ARG GPU_MEMORY=96GB`
    - Update all references from H200 to GH200
 
-2. **requirements-h200.txt** → Should be **requirements-gh200.txt**
+2. **requirements-gh200.txt** → Should be **requirements-gh200.txt**
    - File should be renamed to match actual deployment
 
 3. **infrastructure/enhanced_lambda_labs_provisioner.py**
-   - Line 35: `instance_type_name="gpu_1x_h200"` → `"gpu_1x_gh200"`
+   - Line 35: `instance_type_name="gpu_1x_gh200"` → `"gpu_1x_gh200"`
    - Memory allocation updates needed throughout
 
 4. **backend/core/enhanced_memory_architecture.py**
    - GPU memory pools need adjustment:
      ```python
-     # Current (H200 - 141GB)
+     # Current (H200 - 96GB)
      active_models: str = "60GB"
      inference_cache: str = "40GB"
      vector_cache: str = "30GB"
@@ -68,7 +68,7 @@
      buffer: str = "6GB"
      ```
 
-5. **infrastructure/pulumi/enhanced-h200-stack.ts** → **enhanced-gh200-stack.ts**
+5. **infrastructure/pulumi/enhanced-gh200-stack.ts** → **enhanced-gh200-stack.ts**
    - Update all H200 references to GH200
    - Adjust memory allocations
 
@@ -90,10 +90,10 @@
 
 ```bash
 # Files to update:
-- Dockerfile.h200 → Dockerfile.gh200
-- requirements-h200.txt → requirements-gh200.txt
+- Dockerfile.gh200 → Dockerfile.gh200
+- requirements-gh200.txt → requirements-gh200.txt
 - All code references from "h200" to "gh200"
-- All memory references from "141GB" to "96GB"
+- All memory references from "96GB" to "96GB"
 ```
 
 ### **2. Adjust Memory Architecture**
@@ -107,7 +107,7 @@ class GPUMemoryPool:
     inference_cache: str = "30GB"    # Reduced from 40GB
     vector_cache: str = "20GB"       # Reduced from 30GB
     buffer: str = "6GB"              # Reduced from 11GB
-    total_memory: str = "96GB"       # Updated from 141GB
+    total_memory: str = "96GB"       # Updated from 96GB
 ```
 
 ### **3. Update Cost Calculations**
@@ -142,7 +142,7 @@ if "gpu_1x_gh200" in available_types:
 
 2. **CREATE PR #139** 📝
    - Update all H200 → GH200 references
-   - Adjust memory allocations (141GB → 96GB)
+   - Adjust memory allocations (96GB → 96GB)
    - Update cost calculations
    - Rename files appropriately
 
@@ -189,7 +189,7 @@ if "gpu_1x_gh200" in available_types:
 
 ## ✅ **Conclusion**
 
-While PR #136 implements infrastructure for H200 GPUs (141GB), the actual deployment uses GH200 GPUs (96GB). This is still a significant upgrade (4x memory increase from A10) and the deployment is successful.
+While PR #136 implements infrastructure for GH200 GPUs (96GB), the actual deployment uses GGH200 GPUs (96GB). This is still a significant upgrade (4x memory increase from A10) and the deployment is successful.
 
 **Key Actions**:
 1. **Merge PR #137** immediately (fixes are valid)

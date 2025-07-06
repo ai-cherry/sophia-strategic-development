@@ -115,7 +115,7 @@ def check_github_secrets_content(self):
     expected_configs = {
         "LAMBDA_LABS_SSH_KEY_NAME": "lynn-sophia-h200-key",
         "LAMBDA_LABS_REGION": "us-west-1",
-        "LAMBDA_LABS_INSTANCE_TYPE": "gpu_1x_h200",
+        "LAMBDA_LABS_INSTANCE_TYPE": "gpu_1x_gh200",
         "LAMBDA_LABS_CLUSTER_SIZE": "3",
         "LAMBDA_LABS_MAX_CLUSTER_SIZE": "16",
         "LAMBDA_LABS_SHARED_FS_ID": "lynn-sophia-shared-fs",
@@ -219,7 +219,7 @@ graph TB
     end
 
     subgraph "Lambda Labs"
-        F[H200 GPU Cluster]
+        F[GH200 GPU Cluster]
     end
 
     A -->|Clean Secrets| B

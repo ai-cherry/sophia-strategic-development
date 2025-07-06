@@ -1,6 +1,6 @@
-# 🎯 Lambda Labs H200 GPU Setup - EXACT INSTRUCTIONS
+# 🎯 Lambda Labs GH200 GPU Setup - EXACT INSTRUCTIONS
 
-**Purpose**: Step-by-step instructions for setting up the H200 GPU infrastructure in Lambda Labs for Sophia AI
+**Purpose**: Step-by-step instructions for setting up the GH200 GPU infrastructure in Lambda Labs for Sophia AI
 
 ---
 
@@ -40,14 +40,14 @@
 
 ---
 
-## 🖥️ **STEP 2: Request H200 GPU Access**
+## 🖥️ **STEP 2: Request GH200 GPU Access**
 
 ### **2.1 Check H200 Availability**
 1. Go to: **Dashboard → Instance Types**
-2. Look for: `gpu_1x_h200` or `gpu_8x_h200`
+2. Look for: `gpu_1x_gh200` or `gpu_8x_h200`
 3. If not visible, contact Lambda Labs support:
-   - Subject: "H200 GPU Access Request for Enterprise Account"
-   - Message: "We need access to H200 GPUs for our AI platform deployment"
+   - Subject: "GH200 GPU Access Request for Enterprise Account"
+   - Message: "We need access to GH200 GPUs for our AI platform deployment"
 
 ### **2.2 Request Quota Increase**
 1. Go to: **Account → Quotas**
@@ -61,15 +61,15 @@
 
 ---
 
-## 🚀 **STEP 3: Launch H200 GPU Instances**
+## 🚀 **STEP 3: Launch GH200 GPU Instances**
 
 ### **3.1 Instance Configuration**
 
 **EXACT INSTANCE SPECIFICATIONS:**
 
 ```yaml
-Instance Type: gpu_1x_h200
-GPU: NVIDIA H200 (141GB HBM3e)
+Instance Type: gpu_1x_gh200
+GPU: NVIDIA GH200 (96GB HBM3e)
 vCPUs: 24
 RAM: 128GB
 Storage: 2TB NVMe SSD
@@ -84,7 +84,7 @@ Region: us-west-1 (or your preferred region)
 2. Configuration:
    ```
    Name: sophia-ai-h200-master-01
-   Instance Type: gpu_1x_h200
+   Instance Type: gpu_1x_gh200
    Region: us-west-1
    SSH Key: sophia-ai-h200-key
    File System: Create New
@@ -97,7 +97,7 @@ Region: us-west-1 (or your preferred region)
 1. Launch another instance:
    ```
    Name: sophia-ai-h200-worker-01
-   Instance Type: gpu_1x_h200
+   Instance Type: gpu_1x_gh200
    Region: us-west-1 (SAME AS MASTER)
    SSH Key: sophia-ai-h200-key
    File System: Use Existing → sophia-ai-shared-fs
@@ -108,7 +108,7 @@ Region: us-west-1 (or your preferred region)
 1. Launch third instance:
    ```
    Name: sophia-ai-h200-worker-02
-   Instance Type: gpu_1x_h200
+   Instance Type: gpu_1x_gh200
    Region: us-west-1 (SAME AS MASTER)
    SSH Key: sophia-ai-h200-key
    File System: Use Existing → sophia-ai-shared-fs
@@ -156,12 +156,12 @@ The shared file system (`sophia-ai-shared-fs`) should be:
 - **Mount Point**: `/mnt/shared`
 
 ### **5.2 GPU Memory Allocation**
-Configure GPU memory pools (141GB total):
+Configure GPU memory pools (96GB total):
 ```
 Active Models Pool: 60GB
-Inference Cache: 40GB
-Vector Cache: 30GB
-Buffer: 11GB
+Inference Cache: 27GB
+Vector Cache: 20GB
+Buffer: 8GB
 ```
 
 ---
@@ -208,7 +208,7 @@ LAMBDA_LABS_API_KEY="your-api-key-from-step-1.2"
 LAMBDA_LABS_SSH_KEY_NAME="sophia-ai-h200-key"
 LAMBDA_LABS_SSH_PRIVATE_KEY="$(cat ~/.ssh/sophia_h200_key)"
 LAMBDA_LABS_REGION="us-west-1"
-LAMBDA_LABS_INSTANCE_TYPE="gpu_1x_h200"
+LAMBDA_LABS_INSTANCE_TYPE="gpu_1x_gh200"
 LAMBDA_LABS_CLUSTER_SIZE="3"
 LAMBDA_LABS_MAX_CLUSTER_SIZE="16"
 
@@ -241,7 +241,7 @@ nvidia-smi
 # Should show:
 # CUDA Version: 12.3
 # Driver Version: 545.23.08
-# GPU: NVIDIA H200
+# GPU: NVIDIA GH200
 
 # If not, update:
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
@@ -287,7 +287,7 @@ scaling_config = {
     "scale_up_cooldown": 300,  # 5 minutes
     "scale_down_cooldown": 600, # 10 minutes
     "instance_template": {
-        "instance_type": "gpu_1x_h200",
+        "instance_type": "gpu_1x_gh200",
         "ssh_key_name": "sophia-ai-h200-key",
         "file_system_name": "sophia-ai-shared-fs",
         "user_data": "#!/bin/bash\n# Join Kubernetes cluster script"
@@ -358,7 +358,7 @@ If you encounter issues:
 - **Email**: support@lambdalabs.com
 - **Chat**: Available in dashboard
 - **Phone**: Enterprise support (if available)
-- **Reference**: Mention "H200 GPU Cluster for Sophia AI"
+- **Reference**: Mention "GH200 GPU Cluster for Sophia AI"
 
 ---
 

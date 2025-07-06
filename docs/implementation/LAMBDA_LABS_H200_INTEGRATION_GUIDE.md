@@ -14,7 +14,7 @@ All 10 required Lambda Labs secrets are configured in GitHub:
 - ✅ `LAMBDA_LABS_SSH_KEY_NAME` - Value: `lynn-sophia-h200-key`
 - ✅ `LAMBDA_LABS_SSH_PRIVATE_KEY` - Ready for ED25519 private key
 - ✅ `LAMBDA_LABS_REGION` - Value: `us-west-1`
-- ✅ `LAMBDA_LABS_INSTANCE_TYPE` - Value: `gpu_1x_h200`
+- ✅ `LAMBDA_LABS_INSTANCE_TYPE` - Value: `gpu_1x_gh200`
 - ✅ `LAMBDA_LABS_CLUSTER_SIZE` - Value: `3`
 - ✅ `LAMBDA_LABS_MAX_CLUSTER_SIZE` - Value: `16`
 - ✅ `LAMBDA_LABS_SHARED_FS_ID` - Value: `lynn-sophia-shared-fs`
@@ -23,7 +23,7 @@ All 10 required Lambda Labs secrets are configured in GitHub:
 
 ### **2. Integration Infrastructure (100% Complete)**
 All required files and configurations created:
-- ✅ `infrastructure/esc/lambda-labs-h200-config.yaml` - Pulumi ESC configuration
+- ✅ `infrastructure/esc/lambda-labs-gh200-config.yaml` - Pulumi ESC configuration
 - ✅ `scripts/ci/sync_from_gh_to_pulumi.py` - Updated with H200 mappings
 - ✅ `.github/workflows/sync_secrets.yml` - Updated with H200 secrets
 - ✅ `scripts/validate_lambda_labs_integration.py` - Comprehensive validation script
@@ -70,7 +70,7 @@ pulumi env init scoobyjava-org/sophia-ai-h200-production
 
 # Import the configuration
 pulumi env set scoobyjava-org/sophia-ai-h200-production \
-  --file infrastructure/esc/lambda-labs-h200-config.yaml
+  --file infrastructure/esc/lambda-labs-gh200-config.yaml
 ```
 
 ### **3. Set Lambda Labs API Key in Environment**
@@ -122,7 +122,7 @@ pulumi env init scoobyjava-org/sophia-ai-h200-production
 
 # 3. Import configuration
 pulumi env set scoobyjava-org/sophia-ai-h200-production \
-  --file infrastructure/esc/lambda-labs-h200-config.yaml
+  --file infrastructure/esc/lambda-labs-gh200-config.yaml
 
 # 4. Set API key
 export LAMBDA_LABS_API_KEY='your-api-key'

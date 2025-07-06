@@ -1,10 +1,10 @@
 # 🚀 ENHANCED LAMBDA LABS H200 SETUP GUIDE
 ## Comprehensive Deployment Instructions for Sophia AI Platform
 
-**Version**: 2.0.0 Enhanced  
-**GPU Architecture**: NVIDIA H200 (141GB HBM3e)  
-**Memory Architecture**: 6-Tier with GPU Acceleration  
-**Target**: Production deployment for Pay Ready CEO  
+**Version**: 2.0.0 Enhanced
+**GPU Architecture**: NVIDIA GH200 (96GB HBM3e)
+**Memory Architecture**: 6-Tier with GPU Acceleration
+**Target**: Production deployment for Pay Ready CEO
 
 ---
 
@@ -41,7 +41,7 @@ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 python3.11 -m venv sophia-h200-env
 source sophia-h200-env/bin/activate
 pip install -r requirements.txt
-pip install -r requirements-h200.txt
+pip install -r requirements-gh200.txt
 
 # Environment variables
 export ENVIRONMENT=prod
@@ -77,7 +77,7 @@ export MEMORY_ARCHITECTURE=6-tier
    ```bash
    # Generate SSH key pair
    ssh-keygen -t ed25519 -C "sophia-ai-h200-production" -f ~/.ssh/sophia_h200_key
-   
+
    # Upload public key to Lambda Labs
    # Navigate to: Account > SSH Keys
    # Name: sophia-ai-h200-key
@@ -102,7 +102,7 @@ response = requests.get(
 
 instance_types = response.json()
 h200_instances = [
-    inst for inst in instance_types["data"] 
+    inst for inst in instance_types["data"]
     if "h200" in inst["name"].lower()
 ]
 
@@ -145,7 +145,7 @@ pulumi env set scoobyjava-org/sophia-ai-production-h200 lambda_labs_max_cluster_
 
 # Required secrets:
 LAMBDA_LABS_API_KEY="your_api_key_here"
-LAMBDA_LABS_SSH_PRIVATE_KEY="-----BEGIN OPENSSH PRIVATE KEY-----\n...\n-----END OPENSSH PRIVATE KEY-----"
+LAMBDA_LABS_SSH_PRIVATE_KEY="<your-ssh-private-key-content>"
 LAMBDA_LABS_SSH_KEY_NAME="sophia-ai-h200-key"
 LAMBDA_LABS_REGION="us-west-1"
 LAMBDA_LABS_CLUSTER_SIZE="3"
@@ -168,12 +168,12 @@ python enhanced_lambda_labs_provisioner.py
 # Expected output:
 # 🚀 Starting Enhanced Lambda Labs H200 Cluster Deployment...
 # ✅ Enhanced Lambda Labs provisioner initialized:
-#   GPU Type: H200 (141GB HBM3e)
+#   GPU Type: H200 (96GB HBM3e)
 #   Cluster Size: 3-16 nodes
 #   Region: us-west-1
 #   Kubernetes: Enabled
 #   Auto-scaling: Enabled
-# 📋 Selected instance type: gpu_1x_h200
+# 📋 Selected instance type: gpu_1x_gh200
 # 📦 Launching 3 cluster nodes...
 # ✅ Node sophia-ai-h200-01 launched: X.X.X.X
 # ✅ Node sophia-ai-h200-02 launched: X.X.X.X
@@ -183,7 +183,7 @@ python enhanced_lambda_labs_provisioner.py
 # 📈 Configuring cluster auto-scaling...
 # ❄️ Configuring Snowflake integration...
 # 📊 Deploying monitoring stack...
-# ✅ Enhanced H200 GPU Cluster launched successfully!
+# ✅ Enhanced GH200 GPU Cluster launched successfully!
 ```
 
 ### **Step 3.2: Verify Cluster Health**
@@ -200,7 +200,7 @@ async def check_status():
     print(f"Health: {status['health']}")
     print(f"Running Instances: {status['running_instances']}/{status['total_instances']}")
     print(f"Total GPU Memory: {status['total_gpu_memory']}")
-    
+
     for instance in status['instances']:
         print(f"  - {instance['name']}: {instance['current_status']} ({instance['ip_address']})")
 
@@ -282,14 +282,14 @@ async def setup_memory():
     try:
         memory_arch = await initialize_enhanced_memory_architecture()
         print("✅ Enhanced 6-Tier Memory Architecture initialized")
-        
+
         # Check health
         health = await memory_arch.health_check()
         print(f"Overall Health: {health['overall_health']}")
-        
+
         for tier, status in health['tiers'].items():
             print(f"  {tier}: {status['status']}")
-            
+
     except Exception as e:
         print(f"❌ Memory architecture setup failed: {e}")
 
@@ -308,23 +308,23 @@ import json
 if torch.cuda.is_available():
     gpu_props = torch.cuda.get_device_properties(0)
     total_memory = gpu_props.total_memory / 1024**3
-    
+
     print(f"✅ GPU: {gpu_props.name}")
     print(f"✅ Total Memory: {total_memory:.1f}GB")
     print(f"✅ Memory Bandwidth: 4.8TB/s (H200)")
-    
+
     # Memory pool allocation
     pools = {
         "active_models": 60,
-        "inference_cache": 40, 
+        "inference_cache": 40,
         "vector_cache": 30,
         "buffer": 11
     }
-    
+
     print("GPU Memory Pool Allocation:")
     for pool, size in pools.items():
         print(f"  {pool}: {size}GB")
-        
+
 else:
     print("❌ No GPU detected")
 EOF
@@ -456,22 +456,22 @@ from backend.core.enhanced_memory_architecture import enhanced_memory_architectu
 
 async def performance_test():
     print("🧪 Running Performance Benchmarks...")
-    
+
     # Test L0 (GPU Memory)
     start_time = time.time()
     await enhanced_memory_architecture.store_data(
-        "test_gpu", 
-        {"model": "test_data", "size": "1MB"}, 
+        "test_gpu",
+        {"model": "test_data", "size": "1MB"},
         enhanced_memory_architecture.MemoryTier.L0_GPU_MEMORY
     )
     gpu_latency = (time.time() - start_time) * 1000
     print(f"L0 GPU Memory Write: {gpu_latency:.1f}ms")
-    
+
     start_time = time.time()
     result = await enhanced_memory_architecture.retrieve_data("test_gpu")
     gpu_read_latency = (time.time() - start_time) * 1000
     print(f"L0 GPU Memory Read: {gpu_read_latency:.1f}ms")
-    
+
     # Get performance metrics
     metrics = await enhanced_memory_architecture.get_performance_metrics()
     print(f"Hit Rate: {metrics['hit_rate']:.2%}")
@@ -529,7 +529,7 @@ import time
 
 async def ceo_simulation():
     print("👨‍💼 Simulating CEO Usage Patterns...")
-    
+
     # Common CEO queries
     queries = [
         "What is our revenue for this quarter?",
@@ -539,19 +539,19 @@ async def ceo_simulation():
         "What is our customer health score?",
         "Show me project status across all teams"
     ]
-    
+
     total_time = 0
     for i, query in enumerate(queries, 1):
         start_time = time.time()
-        
+
         # Simulate processing (replace with actual API call)
         await asyncio.sleep(0.05)  # Simulating <50ms response
-        
+
         processing_time = (time.time() - start_time) * 1000
         total_time += processing_time
-        
+
         print(f"Query {i}: {processing_time:.1f}ms - {query[:50]}...")
-    
+
     avg_time = total_time / len(queries)
     print(f"\n✅ CEO Experience Metrics:")
     print(f"   Average Response Time: {avg_time:.1f}ms")
@@ -590,7 +590,7 @@ print(f"Annual Savings: ${savings * 12:,}")
 print("\n🚀 Performance Improvements:")
 print("Response Time: 200ms → 50ms (4x improvement)")
 print("User Capacity: 100 → 1,000 concurrent users (10x)")
-print("GPU Memory: 24GB → 141GB per node (6x)")
+print("GPU Memory: 24GB → 96GB per node (6x)")
 print("Memory Bandwidth: 600GB/s → 4.8TB/s (8x)")
 EOF
 ```
@@ -650,10 +650,10 @@ async def retry_setup():
     # Get current cluster state
     status = await enhanced_lambda_labs_provisioner.get_cluster_status()
     master_node = next(
-        inst for inst in status["instances"] 
+        inst for inst in status["instances"]
         if inst["role"] == "master"
     )
-    
+
     # Re-run Kubernetes setup
     await enhanced_lambda_labs_provisioner._setup_kubernetes_cluster(status["instances"])
 
@@ -699,7 +699,7 @@ DROP INTEGRATION IF EXISTS LAMBDA_LABS_INTEGRATION;
    ```bash
    # Monitor GPU memory usage
    watch -n 1 'kubectl exec -n sophia-ai-enhanced deployment/sophia-enhanced-deployment -- nvidia-smi'
-   
+
    # Optimize memory pools
    # Edit: backend/core/enhanced_memory_architecture.py
    # Adjust: GPUMemoryPool allocation ratios
@@ -722,7 +722,7 @@ DROP INTEGRATION IF EXISTS LAMBDA_LABS_INTEGRATION;
    ```bash
    # Adjust scaling thresholds
    kubectl patch hpa sophia-enhanced-hpa -p '{"spec":{"metrics":[{"type":"Resource","resource":{"name":"cpu","target":{"type":"Utilization","averageUtilization":50}}}]}}'
-   
+
    # Monitor scaling events
    kubectl get events --field-selector reason=SuccessfulRescale
    ```
@@ -748,7 +748,7 @@ DROP INTEGRATION IF EXISTS LAMBDA_LABS_INTEGRATION;
 | Metric | Target | Achieved |
 |--------|--------|----------|
 | Response Time | <50ms | ___ms |
-| GPU Memory | 141GB per node | ___GB |
+| GPU Memory | 96GB per node | ___GB |
 | Concurrent Users | 1,000 | ___ |
 | Cost Reduction | 24% | __% |
 | Hit Rate | >90% | __% |
@@ -760,12 +760,12 @@ DROP INTEGRATION IF EXISTS LAMBDA_LABS_INTEGRATION;
 
 Upon successful completion of all phases, you will have:
 
-✅ **Enhanced H200 GPU Infrastructure**: 3-16 node cluster with 141GB GPU memory per node  
-✅ **6-Tier Memory Architecture**: <10ms GPU memory access with intelligent caching  
-✅ **Snowflake GPU Acceleration**: 10x faster inference, 40% cost reduction  
-✅ **Kubernetes Auto-scaling**: Automatic scaling based on demand  
-✅ **Comprehensive Monitoring**: GPU metrics, performance tracking, cost optimization  
-✅ **CEO-Ready Experience**: <50ms response times for all business queries  
+✅ **Enhanced GH200 GPU Infrastructure**: 3-16 node cluster with 96GB GPU memory per node
+✅ **6-Tier Memory Architecture**: <10ms GPU memory access with intelligent caching
+✅ **Snowflake GPU Acceleration**: 10x faster inference, 40% cost reduction
+✅ **Kubernetes Auto-scaling**: Automatic scaling based on demand
+✅ **Comprehensive Monitoring**: GPU metrics, performance tracking, cost optimization
+✅ **CEO-Ready Experience**: <50ms response times for all business queries
 
 **Next Steps**:
 1. Monitor performance in production for 1 week
@@ -777,7 +777,7 @@ Upon successful completion of all phases, you will have:
 
 ---
 
-**Document Version**: 2.0.0 Enhanced  
-**Last Updated**: January 2025  
-**Author**: Sophia AI Platform Team  
+**Document Version**: 2.0.0 Enhanced
+**Last Updated**: January 2025
+**Author**: Sophia AI Platform Team
 **Review**: Pay Ready CEO Approved

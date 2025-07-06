@@ -155,7 +155,7 @@ class IntegrationValidator:
         expected_values = {
             "LAMBDA_LABS_SSH_KEY_NAME": "lynn-sophia-h200-key",
             "LAMBDA_LABS_REGION": "us-west-1",
-            "LAMBDA_LABS_INSTANCE_TYPE": "gpu_1x_h200",
+            "LAMBDA_LABS_INSTANCE_TYPE": "gpu_1x_gh200",
             "LAMBDA_LABS_CLUSTER_SIZE": "3",
             "LAMBDA_LABS_MAX_CLUSTER_SIZE": "16",
             "LAMBDA_LABS_SHARED_FS_ID": "lynn-sophia-shared-fs",
@@ -371,7 +371,7 @@ class IntegrationValidator:
 
                     if h200_types:
                         self.successes.append(
-                            "✅ H200 GPU instances found in Lambda Labs"
+                            "✅ GH200 GPU instances found in Lambda Labs"
                         )
                         # Show availability
                         for h200 in h200_types:
@@ -386,7 +386,7 @@ class IntegrationValidator:
                                 )
                     else:
                         self.warnings.append(
-                            "⚠️  H200 GPU instances not found in instance types"
+                            "⚠️  GH200 GPU instances not found in instance types"
                         )
 
                     # List current instances
@@ -445,7 +445,7 @@ class IntegrationValidator:
     def check_infrastructure_files(self) -> bool:
         """Check for required infrastructure files"""
         required_files = [
-            "infrastructure/esc/lambda-labs-h200-config.yaml",
+            "infrastructure/esc/lambda-labs-gh200-config.yaml",
             "scripts/ci/sync_from_gh_to_pulumi.py",
             ".github/workflows/sync_secrets.yml",
             "scripts/verify_lambda_labs_h200_setup.py",
@@ -496,7 +496,7 @@ class IntegrationValidator:
         print("=" * 70)
         if not self.errors:
             print("🎉 OVERALL: Integration validation PASSED!")
-            print("   ✅ Ready for H200 GPU deployment")
+            print("   ✅ Ready for GH200 GPU deployment")
             print("\n📋 Next Steps:")
             print("   1. Run: gh workflow run sync_secrets.yml")
             print("   2. Run: pulumi env init scoobyjava-org/sophia-ai-h200-production")

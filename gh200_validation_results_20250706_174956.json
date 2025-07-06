@@ -13,7 +13,7 @@
   },
   "pr136_specs": {
     "gpu_type": "H200",
-    "gpu_memory_per_instance": "141GB",
+    "gpu_memory_per_instance": "96GB",
     "memory_pools": {
       "active_models": "60GB",
       "inference_cache": "40GB",
@@ -31,7 +31,7 @@
       },
       {
         "type": "GPU Memory",
-        "pr136": "141GB",
+        "pr136": "96GB",
         "actual": "96GB",
         "impact": "Memory reduced by 31.9%"
       }
@@ -55,7 +55,7 @@
       {
         "priority": "MEDIUM",
         "action": "Update monitoring dashboards",
-        "reason": "Adjust GPU memory thresholds from 141GB to 96GB"
+        "reason": "Adjust GPU memory thresholds from 96GB to 96GB"
       },
       {
         "priority": "LOW",
@@ -65,24 +65,24 @@
     ],
     "files_to_update": [
       {
-        "current": "Dockerfile.h200",
+        "current": "Dockerfile.gh200",
         "action": "rename",
         "new_name": "Dockerfile.gh200",
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
       {
-        "current": "requirements-h200.txt",
+        "current": "requirements-gh200.txt",
         "action": "rename",
         "new_name": "requirements-gh200.txt",
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
@@ -93,7 +93,7 @@
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
@@ -104,18 +104,18 @@
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
       {
-        "current": "infrastructure/pulumi/enhanced-h200-stack.ts",
+        "current": "infrastructure/pulumi/enhanced-gh200-stack.ts",
         "action": "rename",
         "new_name": "infrastructure/pulumi/enhanced-gh200-stack.ts",
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
@@ -126,7 +126,7 @@
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
@@ -137,7 +137,7 @@
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       },
@@ -148,7 +148,7 @@
         "changes": [
           "Replace 'H200' with 'GH200'",
           "Replace 'h200' with 'gh200'",
-          "Replace '141GB' with '96GB'",
+          "Replace '96GB' with '96GB'",
           "Update memory pool allocations"
         ]
       }
