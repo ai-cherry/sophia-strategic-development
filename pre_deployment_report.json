@@ -1,0 +1,55 @@
+{
+  "timestamp": "2025-07-06T17:22:47.843963",
+  "checks": [
+    {
+      "name": "GitHub CLI authenticated",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Pulumi authenticated",
+      "passed": true,
+      "details": "Logged in as: scoobyjava-org"
+    },
+    {
+      "name": "SSH key configuration",
+      "passed": false,
+      "details": "SSH key not found. Run: ssh-keygen -t ed25519 -f /Users/lynnmusil/.ssh/lynn_sophia_h200_key -C 'lynn-sophia-h200'"
+    },
+    {
+      "name": "Lambda Labs API key",
+      "passed": false,
+      "details": "Set with: export LAMBDA_LABS_API_KEY='your-api-key'"
+    },
+    {
+      "name": "Docker",
+      "passed": true,
+      "details": "Docker running (not logged in to registry)"
+    },
+    {
+      "name": "Pulumi ESC (production)",
+      "passed": true,
+      "details": "Production environment exists"
+    },
+    {
+      "name": "Pulumi ESC (H200)",
+      "passed": false,
+      "details": "Run: pulumi env init scoobyjava-org/sophia-ai-h200-production"
+    },
+    {
+      "name": "GitHub secrets",
+      "passed": true,
+      "details": "All 10 H200 secrets found"
+    },
+    {
+      "name": "Infrastructure files",
+      "passed": true,
+      "details": "All required files present"
+    }
+  ],
+  "warnings": [
+    "Consider: docker login"
+  ],
+  "passed": false,
+  "summary": "6/9"
+}
