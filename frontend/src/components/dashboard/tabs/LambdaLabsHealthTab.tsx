@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 // NOTE: Monitoring 48+ MCP servers dynamically loaded from backend
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Alert, AlertDescription, Progress, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
-import { Activity, Server, Cpu, HardDrive, Memory, Network, RefreshCw, AlertTriangle, CheckCircle, XCircle, Clock, Zap, Database, GitBranch, Monitor } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Activity, Server, Cpu, HardDrive, MemoryStick, Network, RefreshCw, AlertTriangle, CheckCircle, XCircle, Clock, Zap, Database, GitBranch, Monitor } from 'lucide-react';
 import { Line, Doughnut } from 'react-chartjs-2';
 import apiClient from '../../../services/apiClient';
 
@@ -482,7 +487,7 @@ const LambdaLabsHealthTab: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <ResourceUsage label="CPU" value={instance.cpu_usage} icon={Cpu} color="blue" />
-              <ResourceUsage label="Memory" value={instance.memory_usage} icon={Memory} color="green" />
+              <ResourceUsage label="Memory" value={instance.memory_usage} icon={MemoryStick} color="green" />
               <ResourceUsage label="GPU" value={instance.gpu_usage} icon={Zap} color="purple" />
               <ResourceUsage label="Disk" value={instance.disk_usage} icon={HardDrive} color="orange" />
 

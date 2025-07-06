@@ -14,169 +14,232 @@ from typing import Any
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 try:
-    from backend.core.config_manager import ConfigManager
+    from backend.core.auto_esc_config import config as auto_esc_config
     from backend.mcp_servers.base.unified_mcp_base import (
-        HealthStatus,
-        ServerConfig,
-        StandardizedMCPServer,
+        MCPServerConfig,
+        SimpleMCPServer,
+        mcp_tool,
     )
     from backend.utils.custom_logger import setup_logger
-except ImportError:
+except ImportError as e:
+    print(f"Failed to import necessary modules: {e}")
     sys.exit(1)
 
 logger = setup_logger("mcp.github")
 
 
-class GitHubMCPServer(StandardizedMCPServer):
-    """GitHub integration MCP server"""
+class GitHubMCPServer(SimpleMCPServer):
+    """GitHub integration MCP server, refactored to use SimpleMCPServer."""
 
-    def __init__(self, config: ServerConfig | None = None):
+    def __init__(self, config: MCPServerConfig | None = None):
         if not config:
-            config = ServerConfig(
+            config = MCPServerConfig(
                 name="github",
                 port=9003,
-                version="1.0.0",
-                description="GitHub repository and issue management",
+                version="2.0.0",
             )
         super().__init__(config)
-
-        # GitHub-specific configuration
-        self.github_token = os.getenv("GITHUB_TOKEN") or ConfigManager().get(
-            "github_token"
-        )
+        self.github_token: str | None = None
         self.base_url = "https://api.github.com"
 
-    def _register_tools(self):
-        """Register GitHub-specific tools"""
+    async def server_specific_init(self) -> None:
+        """Initialize GitHub-specific configuration."""
+        self.github_token = os.getenv("GITHUB_TOKEN") or auto_esc_config.get(
+            "github_token"
+        )
+        if not self.github_token:
+            self.logger.warning("GitHub token not configured. Some tools may fail.")
 
-        @self.server.tool()
-        async def list_repos(owner: str) -> dict[str, Any]:
-            """List repositories for a GitHub user or organization"""
-            try:
-                # Demo implementation
-                repos = [
-                    {
-                        "name": "sophia-main",
-                        "full_name": f"{owner}/sophia-main",
-                        "description": "Sophia AI main repository",
-                        "stars": 42,
-                        "language": "Python",
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                ]
-
-                self.logger.info(f"Listed {len(repos)} repositories for {owner}")
-                return {
-                    "status": "success",
-                    "owner": owner,
-                    "count": len(repos),
-                    "repositories": repos,
-                }
-            except Exception as e:
-                self.logger.error(f"Error listing repos: {e}")
-                return {"status": "error", "message": str(e)}
-
-        @self.server.tool()
-        async def get_repo(owner: str, repo: str) -> dict[str, Any]:
-            """Get detailed information about a repository"""
-            try:
-                # Demo implementation
-                repo_info = {
-                    "name": repo,
-                    "full_name": f"{owner}/{repo}",
-                    "description": "Repository description",
+    @mcp_tool(
+        name="list_repos",
+        description="List repositories for a GitHub user or organization",
+        parameters={
+            "owner": {
+                "type": "string",
+                "description": "GitHub owner name",
+                "required": True,
+            }
+        },
+    )
+    async def list_repos(self, owner: str) -> dict[str, Any]:
+        """List repositories for a GitHub user or organization"""
+        try:
+            # Demo implementation
+            repos = [
+                {
+                    "name": "sophia-main",
+                    "full_name": f"{owner}/sophia-main",
+                    "description": "Sophia AI main repository",
                     "stars": 42,
-                    "forks": 10,
-                    "open_issues": 5,
                     "language": "Python",
+                    "updated_at": datetime.now().isoformat(),
+                }
+            ]
+            self.logger.info(f"Listed {len(repos)} repositories for {owner}")
+            return {
+                "status": "success",
+                "owner": owner,
+                "count": len(repos),
+                "repositories": repos,
+            }
+        except Exception as e:
+            self.logger.error(f"Error listing repos: {e}")
+            return {"status": "error", "message": str(e)}
+
+    @mcp_tool(
+        name="get_repo",
+        description="Get detailed information about a repository",
+        parameters={
+            "owner": {
+                "type": "string",
+                "description": "GitHub owner name",
+                "required": True,
+            },
+            "repo": {
+                "type": "string",
+                "description": "Repository name",
+                "required": True,
+            },
+        },
+    )
+    async def get_repo(self, owner: str, repo: str) -> dict[str, Any]:
+        """Get detailed information about a repository"""
+        try:
+            # Demo implementation
+            repo_info = {
+                "name": repo,
+                "full_name": f"{owner}/{repo}",
+                "description": "Repository description",
+                "stars": 42,
+                "forks": 10,
+                "open_issues": 5,
+                "language": "Python",
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": datetime.now().isoformat(),
+            }
+            self.logger.info(f"Retrieved info for {owner}/{repo}")
+            return {"status": "success", "repository": repo_info}
+        except Exception as e:
+            self.logger.error(f"Error getting repo: {e}")
+            return {"status": "error", "message": str(e)}
+
+    @mcp_tool(
+        name="list_issues",
+        description="List issues for a repository",
+        parameters={
+            "owner": {
+                "type": "string",
+                "description": "GitHub owner name",
+                "required": True,
+            },
+            "repo": {
+                "type": "string",
+                "description": "Repository name",
+                "required": True,
+            },
+            "state": {
+                "type": "string",
+                "description": "Issue state (open, closed, all)",
+                "required": False,
+                "default": "open",
+            },
+        },
+    )
+    async def list_issues(
+        self, owner: str, repo: str, state: str = "open"
+    ) -> dict[str, Any]:
+        """List issues for a repository"""
+        try:
+            # Demo implementation
+            issues = [
+                {
+                    "number": 1,
+                    "title": "Implement feature X",
+                    "state": state,
+                    "labels": ["enhancement"],
                     "created_at": "2024-01-01T00:00:00Z",
                     "updated_at": datetime.now().isoformat(),
                 }
+            ]
+            self.logger.info(f"Listed {len(issues)} {state} issues for {owner}/{repo}")
+            return {
+                "status": "success",
+                "repository": f"{owner}/{repo}",
+                "state": state,
+                "count": len(issues),
+                "issues": issues,
+            }
+        except Exception as e:
+            self.logger.error(f"Error listing issues: {e}")
+            return {"status": "error", "message": str(e)}
 
-                self.logger.info(f"Retrieved info for {owner}/{repo}")
-                return {"status": "success", "repository": repo_info}
-            except Exception as e:
-                self.logger.error(f"Error getting repo: {e}")
-                return {"status": "error", "message": str(e)}
+    @mcp_tool(
+        name="create_issue",
+        description="Create a new issue",
+        parameters={
+            "owner": {
+                "type": "string",
+                "description": "GitHub owner name",
+                "required": True,
+            },
+            "repo": {
+                "type": "string",
+                "description": "Repository name",
+                "required": True,
+            },
+            "title": {"type": "string", "description": "Issue title", "required": True},
+            "body": {"type": "string", "description": "Issue body", "required": True},
+            "labels": {
+                "type": "array",
+                "description": "Issue labels",
+                "required": False,
+            },
+        },
+    )
+    async def create_issue(
+        self,
+        owner: str,
+        repo: str,
+        title: str,
+        body: str,
+        labels: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Create a new issue"""
+        try:
+            # Demo implementation
+            issue = {
+                "number": 42,
+                "title": title,
+                "body": body,
+                "state": "open",
+                "labels": labels or [],
+                "created_at": datetime.now().isoformat(),
+                "html_url": f"https://github.com/{owner}/{repo}/issues/42",
+            }
+            self.logger.info(f"Created issue #{issue['number']} in {owner}/{repo}")
+            return {"status": "success", "issue": issue}
+        except Exception as e:
+            self.logger.error(f"Error creating issue: {e}")
+            return {"status": "error", "message": str(e)}
 
-        @self.server.tool()
-        async def list_issues(
-            owner: str, repo: str, state: str = "open"
-        ) -> dict[str, Any]:
-            """List issues for a repository"""
-            try:
-                # Demo implementation
-                issues = [
-                    {
-                        "number": 1,
-                        "title": "Implement feature X",
-                        "state": state,
-                        "labels": ["enhancement"],
-                        "created_at": "2024-01-01T00:00:00Z",
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                ]
-
-                self.logger.info(
-                    f"Listed {len(issues)} {state} issues for {owner}/{repo}"
-                )
-                return {
-                    "status": "success",
-                    "repository": f"{owner}/{repo}",
-                    "state": state,
-                    "count": len(issues),
-                    "issues": issues,
-                }
-            except Exception as e:
-                self.logger.error(f"Error listing issues: {e}")
-                return {"status": "error", "message": str(e)}
-
-        @self.server.tool()
-        async def create_issue(
-            owner: str,
-            repo: str,
-            title: str,
-            body: str,
-            labels: list[str] | None = None,
-        ) -> dict[str, Any]:
-            """Create a new issue"""
-            try:
-                # Demo implementation
-                issue = {
-                    "number": 42,
-                    "title": title,
-                    "body": body,
-                    "state": "open",
-                    "labels": labels or [],
-                    "created_at": datetime.now().isoformat(),
-                    "html_url": f"https://github.com/{owner}/{repo}/issues/42",
-                }
-
-                self.logger.info(f"Created issue #{issue['number']} in {owner}/{repo}")
-                return {"status": "success", "issue": issue}
-            except Exception as e:
-                self.logger.error(f"Error creating issue: {e}")
-                return {"status": "error", "message": str(e)}
-
-    async def _check_service_health(self) -> HealthStatus:
+    async def check_server_health(self) -> bool:
         """Check GitHub API connectivity"""
         if not self.github_token:
-            return HealthStatus(
-                healthy=False,
-                latency_ms=0,
-                details={"error": "GitHub token not configured"},
-            )
+            self.logger.warning("GitHub token not configured, health check degraded.")
+            return False
+        # In production, would make an actual API call to https://api.github.com/zen
+        return True
 
-        # In production, would make actual API call
-        return HealthStatus(
-            healthy=True, latency_ms=50, details={"api_status": "operational"}
-        )
+    async def server_specific_cleanup(self) -> None:
+        """Server-specific shutdown actions, if any."""
+        self.logger.info("GitHub MCP server shutting down.")
+        pass
 
 
 async def main():
     """Main entry point"""
     server = GitHubMCPServer()
-    await server.run()
+    server.run()
 
 
 if __name__ == "__main__":
@@ -197,23 +260,3 @@ try:
 
 except ImportError:
     pass
-
-    async def server_specific_init(self):
-        """Server-specific initialization"""
-        # TODO: Add server-specific initialization
-        pass
-
-    def _setup_server_routes(self):
-        """Setup server-specific routes"""
-        # Existing routes should be moved here
-        pass
-
-    async def check_server_health(self) -> bool:
-        """Check server health"""
-        # TODO: Implement health check
-        return True
-
-    async def server_specific_shutdown(self):
-        """Server-specific shutdown"""
-        # TODO: Add cleanup logic
-        pass

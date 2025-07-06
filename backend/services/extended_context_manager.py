@@ -12,9 +12,8 @@ from typing import Any
 
 import numpy as np
 
-from backend.core.config_manager import ConfigManager
-from backend.services.snowflake_cortex_service import SnowflakeCortexService
 from backend.utils.custom_logger import setup_logger
+from backend.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = setup_logger("extended_context_manager")
 
@@ -74,7 +73,6 @@ class ExtendedContextManager:
     }
 
     def __init__(self):
-        self.config = ConfigManager()
         self.cortex_service = SnowflakeCortexService()
 
         # Memory indices for different tiers

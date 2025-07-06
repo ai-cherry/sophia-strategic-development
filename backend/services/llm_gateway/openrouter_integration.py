@@ -9,7 +9,7 @@ from typing import Any
 
 import aiohttp
 
-from backend.core.config_manager import ConfigManager
+from backend.core.auto_esc_config import config
 from backend.utils.custom_logger import setup_logger
 
 logger = setup_logger("openrouter_integration")
@@ -22,7 +22,7 @@ class OpenRouterIntegration:
     """
 
     def __init__(self):
-        self.config = ConfigManager()
+        self.config = config
         self.api_key = self.config.get("openrouter_api_key", "")
         self.base_url = "https://openrouter.ai/api/v1"
 

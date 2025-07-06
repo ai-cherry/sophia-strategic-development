@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 """
 Sophia AI Unified Intelligence Service
 ======================================
@@ -7,9 +5,10 @@ This service unifies all AI capabilities into a single intelligent interface
 with constitutional AI constraints and self-optimization.
 """
 
-import json
 import logging
-from typing import Any
+from typing import Any, Optional
+
+import pandas as pd
 
 # Setup logging first
 logger = logging.getLogger(__name__)
@@ -24,407 +23,136 @@ except ImportError as e:
     SnowflakeCortexService = None
     SNOWFLAKE_AVAILABLE = False
 
-from backend.integrations.enhanced_gong_integration import EnhancedGongIntegration
-from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from backend.services.advanced_llm_service import AdvancedLLMService
+from backend.services.data_source_manager import (
+    DataError,
+    DataSourceManager,
+    DataSourceType,
+)
+from backend.services.data_transformer import DataTransformer
 
 
-class SophiaUnifiedIntelligenceService:
-    """Unified service that combines all existing services with constitutional AI"""
+class UnifiedIntelligenceService:
+    """
+    Orchestrates data fetching, processing, and AI synthesis to answer user queries.
+    """
 
-    def __init__(self):
-        """Initialize the unified intelligence service"""
-        logger.info("🚀 Initializing Sophia Unified Intelligence Service...")
+    def __init__(self, config: Optional[dict] = None):
+        self.config = config or {}
+        self.data_manager = DataSourceManager()
+        self.llm_service = AdvancedLLMService()
+        self.transformer = DataTransformer()
+        logger.info("UnifiedIntelligenceService initialized.")
 
-        # Initialize existing services
-        self._init_existing_services()
-
-        # Initialize new unified capabilities
-        self._init_unified_capabilities()
-
-        logger.info("✅ Unified Intelligence Service initialized successfully")
-
-    def _init_existing_services(self):
-        """Initialize existing Sophia AI services"""
-        try:
-            # Snowflake Cortex service
-            if SNOWFLAKE_AVAILABLE and SnowflakeCortexService:
-                self.snowflake_cortex = SnowflakeCortexService()
-                logger.info("✅ Snowflake Cortex service initialized")
-            else:
-                logger.warning("⚠️ Snowflake Cortex service not available")
-                self.snowflake_cortex = None
-        except Exception as e:
-            logger.warning(f"⚠️ Snowflake Cortex initialization failed: {e}")
-            self.snowflake_cortex = None
-
-        try:
-            # AI Memory service
-            self.ai_memory = EnhancedAiMemoryMCPServer()
-            logger.info("✅ AI Memory service initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ AI Memory initialization failed: {e}")
-            self.ai_memory = None
-
-        try:
-            # Gong integration
-            self.gong_integration = EnhancedGongIntegration()
-            logger.info("✅ Gong integration initialized")
-        except Exception as e:
-            logger.warning(f"⚠️ Gong integration initialization failed: {e}")
-            self.gong_integration = None
-
-        # HubSpot integration - will be added later
-        self.hubspot_integration = None
-
-    def _init_unified_capabilities(self):
-        """Initialize new unified AI capabilities"""
-        # Placeholder implementations for now
-        self.vector_router = None
-        self.constitutional_ai = None
-        self.llm_service = None
-
-        logger.info("✅ Unified capabilities initialized (placeholder mode)")
-
-    async def unified_business_query(
-        self,
-        query: str,
-        query_type: str = "general",
-        context: dict[str, Any] = None,
-        user_id: str = None,
-        include_analytics: bool = True,
-        max_results: int = 10,
+    async def process_query(
+        self, query: str, context: Optional[dict] = None
     ) -> dict[str, Any]:
         """
-        Process unified business query using intelligent routing and analysis
+        Main entry point for processing a user query.
+        Determines intent, fetches data, and synthesizes a response.
         """
+        context = context or {}
         try:
-            # Validate and prepare query
-            query_context = await self._prepare_query_context(
-                query, query_type, context, user_id
+            intent = self._determine_intent(query)
+            logger.info(f"Determined intent: {intent}")
+
+            handler = self._get_intent_handler(intent)
+            results, insights = await handler(query, context)
+
+            response = await self.llm_service.synthesize_response(
+                query, context, results
             )
 
-            # Route query to appropriate handlers
-            query_results = await self._route_query_by_type(query_context)
+            return {
+                "type": intent,
+                "query": query,
+                "results": results,
+                "insights": insights,
+                "response": response,
+            }
 
-            # Enhance results with analytics
-            if include_analytics:
-                query_results = await self._enhance_with_analytics(
-                    query_results, query_context
-                )
+        except DataError as e:
+            logger.error(f"DataError while processing query '{query}': {e}")
+            return {"error": str(e), "type": "data_error"}
+        except Exception:
+            logger.exception(f"Unexpected error processing query: '{query}'")
+            return {
+                "error": "An unexpected internal error occurred.",
+                "type": "system_error",
+            }
 
-            # Format final response
-            return self._format_unified_response(
-                query_results, query_context, max_results
-            )
+    def _determine_intent(self, query: str) -> str:
+        """Determines the user's intent from the query. (Placeholder)"""
+        query_lower = query.lower()
+        if "deal" in query_lower or "sale" in query_lower or "pipeline" in query_lower:
+            return "sales"
+        if "marketing" in query_lower or "campaign" in query_lower:
+            return "marketing"
+        # Add more intent detection logic...
+        return "general"
 
-        except Exception as e:
-            logger.error(f"Error in unified business query: {e}")
-            return {"error": str(e), "results": []}
-
-    async def _prepare_query_context(
-        self, query: str, query_type: str, context: dict, user_id: str
-    ) -> dict[str, Any]:
-        """Prepare comprehensive query context"""
-        return {
-            "original_query": query,
-            "query_type": query_type,
-            "context": context or {},
-            "user_id": user_id,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "session_id": context.get("session_id") if context else None,
-        }
-
-    async def _route_query_by_type(
-        self, query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Route query to appropriate specialized handlers"""
-        query_type = query_context["query_type"]
-
-        if query_type == "sales":
-            return await self._handle_sales_query(query_context)
-        elif query_type == "marketing":
-            return await self._handle_marketing_query(query_context)
-        elif query_type == "analytics":
-            return await self._handle_analytics_query(query_context)
-        elif query_type == "operational":
-            return await self._handle_operational_query(query_context)
-        else:
-            return await self._handle_general_query(query_context)
+    def _get_intent_handler(self, intent: str):
+        """Returns the appropriate handler function for a given intent."""
+        if intent == "sales":
+            return self._handle_sales_query
+        # Add other handlers...
+        return self._handle_general_query
 
     async def _handle_sales_query(
-        self, query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Handle sales-specific queries"""
-        # Sales query processing logic
-        return {"type": "sales", "results": [], "insights": []}
+        self, query: str, context: dict
+    ) -> (list[dict], list[str]):
+        """Handles sales-related queries."""
+        # This is where we replace the mock logic
+        logger.info("Handling sales query...")
 
-    async def _handle_marketing_query(
-        self, query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Handle marketing-specific queries"""
-        # Marketing query processing logic
-        return {"type": "marketing", "results": [], "insights": []}
+        # In a real scenario, the query to the data manager would be more specific
+        sales_data_raw = await self.data_manager.fetch_data(
+            DataSourceType.SNOWFLAKE, "get_top_deals"
+        )
 
-    async def _handle_analytics_query(
-        self, query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Handle analytics-specific queries"""
-        # Analytics query processing logic
-        return {"type": "analytics", "results": [], "insights": []}
+        if not sales_data_raw:
+            return [], ["No sales data could be retrieved."]
 
-    async def _handle_operational_query(
-        self, query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Handle operational queries"""
-        # Operational query processing logic
-        return {"type": "operational", "results": [], "insights": []}
+        sales_df = self.transformer.transform_snowflake_results(sales_data_raw)
+        self.transformer.validate_sales_data(sales_df)
+
+        insights = self._generate_sales_insights(sales_df)
+
+        return sales_df.to_dict("records"), insights
 
     async def _handle_general_query(
-        self, query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Handle general business queries"""
-        # General query processing logic
-        return {"type": "general", "results": [], "insights": []}
+        self, query: str, context: dict
+    ) -> (list[dict], list[str]):
+        """Handles general queries."""
+        logger.info("Handling general query...")
+        # For general queries, we might search multiple sources.
+        # This is a simplified example.
+        return [], ["This is a general query. No specific data fetched."]
 
-    async def _enhance_with_analytics(
-        self, query_results: dict[str, Any], query_context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Enhance query results with analytics and insights"""
-        # Analytics enhancement logic
-        query_results["analytics"] = {
-            "query_performance": 0.95,
-            "result_confidence": 0.87,
-            "processing_time_ms": 245,
-        }
-        return query_results
+    def _generate_sales_insights(self, data: pd.DataFrame) -> list[str]:
+        """Generates analytical insights from sales data."""
+        if data.empty:
+            return ["No data to analyze."]
 
-    def _format_unified_response(
-        self,
-        query_results: dict[str, Any],
-        query_context: dict[str, Any],
-        max_results: int,
-    ) -> dict[str, Any]:
-        """Format the unified query response"""
-        return {
-            "success": True,
-            "query": query_context["original_query"],
-            "query_type": query_context["query_type"],
-            "results": query_results.get("results", [])[:max_results],
-            "insights": query_results.get("insights", []),
-            "analytics": query_results.get("analytics", {}),
-            "timestamp": query_context["timestamp"],
-        }
+        total_value = data["amount"].sum()
+        deal_count = len(data)
+        avg_deal_size = total_value / deal_count if deal_count > 0 else 0
 
-    async def _query_snowflake_cortex(
-        self, query: str, context: dict[str, Any]
-    ) -> dict[str, Any] | None:
-        """Execute unified intelligence query on Snowflake Cortex"""
-        if not self.snowflake_cortex:
-            return None
-
-        try:
-            # Execute the unified intelligence function
-            sql = """
-            SELECT * FROM TABLE(sophia_unified_intelligence(?, ?, ?))
-            """
-
-            results = await self.snowflake_cortex.execute_query(
-                sql,
-                [
-                    query,
-                    json.dumps(context),
-                    context.get("optimization_mode", "balanced"),
-                ],
-            )
-
-            return results[0] if results else None
-
-        except Exception as e:
-            logger.error(f"Error querying Snowflake Cortex: {e}")
-            return None
-
-    async def _get_memory_context(
-        self, query: str, context: dict[str, Any]
-    ) -> list[dict[str, Any]] | None:
-        """Get relevant memories from AI Memory service"""
-        if not self.ai_memory:
-            return None
-
-        try:
-            # Search for relevant memories
-            memories = await self.ai_memory.search_memories(
-                query=query, category=context.get("category", "general"), limit=5
-            )
-
-            return memories
-
-        except Exception as e:
-            logger.error(f"Error getting memory context: {e}")
-            return None
-
-    async def _get_business_data(
-        self, query: str, context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Get relevant business data from integrations"""
-        business_data = {}
-
-        # Get Gong data if relevant
-        if self.gong_integration and any(
-            keyword in query.lower() for keyword in ["call", "conversation", "meeting"]
-        ):
-            try:
-                gong_data = await self.gong_integration.search_calls(query, limit=3)
-                business_data["gong_calls"] = gong_data
-            except Exception as e:
-                logger.error(f"Error getting Gong data: {e}")
-
-        # Get HubSpot data if relevant
-        if self.hubspot_integration and any(
-            keyword in query.lower() for keyword in ["deal", "contact", "customer"]
-        ):
-            try:
-                hubspot_data = await self.hubspot_integration.search_deals(
-                    query, limit=3
-                )
-                business_data["hubspot_deals"] = hubspot_data
-            except Exception as e:
-                logger.error(f"Error getting HubSpot data: {e}")
-
-        return business_data
-
-    async def _synthesize_results(
-        self,
-        query: str,
-        cortex_results: dict[str, Any] | None,
-        memory_context: list[dict[str, Any]] | None,
-        business_data: dict[str, Any],
-        context: dict[str, Any],
-    ) -> str:
-        """Synthesize results from multiple sources using Portkey"""
-        if not self.llm_service:
-            # Fallback to simple synthesis
-            return self._simple_synthesis(cortex_results, memory_context, business_data)
-
-        try:
-            # Prepare synthesis prompt
-            synthesis_prompt = f"""
-            Synthesize the following information to answer the business query: "{query}"
-
-            Cortex AI Analysis:
-            {json.dumps(cortex_results, indent=2) if cortex_results else "No Cortex results available"}
-
-            Memory Context:
-            {json.dumps(memory_context, indent=2) if memory_context else "No memory context available"}
-
-            Business Data:
-            {json.dumps(business_data, indent=2) if business_data else "No business data available"}
-
-            Provide a comprehensive, actionable response that:
-            1. Directly answers the query
-            2. Incorporates insights from all available sources
-            3. Highlights key findings and recommendations
-            4. Maintains business context awareness
-            """
-
-            # Use Portkey for synthesis
-            response = await self.llm_service.constitutional_complete(
-                {
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "You are Sophia AI, an intelligent business assistant.",
-                        },
-                        {"role": "user", "content": synthesis_prompt},
-                    ],
-                    "context": context,
-                }
-            )
-
-            return response.get("content", "Unable to synthesize results")
-
-        except Exception as e:
-            logger.error(f"Error synthesizing results with Portkey: {e}")
-            return self._simple_synthesis(cortex_results, memory_context, business_data)
-
-    def _simple_synthesis(
-        self,
-        cortex_results: dict[str, Any] | None,
-        memory_context: list[dict[str, Any]] | None,
-        business_data: dict[str, Any],
-    ) -> str:
-        """Simple fallback synthesis when Portkey is unavailable"""
-        insights = []
-
-        if cortex_results and cortex_results.get("unified_results"):
-            insights.append(
-                f"Analysis: {cortex_results['unified_results'].get('insights', 'No insights available')}"
-            )
-
-        if memory_context:
-            insights.append(
-                f"Historical Context: Found {len(memory_context)} relevant memories"
-            )
-
-        if business_data:
-            if "gong_calls" in business_data:
-                insights.append(
-                    f"Call Data: {len(business_data['gong_calls'])} relevant calls found"
-                )
-            if "hubspot_deals" in business_data:
-                insights.append(
-                    f"Deal Data: {len(business_data['hubspot_deals'])} relevant deals found"
-                )
-
-        return "\n".join(insights) if insights else "No insights available"
-
-    async def _generate_optimization_insights(
-        self, query: str, response: str, context: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Generate optimization insights for continuous improvement"""
-        return {
-            "query_optimization": [
-                "Consider adding specific time ranges for better results",
-                "Include entity names for more precise matching",
-            ],
-            "performance_metrics": {
-                "estimated_response_time_ms": 200,
-                "cache_hit_potential": 0.75,
-                "cost_optimization_potential": 0.3,
-            },
-            "learning_opportunities": [
-                "This query pattern could benefit from pre-computed embeddings",
-                "Similar queries have 80% cache hit rate",
-            ],
-        }
-
-    def _calculate_confidence_score(
-        self,
-        cortex_results: dict[str, Any] | None,
-        memory_context: list[dict[str, Any]] | None,
-        business_data: dict[str, Any],
-    ) -> float:
-        """Calculate overall confidence score for the response"""
-        scores = []
-
-        if cortex_results and "confidence_score" in cortex_results:
-            scores.append(cortex_results["confidence_score"])
-
-        if memory_context:
-            scores.append(0.8)  # High confidence when we have historical context
-
-        if business_data:
-            scores.append(0.9)  # High confidence with real business data
-
-        return sum(scores) / len(scores) if scores else 0.5
+        insights = [
+            f"Total pipeline value in view: ${total_value:,.2f} across {deal_count} deals.",
+            f"Average deal size: ${avg_deal_size:,.2f}.",
+            f"Highest probability deal is '{data.loc[data['probability'].idxmax()]['deal_name']}' at {data['probability'].max()}%.",
+        ]
+        return insights
 
 
 # Singleton instance getter
 _unified_intelligence_instance = None
 
 
-def get_unified_intelligence_service() -> SophiaUnifiedIntelligenceService:
+def get_unified_intelligence_service() -> UnifiedIntelligenceService:
     """Get or create the singleton unified intelligence service instance"""
     global _unified_intelligence_instance
     if _unified_intelligence_instance is None:
-        _unified_intelligence_instance = SophiaUnifiedIntelligenceService()
+        _unified_intelligence_instance = UnifiedIntelligenceService()
     return _unified_intelligence_instance

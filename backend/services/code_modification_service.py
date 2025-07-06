@@ -2,16 +2,15 @@
 Code Modification Service - Handles natural language code modifications
 """
 
-import os
 import ast
 import difflib
-from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
 import logging
+import os
 import re
+from pathlib import Path
+from typing import Any
 
-from backend.services.unified_llm_service import get_unified_llm_service, TaskType
-from backend.core.config_manager import ConfigManager
+from backend.services.unified_llm_service import TaskType, get_unified_llm_service
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,6 @@ class CodeModificationService:
 
     def __init__(self):
         self.smart_ai = None  # Will be initialized in async context
-        self.config = ConfigManager()
         self.workspace_root = Path(os.getcwd())
 
     async def _ensure_llm_service(self):
@@ -32,39 +30,29 @@ class CodeModificationService:
             self.smart_ai = await get_unified_llm_service()
 
     async def modify_code(
-        self,
-        file_path: str,
-        instructions: str,
-        context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, file_path: str, instructions: str, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Modify code based on natural language instructions
         """
         await self._ensure_llm_service()
-        logger.info(f"Modifying code in {file_path} with instructions: {instructions[:100]}...")
+        logger.info(
+            f"Modifying code in {file_path} with instructions: {instructions[:100]}..."
+        )
 
         # Read current code
         full_path = self.workspace_root / file_path
         if not full_path.exists():
-            return {
-                "success": False,
-                "error": f"File not found: {file_path}"
-            }
+            return {"success": False, "error": f"File not found: {file_path}"}
 
         try:
             current_code = full_path.read_text()
         except Exception as e:
-            return {
-                "success": False,
-                "error": f"Error reading file: {str(e)}"
-            }
+            return {"success": False, "error": f"Error reading file: {str(e)}"}
 
         # Generate modifications using AI
         modified_code = await self._generate_modifications(
-            current_code,
-            instructions,
-            file_path,
-            context
+            current_code, instructions, file_path, context
         )
 
         # Create diff for review
@@ -72,9 +60,7 @@ class CodeModificationService:
 
         # Validate modifications
         validation = await self._validate_modifications(
-            file_path,
-            current_code,
-            modified_code
+            file_path, current_code, modified_code
         )
 
         # Calculate change metrics
@@ -87,7 +73,7 @@ class CodeModificationService:
             "validation": validation,
             "modified_code": modified_code,
             "metrics": metrics,
-            "requires_approval": self._requires_approval(metrics, validation)
+            "requires_approval": self._requires_approval(metrics, validation),
         }
 
     async def _generate_modifications(
@@ -95,7 +81,7 @@ class CodeModificationService:
         current_code: str,
         instructions: str,
         file_path: str,
-        context: Dict[str, Any]
+        context: dict[str, Any],
     ) -> str:
         """Generate code modifications using AI"""
 
@@ -103,7 +89,7 @@ class CodeModificationService:
         language = self._detect_language(file_path)
 
         # Get recent changes from memory if available
-        recent_changes = context.get('memory_context', [])
+        recent_changes = context.get("memory_context", [])
         recent_changes_text = ""
         if recent_changes:
             recent_changes_text = "\n\nRecent related changes:\n" + "\n".join(
@@ -134,13 +120,14 @@ class CodeModificationService:
 
         # Use the unified LLM service
         response_content = ""
+        metadata = {"user_id": context.get("user_id", "developer")}
         async for chunk in self.smart_ai.complete(
             prompt=prompt,
             task_type=TaskType.CODE_GENERATION,
             stream=True,
-            user_id=context.get("user_id", "developer"),
+            metadata=metadata,
             temperature=0.2,  # Lower temperature for code generation
-            max_tokens=4000
+            max_tokens=4000,
         ):
             response_content += chunk
 
@@ -153,7 +140,7 @@ class CodeModificationService:
         """Extract code from AI response"""
 
         # Look for code blocks
-        code_block_pattern = rf'```{language}?\n(.*?)```'
+        code_block_pattern = rf"```{language}?\n(.*?)```"
         matches = re.findall(code_block_pattern, response, re.DOTALL)
 
         if matches:
@@ -173,17 +160,14 @@ class CodeModificationService:
             modified_lines,
             fromfile=f"a/{file_path}",
             tofile=f"b/{file_path}",
-            n=3  # Context lines
+            n=3,  # Context lines
         )
 
-        return ''.join(diff)
+        return "".join(diff)
 
     async def _validate_modifications(
-        self,
-        file_path: str,
-        original: str,
-        modified: str
-    ) -> Dict[str, Any]:
+        self, file_path: str, original: str, modified: str
+    ) -> dict[str, Any]:
         """Validate the modifications"""
 
         validation = {
@@ -191,7 +175,7 @@ class CodeModificationService:
             "imports_valid": True,
             "has_syntax_errors": False,
             "warnings": [],
-            "errors": []
+            "errors": [],
         }
 
         language = self._detect_language(file_path)
@@ -207,7 +191,9 @@ class CodeModificationService:
                 validation["errors"].append(f"Syntax error at line {e.lineno}: {e.msg}")
 
             # Check for missing imports
-            validation["imports_valid"] = self._validate_python_imports(original, modified)
+            validation["imports_valid"] = self._validate_python_imports(
+                original, modified
+            )
 
         elif language in ["javascript", "typescript"]:
             # Basic JS/TS validation
@@ -218,7 +204,9 @@ class CodeModificationService:
 
         # Check for common issues
         if len(modified) < len(original) * 0.1:
-            validation["warnings"].append("Code reduced by more than 90% - possible data loss")
+            validation["warnings"].append(
+                "Code reduced by more than 90% - possible data loss"
+            )
 
         if "TODO" in modified and "TODO" not in original:
             validation["warnings"].append("New TODO comments added")
@@ -265,7 +253,7 @@ class CodeModificationService:
         """Check if brackets are balanced in code"""
 
         stack = []
-        brackets = {'(': ')', '[': ']', '{': '}'}
+        brackets = {"(": ")", "[": "]", "{": "}"}
 
         for char in code:
             if char in brackets:
@@ -278,7 +266,7 @@ class CodeModificationService:
 
         return len(stack) == 0
 
-    def _calculate_change_metrics(self, original: str, modified: str) -> Dict[str, int]:
+    def _calculate_change_metrics(self, original: str, modified: str) -> dict[str, int]:
         """Calculate metrics about the changes"""
 
         original_lines = original.splitlines()
@@ -292,11 +280,11 @@ class CodeModificationService:
         modified_count = 0
 
         for tag, i1, i2, j1, j2 in matcher.get_opcodes():
-            if tag == 'insert':
+            if tag == "insert":
                 added += j2 - j1
-            elif tag == 'delete':
+            elif tag == "delete":
                 removed += i2 - i1
-            elif tag == 'replace':
+            elif tag == "replace":
                 removed += i2 - i1
                 added += j2 - j1
                 modified_count += min(i2 - i1, j2 - j1)
@@ -307,13 +295,11 @@ class CodeModificationService:
             "lines_modified": modified_count,
             "total_changes": added + removed + modified_count,
             "original_lines": len(original_lines),
-            "modified_lines": len(modified_lines)
+            "modified_lines": len(modified_lines),
         }
 
     def _requires_approval(
-        self,
-        metrics: Dict[str, int],
-        validation: Dict[str, Any]
+        self, metrics: dict[str, int], validation: dict[str, Any]
     ) -> bool:
         """Determine if changes require approval"""
 
@@ -341,77 +327,81 @@ class CodeModificationService:
         """Detect programming language from file extension"""
 
         ext_to_lang = {
-            '.py': 'python',
-            '.js': 'javascript',
-            '.jsx': 'javascript',
-            '.ts': 'typescript',
-            '.tsx': 'typescript',
-            '.java': 'java',
-            '.cpp': 'cpp',
-            '.c': 'c',
-            '.go': 'go',
-            '.rs': 'rust',
-            '.rb': 'ruby',
-            '.php': 'php',
-            '.swift': 'swift',
-            '.kt': 'kotlin',
-            '.scala': 'scala',
-            '.r': 'r',
-            '.m': 'matlab',
-            '.jl': 'julia',
-            '.sh': 'bash',
-            '.ps1': 'powershell',
-            '.sql': 'sql',
-            '.html': 'html',
-            '.css': 'css',
-            '.scss': 'scss',
-            '.yaml': 'yaml',
-            '.yml': 'yaml',
-            '.json': 'json',
-            '.xml': 'xml',
-            '.md': 'markdown',
+            ".py": "python",
+            ".js": "javascript",
+            ".jsx": "javascript",
+            ".ts": "typescript",
+            ".tsx": "typescript",
+            ".java": "java",
+            ".cpp": "cpp",
+            ".c": "c",
+            ".go": "go",
+            ".rs": "rust",
+            ".rb": "ruby",
+            ".php": "php",
+            ".swift": "swift",
+            ".kt": "kotlin",
+            ".scala": "scala",
+            ".r": "r",
+            ".m": "matlab",
+            ".jl": "julia",
+            ".sh": "bash",
+            ".ps1": "powershell",
+            ".sql": "sql",
+            ".html": "html",
+            ".css": "css",
+            ".scss": "scss",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".json": "json",
+            ".xml": "xml",
+            ".md": "markdown",
         }
 
         ext = Path(file_path).suffix.lower()
-        return ext_to_lang.get(ext, 'text')
+        return ext_to_lang.get(ext, "text")
 
-    async def generate_file_content(
-        self,
-        file_path: str,
-        description: str
-    ) -> str:
-        """Generate content for a new file based on description"""
+    # TODO: This method is broken and needs to be fixed.
+    # It has syntax errors and uses undefined variables (LLMRequest, smart_ai).
+    # async def generate_file_content(
+    #     self,
+    #     file_path: str,
+    #     description: str
+    # ) -> str:
+    #     """Generate content for a new file based on description"""
 
-        language = self._detect_language(file_path)
+    #     language = self._detect_language(file_path)
 
-        prompt = f"""
-        Create a new {language} file with the following requirements:
+    #     prompt = f"""
+    #     Create a new {language} file with the following requirements:
 
-        File: {file_path}
-        Description: {description}
+    #     File: {file_path}
+    #     Description: {description}
 
-        Context:
-        - Project: Sophia AI (Enterprise AI Orchestrator)
-        - Language: {language}
-        - Include appropriate imports, documentation, and error handling
-        - Follow best practices and coding standards
+    #     Context:
+    #     - Project: Sophia AI (Enterprise AI Orchestrator)
+    #     - Language: {language}
+    #     - Include appropriate imports, documentation, and error handling
+    #     - Follow best practices and coding standards
 
-        Generate complete, production-ready code.
-        """
+    #     Generate complete, production-ready code.
+    #     """
 
-        request = LLMRequest(
-            messages=[{"role": "user", "content": prompt}],
-            task_type=TaskType.CODE_GENERATION,
-            user_id="developer",
-            temperature=0.3,
-            max_tokens=4000
-        )
+    #     request = LLMRequest(
+    #         messages=[{"role": "user", "content": prompt}],
+    #         task_type=TaskType.CODE_GENERATION,
+    #         user_id="developer",
+    #         temperature=0.3,
+    #         max_tokens=4000
+    #     )
 
-        response = await self.async for chunk in smart_ai.complete(
-    prompt=request.prompt if hasattr(request, 'prompt') else request.get('prompt', ''),
-    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
-    stream=True
-)
+    #     response = await self.async for chunk in smart_ai.complete(
+    # prompt=request.prompt if hasattr(request, 'prompt') else request.get('prompt', ''),
+    # task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
+    # stream=True
 
-        # Extract code from response
-        return self._extract_code_from_response(response.content, language)
+
+# )
+
+#     # Extract code from response
+#     return self._extract_code_from_response(response.content, language)

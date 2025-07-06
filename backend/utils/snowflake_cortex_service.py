@@ -24,6 +24,7 @@ TODO: Implement file decomposition
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any
 
@@ -291,6 +292,36 @@ class SnowflakeCortexService(CoreService):
         except Exception as e:
             logger.error(f"Error extracting entities: {e}")
             raise
+
+    async def generate_embedding(
+        self, text: str, model: str = "e5-base-v2"
+    ) -> list[float]:
+        """Generate embedding for a given text string using Snowflake Cortex."""
+        if not self.initialized:
+            await self.initialize()
+
+        if not text or not text.strip():
+            logger.warning("Attempted to generate embedding for empty text.")
+            return []
+
+        try:
+            # Snowflake's escape function is specific, using parameter binding is safer
+            query = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768(%s, %s)"
+            params = (model, text)
+
+            results = await self.connection_manager.execute_query(query, params)
+
+            if results and results[0] and results[0][0]:
+                # The result is a string representation of a list
+                embedding_str = results[0][0]
+                return json.loads(embedding_str)
+            else:
+                raise CortexEmbeddingError(
+                    "Failed to generate embedding, no result from Snowflake."
+                )
+        except Exception as e:
+            logger.error(f"Error generating single text embedding: {e}")
+            raise CortexEmbeddingError(f"Cortex embedding failed: {e}") from e
 
     # Delegate business operations to business handlers
     async def store_embedding_in_business_table(

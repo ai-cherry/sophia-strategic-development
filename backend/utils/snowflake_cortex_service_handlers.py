@@ -24,12 +24,35 @@ class CortexHandlers:
         """Get performance statistics for handlers"""
         return self.performance_monitor.get_performance_stats()
 
+    async def summarize_text_in_snowflake(
+        self,
+        text_column: str,
+        table_name: str,
+        conditions: str | None = None,
+        max_length: int = 200,
+    ) -> list[dict[str, Any]]:
+        """Summarize text data using Snowflake Cortex SUMMARIZE function"""
+        # Actual implementation will go here
+        return []
+
+    async def analyze_sentiment_in_snowflake(
+        self, text_column: str, table_name: str, conditions: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Analyze sentiment using Snowflake Cortex SENTIMENT function"""
+        # Actual implementation will go here
+        return []
+
 
 class BusinessHandlers:
     """Business-specific handlers for HubSpot and Gong integration"""
 
     def __init__(self, service):
         self.service = service
+
+    async def ensure_embedding_columns_exist(self, table_name: str) -> bool:
+        """Ensure AI Memory embedding columns exist in business table"""
+        # Actual implementation will go here
+        return True
 
     async def store_embedding_in_business_table(
         self,

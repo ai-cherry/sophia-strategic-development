@@ -9,7 +9,7 @@ from typing import Any
 
 import aiohttp
 
-from backend.core.config_manager import ConfigManager
+from backend.core.auto_esc_config import config
 from backend.utils.custom_logger import setup_logger
 
 logger = setup_logger("portkey_integration")
@@ -22,7 +22,7 @@ class PortkeyIntegration:
     """
 
     def __init__(self):
-        self.config = ConfigManager()
+        self.config = config
         self.api_key = self.config.get("portkey_api_key", "")
         self.base_url = "https://api.portkey.ai/v1"
 
@@ -150,6 +150,7 @@ class PortkeyIntegration:
         self, query: str, context: str | None, settings: dict[str, Any] | None
     ) -> dict[str, Any]:
         """Prepare request with quality optimization settings"""
+        settings = settings or {}
         # Base request
         request_data = {
             "messages": [],

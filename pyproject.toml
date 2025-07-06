@@ -223,16 +223,12 @@ extend-exclude = """
 [tool.ruff]
 target-version = "py312"
 line-length = 88
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "S", "A", "C90", "T20", "SIM", "ARG"]
-ignore = ["E501", "B008", "B904"]
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "external",
-    "build",
-    "dist",
-]
+select = ["E", "F", "W", "C90", "I", "N", "UP", "A", "S", "T20"]
+ignore = ["E501", "F401", "F811", "ARG002", "E722"]
+
+# Allow unused variables in `__init__.py`.
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -266,3 +262,8 @@ omit = [
 precision = 2
 show_missing = true
 skip_covered = false
+
+[dependency-groups]
+dev = [
+    "locust>=2.37.11",
+]

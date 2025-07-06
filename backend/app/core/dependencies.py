@@ -42,10 +42,7 @@ async def get_chat_service() -> EnhancedUnifiedChatService:
     """Get chat service singleton"""
     global _chat_service
     if _chat_service is None:
-        from backend.core.config_manager import ConfigManager
-
-        config_manager = ConfigManager()
-        _chat_service = EnhancedUnifiedChatService(config_manager)
+        _chat_service = EnhancedUnifiedChatService()
         await _chat_service.initialize()
     return _chat_service
 

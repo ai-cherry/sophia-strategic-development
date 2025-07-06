@@ -8,6 +8,7 @@ import time
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 try:
     from portkey_ai import AsyncPortkey
@@ -18,7 +19,7 @@ import snowflake.connector
 from openai import AsyncOpenAI
 from snowflake.connector import DictCursor
 
-from backend.core.config_manager import ConfigManager
+from backend.core.auto_esc_config import config
 from backend.monitoring.llm_metrics import (
     data_movement_avoided,
     llm_cache_hit_rate,
@@ -67,7 +68,7 @@ class UnifiedLLMService:
     """
 
     def __init__(self):
-        self.config = ConfigManager()
+        self.config = config
         self.initialized = False
         self._portkey = None
         self._openrouter = None
@@ -89,7 +90,7 @@ class UnifiedLLMService:
             logger.warning("Portkey package not installed")
             return None
 
-        api_key = self.config.get_value("portkey_api_key")
+        api_key = self.config.get("portkey_api_key")
         if not api_key:
             logger.warning("Portkey API key not found")
             return None
@@ -98,8 +99,8 @@ class UnifiedLLMService:
             api_key=api_key,
             # Virtual keys for different providers
             virtual_keys={
-                "openai": self.config.get_value("portkey_virtual_key_openai", ""),
-                "anthropic": self.config.get_value("portkey_virtual_key_anthropic", ""),
+                "openai": self.config.get("portkey_virtual_key_openai", ""),
+                "anthropic": self.config.get("portkey_virtual_key_anthropic", ""),
             },
             # Performance-optimized config
             config={
@@ -120,7 +121,7 @@ class UnifiedLLMService:
 
     def _init_openrouter(self) -> AsyncOpenAI | None:
         """Initialize OpenRouter client"""
-        api_key = self.config.get_value("openrouter_api_key")
+        api_key = self.config.get("openrouter_api_key")
         if not api_key:
             logger.warning("OpenRouter API key not found")
             return None
@@ -138,12 +139,12 @@ class UnifiedLLMService:
         """Initialize Snowflake connection"""
         try:
             conn = snowflake.connector.connect(
-                user=self.config.get_value("snowflake_user"),
-                password=self.config.get_value("snowflake_password"),
-                account=self.config.get_value("snowflake_account"),
-                warehouse=self.config.get_value("snowflake_warehouse", "COMPUTE_WH"),
-                database=self.config.get_value("snowflake_database", "SOPHIA_AI"),
-                schema=self.config.get_value("snowflake_schema", "CORE"),
+                user=self.config.get("snowflake_user"),
+                password=self.config.get("snowflake_password"),
+                account=self.config.get("snowflake_account"),
+                warehouse=self.config.get("snowflake_warehouse", "COMPUTE_WH"),
+                database=self.config.get("snowflake_database", "SOPHIA_AI"),
+                schema=self.config.get("snowflake_schema", "CORE"),
             )
             return conn
         except Exception as e:
@@ -380,27 +381,35 @@ class UnifiedLLMService:
             model = "gpt-3.5-turbo"  # Or claude-3-haiku-20240307
 
         try:
-            response = await self._portkey.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stream=stream,
-                metadata=metadata,
-            )
-
             if stream:
-                async for chunk in response:
-                    if chunk.choices[0].delta.content:
+                response_stream = await self._portkey.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stream=True,
+                    metadata=metadata,
+                )
+                async for chunk in response_stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
                         yield chunk.choices[0].delta.content
             else:
-                yield response.choices[0].message.content
+                response = await self._portkey.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stream=False,
+                    metadata=metadata,
+                )
+                if response.choices and response.choices[0].message.content:
+                    yield response.choices[0].message.content
 
-            # Check for cache hit
-            if hasattr(response, "headers"):
-                cache_hit = response.headers.get("x-portkey-cache-status") == "hit"
-                if cache_hit:
-                    llm_cache_hit_rate.labels(provider="portkey").inc()
+                # Check for cache hit on non-streaming responses
+                if hasattr(response, "headers"):
+                    cache_hit = response.headers.get("x-portkey-cache-status") == "hit"
+                    if cache_hit:
+                        llm_cache_hit_rate.labels(provider="portkey").inc()
 
         except Exception as e:
             logger.error(f"Portkey error: {e}")
@@ -429,20 +438,27 @@ class UnifiedLLMService:
         model = model_override or "mistralai/mixtral-8x7b-instruct"
 
         try:
-            response = await self._openrouter.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stream=stream,
-            )
-
             if stream:
-                async for chunk in response:
-                    if chunk.choices[0].delta.content:
+                response_stream = await self._openrouter.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stream=True,
+                )
+                async for chunk in response_stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
                         yield chunk.choices[0].delta.content
             else:
-                yield response.choices[0].message.content
+                response = await self._openrouter.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stream=False,
+                )
+                if response.choices and response.choices[0].message.content:
+                    yield response.choices[0].message.content
 
         except Exception as e:
             logger.error(f"OpenRouter error: {e}")
@@ -487,7 +503,7 @@ class UnifiedLLMService:
 
     async def estimate_cost(
         self, prompt: str, task_type: TaskType, model_override: str | None = None
-    ) -> dict[str, float]:
+    ) -> dict[str, Any]:
         """Estimate cost for a completion"""
         # Rough token estimation (4 chars per token)
         prompt_tokens = len(prompt) / 4

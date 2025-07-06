@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -68,11 +69,18 @@ class SophiaProductionActivator:
         logger.info("🔍 Phase 1: Environment Validation")
 
         # Run deployment health gate
+        health_gate_script = (
+            PROJECT_ROOT / "scripts" / "ci" / "deployment_health_gate.py"
+        )
+        if not health_gate_script.exists():
+            raise FileNotFoundError(
+                f"Health gate script not found at {health_gate_script}"
+            )
+
         result = subprocess.run(
-            ["python", "scripts/ci/deployment_health_gate.py"],
+            [sys.executable, str(health_gate_script)],
             capture_output=True,
             text=True,
-            cwd=PROJECT_ROOT,
         )
 
         if result.returncode != 0:
@@ -104,24 +112,41 @@ class SophiaProductionActivator:
                 stderr=subprocess.PIPE,
             )
 
-            # Wait for backend to start
-            await asyncio.sleep(5)
+            # Poll for backend health instead of fixed sleep
+            await self._wait_for_service("http://localhost:8000/health", "Backend")
 
-            # Validate backend health
-            import requests
-
-            response = requests.get("http://localhost:8000/health", timeout=10)
-            if response.status_code == 200:
-                logger.info("✅ Backend services started successfully")
-                self.services_started.append("backend")
-                self.activation_report["services"]["backend"] = "started"
-            else:
-                raise Exception(f"Backend health check failed: {response.status_code}")
+            logger.info("✅ Backend services started successfully")
+            self.services_started.append("backend")
+            self.activation_report["services"]["backend"] = "started"
 
         except Exception as e:
             logger.error(f"❌ Backend startup failed: {e}")
             self.services_failed.append("backend")
             self.activation_report["services"]["backend"] = f"failed: {e}"
+
+    async def _wait_for_service(self, url: str, service_name: str, timeout: int = 30):
+        """Poll a service's health endpoint until it's ready or timeout."""
+        import requests
+
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                response = requests.get(url, timeout=2)
+                if response.status_code == 200:
+                    logger.info(f"✅ {service_name} is healthy.")
+                    return True
+            except requests.ConnectionError:
+                pass  # Service not up yet
+            except Exception as e:
+                logger.warning(
+                    f"⚠️ Health check for {service_name} returned an error: {e}"
+                )
+
+            await asyncio.sleep(2)
+
+        raise Exception(
+            f"{service_name} did not become healthy within {timeout} seconds."
+        )
 
     async def _start_mcp_orchestrator(self):
         """Start MCP server orchestrator"""
@@ -195,15 +220,14 @@ class SophiaProductionActivator:
             await asyncio.sleep(8)
 
             # Validate frontend
-            import requests
 
-            response = requests.get("http://localhost:3000", timeout=10)
-            if response.status_code == 200:
-                logger.info("✅ Frontend services started successfully")
-                self.services_started.append("frontend")
-                self.activation_report["services"]["frontend"] = "started"
-            else:
-                logger.warning(f"⚠️ Frontend may be starting: {response.status_code}")
+            await self._wait_for_service(
+                "http://localhost:5173", "Frontend", timeout=20
+            )
+
+            logger.info("✅ Frontend services started successfully")
+            self.services_started.append("frontend")
+            self.activation_report["services"]["frontend"] = "started"
 
         except Exception as e:
             logger.error(f"❌ Frontend startup failed: {e}")

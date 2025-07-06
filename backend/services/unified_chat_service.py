@@ -9,7 +9,6 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from backend.core.config_manager import ConfigManager
 from backend.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from backend.services.enhanced_unified_intelligence_service import (
     EnhancedUnifiedIntelligenceService,
@@ -74,7 +73,6 @@ class UnifiedChatService:
     """
 
     def __init__(self):
-        self.config = ConfigManager()
         self.cortex_service = SnowflakeCortexService()
         self.memory_service = EnhancedAiMemoryMCPServer()
         self.intelligence_service = EnhancedUnifiedIntelligenceService()

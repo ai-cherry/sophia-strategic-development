@@ -9,7 +9,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.core.config_manager import ConfigManager
+from backend.core.auto_esc_config import get_config_value, set_config_value
 from backend.services.cost_engineering_service import CostEngineeringService
 from backend.services.unified_llm_service import UnifiedLLMService
 
@@ -87,16 +87,9 @@ def get_cost_service() -> CostEngineeringService:
     return CostEngineeringService()
 
 
-def get_config_manager() -> ConfigManager:
-    """Get config manager instance"""
-    return ConfigManager()
-
-
 @router.get("/stats", response_model=LLMMetricsResponse)
 async def get_llm_stats(
-    llm_service: UnifiedLLMService = Depends(get_llm_service),
     cost_service: CostEngineeringService = Depends(get_cost_service),
-    config: ConfigManager = Depends(get_config_manager),
 ) -> LLMMetricsResponse:
     """Get comprehensive LLM metrics and cost data"""
     try:
@@ -115,8 +108,8 @@ async def get_llm_stats(
         cost_report = await cost_service.get_cost_report()
 
         # Check budget status
-        daily_budget = config.get_value("llm_daily_budget", 100.0)
-        monthly_budget = config.get_value("llm_monthly_budget", 3000.0)
+        daily_budget = get_config_value("llm_daily_budget", 100.0)
+        monthly_budget = get_config_value("llm_monthly_budget", 3000.0)
 
         daily_cost = await cost_service._calculate_daily_cost()
         monthly_cost = await cost_service._calculate_monthly_cost()
@@ -264,24 +257,23 @@ async def set_budget(
     daily_budget: float | None = None,
     monthly_budget: float | None = None,
     cost_service: CostEngineeringService = Depends(get_cost_service),
-    config: ConfigManager = Depends(get_config_manager),
 ) -> dict[str, Any]:
     """Set LLM cost budgets"""
     try:
         # Update budgets
         if daily_budget is not None:
-            config.set_value("llm_daily_budget", daily_budget)
+            set_config_value("llm_daily_budget", daily_budget)
             await cost_service.set_cost_budget(daily_budget=daily_budget)
 
         if monthly_budget is not None:
-            config.set_value("llm_monthly_budget", monthly_budget)
+            set_config_value("llm_monthly_budget", monthly_budget)
             await cost_service.set_cost_budget(monthly_budget=monthly_budget)
 
         return {
             "status": "success",
-            "daily_budget": daily_budget or config.get_value("llm_daily_budget", 100.0),
+            "daily_budget": daily_budget or get_config_value("llm_daily_budget", 100.0),
             "monthly_budget": monthly_budget
-            or config.get_value("llm_monthly_budget", 3000.0),
+            or get_config_value("llm_monthly_budget", 3000.0),
         }
 
     except Exception as e:
