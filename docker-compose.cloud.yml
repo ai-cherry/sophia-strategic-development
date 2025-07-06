@@ -1,559 +1,64 @@
-networks:
-  sophia-overlay:
-    attachable: true
-    driver: overlay
-    driver_opts:
-      encrypted: 'true'
-secrets:
-  grafana_password:
-    external: true
-    name: sophia-ai-grafana-password
-  postgres_password:
-    external: true
-    name: sophia-ai-postgres-password
-  pulumi_esc:
-    external: true
-    name: sophia-ai-pulumi-esc
-  snowflake_credentials:
-    external: true
-    name: sophia-ai-snowflake-credentials
-services:
-  ai-memory:
-    deploy:
-      replicas: 2
-      resources: &id001
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          cpus: '1'
-          memory: 2G
-      restart_policy: &id002
-        condition: any
-        delay: 5s
-        max_attempts: 3
-      update_config: &id003
-        delay: 10s
-        failure_action: rollback
-        parallelism: 1
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: backend.mcp_servers.ai_memory.ai_memory_mcp_server
-      PORT: 9001
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9001/health
-      timeout: 10s
-    image: scoobyjava15/sophia-ai-memory:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  asana:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.asana.asana_mcp_server
-      PORT: 9100
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-      RUN_AS_FASTAPI: 'true'
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9100/health
-      timeout: 10s
-    image: scoobyjava15/sophia-asana:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  codacy:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.codacy.production_codacy_server
-      PORT: 3008
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3008/health
-      timeout: 10s
-    image: scoobyjava15/sophia-codacy:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  codacy-mcp:
-    deploy:
-      placement:
-        constraints:
-        - node.role == worker
-      replicas: 1
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-    environment:
-    - ENVIRONMENT=prod
-    - PULUMI_ORG=scoobyjava-org
-    - PULUMI_STACK=sophia-ai-production
-    - PYTHONPATH=/app
-    - PYTHONUNBUFFERED=1
-    healthcheck:
-      interval: 30s
-      retries: 3
-      start_period: 10s
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3008/health
-      timeout: 10s
-    image: scoobyjava15/sophia-codacy-mcp:latest
-    networks:
-    - sophia-network
-    ports:
-    - 3008:3008
-    secrets:
-    - openai_api_key
-    - anthropic_api_key
-    - gong_access_token
-    - pinecone_api_key
-    - pulumi_access_token
-  github:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.github.github_mcp_server
-      PORT: 9103
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9103/health
-      timeout: 10s
-    image: scoobyjava15/sophia-github:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  grafana:
-    deploy:
-      placement:
-        constraints:
-        - node.role == manager
-    environment:
-    - GF_SECURITY_ADMIN_PASSWORD_FILE=/run/secrets/grafana_password
-    - GF_INSTALL_PLUGINS=grafana-clock-panel
-    image: grafana/grafana:latest
-    networks:
-    - sophia-overlay
-    ports:
-    - 3000:3000
-    secrets:
-    - grafana_password
-    volumes:
-    - grafana_data:/var/lib/grafana
-    - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
-    - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
-  lambda-labs-cli:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.lambda_labs_cli.lambda_labs_cli_mcp_server
-      PORT: 9020
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9020/health
-      timeout: 10s
-    image: scoobyjava15/sophia-lambda-labs-cli:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  linear:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.linear.linear_mcp_server
-      PORT: 9004
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-      RUN_AS_FASTAPI: 'true'
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9004/health
-      timeout: 10s
-    image: scoobyjava15/sophia-linear:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  loki:
-    deploy:
-      placement:
-        constraints:
-        - node.role == manager
-    image: grafana/loki:latest
-    networks:
-    - sophia-overlay
-    ports:
-    - 3100:3100
-    volumes:
-    - loki_data:/loki
-  mcp-gateway:
-    deploy:
-      placement:
-        constraints:
-        - node.role == worker
-      replicas: 1
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-    environment:
-    - ENVIRONMENT=prod
-    - PULUMI_ORG=scoobyjava-org
-    - PULUMI_STACK=sophia-ai-production
-    - PYTHONPATH=/app
-    - PYTHONUNBUFFERED=1
-    healthcheck:
-      interval: 30s
-      retries: 3
-      start_period: 10s
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9000/health
-      timeout: 10s
-    image: ${DOCKER_REGISTRY}/sophia-mcp-gateway:${IMAGE_TAG:-latest}
-    networks:
-    - sophia-network
-    ports:
-    - 9000:9000
-    secrets:
-    - openai_api_key
-    - anthropic_api_key
-    - gong_access_token
-    - pinecone_api_key
-    - pulumi_access_token
-  notion:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.notion.enhanced_notion_mcp_server
-      PORT: 9005
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9005/health
-      timeout: 10s
-    image: scoobyjava15/sophia-notion:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  portkey-admin:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.portkey_admin.portkey_admin_mcp_server
-      PORT: 9013
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9013/health
-      timeout: 10s
-    image: scoobyjava15/sophia-portkey-admin:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-  postgres:
-    deploy:
-      placement:
-        constraints:
-        - node.role == manager
-    environment:
-      POSTGRES_DB: sophia_ai
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-      POSTGRES_USER: sophia
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD-SHELL
-      - pg_isready -U sophia
-      timeout: 10s
-    image: postgres:15-alpine
-    networks:
-    - sophia-overlay
-    secrets:
-    - postgres_password
-    volumes:
-    - postgres_data:/var/lib/postgresql/data
-  prometheus:
-    command:
-    - --config.file=/etc/prometheus/prometheus.yml
-    - --storage.tsdb.path=/prometheus
-    deploy:
-      placement:
-        constraints:
-        - node.role == manager
-    image: prom/prometheus:latest
-    networks:
-    - sophia-overlay
-    ports:
-    - 9090:9090
-    volumes:
-    - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    - prometheus_data:/prometheus
-  promtail:
-    command: -config.file=/etc/promtail/promtail.yml
-    deploy:
-      mode: global
-    image: grafana/promtail:latest
-    networks:
-    - sophia-overlay
-    volumes:
-    - /var/log:/var/log:ro
-    - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    - ./monitoring/promtail.yml:/etc/promtail/promtail.yml:ro
-  redis:
-    command: redis-server --appendonly yes
-    deploy:
-      replicas: 1
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - redis-cli
-      - ping
-      timeout: 10s
-    image: redis:7-alpine
-    networks:
-    - sophia-overlay
-    volumes:
-    - redis_data:/data
-  snowflake-admin:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: backend.mcp_servers.snowflake_admin_mcp_server
-      PORT: 9020
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9020/health
-      timeout: 10s
-    image: scoobyjava15/sophia-snowflake-admin:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-    - snowflake_credentials
-  snowflake-cortex:
-    deploy:
-      placement:
-        constraints:
-        - node.labels.gpu == true
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.snowflake_cortex.production_snowflake_cortex_mcp_server
-      PORT: 9030
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9030/health
-      timeout: 10s
-    image: scoobyjava15/sophia-snowflake-cortex:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
-    - snowflake_credentials
-  ui-ux-agent:
-    deploy:
-      replicas: 2
-      resources: *id001
-      restart_policy: *id002
-      update_config: *id003
-    environment:
-      ENVIRONMENT: prod
-      LAMBDA_LABS_HOST: 137.131.6.213
-      MODULE: mcp-servers.ui_ux_agent.ui_ux_agent_mcp_server
-      PORT: 9002
-      POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-      PULUMI_ORG: scoobyjava-org
-      REDIS_URL: redis://redis:6379
-    healthcheck:
-      interval: 30s
-      retries: 5
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9002/health
-      timeout: 10s
-    image: scoobyjava15/sophia-ui-ux-agent:latest
-    networks:
-    - sophia-overlay
-    secrets:
-    - pulumi_esc
 version: '3.8'
-volumes:
-  grafana_data:
-    driver: local
-  loki_data:
-    driver: local
-  postgres_data:
-    driver: local
-  prometheus_data:
-    driver: local
-  redis_data:
-    driver: local
-x-common-env:
-  ENVIRONMENT: prod
-  LAMBDA_LABS_HOST: 137.131.6.213
-  POSTGRES_URL: postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
-  PULUMI_ORG: scoobyjava-org
-  REDIS_URL: redis://redis:6379
-x-deploy-config:
-  replicas: 2
-  resources: *id001
-  restart_policy: *id002
-  update_config: *id003
+
+services:
+  backend:
+    image: scoobyjava15/sophia-ai:latest
+    container_name: sophia-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - PULUMI_ORG=scoobyjava-org
+      - PORT=8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  frontend:
+    image: scoobyjava15/sophia-frontend:latest
+    container_name: sophia-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - REACT_APP_API_URL=http://backend:8000
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  mcp-ai-memory:
+    image: scoobyjava15/sophia-mcp:ai-memory
+    container_name: sophia-mcp-ai-memory
+    ports:
+      - "9000:9000"
+    environment:
+      - ENVIRONMENT=production
+      - PULUMI_ORG=scoobyjava-org
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+  mcp-snowflake:
+    image: scoobyjava15/sophia-mcp:snowflake
+    container_name: sophia-mcp-snowflake
+    ports:
+      - "9011:9011"
+    environment:
+      - ENVIRONMENT=production
+      - PULUMI_ORG=scoobyjava-org
+    restart: unless-stopped
+    networks:
+      - sophia-network
+
+networks:
+  sophia-network:
+    driver: bridge

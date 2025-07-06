@@ -88,7 +88,7 @@ class SophiaProductionActivator:
         # Start main FastAPI application
         backend_cmd = [
             "uvicorn",
-            "backend.app.fastapi_app:app",
+            "backend.app.app:app",
             "--host",
             "0.0.0.0",
             "--port",
