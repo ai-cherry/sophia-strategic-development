@@ -1,0 +1,7 @@
+# Monorepo Future Structure - DO NOT USE YET
+
+This directory is reserved for monorepo transition (target: February 2025).
+Continue using backend/ and frontend/ for all current development.
+See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md for timeline.
+
+Created by Enhanced Dead Code Scanner to prevent accidental usage.

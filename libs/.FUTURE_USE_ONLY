@@ -1,0 +1,7 @@
+# Shared Libraries - DO NOT USE YET
+
+This directory is reserved for monorepo shared libraries.
+Current shared code should remain in backend/core/ and backend/utils/.
+See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md for migration plan.
+
+Created by Enhanced Dead Code Scanner to prevent accidental usage.
