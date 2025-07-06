@@ -1,0 +1,180 @@
+# Enhanced Dockerfile for H200 GPU Optimization
+# Optimized for Sophia AI Platform with 6-tier memory architecture
+FROM nvidia/cuda:12.3-devel-ubuntu20.04 as base
+
+# Build arguments
+ARG PYTHON_VERSION=3.11
+ARG NODE_VERSION=18
+ARG CUDA_VERSION=12.3
+ARG GPU_ARCHITECTURE=h200
+ARG GPU_MEMORY=141GB
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=prod
+ENV GPU_TIER=h200
+ENV MEMORY_ARCHITECTURE=6-tier
+ENV CUDA_VISIBLE_DEVICES=all
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-dev \
+    python3-pip \
+    curl \
+    wget \
+    git \
+    build-essential \
+    software-properties-common \
+    libpq-dev \
+    redis-tools \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create symlinks for python
+RUN ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 && \
+    ln -sf /usr/bin/python3 /usr/bin/python
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
+    apt-get install -y nodejs
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+COPY requirements-h200.txt .
+
+# Install Python dependencies with H200 optimizations
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-h200.txt
+
+# Install GPU-specific packages
+RUN pip install --no-cache-dir \
+    torch==2.1.0+cu121 \
+    torchvision==0.16.0+cu121 \
+    torchaudio==2.1.0+cu121 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Install additional GPU acceleration libraries
+RUN pip install --no-cache-dir \
+    cupy-cuda12x \
+    rapids-cudf-cu12 \
+    cuml-cu12 \
+    nvidia-ml-py \
+    pynvml \
+    tritonclient[all]
+
+# Copy application code
+COPY backend/ backend/
+COPY frontend/ frontend/
+COPY scripts/ scripts/
+COPY infrastructure/ infrastructure/
+
+# Copy configuration files
+COPY pyproject.toml .
+COPY tsconfig.json .
+
+# Install frontend dependencies
+WORKDIR /app/frontend
+RUN npm ci && npm run build
+
+# Return to app directory
+WORKDIR /app
+
+# Create directories for GPU memory management
+RUN mkdir -p /app/gpu-memory/{active_models,inference_cache,vector_cache,buffer} && \
+    mkdir -p /app/models && \
+    mkdir -p /app/logs && \
+    mkdir -p /app/cache && \
+    chmod -R 755 /app/gpu-memory /app/models /app/logs /app/cache
+
+# Create health check script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Check Python application\n\
+python -c "import sys; print(f\"Python {sys.version}\")" || exit 1\n\
+\n\
+# Check GPU availability\n\
+nvidia-smi --query-gpu=name,memory.total,memory.used --format=csv,noheader,nounits || exit 1\n\
+\n\
+# Check CUDA\n\
+python -c "import torch; print(f\"CUDA available: {torch.cuda.is_available()}\"); print(f\"GPU count: {torch.cuda.device_count()}\")" || exit 1\n\
+\n\
+# Check GPU memory\n\
+python -c "import torch; print(f\"GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB\")" || exit 1\n\
+\n\
+echo "✅ Health check passed - H200 GPU ready"\n\
+' > /app/health_check.sh && chmod +x /app/health_check.sh
+
+# Create GPU memory monitoring script
+RUN echo '#!/bin/bash\n\
+while true; do\n\
+    nvidia-smi --query-gpu=timestamp,name,utilization.gpu,utilization.memory,memory.total,memory.used,memory.free,temperature.gpu --format=csv >> /app/logs/gpu_metrics.csv\n\
+    sleep 10\n\
+done\n\
+' > /app/gpu_monitor.sh && chmod +x /app/gpu_monitor.sh
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+echo "🚀 Starting Sophia AI Enhanced - H200 GPU Platform"\n\
+echo "GPU Architecture: ${GPU_ARCHITECTURE}"\n\
+echo "GPU Memory: ${GPU_MEMORY}"\n\
+echo "Memory Architecture: ${MEMORY_ARCHITECTURE}"\n\
+\n\
+# Start GPU monitoring in background\n\
+/app/gpu_monitor.sh &\n\
+\n\
+# Initialize GPU memory pools\n\
+python -c "\n\
+import torch\n\
+print(f\"Initializing GPU memory pools...\")\n\
+torch.cuda.empty_cache()\n\
+torch.cuda.set_per_process_memory_fraction(0.9)\n\
+print(f\"✅ GPU memory initialized: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB\")\n\
+"\n\
+\n\
+# Start the application\n\
+exec python -m backend.main\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Production stage
+FROM base as production
+
+# Set production environment
+ENV ENVIRONMENT=prod
+ENV PYTHONPATH=/app
+ENV GPU_OPTIMIZATION=true
+ENV MEMORY_OPTIMIZATION=true
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD /app/health_check.sh
+
+# Expose ports
+EXPOSE 8000 8001 9090
+
+# Set user
+RUN useradd -m -s /bin/bash sophia && \
+    chown -R sophia:sophia /app
+USER sophia
+
+# Start command
+CMD ["/app/start.sh"]
+
+# Labels
+LABEL maintainer="Sophia AI Platform"
+LABEL version="2.0.0"
+LABEL gpu.architecture="h200"
+LABEL gpu.memory="141GB"
+LABEL memory.architecture="6-tier"
+LABEL snowflake.integration="enabled"
+LABEL description="Enhanced Sophia AI Platform optimized for H200 GPUs with 6-tier memory architecture"

@@ -1,0 +1,58 @@
+# H200 GPU-specific requirements for Sophia AI Platform
+# Enhanced dependencies for NVIDIA H200 141GB HBM3e GPU optimization
+
+# GPU Acceleration Libraries
+torch==2.1.0+cu121
+torchvision==0.16.0+cu121
+torchaudio==2.1.0+cu121
+--index-url https://download.pytorch.org/whl/cu121
+
+# CUDA-accelerated libraries
+cupy-cuda12x==12.3.0
+nvidia-ml-py==12.535.133
+pynvml==11.5.0
+tritonclient[all]==2.41.0
+
+# RAPIDS AI Suite for GPU data processing
+# Note: These require CUDA 12.x and specific installation
+# cudf-cu12==23.12.0
+# cuml-cu12==23.12.0
+# cugraph-cu12==23.12.0
+
+# GPU Memory Management
+gpustat==1.1.1
+py3nvml==0.2.7
+nvidia-cuda-runtime-cu12==12.3.107
+nvidia-cuda-nvrtc-cu12==12.3.107
+nvidia-cuda-cupti-cu12==12.3.107
+
+# Distributed Training Support
+horovod==0.28.1
+deepspeed==0.12.6
+
+# Model Optimization
+tensorrt==8.6.1
+onnxruntime-gpu==1.16.3
+transformers==4.36.2
+accelerate==0.25.0
+
+# Memory-efficient libraries
+bitsandbytes==0.41.3
+peft==0.7.1
+flash-attn==2.4.2
+
+# Monitoring and Profiling
+tensorboard==2.15.1
+wandb==0.16.1
+nvitop==1.3.1
+
+# Additional ML libraries optimized for GPU
+xgboost==2.0.3
+lightgbm==4.2.0
+catboost==1.2.2
+
+# Vector operations
+faiss-gpu==1.7.4
+
+# Snowflake Cortex GPU integration support
+snowflake-ml-python==1.1.2
