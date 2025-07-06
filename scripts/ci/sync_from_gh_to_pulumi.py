@@ -82,10 +82,6 @@ class PulumiESCSync:
             "LAMBDA_LABS_SHARED_FS_ID": "lambda_labs_shared_fs_id",
             "LAMBDA_LABS_SHARED_FS_MOUNT": "lambda_labs_shared_fs_mount",
             "LAMBDA_LABS_ASG_NAME": "lambda_labs_asg_name",
-            # Legacy mappings (for backward compatibility)
-            "LAMBDA_API_KEY": "lambda_api_key",
-            "LAMBDA_IP_ADDRESS": "lambda_ip_address",
-            "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
             # Snowflake Infrastructure (Complete)
             "SNOWFLAKE_ACCOUNT": "snowflake_account",
             "SNOWFLAKE_PASSWORD": "snowflake_password",
