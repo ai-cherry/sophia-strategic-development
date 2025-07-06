@@ -16,7 +16,10 @@
     "@pulumi/awsx": "^1.0.2",
     "@pulumi/command": "^0.7.0",
     "@pulumi/eks": "^1.0.2",
-    "@pulumi/random": "^4.8.2"
+    "@pulumi/random": "^4.8.2",
+    "@types/base-64": "^1.0.2",
+    "axios": "^1.10.0",
+    "base-64": "^1.0.0"
   },
   "devDependencies": {
     "@pulumi/aws": "^6.83.0",
