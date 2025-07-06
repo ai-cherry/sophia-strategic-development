@@ -1,0 +1,150 @@
+{
+  "deployment_id": "lambda-labs-mcp-1751820399",
+  "timestamp": "2025-07-06 16:46:39 UTC",
+  "target": "165.1.69.44",
+  "registry": "scoobyjava15",
+  "environment": "prod",
+  "total_servers": 20,
+  "servers": [
+    {
+      "name": "ai_memory",
+      "port": 9000,
+      "critical": true,
+      "image": "scoobyjava15/sophia-ai_memory-mcp:latest",
+      "health_url": "http://165.1.69.44:9000/health"
+    },
+    {
+      "name": "codacy",
+      "port": 3008,
+      "critical": true,
+      "image": "scoobyjava15/sophia-codacy-mcp:latest",
+      "health_url": "http://165.1.69.44:3008/health"
+    },
+    {
+      "name": "linear",
+      "port": 9004,
+      "critical": true,
+      "image": "scoobyjava15/sophia-linear-mcp:latest",
+      "health_url": "http://165.1.69.44:9004/health"
+    },
+    {
+      "name": "github",
+      "port": 9001,
+      "critical": true,
+      "image": "scoobyjava15/sophia-github-mcp:latest",
+      "health_url": "http://165.1.69.44:9001/health"
+    },
+    {
+      "name": "slack_unified",
+      "port": 9002,
+      "critical": true,
+      "image": "scoobyjava15/sophia-slack_unified-mcp:latest",
+      "health_url": "http://165.1.69.44:9002/health"
+    },
+    {
+      "name": "hubspot_unified",
+      "port": 9003,
+      "critical": true,
+      "image": "scoobyjava15/sophia-hubspot_unified-mcp:latest",
+      "health_url": "http://165.1.69.44:9003/health"
+    },
+    {
+      "name": "snowflake_unified",
+      "port": 9005,
+      "critical": true,
+      "image": "scoobyjava15/sophia-snowflake_unified-mcp:latest",
+      "health_url": "http://165.1.69.44:9005/health"
+    },
+    {
+      "name": "notion",
+      "port": 9006,
+      "critical": false,
+      "image": "scoobyjava15/sophia-notion-mcp:latest",
+      "health_url": "http://165.1.69.44:9006/health"
+    },
+    {
+      "name": "asana",
+      "port": 9007,
+      "critical": false,
+      "image": "scoobyjava15/sophia-asana-mcp:latest",
+      "health_url": "http://165.1.69.44:9007/health"
+    },
+    {
+      "name": "lambda_labs_cli",
+      "port": 9008,
+      "critical": false,
+      "image": "scoobyjava15/sophia-lambda_labs_cli-mcp:latest",
+      "health_url": "http://165.1.69.44:9008/health"
+    },
+    {
+      "name": "postgres",
+      "port": 9009,
+      "critical": false,
+      "image": "scoobyjava15/sophia-postgres-mcp:latest",
+      "health_url": "http://165.1.69.44:9009/health"
+    },
+    {
+      "name": "pulumi",
+      "port": 9010,
+      "critical": false,
+      "image": "scoobyjava15/sophia-pulumi-mcp:latest",
+      "health_url": "http://165.1.69.44:9010/health"
+    },
+    {
+      "name": "playwright",
+      "port": 9011,
+      "critical": false,
+      "image": "scoobyjava15/sophia-playwright-mcp:latest",
+      "health_url": "http://165.1.69.44:9011/health"
+    },
+    {
+      "name": "figma_context",
+      "port": 9012,
+      "critical": false,
+      "image": "scoobyjava15/sophia-figma_context-mcp:latest",
+      "health_url": "http://165.1.69.44:9012/health"
+    },
+    {
+      "name": "ui_ux_agent",
+      "port": 9013,
+      "critical": false,
+      "image": "scoobyjava15/sophia-ui_ux_agent-mcp:latest",
+      "health_url": "http://165.1.69.44:9013/health"
+    },
+    {
+      "name": "v0dev",
+      "port": 9014,
+      "critical": false,
+      "image": "scoobyjava15/sophia-v0dev-mcp:latest",
+      "health_url": "http://165.1.69.44:9014/health"
+    },
+    {
+      "name": "intercom",
+      "port": 9015,
+      "critical": false,
+      "image": "scoobyjava15/sophia-intercom-mcp:latest",
+      "health_url": "http://165.1.69.44:9015/health"
+    },
+    {
+      "name": "apollo",
+      "port": 9016,
+      "critical": false,
+      "image": "scoobyjava15/sophia-apollo-mcp:latest",
+      "health_url": "http://165.1.69.44:9016/health"
+    },
+    {
+      "name": "bright_data",
+      "port": 9017,
+      "critical": false,
+      "image": "scoobyjava15/sophia-bright_data-mcp:latest",
+      "health_url": "http://165.1.69.44:9017/health"
+    },
+    {
+      "name": "salesforce",
+      "port": 9018,
+      "critical": false,
+      "image": "scoobyjava15/sophia-salesforce-mcp:latest",
+      "health_url": "http://165.1.69.44:9018/health"
+    }
+  ]
+}
