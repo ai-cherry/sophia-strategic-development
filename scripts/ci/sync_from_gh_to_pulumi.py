@@ -71,6 +71,18 @@ class PulumiESCSync:
             "FIGMA_PAT": "figma_pat",
             "NOTION_API_KEY": "notion_api_token",  # Note: mapping NOTION_API_KEY → notion_api_token
             # Infrastructure (Priority 1)
+            # Lambda Labs H200 Configuration
+            "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
+            "LAMBDA_LABS_SSH_KEY_NAME": "lambda_labs_ssh_key_name",
+            "LAMBDA_LABS_SSH_PRIVATE_KEY": "lambda_labs_ssh_private_key",
+            "LAMBDA_LABS_REGION": "lambda_labs_region",
+            "LAMBDA_LABS_INSTANCE_TYPE": "lambda_labs_instance_type",
+            "LAMBDA_LABS_CLUSTER_SIZE": "lambda_labs_cluster_size",
+            "LAMBDA_LABS_MAX_CLUSTER_SIZE": "lambda_labs_max_cluster_size",
+            "LAMBDA_LABS_SHARED_FS_ID": "lambda_labs_shared_fs_id",
+            "LAMBDA_LABS_SHARED_FS_MOUNT": "lambda_labs_shared_fs_mount",
+            "LAMBDA_LABS_ASG_NAME": "lambda_labs_asg_name",
+            # Legacy mappings (for backward compatibility)
             "LAMBDA_API_KEY": "lambda_api_key",
             "LAMBDA_IP_ADDRESS": "lambda_ip_address",
             "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
