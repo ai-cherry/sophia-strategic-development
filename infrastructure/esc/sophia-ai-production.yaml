@@ -4,6 +4,11 @@ imports:
       project: default
       environment: shared-secrets
 
+
+  # Lambda Labs Infrastructure
+  LAMBDA_LABS_API_KEY: ${infrastructure.lambda_labs.key}
+  LAMBDA_LABS_CONTROL_PLANE_IP: ${infrastructure.lambda_labs.ip}
+  LAMBDA_LABS_SSH_KEY_NAME: ${infrastructure.lambda_labs.name}
 values:
   ai_intelligence:
     # LangGraph is now the sole orchestration framework - Agno deprecated

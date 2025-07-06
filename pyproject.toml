@@ -114,6 +114,7 @@ dependencies = [
     "langgraph>=0.0.64",
     "langsmith>=0.1.56",
     "lxml>=5.2.2",
+    "docker>=7.1.0",
 ]
 
 [project.optional-dependencies]
