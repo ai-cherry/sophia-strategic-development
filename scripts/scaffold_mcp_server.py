@@ -9,14 +9,14 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Color codes for output
-RED = '\033[0;31m'
-GREEN = '\033[0;32m'
-YELLOW = '\033[1;33m'
-BLUE = '\033[0;34m'
-NC = '\033[0m'  # No Color
+RED = "\033[0;31m"
+GREEN = "\033[0;32m"
+YELLOW = "\033[1;33m"
+BLUE = "\033[0;34m"
+NC = "\033[0m"  # No Color
 
 
 def print_colored(message: str, color: str = NC):
@@ -28,7 +28,7 @@ def get_next_port() -> int:
     """Get the next available port for MCP servers."""
     base_port = 9000
     max_port = base_port
-    
+
     # Find existing ports
     mcp_dir = Path("infrastructure/mcp_servers")
     if mcp_dir.exists():
@@ -39,11 +39,12 @@ def get_next_port() -> int:
                     content = config_file.read_text()
                     # Look for PORT = number pattern
                     import re
-                    match = re.search(r'PORT.*=.*(\d+)', content)
+
+                    match = re.search(r"PORT.*=.*(\d+)", content)
                     if match:
                         port = int(match.group(1))
                         max_port = max(max_port, port)
-    
+
     return max_port + 1
 
 
@@ -57,42 +58,42 @@ def create_file(file_path: Path, content: str):
 def update_mcp_config(server_name: str, port: int):
     """Update mcp_config.json with new server."""
     config_path = Path("mcp_config.json")
-    
+
     if config_path.exists():
         with open(config_path) as f:
             config = json.load(f)
-        
+
         # Add new server
-        config['mcpServers'][server_name] = {
-            'command': 'python',
-            'args': ['-m', f'infrastructure.mcp_servers.{server_name}.server'],
-            'env': {
-                f'{server_name.upper()}_PORT': str(port),
-                f'{server_name.upper()}_LOG_LEVEL': 'INFO'
-            }
+        config["mcpServers"][server_name] = {
+            "command": "python",
+            "args": ["-m", f"infrastructure.mcp_servers.{server_name}.server"],
+            "env": {
+                f"{server_name.upper()}_PORT": str(port),
+                f"{server_name.upper()}_LOG_LEVEL": "INFO",
+            },
         }
-        
-        with open(config_path, 'w') as f:
+
+        with open(config_path, "w") as f:
             json.dump(config, f, indent=2)
-        
+
         print_colored("✓ Updated mcp_config.json", GREEN)
 
 
 def create_mcp_server(server_name: str):
     """Create a new MCP server with all necessary files."""
     base_path = Path(f"infrastructure/mcp_servers/{server_name}")
-    
+
     # Check if already exists
     if base_path.exists():
         print_colored(f"❌ {server_name} already exists at {base_path}", RED)
         sys.exit(1)
-    
+
     print_colored(f"🚀 Creating enhanced MCP server: {server_name}", BLUE)
-    
+
     # Get next port
     port = get_next_port()
     print_colored(f"📍 Assigning port: {port}", YELLOW)
-    
+
     # Create directory structure
     dirs = [
         base_path,
@@ -103,81 +104,64 @@ def create_mcp_server(server_name: str):
         base_path / "tests" / "integration",
         base_path / "config",
     ]
-    
+
     for dir_path in dirs:
         dir_path.mkdir(parents=True, exist_ok=True)
-    
+
     # Create files
     files = get_file_templates(server_name, port)
-    
+
     for file_path, content in files.items():
         create_file(base_path / file_path, content)
-    
+
     # Update mcp_config.json
     update_mcp_config(server_name, port)
-    
+
     # Print summary
     print_colored(f"\n✅ Successfully created {server_name} MCP server!", GREEN)
     print_colored("\n📋 Next steps:", YELLOW)
     print("  1. Review and customize the generated files")
-    print(f"  2. Update API endpoints in handlers/main_handler.py")
+    print("  2. Update API endpoints in handlers/main_handler.py")
     print(f"  3. Add {server_name}-specific fields to models/data_models.py")
     print("  4. Configure environment variables (see .env.example)")
     print(f"  5. Run tests: pytest {base_path}/tests")
-    print(f"  6. Start server: python -m infrastructure.mcp_servers.{server_name}.server")
+    print(
+        f"  6. Start server: python -m infrastructure.mcp_servers.{server_name}.server"
+    )
     print_colored(f"\n📍 Server will run on port: {port}", BLUE)
     print_colored("\n🚀 Happy coding!", GREEN)
 
 
-def get_file_templates(server_name: str, port: int) -> Dict[str, str]:
+def get_file_templates(server_name: str, port: int) -> dict[str, str]:
     """Get all file templates for the MCP server."""
     srv = server_name
     srv_upper = srv.upper()
     srv_title = srv.title()
-    
+
     return {
         "__init__.py": f'"""{srv} MCP server package."""\n',
-        
         "handlers/__init__.py": f'"""Handler modules for {srv} MCP server."""\n',
-        
         "models/__init__.py": f'"""Data models for {srv} MCP server."""\n',
-        
         "utils/__init__.py": f'"""Utility modules for {srv} MCP server."""\n',
-        
         "tests/__init__.py": f'"""Test modules for {srv} MCP server."""\n',
-        
         "tests/unit/__init__.py": f'"""Unit tests for {srv} MCP server."""\n',
-        
         "tests/integration/__init__.py": f'"""Integration tests for {srv} MCP server."""\n',
-        
         "README.md": get_readme_template(srv, srv_upper, port),
-        
         "requirements.txt": get_requirements_template(srv_title),
-        
         "Dockerfile": get_dockerfile_template(srv, port),
-        
         "docker-compose.yml": get_docker_compose_template(srv, srv_upper, port),
-        
         ".env.example": get_env_example_template(srv, srv_upper, port),
-        
         ".gitignore": get_gitignore_template(),
-        
         "config.py": get_config_template(srv, srv_upper, srv_title, port),
-        
         "server.py": get_server_template(srv, srv_upper, srv_title),
-        
         "handlers/main_handler.py": get_handler_template(srv, srv_title),
-        
         "models/data_models.py": get_models_template(srv, srv_title),
-        
         "utils/logging_config.py": get_logging_template(srv),
-        
         "utils/db.py": get_db_template(srv),
-        
         "tests/unit/test_handler.py": get_unit_test_template(srv, srv_title),
-        
-        "tests/integration/test_server.py": get_integration_test_template(srv, srv_title),
-        
+        "tests/integration/test_server.py": get_integration_test_template(
+            srv, srv_title
+        ),
         "tests/conftest.py": get_conftest_template(srv),
     }
 
@@ -397,10 +381,10 @@ from pydantic import Field
 
 class {srv_title}Settings(BaseSettings):
     """Settings for {srv} MCP server."""
-    
+
     PORT: int = Field(default={port}, description="Server port")
     LOG_LEVEL: str = Field(default="INFO", description="Logging level")
-    
+
     class Config:
         env_prefix = "{srv_upper}_"
 
@@ -439,11 +423,11 @@ logger = logging.getLogger(__name__)
 
 class {srv_title}Handler:
     """Handler for {srv} operations."""
-    
+
     async def initialize(self):
         """Initialize handler."""
         logger.info("{srv_title} handler initialized")
-    
+
     async def sync_data(self, batch_size: int = 100):
         """Sync data with {srv}."""
         # TODO: Implement sync logic
@@ -547,19 +531,18 @@ def main():
         description="Create a production-ready MCP server for Sophia AI"
     )
     parser.add_argument(
-        "server_name",
-        help="Name of the server to create (e.g., github, slack, etc.)"
+        "server_name", help="Name of the server to create (e.g., github, slack, etc.)"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Validate server name
     if not args.server_name.replace("_", "").isalnum():
         print_colored("❌ Server name must be alphanumeric (underscores allowed)", RED)
         sys.exit(1)
-    
+
     create_mcp_server(args.server_name.lower())
 
 
 if __name__ == "__main__":
-    main() 
+    main()

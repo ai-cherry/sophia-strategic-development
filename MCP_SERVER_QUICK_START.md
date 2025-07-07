@@ -20,16 +20,16 @@ Edit `infrastructure/mcp_servers/slack/handlers/main_handler.py`:
 ```python
 class SlackHandler:
     """Handler for Slack operations."""
-    
+
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.client = None
-    
+
     async def initialize(self):
         """Initialize Slack client."""
         from slack_sdk.web.async_client import AsyncWebClient
         self.client = AsyncWebClient(token=self.api_key)
-        
+
     async def send_message(self, channel: str, text: str):
         """Send a message to Slack."""
         response = await self.client.chat_postMessage(
@@ -37,12 +37,12 @@ class SlackHandler:
             text=text
         )
         return response["ts"]  # Message timestamp
-    
+
     async def sync_data(self, batch_size: int = 100):
         """Sync recent messages."""
         # Get conversations
         conversations = await self.client.conversations_list()
-        
+
         messages_synced = 0
         for channel in conversations["channels"][:batch_size]:
             # Get messages from each channel
@@ -51,7 +51,7 @@ class SlackHandler:
                 limit=10
             )
             messages_synced += len(history["messages"])
-        
+
         return {
             "status": "success",
             "records_synced": messages_synced
@@ -74,7 +74,7 @@ class SlackMessage(BaseModel):
     user: str = Field(..., description="User ID")
     text: str = Field(..., description="Message text")
     thread_ts: Optional[str] = Field(None, description="Thread timestamp")
-    
+
 class SlackChannel(BaseModel):
     """Slack channel model."""
     id: str = Field(..., description="Channel ID")
@@ -172,7 +172,7 @@ Every MCP server automatically gets:
 # Unit tests
 pytest tests/unit -v
 
-# Integration tests  
+# Integration tests
 pytest tests/integration -v
 
 # Coverage report
@@ -188,9 +188,9 @@ async def test_send_message():
     handler = SlackHandler(api_key="test")
     handler.client = AsyncMock()
     handler.client.chat_postMessage.return_value = {"ts": "123.456"}
-    
+
     result = await handler.send_message("#test", "Hello")
-    
+
     assert result == "123.456"
     handler.client.chat_postMessage.assert_called_once()
 ```
@@ -224,7 +224,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 async def server_specific_init(self):
     # ... existing init code ...
-    
+
     # Setup scheduler
     self.scheduler = AsyncIOScheduler()
     self.scheduler.add_job(
@@ -266,4 +266,4 @@ Next steps:
 2. Add integration tests
 3. Deploy to staging
 4. Monitor metrics
-5. Deploy to production 
+5. Deploy to production

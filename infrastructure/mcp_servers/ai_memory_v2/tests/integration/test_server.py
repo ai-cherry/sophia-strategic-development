@@ -1,9 +1,7 @@
-"""Integration tests for github server."""
+"""Integration tests for ai_memory_v2 server."""
 import pytest
 from httpx import AsyncClient
-
-from infrastructure.mcp_servers.github.server import app
-
+from infrastructure.mcp_servers.ai_memory_v2.server import app
 
 @pytest.mark.asyncio
 async def test_health_endpoint():

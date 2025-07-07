@@ -88,7 +88,7 @@ class GithubMCPServer(StandardizedMCPServer):
             token=settings.GITHUB_TOKEN,
             org=settings.GITHUB_ORG
         )
-        
+
     async def sync_data(self):
         repos = await self.github_client.list_repositories()
         for repo in repos:
@@ -103,10 +103,10 @@ class GithubMCPServer(StandardizedMCPServer):
 async def server_specific_health_check(self) -> HealthCheckResult:
     # Check GitHub API
     api_healthy = await self.github_client.check_health()
-    
+
     # Check rate limits
     rate_limit = await self.github_client.get_rate_limit()
-    
+
     return HealthCheckResult(
         component="github",
         status=HealthStatus.HEALTHY if api_healthy else HealthStatus.UNHEALTHY,
@@ -217,9 +217,9 @@ Each server exposes metrics at `/metrics`:
 async def test_send_message():
     handler = SlackHandler()
     handler.client = AsyncMock()
-    
+
     await handler.send_message("#test", "Hello")
-    
+
     handler.client.chat_postMessage.assert_called_once_with(
         channel="#test",
         text="Hello"
@@ -286,4 +286,4 @@ All 38 MCP servers will have:
 - ✅ Unified configuration
 - ✅ Professional documentation
 
-This migration transforms our MCP infrastructure from prototype to production-ready, enabling reliable AI orchestration at scale. 
+This migration transforms our MCP infrastructure from prototype to production-ready, enabling reliable AI orchestration at scale.

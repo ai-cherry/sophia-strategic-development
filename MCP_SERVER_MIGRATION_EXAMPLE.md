@@ -45,29 +45,29 @@ from pydantic_settings import BaseSettings
 
 class AiMemorySettings(BaseSettings):
     """Settings for AI Memory MCP server."""
-    
+
     # Server settings
     PORT: int = Field(default=9001, description="Server port")
     LOG_LEVEL: str = Field(default="INFO", description="Logging level")
-    
+
     # Database settings
     DB_DSN: str = Field(
         default="postgresql+asyncpg://user:pass@localhost/ai_memory",
         description="Database connection string",
         alias="AI_MEMORY_DB_DSN"
     )
-    
+
     # Memory settings
     EMBEDDING_MODEL: str = Field(
         default="text-embedding-ada-002",
         description="OpenAI embedding model"
     )
     EMBEDDING_DIMENSION: int = Field(default=1536, description="Embedding size")
-    
+
     # Search settings
     DEFAULT_SEARCH_LIMIT: int = Field(default=10, description="Default search results")
     SIMILARITY_THRESHOLD: float = Field(default=0.7, description="Min similarity")
-    
+
     class Config:
         env_prefix = "AI_MEMORY_"
         case_sensitive = True
@@ -97,11 +97,11 @@ from ai_memory_v2.utils.embeddings import generate_embedding
 
 class AiMemoryHandler:
     """Handler for AI Memory operations."""
-    
+
     def __init__(self, openai_api_key: str, embedding_model: str):
         self.openai_api_key = openai_api_key
         self.embedding_model = embedding_model
-        
+
     async def store_memory(
         self,
         content: str,
@@ -116,7 +116,7 @@ class AiMemoryHandler:
             model=self.embedding_model,
             api_key=self.openai_api_key
         )
-        
+
         # Create memory entry
         memory = MemoryEntry(
             content=content,
@@ -124,15 +124,15 @@ class AiMemoryHandler:
             metadata=metadata or {},
             tags=tags or []
         )
-        
+
         # Store in database
         if session:
             session.add(memory)
             await session.commit()
             await session.refresh(memory)
-        
+
         return memory
-    
+
     async def search_memories(
         self,
         query: str,
@@ -147,19 +147,19 @@ class AiMemoryHandler:
             model=self.embedding_model,
             api_key=self.openai_api_key
         )
-        
+
         # Perform vector similarity search
         if session:
             # Using pgvector for PostgreSQL
             sql = text("""
-                SELECT id, content, metadata, tags, 
+                SELECT id, content, metadata, tags,
                        1 - (embedding <=> :query_embedding) as similarity
                 FROM memory_entries
                 WHERE 1 - (embedding <=> :query_embedding) > :threshold
                 ORDER BY similarity DESC
                 LIMIT :limit
             """)
-            
+
             result = await session.execute(
                 sql,
                 {
@@ -168,7 +168,7 @@ class AiMemoryHandler:
                     "limit": limit
                 }
             )
-            
+
             return [
                 SearchResult(
                     memory_id=row.id,
@@ -179,9 +179,9 @@ class AiMemoryHandler:
                 )
                 for row in result
             ]
-        
+
         return []
-    
+
     async def get_memory_stats(self, session: AsyncSession = None) -> dict:
         """Get memory system statistics."""
         if session:
@@ -189,7 +189,7 @@ class AiMemoryHandler:
             count_sql = "SELECT COUNT(*) as count FROM memory_entries"
             count_result = await session.execute(text(count_sql))
             total_memories = count_result.scalar()
-            
+
             # Get tag distribution
             tag_sql = """
                 SELECT unnest(tags) as tag, COUNT(*) as count
@@ -203,14 +203,14 @@ class AiMemoryHandler:
                 {"tag": row.tag, "count": row.count}
                 for row in tag_result
             ]
-            
+
             return {
                 "total_memories": total_memories,
                 "top_tags": top_tags,
                 "embedding_model": self.embedding_model,
                 "embedding_dimension": 1536
             }
-        
+
         return {}
 ```
 
@@ -235,25 +235,25 @@ from ai_memory_v2.utils.db import get_session, init_db, close_db
 
 class AiMemoryMCPServer(StandardizedMCPServer):
     """AI Memory MCP Server implementation."""
-    
+
     def __init__(self):
         super().__init__(mcp_config)
         self.handler: Optional[AiMemoryHandler] = None
-        
+
     async def server_specific_init(self) -> None:
         """Initialize AI Memory components."""
         # Initialize database
         await init_db()
-        
+
         # Initialize handler
         self.handler = AiMemoryHandler(
             openai_api_key=settings.OPENAI_API_KEY,
             embedding_model=settings.EMBEDDING_MODEL
         )
-        
+
         # Add custom routes
         self._add_custom_routes()
-        
+
     def _add_custom_routes(self) -> None:
         """Add AI Memory specific routes."""
         # Store memory
@@ -264,7 +264,7 @@ class AiMemoryMCPServer(StandardizedMCPServer):
             summary="Store a new memory",
             response_model=MemoryEntry
         )
-        
+
         # Search memories
         self.app.add_api_route(
             "/api/search",
@@ -273,7 +273,7 @@ class AiMemoryMCPServer(StandardizedMCPServer):
             summary="Search memories",
             response_model=List[SearchResult]
         )
-        
+
         # Get stats
         self.app.add_api_route(
             "/api/stats",
@@ -281,7 +281,7 @@ class AiMemoryMCPServer(StandardizedMCPServer):
             methods=["GET"],
             summary="Get memory statistics"
         )
-    
+
     async def store_memory_endpoint(
         self,
         content: str,
@@ -296,7 +296,7 @@ class AiMemoryMCPServer(StandardizedMCPServer):
                 tags=tags,
                 session=session
             )
-    
+
     async def search_memories_endpoint(
         self,
         request: SearchRequest
@@ -309,30 +309,30 @@ class AiMemoryMCPServer(StandardizedMCPServer):
                 threshold=request.threshold,
                 session=session
             )
-    
+
     async def get_stats_endpoint(self) -> dict[str, Any]:
         """Get memory statistics."""
         async with get_session() as session:
             return await self.handler.get_memory_stats(session)
-    
+
     async def server_specific_cleanup(self) -> None:
         """Cleanup AI Memory resources."""
         await close_db()
-    
+
     async def server_specific_health_check(self) -> HealthCheckResult:
         """Check AI Memory health."""
         try:
             # Check database
             async with get_session() as session:
                 await session.execute(text("SELECT 1"))
-            
+
             # Check OpenAI API
             test_embedding = await generate_embedding(
                 "health check",
                 model=settings.EMBEDDING_MODEL,
                 api_key=settings.OPENAI_API_KEY
             )
-            
+
             return HealthCheckResult(
                 component="ai_memory",
                 status=HealthStatus.HEALTHY,
@@ -350,7 +350,7 @@ class AiMemoryMCPServer(StandardizedMCPServer):
                 response_time_ms=0,
                 error_message=str(e)
             )
-    
+
     async def get_server_capabilities(self) -> List[ServerCapability]:
         """Get AI Memory capabilities."""
         return [
@@ -392,7 +392,7 @@ class MemoryEntry(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata")
     tags: List[str] = Field(default_factory=list, description="Tags")
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     class Config:
         json_encoders = {
             datetime: lambda v: v.isoformat(),
@@ -461,10 +461,10 @@ async def test_store_memory(handler):
     # Mock embedding generation
     with patch('ai_memory_v2.utils.embeddings.generate_embedding') as mock_embed:
         mock_embed.return_value = np.random.rand(1536)
-        
+
         # Mock session
         session = AsyncMock()
-        
+
         # Store memory
         result = await handler.store_memory(
             content="Test memory",
@@ -472,7 +472,7 @@ async def test_store_memory(handler):
             tags=["test"],
             session=session
         )
-        
+
         # Verify
         assert isinstance(result, MemoryEntry)
         assert result.content == "Test memory"
@@ -486,7 +486,7 @@ async def test_search_memories(handler):
     # Mock embedding and database
     with patch('ai_memory_v2.utils.embeddings.generate_embedding') as mock_embed:
         mock_embed.return_value = np.random.rand(1536)
-        
+
         # Mock session with results
         session = AsyncMock()
         mock_result = AsyncMock()
@@ -500,7 +500,7 @@ async def test_search_memories(handler):
             )
         ]
         session.execute.return_value = mock_result
-        
+
         # Search
         results = await handler.search_memories(
             query="test",
@@ -508,7 +508,7 @@ async def test_search_memories(handler):
             threshold=0.7,
             session=session
         )
-        
+
         # Verify
         assert len(results) == 1
         assert results[0].similarity == 0.95
@@ -574,4 +574,4 @@ docker stack deploy -c docker-compose.production.yml ai-memory-mcp
 - [ ] Deploy to production
 - [ ] Deprecate old server
 
-This migration transforms the AI Memory server from a basic MCP implementation to a production-ready, enterprise-grade service with comprehensive monitoring, testing, and deployment capabilities. 
+This migration transforms the AI Memory server from a basic MCP implementation to a production-ready, enterprise-grade service with comprehensive monitoring, testing, and deployment capabilities.
