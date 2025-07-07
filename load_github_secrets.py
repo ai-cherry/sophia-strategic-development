@@ -96,7 +96,7 @@ class GitHubSecretsLoader:
     def create_development_secrets(self) -> dict[str, str]:
         """Create development-appropriate secrets for local testing"""
         dev_secrets = {
-            "OPENAI_API_KEY": "sk-development-key-for-local-testing",
+            "OPENAI_API_KEY": "sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             "PINECONE_API_KEY": "",
             "PINECONE_ENVIRONMENT": "us-east1-gcp",
             "GONG_ACCESS_KEY": "",
