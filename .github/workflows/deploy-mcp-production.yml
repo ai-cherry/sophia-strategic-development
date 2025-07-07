@@ -20,8 +20,8 @@ on:
     branches: [main]
     paths:
       - 'mcp-servers/**'
-      - 'docker-compose.cloud.yml'
       - '.github/workflows/deploy-mcp-production.yml'
+  # Note: Removed docker-compose.cloud.yml trigger to prevent conflicts with main deployment
 
 env:
   DOCKER_REGISTRY: scoobyjava15

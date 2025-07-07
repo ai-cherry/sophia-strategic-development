@@ -1,27 +1,23 @@
 {
-  "timestamp": "2025-07-07T08:39:27.513392",
+  "timestamp": "2025-07-07T08:44:05.366932",
   "repository": "ai-cherry/sophia-main",
   "analyses": {
     "workflow_redundancy": {
-      "active_workflows": 7,
+      "active_workflows": 5,
       "archived_workflows": 3,
       "workflow_files": [
-        "deploy-mcp-production.yml",
-        "mcp-version-validation.yml",
-        "sophia-production-deployment.yml",
-        "sync_secrets.yml",
         "dead-code-prevention.yml",
-        "unified-deployment.yml",
-        "production-deployment.yml"
+        "sync_secrets.yml",
+        "production-deployment.yml",
+        "deploy-mcp-production.yml",
+        "mcp-version-validation.yml"
       ],
       "redundancy_issues": [
         {
           "type": "multiple_deployment_workflows",
           "files": [
-            "deploy-mcp-production.yml",
-            "sophia-production-deployment.yml",
-            "unified-deployment.yml",
-            "production-deployment.yml"
+            "production-deployment.yml",
+            "deploy-mcp-production.yml"
           ],
           "recommendation": "Consolidate into single production-deployment.yml"
         }
@@ -39,8 +35,8 @@
     "pull_request_health": {
       "pr_analysis_success": true,
       "total_prs": 50,
-      "open_prs": 17,
-      "dependabot_prs": 14,
+      "open_prs": 16,
+      "dependabot_prs": 13,
       "stale_prs": [],
       "recommendations": [
         "Consider batch-merging Dependabot PRs to reduce noise"
@@ -49,16 +45,26 @@
     "workflow_performance": {
       "performance_analysis_success": true,
       "total_runs": 50,
-      "failure_rate": 70.0,
+      "failure_rate": 66.0,
       "workflow_stats": {
         "Dependabot Updates": {
-          "total_runs": 13,
+          "total_runs": 14,
           "failures": 1,
-          "failure_rate": 7.6923076923076925
+          "failure_rate": 7.142857142857142
+        },
+        "\ud83d\ude80 Sophia AI Production Deployment": {
+          "total_runs": 2,
+          "failures": 2,
+          "failure_rate": 100.0
+        },
+        "Dead Code Detection & Prevention": {
+          "total_runs": 4,
+          "failures": 0,
+          "failure_rate": 0.0
         },
         "Sophia AI Production Deployment": {
-          "total_runs": 22,
-          "failures": 22,
+          "total_runs": 19,
+          "failures": 19,
           "failure_rate": 100.0
         },
         "MCP Version Validation": {
@@ -76,16 +82,6 @@
           "failures": 2,
           "failure_rate": 100.0
         },
-        "Dead Code Detection & Prevention": {
-          "total_runs": 3,
-          "failures": 0,
-          "failure_rate": 0.0
-        },
-        "\ud83d\ude80 Sophia AI Production Deployment": {
-          "total_runs": 1,
-          "failures": 1,
-          "failure_rate": 100.0
-        },
         "Unified Secret Sync": {
           "total_runs": 2,
           "failures": 2,
@@ -93,6 +89,11 @@
         }
       },
       "recent_failures": [
+        {
+          "workflow": "\ud83d\ude80 Sophia AI Production Deployment",
+          "id": 16112154914,
+          "created_at": "2025-07-07T08:41:28Z"
+        },
         {
           "workflow": "Sophia AI Production Deployment",
           "id": 16111993694,
@@ -137,11 +138,6 @@
           "workflow": "Unified Secret Sync",
           "id": 16111963446,
           "created_at": "2025-07-07T08:32:18Z"
-        },
-        {
-          "workflow": "Sophia AI Production Deployment",
-          "id": 16110347987,
-          "created_at": "2025-07-07T07:11:57Z"
         }
       ],
       "performance_issues": [
@@ -166,27 +162,18 @@
       "category": "performance",
       "priority": "critical",
       "title": "Fix High Failure Rate",
-      "description": "Workflow failure rate: 70.0%",
+      "description": "Workflow failure rate: 66.0%",
       "action": "Investigate and fix failing workflows",
       "impact": "Reliable deployments, faster development"
     }
   ],
   "automated_fixes": {
-    "fixes_applied": [
-      {
-        "file": "sophia-production-deployment.yml",
-        "fix": "Updated deprecated GitHub Actions"
-      },
-      {
-        "file": "production-deployment.yml",
-        "fix": "Updated deprecated GitHub Actions"
-      }
-    ]
+    "fixes_applied": []
   },
   "summary": {
     "total_issues": 2,
     "critical_recommendations": 1,
     "high_priority_recommendations": 1,
-    "automated_fixes_applied": 2
+    "automated_fixes_applied": 0
   }
 }
