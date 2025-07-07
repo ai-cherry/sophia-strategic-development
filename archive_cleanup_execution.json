@@ -1,0 +1,276 @@
+{
+  "metadata": {
+    "timestamp": "2025-07-07T08:48:05.184743",
+    "repository": "/home/ubuntu/sophia-main",
+    "scan_summary": {
+      "total_archived_directories": 16,
+      "total_archived_files": 2,
+      "total_large_files": 0,
+      "recent_backups": 18
+    }
+  },
+  "impact_analysis": {
+    "total_files": 4,
+    "total_directories": 32,
+    "total_size_bytes": 20631008,
+    "total_size_human": "19.7MB",
+    "by_category": {
+      "directories": {
+        "count": 16,
+        "size_bytes": 10307871,
+        "size_human": "9.8MB"
+      },
+      "files": {
+        "count": 2,
+        "size_bytes": 7633,
+        "size_human": "7.5KB"
+      },
+      "large_files": {
+        "count": 0,
+        "size_bytes": 0,
+        "size_human": "0.0B"
+      },
+      "recent_backups": {
+        "count": 18,
+        "size_bytes": 10315504,
+        "size_human": "9.8MB"
+      }
+    },
+    "largest_items": [
+      {
+        "path": "docs_backup_20250705_112838",
+        "size": 2910630,
+        "type": "directory",
+        "size_human": "2.8MB"
+      },
+      {
+        "path": "docs_backup_20250705_112838",
+        "size": 2910630,
+        "type": "directory",
+        "size_human": "2.8MB"
+      },
+      {
+        "path": "docs_backup_20250705_112838",
+        "size": 2910630,
+        "type": "directory",
+        "size_human": "2.8MB"
+      },
+      {
+        "path": "docs_backup_20250705_112838",
+        "size": 2910630,
+        "type": "directory",
+        "size_human": "2.8MB"
+      },
+      {
+        "path": "backups",
+        "size": 1562907,
+        "type": "directory",
+        "size_human": "1.5MB"
+      },
+      {
+        "path": "backups",
+        "size": 1562907,
+        "type": "directory",
+        "size_human": "1.5MB"
+      },
+      {
+        "path": "docs/archive",
+        "size": 842898,
+        "type": "directory",
+        "size_human": "823.1KB"
+      },
+      {
+        "path": "docs_backup_20250705_112838/archive",
+        "size": 842898,
+        "type": "directory",
+        "size_human": "823.1KB"
+      },
+      {
+        "path": "docs/archive",
+        "size": 842898,
+        "type": "directory",
+        "size_human": "823.1KB"
+      },
+      {
+        "path": "docs_backup_20250705_112838/archive",
+        "size": 842898,
+        "type": "directory",
+        "size_human": "823.1KB"
+      }
+    ]
+  },
+  "dependency_analysis": {
+    "import_references": [
+      "backend/snowflake_setup/templates: 3 references",
+      "backend/workflows/templates: 3 references"
+    ],
+    "file_references": [
+      "backend/snowflake_setup/templates: 1 references"
+    ],
+    "config_references": [],
+    "safe_to_delete": [
+      "docs_backup_20250705_112838/archive",
+      "docs_backup_20250705_112838",
+      "docs_backup_20250705_112838",
+      "backups",
+      "cleanup_backup_20250706_180710",
+      "cleanup_backup_20250706_180710/cleanup_backup_20250706_180710",
+      "backup_deployment_fix_20250705_135353/github_workflows/archive",
+      "backup_deployment_fix_20250705_135353",
+      "backup_deployment_cleanup_20250707_001424",
+      "archived_dockerfiles",
+      "archived_fastapi_apps",
+      "backup_compose_files",
+      "config/cursor_enhanced_mcp_config.json.backup",
+      "config/unified_mcp_config.json.backup"
+    ]
+  },
+  "cleanup_plan": {
+    "immediate_deletion": [
+      {
+        "path": "docs_backup_20250705_112838/archive",
+        "size": 842898,
+        "size_human": "823.1KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "docs_backup_20250705_112838",
+        "size": 2910630,
+        "size_human": "2.8MB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "docs_backup_20250705_112838",
+        "size": 2910630,
+        "size_human": "2.8MB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "backups",
+        "size": 1562907,
+        "size_human": "1.5MB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "cleanup_backup_20250706_180710",
+        "size": 499411,
+        "size_human": "487.7KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "cleanup_backup_20250706_180710/cleanup_backup_20250706_180710",
+        "size": 28774,
+        "size_human": "28.1KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "backup_deployment_fix_20250705_135353/github_workflows/archive",
+        "size": 268330,
+        "size_human": "262.0KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "backup_deployment_fix_20250705_135353",
+        "size": 320072,
+        "size_human": "312.6KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "backup_deployment_cleanup_20250707_001424",
+        "size": 39453,
+        "size_human": "38.5KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "archived_dockerfiles",
+        "size": 9406,
+        "size_human": "9.2KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "archived_fastapi_apps",
+        "size": 1030,
+        "size_human": "1.0KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "backup_compose_files",
+        "size": 51354,
+        "size_human": "50.2KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "config/cursor_enhanced_mcp_config.json.backup",
+        "size": 2016,
+        "size_human": "2.0KB",
+        "reason": "No active references found"
+      },
+      {
+        "path": "config/unified_mcp_config.json.backup",
+        "size": 5617,
+        "size_human": "5.5KB",
+        "reason": "No active references found"
+      }
+    ],
+    "careful_review": [
+      {
+        "path": "backend/snowflake_setup/templates",
+        "reason": "Has active references - manual review needed"
+      },
+      {
+        "path": "backend/workflows/templates",
+        "reason": "Has active references - manual review needed"
+      },
+      {
+        "path": "backend/snowflake_setup/templates",
+        "reason": "Has active references - manual review needed"
+      },
+      {
+        "path": "backend/workflows/templates",
+        "reason": "Has active references - manual review needed"
+      }
+    ],
+    "preserve": [],
+    "total_space_recovery": 9452528,
+    "safety_recommendations": [
+      "Create full repository backup before deletion",
+      "Test deployment after cleanup",
+      "Review Git history for any missed references",
+      "Update .gitignore to prevent future archive accumulation",
+      "Implement automated cleanup in CI/CD pipeline"
+    ]
+  },
+  "execution_results": {
+    "deleted_items": [
+      "docs_backup_20250705_112838/archive",
+      "docs_backup_20250705_112838",
+      "backups",
+      "cleanup_backup_20250706_180710",
+      "backup_deployment_fix_20250705_135353/github_workflows/archive",
+      "backup_deployment_fix_20250705_135353",
+      "backup_deployment_cleanup_20250707_001424",
+      "archived_dockerfiles",
+      "archived_fastapi_apps",
+      "backup_compose_files",
+      "config/cursor_enhanced_mcp_config.json.backup",
+      "config/unified_mcp_config.json.backup"
+    ],
+    "failed_deletions": [
+      "docs_backup_20250705_112838",
+      "cleanup_backup_20250706_180710/cleanup_backup_20250706_180710"
+    ],
+    "space_recovered": 6513124,
+    "errors": [
+      "Failed to delete docs_backup_20250705_112838: [Errno 2] No such file or directory: '/home/ubuntu/sophia-main/docs_backup_20250705_112838'",
+      "Failed to delete cleanup_backup_20250706_180710/cleanup_backup_20250706_180710: [Errno 2] No such file or directory: '/home/ubuntu/sophia-main/cleanup_backup_20250706_180710/cleanup_backup_20250706_180710'"
+    ],
+    "gitignore_updated": true
+  },
+  "recommendations": [
+    "Implement automated cleanup in CI/CD pipeline",
+    "Set up monitoring for archive accumulation",
+    "Establish retention policies for backups",
+    "Use Git for version control instead of manual backups",
+    "Implement proper deployment rollback mechanisms"
+  ]
+}

@@ -230,3 +230,21 @@ requirements*.txt
 .turbo/
 .pnpm-store/
 test_env/
+
+
+# Archive and backup directories
+**/archive/
+**/backup*/
+**/legacy/
+**/deprecated/
+**/*_backup_*/
+docs_backup_*/
+
+# Backup files
+*.backup
+*.bak
+*_old
+*_deprecated
+*_legacy
+*.tmp
+*.temp
