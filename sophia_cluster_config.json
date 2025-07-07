@@ -1,0 +1,34 @@
+{
+  "cluster_name": "sophia-ai-production",
+  "created": "2025-07-06T22:00:07.887529",
+  "master": {
+    "name": "lynn-sophia-gh200-master-01",
+    "ip": "192.222.51.151",
+    "role": "master"
+  },
+  "workers": [
+    {
+      "id": "09a7b3a603644db9ac6252bac49fb35d",
+      "name": "lynn-sophia-gh200-worker-01",
+      "role": "worker",
+      "ip": "192.222.50.209",
+      "private_ip": "172.26.133.54",
+      "status": "active"
+    },
+    {
+      "id": "08bdba84ae28472b983b708cebb71ad2",
+      "name": "lynn-sophia-gh200-worker-02",
+      "role": "worker",
+      "ip": "192.222.50.213",
+      "private_ip": "172.26.133.154",
+      "status": "active"
+    }
+  ],
+  "total_nodes": 3,
+  "ssh_key": "lynn-sophia-key",
+  "kubernetes": {
+    "version": "v1.28.4",
+    "cni": "flannel",
+    "ingress": "nginx"
+  }
+}

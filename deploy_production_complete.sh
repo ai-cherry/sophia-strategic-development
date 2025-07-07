@@ -39,9 +39,9 @@ echo "  Master: $MASTER_IP"
 echo "  Worker 1: $WORKER_IP1"
 echo "  Worker 2: $WORKER_IP2"
 
-# Step 2: Setup K3s cluster
-echo "📦 Step 2: Setting up K3s cluster..."
-./setup_k3s_cluster.sh
+# Step 2: Setup Docker Swarm cluster
+echo "📦 Step 2: Setting up Docker Swarm cluster..."
+./setup_swarm.sh
 
 # Step 3: Deploy Vercel frontend
 echo "📦 Step 3: Deploying frontend to Vercel..."
@@ -53,9 +53,9 @@ cd ..
 echo "📦 Step 4: Configuring DNS..."
 python3 configure_dns.py
 
-# Step 5: Deploy backend services
-echo "📦 Step 5: Deploying backend services to K3s..."
-./deploy_backend_k3s.sh
+# Step 5: Deploy backend services to Docker Swarm
+echo "📦 Step 5: Deploying backend services via Docker Swarm..."
+./deploy_swarm.sh
 
 echo "✅ Deployment complete!"
 echo ""
