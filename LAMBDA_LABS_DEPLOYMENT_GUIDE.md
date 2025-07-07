@@ -29,22 +29,23 @@ All services are configured to use Docker images from Docker Hub:
 ### 1. **Lambda Labs Access**
 You need:
 - Lambda Labs API key
-- SSH access to your Lambda Labs instance (146.235.200.1)
-- The correct SSH private key that matches your Lambda Labs instance
+- SSH access to your Lambda Labs instance (192.222.51.151)
+- SSH private key: ~/.ssh/lynn_sophia_h200_key
+- See `docs/04-deployment/LAMBDA_LABS_SSH_CONFIGURATION.md` for details
 
 ### 2. **Set Up SSH Key**
 Save your Lambda Labs SSH private key:
 ```bash
 # Create the key file
-cat > ~/.ssh/lambda_labs_sophia << 'EOF'
+cat > ~/.ssh/lynn_sophia_h200_key << 'EOF'
 [PASTE YOUR ACTUAL SSH PRIVATE KEY HERE]
 EOF
 
 # Set correct permissions
-chmod 600 ~/.ssh/lambda_labs_sophia
+chmod 600 ~/.ssh/lynn_sophia_h200_key
 
 # Test connection
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'echo "Connected!"'
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 'echo "Connected!"'
 ```
 
 ## 🚀 Deployment Steps
@@ -53,7 +54,7 @@ ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'echo "Connected!"'
 ```bash
 # Set up environment
 export LAMBDA_API_KEY="your-lambda-api-key"
-export LAMBDA_SSH_KEY_PATH=~/.ssh/lambda_labs_sophia
+export LAMBDA_SSH_KEY_PATH=~/.ssh/lynn_sophia_h200_key
 
 # Run quick deployment
 ./scripts/quick_lambda_deploy.sh
@@ -79,10 +80,10 @@ export PULUMI_ACCESS_TOKEN="your-pulumi-token"
 ./scripts/prepare_deployment_package.sh
 
 # 2. Upload to Lambda Labs
-scp -i ~/.ssh/lambda_labs_sophia sophia-deployment-*.tar.gz ubuntu@146.235.200.1:~/
+scp -i ~/.ssh/lynn_sophia_h200_key sophia-deployment-*.tar.gz ubuntu@192.222.51.151:~/
 
 # 3. SSH to Lambda Labs
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151
 
 # 4. On Lambda Labs, extract and deploy
 tar -xzf sophia-deployment-*.tar.gz
@@ -95,34 +96,34 @@ cd sophia-deployment-*
 After deployment, access your services at:
 
 ### Direct IP Access (Immediate)
-- **Backend API**: http://146.235.200.1:8000
-- **Frontend**: http://146.235.200.1:3000
-- **API Documentation**: http://146.235.200.1:8000/docs
-- **Grafana**: http://146.235.200.1:3001
-- **Prometheus**: http://146.235.200.1:9090
+- **Backend API**: http://192.222.51.151:8000
+- **Frontend**: http://192.222.51.151:3000
+- **API Documentation**: http://192.222.51.151:8000/docs
+- **Grafana**: http://192.222.51.151:3001
+- **Prometheus**: http://192.222.51.151:9090
 
 ### MCP Servers
-- **AI Memory**: http://146.235.200.1:9001
-- **Dashboard**: http://146.235.200.1:9100
-- **Chat**: http://146.235.200.1:9101
-- **Codacy**: http://146.235.200.1:3008
-- **Prompt Optimizer**: http://146.235.200.1:9030
+- **AI Memory**: http://192.222.51.151:9001
+- **Dashboard**: http://192.222.51.151:9100
+- **Chat**: http://192.222.51.151:9101
+- **Codacy**: http://192.222.51.151:3008
+- **Prompt Optimizer**: http://192.222.51.151:9030
 
 ## 🔧 Managing Your Deployment
 
 ### Check Service Status
 ```bash
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'docker service ls'
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 'docker service ls'
 ```
 
 ### View Logs
 ```bash
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'docker service logs sophia-ai_backend'
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 'docker service logs sophia-ai_backend'
 ```
 
 ### Scale Services
 ```bash
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 'docker service scale sophia-ai_backend=5'
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 'docker service scale sophia-ai_backend=5'
 ```
 
 ### Update Services
@@ -132,7 +133,7 @@ docker build -t scoobyjava15/sophia-backend:latest .
 docker push scoobyjava15/sophia-backend:latest
 
 # Update on Lambda Labs
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 \
   'docker service update --image scoobyjava15/sophia-backend:latest sophia-ai_backend'
 ```
 
@@ -148,23 +149,23 @@ ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
 ### SSH Connection Issues
 ```bash
 # Check your SSH key
-ls -la ~/.ssh/lambda_labs_sophia
+ls -la ~/.ssh/lynn_sophia_h200_key
 
 # Test with verbose output
-ssh -vvv -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1
+ssh -vvv -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151
 ```
 
 ### Docker Swarm Issues
 ```bash
 # Initialize Swarm if needed
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
-  'docker swarm init --advertise-addr 146.235.200.1'
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 \
+  'docker swarm init --advertise-addr 192.222.51.151'
 ```
 
 ### Service Not Starting
 ```bash
 # Check service status
-ssh -i ~/.ssh/lambda_labs_sophia ubuntu@146.235.200.1 \
+ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 \
   'docker service ps sophia-ai_backend --no-trunc'
 ```
 
