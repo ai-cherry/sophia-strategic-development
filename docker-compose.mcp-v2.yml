@@ -1,0 +1,181 @@
+version: '3.9'
+
+services:
+  # AI Memory V2 - Port 9000
+  ai-memory-v2:
+    image: scoobyjava15/sophia-ai-memory-v2:latest
+    restart: unless-stopped
+    environment:
+      AI_MEMORY_V2_PORT: 9000
+      AI_MEMORY_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Snowflake V2 - Port 9001
+  snowflake-v2:
+    image: scoobyjava15/sophia-snowflake-v2:latest
+    restart: unless-stopped
+    environment:
+      SNOWFLAKE_V2_PORT: 9001
+      SNOWFLAKE_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Linear V2 - Port 9002
+  linear-v2:
+    image: scoobyjava15/sophia-linear-v2:latest
+    restart: unless-stopped
+    environment:
+      LINEAR_V2_PORT: 9002
+      LINEAR_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9002:9002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # Notion V2 - Port 9003
+  notion-v2:
+    image: scoobyjava15/sophia-notion-v2:latest
+    restart: unless-stopped
+    environment:
+      NOTION_V2_PORT: 9003
+      NOTION_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9003:9003"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # Asana V2 - Port 9004
+  asana-v2:
+    image: scoobyjava15/sophia-asana-v2:latest
+    restart: unless-stopped
+    environment:
+      ASANA_V2_PORT: 9004
+      ASANA_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9004:9004"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+  # Codacy V2 - Port 9005
+  codacy-v2:
+    image: scoobyjava15/sophia-codacy-v2:latest
+    restart: unless-stopped
+    environment:
+      CODACY_V2_PORT: 9005
+      CODACY_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9005:9005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+
+networks:
+  default:
+    name: sophia-ai-network
+    driver: overlay
+    attachable: true
+
+secrets:
+  # Secrets will be managed by Docker Swarm on Lambda Labs
+  openai_api_key:
+    external: true
+  anthropic_api_key:
+    external: true
+  snowflake_password:
+    external: true
+  linear_api_key:
+    external: true
+  notion_api_key:
+    external: true
+  asana_api_key:
+    external: true
+  codacy_api_key:
+    external: true 
