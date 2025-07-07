@@ -35,6 +35,15 @@ values:
     database: "SOPHIA_AI_PRODUCTION"
     warehouse: "SOPHIA_AI_COMPUTE_WH"
 
+  # Business Intelligence Configuration
+  gong:
+    api_key:
+      fn::secret: ${GONG_API_KEY}
+    api_secret:
+      fn::secret: ${GONG_API_SECRET}
+    webhook_secret:
+      fn::secret: ${GONG_WEBHOOK_SECRET}
+
   # Monitoring Configuration
   monitoring:
     slack_webhook:
@@ -58,4 +67,7 @@ environmentVariables:
   SNOWFLAKE_PASSWORD: ${snowflake.password}
   SNOWFLAKE_DATABASE: ${snowflake.database}
   SNOWFLAKE_WAREHOUSE: ${snowflake.warehouse}
+  GONG_API_KEY: ${gong.api_key}
+  GONG_API_SECRET: ${gong.api_secret}
+  GONG_WEBHOOK_SECRET: ${gong.webhook_secret}
   DOCKER_REGISTRY: ${docker.registry}
