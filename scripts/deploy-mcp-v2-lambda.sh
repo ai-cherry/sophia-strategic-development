@@ -41,7 +41,17 @@ echo ""
 echo "📦 Building and pushing Docker images..."
 echo "--------------------------------------"
 
-SERVERS=("ai_memory_v2" "snowflake_v2" "linear_v2" "notion_v2" "asana_v2" "codacy_v2")
+SERVERS=(
+    "ai_memory_v2"
+    "snowflake_v2"
+    "linear_v2"
+    "notion_v2"
+    "asana_v2"
+    "codacy_v2"
+    "github_v2"
+    "slack_v2"
+    "perplexity_v2"
+)
 
 for server in "${SERVERS[@]}"; do
     echo ""
@@ -104,8 +114,18 @@ echo ""
 echo "🏥 Running health checks..."
 echo "--------------------------"
 
-PORTS=(9000 9001 9002 9003 9004 9005)
-NAMES=("AI Memory V2" "Snowflake V2" "Linear V2" "Notion V2" "Asana V2" "Codacy V2")
+PORTS=(9000 9001 9002 9003 9004 9005 9006 9007 9008)
+NAMES=(
+    "AI Memory V2"
+    "Snowflake V2"
+    "Linear V2"
+    "Notion V2"
+    "Asana V2"
+    "Codacy V2"
+    "GitHub V2"
+    "Slack V2"
+    "Perplexity V2"
+)
 
 for i in "${!PORTS[@]}"; do
     PORT=${PORTS[$i]}
@@ -131,6 +151,14 @@ echo "- Linear V2: http://${LAMBDA_LABS_HOST}:9002"
 echo "- Notion V2: http://${LAMBDA_LABS_HOST}:9003"
 echo "- Asana V2: http://${LAMBDA_LABS_HOST}:9004"
 echo "- Codacy V2: http://${LAMBDA_LABS_HOST}:9005"
+echo "- GitHub V2: http://${LAMBDA_LABS_HOST}:9006"
+echo "- Slack V2: http://${LAMBDA_LABS_HOST}:9007"
+echo "- Perplexity V2: http://${LAMBDA_LABS_HOST}:9008"
+echo ""
+echo "🚀 Live Coding Priority Services:"
+echo "- GitHub V2 (9006) - Repository management"
+echo "- Perplexity V2 (9008) - Real-time documentation"
+echo "- Slack V2 (9007) - Team collaboration"
 echo ""
 echo "📝 View logs: ssh ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST} 'docker service logs sophia-mcp-v2_<service-name>'"
 echo "📊 View status: ssh ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST} 'docker stack ps sophia-mcp-v2'" 

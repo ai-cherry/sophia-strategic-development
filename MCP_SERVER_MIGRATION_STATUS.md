@@ -7,63 +7,102 @@ Migrating priority MCP servers to modern V2 architecture with enhanced features.
 
 ### ✅ Completed (Structure Created)
 
-#### 1. AI Memory V2 (Port: 9000)
-- **Status**: Structure created, implementation complete
-- **Features**:
-  - Modern async FastAPI architecture
-  - Batch operations for performance
-  - Multiple embedding providers (OpenAI, Sentence Transformers, Snowflake Cortex)
-  - Enhanced search with metadata filtering
-  - Prometheus metrics integration
-  - Docker support
-- **Next Steps**: Build and deploy to Lambda Labs
+#### Core Infrastructure Servers
 
-#### 2. Snowflake V2 (Port: 9001)
-- **Status**: Structure created, implementation complete
-- **Features**:
-  - Async database operations
-  - Snowflake Cortex AI integration
-  - Schema and table management
-  - Semantic search capabilities
-  - Performance optimization
-  - Warehouse management
-- **Next Steps**: Build and deploy to Lambda Labs
+1. **AI Memory V2 (Port: 9000)**
+   - **Status**: Structure created, implementation complete
+   - **Features**:
+     - Modern async FastAPI architecture
+     - Batch operations for performance
+     - Multiple embedding providers (OpenAI, Sentence Transformers, Snowflake Cortex)
+     - Enhanced search with metadata filtering
+     - Prometheus metrics integration
+     - Docker support
+   - **Next Steps**: Build and deploy to Lambda Labs
 
-#### 3. Linear V2 (Port: 9002)
-- **Status**: Structure created, needs implementation
-- **Features to implement**:
-  - GraphQL API integration
-  - Project management operations
-  - Issue tracking and updates
-  - Team analytics
-  - AI-powered insights
+2. **Snowflake V2 (Port: 9001)**
+   - **Status**: Structure created, implementation complete
+   - **Features**:
+     - Async database operations
+     - Snowflake Cortex AI integration
+     - Schema and table management
+     - Semantic search capabilities
+     - Performance optimization
+     - Warehouse management
+   - **Next Steps**: Build and deploy to Lambda Labs
 
-#### 4. Notion V2 (Port: 9003)
-- **Status**: Structure created, needs implementation
-- **Features to implement**:
-  - Page and database management
-  - Content creation and updates
-  - Search functionality
-  - AI-powered content generation
-  - Knowledge base integration
+#### Project Management Servers
 
-#### 5. Asana V2 (Port: 9004)
-- **Status**: Structure created, needs implementation
-- **Features to implement**:
-  - Task and project management
-  - Team collaboration features
-  - Timeline and milestone tracking
-  - AI-powered project insights
-  - Workflow automation
+3. **Linear V2 (Port: 9002)**
+   - **Status**: Structure created, needs implementation
+   - **Features to implement**:
+     - GraphQL API integration
+     - Project management operations
+     - Issue tracking and updates
+     - Team analytics
+     - AI-powered insights
 
-#### 6. Codacy V2 (Port: 9005)
-- **Status**: Structure created, needs implementation
-- **Features to implement**:
-  - Code quality analysis
-  - Security vulnerability scanning
-  - Code complexity metrics
-  - AI-powered code suggestions
-  - Integration with GitHub
+4. **Notion V2 (Port: 9003)**
+   - **Status**: Structure created, needs implementation
+   - **Features to implement**:
+     - Page and database management
+     - Content creation and updates
+     - Search functionality
+     - AI-powered content generation
+     - Knowledge base integration
+
+5. **Asana V2 (Port: 9004)**
+   - **Status**: Structure created, needs implementation
+   - **Features to implement**:
+     - Task and project management
+     - Team collaboration features
+     - Timeline and milestone tracking
+     - AI-powered project insights
+     - Workflow automation
+
+#### Development Tools Servers
+
+6. **Codacy V2 (Port: 9005)**
+   - **Status**: Structure created, needs implementation
+   - **Features to implement**:
+     - Code quality analysis
+     - Security vulnerability scanning
+     - Code complexity metrics
+     - AI-powered code suggestions
+     - Integration with GitHub
+
+7. **GitHub V2 (Port: 9006)**
+   - **Status**: Structure created, needs implementation
+   - **Priority**: HIGH for live coding
+   - **Features to implement**:
+     - Repository management
+     - Issue and PR operations
+     - Code search and navigation
+     - Workflow management
+     - Branch operations
+     - Commit history analysis
+
+8. **Slack V2 (Port: 9007)**
+   - **Status**: Structure created, needs implementation
+   - **Priority**: HIGH for team collaboration
+   - **Features to implement**:
+     - Real-time message management
+     - Channel operations
+     - User interactions
+     - Thread management
+     - File sharing
+     - Notification system
+
+9. **Perplexity V2 (Port: 9008)**
+   - **Status**: Structure created, needs implementation
+   - **Priority**: HIGH for code research
+   - **Features to implement**:
+     - Real-time web search
+     - Documentation lookup
+     - Code examples search
+     - API reference retrieval
+     - Stack Overflow integration
+     - Technical blog search
 
 ## Architecture Improvements
 
@@ -99,29 +138,46 @@ Migrating priority MCP servers to modern V2 architecture with enhanced features.
 - Notion V2: 9003
 - Asana V2: 9004
 - Codacy V2: 9005
+- GitHub V2: 9006
+- Slack V2: 9007
+- Perplexity V2: 9008
+
+## Live Coding Assistance Priority
+
+The following servers are most critical for live coding assistance:
+
+1. **GitHub V2** - Essential for repository management, code navigation, and version control
+2. **Codacy V2** - Real-time code quality and security analysis
+3. **Perplexity V2** - Instant documentation and code example lookup
+4. **Slack V2** - Team communication and collaboration
+5. **AI Memory V2** - Context retention across coding sessions
 
 ## Next Steps
 
-1. **Implement Linear V2**
-   - GraphQL client setup
-   - Project and issue management
-   - Team analytics
+### Immediate Priority (Live Coding Support)
+1. **Implement GitHub V2**
+   - Full GitHub API integration
+   - Repository and file operations
+   - PR/Issue management
 
-2. **Implement Notion V2**
-   - REST API integration
-   - Page and database operations
-   - Content management
+2. **Implement Perplexity V2**
+   - Search API integration
+   - Real-time documentation retrieval
+   - Code example caching
 
-3. **Implement Asana V2**
-   - Task management API
-   - Project tracking
-   - Team collaboration
+3. **Implement Slack V2**
+   - WebSocket support for real-time
+   - Thread management
+   - File sharing capabilities
 
-4. **Implement Codacy V2**
-   - Code analysis integration
-   - Security scanning
-   - Metrics collection
+### Secondary Priority
+4. **Implement remaining project management servers**
+   - Linear V2
+   - Notion V2
+   - Asana V2
+   - Codacy V2
 
+### Final Steps
 5. **Docker Cloud Deployment**
    - Build all images
    - Push to Docker Hub

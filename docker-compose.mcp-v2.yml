@@ -157,6 +157,84 @@ services:
           cpus: '0.25'
           memory: 512M
 
+  # GitHub V2 - Port 9006 (HIGH PRIORITY for coding)
+  github-v2:
+    image: scoobyjava15/sophia-github-v2:latest
+    restart: unless-stopped
+    environment:
+      GITHUB_V2_PORT: 9006
+      GITHUB_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9006:9006"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Slack V2 - Port 9007 (HIGH PRIORITY for team collaboration)
+  slack-v2:
+    image: scoobyjava15/sophia-slack-v2:latest
+    restart: unless-stopped
+    environment:
+      SLACK_V2_PORT: 9007
+      SLACK_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9007:9007"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Perplexity V2 - Port 9008 (HIGH PRIORITY for code research)
+  perplexity-v2:
+    image: scoobyjava15/sophia-perplexity-v2:latest
+    restart: unless-stopped
+    environment:
+      PERPLEXITY_V2_PORT: 9008
+      PERPLEXITY_V2_LOG_LEVEL: INFO
+      PULUMI_ORG: scoobyjava-org
+      ENVIRONMENT: production
+    ports:
+      - "9008:9008"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
 networks:
   default:
     name: sophia-ai-network
@@ -178,4 +256,10 @@ secrets:
   asana_api_key:
     external: true
   codacy_api_key:
+    external: true
+  github_token:
+    external: true
+  slack_bot_token:
+    external: true
+  perplexity_api_key:
     external: true 
