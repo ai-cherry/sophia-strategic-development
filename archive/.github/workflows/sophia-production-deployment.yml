@@ -70,7 +70,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     - name: Deploy Infrastructure
-      uses: pulumi/actions@v4
+      uses: pulumi/actions@v6
       with:
         command: up
         stack-name: scoobyjava-org/sophia-prod-on-lambda
