@@ -15,20 +15,27 @@ interface OptimizedQueryOptions {
   enabled?: boolean;
 }
 
-export function useOptimizedQuery<T>(
-  key: QueryKey,
-  endpoint: string,
-  options?: OptimizedQueryOptions
-) {
-  return useQuery<T, Error>({
-    queryKey: key,
-    queryFn: async () => {
-      const { data } = await apiClient.get(endpoint);
-      return data;
-    },
+const useOptimizedQuery = (queryKey, url, options) => {
+  const queryClient = useQueryClient();
+
+  const fetcher = async () => {
+    const response = await apiClient.get(url);
+    return response.data;
+  };
+
+  return useQuery(queryKey, fetcher, {
     ...options,
+    onError: (error) => {
+      console.error(`Error fetching ${url}:`, error);
+      // Optional: Add global error handling, e.g., showing a toast notification
+    },
+    onSuccess: (data) => {
+      // Optional: Add global success handling or logging
+    },
   });
-}
+};
+
+export { useOptimizedQuery };
 
 // =================================
 // Real-time Data Hook
