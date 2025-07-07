@@ -7,3 +7,6 @@
 [submodule "external/anthropic-mcp-inspector"]
 	path = external/anthropic-mcp-inspector
 	url = https://github.com/modelcontextprotocol/inspector.git
+[submodule "external/glips_figma_context"]
+	path = external/glips_figma_context
+	url = https://github.com/GLips/Figma-Context-MCP.git
