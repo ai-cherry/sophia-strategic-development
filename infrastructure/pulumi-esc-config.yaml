@@ -35,16 +35,45 @@ values:
     database: "SOPHIA_AI_PRODUCTION"
     warehouse: "SOPHIA_AI_COMPUTE_WH"
 
+  # Business Intelligence Configuration
+  gong:
+    api_key:
+      fn::secret: ${GONG_API_KEY}
+    api_secret:
+      fn::secret: ${GONG_API_SECRET}
+    webhook_secret:
+      fn::secret: ${GONG_WEBHOOK_SECRET}
+
+  # Estuary Flow Configuration
+  estuary:
+    api_key:
+      fn::secret: ${ESTUARY_API_KEY}
+    api_secret:
+      fn::secret: ${ESTUARY_API_SECRET}
+    gong_token:
+      fn::secret: ${ESTUARY_GONG_TOKEN}
+    slack_token:
+      fn::secret: ${ESTUARY_SLACK_TOKEN}
+    github_token:
+      fn::secret: ${ESTUARY_GITHUB_TOKEN}
+
   # Monitoring Configuration
   monitoring:
     slack_webhook:
       fn::secret: ${SLACK_WEBHOOK}
+    grafana_api_key:
+      fn::secret: ${GRAFANA_API_KEY}
 
   # Docker Configuration
   docker:
     registry: "scoobyjava15"
     personal_access_token:
       fn::secret: ${DOCKER_PERSONAL_ACCESS_TOKEN}
+
+  # Redis Configuration
+  redis:
+    password:
+      fn::secret: ${REDIS_PASSWORD}
 
 # Environment Variables for Runtime
 environmentVariables:
@@ -58,4 +87,15 @@ environmentVariables:
   SNOWFLAKE_PASSWORD: ${snowflake.password}
   SNOWFLAKE_DATABASE: ${snowflake.database}
   SNOWFLAKE_WAREHOUSE: ${snowflake.warehouse}
+  GONG_API_KEY: ${gong.api_key}
+  GONG_API_SECRET: ${gong.api_secret}
+  GONG_WEBHOOK_SECRET: ${gong.webhook_secret}
+  ESTUARY_API_KEY: ${estuary.api_key}
+  ESTUARY_API_SECRET: ${estuary.api_secret}
+  ESTUARY_GONG_TOKEN: ${estuary.gong_token}
+  ESTUARY_SLACK_TOKEN: ${estuary.slack_token}
+  ESTUARY_GITHUB_TOKEN: ${estuary.github_token}
+  GRAFANA_API_KEY: ${monitoring.grafana_api_key}
+  SLACK_WEBHOOK: ${monitoring.slack_webhook}
+  REDIS_PASSWORD: ${redis.password}
   DOCKER_REGISTRY: ${docker.registry}

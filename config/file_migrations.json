@@ -1,0 +1,1082 @@
+[
+  {
+    "old": "backend/api/unified_routes.py",
+    "new": "api/unified_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/enhanced_unified_chat_routes.py",
+    "new": "api/enhanced_unified_chat_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/unified_chat_routes.py",
+    "new": "api/unified_chat_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/unified_health_routes.py",
+    "new": "api/unified_health_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/__init__.py",
+    "new": "api/__init__.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/deployment_status_routes.py",
+    "new": "api/deployment_status_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/lambda_labs_health_routes.py",
+    "new": "api/lambda_labs_health_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/api/ai_memory_health_routes.py",
+    "new": "api/ai_memory_health_routes.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/fastapi_main.py",
+    "new": "api/main.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/presentation/__init__.py",
+    "new": "api/serializers/__init__.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/presentation/dto/__init__.py",
+    "new": "api/serializers/dto/__init__.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/presentation/api/__init__.py",
+    "new": "api/serializers/api/__init__.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/presentation/api/router.py",
+    "new": "api/serializers/api/router.py",
+    "layer": "api"
+  },
+  {
+    "old": "backend/agents/core/base_agent.py",
+    "new": "core/agents/base_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/core/langgraph_agent_base.py",
+    "new": "core/agents/langgraph_agent_base.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/slack_analysis_agent.py",
+    "new": "core/use_cases/slack_analysis_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/asana_project_intelligence_agent.py",
+    "new": "core/use_cases/asana_project_intelligence_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/linear_project_health_agent.py",
+    "new": "core/use_cases/linear_project_health_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/sales_intelligence_agent_utils.py",
+    "new": "core/use_cases/sales_intelligence_agent_utils.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/sales_intelligence_agent_models.py",
+    "new": "core/use_cases/sales_intelligence_agent_models.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/interactive_sales_coach_agent.py",
+    "new": "core/use_cases/interactive_sales_coach_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/sales_intelligence_agent_core.py",
+    "new": "core/use_cases/sales_intelligence_agent_core.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/sales_coach_agent.py",
+    "new": "core/use_cases/sales_coach_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/sales_intelligence_agent.py",
+    "new": "core/use_cases/sales_intelligence_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/snowflake_admin_agent.py",
+    "new": "core/use_cases/snowflake_admin_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/sales_intelligence_agent_handlers.py",
+    "new": "core/use_cases/sales_intelligence_agent_handlers.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/call_analysis_agent.py",
+    "new": "core/use_cases/call_analysis_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/agents/specialized/marketing_analysis_agent.py",
+    "new": "core/use_cases/marketing_analysis_agent.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/orchestration/intelligent_meta_orchestrator.py",
+    "new": "core/workflows/intelligent_meta_orchestrator.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/orchestration/cross_group_intelligence_hub.py",
+    "new": "core/workflows/cross_group_intelligence_hub.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/orchestration/continuous_learning_framework.py",
+    "new": "core/workflows/continuous_learning_framework.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/orchestration/unified_intent_engine.py",
+    "new": "core/workflows/unified_intent_engine.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/orchestration/langgraph_mcp_orchestrator.py",
+    "new": "core/workflows/langgraph_mcp_orchestrator.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/__init__.py",
+    "new": "core/application/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/use_cases/analyze_call_sentiment.py",
+    "new": "core/application/use_cases/analyze_call_sentiment.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/use_cases/__init__.py",
+    "new": "core/application/use_cases/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/use_cases/qualify_deal.py",
+    "new": "core/application/use_cases/qualify_deal.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/__init__.py",
+    "new": "core/application/ports/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/repositories/__init__.py",
+    "new": "core/application/ports/repositories/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/repositories/call_repository.py",
+    "new": "core/application/ports/repositories/call_repository.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/repositories/deal_repository.py",
+    "new": "core/application/ports/repositories/deal_repository.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/repositories/contact_repository.py",
+    "new": "core/application/ports/repositories/contact_repository.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/services/ai_service.py",
+    "new": "core/application/ports/services/ai_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/application/ports/services/__init__.py",
+    "new": "core/application/ports/services/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_unified_chat_service.py",
+    "new": "core/services/enhanced_unified_chat_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/snowflake_intelligence_service.py",
+    "new": "core/services/snowflake_intelligence_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/sophia_intent_engine.py",
+    "new": "core/services/sophia_intent_engine.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/advanced_llm_service.py",
+    "new": "core/services/advanced_llm_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_cortex_agent_service.py",
+    "new": "core/services/enhanced_cortex_agent_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/intelligent_query_router.py",
+    "new": "core/services/intelligent_query_router.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/predictive_analytics_service.py",
+    "new": "core/services/predictive_analytics_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/mem0_integration_service.py",
+    "new": "core/services/mem0_integration_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/payready_business_intelligence.py",
+    "new": "core/services/payready_business_intelligence.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_chat_context_service.py",
+    "new": "core/services/enhanced_chat_context_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_mcp_orchestration.py",
+    "new": "core/services/enhanced_mcp_orchestration.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_knowledge_base_service.py",
+    "new": "core/services/enhanced_knowledge_base_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/mcp_capability_router.py",
+    "new": "core/services/mcp_capability_router.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_portkey_llm_gateway.py",
+    "new": "core/services/enhanced_portkey_llm_gateway.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/mcp_orchestration_service.py",
+    "new": "core/services/mcp_orchestration_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_cortex_service.py",
+    "new": "core/services/enhanced_cortex_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/foundational_knowledge_service.py",
+    "new": "core/services/foundational_knowledge_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_sentiment_analyzer.py",
+    "new": "core/services/enhanced_sentiment_analyzer.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/secure_action_service.py",
+    "new": "core/services/secure_action_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/chimera_monitoring_service.py",
+    "new": "core/services/chimera_monitoring_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/unified_ai_orchestration_service.py",
+    "new": "core/services/unified_ai_orchestration_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/__init__.py",
+    "new": "core/services/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/knowledge_service.py",
+    "new": "core/services/knowledge_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/data_source_manager.py",
+    "new": "core/services/data_source_manager.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/constitutional_ai.py",
+    "new": "core/services/constitutional_ai.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_ingestion_service.py",
+    "new": "core/services/enhanced_ingestion_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/unified_llm_service.py",
+    "new": "core/services/unified_llm_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/unified_sophia_service.py",
+    "new": "core/services/unified_sophia_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/sophia_ai_orchestrator.py",
+    "new": "core/services/sophia_ai_orchestrator.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/data_transformer.py",
+    "new": "core/services/data_transformer.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/gptcache_service.py",
+    "new": "core/services/gptcache_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/code_modification_service.py",
+    "new": "core/services/code_modification_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/unified_chat_service.py",
+    "new": "core/services/unified_chat_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/cortex_agent_service.py",
+    "new": "core/services/cortex_agent_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/cost_engineering_service.py",
+    "new": "core/services/cost_engineering_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/circuit_breaker.py",
+    "new": "core/services/circuit_breaker.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/semantic_layer_service.py",
+    "new": "core/services/semantic_layer_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/comprehensive_memory_service.py",
+    "new": "core/services/comprehensive_memory_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_snowflake_cortex_service.py",
+    "new": "core/services/enhanced_snowflake_cortex_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/streaming_response_service.py",
+    "new": "core/services/streaming_response_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/unified_service_registry.py",
+    "new": "core/services/unified_service_registry.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/enhanced_unified_intelligence_service.py",
+    "new": "core/services/enhanced_unified_intelligence_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/advanced_ui_ux_agent_service.py",
+    "new": "core/services/advanced_ui_ux_agent_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/secure_credential_service.py",
+    "new": "core/services/secure_credential_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/ui_generation_intent_handler.py",
+    "new": "core/services/ui_generation_intent_handler.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/vector_indexing_service.py",
+    "new": "core/services/vector_indexing_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/federated_query_service.py",
+    "new": "core/services/federated_query_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/documentation_loader_service.py",
+    "new": "core/services/documentation_loader_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/event_driven_ingestion_service.py",
+    "new": "core/services/event_driven_ingestion_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/migration_orchestrator_client.py",
+    "new": "core/services/migration_orchestrator_client.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/dynamic_orchestration_service.py",
+    "new": "core/services/dynamic_orchestration_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/memory_preservation_service.py",
+    "new": "core/services/memory_preservation_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/predictive_automation_service.py",
+    "new": "core/services/predictive_automation_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/sophia_agent_orchestrator.py",
+    "new": "core/services/sophia_agent_orchestrator.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/unified_intelligence_service.py",
+    "new": "core/services/unified_intelligence_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/analytics_service.py",
+    "new": "core/services/analytics_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/llm_gateway/portkey_integration.py",
+    "new": "core/services/llm_gateway/portkey_integration.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/llm_gateway/openrouter_integration.py",
+    "new": "core/services/llm_gateway/openrouter_integration.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/llm_gateway/snowflake_cortex_enhanced.py",
+    "new": "core/services/llm_gateway/snowflake_cortex_enhanced.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/chat/context_manager.py",
+    "new": "core/services/chat/context_manager.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/chat/session_manager.py",
+    "new": "core/services/chat/session_manager.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/chat/__init__.py",
+    "new": "core/services/chat/__init__.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/chat/base_chat_service.py",
+    "new": "core/services/chat/base_chat_service.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/infrastructure_chat/sophia_infrastructure_chat.py",
+    "new": "core/services/infrastructure_chat/sophia_infrastructure_chat.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/services/snowflake/connection_pool_manager.py",
+    "new": "core/services/snowflake/connection_pool_manager.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/workflows/multi_agent_workflow.py",
+    "new": "core/workflows/multi_agent_workflow.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/workflows/enhanced_langgraph_orchestration.py",
+    "new": "core/workflows/enhanced_langgraph_orchestration.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/workflows/langgraph_agent_orchestration.py",
+    "new": "core/workflows/langgraph_agent_orchestration.py",
+    "layer": "core"
+  },
+  {
+    "old": "backend/models/chat_models.py",
+    "new": "domain/models/chat_models.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/models/orchestration_models.py",
+    "new": "domain/models/orchestration_models.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/models/conversation.py",
+    "new": "domain/models/conversation.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/models/__init__.py",
+    "new": "domain/models/__init__.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/models/project.py",
+    "new": "domain/models/project.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/__init__.py",
+    "new": "domain/__init__.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/value_objects/sentiment.py",
+    "new": "domain/value_objects/sentiment.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/value_objects/call_participant.py",
+    "new": "domain/value_objects/call_participant.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/value_objects/__init__.py",
+    "new": "domain/value_objects/__init__.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/value_objects/money.py",
+    "new": "domain/value_objects/money.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/entities/user.py",
+    "new": "domain/entities/user.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/entities/__init__.py",
+    "new": "domain/entities/__init__.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/entities/deal.py",
+    "new": "domain/entities/deal.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/entities/call.py",
+    "new": "domain/entities/call.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/domain/entities/contact.py",
+    "new": "domain/entities/contact.py",
+    "layer": "domain"
+  },
+  {
+    "old": "backend/integrations/gong_api_client.py",
+    "new": "infrastructure/integrations/gong_api_client.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/gong_webhook_processor.py",
+    "new": "infrastructure/integrations/gong_webhook_processor.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/enhanced_microsoft_gong_integration.py",
+    "new": "infrastructure/integrations/enhanced_microsoft_gong_integration.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/gong_webhook_server.py",
+    "new": "infrastructure/integrations/gong_webhook_server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/gong_redis_client.py",
+    "new": "infrastructure/integrations/gong_redis_client.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/advanced_estuary_flow_manager.py",
+    "new": "infrastructure/integrations/advanced_estuary_flow_manager.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/estuary_flow_manager.py",
+    "new": "infrastructure/integrations/estuary_flow_manager.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/gong_snowflake_client.py",
+    "new": "infrastructure/integrations/gong_snowflake_client.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/integrations/gong_api_client_enhanced.py",
+    "new": "infrastructure/integrations/gong_api_client_enhanced.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/mcp_registry.py",
+    "new": "infrastructure/mcp_servers/mcp_registry.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/sophia_mcp_base.py",
+    "new": "infrastructure/mcp_servers/sophia_mcp_base.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/optimized_network.py",
+    "new": "infrastructure/mcp_servers/optimized_network.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/server.py",
+    "new": "infrastructure/mcp_servers/server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/mcp_auth.py",
+    "new": "infrastructure/mcp_servers/mcp_auth.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/snowflake_admin_mcp_server.py",
+    "new": "infrastructure/mcp_servers/snowflake_admin_mcp_server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/__init__.py",
+    "new": "infrastructure/mcp_servers/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/costar_mcp_server.py",
+    "new": "infrastructure/mcp_servers/costar_mcp_server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/mcp_health.py",
+    "new": "infrastructure/mcp_servers/mcp_health.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/mcp_client.py",
+    "new": "infrastructure/mcp_servers/mcp_client.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory_auto_discovery.py",
+    "new": "infrastructure/mcp_servers/ai_memory_auto_discovery.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/mixins/__init__.py",
+    "new": "infrastructure/mcp_servers/mixins/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/mixins/cline_v3_18_features.py",
+    "new": "infrastructure/mcp_servers/mixins/cline_v3_18_features.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/framework/__init__.py",
+    "new": "infrastructure/mcp_servers/framework/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/cortex_aisql/cortex_mcp_server.py",
+    "new": "infrastructure/mcp_servers/cortex_aisql/cortex_mcp_server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/server.py",
+    "new": "infrastructure/mcp_servers/ai_memory/server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/ai_memory_models.py",
+    "new": "infrastructure/mcp_servers/ai_memory/ai_memory_models.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/ai_memory_handlers.py",
+    "new": "infrastructure/mcp_servers/ai_memory/ai_memory_handlers.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/__init__.py",
+    "new": "infrastructure/mcp_servers/ai_memory/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/core/config.py",
+    "new": "infrastructure/mcp_servers/ai_memory/core/config.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/core/models.py",
+    "new": "infrastructure/mcp_servers/ai_memory/core/models.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/core/__init__.py",
+    "new": "infrastructure/mcp_servers/ai_memory/core/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/core/exceptions.py",
+    "new": "infrastructure/mcp_servers/ai_memory/core/exceptions.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/core/performance.py",
+    "new": "infrastructure/mcp_servers/ai_memory/core/performance.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/utils/monitoring.py",
+    "new": "infrastructure/mcp_servers/ai_memory/utils/monitoring.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/utils/__init__.py",
+    "new": "infrastructure/mcp_servers/ai_memory/utils/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/utils/validation.py",
+    "new": "infrastructure/mcp_servers/ai_memory/utils/validation.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/handlers/search_handlers.py",
+    "new": "infrastructure/mcp_servers/ai_memory/handlers/search_handlers.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/handlers/__init__.py",
+    "new": "infrastructure/mcp_servers/ai_memory/handlers/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_memory/handlers/memory_handlers.py",
+    "new": "infrastructure/mcp_servers/ai_memory/handlers/memory_handlers.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/base/standardized_mcp_server.py",
+    "new": "infrastructure/mcp_servers/base/standardized_mcp_server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/base/__init__.py",
+    "new": "infrastructure/mcp_servers/base/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/base/enhanced_standardized_mcp_server.py",
+    "new": "infrastructure/mcp_servers/base/enhanced_standardized_mcp_server.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/base/unified_mcp_base.py",
+    "new": "infrastructure/mcp_servers/base/unified_mcp_base.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/mcp_servers/ai_code_quality/__init__.py",
+    "new": "infrastructure/mcp_servers/ai_code_quality/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/etl/enhanced_unified_data_pipeline.py",
+    "new": "infrastructure/etl/enhanced_unified_data_pipeline.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/etl/enhanced_ingestion_service.py",
+    "new": "infrastructure/etl/enhanced_ingestion_service.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/etl/estuary_flow_orchestrator.py",
+    "new": "infrastructure/etl/estuary_flow_orchestrator.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/etl/gong_api_extractor_clean.py",
+    "new": "infrastructure/etl/gong_api_extractor_clean.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/etl/gong/ingest_gong_data.py",
+    "new": "infrastructure/etl/gong/ingest_gong_data.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/etl/estuary/estuary_configuration_manager.py",
+    "new": "infrastructure/etl/estuary/estuary_configuration_manager.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/mcp_health_monitor.py",
+    "new": "infrastructure/monitoring/mcp_health_monitor.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/quality_rules.py",
+    "new": "infrastructure/monitoring/quality_rules.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/security_metrics_exporter.py",
+    "new": "infrastructure/monitoring/security_metrics_exporter.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/deployment_tracker.py",
+    "new": "infrastructure/monitoring/deployment_tracker.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/__init__.py",
+    "new": "infrastructure/monitoring/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/llm_metrics.py",
+    "new": "infrastructure/monitoring/llm_metrics.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/mcp_metrics_collector.py",
+    "new": "infrastructure/monitoring/mcp_metrics_collector.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/gong_data_quality.py",
+    "new": "infrastructure/monitoring/gong_data_quality.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/monitoring/prometheus_config.py",
+    "new": "infrastructure/monitoring/prometheus_config.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/secret_management.py",
+    "new": "infrastructure/security/secret_management.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/audit_logger.py",
+    "new": "infrastructure/security/audit_logger.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/rbac/service.py",
+    "new": "infrastructure/security/rbac/service.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/rbac/models.py",
+    "new": "infrastructure/security/rbac/models.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/rbac/__init__.py",
+    "new": "infrastructure/security/rbac/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/rbac/dependencies.py",
+    "new": "infrastructure/security/rbac/dependencies.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/rbac/routes.py",
+    "new": "infrastructure/security/rbac/routes.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/ephemeral_credentials/service.py",
+    "new": "infrastructure/security/ephemeral_credentials/service.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/ephemeral_credentials/models.py",
+    "new": "infrastructure/security/ephemeral_credentials/models.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/ephemeral_credentials/__init__.py",
+    "new": "infrastructure/security/ephemeral_credentials/__init__.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/ephemeral_credentials/middleware.py",
+    "new": "infrastructure/security/ephemeral_credentials/middleware.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/security/ephemeral_credentials/routes.py",
+    "new": "infrastructure/security/ephemeral_credentials/routes.py",
+    "layer": "infrastructure"
+  },
+  {
+    "old": "backend/utils/optimized_snowflake_cortex_service_handlers.py",
+    "new": "shared/utils/optimized_snowflake_cortex_service_handlers.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/auth.py",
+    "new": "shared/utils/auth.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_cortex_service.py",
+    "new": "shared/utils/snowflake_cortex_service.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/optimized_snowflake_cortex_service_models.py",
+    "new": "shared/utils/optimized_snowflake_cortex_service_models.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_cortex_service_utils.py",
+    "new": "shared/utils/snowflake_cortex_service_utils.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_cortex_service_core.py",
+    "new": "shared/utils/snowflake_cortex_service_core.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/optimized_snowflake_cortex_service_core.py",
+    "new": "shared/utils/optimized_snowflake_cortex_service_core.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/optimized_snowflake_cortex_service_utils.py",
+    "new": "shared/utils/optimized_snowflake_cortex_service_utils.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/optimized_snowflake_cortex_service.py",
+    "new": "shared/utils/optimized_snowflake_cortex_service.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_hubspot_connector.py",
+    "new": "shared/utils/snowflake_hubspot_connector.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_cortex_service_models.py",
+    "new": "shared/utils/snowflake_cortex_service_models.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/__init__.py",
+    "new": "shared/utils/__init__.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/custom_logger.py",
+    "new": "shared/utils/custom_logger.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/enhanced_snowflake_cortex_service.py",
+    "new": "shared/utils/enhanced_snowflake_cortex_service.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_gong_connector.py",
+    "new": "shared/utils/snowflake_gong_connector.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/utils/snowflake_cortex_service_handlers.py",
+    "new": "shared/utils/snowflake_cortex_service_handlers.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/prompts/optimized_templates.py",
+    "new": "shared/prompts/optimized_templates.py",
+    "layer": "shared"
+  },
+  {
+    "old": "backend/core/config.py",
+    "new": "shared/config.py",
+    "layer": "shared"
+  }
+]

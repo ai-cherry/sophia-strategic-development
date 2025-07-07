@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-from backend.core.auto_esc_config import get_config_value
+from core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

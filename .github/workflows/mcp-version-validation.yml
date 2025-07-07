@@ -7,7 +7,7 @@ on:
       - 'config/mcp_version_management.yaml'
       - 'config/consolidated_mcp_ports.json'
       - 'mcp-servers/**'
-      - 'backend/mcp_servers/**'
+      - 'api/mcp_servers/**'
       - '.github/workflows/mcp-version-validation.yml'
 
   pull_request:
@@ -16,7 +16,7 @@ on:
       - 'config/mcp_version_management.yaml'
       - 'config/consolidated_mcp_ports.json'
       - 'mcp-servers/**'
-      - 'backend/mcp_servers/**'
+      - 'api/mcp_servers/**'
       - '.github/workflows/mcp-version-validation.yml'
 
   # Allow manual triggering

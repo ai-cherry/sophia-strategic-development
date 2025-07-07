@@ -1,0 +1,38 @@
+{
+  "api": {
+    "backend/api/": "api/",
+    "backend/fastapi_main.py": "api/main.py",
+    "backend/app/main.py": "api/app.py",
+    "backend/app/api_models.py": "api/models/",
+    "backend/presentation/": "api/serializers/"
+  },
+  "core": {
+    "backend/agents/core/": "core/agents/",
+    "backend/agents/specialized/": "core/use_cases/",
+    "backend/orchestration/": "core/workflows/",
+    "backend/application/": "core/application/",
+    "backend/services/": "core/services/",
+    "backend/workflows/": "core/workflows/"
+  },
+  "domain": {
+    "backend/models/": "domain/models/",
+    "backend/domain/": "domain/",
+    "backend/core/models/": "domain/models/"
+  },
+  "infrastructure": {
+    "backend/integrations/": "infrastructure/integrations/",
+    "backend/mcp_servers/": "infrastructure/mcp_servers/",
+    "backend/etl/": "infrastructure/etl/",
+    "backend/monitoring/": "infrastructure/monitoring/",
+    "backend/security/": "infrastructure/security/",
+    "backend/database/": "infrastructure/database/",
+    "backend/services/external/": "infrastructure/services/"
+  },
+  "shared": {
+    "backend/utils/": "shared/utils/",
+    "backend/prompts/": "shared/prompts/",
+    "backend/core/constants.py": "shared/constants.py",
+    "backend/core/config.py": "shared/config.py",
+    "backend/rag/": "shared/rag/"
+  }
+}

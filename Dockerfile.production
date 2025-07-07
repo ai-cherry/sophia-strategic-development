@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.docker.txt
 
 # Copy application code
-COPY backend/ ./backend/
+COPY api/ core/ domain/ infrastructure/ shared/ ./backend/
 COPY config/ ./config/
 
 # Set environment variables

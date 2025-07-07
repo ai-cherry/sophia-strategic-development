@@ -1,35 +1,42 @@
 {
-    "python.defaultInterpreterPath": "./.venv/bin/python",
-    "python.terminal.activateEnvironment": true,
-    "python.terminal.activateEnvInCurrentTerminal": true,
-    "terminal.integrated.env.osx": {
-        "VIRTUAL_ENV": "${workspaceFolder}/.venv",
-        "PATH": "${workspaceFolder}/.venv/bin:${env:PATH}",
-        "PYTHONPATH": "${workspaceFolder}",
-        "ENVIRONMENT": "prod",
-        "PULUMI_ORG": "scoobyjava-org",
-        "SOPHIA_HOME": "${workspaceFolder}"
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "terminal.integrated.env.osx": {
+    "VIRTUAL_ENV": "${workspaceFolder}/.venv",
+    "PATH": "${workspaceFolder}/.venv/bin:${env:PATH}",
+    "PYTHONPATH": "${workspaceFolder}",
+    "ENVIRONMENT": "prod",
+    "PULUMI_ORG": "scoobyjava-org",
+    "SOPHIA_HOME": "${workspaceFolder}"
+  },
+  "terminal.integrated.shellIntegration.enabled": false,
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/bin/zsh"
     },
-    "terminal.integrated.shellIntegration.enabled": false,
-    "terminal.integrated.profiles.osx": {
-        "zsh": {
-            "path": "/bin/zsh"
-        },
-        "Auto-VEnv": {
-            "path": "/bin/zsh",
-            "args": ["-c", "if [ -f '${workspaceFolder}/.venv/bin/activate' ]; then source '${workspaceFolder}/.venv/bin/activate' && echo '🚀 Virtual environment activated'; fi && exec /bin/zsh"]
-        }
-    },
-    "terminal.integrated.defaultProfile.osx": "zsh",
-    "terminal.integrated.automationProfile.osx": {},
-    "python.analysis.autoImportCompletions": true,
-    "python.analysis.autoSearchPaths": true,
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}"
-    ],
-    "terminal.integrated.persistentSessionReviveProcess": "onExitAndWindowClose",
-    "terminal.integrated.enablePersistentSessions": false,
-    "terminal.integrated.inheritEnv": true,
-    "python.envFile": "${workspaceFolder}/.env",
-    "editor.wordWrap": "on"
+    "Auto-VEnv": {
+      "path": "/bin/zsh",
+      "args": [
+        "-c",
+        "if [ -f '${workspaceFolder}/.venv/bin/activate' ]; then source '${workspaceFolder}/.venv/bin/activate' && echo '\ud83d\ude80 Virtual environment activated'; fi && exec /bin/zsh"
+      ]
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.automationProfile.osx": {},
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.extraPaths": [
+    "api",
+    "core",
+    "domain",
+    "infrastructure",
+    "shared"
+  ],
+  "terminal.integrated.persistentSessionReviveProcess": "onExitAndWindowClose",
+  "terminal.integrated.enablePersistentSessions": false,
+  "terminal.integrated.inheritEnv": true,
+  "python.envFile": "${workspaceFolder}/.env",
+  "editor.wordWrap": "on"
 }

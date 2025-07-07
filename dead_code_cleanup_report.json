@@ -1,0 +1,20 @@
+{
+  "timestamp": "2025-07-07T14:29:19.459439",
+  "total_identified": 315,
+  "total_removed": 222,
+  "dry_run": false,
+  "backup_dir": "dead_code_backup_20250707_142919",
+  "categories": {
+    "Startup Scripts": 8,
+    "Integration Scripts": 17,
+    "Example/Demo Files": 3,
+    "Fix/Patch Scripts": 8,
+    "Other": 222,
+    "Analysis/Diagnostic Scripts": 13,
+    "Implementation/Deploy Scripts": 10,
+    "Test Files": 20,
+    "Setup/Configuration Scripts": 5,
+    "Validation/Verification Scripts": 8,
+    "Backup/Old Files": 1
+  }
+}

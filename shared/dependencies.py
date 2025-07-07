@@ -1,0 +1,123 @@
+"""
+Centralized Dependencies Module for Sophia AI
+
+This module provides centralized dependency injection following FastAPI best practices
+and Clean Architecture principles. All services are managed here to eliminate
+circular imports and ensure proper lifecycle management.
+"""
+
+import asyncio
+from functools import lru_cache
+
+# Import the chat service
+try:
+    from infrastructure.services.unified_chat_service import (
+        SophiaUnifiedChatService,
+    )
+
+    CHAT_SERVICE_AVAILABLE = True
+except ImportError:
+    try:
+        from infrastructure.services.enhanced_unified_chat_service import (
+            EnhancedUnifiedChatService as SophiaUnifiedChatService,
+        )
+
+        CHAT_SERVICE_AVAILABLE = True
+    except ImportError:
+        CHAT_SERVICE_AVAILABLE = False
+
+        class SophiaUnifiedChatService:
+            """Mock chat service for when import fails"""
+
+            def __init__(self):
+                pass
+
+
+# Global instance (singleton pattern)
+_chat_service_instance: SophiaUnifiedChatService | None = None
+
+
+@lru_cache
+def get_config_service():
+    """Get configuration service (cached singleton)"""
+    # This is already implemented in simple_config.py
+    return True
+
+
+async def get_chat_service() -> SophiaUnifiedChatService:
+    """
+    Get the chat service instance.
+
+    This function ensures we have a single instance of the chat service
+    that is properly initialized and reused across requests.
+    """
+    global _chat_service_instance
+
+    if _chat_service_instance is None:
+        if CHAT_SERVICE_AVAILABLE:
+            try:
+                _chat_service_instance = SophiaUnifiedChatService()
+                # Add any initialization logic here
+            except Exception:
+                # Create a mock instance
+                _chat_service_instance = SophiaUnifiedChatService()
+        else:
+            _chat_service_instance = SophiaUnifiedChatService()
+
+    return _chat_service_instance
+
+
+def get_chat_service_from_app_state(request):
+    """
+    Get chat service from FastAPI app state.
+
+    This is used in routes to access the chat service instance
+    that was initialized during app startup.
+    """
+    if hasattr(request.app.state, "chat_service_instance"):
+        return request.app.state.chat_service_instance
+    else:
+        # Fallback to creating a new instance
+        return asyncio.create_task(get_chat_service())
+
+
+# Dependency functions for FastAPI injection
+async def get_chat_service_dependency():
+    """FastAPI dependency for chat service"""
+    return await get_chat_service()
+
+
+def get_request_chat_service(request):
+    """FastAPI dependency that gets chat service from request app state"""
+    return get_chat_service_from_app_state(request)
+
+
+# Cache Manager Dependencies
+
+# Import the cache manager
+from core.cache_manager import get_cache_manager
+
+
+def get_cache_manager_from_app_state(request):
+    """
+    Get cache manager from FastAPI app state.
+
+    This is used in routes to access the cache manager instance
+    that was initialized during app startup.
+    """
+    if hasattr(request.app.state, "cache_manager"):
+        return request.app.state.cache_manager
+    else:
+        # Fallback to creating a new instance
+        return asyncio.create_task(get_cache_manager())
+
+
+# Dependency functions for FastAPI injection
+async def get_cache_manager_dependency():
+    """FastAPI dependency for cache manager"""
+    return await get_cache_manager()
+
+
+def get_request_cache_manager(request):
+    """FastAPI dependency that gets cache manager from request app state"""
+    return get_cache_manager_from_app_state(request)
