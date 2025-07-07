@@ -9,8 +9,9 @@ set -euo pipefail
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-LAMBDA_LABS_HOST="${LAMBDA_LABS_HOST:-192.222.51.122}"
+LAMBDA_LABS_HOST="${LAMBDA_LABS_HOST:-146.235.230.123}"
 LAMBDA_LABS_USER="${LAMBDA_LABS_USER:-ubuntu}"
+SSH_KEY_PATH="${SSH_KEY_PATH:-~/.ssh/sophia_lambda_key}"
 DOCKER_REGISTRY="${DOCKER_REGISTRY:-scoobyjava15}"
 STACK_NAME="sophia-ai"
 COMPOSE_FILE="docker-compose.cloud.optimized.yml"
@@ -101,13 +102,13 @@ validate_environment() {
     log_info "Validating deployment environment..."
     
     # Check if running on Lambda Labs
-    if ! ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "echo 'Connection successful'" >/dev/null 2>&1; then
+    if ! ssh -i "${SSH_KEY_PATH}" -o ConnectTimeout=10 -o StrictHostKeyChecking=no "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "echo 'Connection successful'" >/dev/null 2>&1; then
         log_error "Cannot connect to Lambda Labs host: ${LAMBDA_LABS_HOST}"
         exit 1
     fi
     
     # Check Docker Swarm status
-    if ! ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "docker info --format '{{.Swarm.LocalNodeState}}'" | grep -q "active"; then
+    if ! ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "sudo docker info --format '{{.Swarm.LocalNodeState}}'" | grep -q "active"; then
         log_error "Docker Swarm is not active on Lambda Labs host"
         exit 1
     fi
@@ -125,12 +126,12 @@ validate_environment() {
 backup_current_deployment() {
     log_info "Creating backup of current deployment..."
     
-    ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
+    ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
         sudo mkdir -p ${BACKUP_DIR}
         
         # Backup current stack configuration
-        docker stack ls --format 'table {{.Name}}\t{{.Services}}' > ${BACKUP_DIR}/stack_list.txt
-        docker service ls --format 'table {{.Name}}\t{{.Mode}}\t{{.Replicas}}' > ${BACKUP_DIR}/service_list.txt
+        sudo docker stack ls --format 'table {{.Name}}\t{{.Services}}' > ${BACKUP_DIR}/stack_list.txt
+        sudo docker service ls --format 'table {{.Name}}\t{{.Mode}}\t{{.Replicas}}' > ${BACKUP_DIR}/service_list.txt
         
         # Backup current compose file if it exists
         if [[ -f /opt/sophia-ai/docker-compose.current.yml ]]; then
@@ -153,9 +154,9 @@ deploy_optimizations() {
     log_info "Deploying Phase 1 Docker optimizations..."
     
     # Copy optimized compose file to Lambda Labs
-    scp "${PROJECT_ROOT}/${COMPOSE_FILE}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}:/tmp/"
+    scp -i "${SSH_KEY_PATH}" "${PROJECT_ROOT}/${COMPOSE_FILE}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}:/tmp/"
     
-    ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
+    ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
         # Create necessary directories
         sudo mkdir -p /opt/sophia-ai/data/{postgres,redis,prometheus,grafana,traefik}
         sudo chown -R 1000:1000 /opt/sophia-ai/data/
@@ -170,7 +171,7 @@ deploy_optimizations() {
         
         # Deploy the optimized stack
         cd /opt/sophia-ai
-        docker stack deploy -c ${COMPOSE_FILE} ${STACK_NAME} --with-registry-auth
+        sudo docker stack deploy -c ${COMPOSE_FILE} ${STACK_NAME} --with-registry-auth
     "
     
     log_success "Phase 1 optimizations deployed"
@@ -187,8 +188,8 @@ validate_deployment() {
         log_info "Health check attempt $attempt/$max_attempts..."
         
         # Check service status
-        local services_ready=$(ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
-            docker service ls --filter name=${STACK_NAME} --format '{{.Name}} {{.Replicas}}' | 
+        local services_ready=$(ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
+            sudo docker service ls --filter name=${STACK_NAME} --format '{{.Name}} {{.Replicas}}' | 
             awk '{
                 split(\$2, replicas, \"/\");
                 if (replicas[1] == replicas[2] && replicas[1] > 0) ready++;
@@ -225,7 +226,7 @@ rollback_deployment() {
     log_info "Rolling back to previous deployment..."
     
     # Find the most recent backup
-    local latest_backup=$(ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
+    local latest_backup=$(ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
         ls -1t /opt/sophia-ai/backups/ | head -1
     ")
     
@@ -236,9 +237,9 @@ rollback_deployment() {
     
     log_info "Rolling back to backup: $latest_backup"
     
-    ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
+    ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "
         # Remove current stack
-        docker stack rm ${STACK_NAME}
+        sudo docker stack rm ${STACK_NAME}
         
         # Wait for stack removal
         sleep 30
@@ -249,7 +250,7 @@ rollback_deployment() {
             
             # Redeploy from backup
             cd /opt/sophia-ai
-            docker stack deploy -c docker-compose.current.yml ${STACK_NAME} --with-registry-auth
+            sudo docker stack deploy -c docker-compose.current.yml ${STACK_NAME} --with-registry-auth
         else
             echo 'No compose file found in backup, manual intervention required'
             exit 1
@@ -276,7 +277,7 @@ generate_report() {
 ## Deployment Summary
 
 ### Services Deployed
-$(ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "docker service ls --filter name=${STACK_NAME} --format 'table {{.Name}}\t{{.Mode}}\t{{.Replicas}}\t{{.Image}}'")
+$(ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "sudo docker service ls --filter name=${STACK_NAME} --format 'table {{.Name}}\t{{.Mode}}\t{{.Replicas}}\t{{.Image}}'")
 
 ### High Availability Improvements
 - **Sophia Backend**: Increased from 1 to 3 replicas
@@ -307,7 +308,7 @@ $(ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "docker service ls --filter name
 - Health check load balancing
 
 ## Validation Results
-$(ssh "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "docker stack ps ${STACK_NAME} --format 'table {{.Name}}\t{{.CurrentState}}\t{{.DesiredState}}\t{{.Error}}'")
+$(ssh -i "${SSH_KEY_PATH}" "${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}" "sudo docker stack ps ${STACK_NAME} --format 'table {{.Name}}\t{{.CurrentState}}\t{{.DesiredState}}\t{{.Error}}'")
 
 ## Next Steps
 1. Monitor service health for 24 hours
