@@ -364,19 +364,18 @@ const UnifiedDashboard = () => {
 **Primary Deployment**: Vercel (Frontend) + Lambda Labs GH200 Clusters (Backend)
 **Database**: Snowflake (Enhanced with GPU acceleration)
 **Secrets Management**: Pulumi ESC (Automated pipeline)
-**Container Orchestration**: Kubernetes on Lambda Labs GH200 clusters
+**Container Orchestration**: Docker Swarm on Lambda Labs
 **GPU Architecture**: NVIDIA GH200 (96GB HBM3e, 4.8TB/s bandwidth)
 **Memory Architecture**: 6-Tier with GPU acceleration
 **Monitoring**: Enhanced Grafana + Prometheus + GPU metrics
 
 ### Enhanced Infrastructure Components
 
-**Lambda Labs GH200 Cluster**:
-- **GPU Type**: NVIDIA GH200 with 96GB HBM3e memory
-- **Cluster Size**: 3-16 nodes with auto-scaling
-- **Kubernetes**: Managed clusters with GPU operator
-- **Auto-scaling**: Horizontal and vertical pod autoscaling
-- **Monitoring**: GPU metrics, performance tracking, cost optimization
+**Docker Swarm**:
+- **Docker Compose**: `docker-compose.cloud.yml` (single source of truth)
+- **Monitoring**: `unified_monitoring.sh`
+- **Troubleshooting**: `unified_troubleshooting.sh`
+- **Secret Sync**: `unified_secret_sync.py`
 
 **6-Tier Memory Architecture**:
 - **L0 (GPU Memory)**: 96GB HBM3e per node (<10ms latency)
