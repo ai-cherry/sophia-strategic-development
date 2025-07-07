@@ -37,7 +37,7 @@ jobs:
           submodules: recursive
 
       - name: 🐍 Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -61,7 +61,7 @@ jobs:
           password: ${{ secrets.DOCKER_PERSONAL_ACCESS_TOKEN }}
 
       - name: 🏗️ Build Core Backend Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile.production
@@ -129,7 +129,7 @@ jobs:
 
       - name: 📤 Upload Deployment Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deployment-report-${{ github.sha }}
           path: deployment-report.json
