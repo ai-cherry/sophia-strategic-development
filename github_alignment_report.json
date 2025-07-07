@@ -1,14 +1,15 @@
 {
-  "timestamp": "2025-07-07T08:44:05.366932",
+  "timestamp": "2025-07-07T08:48:17.926941",
   "repository": "ai-cherry/sophia-main",
   "analyses": {
     "workflow_redundancy": {
-      "active_workflows": 5,
+      "active_workflows": 6,
       "archived_workflows": 3,
       "workflow_files": [
         "dead-code-prevention.yml",
         "sync_secrets.yml",
         "production-deployment.yml",
+        "health-monitor.yml",
         "deploy-mcp-production.yml",
         "mcp-version-validation.yml"
       ],
@@ -45,26 +46,31 @@
     "workflow_performance": {
       "performance_analysis_success": true,
       "total_runs": 50,
-      "failure_rate": 66.0,
+      "failure_rate": 60.0,
       "workflow_stats": {
+        "\ud83d\ude80 Sophia AI Production Deployment": {
+          "total_runs": 3,
+          "failures": 2,
+          "failure_rate": 66.66666666666666
+        },
+        "Dead Code Detection & Prevention": {
+          "total_runs": 5,
+          "failures": 0,
+          "failure_rate": 0.0
+        },
+        "\ud83d\ude80 Deploy MCP Servers to Production": {
+          "total_runs": 3,
+          "failures": 2,
+          "failure_rate": 66.66666666666666
+        },
         "Dependabot Updates": {
           "total_runs": 14,
           "failures": 1,
           "failure_rate": 7.142857142857142
         },
-        "\ud83d\ude80 Sophia AI Production Deployment": {
-          "total_runs": 2,
-          "failures": 2,
-          "failure_rate": 100.0
-        },
-        "Dead Code Detection & Prevention": {
-          "total_runs": 4,
-          "failures": 0,
-          "failure_rate": 0.0
-        },
         "Sophia AI Production Deployment": {
-          "total_runs": 19,
-          "failures": 19,
+          "total_runs": 16,
+          "failures": 16,
           "failure_rate": 100.0
         },
         "MCP Version Validation": {
@@ -75,11 +81,6 @@
         "\ud83d\ude80 Unified Sophia AI Deployment": {
           "total_runs": 5,
           "failures": 5,
-          "failure_rate": 100.0
-        },
-        "\ud83d\ude80 Deploy MCP Servers to Production": {
-          "total_runs": 2,
-          "failures": 2,
           "failure_rate": 100.0
         },
         "Unified Secret Sync": {
@@ -162,7 +163,7 @@
       "category": "performance",
       "priority": "critical",
       "title": "Fix High Failure Rate",
-      "description": "Workflow failure rate: 66.0%",
+      "description": "Workflow failure rate: 60.0%",
       "action": "Investigate and fix failing workflows",
       "impact": "Reliable deployments, faster development"
     }
