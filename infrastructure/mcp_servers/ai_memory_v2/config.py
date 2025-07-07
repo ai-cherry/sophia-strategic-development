@@ -1,6 +1,16 @@
 """Configuration for ai_memory_v2 MCP server."""
 from pydantic_settings import BaseSettings
 from pydantic import Field
+import os
+from typing import Optional
+
+# Import from shared config
+try:
+    from core.auto_esc_config import get_config_value
+except ImportError:
+    # Fallback if running standalone
+    def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
+        return os.getenv(key.upper(), default)
 
 class AiMemoryV2Settings(BaseSettings):
     """Settings for ai_memory_v2 MCP server."""
@@ -39,6 +49,24 @@ class AiMemoryV2Settings(BaseSettings):
     ENABLE_AUTO_CATEGORIZATION: bool = Field(default=True, description="Auto-categorize memories")
     ENABLE_DUPLICATE_DETECTION: bool = Field(default=True, description="Detect duplicate memories")
     ENABLE_METRICS: bool = Field(default=True, description="Enable Prometheus metrics")
+    
+    # Redis Configuration
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "146.235.200.1")
+    REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
+    REDIS_PASSWORD: Optional[str] = get_config_value("redis_password") or os.getenv("REDIS_PASSWORD")
+    
+    # Snowflake Configuration (for future use)
+    SNOWFLAKE_ACCOUNT: Optional[str] = get_config_value("snowflake_account")
+    SNOWFLAKE_DATABASE: str = "SOPHIA_AI"
+    SNOWFLAKE_SCHEMA: str = "AI_MEMORY"
+    
+    # Memory Configuration
+    DEFAULT_CACHE_TTL: int = 3600  # 1 hour
+    MAX_SEARCH_RESULTS: int = 100
+    
+    # Feature Flags
+    ENABLE_SNOWFLAKE_PERSISTENCE: bool = os.getenv("ENABLE_SNOWFLAKE_PERSISTENCE", "true").lower() == "true"
+    ENABLE_VECTOR_EMBEDDINGS: bool = os.getenv("ENABLE_VECTOR_EMBEDDINGS", "false").lower() == "true"
     
     class Config:
         env_prefix = "AI_MEMORY_V2_"

@@ -98,7 +98,7 @@ class MemoryMediator:
         try:
             # Redis connection
             self.redis_client = await redis.from_url(
-                "redis://146.235.200.1:6379",
+                f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
                 password=settings.REDIS_PASSWORD,
                 encoding="utf-8",
                 decode_responses=True,
