@@ -20,6 +20,21 @@
 
 **Enhancement Phase**: January-March 2025 focused on Memory & Learning, Data Automation, and Intelligence Enhancement. See [System Handbook](docs/system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md) for the integrated plan.
 
+## 🏗️ Unified Infrastructure Approach
+
+**IMPORTANT**: Sophia AI follows a **Unified Infrastructure** pattern. All components use a "Unified" naming convention to distinguish current standards from legacy code.
+
+### Core Unified Components:
+- **Unified Chat**: Single chat interface for all AI interactions
+- **Unified Dashboard**: One dashboard component extended for all views
+- **Unified Secret Management**: Centralized GitHub → Pulumi ESC → Application flow
+- **Unified Deployment**: Single deployment approach for all environments
+- **Unified API Client**: One API client for all frontend requests
+
+See [UNIFIED_INFRASTRUCTURE.md](UNIFIED_INFRASTRUCTURE.md) for the complete list and migration guide.
+
+**Rule**: If it's not "Unified", it's legacy and should not be used for new development.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
