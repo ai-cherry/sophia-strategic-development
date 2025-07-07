@@ -265,3 +265,4 @@ docs_backup_*/
 *_legacy
 *.tmp
 *.temp
+frontend-backup-*
