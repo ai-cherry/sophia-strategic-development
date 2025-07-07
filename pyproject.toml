@@ -200,7 +200,7 @@ dev-dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["backend"]
+packages = ["api", "core", "domain", "infrastructure", "shared"]
 
 [tool.black]
 line-length = 88
@@ -251,7 +251,7 @@ pythonpath = ["."]
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["backend"]
+source = ["api", "core", "domain", "infrastructure", "shared"]
 omit = [
     "*/tests/*",
     "*/test_*",

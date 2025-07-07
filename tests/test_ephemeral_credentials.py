@@ -14,7 +14,7 @@ import sys
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from backend.security.ephemeral_credentials.models import (
+from infrastructure.security.ephemeral_credentials.models import (
     CredentialRequest,
     CredentialRevocationRequest,
     CredentialScope,
@@ -22,7 +22,7 @@ from backend.security.ephemeral_credentials.models import (
     CredentialValidationRequest,
     TokenMetadata,
 )
-from backend.security.ephemeral_credentials.service import EphemeralCredentialsService
+from infrastructure.security.ephemeral_credentials.service import EphemeralCredentialsService
 
 # Configure logging
 logging.basicConfig(

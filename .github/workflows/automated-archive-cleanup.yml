@@ -295,7 +295,7 @@ jobs:
             "requirements.txt"
             "pyproject.toml"
             ".gitignore"
-            "backend/app/fastapi_main.py"
+            "api/app/fastapi_main.py"
             "frontend/package.json"
           )
           

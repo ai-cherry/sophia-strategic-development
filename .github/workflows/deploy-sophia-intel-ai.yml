@@ -6,7 +6,7 @@ on:
     paths:
       - 'frontend/**'
       - 'admin/**'
-      - 'backend/**'
+      - 'api/**'
       - 'infrastructure/**'
       - 'scripts/deploy_sophia_intel_ai.py'
 
@@ -15,7 +15,7 @@ on:
     paths:
       - 'frontend/**'
       - 'admin/**'
-      - 'backend/**'
+      - 'api/**'
       - 'infrastructure/**'
       - 'scripts/deploy_sophia_intel_ai.py'
 
@@ -76,7 +76,7 @@ jobs:
 
       - name: Run backend tests
         run: |
-          python -m pytest backend/tests/
+          python -m pytest api/tests/
 
       - name: Run linting
         run: |
