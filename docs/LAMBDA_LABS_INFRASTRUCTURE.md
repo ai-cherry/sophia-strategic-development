@@ -1,7 +1,7 @@
 # Lambda Labs Infrastructure Documentation
 
-**Last Updated**: July 7, 2025  
-**Status**: 5 Instances Active  
+**Last Updated**: July 7, 2025
+**Status**: 5 Instances Active
 **Total Cost**: $4.83/hour ($115.92/day)
 
 ## 🏗️ Infrastructure Overview
@@ -34,7 +34,7 @@ GitHub Organization Secrets → Pulumi ESC → Backend Auto-Loading
 
 **Required Secrets in GitHub Organization (ai-cherry):**
 - `LAMBDA_API_KEY`: Lambda Labs API authentication key
-- `LAMBDA_SSH_KEY`: SSH public key for instance access  
+- `LAMBDA_SSH_KEY`: SSH public key for instance access
 - `LAMBDA_PRIVATE_SSH_KEY`: SSH private key for deployment
 - `LAMBDA_API_ENDPOINT`: https://cloud.lambda.ai/api/v1/instances
 
@@ -137,7 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Deploy to Lambda Labs
         env:
           LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
@@ -181,7 +181,7 @@ python scripts/validate_lambda_infrastructure.py
 
 # Expected output:
 # ✅ All 5 instances active
-# ✅ SSH connectivity verified  
+# ✅ SSH connectivity verified
 # ✅ Secret management operational
 # ✅ Total cost: $4.83/hour
 ```
@@ -212,7 +212,7 @@ python scripts/validate_lambda_infrastructure.py
 - [ ] Review cost reports
 - [ ] Update system packages
 
-### Monthly Tasks  
+### Monthly Tasks
 - [ ] Rotate SSH keys
 - [ ] Review instance utilization
 - [ ] Optimize costs
@@ -257,7 +257,7 @@ python -c "
 from backend.core.auto_esc_config import get_lambda_labs_config
 import requests
 config = get_lambda_labs_config()
-response = requests.get('https://cloud.lambda.ai/api/v1/instances', 
+response = requests.get('https://cloud.lambda.ai/api/v1/instances',
                        headers={'Authorization': f'Bearer {config[\"api_key\"]}'})
 print(response.json())
 "
@@ -284,7 +284,7 @@ print('✅ Secret loading successful' if get_lambda_labs_config() else '❌ Secr
 
 ---
 
-**Infrastructure Status**: ✅ OPERATIONAL  
-**Secret Management**: ✅ AUTOMATED  
-**Cost Monitoring**: ✅ ACTIVE  
-**Documentation**: ✅ CURRENT 
+**Infrastructure Status**: ✅ OPERATIONAL
+**Secret Management**: ✅ AUTOMATED
+**Cost Monitoring**: ✅ ACTIVE
+**Documentation**: ✅ CURRENT
