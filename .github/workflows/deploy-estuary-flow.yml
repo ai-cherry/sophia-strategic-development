@@ -1,0 +1,202 @@
+name: Deploy Estuary Flow
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+  
+  push:
+    branches:
+      - main
+    paths:
+      - 'config/estuary/**'
+      - 'infrastructure/mcp_servers/**/handlers/estuary_handler.py'
+      - 'scripts/deploy-estuary-flow.sh'
+
+jobs:
+  deploy-estuary:
+    name: Deploy Estuary Flow to Lambda Labs
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/lambda_labs_key
+          chmod 600 ~/.ssh/lambda_labs_key
+          
+          # Add Lambda Labs to known hosts
+          ssh-keyscan -H 146.235.200.1 >> ~/.ssh/known_hosts
+          
+          # Configure SSH
+          cat >> ~/.ssh/config << EOF
+          Host lambda-labs
+            HostName 146.235.200.1
+            User ubuntu
+            IdentityFile ~/.ssh/lambda_labs_key
+            StrictHostKeyChecking no
+          EOF
+      
+      - name: Deploy to Lambda Labs
+        env:
+          # Pass all organization secrets to the deployment
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          ESTUARY_API_KEY: ${{ secrets.ESTUARY_API_KEY }}
+          ESTUARY_API_SECRET: ${{ secrets.ESTUARY_API_SECRET }}
+          GONG_WEBHOOK_SECRET: ${{ secrets.GONG_WEBHOOK_SECRET }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+        run: |
+          echo "🚀 Deploying Estuary Flow to Lambda Labs..."
+          
+          # Copy deployment script to Lambda Labs
+          scp scripts/cloud-deploy-estuary.sh lambda-labs:~/
+          
+          # Execute deployment with environment variables
+          ssh lambda-labs << 'EOF'
+          # Export all the secrets passed from GitHub
+          export PULUMI_ACCESS_TOKEN="${{ secrets.PULUMI_ACCESS_TOKEN }}"
+          export PULUMI_ORG=scoobyjava-org
+          export ENVIRONMENT=production
+          
+          # Estuary credentials (if available)
+          export ESTUARY_API_KEY="${{ secrets.ESTUARY_API_KEY }}"
+          export ESTUARY_API_SECRET="${{ secrets.ESTUARY_API_SECRET }}"
+          
+          # Run the cloud deployment
+          chmod +x ~/cloud-deploy-estuary.sh
+          ~/cloud-deploy-estuary.sh
+          EOF
+      
+      - name: Verify Deployment
+        run: |
+          echo "🔍 Verifying Estuary deployment..."
+          
+          ssh lambda-labs << 'EOF'
+          # Check flowctl installation
+          if command -v flowctl &> /dev/null; then
+              echo "✅ flowctl installed"
+              flowctl version || true
+          else
+              echo "❌ flowctl not found"
+          fi
+          
+          # Check Estuary flows (if authenticated)
+          if flowctl auth test &>/dev/null; then
+              echo ""
+              echo "📊 Active Estuary flows:"
+              flowctl flows list --prefix sophia-ai/ || echo "No flows found"
+          else
+              echo "⚠️  Estuary not authenticated yet"
+          fi
+          
+          # Check MCP server health
+          echo ""
+          echo "🏥 MCP Server Health:"
+          for port in 9000 9001 9002 9003 9004 9005 9006 9007 9008 9009; do
+              if curl -s -f http://localhost:$port/health > /dev/null 2>&1; then
+                  echo "✅ Port $port - healthy"
+              else
+                  echo "❌ Port $port - not responding"
+              fi
+          done
+          EOF
+      
+      - name: Post to Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Estuary Flow Deployment: ${{ job.status }}
+            Environment: ${{ github.event.inputs.environment || 'production' }}
+            Triggered by: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Create GitHub Issue on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Estuary Flow Deployment Failed - ${new Date().toISOString()}`,
+              body: `## Deployment Failure
+              
+              **Environment:** ${{ github.event.inputs.environment || 'production' }}
+              **Triggered by:** ${{ github.actor }}
+              **Workflow run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+              
+              Please check the workflow logs for details.`,
+              labels: ['bug', 'deployment', 'estuary']
+            });
+            console.log(`Created issue #${issue.data.number}`);
+
+  test-webhooks:
+    name: Test Estuary Webhooks
+    runs-on: ubuntu-latest
+    needs: deploy-estuary
+    if: success()
+    
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/lambda_labs_key
+          chmod 600 ~/.ssh/lambda_labs_key
+          ssh-keyscan -H 146.235.200.1 >> ~/.ssh/known_hosts
+          
+      - name: Test Webhooks
+        run: |
+          echo "🧪 Testing Estuary webhooks..."
+          
+          ssh -i ~/.ssh/lambda_labs_key ubuntu@146.235.200.1 << 'EOF'
+          # Load environment
+          cd ~/sophia-main
+          eval $(pulumi env open scoobyjava-org/default/sophia-ai-production --format=shell 2>/dev/null || true)
+          
+          # Test Gong webhook
+          echo "Testing Gong webhook..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST http://localhost:9009/estuary/webhook \
+            -H "Authorization: Bearer ${ESTUARY_GONG_TOKEN:-test-token}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "id": "test-'$(date +%s)'",
+              "type": "call_completed",
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+              "data": {
+                "call_id": "test-call-'$(date +%s)'",
+                "duration": 1800,
+                "sentiment": 0.75,
+                "topics": ["test"],
+                "transcript": "Test webhook from GitHub Actions"
+              }
+            }')
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Gong webhook test passed"
+              echo "Response: $BODY"
+          else
+              echo "❌ Gong webhook test failed (HTTP $HTTP_CODE)"
+              echo "Response: $BODY"
+          fi
+          EOF 
