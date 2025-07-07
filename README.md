@@ -272,3 +272,28 @@ MIT License - see [LICENSE](LICENSE) for details.
 - **May**: Production Optimization
 - **June**: Team Onboarding
 # Last deployment: Sun Jul  6 04:36:37 PM UTC 2025
+
+## 🏗️ Unified Infrastructure
+
+The Sophia AI platform now uses a unified naming convention and deployment strategy:
+
+### Cloud-First Architecture
+- **Docker Hub Registry**: All images pushed to `scoobyjava15/*`
+- **Docker Swarm**: Current orchestration (simple, effective)
+- **K3s**: Next migration target (lightweight Kubernetes)
+- **Kubernetes**: Future enterprise scale
+
+### Unified Scripts
+- `unified_deployment.sh` - Main deployment script
+- `unified_docker_hub_push.sh` - Build and push to Docker Hub
+- `unified_docker_secrets.sh` - Docker secrets management
+- `unified_monitoring.sh` - Service monitoring
+- `unified_troubleshooting.sh` - Debugging tools
+- `scripts/unified_secret_sync.py` - GitHub → Pulumi ESC sync
+
+### Unified Documentation
+- `UNIFIED_INFRASTRUCTURE.md` - Complete infrastructure guide
+- `UNIFIED_ORCHESTRATION_MIGRATION_PLAN.md` - Swarm → K3s → K8s
+- `UNIFIED_SECRET_MANAGEMENT_STRATEGY.md` - Secret management
+- `UNIFIED_DEPLOYMENT_STRATEGY.md` - Deployment patterns
+- `UNIFIED_DEPLOYMENT_AUDIT_RESOLUTION.md` - Audit resolution

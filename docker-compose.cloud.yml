@@ -126,7 +126,7 @@ services:
       - SNOWFLAKE_SCHEMA=PUBLIC
     ports:
       - target: 8080
-        published: 8080
+        published: 8081
         mode: ingress
     secrets:
       - snowflake_account
@@ -161,46 +161,46 @@ services:
       - "traefik.http.routers.cortex-server.rule=Host(`cortex.sophia-ai.lambda.cloud`)"
       - "traefik.http.routers.cortex-server.tls=true"
 
-  # V0.dev MCP Server - AI-driven UI component generation
-  v0dev-server:
-    image: ghcr.io/v0-services/v0-server:latest
-    networks:
-      - sophia-overlay
-    secrets:
-      - VERCEL_ACCESS_TOKEN
-    environment:
-      - VERCEL_ACCESS_TOKEN_FILE=/run/secrets/VERCEL_ACCESS_TOKEN
-      - ENVIRONMENT=prod
-      - PULUMI_ORG=scoobyjava-org
-      - LOG_LEVEL=INFO
-    ports:
-      - "9030:9030"
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: stop-first
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9030/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.v0dev-server.rule=Host(`v0dev.sophia-ai.lambda.cloud`)"
-      - "traefik.http.routers.v0dev-server.tls=true"
-      - "traefik.http.routers.v0dev-server.tls.certresolver=le"
-      - "traefik.http.services.v0dev-server.loadbalancer.server.port=9030"
+  # V0.dev MCP Server - Commented out for now
+  # v0dev-server:
+  #   image: ghcr.io/v0-services/v0-server:latest
+  #   networks:
+  #     - sophia-overlay
+  #   secrets:
+  #     - VERCEL_ACCESS_TOKEN
+  #   environment:
+  #     - VERCEL_ACCESS_TOKEN_FILE=/run/secrets/VERCEL_ACCESS_TOKEN
+  #     - ENVIRONMENT=prod
+  #     - PULUMI_ORG=scoobyjava-org
+  #     - LOG_LEVEL=INFO
+  #   ports:
+  #     - "9030:9030"
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       constraints:
+  #         - node.role == manager
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #       window: 120s
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 10s
+  #       order: stop-first
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:9030/health"]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 3
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.v0dev-server.rule=Host(`v0dev.sophia-ai.lambda.cloud`)"
+  #     - "traefik.http.routers.v0dev-server.tls=true"
+  #     - "traefik.http.routers.v0dev-server.tls.certresolver=le"
+  #     - "traefik.http.services.v0dev-server.loadbalancer.server.port=9030"
 
   # Redis - Distributed caching across Lambda Labs
   redis:
