@@ -1,12 +1,13 @@
 {
-  "timestamp": "2025-07-07T08:48:17.926941",
+  "timestamp": "2025-07-07T08:54:02.141789",
   "repository": "ai-cherry/sophia-main",
   "analyses": {
     "workflow_redundancy": {
-      "active_workflows": 6,
+      "active_workflows": 7,
       "archived_workflows": 3,
       "workflow_files": [
         "dead-code-prevention.yml",
+        "automated-archive-cleanup.yml",
         "sync_secrets.yml",
         "production-deployment.yml",
         "health-monitor.yml",
@@ -49,19 +50,19 @@
       "failure_rate": 60.0,
       "workflow_stats": {
         "\ud83d\ude80 Sophia AI Production Deployment": {
-          "total_runs": 3,
-          "failures": 2,
-          "failure_rate": 66.66666666666666
+          "total_runs": 5,
+          "failures": 5,
+          "failure_rate": 100.0
         },
         "Dead Code Detection & Prevention": {
-          "total_runs": 5,
+          "total_runs": 7,
           "failures": 0,
           "failure_rate": 0.0
         },
         "\ud83d\ude80 Deploy MCP Servers to Production": {
           "total_runs": 3,
-          "failures": 2,
-          "failure_rate": 66.66666666666666
+          "failures": 3,
+          "failure_rate": 100.0
         },
         "Dependabot Updates": {
           "total_runs": 14,
@@ -69,8 +70,8 @@
           "failure_rate": 7.142857142857142
         },
         "Sophia AI Production Deployment": {
-          "total_runs": 16,
-          "failures": 16,
+          "total_runs": 12,
+          "failures": 12,
           "failure_rate": 100.0
         },
         "MCP Version Validation": {
@@ -90,6 +91,26 @@
         }
       },
       "recent_failures": [
+        {
+          "workflow": "\ud83d\ude80 Sophia AI Production Deployment",
+          "id": 16112364990,
+          "created_at": "2025-07-07T08:51:14Z"
+        },
+        {
+          "workflow": "\ud83d\ude80 Sophia AI Production Deployment",
+          "id": 16112317270,
+          "created_at": "2025-07-07T08:49:03Z"
+        },
+        {
+          "workflow": "\ud83d\ude80 Sophia AI Production Deployment",
+          "id": 16112293651,
+          "created_at": "2025-07-07T08:47:58Z"
+        },
+        {
+          "workflow": "\ud83d\ude80 Deploy MCP Servers to Production",
+          "id": 16112293632,
+          "created_at": "2025-07-07T08:47:58Z"
+        },
         {
           "workflow": "\ud83d\ude80 Sophia AI Production Deployment",
           "id": 16112154914,
@@ -118,26 +139,6 @@
         {
           "workflow": "MCP Version Validation",
           "id": 16111963472,
-          "created_at": "2025-07-07T08:32:18Z"
-        },
-        {
-          "workflow": "\ud83d\ude80 Unified Sophia AI Deployment",
-          "id": 16111963458,
-          "created_at": "2025-07-07T08:32:18Z"
-        },
-        {
-          "workflow": "\ud83d\ude80 Deploy MCP Servers to Production",
-          "id": 16111963455,
-          "created_at": "2025-07-07T08:32:18Z"
-        },
-        {
-          "workflow": "\ud83d\ude80 Sophia AI Production Deployment",
-          "id": 16111963448,
-          "created_at": "2025-07-07T08:32:18Z"
-        },
-        {
-          "workflow": "Unified Secret Sync",
-          "id": 16111963446,
           "created_at": "2025-07-07T08:32:18Z"
         }
       ],
