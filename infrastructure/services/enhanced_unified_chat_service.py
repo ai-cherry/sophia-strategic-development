@@ -8,17 +8,17 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
 
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
-    EnhancedAiMemoryMCPServer,
-)
-from infrastructure.services.code_modification_service import CodeModificationService
-from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 from core.services.sophia_intent_engine import (
     CodeModificationIntent,
     InfrastructureIntent,
     IntentCategory,
     SophiaIntentEngine,
 )
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
+from infrastructure.services.code_modification_service import CodeModificationService
+from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 from infrastructure.services.unified_chat_service import (
     ChatContext,
     ChatResponse,

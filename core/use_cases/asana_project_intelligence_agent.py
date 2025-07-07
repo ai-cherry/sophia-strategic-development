@@ -22,7 +22,9 @@ from enum import Enum
 from typing import Any
 
 from core.agents.langgraph_agent_base import LangGraphAgentBase
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 from infrastructure.services.unified_llm_service import get_unified_llm_service
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 

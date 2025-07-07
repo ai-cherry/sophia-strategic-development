@@ -21,7 +21,9 @@ from infrastructure.security.ephemeral_credentials.models import (
     CredentialValidationResponse,
     TokenMetadata,
 )
-from infrastructure.security.ephemeral_credentials.service import EphemeralCredentialsService
+from infrastructure.security.ephemeral_credentials.service import (
+    EphemeralCredentialsService,
+)
 from infrastructure.security.rbac.dependencies import (
     get_current_user,
     require_permission,

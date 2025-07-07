@@ -4,7 +4,9 @@ import asyncio
 import logging
 
 from core.agents.base_agent import BaseAgent, Task
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # Assuming an MCP orchestrator exists to call other MCPs

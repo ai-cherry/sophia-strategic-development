@@ -7,7 +7,9 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from infrastructure.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
+from infrastructure.services.enhanced_unified_chat_service import (
+    EnhancedUnifiedChatService,
+)
 from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 
 # Security

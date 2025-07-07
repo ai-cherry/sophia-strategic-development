@@ -46,7 +46,9 @@ except ImportError:
     END = None
 
 from core.use_cases.sales_coach_agent import SalesCoachAgent
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
 from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector

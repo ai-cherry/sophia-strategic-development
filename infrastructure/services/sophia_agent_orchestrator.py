@@ -20,6 +20,7 @@ from shared.utils.custom_logger import logger
 
 class AgentType(Enum):
     """Agent types for specialized task handling"""
+
     SOPHIA_INTELLIGENCE = "sophia_intelligence"
     BUSINESS_INTELLIGENCE = "business_intelligence"
     CODE_DEVELOPMENT = "code_development"
@@ -30,6 +31,7 @@ class AgentType(Enum):
 
 class WorkflowStage(Enum):
     """Workflow stages for agent handoffs"""
+
     INTENT_CLASSIFICATION = "intent_classification"
     CONTEXT_RETRIEVAL = "context_retrieval"
     TASK_EXECUTION = "task_execution"
@@ -40,6 +42,7 @@ class WorkflowStage(Enum):
 @dataclass
 class AgentHandoff:
     """Agent handoff configuration"""
+
     from_agent: AgentType
     to_agent: AgentType
     stage: WorkflowStage
@@ -50,6 +53,7 @@ class AgentHandoff:
 @dataclass
 class WorkflowResult:
     """Result from agent workflow execution"""
+
     success: bool
     result: Any
     metadata: dict[str, Any]
@@ -87,17 +91,19 @@ class SophiaAgentOrchestrator:
                     to_agent=AgentType.CODE_DEVELOPMENT,
                     stage=WorkflowStage.INTENT_CLASSIFICATION,
                     condition="task_type == 'code_generation'",
-                    data_transfer={"context": "foundation_tier", "complexity": "moderate"}
+                    data_transfer={
+                        "context": "foundation_tier",
+                        "complexity": "moderate",
+                    },
                 ),
                 AgentHandoff(
                     from_agent=AgentType.CODE_DEVELOPMENT,
                     to_agent=AgentType.INTEGRATION,
                     stage=WorkflowStage.QUALITY_VALIDATION,
                     condition="requires_quality_check",
-                    data_transfer={"code": "generated_code", "tests": "test_cases"}
-                )
+                    data_transfer={"code": "generated_code", "tests": "test_cases"},
+                ),
             ],
-
             # Business Intelligence Workflow
             "business_intelligence": [
                 AgentHandoff(
@@ -105,17 +111,19 @@ class SophiaAgentOrchestrator:
                     to_agent=AgentType.RESEARCH,
                     stage=WorkflowStage.CONTEXT_RETRIEVAL,
                     condition="requires_external_data",
-                    data_transfer={"query": "research_query", "sources": "data_sources"}
+                    data_transfer={
+                        "query": "research_query",
+                        "sources": "data_sources",
+                    },
                 ),
                 AgentHandoff(
                     from_agent=AgentType.RESEARCH,
                     to_agent=AgentType.BUSINESS_INTELLIGENCE,
                     stage=WorkflowStage.TASK_EXECUTION,
                     condition="data_collected",
-                    data_transfer={"data": "research_data", "insights": "key_insights"}
-                )
+                    data_transfer={"data": "research_data", "insights": "key_insights"},
+                ),
             ],
-
             # Infrastructure Management Workflow
             "infrastructure": [
                 AgentHandoff(
@@ -123,17 +131,22 @@ class SophiaAgentOrchestrator:
                     to_agent=AgentType.INFRASTRUCTURE,
                     stage=WorkflowStage.INTENT_CLASSIFICATION,
                     condition="task_type == 'infrastructure_management'",
-                    data_transfer={"scope": "infrastructure_scope", "risk_level": "high"}
+                    data_transfer={
+                        "scope": "infrastructure_scope",
+                        "risk_level": "high",
+                    },
                 ),
                 AgentHandoff(
                     from_agent=AgentType.INFRASTRUCTURE,
                     to_agent=AgentType.INTEGRATION,
                     stage=WorkflowStage.QUALITY_VALIDATION,
                     condition="requires_validation",
-                    data_transfer={"changes": "infrastructure_changes", "tests": "validation_tests"}
-                )
+                    data_transfer={
+                        "changes": "infrastructure_changes",
+                        "tests": "validation_tests",
+                    },
+                ),
             ],
-
             # Research and Analysis Workflow
             "research_analysis": [
                 AgentHandoff(
@@ -141,16 +154,19 @@ class SophiaAgentOrchestrator:
                     to_agent=AgentType.RESEARCH,
                     stage=WorkflowStage.CONTEXT_RETRIEVAL,
                     condition="requires_comprehensive_research",
-                    data_transfer={"query": "research_scope", "depth": "comprehensive"}
+                    data_transfer={"query": "research_scope", "depth": "comprehensive"},
                 ),
                 AgentHandoff(
                     from_agent=AgentType.RESEARCH,
                     to_agent=AgentType.BUSINESS_INTELLIGENCE,
                     stage=WorkflowStage.RESPONSE_SYNTHESIS,
                     condition="analysis_required",
-                    data_transfer={"raw_data": "research_results", "context": "business_context"}
-                )
-            ]
+                    data_transfer={
+                        "raw_data": "research_results",
+                        "context": "business_context",
+                    },
+                ),
+            ],
         }
 
     def _init_mcp_servers(self) -> dict[str, dict[str, Any]]:
@@ -160,59 +176,84 @@ class SophiaAgentOrchestrator:
             "ai_memory": {
                 "port": 9000,
                 "agent_type": AgentType.SOPHIA_INTELLIGENCE,
-                "capabilities": ["memory_storage", "context_retrieval", "pattern_matching"]
+                "capabilities": [
+                    "memory_storage",
+                    "context_retrieval",
+                    "pattern_matching",
+                ],
             },
             "codacy": {
                 "port": 3008,
                 "agent_type": AgentType.CODE_DEVELOPMENT,
-                "capabilities": ["code_quality", "security_analysis", "refactoring"]
+                "capabilities": ["code_quality", "security_analysis", "refactoring"],
             },
             "github": {
                 "port": 9003,
                 "agent_type": AgentType.CODE_DEVELOPMENT,
-                "capabilities": ["repository_management", "pr_creation", "code_review"]
+                "capabilities": ["repository_management", "pr_creation", "code_review"],
             },
-
             # Business Intelligence Servers
             "hubspot": {
                 "port": 9006,
                 "agent_type": AgentType.BUSINESS_INTELLIGENCE,
-                "capabilities": ["crm_data", "sales_analytics", "customer_insights"]
+                "capabilities": ["crm_data", "sales_analytics", "customer_insights"],
             },
             "gong": {
                 "port": 9007,
                 "agent_type": AgentType.BUSINESS_INTELLIGENCE,
-                "capabilities": ["call_analysis", "conversation_intelligence", "sales_coaching"]
+                "capabilities": [
+                    "call_analysis",
+                    "conversation_intelligence",
+                    "sales_coaching",
+                ],
             },
             "slack": {
                 "port": 9005,
                 "agent_type": AgentType.INTEGRATION,
-                "capabilities": ["team_communication", "notification_management", "workflow_integration"]
+                "capabilities": [
+                    "team_communication",
+                    "notification_management",
+                    "workflow_integration",
+                ],
             },
-
             # Infrastructure Servers
             "lambda_labs": {
                 "port": 9012,
                 "agent_type": AgentType.INFRASTRUCTURE,
-                "capabilities": ["gpu_management", "instance_scaling", "resource_optimization"]
+                "capabilities": [
+                    "gpu_management",
+                    "instance_scaling",
+                    "resource_optimization",
+                ],
             },
             "pulumi": {
                 "port": 9011,
                 "agent_type": AgentType.INFRASTRUCTURE,
-                "capabilities": ["infrastructure_as_code", "deployment_management", "configuration_management"]
+                "capabilities": [
+                    "infrastructure_as_code",
+                    "deployment_management",
+                    "configuration_management",
+                ],
             },
-
             # Research and Integration Servers
             "portkey_admin": {
                 "port": 9013,
                 "agent_type": AgentType.RESEARCH,
-                "capabilities": ["llm_routing", "model_optimization", "cost_management"]
+                "capabilities": [
+                    "llm_routing",
+                    "model_optimization",
+                    "cost_management",
+                ],
             },
             "openrouter_search": {
                 "port": 9014,
                 "agent_type": AgentType.RESEARCH,
-                "capabilities": ["model_selection", "performance_optimization", "cost_analysis"]
-            }
+                "capabilities": [
+                    "model_selection",
+                    "performance_optimization",
+                    "cost_analysis",
+                ],
+            },
         }
 
     async def execute_workflow(
@@ -220,17 +261,17 @@ class SophiaAgentOrchestrator:
         user_input: str,
         workflow_type: str,
         context: dict[str, Any] | None = None,
-        parallel_execution: bool = True
+        parallel_execution: bool = True,
     ) -> WorkflowResult:
         """
         Execute multi-agent workflow with intelligent routing
-        
+
         Args:
             user_input: User's request
             workflow_type: Type of workflow to execute
             context: Additional context for the workflow
             parallel_execution: Whether to enable parallel agent execution
-            
+
         Returns:
             WorkflowResult with execution details and results
         """
@@ -245,8 +286,7 @@ class SophiaAgentOrchestrator:
 
             # Step 2: Load appropriate documentation context
             documentation_context = await self._load_documentation_context(
-                intent_result["complexity"],
-                intent_result["task_type"]
+                intent_result["complexity"], intent_result["task_type"]
             )
 
             # Step 3: Execute workflow based on classification
@@ -259,9 +299,9 @@ class SophiaAgentOrchestrator:
                 {
                     "intent": intent_result,
                     "documentation": documentation_context,
-                    **(context or {})
+                    **(context or {}),
                 },
-                parallel_execution
+                parallel_execution,
             )
 
             agent_chain.extend(workflow_result["agent_chain"])
@@ -269,9 +309,7 @@ class SophiaAgentOrchestrator:
 
             # Step 4: Response Synthesis
             final_result = await self._synthesize_response(
-                workflow_result["results"],
-                intent_result,
-                user_input
+                workflow_result["results"], intent_result, user_input
             )
 
             execution_time = time.time() - start_time
@@ -287,11 +325,13 @@ class SophiaAgentOrchestrator:
                 metadata={
                     "workflow_type": workflow_type,
                     "intent": intent_result,
-                    "execution_mode": "parallel" if parallel_execution else "sequential"
+                    "execution_mode": "parallel"
+                    if parallel_execution
+                    else "sequential",
                 },
                 execution_time=execution_time,
                 agent_chain=agent_chain,
-                token_usage=token_usage
+                token_usage=token_usage,
             )
 
         except Exception as e:
@@ -308,30 +348,28 @@ class SophiaAgentOrchestrator:
                 metadata={"error": str(e), "workflow_type": workflow_type},
                 execution_time=execution_time,
                 agent_chain=agent_chain,
-                token_usage=token_usage
+                token_usage=token_usage,
             )
 
     async def _classify_intent(self, user_input: str) -> dict[str, Any]:
         """Classify user intent using Snowflake Cortex"""
         classification_prompt = f"""
         Classify this user request for the Sophia AI system:
-        
+
         Request: {user_input}
-        
+
         Classify:
         1. Task complexity: simple, moderate, complex, architecture
         2. Task type: code_generation, business_intelligence, infrastructure, research, integration
         3. Required agents: List of agent types needed
         4. Parallel execution: Whether tasks can be executed in parallel
-        
+
         Return JSON format.
         """
 
         result = ""
         async for chunk in self.llm_service.complete(
-            classification_prompt,
-            TaskType.BUSINESS_INTELLIGENCE,
-            stream=False
+            classification_prompt, TaskType.BUSINESS_INTELLIGENCE, stream=False
         ):
             result += chunk
 
@@ -343,7 +381,7 @@ class SophiaAgentOrchestrator:
                 "task_complexity": "moderate",
                 "task_type": "code_generation",
                 "required_agents": ["sophia_intelligence", "code_development"],
-                "parallel_execution": True
+                "parallel_execution": True,
             }
 
     async def _load_documentation_context(
@@ -375,7 +413,7 @@ class SophiaAgentOrchestrator:
         workflow: list[AgentHandoff],
         user_input: str,
         context: dict[str, Any],
-        parallel_execution: bool
+        parallel_execution: bool,
     ) -> dict[str, Any]:
         """Execute agent chain with handoffs"""
         results = {}
@@ -395,10 +433,12 @@ class SophiaAgentOrchestrator:
 
             # Execute parallel tasks
             if parallel_tasks:
-                parallel_results = await asyncio.gather(*[
-                    self._execute_agent_task(handoff, user_input, context)
-                    for handoff in parallel_tasks
-                ])
+                parallel_results = await asyncio.gather(
+                    *[
+                        self._execute_agent_task(handoff, user_input, context)
+                        for handoff in parallel_tasks
+                    ]
+                )
 
                 for i, result in enumerate(parallel_results):
                     agent_name = parallel_tasks[i].to_agent.value
@@ -408,7 +448,9 @@ class SophiaAgentOrchestrator:
 
             # Execute sequential tasks
             for handoff in sequential_tasks:
-                result = await self._execute_agent_task(handoff, user_input, {**context, **results})
+                result = await self._execute_agent_task(
+                    handoff, user_input, {**context, **results}
+                )
                 agent_name = handoff.to_agent.value
                 results[agent_name] = result
                 agent_chain.append(agent_name)
@@ -416,7 +458,9 @@ class SophiaAgentOrchestrator:
         else:
             # Sequential execution
             for handoff in workflow:
-                result = await self._execute_agent_task(handoff, user_input, {**context, **results})
+                result = await self._execute_agent_task(
+                    handoff, user_input, {**context, **results}
+                )
                 agent_name = handoff.to_agent.value
                 results[agent_name] = result
                 agent_chain.append(agent_name)
@@ -425,7 +469,7 @@ class SophiaAgentOrchestrator:
         return {
             "results": results,
             "agent_chain": agent_chain,
-            "token_usage": token_usage
+            "token_usage": token_usage,
         }
 
     async def _execute_agent_task(
@@ -454,10 +498,10 @@ class SophiaAgentOrchestrator:
         """Execute Sophia Intelligence agent task"""
         prompt = f"""
         As Sophia AI's central intelligence, analyze this request:
-        
+
         User Input: {user_input}
         Context: {json.dumps(context, indent=2)}
-        
+
         Provide:
         1. Detailed analysis
         2. Recommended approach
@@ -467,9 +511,7 @@ class SophiaAgentOrchestrator:
 
         result = ""
         async for chunk in self.llm_service.complete(
-            prompt,
-            TaskType.BUSINESS_INTELLIGENCE,
-            stream=False
+            prompt, TaskType.BUSINESS_INTELLIGENCE, stream=False
         ):
             result += chunk
 
@@ -477,7 +519,7 @@ class SophiaAgentOrchestrator:
             "agent": "sophia_intelligence",
             "result": result,
             "token_usage": len(prompt.split()) + len(result.split()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def _execute_code_development_task(
@@ -486,10 +528,10 @@ class SophiaAgentOrchestrator:
         """Execute Code Development agent task"""
         prompt = f"""
         As a code development specialist, handle this request:
-        
+
         Request: {user_input}
         Context: {json.dumps(context, indent=2)}
-        
+
         Generate:
         1. Code implementation
         2. Tests
@@ -499,9 +541,7 @@ class SophiaAgentOrchestrator:
 
         result = ""
         async for chunk in self.llm_service.complete(
-            prompt,
-            TaskType.CODE_GENERATION,
-            stream=False
+            prompt, TaskType.CODE_GENERATION, stream=False
         ):
             result += chunk
 
@@ -509,7 +549,7 @@ class SophiaAgentOrchestrator:
             "agent": "code_development",
             "result": result,
             "token_usage": len(prompt.split()) + len(result.split()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def _execute_business_intelligence_task(
@@ -518,10 +558,10 @@ class SophiaAgentOrchestrator:
         """Execute Business Intelligence agent task"""
         prompt = f"""
         As a business intelligence specialist, analyze:
-        
+
         Request: {user_input}
         Context: {json.dumps(context, indent=2)}
-        
+
         Provide:
         1. Business insights
         2. Data analysis
@@ -531,9 +571,7 @@ class SophiaAgentOrchestrator:
 
         result = ""
         async for chunk in self.llm_service.complete(
-            prompt,
-            TaskType.BUSINESS_INTELLIGENCE,
-            stream=False
+            prompt, TaskType.BUSINESS_INTELLIGENCE, stream=False
         ):
             result += chunk
 
@@ -541,7 +579,7 @@ class SophiaAgentOrchestrator:
             "agent": "business_intelligence",
             "result": result,
             "token_usage": len(prompt.split()) + len(result.split()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def _execute_infrastructure_task(
@@ -550,10 +588,10 @@ class SophiaAgentOrchestrator:
         """Execute Infrastructure agent task"""
         prompt = f"""
         As an infrastructure specialist, handle:
-        
+
         Request: {user_input}
         Context: {json.dumps(context, indent=2)}
-        
+
         Provide:
         1. Infrastructure analysis
         2. Deployment strategy
@@ -563,9 +601,7 @@ class SophiaAgentOrchestrator:
 
         result = ""
         async for chunk in self.llm_service.complete(
-            prompt,
-            TaskType.DATA_ANALYSIS,
-            stream=False
+            prompt, TaskType.DATA_ANALYSIS, stream=False
         ):
             result += chunk
 
@@ -573,7 +609,7 @@ class SophiaAgentOrchestrator:
             "agent": "infrastructure",
             "result": result,
             "token_usage": len(prompt.split()) + len(result.split()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def _execute_research_task(
@@ -582,10 +618,10 @@ class SophiaAgentOrchestrator:
         """Execute Research agent task"""
         prompt = f"""
         As a research specialist, investigate:
-        
+
         Request: {user_input}
         Context: {json.dumps(context, indent=2)}
-        
+
         Provide:
         1. Research findings
         2. Market analysis
@@ -595,9 +631,7 @@ class SophiaAgentOrchestrator:
 
         result = ""
         async for chunk in self.llm_service.complete(
-            prompt,
-            TaskType.DOCUMENT_SUMMARY,
-            stream=False
+            prompt, TaskType.DOCUMENT_SUMMARY, stream=False
         ):
             result += chunk
 
@@ -605,7 +639,7 @@ class SophiaAgentOrchestrator:
             "agent": "research",
             "result": result,
             "token_usage": len(prompt.split()) + len(result.split()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def _execute_integration_task(
@@ -614,10 +648,10 @@ class SophiaAgentOrchestrator:
         """Execute Integration agent task"""
         prompt = f"""
         As an integration specialist, handle:
-        
+
         Request: {user_input}
         Context: {json.dumps(context, indent=2)}
-        
+
         Provide:
         1. Integration strategy
         2. API connections
@@ -627,9 +661,7 @@ class SophiaAgentOrchestrator:
 
         result = ""
         async for chunk in self.llm_service.complete(
-            prompt,
-            TaskType.CODE_GENERATION,
-            stream=False
+            prompt, TaskType.CODE_GENERATION, stream=False
         ):
             result += chunk
 
@@ -637,7 +669,7 @@ class SophiaAgentOrchestrator:
             "agent": "integration",
             "result": result,
             "token_usage": len(prompt.split()) + len(result.split()),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def _synthesize_response(
@@ -646,19 +678,17 @@ class SophiaAgentOrchestrator:
         """Synthesize final response from agent results"""
         synthesis_prompt = f"""
         Synthesize a comprehensive response from these agent results:
-        
+
         Original Request: {user_input}
         Intent: {json.dumps(intent, indent=2)}
         Agent Results: {json.dumps(results, indent=2)}
-        
+
         Create a unified, actionable response that addresses the user's request.
         """
 
         result = ""
         async for chunk in self.llm_service.complete(
-            synthesis_prompt,
-            TaskType.CHAT_CONVERSATION,
-            stream=False
+            synthesis_prompt, TaskType.CHAT_CONVERSATION, stream=False
         ):
             result += chunk
 
@@ -670,6 +700,7 @@ class SophiaAgentOrchestrator:
             from infrastructure.services.documentation_loader_service import (
                 DocumentationLoaderService,
             )
+
             loader = DocumentationLoaderService()
             await loader.initialize()
             return loader
@@ -686,7 +717,7 @@ class SophiaAgentOrchestrator:
                 "total_executions": 0,
                 "successful_executions": 0,
                 "average_execution_time": 0,
-                "total_token_usage": 0
+                "total_token_usage": 0,
             }
 
         metrics = self.performance_metrics[workflow_type]
@@ -697,9 +728,9 @@ class SophiaAgentOrchestrator:
 
         # Update running averages
         metrics["average_execution_time"] = (
-            (metrics["average_execution_time"] * (metrics["total_executions"] - 1) + execution_time)
-            / metrics["total_executions"]
-        )
+            metrics["average_execution_time"] * (metrics["total_executions"] - 1)
+            + execution_time
+        ) / metrics["total_executions"]
 
         metrics["total_token_usage"] += token_usage
 
@@ -710,7 +741,7 @@ class SophiaAgentOrchestrator:
             "workflow_metrics": self.performance_metrics,
             "available_workflows": list(self.agent_workflows.keys()),
             "mcp_servers": len(self.mcp_servers),
-            "llm_service_status": self.llm_service.initialized
+            "llm_service_status": self.llm_service.initialized,
         }
 
     async def health_check(self) -> dict[str, Any]:
@@ -724,9 +755,9 @@ class SophiaAgentOrchestrator:
                 "Parallel agent execution",
                 "Intelligent documentation loading",
                 "Performance monitoring",
-                "Claude-Code-Development-Kit patterns"
+                "Claude-Code-Development-Kit patterns",
             ],
-            "metrics": await self.get_performance_metrics()
+            "metrics": await self.get_performance_metrics(),
         }
 
 

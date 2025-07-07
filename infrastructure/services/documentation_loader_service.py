@@ -17,14 +17,16 @@ from shared.utils.custom_logger import logger
 
 class DocumentationTier(Enum):
     """Documentation tiers for auto-loading"""
+
     FOUNDATION = 1  # Core system knowledge
-    COMPONENT = 2   # Service-specific context
-    FEATURE = 3     # Task-specific patterns
+    COMPONENT = 2  # Service-specific context
+    FEATURE = 3  # Task-specific patterns
 
 
 @dataclass
 class DocumentationContext:
     """Documentation context container"""
+
     tier: DocumentationTier
     task_type: str
     content: dict[str, Any]
@@ -46,7 +48,7 @@ class DocumentationLoaderService:
             "cache_hits": 0,
             "cache_misses": 0,
             "total_loads": 0,
-            "average_load_time": 0.0
+            "average_load_time": 0.0,
         }
 
         # 3-tier documentation structure
@@ -57,31 +59,23 @@ class DocumentationLoaderService:
                     "docs-overview.md",
                     "project-structure.md",
                     "sophia-brain.md",
-                    "data-architecture.md"
+                    "data-architecture.md",
                 ],
                 "priority": "high",
-                "max_tokens": 8000
+                "max_tokens": 8000,
             },
             DocumentationTier.COMPONENT: {
                 "path": "components",
-                "subdirs": [
-                    "mcp-servers",
-                    "business-intelligence",
-                    "integrations"
-                ],
+                "subdirs": ["mcp-servers", "business-intelligence", "integrations"],
                 "priority": "medium",
-                "max_tokens": 4000
+                "max_tokens": 4000,
             },
             DocumentationTier.FEATURE: {
                 "path": "features",
-                "subdirs": [
-                    "unified-chat",
-                    "project-management",
-                    "sales-intelligence"
-                ],
+                "subdirs": ["unified-chat", "project-management", "sales-intelligence"],
                 "priority": "low",
-                "max_tokens": 2000
-            }
+                "max_tokens": 2000,
+            },
         }
 
         # Task type mapping to relevant documentation
@@ -89,28 +83,28 @@ class DocumentationLoaderService:
             "code_generation": {
                 "foundation": ["project-structure.md", "sophia-brain.md"],
                 "component": ["mcp-servers", "integrations"],
-                "feature": ["unified-chat"]
+                "feature": ["unified-chat"],
             },
             "business_intelligence": {
                 "foundation": ["data-architecture.md", "sophia-brain.md"],
                 "component": ["business-intelligence", "integrations"],
-                "feature": ["sales-intelligence", "project-management"]
+                "feature": ["sales-intelligence", "project-management"],
             },
             "infrastructure": {
                 "foundation": ["project-structure.md", "data-architecture.md"],
                 "component": ["integrations"],
-                "feature": ["unified-chat"]
+                "feature": ["unified-chat"],
             },
             "research": {
                 "foundation": ["sophia-brain.md"],
                 "component": ["business-intelligence"],
-                "feature": ["sales-intelligence"]
+                "feature": ["sales-intelligence"],
             },
             "integration": {
                 "foundation": ["project-structure.md"],
                 "component": ["integrations", "mcp-servers"],
-                "feature": ["unified-chat"]
-            }
+                "feature": ["unified-chat"],
+            },
         }
 
     async def initialize(self):
@@ -124,11 +118,11 @@ class DocumentationLoaderService:
     async def load_tier(self, tier: int, task_type: str) -> DocumentationContext:
         """
         Load documentation for specified tier and task type
-        
+
         Args:
             tier: Documentation tier (1, 2, or 3)
             task_type: Type of task for contextual loading
-            
+
         Returns:
             DocumentationContext with loaded content
         """
@@ -160,7 +154,7 @@ class DocumentationLoaderService:
             task_type=task_type,
             content=content,
             token_count=token_count,
-            loading_time=loading_time
+            loading_time=loading_time,
         )
 
         # Cache the result
@@ -176,11 +170,11 @@ class DocumentationLoaderService:
     ) -> dict[str, DocumentationContext]:
         """
         Load appropriate documentation tiers based on task complexity
-        
+
         Args:
             complexity: Task complexity (simple, moderate, complex, architecture)
             task_type: Type of task
-            
+
         Returns:
             Dictionary of tier contexts
         """
@@ -197,9 +191,9 @@ class DocumentationLoaderService:
         if complexity in ["architecture", "complex"]:
             return [1, 2, 3]  # Foundation + Component + Feature
         elif complexity == "moderate":
-            return [2, 3]     # Component + Feature
+            return [2, 3]  # Component + Feature
         else:
-            return [3]        # Feature only
+            return [3]  # Feature only
 
     async def _load_tier_content(
         self, tier: DocumentationTier, task_type: str
@@ -237,7 +231,9 @@ class DocumentationLoaderService:
 
         return foundation_files
 
-    def _get_relevant_subdirs(self, tier: DocumentationTier, task_type: str) -> list[str]:
+    def _get_relevant_subdirs(
+        self, tier: DocumentationTier, task_type: str
+    ) -> list[str]:
         """Get relevant subdirectories for tier and task type"""
         mapping = self.task_documentation_mapping.get(task_type, {})
 
@@ -251,7 +247,7 @@ class DocumentationLoaderService:
     async def _read_file(self, file_path: Path) -> str:
         """Read file content"""
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 return f.read()
         except Exception as e:
             logger.warning(f"Failed to read file {file_path}: {e}")
@@ -298,10 +294,7 @@ class DocumentationLoaderService:
 
     def _cache_content(self, cache_key: str, doc_context: DocumentationContext):
         """Cache documentation content"""
-        self.cache[cache_key] = {
-            "content": doc_context,
-            "timestamp": time.time()
-        }
+        self.cache[cache_key] = {"content": doc_context, "timestamp": time.time()}
 
     def _update_performance_metrics(self, loading_time: float):
         """Update performance metrics"""
@@ -310,15 +303,15 @@ class DocumentationLoaderService:
 
         # Update running average
         self.performance_metrics["average_load_time"] = (
-            (current_avg * (total_loads - 1) + loading_time) / total_loads
-        )
+            current_avg * (total_loads - 1) + loading_time
+        ) / total_loads
 
     async def _verify_documentation_structure(self):
         """Verify that documentation structure exists"""
         required_paths = [
             self.docs_root / "ai-context",
             self.docs_root / "components",
-            self.docs_root / "features"
+            self.docs_root / "features",
         ]
 
         for path in required_paths:
@@ -331,7 +324,9 @@ class DocumentationLoaderService:
         """Pre-load foundation tier for performance"""
         try:
             foundation_context = await self.load_tier(1, "general")
-            logger.info(f"✅ Pre-loaded foundation tier: {foundation_context.token_count} tokens")
+            logger.info(
+                f"✅ Pre-loaded foundation tier: {foundation_context.token_count} tokens"
+            )
         except Exception as e:
             logger.warning(f"Failed to pre-load foundation tier: {e}")
 
@@ -340,16 +335,18 @@ class DocumentationLoaderService:
         cache_hit_rate = 0
         if self.performance_metrics["total_loads"] > 0:
             cache_hit_rate = (
-                self.performance_metrics["cache_hits"] /
-                self.performance_metrics["total_loads"]
+                self.performance_metrics["cache_hits"]
+                / self.performance_metrics["total_loads"]
             ) * 100
 
         return {
             "cache_hit_rate": round(cache_hit_rate, 2),
             "total_loads": self.performance_metrics["total_loads"],
-            "average_load_time": round(self.performance_metrics["average_load_time"], 3),
+            "average_load_time": round(
+                self.performance_metrics["average_load_time"], 3
+            ),
             "cache_entries": len(self.cache),
-            "documentation_tiers": len(self.tier_structure)
+            "documentation_tiers": len(self.tier_structure),
         }
 
     async def clear_cache(self):
@@ -363,13 +360,19 @@ class DocumentationLoaderService:
             "service": "documentation_loader",
             "status": "healthy",
             "documentation_structure": {
-                "foundation_tier": len(self.tier_structure[DocumentationTier.FOUNDATION]["files"]),
-                "component_tier": len(self.tier_structure[DocumentationTier.COMPONENT]["subdirs"]),
-                "feature_tier": len(self.tier_structure[DocumentationTier.FEATURE]["subdirs"])
+                "foundation_tier": len(
+                    self.tier_structure[DocumentationTier.FOUNDATION]["files"]
+                ),
+                "component_tier": len(
+                    self.tier_structure[DocumentationTier.COMPONENT]["subdirs"]
+                ),
+                "feature_tier": len(
+                    self.tier_structure[DocumentationTier.FEATURE]["subdirs"]
+                ),
             },
             "performance_metrics": await self.get_performance_metrics(),
             "cache_ttl": self.cache_ttl,
-            "supported_task_types": list(self.task_documentation_mapping.keys())
+            "supported_task_types": list(self.task_documentation_mapping.keys()),
         }
 
 

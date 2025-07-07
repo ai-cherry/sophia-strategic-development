@@ -518,7 +518,7 @@ def create_ai_agent_auth_memory(
     operation: str,
     risk_level: str,
     success: bool = True,
-    **kwargs
+    **kwargs,
 ) -> MemoryRecord:
     """Create an AI agent authentication memory record"""
     context = {
@@ -537,17 +537,15 @@ def create_ai_agent_auth_memory(
         memory_type=MemoryType.SECURITY_EVENT,
         category=MemoryCategory.AI_AGENT_AUTH,
         context=context,
-        priority=MemoryPriority.CRITICAL if risk_level == "CRITICAL" else MemoryPriority.HIGH,
+        priority=MemoryPriority.CRITICAL
+        if risk_level == "CRITICAL"
+        else MemoryPriority.HIGH,
         **{k: v for k, v in kwargs.items() if k != "context"},
     )
 
 
 def create_auth_pattern_memory(
-    content: str,
-    service: str,
-    auth_method: str,
-    security_tier: str,
-    **kwargs
+    content: str, service: str, auth_method: str, security_tier: str, **kwargs
 ) -> MemoryRecord:
     """Create an authentication pattern memory record"""
     context = {
@@ -573,7 +571,7 @@ def create_security_decision_memory(
     decision_category: str,
     impact_level: str,
     stakeholders: list[str],
-    **kwargs
+    **kwargs,
 ) -> MemoryRecord:
     """Create a security decision memory record"""
     context = {
@@ -589,7 +587,9 @@ def create_security_decision_memory(
         memory_type=MemoryType.TECHNICAL_DECISION,
         category=MemoryCategory.SECURITY_DECISIONS,
         context=context,
-        priority=MemoryPriority.CRITICAL if impact_level == "HIGH" else MemoryPriority.HIGH,
+        priority=MemoryPriority.CRITICAL
+        if impact_level == "HIGH"
+        else MemoryPriority.HIGH,
         **{k: v for k, v in kwargs.items() if k != "context"},
     )
 

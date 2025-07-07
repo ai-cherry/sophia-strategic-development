@@ -23,13 +23,13 @@ except ImportError as e:
     SnowflakeCortexService = None
     SNOWFLAKE_AVAILABLE = False
 
+from core.services.data_transformer import DataTransformer
 from infrastructure.services.advanced_llm_service import AdvancedLLMService
 from infrastructure.services.data_source_manager import (
     DataError,
     DataSourceManager,
     DataSourceType,
 )
-from core.services.data_transformer import DataTransformer
 
 
 class UnifiedIntelligenceService:

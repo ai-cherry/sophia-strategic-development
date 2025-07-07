@@ -9,16 +9,7 @@ import logging
 from typing import Any
 
 from core.agents.base_agent import BaseAgent
-
-# # from core.use_cases.sales_coach_agent import SalesCoachAgent  # Temporarily disabled  # Temporarily disabled due to syntax error
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
-    EnhancedAiMemoryMCPServer,
-)
-from infrastructure.services.foundational_knowledge_service import FoundationalKnowledgeService
 from core.services.llm_service import llm_service
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
-from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
-from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 from core.workflows.multi_agent_workflow import (
     AgentRole,
     AgentWorkflowInterface,
@@ -26,6 +17,17 @@ from core.workflows.multi_agent_workflow import (
     WorkflowResult,
     WorkflowTask,
 )
+
+# # from core.use_cases.sales_coach_agent import SalesCoachAgent  # Temporarily disabled  # Temporarily disabled due to syntax error
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
+from infrastructure.services.foundational_knowledge_service import (
+    FoundationalKnowledgeService,
+)
+from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
+from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 from .sales_intelligence_agent_handlers import (
     CompetitorAnalysisHandler,

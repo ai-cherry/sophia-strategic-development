@@ -110,7 +110,7 @@ class GongCallData:
                 "participants": self.participants,
                 "meeting_url": self.meeting_url,
                 "started_at": self.started_at.isoformat(),
-            }
+            },
         )
 
 
@@ -142,7 +142,7 @@ class SlackMessageData:
                 "thread_ts": self.thread_ts,
                 "message_type": self.message_type,
                 "timestamp": self.timestamp.isoformat(),
-            }
+            },
         )
 
 
@@ -184,5 +184,5 @@ class IntegratedConversationRecord:
                 "sentiment_score": self.sentiment_score,
                 "summary": self.summary,
                 "platform_metadata": self.platform_metadata,
-            }
+            },
         )

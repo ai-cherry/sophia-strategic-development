@@ -10,7 +10,10 @@ import re
 from pathlib import Path
 from typing import Any
 
-from infrastructure.services.unified_llm_service import TaskType, get_unified_llm_service
+from infrastructure.services.unified_llm_service import (
+    TaskType,
+    get_unified_llm_service,
+)
 
 logger = logging.getLogger(__name__)
 

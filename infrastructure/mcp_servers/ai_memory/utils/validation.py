@@ -1,7 +1,9 @@
 """Validation utilities"""
 
 from typing import Any, Dict, List
+
 from ..core.exceptions import ConfigurationException
+
 
 def validate_memory_content(content: str) -> bool:
     """Validate memory content"""
@@ -11,6 +13,7 @@ def validate_memory_content(content: str) -> bool:
         raise ValueError("Memory content too large")
     return True
 
+
 def validate_search_query(query: str) -> bool:
     """Validate search query"""
     if not query or not query.strip():
@@ -19,9 +22,10 @@ def validate_search_query(query: str) -> bool:
         raise ValueError("Search query too long")
     return True
 
-def validate_config(config: Dict[str, Any]) -> bool:
+
+def validate_config(config: dict[str, Any]) -> bool:
     """Validate configuration"""
-    required_fields = ['database_url', 'vector_dimension']
+    required_fields = ["database_url", "vector_dimension"]
     for field in required_fields:
         if field not in config:
             raise ConfigurationException(f"Missing required config field: {field}")

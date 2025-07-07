@@ -30,7 +30,10 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import BaseModel
 
 from infrastructure.security.audit_logger import AuditEventType, info
-from infrastructure.security.rbac.dependencies import require_permission, require_system_admin
+from infrastructure.security.rbac.dependencies import (
+    require_permission,
+    require_system_admin,
+)
 from infrastructure.security.rbac.models import (
     ActionType,
     Permission,

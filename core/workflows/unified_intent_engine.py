@@ -11,7 +11,9 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)

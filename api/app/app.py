@@ -21,7 +21,9 @@ from fastapi.responses import JSONResponse
 
 # Core imports
 from api import unified_routes
-from infrastructure.services.foundational_knowledge_service import FoundationalKnowledgeService
+from infrastructure.services.foundational_knowledge_service import (
+    FoundationalKnowledgeService,
+)
 from infrastructure.services.unified_llm_service import get_unified_llm_service
 from infrastructure.services.unified_sophia_service import get_unified_sophia_service
 

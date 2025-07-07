@@ -22,7 +22,9 @@ from infrastructure.security.ephemeral_credentials.models import (
     CredentialValidationRequest,
     TokenMetadata,
 )
-from infrastructure.security.ephemeral_credentials.service import EphemeralCredentialsService
+from infrastructure.security.ephemeral_credentials.service import (
+    EphemeralCredentialsService,
+)
 
 # Configure logging
 logging.basicConfig(

@@ -9,7 +9,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 from infrastructure.services.enhanced_unified_intelligence_service import (
     EnhancedUnifiedIntelligenceService,
 )

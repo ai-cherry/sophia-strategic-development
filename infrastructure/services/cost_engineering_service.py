@@ -39,7 +39,9 @@ from enum import Enum
 from typing import Any
 
 from core.enhanced_cache_manager import EnhancedCacheManager
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 from infrastructure.security.audit_logger import AuditLogger
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 

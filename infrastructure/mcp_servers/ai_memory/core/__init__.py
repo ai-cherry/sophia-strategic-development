@@ -4,6 +4,19 @@ Consolidated and optimized implementation following enterprise patterns
 """
 
 from .config import AIMemoryConfig
+from .exceptions import (
+    MemoryEmbeddingError,
+    MemoryError,
+    MemoryNotFoundError,
+    MemoryStorageError,
+    MemoryValidationError,
+)
+from .handlers import (
+    MemoryEmbeddingHandler,
+    MemorySearchHandler,
+    MemoryStorageHandler,
+    MemoryValidationHandler,
+)
 from .models import (
     MemoryCategory,
     MemoryEmbedding,
@@ -16,34 +29,20 @@ from .models import (
     SearchResult,
     SearchScope,
 )
-from .handlers import (
-    MemoryStorageHandler,
-    MemorySearchHandler,
-    MemoryValidationHandler,
-    MemoryEmbeddingHandler,
-)
 from .storage import (
     MemoryStorageInterface,
-    SnowflakeMemoryStorage,
     RedisMemoryCache,
+    SnowflakeMemoryStorage,
     VectorMemoryStore,
-)
-from .exceptions import (
-    MemoryError,
-    MemoryNotFoundError,
-    MemoryStorageError,
-    MemoryValidationError,
-    MemoryEmbeddingError,
 )
 
 __version__ = "2.0.0"
 __all__ = [
     # Configuration
     "AIMemoryConfig",
-    
     # Models
     "MemoryCategory",
-    "MemoryEmbedding", 
+    "MemoryEmbedding",
     "MemoryMetadata",
     "MemoryPriority",
     "MemoryRecord",
@@ -52,19 +51,16 @@ __all__ = [
     "SearchQuery",
     "SearchResult",
     "SearchScope",
-    
     # Handlers
     "MemoryStorageHandler",
     "MemorySearchHandler",
     "MemoryValidationHandler",
     "MemoryEmbeddingHandler",
-    
     # Storage
     "MemoryStorageInterface",
     "SnowflakeMemoryStorage",
     "RedisMemoryCache",
     "VectorMemoryStore",
-    
     # Exceptions
     "MemoryError",
     "MemoryNotFoundError",
@@ -72,4 +68,3 @@ __all__ = [
     "MemoryValidationError",
     "MemoryEmbeddingError",
 ]
-

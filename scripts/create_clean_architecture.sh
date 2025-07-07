@@ -16,4 +16,4 @@ find api core domain infrastructure shared -type d -exec touch {}/__init__.py \;
 # Create reports directory
 mkdir -p reports
 
-echo "Directory structure created successfully" 
+echo "Directory structure created successfully"

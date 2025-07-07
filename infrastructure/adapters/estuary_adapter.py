@@ -18,12 +18,13 @@ import requests
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from core.config_manager import get_config_value
 from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformAdapter,
     PlatformStatus,
     PlatformType,
 )
+
+from core.config_manager import get_config_value
 
 
 class EstuaryAdapter(PlatformAdapter):

@@ -18,7 +18,9 @@ from infrastructure.security.ephemeral_credentials.models import (
     CredentialScope,
     CredentialValidationRequest,
 )
-from infrastructure.security.ephemeral_credentials.service import EphemeralCredentialsService
+from infrastructure.security.ephemeral_credentials.service import (
+    EphemeralCredentialsService,
+)
 
 logger = logging.getLogger(__name__)
 

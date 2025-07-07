@@ -42,7 +42,7 @@ jobs:
         run: |
           python scripts/comprehensive_archive_cleanup.py \
             --output archive_cleanup_analysis.json
-          
+
           # Extract key metrics from the report
           TOTAL_SIZE_BYTES=$(python -c "
           import json
@@ -50,7 +50,7 @@ jobs:
               data = json.load(f)
           print(data['impact_analysis']['total_size_bytes'])
           ")
-          
+
           TOTAL_SIZE_MB=$((TOTAL_SIZE_BYTES / 1024 / 1024))
           ITEMS_COUNT=$(python -c "
           import json
@@ -58,17 +58,17 @@ jobs:
               data = json.load(f)
           print(len(data['cleanup_plan']['immediate_deletion']))
           ")
-          
+
           echo "total_size_mb=$TOTAL_SIZE_MB" >> $GITHUB_OUTPUT
           echo "items_count=$ITEMS_COUNT" >> $GITHUB_OUTPUT
-          
+
           # Determine if cleanup is needed
           if [ $TOTAL_SIZE_MB -gt $CLEANUP_THRESHOLD_MB ]; then
             echo "cleanup_needed=true" >> $GITHUB_OUTPUT
           else
             echo "cleanup_needed=false" >> $GITHUB_OUTPUT
           fi
-          
+
           echo "📊 Archive Analysis Results:"
           echo "   Total size: ${TOTAL_SIZE_MB}MB"
           echo "   Items to clean: $ITEMS_COUNT"
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: archive-cleanup-analysis
     if: |
-      (needs.archive-cleanup-analysis.outputs.cleanup_needed == 'true' && 
+      (needs.archive-cleanup-analysis.outputs.cleanup_needed == 'true' &&
        github.event_name == 'schedule') ||
       (github.event.inputs.execute_cleanup == 'true')
     steps:
@@ -107,7 +107,7 @@ jobs:
           python scripts/comprehensive_archive_cleanup.py \
             --execute \
             --output archive_cleanup_execution.json
-          
+
           # Extract cleanup results
           SPACE_RECOVERED=$(python -c "
           import json
@@ -118,7 +118,7 @@ jobs:
           else:
               print(0)
           ")
-          
+
           ITEMS_DELETED=$(python -c "
           import json
           with open('archive_cleanup_execution.json') as f:
@@ -128,12 +128,12 @@ jobs:
           else:
               print(0)
           ")
-          
+
           SPACE_RECOVERED_MB=$((SPACE_RECOVERED / 1024 / 1024))
-          
+
           echo "space_recovered_mb=$SPACE_RECOVERED_MB" >> $GITHUB_OUTPUT
           echo "items_deleted=$ITEMS_DELETED" >> $GITHUB_OUTPUT
-          
+
           echo "✅ Cleanup completed:"
           echo "   Items deleted: $ITEMS_DELETED"
           echo "   Space recovered: ${SPACE_RECOVERED_MB}MB"
@@ -143,7 +143,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           git add -A
           git commit -m "🧹 Automated archive cleanup: removed ${{ steps.cleanup.outputs.items_deleted }} items, recovered ${{ steps.cleanup.outputs.space_recovered_mb }}MB
 
@@ -151,7 +151,7 @@ jobs:
           - Removed backup directories and deprecated content
           - Updated .gitignore to prevent future accumulation
           - Total space recovered: ${{ steps.cleanup.outputs.space_recovered_mb }}MB
-          
+
           Automated cleanup performed by GitHub Actions" || echo "No changes to commit"
 
       - name: Push cleanup changes
@@ -191,7 +191,7 @@ jobs:
             MESSAGE="Archive cleanup failed"
             DETAILS="Check workflow logs for details"
           fi
-          
+
           echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "message=$MESSAGE" >> $GITHUB_OUTPUT
           echo "details<<EOF" >> $GITHUB_OUTPUT
@@ -208,19 +208,19 @@ jobs:
               repo: context.repo.repo,
               title: '🚨 Automated Archive Cleanup Failed',
               body: `## Archive Cleanup Failure Report
-              
+
               **Workflow Run**: [${context.runId}](${context.payload.repository.html_url}/actions/runs/${context.runId})
               **Trigger**: ${context.eventName}
               **Time**: ${new Date().toISOString()}
-              
+
               ### Analysis Results
               - Total archive size: ${{ needs.archive-cleanup-analysis.outputs.total_size_mb }}MB
               - Items to clean: ${{ needs.archive-cleanup-analysis.outputs.items_count }}
               - Cleanup needed: ${{ needs.archive-cleanup-analysis.outputs.cleanup_needed }}
-              
+
               ### Action Required
               Please review the workflow logs and investigate the failure cause.
-              
+
               ### Next Steps
               1. Check the workflow logs for error details
               2. Verify the cleanup script functionality
@@ -278,17 +278,17 @@ jobs:
       - name: Run security scan
         run: |
           echo "🔍 Running post-cleanup security scan..."
-          
+
           # Check for any accidentally exposed secrets
           if command -v git-secrets >/dev/null 2>&1; then
             git secrets --scan
           fi
-          
+
           # Check for large files that might have been missed
           find . -type f -size +10M -not -path "./.git/*" | while read file; do
             echo "⚠️ Large file found: $file ($(du -h "$file" | cut -f1))"
           done
-          
+
           # Verify no critical files were accidentally deleted
           CRITICAL_FILES=(
             "README.md"
@@ -298,13 +298,12 @@ jobs:
             "api/app/fastapi_main.py"
             "frontend/package.json"
           )
-          
+
           for file in "${CRITICAL_FILES[@]}"; do
             if [ ! -f "$file" ]; then
               echo "❌ Critical file missing: $file"
               exit 1
             fi
           done
-          
-          echo "✅ Security scan completed - no issues found"
 
+          echo "✅ Security scan completed - no issues found"

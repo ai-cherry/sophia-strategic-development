@@ -9,17 +9,23 @@ Prevents duplicate instances and provides unified access.
 import logging
 from typing import Any
 
-from infrastructure.services.advanced_ui_ux_agent_service import AdvancedUIUXAgentService
+from infrastructure.services.advanced_ui_ux_agent_service import (
+    AdvancedUIUXAgentService,
+)
 from infrastructure.services.enhanced_knowledge_base_service import (
     EnhancedKnowledgeBaseService,
 )
-from infrastructure.services.foundational_knowledge_service import FoundationalKnowledgeService
+from infrastructure.services.foundational_knowledge_service import (
+    FoundationalKnowledgeService,
+)
 from infrastructure.services.gptcache_service import GPTCacheService
 from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 from infrastructure.services.payready_business_intelligence import (
     PayReadyBusinessIntelligenceOrchestrator,
 )
-from infrastructure.services.predictive_automation_service import PredictiveAutomationService
+from infrastructure.services.predictive_automation_service import (
+    PredictiveAutomationService,
+)
 from infrastructure.services.sophia_ai_orchestrator import SophiaAIOrchestrator
 from infrastructure.services.unified_chat_service import UnifiedChatService
 

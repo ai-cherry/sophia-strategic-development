@@ -30,7 +30,9 @@ from core.use_cases.interactive_sales_coach_agent import (
 from infrastructure.services.enhanced_knowledge_base_service import (
     EnhancedKnowledgeBaseService,
 )
-from infrastructure.services.memory_preservation_service import MemoryPreservationService
+from infrastructure.services.memory_preservation_service import (
+    MemoryPreservationService,
+)
 
 logger = logging.getLogger(__name__)
 

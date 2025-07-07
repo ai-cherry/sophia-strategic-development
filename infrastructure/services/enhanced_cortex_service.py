@@ -4,95 +4,98 @@ Provides natural language to advanced analytics capabilities
 """
 
 import asyncio
+import json
 import logging
-from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass
 from datetime import datetime
-import json
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class CortexOperation:
     """Cortex AI operation definition"""
+
     operation_id: str
     operation_type: str  # 'sql_generation', 'ml_training', 'prediction', 'analysis'
     natural_language_query: str
     generated_sql: Optional[str] = None
-    parameters: Dict[str, Any] = None
+    parameters: dict[str, Any] = None
     estimated_cost: float = 0.0
     estimated_duration: float = 0.0
 
+
 class EnhancedCortexService:
     """Enhanced Snowflake Cortex AI integration service"""
-    
+
     def __init__(self):
         self.cortex_functions = {
-            'COMPLETE': 'Text completion and generation',
-            'EXTRACT_ANSWER': 'Question answering from text',
-            'CLASSIFY': 'Text classification',
-            'SENTIMENT': 'Sentiment analysis',
-            'SUMMARIZE': 'Text summarization',
-            'TRANSLATE': 'Language translation'
+            "COMPLETE": "Text completion and generation",
+            "EXTRACT_ANSWER": "Question answering from text",
+            "CLASSIFY": "Text classification",
+            "SENTIMENT": "Sentiment analysis",
+            "SUMMARIZE": "Text summarization",
+            "TRANSLATE": "Language translation",
         }
         self.ml_functions = {
-            'FORECAST': 'Time series forecasting',
-            'ANOMALY_DETECTION': 'Anomaly detection in data',
-            'CLUSTERING': 'Data clustering analysis',
-            'REGRESSION': 'Regression analysis'
+            "FORECAST": "Time series forecasting",
+            "ANOMALY_DETECTION": "Anomaly detection in data",
+            "CLUSTERING": "Data clustering analysis",
+            "REGRESSION": "Regression analysis",
         }
         self.operation_cache = {}
-    
-    async def process_natural_language_query(self, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+
+    async def process_natural_language_query(
+        self, query: str, context: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Process natural language query and execute appropriate Cortex operations"""
         try:
             # Analyze query to determine operation type
             operation = await self.analyze_query_for_cortex_operation(query, context)
-            
+
             # Execute Cortex operation
             result = await self.execute_cortex_operation(operation)
-            
+
             # Interpret and format results
             formatted_result = await self.interpret_cortex_results(result, operation)
-            
+
             return {
-                'success': True,
-                'operation_id': operation.operation_id,
-                'query': query,
-                'cortex_operation': operation.operation_type,
-                'results': formatted_result,
-                'execution_time': operation.estimated_duration
+                "success": True,
+                "operation_id": operation.operation_id,
+                "query": query,
+                "cortex_operation": operation.operation_type,
+                "results": formatted_result,
+                "execution_time": operation.estimated_duration,
             }
-            
+
         except Exception as e:
             logger.error(f"Cortex query processing failed: {str(e)}")
-            return {
-                'success': False,
-                'error': str(e),
-                'query': query
-            }
-    
-    async def analyze_query_for_cortex_operation(self, query: str, context: Dict[str, Any] = None) -> CortexOperation:
+            return {"success": False, "error": str(e), "query": query}
+
+    async def analyze_query_for_cortex_operation(
+        self, query: str, context: dict[str, Any] = None
+    ) -> CortexOperation:
         """Analyze natural language query to determine appropriate Cortex operation"""
         query_lower = query.lower()
-        
+
         # Determine operation type based on query characteristics
-        if any(word in query_lower for word in ['forecast', 'predict', 'projection']):
-            operation_type = 'ml_training'
+        if any(word in query_lower for word in ["forecast", "predict", "projection"]):
+            operation_type = "ml_training"
             sql_template = "SELECT SNOWFLAKE.ML.FORECAST(...)"
-        elif any(word in query_lower for word in ['summarize', 'summary', 'overview']):
-            operation_type = 'analysis'
+        elif any(word in query_lower for word in ["summarize", "summary", "overview"]):
+            operation_type = "analysis"
             sql_template = "SELECT SNOWFLAKE.CORTEX.SUMMARIZE(...)"
-        elif any(word in query_lower for word in ['sentiment', 'feeling', 'opinion']):
-            operation_type = 'analysis'
+        elif any(word in query_lower for word in ["sentiment", "feeling", "opinion"]):
+            operation_type = "analysis"
             sql_template = "SELECT SNOWFLAKE.CORTEX.SENTIMENT(...)"
-        elif any(word in query_lower for word in ['classify', 'categorize', 'group']):
-            operation_type = 'analysis'
+        elif any(word in query_lower for word in ["classify", "categorize", "group"]):
+            operation_type = "analysis"
             sql_template = "SELECT SNOWFLAKE.CORTEX.CLASSIFY(...)"
         else:
-            operation_type = 'sql_generation'
+            operation_type = "sql_generation"
             sql_template = "-- Generated SQL based on natural language query"
-        
+
         operation = CortexOperation(
             operation_id=f"cortex_{datetime.utcnow().timestamp()}",
             operation_type=operation_type,
@@ -100,111 +103,119 @@ class EnhancedCortexService:
             generated_sql=await self.generate_cortex_sql(query, sql_template),
             parameters=context or {},
             estimated_cost=0.10,
-            estimated_duration=2.0
+            estimated_duration=2.0,
         )
-        
+
         return operation
-    
+
     async def generate_cortex_sql(self, query: str, template: str) -> str:
         """Generate Cortex-optimized SQL from natural language query"""
         # This would implement sophisticated NL-to-SQL generation
         # For now, return a template-based SQL
-        
+
         sql_query = f"""
 -- Generated Cortex SQL for: {query}
 {template}
 -- Additional context and parameters would be included here
-SELECT 
+SELECT
     SNOWFLAKE.CORTEX.COMPLETE(
         'llama2-70b-chat',
-        CONCAT('Based on the following business question: ', '{query}', 
+        CONCAT('Based on the following business question: ', '{query}',
                ' Please provide a comprehensive analysis with specific insights and recommendations.')
     ) as cortex_analysis,
     CURRENT_TIMESTAMP() as analysis_timestamp;
 """
-        
+
         return sql_query.strip()
-    
-    async def execute_cortex_operation(self, operation: CortexOperation) -> Dict[str, Any]:
+
+    async def execute_cortex_operation(
+        self, operation: CortexOperation
+    ) -> dict[str, Any]:
         """Execute the Cortex operation"""
         # This would implement actual Snowflake Cortex execution
         # For now, return simulated results
-        
-        if operation.operation_type == 'ml_training':
+
+        if operation.operation_type == "ml_training":
             return {
-                'model_id': f"model_{operation.operation_id}",
-                'training_status': 'completed',
-                'accuracy_score': 0.92,
-                'predictions': [
-                    {'period': 'Q1 2025', 'forecast': 1250000, 'confidence': 0.88},
-                    {'period': 'Q2 2025', 'forecast': 1380000, 'confidence': 0.85},
-                    {'period': 'Q3 2025', 'forecast': 1420000, 'confidence': 0.82}
-                ]
+                "model_id": f"model_{operation.operation_id}",
+                "training_status": "completed",
+                "accuracy_score": 0.92,
+                "predictions": [
+                    {"period": "Q1 2025", "forecast": 1250000, "confidence": 0.88},
+                    {"period": "Q2 2025", "forecast": 1380000, "confidence": 0.85},
+                    {"period": "Q3 2025", "forecast": 1420000, "confidence": 0.82},
+                ],
             }
-        elif operation.operation_type == 'analysis':
+        elif operation.operation_type == "analysis":
             return {
-                'analysis_type': 'cortex_function',
-                'results': {
-                    'summary': 'Comprehensive analysis completed using Snowflake Cortex AI',
-                    'key_insights': [
-                        'Revenue trends show consistent growth',
-                        'Customer satisfaction scores are improving',
-                        'Market expansion opportunities identified'
+                "analysis_type": "cortex_function",
+                "results": {
+                    "summary": "Comprehensive analysis completed using Snowflake Cortex AI",
+                    "key_insights": [
+                        "Revenue trends show consistent growth",
+                        "Customer satisfaction scores are improving",
+                        "Market expansion opportunities identified",
                     ],
-                    'sentiment_score': 0.75,
-                    'confidence': 0.89
-                }
+                    "sentiment_score": 0.75,
+                    "confidence": 0.89,
+                },
             }
         else:
             return {
-                'sql_execution': 'completed',
-                'rows_processed': 15420,
-                'execution_time': operation.estimated_duration,
-                'results': 'SQL query executed successfully with Cortex enhancements'
+                "sql_execution": "completed",
+                "rows_processed": 15420,
+                "execution_time": operation.estimated_duration,
+                "results": "SQL query executed successfully with Cortex enhancements",
             }
-    
-    async def interpret_cortex_results(self, results: Dict[str, Any], operation: CortexOperation) -> Dict[str, Any]:
+
+    async def interpret_cortex_results(
+        self, results: dict[str, Any], operation: CortexOperation
+    ) -> dict[str, Any]:
         """Interpret and format Cortex results for executive consumption"""
         interpretation = {
-            'executive_summary': '',
-            'key_findings': [],
-            'recommendations': [],
-            'visualizations': [],
-            'raw_data': results
+            "executive_summary": "",
+            "key_findings": [],
+            "recommendations": [],
+            "visualizations": [],
+            "raw_data": results,
         }
-        
-        if operation.operation_type == 'ml_training':
-            interpretation['executive_summary'] = f"Machine learning model trained with {results.get('accuracy_score', 0)*100:.1f}% accuracy"
-            interpretation['key_findings'] = [
+
+        if operation.operation_type == "ml_training":
+            interpretation[
+                "executive_summary"
+            ] = f"Machine learning model trained with {results.get('accuracy_score', 0)*100:.1f}% accuracy"
+            interpretation["key_findings"] = [
                 f"Forecast accuracy: {results.get('accuracy_score', 0)*100:.1f}%",
-                f"Generated {len(results.get('predictions', []))} period forecasts"
+                f"Generated {len(results.get('predictions', []))} period forecasts",
             ]
-            interpretation['recommendations'] = [
+            interpretation["recommendations"] = [
                 "Monitor forecast accuracy against actual results",
-                "Consider retraining model quarterly with new data"
+                "Consider retraining model quarterly with new data",
             ]
-        elif operation.operation_type == 'analysis':
-            analysis_results = results.get('results', {})
-            interpretation['executive_summary'] = analysis_results.get('summary', 'Analysis completed')
-            interpretation['key_findings'] = analysis_results.get('key_insights', [])
-            interpretation['recommendations'] = [
+        elif operation.operation_type == "analysis":
+            analysis_results = results.get("results", {})
+            interpretation["executive_summary"] = analysis_results.get(
+                "summary", "Analysis completed"
+            )
+            interpretation["key_findings"] = analysis_results.get("key_insights", [])
+            interpretation["recommendations"] = [
                 "Review detailed findings with relevant stakeholders",
-                "Implement action items based on insights"
+                "Implement action items based on insights",
             ]
-        
+
         return interpretation
-    
-    async def get_cortex_capabilities(self) -> Dict[str, Any]:
+
+    async def get_cortex_capabilities(self) -> dict[str, Any]:
         """Get available Cortex AI capabilities"""
         return {
-            'cortex_functions': self.cortex_functions,
-            'ml_functions': self.ml_functions,
-            'supported_operations': [
-                'natural_language_to_sql',
-                'text_analysis',
-                'predictive_modeling',
-                'anomaly_detection',
-                'sentiment_analysis',
-                'summarization'
-            ]
+            "cortex_functions": self.cortex_functions,
+            "ml_functions": self.ml_functions,
+            "supported_operations": [
+                "natural_language_to_sql",
+                "text_analysis",
+                "predictive_modeling",
+                "anomaly_detection",
+                "sentiment_analysis",
+                "summarization",
+            ],
         }

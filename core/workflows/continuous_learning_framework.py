@@ -12,8 +12,10 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import EnhancedAiMemoryMCPServer
 from core.workflows.unified_intent_engine import IntentAnalysis, IntentCategory
+from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
+    EnhancedAiMemoryMCPServer,
+)
 
 logger = logging.getLogger(__name__)
 

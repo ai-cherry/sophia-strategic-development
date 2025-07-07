@@ -6,6 +6,7 @@ from datetime import UTC
 from typing import Any
 
 from backend.agents.enhanced.data_models import MemoryRecord
+
 from core.hierarchical_cache import HierarchicalCache
 from domain.models.conversation import IntegratedConversationRecord
 from shared.utils.enhanced_snowflake_cortex_service import (

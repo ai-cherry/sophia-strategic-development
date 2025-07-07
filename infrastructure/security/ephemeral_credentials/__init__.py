@@ -21,7 +21,9 @@ from infrastructure.security.ephemeral_credentials.models import (
     EphemeralCredential,
     TokenMetadata,
 )
-from infrastructure.security.ephemeral_credentials.service import EphemeralCredentialsService
+from infrastructure.security.ephemeral_credentials.service import (
+    EphemeralCredentialsService,
+)
 
 __all__ = [
     "CredentialRequest",

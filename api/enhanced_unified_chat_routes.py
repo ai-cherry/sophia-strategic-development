@@ -42,11 +42,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from core.dependencies import get_audit_logger, get_current_user
+from core.workflows.enhanced_langgraph_orchestration import get_enhanced_orchestrator
 from infrastructure.security.audit_logger import AuditLogger
 from infrastructure.services.unified_chat_service import (
     universal_chat_service,
 )
-from core.workflows.enhanced_langgraph_orchestration import get_enhanced_orchestrator
 
 logger = logging.getLogger(__name__)
 

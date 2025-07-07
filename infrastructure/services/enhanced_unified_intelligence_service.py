@@ -11,7 +11,9 @@ import json
 import logging
 from typing import Any
 
-from infrastructure.services.ui_generation_intent_handler import get_ui_generation_handler
+from infrastructure.services.ui_generation_intent_handler import (
+    get_ui_generation_handler,
+)
 from infrastructure.services.unified_intelligence_service import (
     SophiaUnifiedIntelligenceService,
 )
