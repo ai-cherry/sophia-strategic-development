@@ -370,7 +370,7 @@ class ComprehensiveLambdaLabsValidator:
         self.print_section("INFRASTRUCTURE FILES VALIDATION")
 
         required_files = {
-            "Pulumi ESC Config": "infrastructure/esc/lambda-labs-gh200-config.yaml",
+            "Pulumi ESC Config": "infrastructure/esc/lambda-labs-ggh200-config.yaml",
             "Lambda Labs Provisioner": "infrastructure/enhanced_lambda_labs_provisioner.py",
             "Memory Architecture": "backend/core/enhanced_memory_architecture.py",
             "H200 Dockerfile": "Dockerfile.gh200",

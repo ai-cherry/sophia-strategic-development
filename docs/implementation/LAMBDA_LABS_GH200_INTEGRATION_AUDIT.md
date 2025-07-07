@@ -219,7 +219,7 @@ graph TB
     end
 
     subgraph "Lambda Labs"
-        F[GH200 GPU Cluster]
+        F[GGH200 GPU Cluster]
     end
 
     A -->|Clean Secrets| B

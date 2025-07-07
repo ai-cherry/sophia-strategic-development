@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-07-06 17:57:27",
+  "timestamp": "2025-07-06 17:54:56",
   "github_cli": {
     "authenticated": true,
     "organization": "ai-cherry",
     "repo_access": true,
-    "secrets_count": 26
+    "secrets_count": 16
   },
   "lambda_labs": {
     "api_key_set": true,
@@ -77,12 +77,6 @@
   "ssh_keys": {
     "found_keys": [
       {
-        "name": "lynn_sophia_h200_key",
-        "path": "/Users/lynnmusil/.ssh/lynn_sophia_h200_key",
-        "permissions": "600",
-        "status": "valid"
-      },
-      {
         "name": "id_ed25519",
         "path": "/Users/lynnmusil/.ssh/id_ed25519",
         "permissions": "600",
@@ -97,23 +91,23 @@
     ]
   },
   "secrets": {
-    "github_total": 26,
+    "github_total": 16,
     "lambda_labs_secrets": {
-      "LAMBDA_LABS_API_KEY": true,
-      "LAMBDA_LABS_SSH_KEY_NAME": true,
-      "LAMBDA_LABS_SSH_PRIVATE_KEY": true,
-      "LAMBDA_LABS_REGION": true,
-      "LAMBDA_LABS_INSTANCE_TYPE": true,
-      "LAMBDA_LABS_CLUSTER_SIZE": true,
-      "LAMBDA_LABS_MAX_CLUSTER_SIZE": true,
-      "LAMBDA_LABS_SHARED_FS_ID": true,
-      "LAMBDA_LABS_SHARED_FS_MOUNT": true,
-      "LAMBDA_LABS_ASG_NAME": true
+      "LAMBDA_LABS_API_KEY": false,
+      "LAMBDA_LABS_SSH_KEY_NAME": false,
+      "LAMBDA_LABS_SSH_PRIVATE_KEY": false,
+      "LAMBDA_LABS_REGION": false,
+      "LAMBDA_LABS_INSTANCE_TYPE": false,
+      "LAMBDA_LABS_CLUSTER_SIZE": false,
+      "LAMBDA_LABS_MAX_CLUSTER_SIZE": false,
+      "LAMBDA_LABS_SHARED_FS_ID": false,
+      "LAMBDA_LABS_SHARED_FS_MOUNT": false,
+      "LAMBDA_LABS_ASG_NAME": false
     }
   },
   "infrastructure": {
     "files": {
-      "infrastructure/esc/lambda-labs-gh200-config.yaml": false,
+      "infrastructure/esc/lambda-labs-ggh200-config.yaml": true,
       "infrastructure/enhanced_lambda_labs_provisioner.py": true,
       "backend/core/enhanced_memory_architecture.py": true,
       "Dockerfile.gh200": true,
@@ -130,9 +124,14 @@
       "action": "Create scoobyjava-org/sophia-ai-h200-production environment"
     },
     {
-      "priority": "MEDIUM",
-      "issue": "Missing infrastructure files",
-      "action": "Create missing files: infrastructure/esc/lambda-labs-gh200-config.yaml"
+      "priority": "HIGH",
+      "issue": "H200 SSH key not found locally",
+      "action": "Generate SSH key: ssh-keygen -t ed25519 -f ~/.ssh/lynn_sophia_h200_key"
+    },
+    {
+      "priority": "HIGH",
+      "issue": "Missing GitHub secrets: LAMBDA_LABS_API_KEY, LAMBDA_LABS_SSH_KEY_NAME, LAMBDA_LABS_SSH_PRIVATE_KEY, LAMBDA_LABS_REGION, LAMBDA_LABS_INSTANCE_TYPE, LAMBDA_LABS_CLUSTER_SIZE, LAMBDA_LABS_MAX_CLUSTER_SIZE, LAMBDA_LABS_SHARED_FS_ID, LAMBDA_LABS_SHARED_FS_MOUNT, LAMBDA_LABS_ASG_NAME",
+      "action": "Add missing secrets to GitHub repository settings"
     },
     {
       "priority": "MEDIUM",

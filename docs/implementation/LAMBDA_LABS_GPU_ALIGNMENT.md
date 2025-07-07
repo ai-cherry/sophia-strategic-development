@@ -189,7 +189,7 @@ if "gpu_1x_gh200" in available_types:
 
 ## ✅ **Conclusion**
 
-While PR #136 implements infrastructure for GH200 GPUs (96GB), the actual deployment uses GGH200 GPUs (96GB). This is still a significant upgrade (4x memory increase from A10) and the deployment is successful.
+While PR #136 implements infrastructure for GGH200 GPUs (96GB), the actual deployment uses GGGH200 GPUs (96GB). This is still a significant upgrade (4x memory increase from A10) and the deployment is successful.
 
 **Key Actions**:
 1. **Merge PR #137** immediately (fixes are valid)

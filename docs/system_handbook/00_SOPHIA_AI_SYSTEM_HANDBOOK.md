@@ -167,7 +167,7 @@ While Snowflake remains the **central analytical data warehouse** and ultimate s
 - SOPHIA_CORE - Core business data
 - SOPHIA_AI_MEMORY - Enhanced 6-tier memory storage
 - SOPHIA_BUSINESS_INTELLIGENCE - BI analytics with GPU acceleration
-- CORTEX_AI - Enhanced Cortex AI functions with H200 integration
+- CORTEX_AI - Enhanced Cortex AI functions with GH200 integration
 - AI_MEMORY - Memory architecture with GPU caching
 - ANALYTICS - Analytics views with vector search
 - CHAT - Chat context storage with GPU embeddings
@@ -179,11 +179,11 @@ While Snowflake remains the **central analytical data warehouse** and ultimate s
 **Enhanced Warehouses**:
 - SOPHIA_AI_COMPUTE_WH (LARGE) - General compute with GPU acceleration
 - SOPHIA_AI_ANALYTICS_WH (X-LARGE) - Enhanced analytics workloads
-- SOPHIA_AI_CORTEX_WH (MEDIUM) - AI operations with H200 integration
-- SOPHIA_AI_H200_WH (X-LARGE) - Dedicated GH200 GPU processing
+- SOPHIA_AI_CORTEX_WH (MEDIUM) - AI operations with GH200 integration
+- SOPHIA_AI_GH200_WH (X-LARGE) - Dedicated GH200 GPU processing
 
 **Enhanced Memory Architecture** (6-Tier with GPU Acceleration):
-- L0: GPU memory (<10ms) - H200 HBM3e 96GB
+- L0: GPU memory (<10ms) - GH200 HBM3e 96GB
 - L1: Session cache (<50ms) - Redis enhanced
 - L2: Cortex cache (<100ms) - Snowflake + GPU acceleration
 - L3: Persistent memory (<200ms) - Snowflake native
@@ -359,19 +359,19 @@ const UnifiedDashboard = () => {
 
 ## 🚀 ENHANCED DEPLOYMENT ARCHITECTURE
 
-### Infrastructure Stack (GH200 GPU Enhanced)
+### Infrastructure Stack (GGH200 GPU Enhanced)
 
-**Primary Deployment**: Vercel (Frontend) + Lambda Labs H200 Clusters (Backend)
+**Primary Deployment**: Vercel (Frontend) + Lambda Labs GH200 Clusters (Backend)
 **Database**: Snowflake (Enhanced with GPU acceleration)
 **Secrets Management**: Pulumi ESC (Automated pipeline)
-**Container Orchestration**: Kubernetes on Lambda Labs H200 clusters
+**Container Orchestration**: Kubernetes on Lambda Labs GH200 clusters
 **GPU Architecture**: NVIDIA GH200 (96GB HBM3e, 4.8TB/s bandwidth)
 **Memory Architecture**: 6-Tier with GPU acceleration
 **Monitoring**: Enhanced Grafana + Prometheus + GPU metrics
 
 ### Enhanced Infrastructure Components
 
-**Lambda Labs H200 Cluster**:
+**Lambda Labs GH200 Cluster**:
 - **GPU Type**: NVIDIA GH200 with 96GB HBM3e memory
 - **Cluster Size**: 3-16 nodes with auto-scaling
 - **Kubernetes**: Managed clusters with GPU operator
@@ -395,7 +395,7 @@ const UnifiedDashboard = () => {
 - **Performance**: 10x faster inference, 50x faster vector operations
 
 **Enhanced SSH Key Management**:
-SSH key automation enhanced for H200 clusters using cloud-init templates with Kubernetes integration. All SSH operations automated through Pulumi ESC pipeline. See `infrastructure/enhanced_lambda_labs_provisioner.py` for H200-specific implementation.
+SSH key automation enhanced for GH200 clusters using cloud-init templates with Kubernetes integration. All SSH operations automated through Pulumi ESC pipeline. See `infrastructure/enhanced_lambda_labs_provisioner.py` for GH200-specific implementation.
 
 ### Environment Configuration
 

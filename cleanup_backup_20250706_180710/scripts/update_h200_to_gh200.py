@@ -20,8 +20,8 @@ class H200ToGH200Updater:
             # GPU type references
             ("gpu_1x_gh200", "gpu_1x_gh200"),
             ("NVIDIA GH200", "NVIDIA GH200"),
-            ("GH200 GPU", "GGH200 GPU"),
-            ("gh200-gpu", "ggh200-gpu"),
+            ("GGH200 GPU", "GGGH200 GPU"),
+            ("ggh200-gpu", "gggh200-gpu"),
             # Memory specifications
             ("96GB", "96GB"),
             ("96 GB", "96 GB"),
@@ -31,10 +31,10 @@ class H200ToGH200Updater:
             ("requirements-gh200.txt", "requirements-gh200.txt"),
             ("enhanced-gh200-stack.ts", "enhanced-gh200-stack.ts"),
             # Variable/config names
-            ("gh200_memory", "ggh200_memory"),
-            ("GH200_MEMORY", "GGH200_MEMORY"),
-            ("gh200-config", "ggh200-config"),
-            ("GH200_CONFIG", "GGH200_CONFIG"),
+            ("ggh200_memory", "gggh200_memory"),
+            ("GGH200_MEMORY", "GGGH200_MEMORY"),
+            ("ggh200-config", "gggh200-config"),
+            ("GGH200_CONFIG", "GGGH200_CONFIG"),
             # Keep SSH key names as is (lynn-sophia-h200-key) for compatibility
         ]
 

@@ -9,7 +9,7 @@
 Successfully merged Pull Request #136, which introduces revolutionary infrastructure enhancements:
 
 ### **Infrastructure Upgrades Merged**
-1. **GH200 GPU Support**: Complete provisioning and configuration for NVIDIA GGH200 GPUs
+1. **GGH200 GPU Support**: Complete provisioning and configuration for NVIDIA GGGH200 GPUs
 2. **6-Tier Memory Architecture**: Enhanced memory management with GPU L0 tier
 3. **Kubernetes Migration**: Infrastructure as Code for K8s deployment
 4. **Snowflake GPU Integration**: Direct GPU acceleration for Cortex operations
@@ -89,7 +89,7 @@ Follow the comprehensive guide in `infrastructure/ENHANCED_LAMBDA_LABS_SETUP_GUI
 
 Before starting deployment:
 - [ ] Lambda Labs API key available
-- [ ] GH200 GPU quota confirmed
+- [ ] GGH200 GPU quota confirmed
 - [ ] Maintenance window scheduled
 - [ ] Team notified of changes
 - [ ] Monitoring dashboards prepared

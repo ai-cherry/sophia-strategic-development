@@ -21,7 +21,7 @@ Created comprehensive infrastructure for Lambda Labs H200 + GitHub CLI + Pulumi 
 #### **Documentation Created:**
 - `docs/implementation/LAMBDA_LABS_PULUMI_ESC_INTEGRATION.md` - Complete integration guide
 - `docs/implementation/LAMBDA_LABS_H200_INTEGRATION_GUIDE.md` - Current status and next steps
-- `infrastructure/esc/lambda-labs-gh200-config.yaml` - Pulumi ESC configuration
+- `infrastructure/esc/lambda-labs-ggh200-config.yaml` - Pulumi ESC configuration
 
 #### **Scripts Updated/Created:**
 - `scripts/ci/sync_from_gh_to_pulumi.py` - Added all 10 H200 secret mappings
@@ -60,7 +60,7 @@ pulumi env init scoobyjava-org/sophia-ai-h200-production
 
 # Import configuration
 pulumi env set scoobyjava-org/sophia-ai-h200-production \
-  --file infrastructure/esc/lambda-labs-gh200-config.yaml
+  --file infrastructure/esc/lambda-labs-ggh200-config.yaml
 ```
 
 ### **3. Set Lambda Labs API Key (2 minutes)**
@@ -101,7 +101,7 @@ Pulumi ESC (sophia-ai-h200-production)
     ↓
 Lambda Labs API
     ↓
-GH200 GPU Cluster (3-16 nodes)
+GGH200 GPU Cluster (3-16 nodes)
 ```
 
 ---
@@ -118,7 +118,7 @@ GH200 GPU Cluster (3-16 nodes)
    - Validation results
    - Quick start commands
 
-3. **ESC Configuration**: `infrastructure/esc/lambda-labs-gh200-config.yaml`
+3. **ESC Configuration**: `infrastructure/esc/lambda-labs-ggh200-config.yaml`
    - Complete H200 configuration
    - GPU memory pools
    - Auto-scaling settings

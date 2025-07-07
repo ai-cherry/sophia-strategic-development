@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Enhanced Lambda Labs Provisioner for GH200 GPU Clusters
+Enhanced Lambda Labs Provisioner for GGH200 GPU Clusters
 Optimized for Sophia AI Platform with Kubernetes and Snowflake integration
 """
 
@@ -85,7 +85,7 @@ class SnowflakeIntegrationConfig:
 
 class EnhancedLambdaLabsProvisioner:
     """
-    Enhanced Lambda Labs provisioner for GH200 GPU clusters
+    Enhanced Lambda Labs provisioner for GGH200 GPU clusters
     Supports Kubernetes, auto-scaling, and Snowflake integration
     """
 
@@ -181,8 +181,8 @@ class EnhancedLambdaLabsProvisioner:
         return h200_instances
 
     async def launch_enhanced_cluster(self) -> dict[str, Any]:
-        """Launch enhanced GH200 GPU cluster with Kubernetes"""
-        logger.info("🚀 Launching Enhanced GH200 GPU Cluster...")
+        """Launch enhanced GGH200 GPU cluster with Kubernetes"""
+        logger.info("🚀 Launching Enhanced GGH200 GPU Cluster...")
 
         try:
             # Step 1: Verify H200 availability
@@ -226,7 +226,7 @@ class EnhancedLambdaLabsProvisioner:
                 }
             )
 
-            logger.info("✅ Enhanced GH200 GPU Cluster launched successfully!")
+            logger.info("✅ Enhanced GGH200 GPU Cluster launched successfully!")
             return self.cluster_state
 
         except Exception as e:

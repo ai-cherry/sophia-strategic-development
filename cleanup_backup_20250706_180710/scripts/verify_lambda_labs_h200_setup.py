@@ -23,7 +23,7 @@ RESET = "\033[0m"
 
 
 class LambdaLabsH200Verifier:
-    """Verifies Lambda Labs GH200 GPU setup for Sophia AI"""
+    """Verifies Lambda Labs GGH200 GPU setup for Sophia AI"""
 
     def __init__(self):
         self.api_key = os.getenv("LAMBDA_LABS_API_KEY")

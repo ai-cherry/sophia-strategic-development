@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Enhanced 6-Tier Memory Architecture for Sophia AI Platform
-Optimized for GH200 GPUs with 96GB HBM3e memory and Snowflake Cortex integration
+Optimized for GGH200 GPUs with 96GB HBM3e memory and Snowflake Cortex integration
 """
 
 import asyncio
@@ -56,7 +56,7 @@ class GPUMemoryPool:
 class EnhancedMemoryArchitecture:
     """
     Enhanced 6-Tier Memory Architecture Manager
-    Optimized for GH200 GPUs and Snowflake Cortex integration
+    Optimized for GGH200 GPUs and Snowflake Cortex integration
     """
 
     def __init__(self):
@@ -156,7 +156,7 @@ class EnhancedMemoryArchitecture:
     async def initialize_gpu_memory_manager(self):
         """Initialize GPU memory manager for L0 tier"""
         try:
-            # This would integrate with Lambda Labs GH200 GPU
+            # This would integrate with Lambda Labs GGH200 GPU
             # For now, we'll simulate the GPU memory management
             self.gpu_memory_manager = {
                 "active_models": {},

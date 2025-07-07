@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Validate GGH200 GPU Deployment on Lambda Labs
+Validate GGGH200 GPU Deployment on Lambda Labs
 Checks actual deployment against PR specifications
 """
 

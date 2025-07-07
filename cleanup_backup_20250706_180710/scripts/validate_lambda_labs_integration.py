@@ -371,7 +371,7 @@ class IntegrationValidator:
 
                     if h200_types:
                         self.successes.append(
-                            "✅ GH200 GPU instances found in Lambda Labs"
+                            "✅ GGH200 GPU instances found in Lambda Labs"
                         )
                         # Show availability
                         for h200 in h200_types:
@@ -386,7 +386,7 @@ class IntegrationValidator:
                                 )
                     else:
                         self.warnings.append(
-                            "⚠️  GH200 GPU instances not found in instance types"
+                            "⚠️  GGH200 GPU instances not found in instance types"
                         )
 
                     # List current instances
@@ -445,7 +445,7 @@ class IntegrationValidator:
     def check_infrastructure_files(self) -> bool:
         """Check for required infrastructure files"""
         required_files = [
-            "infrastructure/esc/lambda-labs-gh200-config.yaml",
+            "infrastructure/esc/lambda-labs-ggh200-config.yaml",
             "scripts/ci/sync_from_gh_to_pulumi.py",
             ".github/workflows/sync_secrets.yml",
             "scripts/verify_lambda_labs_h200_setup.py",
@@ -496,7 +496,7 @@ class IntegrationValidator:
         print("=" * 70)
         if not self.errors:
             print("🎉 OVERALL: Integration validation PASSED!")
-            print("   ✅ Ready for GH200 GPU deployment")
+            print("   ✅ Ready for GGH200 GPU deployment")
             print("\n📋 Next Steps:")
             print("   1. Run: gh workflow run sync_secrets.yml")
             print("   2. Run: pulumi env init scoobyjava-org/sophia-ai-h200-production")

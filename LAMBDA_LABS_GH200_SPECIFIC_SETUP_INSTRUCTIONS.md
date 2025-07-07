@@ -1,6 +1,6 @@
-# 🎯 Lambda Labs GH200 GPU Setup - EXACT INSTRUCTIONS
+# 🎯 Lambda Labs GGH200 GPU Setup - EXACT INSTRUCTIONS
 
-**Purpose**: Step-by-step instructions for setting up the GH200 GPU infrastructure in Lambda Labs for Sophia AI
+**Purpose**: Step-by-step instructions for setting up the GGH200 GPU infrastructure in Lambda Labs for Sophia AI
 
 ---
 
@@ -40,14 +40,14 @@
 
 ---
 
-## 🖥️ **STEP 2: Request GH200 GPU Access**
+## 🖥️ **STEP 2: Request GGH200 GPU Access**
 
 ### **2.1 Check H200 Availability**
 1. Go to: **Dashboard → Instance Types**
 2. Look for: `gpu_1x_gh200` or `gpu_8x_h200`
 3. If not visible, contact Lambda Labs support:
-   - Subject: "GH200 GPU Access Request for Enterprise Account"
-   - Message: "We need access to GH200 GPUs for our AI platform deployment"
+   - Subject: "GGH200 GPU Access Request for Enterprise Account"
+   - Message: "We need access to GGH200 GPUs for our AI platform deployment"
 
 ### **2.2 Request Quota Increase**
 1. Go to: **Account → Quotas**
@@ -61,7 +61,7 @@
 
 ---
 
-## 🚀 **STEP 3: Launch GH200 GPU Instances**
+## 🚀 **STEP 3: Launch GGH200 GPU Instances**
 
 ### **3.1 Instance Configuration**
 
@@ -358,7 +358,7 @@ If you encounter issues:
 - **Email**: support@lambdalabs.com
 - **Chat**: Available in dashboard
 - **Phone**: Enterprise support (if available)
-- **Reference**: Mention "GH200 GPU Cluster for Sophia AI"
+- **Reference**: Mention "GGH200 GPU Cluster for Sophia AI"
 
 ---
 

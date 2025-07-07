@@ -24,7 +24,7 @@ const namespace = new k8s.core.v1.Namespace("sophia-ai-enhanced", {
     },
 }, { provider: lambdaLabsProvider });
 
-// Enhanced Docker image for GH200 GPU optimization
+// Enhanced Docker image for GGH200 GPU optimization
 const sophiaEnhancedImage = new docker.Image("sophia-h200-optimized", {
     imageName: pulumi.interpolate`${dockerRegistry}/sophia-ai:h200-optimized`,
     build: {
@@ -112,7 +112,7 @@ const enhancedConfigMap = new k8s.core.v1.ConfigMap("sophia-enhanced-config", {
     },
     data: {
         "app_config.yaml": `
-# Enhanced Sophia AI Configuration - GH200 GPU Optimization
+# Enhanced Sophia AI Configuration - GGH200 GPU Optimization
 server:
   host: "0.0.0.0"
   port: 8000
