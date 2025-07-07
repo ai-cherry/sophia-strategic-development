@@ -1,9 +1,9 @@
 # Sophia AI: Complete Deployment Enhancement Plan
 ## sophia-intel.ai Integration & Infrastructure Optimization
 
-**Date**: July 7, 2025  
-**Status**: Ready for Implementation  
-**Domain**: sophia-intel.ai (Active & Configured)  
+**Date**: July 7, 2025
+**Status**: Ready for Implementation
+**Domain**: sophia-intel.ai (Active & Configured)
 **Infrastructure**: 5 Lambda Labs Instances ($4.83/hour)
 
 ---
@@ -45,10 +45,10 @@ This enhancement plan leverages the existing **sophia-intel.ai** domain infrastr
 Production Domains:
   primary: "sophia-intel.ai"
   app: "app.sophia-intel.ai"           # Main application
-  admin: "admin.sophia-intel.ai"       # Admin dashboard  
+  admin: "admin.sophia-intel.ai"       # Admin dashboard
   api: "api.sophia-intel.ai"           # Lambda Labs API gateway
   webhooks: "webhooks.sophia-intel.ai" # Webhook endpoints
-  
+
 Development Domains:
   dev: "dev.app.sophia-intel.ai"       # Development environment
   staging: "staging.sophia-intel.ai"   # Staging environment
@@ -66,28 +66,28 @@ Backend Services (5 Instances - $4.83/hour):
     cost: "$1.49/hour"
     services: ["AI Memory MCP (9001)", "FastAPI Backend (8000)"]
     domain_mapping: "api.sophia-intel.ai"
-    
+
   sophia-production-instance:
-    ip: "104.171.202.103" 
+    ip: "104.171.202.103"
     type: "RTX6000 24GB"
     cost: "$0.50/hour"
     services: ["Prometheus (9090)", "Grafana (3000)"]
     domain_mapping: "status.sophia-intel.ai"
-    
+
   sophia-mcp-orchestrator:
     ip: "104.171.202.117"
-    type: "A6000 48GB" 
+    type: "A6000 48GB"
     cost: "$0.80/hour"
     services: ["MCP Gateway (8080)", "Business Intelligence APIs"]
     domain_mapping: "api.sophia-intel.ai/mcp"
-    
+
   sophia-data-pipeline:
     ip: "104.171.202.134"
     type: "A100 40GB"
     cost: "$1.29/hour"
     services: ["Snowflake Connections", "ETL Pipelines"]
     domain_mapping: "api.sophia-intel.ai/data"
-    
+
   sophia-development:
     ip: "155.248.194.183"
     type: "A10 24GB"
@@ -127,21 +127,21 @@ Production Projects:
     framework: "React/Vite"
     build_command: "npm run build"
     output_directory: "dist"
-    
+
   sophia-intel-ai-admin:
-    domain: "admin.sophia-intel.ai" 
+    domain: "admin.sophia-intel.ai"
     purpose: "Admin dashboard and management"
     framework: "React/Vite"
     build_command: "cd admin && npm run build"
     output_directory: "admin/dist"
-    
+
   sophia-intel-ai-docs:
     domain: "docs.sophia-intel.ai"
     purpose: "Documentation and API docs"
     framework: "Static/Markdown"
     build_command: "npm run build:docs"
     output_directory: "docs/dist"
-    
+
   sophia-intel-ai-status:
     domain: "status.sophia-intel.ai"
     purpose: "Infrastructure status and monitoring"
@@ -171,7 +171,7 @@ values:
     app: "app.sophia-intel.ai"
     admin: "admin.sophia-intel.ai"
     api: "api.sophia-intel.ai"
-    
+
   lambda_labs:
     api_key:
       fn::secret: ${LAMBDA_API_KEY}
@@ -184,7 +184,7 @@ values:
       production:
         ip: "104.171.202.103"
         endpoint: "https://status.sophia-intel.ai"
-        
+
   vercel:
     api_token:
       fn::secret: ${VERCEL_API_TOKEN}
@@ -201,7 +201,7 @@ values:
           VITE_API_ENDPOINT: "https://api.sophia-intel.ai"
           VITE_ADMIN_MODE: "true"
           VITE_DOMAIN: "sophia-intel.ai"
-          
+
   namecheap:
     api_key:
       fn::secret: ${NAMECHEAP_API_KEY}
@@ -215,8 +215,8 @@ values:
 LAMBDA_API_KEY: "existing_lambda_labs_api_key"
 LAMBDA_SSH_KEY: "existing_ssh_public_key"
 LAMBDA_PRIVATE_SSH_KEY: "existing_ssh_private_key"
-VERCEL_API_TOKEN: "zjlHk1AEREFUS3DmLivZ90GZ"
-NAMECHEAP_API_KEY: "d6913ec33b2c4d328be9cbb4db382eca"
+VERCEL_API_TOKEN: "use-correct-env-variable-not-hardcoded-value"
+NAMECHEAP_API_KEY: "use-correct-env-variable-not-hardcoded-value"
 SOPHIA_INTEL_DOMAIN: "sophia-intel.ai"
 ```
 
@@ -280,7 +280,7 @@ domains:
 # Verify current DNS records are optimal
 Current Records:
   - "@" → 34.74.88.2 (A Record)
-  - "api" → 34.74.88.2 (A Record) 
+  - "api" → 34.74.88.2 (A Record)
   - "webhooks" → 34.74.88.2 (A Record)
   - "app" → cname.vercel-dns.com (CNAME)
   - "dev.app" → cname.vercel-dns.com (CNAME)
@@ -313,7 +313,7 @@ upstream sophia_api {
 server {
     listen 443 ssl;
     server_name api.sophia-intel.ai;
-    
+
     location / {
         proxy_pass http://sophia_api;
         proxy_set_header Host $host;
@@ -338,7 +338,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://app.sophia-intel.ai",
-        "https://admin.sophia-intel.ai", 
+        "https://admin.sophia-intel.ai",
         "https://dev.app.sophia-intel.ai",
         "https://sophia-intel.ai"
     ],
@@ -357,7 +357,7 @@ async def health_check():
 # Route MCP requests to appropriate Lambda Labs instances
 MCP_ROUTING = {
     "ai_memory": "192.222.58.232:9001",
-    "business_intelligence": "104.171.202.117:8080", 
+    "business_intelligence": "104.171.202.117:8080",
     "data_pipeline": "104.171.202.134:8000",
     "development": "155.248.194.183:8000"
 }
@@ -396,7 +396,7 @@ vercel_analytics:
   web_analytics: enabled
   speed_insights: enabled
   audience_insights: enabled
-  
+
 lambda_labs_monitoring:
   prometheus: "104.171.202.103:9090"
   grafana: "104.171.202.103:3000"
@@ -432,7 +432,7 @@ frontend_performance:
   first_contentful_paint: "<1.5s"
   largest_contentful_paint: "<2.5s"
   cumulative_layout_shift: "<0.1"
-  
+
 backend_performance:
   api_response_time: "<500ms"
   websocket_latency: "<100ms"
@@ -468,7 +468,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run tests
         run: npm test
-        
+
   deploy-frontend:
     needs: test
     runs-on: ubuntu-latest
@@ -480,7 +480,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
         run: |
           npx vercel --prod --token $VERCEL_TOKEN
-          
+
   deploy-backend:
     needs: test
     runs-on: ubuntu-latest
@@ -535,7 +535,7 @@ alert_conditions:
 - [ ] Sync environment variables
 - [ ] Verify first successful deployment
 
-### Phase 2 - Domain Integration  
+### Phase 2 - Domain Integration
 - [ ] Add missing DNS records
 - [ ] Configure SSL certificates
 - [ ] Set up load balancing
@@ -579,4 +579,3 @@ alert_conditions:
 - Scalable architecture for growth
 
 This enhancement plan leverages your existing sophia-intel.ai domain and Lambda Labs infrastructure to create a production-ready, fully integrated Sophia AI platform with optimal performance, monitoring, and cost efficiency.
-

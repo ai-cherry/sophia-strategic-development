@@ -124,8 +124,8 @@ curl https://status.sophia-intel.ai/api/status
 LAMBDA_API_KEY=<lambda_labs_api_key>
 LAMBDA_SSH_KEY=<ssh_public_key>
 LAMBDA_PRIVATE_SSH_KEY=<ssh_private_key>
-VERCEL_API_TOKEN=zjlHk1AEREFUS3DmLivZ90GZ
-NAMECHEAP_API_KEY=d6913ec33b2c4d328be9cbb4db382eca
+VERCEL_API_TOKEN=<your_vercel_api_token>
+NAMECHEAP_API_KEY=<your_namecheap_api_key>
 SOPHIA_INTEL_DOMAIN=sophia-intel.ai
 ```
 
@@ -172,25 +172,25 @@ sophia-ai-core:
   type: GH200 (96GB GPU)
   cost: $1.49/hour
   services: [AI Memory MCP (9001), FastAPI Backend (8000)]
-  
+
 sophia-production-instance:
   ip: 104.171.202.103
   type: RTX6000 (24GB GPU)
   cost: $0.50/hour
   services: [Prometheus (9090), Grafana (3000)]
-  
+
 sophia-mcp-orchestrator:
   ip: 104.171.202.117
   type: A6000 (48GB GPU)
   cost: $0.80/hour
   services: [MCP Gateway (8080)]
-  
+
 sophia-data-pipeline:
   ip: 104.171.202.134
   type: A100 (40GB GPU)
   cost: $1.29/hour
   services: [Snowflake Connections, ETL Pipelines]
-  
+
 sophia-development:
   ip: 155.248.194.183
   type: A10 (24GB GPU)
@@ -404,4 +404,3 @@ lighthouse https://app.sophia-intel.ai
 **🎉 Deployment Complete!**
 
 Your Sophia AI platform is now live at **sophia-intel.ai** with full Lambda Labs integration, monitoring, and optimization. The platform is production-ready and scalable for enterprise use.
-

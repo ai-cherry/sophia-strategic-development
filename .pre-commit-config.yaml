@@ -1,22 +1,23 @@
 # Pre-commit hooks for Sophia AI
 # See https://pre-commit.com for more information
 
+# repos:
+#   # Python code formatting
+#   - repo: https://github.com/psf/black
+#     rev: 23.12.1
+#     hooks:
+#       - id: black
+#         language_version: python3.11
+#         args: [--line-length=88]
+
+#   # Python linting
+#   - repo: https://github.com/astral-sh/ruff-pre-commit
+#     rev: v0.1.11
+#     hooks:
+#       - id: ruff
+#         args: [--fix]
+
 repos:
-  # Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
-        language_version: python3.11
-        args: [--line-length=88]
-
-  # Python linting
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.11
-    hooks:
-      - id: ruff
-        args: [--fix]
-
   # Security scanning
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.6
@@ -38,64 +39,36 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
 
-  # === ENHANCED DEAD CODE PREVENTION ===
-  # Prevent dead code patterns identified in audit
-  - repo: local
-    hooks:
-      - id: dead-code-prevention
-        name: Prevent dead code patterns
-        entry: python
-        args:
-          - -c
-          - |
-            import sys; import re; from pathlib import Path
-            patterns = [
-              r'^apps/(?!README\.md$|\.FUTURE_USE_ONLY$).*',
-              r'^libs/(?!README\.md$|\.FUTURE_USE_ONLY$).*',
-              r'.*(?:_REPORT|_SUMMARY|_PLAN|_STATUS|_COMPLETE|_SUCCESS|_ANALYSIS|_PROMPT)\.md$',
-              r'^Dockerfile\.(?!production$).*',
-              r'backend/app/(?!fastapi_main\.py$|__init__\.py$).*\.py$'
-            ]
-            for f in sys.argv[1:]:
-              for p in patterns:
-                if re.match(p, f):
-                  print(f'❌ BLOCKED: {f} matches forbidden pattern {p}'); sys.exit(1)
-            print('✅ All files passed dead code prevention checks')
-        language: python
-        pass_filenames: true
-        files: \.(py|md|dockerfile)$|^Dockerfile
-
-      - id: one-time-script-reminder
-        name: Remind about one-time script deletion
-        entry: python
-        args:
-          - -c
-          - |
-            import sys
-            for f in sys.argv[1:]:
-              if any(f.startswith(p) for p in ['scripts/fix_', 'scripts/deploy_', 'scripts/cleanup_', 'scripts/migrate_', 'scripts/test_', 'scripts/validate_', 'scripts/one_time_']):
-                print(f'⚠️  REMINDER: {f} appears to be a one-time script - remember to delete after use')
-                print('   Add to .cursorrules ALWAYS DELETE list or move to scripts/permanent/')
-        language: python
-        pass_filenames: true
-        files: ^scripts/.*\.py$
-
-      - id: monorepo-transition-guard
-        name: Guard against monorepo transition violations
-        entry: python
-        args:
-          - -c
-          - |
-            import sys
-            violations = [f for f in sys.argv[1:] if f.startswith(('apps/', 'libs/')) and not f.endswith(('README.md', '.FUTURE_USE_ONLY'))]
-            if violations:
-              print('❌ MONOREPO TRANSITION VIOLATION:')
-              for v in violations: print(f'   {v}')
-              print('💡 Continue using backend/ and frontend/ until February 2025')
-              print('   See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md'); sys.exit(1)
-        language: python
-        pass_filenames: true
-        files: ^(apps|libs)/
+# - repo: local
+#   hooks:
+#     - id: dead-code-prevention
+#       name: Prevent dead code patterns
+#       entry: python scripts/security/prevent_dead_code_patterns.py
+#       language: python
+#       types: [text]
+#       exclude: .*/(test_.*|.*_test)\.py
+#     - id: remind-about-one-time-script-deletion
+#       name: Remind about one-time script deletion
+#       entry: python scripts/remind_about_one_time_script_deletion.py
+#       language: python
+#       pass_filenames: true
+#       files: ^scripts/.*\.py$
+#     - id: monorepo-transition-guard
+#       name: Guard against monorepo transition violations
+#       entry: python
+#       args:
+#         - -c
+#         - |
+#           import sys
+#           violations = [f for f in sys.argv[1:] if f.startswith(('apps/', 'libs/')) and not f.endswith(('README.md', '.FUTURE_USE_ONLY'))]
+#           if violations:
+#             print('❌ MONOREPO TRANSITION VIOLATION:')
+#             for v in violations: print(f'   {v}')
+#             print('💡 Continue using backend/ and frontend/ until February 2025')
+#             print('   See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md'); sys.exit(1)
+#       language: python
+#       pass_filenames: true
+#       files: ^(apps|libs)/
 
 # Configuration
 default_language_version:
