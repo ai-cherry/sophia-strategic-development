@@ -1,0 +1,124 @@
+# Estuary Flow Materialization - Redis Cache
+# Materializes enriched data to Redis for fast access by MCP servers
+
+materializations:
+  sophia-ai/redis-hot-cache:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-redis:latest
+        config:
+          address: "146.235.200.1:6379"
+          password:
+            $ref: secrets.yaml#/redis_password
+          tls:
+            enabled: false
+          max_connections: 100
+          
+    bindings:
+      # Gong enriched calls - 2 hour TTL
+      - resource:
+          stream: sophia-ai/gong-calls-enriched
+          syncMode: incremental
+        fields:
+          recommended:
+            - /call_id
+            - /sentiment_category
+            - /call_quality_score
+            - /risk_indicators
+            - /next_best_actions
+            - /executive_summary
+          exclude:
+            - /transcript  # Too large for cache
+        target:
+          keyTemplate: "ef:gong:call:{call_id}"
+          ttlSeconds: 7200  # 2 hours
+          
+      # Slack messages - 24 hour TTL  
+      - resource:
+          stream: sophia-ai/slack-messages-enriched
+          syncMode: incremental
+        fields:
+          recommended:
+            - /message_id
+            - /channel
+            - /user
+            - /sentiment
+            - /topics
+            - /action_required
+        target:
+          keyTemplate: "ef:slack:msg:{message_id}"
+          ttlSeconds: 86400  # 24 hours
+          
+      # GitHub events - 1 hour TTL
+      - resource:
+          stream: sophia-ai/github-events-enriched
+          syncMode: incremental
+        fields:
+          recommended:
+            - /event_id
+            - /repo
+            - /action
+            - /user
+            - /impact_score
+        target:
+          keyTemplate: "ef:github:event:{event_id}"
+          ttlSeconds: 3600  # 1 hour
+          
+      # Executive metrics - 5 minute TTL
+      - resource:
+          stream: sophia-ai/executive-metrics
+          syncMode: full_refresh
+        target:
+          keyTemplate: "ef:metrics:executive"
+          ttlSeconds: 300  # 5 minutes
+          
+    # Performance configuration
+    performance:
+      maxConcurrentWrites: 50
+      batchSize: 100
+      flushIntervalMs: 1000
+      
+    # Error handling
+    errorHandling:
+      maxRetries: 3
+      retryDelayMs: 1000
+      deadLetterQueue:
+        enabled: true
+        topic: "sophia-ai/dlq-redis"
+
+# Monitoring configuration        
+monitoring:
+  metrics:
+    - name: redis_materialization_lag_ms
+      type: gauge
+      description: "Lag between source and Redis in milliseconds"
+      
+    - name: redis_write_errors_total
+      type: counter
+      description: "Total Redis write errors"
+      
+    - name: redis_keys_written_total
+      type: counter
+      description: "Total keys written to Redis"
+      
+  alerts:
+    - name: "High Redis Lag"
+      condition: "redis_materialization_lag_ms > 5000"
+      severity: warning
+      
+    - name: "Redis Write Failures"
+      condition: "rate(redis_write_errors_total[5m]) > 0.01"
+      severity: critical
+
+# Metadata
+metadata:
+  owner: data-team
+  description: "Materializes hot data to Redis for MCP server access"
+  dependencies:
+    - sophia-ai/gong-calls-enriched
+    - sophia-ai/slack-messages-enriched
+    - sophia-ai/github-events-enriched
+  tags:
+    - cache
+    - real-time
+    - performance 
