@@ -82,6 +82,23 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Large reports and analysis files
+*_report.json
+*_results.json
+large_files_list.txt
+LARGE_FILE_ANALYSIS_REPORT.md
+
+# Package lock files (manage separately)
+package-lock.json
+pnpm-lock.yaml
+
+# User-specific configs
+.config/
+
+# Crash dumps
+*.dmp
+*.meta
+
 # Testing
 coverage/
 .nyc_output/
