@@ -23,6 +23,17 @@
 # Then follow the simple next steps printed by the script
 ```
 
+## 🏗️ Deployment Architecture
+
+**Important:** MCP servers run on Lambda Labs (146.235.200.1), NOT locally!
+
+- **Frontend**: Vercel (app.sophia-intel.ai)
+- **Backend API**: Lambda Labs (api.sophia-intel.ai)
+- **MCP Servers**: Lambda Labs (internal ports 9001-9104)
+- **Database**: Lambda Labs (PostgreSQL + Redis)
+
+The MCP servers are accessed through the backend API proxy, not directly exposed to the internet.
+
 ## 📊 Success Criteria
 
 **Minimum Viable Deployment:**
