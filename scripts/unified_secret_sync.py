@@ -20,6 +20,7 @@ def get_secret(secret_name: str) -> str:
         print(f"Warning: Secret {secret_name} not found in environment")
     return value
 
+
 def sync_secrets_to_pulumi_esc():
     """Sync GitHub Organization secrets to Pulumi ESC environment."""
 
@@ -40,14 +41,12 @@ def sync_secrets_to_pulumi_esc():
         "snowflake_warehouse": get_secret("SNOWFLAKE_WAREHOUSE"),
         "snowflake_database": get_secret("SNOWFLAKE_DATABASE"),
         "snowflake_role": get_secret("SNOWFLAKE_ROLE"),
-
         # AI Services
         "openai_api_key": get_secret("OPENAI_API_KEY"),
         "anthropic_api_key": get_secret("ANTHROPIC_API_KEY"),
         "mem0_api_key": get_secret("MEM0_API_KEY"),
         "openrouter_api_key": get_secret("OPENROUTER_API_KEY"),
         "portkey_api_key": get_secret("PORTKEY_API_KEY"),
-
         # Business Intelligence
         "gong_access_key": get_secret("GONG_ACCESS_KEY"),
         "gong_access_key_secret": get_secret("GONG_ACCESS_KEY_SECRET"),
@@ -55,13 +54,11 @@ def sync_secrets_to_pulumi_esc():
         "linear_api_key": get_secret("LINEAR_API_KEY"),
         "asana_access_token": get_secret("ASANA_ACCESS_TOKEN"),
         "notion_api_token": get_secret("NOTION_API_TOKEN"),
-
         # Communication
         "slack_bot_token": get_secret("SLACK_BOT_TOKEN"),
         "slack_app_token": get_secret("SLACK_APP_TOKEN"),
         "slack_webhook_url": get_secret("SLACK_WEBHOOK_URL"),
         "slack_signing_secret": get_secret("SLACK_SIGNING_SECRET"),
-
         # Development Tools
         "github_token": get_secret("GITHUB_TOKEN"),
         "github_app_id": get_secret("GITHUB_APP_ID"),
@@ -69,7 +66,6 @@ def sync_secrets_to_pulumi_esc():
         "docker_token": get_secret("DOCKER_TOKEN"),
         "docker_hub_access_token": get_secret("DOCKER_HUB_ACCESS_TOKEN"),
         "codacy_api_token": get_secret("CODACY_API_TOKEN"),
-
         # Lambda Labs - Using ACTUAL GitHub secret names
         "lambda_labs_api_key": get_secret("LAMBDA_LABS_API_KEY"),
         "lambda_labs_ssh_key": get_secret("LAMBDA_LABS_SSH_PRIVATE_KEY"),
@@ -81,11 +77,12 @@ def sync_secrets_to_pulumi_esc():
         "lambda_labs_shared_fs_id": get_secret("LAMBDA_LABS_SHARED_FS_ID"),
         "lambda_labs_shared_fs_mount": get_secret("LAMBDA_LABS_SHARED_FS_MOUNT"),
         "lambda_labs_asg_name": get_secret("LAMBDA_LABS_ASG_NAME"),
-
         # Cloud Infrastructure
         "vercel_api_token": get_secret("VERCEL_ACCESS_TOKEN"),  # Standardized name
+        "namecheap_api_key": get_secret(
+            "NAMECHEAP_API_KEY"
+        ),  # Added for domain management
         "pulumi_access_token": get_secret("PULUMI_ACCESS_TOKEN"),
-
         # Data Infrastructure
         "postgres_password": get_secret("POSTGRES_PASSWORD"),
         "pinecone_api_key": get_secret("PINECONE_API_KEY"),
@@ -93,34 +90,26 @@ def sync_secrets_to_pulumi_esc():
         "weaviate_api_key": get_secret("WEAVIATE_API_KEY"),
         "weaviate_url": get_secret("WEAVIATE_URL"),
         "estuary_api_token": get_secret("ESTUARY_API_TOKEN"),
-
         # Design
         "figma_pat": get_secret("FIGMA_PAT"),
         "figma_project_id": get_secret("FIGMA_PROJECT_ID"),
-
         # Monitoring
         "grafana_password": get_secret("GRAFANA_PASSWORD"),
     }
 
     # Convert to the structured format Pulumi ESC expects
-    esc_config = {
-        "values": {
-            "sophia": secrets_structure
-        }
-    }
+    esc_config = {"values": {"sophia": secrets_structure}}
 
     # Write to temporary file
     import tempfile
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(esc_config, f, indent=2)
         temp_file = f.name
 
     try:
         # Set the configuration in Pulumi ESC
-        cmd = [
-            "esc", "env", "set", esc_environment,
-            "--file", temp_file
-        ]
+        cmd = ["esc", "env", "set", esc_environment, "--file", temp_file]
 
         print(f"🚀 Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -146,6 +135,7 @@ def sync_secrets_to_pulumi_esc():
         # Clean up temp file
         os.unlink(temp_file)
 
+
 # This mapping is for reference - showing how GitHub secrets map to Pulumi ESC keys
 SECRET_MAPPING = {
     # AI Services
@@ -154,7 +144,6 @@ SECRET_MAPPING = {
     "MEM0_API_KEY": "mem0_api_key",
     "OPENROUTER_API_KEY": "openrouter_api_key",
     "PORTKEY_API_KEY": "portkey_api_key",
-
     # Data Infrastructure
     "SNOWFLAKE_ACCOUNT": "snowflake_account",
     "SNOWFLAKE_USERNAME": "snowflake_username",
@@ -168,23 +157,19 @@ SECRET_MAPPING = {
     "WEAVIATE_API_KEY": "weaviate_api_key",
     "WEAVIATE_URL": "weaviate_url",
     "ESTUARY_API_TOKEN": "estuary_api_token",
-
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",
     "HUBSPOT_API_KEY": "hubspot_api_key",
-
     # Communication
     "SLACK_BOT_TOKEN": "slack_bot_token",
     "SLACK_APP_TOKEN": "slack_app_token",
     "SLACK_WEBHOOK_URL": "slack_webhook_url",
     "SLACK_SIGNING_SECRET": "slack_signing_secret",
-
     # Project Management
     "LINEAR_API_KEY": "linear_api_key",
     "ASANA_ACCESS_TOKEN": "asana_access_token",
     "NOTION_API_TOKEN": "notion_api_token",
-
     # Lambda Labs - ACTUAL GitHub secret names
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     "LAMBDA_LABS_SSH_PRIVATE_KEY": "lambda_labs_ssh_key",
@@ -196,11 +181,10 @@ SECRET_MAPPING = {
     "LAMBDA_LABS_SHARED_FS_ID": "lambda_labs_shared_fs_id",
     "LAMBDA_LABS_SHARED_FS_MOUNT": "lambda_labs_shared_fs_mount",
     "LAMBDA_LABS_ASG_NAME": "lambda_labs_asg_name",
-
     # Cloud Infrastructure
     "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
     "VERCEL_ACCESS_TOKEN": "vercel_api_token",
-
+    "NAMECHEAP_API_KEY": "namecheap_api_key",  # Added for domain management
     # Development Tools
     "DOCKER_TOKEN": "docker_token",
     "DOCKER_HUB_ACCESS_TOKEN": "docker_hub_access_token",
@@ -208,10 +192,8 @@ SECRET_MAPPING = {
     "GITHUB_APP_ID": "github_app_id",
     "GITHUB_APP_PRIVATE_KEY": "github_app_private_key",
     "CODACY_API_TOKEN": "codacy_api_token",
-
     # Monitoring
     "GRAFANA_PASSWORD": "grafana_password",
-
     # Design
     "FIGMA_PAT": "figma_pat",
     "FIGMA_PROJECT_ID": "figma_project_id",
