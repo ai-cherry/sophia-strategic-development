@@ -17,7 +17,7 @@ export LAMBDA_SSH_KEY_PATH='~/.ssh/sophia-ai-key'  # or your actual path
 ## 3. GitHub Personal Access Token
 For cloning the private repository:
 ```bash
-export GITHUB_TOKEN='ghp_your_token_here'
+export GITHUB_TOKEN='ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 ```
 
 ## 4. Instance Decisions

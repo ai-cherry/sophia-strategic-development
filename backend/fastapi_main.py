@@ -13,6 +13,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from backend.api.ai_memory_health_routes import router as ai_memory_router
+from backend.api.deployment_status_routes import router as deployment_router
+from backend.api.lambda_labs_health_routes import router as lambda_labs_router
+from backend.api.unified_health_routes import router as unified_health_router
 from backend.services.unified_chat_service import (
     AccessLevel,
     ChatContext,
@@ -41,6 +45,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include monitoring routers
+app.include_router(ai_memory_router)
+app.include_router(deployment_router)
+app.include_router(unified_health_router)
+app.include_router(lambda_labs_router)
 
 
 # Pydantic models for API (align with internal models but use Pydantic)

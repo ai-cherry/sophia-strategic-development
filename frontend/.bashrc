@@ -120,7 +120,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 [ -f "$HOME/.env" ] && source "$HOME/.env"
-export GITHUB_TOKEN=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
+export GITHUB_TOKEN=github_pat_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # add Pulumi to the PATH
 export PATH=$PATH:/home/ubuntu/.pulumi/bin

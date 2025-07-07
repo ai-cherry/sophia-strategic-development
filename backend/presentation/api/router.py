@@ -13,12 +13,15 @@ from fastapi import APIRouter
 logger = logging.getLogger(__name__)
 
 from backend.api import (
+    ai_memory_health_routes,
     asana_integration_routes,
     ceo_dashboard_routes,
     codacy_integration_routes,
+    deployment_status_routes,
     enhanced_cortex_routes,
     kb_management_routes,
     knowledge_dashboard_routes,
+    lambda_labs_health_routes,
     large_data_import_routes,
     linear_integration_routes,
     llm_strategy_routes,
@@ -26,6 +29,7 @@ from backend.api import (
     slack_linear_knowledge_routes,
     snowflake_intelligence_routes,
     sophia_universal_chat_routes,
+    unified_health_routes,
 )
 
 # Import ephemeral credentials routes
@@ -109,6 +113,22 @@ def _setup_admin_routes(router: APIRouter) -> None:
     )
 
 
+def _setup_monitoring_routes(router: APIRouter) -> None:
+    """Setup monitoring and health check routes"""
+    router.include_router(
+        ai_memory_health_routes.router,
+    )
+    router.include_router(
+        deployment_status_routes.router,
+    )
+    router.include_router(
+        unified_health_routes.router,
+    )
+    router.include_router(
+        lambda_labs_health_routes.router,
+    )
+
+
 def _setup_security_routes(router: APIRouter) -> None:
     """Setup security and access control routes"""
     router.include_router(
@@ -135,6 +155,7 @@ def create_application_router() -> APIRouter:
     _setup_integration_routes(router)
     _setup_data_routes(router)
     _setup_admin_routes(router)
+    _setup_monitoring_routes(router)
     _setup_security_routes(router)  # Add security routes
 
     logger.info("✅ Application router created with all endpoints")
