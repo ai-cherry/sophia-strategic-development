@@ -30,8 +30,8 @@ class HealthStatus:
     status_code: int
     response_time: float
     service_status: str
-    error_message: Optional[str] = None
-    performance_metrics: Optional[dict] = None
+    error_message: str | None = None
+    performance_metrics: dict | None = None
 
 
 @dataclass
@@ -42,8 +42,8 @@ class DeploymentStatus:
     start_time: str
     current_status: str
     health_checks: list[HealthStatus]
-    github_actions_status: Optional[str] = None
-    estimated_completion: Optional[str] = None
+    github_actions_status: str | None = None
+    estimated_completion: str | None = None
 
 
 class CodacyMCPMonitor:
@@ -127,7 +127,7 @@ class CodacyMCPMonitor:
 
         return results
 
-    def check_github_actions(self) -> Optional[str]:
+    def check_github_actions(self) -> str | None:
         """Check GitHub Actions deployment status."""
         try:
             # Note: This would require GitHub API token for real implementation
@@ -146,7 +146,7 @@ class CodacyMCPMonitor:
         except Exception:
             return None
 
-    def estimate_completion(self, health_status: HealthStatus) -> Optional[str]:
+    def estimate_completion(self, health_status: HealthStatus) -> str | None:
         """Estimate deployment completion time."""
         if health_status.service_status in ["healthy", "responding"]:
             return "completed"

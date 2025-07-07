@@ -78,32 +78,33 @@ class KBProcessingResult:
 
 
 class NaturalLanguageKBProcessor:
-    """Natural language processor for KB operations"""
+    """Natural language processor for KB operations using unified LLM gateway"""
 
     def __init__(self):
         self.entity_patterns = self._initialize_entity_patterns()
         self.operation_patterns = self._initialize_operation_patterns()
         self.attribute_extractors = self._initialize_attribute_extractors()
-        self.openai_client = None
+        self.llm_service = None
         self.initialized = False
 
     async def initialize(self):
-        """Initialize NLP processor"""
+        """Initialize NLP processor with unified LLM service"""
         if self.initialized:
             return
 
         try:
-            import openai
+            # Import unified LLM service for centralized routing
+            from backend.services.unified_llm_service import get_unified_llm_service
 
-            api_key = await get_config_value("openai_api_key")
-            if api_key:
-                self.openai_client = openai.AsyncOpenAI(api_key=api_key)
-                logger.info("✅ NL KB Processor initialized with OpenAI")
-            else:
-                logger.warning("OpenAI API key not available")
-
+            self.llm_service = await get_unified_llm_service()
+            logger.info("✅ NL KB Processor initialized with unified LLM gateway")
             self.initialized = True
 
+        except ImportError:
+            logger.warning(
+                "Unified LLM service not available, using pattern-based processing only"
+            )
+            self.initialized = True
         except Exception as e:
             logger.error(f"Failed to initialize NL KB Processor: {e}")
             self.initialized = True

@@ -83,9 +83,9 @@ class DataSourceManager:
         self,
         source: DataSourceType,
         query: str,
-        params: Optional[dict] = None,
+        params: dict | None = None,
         use_cache: bool = True,
-    ) -> Union[list[dict], dict]:
+    ) -> list[dict] | dict:
         """Fetch data from specified source with caching and error handling"""
 
         if not self.feature_flags.get(f"enable_{source.value}", False):

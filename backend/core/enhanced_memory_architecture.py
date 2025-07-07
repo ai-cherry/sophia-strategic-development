@@ -197,8 +197,8 @@ class EnhancedMemoryArchitecture:
         key: str,
         value: Any,
         tier: MemoryTier,
-        ttl: Optional[int] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        ttl: int | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Store data in the specified memory tier"""
         start_time = time.time()
@@ -232,8 +232,8 @@ class EnhancedMemoryArchitecture:
     async def retrieve_data(
         self,
         key: str,
-        preferred_tier: Optional[MemoryTier] = None,
-    ) -> Optional[Any]:
+        preferred_tier: MemoryTier | None = None,
+    ) -> Any | None:
         """Retrieve data with intelligent tier selection"""
         start_time = time.time()
 
@@ -291,8 +291,8 @@ class EnhancedMemoryArchitecture:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int],
-        metadata: Optional[dict[str, Any]],
+        ttl: int | None,
+        metadata: dict[str, Any] | None,
     ) -> bool:
         """Store data in GPU memory (L0 tier)"""
         if not self.gpu_memory_manager:
@@ -333,7 +333,7 @@ class EnhancedMemoryArchitecture:
             logger.error(f"❌ GPU memory storage failed: {e}")
             return False
 
-    async def _retrieve_gpu_memory(self, key: str) -> Optional[Any]:
+    async def _retrieve_gpu_memory(self, key: str) -> Any | None:
         """Retrieve data from GPU memory (L0 tier)"""
         if not self.gpu_memory_manager:
             return None
@@ -372,8 +372,8 @@ class EnhancedMemoryArchitecture:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int],
-        metadata: Optional[dict[str, Any]],
+        ttl: int | None,
+        metadata: dict[str, Any] | None,
     ) -> bool:
         """Store data in Redis cache (L1 tier)"""
         try:
@@ -399,7 +399,7 @@ class EnhancedMemoryArchitecture:
             logger.error(f"❌ Redis cache storage failed: {e}")
             return False
 
-    async def _retrieve_redis_cache(self, key: str) -> Optional[Any]:
+    async def _retrieve_redis_cache(self, key: str) -> Any | None:
         """Retrieve data from Redis cache (L1 tier)"""
         try:
             cached_data = self.redis_client.get(f"l1:{key}")
@@ -416,8 +416,8 @@ class EnhancedMemoryArchitecture:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int],
-        metadata: Optional[dict[str, Any]],
+        ttl: int | None,
+        metadata: dict[str, Any] | None,
     ) -> bool:
         """Store data in Snowflake Cortex cache (L2 tier)"""
         try:
@@ -452,7 +452,7 @@ class EnhancedMemoryArchitecture:
             logger.error(f"❌ Cortex cache storage failed: {e}")
             return False
 
-    async def _retrieve_cortex_cache(self, key: str) -> Optional[Any]:
+    async def _retrieve_cortex_cache(self, key: str) -> Any | None:
         """Retrieve data from Snowflake Cortex cache (L2 tier)"""
         try:
             if not self.snowflake_conn:
@@ -484,8 +484,8 @@ class EnhancedMemoryArchitecture:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int],
-        metadata: Optional[dict[str, Any]],
+        ttl: int | None,
+        metadata: dict[str, Any] | None,
     ) -> bool:
         """Store data in Snowflake persistent memory (L3 tier)"""
         try:
@@ -521,7 +521,7 @@ class EnhancedMemoryArchitecture:
             logger.error(f"❌ Persistent memory storage failed: {e}")
             return False
 
-    async def _retrieve_persistent_memory(self, key: str) -> Optional[Any]:
+    async def _retrieve_persistent_memory(self, key: str) -> Any | None:
         """Retrieve data from Snowflake persistent memory (L3 tier)"""
         try:
             if not self.snowflake_conn:
@@ -551,15 +551,15 @@ class EnhancedMemoryArchitecture:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int],
-        metadata: Optional[dict[str, Any]],
+        ttl: int | None,
+        metadata: dict[str, Any] | None,
     ) -> bool:
         """Store data in Snowflake knowledge graph (L4 tier)"""
         # Implementation for knowledge graph storage
         # This would integrate with Snowflake's vector search capabilities
         return True
 
-    async def _retrieve_knowledge_graph(self, key: str) -> Optional[Any]:
+    async def _retrieve_knowledge_graph(self, key: str) -> Any | None:
         """Retrieve data from Snowflake knowledge graph (L4 tier)"""
         # Implementation for knowledge graph retrieval
         return None
@@ -568,19 +568,19 @@ class EnhancedMemoryArchitecture:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int],
-        metadata: Optional[dict[str, Any]],
+        ttl: int | None,
+        metadata: dict[str, Any] | None,
     ) -> bool:
         """Store data in Snowflake workflow memory (L5 tier)"""
         # Implementation for workflow memory storage
         return True
 
-    async def _retrieve_workflow_memory(self, key: str) -> Optional[Any]:
+    async def _retrieve_workflow_memory(self, key: str) -> Any | None:
         """Retrieve data from Snowflake workflow memory (L5 tier)"""
         # Implementation for workflow memory retrieval
         return None
 
-    def _determine_gpu_memory_pool(self, metadata: Optional[dict[str, Any]]) -> str:
+    def _determine_gpu_memory_pool(self, metadata: dict[str, Any] | None) -> str:
         """Determine which GPU memory pool to use based on metadata"""
         if not metadata:
             return "buffer"

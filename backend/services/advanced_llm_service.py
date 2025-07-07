@@ -1,74 +1,94 @@
 import json
 import logging
-from typing import Literal, Any
+from typing import Any
 
 import tiktoken
-from anthropic import AsyncAnthropic
-from openai import AsyncOpenAI
 
 from backend.core.auto_esc_config import get_config_value
 from backend.services.constitutional_ai import ConstitutionalAI
+from backend.services.enhanced_portkey_llm_gateway import (
+    TaskComplexity,
+    get_enhanced_portkey_gateway,
+)
 
 logger = logging.getLogger(__name__)
-
-Provider = Literal["portkey", "openrouter", "openai", "anthropic"]
 
 
 class AdvancedLLMService:
     """
-    Enhanced LLM service with an intelligent routing gateway for multiple providers.
-    Routes requests to Portkey (primary), OpenRouter (cost/specialized),
-    or directly to OpenAI/Anthropic based on defined strategies.
+    Advanced LLM service with unified gateway routing.
+
+    CRITICAL: All LLM interactions route through the unified LLM gateway
+    to ensure centralized control, caching, monitoring, and cost optimization.
+
+    This service provides advanced prompt engineering and constitutional AI
+    while maintaining compliance with the unified LLM strategy.
     """
 
     def __init__(self):
-        self._initialize_clients()
+        self.llm_gateway = None  # Will be initialized lazily
         self.tokenizer = tiktoken.encoding_for_model("gpt-4")
         self.constitutional_ai = ConstitutionalAI()
         self.token_limit = 8192  # Default for gpt-4, can be model-specific
-        logger.info("AdvancedLLMService initialized with multi-provider support.")
+        logger.info("AdvancedLLMService initialized with unified gateway routing.")
 
-    def _initialize_clients(self):
-        """Initializes API clients based on configuration."""
-        self.clients = {}
-        if get_config_value("llm.portkey.enabled", True):
-            # Portkey uses standard OpenAI client with a special base_url
-            self.clients["portkey"] = AsyncOpenAI(
-                api_key=get_config_value("portkey_api_key"),
-                base_url="https://api.portkey.ai/v1",
-            )
-        if get_config_value("llm.openrouter.enabled", True):
-            self.clients["openrouter"] = AsyncOpenAI(
-                api_key=get_config_value("openrouter_api_key"),
-                base_url="https://openrouter.ai/api/v1",
-            )
-        if get_config_value("llm.openai.enabled", True):
-            self.clients["openai"] = AsyncOpenAI(
-                api_key=get_config_value("openai_api_key")
-            )
-        if get_config_value("llm.anthropic.enabled", False):
-            self.clients["anthropic"] = AsyncAnthropic(
-                api_key=get_config_value("anthropic_api_key")
-            )
+    async def _ensure_gateway_initialized(self):
+        """Ensure the unified LLM gateway is initialized"""
+        if self.llm_gateway is None:
+            self.llm_gateway = await get_enhanced_portkey_gateway()
 
-    def _determine_routing_strategy(self, query: str, context: dict) -> Provider:
-        """Determines which provider to use based on query and context."""
-        # This is where sophisticated routing logic will go.
-        # For now, it's a simple placeholder.
-        # Example logic:
-        # if context.get("task_priority") == "high": return "portkey"
-        # if "generate code" in query: return "openai"
-        # if "long context" in query: return "anthropic"
-        # if context.get("cost_sensitive"): return "openrouter"
+    def _determine_task_complexity(self, query: str, context: dict) -> str:
+        """Determine task complexity for intelligent routing"""
+        # Analyze query and context to determine complexity
+        query_lower = query.lower()
 
-        # Default to Portkey if available, else OpenRouter, else OpenAI
-        if "portkey" in self.clients:
-            return "portkey"
-        if "openrouter" in self.clients:
-            return "openrouter"
-        if "openai" in self.clients:
-            return "openai"
-        return "anthropic"  # Fallback
+        # High complexity indicators
+        if any(
+            indicator in query_lower
+            for indicator in [
+                "analyze",
+                "synthesize",
+                "strategic",
+                "complex",
+                "detailed analysis",
+                "comprehensive",
+                "executive",
+                "board",
+                "strategic planning",
+            ]
+        ):
+            return "high"
+
+        # Medium complexity indicators
+        if any(
+            indicator in query_lower
+            for indicator in ["explain", "summarize", "compare", "evaluate", "assess"]
+        ):
+            return "medium"
+
+        # Consider context factors
+        if context.get("executive_level", False):
+            return "high"
+
+        if context.get("task_priority") == "high":
+            return "high"
+
+        # Default to medium for balanced performance/cost
+        return "medium"
+
+    def _determine_routing_preference(self, query: str, context: dict) -> str:
+        """Determine routing preference for the gateway"""
+        # Map complexity and context to routing preferences
+        complexity = self._determine_task_complexity(query, context)
+
+        if complexity == "high":
+            return "quality"  # Route to best models via Portkey
+        elif context.get("cost_sensitive", False):
+            return "cost"  # Route to cost-effective models
+        elif "code" in query.lower() or "technical" in query.lower():
+            return "balanced"  # Good balance for technical tasks
+        else:
+            return "balanced"  # Default balanced routing
 
     async def synthesize_response(
         self,
@@ -77,80 +97,96 @@ class AdvancedLLMService:
         results: list[dict],
         use_constitutional_ai: bool = True,
     ) -> str:
-        """Generate response with intelligent routing and advanced prompt engineering"""
-        provider = self._determine_routing_strategy(query, context)
-        client = self.clients.get(provider)
+        """
+        Generate response with unified gateway routing and advanced prompt engineering
 
-        if not client:
-            raise ValueError(f"Provider '{provider}' is not enabled or configured.")
+        IMPORTANT: This method now routes ALL requests through the unified LLM gateway
+        instead of direct client instantiation, ensuring compliance with the unified LLM strategy.
+        """
+        await self._ensure_gateway_initialized()
 
+        # Prepare data and build advanced prompt
         processed_data = self._prepare_data_for_llm(results)
         prompt = self._build_advanced_prompt(query, context, processed_data)
 
-        if self._exceeds_token_limit(prompt, provider):
-            logger.warning(f"Prompt exceeds token limit for {provider}, compressing...")
-            prompt = self._compress_prompt(prompt, provider)
+        # Check token limits and compress if needed
+        if self._exceeds_token_limit(prompt):
+            logger.warning("Prompt exceeds token limit, compressing...")
+            prompt = self._compress_prompt(prompt)
 
-        logger.info(f"Routing LLM request to provider: {provider}")
+        # Determine routing strategy
+        routing_preference = self._determine_routing_preference(query, context)
+        task_complexity = self._determine_task_complexity(query, context)
 
-        if provider in ["portkey", "openrouter", "openai"]:
-            response = await self._generate_openai_compatible_response(
-                client, prompt, provider
-            )
-        elif provider == "anthropic":
-            response = await self._generate_anthropic_response(client, prompt)
-        else:
-            raise ValueError(f"Unknown provider routing: {provider}")
+        logger.info(
+            f"Routing LLM request through unified gateway - complexity: {task_complexity}, preference: {routing_preference}"
+        )
 
-        if use_constitutional_ai:
-            response = await self.constitutional_ai.review_and_revise(response, query)
-
-        return response
-
-    async def _generate_openai_compatible_response(
-        self, client: AsyncOpenAI, prompt: str, provider: str
-    ) -> str:
-        """Generates a response using an OpenAI-compatible client (OpenAI, Portkey, OpenRouter)."""
-        model = get_config_value(f"llm.{provider}.model", "gpt-4")
         try:
-            completion = await client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
+            # Route through unified LLM gateway
+            messages = [{"role": "user", "content": prompt}]
+
+            # Convert our parameters to gateway format
+            gateway_task_type = (
+                "business_intelligence" if context.get("executive_level") else "general"
+            )
+
+            # Map routing preference to cost preference
+            cost_preference_map = {
+                "quality": "premium_mode",
+                "balanced": "balanced_mode",
+                "cost": "budget_mode",
+            }
+            cost_preference = cost_preference_map.get(
+                routing_preference, "balanced_mode"
+            )
+
+            # Map task complexity to gateway complexity
+            complexity_map = {
+                "high": TaskComplexity.COMPLEX,
+                "medium": TaskComplexity.MODERATE,
+                "low": TaskComplexity.SIMPLE,
+            }
+            gateway_complexity = complexity_map.get(
+                task_complexity, TaskComplexity.MODERATE
+            )
+
+            # Collect response chunks
+            response_chunks = []
+            async for chunk in self.llm_gateway.complete(
+                messages=messages,
+                task_type=gateway_task_type,
+                complexity=gateway_complexity,
+                cost_preference=cost_preference,
                 temperature=0.7,
                 max_tokens=2048,
-            )
-            return completion.choices[0].message.content or ""
-        except Exception as e:
-            logger.error(f"{provider} API error: {e}")
-            raise
+                stream=False,
+            ):
+                response_chunks.append(chunk)
 
-    async def _generate_anthropic_response(
-        self, client: AsyncAnthropic, prompt: str
-    ) -> str:
-        """Generates a response using the Anthropic client."""
-        model = get_config_value("llm.anthropic.model", "claude-3-sonnet-20240229")
-        try:
-            completion = await client.messages.create(
-                model=model,
-                max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            # Handle list of content blocks
-            response_text = ""
-            for block in completion.content:
-                if hasattr(block, "text"):
-                    response_text += block.text
-            return response_text
+            response = "".join(response_chunks)
+
+            # Apply constitutional AI if requested
+            if use_constitutional_ai:
+                response = await self.constitutional_ai.review_and_revise(
+                    response, query
+                )
+
+            return response
+
         except Exception as e:
-            logger.error(f"Anthropic API error: {e}")
-            raise
+            logger.error(f"Unified gateway error: {e}")
+            # Fallback through gateway's built-in fallback mechanisms
+            raise ValueError(f"LLM request failed through unified gateway: {str(e)}")
 
     def _prepare_data_for_llm(self, results: list[dict]) -> str:
+        """Prepare data for LLM consumption"""
         if not results:
             return "No data available."
         return json.dumps(results, indent=2, default=str)
 
     def _build_advanced_prompt(self, query: str, context: dict, data: str) -> str:
+        """Build advanced prompt with business intelligence focus"""
         return f"""
 You are Sophia AI, an executive assistant providing business intelligence.
 
@@ -168,53 +204,98 @@ Based *only* on the provided context and data, provide a comprehensive, actionab
 4. **Actionable Next Steps:** Suggest 1-2 concrete actions the user can take.
 """
 
-    def _exceeds_token_limit(self, text: str, provider: str) -> bool:
-        # In a real system, we'd have model-specific token limits
+    def _exceeds_token_limit(self, text: str) -> bool:
+        """Check if text exceeds token limit"""
         return len(self.tokenizer.encode(text)) > self.token_limit
 
-    def _compress_prompt(self, prompt: str, provider: str) -> str:
+    def _compress_prompt(self, prompt: str) -> str:
+        """Compress prompt to fit token limits"""
         tokens = self.tokenizer.encode(prompt)
         if len(tokens) > self.token_limit:
             tokens = tokens[: self.token_limit]
         return self.tokenizer.decode(tokens)
 
-    async def _execute_with_quality_assurance(self, request_data: dict[str, Any]) -> str:
-        """Execute request with quality assurance measures"""
-        pass
-
-    async def _get_model_for_task(
-        self, query: str, context: str | None
-    ) -> Literal["high_quality", "balanced", "cost_effective"]:
-        """Select the best model for a given task"""
-        pass
-
-    def _get_provider_for_task(
-        self, task: str, provider: str = "default"  # noqa: ARG002
-    ) -> Literal["openai", "anthropic", "google"]:
-        """Select the best provider for a given task"""
-        pass
-
-    def _get_model_for_provider(
-        self, provider: str, model: str = "default" # noqa: ARG002
+    # Backward compatibility methods (deprecated but maintained for existing code)
+    async def _execute_with_quality_assurance(
+        self, request_data: dict[str, Any]
     ) -> str:
-        """Select the best model for a given provider"""
-        pass
+        """DEPRECATED: Use synthesize_response instead"""
+        logger.warning(
+            "_execute_with_quality_assurance is deprecated, use synthesize_response"
+        )
+        return await self.synthesize_response(
+            query=request_data.get("query", ""),
+            context=request_data.get("context", {}),
+            results=request_data.get("results", []),
+        )
+
+    async def _get_model_for_task(self, query: str, context: str | None) -> str:
+        """DEPRECATED: Model selection now handled by unified gateway"""
+        logger.warning(
+            "_get_model_for_task is deprecated, routing handled by unified gateway"
+        )
+        return "unified_gateway_routing"
+
+    def _get_provider_for_task(self, task: str, provider: str = "default") -> str:
+        """DEPRECATED: Provider selection now handled by unified gateway"""
+        logger.warning(
+            "_get_provider_for_task is deprecated, routing handled by unified gateway"
+        )
+        return "unified_gateway"
+
+    def _get_model_for_provider(self, provider: str, model: str = "default") -> str:
+        """DEPRECATED: Model selection now handled by unified gateway"""
+        logger.warning(
+            "_get_model_for_provider is deprecated, routing handled by unified gateway"
+        )
+        return "unified_gateway_routing"
 
     def _get_llm_config(self, model: str) -> dict:
-        pass
+        """DEPRECATED: Configuration now handled by unified gateway"""
+        logger.warning(
+            "_get_llm_config is deprecated, configuration handled by unified gateway"
+        )
+        return {"gateway": "unified", "model": "gateway_managed"}
 
     async def _validate_response_quality(self, response: str) -> bool:
         """Validate response quality against defined criteria"""
-        pass
+        # Basic quality checks
+        if not response or len(response.strip()) < 10:
+            return False
+
+        # Check for error messages
+        error_indicators = ["error:", "failed:", "unable to", "cannot process"]
+        if any(indicator in response.lower() for indicator in error_indicators):
+            return False
+
+        return True
 
     async def _quality_fallback(self) -> str:
         """Fallback mechanism if quality check fails"""
-        pass
-    
+        return "I apologize, but I'm unable to provide a comprehensive response at this time. Please try rephrasing your question or contact support if the issue persists."
+
     def get_quality_config(self) -> dict[str, Any]:
         """Returns the quality configuration for the service."""
-        return self.quality_config
-        
+        return {
+            "constitutional_ai_enabled": True,
+            "quality_validation_enabled": True,
+            "unified_gateway_routing": True,
+            "token_limit": self.token_limit,
+            "temperature": 0.7,
+            "max_tokens": 2048,
+        }
+
     def get_supported_providers(self) -> list[str]:
-        """Returns a list of supported LLM providers."""
-        return self.supported_providers
+        """Returns supported providers (now unified through gateway)"""
+        return ["unified_gateway"]  # All providers accessed through unified gateway
+
+    def get_routing_info(self) -> dict[str, Any]:
+        """Get information about current routing configuration"""
+        return {
+            "gateway_type": "unified_llm_gateway",
+            "routing_strategy": "intelligent_complexity_based",
+            "constitutional_ai": True,
+            "centralized_caching": True,
+            "cost_optimization": True,
+            "fallback_mechanisms": True,
+        }

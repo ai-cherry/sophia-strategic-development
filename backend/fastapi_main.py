@@ -47,18 +47,18 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     message: str
     user_id: str = "user"
-    session_id: Optional[str] = None
+    session_id: str | None = None
     context: ChatContext = ChatContext.BLENDED_INTELLIGENCE
     access_level: AccessLevel = AccessLevel.EMPLOYEE
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
     stream: bool = False
 
 
 class ChatResponse(BaseModel):
     response: str
-    sources: Optional[list[Any]] = None
-    suggestions: Optional[list[Any]] = None
-    metadata: Optional[dict[str, Any]] = None
+    sources: list[Any] | None = None
+    suggestions: list[Any] | None = None
+    metadata: dict[str, Any] | None = None
     timestamp: str = datetime.now().isoformat()
 
 

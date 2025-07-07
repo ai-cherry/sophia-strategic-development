@@ -129,7 +129,7 @@ class PerformanceEnhancedUnifiedChatService(UnifiedChatService):
 
             return response
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(f"Request timeout for user {request.user_id}")
             processing_time = time.time() - start_time
             await self.performance_tracker.track_request_timeout(
@@ -153,7 +153,7 @@ class PerformanceEnhancedUnifiedChatService(UnifiedChatService):
                 metadata={"error": str(e), "processing_time": processing_time},
             )
 
-    async def _check_cache(self, request: ChatRequest) -> Optional[ChatResponse]:
+    async def _check_cache(self, request: ChatRequest) -> ChatResponse | None:
         """Check if response is cached"""
         if not self.response_cache:
             return None
@@ -246,7 +246,7 @@ class PerformanceEnhancedUnifiedChatService(UnifiedChatService):
 
         return await self.performance_tracker.get_metrics()
 
-    async def invalidate_cache(self, pattern: Optional[str] = None):
+    async def invalidate_cache(self, pattern: str | None = None):
         """Invalidate cache entries"""
         if not self.response_cache:
             return False
@@ -337,7 +337,7 @@ class RedisResponseCache:
             logger.warning(f"⚠️ Redis cache initialization failed: {e}")
             self.redis_client = None
 
-    async def get(self, key: str) -> Optional[str]:
+    async def get(self, key: str) -> str | None:
         """Get cached value"""
         if not self.redis_client:
             return None
@@ -471,7 +471,7 @@ class QueryOptimizer:
             logger.warning(f"Query optimization error: {e}")
             return request
 
-    def _detect_context(self, message: str) -> Optional[ChatContext]:
+    def _detect_context(self, message: str) -> ChatContext | None:
         """Detect context from message content"""
         message_lower = message.lower()
 

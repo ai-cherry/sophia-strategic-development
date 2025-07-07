@@ -15,8 +15,8 @@ from typing import Dict, List, Optional, Union
 
 
 def run_command(
-    cmd: list[str], capture_output: bool = True, cwd: Optional[Path] = None
-) -> Union[subprocess.CompletedProcess, subprocess.CalledProcessError]:
+    cmd: list[str], capture_output: bool = True, cwd: Path | None = None
+) -> subprocess.CompletedProcess | subprocess.CalledProcessError:
     """Run a command and return the result"""
     try:
         result = subprocess.run(

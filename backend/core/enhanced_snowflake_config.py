@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
+import logging
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional
+
+import snowflake.connector
+
 from backend.core.config_manager import get_config_value
 
 """
 Enhanced Snowflake Configuration for Comprehensive Schema Integration
 Supports all 6 schemas: UNIVERSAL_CHAT, AI_MEMORY, APOLLO_IO, PROJECT_MANAGEMENT, GONG_INTEGRATION, HUBSPOT_INTEGRATION
 """
-
-import logging
-from dataclasses import dataclass
-from enum import Enum
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ class EnhancedSnowflakeConfig:
 class EnhancedSnowflakeManager:
     """Enhanced Snowflake manager with comprehensive schema support"""
 
-    def __init__(self, config: EnhancedSnowflakeConfig = None):
+    def __init__(self, config: EnhancedSnowflakeConfig | None = None):
         self.config = config or EnhancedSnowflakeConfig()
         self.connection = None
 
@@ -97,10 +99,7 @@ class EnhancedSnowflakeManager:
     async def connect(self):
         """Connect to Snowflake with comprehensive error handling"""
         try:
-            import snowflake.connector
-
-            self.connection = # TODO: Replace with repository injection
-    # repository.get_connection(
+            self.connection = snowflake.connector.connect(
                 account=self.config.account,
                 user=self.config.user,
                 password=self.config.password,
@@ -126,25 +125,29 @@ class EnhancedSnowflakeManager:
         return f"{self.config.database}.{schema.value}.{table_name}"
 
     async def execute_query(
-        self, query: str, params: tuple | None = None, schema: SchemaType = None
+        self,
+        query: str,
+        params: tuple | None = None,
+        schema: SchemaType | None = None,
     ) -> list[dict[str, Any]]:
         """Execute query with schema context"""
         try:
-            import snowflake.connector
+            if not self.connection:
+                raise ConnectionError(
+                    "Not connected to Snowflake. Call connect() first."
+                )
 
             cursor = self.connection.cursor(snowflake.connector.DictCursor)
 
             # Switch schema if specified
             if schema:
-                # TODO: Replace with repository method
-    # repository.execute_query("USE SCHEMA " + self._validate_schema(schema.value))
+                cursor.execute(f"USE SCHEMA {schema.value}")
 
-            # TODO: Replace with repository method
-    # repository.execute_query(query, params or ())
+            cursor.execute(query, params or ())
             results = cursor.fetchall()
             cursor.close()
 
-            return results
+            return results  # type: ignore
 
         except Exception as e:
             logger.error(f"Query execution failed: {e}")
@@ -160,10 +163,10 @@ class EnhancedSnowflakeManager:
         source_id: str = "src_manual",
         importance_score: float = 1.0,
         is_foundational: bool = False,
-        tags: list[str] = None,
-        metadata: dict[str, Any] = None,
-        file_path: str = None,
-        file_size_bytes: int = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
+        file_path: str | None = None,
+        file_size_bytes: int | None = None,
         chunk_index: int = 0,
         total_chunks: int = 1,
         created_by: str = "system",
@@ -210,9 +213,9 @@ class EnhancedSnowflakeManager:
         content: str,
         importance_score: float = 1.0,
         confidence_level: float = 1.0,
-        related_entities: list[str] = None,
-        tags: list[str] = None,
-        metadata: dict[str, Any] = None,
+        related_entities: list[str] | None = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Insert AI memory entry for enhanced context management"""
 
@@ -247,7 +250,7 @@ class EnhancedSnowflakeManager:
     async def hybrid_search_enhanced(
         self,
         query: str,
-        schemas: list[SchemaType] = None,
+        schemas: list[SchemaType] | None = None,
         limit: int = 10,
         include_embeddings: bool = True,
     ) -> dict[str, list[dict[str, Any]]]:
@@ -320,7 +323,7 @@ class EnhancedSnowflakeManager:
         metric_type: str,
         metric_name: str,
         metric_value: float,
-        dimensions: dict[str, Any] = None,
+        dimensions: dict[str, Any] | None = None,
     ) -> bool:
         """Log system metrics for comprehensive monitoring"""
 
@@ -353,11 +356,11 @@ class EnhancedSnowflakeManager:
         user_id: str,
         message_type: str,
         message_content: str,
-        knowledge_entries_used: list[str] = None,
-        processing_time_ms: int = None,
-        model_used: str = None,
-        confidence_score: float = None,
-        metadata: dict[str, Any] = None,
+        knowledge_entries_used: list[str] | None = None,
+        processing_time_ms: int | None = None,
+        model_used: str | None = None,
+        confidence_score: float | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Save conversation message with comprehensive metadata"""
 

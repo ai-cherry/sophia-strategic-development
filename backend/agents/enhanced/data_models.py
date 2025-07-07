@@ -85,7 +85,7 @@ class MemoryRecord:
 @dataclass
 class GongCallData:
     """Data model for Gong call records."""
-    
+
     call_id: str
     title: str
     started_at: datetime
@@ -94,7 +94,7 @@ class GongCallData:
     participants: list[str] = field(default_factory=list)
     meeting_url: str | None = None
     call_type: str | None = None
-    
+
     def to_memory_record(self) -> MemoryRecord:
         """Convert to a MemoryRecord for storage in the memory system."""
         return MemoryRecord(
@@ -114,10 +114,10 @@ class GongCallData:
         )
 
 
-@dataclass 
+@dataclass
 class SlackMessageData:
     """Data model for Slack message records."""
-    
+
     message_id: str
     channel_id: str
     channel_name: str
@@ -126,7 +126,7 @@ class SlackMessageData:
     timestamp: datetime
     thread_ts: str | None = None
     message_type: str = "message"
-    
+
     def to_memory_record(self) -> MemoryRecord:
         """Convert to a MemoryRecord for storage in the memory system."""
         return MemoryRecord(
@@ -149,7 +149,7 @@ class SlackMessageData:
 @dataclass
 class IntegratedConversationRecord:
     """Data model for integrated conversations across platforms (Gong, Slack, etc.)."""
-    
+
     conversation_id: str
     source_platform: str
     conversation_time: datetime
@@ -158,13 +158,13 @@ class IntegratedConversationRecord:
     participants: list[str] = field(default_factory=list)
     duration_seconds: int = 0
     platform_metadata: dict[str, Any] = field(default_factory=dict)
-    
+
     # AI-generated insights (populated via analysis)
     key_insights: list[str] = field(default_factory=list)
     action_items: list[str] = field(default_factory=list)
     sentiment_score: float | None = None
     summary: str | None = None
-    
+
     def to_memory_record(self) -> MemoryRecord:
         """Convert to a MemoryRecord for storage in the memory system."""
         return MemoryRecord(

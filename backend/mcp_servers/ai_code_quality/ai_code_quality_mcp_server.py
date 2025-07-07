@@ -511,7 +511,7 @@ class AICodeQualityMCPServer(UnifiedMCPBase):
         }
 
     async def edit_code(
-        self, instruction: str, path: Optional[str] = None
+        self, instruction: str, path: str | None = None
     ) -> dict[str, Any]:
         """Edit code using natural language instructions"""
         # Parse the instruction to understand the intent
@@ -543,7 +543,7 @@ class AICodeQualityMCPServer(UnifiedMCPBase):
                 "note": "Advanced natural language code editing coming soon",
             }
 
-    async def _remove_unused_arguments(self, path: Optional[str]) -> dict[str, Any]:
+    async def _remove_unused_arguments(self, path: str | None) -> dict[str, Any]:
         """Remove unused function arguments"""
         target_path = path or "."
 

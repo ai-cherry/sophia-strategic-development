@@ -38,7 +38,7 @@ class EnhancedDeadCodeScanner:
     Builds on existing Sophia AI automation infrastructure.
     """
 
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or Path.cwd()
         self.scan_results = {
             "timestamp": datetime.now().isoformat(),
@@ -254,7 +254,7 @@ class EnhancedDeadCodeScanner:
 
         self.scan_results["recommendations"] = recommendations
 
-    def execute_auto_fixes(self, category: Optional[str] = None) -> dict[str, Any]:
+    def execute_auto_fixes(self, category: str | None = None) -> dict[str, Any]:
         """
         Execute automatic fixes for low-risk dead code issues.
         Builds on existing AI Junk Prevention Service patterns.

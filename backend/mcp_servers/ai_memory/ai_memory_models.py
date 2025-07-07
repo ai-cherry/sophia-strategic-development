@@ -72,7 +72,7 @@ class MemoryCategory(Enum):
     TRAINING = "training"
     INFERENCE = "inference"
     DATA_PIPELINE = "data_pipeline"
-    
+
     # AI Agent Authentication Categories
     AI_AGENT_AUTH = "ai_agent_auth"
     AUTH_PATTERNS = "auth_patterns"
@@ -512,10 +512,10 @@ def create_technical_decision_memory(
 
 
 def create_ai_agent_auth_memory(
-    content: str, 
-    agent_type: str, 
-    service: str, 
-    operation: str, 
+    content: str,
+    agent_type: str,
+    service: str,
+    operation: str,
     risk_level: str,
     success: bool = True,
     **kwargs

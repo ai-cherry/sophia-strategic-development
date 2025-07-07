@@ -59,7 +59,7 @@ class UnifiedSophiaService:
         message: str,
         user_id: str,
         session_id: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> SophiaResponse:
         """
         Process a user message through the entire intelligent pipeline.
@@ -90,7 +90,7 @@ class UnifiedSophiaService:
         return response
 
     async def _build_full_context(
-        self, user_id: str, session_id: str, initial_context: Optional[dict[str, Any]]
+        self, user_id: str, session_id: str, initial_context: dict[str, Any] | None
     ) -> dict[str, Any]:
         """Build a comprehensive context for the request"""
         # In a real app, this would fetch user roles, permissions, conversation history, etc.
@@ -138,7 +138,7 @@ class UnifiedSophiaService:
 
 
 # Singleton instance
-_unified_service: Optional[UnifiedSophiaService] = None
+_unified_service: UnifiedSophiaService | None = None
 
 
 def get_unified_sophia_service() -> UnifiedSophiaService:

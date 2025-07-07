@@ -13,7 +13,10 @@ from typing import Any, Dict, List, Optional
 
 from backend.core.auto_esc_config import get_config_value
 from backend.services.documentation_loader_service import get_documentation_loader
-from backend.services.enhanced_portkey_llm_gateway import get_enhanced_portkey_gateway, TaskComplexity
+from backend.services.enhanced_portkey_llm_gateway import (
+    TaskComplexity,
+    get_enhanced_portkey_gateway,
+)
 from backend.services.sophia_agent_orchestrator import get_sophia_agent_orchestrator
 from backend.utils.custom_logger import logger
 
@@ -30,11 +33,11 @@ class ProcessingResult:
     """Result from Claude-Code-Development-Kit processing"""
     success: bool
     result: str
-    metadata: Dict[str, Any]
-    performance_metrics: Dict[str, Any]
-    documentation_context: Optional[Dict[str, Any]] = None
-    agent_workflow: Optional[Dict[str, Any]] = None
-    routing_decision: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any]
+    performance_metrics: dict[str, Any]
+    documentation_context: dict[str, Any] | None = None
+    agent_workflow: dict[str, Any] | None = None
+    routing_decision: dict[str, Any] | None = None
 
 
 class ClaudeCodeDevelopmentKitService:
@@ -64,17 +67,17 @@ class ClaudeCodeDevelopmentKitService:
             # Initialize documentation loader
             self.documentation_loader = await get_documentation_loader()
             logger.info("✅ Documentation loader initialized")
-            
+
             # Initialize agent orchestrator
             self.agent_orchestrator = await get_sophia_agent_orchestrator()
             logger.info("✅ Agent orchestrator initialized")
-            
+
             # Initialize enhanced Portkey gateway
             self.portkey_gateway = await get_enhanced_portkey_gateway()
             logger.info("✅ Enhanced Portkey gateway initialized")
-            
+
             logger.info("🚀 Claude-Code-Development-Kit Service fully initialized")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize Claude-Code-Development-Kit Service: {e}")
             raise
@@ -110,7 +113,7 @@ class ClaudeCodeDevelopmentKitService:
         """
         start_time = time.time()
         self.performance_metrics["total_requests"] += 1
-        
+
         processing_metadata = {
             "user_input": user_input[:100] + "..." if len(user_input) > 100 else user_input,
             "task_type": task_type,
@@ -122,7 +125,7 @@ class ClaudeCodeDevelopmentKitService:
             },
             "start_time": datetime.utcnow().isoformat()
         }
-        
+
         try:
             # Step 1: 3-Tier Documentation Auto-Loading
             documentation_context = None
@@ -138,7 +141,7 @@ class ClaudeCodeDevelopmentKitService:
             if use_multi_agent_workflow and self.agent_orchestrator:
                 # Determine appropriate workflow type
                 workflow_type = self._determine_workflow_type(task_type, complexity)
-                
+
                 # Execute multi-agent workflow
                 workflow_result = await self.agent_orchestrator.execute_workflow(
                     user_input=user_input,
@@ -151,36 +154,36 @@ class ClaudeCodeDevelopmentKitService:
                     },
                     parallel_execution=True
                 )
-                
+
                 processing_metadata["workflow_executed"] = True
                 processing_metadata["workflow_type"] = workflow_type
                 processing_metadata["agent_chain"] = workflow_result.agent_chain
                 self.performance_metrics["agent_workflow_executions"] += 1
-                
+
                 # Use workflow result as the response
                 yield workflow_result.result
-                
+
                 # Update performance metrics
                 execution_time = time.time() - start_time
                 self._update_performance_metrics(execution_time, True, workflow_result.token_usage.get("total", 0))
                 return
-                
+
             # Step 3: Intelligent LLM Routing (fallback or alternative)
             if use_intelligent_routing and self.portkey_gateway:
                 # Prepare messages for LLM
                 messages = [{"role": "user", "content": user_input}]
-                
+
                 # Add documentation context if available
                 if documentation_context:
                     context_summary = self._summarize_documentation_context(documentation_context)
                     messages.insert(0, {
-                        "role": "system", 
+                        "role": "system",
                         "content": f"Context: {context_summary}"
                     })
-                
+
                 # Convert complexity to TaskComplexity enum
                 task_complexity = self._convert_complexity(complexity)
-                
+
                 # Stream response from enhanced Portkey gateway
                 response_chunks = []
                 async for chunk in self.portkey_gateway.complete(
@@ -193,16 +196,16 @@ class ClaudeCodeDevelopmentKitService:
                 ):
                     response_chunks.append(chunk)
                     yield chunk
-                
+
                 processing_metadata["intelligent_routing"] = True
                 self.performance_metrics["intelligent_routing_decisions"] += 1
-                
+
                 # Update performance metrics
                 execution_time = time.time() - start_time
                 token_count = sum(len(chunk.split()) for chunk in response_chunks)
                 self._update_performance_metrics(execution_time, True, token_count)
                 return
-            
+
             # Step 4: Simple response (no enhancements)
             simple_response = f"""
 # Sophia AI Response
@@ -217,16 +220,16 @@ I understand your request. Currently processing with Claude-Code-Development-Kit
 
 Please enable at least one enhancement for optimal results.
             """.strip()
-            
+
             yield simple_response
-            
+
             # Update performance metrics
             execution_time = time.time() - start_time
             self._update_performance_metrics(execution_time, True, len(simple_response.split()))
-            
+
         except Exception as e:
             logger.error(f"Claude-Code-Development-Kit processing error: {e}")
-            
+
             error_response = f"""
 # Error Processing Request
 
@@ -237,33 +240,33 @@ I encountered an error while processing your request with Claude-Code-Developmen
 
 Please try again or contact support if the issue persists.
             """.strip()
-            
+
             yield error_response
-            
+
             # Update performance metrics for failure
             execution_time = time.time() - start_time
             self._update_performance_metrics(execution_time, False, 0)
 
     async def _load_documentation_context(
         self, complexity: str, task_type: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Load documentation context using 3-tier auto-loading"""
         if not self.documentation_loader:
             return {}
-            
+
         try:
             contexts = await self.documentation_loader.load_context_for_complexity(
                 complexity, task_type
             )
-            
+
             # Calculate token usage reduction
             total_tokens = sum(ctx.token_count for ctx in contexts.values())
             baseline_tokens = total_tokens * 1.5  # Assume 50% more without smart loading
             reduction = ((baseline_tokens - total_tokens) / baseline_tokens) * 100
             self.performance_metrics["token_usage_reduction"] = reduction
-            
+
             return contexts
-            
+
         except Exception as e:
             logger.warning(f"Failed to load documentation context: {e}")
             return {}
@@ -272,40 +275,40 @@ Please try again or contact support if the issue persists.
         """Determine appropriate workflow type"""
         workflow_mapping = {
             "code_generation": "code_development",
-            "architecture": "infrastructure", 
+            "architecture": "infrastructure",
             "business_intelligence": "business_intelligence",
             "research": "research_analysis",
             "integration": "code_development",
             "infrastructure": "infrastructure"
         }
-        
+
         if complexity == "architecture":
             return "infrastructure"
-        
+
         return workflow_mapping.get(task_type, "code_development")
 
     def _convert_complexity(self, complexity: str) -> TaskComplexity:
         """Convert string complexity to TaskComplexity enum"""
         complexity_mapping = {
             "simple": TaskComplexity.SIMPLE,
-            "moderate": TaskComplexity.MODERATE, 
+            "moderate": TaskComplexity.MODERATE,
             "complex": TaskComplexity.COMPLEX,
             "architecture": TaskComplexity.ARCHITECTURE
         }
-        
+
         return complexity_mapping.get(complexity, TaskComplexity.MODERATE)
 
-    def _summarize_documentation_context(self, documentation_context: Dict[str, Any]) -> str:
+    def _summarize_documentation_context(self, documentation_context: dict[str, Any]) -> str:
         """Summarize documentation context for LLM"""
         if not documentation_context:
             return "No additional context available."
-        
+
         summary_parts = []
-        
+
         for tier_name, context in documentation_context.items():
             tier_summary = f"{tier_name}: {context.token_count} tokens loaded"
             summary_parts.append(tier_summary)
-        
+
         return f"Documentation context loaded: {', '.join(summary_parts)}"
 
     def _update_performance_metrics(
@@ -314,7 +317,7 @@ Please try again or contact support if the issue persists.
         """Update service performance metrics"""
         if success:
             self.performance_metrics["successful_requests"] += 1
-        
+
         # Update running average processing time
         total_requests = self.performance_metrics["total_requests"]
         current_avg = self.performance_metrics["average_processing_time"]
@@ -322,7 +325,7 @@ Please try again or contact support if the issue persists.
             (current_avg * (total_requests - 1) + execution_time) / total_requests
         )
 
-    async def get_comprehensive_status(self) -> Dict[str, Any]:
+    async def get_comprehensive_status(self) -> dict[str, Any]:
         """Get comprehensive status of all components"""
         status = {
             "service": "claude_code_development_kit",
@@ -332,29 +335,29 @@ Please try again or contact support if the issue persists.
             "performance_metrics": self.performance_metrics,
             "components": {}
         }
-        
+
         # Documentation loader status
         if self.documentation_loader:
             status["components"]["documentation_loader"] = await self.documentation_loader.health_check()
-        
-        # Agent orchestrator status  
+
+        # Agent orchestrator status
         if self.agent_orchestrator:
             status["components"]["agent_orchestrator"] = await self.agent_orchestrator.health_check()
-            
+
         # Portkey gateway status
         if self.portkey_gateway:
             status["components"]["portkey_gateway"] = await self.portkey_gateway.health_check()
-        
+
         return status
 
-    async def optimize_performance(self) -> Dict[str, Any]:
+    async def optimize_performance(self) -> dict[str, Any]:
         """Optimize performance across all components"""
         optimization_results = {
             "optimization_time": datetime.utcnow().isoformat(),
             "actions_taken": [],
             "performance_improvements": {}
         }
-        
+
         try:
             # Clear documentation cache if hit rate is low
             if self.documentation_loader:
@@ -362,7 +365,7 @@ Please try again or contact support if the issue persists.
                 if doc_metrics["cache_hit_rate"] < 50:
                     await self.documentation_loader.clear_cache()
                     optimization_results["actions_taken"].append("Cleared documentation cache")
-            
+
             # Reset performance metrics to get fresh baseline
             baseline_requests = self.performance_metrics["total_requests"]
             self.performance_metrics = {
@@ -375,17 +378,17 @@ Please try again or contact support if the issue persists.
                 "intelligent_routing_decisions": 0
             }
             optimization_results["actions_taken"].append("Reset performance metrics baseline")
-            
+
             optimization_results["status"] = "completed"
-            
+
         except Exception as e:
             logger.error(f"Performance optimization error: {e}")
             optimization_results["status"] = "failed"
             optimization_results["error"] = str(e)
-        
+
         return optimization_results
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Comprehensive health check"""
         return {
             "service": "claude_code_development_kit_service",
@@ -393,7 +396,7 @@ Please try again or contact support if the issue persists.
             "timestamp": datetime.utcnow().isoformat(),
             "capabilities": [
                 "3-tier documentation auto-loading",
-                "Multi-agent workflow orchestration", 
+                "Multi-agent workflow orchestration",
                 "Intelligent LLM routing with Portkey + OpenRouter",
                 "Performance optimization",
                 "Token usage reduction",
@@ -409,7 +412,7 @@ Please try again or contact support if the issue persists.
             "performance_summary": {
                 "total_requests": self.performance_metrics["total_requests"],
                 "success_rate": (
-                    self.performance_metrics["successful_requests"] / 
+                    self.performance_metrics["successful_requests"] /
                     max(1, self.performance_metrics["total_requests"])
                 ) * 100,
                 "average_processing_time": self.performance_metrics["average_processing_time"],
@@ -460,13 +463,13 @@ async def process_with_claude_kit(
         yield chunk
 
 
-async def get_claude_kit_status() -> Dict[str, Any]:
+async def get_claude_kit_status() -> dict[str, Any]:
     """Get Claude-Code-Development-Kit service status"""
     service = await get_claude_code_development_kit_service()
     return await service.get_comprehensive_status()
 
 
-async def optimize_claude_kit_performance() -> Dict[str, Any]:
+async def optimize_claude_kit_performance() -> dict[str, Any]:
     """Optimize Claude-Code-Development-Kit performance"""
     service = await get_claude_code_development_kit_service()
     return await service.optimize_performance()

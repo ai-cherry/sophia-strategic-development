@@ -58,7 +58,7 @@ class NotionMCPServer(StandardizedMCPServer):
         """Initialize Notion client."""
         # Try to get token from environment variables
         access_token = os.getenv("NOTION_API_TOKEN") or os.getenv("NOTION_TOKEN")
-        
+
         if not access_token:
             self.logger.warning("NOTION_API_TOKEN not set, running in demo mode")
             return
@@ -101,11 +101,11 @@ class NotionMCPServer(StandardizedMCPServer):
                 "name": "search_pages",
                 "description": "Search Notion pages",
                 "inputSchema": {
-                    "type": "object", 
+                    "type": "object",
                     "properties": {
                         "query": {"type": "string", "description": "Search query"},
                         "filter": {
-                            "type": "string", 
+                            "type": "string",
                             "enum": ["page", "database", "all"],
                             "default": "all"
                         },
@@ -197,7 +197,7 @@ class NotionMCPServer(StandardizedMCPServer):
                             "last_edited_time": "2025-01-05T10:00:00Z"
                         },
                         {
-                            "id": "page_2", 
+                            "id": "page_2",
                             "title": f"Strategy Document: {query}",
                             "url": "https://notion.so/demo-page-2",
                             "created_time": "2025-01-02T00:00:00Z",
@@ -336,7 +336,7 @@ class NotionMCPServer(StandardizedMCPServer):
                             "url": "https://notion.so/db_1"
                         },
                         {
-                            "id": "db_2", 
+                            "id": "db_2",
                             "title": "Tasks",
                             "description": "Task tracking database",
                             "url": "https://notion.so/db_2"
@@ -447,7 +447,7 @@ class NotionMCPServer(StandardizedMCPServer):
                     },
                     {
                         "name": "Product Launch Prep",
-                        "due_date": "2025-01-31", 
+                        "due_date": "2025-01-31",
                         "status": "on_track",
                         "progress": 85
                     }
@@ -505,4 +505,4 @@ if __name__ == "__main__":
         uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "9005")))
     else:
         # Run as MCP server
-        main() 
+        main()

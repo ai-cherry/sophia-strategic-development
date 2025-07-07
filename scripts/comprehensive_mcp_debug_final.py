@@ -263,7 +263,7 @@ class ComprehensiveMCPDebugger:
         except aiohttp.ClientConnectorError:
             result["status"] = "unreachable"
             result["error"] = "Connection refused - server not running"
-        except asyncio.TimeoutError:
+        except TimeoutError:
             result["status"] = "timeout"
             result["error"] = "Request timeout"
         except Exception as e:

@@ -23,10 +23,10 @@ TODO: Implement file decomposition
 import asyncio
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 from uuid import uuid4
 
 from backend.core.config_manager import get_config_value
@@ -70,16 +70,10 @@ class MetadataField:
     field_type: MetadataFieldType
     required: bool = False
     description: str = ""
-    options: list[str] = None  # For multiple choice
+    options: list[str] = field(default_factory=list)  # For multiple choice
     default_value: Any = None
-    validation_rules: dict[str, Any] = None
+    validation_rules: dict[str, Any] = field(default_factory=dict)
     ai_extractable: bool = True  # Can AI extract this automatically?
-
-    def __post_init__(self):
-        if self.options is None:
-            self.options = []
-        if self.validation_rules is None:
-            self.validation_rules = {}
 
 
 @dataclass
@@ -103,14 +97,10 @@ class HybridPrompt:
     question: str
     field_id: str
     prompt_type: str  # "multiple_choice", "free_text", "hybrid"
-    options: list[str] = None
+    options: list[str] = field(default_factory=list)
     allow_other: bool = True  # Allow "Other" option with free text
-    ai_suggestion: str = None  # AI-generated suggestion
+    ai_suggestion: str | None = None  # AI-generated suggestion
     confidence: float = 0.0  # AI confidence in suggestion
-
-    def __post_init__(self):
-        if self.options is None:
-            self.options = []
 
 
 class MetadataTemplateEngine:
@@ -291,19 +281,29 @@ class MetadataTemplateEngine:
 
 
 class AIMetadataExtractor:
-    """AI-powered metadata extraction from document content"""
+    """AI-powered metadata extraction using unified LLM gateway"""
 
     def __init__(self):
-        self.openai_client = None
+        self.llm_service = None
+        self.task_type = None
 
     async def initialize(self):
-        """Initialize OpenAI client"""
+        """Initialize unified LLM service"""
         try:
-            import openai
+            from backend.services.unified_llm_service import (
+                TaskType,
+                get_unified_llm_service,
+            )
 
-            api_key = await get_config_value("openai_api_key")
-            self.openai_client = openai.AsyncOpenAI(api_key=api_key)
-            logger.info("✅ AI Metadata Extractor initialized")
+            self.llm_service = await get_unified_llm_service()
+            self.task_type = (
+                TaskType.DOCUMENT_SUMMARY
+            )  # Use document summary for metadata extraction
+            logger.info("✅ AI Metadata Extractor initialized with unified LLM gateway")
+        except ImportError:
+            logger.warning(
+                "⚠️ Unified LLM service not available, metadata extraction disabled"
+            )
         except Exception as e:
             logger.warning(f"⚠️ AI Metadata Extractor not available: {e}")
 
@@ -311,10 +311,10 @@ class AIMetadataExtractor:
         self, content: str, filename: str, metadata_fields: list[MetadataField]
     ) -> dict[str, tuple[Any, float]]:
         """
-        Extract metadata suggestions from content
+        Extract metadata suggestions from content using unified LLM gateway
         Returns dict of field_id -> (suggested_value, confidence_score)
         """
-        if not self.openai_client:
+        if not self.llm_service or not self.task_type:
             return {}
 
         try:
@@ -344,20 +344,32 @@ class AIMetadataExtractor:
             For multiple choice fields, use exact option values.
             """
 
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",  # Cost-effective for metadata extraction
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert document analyzer. Extract metadata accurately and provide confidence scores.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
+            # Route through unified LLM service
+            response_chunks = []
+            async for chunk in self.llm_service.complete(
+                prompt=prompt,
+                task_type=self.task_type,
+                stream=False,
                 temperature=0.1,  # Low temperature for consistent extraction
-                response_format={"type": "json_object"},
-            )
+                max_tokens=1000,
+                metadata={"operation": "metadata_extraction", "filename": filename},
+            ):
+                response_chunks.append(chunk)
 
-            result = json.loads(response.choices[0].message.content)
+            response_text = "".join(response_chunks)
+
+            # Try to parse as JSON
+            try:
+                result = json.loads(response_text)
+            except json.JSONDecodeError:
+                # If not valid JSON, try to extract JSON from response
+                import re
+
+                json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
+                if json_match:
+                    result = json.loads(json_match.group())
+                else:
+                    result = {}
 
             # Convert to expected format
             suggestions = {}
@@ -365,7 +377,9 @@ class AIMetadataExtractor:
                 if isinstance(data, dict) and "value" in data and "confidence" in data:
                     suggestions[field_id] = (data["value"], float(data["confidence"]))
 
-            logger.info(f"🤖 AI extracted {len(suggestions)} metadata suggestions")
+            logger.info(
+                f"🤖 AI extracted {len(suggestions)} metadata suggestions via unified gateway"
+            )
             return suggestions
 
         except Exception as e:
@@ -376,7 +390,9 @@ class AIMetadataExtractor:
         self, content: str, filename: str
     ) -> tuple[str, float]:
         """Detect document type using AI"""
-        if not self.openai_client:
+        if (
+            not self.llm_service or not self.task_type
+        ):  # Use llm_service instead of openai_client
             return "document", 0.0
 
         try:
@@ -391,20 +407,32 @@ class AIMetadataExtractor:
             Return JSON: {{"type": "detected_type", "confidence": 0.0-1.0}}
             """
 
-            response = await self.openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a document classifier. Be precise and confident.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
+            response_chunks = []
+            async for chunk in self.llm_service.complete(  # Use llm_service
+                prompt=prompt,
+                task_type=self.task_type,  # Use existing task_type
+                stream=False,
                 temperature=0.1,
-                response_format={"type": "json_object"},
-            )
+                max_tokens=500,  # Reduced max_tokens for classification
+                metadata={"operation": "document_type_detection", "filename": filename},
+            ):
+                response_chunks.append(chunk)
 
-            result = json.loads(response.choices[0].message.content)
+            response_text = "".join(response_chunks)
+
+            # Try to parse as JSON
+            try:
+                result = json.loads(response_text)
+            except json.JSONDecodeError:
+                # If not valid JSON, try to extract JSON from response
+                import re
+
+                json_match = re.search(r"\{.*\}", response_text, re.DOTALL)
+                if json_match:
+                    result = json.loads(json_match.group())
+                else:
+                    result = {}
+
             return result.get("type", "document"), float(result.get("confidence", 0.0))
 
         except Exception as e:
@@ -471,7 +499,7 @@ class ChatDrivenMetadataService:
         user_id: str,
         filename: str,
         file_type: str,
-        missing_fields: list[dict[str, Any]] = None,
+        missing_fields: list[dict[str, Any]] | None = None,  # Use Optional
     ) -> str:
         """Create a new metadata collection session"""
         try:
@@ -530,7 +558,7 @@ class ChatDrivenMetadataService:
         try:
             # Get job from ingestion service
             job = await self.ingestion_service.get_job_status(job_id)
-            if job and hasattr(job, "file_content"):
+            if job and hasattr(job, "file_content") and job.file_content is not None:
                 return job.file_content.decode("utf-8", errors="ignore")
             return ""
         except Exception as e:
@@ -643,7 +671,7 @@ class ChatDrivenMetadataService:
                 ),
                 "ai_suggestion": (
                     {"value": prompt.ai_suggestion, "confidence": prompt.confidence}
-                    if prompt.ai_suggestion
+                    if prompt.ai_suggestion is not None
                     else None
                 ),
             }
@@ -670,6 +698,8 @@ class ChatDrivenMetadataService:
                 session["status"] = "completed"
 
                 # Send metadata back to ingestion service
+                # Ensure receive_metadata_response is correctly typed in EventDrivenIngestionService
+                # and expects dict[str, Any] for responses
                 await self.ingestion_service.receive_metadata_response(
                     session["job_id"], responses
                 )
@@ -680,7 +710,11 @@ class ChatDrivenMetadataService:
                 for field_id, value in responses.items():
                     if field_id in session["ai_suggestions"]:
                         ai_value, _ = session["ai_suggestions"][field_id]
-                        if str(value).strip().lower() == str(ai_value).strip().lower():
+                        if (
+                            ai_value is not None
+                            and str(value).strip().lower()
+                            == str(ai_value).strip().lower()
+                        ):
                             self.metrics["ai_suggestions_used"] += 1
 
                 logger.info(f"✅ Metadata response submitted for session {session_id}")

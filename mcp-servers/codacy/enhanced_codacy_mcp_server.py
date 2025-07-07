@@ -60,7 +60,7 @@ class CodeAnalysisRequest(BaseModel):
     language: str = Field("python", description="Programming language")
     enable_ai_insights: bool = Field(True, description="Enable AI-powered insights")
     enable_auto_fix: bool = Field(False, description="Enable automatic fix suggestions")
-    context: Optional[dict[str, Any]] = Field(None, description="Additional context")
+    context: dict[str, Any] | None = Field(None, description="Additional context")
 
 
 class CodeIssue(BaseModel):
@@ -68,13 +68,13 @@ class CodeIssue(BaseModel):
     title: str
     description: str
     line_number: int
-    column_number: Optional[int] = None
-    suggestion: Optional[str] = None
-    auto_fix: Optional[str] = None
+    column_number: int | None = None
+    suggestion: str | None = None
+    auto_fix: str | None = None
     confidence: float = Field(1.0, ge=0.0, le=1.0)
     category: str = "general"
-    rule_id: Optional[str] = None
-    ai_insight: Optional[str] = None
+    rule_id: str | None = None
+    ai_insight: str | None = None
 
 
 class PredictiveInsight(BaseModel):
@@ -232,7 +232,7 @@ class EnhancedQualityAnalyzer:
         language: str = "python",
         enable_ai: bool = True,
         enable_auto_fix: bool = False,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AnalysisResult:
         """Perform comprehensive code analysis with AI insights"""
         start_time = time.time()
@@ -616,7 +616,7 @@ class EnhancedQualityAnalyzer:
         code: str,
         issues: list[CodeIssue],
         metrics: QualityMetrics,
-        context: Optional[dict[str, Any]],
+        context: dict[str, Any] | None,
     ) -> tuple[list[PredictiveInsight], list[str]]:
         """Generate AI-powered insights and recommendations"""
         insights = []
@@ -686,9 +686,7 @@ class EnhancedQualityAnalyzer:
                 recommendations.extend(
                     [
                         "🚨 Prioritize fixing critical security issues",
-                        "📊 Implement comprehensive testing (current coverage ~{}%)".format(
-                            int(metrics.test_coverage_estimate)
-                        ),
+                        f"📊 Implement comprehensive testing (current coverage ~{int(metrics.test_coverage_estimate)}%)",
                         "🔧 Schedule refactoring sprint to reduce technical debt",
                     ]
                 )

@@ -66,8 +66,8 @@ class HealthAlert(BaseModel):
     title: str
     message: str
     timestamp: str
-    instance: Optional[str] = None
-    server: Optional[str] = None
+    instance: str | None = None
+    server: str | None = None
 
 
 class PerformanceTrends(BaseModel):
@@ -613,7 +613,7 @@ class LambdaLabsHealthService:
                     active_connections=self.get_mock_active_connections(config["id"]),
                 )
 
-        except (aiohttp.ClientConnectorError, asyncio.TimeoutError):
+        except (TimeoutError, aiohttp.ClientConnectorError):
             # Server unreachable
             return MCPServer(
                 id=config["id"],

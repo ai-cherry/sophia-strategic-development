@@ -999,7 +999,7 @@ class MCPEcosystemDeploymentOrchestrator:
         except Exception as e:
             logger.error(f"Failed to rollback {service_name}: {e}")
 
-    def save_deployment_report(self, output_file: Optional[str] = None):
+    def save_deployment_report(self, output_file: str | None = None):
         """Save comprehensive deployment report"""
         if not output_file:
             output_file = f"deployment_report_{self.deployment_id}.json"

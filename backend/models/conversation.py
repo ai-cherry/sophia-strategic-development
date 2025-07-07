@@ -7,14 +7,14 @@ This module provides conversation-related data models for cross-platform integra
 
 # Import the IntegratedConversationRecord from enhanced data models
 from backend.agents.enhanced.data_models import (
-    IntegratedConversationRecord,
     GongCallData,
+    IntegratedConversationRecord,
     SlackMessageData,
 )
 
 # Re-export for backward compatibility
 __all__ = [
     "IntegratedConversationRecord",
-    "GongCallData", 
+    "GongCallData",
     "SlackMessageData",
-] 
+]

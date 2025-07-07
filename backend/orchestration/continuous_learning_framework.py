@@ -34,8 +34,8 @@ class Feedback:
 
     type: FeedbackType
     content: str
-    rating: Optional[float] = None
-    timestamp: Optional[datetime] = None
+    rating: float | None = None
+    timestamp: datetime | None = None
 
 
 @dataclass
@@ -46,8 +46,8 @@ class WorkflowResult:
     success: bool
     duration: float
     output: Any
-    errors: Optional[list[str]] = None
-    metrics: Optional[dict[str, float]] = None
+    errors: list[str] | None = None
+    metrics: dict[str, float] | None = None
 
 
 class PatternLearner:
@@ -63,7 +63,7 @@ class PatternLearner:
         intent_type: IntentCategory,
         success: bool,
         execution_time: float,
-        workflow_details: Optional[dict] = None,
+        workflow_details: dict | None = None,
     ):
         """Update learned patterns based on interaction outcome"""
         pattern_key = intent_type.value
@@ -155,7 +155,7 @@ class PerformanceAnalyzer:
         self,
         intent: IntentAnalysis,
         workflow_result: WorkflowResult,
-        user_feedback: Optional[Feedback] = None,
+        user_feedback: Feedback | None = None,
     ):
         """Record performance metrics"""
         self.performance_history.append(
@@ -261,7 +261,7 @@ class ContinuousLearningFramework:
         request: str,
         intent: IntentAnalysis,
         workflow_execution: WorkflowResult,
-        user_feedback: Optional[Feedback] = None,
+        user_feedback: Feedback | None = None,
     ):
         """Learn from a complete interaction"""
         # self._ensure_mem0_initialized() is no longer needed
@@ -301,7 +301,7 @@ class ContinuousLearningFramework:
         request: str,
         intent: IntentAnalysis,
         workflow_execution: WorkflowResult,
-        user_feedback: Optional[Feedback],
+        user_feedback: Feedback | None,
     ) -> str:
         """Store interaction details in Mem0"""
         interaction_data = {

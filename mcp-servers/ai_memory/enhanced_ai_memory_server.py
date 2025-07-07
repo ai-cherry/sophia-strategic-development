@@ -11,10 +11,10 @@ Implements WebFetch, Self-Knowledge, Improved Diff, and Model Routing
 import asyncio
 import json
 import os
-import time
 
 # Import the standardized base class
 import sys
+import time
 from typing import Any
 
 from fastapi import HTTPException
@@ -57,7 +57,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         try:
             # Initialize memory service (no initialize method needed)
             self.memory_service = ComprehensiveMemoryService()
-            
+
             # Load conversation history
             await self._load_conversation_history()
 
@@ -538,7 +538,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         return examples.get(capability, [])
 
     # Abstract methods implementation required by StandardizedMCPServer
-    
+
     async def server_specific_cleanup(self) -> None:
         """Cleanup AI Memory specific resources"""
         try:
@@ -553,7 +553,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         """Perform AI Memory specific health checks"""
         try:
             start_time = time.time()
-            
+
             # Check memory service health
             if self.memory_service:
                 # Try a simple memory operation to test connectivity
@@ -569,9 +569,9 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
             else:
                 memory_service_status = "not_initialized"
                 status = HealthStatus.DEGRADED
-            
+
             response_time = (time.time() - start_time) * 1000
-            
+
             return HealthCheckResult(
                 component="ai_memory",
                 status=status,
@@ -582,7 +582,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                     "capabilities": len(self.server_capabilities)
                 }
             )
-            
+
         except Exception as e:
             return HealthCheckResult(
                 component="ai_memory",
@@ -596,16 +596,16 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
         try:
             if not self.memory_service:
                 return {"status": "failed", "error": "Memory service not initialized"}
-            
+
             # Process Gong data
             gong_processed = await self.memory_service.process_and_vectorize_gong_data(batch_size=50)
-            
-            # Process Slack data  
+
+            # Process Slack data
             slack_processed = await self.memory_service.process_and_vectorize_slack_data(batch_size=100)
-            
+
             # Create integrated conversation memories
             integrated_created = await self.memory_service.create_integrated_conversation_memories(limit=50)
-            
+
             return {
                 "status": "completed",
                 "records_synced": gong_processed + slack_processed + integrated_created,
@@ -614,11 +614,11 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                 "integrated_conversations": integrated_created,
                 "timestamp": datetime.now(UTC).isoformat()
             }
-            
+
         except Exception as e:
             self.logger.error(f"AI Memory sync failed: {e}")
             return {
-                "status": "failed", 
+                "status": "failed",
                 "error": str(e),
                 "records_synced": 0
             }
@@ -632,18 +632,18 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                     task="process ai memory data",
                     context_size=len(str(data)) if isinstance(data, (str, dict)) else 1000
                 )
-            
+
             # Extract prompt from data
             if isinstance(data, dict) and "prompt" in data:
                 prompt = data["prompt"]
             else:
                 prompt = str(data)
-            
+
             # Use Snowflake Cortex for processing
             if self.cortex_service and model == ModelProvider.SNOWFLAKE_CORTEX:
                 result = await self.cortex_service.generate_completion(prompt)
                 return {"response": result, "model_used": "snowflake_cortex"}
-            
+
             # Use Claude/OpenAI (would need API integration)
             else:
                 # For now, return a mock response since we don't have direct API access in this context
@@ -652,7 +652,7 @@ class EnhancedAIMemoryServer(StandardizedMCPServer):
                     "model_used": str(model.value),
                     "mock": True
                 }
-                
+
         except Exception as e:
             self.logger.error(f"AI processing failed: {e}")
             return {"error": str(e), "response": None}

@@ -52,7 +52,7 @@ class TestExecutionResult:
     response_time: float
     details: dict[str, Any]
     timestamp: datetime
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 class MCPOrchestrationTestSuite:
@@ -720,7 +720,7 @@ class MCPOrchestrationTestSuite:
                             error_message=f"Expected status {test_case.expected_status}, got {response.status}",
                         )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return TestExecutionResult(
                 test_case=test_case,
                 result=TestResult.TIMEOUT,

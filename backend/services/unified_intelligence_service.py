@@ -37,7 +37,7 @@ class UnifiedIntelligenceService:
     Orchestrates data fetching, processing, and AI synthesis to answer user queries.
     """
 
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, config: dict | None = None):
         self.config = config or {}
         self.data_manager = DataSourceManager()
         self.llm_service = AdvancedLLMService()
@@ -45,7 +45,7 @@ class UnifiedIntelligenceService:
         logger.info("UnifiedIntelligenceService initialized.")
 
     async def process_query(
-        self, query: str, context: Optional[dict] = None
+        self, query: str, context: dict | None = None
     ) -> dict[str, Any]:
         """
         Main entry point for processing a user query.

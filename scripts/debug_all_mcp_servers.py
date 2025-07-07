@@ -34,10 +34,10 @@ class MCPServerStatus:
     expected_path: str
     host: str = "165.1.69.44"
     status: str = "unknown"  # unknown, healthy, degraded, failed, unreachable
-    response_time: Optional[float] = None
-    error_message: Optional[str] = None
+    response_time: float | None = None
+    error_message: str | None = None
     capabilities: list[str] = field(default_factory=list)
-    health_data: Optional[dict] = None
+    health_data: dict | None = None
     file_exists: bool = False
     config_issues: list[str] = field(default_factory=list)
 
@@ -93,7 +93,7 @@ class MCPServerDebugger:
 
     def _check_health_endpoint(
         self, host: str, port: int, timeout: int = 10
-    ) -> tuple[str, Optional[float], Optional[str], Optional[dict]]:
+    ) -> tuple[str, float | None, str | None, dict | None]:
         """Check MCP server health endpoint."""
         url = f"http://{host}:{port}/health"
         start_time = time.time()
@@ -383,7 +383,7 @@ class MCPServerDebugger:
         if healthy_pct < 80:
             print("   5. Consider phased server restart")
 
-    def save_report(self, report: MCPEcosystemReport, filename: Optional[str] = None):
+    def save_report(self, report: MCPEcosystemReport, filename: str | None = None):
         """Save debugging report to file."""
         if not filename:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

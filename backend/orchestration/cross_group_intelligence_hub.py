@@ -70,8 +70,8 @@ class SharedInsightStore:
     async def search(
         self,
         query: str,
-        exclude_group: Optional[str] = None,
-        insight_types: Optional[list[InsightType]] = None,
+        exclude_group: str | None = None,
+        insight_types: list[InsightType] | None = None,
     ) -> list[CrossGroupInsight]:
         """Search for relevant insights"""
         results = []
@@ -156,7 +156,7 @@ class CrossGroupIntelligenceHub:
         source_group: str,
         insight_type: InsightType,
         content: str,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Submit an insight from a group"""
         import uuid
@@ -205,7 +205,7 @@ class CrossGroupIntelligenceHub:
 
     async def request_cross_group_insight(
         self, requesting_group: str, query: str, context: dict[str, Any]
-    ) -> Optional[CrossGroupInsight]:
+    ) -> CrossGroupInsight | None:
         """Request insights from other groups"""
         # Find relevant insights
         relevant_insights = await self.insight_store.search(
@@ -238,7 +238,7 @@ class CrossGroupIntelligenceHub:
 
     async def _synthesize_insights(
         self, insights: list[CrossGroupInsight], context: dict[str, Any]
-    ) -> Optional[CrossGroupInsight]:
+    ) -> CrossGroupInsight | None:
         """Synthesize multiple insights into a unified response"""
         if not insights:
             return None

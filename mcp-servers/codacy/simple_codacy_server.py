@@ -48,7 +48,7 @@ class CodeIssue(BaseModel):
     title: str
     description: str
     line_number: int
-    suggestion: Optional[str] = None
+    suggestion: str | None = None
 
 
 class AnalysisResult(BaseModel):

@@ -140,7 +140,7 @@ class EnhancedLambdaLabsProvisioner:
         )
 
     async def _make_request(
-        self, method: str, endpoint: str, data: Optional[dict[str, Any]] = None
+        self, method: str, endpoint: str, data: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Make authenticated request to Lambda Labs API"""
         url = f"{self.base_url}/{endpoint}"

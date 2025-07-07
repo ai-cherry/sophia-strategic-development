@@ -122,7 +122,7 @@ class AIJunkPreventionService:
 
     def should_prevent_file_creation(
         self, file_path: str
-    ) -> tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         """Check if a file should be prevented from being created"""
         path = Path(file_path)
 
@@ -309,7 +309,7 @@ class AIJunkPreventionService:
 
         return hook
 
-    def _suggest_alternative(self, file_path: str, content: str) -> Optional[str]:
+    def _suggest_alternative(self, file_path: str, content: str) -> str | None:
         """Suggest alternative to creating a junk file"""
         path = Path(file_path)
 

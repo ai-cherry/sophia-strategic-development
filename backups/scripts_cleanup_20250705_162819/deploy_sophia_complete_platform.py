@@ -47,7 +47,7 @@ class DeploymentResult:
     service: str
     status: str
     duration: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class SophiaAICompleteDeployment:

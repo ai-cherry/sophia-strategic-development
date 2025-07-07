@@ -28,7 +28,7 @@ class ValidationResult:
     severity: ValidationSeverity
     server_name: str
     message: str
-    details: Optional[dict] = None
+    details: dict | None = None
 
 
 class MCPVersionValidator:
@@ -326,7 +326,7 @@ class MCPVersionValidator:
         severity: ValidationSeverity,
         server_name: str,
         message: str,
-        details: Optional[dict] = None,
+        details: dict | None = None,
     ) -> None:
         """Add validation result"""
         self.validation_results.append(

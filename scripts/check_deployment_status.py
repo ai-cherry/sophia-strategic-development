@@ -186,7 +186,7 @@ class DeploymentStatusChecker:
                                 f"   ⚠️ {service_name} ({port}) - HTTP {response.status}"
                             )
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 results[service_name] = {"status": "❌ Timeout", "port": port}
                 print(f"   ❌ {service_name} ({port}) - Timeout")
             except Exception as e:

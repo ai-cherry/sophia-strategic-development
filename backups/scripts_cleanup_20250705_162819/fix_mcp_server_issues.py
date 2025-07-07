@@ -141,7 +141,7 @@ class MCPServerManager:
 
     def start_server_locally(
         self, server_name: str, server_config: dict
-    ) -> Optional[subprocess.Popen]:
+    ) -> subprocess.Popen | None:
         """Start a single MCP server locally."""
         if server_name in self.running_processes:
             print(f"   ⚠️  {server_name} already running")

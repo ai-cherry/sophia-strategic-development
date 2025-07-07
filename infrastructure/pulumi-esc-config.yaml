@@ -1,0 +1,61 @@
+# Pulumi ESC Configuration for Sophia AI Production
+values:
+  # Lambda Labs Configuration
+  lambda_labs:
+    api_key:
+      fn::secret: ${LAMBDA_LABS_API_KEY}
+    ssh_private_key:
+      fn::secret: ${LAMBDA_LABS_SSH_KEY}
+    region: "us-west-1"
+    instance_type: "gpu_1x_gh200"
+
+  # AI Provider Configuration
+  ai_providers:
+    openai:
+      api_key:
+        fn::secret: ${OPENAI_API_KEY}
+    anthropic:
+      api_key:
+        fn::secret: ${ANTHROPIC_API_KEY}
+    portkey:
+      api_key:
+        fn::secret: ${PORTKEY_API_KEY}
+    openrouter:
+      api_key:
+        fn::secret: ${OPENROUTER_API_KEY}
+
+  # Database Configuration
+  snowflake:
+    account:
+      fn::secret: ${SNOWFLAKE_ACCOUNT}
+    user:
+      fn::secret: ${SNOWFLAKE_USER}
+    password:
+      fn::secret: ${SNOWFLAKE_PASSWORD}
+    database: "SOPHIA_AI_PRODUCTION"
+    warehouse: "SOPHIA_AI_COMPUTE_WH"
+
+  # Monitoring Configuration
+  monitoring:
+    slack_webhook:
+      fn::secret: ${SLACK_WEBHOOK}
+
+  # Docker Configuration
+  docker:
+    registry: "scoobyjava15"
+    personal_access_token:
+      fn::secret: ${DOCKER_PERSONAL_ACCESS_TOKEN}
+
+# Environment Variables for Runtime
+environmentVariables:
+  LAMBDA_LABS_API_KEY: ${lambda_labs.api_key}
+  OPENAI_API_KEY: ${ai_providers.openai.api_key}
+  ANTHROPIC_API_KEY: ${ai_providers.anthropic.api_key}
+  PORTKEY_API_KEY: ${ai_providers.portkey.api_key}
+  OPENROUTER_API_KEY: ${ai_providers.openrouter.api_key}
+  SNOWFLAKE_ACCOUNT: ${snowflake.account}
+  SNOWFLAKE_USER: ${snowflake.user}
+  SNOWFLAKE_PASSWORD: ${snowflake.password}
+  SNOWFLAKE_DATABASE: ${snowflake.database}
+  SNOWFLAKE_WAREHOUSE: ${snowflake.warehouse}
+  DOCKER_REGISTRY: ${docker.registry}

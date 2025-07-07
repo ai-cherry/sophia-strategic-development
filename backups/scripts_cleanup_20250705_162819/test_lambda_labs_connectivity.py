@@ -50,7 +50,7 @@ class LambdaLabsConnectivityTester:
 
     async def test_http_endpoint(
         self, port: int, timeout: float = 5.0
-    ) -> tuple[bool, Optional[str], float]:
+    ) -> tuple[bool, str | None, float]:
         """Test HTTP connectivity to a specific port"""
         url = f"http://{self.host}:{port}"
 
@@ -77,7 +77,7 @@ class LambdaLabsConnectivityTester:
                     else:
                         return False, f"Server error: {response.status}", response_time
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return False, "Timeout", timeout * 1000
         except aiohttp.ClientConnectorError:
             return False, "Connection refused", 0
@@ -86,7 +86,7 @@ class LambdaLabsConnectivityTester:
 
     async def test_health_endpoint(
         self, port: int
-    ) -> tuple[bool, Optional[str], float]:
+    ) -> tuple[bool, str | None, float]:
         """Test the /health endpoint specifically"""
         url = f"http://{self.host}:{port}/health"
 

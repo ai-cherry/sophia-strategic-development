@@ -6,8 +6,9 @@ This script removes all legacy deployment files and ensures only unified compone
 
 import os
 import shutil
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 
 class UnifiedDeploymentCleanup:
     def __init__(self):
@@ -21,10 +22,10 @@ class UnifiedDeploymentCleanup:
             "kept": [],
             "errors": []
         }
-    
+
     def identify_legacy_files(self):
         """Identify all legacy deployment files that should be removed"""
-        
+
         # Legacy deployment scripts
         legacy_scripts = [
             "deploy_production_complete.sh",
@@ -40,7 +41,7 @@ class UnifiedDeploymentCleanup:
             "deploy_sophia_production.sh",
             "deploy_k3s.sh",
         ]
-        
+
         # Legacy docker compose files
         legacy_compose = [
             "docker-compose.production.yml",
@@ -58,7 +59,7 @@ class UnifiedDeploymentCleanup:
             "docker-compose.test.yml",
             "docker-compose.weaviate.yml",
         ]
-        
+
         # Legacy secret management
         legacy_secrets = [
             "scripts/ci/sync_from_gh_to_pulumi.py",
@@ -68,10 +69,10 @@ class UnifiedDeploymentCleanup:
             "scripts/create_secrets.sh",
             "scripts/sync_github_secrets.py",
         ]
-        
+
         # All legacy files
         self.files_to_delete = legacy_scripts + legacy_compose + legacy_secrets
-        
+
         # Unified files to keep
         self.files_to_keep = [
             "unified_deployment.sh",
@@ -87,12 +88,12 @@ class UnifiedDeploymentCleanup:
             "UNIFIED_SECRET_MANAGEMENT_STRATEGY.md",
             "UNIFIED_INFRASTRUCTURE.md",
         ]
-    
+
     def backup_files(self):
         """Create backup of files before deletion"""
         print(f"📁 Creating backup directory: {self.backup_dir}")
         self.backup_dir.mkdir(exist_ok=True)
-        
+
         for file_path in self.files_to_delete:
             full_path = self.project_root / file_path
             if full_path.exists():
@@ -105,11 +106,11 @@ class UnifiedDeploymentCleanup:
                 except Exception as e:
                     self.summary["errors"].append(f"Failed to backup {file_path}: {e}")
                     print(f"  ❌ Failed to backup: {file_path}: {e}")
-    
+
     def delete_legacy_files(self):
         """Delete all legacy deployment files"""
         print("\n🗑️  Deleting legacy files...")
-        
+
         for file_path in self.files_to_delete:
             full_path = self.project_root / file_path
             if full_path.exists():
@@ -120,11 +121,11 @@ class UnifiedDeploymentCleanup:
                 except Exception as e:
                     self.summary["errors"].append(f"Failed to delete {file_path}: {e}")
                     print(f"  ❌ Failed to delete: {file_path}: {e}")
-    
+
     def verify_unified_files(self):
         """Verify all unified files exist"""
         print("\n✅ Verifying unified files...")
-        
+
         for file_path in self.files_to_keep:
             full_path = self.project_root / file_path
             if full_path.exists():
@@ -132,7 +133,7 @@ class UnifiedDeploymentCleanup:
                 print(f"  ✅ Found: {file_path}")
             else:
                 print(f"  ⚠️  Missing: {file_path}")
-    
+
     def update_documentation(self):
         """Update documentation to reflect unified approach"""
         print("\n📝 Documentation updates needed:")
@@ -140,41 +141,41 @@ class UnifiedDeploymentCleanup:
         print("  2. Update System Handbook deployment section")
         print("  3. Remove references to Kubernetes/K3s")
         print("  4. Update all deployment guides to use unified approach")
-    
+
     def print_summary(self):
         """Print cleanup summary"""
         print("\n" + "="*60)
         print("🎯 UNIFIED DEPLOYMENT CLEANUP SUMMARY")
         print("="*60)
-        
+
         print(f"\n📁 Backup location: {self.backup_dir}")
-        
+
         print(f"\n✅ Deleted {len(self.summary['deleted'])} legacy files:")
         for file in self.summary['deleted'][:10]:
             print(f"  - {file}")
         if len(self.summary['deleted']) > 10:
             print(f"  ... and {len(self.summary['deleted']) - 10} more")
-        
+
         print(f"\n✅ Kept {len(self.summary['kept'])} unified files:")
         for file in self.summary['kept']:
             print(f"  - {file}")
-        
+
         if self.summary['errors']:
             print(f"\n❌ Errors ({len(self.summary['errors'])}):")
             for error in self.summary['errors']:
                 print(f"  - {error}")
-        
+
         print("\n🎯 Next Steps:")
         print("  1. Review and update documentation")
         print("  2. Test unified deployment: ./unified_deployment.sh")
         print("  3. Remove backup after verification: rm -rf " + str(self.backup_dir))
         print("  4. Commit changes with: git add -A && git commit -m 'Complete unified deployment cleanup'")
-    
+
     def run(self):
         """Execute the cleanup process"""
         print("🚀 Starting Unified Deployment Cleanup")
         print("="*60)
-        
+
         self.identify_legacy_files()
         self.backup_files()
         self.delete_legacy_files()
@@ -184,4 +185,4 @@ class UnifiedDeploymentCleanup:
 
 if __name__ == "__main__":
     cleanup = UnifiedDeploymentCleanup()
-    cleanup.run() 
+    cleanup.run()

@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_llm_service import UnifiedLLMService, TaskType
+from backend.services.unified_llm_service import TaskType, UnifiedLLMService
 from backend.utils.custom_logger import logger
 
 
@@ -70,7 +70,7 @@ class SophiaAgentOrchestrator:
         self.agent_workflows = self._init_agent_workflows()
         self.mcp_servers = self._init_mcp_servers()
         self.performance_metrics = {}
-        
+
     async def initialize(self):
         """Initialize the orchestrator and all dependencies"""
         await self.llm_service.initialize()
@@ -97,7 +97,7 @@ class SophiaAgentOrchestrator:
                     data_transfer={"code": "generated_code", "tests": "test_cases"}
                 )
             ],
-            
+
             # Business Intelligence Workflow
             "business_intelligence": [
                 AgentHandoff(
@@ -115,7 +115,7 @@ class SophiaAgentOrchestrator:
                     data_transfer={"data": "research_data", "insights": "key_insights"}
                 )
             ],
-            
+
             # Infrastructure Management Workflow
             "infrastructure": [
                 AgentHandoff(
@@ -133,7 +133,7 @@ class SophiaAgentOrchestrator:
                     data_transfer={"changes": "infrastructure_changes", "tests": "validation_tests"}
                 )
             ],
-            
+
             # Research and Analysis Workflow
             "research_analysis": [
                 AgentHandoff(
@@ -172,7 +172,7 @@ class SophiaAgentOrchestrator:
                 "agent_type": AgentType.CODE_DEVELOPMENT,
                 "capabilities": ["repository_management", "pr_creation", "code_review"]
             },
-            
+
             # Business Intelligence Servers
             "hubspot": {
                 "port": 9006,
@@ -189,7 +189,7 @@ class SophiaAgentOrchestrator:
                 "agent_type": AgentType.INTEGRATION,
                 "capabilities": ["team_communication", "notification_management", "workflow_integration"]
             },
-            
+
             # Infrastructure Servers
             "lambda_labs": {
                 "port": 9012,
@@ -201,7 +201,7 @@ class SophiaAgentOrchestrator:
                 "agent_type": AgentType.INFRASTRUCTURE,
                 "capabilities": ["infrastructure_as_code", "deployment_management", "configuration_management"]
             },
-            
+
             # Research and Integration Servers
             "portkey_admin": {
                 "port": 9013,
@@ -237,22 +237,22 @@ class SophiaAgentOrchestrator:
         start_time = time.time()
         agent_chain = []
         token_usage = {"total": 0, "by_agent": {}}
-        
+
         try:
             # Step 1: Intent Classification using Sophia Intelligence
             intent_result = await self._classify_intent(user_input)
             agent_chain.append("sophia_intelligence")
-            
+
             # Step 2: Load appropriate documentation context
             documentation_context = await self._load_documentation_context(
-                intent_result["complexity"], 
+                intent_result["complexity"],
                 intent_result["task_type"]
             )
-            
+
             # Step 3: Execute workflow based on classification
             if workflow_type not in self.agent_workflows:
                 raise ValueError(f"Unknown workflow type: {workflow_type}")
-                
+
             workflow_result = await self._execute_agent_chain(
                 self.agent_workflows[workflow_type],
                 user_input,
@@ -263,24 +263,24 @@ class SophiaAgentOrchestrator:
                 },
                 parallel_execution
             )
-            
+
             agent_chain.extend(workflow_result["agent_chain"])
             token_usage["total"] += workflow_result["token_usage"]
-            
+
             # Step 4: Response Synthesis
             final_result = await self._synthesize_response(
                 workflow_result["results"],
                 intent_result,
                 user_input
             )
-            
+
             execution_time = time.time() - start_time
-            
+
             # Track performance metrics
             self._update_performance_metrics(
                 workflow_type, execution_time, token_usage["total"], True
             )
-            
+
             return WorkflowResult(
                 success=True,
                 result=final_result,
@@ -293,15 +293,15 @@ class SophiaAgentOrchestrator:
                 agent_chain=agent_chain,
                 token_usage=token_usage
             )
-            
+
         except Exception as e:
             logger.error(f"Workflow execution failed: {e}")
             execution_time = time.time() - start_time
-            
+
             self._update_performance_metrics(
                 workflow_type, execution_time, token_usage["total"], False
             )
-            
+
             return WorkflowResult(
                 success=False,
                 result=f"Error: {str(e)}",
@@ -326,7 +326,7 @@ class SophiaAgentOrchestrator:
         
         Return JSON format.
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             classification_prompt,
@@ -334,7 +334,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         try:
             return json.loads(result)
         except json.JSONDecodeError:
@@ -352,22 +352,22 @@ class SophiaAgentOrchestrator:
         """Load appropriate documentation context based on task complexity"""
         if not self.documentation_loader:
             return {}
-            
+
         # Implement 3-tier documentation loading
         tiers_to_load = []
-        
+
         if complexity in ["architecture", "complex"]:
             tiers_to_load = [1, 2, 3]  # Foundation + Component + Feature
         elif complexity == "moderate":
             tiers_to_load = [2, 3]  # Component + Feature
         else:
             tiers_to_load = [3]  # Feature only
-            
+
         context = {}
         for tier in tiers_to_load:
             tier_context = await self.documentation_loader.load_tier(tier, task_type)
             context[f"tier_{tier}"] = tier_context
-            
+
         return context
 
     async def _execute_agent_chain(
@@ -381,31 +381,31 @@ class SophiaAgentOrchestrator:
         results = {}
         agent_chain = []
         token_usage = 0
-        
+
         if parallel_execution:
             # Execute compatible agents in parallel
             parallel_tasks = []
             sequential_tasks = []
-            
+
             for handoff in workflow:
                 if handoff.condition == "requires_previous_result":
                     sequential_tasks.append(handoff)
                 else:
                     parallel_tasks.append(handoff)
-            
+
             # Execute parallel tasks
             if parallel_tasks:
                 parallel_results = await asyncio.gather(*[
                     self._execute_agent_task(handoff, user_input, context)
                     for handoff in parallel_tasks
                 ])
-                
+
                 for i, result in enumerate(parallel_results):
                     agent_name = parallel_tasks[i].to_agent.value
                     results[agent_name] = result
                     agent_chain.append(agent_name)
                     token_usage += result.get("token_usage", 0)
-            
+
             # Execute sequential tasks
             for handoff in sequential_tasks:
                 result = await self._execute_agent_task(handoff, user_input, {**context, **results})
@@ -421,7 +421,7 @@ class SophiaAgentOrchestrator:
                 results[agent_name] = result
                 agent_chain.append(agent_name)
                 token_usage += result.get("token_usage", 0)
-        
+
         return {
             "results": results,
             "agent_chain": agent_chain,
@@ -433,7 +433,7 @@ class SophiaAgentOrchestrator:
     ) -> dict[str, Any]:
         """Execute individual agent task"""
         agent_type = handoff.to_agent
-        
+
         # Route to appropriate MCP server or LLM service
         if agent_type == AgentType.SOPHIA_INTELLIGENCE:
             return await self._execute_sophia_intelligence_task(user_input, context)
@@ -464,7 +464,7 @@ class SophiaAgentOrchestrator:
         3. Next steps
         4. Required resources
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             prompt,
@@ -472,7 +472,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return {
             "agent": "sophia_intelligence",
             "result": result,
@@ -496,7 +496,7 @@ class SophiaAgentOrchestrator:
         3. Documentation
         4. Integration patterns
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             prompt,
@@ -504,7 +504,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return {
             "agent": "code_development",
             "result": result,
@@ -528,7 +528,7 @@ class SophiaAgentOrchestrator:
         3. Recommendations
         4. Metrics and KPIs
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             prompt,
@@ -536,7 +536,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return {
             "agent": "business_intelligence",
             "result": result,
@@ -560,7 +560,7 @@ class SophiaAgentOrchestrator:
         3. Security considerations
         4. Monitoring setup
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             prompt,
@@ -568,7 +568,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return {
             "agent": "infrastructure",
             "result": result,
@@ -592,7 +592,7 @@ class SophiaAgentOrchestrator:
         3. Competitive landscape
         4. Recommendations
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             prompt,
@@ -600,7 +600,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return {
             "agent": "research",
             "result": result,
@@ -624,7 +624,7 @@ class SophiaAgentOrchestrator:
         3. Data flow design
         4. Error handling
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             prompt,
@@ -632,7 +632,7 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return {
             "agent": "integration",
             "result": result,
@@ -653,7 +653,7 @@ class SophiaAgentOrchestrator:
         
         Create a unified, actionable response that addresses the user's request.
         """
-        
+
         result = ""
         async for chunk in self.llm_service.complete(
             synthesis_prompt,
@@ -661,13 +661,15 @@ class SophiaAgentOrchestrator:
             stream=False
         ):
             result += chunk
-            
+
         return result
 
     async def _init_documentation_loader(self):
         """Initialize documentation loader service"""
         try:
-            from backend.services.documentation_loader_service import DocumentationLoaderService
+            from backend.services.documentation_loader_service import (
+                DocumentationLoaderService,
+            )
             loader = DocumentationLoaderService()
             await loader.initialize()
             return loader
@@ -686,19 +688,19 @@ class SophiaAgentOrchestrator:
                 "average_execution_time": 0,
                 "total_token_usage": 0
             }
-        
+
         metrics = self.performance_metrics[workflow_type]
         metrics["total_executions"] += 1
-        
+
         if success:
             metrics["successful_executions"] += 1
-            
+
         # Update running averages
         metrics["average_execution_time"] = (
             (metrics["average_execution_time"] * (metrics["total_executions"] - 1) + execution_time)
             / metrics["total_executions"]
         )
-        
+
         metrics["total_token_usage"] += token_usage
 
     async def get_performance_metrics(self) -> dict[str, Any]:

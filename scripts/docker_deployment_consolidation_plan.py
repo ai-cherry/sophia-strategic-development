@@ -698,7 +698,7 @@ if __name__ == "__main__":
 
         self.report.next_steps = next_steps
 
-    def save_report(self, output_file: Optional[str] = None) -> str:
+    def save_report(self, output_file: str | None = None) -> str:
         """Save consolidation report to file."""
         if not output_file:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")

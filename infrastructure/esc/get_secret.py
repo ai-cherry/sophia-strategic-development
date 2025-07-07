@@ -214,7 +214,7 @@ class SecureSecretRetriever:
 
         return values
 
-    def get_secret(self, secret_key: str, mask_in_logs: bool = True) -> Optional[str]:
+    def get_secret(self, secret_key: str, mask_in_logs: bool = True) -> str | None:
         """
         Securely retrieve a single secret from Pulumi ESC
 
@@ -256,7 +256,7 @@ class SecureSecretRetriever:
             self.logger.error(f"Error retrieving secret '{secret_key}': {e}")
             raise
 
-    def _get_nested_value(self, data: dict[str, Any], key: str) -> Optional[str]:
+    def _get_nested_value(self, data: dict[str, Any], key: str) -> str | None:
         """
         Get value from nested dictionary using dot notation
 
@@ -286,7 +286,7 @@ class SecureSecretRetriever:
 
     def get_multiple_secrets(
         self, secret_keys: list[str], mask_in_logs: bool = True
-    ) -> dict[str, Optional[str]]:
+    ) -> dict[str, str | None]:
         """
         Efficiently retrieve multiple secrets in a single ESC call
 

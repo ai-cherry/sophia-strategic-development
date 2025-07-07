@@ -300,7 +300,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
 
     async def _find_relevant_file(
         self, description: str, memory_context: list[dict]
-    ) -> Optional[str]:
+    ) -> str | None:
         """Find relevant file from description and memory"""
         # TODO: This method's implementation is broken and needs to be fixed.
         # It uses undefined classes (LLMRequest) and enum members.
