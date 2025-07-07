@@ -24,11 +24,10 @@ services:
       - postgres_password
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       placement:
         constraints:
-          - node.role == worker
-          - node.labels.gpu == true
+          - node.role == manager
       resources:
         limits:
           cpus: "2.0"
@@ -84,11 +83,10 @@ services:
       - mem0_api_key
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       placement:
         constraints:
-          - node.role == worker
-          - node.labels.memory_optimized == true
+          - node.role == manager
       resources:
         limits:
           cpus: "1.0"
@@ -136,19 +134,14 @@ services:
       - snowflake_password
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       placement:
         constraints:
-          - node.role == worker
-          - node.labels.gpu == true
+          - node.role == manager
       resources:
         limits:
           cpus: "4.0"
           memory: 8G
-          generic_resources:
-            - discrete_resource_spec:
-                kind: "NVIDIA-GPU"
-                value: 1
         reservations:
           cpus: "2.0"
           memory: 4G
@@ -170,46 +163,38 @@ services:
 
   # V0.dev MCP Server - AI-driven UI component generation
   v0dev-server:
-    image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai-v0dev:${IMAGE_TAG:-latest}
+    image: ghcr.io/v0-services/v0-server:latest
+    networks:
+      - sophia-overlay
+    secrets:
+      - VERCEL_ACCESS_TOKEN
     environment:
-      - VERCEL_V0DEV_API_KEY_FILE=/run/secrets/vercel_v0dev_api_key
+      - VERCEL_ACCESS_TOKEN_FILE=/run/secrets/VERCEL_ACCESS_TOKEN
       - ENVIRONMENT=prod
       - PULUMI_ORG=scoobyjava-org
       - LOG_LEVEL=INFO
     ports:
-      - target: 9030
-        published: 9030
-        mode: ingress
-    secrets:
-      - vercel_v0dev_api_key
+      - "9030:9030"
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       placement:
         constraints:
-          - node.role == worker
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 2G
-        reservations:
-          cpus: "0.5"
-          memory: 1G
+          - node.role == manager
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
+        window: 120s
       update_config:
         parallelism: 1
         delay: 10s
-        failure_action: rollback
+        order: stop-first
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9030/health"]
       interval: 30s
       timeout: 5s
       retries: 3
-    networks:
-      - sophia-overlay
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.v0dev-server.rule=Host(`v0dev.sophia-ai.lambda.cloud`)"
@@ -237,12 +222,10 @@ services:
       - redis_data:/data
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
       placement:
         constraints:
-          - node.role == worker
-        preferences:
-          - spread: node.labels.zone
+          - node.role == manager
       resources:
         limits:
           cpus: "0.5"
@@ -284,8 +267,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == worker
-          - node.labels.storage == ssd
+          - node.role == manager
       resources:
         limits:
           cpus: "2.0"
@@ -383,7 +365,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == worker
+          - node.role == manager
       resources:
         limits:
           cpus: "1.0"
@@ -414,7 +396,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.role == worker
+          - node.role == manager
       resources:
         limits:
           cpus: "0.5"
@@ -431,6 +413,8 @@ secrets:
     external: true
   postgres_password:
     external: true
+  VERCEL_ACCESS_TOKEN:
+    external: true
   mem0_api_key:
     external: true
   snowflake_account:
@@ -440,8 +424,6 @@ secrets:
   snowflake_password:
     external: true
   grafana_password:
-    external: true
-  vercel_v0dev_api_key:
     external: true
 
 # Persistent volumes for stateful services

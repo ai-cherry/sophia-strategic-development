@@ -1,6 +1,6 @@
 {
   "cluster_name": "sophia-ai-production",
-  "created": "2025-07-06T22:00:07.887529",
+  "created": "2025-07-06T22:54:08.447627",
   "master": {
     "name": "lynn-sophia-gh200-master-01",
     "ip": "192.222.51.151",
@@ -8,19 +8,19 @@
   },
   "workers": [
     {
-      "id": "09a7b3a603644db9ac6252bac49fb35d",
+      "id": "a98d89b1ae934df2982c8b742815a1d1",
       "name": "lynn-sophia-gh200-worker-01",
       "role": "worker",
-      "ip": "192.222.50.209",
-      "private_ip": "172.26.133.54",
+      "ip": "192.222.50.28",
+      "private_ip": "172.26.133.235",
       "status": "active"
     },
     {
-      "id": "08bdba84ae28472b983b708cebb71ad2",
+      "id": "3cc90b3f245045db973daa8a3e038f2c",
       "name": "lynn-sophia-gh200-worker-02",
       "role": "worker",
-      "ip": "192.222.50.213",
-      "private_ip": "172.26.133.154",
+      "ip": "192.222.50.4",
+      "private_ip": "172.26.134.82",
       "status": "active"
     }
   ],

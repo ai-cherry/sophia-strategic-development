@@ -182,13 +182,22 @@ class StrategicRepositoryExpander:
                 "cursor_integration": "Kubernetes context, cluster optimization suggestions",
             },
             {
-                "name": "terraform_mcp",
-                "url": "https://github.com/hashicorp/mcp-server-terraform.git",
-                "priority": "LOW",
-                "category": "infrastructure",
-                "ai_value": "Infrastructure as code, resource management, deployment automation",
-                "business_impact": "Infrastructure automation, resource optimization",
-                "cursor_integration": "Terraform context, infrastructure suggestions",
+                "name": "figma_context_mcp",
+                "url": "https://github.com/GLips/Figma-Context-MCP.git",
+                "category": "Design Integration",
+                "github_stars": "8.7k+",
+                "status": "production",
+                "value": "HIGH",
+                "cursor_integration": "Figma designs, component generation",
+            },
+            {
+                "name": "playwright_mcp",
+                "url": "https://github.com/microsoft/playwright-mcp.git",
+                "category": "Browser Automation",
+                "github_stars": "13.4k+",
+                "status": "production",
+                "value": "HIGH",
+                "cursor_integration": "Web automation, E2E testing",
             },
         ]
 
@@ -555,7 +564,7 @@ Find development workflow MCP integrations:
 "MCP server" monitoring Datadog New Relic
 "MCP server" cloud AWS Azure GCP
 "MCP server" container Docker Kubernetes
-"MCP server" infrastructure Terraform Pulumi
+"MCP server" infrastructure Pulumi
 ```
 
 ### 5. **Productivity & Collaboration**
