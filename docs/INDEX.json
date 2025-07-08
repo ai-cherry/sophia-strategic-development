@@ -1,0 +1,422 @@
+{
+  "LAMBDA_LABS_SETUP_REQUIREMENTS.md": {
+    "title": "Lambda Labs Setup Requirements"
+  },
+  "ENHANCED_REAL_DATA_IMPLEMENTATION_PLAN.md": {
+    "title": "Enhanced Real Data Implementation Plan"
+  },
+  "COMPREHENSIVE_AI_CODING_ENHANCEMENT_IMPLEMENTATION_PLAN.md": {
+    "title": "Comprehensive Ai Coding Enhancement Implementation Plan"
+  },
+  "LAMBDA_LABS_CONFIGURATION_AUDIT_FINAL.md": {
+    "title": "Lambda Labs Configuration Audit Final"
+  },
+  "DEPLOYMENT_GUIDE.md": {
+    "title": "Deployment Guide"
+  },
+  "COMPREHENSIVE_INFRASTRUCTURE_REMEDIATION_PLAN.md": {
+    "title": "Comprehensive Infrastructure Remediation Plan"
+  },
+  "UNIFIED_CHAT_IMPLEMENTATION_PLAN.md": {
+    "title": "Unified Chat Implementation Plan"
+  },
+  "INFRASTRUCTURE_AS_CODE_INDEX.md": {
+    "title": "Infrastructure As Code Index"
+  },
+  "ENHANCED_MCP_REMEDIATION_PLAN.md": {
+    "title": "Enhanced Mcp Remediation Plan"
+  },
+  "API_DOCUMENTATION.md": {
+    "title": "Api Documentation"
+  },
+  "CODACY_CONSOLIDATION_DEPLOYMENT_PLAN.md": {
+    "title": "Codacy Consolidation Deployment Plan"
+  },
+  "FOCUSED_AI_ORCHESTRATION_IMPLEMENTATION_PLAN.md": {
+    "title": "Focused Ai Orchestration Implementation Plan"
+  },
+  "STRATEGIC_ENHANCEMENT_IMPLEMENTATION_PLAN_DETAILED.md": {
+    "title": "Strategic Enhancement Implementation Plan Detailed"
+  },
+  "MCP_SERVERS_COMPREHENSIVE_ANALYSIS_AND_REMEDIATION_PLAN.md": {
+    "title": "Mcp Servers Comprehensive Analysis And Remediation Plan"
+  },
+  "LAMBDA_LABS_INSTANCE_MAPPING.md": {
+    "title": "Lambda Labs Instance Mapping"
+  },
+  "TECHNICAL_REMEDIATION_SUMMARY_AND_RECOMMENDATIONS.md": {
+    "title": "Technical Remediation Summary And Recommendations"
+  },
+  "SOPHIA_AI_PROJECT_BREAKDOWN_JULY_2025.md": {
+    "title": "Sophia Ai Project Breakdown July 2025"
+  },
+  "DEVELOPMENT_QUICKSTART.md": {
+    "title": "Development Quickstart"
+  },
+  "ENHANCED_CODACY_STRATEGIC_IMPLEMENTATION.md": {
+    "title": "Enhanced Codacy Strategic Implementation"
+  },
+  "LAMBDA_LABS_INFRASTRUCTURE.md": {
+    "title": "Lambda Labs Infrastructure"
+  },
+  "FRONTEND_REAL_DATA_ENHANCEMENTS.md": {
+    "title": "Frontend Real Data Enhancements"
+  },
+  "LAMBDA_LABS_COMPREHENSIVE_IMPLEMENTATION.md": {
+    "title": "Lambda Labs Comprehensive Implementation"
+  },
+  "COMPREHENSIVE_ALIGNMENT_REMEDIATION_PLAN_JULY_2025.md": {
+    "title": "Comprehensive Alignment Remediation Plan July 2025"
+  },
+  "SOPHIA_ORCHESTRATOR_ARCHITECTURE_REVIEW.md": {
+    "title": "Sophia Orchestrator Architecture Review"
+  },
+  "DEPLOYMENT_CHECKLIST.md": {
+    "title": "Deployment Checklist"
+  },
+  "STRATEGIC_ENHANCEMENT_IMPLEMENTATION_PLAN.md": {
+    "title": "Strategic Enhancement Implementation Plan"
+  },
+  "EMBEDDING_STRATEGY_COMPARISON.md": {
+    "title": "Embedding Strategy Comparison"
+  },
+  "UNIFIED_DASHBOARD_REMEDIATION_PLAN.md": {
+    "title": "Unified Dashboard Remediation Plan"
+  },
+  "LAMBDA_LABS_QUICK_REFERENCE.md": {
+    "title": "Lambda Labs Quick Reference"
+  },
+  "ENHANCED_DEPLOYMENT_ARCHITECTURE_ROADMAP.md": {
+    "title": "Enhanced Deployment Architecture Roadmap"
+  },
+  "APPLICATION_STRUCTURE.md": {
+    "title": "Application Structure"
+  },
+  "CHANGELOG.md": {
+    "title": "Changelog"
+  },
+  "LAMBDA_LABS_GH200_COMPLETE_SETUP_GUIDE.md": {
+    "title": "Lambda Labs Gh200 Complete Setup Guide"
+  },
+  "IMMEDIATE_REMEDIATION_ACTIONS.md": {
+    "title": "Immediate Remediation Actions"
+  },
+  "UNIFIED_CHAT_ARCHITECTURE.md": {
+    "title": "Unified Chat Architecture"
+  },
+  "COMPREHENSIVE_UNIFIED_DASHBOARD_CHAT_REMEDIATION_PLAN.md": {
+    "title": "Comprehensive Unified Dashboard Chat Remediation Plan"
+  },
+  "STRATEGIC_IMPROVEMENT_PRIORITIES.md": {
+    "title": "Strategic Improvement Priorities"
+  },
+  "AI_CODING_ENHANCEMENT_UPDATED_PLAN.md": {
+    "title": "Ai Coding Enhancement Updated Plan"
+  },
+  "IMMEDIATE_ACTION_PLAN_REAL_DATA.md": {
+    "title": "Immediate Action Plan Real Data"
+  },
+  "sample_queries/enhanced_sample_developer_queries.md": {
+    "title": "Enhanced Sample Developer Queries"
+  },
+  "05-integrations/README.md": {
+    "title": "Readme"
+  },
+  "system_handbook/03_4_Contextual_Memory_Architecture.md": {
+    "title": "03 4 Contextual Memory Architecture"
+  },
+  "system_handbook/06_PHOENIX_MEM0_INTEGRATION_ARCHITECTURE.md": {
+    "title": "06 Phoenix Mem0 Integration Architecture"
+  },
+  "system_handbook/10_SNOWFLAKE_CORTEX_MCP_INTEGRATION.md": {
+    "title": "10 Snowflake Cortex Mcp Integration"
+  },
+  "system_handbook/08_1_Implementation_Roadmap.md": {
+    "title": "08 1 Implementation Roadmap"
+  },
+  "system_handbook/00_SOPHIA_AI_SYSTEM_HANDBOOK.md": {
+    "title": "00 Sophia Ai System Handbook"
+  },
+  "system_handbook/05_PHOENIX_MEMORY_INTEGRATION_SUMMARY.md": {
+    "title": "05 Phoenix Memory Integration Summary"
+  },
+  "system_handbook/09_AI_SQL_CORTEX_AGENT_LIFECYCLE.md": {
+    "title": "09 Ai Sql Cortex Agent Lifecycle"
+  },
+  "system_handbook/08_MEMORY_AUGMENTED_ARCHITECTURE.md": {
+    "title": "08 Memory Augmented Architecture"
+  },
+  "system_handbook/05_1_GitHub_Strategy.md": {
+    "title": "05 1 Github Strategy"
+  },
+  "system_handbook/01_1_Vision_to_Reality_Alignment.md": {
+    "title": "01 1 Vision To Reality Alignment"
+  },
+  "deployment/LAMBDA_LABS_DEPLOYMENT_GUIDE.md": {
+    "title": "Lambda Labs Deployment Guide"
+  },
+  "deployment/LAMBDA_LABS_IMPLEMENTATION_SUMMARY.md": {
+    "title": "Lambda Labs Implementation Summary"
+  },
+  "99-reference/README.md": {
+    "title": "Readme"
+  },
+  "99-reference/UNIFIED_DASHBOARD_REFERENCE.md": {
+    "title": "Unified Dashboard Reference"
+  },
+  "99-reference/UNIFIED_CHAT_API_REFERENCE.md": {
+    "title": "Unified Chat Api Reference"
+  },
+  "07-performance/README.md": {
+    "title": "Readme"
+  },
+  "getting-started/DEVELOPMENT_ENVIRONMENT_SETUP.md": {
+    "title": "Development Environment Setup"
+  },
+  "ai-context/docs-overview.md": {
+    "title": "Docs-Overview"
+  },
+  "ai-context/sophia-brain.md": {
+    "title": "Sophia-Brain"
+  },
+  "ai-context/project-structure.md": {
+    "title": "Project-Structure"
+  },
+  "ai-coding/NATURAL_LANGUAGE_COMMANDS.md": {
+    "title": "Natural Language Commands"
+  },
+  "ai-coding/QUICK_START.md": {
+    "title": "Quick Start"
+  },
+  "03-architecture/PHASE_1_PERFORMANCE_SECURITY_ENHANCEMENTS.md": {
+    "title": "Phase 1 Performance Security Enhancements"
+  },
+  "03-architecture/README.md": {
+    "title": "Readme"
+  },
+  "03-architecture/SNOWFLAKE_CORTEX_LAYER.md": {
+    "title": "Snowflake Cortex Layer"
+  },
+  "03-architecture/ADR-007_lambda_serverless_first.md": {
+    "title": "Adr-007 Lambda Serverless First"
+  },
+  "08-security/README.md": {
+    "title": "Readme"
+  },
+  "08-security/SECRET_MANAGEMENT.md": {
+    "title": "Secret Management"
+  },
+  "08-security/SECRET_ROTATION_GUIDE.md": {
+    "title": "Secret Rotation Guide"
+  },
+  "08-security/DEPENDENCY_SECURITY_AUDIT.md": {
+    "title": "Dependency Security Audit"
+  },
+  "04-deployment/SNOWFLAKE_MIGRATION_README.md": {
+    "title": "Snowflake Migration Readme"
+  },
+  "04-deployment/SNOWFLAKE_CORTEX_UNIFIED_IMPLEMENTATION_PLAN.md": {
+    "title": "Snowflake Cortex Unified Implementation Plan"
+  },
+  "04-deployment/DEPLOYMENT_GUIDE.md": {
+    "title": "Deployment Guide"
+  },
+  "04-deployment/CI_CD_PIPELINE.md": {
+    "title": "Ci Cd Pipeline"
+  },
+  "04-deployment/CI_CD_REHABILITATION_SUMMARY.md": {
+    "title": "Ci Cd Rehabilitation Summary"
+  },
+  "04-deployment/README.md": {
+    "title": "Readme"
+  },
+  "04-deployment/lambda_labs_migration_guide.md": {
+    "title": "Lambda Labs Migration Guide"
+  },
+  "04-deployment/DOCKER_GUIDE.md": {
+    "title": "Docker Guide"
+  },
+  "04-deployment/LAMBDA_LABS_MCP_DEPLOYMENT_GUIDE.md": {
+    "title": "Lambda Labs Mcp Deployment Guide"
+  },
+  "04-deployment/HOLISTIC_DEPLOYMENT_STRATEGY.md": {
+    "title": "Holistic Deployment Strategy"
+  },
+  "04-deployment/CI_CD_REHAB_PLAYBOOK.md": {
+    "title": "Ci Cd Rehab Playbook"
+  },
+  "04-deployment/lambda_serverless.md": {
+    "title": "Lambda Serverless"
+  },
+  "04-deployment/DOCKER_HUB_DEPLOYMENT.md": {
+    "title": "Docker Hub Deployment"
+  },
+  "04-deployment/DOCKER_CLOUD_LAMBDA_LABS.md": {
+    "title": "Docker Cloud Lambda Labs"
+  },
+  "04-deployment/GITHUB_SECRETS_SETUP.md": {
+    "title": "Github Secrets Setup"
+  },
+  "04-deployment/CLEAN_ARCHITECTURE_DEPLOYMENT.md": {
+    "title": "Clean Architecture Deployment"
+  },
+  "04-deployment/LAMBDA_LABS_SSH_CONFIGURATION.md": {
+    "title": "Lambda Labs Ssh Configuration"
+  },
+  "04-deployment/PRODUCTION_DEPLOYMENT_ARCHITECTURE.md": {
+    "title": "Production Deployment Architecture"
+  },
+  "04-deployment/SNOWFLAKE_CORTEX_DEPLOYMENT_SUMMARY.md": {
+    "title": "Snowflake Cortex Deployment Summary"
+  },
+  "monorepo/MONOREPO_TRANSITION_GUIDE.md": {
+    "title": "Monorepo Transition Guide"
+  },
+  "monorepo/PERFORMANCE_FIRST_CODING_STANDARDS.md": {
+    "title": "Performance First Coding Standards"
+  },
+  "monorepo/MIGRATION_MAPPING.md": {
+    "title": "Migration Mapping"
+  },
+  "monorepo/SNOWFLAKE_CORTEX_AUTH_FLOW.md": {
+    "title": "Snowflake Cortex Auth Flow"
+  },
+  "monorepo/CURRENT_STATE_INVENTORY.md": {
+    "title": "Current State Inventory"
+  },
+  "monorepo/REVIEW_AND_DOCUMENTATION_PROCESS.md": {
+    "title": "Review And Documentation Process"
+  },
+  "implementation/MCP_V2_CONSOLIDATION_PLAN.md": {
+    "title": "Mcp V2 Consolidation Plan"
+  },
+  "implementation/ENHANCED_INFRASTRUCTURE_IMPLEMENTATION.md": {
+    "title": "Enhanced Infrastructure Implementation"
+  },
+  "implementation/LAMBDA_LABS_GPU_ALIGNMENT.md": {
+    "title": "Lambda Labs Gpu Alignment"
+  },
+  "implementation/unified_dashboard_integration_guide.md": {
+    "title": "Unified Dashboard Integration Guide"
+  },
+  "implementation/LLM_CODE_INFRASTRUCTURE_MANAGEMENT_IMPLEMENTATION.md": {
+    "title": "Llm Code Infrastructure Management Implementation"
+  },
+  "implementation/kubernetes_migration_guide.md": {
+    "title": "Kubernetes Migration Guide"
+  },
+  "implementation/MCP_V2_MIGRATION_STATUS.md": {
+    "title": "Mcp V2 Migration Status"
+  },
+  "implementation/MCP_V2_MIGRATION_SUMMARY.md": {
+    "title": "Mcp V2 Migration Summary"
+  },
+  "implementation/codebase_quality_remediation_guide.md": {
+    "title": "Codebase Quality Remediation Guide"
+  },
+  "implementation/03_V2_TEMPLATE_ARCHITECTURE.md": {
+    "title": "03 V2 Template Architecture"
+  },
+  "implementation/LLM_DRIVEN_CODE_INFRASTRUCTURE_MANAGEMENT_PLAN.md": {
+    "title": "Llm Driven Code Infrastructure Management Plan"
+  },
+  "implementation/CRITICAL_DEPLOYMENT_FIX_PLAN.md": {
+    "title": "Critical Deployment Fix Plan"
+  },
+  "implementation/sophia_development_timeline.md": {
+    "title": "Sophia Development Timeline"
+  },
+  "implementation/LLM_ROUTER_MIGRATION_GUIDE.md": {
+    "title": "Llm Router Migration Guide"
+  },
+  "implementation/LAMBDA_LABS_GH200_INTEGRATION_GUIDE.md": {
+    "title": "Lambda Labs Gh200 Integration Guide"
+  },
+  "implementation/DEEP_AUDIT_IMPLEMENTATION_STRATEGY.md": {
+    "title": "Deep Audit Implementation Strategy"
+  },
+  "implementation/PR_136_H200_GPU_DEPLOYMENT_GUIDE.md": {
+    "title": "Pr 136 H200 Gpu Deployment Guide"
+  },
+  "implementation/LAMBDA_LABS_PULUMI_ESC_INTEGRATION.md": {
+    "title": "Lambda Labs Pulumi Esc Integration"
+  },
+  "implementation/LLM_UNIFICATION_IMPLEMENTATION_PLAN.md": {
+    "title": "Llm Unification Implementation Plan"
+  },
+  "implementation/LAMBDA_LABS_GH200_FINAL_IMPLEMENTATION.md": {
+    "title": "Lambda Labs Gh200 Final Implementation"
+  },
+  "implementation/DEPLOYMENT_ZERO_FAIL_IMPLEMENTATION_ROADMAP.md": {
+    "title": "Deployment Zero Fail Implementation Roadmap"
+  },
+  "implementation/LAMBDA_LABS_GH200_FINAL_IMPLEMENTATION_STATUS.md": {
+    "title": "Lambda Labs Gh200 Final Implementation Status"
+  },
+  "implementation/LAMBDA_LABS_PR_REVIEW_AND_ALIGNMENT.md": {
+    "title": "Lambda Labs Pr Review And Alignment"
+  },
+  "implementation/LAMBDA_LABS_GH200_INTEGRATION_AUDIT.md": {
+    "title": "Lambda Labs Gh200 Integration Audit"
+  },
+  "implementation/LLM_UNIFICATION_IMPLEMENTATION_SUMMARY.md": {
+    "title": "Llm Unification Implementation Summary"
+  },
+  "implementation/SNOWFLAKE_CORTEX_MCP_OPTIMIZATION_SUMMARY.md": {
+    "title": "Snowflake Cortex Mcp Optimization Summary"
+  },
+  "implementation/strategic_alignment_and_next_phase.md": {
+    "title": "Strategic Alignment And Next Phase"
+  },
+  "implementation/01_PRE_MIGRATION_ANALYSIS.md": {
+    "title": "01 Pre Migration Analysis"
+  },
+  "implementation/02_CONFLICT_RESOLUTION_STRATEGY.md": {
+    "title": "02 Conflict Resolution Strategy"
+  },
+  "02-development/UV_DEPENDENCY_MANAGEMENT.md": {
+    "title": "Uv Dependency Management"
+  },
+  "02-development/README.md": {
+    "title": "Readme"
+  },
+  "06-mcp-servers/V0DEV_NATURAL_LANGUAGE_GUIDE.md": {
+    "title": "V0Dev Natural Language Guide"
+  },
+  "06-mcp-servers/README.md": {
+    "title": "Readme"
+  },
+  "06-mcp-servers/official_servers.md": {
+    "title": "Official Servers"
+  },
+  "06-mcp-servers/lambda_labs_unified.md": {
+    "title": "Lambda Labs Unified"
+  },
+  "06-mcp-servers/V0DEV_INTEGRATION_GUIDE.md": {
+    "title": "V0Dev Integration Guide"
+  },
+  "01-getting-started/README.md": {
+    "title": "Readme"
+  },
+  "architecture/SNOWFLAKE_CORTEX_REFACTORING_EXAMPLE.md": {
+    "title": "Snowflake Cortex Refactoring Example"
+  },
+  "architecture/WEEK1_CODE_QUALITY_AUDIT_SUMMARY.md": {
+    "title": "Week1 Code Quality Audit Summary"
+  },
+  "architecture/WEEK1_FINAL_SUMMARY.md": {
+    "title": "Week1 Final Summary"
+  },
+  "architecture/CLEAN_ARCHITECTURE_TECH_STACK_ALIGNMENT.md": {
+    "title": "Clean Architecture Tech Stack Alignment"
+  },
+  "architecture/CIRCULAR_DEPENDENCY_MIGRATION.md": {
+    "title": "Circular Dependency Migration"
+  },
+  "architecture/SYSTEM_DESIGN.md": {
+    "title": "System Design"
+  },
+  "architecture/ADR-001-circular-dependencies-resolution.md": {
+    "title": "Adr-001-Circular-Dependencies-Resolution"
+  }
+}

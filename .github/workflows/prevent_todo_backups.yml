@@ -1,0 +1,17 @@
+name: Block Backup & TODO strings
+on: [pull_request]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for banned tokens
+        run: |
+          disallowed=$(grep -R --line-number -E "(TODO: Implement file decomposition|\\.backup)" \
+            --exclude=.git --exclude=*.md || true)
+          if [[ -n "$disallowed" ]]; then
+            echo "::error::Found disallowed patterns:"
+            echo "$disallowed"
+            exit 1
+          fi
