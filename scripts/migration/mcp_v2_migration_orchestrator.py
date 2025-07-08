@@ -52,6 +52,7 @@ class MigrationOrchestrator:
 
     def __init__(self, dry_run: bool = False):
         self.dry_run = dry_run
+        self.skip_tests = False  # Will be set by main()
         self.root = Path.cwd()
         self.template_path = self.root / "infrastructure" / "mcp_servers" / "templates" / "mcp_v2_template.py"
         self.v2_base_path = self.root / "infrastructure" / "mcp_servers"
@@ -284,8 +285,8 @@ class MigrationOrchestrator:
 
     def _run_base_tests(self) -> bool:
         """Run baseline tests"""
-        if self.dry_run:
-            logger.info("Skipping tests in dry-run mode")
+        if self.dry_run or self.skip_tests:
+            logger.info("Skipping tests" + (" in dry-run mode" if self.dry_run else ""))
             return True
 
         result = subprocess.run(
@@ -338,7 +339,7 @@ class MigrationOrchestrator:
             self._update_configuration(server)
 
             # Step 5: Run tests
-            if not self.dry_run:
+            if not self.dry_run and not self.skip_tests:
                 self._run_server_tests(server, v2_path)
 
             # Step 6: Update status
@@ -553,39 +554,38 @@ class MigrationOrchestrator:
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(description="MCP V2+ Migration Orchestrator")
-    parser.add_argument("--dry-run", action="store_true", help="Run in dry-run mode")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Run in dry-run mode (no changes made)",
+    )
     parser.add_argument(
         "--phase",
-        choices=[p.value for p in MigrationPhase],
+        type=str,
+        choices=["phase_1", "phase_2", "phase_3", "phase_4"],
         help="Run specific phase only",
     )
-    parser.add_argument("--server", help="Migrate specific server only")
+    parser.add_argument(
+        "--skip-tests",
+        action="store_true",
+        help="Skip test execution during migration",
+    )
 
     args = parser.parse_args()
 
+    # Create orchestrator
     orchestrator = MigrationOrchestrator(dry_run=args.dry_run)
+    orchestrator.skip_tests = args.skip_tests
 
-    if args.server:
-        # Migrate single server
-        orchestrator.load_migration_config()
-        if args.server not in orchestrator.servers:
-            logger.error(f"Server '{args.server}' not found in migration config")
-            sys.exit(1)
-
-        server = orchestrator.servers[args.server]
-        success = orchestrator.migrate_server(server)
-        orchestrator.generate_report()
-        sys.exit(0 if success else 1)
-
-    elif args.phase:
-        # Run specific phase
-        phase = MigrationPhase(args.phase)
-        phases = [phase]
+    # Determine phases to run
+    if args.phase:
+        phases = [MigrationPhase[args.phase.upper()]]
     else:
-        # Run all phases
         phases = None
 
+    # Run migration
     success = orchestrator.run(phases)
+
     sys.exit(0 if success else 1)
 
 
