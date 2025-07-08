@@ -1576,9 +1576,9 @@ portkey-ai==1.14.0 \
     --hash=sha256:10118a3993b153ea32b2ea57acfdf95cdcee01ecc82e0809e0e939b541c5c53a \
     --hash=sha256:cee17eb93eb3a8b54212d7ae3ccbe346ca55cdf3377c822c7f2215d5e8e01cd8
     # via sophia-ai
-posthog==5.4.0 \
-    --hash=sha256:284dfa302f64353484420b52d4ad81ff5c2c2d1d607c4e2db602ac72761831bd \
-    --hash=sha256:701669261b8d07cdde0276e5bc096b87f9e200e3b9589c5ebff14df658c5893c
+posthog==6.0.3 \
+    --hash=sha256:4b808c907f3623216a9362d91fdafce8e2f57a8387fb3020475c62ec809be56d \
+    --hash=sha256:9005abb341af8fedd9d82ca0359b3d35a9537555cdc9881bfb469f7c0b4b0ec5
     # via chromadb
 pre-commit==4.2.0 \
     --hash=sha256:601283b9757afd87d40c4c4a9b2b5de9637a8ea02eaff7adc2d0fb4e04841146 \
