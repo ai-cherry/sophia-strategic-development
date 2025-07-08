@@ -296,6 +296,8 @@ class OptimizedConnectionPool:
         config = get_secure_snowflake_config()
         connection_params = config.get_connection_params()
         connection_params["timeout"] = self.connection_timeout
+        # Add global query tag for cost/credit tracking
+        connection_params.setdefault("session_parameters", {})["QUERY_TAG"] = "sophia_ai_global"
 
         # Force log the correct account
         logger.info(

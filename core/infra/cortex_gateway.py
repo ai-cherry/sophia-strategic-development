@@ -34,6 +34,12 @@ def _prom_metrics(func):  # placeholder – connect to real Prom client later
         result = await func(self, *args, **kwargs)
         duration = (datetime.utcnow() - start).total_seconds()
         logger.debug("CortexGateway.%s executed in %.3fs", func.__name__, duration)
+
+        # Log usage to Snowflake table (fire-and-forget)
+        try:
+            await self._log_usage(func.__name__, duration)
+        except Exception as log_exc:  # pragma: no cover
+            logger.debug("Usage log failed: %s", log_exc)
         return result
 
     return wrapper
@@ -136,6 +142,24 @@ class CortexGateway:
             return {"status": "healthy", "details": rows[0] if rows else {}}
         except Exception as exc:  # pragma: no cover
             return {"status": "unhealthy", "error": str(exc)}
+
+    async def _log_usage(self, function_name: str, duration_s: float):
+        """Insert usage record into CORTEX_USAGE_LOG. Creates table if missing."""
+        # Tokens and credits are unknown here; we can approximate via duration
+        sql_create = """
+        CREATE TABLE IF NOT EXISTS CORTEX_USAGE_LOG (
+            ts TIMESTAMP_NTZ,
+            function STRING,
+            duration_s FLOAT,
+            user STRING DEFAULT CURRENT_USER(),
+            warehouse STRING DEFAULT CURRENT_WAREHOUSE(),
+            session_id NUMBER DEFAULT CURRENT_SESSION() )
+        """
+        sql_insert = "INSERT INTO CORTEX_USAGE_LOG(ts, function, duration_s) VALUES(CURRENT_TIMESTAMP(), %s, %s)"
+
+        # Run in background without blocking caller
+        await self._execute(sql_create)
+        await self._execute(sql_insert, (function_name, duration_s))
 
 
 # ------------------------------------------------------------------
