@@ -66,6 +66,12 @@ repos:
       #   language: python
       #   pass_filenames: true
       #   files: ^scripts/.*\.py$
+
+      - id: one-time-check
+        name: One-Time Artefact Guard
+        entry: .githooks/pre-commit-one-time-check
+        language: script
+        types: [python, text]
       
       # Keep monorepo guard - it's important
       - id: monorepo-transition-guard

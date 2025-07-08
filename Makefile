@@ -2,9 +2,9 @@
 # This Makefile provides automatic setup and management for Sophia AI
 # Just type 'make' and everything will be set up automatically
 
-.PHONY: all setup env ssl deps docker health command clean
+.PHONY: all setup env ssl deps docker health command clean one-time-inventory one-time-archive one-time-purge
 
-# Default target - runs everything
+	# Default target - runs everything
 all: setup
 
 # Setup everything automatically
@@ -64,9 +64,18 @@ command:
 
 # Clean up
 clean:
-	@echo "\n🧹 Cleaning up..."
-	@docker-compose -f docker-compose.mcp.yml down || true
-	@echo "✅ Cleanup complete"
+        @echo "\n🧹 Cleaning up..."
+        @docker-compose -f docker-compose.mcp.yml down || true
+        @echo "✅ Cleanup complete"
+
+one-time-inventory:
+	python scripts/generate_one_time_inventory.py
+
+one-time-archive:
+	bash scripts/soft_archive_one_time.sh
+
+one-time-purge:
+	git rm -r archive/one_time_* && git commit -m "purge one-time scripts"
 
 # Help
 help:
@@ -79,8 +88,11 @@ help:
 	@echo "  env      - Set up environment variables"
 	@echo "  ssl      - Fix SSL certificate issues"
 	@echo "  deps     - Fix Python package dependencies"
-	@echo "  docker   - Fix Docker Compose and start MCP servers"
-	@echo "  health   - Run health check"
-	@echo "  command  - Run command interface"
-	@echo "  clean    - Clean up"
-	@echo "  help     - Show this help"
+        @echo "  docker   - Fix Docker Compose and start MCP servers"
+        @echo "  health   - Run health check"
+        @echo "  command  - Run command interface"
+        @echo "  clean    - Clean up"
+        @echo "  one-time-inventory - Generate one-time artefact list"
+        @echo "  one-time-archive   - Move approved items to archive"
+        @echo "  one-time-purge     - Remove archived items"
+        @echo "  help     - Show this help"
