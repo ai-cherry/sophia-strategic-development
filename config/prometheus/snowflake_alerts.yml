@@ -1,0 +1,105 @@
+groups:
+  - name: snowflake_credit_alerts
+    interval: 5m
+    rules:
+      # Daily credit limit alerts
+      - alert: SnowflakeDailyCreditLimitWarning
+        expr: snowflake_daily_credits_remaining < 20
+        for: 5m
+        labels:
+          severity: warning
+          component: snowflake
+        annotations:
+          summary: "Snowflake daily credit limit approaching"
+          description: "Only {{ $value }} credits remaining for today (limit: 100)"
+
+      - alert: SnowflakeDailyCreditLimitCritical
+        expr: snowflake_daily_credits_remaining < 5
+        for: 1m
+        labels:
+          severity: critical
+          component: snowflake
+        annotations:
+          summary: "Snowflake daily credit limit critical"
+          description: "Only {{ $value }} credits remaining - queries may be blocked soon"
+
+      # Query performance alerts
+      - alert: SnowflakeSlowQueries
+        expr: histogram_quantile(0.95, rate(snowflake_query_duration_seconds_bucket[5m])) > 30
+        for: 10m
+        labels:
+          severity: warning
+          component: snowflake
+        annotations:
+          summary: "Snowflake queries running slow"
+          description: "95th percentile query time is {{ $value }}s (threshold: 30s)"
+
+      # Warehouse utilization alerts
+      - alert: SnowflakeWarehouseUnderutilized
+        expr: snowflake_warehouse_utilization < 0.2
+        for: 30m
+        labels:
+          severity: info
+          component: snowflake
+          warehouse: "{{ $labels.warehouse }}"
+        annotations:
+          summary: "Snowflake warehouse underutilized"
+          description: "Warehouse {{ $labels.warehouse }} is only {{ $value | humanizePercentage }} utilized"
+
+      - alert: SnowflakeWarehouseOverloaded
+        expr: snowflake_warehouse_utilization > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          component: snowflake
+          warehouse: "{{ $labels.warehouse }}"
+        annotations:
+          summary: "Snowflake warehouse overloaded"
+          description: "Warehouse {{ $labels.warehouse }} is {{ $value | humanizePercentage }} utilized"
+
+      # Error rate alerts
+      - alert: SnowflakeHighErrorRate
+        expr: rate(snowflake_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: snowflake
+        annotations:
+          summary: "High Snowflake error rate"
+          description: "Error rate is {{ $value }} errors/second"
+
+      # Cost optimization alerts
+      - alert: SnowflakeCostOptimizationAvailable
+        expr: snowflake_cost_savings_potential > 20
+        for: 1h
+        labels:
+          severity: info
+          component: snowflake
+        annotations:
+          summary: "Snowflake cost optimization available"
+          description: "Potential savings of {{ $value }}% identified"
+
+  - name: snowflake_availability_alerts
+    interval: 1m
+    rules:
+      # Connection health
+      - alert: SnowflakeConnectionDown
+        expr: up{job="snowflake-monitor"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: snowflake
+        annotations:
+          summary: "Snowflake monitoring connection down"
+          description: "Cannot connect to Snowflake monitoring service"
+
+      # Cache performance
+      - alert: SnowflakeLowCacheHitRate
+        expr: rate(snowflake_cache_hits_total[5m]) / rate(snowflake_queries_total[5m]) < 0.3
+        for: 15m
+        labels:
+          severity: info
+          component: snowflake
+        annotations:
+          summary: "Low Snowflake cache hit rate"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (target: >30%)"

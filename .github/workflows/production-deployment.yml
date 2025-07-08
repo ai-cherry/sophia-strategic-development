@@ -54,6 +54,16 @@ jobs:
       - name: Security scan
         run: uv run pip-audit --format=json --output=vulnerability-report.json || echo "⚠️ Security scan completed with warnings"
 
+      - name: Validate Snowflake PAT
+        env:
+          SNOWFLAKE_PAT_PROD: ${{ secrets.SNOWFLAKE_PAT_PROD }}
+        run: |
+          if [ -z "$SNOWFLAKE_PAT_PROD" ]; then
+            echo "::error::SNOWFLAKE_PAT_PROD secret not configured"
+            exit 1
+          fi
+          echo "✅ Snowflake PAT configured (length: ${#SNOWFLAKE_PAT_PROD})"
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
@@ -127,6 +137,8 @@ jobs:
             ${{ env.DOCKER_REGISTRY }}/sophia-ai:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            SNOWFLAKE_PAT=${{ secrets.SNOWFLAKE_PAT_PROD }}
 
       - name: Build MCP server images
         if: github.event.inputs.deploy_mcp_servers != 'false'

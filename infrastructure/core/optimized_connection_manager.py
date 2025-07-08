@@ -62,9 +62,9 @@ except ImportError:
     aiomysql = MockAioMySQL()
 
 # Configuration and monitoring
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 from core.performance_monitor import performance_monitor
-from core.secure_snowflake_config import get_secure_snowflake_config
+from infrastructure.core.secure_snowflake_config import get_secure_snowflake_config
 
 # Import Snowflake configuration override for correct connectivity
 
@@ -297,7 +297,9 @@ class OptimizedConnectionPool:
         connection_params = config.get_connection_params()
         connection_params["timeout"] = self.connection_timeout
         # Add global query tag for cost/credit tracking
-        connection_params.setdefault("session_parameters", {})["QUERY_TAG"] = "sophia_ai_global"
+        connection_params.setdefault("session_parameters", {})[
+            "QUERY_TAG"
+        ] = "sophia_ai_global"
 
         # Force log the correct account
         logger.info(
@@ -306,7 +308,12 @@ class OptimizedConnectionPool:
 
         # Use asyncio.to_thread to run synchronous connector in thread pool
         def _sync_connect():
-            return snowflake.connector.connect(**connection_params)
+            conn = snowflake.connector.connect(**connection_params)
+            # Set global query tag for cost tracking
+            cursor = conn.cursor()
+            cursor.execute("ALTER SESSION SET QUERY_TAG = 'sophia_ai_global'")
+            cursor.close()
+            return conn
 
         return await asyncio.to_thread(_sync_connect)
 

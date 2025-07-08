@@ -18,11 +18,11 @@ import asyncio
 import json
 import logging
 from datetime import datetime
-from typing import Any, List
+from typing import Any
 
 from infrastructure.core.optimized_connection_manager import (
-    OptimizedConnectionManager,
     ConnectionType,
+    OptimizedConnectionManager,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ def _credit_limit(max_credits_day: int = 100, max_tokens: int = 10_000):
 class CortexGateway:
     """Async singleton that routes every Snowflake call through one pooled connection."""
 
-    _instance: "CortexGateway | None" = None
+    _instance: CortexGateway | None = None
     _lock = asyncio.Lock()
 
     def __init__(self) -> None:
@@ -108,7 +108,7 @@ class CortexGateway:
         return rows[0]["SENTIMENT"] if rows else ""
 
     @_prom_metrics
-    async def embed(self, text: str, model: str = "e5-base-v2") -> List[float]:
+    async def embed(self, text: str, model: str = "e5-base-v2") -> list[float]:
         sql = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(%s, %s) AS EMBED"
         rows = await self._execute(sql, (model, text))
         if not rows:
@@ -117,11 +117,13 @@ class CortexGateway:
         return json.loads(emb) if isinstance(emb, str) else emb
 
     @_prom_metrics
-    async def batch_embed(self, texts: List[str], model: str = "e5-base-v2") -> List[List[float]]:
+    async def batch_embed(
+        self, texts: list[str], model: str = "e5-base-v2"
+    ) -> list[list[float]]:
         # Uses array flatten trick to embed many rows in one query
         sql = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT(%s, value) AS EMBED FROM TABLE(FLATTEN(INPUT=>%s))"
         rows = await self._execute(sql, (model, json.dumps(texts)))
-        embeds: List[List[float]] = []
+        embeds: list[list[float]] = []
         for r in rows:
             v = r["EMBED"]
             embeds.append(json.loads(v) if isinstance(v, str) else v)
@@ -138,7 +140,9 @@ class CortexGateway:
 
     async def health_check(self) -> dict[str, Any]:
         try:
-            rows = await self._execute("SELECT CURRENT_REGION() AS REGION, CURRENT_VERSION() AS VERSION")
+            rows = await self._execute(
+                "SELECT CURRENT_REGION() AS REGION, CURRENT_VERSION() AS VERSION"
+            )
             return {"status": "healthy", "details": rows[0] if rows else {}}
         except Exception as exc:  # pragma: no cover
             return {"status": "unhealthy", "error": str(exc)}
@@ -166,6 +170,7 @@ class CortexGateway:
 # Singleton accessor
 # ------------------------------------------------------------------
 _gateway: CortexGateway | None = None
+
 
 def get_gateway() -> CortexGateway:
     global _gateway

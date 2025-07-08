@@ -1,5 +1,7 @@
 # DEPRECATED – Use CortexGateway (core.infra.cortex_gateway). This module will be removed.
-raise ImportError("'shared.utils.snowflake_cortex.pool' is deprecated. Use CortexGateway instead.")
+raise ImportError(
+    "'shared.utils.snowflake_cortex.pool' is deprecated. Use CortexGateway instead."
+)
 
 """Async connection pool for Snowflake."""
 
