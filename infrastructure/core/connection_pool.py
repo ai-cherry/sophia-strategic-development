@@ -46,19 +46,19 @@ class PoolConfig:
     role: str = field(
         default_factory=lambda: esc_config.get(
             "snowflake_role", "ROLE_SOPHIA_AI_AGENT_SERVICE"
-        )
-    )
+        
+    
     warehouse: str = field(
         default_factory=lambda: esc_config.get(
             "snowflake_warehouse", "WH_SOPHIA_AGENT_QUERY"
-        )
-    )
+        
+    
     database: str = field(
         default_factory=lambda: esc_config.get("snowflake_database", "SOPHIA_AI")
-    )
+    
     schema: str = field(
         default_factory=lambda: esc_config.get("snowflake_schema", "CORE")
-    )
+    
 
 
 @dataclass
@@ -98,7 +98,7 @@ class PoolMetrics:
         # Update rolling average
         self.average_acquisition_time = (
             self.average_acquisition_time * (self.total_acquisitions - 1) + duration
-        ) / self.total_acquisitions
+         / self.total_acquisitions
 
 
 class ConnectionWrapper:
@@ -106,7 +106,7 @@ class ConnectionWrapper:
 
     def __init__(
         self, connection_info: ConnectionInfo, pool: "SnowflakeConnectionPool"
-    ):
+    :
         self.connection_info = connection_info
         self.pool = pool
         self.connection = connection_info.connection
@@ -139,7 +139,7 @@ class SnowflakeConnectionPool:
         """Initialize connection pool"""
         logger.info(
             f"Initializing Snowflake connection pool with min_size={self.config.min_size}"
-        )
+        
 
         # Create initial connections
         for _ in range(self.config.min_size):
@@ -157,7 +157,7 @@ class SnowflakeConnectionPool:
 
         logger.info(
             f"Connection pool initialized with {self.metrics.current_size} connections"
-        )
+        
 
     async def close(self):
         """Close all connections and shutdown pool"""
@@ -194,7 +194,7 @@ class SnowflakeConnectionPool:
             try:
                 connection_info = await asyncio.wait_for(
                     self.pool.get(), timeout=self.config.acquire_timeout
-                )
+                
             except TimeoutError:
                 # Pool exhausted, try to create new connection if under max_size
                 if self.metrics.current_size < self.config.max_size:
@@ -203,8 +203,8 @@ class SnowflakeConnectionPool:
                     self.metrics.failed_acquisitions += 1
                     raise PoolExhaustedError(
                         f"Connection pool exhausted (size={self.metrics.current_size}, "
-                        f"max={self.config.max_size})"
-                    )
+                        f"max={self.config.max_size}"
+                    
 
             # Validate connection
             if not await self._validate_connection(connection_info):
@@ -252,7 +252,7 @@ class SnowflakeConnectionPool:
             self.metrics.total_releases += 1
             self.metrics.active_connections = max(
                 0, self.metrics.active_connections - 1
-            )
+            
 
             # Check if connection is still valid
             if await self._validate_connection(connection_info):
@@ -292,14 +292,14 @@ class SnowflakeConnectionPool:
                     autocommit=True,
                     network_timeout=30,
                     ocsp_response_cache_filename="/tmp/snowflake_ocsp_cache",
-                )
+                
 
                 # Create connection info
                 conn_info = ConnectionInfo(
                     connection=connection,
                     created_at=datetime.now(),
                     last_used=datetime.now(),
-                )
+                
 
                 # Track connection
                 async with self._lock:
@@ -316,7 +316,7 @@ class SnowflakeConnectionPool:
                 else:
                     raise ConnectionError(
                         f"Failed to create connection after {self.config.retry_attempts} attempts: {e}"
-                    )
+                    
 
         # Should never reach here, but satisfy type checker
         raise ConnectionError("Failed to create connection - unexpected error")
@@ -343,7 +343,7 @@ class SnowflakeConnectionPool:
             if age > timedelta(seconds=self.config.idle_timeout):
                 logger.debug(
                     f"Connection {connection_info.connection_id} exceeded idle timeout"
-                )
+                
                 return False
 
             # Execute test query

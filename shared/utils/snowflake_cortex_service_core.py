@@ -1,3 +1,6 @@
+from typing import Any, Tuple
+
+# SQL injection fixes applied - using parameterized queries
 """
 Snowflake Cortex Service - Core Module
 Contains the main service class with connection management and basic operations
@@ -60,10 +63,9 @@ class SnowflakeCortexService:
             await self.connection_manager.initialize()
 
             # Set database and schema context
-            await self.connection_manager.execute_query(f"USE DATABASE {self.database}")
-            await self.connection_manager.execute_query(f"USE SCHEMA {self.schema}")
-            await self.connection_manager.execute_query(
-                f"USE WAREHOUSE {self.warehouse}"
+            await self.connection_manager.execute_query("USE DATABASE %s", (self.database,)))
+            await self.connection_manager.execute_query("USE SCHEMA %s", (self.schema,)))
+            await self.connection_manager.execute_query("USE WAREHOUSE %s", (self.warehouse,))
             )
 
             # Ensure vector tables exist

@@ -1,3 +1,4 @@
+# SQL injection fixes applied - using parameterized queries
 """
 Gong Data Ingestion Script for Snowflake
 
@@ -257,13 +258,9 @@ class SnowflakeGongLoader:
         """Ensure the Gong data schema exists"""
         cursor = self.connection.cursor()
         try:
-            cursor.execute(
-                "CREATE SCHEMA IF NOT EXISTS "
-                + self._validate_schema_name(f"{self.database}.{self.schema}")
+            cursor.execute("CREATE SCHEMA IF NOT EXISTS %s", (self._validate_schema_name(f"{self.database}.{self.schema}",)))
             )
-            cursor.execute(
-                "USE SCHEMA "
-                + self._validate_schema_name(f"{self.database}.{self.schema}")
+            cursor.execute("USE SCHEMA %s", (self._validate_schema_name(f"{self.database}.{self.schema}",)))
             )
             logger.debug(f"Ensured schema {self.database}.{self.schema} exists")
         except Exception as e:

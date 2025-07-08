@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse
 
 # Core imports
 from api import unified_routes
+from backend.core.auto_esc_config import get_config_value
 from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
@@ -154,7 +155,7 @@ if __name__ == "__main__":
     # Run the application
     uvicorn.run(
         app,
-        host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
         port=int(os.getenv("PORT", 8000)),
         log_level="info",
     )

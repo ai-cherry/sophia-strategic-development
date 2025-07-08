@@ -204,6 +204,8 @@ class UnifiedAIAssistant:
             # Use Claude CLI with latest models
             cmd = f'./claude-cli-integration/claude chat "{query}"'
             result = # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
         subprocess.run(
                 shlex.split(cmd), capture_output=True, text=True, timeout=60
             )  # SECURITY FIX: Removed shell=False
@@ -221,6 +223,8 @@ class UnifiedAIAssistant:
         try:
             # Check if infrastructure chat is available
             result = # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
         subprocess.run(
                 [
                     "python",

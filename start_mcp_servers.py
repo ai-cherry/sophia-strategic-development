@@ -33,7 +33,7 @@ class MCPServerManager:
         # Start PostgreSQL and Redis if not running
         try:
             # TODO: Validate input before subprocess execution
-        subprocess.run(
+            subprocess.run(
                 ["docker-compose", "up", "-d", "postgres", "redis"],
                 check=True,
                 capture_output=True,
@@ -81,7 +81,7 @@ async def init_app():
 
 if __name__ == '__main__':
     app = asyncio.run(init_app())
-    web.run_app(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port={port})
+    web.run_app(app, host="127.0.0.1", port={port})  # Changed from 0.0.0.0 for security. Use environment variable for production
 """
 
             # Write the server script to a temporary file
@@ -92,8 +92,8 @@ if __name__ == '__main__':
                 f.write(server_script)
 
             # Start the server
-            proc = # TODO: Validate input before subprocess execution
-        subprocess.Popen(
+            # TODO: Validate input before subprocess execution
+            proc = subprocess.Popen(
                 [sys.executable, str(script_path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -151,7 +151,7 @@ if __name__ == '__main__':
         while True:
             try:
                 for server_info in self.processes:
-                    server_info["name"]
+                    name = server_info["name"]
                     port = server_info["port"]
                     proc = server_info["process"]
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         """Stop all running servers"""
 
         for server_info in self.processes:
-            server_info["name"]
+            name = server_info["name"]
             proc = server_info["process"]
             script_path = server_info["script_path"]
 

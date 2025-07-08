@@ -36,6 +36,8 @@ class SophiaWorkflowRunner:
 
         # 1. Use Sophia AI to analyze issue
         analysis_result = # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
         subprocess.run(
             [
                 "python",
@@ -48,6 +50,8 @@ class SophiaWorkflowRunner:
 
         # 2. Generate code using Claude
         code_result = # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
         subprocess.run(
             [
                 "./claude-cli-integration/claude",
@@ -81,6 +85,8 @@ class SophiaWorkflowRunner:
 
         # Use Sophia AI for comprehensive review
         # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
         subprocess.run(
             [
                 "python",
