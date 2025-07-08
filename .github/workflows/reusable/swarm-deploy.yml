@@ -1,0 +1,167 @@
+name: Deploy to Swarm
+on:
+  workflow_call:
+    inputs:
+      compose_file:
+        description: 'Docker compose file to deploy'
+        type: string
+        default: 'docker-compose.unified.yml'
+      environment:
+        description: 'Deployment environment'
+        type: string
+        default: 'production'
+      stack_name:
+        description: 'Docker stack name'
+        type: string
+        default: 'sophia-ai'
+      host:
+        description: 'Lambda Labs host IP'
+        type: string
+        default: '192.222.51.122'
+
+jobs:
+  deploy:
+    name: 🚀 Deploy Stack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download image manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: image-manifest
+          path: .
+
+      - name: Prepare deployment package
+        run: |
+          # Create deployment directory
+          mkdir -p deployment
+
+          # Copy compose file
+          cp ${{ inputs.compose_file }} deployment/
+
+          # Create environment file from manifest
+          echo "# Auto-generated deployment environment" > deployment/.env
+          echo "ENVIRONMENT=${{ inputs.environment }}" >> deployment/.env
+          echo "DOCKER_REGISTRY=scoobyjava15" >> deployment/.env
+          echo "IMAGE_TAG=${{ github.sha }}" >> deployment/.env
+
+          # Add image tags from manifest
+          if [ -f "all-images.txt" ]; then
+            while IFS='=' read -r service image; do
+              # Convert service name to uppercase env var
+              var_name=$(echo "$service" | tr '[:lower:]' '[:upper:]' | tr '-' '_')_IMAGE
+              echo "${var_name}=${image}" >> deployment/.env
+            done < all-images.txt
+          fi
+
+          # Add deployment timestamp
+          echo "DEPLOY_TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)" >> deployment/.env
+
+          # Create deployment script
+          cat > deployment/deploy.sh << 'EOF'
+          #!/bin/bash
+          set -euo pipefail
+
+          echo "🚀 Deploying Sophia AI Stack"
+          echo "Environment: $ENVIRONMENT"
+          echo "Stack: $STACK_NAME"
+          echo "Compose: $COMPOSE_FILE"
+
+          # Load environment
+          set -a
+          source .env
+          set +a
+
+          # Verify Docker Swarm
+          if ! docker info --format '{{.Swarm.LocalNodeState}}' | grep -q "active"; then
+            echo "❌ Docker Swarm is not active"
+            exit 1
+          fi
+
+          # Deploy stack
+          echo "📦 Deploying stack..."
+          docker stack deploy -c $COMPOSE_FILE $STACK_NAME --with-registry-auth
+
+          # Wait for services to start
+          echo "⏳ Waiting for services to stabilize..."
+          sleep 30
+
+          # Check deployment status
+          echo "📊 Deployment status:"
+          docker stack services $STACK_NAME
+
+          # Check for failures
+          failed=$(docker service ls --filter "label=com.docker.stack.namespace=$STACK_NAME" --format "{{.Name}}:{{.Replicas}}" | grep ':0/' || true)
+          if [ -n "$failed" ]; then
+            echo "⚠️  Some services may still be starting:"
+            echo "$failed"
+          else
+            echo "✅ All services deployed successfully!"
+          fi
+          EOF
+
+          chmod +x deployment/deploy.sh
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/lambda_labs
+          chmod 600 ~/.ssh/lambda_labs
+          ssh-keyscan -H ${{ inputs.host }} >> ~/.ssh/known_hosts
+
+      - name: Copy deployment package
+        run: |
+          scp -i ~/.ssh/lambda_labs -r deployment/* ubuntu@${{ inputs.host }}:~/
+
+      - name: Deploy to Swarm
+        run: |
+          ssh -i ~/.ssh/lambda_labs ubuntu@${{ inputs.host }} << 'EOF'
+            export ENVIRONMENT=${{ inputs.environment }}
+            export STACK_NAME=${{ inputs.stack_name }}
+            export COMPOSE_FILE=${{ inputs.compose_file }}
+            bash deploy.sh
+          EOF
+
+      - name: Verify deployment
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Stack**: ${{ inputs.stack_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Host**: ${{ inputs.host }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Compose**: ${{ inputs.compose_file }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Get service status
+          ssh -i ~/.ssh/lambda_labs ubuntu@${{ inputs.host }} \
+            "docker stack services ${{ inputs.stack_name }} --format 'table {{.Name}}\t{{.Mode}}\t{{.Replicas}}\t{{.Image}}'" \
+            >> deployment-status.txt || true
+
+          if [ -f "deployment-status.txt" ]; then
+            echo "### Service Status" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat deployment-status.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Save deployment info
+        run: |
+          cat > deployment-info.json << EOF
+          {
+            "environment": "${{ inputs.environment }}",
+            "stack": "${{ inputs.stack_name }}",
+            "host": "${{ inputs.host }}",
+            "compose_file": "${{ inputs.compose_file }}",
+            "commit": "${{ github.sha }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "deployed_by": "${{ github.actor }}"
+          }
+          EOF
+
+      - name: Upload deployment info
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-info
+          path: deployment-info.json
