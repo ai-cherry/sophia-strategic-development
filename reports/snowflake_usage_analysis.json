@@ -1,0 +1,232 @@
+{
+  "summary": {
+    "total_files_scanned": 1137,
+    "files_with_snowflake": 137,
+    "direct_connections_count": 39,
+    "cortex_function_calls": 77,
+    "high_complexity_files": 3,
+    "medium_complexity_files": 38,
+    "low_complexity_files": 47
+  },
+  "priority_files": [
+    {
+      "file": "infrastructure/services/enhanced_snowflake_cortex_service.py",
+      "complexity": "high",
+      "findings": 25
+    },
+    {
+      "file": "core/aligned_snowflake_config.py",
+      "complexity": "high",
+      "findings": 12
+    },
+    {
+      "file": "deploy_complete_platform.py",
+      "complexity": "high",
+      "findings": 10
+    },
+    {
+      "file": "scripts/update_snowflake_schemas.py",
+      "complexity": "medium",
+      "findings": 26
+    },
+    {
+      "file": "cortex_agents_advanced_implementation.py",
+      "complexity": "medium",
+      "findings": 24
+    },
+    {
+      "file": "snowflake_advanced_features_implementation.py",
+      "complexity": "medium",
+      "findings": 24
+    },
+    {
+      "file": "infrastructure/core/optimized_connection_manager.py",
+      "complexity": "medium",
+      "findings": 22
+    },
+    {
+      "file": "shared/utils/optimized_snowflake_cortex_service.py",
+      "complexity": "medium",
+      "findings": 21
+    },
+    {
+      "file": "scripts/snowflake_config_manager.py",
+      "complexity": "medium",
+      "findings": 19
+    },
+    {
+      "file": "scripts/backend/sophia_data_pipeline_ultimate.py",
+      "complexity": "medium",
+      "findings": 19
+    },
+    {
+      "file": "infrastructure/adapters/enhanced_snowflake_adapter.py",
+      "complexity": "medium",
+      "findings": 19
+    },
+    {
+      "file": "infrastructure/etl/gong/ingest_gong_data.py",
+      "complexity": "medium",
+      "findings": 19
+    },
+    {
+      "file": "infrastructure/mcp_servers/foundational_knowledge/handlers/main_handler.py",
+      "complexity": "low",
+      "findings": 19
+    },
+    {
+      "file": "shared/utils/snowflake_cortex_service_core.py",
+      "complexity": "low",
+      "findings": 18
+    },
+    {
+      "file": "infrastructure/mcp_servers/snowflake_v2/handlers/main_handler.py",
+      "complexity": "low",
+      "findings": 18
+    },
+    {
+      "file": "infrastructure/core/snowflake_abstraction.py",
+      "complexity": "none",
+      "findings": 17
+    },
+    {
+      "file": "infrastructure/core/snowflake_schema_integration.py",
+      "complexity": "none",
+      "findings": 17
+    },
+    {
+      "file": "shared/utils/enhanced_snowflake_cortex_service.py",
+      "complexity": "medium",
+      "findings": 16
+    },
+    {
+      "file": "infrastructure/core/state_manager.py",
+      "complexity": "none",
+      "findings": 15
+    },
+    {
+      "file": "infrastructure/services/enhanced_cortex_agent_service.py",
+      "complexity": "medium",
+      "findings": 15
+    }
+  ],
+  "direct_connections": [
+    {
+      "file": "fix_connection_manager.py",
+      "line": 24,
+      "code": "return snowflake.connector.connect(**params)"
+    },
+    {
+      "file": "fix_connection_manager.py",
+      "line": 37,
+      "code": "return snowflake.connector.connect(**params)"
+    },
+    {
+      "file": "execute_strategic_plan.py",
+      "line": 797,
+      "code": "self.connection = snowflake.connector.connect(**self.config)"
+    },
+    {
+      "file": "execute_strategic_plan.py",
+      "line": 948,
+      "code": "self.connection = snowflake.connector.connect(**self.config)"
+    },
+    {
+      "file": "cortex_agents_advanced_implementation.py",
+      "line": 41,
+      "code": "self.conn = snowflake.connector.connect("
+    },
+    {
+      "file": "deploy_complete_platform.py",
+      "line": 230,
+      "code": "conn = snowflake.connector.connect("
+    },
+    {
+      "file": "deploy_complete_platform.py",
+      "line": 254,
+      "code": "conn = snowflake.connector.connect("
+    },
+    {
+      "file": "deploy_complete_platform.py",
+      "line": 294,
+      "code": "conn = snowflake.connector.connect("
+    },
+    {
+      "file": "snowflake_advanced_features_implementation.py",
+      "line": 28,
+      "code": "self.conn = snowflake.connector.connect("
+    },
+    {
+      "file": "core/enhanced_memory_architecture.py",
+      "line": 179,
+      "code": "self.snowflake_conn = snowflake.connector.connect("
+    }
+  ],
+  "cortex_usage_by_function": {
+    "cortex_complete": 29,
+    "cortex_search": 9,
+    "cortex_sentiment": 17,
+    "cortex_embed": 22
+  },
+  "migration_plan": [
+    {
+      "phase": 1,
+      "description": "High complexity files with direct connections",
+      "files": [
+        "deploy_complete_platform.py",
+        "core/aligned_snowflake_config.py",
+        "infrastructure/services/enhanced_snowflake_cortex_service.py"
+      ],
+      "estimated_effort": "High"
+    },
+    {
+      "phase": 2,
+      "description": "Medium complexity files with Cortex functions",
+      "files": [
+        "fix_connection_manager.py",
+        "execute_strategic_plan.py",
+        "cortex_agents_advanced_implementation.py",
+        "snowflake_advanced_features_implementation.py",
+        "core/enhanced_memory_architecture.py",
+        "core/cortex_ai_config.py",
+        "scripts/sync_mcp_servers.py",
+        "scripts/snowflake_config_manager.py",
+        "scripts/update_snowflake_schemas.py",
+        "scripts/verify_and_align_snowflake.py",
+        "tests/backend/test_cortex_dual_mode.py",
+        "backend/services/unified_chat_service_migrated.py",
+        "backend/core/services/snowflake_pool.py",
+        "shared/utils/optimized_snowflake_cortex_service.py",
+        "shared/utils/snowflake_hubspot_connector.py"
+      ],
+      "estimated_effort": "Medium"
+    },
+    {
+      "phase": 3,
+      "description": "Low complexity files and service refactoring",
+      "files": [
+        "core/cross_platform_sync_orchestrator.py",
+        "core/workflows/cross_group_intelligence_hub.py",
+        "core/workflows/enhanced_langgraph_orchestration.py",
+        "core/workflows/unified_intent_engine.py",
+        "core/workflows/langgraph_agent_orchestration.py",
+        "core/agents/langgraph_agent_base.py",
+        "core/use_cases/slack_analysis_agent.py",
+        "core/use_cases/asana_project_intelligence_agent.py",
+        "core/use_cases/linear_project_health_agent.py",
+        "core/use_cases/interactive_sales_coach_agent.py",
+        "core/use_cases/sales_intelligence_agent_core.py",
+        "core/use_cases/sales_coach_agent.py",
+        "core/use_cases/marketing_analysis_agent.py",
+        "core/agents/research/orchestration_research_agent.py",
+        "archive/unified_chat_duplicates/unified_chat_service.py",
+        "backend/services/unified_chat_service.py",
+        "backend/core/services/snowflake_cortex_adapter.py",
+        "backend/tests/services/test_snowflake_cortex_adapter.py",
+        "shared/utils/snowflake_cortex_service.py",
+        "shared/utils/snowflake_cortex_service_core.py"
+      ],
+      "estimated_effort": "Low"
+    }
+  ]
+}
