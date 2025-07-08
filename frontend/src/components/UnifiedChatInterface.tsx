@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// Removed ScrollArea import - using regular div with overflow
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -16,6 +16,7 @@ import {
   Target,
   Search,
   Bot,
+  Brain,
   Database,
   Server,
   AlertCircle,
@@ -24,6 +25,7 @@ import {
   WifiOff
 } from 'lucide-react';
 import apiClient from '../services/apiClient';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   id: string;
@@ -346,6 +348,15 @@ const ChatPanel: React.FC<{
   isConnected: boolean;
   onSuggestionClick: (suggestion: string) => void;
 }> = ({ messages, input, setInput, sendMessage, isLoading, error, isConnected, onSuggestionClick }) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const suggestions = [
+    "What's our sales performance this quarter?",
+    "Show me at-risk projects",
+    "How is our infrastructure performing?",
+    "What are competitors doing in AI?"
+  ];
+
   return (
     <>
       {/* Chat Header */}
@@ -365,121 +376,99 @@ const ChatPanel: React.FC<{
       )}
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4 max-w-4xl mx-auto">
-          {messages.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
-              <Bot className="h-12 w-12 mx-auto mb-4 text-gray-600" />
-              <p>Start a conversation by typing your question below</p>
-              <div className="mt-4 space-y-2">
-                <p className="text-xs">Try asking:</p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {[
-                    "What's our sales performance this quarter?",
-                    "Show me at-risk projects",
-                    "How is our infrastructure performing?",
-                    "What are competitors doing in AI?"
-                  ].map((suggestion, idx) => (
-                    <Button
-                      key={idx}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => onSuggestionClick(suggestion)}
-                    >
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {messages.length === 0 ? (
+            <div className="text-center py-12">
+              <Brain className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+                Welcome to Sophia AI
+              </h2>
+              <p className="text-gray-500 mb-8">
+                Ask me anything about your business data, projects, or insights
+              </p>
+              
+              {/* Suggestions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    onClick={() => onSuggestionClick(suggestion)}
+                    className="text-left p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
+                  >
+                    <p className="text-sm text-gray-700">{suggestion}</p>
+                  </button>
+                ))}
               </div>
             </div>
-          )}
-
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg p-4 ${
-                  message.type === 'user'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-800 text-gray-50 border border-gray-700'
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-
-                {/* Citations */}
-                {message.citations && message.citations.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-600">
-                    <p className="text-xs text-gray-400 mb-2">Sources:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {message.citations.map((citation, idx) => (
-                        <Badge
-                          key={idx}
-                          variant="outline"
-                          className="text-xs bg-gray-700 border-gray-600"
-                        >
-                          {citation.source}
-                          {citation.confidence && (
-                            <span className="ml-1 text-gray-400">
-                              ({Math.round(citation.confidence * 100)}%)
+          ) : (
+            <>
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-3xl rounded-lg p-4 ${
+                      message.type === 'user'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    
+                    {/* Sources */}
+                    {message.citations && message.citations.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <p className="text-xs font-semibold mb-2">Sources:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {message.citations.map((citation, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-white/20"
+                            >
+                              {citation.source}
+                              {citation.confidence && (
+                                <span className="ml-1 text-gray-400">
+                                  ({Math.round(citation.confidence * 100)}%)
+                                </span>
+                              )}
                             </span>
-                          )}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Suggestions */}
-                {message.suggestions && message.suggestions.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-600">
-                    <p className="text-xs text-gray-400 mb-2">Suggested follow-ups:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {message.suggestions.map((suggestion, idx) => (
-                        <Button
-                          key={idx}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                          onClick={() => onSuggestionClick(suggestion)}
-                        >
-                          {suggestion}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Metadata */}
-                {message.metadata && (
-                  <div className="mt-2 text-xs text-gray-500">
-                    {message.metadata.confidence && (
-                      <span>Confidence: {Math.round(message.metadata.confidence * 100)}%</span>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                    {message.metadata.data_sources_used && (
-                      <span className="ml-3">
-                        Sources: {message.metadata.data_sources_used.join(', ')}
-                      </span>
+                    
+                    {/* Metadata */}
+                    {message.metadata && (
+                      <div className="mt-2 text-xs opacity-70">
+                        {message.metadata.confidence && (
+                          <span>Confidence: {Math.round(message.metadata.confidence * 100)}%</span>
+                        )}
+                        {message.metadata.data_sources_used && (
+                          <span className="ml-3">
+                            Sources: {message.metadata.data_sources_used.join(', ')}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
-              </div>
-            </div>
+                </div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 rounded-lg p-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-gray-600" />
+                  </div>
+                </div>
+              )}
+              
+              <div ref={messagesEndRef} />
+            </>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input Area */}
       <div className="p-4 border-t border-gray-800 bg-gray-900">
