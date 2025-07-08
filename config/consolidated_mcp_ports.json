@@ -51,11 +51,13 @@
   },
   "ai_memory_v2": 9002,
   "description": "Consolidated MCP Server Port Configuration - 48+ Servers",
+  "infrastructure_management_v2": 9005,
   "lambda_labs": {
     "gateway_port": 8080,
     "host": "165.1.69.44",
     "monitoring_port": 9090
   },
+  "lambda_labs_cli_v2": 9006,
   "last_updated": "2025-07-03T13:39:27",
   "mcp_servers": {
     "business_intelligence": {
@@ -139,6 +141,8 @@
     "gateway_orchestration": "8000-8099",
     "infrastructure": "9200-9299"
   },
+  "postgres_v2": 9003,
+  "redis_cache_v2": 9004,
   "server_groups": {
     "business_intelligence": [
       9100,
