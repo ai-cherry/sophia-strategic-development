@@ -1,369 +1,157 @@
-name: Lambda Labs Infrastructure Deployment
+name: Lambda Labs Deployment
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      deploy_backend:
-        description: 'Deploy backend services'
-        required: true
-        default: true
-        type: boolean
-      deploy_mcp:
-        description: 'Deploy MCP orchestrator'
-        required: true
-        default: true
-        type: boolean
-      run_health_check:
-        description: 'Run post-deployment health check'
-        required: true
-        default: true
-        type: boolean
+    branches:
+      - main
+      - 'feature/lambda-*'
+    paths:
+      - 'infrastructure/services/lambda_labs_*'
+      - 'infrastructure/monitoring/lambda_labs_*'
+      - 'mcp-servers/lambda_labs_unified/**'
+      - 'infrastructure/pulumi/lambda_labs_*'
+      - '.github/workflows/lambda-labs-deployment.yml'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'infrastructure/services/lambda_labs_*'
+      - 'infrastructure/monitoring/lambda_labs_*'
+      - 'mcp-servers/lambda_labs_unified/**'
 
 env:
-  DOCKER_REGISTRY: scoobyjava15
-  PULUMI_ORG: ai-cherry
-  PULUMI_STACK: lambda-labs-production
+  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+  LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
-  # Phase 1: Validate credentials and connectivity
-  validate-infrastructure:
-    name: Validate Infrastructure
+  test:
+    name: Test Lambda Labs Components
     runs-on: ubuntu-latest
-    outputs:
-      api_status: ${{ steps.check-api.outputs.status }}
-      ssh_status: ${{ steps.check-ssh.outputs.status }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
-          pip install requests pyyaml
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov
 
-      - name: Check Lambda Labs API
-        id: check-api
-        env:
-          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+      - name: Run tests
         run: |
-          python -c "
-          import requests
-          import os
-          import json
+          pytest tests/test_lambda_labs_*.py -v --cov=infrastructure --cov-report=xml
 
-          api_key = os.getenv('LAMBDA_API_KEY')
-          if not api_key:
-              print('::error::LAMBDA_API_KEY not configured')
-              exit(1)
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: lambda-labs
 
-          try:
-              response = requests.get(
-                  'https://cloud.lambdalabs.com/api/v1/instances',
-                  headers={'Authorization': f'Bearer {api_key}'},
-                  timeout=10
-              )
-
-              if response.status_code == 200:
-                  instances = response.json().get('data', [])
-                  print(f'✅ Lambda Labs API accessible - {len(instances)} instances found')
-                  print(f'::set-output name=status::healthy')
-              else:
-                  print(f'❌ Lambda Labs API returned status {response.status_code}')
-                  print(f'::set-output name=status::error')
-                  exit(1)
-          except Exception as e:
-              print(f'❌ Lambda Labs API error: {e}')
-              print(f'::set-output name=status::error')
-              exit(1)
-          "
-
-      - name: Setup SSH key
-        env:
-          LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$LAMBDA_PRIVATE_SSH_KEY" > ~/.ssh/sophia2025
-          chmod 600 ~/.ssh/sophia2025
-
-      - name: Check SSH connectivity
-        id: check-ssh
-        run: |
-          instances=("192.222.58.232" "104.171.202.117" "104.171.202.134" "155.248.194.183")
-          all_ok=true
-
-          for ip in "${instances[@]}"; do
-            if ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@$ip "echo OK" >/dev/null 2>&1; then
-              echo "✅ SSH to $ip successful"
-            else
-              echo "❌ SSH to $ip failed"
-              all_ok=false
-            fi
-          done
-
-          if [ "$all_ok" = true ]; then
-            echo "::set-output name=status::healthy"
-          else
-            echo "::set-output name=status::error"
-            exit 1
-          fi
-
-  # Phase 2: Fix code issues
-  fix-code-issues:
-    name: Fix Code Issues
+  lint:
+    name: Lint and Type Check
     runs-on: ubuntu-latest
-    needs: validate-infrastructure
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.11'
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Fix import errors
+      - name: Install linting tools
         run: |
-          python scripts/lambda_labs/fix_import_errors.py
+          pip install ruff mypy
 
-      - name: Commit fixes if any
-        run: |
-          if [[ -n $(git status -s) ]]; then
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git add -A
-            git commit -m "fix: Auto-fix import errors for Lambda Labs deployment"
-            git push
-          else
-            echo "No import fixes needed"
-          fi
+      - name: Run ruff
+        run: ruff check infrastructure/services/lambda_labs_* infrastructure/monitoring/lambda_labs_*
 
-  # Phase 3: Build and push Docker images
-  build-and-push:
-    name: Build and Push Images
+      - name: Run mypy
+        run: mypy --strict --ignore-missing-imports infrastructure/services/lambda_labs_* infrastructure/monitoring/lambda_labs_*
+
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    needs: [test, lint]
     runs-on: ubuntu-latest
-    needs: fix-code-issues
-    strategy:
-      matrix:
-        service:
-          - name: backend
-            dockerfile: Dockerfile.production
-            context: .
-          - name: mcp-orchestrator
-            dockerfile: infrastructure/mcp/Dockerfile
-            context: infrastructure/mcp
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Pulumi
+        run: |
+          curl -fsSL https://get.pulumi.com | sh
+          echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        working-directory: infrastructure/pulumi
+        run: npm install
+
+      - name: Deploy with Pulumi
+        working-directory: infrastructure/pulumi
+        run: |
+          pulumi stack select sophia-ai-production
+          pulumi up --yes
+
+  deploy-mcp-server:
+    name: Deploy MCP Server
+    needs: [test, lint]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_REGISTRY }}
-          password: ${{ secrets.DOCKER_PERSONAL_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push ${{ matrix.service.name }}
+      - name: Build and push MCP server
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.service.context }}
-          file: ${{ matrix.service.context }}/${{ matrix.service.dockerfile }}
-          platforms: linux/amd64
+          context: mcp-servers/lambda_labs_unified
           push: true
           tags: |
-            ${{ env.DOCKER_REGISTRY }}/sophia-${{ matrix.service.name }}:latest
-            ${{ env.DOCKER_REGISTRY }}/sophia-${{ matrix.service.name }}:${{ github.sha }}
+            scoobyjava15/lambda-labs-mcp:latest
+            scoobyjava15/lambda-labs-mcp:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            SNOWFLAKE_PAT=${{ secrets.SNOWFLAKE_PAT_PROD }}
 
-  # Phase 4: Deploy to Lambda Labs
-  deploy-services:
-    name: Deploy Services
+  notify:
+    name: Notify Deployment
+    needs: [deploy-infrastructure, deploy-mcp-server]
     runs-on: ubuntu-latest
-    needs: build-and-push
-    strategy:
-      matrix:
-        deployment:
-          - name: backend
-            instance_ip: "192.222.58.232"
-            port: 8000
-            image: sophia-backend
-            enabled: ${{ github.event.inputs.deploy_backend != 'false' }}
-          - name: mcp-orchestrator
-            instance_ip: "104.171.202.117"
-            port: 8001
-            image: sophia-mcp-orchestrator
-            enabled: ${{ github.event.inputs.deploy_mcp != 'false' }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup SSH key
-        env:
-          LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$LAMBDA_PRIVATE_SSH_KEY" > ~/.ssh/sophia2025
-          chmod 600 ~/.ssh/sophia2025
-
-      - name: Deploy ${{ matrix.deployment.name }}
-        if: matrix.deployment.enabled
-        run: |
-          # Create deployment script
-          cat > deploy.sh << 'EOF'
-          #!/bin/bash
-          set -e
-
-          SERVICE_NAME=$1
-          IMAGE=$2
-          PORT=$3
-
-          echo "Deploying $SERVICE_NAME..."
-
-          # Pull latest image
-          docker pull ${{ env.DOCKER_REGISTRY }}/$IMAGE:${{ github.sha }}
-
-          # Stop existing container if any
-          docker stop $SERVICE_NAME 2>/dev/null || true
-          docker rm $SERVICE_NAME 2>/dev/null || true
-
-          # Run new container
-          docker run -d \
-            --name $SERVICE_NAME \
-            --restart unless-stopped \
-            -p $PORT:$PORT \
-            -e ENVIRONMENT=production \
-            -e LAMBDA_LABS=true \
-            ${{ env.DOCKER_REGISTRY }}/$IMAGE:${{ github.sha }}
-
-          # Wait for service to be healthy
-          sleep 10
-
-          # Check health
-          curl -f http://localhost:$PORT/health || exit 1
-
-          echo "✅ $SERVICE_NAME deployed successfully"
-          EOF
-
-          # Copy and execute deployment script
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/sophia2025 deploy.sh ubuntu@${{ matrix.deployment.instance_ip }}:/tmp/
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/sophia2025 ubuntu@${{ matrix.deployment.instance_ip }} \
-            "chmod +x /tmp/deploy.sh && /tmp/deploy.sh ${{ matrix.deployment.name }} ${{ matrix.deployment.image }} ${{ matrix.deployment.port }}"
-
-  # Phase 5: Health check and monitoring setup
-  post-deployment:
-    name: Post-Deployment Validation
-    runs-on: ubuntu-latest
-    needs: deploy-services
-    if: github.event.inputs.run_health_check != 'false'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: |
-          pip install requests python-dotenv
-
-      - name: Run health check
-        env:
-          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
-        run: |
-          python scripts/lambda_labs/health_monitor.py
-
-      - name: Setup monitoring
-        env:
-          LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$LAMBDA_PRIVATE_SSH_KEY" > ~/.ssh/sophia2025
-          chmod 600 ~/.ssh/sophia2025
-
-          # Install monitoring on each instance
-          instances=("192.222.58.232" "104.171.202.117")
-
-          for ip in "${instances[@]}"; do
-            echo "Setting up monitoring on $ip..."
-
-            ssh -o StrictHostKeyChecking=no -i ~/.ssh/sophia2025 ubuntu@$ip << 'EOF'
-            # Install node exporter if not present
-            if ! docker ps | grep -q node-exporter; then
-              docker run -d \
-                --name node-exporter \
-                --restart unless-stopped \
-                --net host \
-                --pid host \
-                -v /:/host:ro,rslave \
-                quay.io/prometheus/node-exporter:latest \
-                --path.rootfs=/host
-            fi
-
-            # Install GPU exporter if GPU available and not present
-            if nvidia-smi >/dev/null 2>&1 && ! docker ps | grep -q gpu-exporter; then
-              docker run -d \
-                --name gpu-exporter \
-                --restart unless-stopped \
-                --gpus all \
-                -p 9400:9400 \
-                nvidia/dcgm-exporter:latest
-            fi
-            EOF
-          done
-
-      - name: Upload health report
-        uses: actions/upload-artifact@v4
-        with:
-          name: health-report-${{ github.sha }}
-          path: health_report_*.json
-
-  # Phase 6: Notify deployment status
-  notify-status:
-    name: Notify Status
-    runs-on: ubuntu-latest
-    needs: [validate-infrastructure, deploy-services, post-deployment]
     if: always()
-    steps:
-      - name: Determine status
-        id: status
-        run: |
-          if [ "${{ needs.post-deployment.result }}" == "success" ]; then
-            echo "::set-output name=message::✅ Lambda Labs deployment successful"
-            echo "::set-output name=color::good"
-          elif [ "${{ needs.deploy-services.result }}" == "success" ]; then
-            echo "::set-output name=message::⚠️ Deployment completed but health check failed"
-            echo "::set-output name=color::warning"
-          else
-            echo "::set-output name=message::❌ Lambda Labs deployment failed"
-            echo "::set-output name=color::danger"
-          fi
 
+    steps:
       - name: Send Slack notification
-        if: env.SLACK_WEBHOOK
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        run: |
-          curl -X POST $SLACK_WEBHOOK \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "attachments": [{
-                "color": "${{ steps.status.outputs.color }}",
-                "title": "Lambda Labs Deployment",
-                "text": "${{ steps.status.outputs.message }}",
-                "fields": [
-                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
-                  {"title": "Commit", "value": "${{ github.sha }}", "short": true},
-                  {"title": "Actor", "value": "${{ github.actor }}", "short": true},
-                  {"title": "Workflow", "value": "${{ github.workflow }}", "short": true}
-                ]
-              }]
-            }'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Lambda Labs Deployment ${{ job.status }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()
