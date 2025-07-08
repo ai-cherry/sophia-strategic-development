@@ -1,6 +1,6 @@
 {
   "pulumi.ai.enabled": true,
-  "pulumi.ai.model": "gpt-4-turbo",
+  "pulumi.ai.model": "gpt-4o",
   "pulumi.ai.context": "sophia-ai-infrastructure",
   "pulumi.ai.autoComplete": true,
   "pulumi.ai.naturalLanguage": true,
@@ -14,22 +14,35 @@
   "cursor.ai.customCommands": {
     "pulumi-deploy": {
       "prompt": "Deploy Sophia AI infrastructure using Pulumi with the following requirements:",
-      "context": ["infrastructure/", "backend/config/", ".env.example"],
+      "context": [
+        "infrastructure/",
+        "backend/config/",
+        ".env.example"
+      ],
       "postAction": "terminal:pulumi up --yes"
     },
     "generate-dashboard": {
       "prompt": "Generate a new dashboard component for Sophia AI with these specifications:",
-      "context": ["frontend/src/dashboards/", "backend/api/"],
+      "context": [
+        "frontend/src/dashboards/",
+        "backend/api/"
+      ],
       "template": "dashboard-component"
     },
     "add-integration": {
       "prompt": "Add a new data source integration to Sophia AI:",
-      "context": ["backend/integrations/", "infrastructure/"],
+      "context": [
+        "backend/integrations/",
+        "infrastructure/"
+      ],
       "postAction": "mcp:add_data_source"
     },
     "optimize-infrastructure": {
       "prompt": "Optimize Sophia AI infrastructure for cost and performance:",
-      "context": ["infrastructure/", "monitoring/"],
+      "context": [
+        "infrastructure/",
+        "monitoring/"
+      ],
       "postAction": "pulumi:analyze-costs"
     }
   }

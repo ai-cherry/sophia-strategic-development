@@ -39,7 +39,7 @@ class SQLSecurityValidator:
     # Whitelisted SQL identifiers - PRODUCTION APPROVED
     SAFE_SCHEMAS = {
         "SOPHIA_AI_ADVANCED",
-        "STG_TRANSFORMED",
+        "STG_ESTUARY",
         "RAW_estuary",
         "AI_MEMORY",
         "OPS_MONITORING",

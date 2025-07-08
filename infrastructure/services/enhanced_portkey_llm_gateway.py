@@ -154,10 +154,10 @@ class EnhancedPortkeyLLMGateway:
                 use_cases=["simple_queries", "chat", "basic_analysis"],
             ),
             # Specialized models for specific tasks
-            "gemini-1.5-pro": ModelTarget(
-                name="gemini-1.5-pro",
+            "gemini-2.0-flash-exp": ModelTarget(
+                name="gemini-2.0-flash-exp",
                 provider=ModelProvider.GOOGLE,
-                model="gemini-1.5-pro-latest",
+                model="gemini-2.0-flash-exp",
                 cost_per_1k_tokens=1.25,
                 max_tokens=8192,
                 context_window=1000000,
@@ -190,11 +190,11 @@ class EnhancedPortkeyLLMGateway:
                 "business_intelligence": [
                     "gpt-4o",
                     "claude-3-5-sonnet",
-                    "gemini-1.5-pro",
+                    "gemini-2.0-flash-exp",
                 ],
-                "research": ["gemini-1.5-pro", "claude-3-5-sonnet", "gpt-4o"],
+                "research": ["gemini-2.0-flash-exp", "claude-3-5-sonnet", "gpt-4o"],
                 "simple_chat": ["gpt-3.5-turbo", "mixtral-8x7b"],
-                "document_analysis": ["gemini-1.5-pro", "claude-3-5-sonnet"],
+                "document_analysis": ["gemini-2.0-flash-exp", "claude-3-5-sonnet"],
                 "infrastructure": ["gpt-4o", "deepseek-v3", "claude-3-5-sonnet"],
             },
             # Complexity based routing
@@ -204,26 +204,26 @@ class EnhancedPortkeyLLMGateway:
                 TaskComplexity.COMPLEX: [
                     "gpt-4o",
                     "claude-3-5-sonnet",
-                    "gemini-1.5-pro",
+                    "gemini-2.0-flash-exp",
                 ],
                 TaskComplexity.ARCHITECTURE: [
                     "claude-3-5-sonnet",
                     "gpt-4o",
-                    "gemini-1.5-pro",
+                    "gemini-2.0-flash-exp",
                 ],
             },
             # Context size routing
             "context_routing": {
                 "small": ["gpt-3.5-turbo", "deepseek-v3", "mixtral-8x7b"],
                 "medium": ["gpt-4o", "claude-3-5-sonnet", "deepseek-v3"],
-                "large": ["gemini-1.5-pro", "claude-3-5-sonnet"],
-                "extra_large": ["gemini-1.5-pro"],
+                "large": ["gemini-2.0-flash-exp", "claude-3-5-sonnet"],
+                "extra_large": ["gemini-2.0-flash-exp"],
             },
             # Cost optimization thresholds
             "cost_optimization": {
                 "budget_mode": ["gpt-3.5-turbo", "deepseek-v3", "mixtral-8x7b"],
                 "balanced_mode": ["deepseek-v3", "gpt-4o", "mixtral-8x7b"],
-                "premium_mode": ["claude-3-5-sonnet", "gpt-4o", "gemini-1.5-pro"],
+                "premium_mode": ["claude-3-5-sonnet", "gpt-4o", "gemini-2.0-flash-exp"],
             },
         }
 

@@ -133,7 +133,7 @@ class SophiaIaCOrchestrator:
 
         # Initialize LangChain agent
         self.llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
+            model="gpt-4o",
             temperature=0.1,
             openai_api_key=get_config_value("openai_api_key"),
         )

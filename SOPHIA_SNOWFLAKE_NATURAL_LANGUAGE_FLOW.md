@@ -206,7 +206,7 @@ class EnhancedAiMemoryMCPServer:
 2. AI Memory → Searches stored call insights with sentiment filter
 3. Snowflake Query:
 ```sql
-SELECT * FROM STG_TRANSFORMED.STG_GONG_CALLS
+SELECT * FROM STG_ESTUARY.STG_GONG_CALLS
 WHERE SENTIMENT_SCORE < -0.3
 AND CALL_DATETIME >= DATEADD('day', -7, CURRENT_DATE())
 ```

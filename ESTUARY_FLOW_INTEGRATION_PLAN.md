@@ -2,7 +2,7 @@
 
 ## 🌊 Executive Summary
 
-Estuary Flow will replace Airbyte as our primary data ingestion layer, providing real-time CDC capabilities, better scalability, and unified data pipeline management. This integration enhances our V2 MCP server architecture with enterprise-grade data streaming.
+Estuary Flow will replace Estuary Flow as our primary data ingestion layer, providing real-time CDC capabilities, better scalability, and unified data pipeline management. This integration enhances our V2 MCP server architecture with enterprise-grade data streaming.
 
 ## 📊 Architecture Overview
 
@@ -61,7 +61,7 @@ flowchart TB
 - Consistent data quality across all services
 
 ### 2. **Simplified Data Pipeline**
-- Replace complex Airbyte configurations
+- Replace complex Estuary Flow configurations
 - Single control plane for all data flows
 - GitOps-based configuration management
 
@@ -252,7 +252,7 @@ values:
 ## 📝 Migration Strategy
 
 ### 1. **Parallel Running (Week 1)**
-- Keep Airbyte running
+- Keep Estuary Flow running
 - Deploy Estuary collections in shadow mode
 - Validate data consistency
 
@@ -261,8 +261,8 @@ values:
 - Monitor for issues
 - Maintain rollback capability
 
-### 3. **Airbyte Decommission (Week 3)**
-- Remove Airbyte configurations
+### 3. **Estuary Flow Decommission (Week 3)**
+- Remove Estuary Flow configurations
 - Clean up unused resources
 - Update documentation
 
@@ -274,7 +274,7 @@ values:
 | Data Quality | > 99.5% valid | Validation rules |
 | Throughput | 1M events/day | Flow metrics |
 | Uptime | 99.9% | Health checks |
-| Cost Reduction | 30% vs Airbyte | AWS billing |
+| Cost Reduction | 30% vs Estuary Flow | AWS billing |
 
 ## 🚧 Implementation Checklist
 
@@ -297,7 +297,7 @@ values:
 - [ ] Configure auto-recovery
 - [ ] Performance optimization
 - [ ] Complete documentation
-- [ ] Decommission Airbyte
+- [ ] Decommission Estuary Flow
 
 ## 📚 Documentation Updates
 

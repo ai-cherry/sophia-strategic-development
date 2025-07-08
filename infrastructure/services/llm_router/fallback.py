@@ -333,13 +333,13 @@ class FallbackChain:
                 TaskComplexity.SIMPLE: "gpt-3.5-turbo",
                 TaskComplexity.MODERATE: "gpt-4",
                 TaskComplexity.COMPLEX: "gpt-4o",
-                TaskComplexity.ARCHITECTURE: "claude-3-opus-20240229",
+                TaskComplexity.ARCHITECTURE: "claude-3-5-sonnet-20241022",
             },
             "openrouter": {
                 TaskComplexity.SIMPLE: "openai/gpt-3.5-turbo",
                 TaskComplexity.MODERATE: "mistralai/mixtral-8x7b-instruct",
                 TaskComplexity.COMPLEX: "openai/gpt-4",
-                TaskComplexity.ARCHITECTURE: "anthropic/claude-3-opus",
+                TaskComplexity.ARCHITECTURE: "anthropic/claude-3.5-sonnet",
             },
             "openai": {
                 TaskComplexity.SIMPLE: "gpt-3.5-turbo",
@@ -350,8 +350,8 @@ class FallbackChain:
             "anthropic": {
                 TaskComplexity.SIMPLE: "claude-3-haiku-20240307",
                 TaskComplexity.MODERATE: "claude-3-sonnet-20240229",
-                TaskComplexity.COMPLEX: "claude-3-opus-20240229",
-                TaskComplexity.ARCHITECTURE: "claude-3-opus-20240229",
+                TaskComplexity.COMPLEX: "claude-3-5-sonnet-20241022",
+                TaskComplexity.ARCHITECTURE: "claude-3-5-sonnet-20241022",
             },
         }
 

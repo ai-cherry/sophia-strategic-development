@@ -45,8 +45,8 @@ class PortkeyIntegration:
                 "max_retries": 3,
                 "retry_delay_ms": 1000,
                 "alternative_models": [
-                    "gpt-4-turbo-preview",
-                    "claude-3-opus",
+                    "gpt-4o",
+                    "claude-3-5-sonnet-20241022",
                     "gpt-3.5-turbo",
                 ],
             },
@@ -154,7 +154,7 @@ class PortkeyIntegration:
         # Base request
         request_data = {
             "messages": [],
-            "model": settings.get("model", "gpt-4-turbo-preview"),
+            "model": settings.get("model", "gpt-4o"),
             "temperature": settings.get("temperature", 0.7),
             "max_tokens": settings.get("max_tokens", 4096),
             "top_p": settings.get("top_p", 0.9),

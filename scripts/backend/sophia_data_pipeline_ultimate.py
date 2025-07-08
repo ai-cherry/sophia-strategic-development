@@ -8,7 +8,7 @@ Replaces Estuary integration due to API access issues.
 Features:
 - Direct Gong API integration with proper authentication
 - Raw data landing in RAW_ESTUARY schema (for consistency)
-- Comprehensive transformation to STG_TRANSFORMED tables
+- Comprehensive transformation to STG_ESTUARY tables
 - AI enrichment using Snowflake Cortex
 - PII masking and security compliance
 - Comprehensive logging and monitoring
@@ -316,7 +316,7 @@ class SnowflakeDataLoader:
         """Ensure required schemas exist"""
         schemas = [
             "RAW_ESTUARY",  # Raw data landing
-            "STG_TRANSFORMED",  # Structured staging tables
+            "STG_ESTUARY",  # Structured staging tables
             "AI_MEMORY",  # AI Memory integration
             "OPS_MONITORING",  # Operational monitoring
         ]
@@ -464,7 +464,7 @@ class SnowflakeDataLoader:
         return loaded_count
 
     async def execute_transformation_procedures(self) -> dict[str, Any]:
-        """Execute transformation procedures to populate STG_TRANSFORMED tables"""
+        """Execute transformation procedures to populate STG_ESTUARY tables"""
         if self.config.dry_run:
             logger.info("[DRY RUN] Would execute transformation procedures")
             return {"calls_transformed": 0, "transcripts_transformed": 0}
@@ -475,13 +475,13 @@ class SnowflakeDataLoader:
         try:
             # Transform calls using the correct procedure names from Sophia AI DDL
             logger.info("🔄 Executing call transformation procedures...")
-            cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_RAW_GONG_CALLS()")
+            cursor.execute("CALL STG_ESTUARY.TRANSFORM_RAW_GONG_CALLS()")
             calls_result = cursor.fetchone()
             results["calls_transformed"] = calls_result[0] if calls_result else 0
 
             # Transform transcripts
             logger.info("🔄 Executing transcript transformation procedures...")
-            cursor.execute("CALL STG_TRANSFORMED.TRANSFORM_RAW_GONG_TRANSCRIPTS()")
+            cursor.execute("CALL STG_ESTUARY.TRANSFORM_RAW_GONG_TRANSCRIPTS()")
             transcripts_result = cursor.fetchone()
             results["transcripts_transformed"] = (
                 transcripts_result[0] if transcripts_result else 0
@@ -514,7 +514,7 @@ class SnowflakeDataLoader:
             logger.info("🧠 Executing AI enrichment procedures...")
 
             # Execute AI enrichment procedure from Sophia AI DDL
-            cursor.execute("CALL STG_TRANSFORMED.ENRICH_GONG_CALLS_WITH_AI()")
+            cursor.execute("CALL STG_ESTUARY.ENRICH_GONG_CALLS_WITH_AI()")
             enrichment_result = cursor.fetchone()
             results["enrichments_completed"] = (
                 enrichment_result[0] if enrichment_result else 0

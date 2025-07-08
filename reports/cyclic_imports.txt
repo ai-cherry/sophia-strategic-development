@@ -1,7 +1,5 @@
 ************* Module infrastructure.mcp_servers.ai_memory_v2.server
 infrastructure/mcp_servers/ai_memory_v2/server.py:220:14: E0001: Parsing failed: 'invalid syntax. Perhaps you forgot a comma? (infrastructure.mcp_servers.ai_memory_v2.server, line 220)' (syntax-error)
-************* Module scripts.mcp_orchestration_optimizer
-scripts/mcp_orchestration_optimizer.py:159:20: E0001: Parsing failed: 'unexpected indent (scripts.mcp_orchestration_optimizer, line 159)' (syntax-error)
 ************* Module scripts.snowflake_config_manager
 scripts/snowflake_config_manager.py:437:93: E0001: Parsing failed: 'unmatched ')' (scripts.snowflake_config_manager, line 437)' (syntax-error)
 ************* Module scripts.verify_and_align_snowflake

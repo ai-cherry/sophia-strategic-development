@@ -234,8 +234,8 @@ class MigrationOrchestrator:
                 [],
             ),
             ServerConfig(
-                "airbyte",
-                "mcp-servers/airbyte",
+                "estuary",
+                "mcp-servers/estuary",
                 "airbyte_v2",
                 9035,
                 MigrationPhase.PHASE_4,

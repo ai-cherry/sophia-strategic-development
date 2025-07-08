@@ -786,7 +786,7 @@ CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_DEV.APOLLO_IO CLONE SOPHIA_AI_PROD.APOLLO_
 
 -- Next steps:
 -- 1. Configure Apollo.io API credentials in Pulumi ESC
--- 2. Set up Airbyte connector for Apollo.io
+-- 2. Set up Estuary Flow connector for Apollo.io
 -- 3. Deploy ETL pipelines for data ingestion
 -- 4. Configure monitoring and alerting
 -- 5. Test end-to-end data flow

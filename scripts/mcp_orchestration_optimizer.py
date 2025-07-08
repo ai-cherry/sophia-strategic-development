@@ -154,18 +154,6 @@ class MCPOrchestrationOptimizer:
 
             self.log_action("Updated .cursorrules Claude references")
 
-    def _error_handling_1(self):
-        """Extracted error_handling logic"""
-                    result = await self.tools[tool_name](**request.parameters, context=request.context)
-                    return MCPResponse(
-                        result=result,
-                        metadata={"tool": tool_name, "model_used": result.get("model_used", "unknown")},
-                        timestamp=datetime.now().isoformat()
-                    )
-                except Exception as e:
-                    raise HTTPException(status_code=500, detail=str(e))
-
-
     def enhance_sophia_intelligence_mcp(self):
         """Enhance Sophia AI Intelligence MCP with Claude integration"""
         print("\n🚀 Phase 2: Enhancing Sophia AI Intelligence MCP...")
@@ -241,7 +229,16 @@ class EnhancedSophiaAIIntelligenceMCP:
             if tool_name not in self.tools:
                 raise HTTPException(status_code=404, detail=f"Tool {tool_name} not found")
 
-            self._error_handling_1()
+            try:
+                result = await self.tools[tool_name](**request.parameters, context=request.context)
+                return MCPResponse(
+                    result=result,
+                    metadata={"tool": tool_name, "model_used": result.get("model_used", "unknown")},
+                    timestamp=datetime.now().isoformat()
+                )
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
+
         @self.app.get("/health")
         async def health_check():
             """Health check endpoint"""
@@ -373,7 +370,7 @@ class IntelligentLLMRouter:
         self.routing_rules = {
             "complex_reasoning": {
                 "primary": "claude-3.5-sonnet",
-                "fallback": "gpt-4-turbo",
+                "fallback": "gpt-4o",
                 "cost_tier": "premium"
             },
             "code_generation": {
@@ -429,7 +426,7 @@ class IntelligentLLMRouter:
                 "temperature": 0.5,
                 "provider": "anthropic"
             },
-            "gpt-4-turbo": {
+            "gpt-4o": {
                 "max_tokens": 4096,
                 "temperature": 0.7,
                 "provider": "openai"
@@ -470,7 +467,7 @@ class IntelligentLLMRouter:
         cost_per_1k = {
             "claude-3.5-sonnet": 0.015,
             "claude-3-haiku": 0.0008,
-            "gpt-4-turbo": 0.01,
+            "gpt-4o": 0.01,
             "gpt-3.5-turbo": 0.0015
         }
 
@@ -906,8 +903,8 @@ All original files backed up to: `{self.backup_dir}`
             print(f"Review the report: MCP_OPTIMIZATION_REPORT_{self.timestamp}.md")
 
         except Exception as e:
-            self.log_action(f"Optimization failed: {str(e)}", "ERROR")
-            print(f"\n❌ Optimization failed: {str(e)}")
+            self.log_action(f"Optimization failed: {e!s}", "ERROR")
+            print(f"\n❌ Optimization failed: {e!s}")
             raise
 
 

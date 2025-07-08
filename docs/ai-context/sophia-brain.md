@@ -63,13 +63,13 @@ MODEL_SELECTION_RULES = {
     # Task-based routing
     "architecture_design": ["claude-3-5-sonnet", "gpt-4o"],
     "code_generation": ["deepseek-v3", "gpt-4o", "claude-3-5-sonnet"],
-    "business_intelligence": ["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"],
-    "research": ["gemini-1.5-pro", "claude-3-5-sonnet", "gpt-4o"],
+    "business_intelligence": ["gpt-4o", "claude-3-5-sonnet", "gemini-2.0-flash-exp"],
+    "research": ["gemini-2.0-flash-exp", "claude-3-5-sonnet", "gpt-4o"],
 
     # Cost optimization
     "budget_mode": ["gpt-3.5-turbo", "deepseek-v3", "mixtral-8x7b"],
     "balanced_mode": ["deepseek-v3", "gpt-4o", "mixtral-8x7b"],
-    "premium_mode": ["claude-3-5-sonnet", "gpt-4o", "gemini-1.5-pro"]
+    "premium_mode": ["claude-3-5-sonnet", "gpt-4o", "gemini-2.0-flash-exp"]
 }
 ```
 

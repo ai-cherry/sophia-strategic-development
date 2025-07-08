@@ -1,8 +1,8 @@
 -- =====================================================================
--- STG_TRANSFORMED Schema - Enhanced Data Pipeline
+-- STG_ESTUARY Schema - Enhanced Data Pipeline
 -- =====================================================================
 --
--- This script creates the STG_TRANSFORMED schema for structured business data
+-- This script creates the STG_ESTUARY schema for structured business data
 -- with AI Memory integration and Snowflake Cortex capabilities.
 --
 -- Features:
@@ -16,8 +16,8 @@
 
 -- Set context for DEV environment
 USE DATABASE SOPHIA_AI_DEV;
-CREATE SCHEMA IF NOT EXISTS STG_TRANSFORMED;
-USE SCHEMA STG_TRANSFORMED;
+CREATE SCHEMA IF NOT EXISTS STG_ESTUARY;
+USE SCHEMA STG_ESTUARY;
 
 -- =====================================================================
 -- 1. ENHANCED GONG TABLES WITH AI MEMORY COLUMNS
@@ -505,7 +505,7 @@ BEGIN
         RAW_DATA:analytics.questionsAsked::NUMBER AS QUESTIONS_ASKED_COUNT,
 
         CURRENT_TIMESTAMP AS UPDATED_AT
-    FROM SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW src
+    FROM SOPHIA_AI_DEV.RAW_ESTUARY.GONG_CALLS_RAW src
     WHERE PROCESSED = FALSE
     AND NOT EXISTS (
         SELECT 1 FROM STG_GONG_CALLS tgt
@@ -538,13 +538,13 @@ BEGIN
             RAW_DATA:customData.dealValue::NUMBER AS DEAL_VALUE,
             RAW_DATA:analytics.talkRatio::FLOAT AS TALK_RATIO,
             CURRENT_TIMESTAMP AS UPDATED_AT
-        FROM SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW
+        FROM SOPHIA_AI_DEV.RAW_ESTUARY.GONG_CALLS_RAW
         WHERE PROCESSED = FALSE
     ) src
     WHERE tgt.CALL_ID = src.CALL_ID;
 
     -- Mark raw records as processed
-    UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALLS_RAW
+    UPDATE SOPHIA_AI_DEV.RAW_ESTUARY.GONG_CALLS_RAW
     SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE;
 
@@ -569,7 +569,7 @@ DECLARE
     processed_count NUMBER DEFAULT 0;
     result_message VARCHAR(1000);
 BEGIN
-    -- Insert transcript segments from RAW_AIRBYTE.GONG_CALL_TRANSCRIPTS_RAW
+    -- Insert transcript segments from RAW_ESTUARY.GONG_CALL_TRANSCRIPTS_RAW
     INSERT INTO STG_GONG_CALL_TRANSCRIPTS (
         TRANSCRIPT_ID,
         CALL_ID,
@@ -596,7 +596,7 @@ BEGIN
         segment.value:endTime::NUMBER AS END_TIME_SECONDS,
         (segment.value:endTime::NUMBER - segment.value:startTime::NUMBER) AS SEGMENT_DURATION_SECONDS,
         ARRAY_SIZE(SPLIT(segment.value:text::VARCHAR, ' ')) AS WORD_COUNT
-    FROM SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALL_TRANSCRIPTS_RAW,
+    FROM SOPHIA_AI_DEV.RAW_ESTUARY.GONG_CALL_TRANSCRIPTS_RAW,
     LATERAL FLATTEN(input => TRANSCRIPT_DATA:transcript.segments) AS segment
     WHERE PROCESSED = FALSE
     AND TRANSCRIPT_DATA:transcript IS NOT NULL;
@@ -606,7 +606,7 @@ BEGIN
     FROM STG_GONG_CALL_TRANSCRIPTS;
 
     -- Mark raw transcripts as processed
-    UPDATE SOPHIA_AI_DEV.RAW_AIRBYTE.GONG_CALL_TRANSCRIPTS_RAW
+    UPDATE SOPHIA_AI_DEV.RAW_ESTUARY.GONG_CALL_TRANSCRIPTS_RAW
     SET PROCESSED = TRUE, PROCESSED_AT = CURRENT_TIMESTAMP
     WHERE PROCESSED = FALSE;
 
@@ -619,7 +619,7 @@ END;
 $$;
 
 -- =====================================================================
--- 6. AUTOMATED TASKS FOR STG_TRANSFORMED PIPELINE
+-- 6. AUTOMATED TASKS FOR STG_ESTUARY PIPELINE
 -- =====================================================================
 
 -- Task to refresh HubSpot deals every 30 minutes
@@ -687,8 +687,8 @@ AS
 -- =====================================================================
 
 -- Grant access to tables and views individually
-GRANT USAGE ON SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
-GRANT USAGE ON SCHEMA STG_TRANSFORMED TO ROLE ROLE_SOPHIA_DEVELOPER;
+GRANT USAGE ON SCHEMA STG_ESTUARY TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;
+GRANT USAGE ON SCHEMA STG_ESTUARY TO ROLE ROLE_SOPHIA_DEVELOPER;
 
 -- Grant access to specific tables for ROLE_SOPHIA_AI_AGENT_SERVICE
 GRANT SELECT ON TABLE STG_GONG_CALLS TO ROLE ROLE_SOPHIA_AI_AGENT_SERVICE;

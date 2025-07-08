@@ -500,7 +500,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 overall_sentiment,
                 churn_risk,
                 ai_customer_insights
-            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.CUSTOMER_INTELLIGENCE_ADVANCED
+            FROM SOPHIA_AI_ADVANCED.STG_ESTUARY.CUSTOMER_INTELLIGENCE_ADVANCED
             WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             ORDER BY overall_sentiment ASC
             LIMIT 100
@@ -573,7 +573,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 deal_sentiment,
                 ai_priority_score,
                 ai_deal_analysis
-            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.SALES_OPPORTUNITY_INTELLIGENCE
+            FROM SOPHIA_AI_ADVANCED.STG_ESTUARY.SALES_OPPORTUNITY_INTELLIGENCE
             WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             ORDER BY deal_amount DESC
             LIMIT 50
@@ -686,7 +686,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 ai_message_classification,
                 message_sentiment,
                 message_timestamp
-            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.COMMUNICATION_INTELLIGENCE_REALTIME
+            FROM SOPHIA_AI_ADVANCED.STG_ESTUARY.COMMUNICATION_INTELLIGENCE_REALTIME
             WHERE message_timestamp >= CURRENT_TIMESTAMP - INTERVAL '1 hour'
             AND (
                 message_sentiment < %s

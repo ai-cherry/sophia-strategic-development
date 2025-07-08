@@ -29,19 +29,19 @@ class OpenRouterIntegration:
         # Model catalog organized by capability
         self.model_catalog = {
             "general_purpose": [
-                "openai/gpt-4-turbo-preview",
-                "anthropic/claude-3-opus",
+                "openai/gpt-4o",
+                "anthropic/claude-3.5-sonnet",
                 "google/gemini-pro",
                 "meta-llama/llama-3-70b-instruct",
             ],
             "code_generation": [
-                "openai/gpt-4-turbo",
+                "openai/gpt-4o",
                 "anthropic/claude-3-sonnet",
                 "phind/phind-codellama-34b",
                 "wizardlm/wizardcoder-33b",
             ],
             "reasoning": [
-                "anthropic/claude-3-opus",
+                "anthropic/claude-3.5-sonnet",
                 "openai/gpt-4",
                 "google/gemini-ultra",
                 "mistralai/mixtral-8x22b",
@@ -53,14 +53,14 @@ class OpenRouterIntegration:
                 "meta-llama/llama-3-creative",
             ],
             "apartment_industry": [
-                "openai/gpt-4-turbo",  # Fine-tuned for business
-                "anthropic/claude-3-opus",  # Strong context understanding
+                "openai/gpt-4o",  # Fine-tuned for business
+                "anthropic/claude-3.5-sonnet",  # Strong context understanding
                 "mistralai/mistral-large",  # European property focus
                 "custom/pay-ready-assistant",  # Custom fine-tuned model
             ],
             "financial_analysis": [
-                "openai/gpt-4-turbo",
-                "anthropic/claude-3-opus",
+                "openai/gpt-4o",
+                "anthropic/claude-3.5-sonnet",
                 "bloomberg/bloomberggpt",
                 "custom/fintech-analyst",
             ],
@@ -74,14 +74,14 @@ class OpenRouterIntegration:
 
         # Model performance characteristics
         self.model_characteristics = {
-            "openai/gpt-4-turbo-preview": {
+            "openai/gpt-4o": {
                 "quality_score": 0.95,
                 "speed": "medium",
                 "cost_per_1k": 0.03,
                 "context_window": 128000,
                 "strengths": ["reasoning", "code", "analysis"],
             },
-            "anthropic/claude-3-opus": {
+            "anthropic/claude-3.5-sonnet": {
                 "quality_score": 0.96,
                 "speed": "medium",
                 "cost_per_1k": 0.015,
