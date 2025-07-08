@@ -35,8 +35,6 @@ on:
 env:
   DOCKER_REGISTRY: scoobyjava15
   PULUMI_ORG: scoobyjava-org
-  # Dynamic environment based on branch or input
-  ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
 
 jobs:
   # 1. Quality Gate - Always run
@@ -64,7 +62,9 @@ jobs:
     # Only deploy infra on main branch or manual trigger
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     outputs:
-      instance_ip: ${{ steps.pulumi.outputs.instance_ip }}
+      instance_ip: ${{ steps.outputs.outputs.instance_ip }}
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -106,7 +106,7 @@ jobs:
     uses: ./.github/workflows/reusable-swarm-deploy.yml
     with:
       compose_file: docker-compose.unified.yml
-      environment: ${{ env.ENVIRONMENT }}
+      environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
       stack_name: sophia-ai
       host: ${{ needs.infrastructure.outputs.instance_ip || '192.222.51.122' }}
     secrets: inherit
@@ -121,7 +121,7 @@ jobs:
       github.event.inputs.deploy_frontend != 'false'
     uses: ./.github/workflows/reusable-vercel-deploy.yml
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
       project_name: sophia-ai-unified-dashboard
     secrets: inherit
 
