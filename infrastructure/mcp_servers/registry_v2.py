@@ -317,9 +317,9 @@ class RegistryV2:
             tier_stats[tier.value] = {
                 "total": len(servers),
                 "healthy": len(healthy),
-                "health_percentage": (len(healthy) / len(servers) * 100)
-                if servers
-                else 0,
+                "health_percentage": (
+                    (len(healthy) / len(servers) * 100) if servers else 0
+                ),
             }
 
         capability_stats = {}
@@ -336,9 +336,9 @@ class RegistryV2:
         return {
             "total_servers": total_servers,
             "healthy_servers": healthy_servers,
-            "health_percentage": (healthy_servers / total_servers * 100)
-            if total_servers
-            else 0,
+            "health_percentage": (
+                (healthy_servers / total_servers * 100) if total_servers else 0
+            ),
             "tier_statistics": tier_stats,
             "capability_statistics": capability_stats,
             "global_config": self._global_config.dict(),

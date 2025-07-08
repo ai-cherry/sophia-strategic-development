@@ -553,9 +553,11 @@ class UnifiedChatService:
             "metadata": {
                 "processing_time": datetime.utcnow().isoformat(),
                 "user_id": user_id,
-                "session_id": query_context.session_history[0].get("session_id")
-                if query_context.session_history
-                else None,
+                "session_id": (
+                    query_context.session_history[0].get("session_id")
+                    if query_context.session_history
+                    else None
+                ),
             },
         }
 

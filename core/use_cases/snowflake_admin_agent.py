@@ -145,7 +145,7 @@ class SnowflakeAdminCallbackHandler(BaseCallbackHandler):
 
     def on_tool_start(
         self, serialized: dict[str, Any], input_str: str, **kwargs
-     -> None:
+    ) -> None:
         """Log tool start"""
         tool_name = serialized.get("name", "unknown")
         logger.info(f"Tool started: {tool_name} with input: {input_str}")
@@ -154,7 +154,7 @@ class SnowflakeAdminCallbackHandler(BaseCallbackHandler):
         """Capture tool output"""
         self.observations.append(
             {"output": output, "timestamp": datetime.now().isoformat()}
-        
+        )
 
 
 class SnowflakeAdminAgent:

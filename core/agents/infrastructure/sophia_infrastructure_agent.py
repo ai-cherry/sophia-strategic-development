@@ -366,7 +366,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                 "total_monthly_cost": cost_analysis.get("total_cost", 0),
                 "potential_savings": sum(
                     opt.get("savings", 0)
-                    for opt in cost_analysis.get("cost_optimizations", []):
+                    for opt in cost_analysis.get("cost_optimizations", [])
                 ),
             },
         }
@@ -395,7 +395,7 @@ class SophiaInfrastructureAgent(LangGraphAgentBase):
                         "model_preference": "balanced",
                     },
                     task_type="chat_conversation",
-                    stream=False
+                    stream=False,
                 )
 
                 return {

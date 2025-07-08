@@ -254,7 +254,9 @@ class OptimizedConnectionPool:
             )
 
         except Exception as e:
-            logger.exception(f"❌ Failed to initialize {self.connection_type} pool: {e}")
+            logger.exception(
+                f"❌ Failed to initialize {self.connection_type} pool: {e}"
+            )
             raise
 
     async def _create_connection(self) -> Any | None:

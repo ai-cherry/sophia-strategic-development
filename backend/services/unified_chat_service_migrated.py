@@ -145,7 +145,7 @@ class UnifiedChatService:
     async def _search_knowledge(self, query: str) -> list[dict[str, Any]]:
         """Search knowledge base using embeddings"""
         # Generate embedding for the query
-        query_embedding = await self.gateway.embed(query)
+        await self.gateway.embed(query)
 
         # Search using vector similarity
         search_sql = """

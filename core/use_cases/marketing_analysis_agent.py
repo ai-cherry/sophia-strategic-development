@@ -36,11 +36,9 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     MemoryCategory,
 )
 from infrastructure.services.foundational_knowledge_service import FoundationalKnowledgeService
-from core.services.llm_service import (
-    LLMRequest,
+from infrastructure.services.unified_llm_service import (
+    get_unified_llm_service,
     TaskType,
-    generate_competitive_analysis,
-    llm_service,
 )
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
@@ -184,6 +182,9 @@ class MarketingAnalysisAgent(BaseAgent):
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
         self.knowledge_service: FoundationalKnowledgeService | None = None
 
+        # Lazy-loaded LLM client (UnifiedLLMService)
+        self.smart_ai = None
+
         self.initialized = False
 
     async def initialize(self) -> None:
@@ -200,7 +201,9 @@ class MarketingAnalysisAgent(BaseAgent):
 
             # Initialize AI Memory and Smart AI Service
             await self.ai_memory.initialize()
-            await llm_service.initialize()
+
+            # Lazy-load the Smart-AI service once
+            self.smart_ai = await get_unified_llm_service()
 
             self.initialized = True
             logger.info("✅ Marketing Analysis Agent initialized")
@@ -289,22 +292,21 @@ class MarketingAnalysisAgent(BaseAgent):
                 5. Competitive positioning analysis
                 """
 
-                # Use SmartAIService for high-quality marketing analysis
-                request = LLMRequest(
-                    messages=[{"role": "user", "content": analysis_prompt}],
-                    task_type=TaskType.MARKET_ANALYSIS,
-                    performance_priority=True,
-                    cost_sensitivity=0.8,
-                    user_id="marketing_agent",
-                    metadata={"campaign_id": campaign_id},
-                )
+                # Stream AI analysis directly via unified LLM router
+                if self.smart_ai is None:
+                    raise RuntimeError("Smart AI service not initialized")
 
-                response = await async for chunk in llm_service.complete(
-    prompt=request.prompt if hasattr(request, 'prompt') else request.get('prompt', ''),
-    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
-    stream=True
-)
-                ai_summary = response.content
+                analysis_chunks: list[str] = []
+                async for chunk in self.smart_ai.complete(
+                    prompt=analysis_prompt,
+                    task_type=TaskType.BUSINESS_INTELLIGENCE,
+                    stream=True,
+                ):
+                    analysis_chunks.append(chunk)
+
+                ai_summary = "".join(
+                    getattr(c, "content", str(c)) for c in analysis_chunks
+                )
 
                 # Extract specific recommendations using Cortex
                 async with self.cortex_service as cortex:
@@ -323,8 +325,8 @@ class MarketingAnalysisAgent(BaseAgent):
                     if recommendations_text:
                         optimization_recommendations = [
                             rec.strip()
-                            for rec in recommendations_text.split("\n"):
-                            if rec.strip() and any(char.isdigit() for char in rec[:5]):
+                            for rec in recommendations_text.split("\n")
+                            if rec.strip() and any(char.isdigit() for char in rec[:5])
                         ]
 
                 # Analyze audience segments
@@ -466,26 +468,19 @@ class MarketingAnalysisAgent(BaseAgent):
             context.get("brand_context", ""),
         )
 
-        # Use SmartAIService for creative content generation
-        llm_request = LLMRequest(
-            messages=[{"role": "user", "content": content_prompt}],
-            task_type=TaskType.CREATIVE_CONTENT,
-            performance_priority=False,
-            cost_sensitivity=0.6,
-            user_id="marketing_agent",
-            temperature=0.8,  # Higher creativity for content
-            metadata={
-                "content_type": request.content_type.value,
-                "audience": request.target_audience.value,
-            },
-        )
+        # Generate content via streaming
+        if self.smart_ai is None:
+            raise RuntimeError("Smart AI service not initialized")
 
-        response = await async for chunk in llm_service.complete(
-    prompt=llm_request.prompt if hasattr(llm_request, 'prompt') else llm_request.get('prompt', ''),
-    task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
-    stream=True
-)
-        return response.content
+        content_chunks: list[str] = []
+        async for chunk in self.smart_ai.complete(
+            prompt=content_prompt,
+            task_type=TaskType.BUSINESS_INTELLIGENCE,
+            stream=True,
+        ):
+            content_chunks.append(chunk)
+
+        return "".join(getattr(c, "content", str(c)) for c in content_chunks)
 
     async def _generate_content_variations(
         self, request: ContentGenerationRequest, content: str
@@ -611,11 +606,11 @@ class MarketingAnalysisAgent(BaseAgent):
                 if segmentation_analysis:
                     segment_lines = [
                         line.strip()
-                        for line in segmentation_analysis.split("\n"):
-                        if line.strip():
+                        for line in segmentation_analysis.split("\n")
+                        if line.strip()
                         and any(
                             keyword in line.lower()
-                            for keyword in ["segment", "group", "audience"]:
+                            for keyword in ["segment", "group", "audience"]
                         )
                     ]
 
@@ -721,9 +716,20 @@ class MarketingAnalysisAgent(BaseAgent):
             Provide actionable insights for competitive positioning and strategic response.
             """
 
-            # Use specialized competitive analysis function
-            analysis_content = await generate_competitive_analysis(
-                analysis_prompt, user_id="marketing_agent"
+            # Use Smart-AI service to generate competitive analysis
+            if self.smart_ai is None:
+                raise RuntimeError("Smart AI service not initialized")
+
+            analysis_chunks_comp: list[str] = []
+            async for chunk in self.smart_ai.complete(
+                prompt=analysis_prompt,
+                task_type=TaskType.RESEARCH,
+                stream=True,
+            ):
+                analysis_chunks_comp.append(chunk)
+
+            analysis_content = "".join(
+                getattr(c, "content", str(c)) for c in analysis_chunks_comp
             )
 
             # Extract key insights using Cortex

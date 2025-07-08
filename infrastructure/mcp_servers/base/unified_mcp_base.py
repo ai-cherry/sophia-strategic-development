@@ -5,7 +5,6 @@ Provides standardized foundation for all Sophia AI MCP servers.
 """
 
 import logging
-import os
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -20,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from prometheus_client.core import CollectorRegistry
+from backend.core.auto_esc_config import get_config_value
 
 # Import custom logger when available, fallback to standard logging
 try:
@@ -346,7 +346,7 @@ class StandardizedMCPServer(ABC):
         """Run the MCP server."""
         uvicorn.run(
             self.app,
-            host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production,
+            host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
             port=self.config.port,
             log_level=self.config.log_level.lower(),
         )

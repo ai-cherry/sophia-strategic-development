@@ -6,7 +6,6 @@ A Model Context Protocol (MCP) server implementation for Asana.
 Provides tools to interact with Asana's REST API for project management.
 """
 
-import asyncio
 import logging
 import os
 import sys
@@ -364,7 +363,12 @@ if __name__ == "__main__":
         app.include_router(router)
 
         # Run with uvicorn
-        uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=int(get_config_value("port", "9100")))
+        uvicorn.run(
+            app,
+            host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
+            port=int(get_config_value("port", "9100")),
+            log_level="info",
+        )
     else:
         # Run as MCP server
         main()

@@ -131,7 +131,7 @@ class LambdaLabsCostMonitor:
             return
 
         # Send to Slack webhook
-        payload = {
+        {
             "text": message,
             "attachments": [
                 {

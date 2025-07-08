@@ -4,6 +4,7 @@ LangGraph Agent Base Class
 Pure Python base class for all Sophia AI agents designed for LangGraph integration.
 Replaces AgnoMCPBridge with optimized Python patterns and LangGraph compatibility.
 """
+
 from __future__ import annotations
 
 import logging
@@ -315,9 +316,11 @@ class LangGraphAgentBase(ABC):
                 "success_rate": self.metrics.success_rate,
                 "avg_response_time_ms": self.metrics.avg_response_time_ms,
                 "instantiation_time_ms": self.metrics.instantiation_time_ms,
-                "last_activity": self.metrics.last_activity.isoformat()
-                if self.metrics.last_activity
-                else None,
+                "last_activity": (
+                    self.metrics.last_activity.isoformat()
+                    if self.metrics.last_activity
+                    else None
+                ),
             },
             "cache_stats": {
                 "cache_size": len(self.cache),
@@ -326,10 +329,11 @@ class LangGraphAgentBase(ABC):
             },
             "performance": {
                 "target_ms": self.performance_target_ms,
-                "achieving_target": self.metrics.avg_response_time_ms
-                <= self.performance_target_ms
-                if self.metrics.avg_response_time_ms > 0
-                else True,
+                "achieving_target": (
+                    self.metrics.avg_response_time_ms <= self.performance_target_ms
+                    if self.metrics.avg_response_time_ms > 0
+                    else True
+                ),
             },
         }
         return health_status
@@ -346,20 +350,25 @@ class LangGraphAgentBase(ABC):
                 "success_rate_percent": self.metrics.success_rate,
                 "avg_response_time_ms": self.metrics.avg_response_time_ms,
                 "instantiation_time_ms": self.metrics.instantiation_time_ms,
-                "last_activity": self.metrics.last_activity.isoformat()
-                if self.metrics.last_activity
-                else None,
+                "last_activity": (
+                    self.metrics.last_activity.isoformat()
+                    if self.metrics.last_activity
+                    else None
+                ),
             },
             "performance": {
                 "target_response_time_ms": self.performance_target_ms,
-                "achieving_target": self.metrics.avg_response_time_ms
-                <= self.performance_target_ms
-                if self.metrics.avg_response_time_ms > 0
-                else True,
-                "performance_ratio": self.performance_target_ms
-                / max(1, self.metrics.avg_response_time_ms)
-                if self.metrics.avg_response_time_ms > 0
-                else 1.0,
+                "achieving_target": (
+                    self.metrics.avg_response_time_ms <= self.performance_target_ms
+                    if self.metrics.avg_response_time_ms > 0
+                    else True
+                ),
+                "performance_ratio": (
+                    self.performance_target_ms
+                    / max(1, self.metrics.avg_response_time_ms)
+                    if self.metrics.avg_response_time_ms > 0
+                    else 1.0
+                ),
             },
             "cache": {
                 "size": len(self.cache),

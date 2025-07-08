@@ -433,9 +433,7 @@ class UIUXAgentMCPServer(EnhancedStandardizedMCPServer):
             "wcag_compliance": (
                 "AA"
                 if compliance_score >= 80
-                else "A"
-                if compliance_score >= 60
-                else "Non-compliant"
+                else "A" if compliance_score >= 60 else "Non-compliant"
             ),
             "issues_found": issues,
             "improvement_suggestions": suggestions,

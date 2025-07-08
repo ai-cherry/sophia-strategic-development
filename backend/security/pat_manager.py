@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Any
+from typing import Optional, Any
 
 import structlog
 from prometheus_client import Gauge
@@ -308,9 +308,11 @@ class SnowflakePATManager:
                         environment=env,
                         created_at=datetime.fromisoformat(env_data["created_at"]),
                         expires_at=datetime.fromisoformat(env_data["expires_at"]),
-                        last_rotated=datetime.fromisoformat(env_data["last_rotated"])
-                        if env_data.get("last_rotated")
-                        else None,
+                        last_rotated=(
+                            datetime.fromisoformat(env_data["last_rotated"])
+                            if env_data.get("last_rotated")
+                            else None
+                        ),
                         rotation_count=env_data.get("rotation_count", 0),
                     )
             except Exception as e:
@@ -345,9 +347,9 @@ class SnowflakePATManager:
             data[env] = {
                 "created_at": metadata.created_at.isoformat(),
                 "expires_at": metadata.expires_at.isoformat(),
-                "last_rotated": metadata.last_rotated.isoformat()
-                if metadata.last_rotated
-                else None,
+                "last_rotated": (
+                    metadata.last_rotated.isoformat() if metadata.last_rotated else None
+                ),
                 "rotation_count": metadata.rotation_count,
                 "created_by": metadata.created_by,
             }

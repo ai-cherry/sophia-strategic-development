@@ -3,12 +3,11 @@
 import asyncio
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from notion_client import AsyncClient
-from notion_client.errors import APIResponseError
 from pydantic import BaseModel
 
 # Configure logging
@@ -349,7 +348,7 @@ async def main():
     """Run the server."""
     config = uvicorn.Config(
         app,
-        host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production,
         port=int(get_config_value("notion_mcp_port", "9003")),
         log_level=get_config_value("log_level", "info").lower(),
     )

@@ -11,7 +11,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException
@@ -692,9 +692,7 @@ class EnhancedQualityAnalyzer:
 
             # Context-aware recommendations
             if context and context.get("is_production"):
-                recommendations.append(
-                    "⚠️ Production code requires immediate attention"
-                )
+                recommendations.append("⚠️ Production code requires immediate attention")
 
         except Exception as e:
             logger.error(f"AI insights generation failed: {e}")
@@ -959,9 +957,11 @@ async def get_quality_trends(filename: str):
             for i, h in enumerate(history)
         ],
         "current_score": history[-1].overall_score if history else 0,
-        "score_change": history[-1].overall_score - history[0].overall_score
-        if len(history) > 1
-        else 0,
+        "score_change": (
+            history[-1].overall_score - history[0].overall_score
+            if len(history) > 1
+            else 0
+        ),
     }
 
 
@@ -987,13 +987,15 @@ async def get_predictive_insights():
     return {
         "total_files_at_risk": len(all_insights),
         "insights": all_insights[:10],  # Top 10
-        "recommended_actions": [
-            "Schedule code quality sprint",
-            "Implement stricter PR reviews",
-            "Add automated quality gates",
-        ]
-        if all_insights
-        else ["Maintain current quality standards"],
+        "recommended_actions": (
+            [
+                "Schedule code quality sprint",
+                "Implement stricter PR reviews",
+                "Add automated quality gates",
+            ]
+            if all_insights
+            else ["Maintain current quality standards"]
+        ),
     }
 
 
@@ -1006,4 +1008,9 @@ if __name__ == "__main__":
     port = 3008
     logger.info(f"🚀 Starting Enhanced Codacy MCP Server on port {port}...")
     logger.info(f"🤖 AI Services Available: {SNOWFLAKE_AVAILABLE}")
-    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=port)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # Changed for security. Use ENV variable in production
+        port=port,
+        log_level="info",
+    )

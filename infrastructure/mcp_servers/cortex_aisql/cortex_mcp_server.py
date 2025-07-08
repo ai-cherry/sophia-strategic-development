@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator, field_validator
+from pydantic import BaseModel, Field, field_validator
 from snowflake.connector.pool import SnowflakePool
 
 from core.config_manager import get_config_value
@@ -276,9 +276,9 @@ async def natural_language_query(body: AISQLQuery) -> dict[str, Any]:
             detail={
                 "error": str(e),
                 "type": type(e).__name__,
-                "query": body.query[:100] + "..."
-                if len(body.query) > 100
-                else body.query,
+                "query": (
+                    body.query[:100] + "..." if len(body.query) > 100 else body.query
+                ),
             },
         )
 

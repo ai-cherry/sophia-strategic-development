@@ -350,7 +350,7 @@ class TestCortexAdapter:
 
         # Execute
         adapter.execution_mode = ExecutionMode.MCP
-        result = await adapter.run(query)
+        await adapter.run(query)
 
         # Verify context was passed
         call_args = adapter.mcp_client.execute_cortex.call_args[0][0]

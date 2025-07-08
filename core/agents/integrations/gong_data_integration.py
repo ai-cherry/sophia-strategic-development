@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import UTC, datetime
 
 """
@@ -19,8 +20,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import asyncio
 import json

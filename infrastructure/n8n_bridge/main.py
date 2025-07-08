@@ -7,7 +7,6 @@ Provides seamless integration between N8N workflows and MCP orchestration servic
 
 import asyncio
 import logging
-import os
 from typing import Any
 
 import redis.asyncio as redis
@@ -378,4 +377,9 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=9099)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
+        port=9099,
+        log_level="info",
+    )

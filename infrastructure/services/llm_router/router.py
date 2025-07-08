@@ -102,7 +102,6 @@ class LLMRouter:
         start_time = time.time()
         provider = None
         model = None
-        cache_hit = False
 
         try:
             # Check cache first if enabled
@@ -114,7 +113,6 @@ class LLMRouter:
                     model_override=model_override,
                 )
                 if cached_response:
-                    cache_hit = True
                     llm_cache_hit_rate.labels(cache_type="semantic").inc()
                     yield cached_response
                     return

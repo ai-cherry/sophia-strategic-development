@@ -1,4 +1,5 @@
 """Main handler for ai_memory_v2 MCP server."""
+
 import hashlib
 import logging
 from datetime import datetime
@@ -202,31 +203,21 @@ class AiMemoryV2Handler:
         """Auto-categorize content using simple heuristics."""
         content_lower = content.lower()
         if any(
-
-                word in content_lower
-                for word in ["code", "function", "api", "bug", "error"]
-
+            word in content_lower
+            for word in ["code", "function", "api", "bug", "error"]
         ):
             return MemoryCategory.TECHNICAL
         elif any(
-
-                word in content_lower
-                for word in ["revenue", "customer", "sales", "market"]
-
+            word in content_lower for word in ["revenue", "customer", "sales", "market"]
         ):
             return MemoryCategory.BUSINESS
         elif any(
-
-                word in content_lower
-                for word in ["project", "task", "milestone", "deadline"]
-
+            word in content_lower
+            for word in ["project", "task", "milestone", "deadline"]
         ):
             return MemoryCategory.PROJECT
         elif any(
-
-                word in content_lower
-                for word in ["learn", "study", "research", "article"]
-
+            word in content_lower for word in ["learn", "study", "research", "article"]
         ):
             return MemoryCategory.LEARNING
         else:

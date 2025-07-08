@@ -433,9 +433,9 @@ class EnhancedSnowflakeAdapter:
                 "warehouse": wh,
                 "credits": stats["credits"],
                 "queries": stats["queries"],
-                "avg_credits_per_query": stats["credits"] / stats["queries"]
-                if stats["queries"] > 0
-                else 0,
+                "avg_credits_per_query": (
+                    stats["credits"] / stats["queries"] if stats["queries"] > 0 else 0
+                ),
             }
             for wh, stats in sorted(
                 warehouse_usage.items(), key=lambda x: x[1]["credits"], reverse=True

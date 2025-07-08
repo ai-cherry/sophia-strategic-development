@@ -26,15 +26,18 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "LINEAR_API_KEY": "linear_api_key",
     "NOTION_API_TOKEN": "notion_api_token",
     # Infrastructure
-    "LAMBDA_LABS_API_KEY": "lambda_api_key",
-    "LAMBDA_IP_ADDRESS": "lambda_ip_address",
-    "LAMBDA_SSH_PRIVATE_KEY": "lambda_ssh_private_key",
+    "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     "DOCKER_TOKEN": "docker_token",
     "DOCKER_HUB_ACCESS_TOKEN": "docker_hub_access_token",
     # Communication
     "SLACK_BOT_TOKEN": "slack_bot_token",
     "SLACK_APP_TOKEN": "slack_app_token",
     "SLACK_SIGNING_SECRET": "slack_signing_secret",
+}
+
+# Backwards-compatibility alias: map old internal key to new canonical key
+ALIAS_INTERNAL_MAPPING = {
+    "lambda_api_key": "lambda_labs_api_key",
 }
 
 
@@ -48,4 +51,4 @@ def get_github_key(internal_key: str) -> str:
     for github_key, internal in GITHUB_TO_INTERNAL_MAPPING.items():
         if internal == internal_key:
             return github_key
-    return internal_key.upper()
+    return ALIAS_INTERNAL_MAPPING.get(internal_key, internal_key.upper())

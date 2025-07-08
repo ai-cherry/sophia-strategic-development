@@ -7,7 +7,7 @@ Integrated with SecurityConfig for centralized secret management
 import logging
 import os
 import subprocess
-from typing import Any
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,8 @@ _esc_cache: dict[str, Any] | None = None
 def _get_security_config():
     """Get SecurityConfig class (imported lazily to avoid circular imports)"""
     try:
-        from core.security_config import SecurityConfig
+        # Updated import path July 2025 – SecurityConfig resides in shared.security_config
+        from shared.security_config import SecurityConfig
 
         return SecurityConfig
     except ImportError:
@@ -165,6 +166,10 @@ def get_config_value(key: str, default: Any = None) -> Any:
         "vercel_access_token": "vercel_access_token",
         "docker_token": "docker_token",
         "npm_api_token": "npm_api_token",
+        # AI Optimization Flags (NEW)
+        "ai_optimization_enabled": "ai.optimization_enabled",
+        "hybrid_routing_enabled": "ai.hybrid_routing_enabled",
+        "cost_monitoring_enabled": "ai.cost_monitoring_enabled",
     }
 
     # Use mapped key or original key
@@ -449,7 +454,7 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
 }
 
 
-def get_snowflake_pat(environment: str = None) -> str:
+def get_snowflake_pat(environment: Optional[str] = None) -> str:
     """
     Get Snowflake PAT (Programmatic Access Token) for MCP authentication
 
@@ -463,10 +468,13 @@ def get_snowflake_pat(environment: str = None) -> str:
         ValueError: If PAT not configured
     """
     if not environment:
-        environment = get_config_value("environment", "prod")
+        environment = get_config_value("environment", "prod")  # type: ignore[assignment]
+
+    # After fallback logic we are confident *environment* is str
+    environment_str: str = str(environment)
 
     # Try environment-specific PAT first
-    pat_key = f"snowflake_pat_{environment.lower()}"
+    pat_key = f"snowflake_pat_{environment_str.lower()}"
     pat = get_config_value(pat_key)
 
     if not pat:
@@ -478,7 +486,9 @@ def get_snowflake_pat(environment: str = None) -> str:
         pat = get_config_value("snowflake_mcp_pat")
 
     if not pat:
-        raise ValueError(f"Snowflake PAT not configured for environment: {environment}")
+        raise ValueError(
+            f"Snowflake PAT not configured for environment: {environment_str}"
+        )
 
     # Validate PAT format (basic check)
     if not pat.startswith("pat_") and len(pat) < 20:

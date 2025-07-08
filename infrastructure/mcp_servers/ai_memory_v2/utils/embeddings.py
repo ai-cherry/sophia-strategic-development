@@ -2,6 +2,7 @@
 
 Supports multiple embedding providers with fallback options.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum

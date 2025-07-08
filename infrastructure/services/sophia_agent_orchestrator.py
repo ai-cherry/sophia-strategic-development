@@ -3,6 +3,7 @@ Sophia AI Agent Orchestrator
 Implements Claude-Code-Development-Kit multi-agent workflow patterns
 with Portkey gateway and OpenRouter model selection
 """
+
 import asyncio
 import json
 import time
@@ -298,9 +299,9 @@ class SophiaAgentOrchestrator:
                 metadata={
                     "workflow_type": workflow_type,
                     "intent": intent_result,
-                    "execution_mode": "parallel"
-                    if parallel_execution
-                    else "sequential",
+                    "execution_mode": (
+                        "parallel" if parallel_execution else "sequential"
+                    ),
                 },
                 execution_time=execution_time,
                 agent_chain=agent_chain,

@@ -47,7 +47,8 @@
     "sophia_infrastructure": 9011,
     "sophia_intelligence_unified": 9037,
     "ui_ux_agent": 9002,
-    "v0dev": 9040
+    "v0dev": 9040,
+    "lambda_labs_serverless": 9025
   },
   "ai_memory_v2": 9002,
   "asana_v2": 9015,

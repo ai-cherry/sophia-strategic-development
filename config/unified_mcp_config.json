@@ -300,6 +300,34 @@
         "health_check_interval": 30,
         "log_level": "INFO"
       }
+    },
+    "lambda_labs_serverless": {
+      "command": "python3",
+      "args": [
+        "mcp-servers/lambda_labs_serverless/server.py"
+      ],
+      "env": {
+        "ENVIRONMENT": "prod",
+        "PORT": "9025",
+        "LAMBDA_LABS_API_KEY": "${LAMBDA_LABS_API_KEY}"
+      },
+      "port": 9025,
+      "cwd": ".",
+      "capabilities": [
+        "serverless_inference",
+        "cost_monitoring"
+      ],
+      "health_endpoint": "/health",
+      "performance": {
+        "max_concurrent_requests": 20,
+        "request_timeout_seconds": 30
+      },
+      "monitoring": {
+        "enable_metrics": true,
+        "metrics_port": 10025,
+        "health_check_interval": 30,
+        "log_level": "INFO"
+      }
     }
   },
   "orchestration": {
