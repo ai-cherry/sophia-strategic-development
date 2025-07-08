@@ -56,7 +56,7 @@ Next phase includes 5 servers:
   - Port allocation management
   - Comprehensive reporting
   - Skip-tests flag for faster iteration
-  
+
 - ✅ **Validation Script**: `validate_migration_safety.py`
   - Git status checks (ignoring external submodules)
   - Dependency validation
@@ -100,25 +100,25 @@ python scripts/migration/mcp_v2_migration_orchestrator.py --phase phase_2 --skip
 ```
 
 ### Manual Tasks Required for Each Server
-1. **Business Logic Migration**: 
+1. **Business Logic Migration**:
    - Extract core functionality from V1 servers
    - Update imports to use V2 base classes
    - Implement StandardizedMCPServer interface
-   
-2. **Test Creation**: 
+
+2. **Test Creation**:
    - Write V2+ compliant tests (80%+ coverage)
    - Include unit and integration tests
-   
+
 3. **Configuration Updates**:
    - Update server.py with actual business logic
    - Configure proper port and service names
    - Add required dependencies to requirements.txt
-   
-4. **Docker Updates**: 
+
+4. **Docker Updates**:
    - Create V2 Dockerfiles with UV and multi-stage builds
    - Update docker-compose.yml for Lambda Labs deployment
-   
-5. **CI/CD Integration**: 
+
+5. **CI/CD Integration**:
    - Update GitHub workflows for V2 servers
    - Add to deployment pipelines
 
@@ -176,4 +176,4 @@ sophia-main/
 
 ---
 
-*Status as of: January 8, 2025, 01:08 UTC* 
+*Status as of: January 8, 2025, 01:08 UTC*

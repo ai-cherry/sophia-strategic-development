@@ -40,17 +40,17 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$LAMBDA_LABS_IP" << 'EOF'
     # Pull latest images
     docker pull scoobyjava15/sophia-ai:latest
     docker pull scoobyjava15/sophia-frontend:latest
-    
+
     # Stop existing containers
     docker-compose down || true
-    
+
     # Start new containers
     docker-compose up -d
-    
+
     # Check status
     sleep 10
     docker ps
-    
+
     # Test backend health
     curl -s http://localhost:8000/health | python3 -m json.tool || echo "Backend not ready yet"
 EOF
@@ -59,4 +59,4 @@ echo "✅ Deployment complete!"
 echo "🌐 Access your application at:"
 echo "   Frontend: http://$LAMBDA_LABS_IP"
 echo "   Backend API: http://$LAMBDA_LABS_IP:8000"
-echo "   API Docs: http://$LAMBDA_LABS_IP:8000/docs" 
+echo "   API Docs: http://$LAMBDA_LABS_IP:8000/docs"

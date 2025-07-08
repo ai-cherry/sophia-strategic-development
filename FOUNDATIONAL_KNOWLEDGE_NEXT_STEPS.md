@@ -128,10 +128,10 @@ Process:
 def correlate_employees():
     # Match by email first
     matches = match_by_email()
-    
+
     # Then fuzzy name matching
     fuzzy = match_by_name_similarity()
-    
+
     # Review ambiguous cases
     return prepare_review_list(matches, fuzzy)
 ```
@@ -201,4 +201,4 @@ def correlate_employees():
 
 This approach ensures we build exactly what you need, not what we think you might need!
 
-**Ready to begin? Start with exporting those sample files!** 📊 
+**Ready to begin? Start with exporting those sample files!** 📊

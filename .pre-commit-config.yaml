@@ -59,14 +59,14 @@ repos:
       #   language: python
       #   types: [text]
       #   exclude: .*/(test_.*|.*_test)\.py
-      
+
       # - id: remind-about-one-time-script-deletion
       #   name: Remind about one-time script deletion
       #   entry: python scripts/remind_about_one_time_script_deletion.py
       #   language: python
       #   pass_filenames: true
       #   files: ^scripts/.*\.py$
-      
+
       # Keep monorepo guard - it's important
       - id: monorepo-transition-guard
         name: Guard against monorepo transition violations

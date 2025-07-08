@@ -7,7 +7,7 @@ Replaces hardcoded credentials with ESC-managed secure configuration
 import logging
 from dataclasses import dataclass
 
-from core.config_manager import get_config_value
+from backend.core.auto_esc_config import get_config_value
 
 logger = logging.getLogger(__name__)
 

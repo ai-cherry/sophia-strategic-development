@@ -50,7 +50,7 @@ except ImportError:
     SNOWFLAKE_AVAILABLE = False
     logging.warning(
         "Snowflake connector not available. Install with: pip install snowflake-connector-python"
-    
+
 
 # OpenAI for LLM
 try:
@@ -132,7 +132,7 @@ class SnowflakeAdminCallbackHandler(BaseCallbackHandler):
                 "log": action.log,
                 "timestamp": datetime.now().isoformat(),
             }
-        
+
 
         # Extract SQL from tool input if it's a query
         if action.tool == "sql_db_query" and isinstance(action.tool_input, str):
@@ -205,7 +205,7 @@ class SnowflakeAdminAgent:
         if not SNOWFLAKE_AVAILABLE:
             raise ImportError(
                 "Snowflake connector is required for Snowflake Admin Agent"
-            
+
 
         try:
             # Initialize LLM for agent
@@ -233,7 +233,7 @@ class SnowflakeAdminAgent:
                     temperature=0,
                     openai_api_key=openai_key,
                     max_tokens=1000,
-                
+
                 logger.info("✅ Initialized ChatOpenAI for Snowflake Admin Agent")
             else:
                 raise ValueError("OpenAI API key not available")
@@ -269,7 +269,7 @@ class SnowflakeAdminAgent:
             else:
                 raise ValueError(
                     f"No authentication method available for {environment.value}"
-                
+
 
             # Create Snowflake connection
             connection_params = {
@@ -288,13 +288,13 @@ class SnowflakeAdminAgent:
             # Create SQLDatabase for LangChain
             connection_string = self._build_connection_string(
                 connection_params, environment
-            
+
             sql_db = SQLDatabase.from_uri(
                 connection_string,
                 include_tables=[],  # Don't include business tables for security
                 custom_table_info={},  # We'll use INFORMATION_SCHEMA
                 max_string_length=1000,
-            
+
             self.sql_databases[environment] = sql_db
 
             # Create LangChain agent for this environment
@@ -308,7 +308,7 @@ class SnowflakeAdminAgent:
                 max_iterations=5,
                 max_execution_time=30,
                 early_stopping_method="generate",
-            
+
             self.agents[environment] = agent
 
             logger.info(f"✅ Initialized Snowflake connection for {environment.value}")
@@ -381,7 +381,7 @@ ENVIRONMENT-SPECIFIC RULES:
 Available tools allow you to execute SQL queries and inspect database objects.
 Always explain what you're going to do before executing commands.
 """
-        
+
 
     def _get_agent_suffix(self) -> str:
         """Get agent suffix with response format instructions"""
@@ -448,7 +448,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     success=False,
                     message=f"No agent available for environment: {environment.value}",
                     environment=environment,
-                
+
 
             # Create callback handler to capture SQL and actions
             callback_handler = SnowflakeAdminCallbackHandler()
@@ -459,7 +459,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     agent.run,
                     request.natural_language_request,
                     callbacks=[callback_handler],
-                
+
 
                 # Check if any dangerous SQL was executed
                 dangerous_sql = []
@@ -476,7 +476,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         confirmation_sql="; ".join(dangerous_sql),
                         environment=environment,
                         execution_time=asyncio.get_event_loop().time() - start_time,
-                    
+
 
                 # Successful execution
                 return AdminTaskResponse(
@@ -485,7 +485,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     sql_executed="; ".join(callback_handler.sql_queries),
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
-                
+
 
             except Exception as agent_error:
                 logger.error(f"Agent execution error: {agent_error}")
@@ -494,7 +494,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     message=f"Error executing admin task: {str(agent_error)}",
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
-                
+
 
         except Exception as e:
             logger.error(f"Snowflake admin task failed: {e}")
@@ -503,7 +503,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 message=f"Admin task failed: {str(e)}",
                 environment=request.target_environment,
                 execution_time=asyncio.get_event_loop().time() - start_time,
-            
+
 
     async def confirm_and_execute(
         self, request: AdminTaskRequest, confirmed_sql: str
@@ -529,7 +529,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     success=False,
                     message=f"No connection available for environment: {environment.value}",
                     environment=environment,
-                
+
 
             # Execute the confirmed SQL directly
             cursor = connection.cursor(DictCursor)
@@ -546,7 +546,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         message="No valid SQL statements to execute",
                         environment=request.target_environment,
                         execution_time=time.time() - start_time,
-                    
+
 
                 # Separate SELECT/SHOW statements from DDL/DML statements
                 query_statements = []
@@ -572,11 +572,11 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         await connection_manager.execute_batch_queries(batch_queries)
                         logger.info(
                             f"Executed {len(action_statements)} action statements in batch"
-                        
+
                     except Exception as batch_error:
                         logger.error(
                             f"Batch execution failed, falling back to individual: {batch_error}"
-                        
+
                         # Fallback to individual execution for action statements
                         for statement in action_statements:
                             await # TODO: Replace with repository method
@@ -590,13 +590,13 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         for statement in query_statements:
                             query_results = await connection_manager.execute_query(
                                 statement
-                            
+
                             results.extend(query_results)
                             logger.info(f"Executed query: {statement}")
                     except Exception as query_error:
                         logger.error(
                             f"Query batch failed, falling back to individual: {query_error}"
-                        
+
                         # Fallback to individual execution for queries
                         for statement in query_statements:
                             await # TODO: Replace with repository method
@@ -612,7 +612,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     results=results,
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
-                
+
 
             except Exception as sql_error:
                 logger.error(f"SQL execution error: {sql_error}")
@@ -622,7 +622,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                     sql_executed=confirmed_sql,
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
-                
+
             finally:
                 cursor.close()
 
@@ -633,7 +633,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 message=f"Confirmed execution failed: {str(e)}",
                 environment=request.target_environment,
                 execution_time=asyncio.get_event_loop().time() - start_time,
-            
+
 
     # @performance_monitor.track_performance  # Temporarily disabled
     async def get_environment_info(
@@ -661,7 +661,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
             await # TODO: Replace with repository method
     # repository.execute_query(
                 "SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE(), CURRENT_SCHEMA()"
-            
+
             session_info = await cursor.fetchone()
 
             if session_info:
@@ -673,7 +673,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         "current_database": session_info.get("CURRENT_DATABASE()"),
                         "current_schema": session_info.get("CURRENT_SCHEMA()"),
                     }
-                
+
 
             cursor.close()
             return info
@@ -750,13 +750,13 @@ async def execute_snowflake_admin_task(
         return AdminTaskResponse(
             success=False,
             message=f"Invalid environment: {target_environment}. Must be one of: dev, stg, prod",
-        
+
 
     request = AdminTaskRequest(
         natural_language_request=natural_language_request,
         target_environment=env,
         user_id=user_id,
-    
+
 
     return await snowflake_admin_agent.execute_admin_task(request)
 
@@ -785,14 +785,14 @@ async def confirm_snowflake_admin_task(
         return AdminTaskResponse(
             success=False,
             message=f"Invalid environment: {target_environment}. Must be one of: dev, stg, prod",
-        
+
 
     request = AdminTaskRequest(
         natural_language_request=natural_language_request,
         target_environment=env,
         user_id=user_id,
         requires_confirmation=True,
-    
+
 
     return await snowflake_admin_agent.confirm_and_execute(request, confirmed_sql)
 
@@ -806,7 +806,7 @@ if __name__ == "__main__":
         # Test basic functionality
         response = await execute_snowflake_admin_task(
             "Show me all schemas in the current database", target_environment="dev"
-        
+
 
         print(f"Response: {response}")
 
@@ -814,7 +814,7 @@ if __name__ == "__main__":
         response = await execute_snowflake_admin_task(
             "Create a new schema called MARKETING_STAGE if it doesn't exist",
             target_environment="dev",
-        
+
 
         print(f"Schema creation response: {response}")
 

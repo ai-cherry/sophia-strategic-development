@@ -692,7 +692,9 @@ class EnhancedQualityAnalyzer:
 
             # Context-aware recommendations
             if context and context.get("is_production"):
-                recommendations.append("⚠️ Production code requires immediate attention")
+                recommendations.append(
+                    "⚠️ Production code requires immediate attention"
+                )
 
         except Exception as e:
             logger.error(f"AI insights generation failed: {e}")

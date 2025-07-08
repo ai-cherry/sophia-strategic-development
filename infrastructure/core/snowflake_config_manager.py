@@ -104,20 +104,20 @@ class ConfigValue:
                         json.loads(self.value)
                         if isinstance(self.value, str)
                         else self.value
-                    
+
             elif self.data_type == ConfigDataType.ARRAY:
                 if target_type == list:
                     return (
                         json.loads(self.value)
                         if isinstance(self.value, str)
                         else self.value
-                    
+
 
             return target_type(self.value)
         except (ValueError, TypeError, json.JSONDecodeError) as e:
             logger.warning(
                 f"Failed to convert config value {self.name} to {target_type}: {e}"
-            
+
             return self.value
 
 
@@ -167,7 +167,7 @@ class FeatureFlag:
             # Use hash of user_id for consistent percentage-based rollout
             user_hash = int(
                 hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16
-            
+
             user_percentage = (user_hash % 100) + 1
             return user_percentage <= self.rollout_percentage
 
@@ -197,7 +197,7 @@ class FeatureFlag:
 
             user_hash = int(
                 hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16
-            
+
             variant_index = user_hash % len(variant_names)
             selected_variant = variant_names[variant_index]
 
@@ -267,7 +267,7 @@ class SnowflakeConfigManager:
                 database=self.database,
                 schema="CONFIG",
                 role=esc_config.get("snowflake_role", "ROLE_SOPHIA_AI_AGENT_SERVICE"),
-            
+
 
             self.initialized = True
             logger.info("✅ Snowflake Configuration Manager initialized")
@@ -354,7 +354,7 @@ class SnowflakeConfigManager:
                     component_name,
                     component_name,
                 ,
-            
+
 
             result = cursor.fetchone()
             cursor.close()
@@ -372,12 +372,12 @@ class SnowflakeConfigManager:
                     is_sensitive=result[4],
                     version=result[5],
                     updated_at=result[6],
-                
+
 
                 # Update cache
                 self._update_config_cache(
                     f"{setting_name}_{service_name}_{component_name}", config_value
-                
+
 
                 return config_value.get_typed_value(target_type)
 
@@ -390,8 +390,8 @@ class SnowflakeConfigManager:
                         target_type(default_value)
                         if default_value is not None
                         else None
-                    
-                
+
+
 
         except Exception as e:
             logger.error(f"Error getting configuration value {setting_name}: {e}")
@@ -399,7 +399,7 @@ class SnowflakeConfigManager:
                 default_value
                 if target_type is None
                 else target_type(default_value) if default_value is not None else None
-            
+
 
     async def evaluate_feature_flag(
         self,
@@ -434,7 +434,7 @@ class SnowflakeConfigManager:
                     # Log evaluation for analytics
                     await self._log_feature_flag_evaluation(
                         feature_flag, user_id, user_properties, result
-                    
+
 
                     return result
 
@@ -472,7 +472,7 @@ class SnowflakeConfigManager:
                     service_name,
                     service_name,
                 ,
-            
+
 
             result = cursor.fetchone()
             cursor.close()
@@ -492,19 +492,19 @@ class SnowflakeConfigManager:
                     experiment_variants=json.loads(result[7]) if result[7] else {},
                     start_date=result[8],
                     end_date=result[9],
-                
+
 
                 # Update cache
                 self._update_feature_flag_cache(
                     f"{flag_name}_{service_name}", feature_flag
-                
+
 
                 evaluation_result = feature_flag.evaluate(user_id, user_properties)
 
                 # Log evaluation
                 await self._log_feature_flag_evaluation(
                     feature_flag, user_id, user_properties, evaluation_result
-                
+
 
                 return evaluation_result
 
@@ -547,7 +547,7 @@ class SnowflakeConfigManager:
             query = """
             CALL UPDATE_CONFIG_SETTING(
                 %s, %s, %s, %s, %s, %s, %s, %s
-            
+
             """
 
             cursor = self.connection.cursor()
@@ -564,7 +564,7 @@ class SnowflakeConfigManager:
                     changed_by,
                     change_reason,
                 ,
-            
+
 
             result = cursor.fetchone()
             cursor.close()
@@ -574,7 +574,7 @@ class SnowflakeConfigManager:
 
             logger.info(
                 f"Updated configuration setting {setting_name}: {result[0] if result else 'Success'}"
-            
+
             return True
 
         except Exception as e:
@@ -649,7 +649,7 @@ class SnowflakeConfigManager:
                     is_sensitive=result[5],
                     version=result[6],
                     updated_at=result[7],
-                
+
                 config_values[result[0]] = config_value
 
             return config_values
@@ -695,7 +695,7 @@ class SnowflakeConfigManager:
             # TODO: Replace with repository method
     # repository.execute_query(
                 config_health_query, (self.environment, self.application_name)
-            
+
             config_result = cursor.fetchone()
 
             # Get feature flag health
@@ -754,7 +754,7 @@ class SnowflakeConfigManager:
                 data={key: config_value},
                 cached_at=datetime.now(),
                 ttl_seconds=self.cache_ttl,
-            
+
         else:
             self._config_cache.data[key] = config_value
 
@@ -765,7 +765,7 @@ class SnowflakeConfigManager:
                 data={key: feature_flag},
                 cached_at=datetime.now(),
                 ttl_seconds=self.cache_ttl,
-            
+
         else:
             self._feature_flag_cache.data[key] = feature_flag
 
@@ -791,7 +791,7 @@ class SnowflakeConfigManager:
             logger.debug(
                 f"Feature flag evaluation: {feature_flag.name} = {result} "
                 f"(user: {user_id}, type: {feature_flag.flag_type.value})"
-            
+
         except Exception as e:
             logger.warning(f"Failed to log feature flag evaluation: {e}")
 
@@ -822,7 +822,7 @@ async def get_config(
         service_name=service_name,
         default_value=default_value,
         target_type=target_type,
-    
+
 
 
 async def is_feature_enabled(
@@ -838,7 +838,7 @@ async def is_feature_enabled(
         user_id=user_id,
         service_name=service_name,
         user_properties=user_properties,
-    
+
     return bool(result)
 
 
@@ -853,7 +853,7 @@ def config_cached(ttl: int = 300):
             # Create cache key from function arguments
             cache_key = (
                 f"{func.__name__}_{hash(str(args) + str(sorted(kwargs.items())))}"
-            
+
 
             # Check cache
             if cache_key in cache:
@@ -879,34 +879,34 @@ async def example_usage():
     # Initialize configuration manager
     config_manager = SnowflakeConfigManager(
         environment="DEV", application_name="SOPHIA_AI"
-    
+
     await config_manager.initialize()
 
     try:
         # Get configuration values
         db_pool_size = await config_manager.get_config_value(
             "database.connection_pool_size", default_value=10, target_type=int
-        
+
 
         similarity_threshold = await config_manager.get_config_value(
             "ai_memory.similarity_threshold", default_value=0.7, target_type=float
-        
+
 
         # Evaluate feature flags
         enhanced_memory_enabled = await config_manager.evaluate_feature_flag(
             "enhanced_ai_memory", user_id="user_123"
-        
+
 
         experimental_features = await config_manager.evaluate_feature_flag(
             "experimental_langgraph",
             user_id="user_123",
             user_properties={"role": "developer", "groups": ["beta_testers"]},
-        
+
 
         # Get all configuration for a service
         ai_memory_config = await config_manager.get_all_config_values(
             category="AI_MEMORY", service_name="AI_MEMORY_MCP"
-        
+
 
         # Update configuration
         success = await config_manager.update_config_setting(
@@ -914,7 +914,7 @@ async def example_usage():
             2000,
             changed_by="admin",
             change_reason="Increased for load testing",
-        
+
 
         # Check system health
         health = await config_manager.get_system_health()

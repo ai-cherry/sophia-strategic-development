@@ -14,7 +14,7 @@
       "cwd": ".",
       "capabilities": [
         "memory_storage",
-        "context_recall", 
+        "context_recall",
         "ai_agent_authentication",
         "security_decision_tracking",
         "audit_trail_integration"

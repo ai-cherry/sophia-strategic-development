@@ -453,9 +453,9 @@ class InfrastructureStateManager:
 
             # Add dependency information
             for platform in all_states:
-                export_data["dependencies"][platform] = (
-                    await self.get_platform_dependencies(platform)
-                )
+                export_data["dependencies"][
+                    platform
+                ] = await self.get_platform_dependencies(platform)
 
             with open(output_file, "w") as f:
                 json.dump(export_data, f, indent=2, default=str)

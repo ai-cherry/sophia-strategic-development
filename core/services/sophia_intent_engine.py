@@ -4,19 +4,19 @@ Sophia Intent Engine - Core intent classification for natural language commands
 
 from __future__ import annotations
 
-from typing import Dict, List, Any, Optional, Tuple
+import logging
+import re
 from dataclasses import dataclass
 from enum import Enum
-import re
-import logging
+from typing import Any, Optional
 
-from infrastructure.services.unified_llm_service import (
-    get_unified_llm_service,
-    TaskType,
-)
 from domain.models.chat_models import ChatContext
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
+)
+from infrastructure.services.unified_llm_service import (
+    TaskType,
+    get_unified_llm_service,
 )
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class CodeModificationIntent:
     action: str  # modify, create, delete, refactor, fix
     target_file: Optional[str]
     description: str
-    constraints: Dict[str, Any]
+    constraints: dict[str, Any]
     requires_approval: bool
     confidence: float
 
@@ -47,7 +47,7 @@ class CodeModificationIntent:
 class InfrastructureIntent:
     action: str  # deploy, scale, configure, monitor
     target: str  # service, server, database
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     risk_level: str  # low, medium, high, critical
 
 
@@ -71,7 +71,7 @@ class SophiaIntentEngine:
 
     async def classify_intent(
         self, message: str, context: ChatContext
-    ) -> Tuple[IntentCategory, Any]:
+    ) -> tuple[IntentCategory, Any]:
         """
         Classify user intent with advanced pattern matching and AI
         """
@@ -307,7 +307,7 @@ class SophiaIntentEngine:
 
     async def _classify_with_ai(
         self, message: str, context: ChatContext
-    ) -> Tuple[IntentCategory, Dict[str, Any]]:
+    ) -> tuple[IntentCategory, dict[str, Any]]:
         """Use AI for complex intent classification"""
 
         prompt = f"""
@@ -357,7 +357,7 @@ class SophiaIntentEngine:
 
         return category, {"ai_classification": response_content}
 
-    def _load_code_patterns(self) -> Dict[str, List[str]]:
+    def _load_code_patterns(self) -> dict[str, list[str]]:
         """Load code modification patterns"""
         return {
             "python": [r"\.py$", r"python", r"django", r"flask", r"fastapi"],
@@ -365,7 +365,7 @@ class SophiaIntentEngine:
             "javascript": [r"\.js$", r"\.jsx$", r"javascript", r"node", r"express"],
         }
 
-    def _load_infrastructure_patterns(self) -> Dict[str, List[str]]:
+    def _load_infrastructure_patterns(self) -> dict[str, list[str]]:
         """Load infrastructure patterns"""
         return {
             "kubernetes": [r"k8s", r"kubernetes", r"kubectl", r"pod", r"deployment"],

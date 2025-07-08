@@ -6,12 +6,12 @@ Golden template for all V2+ MCP servers
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, generate_latest
+from pydantic import BaseModel, Field
 
 from infrastructure.mcp_servers.base import StandardizedMCPServer
 
@@ -44,14 +44,14 @@ class ExampleRequest(BaseModel):
     """Example request model"""
 
     query: str = Field(..., description="Query string")
-    options: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    options: Optional[dict[str, Any]] = Field(default_factory=dict)
 
 
 class ExampleResponse(BaseModel):
     """Example response model"""
 
     result: Any
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
     timestamp: float = Field(default_factory=time.time)
 
 
@@ -61,7 +61,7 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     uptime: float
-    checks: Dict[str, bool]
+    checks: dict[str, bool]
 
 
 # Server implementation
@@ -84,7 +84,7 @@ class TemplateServer(StandardizedMCPServer):
         logger.info(f"Shutting down {self.name}")
         # Close connections, save state, etc.
 
-    def get_health_status(self) -> Dict[str, Any]:
+    def get_health_status(self) -> dict[str, Any]:
         """Get detailed health status"""
         return {
             "database": self._check_database(),
@@ -183,7 +183,7 @@ async def example_endpoint(request: ExampleRequest):
 
 # MCP tool registration (if using MCP protocol)
 @server.tool("example_tool")
-async def example_tool(query: str, **kwargs) -> Dict[str, Any]:
+async def example_tool(query: str, **kwargs) -> dict[str, Any]:
     """Example MCP tool"""
     # Implement tool logic
     return {"result": f"Tool processed: {query}"}

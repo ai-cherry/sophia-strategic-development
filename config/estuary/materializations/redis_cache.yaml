@@ -13,7 +13,7 @@ materializations:
           tls:
             enabled: false
           max_connections: 100
-          
+
     bindings:
       # Gong enriched calls - 2 hour TTL
       - resource:
@@ -32,8 +32,8 @@ materializations:
         target:
           keyTemplate: "ef:gong:call:{call_id}"
           ttlSeconds: 7200  # 2 hours
-          
-      # Slack messages - 24 hour TTL  
+
+      # Slack messages - 24 hour TTL
       - resource:
           stream: sophia-ai/slack-messages-enriched
           syncMode: incremental
@@ -48,7 +48,7 @@ materializations:
         target:
           keyTemplate: "ef:slack:msg:{message_id}"
           ttlSeconds: 86400  # 24 hours
-          
+
       # GitHub events - 1 hour TTL
       - resource:
           stream: sophia-ai/github-events-enriched
@@ -63,7 +63,7 @@ materializations:
         target:
           keyTemplate: "ef:github:event:{event_id}"
           ttlSeconds: 3600  # 1 hour
-          
+
       # Executive metrics - 5 minute TTL
       - resource:
           stream: sophia-ai/executive-metrics
@@ -71,13 +71,13 @@ materializations:
         target:
           keyTemplate: "ef:metrics:executive"
           ttlSeconds: 300  # 5 minutes
-          
+
     # Performance configuration
     performance:
       maxConcurrentWrites: 50
       batchSize: 100
       flushIntervalMs: 1000
-      
+
     # Error handling
     errorHandling:
       maxRetries: 3
@@ -86,26 +86,26 @@ materializations:
         enabled: true
         topic: "sophia-ai/dlq-redis"
 
-# Monitoring configuration        
+# Monitoring configuration
 monitoring:
   metrics:
     - name: redis_materialization_lag_ms
       type: gauge
       description: "Lag between source and Redis in milliseconds"
-      
+
     - name: redis_write_errors_total
       type: counter
       description: "Total Redis write errors"
-      
+
     - name: redis_keys_written_total
       type: counter
       description: "Total keys written to Redis"
-      
+
   alerts:
     - name: "High Redis Lag"
       condition: "redis_materialization_lag_ms > 5000"
       severity: warning
-      
+
     - name: "Redis Write Failures"
       condition: "rate(redis_write_errors_total[5m]) > 0.01"
       severity: critical
@@ -121,4 +121,4 @@ metadata:
   tags:
     - cache
     - real-time
-    - performance 
+    - performance

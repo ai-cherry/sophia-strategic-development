@@ -9,29 +9,29 @@ CREATE TABLE IF NOT EXISTS MEMORY_RECORDS (
     -- Primary fields
     id VARCHAR(32) PRIMARY KEY,
     type VARCHAR(20) NOT NULL, -- chat, event, insight, context, decision
-    
+
     -- Content and metadata
     content VARIANT NOT NULL,
     metadata VARIANT,
-    
+
     -- Timestamps
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
     updated_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
     deleted_at TIMESTAMP_NTZ, -- For soft deletes
     expires_at TIMESTAMP_NTZ, -- For TTL support
-    
+
     -- User context
     user_id VARCHAR(100),
     session_id VARCHAR(100),
-    
+
     -- Source tracking
     source_system VARCHAR(50), -- gong, slack, github, linear, etc.
     source_id VARCHAR(100), -- Original ID from source system
-    
+
     -- Search and analytics
     search_text VARCHAR(16777216), -- Concatenated searchable text
     tags ARRAY, -- Array of tags for filtering
-    
+
     -- Indexes for performance
     INDEX idx_type (type),
     INDEX idx_created (created_at),
@@ -45,20 +45,20 @@ CREATE TABLE IF NOT EXISTS MEMORY_RECORDS (
 CREATE TABLE IF NOT EXISTS MEMORY_STATS (
     id VARCHAR(32) PRIMARY KEY DEFAULT UUID_STRING(),
     timestamp TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    
+
     -- Cache statistics
     cache_hits NUMBER DEFAULT 0,
     cache_misses NUMBER DEFAULT 0,
     cache_writes NUMBER DEFAULT 0,
     hit_rate FLOAT,
-    
+
     -- Memory type breakdown
     chat_count NUMBER DEFAULT 0,
     event_count NUMBER DEFAULT 0,
     insight_count NUMBER DEFAULT 0,
     context_count NUMBER DEFAULT 0,
     decision_count NUMBER DEFAULT 0,
-    
+
     -- Performance metrics
     avg_retrieval_time_ms FLOAT,
     avg_store_time_ms FLOAT,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS MEMORY_EMBEDDINGS (
     embedding VECTOR(FLOAT, 768),
     model_version VARCHAR(50),
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    
+
     FOREIGN KEY (memory_id) REFERENCES MEMORY_RECORDS(id)
 );
 
@@ -79,24 +79,24 @@ CREATE TABLE IF NOT EXISTS MEMORY_EMBEDDINGS (
 CREATE TABLE IF NOT EXISTS MEMORY_AUDIT_LOG (
     id VARCHAR(32) PRIMARY KEY DEFAULT UUID_STRING(),
     timestamp TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    
+
     -- Action details
     action VARCHAR(20) NOT NULL, -- create, read, update, delete
     memory_id VARCHAR(32),
     memory_type VARCHAR(20),
-    
+
     -- User context
     user_id VARCHAR(100),
     user_role VARCHAR(20),
-    
+
     -- Request details
     ip_address VARCHAR(45),
     user_agent VARCHAR(500),
-    
+
     -- Result
     success BOOLEAN DEFAULT TRUE,
     error_message VARCHAR(1000),
-    
+
     INDEX idx_timestamp (timestamp),
     INDEX idx_memory (memory_id),
     INDEX idx_user (user_id)
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS MEMORY_AUDIT_LOG (
 
 -- Views for analytics
 CREATE OR REPLACE VIEW MEMORY_SUMMARY AS
-SELECT 
+SELECT
     type,
     COUNT(*) as count,
     COUNT(DISTINCT user_id) as unique_users,
@@ -117,7 +117,7 @@ WHERE deleted_at IS NULL
 GROUP BY type;
 
 CREATE OR REPLACE VIEW RECENT_INSIGHTS AS
-SELECT 
+SELECT
     id,
     content:insight::STRING as insight,
     content:confidence::FLOAT as confidence,
@@ -132,7 +132,7 @@ WHERE type = 'insight'
 ORDER BY created_at DESC;
 
 CREATE OR REPLACE VIEW USER_ACTIVITY AS
-SELECT 
+SELECT
     user_id,
     COUNT(*) as total_memories,
     COUNT(DISTINCT type) as memory_types_used,
@@ -158,7 +158,7 @@ BEGIN
     SET deleted_at = CURRENT_TIMESTAMP()
     WHERE expires_at < CURRENT_TIMESTAMP()
         AND deleted_at IS NULL;
-    
+
     RETURN 'Cleanup completed: ' || SQLROWCOUNT || ' memories expired';
 END;
 $$;
@@ -177,7 +177,7 @@ BEGIN
         decision_count,
         total_operations
     )
-    SELECT 
+    SELECT
         SUM(CASE WHEN type = 'chat' THEN 1 ELSE 0 END),
         SUM(CASE WHEN type = 'event' THEN 1 ELSE 0 END),
         SUM(CASE WHEN type = 'insight' THEN 1 ELSE 0 END),
@@ -186,7 +186,7 @@ BEGIN
         COUNT(*)
     FROM MEMORY_RECORDS
     WHERE deleted_at IS NULL;
-    
+
     RETURN 'Stats generated successfully';
 END;
 $$;
@@ -211,4 +211,4 @@ ALTER TASK MEMORY_STATS_TASK RESUME;
 -- Grant permissions
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA AI_MEMORY TO ROLE SOPHIA_AI_ROLE;
 GRANT EXECUTE TASK ON ALL TASKS IN SCHEMA AI_MEMORY TO ROLE SOPHIA_AI_ROLE;
-GRANT USAGE ON ALL PROCEDURES IN SCHEMA AI_MEMORY TO ROLE SOPHIA_AI_ROLE; 
+GRANT USAGE ON ALL PROCEDURES IN SCHEMA AI_MEMORY TO ROLE SOPHIA_AI_ROLE;

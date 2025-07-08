@@ -9,7 +9,7 @@ Estuary Flow will replace Airbyte as our primary data ingestion layer, providing
 ```mermaid
 flowchart TB
     subgraph "Data Sources"
-        GV2[Gong V2 MCP<br/>Port 9009] 
+        GV2[Gong V2 MCP<br/>Port 9009]
         SV2[Slack V2 MCP<br/>Port 9007]
         HUB[HubSpot API]
         GH2[GitHub V2 MCP<br/>Port 9006]
@@ -39,15 +39,15 @@ flowchart TB
     HUB --> EC
     GH2 --> EC
     SNF --> EC
-    
+
     EC --> ED
     ED --> EM
-    
+
     EM --> PG
     EM --> REDIS
     EM --> SNOW
     EM --> VEC
-    
+
     PG --> AI2
     REDIS --> AI2
     VEC --> AI2
@@ -118,7 +118,7 @@ collections:
         sentiment: { type: number }
         topics: { type: array }
     key: [/call_id]
-    
+
     capture:
       endpoint:
         connector:
@@ -140,7 +140,7 @@ SELECT
   sentiment,
   topics,
   -- Enrichments
-  CASE 
+  CASE
     WHEN sentiment < 0.3 THEN 'at_risk'
     WHEN sentiment > 0.7 THEN 'positive'
     ELSE 'neutral'
@@ -165,7 +165,7 @@ materializations:
         config:
           address: "146.235.200.1:6379"
           password: ${REDIS_PASSWORD}
-          
+
     bindings:
       - resource:
           stream: sophia-ai/gong-calls-enriched
@@ -189,24 +189,24 @@ Each V2 MCP server exposes an Estuary webhook endpoint:
 @router.post("/estuary/webhook")
 async def handle_estuary_event(event: EstuaryEvent):
     """Process real-time Estuary Flow events"""
-    
+
     # Validate event schema
     if not validate_schema(event, GONG_SCHEMA):
         raise HTTPException(400, "Invalid schema")
-    
+
     # Process based on event type
     if event.type == "call_completed":
         await process_call_transcript(event.data)
     elif event.type == "call_updated":
         await update_call_metadata(event.data)
-    
+
     # Update Redis cache
     await redis_client.setex(
         f"gong:call:{event.data['call_id']}",
         ttl=7200,
         value=json.dumps(event.data)
     )
-    
+
     return {"status": "processed", "event_id": event.id}
 ```
 
@@ -321,4 +321,4 @@ values:
 
 ---
 
-**Ready to implement Estuary Flow integration with our V2 MCP architecture!** 🌊 
+**Ready to implement Estuary Flow integration with our V2 MCP architecture!** 🌊

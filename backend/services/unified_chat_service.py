@@ -5,6 +5,7 @@ Provides dynamic, contextualized access to the entire ecosystem
 
 import asyncio
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
@@ -28,6 +29,16 @@ from backend.services.notion_service import NotionService
 from backend.services.slack_service import SlackService
 from backend.services.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.web_search_service import WebSearchService
+from infrastructure.services.llm_router import TaskComplexity
+
+# NEW: Unified AI Orchestrator
+from infrastructure.services.unified_ai_orchestrator import (
+    AIProvider,
+    AIRequest,
+    UnifiedAIOrchestrator,
+)
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -80,6 +91,9 @@ class UnifiedChatService:
 
         # Lambda Labs integration
         self.lambda_labs = LambdaLabsService()
+
+        # NEW: Unified AI Orchestrator
+        self.ai_orchestrator = UnifiedAIOrchestrator()
 
         # Data source services
         self.knowledge = KnowledgeService()
@@ -228,11 +242,8 @@ class UnifiedChatService:
 
         # 5. Synthesize response using the most appropriate AI model
         response = await self._synthesize_response(
-            query=query,
             query_context=query_context,
             source_data=source_data,
-            memory_context=memory_context,
-            web_context=web_context,
             user_id=user_id,
         )
 
@@ -276,11 +287,8 @@ class UnifiedChatService:
     async def _synthesize_node(self, state: OrchestrationState) -> OrchestrationState:
         """Synthesize final response"""
         response = await self._synthesize_response(
-            query=state.query,
             query_context=state.context,
             source_data=state.source_data,
-            memory_context=state.memory_context,
-            web_context=state.web_context,
             user_id="orchestration",
         )
 
@@ -512,49 +520,61 @@ class UnifiedChatService:
 
     async def _synthesize_response(
         self,
-        query: str,
         query_context: QueryContext,
         source_data: dict[str, Any],
-        memory_context: dict[str, Any],
-        web_context: Optional[dict[str, Any]],
         user_id: str,
     ) -> dict[str, Any]:
         """
-        Synthesize a comprehensive response using all gathered data
+        Synthesize response from multiple data sources using unified AI
         """
-        # Prepare context for LLM
-        llm_context = {
-            "query": query,
-            "intent": query_context.intent,
-            "entities": query_context.entities,
-            "user_role": query_context.user_role,
-            "source_data": source_data,
-            "memory_insights": memory_context,
-            "web_context": web_context,
-            "session_history": query_context.session_history[-5:],  # Last 5 messages
-        }
+        # Build synthesis prompt
+        synthesis_prompt = self._build_synthesis_prompt(query_context, source_data)
 
-        # Select the best model based on query complexity
-        model = self.llm_router.select_model(
-            task_type="synthesis",
-            complexity=self._assess_complexity(llm_context),
-            user_tier=query_context.user_role,
+        # NEW: Use unified AI orchestrator for intelligent routing
+        ai_request = AIRequest(
+            prompt=synthesis_prompt,
+            provider=AIProvider.AUTO,  # Let orchestrator decide
+            use_case="reasoning"
+            if query_context.intent == "complex_analysis"
+            else "general",
+            complexity=TaskComplexity.COMPLEX
+            if len(source_data) > 3
+            else TaskComplexity.MODERATE,
+            cost_priority="balanced",
+            context={
+                "intent": query_context.intent,
+                "sources": list(source_data.keys()),
+                "user_id": user_id,
+            },
         )
 
-        # Generate response
-        llm_response = await model.generate(
-            system_prompt=self._get_synthesis_prompt(query_context),
-            user_prompt=json.dumps(llm_context, indent=2),
-            temperature=0.7,
-            max_tokens=2000,
-        )
+        # Get AI response
+        ai_response = await self.ai_orchestrator.process_request(ai_request)
 
-        # Extract citations from all sources
-        citations = self._extract_citations(source_data, memory_context, web_context)
+        if not ai_response.success:
+            # Fallback to Lambda Labs directly
+            logger.warning(
+                f"Orchestrator failed, using Lambda Labs fallback: {ai_response.error}"
+            )
+            llm_response = await self.lambda_labs.simple_inference(
+                synthesis_prompt, complexity="balanced"
+            )
+            model_info = {"name": "lambda_labs_fallback", "provider": "lambda_labs"}
+        else:
+            llm_response = ai_response.response
+            model_info = {
+                "name": ai_response.model,
+                "provider": ai_response.provider,
+                "duration": ai_response.duration,
+                "cost": ai_response.cost_estimate,
+            }
 
-        # Calculate confidence based on data availability and quality
-        confidence = self._calculate_response_confidence(
-            source_data, memory_context, web_context, query_context
+        # Extract citations
+        citations = self._extract_citations(source_data)
+
+        # Calculate confidence
+        confidence = self._calculate_confidence(
+            query_context, source_data, llm_response
         )
 
         return {
@@ -563,7 +583,8 @@ class UnifiedChatService:
             "confidence": confidence,
             "intent": query_context.intent,
             "data_sources_used": list(source_data.keys()),
-            "model_used": model.name,
+            "model_used": model_info["name"],
+            "ai_provider": model_info.get("provider", "unknown"),
             "metadata": {
                 "processing_time": datetime.utcnow().isoformat(),
                 "user_id": user_id,
@@ -572,6 +593,10 @@ class UnifiedChatService:
                     if query_context.session_history
                     else None
                 ),
+                "ai_metrics": {
+                    "duration": model_info.get("duration", 0),
+                    "cost_estimate": model_info.get("cost", 0),
+                },
             },
         }
 
@@ -988,64 +1013,28 @@ Synthesize the provided data into a clear, insightful response."""
             "fallback_to_serverless": True,
         }
 
-    async def natural_language_infrastructure_control(
-        self, command: str
+    async def natural_language_control(
+        self, command: str, user_id: str
     ) -> dict[str, Any]:
-        """Process natural language infrastructure control commands"""
-
-        command_lower = command.lower()
-
-        if "lambda" in command_lower:
-            if "optimize" in command_lower or "reduce cost" in command_lower:
-                return await self._optimize_lambda_infrastructure(command)
-            elif "analyze" in command_lower or "usage" in command_lower:
-                return await self._analyze_lambda_usage(command)
-            elif "deploy" in command_lower or "setup" in command_lower:
-                return await self._deploy_lambda_infrastructure(command)
-
-        return {
-            "response": "Infrastructure command not recognized",
-            "success": False,
-            "available_commands": [
-                "optimize lambda costs",
-                "analyze lambda usage",
-                "deploy lambda infrastructure",
-            ],
-        }
-
-    async def _optimize_lambda_infrastructure(self, command: str) -> dict[str, Any]:
-        """Optimize Lambda Labs infrastructure based on natural language command"""
-
-        try:
-            # Get current usage analytics
-            analytics = await self.lambda_labs.get_usage_analytics()
-
-            # Generate optimization recommendations
-            optimizations = []
-
-            if (
-                analytics["current_usage"]["daily_cost"]
-                > analytics["cost_config"]["daily_budget"] * 0.8
-            ):
-                optimizations.append(
-                    "Consider using faster models for simple tasks to reduce costs"
-                )
-
-            if (
-                analytics["current_usage"]["monthly_cost"]
-                > analytics["cost_config"]["monthly_budget"] * 0.5
-            ):
-                optimizations.append("Implement batch processing for similar requests")
+        """
+        Process natural language infrastructure control commands
+        """
+        # Use orchestrator for optimization commands
+        if any(
+            kw in command.lower()
+            for kw in ["optimize", "reduce cost", "improve performance"]
+        ):
+            optimization_result = (
+                await self.ai_orchestrator.natural_language_optimization(command)
+            )
 
             return {
-                "response": f"Lambda infrastructure optimization analysis complete. Found {len(optimizations)} optimization opportunities.",
-                "optimizations": optimizations,
-                "current_usage": analytics["current_usage"],
-                "success": True,
+                "type": "infrastructure_optimization",
+                "command": command,
+                "result": optimization_result,
+                "user_id": user_id,
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
-        except Exception as e:
-            return {
-                "response": f"Infrastructure optimization failed: {e!s}",
-                "success": False,
-            }
+        # Regular query processing
+        return await self.process_query(command, user_id)

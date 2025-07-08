@@ -101,9 +101,9 @@ echo "📦 Deploying Collections..."
 deploy_collection() {
     local collection=$1
     local file=$2
-    
+
     echo -n "Deploying $collection... "
-    
+
     if flowctl catalog publish \
         --source "$CONFIG_DIR/$file" \
         --collection "$ESTUARY_ORG/$collection" \
@@ -135,9 +135,9 @@ echo "💾 Deploying Materializations..."
 deploy_materialization() {
     local name=$1
     local file=$2
-    
+
     echo -n "Deploying $name materialization... "
-    
+
     if flowctl catalog publish \
         --source "$CONFIG_DIR/$file" \
         --materialization "$ESTUARY_ORG/$name" \
@@ -161,9 +161,9 @@ echo "▶️  Starting Flows..."
 start_flow() {
     local flow=$1
     local type=$2
-    
+
     echo -n "Starting $flow... "
-    
+
     if flowctl flows activate \
         --$type "$ESTUARY_ORG/$flow" \
         2>/dev/null; then
@@ -201,9 +201,9 @@ configure_webhook() {
     local server=$1
     local port=$2
     local webhook_url="https://api.estuary.dev/webhooks/$ESTUARY_ORG/$server"
-    
+
     echo -n "Configuring $server webhook... "
-    
+
     # Call MCP server to register Estuary webhook
     if curl -s -X POST \
         "http://146.235.200.1:$port/admin/configure-webhook" \
@@ -252,4 +252,4 @@ echo "  3. Test webhooks: curl -X POST http://146.235.200.1:9009/test/webhook"
 echo ""
 echo "📚 Documentation: docs/05-integrations/ESTUARY_FLOW_GUIDE.md"
 echo ""
-echo "⚠️  Note: Ensure all required secrets are configured in Pulumi ESC" 
+echo "⚠️  Note: Ensure all required secrets are configured in Pulumi ESC"

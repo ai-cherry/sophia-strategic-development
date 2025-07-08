@@ -63,11 +63,11 @@ CREATE TABLE IF NOT EXISTS EMPLOYEES (
     DEPARTMENT VARCHAR(255),
     MANAGER_ID VARCHAR(255),
     STATUS VARCHAR(50) DEFAULT 'active',
-    
+
     -- External IDs (for future integration)
     SLACK_USER_ID VARCHAR(255),
     GONG_USER_ID VARCHAR(255),
-    
+
     -- Metadata
     CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -80,14 +80,14 @@ CREATE TABLE IF NOT EXISTS CUSTOMERS (
     INDUSTRY VARCHAR(255),
     STATUS VARCHAR(50) DEFAULT 'active',
     TIER VARCHAR(50),
-    
+
     -- Key relationship
     SUCCESS_MANAGER_ID VARCHAR(255),
-    
+
     -- External IDs
     HUBSPOT_COMPANY_ID VARCHAR(255),
     SALESFORCE_ACCOUNT_ID VARCHAR(255),
-    
+
     -- Metadata
     CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -99,10 +99,10 @@ CREATE TABLE IF NOT EXISTS PRODUCTS (
     PRODUCT_NAME VARCHAR(500) NOT NULL,
     PRODUCT_CATEGORY VARCHAR(255),
     STATUS VARCHAR(50) DEFAULT 'active',
-    
+
     -- Key relationship
     PRODUCT_MANAGER_ID VARCHAR(255),
-    
+
     -- Metadata
     CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS COMPETITORS (
     COMPANY_NAME VARCHAR(500) NOT NULL,
     INDUSTRY VARCHAR(255),
     THREAT_LEVEL VARCHAR(50),
-    
+
     -- Metadata
     CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS COMPETITORS (
 
 ```sql
 CREATE OR REPLACE VIEW VW_KNOWLEDGE_SEARCH AS
-SELECT 
+SELECT
     'EMPLOYEE' AS TYPE,
     EMPLOYEE_ID AS ID,
     CONCAT(FIRST_NAME, ' ', LAST_NAME) AS NAME,
@@ -136,7 +136,7 @@ WHERE STATUS = 'active'
 
 UNION ALL
 
-SELECT 
+SELECT
     'CUSTOMER' AS TYPE,
     CUSTOMER_ID AS ID,
     COMPANY_NAME AS NAME,
@@ -147,7 +147,7 @@ WHERE STATUS = 'active'
 
 UNION ALL
 
-SELECT 
+SELECT
     'PRODUCT' AS TYPE,
     PRODUCT_ID AS ID,
     PRODUCT_NAME AS NAME,
@@ -157,7 +157,7 @@ FROM PRODUCTS
 
 UNION ALL
 
-SELECT 
+SELECT
     'COMPETITOR' AS TYPE,
     COMPETITOR_ID AS ID,
     COMPANY_NAME AS NAME,
@@ -256,13 +256,13 @@ async def store_knowledge_memory(
    # Simple CSV importer
    def import_employees_csv(file_path):
        df = pd.read_csv(file_path)
-       
+
        # Validate required fields
        required = ['email', 'first_name', 'last_name']
        missing = [col for col in required if col not in df.columns]
        if missing:
            raise ValueError(f"Missing columns: {missing}")
-       
+
        # Import with basic validation
        for _, row in df.iterrows():
            create_employee(
@@ -350,4 +350,4 @@ async def store_knowledge_memory(
 - Build features users request
 - Iterate based on feedback
 
-This approach will have you up and running with real, useful data in 3 weeks instead of spending 3 months building features you might not need! 
+This approach will have you up and running with real, useful data in 3 weeks instead of spending 3 months building features you might not need!

@@ -304,7 +304,9 @@ class CallAnalysisAgent:
                     "sentiment_trend": (
                         "positive"
                         if avg_sentiment > 0.3
-                        else "negative" if avg_sentiment < -0.3 else "neutral"
+                        else "negative"
+                        if avg_sentiment < -0.3
+                        else "neutral"
                     ),
                     "talk_ratio_assessment": (
                         "optimal"

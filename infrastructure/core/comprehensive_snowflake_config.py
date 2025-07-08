@@ -188,7 +188,7 @@ class ComprehensiveSnowflakeManager:
                 database=self.config.database,
                 warehouse=self.config.warehouse,
                 schema=self.config.default_schema,
-            
+
 
             logger.info("✅ Connected to comprehensive Snowflake deployment")
             return True
@@ -278,7 +278,7 @@ class ComprehensiveSnowflakeManager:
             chunk_index,
             total_chunks,
             created_by,
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -307,7 +307,7 @@ class ComprehensiveSnowflakeManager:
             json.dumps(embedding_vector),
             chunk_text,
             chunk_index,
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -353,7 +353,7 @@ class ComprehensiveSnowflakeManager:
             json.dumps(tags or []),
             json.dumps(metadata or {}),
             expires_at,
-        
+
 
         await self.execute_query(query, params, SchemaType.AI_MEMORY)
         return True
@@ -392,7 +392,7 @@ class ComprehensiveSnowflakeManager:
         # Add text search
         base_query += (
             " AND (UPPER(k.TITLE) LIKE UPPER(?) OR UPPER(k.CONTENT) LIKE UPPER(?))"
-        
+
         search_term = f"%{query}%"
         params.extend([search_term, search_term])
 
@@ -406,7 +406,7 @@ class ComprehensiveSnowflakeManager:
 
         results = await self.execute_query(
             base_query, tuple(params), SchemaType.UNIVERSAL_CHAT
-        
+
 
         # Add embedding similarity if requested
         if include_embeddings and results:
@@ -444,7 +444,7 @@ class ComprehensiveSnowflakeManager:
             metric_unit,
             json.dumps(dimensions or {}),
             aggregation_period,
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -506,7 +506,7 @@ class ComprehensiveSnowflakeManager:
             model_used,
             confidence_score,
             json.dumps(metadata or {}),
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
 
@@ -571,7 +571,7 @@ class ComprehensiveSnowflakeManager:
                     "count": len(slow_queries),
                     "details": slow_queries[:5],  # Top 5 slowest
                 }
-            
+
         except Exception as e:
             logger.warning(f"Could not analyze query performance: {e}")
 

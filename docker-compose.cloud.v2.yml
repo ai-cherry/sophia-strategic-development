@@ -310,4 +310,4 @@ secrets:
     name: sophia_asana_access_token
   perplexity_api_key:
     external: true
-    name: sophia_perplexity_api_key 
+    name: sophia_perplexity_api_key

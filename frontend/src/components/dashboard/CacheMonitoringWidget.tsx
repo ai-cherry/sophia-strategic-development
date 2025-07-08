@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Activity, 
-  Zap, 
-  Database, 
+import {
+  Activity,
+  Zap,
+  Database,
   TrendingUp,
   AlertCircle,
-  CheckCircle 
+  CheckCircle
 } from 'lucide-react';
 
 interface CacheStats {
@@ -86,7 +86,7 @@ export const CacheMonitoringWidget: React.FC = () => {
           <CardTitle className="text-lg font-semibold">
             AI Cache Performance
           </CardTitle>
-          <Badge 
+          <Badge
             variant={isHealthy ? "success" : "warning"}
             className="flex items-center gap-1"
           >
@@ -157,7 +157,7 @@ export const CacheMonitoringWidget: React.FC = () => {
             <div className="text-xs">
               <p className="font-medium text-blue-900">Performance Impact</p>
               <p className="text-blue-700 mt-1">
-                {hitRatePercent > 70 
+                {hitRatePercent > 70
                   ? `Excellent! Saving ~${((stats.hits * 150) / 1000).toFixed(1)}s in query time`
                   : hitRatePercent > 50
                   ? `Good performance. Consider pre-warming more queries`
@@ -170,4 +170,4 @@ export const CacheMonitoringWidget: React.FC = () => {
       </CardContent>
     </Card>
   );
-}; 
+};
