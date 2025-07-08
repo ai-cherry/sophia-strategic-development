@@ -42,7 +42,7 @@ jobs:
   # 1. Quality Gate - Always run
   quality-gate:
     name: Quality Gate
-    uses: ./.github/workflows/reusable/quality-gate.yml
+    uses: ./.github/workflows/reusable-quality-gate.yml
 
   # 2. Build and Push Images
   build:
@@ -50,7 +50,7 @@ jobs:
     needs: quality-gate
     # Continue even if quality gate has warnings
     if: always() && needs.quality-gate.result != 'failure'
-    uses: ./.github/workflows/reusable/build-and-push.yml
+    uses: ./.github/workflows/reusable-build-and-push.yml
     with:
       backend: ${{ github.event.inputs.deploy_backend != 'false' }}
       mcp_servers: ${{ github.event.inputs.deploy_mcp != 'false' }}
@@ -103,7 +103,7 @@ jobs:
       always() &&
       needs.build.result == 'success' &&
       (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
-    uses: ./.github/workflows/reusable/swarm-deploy.yml
+    uses: ./.github/workflows/reusable-swarm-deploy.yml
     with:
       compose_file: docker-compose.unified.yml
       environment: ${{ env.ENVIRONMENT }}
@@ -119,7 +119,7 @@ jobs:
       always() &&
       needs.deploy-stack.result == 'success' &&
       github.event.inputs.deploy_frontend != 'false'
-    uses: ./.github/workflows/reusable/vercel-deploy.yml
+    uses: ./.github/workflows/reusable-vercel-deploy.yml
     with:
       environment: ${{ env.ENVIRONMENT }}
       project_name: sophia-ai-unified-dashboard
