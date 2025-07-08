@@ -19,7 +19,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-    
+
   # JavaScript/npm dependencies
   - package-ecosystem: "npm"
     directory: "/frontend"
@@ -34,7 +34,7 @@ updates:
       - "security"
     reviewers:
       - "lynnmusil"
-    
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -46,7 +46,7 @@ updates:
     labels:
       - "dependencies"
       - "ci/cd"
-    
+
   # Docker dependencies
   - package-ecosystem: "docker"
     directory: "/"
@@ -58,4 +58,4 @@ updates:
     labels:
       - "dependencies"
       - "docker"
-      - "infrastructure" 
+      - "infrastructure"

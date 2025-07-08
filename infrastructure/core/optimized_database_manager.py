@@ -113,9 +113,9 @@ class OptimizedDatabaseManager:
     def _initialize_configs(self):
         """Initialize database configurations"""
         # Snowflake
-        self.configs[ConnectionType.SNOWFLAKE] = (
-            aligned_snowflake_config.get_connection_params()
-        )
+        self.configs[
+            ConnectionType.SNOWFLAKE
+        ] = aligned_snowflake_config.get_connection_params()
 
         # PostgreSQL
         self.configs[ConnectionType.POSTGRES] = {

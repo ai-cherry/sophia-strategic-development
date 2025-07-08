@@ -20,7 +20,7 @@ import asyncio
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import aiohttp
 
@@ -39,7 +39,9 @@ except ModuleNotFoundError:
         EnhancedStandardizedMCPServer,
         MCPServerConfig,
     )
-    from backend.mcp_servers.base.standardized_mcp_server import ServerCapability  # type: ignore
+    from backend.mcp_servers.base.standardized_mcp_server import (
+        ServerCapability,  # type: ignore
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ class LambdaLabsServerlessMCP(EnhancedStandardizedMCPServer):  # type: ignore
 
     # ------------- lifecycle -------------------------------------------------
 
-    async def server_specific_init(self) -> None:  # noqa: D401
+    async def server_specific_init(self) -> None:
         """Initialise client session and sanity-check API key."""
 
         if not self._api_key:
@@ -101,7 +103,7 @@ class LambdaLabsServerlessMCP(EnhancedStandardizedMCPServer):  # type: ignore
                 if resp.status == 200:
                     return self._ok(latency_ms)
                 return self._unhealthy(latency_ms, f"HTTP {resp.status}")
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             return self._crit(str(exc))
 
     # ------------- capabilities & sync --------------------------------------
@@ -117,7 +119,7 @@ class LambdaLabsServerlessMCP(EnhancedStandardizedMCPServer):  # type: ignore
             )
         ]
 
-    async def sync_data(self) -> Dict[str, Any]:  # noqa: D401
+    async def sync_data(self) -> dict[str, Any]:
         """No data to sync yet – return trivial success."""
         return {"synced": True, "ts": datetime.utcnow().isoformat()}
 
@@ -153,7 +155,7 @@ class LambdaLabsServerlessMCP(EnhancedStandardizedMCPServer):  # type: ignore
 # ---------------------------------------------------------------------------
 
 
-async def main() -> None:  # noqa: D401
+async def main() -> None:
     config = MCPServerConfig(
         name="lambda_labs_serverless",
         port=9025,

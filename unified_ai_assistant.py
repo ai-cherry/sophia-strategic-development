@@ -204,7 +204,11 @@ class UnifiedAIAssistant:
             # Use Claude CLI with latest models
             cmd = f'./claude-cli-integration/claude chat "{query}"'
             result = subprocess.run(
-                shlex.split(cmd), capture_output=True, text=True, timeout=60, check=False
+                shlex.split(cmd),
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
             )  # SECURITY FIX: Removed shell=False
 
             if result.returncode == 0:
@@ -227,7 +231,8 @@ class UnifiedAIAssistant:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=30, check=False,
+                timeout=30,
+                check=False,
             )
 
             if result.returncode == 0:

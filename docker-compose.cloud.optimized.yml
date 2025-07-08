@@ -171,8 +171,8 @@ services:
   redis:
     image: redis:7.2-alpine
     command: >
-      redis-server 
-      --appendonly yes 
+      redis-server
+      --appendonly yes
       --appendfsync everysec
       --maxmemory 1gb
       --maxmemory-policy allkeys-lru
@@ -556,4 +556,3 @@ x-sophia-ai-config:
   resource_limits: enforced
   restart_policies: optimized
   update_policies: conservative
-

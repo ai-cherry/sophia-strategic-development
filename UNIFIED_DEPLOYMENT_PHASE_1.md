@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check Required Environment Variables
         run: |
           required_vars=(
@@ -171,7 +171,7 @@ jobs:
             "VITE_WS_URL"
             "VITE_ENVIRONMENT"
           )
-          
+
           for var in "${required_vars[@]}"; do
             if ! grep -q "$var" frontend/.env.template; then
               echo "❌ Missing $var in .env.template"
@@ -179,7 +179,7 @@ jobs:
             fi
           done
           echo "✅ All required environment variables documented"
-      
+
       - name: Validate Build Configuration
         run: |
           if ! grep -q "@vercel/static-build" vercel.json; then
@@ -187,7 +187,7 @@ jobs:
             exit 1
           fi
           echo "✅ Build configuration valid"
-      
+
       - name: Test Local Build
         working-directory: frontend
         run: |
@@ -217,26 +217,26 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      
+
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
-      
+
       - name: Pull Vercel Environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      
+
       - name: Build Project
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      
+
       - name: Deploy to Production
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-      
+
       - name: Post Deployment Tests
         run: |
           sleep 30  # Wait for deployment to propagate
@@ -332,4 +332,4 @@ git checkout HEAD~1 frontend/
 - Issues Encountered: ___________
 
 ## Notes
-_Document any deviations from the plan or additional fixes required_ 
+_Document any deviations from the plan or additional fixes required_

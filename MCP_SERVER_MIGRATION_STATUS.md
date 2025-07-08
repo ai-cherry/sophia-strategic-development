@@ -125,7 +125,7 @@ Migrating priority MCP servers to modern V2 architecture with enhanced features.
 ### Docker Cloud Deployment (Lambda Labs)
 1. **Build Images**: Build Docker images with production configurations
 2. **Push to Registry**: Push to scoobyjava15 Docker Hub registry
-3. **Deploy to Lambda Labs**: 
+3. **Deploy to Lambda Labs**:
    - Pull images on Lambda Labs servers
    - Run with Docker Swarm orchestration
    - Configure networking and load balancing

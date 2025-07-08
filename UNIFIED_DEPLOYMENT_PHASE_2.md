@@ -155,17 +155,17 @@ manager = ConnectionManager()
 
 async def websocket_endpoint(websocket: WebSocket, user_id: str, chat_service: UnifiedChatService):
     await manager.connect(websocket, user_id)
-    
+
     try:
         while True:
             # Receive message
             data = await websocket.receive_text()
             message_data = json.loads(data)
-            
+
             # Update context
             if user_id in manager.user_contexts:
                 manager.user_contexts[user_id]["message_count"] += 1
-            
+
             # Create chat request
             chat_request = ChatRequest(
                 message=message_data["message"],
@@ -173,10 +173,10 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, chat_service: U
                 context=ChatContext(message_data.get("search_context", "business_intelligence")),
                 access_level=AccessLevel(message_data.get("access_level", "employee"))
             )
-            
+
             # Process through unified service
             response = await chat_service.process_chat(chat_request)
-            
+
             # Send response
             await websocket.send_text(json.dumps({
                 "type": "response",
@@ -187,7 +187,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str, chat_service: U
                     "timestamp": response.timestamp.isoformat()
                 }
             }))
-            
+
     except WebSocketDisconnect:
         manager.disconnect(user_id)
     except Exception as e:
@@ -254,12 +254,12 @@ ssh ${LAMBDA_USER}@${LAMBDA_HOST} << 'EOF'
     # Load image
     echo "📥 Loading Docker image..."
     docker load < ~/sophia-backend.tar.gz
-    
+
     # Stop existing container
     echo "🛑 Stopping existing container..."
     docker stop sophia-backend || true
     docker rm sophia-backend || true
-    
+
     # Run new container
     echo "▶️ Starting new container..."
     docker run -d \
@@ -273,7 +273,7 @@ ssh ${LAMBDA_USER}@${LAMBDA_HOST} << 'EOF'
         --health-timeout=10s \
         --health-retries=3 \
         sophia-ai-backend:latest
-    
+
     # Wait for health
     echo "⏳ Waiting for container to be healthy..."
     for i in {1..30}; do
@@ -283,7 +283,7 @@ ssh ${LAMBDA_USER}@${LAMBDA_HOST} << 'EOF'
         fi
         sleep 2
     done
-    
+
     # Show status
     docker ps | grep sophia-backend
 EOF
@@ -311,22 +311,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build Docker image
         run: |
           docker build -t sophia-ai-backend:${{ github.sha }} .
           docker tag sophia-ai-backend:${{ github.sha }} sophia-ai-backend:latest
-      
+
       - name: Save Docker image
         run: |
           docker save sophia-ai-backend:latest | gzip > sophia-backend.tar.gz
-      
+
       - name: Copy to Lambda Labs
         uses: appleboy/scp-action@v0.1.5
         with:
@@ -335,7 +335,7 @@ jobs:
           key: ${{ secrets.LAMBDA_LABS_SSH_KEY }}
           source: "sophia-backend.tar.gz"
           target: "~/"
-      
+
       - name: Deploy on Lambda Labs
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -347,7 +347,7 @@ jobs:
             docker load < ~/sophia-backend.tar.gz
             docker stop sophia-backend || true
             docker rm sophia-backend || true
-            
+
             # Run with environment variables from Pulumi ESC
             docker run -d \
               --name sophia-backend \
@@ -356,7 +356,7 @@ jobs:
               -e ENVIRONMENT=production \
               -e PULUMI_ORG=scoobyjava-org \
               sophia-ai-backend:latest
-            
+
             # Health check
             sleep 30
             curl -f http://localhost:8000/health || exit 1
@@ -375,7 +375,7 @@ upstream sophia_backend {
 server {
     listen 80;
     server_name api.sophia-intel.ai;
-    
+
     # Redirect HTTP to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -383,20 +383,20 @@ server {
 server {
     listen 443 ssl http2;
     server_name api.sophia-intel.ai;
-    
+
     # SSL Configuration
     ssl_certificate /etc/letsencrypt/live/api.sophia-intel.ai/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/api.sophia-intel.ai/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
-    
+
     # Security Headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
+
     # API Routes
     location / {
         proxy_pass http://sophia_backend;
@@ -409,7 +409,7 @@ server {
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
     }
-    
+
     # WebSocket Support
     location ~ ^/ws/ {
         proxy_pass http://sophia_backend;
@@ -420,13 +420,13 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # WebSocket timeouts
         proxy_connect_timeout 7d;
         proxy_send_timeout 7d;
         proxy_read_timeout 7d;
     }
-    
+
     # Health check endpoint
     location /health {
         proxy_pass http://sophia_backend/health;
@@ -471,7 +471,7 @@ def check_health():
         "timestamp": datetime.utcnow().isoformat(),
         "checks": {}
     }
-    
+
     # Check HTTP health
     try:
         response = requests.get(f"{API_URL}/health", timeout=5)
@@ -485,7 +485,7 @@ def check_health():
             "status": "fail",
             "error": str(e)
         }
-    
+
     # Check WebSocket
     try:
         ws = websocket.create_connection(WS_URL, timeout=5)
@@ -501,14 +501,14 @@ def check_health():
             "status": "fail",
             "error": str(e)
         }
-    
+
     # Check API endpoints
     endpoints = [
         "/api/v1/dashboard/main",
         "/api/v1/chat/contexts",
         "/api/v1/ws/connections"
     ]
-    
+
     for endpoint in endpoints:
         try:
             response = requests.get(f"{API_URL}{endpoint}", timeout=5)
@@ -521,13 +521,13 @@ def check_health():
                 "status": "fail",
                 "error": str(e)
             }
-    
+
     return results
 
 if __name__ == "__main__":
     results = check_health()
     print(json.dumps(results, indent=2))
-    
+
     # Exit with error if any check failed
     if any(check["status"] == "fail" for check in results["checks"].values()):
         sys.exit(1)
@@ -546,22 +546,22 @@ on:
 jobs:
   health-check:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           pip install requests websocket-client
-      
+
       - name: Run health check
         run: python scripts/health-check-backend.py
-      
+
       - name: Notify on failure
         if: failure()
         uses: 8398a7/action-slack@v3
@@ -609,4 +609,4 @@ sudo nginx -t && sudo systemctl reload nginx
 - Issues Encountered: ___________
 
 ## Notes
-_Document any deviations from the plan or additional fixes required_ 
+_Document any deviations from the plan or additional fixes required_

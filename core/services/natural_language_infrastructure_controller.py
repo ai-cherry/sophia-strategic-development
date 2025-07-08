@@ -27,7 +27,7 @@ Key design principles
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from infrastructure.services.lambda_labs_hybrid_router import (
     LambdaLabsHybridRouter,
@@ -50,7 +50,7 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
     # Public helpers
     # ---------------------------------------------------------------------
 
-    async def run_command(self, command: str) -> Dict[str, Any]:
+    async def run_command(self, command: str) -> dict[str, Any]:
         """Route *command* to the right subsystem and return structured reply.
 
         Very simple heuristic routing for now: if the command mentions the
@@ -64,7 +64,7 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
             return await self._handle_snowflake_command(command)
         return await self._handle_lambda_command(command)
 
-    async def health(self) -> Dict[str, Any]:
+    async def health(self) -> dict[str, Any]:
         """Lightweight health probe combining underlying component checks."""
         snowflake_status = "unknown"
         try:
@@ -93,7 +93,7 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
     # Internal helpers
     # ------------------------------------------------------------------
 
-    async def _handle_snowflake_command(self, command: str) -> Dict[str, Any]:
+    async def _handle_snowflake_command(self, command: str) -> dict[str, Any]:
         """Pass command to Snowflake Cortex for optimisation/analysis."""
         try:
             sql_prompt = (
@@ -116,7 +116,7 @@ class NaturalLanguageInfrastructureController:  # pragma: no cover – thin faç
             logger.error("Snowflake command failed: %s", exc)
             return {"success": False, "error": str(exc)}
 
-    async def _handle_lambda_command(self, command: str) -> Dict[str, Any]:
+    async def _handle_lambda_command(self, command: str) -> dict[str, Any]:
         """Forward command to Lambda-Labs via the hybrid router."""
         try:
             messages = [{"role": "user", "content": command}]

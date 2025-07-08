@@ -125,7 +125,9 @@ class MCPHealthMonitor:
                 mcp_health_status.labels(server_name=server_name).set(
                     1
                     if status == HealthStatus.HEALTHY
-                    else 0.5 if status == HealthStatus.DEGRADED else 0
+                    else 0.5
+                    if status == HealthStatus.DEGRADED
+                    else 0
                 )
 
             else:

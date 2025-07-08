@@ -9,7 +9,8 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 from enum import Enum
 from typing import Any
-from infrastructure.services.llm_router import llm_router, TaskType
+
+from infrastructure.services.llm_router import TaskType, llm_router
 
 try:
     from portkey_ai import AsyncPortkey
@@ -21,6 +22,7 @@ except ImportError:
     AsyncOpenAI = None
 import snowflake.connector
 from snowflake.connector import DictCursor
+
 from core.auto_esc_config import config
 from infrastructure.monitoring.llm_metrics import (
     data_movement_avoided,

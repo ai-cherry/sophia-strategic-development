@@ -26,12 +26,12 @@ WS_URL = "wss://api.sophia-intel.ai/ws"
 
 class TestSophiaAIE2E:
     """End-to-end test suite for complete system validation"""
-    
+
     @pytest.fixture
     async def api_client(self):
         async with httpx.AsyncClient() as client:
             yield client
-    
+
     @pytest.mark.asyncio
     async def test_frontend_loads(self, api_client):
         """Test frontend application loads successfully"""
@@ -39,7 +39,7 @@ class TestSophiaAIE2E:
         assert response.status_code == 200
         assert "Sophia AI" in response.text
         assert "UnifiedDashboard" in response.text
-    
+
     @pytest.mark.asyncio
     async def test_api_health(self, api_client):
         """Test all API health endpoints"""
@@ -50,11 +50,11 @@ class TestSophiaAIE2E:
             "/api/v1/infrastructure/status",
             "/api/v1/mcp/servers"
         ]
-        
+
         for endpoint in endpoints:
             response = await api_client.get(f"{API_URL}{endpoint}")
             assert response.status_code == 200, f"Failed: {endpoint}"
-    
+
     @pytest.mark.asyncio
     async def test_websocket_chat(self):
         """Test WebSocket chat functionality"""
@@ -65,39 +65,39 @@ class TestSophiaAIE2E:
                 "search_context": "business_intelligence",
                 "access_level": "employee"
             }))
-            
+
             response = await asyncio.wait_for(websocket.recv(), timeout=5)
             data = json.loads(response)
-            
+
             assert data["type"] == "response"
             assert data["data"]["response"] is not None
             assert isinstance(data["data"]["timestamp"], str)
-    
+
     @pytest.mark.asyncio
     async def test_dashboard_data(self, api_client):
         """Test dashboard loads real data"""
         response = await api_client.get(f"{API_URL}/api/v1/dashboard/main")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert "kpis" in data
         assert "charts" in data
         assert "infrastructure" in data
         assert len(data["kpis"]) > 0
-    
+
     @pytest.mark.asyncio
     async def test_mcp_integration(self, api_client):
         """Test MCP servers are integrated"""
         response = await api_client.get(f"{API_URL}/api/v1/mcp/servers")
         assert response.status_code == 200
-        
+
         servers = response.json()
         required_servers = ["github", "slack", "perplexity", "ai-memory", "snowflake"]
-        
+
         for server in required_servers:
             assert server in servers
             assert servers[server]["status"] == "healthy"
-    
+
     @pytest.mark.asyncio
     async def test_chat_with_context_switching(self):
         """Test chat context switching"""
@@ -107,7 +107,7 @@ class TestSophiaAIE2E:
             "internal_knowledge",
             "code_search"
         ]
-        
+
         async with websockets.connect(f"{WS_URL}/test-context") as websocket:
             for context in contexts:
                 await websocket.send(json.dumps({
@@ -115,10 +115,10 @@ class TestSophiaAIE2E:
                     "search_context": context,
                     "access_level": "executive"
                 }))
-                
+
                 response = await asyncio.wait_for(websocket.recv(), timeout=5)
                 data = json.loads(response)
-                
+
                 assert data["type"] == "response"
                 assert data["data"]["response"] is not None
 ```
@@ -159,7 +159,7 @@ export default function () {
     '/api/v1/chat/contexts',
     '/api/v1/mcp/servers',
   ];
-  
+
   endpoints.forEach(endpoint => {
     const res = http.get(`${BASE_URL}${endpoint}`);
     check(res, {
@@ -168,7 +168,7 @@ export default function () {
     });
     errorRate.add(res.status !== 200);
   });
-  
+
   // Test WebSocket
   const wsRes = ws.connect(`${WS_URL}/${__VU}`, {}, function (socket) {
     socket.on('open', () => {
@@ -178,7 +178,7 @@ export default function () {
         access_level: 'employee',
       }));
     });
-    
+
     socket.on('message', (data) => {
       const msg = JSON.parse(data);
       check(msg, {
@@ -186,17 +186,17 @@ export default function () {
       });
       socket.close();
     });
-    
+
     socket.setTimeout(() => {
       errorRate.add(1);
       socket.close();
     }, 5000);
   });
-  
+
   check(wsRes, {
     'WebSocket connected': (r) => r && r.status === 101,
   });
-  
+
   sleep(1);
 }
 ```
@@ -264,7 +264,7 @@ async def test_unauthorized_access():
         "/api/v1/infrastructure/deploy",
         "/api/v1/chat/ceo-context"
     ]
-    
+
     async with httpx.AsyncClient() as client:
         for endpoint in protected_endpoints:
             response = await client.get(f"{API_URL}{endpoint}")
@@ -279,7 +279,7 @@ async def test_jwt_validation():
         "wrong-secret",
         algorithm="HS256"
     )
-    
+
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"{API_URL}/api/v1/user/profile",
@@ -295,7 +295,7 @@ async def test_cors_headers():
             f"{API_URL}/api/v1/chat",
             headers={"Origin": "https://app.sophia-intel.ai"}
         )
-        
+
         assert "Access-Control-Allow-Origin" in response.headers
         assert response.headers["Access-Control-Allow-Origin"] == "https://app.sophia-intel.ai"
 ```
@@ -315,7 +315,7 @@ echo ""
 test_feature() {
     local feature=$1
     local test_command=$2
-    
+
     echo -n "Testing $feature... "
     if eval $test_command > /dev/null 2>&1; then
         echo "✅ PASS"
@@ -361,7 +361,7 @@ import json
 async def test_chat_conversation():
     """Test a complete chat conversation flow"""
     uri = "wss://api.sophia-intel.ai/ws/manual-test"
-    
+
     async with websockets.connect(uri) as websocket:
         # Test 1: Business query
         await websocket.send(json.dumps({
@@ -369,29 +369,29 @@ async def test_chat_conversation():
             "search_context": "business_intelligence",
             "access_level": "executive"
         }))
-        
+
         response = await websocket.recv()
         data = json.loads(response)
         print(f"✅ Business query response: {data['data']['response'][:100]}...")
-        
+
         # Test 2: Code search
         await websocket.send(json.dumps({
             "message": "Show me Python WebSocket examples",
             "search_context": "code_search",
             "access_level": "employee"
         }))
-        
+
         response = await websocket.recv()
         data = json.loads(response)
         print(f"✅ Code search response: {data['data']['response'][:100]}...")
-        
+
         # Test 3: Documentation
         await websocket.send(json.dumps({
             "message": "How do I deploy to Lambda Labs?",
             "search_context": "documentation",
             "access_level": "employee"
         }))
-        
+
         response = await websocket.recv()
         data = json.loads(response)
         print(f"✅ Documentation response: {data['data']['response'][:100]}...")
@@ -427,9 +427,9 @@ all_passed=true
 for check in "${checks[@]}"; do
     IFS='|' read -r name command expected <<< "$check"
     echo -n "Checking $name... "
-    
+
     result=$(eval $command 2>/dev/null)
-    
+
     if [[ -z "$expected" ]] || [[ "$result" == "$expected" ]]; then
         echo "✅ PASS"
     else
@@ -539,7 +539,7 @@ async def smoke_test():
         "timestamp": datetime.utcnow().isoformat(),
         "tests": []
     }
-    
+
     async with httpx.AsyncClient() as client:
         # Test 1: Frontend loads
         try:
@@ -555,7 +555,7 @@ async def smoke_test():
                 "status": "FAIL",
                 "details": str(e)
             })
-        
+
         # Test 2: API Health
         try:
             response = await client.get(f"{PROD_API}/health")
@@ -571,14 +571,14 @@ async def smoke_test():
                 "status": "FAIL",
                 "details": str(e)
             })
-        
+
         # Test 3: Critical Features
         critical_endpoints = [
             ("/api/v1/dashboard/main", "Dashboard Data"),
             ("/api/v1/chat/contexts", "Chat Contexts"),
             ("/api/v1/mcp/servers", "MCP Servers")
         ]
-        
+
         for endpoint, name in critical_endpoints:
             try:
                 response = await client.get(f"{PROD_API}{endpoint}")
@@ -593,10 +593,10 @@ async def smoke_test():
                     "status": "FAIL",
                     "details": str(e)
                 })
-    
+
     # Print results
     print(json.dumps(results, indent=2))
-    
+
     # Return success/failure
     failed = [t for t in results["tests"] if t["status"] == "FAIL"]
     return len(failed) == 0
@@ -622,28 +622,28 @@ while [ $(date +%s) -lt $end_time ]; do
     clear
     echo "🕐 Monitoring Production - $(date)"
     echo "================================="
-    
+
     # Check health
     echo -n "API Health: "
     curl -s https://api.sophia-intel.ai/health | jq -r '.status'
-    
+
     # Check response times
     echo -n "API Response Time: "
     curl -s -o /dev/null -w "%{time_total}s\n" https://api.sophia-intel.ai/health
-    
+
     # Check error rate
     echo -n "Error Rate: "
     curl -s http://146.235.200.1:9090/api/v1/query?query=rate(http_requests_total{status=~"5.."}[5m]) | jq -r '.data.result[0].value[1]' || echo "0"
-    
+
     # Check active connections
     echo -n "WebSocket Connections: "
     curl -s https://api.sophia-intel.ai/api/v1/ws/connections | jq -r '.active_connections'
-    
+
     # Check MCP servers
     echo ""
     echo "MCP Server Status:"
     curl -s https://api.sophia-intel.ai/api/v1/mcp/servers | jq -r 'to_entries[] | "\(.key): \(.value.status)"'
-    
+
     echo ""
     echo "Press Ctrl+C to exit monitoring"
     sleep 30
@@ -705,4 +705,4 @@ curl -X POST $SLACK_WEBHOOK -d '{"text":"⚠️ Emergency rollback initiated"}'
 - [ ] CEO Approval: ___________
 
 ## 🎉 CONGRATULATIONS!
-The Sophia AI platform is now fully operational in production! 
+The Sophia AI platform is now fully operational in production!

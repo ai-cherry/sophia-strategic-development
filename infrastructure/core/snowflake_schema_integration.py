@@ -121,7 +121,7 @@ class SnowflakeSchemaIntegration:
                 database=self.credentials.database,
                 warehouse=self.credentials.warehouse,
                 schema=SchemaType.UNIVERSAL_CHAT.value,
-            
+
             logger.info("✅ Connected to comprehensive Snowflake deployment")
             return True
         except Exception as e:
@@ -207,7 +207,7 @@ class SnowflakeSchemaIntegration:
             chunk_index,
             total_chunks,
             created_by,
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -236,7 +236,7 @@ class SnowflakeSchemaIntegration:
             json.dumps(embedding_vector),
             chunk_text,
             chunk_index,
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -295,7 +295,7 @@ class SnowflakeSchemaIntegration:
 
         results = await self.execute_query(
             search_query, tuple(params), SchemaType.UNIVERSAL_CHAT
-        
+
 
         # Add similarity scores for compatibility
         for result in results:
@@ -347,7 +347,7 @@ class SnowflakeSchemaIntegration:
             json.dumps(tags or []),
             json.dumps(metadata or {}),
             expires_at,
-        
+
 
         await self.execute_query(query, params, SchemaType.AI_MEMORY)
         return True
@@ -377,7 +377,7 @@ class SnowflakeSchemaIntegration:
             relationship_type,
             strength,
             confidence,
-        
+
 
         await self.execute_query(query, params, SchemaType.AI_MEMORY)
         return True
@@ -478,7 +478,7 @@ class SnowflakeSchemaIntegration:
             model_used,
             confidence_score,
             json.dumps(metadata or {}),
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
 
@@ -524,7 +524,7 @@ class SnowflakeSchemaIntegration:
             metric_unit,
             json.dumps(dimensions or {}),
             aggregation_period,
-        
+
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -558,7 +558,7 @@ class SnowflakeSchemaIntegration:
 
         results = await self.execute_query(
             query, tuple(params), SchemaType.UNIVERSAL_CHAT
-        
+
 
         # Organize by metric type
         analytics_summary = {}
@@ -679,7 +679,7 @@ class SnowflakeSchemaIntegration:
                     insert_query,
                     (cat_id, name, desc, is_foundational, weight),
                     SchemaType.UNIVERSAL_CHAT,
-                
+
 
             except Exception:
                 # Category likely already exists

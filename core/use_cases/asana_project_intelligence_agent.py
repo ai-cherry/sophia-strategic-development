@@ -25,7 +25,7 @@ from core.agents.langgraph_agent_base import LangGraphAgentBase
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from infrastructure.services.llm_router import llm_router, TaskType
+from infrastructure.services.llm_router import TaskType, llm_router
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 logger = logging.getLogger(__name__)
@@ -323,15 +323,16 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                     overall_risk = RiskLevel.HIGH
                 elif overall_risk_score >= 0.4:
                     overall_risk = RiskLevel.MEDIUM
-                risk_factors, mitigation_suggestions = (
-                    await self._generate_risk_insights(
-                        project,
-                        task_data,
-                        schedule_risk,
-                        resource_risk,
-                        scope_risk,
-                        quality_risk,
-                    )
+                (
+                    risk_factors,
+                    mitigation_suggestions,
+                ) = await self._generate_risk_insights(
+                    project,
+                    task_data,
+                    schedule_risk,
+                    resource_risk,
+                    scope_risk,
+                    quality_risk,
                 )
                 predicted_completion = self._predict_completion_date(project, task_data)
                 risk_assessments.append(
@@ -610,9 +611,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 ],
                 "summary": summary,
             }
-            logger.info(
-                f"✅ Generated intelligence report for {len(projects)} projects"
-            )
+            logger.info(f"✅ Generated intelligence report for {len(projects)} projects")
             return report
         except Exception as e:
             logger.exception(f"❌ Failed to generate intelligence report: {e}")

@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from infrastructure.services.llm_router import llm_router, TaskType
+from infrastructure.services.llm_router import TaskType, llm_router
 
 logger = logging.getLogger(__name__)
 

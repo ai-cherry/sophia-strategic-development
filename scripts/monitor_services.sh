@@ -20,9 +20,9 @@ check_service() {
     local name=$1
     local url=$2
     local description=$3
-    
+
     echo -n -e "${YELLOW}Checking $description...${NC} "
-    
+
     if curl -s -f -o /dev/null "$url" 2>/dev/null; then
         echo -e "${GREEN}✅ Healthy${NC}"
         return 0
@@ -76,4 +76,4 @@ for container in $(docker ps --format "{{.Names}}" | grep sophia); do
     docker logs "$container" --tail 10 2>&1 | head -20
 done
 
-echo -e "\n${GREEN}✅ Monitoring complete${NC}" 
+echo -e "\n${GREEN}✅ Monitoring complete${NC}"

@@ -7,7 +7,7 @@ collections:
       type: object
       required: [call_id, timestamp]
       properties:
-        call_id: 
+        call_id:
           type: string
           description: Unique Gong call identifier
         title:
@@ -54,9 +54,9 @@ collections:
             talk_ratio: { type: number }
             question_count: { type: integer }
             monologue_duration: { type: integer }
-        
+
     key: [/call_id]
-    
+
     capture:
       endpoint:
         connector:
@@ -68,12 +68,12 @@ collections:
               type: bearer
               token:
                 $ref: secrets.yaml#/estuary_gong_token
-            
+
     # Automatic backfill from Gong API
     backfill:
       enabled: true
       start_date: "2024-01-01T00:00:00Z"
-      
+
     # Quality validations
     expect:
       - description: "Call ID must be present"
@@ -81,13 +81,13 @@ collections:
         must:
           properties:
             call_id: { type: string, minLength: 1 }
-            
+
       - description: "Duration must be positive"
         when: { properties: { duration: { type: integer } } }
         must:
           properties:
             duration: { minimum: 0 }
-            
+
       - description: "Sentiment must be normalized"
         when: { properties: { sentiment: { type: number } } }
         must:
@@ -99,10 +99,10 @@ metadata:
   owner: data-team
   owner_slack: "#data-pipelines"
   description: "Real-time Gong call intelligence ingestion"
-  sla: 
+  sla:
     latency_seconds: 5
     availability_percent: 99.9
   tags:
     - sales-intelligence
     - real-time
-    - mcp-v2 
+    - mcp-v2

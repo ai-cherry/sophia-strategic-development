@@ -6,7 +6,7 @@ derivations:
     transform:
       enrichGongCalls:
         source: { name: sophia-ai/gong-calls }
-        
+
     schema:
       $ref: sophia-ai/gong-calls#/schema
       properties:
@@ -15,23 +15,23 @@ derivations:
           type: string
           enum: [at_risk, neutral, positive, champion]
           description: Categorized sentiment
-        
+
         call_quality_score:
           type: number
           minimum: 0
           maximum: 100
           description: Composite quality score
-          
+
         risk_indicators:
           type: array
           items: { type: string }
           description: Detected risk factors
-          
+
         opportunities:
           type: array
           items: { type: string }
           description: Identified opportunities
-          
+
         next_best_actions:
           type: array
           items:
@@ -40,15 +40,15 @@ derivations:
               action: { type: string }
               priority: { type: string, enum: [low, medium, high, critical] }
               reason: { type: string }
-              
+
         executive_summary:
           type: string
           description: AI-generated executive summary
-          
+
         deal_stage_recommendation:
           type: string
           description: Recommended deal stage based on call
-          
+
         competitor_mentions:
           type: array
           items:
@@ -57,24 +57,24 @@ derivations:
               competitor: { type: string }
               context: { type: string }
               sentiment: { type: string }
-              
+
         enriched_at:
           type: string
           format: date-time
-          
+
     # SQL transformation logic
     sql: |
-      SELECT 
+      SELECT
         *,
-        
+
         -- Sentiment categorization
-        CASE 
+        CASE
           WHEN sentiment < -0.5 THEN 'at_risk'
           WHEN sentiment < 0.2 THEN 'neutral'
           WHEN sentiment < 0.7 THEN 'positive'
           ELSE 'champion'
         END AS sentiment_category,
-        
+
         -- Quality score calculation
         ROUND(
           (CASE WHEN duration > 1800 THEN 20 ELSE duration / 90 END) +
@@ -83,7 +83,7 @@ derivations:
           (CASE WHEN array_length(action_items) > 0 THEN 20 ELSE 0 END) +
           (CASE WHEN metrics.talk_ratio BETWEEN 0.4 AND 0.6 THEN 10 ELSE 0 END)
         , 2) AS call_quality_score,
-        
+
         -- Risk indicators
         ARRAY_REMOVE(ARRAY[
           CASE WHEN sentiment < -0.3 THEN 'negative_sentiment' END,
@@ -94,7 +94,7 @@ derivations:
           CASE WHEN transcript ILIKE '%price%concern%' THEN 'price_objection' END,
           CASE WHEN transcript ILIKE '%not sure%' OR transcript ILIKE '%think about%' THEN 'uncertainty' END
         ], NULL) AS risk_indicators,
-        
+
         -- Opportunities
         ARRAY_REMOVE(ARRAY[
           CASE WHEN transcript ILIKE '%love%' OR transcript ILIKE '%excited%' THEN 'high_enthusiasm' END,
@@ -103,10 +103,10 @@ derivations:
           CASE WHEN transcript ILIKE '%decision%' AND transcript ILIKE '%soon%' THEN 'decision_timeline' END,
           CASE WHEN array_length(participants) > 3 THEN 'multi_stakeholder' END
         ], NULL) AS opportunities,
-        
+
         -- Next best actions
         CASE
-          WHEN sentiment < -0.3 THEN 
+          WHEN sentiment < -0.3 THEN
             ARRAY[
               ROW('Schedule follow-up with manager', 'critical', 'At-risk sentiment detected')::RECORD,
               ROW('Address concerns immediately', 'high', 'Prevent deal loss')::RECORD
@@ -124,25 +124,25 @@ derivations:
               ROW('Standard follow-up sequence', 'low', 'Call went well')::RECORD
             ]
         END AS next_best_actions,
-        
+
         -- Executive summary (simplified - would use LLM in production)
         CONCAT(
-          'Call with ', array_length(participants), ' participants lasted ', 
+          'Call with ', array_length(participants), ' participants lasted ',
           ROUND(duration / 60.0, 1), ' minutes. ',
-          'Sentiment was ', 
-          CASE 
+          'Sentiment was ',
+          CASE
             WHEN sentiment < -0.3 THEN 'negative'
             WHEN sentiment < 0.3 THEN 'neutral'
             ELSE 'positive'
           END,
           '. Discussed ', array_length(topics), ' topics',
-          CASE 
-            WHEN array_length(action_items) > 0 
+          CASE
+            WHEN array_length(action_items) > 0
             THEN CONCAT(' with ', array_length(action_items), ' action items.')
             ELSE ' with no clear next steps.'
           END
         ) AS executive_summary,
-        
+
         -- Deal stage recommendation
         CASE
           WHEN transcript ILIKE '%signed%' OR transcript ILIKE '%approved%' THEN 'Closed Won'
@@ -152,22 +152,22 @@ derivations:
           WHEN sentiment < -0.5 THEN 'At Risk'
           ELSE 'Qualification'
         END AS deal_stage_recommendation,
-        
+
         -- Competitor extraction (simplified)
         ARRAY_REMOVE(ARRAY[
-          CASE 
-            WHEN transcript ILIKE '%competitor1%' 
+          CASE
+            WHEN transcript ILIKE '%competitor1%'
             THEN ROW('Competitor1', 'mentioned in discussion', 'neutral')::RECORD
           END,
-          CASE 
-            WHEN transcript ILIKE '%competitor2%' 
+          CASE
+            WHEN transcript ILIKE '%competitor2%'
             THEN ROW('Competitor2', 'mentioned in discussion', 'neutral')::RECORD
           END
         ], NULL) AS competitor_mentions,
-        
+
         -- Metadata
         NOW() AS enriched_at
-        
+
       FROM sophia-ai/gong-calls
       WHERE call_id IS NOT NULL
 
@@ -182,4 +182,4 @@ metadata:
   tags:
     - enrichment
     - sales-intelligence
-    - real-time 
+    - real-time

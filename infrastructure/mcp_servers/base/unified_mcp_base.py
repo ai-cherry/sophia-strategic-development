@@ -19,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from prometheus_client.core import CollectorRegistry
+
 from backend.core.auto_esc_config import get_config_value
 
 # Import custom logger when available, fallback to standard logging
@@ -297,7 +298,7 @@ class StandardizedMCPServer(ABC):
                 errors.append("Server-specific health check failed")
         except Exception as e:
             status = "unhealthy"
-            errors.append(f"Health check error: {str(e)}")
+            errors.append(f"Health check error: {e!s}")
 
         metrics = {
             "uptime_seconds": uptime,

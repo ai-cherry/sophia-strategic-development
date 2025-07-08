@@ -16,7 +16,7 @@ self.redis_client = await redis.from_url(
 self.redis_client = await redis.from_url(
     f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
     password=settings.REDIS_PASSWORD,
-    encoding="utf-8", 
+    encoding="utf-8",
     decode_responses=True,
 )
 ```
@@ -114,7 +114,7 @@ async def health_check():
         redis_status = "healthy"
     except:
         redis_status = "unhealthy"
-    
+
     return {
         "status": "healthy" if redis_status == "healthy" else "degraded",
         "redis": redis_status,
@@ -189,4 +189,4 @@ Everything else can be added iteratively after initial deployment.
 - [ ] Health check implemented
 - [ ] Docker image updated
 
-Total estimated time: **1.5 hours** to address critical issues 
+Total estimated time: **1.5 hours** to address critical issues

@@ -6,7 +6,7 @@ Modern FastAPI with streaming chat support
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -137,7 +137,7 @@ async def chat_endpoint(request: ChatRequest):
 
     except Exception as e:
         logger.error(f"Chat endpoint error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {e!s}")
 
 
 # Debug routes

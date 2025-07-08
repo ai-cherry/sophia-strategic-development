@@ -54,7 +54,9 @@ class MigrationOrchestrator:
         self.dry_run = dry_run
         self.skip_tests = False  # Will be set by main()
         self.root = Path.cwd()
-        self.template_path = self.root / "infrastructure" / "mcp_servers" / "templates" / "mcp_v2_plus"
+        self.template_path = (
+            self.root / "infrastructure" / "mcp_servers" / "templates" / "mcp_v2_plus"
+        )
         self.v2_base_path = self.root / "infrastructure" / "mcp_servers"
         self.reports_path = self.root / "reports"
         self.servers: dict[str, ServerConfig] = {}
@@ -279,8 +281,12 @@ class MigrationOrchestrator:
             check=False,
         )
         # Filter out external submodules
-        lines = result.stdout.strip().split('\n')
-        dirty_files = [line for line in lines if line and not line.strip().startswith('M external/')]
+        lines = result.stdout.strip().split("\n")
+        dirty_files = [
+            line
+            for line in lines
+            if line and not line.strip().startswith("M external/")
+        ]
         return len(dirty_files) == 0
 
     def _run_base_tests(self) -> bool:

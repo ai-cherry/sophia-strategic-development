@@ -118,21 +118,21 @@ CREATE TABLE EMPLOYEES (
     EMAIL VARCHAR(255) UNIQUE NOT NULL,
     FIRST_NAME VARCHAR(255) NOT NULL,
     LAST_NAME VARCHAR(255) NOT NULL,
-    
+
     -- Common fields (usually present)
     DISPLAY_NAME VARCHAR(255), -- Found in Slack
     JOB_TITLE VARCHAR(255),    -- Varies by system
     DEPARTMENT VARCHAR(255),    -- Sometimes missing
-    
+
     -- Integration IDs (for correlation)
     GONG_USER_ID VARCHAR(255),      -- From Gong export
     SLACK_USER_ID VARCHAR(255),     -- From Slack export
     SLACK_EMAIL VARCHAR(255),       -- Sometimes different!
-    
+
     -- Derived fields
     IS_MANAGER BOOLEAN DEFAULT FALSE,
     REPORTS_TO_EMAIL VARCHAR(255),
-    
+
     -- Metadata
     DATA_SOURCE VARCHAR(50),  -- 'hr', 'gong', 'slack', 'manual'
     CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -161,21 +161,21 @@ import json
 
 def load_employee_sample(file_path, source_system):
     """Load sample data with source tracking"""
-    
+
     if file_path.endswith('.csv'):
         df = pd.read_csv(file_path)
         records = df.to_dict('records')
     else:
         with open(file_path) as f:
             records = json.load(f)
-    
+
     for record in records:
         # Store raw data
         store_staging_record(source_system, record)
-        
+
         # Transform to our schema
         employee = transform_to_employee(record, source_system)
-        
+
         # Load to main table
         create_or_update_employee(employee)
 ```
@@ -184,13 +184,13 @@ def load_employee_sample(file_path, source_system):
 ```python
 def correlate_employees():
     """Match employees across systems"""
-    
+
     # Strategy 1: Email matching
     matches = match_by_email()
-    
+
     # Strategy 2: Name matching for different emails
     fuzzy_matches = match_by_name()
-    
+
     # Manual review for ambiguous cases
     return prepare_review_list(matches, fuzzy_matches)
 ```
@@ -210,7 +210,7 @@ tab1, tab2, tab3 = st.tabs(["Employees", "Customers", "Review Matches"])
 with tab1:
     employees = load_staged_employees()
     edited_df = st.data_editor(employees)
-    
+
     if st.button("Commit to Database"):
         commit_employees(edited_df)
 ```
@@ -218,7 +218,7 @@ with tab1:
 #### Option B: Direct SQL Worksheets
 ```sql
 -- Review staging data
-SELECT 
+SELECT
     SOURCE_SYSTEM,
     RAW_DATA:email::STRING as EMAIL,
     RAW_DATA:name::STRING as NAME,
@@ -230,9 +230,9 @@ ORDER BY UPLOADED_AT DESC;
 -- Manual correlation
 UPDATE EMPLOYEES e1
 SET GONG_USER_ID = (
-    SELECT RAW_DATA:userId::STRING 
-    FROM STAGE_EMPLOYEE_UPLOADS 
-    WHERE SOURCE_SYSTEM = 'gong' 
+    SELECT RAW_DATA:userId::STRING
+    FROM STAGE_EMPLOYEE_UPLOADS
+    WHERE SOURCE_SYSTEM = 'gong'
     AND LOWER(RAW_DATA:email::STRING) = LOWER(e1.EMAIL)
     LIMIT 1
 )
@@ -291,9 +291,9 @@ from pathlib import Path
 
 def analyze_data_files(directory):
     """Analyze all data files in directory"""
-    
+
     results = {}
-    
+
     for file in Path(directory).glob('*'):
         if file.suffix == '.csv':
             df = pd.read_csv(file)
@@ -307,7 +307,7 @@ def analyze_data_files(directory):
             with open(file) as f:
                 data = json.load(f)
             results[file.name] = analyze_json_structure(data)
-    
+
     return results
 ```
 
@@ -315,28 +315,28 @@ def analyze_data_files(directory):
 ```sql
 -- Find potential matches across systems
 CREATE OR REPLACE VIEW VW_EMPLOYEE_CORRELATION AS
-SELECT 
+SELECT
     e.EMAIL as MASTER_EMAIL,
     e.FIRST_NAME || ' ' || e.LAST_NAME as FULL_NAME,
-    
+
     -- Gong correlation
     g.RAW_DATA:email::STRING as GONG_EMAIL,
     g.RAW_DATA:userId::STRING as GONG_ID,
-    
-    -- Slack correlation  
+
+    -- Slack correlation
     s.RAW_DATA:email::STRING as SLACK_EMAIL,
     s.RAW_DATA:id::STRING as SLACK_ID,
-    
+
     -- Match confidence
-    CASE 
+    CASE
         WHEN LOWER(e.EMAIL) = LOWER(g.RAW_DATA:email::STRING) THEN 'exact'
         WHEN LOWER(e.EMAIL) = LOWER(s.RAW_DATA:email::STRING) THEN 'exact'
         ELSE 'review'
     END as MATCH_CONFIDENCE
-    
+
 FROM EMPLOYEES e
-LEFT JOIN STAGE_EMPLOYEE_UPLOADS g 
-    ON g.SOURCE_SYSTEM = 'gong' 
+LEFT JOIN STAGE_EMPLOYEE_UPLOADS g
+    ON g.SOURCE_SYSTEM = 'gong'
     AND LOWER(e.EMAIL) = LOWER(g.RAW_DATA:email::STRING)
 LEFT JOIN STAGE_EMPLOYEE_UPLOADS s
     ON s.SOURCE_SYSTEM = 'slack'
@@ -361,22 +361,22 @@ if uploaded_file:
         df = pd.read_csv(uploaded_file)
     else:
         df = pd.read_json(uploaded_file)
-    
+
     # Show data
     st.write(f"Loaded {len(df)} records")
-    
+
     # Edit data
     edited_df = st.data_editor(
         df,
         num_rows="dynamic",
         use_container_width=True
     )
-    
+
     # Map columns
     st.subheader("Column Mapping")
     col_mapping = {}
     our_fields = ['email', 'first_name', 'last_name', 'job_title', 'department']
-    
+
     cols = st.columns(2)
     for i, field in enumerate(our_fields):
         with cols[i % 2]:
@@ -385,7 +385,7 @@ if uploaded_file:
                 options=[''] + list(df.columns),
                 key=field
             )
-    
+
     # Import button
     if st.button("Import to Database", type="primary"):
         # Transform and import
@@ -395,12 +395,12 @@ if uploaded_file:
             for our_field, their_field in col_mapping.items():
                 if their_field:
                     employee_data[our_field] = row[their_field]
-            
+
             if employee_data.get('email'):
                 result = handler.create_employee(employee_data)
                 if result['success']:
                     success_count += 1
-        
+
         st.success(f"Imported {success_count} employees!")
 ```
 
@@ -427,4 +427,4 @@ if uploaded_file:
 4. **You validate**: With real searches and use cases
 5. **We iterate**: Based on what we learn
 
-This approach gets us from zero to useful in 1 week instead of 1 month! 
+This approach gets us from zero to useful in 1 week instead of 1 month!

@@ -549,3 +549,74 @@ def check_pat_rotation_needed() -> bool:
 
 # Update the esc_key_mappings in get_config_value to include PAT mappings
 # (This is already included in the existing mappings)
+
+
+def validate_snowflake_pat() -> bool:
+    """
+    Validate Snowflake PAT token format
+
+    Returns:
+        True if PAT token appears valid
+    """
+    pat = get_config_value("snowflake_password")
+    if not pat:
+        logger.warning("No Snowflake password/PAT configured")
+        return False
+
+    # PAT tokens are JWT tokens that typically start with 'eyJ'
+    if pat.startswith("eyJ") and len(pat) > 100:
+        logger.info("Snowflake PAT token format validated")
+        return True
+
+    logger.warning("Snowflake password may not be a valid PAT token")
+    return False
+
+
+def get_snowflake_config_enhanced() -> dict[str, Any]:
+    """
+    Get enhanced Snowflake configuration with PAT support
+
+    Returns:
+        Enhanced Snowflake configuration dictionary
+    """
+    base_config = get_snowflake_config()
+
+    # Add PAT-specific configuration
+    enhanced_config = {
+        **base_config,
+        "authenticator": "snowflake",  # For PAT authentication
+        "session_parameters": {
+            "QUERY_TAG": "sophia_ai_unified",
+        },
+        "pat_validated": validate_snowflake_pat(),
+    }
+
+    # Use validated account format
+    enhanced_config["account"] = "UHDECNO-CVB64222"
+
+    return enhanced_config
+
+
+# Enhanced configuration constants
+SNOWFLAKE_PAT_CONFIG = {
+    "account": "UHDECNO-CVB64222",
+    "user": "SCOOBYJAVA15",
+    "role": "ACCOUNTADMIN",
+    "warehouse": "COMPUTE_WH",
+    "database": "SOPHIA_AI_PROD",
+    "schema": "PUBLIC",
+    "authenticator": "snowflake",
+}
+
+AI_OPTIMIZATION_CONFIG = {
+    "hybrid_routing_enabled": get_config_value(
+        "ai_optimization_enabled", "true"
+    ).lower()
+    == "true",
+    "cost_monitoring_enabled": get_config_value(
+        "cost_monitoring_enabled", "true"
+    ).lower()
+    == "true",
+    "serverless_first": True,
+    "data_local_preference": True,
+}

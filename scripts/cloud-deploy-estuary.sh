@@ -58,18 +58,18 @@ echo ""
 # Step 1: Install flowctl if not present
 if ! command -v flowctl &> /dev/null; then
     echo "📦 Installing flowctl CLI..."
-    
+
     ARCH=$(uname -m)
     OS=$(uname -s)
-    
+
     if [ "$ARCH" = "x86_64" ]; then
         ARCH="amd64"
     elif [ "$ARCH" = "aarch64" ]; then
         ARCH="arm64"
     fi
-    
+
     FLOWCTL_URL="https://github.com/estuary/flow/releases/latest/download/flowctl-${OS}-${ARCH}"
-    
+
     if curl -L "$FLOWCTL_URL" -o /tmp/flowctl; then
         sudo mv /tmp/flowctl /usr/local/bin/flowctl
         sudo chmod +x /usr/local/bin/flowctl
@@ -121,7 +121,7 @@ eval $(pulumi env open ${PULUMI_ORG}/default/sophia-ai-production --format=shell
 if [ -z "$ESTUARY_API_KEY" ]; then
     print_warning "ESTUARY_API_KEY not found in Pulumi ESC"
     print_info "Using existing secrets that should be synced from GitHub"
-    
+
     # These should already be in Pulumi ESC from GitHub sync
     export ESTUARY_GONG_TOKEN="${GONG_WEBHOOK_SECRET:-$(openssl rand -hex 32)}"
     export ESTUARY_SLACK_TOKEN="${SLACK_WEBHOOK:-$(openssl rand -hex 32)}"
@@ -166,7 +166,7 @@ print_status "Secrets configuration created"
 if [ -n "$ESTUARY_API_KEY" ] && [ -n "$ESTUARY_API_SECRET" ]; then
     echo ""
     echo "🔑 Authenticating with Estuary..."
-    
+
     # Create auth config
     mkdir -p ~/.estuary
     cat > ~/.estuary/config.json << EOF
@@ -176,7 +176,7 @@ if [ -n "$ESTUARY_API_KEY" ] && [ -n "$ESTUARY_API_SECRET" ]; then
   "endpoint": "https://api.estuary.dev"
 }
 EOF
-    
+
     if flowctl auth test; then
         print_status "Authenticated with Estuary"
     else
@@ -219,14 +219,14 @@ configure_webhook() {
     local port=$2
     local token_var=$3
     local token_value=${!token_var}
-    
+
     if [ -z "$token_value" ]; then
         print_warning "No token for $server - skipping webhook config"
         return
     fi
-    
+
     echo -n "Configuring $server webhook... "
-    
+
     # Update MCP server environment to include webhook token
     docker service update \
         --env-add "ESTUARY_WEBHOOK_TOKEN=$token_value" \
@@ -268,7 +268,7 @@ if command -v flowctl &> /dev/null; then
     echo "✅ flowctl installed"
     if flowctl auth test &>/dev/null; then
         echo "✅ Estuary authenticated"
-        
+
         # List flows if authenticated
         echo ""
         echo "Active flows:"
@@ -300,4 +300,4 @@ echo "3. Monitor: http://146.235.200.1:3000/d/estuary-flow"
 echo ""
 echo "All operations completed in the cloud! 🌩️"
 
-CLOUD_DEPLOY 
+CLOUD_DEPLOY

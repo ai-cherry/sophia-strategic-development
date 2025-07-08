@@ -231,7 +231,7 @@ async def search(request: SearchRequest):
                 results.append(formatted)
 
         except Exception as e:
-            errors.append(f"Error searching {db_type}: {str(e)}")
+            errors.append(f"Error searching {db_type}: {e!s}")
             logger.error(f"Search error in {db_type}: {e}")
 
     return {

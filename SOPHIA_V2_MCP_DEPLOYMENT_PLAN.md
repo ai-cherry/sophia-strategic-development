@@ -1,8 +1,8 @@
 # Sophia AI V2 MCP Server Deployment Plan
 
-**Date:** January 14, 2025  
-**Scope:** Deploy 10 v2 MCP servers + supporting infrastructure  
-**Target:** Lambda Labs (146.235.200.1) via Docker Swarm  
+**Date:** January 14, 2025
+**Scope:** Deploy 10 v2 MCP servers + supporting infrastructure
+**Target:** Lambda Labs (146.235.200.1) via Docker Swarm
 **Duration:** 3-4 hours (automated execution)
 
 ## 🎯 Executive Summary
@@ -47,12 +47,12 @@ jobs:
   build-matrix:
     strategy:
       matrix:
-        server: [ai_memory, gong, snowflake, slack, notion, 
+        server: [ai_memory, gong, snowflake, slack, notion,
                 linear, github, codacy, asana, perplexity]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Build & Push
         env:
           DOCKER_REGISTRY: scoobyjava15
@@ -64,10 +64,10 @@ jobs:
             -f infrastructure/mcp_servers/${matrix.server}_v2/Dockerfile \
             -t $IMAGE_TAG \
             infrastructure/mcp_servers/${matrix.server}_v2/
-          
+
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
           docker push $IMAGE_TAG
-          
+
           # Save tag for deployment
           echo "${matrix.server}=$IMAGE_TAG" >> $GITHUB_OUTPUT
 ```
@@ -247,24 +247,24 @@ async def validate_deployment():
         ("gong_v2", 9011),
         # ... other servers
     ]
-    
+
     results = {}
     for server, port in servers:
         # Health check
         health = await check_health(f"http://146.235.200.1:{port}/health")
-        
+
         # Performance test
         perf = await test_performance(f"http://146.235.200.1:{port}/tools")
-        
+
         # Integration test
         integration = await test_integration(server)
-        
+
         results[server] = {
             "health": health,
             "performance": perf,
             "integration": integration
         }
-    
+
     return results
 ```
 
@@ -353,4 +353,4 @@ docker stack deploy -c docker-compose.cloud.previous.yml sophia-mcp
 gh workflow run deploy_v2_mcp_servers.yml
 ```
 
-This plan leverages our enhanced Docker Swarm deployment tools and follows all established patterns for zero-manual-intervention deployment. 
+This plan leverages our enhanced Docker Swarm deployment tools and follows all established patterns for zero-manual-intervention deployment.

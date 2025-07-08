@@ -241,9 +241,9 @@ class DependencyManager:
         except ValueError as e:
             validation_result["valid"] = False
             validation_result["errors"].append(str(e))
-            validation_result["circular_dependencies"] = (
-                self._detect_circular_dependencies()
-            )
+            validation_result[
+                "circular_dependencies"
+            ] = self._detect_circular_dependencies()
 
         # Check for missing platform definitions (would be checked against actual adapters)
         # This would be implemented when we have the full adapter registry
