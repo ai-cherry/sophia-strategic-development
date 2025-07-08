@@ -32,7 +32,7 @@ from cryptography.fernet import Fernet
 from jose import jwt
 from pydantic import BaseModel, Field
 
-from core.config_manager import get_config_value as config
+from backend.core.auto_esc_config import get_config_value as config
 
 logger = logging.getLogger(__name__)
 
