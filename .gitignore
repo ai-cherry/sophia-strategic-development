@@ -82,7 +82,8 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# Large reports and analysis files
+# Reports and analysis files
+reports/
 *_report.json
 *_results.json
 large_files_list.txt
