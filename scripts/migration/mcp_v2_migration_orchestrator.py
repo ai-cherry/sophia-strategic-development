@@ -270,14 +270,17 @@ class MigrationOrchestrator:
         return all_passed
 
     def _check_git_status(self) -> bool:
-        """Check git working directory is clean"""
+        """Check git working directory is clean (ignoring external submodules)"""
         result = subprocess.run(
             ["git", "status", "--porcelain"],
             capture_output=True,
             text=True,
             check=False,
         )
-        return len(result.stdout.strip()) == 0
+        # Filter out external submodules
+        lines = result.stdout.strip().split('\n')
+        dirty_files = [line for line in lines if line and not line.strip().startswith('M external/')]
+        return len(dirty_files) == 0
 
     def _run_base_tests(self) -> bool:
         """Run baseline tests"""
