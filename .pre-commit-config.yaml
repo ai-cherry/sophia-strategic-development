@@ -7,7 +7,7 @@ repos:
     rev: 23.12.1
     hooks:
       - id: black
-        language_version: python3.11
+        language_version: python3.12
         args: [--line-length=88]
 
   # Python linting
@@ -59,14 +59,14 @@ repos:
       #   language: python
       #   types: [text]
       #   exclude: .*/(test_.*|.*_test)\.py
-      
+
       # - id: remind-about-one-time-script-deletion
       #   name: Remind about one-time script deletion
       #   entry: python scripts/remind_about_one_time_script_deletion.py
       #   language: python
       #   pass_filenames: true
       #   files: ^scripts/.*\.py$
-      
+
       # Keep monorepo guard - it's important
       - id: monorepo-transition-guard
         name: Guard against monorepo transition violations
@@ -85,9 +85,15 @@ repos:
         pass_filenames: true
         files: ^(apps|libs)/
 
+      - id: duplication-scan
+        name: duplication-scan
+        entry: python scripts/duplication_scan.py
+        language: python
+        pass_filenames: false
+
 # Configuration
 default_language_version:
-  python: python3.11
+  python: python3.12
 
 exclude: |
   (?x)^(
