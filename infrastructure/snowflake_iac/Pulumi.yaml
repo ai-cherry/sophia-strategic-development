@@ -1,0 +1,9 @@
+name: sophia-ai-snowflake
+runtime: python
+description: Infrastructure as Code for Sophia AI Snowflake environment
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: sophia-ai-snowflake
+      project: sophia-ai
+      environment: ${pulumi.stack}
