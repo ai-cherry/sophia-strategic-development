@@ -50,7 +50,10 @@
     "v0dev": 9040
   },
   "ai_memory_v2": 9002,
+  "asana_v2": 9015,
   "description": "Consolidated MCP Server Port Configuration - 48+ Servers",
+  "gong_v2": 9013,
+  "hubspot_unified_v2": 9012,
   "infrastructure_management_v2": 9005,
   "lambda_labs": {
     "gateway_port": 8080,
@@ -59,6 +62,7 @@
   },
   "lambda_labs_cli_v2": 9006,
   "last_updated": "2025-07-03T13:39:27",
+  "linear_v2": 9014,
   "mcp_servers": {
     "business_intelligence": {
       "gong": {
@@ -143,6 +147,7 @@
   },
   "postgres_v2": 9003,
   "redis_cache_v2": 9004,
+  "salesforce_v2": 9011,
   "server_groups": {
     "business_intelligence": [
       9100,

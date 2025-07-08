@@ -1,0 +1,145 @@
+{
+  "summary": {
+    "total_files_scanned": 7806,
+    "files_with_issues": 12,
+    "migration_progress": 99.85,
+    "critical_issues": 0,
+    "router_adoption": 9
+  },
+  "statistics": {
+    "total_files": 7806,
+    "files_with_issues": 12,
+    "direct_openai_calls": 6,
+    "direct_portkey_calls": 2,
+    "direct_anthropic_calls": 0,
+    "hardcoded_keys": 0,
+    "old_imports": 2,
+    "router_usage": 9
+  },
+  "issues_by_file": {
+    "/Users/lynnmusil/sophia-main/core/agents/langgraph_agent_base.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 194
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/core/use_cases/asana_project_intelligence_agent.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 28
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/archive/unified_chat_duplicates/enhanced_unified_chat_service.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 27
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/scripts/migration/validate_llm_migration_fixed.py": [
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "portkey",
+        "pattern": "AsyncPortkey()"
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/api/app/app.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 28
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/external/anthropic-mcp-python-sdk/examples/fastmcp/memory.py": [
+      {
+        "type": "direct_import",
+        "provider": "openai",
+        "line": 23
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "line": 276
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "line": 285
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/mcp_servers/ai_memory_auto_discovery.py": [
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/services/unified_llm_service_backup.py": [
+      {
+        "type": "direct_import",
+        "provider": "openai",
+        "line": 19
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "portkey",
+        "pattern": "AsyncPortkey()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "line": 129
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/services/code_modification_service.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 13
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/services/sophia_agent_orchestrator.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 15
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/mcp_servers/ai_memory_v2/utils/embeddings.py": [
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/mcp_servers/ai_memory_v2/handlers/main_handler.py": [
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      }
+    ]
+  },
+  "recommendations": [
+    "Found 6 direct OpenAI API calls. Run 'python scripts/codemod/replace_llm_clients.py --write' to migrate.",
+    "Found 2 old LLM client imports. These should be replaced with 'from infrastructure.services.llm_router import llm_router'.",
+    "Low router adoption detected. Consider running the codemod script to accelerate migration to the unified LLM router."
+  ]
+}

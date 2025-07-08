@@ -9,7 +9,6 @@ Created: July 4, 2025
 Usage:
     uvicorn backend.app.app:app --host 0.0.0.0 --port 8000
 """
-
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -19,43 +18,33 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# Core imports
 from api import unified_routes
 from backend.core.auto_esc_config import get_config_value
 from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
-from infrastructure.services.unified_llm_service import get_unified_llm_service
 from infrastructure.services.unified_sophia_service import get_unified_sophia_service
 
 logger = logging.getLogger(__name__)
-
-# Global service instances
 services = {}
 
 
 async def initialize_core_services():
     """Initialize core services with proper error handling"""
     try:
-        # Initialize the unified Sophia service
         services["sophia"] = get_unified_sophia_service()
         await services["sophia"].initialize()
         logger.info("✅ Unified Sophia Service initialized")
-
-        # Initialize knowledge service if available
         try:
             services["knowledge"] = FoundationalKnowledgeService()
             logger.info("✅ Knowledge service initialized")
         except ImportError:
             logger.warning("⚠️ Knowledge service not available")
-
-        # Initialize LLM service if available
         try:
             services["llm"] = await get_unified_llm_service()
             logger.info("✅ LLM service initialized")
         except ImportError:
             logger.warning("⚠️ LLM service not available")
-
     except Exception as e:
         logger.exception(f"❌ Error initializing services: {e}")
         raise
@@ -92,17 +81,13 @@ def create_app() -> FastAPI:
         version="3.0.0",
         lifespan=lifespan,
     )
-
-    # Add middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # TODO: Restrict in production
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    # Include routers
     app.include_router(unified_routes.router)
 
     @app.get("/", tags=["Root"])
@@ -118,7 +103,6 @@ def create_app() -> FastAPI:
             "date": "2025-07-04",
         }
 
-    # Health endpoint
     @app.get("/health")
     async def health():
         """Health check endpoint"""
@@ -136,7 +120,6 @@ def create_app() -> FastAPI:
             },
         )
 
-    # API health endpoint
     @app.get("/api/health")
     async def api_health():
         """API health check endpoint"""
@@ -145,17 +128,10 @@ def create_app() -> FastAPI:
     return app
 
 
-# Create the app instance for uvicorn
 app = create_app()
-
-
 if __name__ == "__main__":
     import uvicorn
 
-    # Run the application
     uvicorn.run(
-        app,
-        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
-        port=int(os.getenv("PORT", 8000)),
-        log_level="info",
+        app, host="127.0.0.1", port=int(os.getenv("PORT", 8000)), log_level="info"
     )

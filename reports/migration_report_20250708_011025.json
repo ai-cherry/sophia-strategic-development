@@ -1,0 +1,180 @@
+{
+  "migration_date": "2025-07-08T07:10:25.731001",
+  "dry_run": false,
+  "servers": {
+    "snowflake_cortex": {
+      "v2_name": "snowflake_v2",
+      "port": 9001,
+      "phase": "phase_1",
+      "status": "pending"
+    },
+    "ai_memory": {
+      "v2_name": "ai_memory_v2",
+      "port": 9002,
+      "phase": "phase_1",
+      "status": "pending"
+    },
+    "postgres": {
+      "v2_name": "postgres_v2",
+      "port": 9003,
+      "phase": "phase_1",
+      "status": "pending"
+    },
+    "redis": {
+      "v2_name": "redis_cache_v2",
+      "port": 9004,
+      "phase": "phase_1",
+      "status": "pending"
+    },
+    "docker": {
+      "v2_name": "infrastructure_management_v2",
+      "port": 9005,
+      "phase": "phase_1",
+      "status": "pending"
+    },
+    "lambda_labs_cli": {
+      "v2_name": "lambda_labs_cli_v2",
+      "port": 9006,
+      "phase": "phase_1",
+      "status": "pending"
+    },
+    "salesforce": {
+      "v2_name": "salesforce_v2",
+      "port": 9011,
+      "phase": "phase_2",
+      "status": "completed"
+    },
+    "hubspot_unified": {
+      "v2_name": "hubspot_unified_v2",
+      "port": 9012,
+      "phase": "phase_2",
+      "status": "completed"
+    },
+    "gong": {
+      "v2_name": "gong_v2",
+      "port": 9013,
+      "phase": "phase_2",
+      "status": "completed"
+    },
+    "linear": {
+      "v2_name": "linear_v2",
+      "port": 9014,
+      "phase": "phase_2",
+      "status": "completed"
+    },
+    "asana": {
+      "v2_name": "asana_v2",
+      "port": 9015,
+      "phase": "phase_2",
+      "status": "completed"
+    },
+    "slack": {
+      "v2_name": "slack_v2",
+      "port": 9021,
+      "phase": "phase_3",
+      "status": "pending"
+    },
+    "notion": {
+      "v2_name": "notion_v2",
+      "port": 9022,
+      "phase": "phase_3",
+      "status": "pending"
+    },
+    "github": {
+      "v2_name": "github_v2",
+      "port": 9023,
+      "phase": "phase_3",
+      "status": "pending"
+    },
+    "graphiti": {
+      "v2_name": "graphiti_v2",
+      "port": 9024,
+      "phase": "phase_3",
+      "status": "pending"
+    },
+    "portkey_admin": {
+      "v2_name": "ai_operations_v2",
+      "port": 9025,
+      "phase": "phase_3",
+      "status": "pending"
+    },
+    "bright_data": {
+      "v2_name": "data_collection_v2",
+      "port": 9031,
+      "phase": "phase_4",
+      "status": "pending"
+    },
+    "playwright": {
+      "v2_name": "playwright_v2",
+      "port": 9032,
+      "phase": "phase_4",
+      "status": "pending"
+    },
+    "huggingface_ai": {
+      "v2_name": "huggingface_ai_v2",
+      "port": 9033,
+      "phase": "phase_4",
+      "status": "pending"
+    },
+    "estuary": {
+      "v2_name": "estuary_v2",
+      "port": 9034,
+      "phase": "phase_4",
+      "status": "pending"
+    },
+    "airbyte": {
+      "v2_name": "airbyte_v2",
+      "port": 9035,
+      "phase": "phase_4",
+      "status": "pending"
+    }
+  },
+  "log": [
+    {
+      "timestamp": "2025-07-08T07:10:25.720291",
+      "server": "salesforce",
+      "v2_name": "salesforce_v2",
+      "phase": "phase_2",
+      "status": "success",
+      "error": null
+    },
+    {
+      "timestamp": "2025-07-08T07:10:25.725045",
+      "server": "hubspot_unified",
+      "v2_name": "hubspot_unified_v2",
+      "phase": "phase_2",
+      "status": "success",
+      "error": null
+    },
+    {
+      "timestamp": "2025-07-08T07:10:25.727228",
+      "server": "gong",
+      "v2_name": "gong_v2",
+      "phase": "phase_2",
+      "status": "success",
+      "error": null
+    },
+    {
+      "timestamp": "2025-07-08T07:10:25.728899",
+      "server": "linear",
+      "v2_name": "linear_v2",
+      "phase": "phase_2",
+      "status": "success",
+      "error": null
+    },
+    {
+      "timestamp": "2025-07-08T07:10:25.730950",
+      "server": "asana",
+      "v2_name": "asana_v2",
+      "phase": "phase_2",
+      "status": "success",
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "completed": 5,
+    "failed": 0,
+    "pending": 16
+  }
+}
