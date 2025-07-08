@@ -19,6 +19,9 @@ from backend.services.asana_service import AsanaService
 from backend.services.gong_service import GongService
 from backend.services.hubspot_service import HubSpotService
 from backend.services.knowledge_service import KnowledgeService
+
+# Add Lambda Labs imports
+from backend.services.lambda_labs_service import LambdaLabsService
 from backend.services.linear_service import LinearService
 from backend.services.mcp_orchestration_service import MCPOrchestrationService
 from backend.services.notion_service import NotionService
@@ -75,6 +78,9 @@ class UnifiedChatService:
         self.context_analyzer = ContextAnalyzer()
         self.mcp_orchestrator = MCPOrchestrationService()
 
+        # Lambda Labs integration
+        self.lambda_labs = LambdaLabsService()
+
         # Data source services
         self.knowledge = KnowledgeService()
         self.gong = GongService()
@@ -97,6 +103,14 @@ class UnifiedChatService:
             "web": self.web_search,
             "database": self.cortex,
             "memory": self.ai_memory,
+            "lambda_labs": self.lambda_labs,  # Add Lambda Labs to service map
+        }
+
+        # Routing configuration
+        self.routing_config = {
+            "serverless_first": True,
+            "gpu_fallback": True,
+            "cost_optimization": True,
         }
 
         # Initialize LangGraph workflow
@@ -857,3 +871,181 @@ Synthesize the provided data into a clear, insightful response."""
                     insight=response["response"],
                     confidence=response["confidence"],
                 )
+
+    async def process_message_with_lambda(
+        self, message: str, context: dict[str, Any] = None
+    ) -> dict[str, Any]:
+        """Process message using Lambda Labs serverless inference with intelligent routing"""
+
+        try:
+            # Classify message for optimal routing
+            classification = await self._classify_message(message, context)
+
+            # Route based on classification
+            if classification["requires_gpu"]:
+                return await self._route_to_gpu_instance(message, context)
+            else:
+                return await self._route_to_serverless(message, context, classification)
+
+        except Exception as e:
+            return {
+                "response": f"Lambda Labs inference failed: {e!s}",
+                "success": False,
+                "provider": "lambda_labs",
+                "fallback_available": True,
+            }
+
+    async def _classify_message(
+        self, message: str, context: dict[str, Any] = None
+    ) -> dict[str, Any]:
+        """Classify message for optimal routing and model selection"""
+
+        message_lower = message.lower()
+
+        # GPU-required indicators
+        gpu_indicators = [
+            "train model",
+            "fine-tune",
+            "large dataset",
+            "batch processing",
+            "custom model",
+            "specialized training",
+            "research experiment",
+        ]
+
+        requires_gpu = any(indicator in message_lower for indicator in gpu_indicators)
+
+        # Complexity analysis
+        complexity_indicators = {
+            "simple": ["quick", "brief", "short", "list", "summarize"],
+            "complex": [
+                "analyze",
+                "detailed",
+                "comprehensive",
+                "research",
+                "reasoning",
+            ],
+        }
+
+        complexity = "balanced"  # default
+        for level, indicators in complexity_indicators.items():
+            if any(indicator in message_lower for indicator in indicators):
+                complexity = level
+                break
+
+        return {
+            "requires_gpu": requires_gpu,
+            "complexity": complexity,
+            "estimated_tokens": len(message) * 1.5,  # rough estimation
+            "priority": "normal",
+        }
+
+    async def _route_to_serverless(
+        self, message: str, context: dict, classification: dict
+    ) -> dict[str, Any]:
+        """Route to Lambda Labs serverless with optimization"""
+
+        # Prepare enhanced context
+        messages = []
+        if context:
+            system_context = f"Context: {json.dumps(context, indent=2)}"
+            messages.append({"role": "system", "content": system_context})
+
+        messages.append({"role": "user", "content": message})
+
+        # Select optimal model based on classification
+        model = self.lambda_labs.select_optimal_model(
+            message, classification["complexity"]
+        )
+
+        # Execute inference
+        result = await self.lambda_labs.chat_completion(
+            messages=messages,
+            model=model,
+            max_tokens=min(500, int(classification["estimated_tokens"] * 2)),
+        )
+
+        return {
+            "response": result["choices"][0]["message"]["content"],
+            "model_used": model,
+            "usage": result.get("usage", {}),
+            "provider": "lambda_labs_serverless",
+            "classification": classification,
+            "success": True,
+        }
+
+    async def _route_to_gpu_instance(
+        self, message: str, context: dict
+    ) -> dict[str, Any]:
+        """Route to GPU instance for specialized workloads"""
+
+        # This would integrate with existing GPU instance management
+        # For now, return a placeholder indicating GPU routing
+        return {
+            "response": "GPU instance routing not yet implemented. Using serverless fallback.",
+            "provider": "lambda_labs_gpu",
+            "success": False,
+            "fallback_to_serverless": True,
+        }
+
+    async def natural_language_infrastructure_control(
+        self, command: str
+    ) -> dict[str, Any]:
+        """Process natural language infrastructure control commands"""
+
+        command_lower = command.lower()
+
+        if "lambda" in command_lower:
+            if "optimize" in command_lower or "reduce cost" in command_lower:
+                return await self._optimize_lambda_infrastructure(command)
+            elif "analyze" in command_lower or "usage" in command_lower:
+                return await self._analyze_lambda_usage(command)
+            elif "deploy" in command_lower or "setup" in command_lower:
+                return await self._deploy_lambda_infrastructure(command)
+
+        return {
+            "response": "Infrastructure command not recognized",
+            "success": False,
+            "available_commands": [
+                "optimize lambda costs",
+                "analyze lambda usage",
+                "deploy lambda infrastructure",
+            ],
+        }
+
+    async def _optimize_lambda_infrastructure(self, command: str) -> dict[str, Any]:
+        """Optimize Lambda Labs infrastructure based on natural language command"""
+
+        try:
+            # Get current usage analytics
+            analytics = await self.lambda_labs.get_usage_analytics()
+
+            # Generate optimization recommendations
+            optimizations = []
+
+            if (
+                analytics["current_usage"]["daily_cost"]
+                > analytics["cost_config"]["daily_budget"] * 0.8
+            ):
+                optimizations.append(
+                    "Consider using faster models for simple tasks to reduce costs"
+                )
+
+            if (
+                analytics["current_usage"]["monthly_cost"]
+                > analytics["cost_config"]["monthly_budget"] * 0.5
+            ):
+                optimizations.append("Implement batch processing for similar requests")
+
+            return {
+                "response": f"Lambda infrastructure optimization analysis complete. Found {len(optimizations)} optimization opportunities.",
+                "optimizations": optimizations,
+                "current_usage": analytics["current_usage"],
+                "success": True,
+            }
+
+        except Exception as e:
+            return {
+                "response": f"Infrastructure optimization failed: {e!s}",
+                "success": False,
+            }

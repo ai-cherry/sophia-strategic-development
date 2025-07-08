@@ -380,6 +380,123 @@ class SnowflakeAdapter(PlatformAdapter):
             self.logger.exception(f"Failed to get data statistics: {e}")
             return {"error": str(e)}
 
+    async def natural_language_to_sql(self, query: str) -> dict[str, Any]:
+        """Convert natural language query to SQL using Lambda Labs AI."""
+        try:
+            if not await self.config_manager.connect():
+                return {"success": False, "error": "Connection failed"}
+
+            # Get schema context
+            schema_context = await self._get_schema_context()
+
+            # Import Lambda Labs service
+            from backend.services.lambda_labs_service import LambdaLabsService
+
+            lambda_service = LambdaLabsService()
+
+            # Convert natural language to SQL
+            sql_query = await lambda_service.natural_language_to_sql(
+                query=query, schema_context=schema_context
+            )
+
+            # Execute the generated SQL
+            results = self.config_manager.execute_query(sql_query)
+
+            return {
+                "success": True,
+                "natural_language_query": query,
+                "generated_sql": sql_query,
+                "results": results,
+                "row_count": len(results) if results else 0,
+            }
+
+        except Exception as e:
+            self.logger.exception(f"Natural language to SQL failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    async def _get_schema_context(self) -> str:
+        """Get schema context for AI query generation."""
+        try:
+            # Get key tables and their structures
+            key_tables = [
+                "SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS",
+                "SOPHIA_GONG_RAW.GONG_CALLS",
+                "SOPHIA_SLACK_RAW.SLACK_MESSAGES",
+                "SOPHIA_AI_CORE.AI_USAGE_ANALYTICS",
+            ]
+
+            schema_info = []
+
+            for table in key_tables:
+                parts = table.split(".")
+                catalog = parts[0] if len(parts) > 2 else "SOPHIA_AI_CORE"
+                schema = parts[1] if len(parts) > 2 else parts[0]
+                table_name = parts[2] if len(parts) > 2 else parts[1]
+
+                columns_query = f"""
+                SELECT column_name, data_type, is_nullable
+                FROM information_schema.columns
+                WHERE table_catalog = '{catalog}'
+                AND table_schema = '{schema}'
+                AND table_name = '{table_name}'
+                ORDER BY ordinal_position
+                """
+
+                columns = self.config_manager.execute_query(columns_query)
+
+                if columns:
+                    table_info = f"\nTable: {table}\nColumns:"
+                    for col in columns:
+                        table_info += f"\n  - {col['COLUMN_NAME']} ({col['DATA_TYPE']})"
+                    schema_info.append(table_info)
+
+            return "\n".join(schema_info)
+
+        except Exception as e:
+            self.logger.warning(f"Failed to get schema context: {e}")
+            return "Schema context unavailable"
+
+    async def optimize_with_ai(self, query: str) -> dict[str, Any]:
+        """Optimize SQL query using Lambda Labs AI."""
+        try:
+            from backend.services.lambda_labs_service import LambdaLabsService
+
+            lambda_service = LambdaLabsService()
+
+            optimization_prompt = f"""Optimize this Snowflake SQL query for performance:
+
+Original Query:
+{query}
+
+Optimization requirements:
+- Use appropriate indexes and clustering keys
+- Minimize data scans
+- Optimize JOIN order
+- Add appropriate WHERE clause filters
+- Use CTEs for readability
+
+Optimized Query:"""
+
+            optimized_sql = await lambda_service.simple_inference(
+                optimization_prompt, complexity="premium"
+            )
+
+            return {
+                "success": True,
+                "original_query": query,
+                "optimized_query": optimized_sql,
+                "optimization_applied": True,
+            }
+
+        except Exception as e:
+            self.logger.exception(f"Query optimization failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "original_query": query,
+                "optimization_applied": False,
+            }
+
 
 class SnowflakeConfigManager:
     """Manages Snowflake configuration with retry logic.

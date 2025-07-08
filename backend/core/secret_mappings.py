@@ -1,6 +1,6 @@
 """
-Centralized secret mapping configuration
-Maps GitHub Organization Secrets to internal key names
+Centralized Secret Mapping Configuration
+Clean Lambda Labs integration with Pulumi ESC and GitHub workflows
 """
 
 GITHUB_TO_INTERNAL_MAPPING = {
@@ -12,7 +12,7 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "MEM0_API_KEY": "mem0_api_key",
     # Data Infrastructure
     "SNOWFLAKE_ACCOUNT": "snowflake_account",
-    "SNOWFLAKE_USERNAME": "snowflake_user",
+    "SNOWFLAKE_USER": "snowflake_user",
     "SNOWFLAKE_PASSWORD": "snowflake_password",
     "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
     "SNOWFLAKE_DATABASE": "snowflake_database",
@@ -25,30 +25,81 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "HUBSPOT_ACCESS_TOKEN": "hubspot_access_token",
     "LINEAR_API_KEY": "linear_api_key",
     "NOTION_API_TOKEN": "notion_api_token",
-    # Infrastructure
+    # Lambda Labs Infrastructure (Clean Configuration)
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
+    # Infrastructure
     "DOCKER_TOKEN": "docker_token",
     "DOCKER_HUB_ACCESS_TOKEN": "docker_hub_access_token",
-    # Communication
+    "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
+    # Communications
     "SLACK_BOT_TOKEN": "slack_bot_token",
     "SLACK_APP_TOKEN": "slack_app_token",
-    "SLACK_SIGNING_SECRET": "slack_signing_secret",
+    "SLACK_WEBHOOK_URL": "slack_webhook_url",
+    # Security
+    "JWT_SECRET_KEY": "jwt_secret_key",
+    "ENCRYPTION_KEY": "encryption_key",
+    # Monitoring
+    "SENTRY_DSN": "sentry_dsn",
+    "DATADOG_API_KEY": "datadog_api_key",
+    # Deployment
+    "VERCEL_TOKEN": "vercel_token",
+    "GITHUB_TOKEN": "github_token",
 }
 
-# Backwards-compatibility alias: map old internal key to new canonical key
-ALIAS_INTERNAL_MAPPING = {
-    "lambda_api_key": "lambda_labs_api_key",
+# Lambda Labs specific configuration
+LAMBDA_LABS_CONFIG = {
+    "api_endpoint": "https://api.lambda.ai/v1",
+    "supported_models": [
+        "llama3.1-8b-instruct",
+        "llama3.1-70b-instruct-fp8",
+        "llama-4-maverick-17b-128e-instruct-fp8",
+    ],
+    "cost_per_million_tokens": {
+        "llama3.1-8b-instruct": 0.07,
+        "llama3.1-70b-instruct-fp8": 0.35,
+        "llama-4-maverick-17b-128e-instruct-fp8": 0.88,
+    },
+    "budget_limits": {
+        "daily": 50.0,
+        "monthly": 1000.0,
+    },
+    "routing_strategy": "serverless_first",
+    "gpu_fallback": True,
+}
+
+# Service dependencies
+SERVICE_DEPENDENCIES = {
+    "lambda_labs": ["snowflake", "redis"],
+    "snowflake": ["estuary"],
+    "gong": ["snowflake", "ai_memory"],
+    "slack": ["snowflake", "ai_memory"],
+    "ai_memory": ["snowflake", "pinecone"],
+}
+
+# Health check endpoints
+HEALTH_CHECK_ENDPOINTS = {
+    "lambda_labs": "/v1/models",
+    "snowflake": "/health",
+    "gong": "/v2/calls",
+    "slack": "/api/test",
+    "linear": "/graphql",
 }
 
 
-def get_internal_key(github_key: str) -> str:
-    """Convert GitHub secret name to internal key name"""
-    return GITHUB_TO_INTERNAL_MAPPING.get(github_key, github_key.lower())
+def get_secret_mapping(github_secret_name: str) -> str:
+    """Get internal secret name from GitHub secret name."""
+    return GITHUB_TO_INTERNAL_MAPPING.get(
+        github_secret_name, github_secret_name.lower()
+    )
 
 
-def get_github_key(internal_key: str) -> str:
-    """Convert internal key name to GitHub secret name"""
-    for github_key, internal in GITHUB_TO_INTERNAL_MAPPING.items():
-        if internal == internal_key:
-            return github_key
-    return ALIAS_INTERNAL_MAPPING.get(internal_key, internal_key.upper())
+def get_lambda_labs_model_cost(model: str) -> float:
+    """Get cost per million tokens for a Lambda Labs model."""
+    return LAMBDA_LABS_CONFIG["cost_per_million_tokens"].get(
+        model, 0.35
+    )  # Default to mid-tier
+
+
+def get_service_dependencies(service: str) -> list[str]:
+    """Get dependencies for a service."""
+    return SERVICE_DEPENDENCIES.get(service, [])

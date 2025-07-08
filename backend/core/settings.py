@@ -4,7 +4,7 @@ Uses Pydantic for validation and environment variable loading
 """
 
 from functools import lru_cache
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import Field, validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,9 +31,6 @@ class Settings(BaseSettings):
 
     # Infrastructure
     lambda_api_key: str = Field(..., env="LAMBDA_API_KEY")
-    lambda_api_endpoint: str = Field(
-        default="https://cloud.lambda.ai/api/v1", env="LAMBDA_API_ENDPOINT"
-    )
     lambda_ssh_private_key: str | None = Field(None, env="LAMBDA_SSH_PRIVATE_KEY")
 
     # AI/ML Providers
@@ -100,6 +97,9 @@ class Settings(BaseSettings):
     pulumi_access_token: str | None = Field(None, env="PULUMI_ACCESS_TOKEN")
     pulumi_org: str = Field(default="ai-cherry", env="PULUMI_ORG")
     pulumi_project: str = Field(default="lambda-labs-production", env="PULUMI_PROJECT")
+
+    # Lambda Labs - using API key only
+    lambda_labs_api_key: Optional[str] = Field(None, env="LAMBDA_LABS_API_KEY")
 
     # Model configuration
     model_config = SettingsConfigDict(

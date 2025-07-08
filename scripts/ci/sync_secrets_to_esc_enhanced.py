@@ -20,8 +20,7 @@ GITHUB_TO_ESC_MAPPINGS = {
     "PULUMI_ACCESS_TOKEN": "values.sophia.infrastructure.pulumi_access_token",
     "DOCKER_TOKEN": "values.sophia.infrastructure.docker_token",  # Not DOCKER_HUB_TOKEN
     "LAMBDA_API_KEY": "values.sophia.infrastructure.lambda_labs.api_key",
-    "LAMBDA_SSH_KEY": "values.sophia.infrastructure.lambda_labs.ssh_public_key",
-    "LAMBDA_PRIVATE_SSH_KEY": "values.sophia.infrastructure.lambda_labs.ssh_private_key",
+    # Lambda Labs now uses API key only (LAMBDA_LABS_API_KEY)
     "VERCEL_ACCESS_TOKEN": "values.sophia.infrastructure.vercel_token",
     # Data Services - Using actual names
     "SNOWFLAKE_ACCOUNT": "values.sophia.data.snowflake.account",
@@ -34,6 +33,8 @@ GITHUB_TO_ESC_MAPPINGS = {
     "GONG_CLIENT_SECRET": "values.sophia.integrations.gong.client_secret",
     "HUBSPOT_ACCESS_TOKEN": "values.sophia.integrations.hubspot_token",
     "SLACK_BOT_TOKEN": "values.sophia.integrations.slack.bot_token",
+    "SLACK_APP_TOKEN": "values.sophia.integrations.slack.app_token",
+    "SLACK_WEBHOOK_URL": "values.sophia.integrations.slack.webhook_url",
     "LINEAR_API_KEY": "values.sophia.integrations.linear_api_key",
     "ASANA_API_TOKEN": "values.sophia.integrations.asana_token",
     "GH_API_TOKEN": "values.sophia.integrations.github_token",  # Not GITHUB_TOKEN
@@ -64,6 +65,7 @@ GITHUB_TO_ESC_MAPPINGS = {
     "SLACK_SIGNING_SECRET": "values.sophia.integrations.slack.signing_secret",
     "SLACK_CLIENT_ID": "values.sophia.integrations.slack.client_id",
     "SLACK_CLIENT_SECRET": "values.sophia.integrations.slack.client_secret",
+    "VERCEL_TOKEN": "values.sophia.infrastructure.vercel.token",
 }
 
 
