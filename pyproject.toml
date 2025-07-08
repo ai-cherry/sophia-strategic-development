@@ -42,6 +42,7 @@ dependencies = [
     "redis>=5.0.1",
     "snowflake-connector-python>=3.6.0",
     "snowflake-sqlalchemy>=1.7.5",
+    "snowflake-snowpark-python>=1.6.1",
     # AI and ML
     "openai>=1.6.1",
     "anthropic>=0.25.0",
@@ -111,10 +112,11 @@ dependencies = [
     "langchain-core>=0.2.0",
     "langchain-openai>=0.1.7",
     "langchain-text-splitters>=0.2.0",
-    "langgraph>=0.0.64",
+    "langgraph>=0.0.22",
     "langsmith>=0.1.56",
     "lxml>=5.2.2",
     "docker>=7.1.0",
+    "anthropic-mcp-python-sdk>=0.4.1",
 ]
 
 [project.optional-dependencies]

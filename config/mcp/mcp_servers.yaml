@@ -1,0 +1,195 @@
+# MCP Server Configuration
+# Tier levels: PRIMARY (critical), SECONDARY (important), TERTIARY (optional)
+
+servers:
+  # Official MCP Servers
+  - name: snowflake-official
+    type: snowflake
+    tier: PRIMARY
+    port: 9130
+    capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
+    pat_secret: SNOWFLAKE_MCP_PAT_PROD
+    health_endpoint: /health
+    config:
+      warehouse: SOPHIA_AI_WH
+      database: SOPHIA_AI
+      schema: PROCESSED_AI
+
+  - name: redis-cache
+    type: redis
+    tier: PRIMARY
+    port: 9120
+    capabilities: [CACHE, PUBSUB, STATE]
+    health_endpoint: /health
+    config:
+      max_connections: 100
+      ttl_default: 3600
+
+  - name: pulumi-infra
+    type: pulumi
+    tier: SECONDARY
+    port: 9140
+    capabilities: [INFRASTRUCTURE, SECRETS, DEPLOYMENT]
+    health_endpoint: /health
+    config:
+      organization: scoobyjava-org
+      stack: sophia-ai-production
+
+  # Core Business Intelligence
+  - name: ai-memory-v2
+    type: ai_memory
+    tier: PRIMARY
+    port: 9001
+    capabilities: [MEMORY, EMBEDDINGS, SEARCH]
+    health_endpoint: /health
+    config:
+      vector_dims: 768
+      max_memories: 10000
+
+  - name: gong-v2
+    type: gong
+    tier: PRIMARY
+    port: 9010
+    capabilities: [CALLS, TRANSCRIPTS, ANALYTICS]
+    health_endpoint: /health
+    config:
+      sync_interval: 3600
+
+  - name: hubspot-unified
+    type: hubspot
+    tier: PRIMARY
+    port: 9006
+    capabilities: [CRM, CONTACTS, DEALS, ANALYTICS]
+    health_endpoint: /health
+
+  - name: slack-v2
+    type: slack
+    tier: PRIMARY
+    port: 9005
+    capabilities: [MESSAGING, CHANNELS, USERS, SEARCH]
+    health_endpoint: /health
+
+  # Development Tools
+  - name: github-v2
+    type: github
+    tier: SECONDARY
+    port: 9003
+    capabilities: [REPOS, ISSUES, PRS, ACTIONS]
+    health_endpoint: /health
+
+  - name: linear-v2
+    type: linear
+    tier: SECONDARY
+    port: 9004
+    capabilities: [PROJECTS, ISSUES, TEAMS, ANALYTICS]
+    health_endpoint: /health
+
+  - name: codacy-v2
+    type: codacy
+    tier: SECONDARY
+    port: 9008
+    capabilities: [CODE_QUALITY, SECURITY, METRICS]
+    health_endpoint: /health
+
+  # AI Gateways
+  - name: portkey-admin
+    type: portkey
+    tier: SECONDARY
+    port: 9013
+    capabilities: [LLM_ROUTING, COST_TRACKING, ANALYTICS]
+    health_endpoint: /health
+
+  - name: openrouter-gateway
+    type: openrouter
+    tier: TERTIARY
+    port: 9150
+    capabilities: [LLM_ACCESS, MODEL_SELECTION]
+    health_endpoint: /health
+
+  # Data Infrastructure
+  - name: estuary-flow
+    type: estuary
+    tier: SECONDARY
+    port: 9160
+    capabilities: [STREAMING, ETL, CDC]
+    health_endpoint: /health
+    config:
+      tenant: Pay_Ready
+
+  - name: postgres-analytics
+    type: postgres
+    tier: SECONDARY
+    port: 9170
+    capabilities: [SQL, ANALYTICS, STORAGE]
+    health_endpoint: /health
+
+  # Specialized Services
+  - name: n8n-automation
+    type: n8n
+    tier: TERTIARY
+    port: 9180
+    capabilities: [WORKFLOW, AUTOMATION, INTEGRATION]
+    health_endpoint: /health
+
+  - name: notion-knowledge
+    type: notion
+    tier: TERTIARY
+    port: 9190
+    capabilities: [DOCS, KNOWLEDGE_BASE, SEARCH]
+    health_endpoint: /health
+
+  - name: asana-projects
+    type: asana
+    tier: TERTIARY
+    port: 9200
+    capabilities: [PROJECTS, TASKS, TEAMS]
+    health_endpoint: /health
+
+  - name: perplexity-search
+    type: perplexity
+    tier: TERTIARY
+    port: 9210
+    capabilities: [WEB_SEARCH, RESEARCH, CITATIONS]
+    health_endpoint: /health
+
+  # UI/UX Services
+  - name: ui-ux-agent
+    type: ui_ux
+    tier: SECONDARY
+    port: 9002
+    capabilities: [DESIGN, COMPONENTS, ACCESSIBILITY]
+    health_endpoint: /health
+
+  - name: v0dev-generator
+    type: v0dev
+    tier: TERTIARY
+    port: 9220
+    capabilities: [UI_GENERATION, COMPONENTS, STYLING]
+    health_endpoint: /health
+
+  # Infrastructure Management
+  - name: lambda-labs-cli
+    type: lambda_labs
+    tier: SECONDARY
+    port: 9020
+    capabilities: [GPU_MANAGEMENT, INSTANCES, MONITORING]
+    health_endpoint: /health
+
+  - name: salesforce-crm
+    type: salesforce
+    tier: TERTIARY
+    port: 9230
+    capabilities: [CRM, SALES, SERVICE, ANALYTICS]
+    health_endpoint: /health
+
+# Global Configuration
+global:
+  health_check_interval: 30
+  timeout: 10
+  retry_attempts: 3
+  circuit_breaker:
+    failure_threshold: 5
+    recovery_timeout: 60
+  metrics:
+    enabled: true
+    port: 9090

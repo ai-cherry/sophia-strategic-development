@@ -987,3 +987,140 @@ class AccessLevel(Enum):
 **END OF HANDBOOK**
 
 *This document represents the complete, authoritative architecture for Sophia AI. Any conflicts between this handbook and other documentation should be resolved in favor of this document. The Phoenix has risen.*
+
+---
+
+## 🔄 SNOWFLAKE CORTEX DUAL-MODE ADAPTER
+
+### Architecture Overview
+
+The Snowflake Cortex service now supports dual-mode operation, providing flexibility and enhanced capabilities:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Snowflake Cortex Dual-Mode Adapter              │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐           ┌─────────────────────────┐  │
+│  │   Direct Mode   │           │      MCP Mode           │  │
+│  │                 │           │                         │  │
+│  │ • SQL Execution │           │ • PAT Authentication    │  │
+│  │ • Batch Ops     │           │ • Standardized Tools    │  │
+│  │ • Legacy Auth   │           │ • Cortex Search/Analyst │  │
+│  └────────┬────────┘           └───────────┬─────────────┘  │
+│           │                                 │                 │
+│           └─────────────┬───────────────────┘                │
+│                         ▼                                     │
+│              ┌──────────────────────┐                        │
+│              │   Unified Interface   │                        │
+│              │  • Auto Mode Selection│                        │
+│              │  • Intelligent Routing│                        │
+│              │  • Result Caching    │                        │
+│              └──────────────────────┘                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Mode Selection Strategy
+
+1. **AUTO Mode** (Default):
+   - Checks for PAT token availability
+   - Falls back to direct mode if needed
+   - Task-based routing optimization
+
+2. **DIRECT Mode**:
+   - Traditional username/password auth
+   - Direct SQL execution
+   - Optimal for batch operations
+
+3. **MCP Mode**:
+   - Programmatic Access Token (PAT) auth
+   - Access to Cortex Search & Analyst
+   - Standardized tool interfaces
+
+### Implementation Structure
+
+```
+shared/utils/snowflake_cortex/
+├── __init__.py          # Exports facade
+├── service.py           # Main service class
+├── core.py             # Direct SQL adapter
+├── mcp_client.py       # MCP server client
+├── enums.py            # Models and modes
+├── pool.py             # Connection pooling
+├── cache.py            # Result caching
+└── errors.py           # Error handling
+```
+
+### Performance Optimizations
+
+- **Connection Pooling**: 8 concurrent connections (configurable)
+- **Result Caching**: Redis-based with semantic similarity
+- **Intelligent Routing**: Task-specific mode selection
+- **Metrics Tracking**: Prometheus integration
+
+---
+
+## 🎯 MCP REGISTRY V2 & TIERING
+
+### Registry Architecture
+
+The enhanced MCP Registry v2 introduces YAML-based configuration with sophisticated tiering and capability mapping:
+
+```yaml
+# Tier Definitions
+PRIMARY:   Critical servers (must be operational)
+SECONDARY: Important servers (should be operational)
+TERTIARY:  Optional servers (nice to have)
+```
+
+### Server Capabilities
+
+Each MCP server declares its capabilities for intelligent routing:
+
+```yaml
+servers:
+  - name: snowflake-official
+    tier: PRIMARY
+    capabilities: [ANALYTICS, EMBEDDING, SEARCH, COMPLETION]
+
+  - name: redis-cache
+    tier: PRIMARY
+    capabilities: [CACHE, PUBSUB, STATE]
+
+  - name: ai-memory-v2
+    tier: PRIMARY
+    capabilities: [MEMORY, EMBEDDINGS, SEARCH]
+```
+
+### Registry Features
+
+1. **YAML Configuration**: `config/mcp/mcp_servers.yaml`
+2. **Health Monitoring**: Automatic health checks every 30s
+3. **Capability Routing**: Find servers by capability
+4. **Tier-based Failover**: Primary → Secondary → Tertiary
+5. **Metrics Integration**: Prometheus metrics for all operations
+
+### Migration Path
+
+```python
+# Old Registry (Deprecated)
+from infrastructure.mcp_servers.mcp_registry import MCPRegistry
+registry = MCPRegistry()
+
+# New Registry v2
+from infrastructure.mcp_servers.registry_v2 import get_registry
+registry = get_registry()
+
+# Get primary server for capability
+server = registry.get_primary_server_for_capability("ANALYTICS")
+
+# Get all healthy servers
+healthy = registry.get_healthy_servers()
+```
+
+### Server Distribution (January 2025)
+
+- **PRIMARY Tier**: 9 servers (Snowflake, Redis, AI Memory, Gong, HubSpot, Slack, GitHub, Linear, Codacy)
+- **SECONDARY Tier**: 9 servers (Pulumi, Portkey, Lambda Labs, PostgreSQL, UI/UX Agent, Estuary)
+- **TERTIARY Tier**: 7 servers (OpenRouter, n8n, Notion, Asana, Perplexity, v0dev, Salesforce)
+
+---

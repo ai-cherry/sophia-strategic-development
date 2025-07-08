@@ -157,6 +157,8 @@ def get_config_value(key: str, default: Any = None) -> Any:
         "snowflake_warehouse": "snowflake_warehouse",
         "snowflake_database": "snowflake_database",
         "snowflake_schema": "snowflake_schema",
+        "snowflake_mcp_pat": "snowflake_mcp_pat",  # NEW: PAT for MCP authentication
+        "snowflake_mcp_url": "snowflake_mcp_url",  # NEW: MCP server URL
         # Additional mappings for comprehensive coverage
         "codacy_api_token": "codacy_api_token",
         "estuary_access_token": "estuary_access_token",
