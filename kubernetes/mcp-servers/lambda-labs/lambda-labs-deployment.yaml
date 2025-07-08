@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lambda-labs-mcp
+  namespace: sophia-ai
+  labels:
+    app: lambda-labs-mcp
+    component: mcp-server
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lambda-labs-mcp
+  template:
+    metadata:
+      labels:
+        app: lambda-labs-mcp
+        component: mcp-server
+        tier: backend
+    spec:
+      containers:
+      - name: lambda-labs-mcp
+        image: scoobyjava15/lambda-labs-mcp:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9025
+          name: mcp
+        env:
+        - name: LAMBDA_SERVERLESS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: lambda-serverless-api-key
+        - name: LAMBDA_DAILY_BUDGET
+          value: "50"
+        - name: LAMBDA_MONTHLY_BUDGET
+          value: "1000"
+        - name: SLACK_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: sophia-ai-secrets
+              key: slack-webhook-url
+        - name: PULUMI_ORG
+          value: "scoobyjava-org"
+        - name: ENVIRONMENT
+          value: "prod"
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: lambda-labs-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lambda-labs-mcp
+  namespace: sophia-ai
+  labels:
+    app: lambda-labs-mcp
+spec:
+  selector:
+    app: lambda-labs-mcp
+  ports:
+  - port: 9025
+    targetPort: 9025
+    name: mcp
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lambda-labs-data-pvc
+  namespace: sophia-ai
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
