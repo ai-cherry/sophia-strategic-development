@@ -9,7 +9,7 @@ interface SalesRevenueChartProps {
     }>;
 }
 
-const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
+const EnhancedSalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
     if (!salesData || salesData.length === 0) {
         return (
             <div className="flex items-center justify-center h-[250px] text-gray-400">
@@ -18,6 +18,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
         );
     }
 
+    // Transform data for the chart
     const chartData = salesData.map(item => ({
         name: item.month,
         revenue: item.revenue,
@@ -35,12 +36,14 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     bottom: 5,
                 }}
             >
+                {/* Grid with subtle dark theme styling */}
                 <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="rgba(255, 255, 255, 0.1)"
                     vertical={false}
                 />
 
+                {/* X-Axis with dark theme colors */}
                 <XAxis
                     dataKey="name"
                     stroke="#888888"
@@ -50,6 +53,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     tick={{ fill: '#9ca3af' }}
                 />
 
+                {/* Y-Axis with formatted values */}
                 <YAxis
                     stroke="#888888"
                     fontSize={12}
@@ -59,6 +63,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                 />
 
+                {/* Dark themed tooltip */}
                 <Tooltip
                     contentStyle={{
                         backgroundColor: "rgba(17, 24, 39, 0.95)",
@@ -82,6 +87,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     }}
                 />
 
+                {/* Revenue line with gradient */}
                 <defs>
                     <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
@@ -93,6 +99,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     </linearGradient>
                 </defs>
 
+                {/* Revenue line */}
                 <Line
                     type="monotone"
                     dataKey="revenue"
@@ -112,6 +119,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     }}
                 />
 
+                {/* Deals line */}
                 <Line
                     type="monotone"
                     dataKey="deals"
@@ -133,6 +141,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     yAxisId="right"
                 />
 
+                {/* Secondary Y-Axis for deals */}
                 <YAxis
                     yAxisId="right"
                     orientation="right"
@@ -147,4 +156,4 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
     );
 };
 
-export default SalesRevenueChart;
+export default EnhancedSalesRevenueChart;

@@ -38,7 +38,11 @@ export default function DashboardPage() {
     );
 
     if (isDashboardLoading || isHealthLoading || !dashboardData) {
-        return <div>Loading dashboard...</div>;
+        return (
+            <div className="flex items-center justify-center h-screen bg-gray-950">
+                <div className="text-gray-400">Loading dashboard...</div>
+            </div>
+        );
     }
 
     const kpis = [
