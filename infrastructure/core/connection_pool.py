@@ -1,3 +1,9 @@
+# DEPRECATED – This connection pool is superseded by core.infra.cortex_gateway.CortexGateway
+# It remains for historical reference. Importing it in new code will raise.
+raise ImportError(
+    "'infrastructure.core.connection_pool' is deprecated. Use CortexGateway instead."
+)
+
 """
 DEPRECATED: This module has been replaced by CortexGateway.
 
