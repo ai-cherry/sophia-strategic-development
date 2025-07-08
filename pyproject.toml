@@ -116,7 +116,9 @@ dependencies = [
     "langsmith>=0.1.56",
     "lxml>=5.2.2",
     "docker>=7.1.0",
-    "anthropic-mcp-python-sdk>=0.4.1",
+    "pulumi>=3.100.0",
+    "pulumi-snowflake>=0.50.0",
+    "mcp-python>=0.3.0",
 ]
 
 [project.optional-dependencies]
