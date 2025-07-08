@@ -22,7 +22,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # Advanced security analysis
 try:
@@ -73,8 +73,9 @@ class CodeAnalysisRequest(BaseModel):
     filename: str = Field("snippet.py", description="Filename for context")
     language: str = Field("python", description="Programming language")
 
-    @validator("code")
-    def validate_code(self, v):
+    @field_validator("code", mode="before")
+    @classmethod
+    def validate_code(cls, v):
         if len(v.strip()) == 0:
             raise ValueError("Code cannot be empty")
         return v

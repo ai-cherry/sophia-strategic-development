@@ -18,7 +18,7 @@ from enum import Enum
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MemoryType(Enum):
@@ -222,22 +222,25 @@ class MemoryRecord(BaseModel):
         validate_assignment = True
         arbitrary_types_allowed = True
 
-    @validator("content")
-    def validate_content(self, v):
+    @field_validator("content", mode="before")
+    @classmethod
+    def validate_content(cls, v):
         """Validate content is meaningful"""
         if not v or v.isspace():
             raise ValueError("Content cannot be empty or whitespace only")
         return v.strip()
 
-    @validator("expires_at")
-    def validate_expiration(self, v, values):
+    @field_validator("expires_at", mode="before")
+    @classmethod
+    def validate_expiration(cls, v, values):
         """Validate expiration is in the future"""
         if v and v <= datetime.now():
             raise ValueError("Expiration date must be in the future")
         return v
 
-    @validator("priority")
-    def validate_priority_context(self, v, values):
+    @field_validator("priority", mode="before")
+    @classmethod
+    def validate_priority_context(cls, v, values):
         """Validate priority matches context"""
         # Critical memories should have business impact
         if v == MemoryPriority.CRITICAL:

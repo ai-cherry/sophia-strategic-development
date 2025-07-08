@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, field_validator
 from snowflake.connector.pool import SnowflakePool
 
 from core.config_manager import get_config_value
@@ -71,8 +71,9 @@ class AISQLQuery(BaseModel):
     temperature: float = Field(0.7, ge=0, le=1)
     max_tokens: int = Field(2000, ge=100, le=8000)
 
-    @validator("query")
-    def validate_query(self, v):
+    @field_validator("query", mode="before")
+    @classmethod
+    def validate_query(cls, v):
         if not v or len(v.strip()) < 3:
             raise ValueError("Query must be at least 3 characters")
         if len(v) > 5000:
@@ -331,4 +332,6 @@ async def list_models() -> dict[str, Any]:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=8080)
+    uvicorn.run(
+        app, host="127.0.0.1", port=8080
+    )  # Changed from 0.0.0.0 for security. Use environment variable for production

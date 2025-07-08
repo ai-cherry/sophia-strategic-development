@@ -36,7 +36,7 @@ import aiohttp
 import redis.asyncio as redis
 import structlog
 from prometheus_client import Counter, Gauge, Histogram
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 logger = structlog.get_logger()
 
@@ -114,8 +114,9 @@ class GongCallTranscript(BaseModel):
     key_phrases: list[str] = Field(default_factory=list)
     sentiment_summary: dict[str, float] | None = None
 
-    @validator("transcript_segments")
-    def validate_segments(self, segments):
+    @field_validator("transcript_segments", mode="before")
+    @classmethod
+    def validate_segments(cls, segments):
         """Ensure segments are chronologically ordered."""
         if segments:
             sorted_segments = sorted(segments, key=lambda s: s.start_time)
@@ -140,7 +141,8 @@ class GongParticipant(BaseModel):
     is_decision_maker: bool = False
     is_key_stakeholder: bool = False
 
-    @validator("company_domain")
+    @field_validator("company_domain", mode="before")
+    @classmethod
     def extract_domain(self, v, values):
         """Extract domain from email if not provided."""
         if not v and "email" in values:

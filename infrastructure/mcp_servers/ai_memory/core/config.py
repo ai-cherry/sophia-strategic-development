@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseSettings, Field, validator
+from pydantic import BaseSettings, Field, field_validator, validator
 
 
 class AIMemoryConfig(BaseSettings):
@@ -103,16 +103,18 @@ class AIMemoryConfig(BaseSettings):
         default=60, env="METRICS_EXPORT_INTERVAL", ge=10, le=300
     )
 
-    @validator("log_level")
-    def validate_log_level(self, v: str) -> str:
+    @field_validator("log_level", mode="before")
+    @classmethod
+    def validate_log_level(cls, v: str) -> str:
         """Validate log level"""
         valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
         if v.upper() not in valid_levels:
             raise ValueError(f"Log level must be one of: {valid_levels}")
         return v.upper()
 
-    @validator("embedding_model")
-    def validate_embedding_model(self, v: str) -> str:
+    @field_validator("embedding_model", mode="before")
+    @classmethod
+    def validate_embedding_model(cls, v: str) -> str:
         """Validate embedding model"""
         valid_models = {
             "text-embedding-3-small",

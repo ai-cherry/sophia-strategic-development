@@ -12,7 +12,7 @@ from typing import Any
 from uuid import UUID
 
 import numpy as np
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, root_validator
 
 
 class MemoryType(str, Enum):
@@ -102,13 +102,15 @@ class MemoryMetadata(BaseModel):
         default_factory=dict, description="Custom metadata attributes"
     )
 
-    @validator("tags")
-    def validate_tags(self, v: list[str]) -> list[str]:
+    @field_validator("tags", mode="before")
+    @classmethod
+    def validate_tags(cls, v: list[str]) -> list[str]:
         """Validate and normalize tags"""
         return [tag.lower().strip() for tag in v if tag.strip()]
 
-    @validator("related_memories")
-    def validate_related_memories(self, v: list[str]) -> list[str]:
+    @field_validator("related_memories", mode="before")
+    @classmethod
+    def validate_related_memories(cls, v: list[str]) -> list[str]:
         """Validate related memory IDs"""
         validated = []
         for memory_id in v:
@@ -132,8 +134,9 @@ class MemoryEmbedding(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     content_hash: str = Field(..., description="Hash of the content that was embedded")
 
-    @validator("vector")
-    def validate_vector(self, v: list[float]) -> list[float]:
+    @field_validator("vector", mode="before")
+    @classmethod
+    def validate_vector(cls, v: list[float]) -> list[float]:
         """Validate embedding vector"""
         if not v:
             raise ValueError("Embedding vector cannot be empty")
@@ -146,7 +149,7 @@ class MemoryEmbedding(BaseModel):
         return v
 
     @root_validator
-    def validate_dimensions_match(self, values: dict[str, Any]) -> dict[str, Any]:
+    def validate_dimensions_match(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Validate that vector length matches dimensions"""
         vector = values.get("vector", [])
         dimensions = values.get("dimensions", 0)
@@ -225,8 +228,9 @@ class MemoryRecord(BaseModel):
         default_factory=list, description="Child memory IDs"
     )
 
-    @validator("id")
-    def validate_id(self, v: str) -> str:
+    @field_validator("id", mode="before")
+    @classmethod
+    def validate_id(cls, v: str) -> str:
         """Validate memory ID format"""
         try:
             UUID(v)
@@ -234,23 +238,26 @@ class MemoryRecord(BaseModel):
         except ValueError:
             raise ValueError("Memory ID must be a valid UUID")
 
-    @validator("content")
-    def validate_content(self, v: str) -> str:
+    @field_validator("content", mode="before")
+    @classmethod
+    def validate_content(cls, v: str) -> str:
         """Validate and normalize content"""
         content = v.strip()
         if not content:
             raise ValueError("Memory content cannot be empty")
         return content
 
-    @validator("summary")
-    def validate_summary(self, v: str | None) -> str | None:
+    @field_validator("summary", mode="before")
+    @classmethod
+    def validate_summary(cls, v: str | None) -> str | None:
         """Validate and normalize summary"""
         if v is None:
             return None
         summary = v.strip()
         return summary if summary else None
 
-    @validator("expires_at")
+    @field_validator("expires_at", mode="before")
+    @classmethod
     def validate_expires_at(
         self, v: datetime | None, values: dict[str, Any]
     ) -> datetime | None:
@@ -264,8 +271,9 @@ class MemoryRecord(BaseModel):
 
         return v
 
-    @validator("parent_memory_id")
-    def validate_parent_memory_id(self, v: str | None) -> str | None:
+    @field_validator("parent_memory_id", mode="before")
+    @classmethod
+    def validate_parent_memory_id(cls, v: str | None) -> str | None:
         """Validate parent memory ID"""
         if v is None:
             return None
@@ -275,8 +283,9 @@ class MemoryRecord(BaseModel):
         except ValueError:
             raise ValueError("Parent memory ID must be a valid UUID")
 
-    @validator("child_memory_ids")
-    def validate_child_memory_ids(self, v: list[str]) -> list[str]:
+    @field_validator("child_memory_ids", mode="before")
+    @classmethod
+    def validate_child_memory_ids(cls, v: list[str]) -> list[str]:
         """Validate child memory IDs"""
         validated = []
         for memory_id in v:
@@ -288,7 +297,7 @@ class MemoryRecord(BaseModel):
         return validated
 
     @root_validator
-    def validate_no_self_reference(self, values: dict[str, Any]) -> dict[str, Any]:
+    def validate_no_self_reference(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Ensure memory doesn't reference itself"""
         memory_id = values.get("id")
         parent_id = values.get("parent_memory_id")
@@ -375,21 +384,23 @@ class SearchQuery(BaseModel):
     author_filter: str | None = Field(None, description="Filter by author")
     source_filter: str | None = Field(None, description="Filter by source")
 
-    @validator("query")
-    def validate_query(self, v: str) -> str:
+    @field_validator("query", mode="before")
+    @classmethod
+    def validate_query(cls, v: str) -> str:
         """Validate and normalize query"""
         query = v.strip()
         if not query:
             raise ValueError("Search query cannot be empty")
         return query
 
-    @validator("tags")
-    def validate_tags(self, v: list[str]) -> list[str]:
+    @field_validator("tags", mode="before")
+    @classmethod
+    def validate_tags(cls, v: list[str]) -> list[str]:
         """Validate and normalize tags"""
         return [tag.lower().strip() for tag in v if tag.strip()]
 
     @root_validator
-    def validate_time_ranges(self, values: dict[str, Any]) -> dict[str, Any]:
+    def validate_time_ranges(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Validate time range filters"""
         created_after = values.get("created_after")
         created_before = values.get("created_before")
@@ -423,8 +434,9 @@ class SearchResult(BaseModel):
         default_factory=dict, description="Details about the match"
     )
 
-    @validator("match_type")
-    def validate_match_type(self, v: str) -> str:
+    @field_validator("match_type", mode="before")
+    @classmethod
+    def validate_match_type(cls, v: str) -> str:
         """Validate match type"""
         valid_types = {
             "exact",
@@ -506,8 +518,9 @@ class MemoryBatch(BaseModel):
     )
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @validator("memories")
-    def validate_memories(self, v: list[MemoryRecord]) -> list[MemoryRecord]:
+    @field_validator("memories", mode="before")
+    @classmethod
+    def validate_memories(cls, v: list[MemoryRecord]) -> list[MemoryRecord]:
         """Validate memory records in batch"""
         if not v:
             raise ValueError("Batch cannot be empty")
