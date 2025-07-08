@@ -25,7 +25,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-import snowflake.connector
 from snowflake.connector import DictCursor
 
 logger = logging.getLogger(__name__)
@@ -112,16 +111,16 @@ class SnowflakeSchemaIntegration:
     async def connect(self):
         """Connect to Snowflake with comprehensive configuration"""
         try:
-            self.connection = # TODO: Replace with repository injection
-    # repository.get_connection(
-                account=self.credentials.account,
-                user=self.credentials.user,
-                password=self.credentials.password,
-                role=self.credentials.role,
-                database=self.credentials.database,
-                warehouse=self.credentials.warehouse,
-                schema=SchemaType.UNIVERSAL_CHAT.value,
-
+            self.connection = None  # TODO: Replace with repository injection
+            # repository.get_connection(
+            #     account=self.credentials.account,
+            #     user=self.credentials.user,
+            #     password=self.credentials.password,
+            #     role=self.credentials.role,
+            #     database=self.credentials.database,
+            #     warehouse=self.credentials.warehouse,
+            #     schema=SchemaType.UNIVERSAL_CHAT.value,
+            # )
             logger.info("✅ Connected to comprehensive Snowflake deployment")
             return True
         except Exception as e:
@@ -130,7 +129,7 @@ class SnowflakeSchemaIntegration:
 
     async def execute_query(
         self, query: str, params: tuple | None = None, schema: SchemaType = None
-     -> list[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Execute query with schema context"""
         try:
             cursor = self.connection.cursor(DictCursor)
@@ -143,10 +142,10 @@ class SnowflakeSchemaIntegration:
                 # Use parameterized query for USE SCHEMA to prevent SQL injection
                 use_schema_query = "USE SCHEMA " + schema.value
                 # TODO: Replace with repository method
-    # repository.execute_query(use_schema_query)
+            # repository.execute_query(use_schema_query)
 
             # TODO: Replace with repository method
-    # repository.execute_query(query, params or ())
+            # repository.execute_query(query, params or ())
             results = cursor.fetchall()
             cursor.close()
             return results
@@ -181,14 +180,14 @@ class SnowflakeSchemaIntegration:
         chunk_index: int = 0,
         total_chunks: int = 1,
         created_by: str = "system",
-     -> bool:
+    ) -> bool:
         """Enhanced knowledge entry insertion supporting chunking and large files"""
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "knowledge_base_entries")}
         (ENTRY_ID, TITLE, CONTENT, CATEGORY_ID, SOURCE_ID, IMPORTANCE_SCORE,
          IS_FOUNDATIONAL, TAGS, METADATA, FILE_PATH, FILE_SIZE_BYTES,
-         CHUNK_INDEX, TOTAL_CHUNKS, CREATED_BY, CREATED_AT, UPDATED_AT
+         CHUNK_INDEX, TOTAL_CHUNKS, CREATED_BY, CREATED_AT, UPDATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
         """
 
@@ -207,7 +206,7 @@ class SnowflakeSchemaIntegration:
             chunk_index,
             total_chunks,
             created_by,
-
+        )
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -220,7 +219,7 @@ class SnowflakeSchemaIntegration:
         chunk_text: str,
         chunk_index: int = 0,
         embedding_model: str = "snowflake-arctic-embed-m",
-     -> bool:
+    ) -> bool:
         """Insert knowledge embeddings for semantic search"""
 
         query = f"""
@@ -236,7 +235,7 @@ class SnowflakeSchemaIntegration:
             json.dumps(embedding_vector),
             chunk_text,
             chunk_index,
-
+        )
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
@@ -247,7 +246,7 @@ class SnowflakeSchemaIntegration:
         limit: int = 10,
         category_filter: str = None,
         importance_threshold: float = 0.5,
-     -> list[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Enhanced hybrid search across knowledge base"""
 
         search_query = f"""
@@ -295,7 +294,7 @@ class SnowflakeSchemaIntegration:
 
         results = await self.execute_query(
             search_query, tuple(params), SchemaType.UNIVERSAL_CHAT
-
+        )
 
         # Add similarity scores for compatibility
         for result in results:
@@ -322,14 +321,14 @@ class SnowflakeSchemaIntegration:
         tags: list[str] = None,
         metadata: dict[str, Any] = None,
         expires_at: str = None,
-     -> bool:
+    ) -> bool:
         """Insert AI memory entry for enhanced context management"""
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.AI_MEMORY, "memory_entries")}
         (MEMORY_ID, CATEGORY_ID, MEMORY_TYPE, TITLE, CONTENT, IMPORTANCE_SCORE,
          CONFIDENCE_LEVEL, SOURCE_SYSTEM, SOURCE_ID, RELATED_ENTITIES, TAGS,
-         METADATA, EXPIRES_AT, CREATED_AT, UPDATED_AT
+         METADATA, EXPIRES_AT, CREATED_AT, UPDATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
         """
 
@@ -347,7 +346,7 @@ class SnowflakeSchemaIntegration:
             json.dumps(tags or []),
             json.dumps(metadata or {}),
             expires_at,
-
+        )
 
         await self.execute_query(query, params, SchemaType.AI_MEMORY)
         return True
@@ -360,13 +359,13 @@ class SnowflakeSchemaIntegration:
         relationship_type: str,
         strength: float = 1.0,
         confidence: float = 1.0,
-     -> bool:
+    ) -> bool:
         """Create relationship between memory entries for cross-document context"""
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.AI_MEMORY, "memory_relationships")}
         (RELATIONSHIP_ID, SOURCE_MEMORY_ID, TARGET_MEMORY_ID, RELATIONSHIP_TYPE,
-         STRENGTH, CONFIDENCE, CREATED_AT
+         STRENGTH, CONFIDENCE, CREATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         """
 
@@ -377,7 +376,7 @@ class SnowflakeSchemaIntegration:
             relationship_type,
             strength,
             confidence,
-
+        )
 
         await self.execute_query(query, params, SchemaType.AI_MEMORY)
         return True
@@ -387,7 +386,7 @@ class SnowflakeSchemaIntegration:
         memory_id: str,
         relationship_types: list[str] = None,
         min_strength: float = 0.5,
-     -> list[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get related memories for context synthesis"""
 
         query = f"""
@@ -430,13 +429,13 @@ class SnowflakeSchemaIntegration:
         session_name: str = None,
         session_type: str = "chat",
         context_summary: str = None,
-     -> bool:
+    ) -> bool:
         """Create enhanced conversation session with context support"""
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "conversation_sessions")}
         (SESSION_ID, USER_ID, SESSION_NAME, SESSION_TYPE, CONTEXT_SUMMARY,
-         IS_ACTIVE, TOTAL_MESSAGES, STARTED_AT, LAST_ACTIVITY_AT
+         IS_ACTIVE, TOTAL_MESSAGES, STARTED_AT, LAST_ACTIVITY_AT)
         VALUES (?, ?, ?, ?, ?, TRUE, 0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())
         """
 
@@ -456,14 +455,14 @@ class SnowflakeSchemaIntegration:
         model_used: str = None,
         confidence_score: float = None,
         metadata: dict[str, Any] = None,
-     -> bool:
+    ) -> bool:
         """Save conversation message with enhanced metadata tracking"""
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "conversation_messages")}
         (MESSAGE_ID, SESSION_ID, USER_ID, MESSAGE_TYPE, MESSAGE_CONTENT,
          KNOWLEDGE_ENTRIES_USED, PROCESSING_TIME_MS, MODEL_USED, CONFIDENCE_SCORE,
-         METADATA, CREATED_AT
+         METADATA, CREATED_AT)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         """
 
@@ -478,7 +477,7 @@ class SnowflakeSchemaIntegration:
             model_used,
             confidence_score,
             json.dumps(metadata or {}),
-
+        )
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
 
@@ -506,13 +505,13 @@ class SnowflakeSchemaIntegration:
         metric_unit: str = None,
         dimensions: dict[str, Any] = None,
         aggregation_period: str = "real_time",
-     -> bool:
+    ) -> bool:
         """Log comprehensive system analytics"""
 
         query = f"""
         INSERT INTO {self.get_table_name(SchemaType.UNIVERSAL_CHAT, "system_analytics")}
         (ANALYTICS_ID, METRIC_TYPE, METRIC_NAME, METRIC_VALUE, METRIC_UNIT,
-         DIMENSIONS, AGGREGATION_PERIOD, TIMESTAMP
+         DIMENSIONS, AGGREGATION_PERIOD, TIMESTAMP)
         VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         """
 
@@ -524,14 +523,14 @@ class SnowflakeSchemaIntegration:
             metric_unit,
             json.dumps(dimensions or {}),
             aggregation_period,
-
+        )
 
         await self.execute_query(query, params, SchemaType.UNIVERSAL_CHAT)
         return True
 
     async def get_analytics_summary(
         self, metric_types: list[str] = None, hours_back: int = 24
-     -> dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get comprehensive analytics summary"""
 
         query = f"""
@@ -558,7 +557,7 @@ class SnowflakeSchemaIntegration:
 
         results = await self.execute_query(
             query, tuple(params), SchemaType.UNIVERSAL_CHAT
-
+        )
 
         # Organize by metric type
         analytics_summary = {}
@@ -600,7 +599,7 @@ class SnowflakeSchemaIntegration:
                         result = await self.execute_query(count_query, schema=schema)
                         table_info[table_key] = result[0]["ROW_COUNT"] if result else 0
                     except Exception as e:
-                        table_info[table_key] = f"Error: {str(e)}"
+                        table_info[table_key] = f"Error: {e!s}"
 
                 health_status[schema.value] = {
                     "status": "healthy",
@@ -622,49 +621,49 @@ class SnowflakeSchemaIntegration:
                 "Customer lists, contact details, and relationship data",
                 True,
                 2.0,
-            ,
+            ),
             (
                 "products",
                 "Product Information",
                 "Product descriptions, specifications, and documentation",
                 True,
                 2.0,
-            ,
+            ),
             (
                 "employees",
                 "Employee Information",
                 "Employee directory, roles, and organizational structure",
                 True,
                 1.8,
-            ,
+            ),
             (
                 "policies",
                 "Company Policies",
                 "Internal policies, procedures, and guidelines",
                 True,
                 1.5,
-            ,
+            ),
             (
                 "competitive",
                 "Competitive Intelligence",
                 "Competitor analysis and market research",
                 False,
                 1.3,
-            ,
+            ),
             (
                 "industry",
                 "Industry Information",
                 "Industry trends, news, and analysis",
                 False,
                 1.2,
-            ,
+            ),
             (
                 "general",
                 "General Knowledge",
                 "General business information and miscellaneous content",
                 False,
                 1.0,
-            ,
+            ),
         ]
 
         for cat_id, name, desc, is_foundational, weight in categories:
@@ -679,7 +678,7 @@ class SnowflakeSchemaIntegration:
                     insert_query,
                     (cat_id, name, desc, is_foundational, weight),
                     SchemaType.UNIVERSAL_CHAT,
-
+                )
 
             except Exception:
                 # Category likely already exists

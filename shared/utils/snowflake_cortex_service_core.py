@@ -1,4 +1,3 @@
-
 # SQL injection fixes applied - using parameterized queries
 """
 Snowflake Cortex Service - Core Module
