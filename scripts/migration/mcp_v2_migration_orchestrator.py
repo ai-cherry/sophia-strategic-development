@@ -53,7 +53,7 @@ class MigrationOrchestrator:
     def __init__(self, dry_run: bool = False):
         self.dry_run = dry_run
         self.root = Path.cwd()
-        self.template_path = self.root / "templates" / "mcp_v2_plus"
+        self.template_path = self.root / "infrastructure" / "mcp_servers" / "templates" / "mcp_v2_template.py"
         self.v2_base_path = self.root / "infrastructure" / "mcp_servers"
         self.reports_path = self.root / "reports"
         self.servers: dict[str, ServerConfig] = {}
