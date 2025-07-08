@@ -296,42 +296,6 @@ class SalesCoachAgent(BaseAgent):
             logger.error(f"Error analyzing call {call_id} with Cortex: {e}")
             return None
 
-    def _error_handling_1(self):
-        """Extracted error_handling logic"""
-                # Sentiment-based coaching
-                if analysis.overall_sentiment < 0.3:
-                    recommendations.append(
-                        CoachingRecommendation(
-                            category=CoachingCategory.SENTIMENT_IMPROVEMENT,
-                            priority=CoachingPriority.HIGH,
-                            title="Improve Call Sentiment",
-                            description=f"Call sentiment was {analysis.sentiment_category} ({analysis.overall_sentiment:.2f})",
-                            specific_feedback=f"The overall tone of your call with {analysis.company_name or 'the prospect'} was below optimal. Focus on building rapport and addressing concerns proactively.",
-                            suggested_actions=[
-                                "Start calls with genuine interest in the prospect's business",
-                                "Ask open-ended questions to understand their challenges",
-                                "Acknowledge concerns before addressing them",
-                                "Use positive language and avoid industry jargon",
-                                "Practice active listening and summarize their key points",
-
-    def _iteration_2(self):
-        """Extracted iteration logic"""
-                        sentiment = analysis.speaker_sentiments[speaker]
-                        if sentiment < 0.2:
-                            recommendations.append(
-                                CoachingRecommendation(
-                                    category=CoachingCategory.OBJECTION_HANDLING,
-                                    priority=CoachingPriority.HIGH,
-                                    title=f"Address {speaker}'s Concerns",
-                                    description=f"{speaker} showed negative sentiment ({sentiment:.2f})",
-                                    specific_feedback=f"{speaker} appears to have concerns that weren't fully addressed during the call.",
-                                    suggested_actions=[
-                                        f"Follow up directly with {speaker} to understand their concerns",
-                                        "Schedule a separate conversation to address their specific needs",
-                                        "Provide additional resources or case studies relevant to their role",
-                                        "Involve a technical expert if needed",
-                                        "Acknowledge their concerns and provide specific solutions",
-
     async def generate_coaching_recommendations(
         self, analysis: CallAnalysisResult, historical_context: bool = True
     ) -> list[CoachingRecommendation]:
@@ -345,9 +309,24 @@ class SalesCoachAgent(BaseAgent):
         Returns:
             List of prioritized coaching recommendations
         """
-        recommendations = []
+        try:
+            recommendations = []
 
-        self._error_handling_1()
+            # Sentiment-based coaching
+            if analysis.overall_sentiment < 0.3:
+                recommendations.append(
+                    CoachingRecommendation(
+                        category=CoachingCategory.SENTIMENT_IMPROVEMENT,
+                        priority=CoachingPriority.HIGH,
+                        title="Improve Call Sentiment",
+                        description=f"Call sentiment was {analysis.sentiment_category} ({analysis.overall_sentiment:.2f})",
+                        specific_feedback=f"The overall tone of your call with {analysis.company_name or 'the prospect'} was below optimal. Focus on building rapport and addressing concerns proactively.",
+                        suggested_actions=[
+                            "Start calls with genuine interest in the prospect's business",
+                            "Ask open-ended questions to understand their challenges",
+                            "Acknowledge concerns before addressing them",
+                            "Use positive language and avoid industry jargon",
+                            "Practice active listening and summarize their key points",
                         ],
                         confidence_score=0.9,
                         call_id=analysis.call_id,
@@ -471,7 +450,26 @@ class SalesCoachAgent(BaseAgent):
             if analysis.speaker_sentiments:
                 prospect_speakers = [
                     speaker
-                self._iteration_2()
+                    for speaker in analysis.speaker_sentiments
+                    if speaker.lower() not in analysis.sales_rep.lower()
+                ]
+
+                for speaker in prospect_speakers:
+                    sentiment = analysis.speaker_sentiments[speaker]
+                    if sentiment < 0.2:
+                        recommendations.append(
+                            CoachingRecommendation(
+                                category=CoachingCategory.OBJECTION_HANDLING,
+                                priority=CoachingPriority.HIGH,
+                                title=f"Address {speaker}'s Concerns",
+                                description=f"{speaker} showed negative sentiment ({sentiment:.2f})",
+                                specific_feedback=f"{speaker} appears to have concerns that weren't fully addressed during the call.",
+                                suggested_actions=[
+                                    f"Follow up directly with {speaker} to understand their concerns",
+                                    "Schedule a separate conversation to address their specific needs",
+                                    "Provide additional resources or case studies relevant to their role",
+                                    "Involve a technical expert if needed",
+                                    "Acknowledge their concerns and provide specific solutions",
                                 ],
                                 confidence_score=0.85,
                                 call_id=analysis.call_id,
@@ -512,7 +510,7 @@ class SalesCoachAgent(BaseAgent):
 
         except Exception as e:
             logger.error(f"Error generating coaching recommendations: {e}")
-            return recommendations
+            return []
 
     async def create_coaching_summary(
         self,

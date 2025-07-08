@@ -222,7 +222,8 @@ class ComprehensiveSnowflakeManager:
             # Switch schema if specified
             if schema:
                 # TODO: Replace with repository method
-            # repository.execute_query("USE SCHEMA %s", (self._validate_schema(schema.value),))
+                # repository.execute_query("USE SCHEMA %s", (self._validate_schema(schema.value),))
+                pass
 
             # TODO: Replace with repository method
             # repository.execute_query(query, params or ())

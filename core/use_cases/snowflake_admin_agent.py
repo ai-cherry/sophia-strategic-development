@@ -1,4 +1,3 @@
-from core.unified_connection_manager import UnifiedConnectionManager
 import time
 
 """
@@ -132,7 +131,7 @@ class SnowflakeAdminCallbackHandler(BaseCallbackHandler):
                 "log": action.log,
                 "timestamp": datetime.now().isoformat(),
             }
-
+        )
 
         # Extract SQL from tool input if it's a query
         if action.tool == "sql_db_query" and isinstance(action.tool_input, str):
@@ -207,7 +206,6 @@ class SnowflakeAdminAgent:
                 "Snowflake connector is required for Snowflake Admin Agent"
             )
 
-
         try:
             # Initialize LLM for agent
             await self._initialize_llm()
@@ -272,7 +270,6 @@ class SnowflakeAdminAgent:
                 raise ValueError(
                     f"No authentication method available for {environment.value}"
                 )
-
 
             # Create Snowflake connection
             connection_params = {
@@ -389,7 +386,6 @@ Always explain what you're going to do before executing commands.
 """
         )
 
-
     def _get_agent_suffix(self) -> str:
         """Get agent suffix with response format instructions"""
         return """
@@ -498,7 +494,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 logger.error(f"Agent execution error: {agent_error}")
                 return AdminTaskResponse(
                     success=False,
-                    message=f"Error executing admin task: {str(agent_error)}",
+                    message=f"Error executing admin task: {agent_error!s}",
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
                 )
@@ -507,7 +503,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
             logger.error(f"Snowflake admin task failed: {e}")
             return AdminTaskResponse(
                 success=False,
-                message=f"Admin task failed: {str(e)}",
+                message=f"Admin task failed: {e!s}",
                 environment=request.target_environment,
                 execution_time=asyncio.get_event_loop().time() - start_time,
             )
@@ -572,7 +568,10 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 if action_statements:
                     try:
                         # Use optimized connection manager for batch execution
-                        from core.optimized_connection_manager import OptimizedConnectionManager
+                        from core.optimized_connection_manager import (
+                            OptimizedConnectionManager,
+                        )
+
                         connection_manager = OptimizedConnectionManager()
 
                         batch_queries = [(stmt, None) for stmt in action_statements]
@@ -626,7 +625,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 logger.error(f"SQL execution error: {sql_error}")
                 return AdminTaskResponse(
                     success=False,
-                    message=f"SQL execution failed: {str(sql_error)}",
+                    message=f"SQL execution failed: {sql_error!s}",
                     sql_executed=confirmed_sql,
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
@@ -639,7 +638,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
             logger.error(f"Confirmed execution failed: {e}")
             return AdminTaskResponse(
                 success=False,
-                message=f"Confirmed execution failed: {str(e)}",
+                message=f"Confirmed execution failed: {e!s}",
                 environment=request.target_environment,
                 execution_time=asyncio.get_event_loop().time() - start_time,
             )
@@ -667,11 +666,10 @@ Thought: I should understand what the user wants to do and determine if it's a s
             }
 
             # Get current session information
-            await # TODO: Replace with repository method
-    # repository.execute_query(
+            cursor.execute(
                 "SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE(), CURRENT_SCHEMA()"
-
-            session_info = await cursor.fetchone()
+            )
+            session_info = cursor.fetchone()
 
             if session_info:
                 info.update(
@@ -683,7 +681,6 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         "current_schema": session_info.get("CURRENT_SCHEMA()"),
                     }
                 )
-
 
             cursor.close()
             return info
