@@ -350,7 +350,7 @@ def main():
 
 if __name__ == "__main__":
     # If running as FastAPI app
-    if os.getenv("RUN_AS_FASTAPI", "false").lower() == "true":
+    if get_config_value("run_as_fastapi", "false").lower() == "true":
         import uvicorn
         from fastapi import APIRouter, FastAPI
 
@@ -364,7 +364,7 @@ if __name__ == "__main__":
         app.include_router(router)
 
         # Run with uvicorn
-        uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "9100")))
+        uvicorn.run(app, host="0.0.0.0", port=int(get_config_value("port", "9100")))
     else:
         # Run as MCP server
         main()

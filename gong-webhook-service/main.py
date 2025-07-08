@@ -236,8 +236,8 @@ async def internal_error_handler(request: Request, exc):
 
 if __name__ == "__main__":
     # Get configuration from environment or use defaults
-    host = os.getenv("WEBHOOK_HOST", "0.0.0.0")
-    port = int(os.getenv("WEBHOOK_PORT", "8080"))
+    host = get_config_value("webhook_host", "0.0.0.0")
+    port = int(get_config_value("webhook_port", "8080"))
 
     logger.info(f"Starting Gong Webhook Service on {host}:{port}")
 

@@ -43,7 +43,7 @@ class SecureSecretRetriever:
     """
 
     def __init__(self, org: str | None = None, environment: str | None = None):
-        self.org = org or os.getenv("PULUMI_ORG", "default")
+        self.org = org or get_config_value("pulumi_org", "default")
         self.environment = environment or os.getenv(
             "PULUMI_ENV", "sophia-ai-production"
         )

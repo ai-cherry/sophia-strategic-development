@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class Phase1FoundationSetup:
     def __init__(self):
         self.project_root = Path(__file__).parent.parent.parent
-        self.docker_user = os.getenv("DOCKER_USER_NAME", "scoobyjava15")
+        self.docker_user = get_config_value("docker_user_name", "scoobyjava15")
         self.builder_name = f"{self.docker_user}/sophia-ai-builder"
 
     async def setup_docker_build_cloud(self) -> bool:

@@ -35,9 +35,9 @@ class GongV2Settings(BaseSettings):
         super().__init__(**kwargs)
         # Check for Pulumi ESC environment variables without prefix
         if not self.GONG_API_KEY:
-            self.GONG_API_KEY = os.getenv("GONG_API_KEY", "")
+            self.GONG_API_KEY = get_config_value("gong_api_key", "")
         if not self.GONG_API_SECRET:
-            self.GONG_API_SECRET = os.getenv("GONG_API_SECRET", "")
+            self.GONG_API_SECRET = get_config_value("gong_api_secret", "")
 
 
 settings = GongV2Settings()

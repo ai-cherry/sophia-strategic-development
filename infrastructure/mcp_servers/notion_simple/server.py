@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 NOTION_API_KEY = os.getenv(
     "NOTION_API_KEY", "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"
 )
-EMPLOYEES_DB_ID = os.getenv("EMPLOYEES_DB_ID", "")
-CUSTOMERS_DB_ID = os.getenv("CUSTOMERS_DB_ID", "")
-COMPETITORS_DB_ID = os.getenv("COMPETITORS_DB_ID", "")
-PRODUCTS_DB_ID = os.getenv("PRODUCTS_DB_ID", "")
+EMPLOYEES_DB_ID = get_config_value("employees_db_id", "")
+CUSTOMERS_DB_ID = get_config_value("customers_db_id", "")
+COMPETITORS_DB_ID = get_config_value("competitors_db_id", "")
+PRODUCTS_DB_ID = get_config_value("products_db_id", "")
 
 # Initialize Notion client
 notion = AsyncClient(auth=NOTION_API_KEY)
@@ -350,8 +350,8 @@ async def main():
     config = uvicorn.Config(
         app,
         host="0.0.0.0",
-        port=int(os.getenv("NOTION_MCP_PORT", "9003")),
-        log_level=os.getenv("LOG_LEVEL", "info").lower(),
+        port=int(get_config_value("notion_mcp_port", "9003")),
+        log_level=get_config_value("log_level", "info").lower(),
     )
     server = uvicorn.Server(config)
 

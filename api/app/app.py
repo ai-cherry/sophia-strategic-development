@@ -112,7 +112,7 @@ def create_app() -> FastAPI:
             "version": "3.0.0",
             "status": "operational",
             "message": "Unified AI Orchestrator for Pay Ready",
-            "environment": os.getenv("ENVIRONMENT", "unknown"),
+            "environment": get_config_value("environment", "unknown"),
             "timestamp": datetime.now(UTC).isoformat(),
             "date": "2025-07-04",
         }

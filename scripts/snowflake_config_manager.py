@@ -56,14 +56,16 @@ class SnowflakeConfigManager:
         """Load Snowflake configuration from secure sources."""
         # Primary: Environment variables (populated by Pulumi ESC)
         config = {
-            "account": os.getenv("SNOWFLAKE_ACCOUNT", "UHDECNO-CVB64222"),
-            "user": os.getenv("SNOWFLAKE_USER", "SCOOBYJAVA15"),
+            "account": get_config_value("snowflake_account", "UHDECNO-CVB64222"),
+            "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
             "password": os.getenv(
                 "SOPHIA_AI_TOKEN", get_config_value("snowflake_password")
             ),
-            "role": os.getenv("SNOWFLAKE_ROLE", "ACCOUNTADMIN"),
-            "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE", "SOPHIA_AI_ANALYTICS_WH"),
-            "database": os.getenv("SNOWFLAKE_DATABASE", "SOPHIA_AI_CORE"),
+            "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
+            "warehouse": get_config_value(
+                "snowflake_warehouse", "SOPHIA_AI_ANALYTICS_WH"
+            ),
+            "database": get_config_value("snowflake_database", "SOPHIA_AI_CORE"),
         }
 
         # Fallback: Configuration file if exists

@@ -65,10 +65,10 @@ class PerformanceOptimizer:
     def environment_config(self) -> dict[str, Any]:
         """Get cached environment configuration."""
         return {
-            "sophia_env": os.getenv("SOPHIA_ENV", "production"),
-            "debug": os.getenv("DEBUG", "false").lower() == "true",
-            "log_level": os.getenv("LOG_LEVEL", "INFO"),
-            "platform": os.getenv("PLATFORM", "vercel"),
+            "sophia_env": get_config_value("sophia_env", "production"),
+            "debug": get_config_value("debug", "false").lower() == "true",
+            "log_level": get_config_value("log_level", "INFO"),
+            "platform": get_config_value("platform", "vercel"),
             "cache_ttl": int(os.getenv("CACHE_TTL", self.config.cache_ttl)),
             "max_concurrent": int(
                 os.getenv(

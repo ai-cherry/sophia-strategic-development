@@ -35,7 +35,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Lambda Labs Configuration
-LAMBDA_LABS_HOST = os.getenv("LAMBDA_LABS_HOST", "165.1.69.44")
+LAMBDA_LABS_HOST = get_config_value("lambda_labs_host", "165.1.69.44")
 
 
 class ServerStatus(Enum):

@@ -29,7 +29,7 @@ async def health():
     return {
         "status": "healthy",
         "service": "sophia-ai-api",
-        "environment": os.getenv("ENVIRONMENT", "production"),
+        "environment": get_config_value("environment", "production"),
     }
 
 

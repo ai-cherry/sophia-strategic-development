@@ -20,8 +20,10 @@ class GeminiCLIProvider:
     """Wrapper for Gemini CLI to integrate with Sophia AI"""
 
     def __init__(self):
-        self.cli_path = os.getenv("GEMINI_CLI_PATH", "gemini")
-        self.default_model = os.getenv("GEMINI_MODEL_PREFERENCE", "gemini-2.5-pro")
+        self.cli_path = get_config_value("gemini_cli_path", "gemini")
+        self.default_model = get_config_value(
+            "gemini_model_preference", "gemini-2.5-pro"
+        )
         self.verify_installation()
 
     def verify_installation(self) -> bool:
@@ -261,7 +263,7 @@ class GeminiCLIModelRouter:
             return True
 
         # Use if explicitly requested
-        return os.getenv("PREFER_GEMINI_CLI", "false").lower() == "true"
+        return get_config_value("prefer_gemini_cli", "false").lower() == "true"
 
     async def route_request(
         self, prompt: str, context: dict[str, Any], **kwargs

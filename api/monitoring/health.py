@@ -1,4 +1,5 @@
 """
+from backend.core.auto_esc_config import get_config_value
 Sophia AI Health Monitoring System
 
 Comprehensive health check and monitoring system for all application components
@@ -39,7 +40,7 @@ class HealthMonitor:
                 "salesforce": os.getenv("VITE_SALESFORCE_OAUTH_TOKEN"),
                 "hubspot": os.getenv("VITE_HUBSPOT_API_KEY"),
                 "intercom": os.getenv("VITE_INTERCOM_ACCESS_TOKEN"),
-                "gong": os.getenv("GONG_ACCESS_KEY"),
+                "gong": get_config_value("gong_access_key"),
             },
             "thresholds": {
                 "cpu_usage": 80.0,  # CPU usage percentage
@@ -63,8 +64,8 @@ class HealthMonitor:
                     "status": "healthy",
                     "timestamp": datetime.utcnow().isoformat(),
                     "uptime": str(datetime.utcnow() - self.start_time),
-                    "version": os.getenv("APP_VERSION", "unknown"),
-                    "environment": os.getenv("VITE_SOPHIA_ENV", "unknown"),
+                    "version": get_config_value("app_version", "unknown"),
+                    "environment": get_config_value("vite_sophia_env", "unknown"),
                 }
             )
 
@@ -76,8 +77,8 @@ class HealthMonitor:
                 "status": "healthy",
                 "timestamp": datetime.utcnow().isoformat(),
                 "uptime": str(datetime.utcnow() - self.start_time),
-                "version": os.getenv("APP_VERSION", "unknown"),
-                "environment": os.getenv("VITE_SOPHIA_ENV", "unknown"),
+                "version": get_config_value("app_version", "unknown"),
+                "environment": get_config_value("vite_sophia_env", "unknown"),
                 "components": {},
                 "system": self._get_system_health(),
                 "dependencies": self._check_dependencies(),

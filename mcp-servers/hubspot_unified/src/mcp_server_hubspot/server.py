@@ -96,7 +96,7 @@ def initialize_embedding_model() -> SentenceTransformer:
 
 def initialize_faiss_manager(embedding_model: SentenceTransformer) -> FaissManager:
     """Initialize and return the FAISS manager."""
-    storage_dir = os.getenv("HUBSPOT_STORAGE_DIR_LOCAL", "/storage")
+    storage_dir = get_config_value("hubspot_storage_dir_local", "/storage")
     logger.info(f"Using storage directory: {storage_dir}")
 
     embedding_dim = embedding_model.get_sentence_embedding_dimension()

@@ -86,7 +86,7 @@ async def health_check():
         "uptime_seconds": asyncio.get_event_loop().time()
         - app_state.get("startup_time", 0),
         "services": app_state.get("services", {}),
-        "environment": os.getenv("ENVIRONMENT", "development"),
+        "environment": get_config_value("environment", "development"),
     }
 
 
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     import uvicorn
 
     # Get port from environment or default to 8000
-    port = int(os.getenv("PORT", "8000"))
+    port = int(get_config_value("port", "8000"))
 
     logger.info(f"Starting Sophia AI Simplified Platform on port {port}")
 

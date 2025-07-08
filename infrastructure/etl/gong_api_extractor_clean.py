@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Gong API Data Extractor
 Secure implementation for Sophia AI Platform
 """
@@ -40,8 +41,8 @@ class GongAPIExtractor:
 
     def _load_config(self) -> GongConfig:
         """Load configuration from environment variables"""
-        access_key = os.getenv("GONG_ACCESS_KEY")
-        access_key_secret = os.getenv("GONG_ACCESS_KEY_SECRET")
+        access_key = get_config_value("gong_access_key")
+        access_key_secret = get_config_value("gong_access_key_secret")
 
         if not access_key or not access_key_secret:
             raise ValueError("Gong API credentials not found in environment variables")

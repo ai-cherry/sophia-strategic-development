@@ -21,7 +21,6 @@ from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformStatus,
     PlatformType,
 )
-
 from scripts.snowflake_config_manager import SnowflakeConfigManager
 
 
@@ -130,7 +129,7 @@ class SnowflakeAdapter(PlatformAdapter):
 
             # Get configuration info
             configuration = {
-                "account": os.getenv("SNOWFLAKE_ACCOUNT", "ZNB04675.us-east-1"),
+                "account": get_config_value("snowflake_account", "ZNB04675.us-east-1"),
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",

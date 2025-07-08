@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Sophia AI - Estuary Platform Adapter
 Optimal mix of API, CLI, and webhook integration for data pipeline management
 """
@@ -23,7 +24,6 @@ from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformStatus,
     PlatformType,
 )
-
 from core.config_manager import get_config_value
 
 
@@ -54,7 +54,7 @@ class EstuaryAdapter(PlatformAdapter):
             "client_secret": os.getenv(
                 "ESTUARY_CLIENT_SECRET", "NfwyhFUjemKlC66h7iECE9Tjedo6SGFh"
             ),
-            "access_token": os.getenv("ESTUARY_ACCESS_TOKEN", ""),
+            "access_token": get_config_value("estuary_access_token", ""),
             "webhook_url": os.getenv(
                 "ESTUARY_WEBHOOK_URL", "https://app.sophia-intel.ai/webhook/estuary"
             ),
@@ -539,7 +539,7 @@ class EstuaryAdapter(PlatformAdapter):
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
                 "schema": "PUBLIC",
-                "username": os.getenv("SNOWFLAKE_USER"),
+                "username": get_config_value("snowflake_user"),
                 "password": os.getenv("SOPHIA_AI_TOKEN"),
             },
         }

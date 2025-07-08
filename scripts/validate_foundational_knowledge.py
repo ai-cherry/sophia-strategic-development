@@ -23,7 +23,7 @@ class FoundationalKnowledgeValidator:
         self.notion_api_key = os.getenv(
             "NOTION_API_KEY", "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"
         )
-        self.mcp_base_url = os.getenv("NOTION_MCP_URL", "http://localhost:9003")
+        self.mcp_base_url = get_config_value("notion_mcp_url", "http://localhost:9003")
         self.notion = Client(auth=self.notion_api_key)
         self.validation_results = []
 

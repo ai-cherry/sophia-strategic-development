@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Estuary Flow Manager for Sophia AI Platform
 Comprehensive integration replacing Estuary with Estuary Flow
 """
@@ -76,8 +77,8 @@ class EstuaryCredentials:
 
             if result.returncode != 0:
                 # Fallback to environment variables
-                access_token = os.getenv("ESTUARY_ACCESS_TOKEN")
-                refresh_token = os.getenv("ESTUARY_REFRESH_TOKEN")
+                access_token = get_config_value("estuary_access_token")
+                refresh_token = get_config_value("estuary_refresh_token")
 
                 if not access_token or not refresh_token:
                     raise ValueError(
@@ -105,7 +106,7 @@ class EstuaryCredentials:
             refresh_token = (
                 result.stdout.strip()
                 if result.returncode == 0
-                else os.getenv("ESTUARY_REFRESH_TOKEN")
+                else get_config_value("estuary_refresh_token")
             )
 
             # Ensure refresh_token is not None

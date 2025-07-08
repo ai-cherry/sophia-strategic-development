@@ -50,8 +50,8 @@ class EstuaryIntegrationManager:
                 "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6Z1BPdmhDSC1Ic21OQnhhV3lnLU11dlF6dHJERTBDSEJHZDB2MVh0Vnk0In0.eyJleHAiOjE3NTAzNjI2NzAsImlhdCI6MTcxODgyNjY3MCwianRpIjoiNzJkNzE1YzQtNzI4Zi00YjU5LWI5YjMtMzQ4ZjNkNzNkNzI5IiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5haXJieXRlLmlvL3JlYWxtcy9haXJieXRlIiwiYXVkIjoiYWlyYnl0ZS1zZXJ2ZXIiLCJzdWIiOiI5NjMwMTM0Yy0zNTlkLTRjOWMtYWE5Ny05NWFiM2EyZmY4ZjUiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhaXJieXRlLXNlcnZlciIsInNlc3Npb25fc3RhdGUiOiJhNzE5YjJhNy0yMzI5LTRhNzEtOTI4Ni0yNzY4ZjI3YzNkNzMiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsImRlZmF1bHQtcm9sZXMtYWlyYnl0ZSJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFpcmJ5dGUtc2VydmVyIjp7InJvbGVzIjpbIkVESVRPUiJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwic2lkIjoiYTcxOWIyYTctMjMyOS00YTcxLTkyODYtMjc2OGYyN2MzZDczIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJMeW5uIE11c2lsbG8iLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJtdXNpbGx5bm5AZ21haWwuY29tIiwiZ2l2ZW5fbmFtZSI6Ikx5bm4iLCJmYW1pbHlfbmFtZSI6Ik11c2lsbG8iLCJlbWFpbCI6Im11c2lsbHlubkBnbWFpbC5jb20ifQ.",
             ),
             "snowflake": {
-                "account": os.getenv("SNOWFLAKE_ACCOUNT", "UHDECNO-CVB64222"),
-                "user": os.getenv("SNOWFLAKE_USER", "SCOOBYJAVA15"),
+                "account": get_config_value("snowflake_account", "UHDECNO-CVB64222"),
+                "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
                 "password": os.getenv(
                     "SOPHIA_AI_TOKEN", get_config_value("snowflake_password")
                 ),
@@ -70,7 +70,7 @@ class EstuaryIntegrationManager:
             },
             "slack": {
                 "token": get_config_value("slack_bot_token"),
-                "channel_filter": os.getenv("SLACK_CHANNEL_FILTER", ""),
+                "channel_filter": get_config_value("slack_channel_filter", ""),
             },
         }
 

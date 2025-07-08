@@ -465,11 +465,11 @@ class EnhancedDeploymentTracker:
     def _get_github_context(self) -> dict[str, str]:
         """Get GitHub context from environment variables."""
         return {
-            "sha": os.getenv("GITHUB_SHA", ""),
-            "ref": os.getenv("GITHUB_REF", ""),
-            "actor": os.getenv("GITHUB_ACTOR", ""),
-            "workflow": os.getenv("GITHUB_WORKFLOW", ""),
-            "job": os.getenv("GITHUB_JOB", ""),
+            "sha": get_config_value("github_sha", ""),
+            "ref": get_config_value("github_ref", ""),
+            "actor": get_config_value("github_actor", ""),
+            "workflow": get_config_value("github_workflow", ""),
+            "job": get_config_value("github_job", ""),
         }
 
     async def _store_deployment_event(self, event: DeploymentEvent) -> bool:

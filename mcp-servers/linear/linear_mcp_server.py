@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Linear MCP Server
 
 A Model Context Protocol (MCP) server implementation for Linear.
@@ -58,7 +59,7 @@ class LinearMCPServer(StandardizedMCPServer):
 
     async def server_specific_init(self) -> None:
         """Initialize Linear client."""
-        api_key = os.getenv("LINEAR_API_KEY")
+        api_key = get_config_value("linear_api_key")
         if not api_key:
             self.logger.warning("LINEAR_API_KEY not set, running in demo mode")
             return

@@ -90,7 +90,7 @@ async def startup_event():
         logger.info("MCP orchestration service initialized")
 
         # Initialize Redis for caching and state management
-        redis_url = os.getenv("REDIS_URL", "redis://redis-cache:6379")
+        redis_url = get_config_value("redis_url", "redis://redis-cache:6379")
         redis_client = redis.from_url(redis_url, decode_responses=True)
         await redis_client.ping()
         logger.info("Redis connection established")

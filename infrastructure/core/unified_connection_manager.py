@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Unified Connection Manager for Sophia AI
 Enterprise-grade connection pooling with circuit breakers and health monitoring
 """
@@ -191,13 +192,13 @@ class ConnectionPool:
 
         # Get configuration from environment or config
         config = {
-            "account": os.getenv("SNOWFLAKE_ACCOUNT"),
-            "user": os.getenv("SNOWFLAKE_USER"),
+            "account": get_config_value("snowflake_account"),
+            "user": get_config_value("snowflake_user"),
             "password": get_config_value("snowflake_password"),
-            "warehouse": os.getenv("SNOWFLAKE_WAREHOUSE"),
-            "database": os.getenv("SNOWFLAKE_DATABASE"),
-            "schema": os.getenv("SNOWFLAKE_SCHEMA", "PUBLIC"),
-            "role": os.getenv("SNOWFLAKE_ROLE", "SYSADMIN"),
+            "warehouse": get_config_value("snowflake_warehouse"),
+            "database": get_config_value("snowflake_database"),
+            "schema": get_config_value("snowflake_schema", "PUBLIC"),
+            "role": get_config_value("snowflake_role", "SYSADMIN"),
             "timeout": self.config.connection_timeout,
         }
 
@@ -209,8 +210,8 @@ class ConnectionPool:
     async def _create_postgres_connection(self):
         """Create PostgreSQL connection"""
         return await asyncpg.connect(
-            host=os.getenv("POSTGRES_HOST", "localhost"),
-            port=int(os.getenv("POSTGRES_PORT", "5432")),
+            host=get_config_value("postgres_host", "localhost"),
+            port=int(get_config_value("postgres_port", "5432")),
             user=os.getenv("POSTGRES_USER"),
             password=os.getenv("POSTGRES_PASSWORD"),
             database=os.getenv("POSTGRES_DATABASE"),
@@ -220,10 +221,10 @@ class ConnectionPool:
     async def _create_redis_connection(self):
         """Create Redis connection"""
         return redis.Redis(
-            host=os.getenv("REDIS_HOST", "localhost"),
-            port=int(os.getenv("REDIS_PORT", "6379")),
+            host=get_config_value("redis_host", "localhost"),
+            port=int(get_config_value("redis_port", "6379")),
             password=os.getenv("REDIS_PASSWORD"),
-            db=int(os.getenv("REDIS_DB", "0")),
+            db=int(get_config_value("redis_db", "0")),
             socket_timeout=self.config.connection_timeout,
             decode_responses=True,
         )

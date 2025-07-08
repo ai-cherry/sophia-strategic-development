@@ -266,3 +266,8 @@ docs_backup_*/
 *.tmp
 *.temp
 frontend-backup-*
+
+# Environment files
+*.env
+!*.env.example
+!*.env.template

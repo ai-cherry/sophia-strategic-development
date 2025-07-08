@@ -70,7 +70,7 @@ class SophiaConfig:
             return None
 
         try:
-            org = os.getenv("PULUMI_ORG", "scoobyjava-org")
+            org = get_config_value("pulumi_org", "scoobyjava-org")
             stack = "sophia-ai-production"
 
             cmd = [
