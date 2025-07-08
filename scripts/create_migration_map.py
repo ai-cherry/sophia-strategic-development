@@ -95,7 +95,5 @@ def generate_file_list(migration_map):
 
 
 if __name__ == "__main__":
-    print("Creating migration map...")
     migration_map = create_migration_map()
     file_migrations = generate_file_list(migration_map)
-    print(f"Migration map created with {len(file_migrations)} files to migrate")

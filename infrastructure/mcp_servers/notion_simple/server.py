@@ -38,7 +38,7 @@ app = FastAPI(
 # Request/Response models
 class SearchRequest(BaseModel):
     query: str
-    entity_type: Optional[str] = None
+    entity_type: str | None = None
     limit: int = 10
 
 
@@ -349,7 +349,7 @@ async def main():
     """Run the server."""
     config = uvicorn.Config(
         app,
-        host="0.0.0.0",
+        host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production,
         port=int(get_config_value("notion_mcp_port", "9003")),
         log_level=get_config_value("log_level", "info").lower(),
     )

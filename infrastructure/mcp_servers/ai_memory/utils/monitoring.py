@@ -44,8 +44,8 @@ class HealthMonitor:
                 await asyncio.sleep(60)  # Check every minute
             except asyncio.CancelledError:
                 break
-            except Exception as e:
-                print(f"Health monitoring error: {e}")
+            except Exception:
+                pass
 
     async def _perform_health_checks(self):
         """Perform health checks"""

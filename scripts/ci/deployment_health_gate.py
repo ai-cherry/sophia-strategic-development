@@ -9,7 +9,6 @@ from pathlib import Path
 
 def main():
     """Simple health gate that checks basic requirements"""
-    print("✅ Deployment health gate: PASSED")
 
     # Create a simple health report
     health_report = {

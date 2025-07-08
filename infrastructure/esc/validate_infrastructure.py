@@ -23,15 +23,12 @@ class InfrastructureValidator:
 
     def validate_ssh_automation(self) -> bool:
         """Validate SSH key automation is working"""
-        print("\n🔐 Validating SSH Key Automation...")
 
         try:
             # Check if SSH key exists locally
             ssh_key_path = Path.home() / ".ssh" / "pulumi_lambda_key"
             if not ssh_key_path.exists():
-                print("  ❌ SSH key not found locally")
                 return False
-            print("  ✅ SSH key exists locally")
 
             # Check if SSH key is in Pulumi ESC
             cmd = [
@@ -43,99 +40,78 @@ class InfrastructureValidator:
             ]
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                print("  ❌ SSH key not found in Pulumi ESC")
                 return False
-            print("  ✅ SSH key stored in Pulumi ESC")
 
             self.results["ssh_automation"] = True
             return True
 
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
+        except Exception:
             return False
 
     def validate_typescript_setup(self) -> bool:
         """Validate TypeScript infrastructure is ready"""
-        print("\n📦 Validating TypeScript Setup...")
 
         try:
             # Check package.json exists
             package_json = Path("../package.json")
             if not package_json.exists():
-                print("  ❌ package.json not found")
                 return False
-            print("  ✅ package.json exists")
 
             # Check TypeScript config
             tsconfig = Path("../tsconfig.json")
             if not tsconfig.exists():
-                print("  ❌ tsconfig.json not found")
                 return False
-            print("  ✅ tsconfig.json exists")
 
             # Check providers directory
             providers_dir = Path("../providers")
             if not providers_dir.exists():
-                print("  ❌ providers directory not found")
                 return False
 
-            providers = list(providers_dir.glob("*.ts"))
-            print(f"  ✅ {len(providers)} provider files found")
+            list(providers_dir.glob("*.ts"))
 
             self.results["typescript_setup"] = True
             return True
 
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
+        except Exception:
             return False
 
     def validate_secret_sync(self) -> bool:
         """Validate bi-directional secret sync"""
-        print("\n🔄 Validating Secret Synchronization...")
 
         try:
             # Check if sync script exists
             sync_script = Path("github_sync_bidirectional.py")
             if not sync_script.exists():
-                print("  ❌ Sync script not found")
                 return False
-            print("  ✅ Sync script exists")
 
             # Check secret mappings
             mappings_file = Path("secret_mappings.json")
             if not mappings_file.exists():
-                print("  ❌ Secret mappings not found")
                 return False
 
             with open(mappings_file) as f:
                 mappings = json.load(f)
 
-            github_mappings = len(mappings.get("github_to_pulumi", {}))
-            services = len(mappings.get("services", {}))
+            len(mappings.get("github_to_pulumi", {}))
+            len(mappings.get("services", {}))
 
-            print(f"  ✅ {github_mappings} GitHub mappings configured")
-            print(f"  ✅ {services} services configured")
 
             self.results["secret_sync"] = True
             return True
 
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
+        except Exception:
             return False
 
     def validate_pulumi_auth(self) -> bool:
         """Validate Pulumi authentication"""
-        print("\n🔑 Validating Pulumi Authentication...")
 
         try:
             cmd = ["pulumi", "whoami"]
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                print("  ❌ Pulumi not authenticated")
                 return False
 
-            user = result.stdout.strip()
-            print(f"  ✅ Authenticated as: {user}")
+            result.stdout.strip()
 
             # Check access to ESC
             cmd = [
@@ -148,21 +124,17 @@ class InfrastructureValidator:
             ]
             result = subprocess.run(cmd, capture_output=True, text=True)
             if result.returncode != 0:
-                print("  ❌ Cannot access Pulumi ESC")
                 return False
 
-            print("  ✅ Pulumi ESC accessible")
 
             self.results["pulumi_auth"] = True
             return True
 
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
+        except Exception:
             return False
 
     def validate_lambda_labs(self) -> bool:
         """Validate Lambda Labs connectivity"""
-        print("\n🖥️  Validating Lambda Labs...")
 
         try:
             # Test SSH to instances
@@ -187,21 +159,18 @@ class InfrastructureValidator:
                 result = subprocess.run(cmd, capture_output=True, text=True)
 
                 if result.returncode == 0:
-                    print(f"  ✅ {name} ({ip}) - SSH working")
+                    pass
                 else:
-                    print(f"  ❌ {name} ({ip}) - SSH failed")
                     all_good = False
 
             self.results["lambda_labs"] = all_good
             return all_good
 
-        except Exception as e:
-            print(f"  ❌ Error: {e}")
+        except Exception:
             return False
 
     def validate_services(self) -> dict[str, bool]:
         """Validate service-specific requirements"""
-        print("\n🚀 Validating Service Readiness...")
 
         services = {
             "lambda_labs": ["lambda_api_key", "lambda_labs_ssh_public_key_base64"],
@@ -226,7 +195,6 @@ class InfrastructureValidator:
             esc_data = json.loads(result.stdout)
 
             for service, required_secrets in services.items():
-                print(f"\n  {service}:")
                 service_ready = True
 
                 for secret in required_secrets:
@@ -236,9 +204,8 @@ class InfrastructureValidator:
                         and isinstance(value, str)
                         and not value.startswith("PLACEHOLDER_")
                     ):
-                        print(f"    ✅ {secret}")
+                        pass
                     else:
-                        print(f"    ❌ {secret} (missing or placeholder)")
                         service_ready = False
 
                 self.results["services_ready"][service] = service_ready
@@ -258,24 +225,12 @@ class InfrastructureValidator:
 
     def generate_report(self):
         """Generate validation report"""
-        print("\n" + "=" * 60)
-        print("📊 INFRASTRUCTURE VALIDATION REPORT")
-        print("=" * 60)
 
         # Core components
-        print("\n🔧 Core Components:")
-        print(f"  SSH Automation:     {'✅' if self.results['ssh_automation'] else '❌'}")
-        print(
-            f"  TypeScript Setup:   {'✅' if self.results['typescript_setup'] else '❌'}"
-        )
-        print(f"  Secret Sync:        {'✅' if self.results['secret_sync'] else '❌'}")
-        print(f"  Pulumi Auth:        {'✅' if self.results['pulumi_auth'] else '❌'}")
-        print(f"  Lambda Labs:        {'✅' if self.results['lambda_labs'] else '❌'}")
 
         # Service readiness
-        print("\n🚀 Service Readiness:")
         for service, ready in self.results["services_ready"].items():
-            print(f"  {service:15} {'✅ Ready' if ready else '❌ Not Ready'}")
+            pass
 
         # Overall status
         core_ready = all(
@@ -288,21 +243,16 @@ class InfrastructureValidator:
         )
 
         services_ready = sum(self.results["services_ready"].values())
-        total_services = len(self.results["services_ready"])
+        len(self.results["services_ready"])
 
-        print("\n📈 Overall Status:")
-        print(f"  Core Infrastructure: {'READY' if core_ready else 'NOT READY'}")
-        print(f"  Services Ready: {services_ready}/{total_services}")
-        print(f"  Overall Readiness: {(services_ready/total_services)*100:.0f}%")
 
         if core_ready and services_ready >= 3:
-            print("\n✅ Infrastructure is READY for deployment!")
+            pass
         else:
-            print("\n⚠️  Infrastructure needs additional configuration")
+            pass
 
     def run(self):
         """Run all validations"""
-        print("🚀 Starting Infrastructure Validation...")
 
         self.validate_ssh_automation()
         self.validate_typescript_setup()

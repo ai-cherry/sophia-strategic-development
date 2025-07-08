@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class UnifiedAIMemoryServer:
     """Unified AI Memory MCP Server with enterprise features"""
 
-    def __init__(self, config: Optional[AIMemoryConfig] = None):
+    def __init__(self, config: AIMemoryConfig | None = None):
         self.config = config or AIMemoryConfig()
         self.server = Server("ai-memory")
         self.performance_monitor = PerformanceMonitor()

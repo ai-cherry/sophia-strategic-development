@@ -40,7 +40,7 @@ class BaseMemory(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    ttl_seconds: Optional[int] = None
+    ttl_seconds: int | None = None
 
 
 class ChatMemory(BaseMemory):
@@ -51,7 +51,7 @@ class ChatMemory(BaseMemory):
     session_id: str
     message: str
     response: str
-    sentiment: Optional[float] = None
+    sentiment: float | None = None
     topics: list[str] = Field(default_factory=list)
 
 
@@ -83,7 +83,7 @@ class MemoryMediator:
     """
 
     def __init__(self):
-        self.redis_client: Optional[redis.Redis] = None
+        self.redis_client: redis.Redis | None = None
         self.cache_ttl = {
             MemoryType.CHAT: 3600,  # 1 hour
             MemoryType.EVENT: 7200,  # 2 hours
@@ -114,7 +114,7 @@ class MemoryMediator:
             raise
 
     async def store(
-        self, memory: BaseMemory, rbac_context: Optional[dict] = None
+        self, memory: BaseMemory, rbac_context: dict | None = None
     ) -> dict[str, Any]:
         """
         Store memory with multi-tier strategy
@@ -157,8 +157,8 @@ class MemoryMediator:
             raise
 
     async def retrieve(
-        self, memory_id: str, memory_type: Optional[MemoryType] = None
-    ) -> Optional[BaseMemory]:
+        self, memory_id: str, memory_type: MemoryType | None = None
+    ) -> BaseMemory | None:
         """
         Retrieve memory with cache hierarchy
         """
@@ -201,8 +201,8 @@ class MemoryMediator:
     async def search(
         self,
         query: str,
-        memory_types: Optional[list[MemoryType]] = None,
-        time_range: Optional[tuple] = None,
+        memory_types: list[MemoryType] | None = None,
+        time_range: tuple | None = None,
         limit: int = 10,
     ) -> list[BaseMemory]:
         """
@@ -250,7 +250,7 @@ class MemoryMediator:
         self,
         memory_id: str,
         updates: dict[str, Any],
-        rbac_context: Optional[dict] = None,
+        rbac_context: dict | None = None,
     ) -> bool:
         """
         Update existing memory
@@ -285,8 +285,8 @@ class MemoryMediator:
     async def delete(
         self,
         memory_id: str,
-        memory_type: Optional[MemoryType] = None,
-        rbac_context: Optional[dict] = None,
+        memory_type: MemoryType | None = None,
+        rbac_context: dict | None = None,
     ) -> bool:
         """
         Delete memory (soft delete in Snowflake)

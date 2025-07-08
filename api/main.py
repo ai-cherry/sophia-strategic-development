@@ -153,4 +153,4 @@ async def debug_routes():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=8000)

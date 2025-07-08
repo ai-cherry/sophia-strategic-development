@@ -8,7 +8,7 @@ def create_embedding_tasks(database_name: str, schema_name: str, warehouse_name:
     tasks = {}
 
     # Create streams first
-    employee_stream = Stream(
+    Stream(
         "employee-stream",
         database=database_name,
         schema=schema_name,
@@ -17,7 +17,7 @@ def create_embedding_tasks(database_name: str, schema_name: str, warehouse_name:
         comment="Stream to track changes in EMPLOYEES table",
     )
 
-    customer_stream = Stream(
+    Stream(
         "customer-stream",
         database=database_name,
         schema=schema_name,
@@ -26,7 +26,7 @@ def create_embedding_tasks(database_name: str, schema_name: str, warehouse_name:
         comment="Stream to track changes in CUSTOMERS table",
     )
 
-    product_stream = Stream(
+    Stream(
         "product-stream",
         database=database_name,
         schema=schema_name,

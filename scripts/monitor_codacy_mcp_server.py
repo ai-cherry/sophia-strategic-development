@@ -164,47 +164,34 @@ class CodacyMCPMonitor:
     def print_status_update(self, health: HealthStatus, attempt: int):
         """Print formatted status update."""
         elapsed = datetime.now() - self.deployment_start
-        elapsed_str = str(elapsed).split(".")[0]  # Remove microseconds
+        str(elapsed).split(".")[0]  # Remove microseconds
 
-        print(f"\n🔍 **DEPLOYMENT MONITOR - Attempt {attempt}/{self.max_attempts}**")
-        print(f"⏱️  Elapsed Time: {elapsed_str}")
-        print(f"🎯 Target: {self.health_endpoint}")
-        print(f"📊 Status Code: {health.status_code}")
-        print(f"⚡ Response Time: {health.response_time:.2f}ms")
-        print(f"🏥 Service Status: {health.service_status}")
 
         if health.error_message:
-            print(f"❌ Error: {health.error_message}")
+            pass
 
         if health.performance_metrics:
-            print(f"📈 Performance: {health.performance_metrics}")
+            pass
 
         # Check additional endpoints if main health is good
         if health.status_code == 200:
-            print("🔍 Testing additional endpoints...")
             endpoint_status = self.check_api_endpoints()
             for endpoint, status in endpoint_status.items():
-                status_icon = "✅" if status else "❌"
-                print(f"   {status_icon} {endpoint}: {'OK' if status else 'Failed'}")
+                pass
 
         # GitHub Actions status
         github_status = self.check_github_actions()
         if github_status:
-            print(f"🚀 GitHub Actions: {github_status}")
+            pass
 
         # Completion estimate
         completion = self.estimate_completion(health)
         if completion and completion != "completed":
-            print(f"⏰ Estimated Completion: {completion}")
+            pass
 
-        print("-" * 60)
 
     def continuous_monitor(self):
         """Run continuous monitoring until service is healthy."""
-        print("🚀 **CODACY MCP DEPLOYMENT MONITOR STARTED**")
-        print(f"🎯 Target: {self.target_url}")
-        print(f"📅 Started: {self.deployment_start.strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 60)
 
         for attempt in range(1, self.max_attempts + 1):
             health = self.check_health()
@@ -219,20 +206,13 @@ class CodacyMCPMonitor:
             ]:
                 endpoint_status = self.check_api_endpoints()
                 if all(endpoint_status.values()):
-                    print("🎉 **DEPLOYMENT SUCCESSFUL!**")
-                    print("✅ All health checks passed")
-                    print("✅ All API endpoints responding")
-                    print("✅ Service fully operational")
                     self.generate_success_report()
                     return True
 
             # Continue monitoring
             if attempt < self.max_attempts:
-                print(f"⏳ Waiting {self.check_interval}s for next check...")
                 time.sleep(self.check_interval)
 
-        print("⚠️  **MONITORING TIMEOUT REACHED**")
-        print("❌ Service may need manual investigation")
         self.generate_timeout_report()
         return False
 
@@ -259,7 +239,6 @@ class CodacyMCPMonitor:
         with open(filename, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"📊 Success report saved: {filename}")
 
     def generate_timeout_report(self):
         """Generate timeout investigation report."""
@@ -286,21 +265,16 @@ class CodacyMCPMonitor:
         with open(filename, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"📊 Timeout report saved: {filename}")
 
     def single_check(self):
         """Perform a single health check and report."""
-        print("🔍 **SINGLE HEALTH CHECK**")
         health = self.check_health()
         self.print_status_update(health, 1)
 
         if health.status_code == 200:
             endpoint_status = self.check_api_endpoints()
-            print("\n🎯 **FULL SERVICE STATUS:**")
-            print(f"✅ Main Service: Operational ({health.response_time:.2f}ms)")
             for endpoint, status in endpoint_status.items():
-                status_text = "✅ Operational" if status else "❌ Failed"
-                print(f"   {endpoint}: {status_text}")
+                pass
 
         return health.status_code == 200
 
@@ -322,8 +296,7 @@ def main():
     if args.continuous:
         monitor.continuous_monitor()
     elif args.report:
-        health = monitor.check_health()
-        print(json.dumps(asdict(health), indent=2))
+        monitor.check_health()
     else:
         monitor.single_check()
 

@@ -273,11 +273,6 @@ def main():
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python setup_notion_simple.py <parent_page_id>")
-        print("\nTo get the parent page ID:")
-        print("1. Create a page in Notion called 'Pay Ready Foundational Knowledge'")
-        print("2. Copy the page ID from the URL")
-        print("3. Run: python setup_notion_simple.py YOUR_PAGE_ID")
         return
 
     parent_page_id = sys.argv[1]
@@ -289,22 +284,14 @@ def main():
         database_ids = setup.create_databases(parent_page_id)
 
         # Save configuration
-        config = setup.save_configuration()
+        setup.save_configuration()
 
         # Create sample data
         setup.create_sample_data()
 
-        print("\n✅ Setup completed successfully!")
-        print("\n📋 Database IDs:")
         for name, db_id in database_ids.items():
-            print(f"  {name}: {db_id}")
+            pass
 
-        print("\n🚀 Next steps:")
-        print("1. Review the databases in Notion")
-        print("2. Run: python scripts/analyze_sample_data.py")
-        print(
-            "3. Import your data using: streamlit run scripts/foundational_knowledge_staging.py"
-        )
 
     except Exception as e:
         logger.error(f"❌ Setup failed: {str(e)}")

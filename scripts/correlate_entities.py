@@ -149,7 +149,6 @@ class EmployeeCorrelator:
 
     def correlate_by_name(self, unmatched_only: bool = True):
         """Correlate users by name similarity for unmatched records."""
-        name_correlations = []
 
         for corr in self.correlations:
             # Skip if already matched (when unmatched_only is True)
@@ -322,9 +321,6 @@ def main():
     # Save results
     correlator.save_results(args.output)
 
-    print("\n✅ Correlation completed!")
-    print(f"📊 Results saved to: {args.output}")
-    print(f"📊 CSV saved to: {args.output.replace('.json', '.csv')}")
 
 
 if __name__ == "__main__":

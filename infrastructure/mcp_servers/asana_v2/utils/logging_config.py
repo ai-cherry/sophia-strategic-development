@@ -2,6 +2,7 @@
 import logging
 from logging.config import dictConfig
 
+
 def setup_logging(level: str = "INFO"):
     """Configure logging."""
     dictConfig({

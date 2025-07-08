@@ -211,9 +211,9 @@ class GongMemoryIntegration:
 
     async def search_call_memories(
         self,
-        customer_name: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        customer_name: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> list[dict[str, Any]]:
         """
         Search for call-related memories

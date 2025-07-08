@@ -37,7 +37,6 @@ class SecretManagementFixer:
 
     def install_pulumi_cli(self) -> bool:
         """Install Pulumi CLI"""
-        print("🔧 Installing Pulumi CLI...")
         try:
             # Download and install Pulumi
             install_cmd = "curl -fsSL https://get.pulumi.com | sh"
@@ -95,7 +94,6 @@ class SecretManagementFixer:
 
     def create_backend_structure(self) -> bool:
         """Create backend directory structure"""
-        print("🔧 Creating backend directory structure...")
         try:
             backend_dirs = [
                 "backend",
@@ -158,7 +156,6 @@ __all__ = [
 
     def fix_esc_configuration(self) -> bool:
         """Fix ESC configuration file"""
-        print("🔧 Fixing ESC configuration...")
         try:
             esc_dir = self.workspace_root / "infrastructure" / "esc"
             esc_dir.mkdir(parents=True, exist_ok=True)
@@ -253,7 +250,6 @@ __all__ = [
 
     def create_secret_mappings(self) -> bool:
         """Create centralized secret mapping configuration"""
-        print("🔧 Creating secret mapping configuration...")
         try:
             mappings_content = '''"""
 Centralized secret mapping configuration
@@ -325,7 +321,6 @@ def get_github_key(internal_key: str) -> str:
 
     def remove_legacy_env_files(self) -> bool:
         """Remove legacy .env files"""
-        print("🔧 Removing legacy .env files...")
         try:
             env_files = [
                 ".env.lambda-labs",
@@ -376,7 +371,6 @@ def get_github_key(internal_key: str) -> str:
 
     def create_validation_scripts(self) -> bool:
         """Create validation and test scripts"""
-        print("🔧 Creating validation scripts...")
         try:
             # Create test script
             test_script_content = '''#!/usr/bin/env python3
@@ -464,36 +458,28 @@ except ImportError as e:
 
     def apply_all_fixes(self) -> dict[str, bool]:
         """Apply all infrastructure fixes"""
-        print("🚀 Applying Secret Management Infrastructure Fixes")
-        print("=" * 50)
 
         results = {}
 
         # 1. Check/Install Pulumi CLI
-        print("🔍 Checking Pulumi CLI...")
         if self.check_pulumi_cli():
             results["pulumi_cli"] = True
         else:
             results["pulumi_cli"] = self.install_pulumi_cli()
 
         # 2. Create backend structure
-        print("🔧 Creating backend structure...")
         results["backend_structure"] = self.create_backend_structure()
 
         # 3. Fix ESC configuration
-        print("🔧 Fixing ESC configuration...")
         results["esc_config"] = self.fix_esc_configuration()
 
         # 4. Create secret mappings
-        print("🔧 Creating secret mappings...")
         results["secret_mappings"] = self.create_secret_mappings()
 
         # 5. Remove legacy files
-        print("🧹 Removing legacy .env files...")
         results["legacy_cleanup"] = self.remove_legacy_env_files()
 
         # 6. Create validation scripts
-        print("🔍 Creating validation scripts...")
         results["validation_scripts"] = self.create_validation_scripts()
 
         return results
@@ -567,23 +553,16 @@ def main():
     with open(report_path, "w") as f:
         f.write(report)
 
-    print("\n" + "=" * 50)
-    print("📋 Fix Report Generated")
-    print(f"📄 Report saved to: {report_path}")
 
     # Print summary
     successful_fixes = sum(1 for result in results.values() if result)
     total_fixes = len(results)
 
-    print(f"✅ Successful fixes: {successful_fixes}/{total_fixes}")
-    print(f"🔧 Total changes applied: {len(fixer.fixes_applied)}")
-    print(f"⚠️ Errors found: {len(fixer.errors_found)}")
 
     if successful_fixes == total_fixes:
-        print("\n🎉 All infrastructure fixes applied successfully!")
-        print("🚀 Next: Run 'python scripts/apply_remediation_fixes.py' to fix code")
+        pass
     else:
-        print("\n⚠️ Some fixes failed - check the report for details")
+        pass
 
     return 0 if successful_fixes == total_fixes else 1
 

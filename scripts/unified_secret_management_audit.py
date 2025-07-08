@@ -38,7 +38,6 @@ class UnifiedSecretManagementAuditor:
 
     def find_all_secret_files(self):
         """Find ALL files related to secret management"""
-        print("🔍 Finding all secret-related files...")
 
         # Patterns to search for
         search_patterns = [
@@ -117,7 +116,7 @@ class UnifiedSecretManagementAuditor:
 
             # Check if it's a sync workflow
             if "sync" in content.lower() and "secret" in content.lower():
-                print(f"  Found sync workflow: {workflow_path.name}")
+                pass
 
         except Exception:
             pass
@@ -171,7 +170,6 @@ class UnifiedSecretManagementAuditor:
 
     def check_pulumi_esc_status(self) -> dict[str, Any]:
         """Check current Pulumi ESC status"""
-        print("\n🔐 Checking Pulumi ESC status...")
 
         esc_status = {
             "connected": False,
@@ -194,20 +192,16 @@ class UnifiedSecretManagementAuditor:
                 # Count secrets (simplified)
                 lines = result.stdout.strip().split("\n")
                 esc_status["secrets_count"] = len([l for l in lines if ":" in l])
-                print(f"  ✅ ESC connected with {esc_status['secrets_count']} values")
             else:
-                print(f"  ❌ ESC connection failed: {result.stderr}")
                 self.findings["issues"].append("Pulumi ESC connection failed")
 
         except Exception as e:
-            print(f"  ❌ ESC check failed: {e}")
             self.findings["issues"].append(f"ESC check error: {e}")
 
         return esc_status
 
     def analyze_sync_workflow(self):
         """Analyze the GitHub Actions sync workflow"""
-        print("\n📋 Analyzing sync workflow...")
 
         sync_workflow = self.project_root / ".github" / "workflows" / "sync_secrets.yml"
         if sync_workflow.exists():
@@ -227,25 +221,19 @@ class UnifiedSecretManagementAuditor:
                 self.findings["issues"].append(
                     f"Secrets missing from sync workflow: {missing_in_workflow}"
                 )
-                print(
-                    f"  ⚠️  Missing from workflow: {len(missing_in_workflow)} secrets"
-                )
 
             if extra_in_workflow:
                 self.findings["issues"].append(
                     f"Extra secrets in workflow: {extra_in_workflow}"
                 )
-                print(f"  ⚠️  Extra in workflow: {len(extra_in_workflow)} secrets")
 
             if not missing_in_workflow and not extra_in_workflow:
-                print("  ✅ Workflow has all required secrets")
+                pass
         else:
             self.findings["issues"].append("sync_secrets.yml workflow not found")
-            print("  ❌ sync_secrets.yml not found!")
 
     def create_unified_strategy(self):
         """Create a unified secret management strategy"""
-        print("\n🎯 Creating unified secret management strategy...")
 
         strategy = {
             "overview": "Unified secret management for Sophia AI",
@@ -403,11 +391,9 @@ Quarterly: Rotate sensitive credentials
 """
 
         path.write_text(content)
-        print(f"  ✅ Strategy document written to {path}")
 
     def generate_test_script(self):
         """Generate a test script for secret access"""
-        print("\n🧪 Generating test script...")
 
         test_script = '''#!/usr/bin/env python3
 """Test secret access through the unified pipeline"""
@@ -457,7 +443,6 @@ else:
         test_path = self.project_root / "scripts" / "test_secret_access.py"
         test_path.write_text(test_script)
         test_path.chmod(0o755)
-        print(f"  ✅ Test script created: {test_path}")
 
     def generate_report(self):
         """Generate comprehensive audit report"""
@@ -487,33 +472,25 @@ else:
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"\n📄 Report saved to: {report_path}")
 
         # Print summary
-        print("\n📊 Audit Summary:")
-        print(f"  Sync scripts found: {report['statistics']['sync_scripts']}")
-        print(f"  Workflows found: {report['statistics']['workflows']}")
-        print(f"  Config files found: {report['statistics']['config_files']}")
-        print(f"  Issues found: {report['statistics']['issues']}")
 
         if self.findings["issues"]:
-            print("\n⚠️  Issues:")
             for issue in self.findings["issues"]:
-                print(f"  - {issue}")
+                pass
 
 
 def main():
-    print("🚀 Unified Secret Management Audit\n")
 
     auditor = UnifiedSecretManagementAuditor()
 
     # Run audit
     auditor.find_all_secret_files()
-    esc_status = auditor.check_pulumi_esc_status()
+    auditor.check_pulumi_esc_status()
     auditor.analyze_sync_workflow()
 
     # Create unified strategy
-    strategy = auditor.create_unified_strategy()
+    auditor.create_unified_strategy()
 
     # Generate test script
     auditor.generate_test_script()
@@ -521,11 +498,6 @@ def main():
     # Generate report
     auditor.generate_report()
 
-    print("\n✅ Audit complete! Next steps:")
-    print("  1. Review UNIFIED_SECRET_MANAGEMENT_STRATEGY.md")
-    print("  2. Update sync_from_gh_to_pulumi.py with missing secrets")
-    print("  3. Run: gh workflow run sync_secrets.yml")
-    print("  4. Test: python scripts/test_secret_access.py")
 
 
 if __name__ == "__main__":

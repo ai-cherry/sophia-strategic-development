@@ -1,3 +1,4 @@
+# SQL Injection fixes applied by phase1_ruff_remediation.py
 """
 Snowflake Gong Connector
 
@@ -145,7 +146,8 @@ class SnowflakeGongConnector:
 
         rep_filter = f"AND gc.PRIMARY_USER_NAME = '{sales_rep}'" if sales_rep else ""
 
-        query = f"""
+        query = """
+
         SELECT
             gc.CALL_ID,
             gc.CALL_TITLE,
@@ -165,7 +167,7 @@ class SnowflakeGongConnector:
             -- Coaching indicators
             CASE
                 WHEN gc.SENTIMENT_SCORE < 0.2 THEN 'High Priority'
-                WHEN gc.SENTIMENT_SCORE < {sentiment_threshold} THEN 'Medium Priority'
+                WHEN gc.SENTIMENT_SCORE < %(sentiment_threshold)s THEN 'Medium Priority'
                 WHEN gc.TALK_RATIO > 0.8 THEN 'Talk Ratio Issue'
                 ELSE 'Low Priority'
             END as coaching_priority,
@@ -190,14 +192,14 @@ class SnowflakeGongConnector:
                 ' | '
             ) as risk_indicators
 
-        FROM {self.tables["calls"]} gc
-        LEFT JOIN {self.tables["transcripts"]} t ON gc.CALL_ID = t.CALL_ID
+        FROM " + self.tables["calls"] + " gc
+        LEFT JOIN %(self.tables["transcripts"])s t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
 
-        WHERE gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
-        AND (gc.SENTIMENT_SCORE < {sentiment_threshold} OR gc.TALK_RATIO > 0.7)
-        {rep_filter}
+        WHERE gc.CALL_DATETIME_UTC >= DATEADD('day', -%s, CURRENT_DATE())
+        AND (gc.SENTIMENT_SCORE < %(sentiment_threshold)s OR gc.TALK_RATIO > 0.7)
+        %(rep_filter)s
 
         GROUP BY
             gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
@@ -212,7 +214,7 @@ class SnowflakeGongConnector:
             END,
             gc.CALL_DATETIME_UTC DESC
 
-        LIMIT {limit}
+        LIMIT %(limit)s
         """
 
         try:
@@ -295,7 +297,7 @@ class SnowflakeGongConnector:
 
                 DATEDIFF('day', gc.CALL_DATETIME_UTC, hd.CLOSE_DATE) as days_to_close
 
-            FROM {self.tables["calls"]} gc
+            FROM " + self.tables["calls"] + " gc
             LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
             LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
             WHERE gc.CALL_ID = '{call_id}'
@@ -329,8 +331,9 @@ class SnowflakeGongConnector:
                     ' | '
                 ) as positive_moments
 
-            FROM {self.tables["transcripts"]}
-            WHERE CALL_ID = '{call_id}'
+            FROM " + self.tables["transcripts"] + "
+            WHERE CALL_ID = %s",
+            (call_id,)
         ),
         participants_info AS (
             SELECT
@@ -338,8 +341,9 @@ class SnowflakeGongConnector:
                 COUNT(CASE WHEN PARTICIPANT_TYPE = 'External' THEN 1 END) as external_participants,
                 COUNT(CASE WHEN PARTICIPANT_TYPE = 'Internal' THEN 1 END) as internal_participants,
                 STRING_AGG(FULL_NAME || ' (' || PARTICIPANT_TYPE || ')', ', ') as participant_list
-            FROM {self.tables["participants"]}
-            WHERE CALL_ID = '{call_id}'
+            FROM " + self.tables["participants"] + "
+            WHERE CALL_ID = %s",
+            (call_id,)
         )
         SELECT
             cb.*,
@@ -388,7 +392,8 @@ class SnowflakeGongConnector:
 
     def _get_rep_performance_query(self, sales_rep: str, date_range_days: int) -> str:
         """Builds the SQL query for sales rep performance metrics."""
-        return f"""
+        return """
+
         SELECT
             gc.PRIMARY_USER_NAME,
             COUNT(*) as total_calls,
@@ -400,10 +405,10 @@ class SnowflakeGongConnector:
             COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as negative_calls,
             COUNT(DISTINCT gc.HUBSPOT_DEAL_ID) as unique_deals,
             COUNT(CASE WHEN hd.DEAL_STAGE IN ('Closed Won', 'Closed - Won') THEN 1 END) as deals_won
-        FROM {self.tables["calls"]} gc
+        FROM " + self.tables["calls"] + " gc
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
-        WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
-        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        WHERE gc.PRIMARY_USER_NAME = '%(sales_rep)s'
+        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -%s, CURRENT_DATE())
         GROUP BY gc.PRIMARY_USER_NAME
         """
 
@@ -411,7 +416,8 @@ class SnowflakeGongConnector:
         self, sales_rep: str, date_range_days: int
     ) -> str:
         """Builds the SQL query for identifying coaching opportunities."""
-        return f"""
+        return """
+
         SELECT
             COUNT(CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN 1 END) as needs_sentiment_coaching,
             COUNT(CASE WHEN gc.TALK_RATIO > 0.8 THEN 1 END) as needs_talk_ratio_coaching,
@@ -419,9 +425,9 @@ class SnowflakeGongConnector:
             STRING_AGG(
                 CASE WHEN gc.SENTIMENT_SCORE < 0.3 THEN gc.CALL_TITLE || ' (' || DATE(gc.CALL_DATETIME_UTC) || ')' ELSE NULL END, ', '
             ) as low_sentiment_calls
-        FROM {self.tables["calls"]} gc
-        WHERE gc.PRIMARY_USER_NAME = '{sales_rep}'
-        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        FROM " + self.tables["calls"] + " gc
+        WHERE gc.PRIMARY_USER_NAME = '%(sales_rep)s'
+        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -%s, CURRENT_DATE())
         """
 
     async def get_sales_rep_performance(
@@ -497,7 +503,8 @@ class SnowflakeGongConnector:
             ]
         )
 
-        query = f"""
+        query = """
+
         SELECT
             gc.CALL_ID,
             gc.CALL_TITLE,
@@ -517,20 +524,20 @@ class SnowflakeGongConnector:
 
             AVG(t.SEGMENT_SENTIMENT) as avg_matching_sentiment
 
-        FROM {self.tables["calls"]} gc
-        JOIN {self.tables["transcripts"]} t ON gc.CALL_ID = t.CALL_ID
+        FROM " + self.tables["calls"] + " gc
+        JOIN %(self.tables["transcripts"])s t ON gc.CALL_ID = t.CALL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.DEALS hd ON gc.HUBSPOT_DEAL_ID = hd.DEAL_ID
         LEFT JOIN HUBSPOT_SECURE_SHARE.PUBLIC.CONTACTS hc ON gc.HUBSPOT_CONTACT_ID = hc.CONTACT_ID
 
-        WHERE ({search_conditions})
-        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -{date_range_days}, CURRENT_DATE())
+        WHERE (%(search_conditions)s)
+        AND gc.CALL_DATETIME_UTC >= DATEADD('day', -%s, CURRENT_DATE())
 
         GROUP BY
             gc.CALL_ID, gc.CALL_TITLE, gc.PRIMARY_USER_NAME, gc.CALL_DATETIME_UTC,
             gc.SENTIMENT_SCORE, hd.DEAL_NAME, hd.DEAL_STAGE, hc.COMPANY_NAME
 
         ORDER BY gc.CALL_DATETIME_UTC DESC
-        LIMIT {limit}
+        LIMIT %(limit)s
         """
 
         try:
@@ -560,7 +567,8 @@ class SnowflakeGongConnector:
 
     async def _get_call_transcript(self, call_id: str) -> list[dict[str, Any]]:
         """Get full transcript segments for a call"""
-        query = f"""
+        query = """
+
         SELECT
             TRANSCRIPT_ID,
             SPEAKER_NAME,
@@ -570,8 +578,9 @@ class SnowflakeGongConnector:
             END_TIME_SECONDS,
             SEGMENT_SENTIMENT,
             SEGMENT_SUMMARY
-        FROM {self.tables["transcripts"]}
-        WHERE CALL_ID = '{call_id}'
+        FROM " + self.tables["transcripts"] + "
+        WHERE CALL_ID = %s",
+            (call_id,)
         ORDER BY START_TIME_SECONDS
         """
 

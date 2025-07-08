@@ -1,6 +1,7 @@
 """Configuration for asana_v2 MCP server."""
-from pydantic_settings import BaseSettings
 from pydantic import Field
+from pydantic_settings import BaseSettings
+
 
 class Asana_V2Settings(BaseSettings):
     """Settings for asana_v2 MCP server."""

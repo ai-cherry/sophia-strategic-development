@@ -210,7 +210,6 @@ class MCPServerInterface(ABC):
             with open(f"core/ports/{filename}", "w") as f:
                 f.write(content)
 
-        print(f"Created {len(interfaces)} interface files in core/ports/")
 
     def fix_imports_in_file(self, file_path):
         """Fix imports in a single file"""
@@ -254,7 +253,7 @@ class MCPServerInterface(ABC):
                 if file.endswith(".py"):
                     file_path = Path(root) / file
                     if self.fix_imports_in_file(file_path):
-                        print(f"Fixed imports in: {file_path}")
+                        pass
 
         # Fix files in Core layer
         for root, dirs, files in os.walk("core"):
@@ -265,7 +264,7 @@ class MCPServerInterface(ABC):
                 if file.endswith(".py"):
                     file_path = Path(root) / file
                     if self.fix_imports_in_file(file_path):
-                        print(f"Fixed imports in: {file_path}")
+                        pass
 
     def create_adapters(self):
         """Create adapter implementations in infrastructure"""
@@ -311,23 +310,17 @@ class {adapter_class}({interface_class}):
             with open(f"infrastructure/adapters/{filename}", "w") as f:
                 f.write(content)
 
-        print(f"Created {len(adapters)} adapter files")
 
 
 def main():
     fixer = ArchitectureFixer()
 
-    print("Creating interface files...")
     fixer.create_interface_files()
 
-    print("\nFixing architecture violations...")
     fixer.fix_violations()
 
-    print("\nCreating adapter implementations...")
     fixer.create_adapters()
 
-    print(f"\nFixed {fixer.fixes_applied} import violations")
-    print("\nNote: You'll need to update dependency injection to use the adapters")
 
 
 if __name__ == "__main__":

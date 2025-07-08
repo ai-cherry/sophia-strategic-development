@@ -335,7 +335,7 @@ app = mcp_server.app
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8092)
+    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=8092)
 '''
 
         enhanced_mcp_path.parent.mkdir(parents=True, exist_ok=True)

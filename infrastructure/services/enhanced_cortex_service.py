@@ -20,7 +20,7 @@ class CortexOperation:
     operation_id: str
     operation_type: str  # 'sql_generation', 'ml_training', 'prediction', 'analysis'
     natural_language_query: str
-    generated_sql: Optional[str] = None
+    generated_sql: str | None = None
     parameters: dict[str, Any] = None
     estimated_cost: float = 0.0
     estimated_duration: float = 0.0

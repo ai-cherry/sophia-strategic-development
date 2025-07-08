@@ -58,9 +58,9 @@ class ActionExecution:
     parameters: dict[str, Any]
     status: str  # 'pending', 'approved', 'executing', 'completed', 'failed', 'rolled_back'
     start_time: datetime
-    end_time: Optional[datetime] = None
-    result: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    end_time: datetime | None = None
+    result: dict[str, Any] | None = None
+    error: str | None = None
 
 
 class SecureActionService:

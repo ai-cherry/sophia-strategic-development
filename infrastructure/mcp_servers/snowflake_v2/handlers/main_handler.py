@@ -162,7 +162,7 @@ class SnowflakeHandler:
     async def load_data(self, request: dict) -> dict:
         """Load data with automatic AI enrichment"""
         try:
-            load_req = DataLoadRequest(**request)
+            DataLoadRequest(**request)
 
             # TODO: Implement data loading logic
             # This would handle various data sources and formats

@@ -1,6 +1,7 @@
 """Configuration for codacy_v2 MCP server."""
-from pydantic_settings import BaseSettings
 from pydantic import Field
+from pydantic_settings import BaseSettings
+
 
 class Codacy_V2Settings(BaseSettings):
     """Settings for codacy_v2 MCP server."""

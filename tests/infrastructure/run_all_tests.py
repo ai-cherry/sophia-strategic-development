@@ -17,7 +17,8 @@ def main() -> None:
     target = test_dir / "unit" if args.quick else test_dir
 
     cmd = ["pytest", str(target)]
-    subprocess.run(cmd, check=False)
+    # TODO: Validate input before subprocess execution
+        subprocess.run(cmd, check=False)
 
 
 if __name__ == "__main__":

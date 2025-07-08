@@ -146,8 +146,7 @@ class ImportUpdater:
 
             return False
 
-        except Exception as e:
-            print(f"Error updating {file_path}: {e}")
+        except Exception:
             return False
 
     def convert_relative_imports(self, file_path: Path, content: str) -> str:
@@ -157,15 +156,15 @@ class ImportUpdater:
 
         # Find which layer this file belongs to
         if "api" in module_parts:
-            base_module = "api"
+            pass
         elif "core" in module_parts:
-            base_module = "core"
+            pass
         elif "domain" in module_parts:
-            base_module = "domain"
+            pass
         elif "infrastructure" in module_parts:
-            base_module = "infrastructure"
+            pass
         elif "shared" in module_parts:
-            base_module = "shared"
+            pass
         else:
             return content
 
@@ -192,7 +191,6 @@ class ImportUpdater:
                         file_path = Path(root) / file
                         if self.update_file_imports(file_path):
                             updated_files += 1
-                            print(f"Updated: {file_path}")
 
         # Also update any remaining files in backend directory
         if os.path.exists("backend"):
@@ -205,7 +203,6 @@ class ImportUpdater:
                         file_path = Path(root) / file
                         if self.update_file_imports(file_path):
                             updated_files += 1
-                            print(f"Updated: {file_path}")
 
         # Update test files
         if os.path.exists("tests"):
@@ -218,9 +215,7 @@ class ImportUpdater:
                         file_path = Path(root) / file
                         if self.update_file_imports(file_path):
                             updated_files += 1
-                            print(f"Updated: {file_path}")
 
-        print(f"\nUpdated {updated_files} files")
 
 
 if __name__ == "__main__":

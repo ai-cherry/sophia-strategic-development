@@ -17,7 +17,7 @@ def get_secret(secret_name: str) -> str:
     """Get a secret value from the GitHub Actions environment."""
     value = os.environ.get(secret_name, "")
     if not value:
-        print(f"Warning: Secret {secret_name} not found in environment")
+        pass
     return value
 
 
@@ -28,8 +28,6 @@ def sync_secrets_to_pulumi_esc():
     pulumi_org = os.environ.get("PULUMI_ORG", "scoobyjava-org")
     esc_environment = f"{pulumi_org}/default/sophia-ai-production"
 
-    print("🔄 Unified Secret Sync: GitHub → Pulumi ESC")
-    print(f"📍 Target Environment: {esc_environment}")
 
     # Define the secret structure that matches your ACTUAL GitHub organization secrets
     # Using the EXACT names from GitHub Organization Secrets
@@ -111,25 +109,19 @@ def sync_secrets_to_pulumi_esc():
         # Set the configuration in Pulumi ESC
         cmd = ["esc", "env", "set", esc_environment, "--file", temp_file]
 
-        print(f"🚀 Running: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode == 0:
-            print("✅ Unified Secret Sync Complete!")
-            print(f"📍 Environment: {esc_environment}")
 
             # List the secrets that were synced
-            synced_count = sum(1 for v in secrets_structure.values() if v)
-            total_count = len(secrets_structure)
-            print(f"📊 Synced {synced_count}/{total_count} secrets")
+            sum(1 for v in secrets_structure.values() if v)
+            len(secrets_structure)
 
             # Show which secrets are missing
             missing = [k for k, v in secrets_structure.items() if not v]
             if missing:
-                print(f"⚠️  Missing secrets: {', '.join(missing)}")
+                pass
         else:
-            print("❌ Unified Secret Sync Failed")
-            print(f"Error: {result.stderr}")
             sys.exit(1)
     finally:
         # Clean up temp file

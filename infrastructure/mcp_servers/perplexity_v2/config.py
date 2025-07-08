@@ -1,6 +1,7 @@
 """Configuration for perplexity_v2 MCP server."""
-from pydantic_settings import BaseSettings
 from pydantic import Field
+from pydantic_settings import BaseSettings
+
 
 class Perplexity_V2Settings(BaseSettings):
     """Settings for perplexity_v2 MCP server."""

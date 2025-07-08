@@ -12,16 +12,14 @@ from pathlib import Path
 
 def validate_dockerfile():
     """Validate Dockerfile syntax and security."""
-    print("🔍 Validating Dockerfile...")
 
     dockerfile = Path("Dockerfile")
     if not dockerfile.exists():
-        print("❌ Dockerfile not found")
         return False
 
     # Check Dockerfile syntax by attempting a build
     try:
-        result = subprocess.run(
+        subprocess.run(
             [
                 "docker",
                 "build",
@@ -36,25 +34,20 @@ def validate_dockerfile():
             text=True,
             timeout=300,  # 5 minute timeout
         )
-        print("✅ Dockerfile builds successfully")
         # Cleanup test image
         subprocess.run(["docker", "rmi", "sophia-ai-validation"], capture_output=True)
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Dockerfile build failed: {e.stderr if e.stderr else e}")
+    except subprocess.CalledProcessError:
         return False
     except subprocess.TimeoutExpired:
-        print("❌ Dockerfile build timed out")
         return False
 
 
 def validate_compose_file():
     """Validate Docker Compose configuration."""
-    print("🔍 Validating Docker Compose...")
 
     compose_file = Path("docker-compose.cloud.yml")
     if not compose_file.exists():
-        print("❌ docker-compose.cloud.yml not found")
         return False
 
     try:
@@ -63,16 +56,13 @@ def validate_compose_file():
             check=True,
             capture_output=True,
         )
-        print("✅ Docker Compose configuration valid")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Docker Compose error: {e}")
+    except subprocess.CalledProcessError:
         return False
 
 
 def validate_secrets():
     """Validate secrets configuration."""
-    print("🔍 Validating secrets configuration...")
 
     # Check Pulumi ESC integration
     try:
@@ -80,13 +70,10 @@ def validate_secrets():
 
         test_secret = get_config_value("openai_api_key")
         if test_secret and len(test_secret) > 10:
-            print("✅ Secrets integration working")
             return True
         else:
-            print("⚠️ Secrets integration degraded")
             return False
-    except Exception as e:
-        print(f"❌ Secrets validation failed: {e}")
+    except Exception:
         return False
 
 
@@ -104,10 +91,8 @@ def main():
 
     args = parser.parse_args()
 
-    print("🚀 Running deployment validation pipeline...")
 
     if args.skip_docker:
-        print("⚠️  Skipping Docker build validation (--skip-docker flag)")
         validations = [validate_compose_file, validate_secrets]
     else:
         validations = [validate_dockerfile, validate_compose_file, validate_secrets]
@@ -116,14 +101,11 @@ def main():
     for validation in validations:
         results.append(validation())
 
-    success_rate = sum(results) / len(results) * 100
-    print(f"\n📊 Validation Results: {success_rate:.1f}% passed")
+    sum(results) / len(results) * 100
 
     if all(results):
-        print("✅ All validations passed - Ready for deployment")
         return True
     else:
-        print("❌ Some validations failed - Deployment blocked")
         return False
 
 

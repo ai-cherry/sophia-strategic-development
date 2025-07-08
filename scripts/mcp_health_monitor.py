@@ -96,10 +96,6 @@ async def main():
     with open(args.output, "w") as f:
         json.dump(report, f, indent=2)
 
-    print(f"📊 MCP health report saved to {args.output}")
-    print(
-        f"Health: {report['summary']['healthy_servers']}/{report['summary']['total_servers']} servers healthy"
-    )
 
 
 if __name__ == "__main__":

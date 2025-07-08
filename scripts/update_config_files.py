@@ -80,7 +80,6 @@ def update_github_workflows():
                 with open(file_path, "w") as f:
                     f.write(content)
                 updated += 1
-                print(f"Updated workflow: {file}")
 
     return updated
 
@@ -110,13 +109,12 @@ def update_pyproject_toml():
 
 def main():
     """Update all configuration files"""
-    print("Updating configuration files...")
 
     # Update Dockerfiles
     dockerfiles = ["Dockerfile", "Dockerfile.production", "Dockerfile.dev"]
     for df in dockerfiles:
         if update_dockerfile(df):
-            print(f"Updated {df}")
+            pass
 
     # Update docker-compose files
     compose_files = [
@@ -126,16 +124,16 @@ def main():
     ]
     for cf in compose_files:
         if update_docker_compose(cf):
-            print(f"Updated {cf}")
+            pass
 
     # Update GitHub workflows
     workflow_count = update_github_workflows()
     if workflow_count:
-        print(f"Updated {workflow_count} workflow files")
+        pass
 
     # Update pyproject.toml
     if update_pyproject_toml():
-        print("Updated pyproject.toml")
+        pass
 
     # Update VS Code settings
     vscode_settings = ".vscode/settings.json"
@@ -155,9 +153,7 @@ def main():
 
         with open(vscode_settings, "w") as f:
             json.dump(settings, f, indent=2)
-        print("Updated VS Code settings")
 
-    print("\nConfiguration update complete!")
 
 
 if __name__ == "__main__":

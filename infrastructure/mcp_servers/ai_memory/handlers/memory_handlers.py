@@ -19,8 +19,8 @@ class MemoryHandler:
     async def store_memory(
         self,
         content: str,
-        metadata: Optional[dict] = None,
-        tags: Optional[list[str]] = None,
+        metadata: dict | None = None,
+        tags: list[str] | None = None,
     ) -> dict[str, Any]:
         """Store a memory entry"""
         try:

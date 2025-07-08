@@ -1,6 +1,8 @@
 """Data models for notion_v2 MCP server."""
-from pydantic import BaseModel, Field
 from datetime import datetime
+
+from pydantic import BaseModel, Field
+
 
 class Notion_V2Record(BaseModel):
     """Base model for notion_v2 records."""

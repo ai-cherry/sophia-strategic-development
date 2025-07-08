@@ -12,6 +12,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from backend.core.auto_esc_config import get_config_value
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -216,5 +217,5 @@ if __name__ == "__main__":
     logger.info(f"Starting Sophia AI Simplified Platform on port {port}")
 
     uvicorn.run(
-        "simple_startup:app", host="0.0.0.0", port=port, reload=True, log_level="info"
+        "simple_startup:app", host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=port, reload=True, log_level="info"
     )

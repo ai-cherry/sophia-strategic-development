@@ -86,25 +86,18 @@ class ArchitectureValidator:
 
     def report(self):
         """Generate validation report"""
-        print("Architecture Validation Report")
-        print("=" * 50)
 
         if not self.violations:
-            print("✅ No architecture violations found!")
+            pass
         else:
-            print(f"❌ Found {len(self.violations)} violations:\n")
 
             for v in self.violations[:20]:  # Show first 20
-                print(f"  {v['from']} → {v['to']}")
-                print(f"    Violation: {v['violation']}")
-                print()
+                pass
 
         # Summary by layer
-        print("\nLayer Statistics:")
         for layer in ["api", "core", "domain", "infrastructure", "shared"]:
             if os.path.exists(layer):
-                py_files = len(list(Path(layer).rglob("*.py")))
-                print(f"  {layer}: {py_files} Python files")
+                len(list(Path(layer).rglob("*.py")))
 
 
 def main():

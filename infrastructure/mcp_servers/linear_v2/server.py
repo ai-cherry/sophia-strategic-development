@@ -1,7 +1,8 @@
 """Linear_V2 MCP Server implementation."""
 import asyncio
-from fastapi import FastAPI
+
 import uvicorn
+from fastapi import FastAPI
 
 app = FastAPI(title="Linear_V2 MCP Server")
 
@@ -10,7 +11,7 @@ async def health():
     return {"status": "healthy", "server": "linear_v2"}
 
 async def main():
-    config = uvicorn.Config(app, host="0.0.0.0", port=9000)
+    config = uvicorn.Config(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=9000)
     server = uvicorn.Server(config)
     await server.serve()
 

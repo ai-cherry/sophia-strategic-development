@@ -3,10 +3,10 @@ Foundational Knowledge MCP Server Handler
 Simple CRUD operations for foundational knowledge entities
 """
 
-import logging
-from typing import Dict, Any, List, Optional
-from datetime import datetime
 import json
+import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from core.auto_esc_config import get_config_value
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
@@ -15,18 +15,18 @@ logger = logging.getLogger(__name__)
 
 class FoundationalKnowledgeHandler:
     """Handler for foundational knowledge operations"""
-    
+
     def __init__(self):
         self.cortex_service = SnowflakeCortexService()
         self.schema = "FOUNDATIONAL_KNOWLEDGE"
-        
+
     async def initialize(self):
         """Initialize the handler"""
         await self.cortex_service.initialize()
         logger.info("Foundational Knowledge handler initialized")
-    
+
     # Employee Operations
-    async def create_employee(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_employee(self, data: dict[str, Any]) -> dict[str, Any]:
         """Create a new employee record"""
         try:
             # Validate required fields
@@ -34,115 +34,115 @@ class FoundationalKnowledgeHandler:
             missing = [f for f in required if f not in data]
             if missing:
                 raise ValueError(f"Missing required fields: {missing}")
-            
+
             # Build insert query
             columns = list(data.keys())
             values = [f":{col}" for col in columns]
-            
+
             query = f"""
             INSERT INTO {self.schema}.EMPLOYEES ({', '.join(columns)})
             VALUES ({', '.join(values)})
             """
-            
-            result = await self.cortex_service.execute_query(query, data)
-            
+
+            await self.cortex_service.execute_query(query, data)
+
             # Get the created employee
             employee = await self.get_employee_by_email(data['email'])
-            
+
             return {
                 "success": True,
                 "employee": employee
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to create employee: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
-    async def get_employee(self, employee_id: str) -> Optional[Dict[str, Any]]:
+
+    async def get_employee(self, employee_id: str) -> dict[str, Any] | None:
         """Get employee by ID"""
         try:
             query = f"""
             SELECT * FROM {self.schema}.EMPLOYEES
             WHERE EMPLOYEE_ID = :employee_id
             """
-            
+
             result = await self.cortex_service.execute_query(
-                query, 
+                query,
                 {"employee_id": employee_id}
             )
-            
+
             if result and len(result) > 0:
                 return result[0]
             return None
-            
+
         except Exception as e:
             logger.error(f"Failed to get employee: {e}")
             return None
-    
-    async def get_employee_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+
+    async def get_employee_by_email(self, email: str) -> dict[str, Any] | None:
         """Get employee by email"""
         try:
             query = f"""
             SELECT * FROM {self.schema}.EMPLOYEES
             WHERE EMAIL = :email
             """
-            
+
             result = await self.cortex_service.execute_query(
-                query, 
+                query,
                 {"email": email}
             )
-            
+
             if result and len(result) > 0:
                 return result[0]
             return None
-            
+
         except Exception as e:
             logger.error(f"Failed to get employee by email: {e}")
             return None
-    
-    async def update_employee(self, employee_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def update_employee(self, employee_id: str, data: dict[str, Any]) -> dict[str, Any]:
         """Update employee record"""
         try:
             # Remove employee_id from data if present
             data = {k: v for k, v in data.items() if k != 'employee_id'}
-            
+
             if not data:
                 return {
                     "success": False,
                     "error": "No fields to update"
                 }
-            
+
             # Build update query
             set_clauses = [f"{col} = :{col}" for col in data.keys()]
-            
+
             query = f"""
             UPDATE {self.schema}.EMPLOYEES
             SET {', '.join(set_clauses)}, UPDATED_AT = CURRENT_TIMESTAMP
             WHERE EMPLOYEE_ID = :employee_id
             """
-            
+
             params = {**data, "employee_id": employee_id}
             await self.cortex_service.execute_query(query, params)
-            
+
             # Get updated employee
             employee = await self.get_employee(employee_id)
-            
+
             return {
                 "success": True,
                 "employee": employee
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to update employee: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
-    async def search_employees(self, search_term: str, limit: int = 50) -> List[Dict[str, Any]]:
+
+    async def search_employees(self, search_term: str, limit: int = 50) -> list[dict[str, Any]]:
         """Search employees by name, email, or department"""
         try:
             query = f"""
@@ -158,38 +158,38 @@ class FoundationalKnowledgeHandler:
             ORDER BY LAST_NAME, FIRST_NAME
             LIMIT :limit
             """
-            
+
             params = {
                 "search_pattern": f"%{search_term}%",
                 "limit": limit
             }
-            
+
             result = await self.cortex_service.execute_query(query, params)
             return result or []
-            
+
         except Exception as e:
             logger.error(f"Failed to search employees: {e}")
             return []
-    
+
     # Customer Operations
-    async def create_customer(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_customer(self, data: dict[str, Any]) -> dict[str, Any]:
         """Create a new customer record"""
         try:
             # Validate required fields
             if 'company_name' not in data:
                 raise ValueError("Missing required field: company_name")
-            
+
             # Build insert query
             columns = list(data.keys())
             values = [f":{col}" for col in columns]
-            
+
             query = f"""
             INSERT INTO {self.schema}.CUSTOMERS ({', '.join(columns)})
             VALUES ({', '.join(values)})
             """
-            
-            result = await self.cortex_service.execute_query(query, data)
-            
+
+            await self.cortex_service.execute_query(query, data)
+
             # Get the created customer
             customer_query = f"""
             SELECT * FROM {self.schema}.CUSTOMERS
@@ -197,25 +197,25 @@ class FoundationalKnowledgeHandler:
             ORDER BY CREATED_AT DESC
             LIMIT 1
             """
-            
+
             customers = await self.cortex_service.execute_query(
-                customer_query, 
+                customer_query,
                 {"company_name": data['company_name']}
             )
-            
+
             return {
                 "success": True,
                 "customer": customers[0] if customers else None
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to create customer: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
-    async def get_customer(self, customer_id: str) -> Optional[Dict[str, Any]]:
+
+    async def get_customer(self, customer_id: str) -> dict[str, Any] | None:
         """Get customer by ID"""
         try:
             query = f"""
@@ -224,21 +224,21 @@ class FoundationalKnowledgeHandler:
             LEFT JOIN {self.schema}.EMPLOYEES e ON c.SUCCESS_MANAGER_ID = e.EMPLOYEE_ID
             WHERE c.CUSTOMER_ID = :customer_id
             """
-            
+
             result = await self.cortex_service.execute_query(
-                query, 
+                query,
                 {"customer_id": customer_id}
             )
-            
+
             if result and len(result) > 0:
                 return result[0]
             return None
-            
+
         except Exception as e:
             logger.error(f"Failed to get customer: {e}")
             return None
-    
-    async def search_customers(self, search_term: str, limit: int = 50) -> List[Dict[str, Any]]:
+
+    async def search_customers(self, search_term: str, limit: int = 50) -> list[dict[str, Any]]:
         """Search customers by name or industry"""
         try:
             query = f"""
@@ -253,38 +253,38 @@ class FoundationalKnowledgeHandler:
             ORDER BY c.COMPANY_NAME
             LIMIT :limit
             """
-            
+
             params = {
                 "search_pattern": f"%{search_term}%",
                 "limit": limit
             }
-            
+
             result = await self.cortex_service.execute_query(query, params)
             return result or []
-            
+
         except Exception as e:
             logger.error(f"Failed to search customers: {e}")
             return []
-    
+
     # Product Operations
-    async def create_product(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_product(self, data: dict[str, Any]) -> dict[str, Any]:
         """Create a new product record"""
         try:
             # Validate required fields
             if 'product_name' not in data:
                 raise ValueError("Missing required field: product_name")
-            
+
             # Build insert query
             columns = list(data.keys())
             values = [f":{col}" for col in columns]
-            
+
             query = f"""
             INSERT INTO {self.schema}.PRODUCTS ({', '.join(columns)})
             VALUES ({', '.join(values)})
             """
-            
-            result = await self.cortex_service.execute_query(query, data)
-            
+
+            await self.cortex_service.execute_query(query, data)
+
             # Get the created product
             product_query = f"""
             SELECT * FROM {self.schema}.PRODUCTS
@@ -292,25 +292,25 @@ class FoundationalKnowledgeHandler:
             ORDER BY CREATED_AT DESC
             LIMIT 1
             """
-            
+
             products = await self.cortex_service.execute_query(
-                product_query, 
+                product_query,
                 {"product_name": data['product_name']}
             )
-            
+
             return {
                 "success": True,
                 "product": products[0] if products else None
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to create product: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
-    async def search_products(self, search_term: str, limit: int = 50) -> List[Dict[str, Any]]:
+
+    async def search_products(self, search_term: str, limit: int = 50) -> list[dict[str, Any]]:
         """Search products by name or category"""
         try:
             query = f"""
@@ -326,38 +326,38 @@ class FoundationalKnowledgeHandler:
             ORDER BY p.PRODUCT_NAME
             LIMIT :limit
             """
-            
+
             params = {
                 "search_pattern": f"%{search_term}%",
                 "limit": limit
             }
-            
+
             result = await self.cortex_service.execute_query(query, params)
             return result or []
-            
+
         except Exception as e:
             logger.error(f"Failed to search products: {e}")
             return []
-    
+
     # Competitor Operations
-    async def create_competitor(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_competitor(self, data: dict[str, Any]) -> dict[str, Any]:
         """Create a new competitor record"""
         try:
             # Validate required fields
             if 'company_name' not in data:
                 raise ValueError("Missing required field: company_name")
-            
+
             # Build insert query
             columns = list(data.keys())
             values = [f":{col}" for col in columns]
-            
+
             query = f"""
             INSERT INTO {self.schema}.COMPETITORS ({', '.join(columns)})
             VALUES ({', '.join(values)})
             """
-            
-            result = await self.cortex_service.execute_query(query, data)
-            
+
+            await self.cortex_service.execute_query(query, data)
+
             # Get the created competitor
             competitor_query = f"""
             SELECT * FROM {self.schema}.COMPETITORS
@@ -365,37 +365,37 @@ class FoundationalKnowledgeHandler:
             ORDER BY CREATED_AT DESC
             LIMIT 1
             """
-            
+
             competitors = await self.cortex_service.execute_query(
-                competitor_query, 
+                competitor_query,
                 {"company_name": data['company_name']}
             )
-            
+
             return {
                 "success": True,
                 "competitor": competitors[0] if competitors else None
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to create competitor: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
+
     # Unified Search
-    async def search_all(self, search_term: str, limit: int = 10) -> Dict[str, List[Dict[str, Any]]]:
+    async def search_all(self, search_term: str, limit: int = 10) -> dict[str, list[dict[str, Any]]]:
         """Search across all entity types"""
         try:
             query = f"""
             CALL {self.schema}.SEARCH_KNOWLEDGE(:search_term)
             """
-            
+
             result = await self.cortex_service.execute_query(
-                query, 
+                query,
                 {"search_term": search_term}
             )
-            
+
             # Group results by entity type
             grouped = {
                 "employees": [],
@@ -403,7 +403,7 @@ class FoundationalKnowledgeHandler:
                 "products": [],
                 "competitors": []
             }
-            
+
             for row in result or []:
                 entity_type = row.get('ENTITY_TYPE', '').lower()
                 if entity_type == 'employee':
@@ -414,9 +414,9 @@ class FoundationalKnowledgeHandler:
                     grouped['products'].append(row)
                 elif entity_type == 'competitor':
                     grouped['competitors'].append(row)
-            
+
             return grouped
-            
+
         except Exception as e:
             logger.error(f"Failed to search all entities: {e}")
             return {
@@ -425,15 +425,15 @@ class FoundationalKnowledgeHandler:
                 "products": [],
                 "competitors": []
             }
-    
+
     # Bulk Import Operations
-    async def bulk_import_employees(self, employees: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def bulk_import_employees(self, employees: list[dict[str, Any]]) -> dict[str, Any]:
         """Bulk import employees from CSV or other sources"""
         try:
             success_count = 0
             error_count = 0
             errors = []
-            
+
             for emp in employees:
                 result = await self.create_employee(emp)
                 if result.get('success'):
@@ -444,45 +444,45 @@ class FoundationalKnowledgeHandler:
                         "email": emp.get('email', 'unknown'),
                         "error": result.get('error', 'Unknown error')
                     })
-            
+
             return {
                 "success": True,
                 "imported": success_count,
                 "failed": error_count,
                 "errors": errors
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to bulk import employees: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
+
     # Statistics and Health
-    async def get_statistics(self) -> Dict[str, Any]:
+    async def get_statistics(self) -> dict[str, Any]:
         """Get foundational knowledge statistics"""
         try:
             query = f"""
-            SELECT 
+            SELECT
                 (SELECT COUNT(*) FROM {self.schema}.EMPLOYEES WHERE STATUS = 'active') as active_employees,
                 (SELECT COUNT(*) FROM {self.schema}.CUSTOMERS WHERE STATUS = 'active') as active_customers,
                 (SELECT COUNT(*) FROM {self.schema}.PRODUCTS WHERE STATUS = 'active') as active_products,
                 (SELECT COUNT(*) FROM {self.schema}.COMPETITORS) as competitors
             """
-            
+
             result = await self.cortex_service.execute_query(query)
-            
+
             if result and len(result) > 0:
                 return result[0]
-            
+
             return {
                 "active_employees": 0,
                 "active_customers": 0,
                 "active_products": 0,
                 "competitors": 0
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to get statistics: {e}")
             return {
@@ -493,4 +493,4 @@ class FoundationalKnowledgeHandler:
             }
 
 # Singleton instance
-handler = FoundationalKnowledgeHandler() 
+handler = FoundationalKnowledgeHandler()

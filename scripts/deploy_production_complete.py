@@ -123,19 +123,6 @@ class SophiaProductionDeployment:
 
     def print_banner(self):
         """Print deployment banner"""
-        banner = """
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                    🚀 SOPHIA AI PRODUCTION DEPLOYMENT 🚀                    ║
-║                                                                              ║
-║  Infrastructure: Lambda Labs GH200 GPU (97GB memory)                        ║
-║  Services: 8 production services                                            ║
-║  Cost Savings: $2,145/month (67% reduction)                                 ║
-║  Deployment Time: 25-35 minutes                                             ║
-║  Monitoring: Comprehensive health checking                                   ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-        """
-        print(banner)
         logger.info("Starting Sophia AI Production Deployment")
 
     def verify_infrastructure(self) -> bool:
@@ -228,7 +215,7 @@ class SophiaProductionDeployment:
 
         try:
             # Create deployment directory on remote instance
-            ssh_result = subprocess.run(
+            subprocess.run(
                 [
                     "ssh",
                     "-o",
@@ -378,7 +365,7 @@ class SophiaProductionDeployment:
             ]
 
             for cmd in monitoring_commands:
-                ssh_result = subprocess.run(
+                subprocess.run(
                     [
                         "ssh",
                         "-o",
@@ -434,7 +421,7 @@ class SophiaProductionDeployment:
             }
 
             # Apply cost optimization settings
-            ssh_result = subprocess.run(
+            subprocess.run(
                 [
                     "ssh",
                     "-o",
@@ -482,7 +469,7 @@ class SophiaProductionDeployment:
             }
 
             # Deploy BI components
-            ssh_result = subprocess.run(
+            subprocess.run(
                 [
                     "ssh",
                     "-o",
@@ -538,7 +525,7 @@ class SophiaProductionDeployment:
         """Print deployment summary"""
         deployment_time = time.time() - self.deployment_start_time
 
-        summary = f"""
+        f"""
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                    🎉 DEPLOYMENT COMPLETE! 🎉                               ║
 ║                                                                              ║
@@ -554,14 +541,11 @@ class SophiaProductionDeployment:
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
         """
-        print(summary)
 
         if self.services_failed:
-            print("\n⚠️  Services that need attention:")
             for service in self.services_failed:
-                print(f"   - {service}")
+                pass
 
-        print(f"\n📄 Detailed report saved to: {self.generate_deployment_report()}")
 
     async def execute_deployment(self) -> bool:
         """Execute the complete production deployment"""

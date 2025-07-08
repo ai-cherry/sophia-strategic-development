@@ -378,4 +378,4 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=9099)
+    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=9099)

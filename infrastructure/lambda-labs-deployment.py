@@ -321,7 +321,7 @@ def health_check():
     return jsonify(status)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=8080)
 EOF
 
 sudo mv /tmp/health_check.py /opt/health_check.py

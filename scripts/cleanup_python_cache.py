@@ -65,8 +65,8 @@ class PythonCacheCleaner:
                 total_size += size
                 shutil.rmtree(cache_dir)
                 self.stats["pycache_removed"] += 1
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Could not remove {cache_dir}: {e}")
+            except (OSError, PermissionError):
+                pass
 
         return len(dirs), total_size / (1024 * 1024)  # Return count and MB
 
@@ -81,8 +81,8 @@ class PythonCacheCleaner:
                 total_size += size
                 pyc_file.unlink()
                 self.stats["pyc_removed"] += 1
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Could not remove {pyc_file}: {e}")
+            except (OSError, PermissionError):
+                pass
 
         return len(files), total_size / (1024 * 1024)  # Return count and MB
 
@@ -95,11 +95,10 @@ class PythonCacheCleaner:
             try:
                 size = self.get_directory_size(venv_dir)
                 total_size += size
-                print(f"Removing venv: {venv_dir.relative_to(self.root_path)}")
                 shutil.rmtree(venv_dir)
                 self.stats["venv_removed"] += 1
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Could not remove {venv_dir}: {e}")
+            except (OSError, PermissionError):
+                pass
 
         return len(venvs), total_size / (1024 * 1024)  # Return count and MB
 
@@ -134,42 +133,27 @@ class PythonCacheCleaner:
                 f.write("\n# Python\n")
                 for line in lines_to_add:
                     f.write(f"{line}\n")
-            print(f"✅ Updated .gitignore with {len(lines_to_add)} Python entries")
 
     def run(self, dry_run: bool = False):
         """Run the cleanup process"""
-        print("🧹 Python Cache Cleanup Tool")
-        print(f"📁 Working directory: {self.root_path}")
-        print(
-            f"🛡️  Preserving: {', '.join(str(p.relative_to(self.root_path)) for p in self.preserved_venvs)}"
-        )
-        print()
 
         # Analyze
         pycache_dirs = self.find_pycache_dirs()
         pyc_files = self.find_pyc_files()
         venv_dirs = self.find_venv_dirs()
 
-        print("📊 Analysis Results:")
-        print(f"  - __pycache__ directories: {len(pycache_dirs)}")
-        print(f"  - .pyc files: {len(pyc_files)}")
-        print(f"  - Virtual environments: {len(venv_dirs)}")
 
         if dry_run:
-            print("\n🔍 DRY RUN MODE - No files will be deleted")
             return
 
         if not any([pycache_dirs, pyc_files, venv_dirs]):
-            print("\n✨ Nothing to clean!")
             return
 
         # Get confirmation
         response = input("\n⚠️  Proceed with cleanup? (y/N): ")
         if response.lower() != "y":
-            print("❌ Cleanup cancelled")
             return
 
-        print("\n🚀 Starting cleanup...")
 
         # Clean
         pycache_count, pycache_mb = self.clean_pycache()
@@ -183,15 +167,6 @@ class PythonCacheCleaner:
         self.update_gitignore()
 
         # Report
-        print("\n✅ Cleanup Complete!")
-        print(
-            f"  - Removed {self.stats['pycache_removed']} __pycache__ directories ({pycache_mb:.1f} MB)"
-        )
-        print(f"  - Removed {self.stats['pyc_removed']} .pyc files ({pyc_mb:.1f} MB)")
-        print(
-            f"  - Removed {self.stats['venv_removed']} virtual environments ({venv_mb:.1f} MB)"
-        )
-        print(f"  - Total space freed: {total_mb:.1f} MB")
 
 
 def main():

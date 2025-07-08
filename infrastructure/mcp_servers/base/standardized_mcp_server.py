@@ -259,7 +259,7 @@ class StandardizedMCPServer(ABC):
         await self.initialize()
 
         uvicorn_config = uvicorn.Config(
-            self.app, host="0.0.0.0", port=self.config.port, log_level="info"
+            self.app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=self.config.port, log_level="info"
         )
         server = uvicorn.Server(uvicorn_config)
         await server.serve()

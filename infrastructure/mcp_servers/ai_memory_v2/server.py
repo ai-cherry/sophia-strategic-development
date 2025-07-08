@@ -1,15 +1,22 @@
 """Ai_Memory_V2 MCP Server implementation."""
 import asyncio
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.responses import JSONResponse
 from typing import List, Optional
+
 import uvicorn
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 
 from infrastructure.mcp_servers.ai_memory_v2.config import settings
-from infrastructure.mcp_servers.ai_memory_v2.handlers.main_handler import AiMemoryV2Handler
+from infrastructure.mcp_servers.ai_memory_v2.handlers.main_handler import (
+    AiMemoryV2Handler,
+)
 from infrastructure.mcp_servers.ai_memory_v2.models.data_models import (
-    MemoryEntry, SearchRequest, SearchResult, MemoryStats,
-    BulkMemoryRequest, MemoryUpdateRequest
+    BulkMemoryRequest,
+    MemoryEntry,
+    MemoryStats,
+    MemoryUpdateRequest,
+    SearchRequest,
+    SearchResult,
 )
 from infrastructure.mcp_servers.ai_memory_v2.utils.logging_config import setup_logging
 
@@ -80,11 +87,11 @@ async def capabilities():
 @app.post("/api/memory", response_model=MemoryEntry)
 async def store_memory(
     content: str,
-    category: Optional[str] = None,
-    metadata: Optional[dict] = None,
-    tags: Optional[List[str]] = None,
-    user_id: Optional[str] = None,
-    source: Optional[str] = None,
+    category: str | None = None,
+    metadata: dict | None = None,
+    tags: list[str] | None = None,
+    user_id: str | None = None,
+    source: str | None = None,
     handler: AiMemoryV2Handler = Depends(get_handler)
 ):
     """Store a new memory."""
@@ -103,7 +110,7 @@ async def store_memory(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/memory/bulk", response_model=List[MemoryEntry])
+@app.post("/api/memory/bulk", response_model=list[MemoryEntry])
 async def bulk_store_memories(
     request: BulkMemoryRequest,
     handler: AiMemoryV2Handler = Depends(get_handler)
@@ -115,7 +122,7 @@ async def bulk_store_memories(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/search", response_model=List[SearchResult])
+@app.post("/api/search", response_model=list[SearchResult])
 async def search_memories(
     request: SearchRequest,
     handler: AiMemoryV2Handler = Depends(get_handler)
@@ -185,13 +192,19 @@ async def get_stats(handler: AiMemoryV2Handler = Depends(get_handler)):
 
 # Prometheus metrics endpoint
 if settings.ENABLE_METRICS:
-    from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, Histogram
     import time
-    
+
+    from prometheus_client import (
+        CONTENT_TYPE_LATEST,
+        Counter,
+        Histogram,
+        generate_latest,
+    )
+
     # Define metrics
     memory_operations = Counter('ai_memory_operations_total', 'Total memory operations', ['operation'])
     search_latency = Histogram('ai_memory_search_duration_seconds', 'Search operation latency')
-    
+
     @app.get("/metrics")
     async def metrics():
         """Prometheus metrics endpoint."""
@@ -203,8 +216,8 @@ if settings.ENABLE_METRICS:
 async def main():
     """Main entry point."""
     config = uvicorn.Config(
-        app, 
-        host="0.0.0.0", 
+        app,
+        host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production,
         port=settings.PORT,
         log_level=settings.LOG_LEVEL.lower()
     )

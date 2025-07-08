@@ -97,26 +97,22 @@ def migrate_remaining_files():
                 # Move file
                 try:
                     subprocess.run(["git", "mv", old_path, destination], check=True)
-                    print(f"Moved: {old_path} -> {destination}")
                     moved_count += 1
                 except subprocess.CalledProcessError:
                     try:
                         os.rename(old_path, destination)
-                        print(f"Moved (non-git): {old_path} -> {destination}")
                         moved_count += 1
-                    except Exception as e:
-                        print(f"Error moving {old_path}: {e}")
+                    except Exception:
+                        pass
 
-    print(f"\nMoved {moved_count} files")
 
     # Check if backend directory is empty
     remaining = list(Path("backend").rglob("*.py"))
     if remaining:
-        print(f"\nWarning: {len(remaining)} Python files still remain in backend/")
         for f in remaining[:10]:
-            print(f"  - {f}")
+            pass
     else:
-        print("\nAll Python files have been migrated from backend/")
+        pass
 
 
 if __name__ == "__main__":

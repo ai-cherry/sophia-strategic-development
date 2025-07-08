@@ -82,22 +82,15 @@ class DeadCodeCleaner:
 
     def show_summary(self):
         """Display summary of files to be removed"""
-        print("\n" + "=" * 60)
-        print("DEAD CODE CLEANUP SUMMARY")
-        print("=" * 60)
-        print(f"Total files identified: {len(self.dead_files)}")
-        print(f"Dry run mode: {'ON' if self.dry_run else 'OFF'}")
         if self.backup_dir:
-            print(f"Backup directory: {self.backup_dir}")
+            pass
 
-        print("\nCategories:")
         for cat, files in sorted(self.categories.items(), key=lambda x: -len(x[1])):
-            print(f"\n{cat}: {len(files)} files")
             # Show first 3 files in each category
             for f in files[:3]:
-                print(f"  - {f}")
+                pass
             if len(files) > 3:
-                print(f"  ... and {len(files) - 3} more")
+                pass
 
     def backup_file(self, filepath):
         """Backup a file before deletion"""
@@ -150,7 +143,6 @@ class DeadCodeCleaner:
         files = self.categories[category]
         removed = 0
 
-        print(f"\nRemoving {len(files)} files from category: {category}")
         for f in files:
             if self.remove_file(f):
                 removed += 1
@@ -167,13 +159,11 @@ class DeadCodeCleaner:
 
     def interactive_cleanup(self):
         """Interactive mode for selective cleanup"""
-        print("\nInteractive Cleanup Mode")
-        print("Select categories to remove (comma-separated numbers) or 'all':")
 
         # Display categories with numbers
         cat_list = sorted(self.categories.items(), key=lambda x: -len(x[1]))
         for i, (cat, files) in enumerate(cat_list, 1):
-            print(f"{i}. {cat} ({len(files)} files)")
+            pass
 
         choice = input("\nYour choice: ").strip().lower()
 
@@ -269,10 +259,8 @@ def main():
     # Generate report
     cleaner.generate_report(removed)
 
-    print("\nCleanup complete!")
-    print(f"Files {'would be' if args.dry_run else ''} removed: {removed}")
     if cleaner.backup_dir and not args.dry_run:
-        print(f"Backups saved to: {cleaner.backup_dir}")
+        pass
 
     return 0
 

@@ -1,6 +1,8 @@
 """Data models for slack_v2 MCP server."""
-from pydantic import BaseModel, Field
 from datetime import datetime
+
+from pydantic import BaseModel, Field
+
 
 class Slack_V2Record(BaseModel):
     """Base model for slack_v2 records."""

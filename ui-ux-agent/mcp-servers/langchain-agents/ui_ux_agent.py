@@ -456,4 +456,4 @@ if __name__ == "__main__":
     logger.info("📍 Health: http://localhost:9002/health")
     logger.info(f"🔗 Figma MCP Server: {FIGMA_MCP_SERVER}")
 
-    uvicorn.run(app, host="0.0.0.0", port=9002, log_level="info", reload=False)
+    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=9002, log_level="info", reload=False)

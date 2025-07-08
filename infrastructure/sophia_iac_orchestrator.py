@@ -20,6 +20,11 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # LangChain imports
+from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.prompts import ChatPromptTemplate
+from langchain.tools import BaseTool
+from langchain_openai import ChatOpenAI
+
 from backend.infrastructure.adapters.apollo_adapter import ApolloAdapter
 from backend.infrastructure.adapters.asana_adapter import AsanaAdapter
 from backend.infrastructure.adapters.estuary_adapter import EstuaryAdapter
@@ -42,11 +47,6 @@ from backend.infrastructure.core.policy_engine import PolicyEngine
 # Core infrastructure components
 from backend.infrastructure.core.state_manager import InfrastructureStateManager
 from backend.infrastructure.core.webhook_router import WebhookRouter
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain.prompts import ChatPromptTemplate
-from langchain.tools import BaseTool
-from langchain_openai import ChatOpenAI
-
 from core.config_manager import get_config_value
 
 

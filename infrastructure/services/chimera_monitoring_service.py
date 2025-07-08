@@ -305,10 +305,9 @@ class ChimeraMonitoringService:
 
         # This would integrate with actual alerting systems
         # For now, just log the alert
-        alert_log = {"timestamp": datetime.utcnow().isoformat(), "alert": alert}
+        {"timestamp": datetime.utcnow().isoformat(), "alert": alert}
 
         # Could send to Slack, email, PagerDuty, etc.
-        print(f"Alert: {json.dumps(alert_log, indent=2)}")
 
     async def get_dashboard_data(self) -> dict[str, Any]:
         """Get data for monitoring dashboard"""

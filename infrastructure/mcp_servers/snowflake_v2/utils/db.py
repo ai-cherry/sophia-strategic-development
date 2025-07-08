@@ -20,7 +20,7 @@ class SnowflakeConnection:
 
     def __init__(self, config: Config):
         self.config = config
-        self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
+        self.connection: snowflake.connector.SnowflakeConnection | None = None
         self._lock = asyncio.Lock()
 
     async def connect(self) -> bool:
@@ -77,9 +77,9 @@ class SnowflakeConnection:
     async def execute_query(
         self,
         query: str,
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
         fetch_results: bool = True,
-    ) -> Optional[list[dict[str, Any]]]:
+    ) -> list[dict[str, Any]] | None:
         """Execute a query asynchronously"""
         if not self.connection:
             await self.connect()
@@ -105,8 +105,8 @@ class SnowflakeConnection:
             raise
 
     def _execute_sync(
-        self, query: str, parameters: Optional[dict[str, Any]], fetch_results: bool
-    ) -> Optional[list[dict[str, Any]]]:
+        self, query: str, parameters: dict[str, Any] | None, fetch_results: bool
+    ) -> list[dict[str, Any]] | None:
         """Execute query synchronously"""
         cursor = self.connection.cursor(DictCursor)
 
@@ -157,7 +157,7 @@ class SnowflakeConnection:
         finally:
             cursor.close()
 
-    async def get_query_id(self) -> Optional[str]:
+    async def get_query_id(self) -> str | None:
         """Get the last query ID"""
         if not self.connection:
             return None

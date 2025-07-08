@@ -70,7 +70,6 @@ def main():
     with open(args.output, "w") as f:
         json.dump(report, f, indent=2)
 
-    print(f"📊 Deployment report saved to {args.output}")
 
 
 if __name__ == "__main__":

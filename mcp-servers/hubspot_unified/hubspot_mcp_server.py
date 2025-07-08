@@ -21,8 +21,7 @@ try:
         mcp_tool,
     )
     from backend.utils.custom_logger import setup_logger
-except ImportError as e:
-    print(f"Failed to import necessary modules: {e}")
+except ImportError:
     sys.exit(1)
 
 logger = setup_logger("mcp.hubspot")

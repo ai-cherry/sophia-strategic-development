@@ -30,7 +30,7 @@ class MemoryClient:
 
     def __init__(self, base_url: str = "http://146.235.200.1:9000"):
         self.base_url = base_url
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
         self._retry_count = 3
         self._timeout = aiohttp.ClientTimeout(total=30)
 
@@ -59,9 +59,9 @@ class MemoryClient:
         self,
         memory_type: MemoryType,
         content: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None,
-        ttl_seconds: Optional[int] = None,
-        user_context: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
+        ttl_seconds: int | None = None,
+        user_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Store a memory in the system
@@ -107,7 +107,7 @@ class MemoryClient:
                         error = await response.text()
                         logger.error(f"Failed to store memory: {error}")
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.warning(f"Timeout on attempt {attempt + 1}")
                 if attempt == self._retry_count - 1:
                     raise
@@ -121,8 +121,8 @@ class MemoryClient:
         return {"status": "failed", "error": "Max retries exceeded"}
 
     async def retrieve_memory(
-        self, memory_id: str, memory_type: Optional[MemoryType] = None
-    ) -> Optional[dict[str, Any]]:
+        self, memory_id: str, memory_type: MemoryType | None = None
+    ) -> dict[str, Any] | None:
         """
         Retrieve a specific memory by ID
 
@@ -160,9 +160,9 @@ class MemoryClient:
     async def search_memories(
         self,
         query: str = "",
-        memory_types: Optional[list[MemoryType]] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
+        memory_types: list[MemoryType] | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
         limit: int = 10,
     ) -> list[dict[str, Any]]:
         """
@@ -211,7 +211,7 @@ class MemoryClient:
         self,
         memory_id: str,
         updates: dict[str, Any],
-        user_context: Optional[dict[str, Any]] = None,
+        user_context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Update an existing memory
@@ -244,7 +244,7 @@ class MemoryClient:
             return False
 
     async def delete_memory(
-        self, memory_id: str, user_context: Optional[dict[str, Any]] = None
+        self, memory_id: str, user_context: dict[str, Any] | None = None
     ) -> bool:
         """
         Delete a memory

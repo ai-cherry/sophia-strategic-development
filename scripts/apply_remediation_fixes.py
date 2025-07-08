@@ -22,8 +22,6 @@ class RemediationFixer:
         self.secret_mappings = {
             # AI Services
             'get_config_value("openai_api_key")': 'get_config_value("openai_api_key")',
-            'get_config_value("openai_api_key")': 'get_config_value("openai_api_key")',
-            'get_config_value("anthropic_api_key")': 'get_config_value("anthropic_api_key")',
             'get_config_value("anthropic_api_key")': 'get_config_value("anthropic_api_key")',
             # Data Infrastructure
             'get_config_value("snowflake_account")': 'get_config_value("snowflake_account")',
@@ -39,7 +37,6 @@ class RemediationFixer:
             'get_config_value("linear_api_key")': 'get_config_value("linear_api_key")',
             'get_config_value("notion_api_token")': 'get_config_value("notion_api_token")',
             # Infrastructure
-            'get_config_value("lambda_api_key")': 'get_config_value("lambda_api_key")',
             'get_config_value("lambda_api_key")': 'get_config_value("lambda_api_key")',
             'get_config_value("lambda_ip_address")': 'get_config_value("lambda_ip_address")',
             'get_config_value("docker_token")': 'get_config_value("docker_token")',
@@ -297,30 +294,22 @@ infrastructure_config = InfrastructureConfig()
 
     def apply_all_fixes(self) -> dict[str, bool]:
         """Apply all remediation fixes"""
-        print("🚀 Applying Remediation Fixes")
-        print("=" * 50)
 
         results = {}
 
         # 1. Create service configuration classes
-        print("🔧 Creating service configuration classes...")
         results["service_configs"] = self.create_service_config_classes()
 
         # 2. Find and fix Python files with direct env access
-        print("🔍 Finding files with direct environment access...")
         files_to_fix = self.find_python_files_with_env_access()
-        print(f"Found {len(files_to_fix)} files to fix")
 
         # 3. Fix each file
-        print("🔧 Fixing direct environment access...")
         fixed_files = 0
         for file_path in files_to_fix:
             if self.fix_file_env_access(file_path):
                 fixed_files += 1
-                print(f"✅ Fixed: {file_path}")
 
         results["file_fixes"] = fixed_files > 0
-        print(f"Fixed {fixed_files}/{len(files_to_fix)} files")
 
         return results
 
@@ -393,23 +382,16 @@ def main():
     with open(report_path, "w") as f:
         f.write(report)
 
-    print("\n" + "=" * 50)
-    print("📋 Remediation Report Generated")
-    print(f"📄 Report saved to: {report_path}")
 
     # Print summary
     successful_fixes = sum(1 for result in results.values() if result)
     total_fixes = len(results)
 
-    print(f"✅ Successful fixes: {successful_fixes}/{total_fixes}")
-    print(f"🔧 Total changes applied: {len(fixer.fixes_applied)}")
-    print(f"⚠️ Errors found: {len(fixer.errors_found)}")
 
     if successful_fixes == total_fixes:
-        print("\n🎉 All remediation fixes applied successfully!")
-        print("🚀 Run 'python scripts/test_secret_access.py' to validate")
+        pass
     else:
-        print("\n⚠️ Some fixes failed - check the report for details")
+        pass
 
     return 0 if successful_fixes == total_fixes else 1
 

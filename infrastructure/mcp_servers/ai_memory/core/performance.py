@@ -28,15 +28,15 @@ class PerformanceMetrics:
 
     operation_name: str
     start_time: float = field(default_factory=time.time)
-    end_time: Optional[float] = None
-    duration: Optional[float] = None
+    end_time: float | None = None
+    duration: float | None = None
     success: bool = True
-    error_message: Optional[str] = None
-    memory_usage: Optional[int] = None
+    error_message: str | None = None
+    memory_usage: int | None = None
     context: dict[str, Any] = field(default_factory=dict)
 
     def complete(
-        self, success: bool = True, error_message: Optional[str] = None
+        self, success: bool = True, error_message: str | None = None
     ) -> None:
         """Mark operation as complete"""
         self.end_time = time.time()
@@ -106,7 +106,7 @@ class MemoryCache:
         self._access_times: dict[str, float] = {}
         self._lock = asyncio.Lock()
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache"""
         async with self._lock:
             if key not in self._cache:
@@ -124,7 +124,7 @@ class MemoryCache:
             self._access_times[key] = time.time()
             return entry["value"]
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in cache"""
         async with self._lock:
             # Evict if at capacity
@@ -414,7 +414,7 @@ async def with_timeout(coro, timeout_seconds: float, operation_name: str = "oper
 
     try:
         return await asyncio.wait_for(coro, timeout=timeout_seconds)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         raise MemoryTimeoutError(
             message=f"Operation timed out after {timeout_seconds} seconds",
             operation=operation_name,

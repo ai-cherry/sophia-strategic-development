@@ -41,8 +41,8 @@ def analyze_dependencies(root_dir="backend"):
                         for imp in analyzer.imports:
                             if imp.startswith("backend."):
                                 dependencies[module_path].add(imp)
-                except Exception as e:
-                    print(f"Error analyzing {file_path}: {e}")
+                except Exception:
+                    pass
 
     return dependencies
 
@@ -122,8 +122,5 @@ def classify_target_layer(module_path):
 
 
 if __name__ == "__main__":
-    print("Analyzing backend dependencies...")
     dependencies = analyze_dependencies()
     generate_dependency_report(dependencies)
-    print(f"Found {len(dependencies)} modules with dependencies")
-    print("Report saved to reports/backend_dependencies.csv")

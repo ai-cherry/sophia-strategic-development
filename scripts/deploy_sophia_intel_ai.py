@@ -33,7 +33,8 @@ try:
 except ImportError:
     logging.warning("⚠️  Warning: Could not import Sophia AI config")
     get_lambda_labs_config = None
-    get_config_value = lambda key, default=None: os.getenv(key.upper(), default)
+    def get_config_value(key, default=None):
+        return os.getenv(key.upper(), default)
 
 
 class SophiaIntelAIDeployer:
@@ -319,7 +320,7 @@ class SophiaIntelAIDeployer:
             logging.error(f"   ❌ Error deleting project {project_name}: {e}")
             return False
 
-    def _get_vercel_project_id(self, project_name: str) -> Optional[str]:
+    def _get_vercel_project_id(self, project_name: str) -> str | None:
         """Get Vercel project ID by name"""
         try:
             headers = {

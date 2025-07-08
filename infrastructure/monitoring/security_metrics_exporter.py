@@ -394,4 +394,4 @@ async def vulnerability_summary():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=settings.port, log_level="info")
+    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=settings.port, log_level="info")

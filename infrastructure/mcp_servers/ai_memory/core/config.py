@@ -32,7 +32,7 @@ class AIMemoryConfig(BaseSettings):
 
     # Redis Configuration
     redis_url: str = Field(..., env="REDIS_URL")
-    redis_password: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
+    redis_password: str | None = Field(default=None, env="REDIS_PASSWORD")
     redis_db: int = Field(default=0, env="REDIS_DB", ge=0, le=15)
     redis_max_connections: int = Field(
         default=20, env="REDIS_MAX_CONNECTIONS", ge=1, le=100
@@ -47,8 +47,8 @@ class AIMemoryConfig(BaseSettings):
         default="sophia-ai-memory", env="PINECONE_INDEX_NAME"
     )
 
-    weaviate_url: Optional[str] = Field(default=None, env="WEAVIATE_URL")
-    weaviate_api_key: Optional[str] = Field(default=None, env="WEAVIATE_API_KEY")
+    weaviate_url: str | None = Field(default=None, env="WEAVIATE_URL")
+    weaviate_api_key: str | None = Field(default=None, env="WEAVIATE_API_KEY")
 
     # AI/ML Configuration
     openai_api_key: str = Field(..., env="OPENAI_API_KEY")
@@ -105,7 +105,7 @@ class AIMemoryConfig(BaseSettings):
     )
 
     @validator("log_level")
-    def validate_log_level(cls, v: str) -> str:
+    def validate_log_level(self, v: str) -> str:
         """Validate log level"""
         valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
         if v.upper() not in valid_levels:
@@ -113,7 +113,7 @@ class AIMemoryConfig(BaseSettings):
         return v.upper()
 
     @validator("embedding_model")
-    def validate_embedding_model(cls, v: str) -> str:
+    def validate_embedding_model(self, v: str) -> str:
         """Validate embedding model"""
         valid_models = {
             "text-embedding-3-small",
@@ -125,7 +125,7 @@ class AIMemoryConfig(BaseSettings):
         return v
 
     @validator("allowed_origins", pre=True)
-    def parse_allowed_origins(cls, v) -> list[str]:
+    def parse_allowed_origins(self, v) -> list[str]:
         """Parse allowed origins from string or list"""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]

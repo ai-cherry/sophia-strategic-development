@@ -10,7 +10,7 @@ try:
     from core.auto_esc_config import get_config_value
 except ImportError:
     # Fallback if running standalone
-    def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
+    def get_config_value(key: str, default: str | None = None) -> str | None:
         return os.getenv(key.upper(), default)
 
 
@@ -56,12 +56,12 @@ class AiMemoryV2Settings(BaseSettings):
     # Redis Configuration
     REDIS_HOST: str = get_config_value("redis_host", "146.235.200.1")
     REDIS_PORT: int = int(get_config_value("redis_port", "6379"))
-    REDIS_PASSWORD: Optional[str] = get_config_value("redis_password") or os.getenv(
+    REDIS_PASSWORD: str | None = get_config_value("redis_password") or os.getenv(
         "REDIS_PASSWORD"
     )
 
     # Snowflake Configuration (for future use)
-    SNOWFLAKE_ACCOUNT: Optional[str] = get_config_value("snowflake_account")
+    SNOWFLAKE_ACCOUNT: str | None = get_config_value("snowflake_account")
     SNOWFLAKE_DATABASE: str = "SOPHIA_AI"
     SNOWFLAKE_SCHEMA: str = "AI_MEMORY"
 

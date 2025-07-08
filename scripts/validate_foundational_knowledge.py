@@ -271,11 +271,6 @@ class FoundationalKnowledgeValidator:
 
     def generate_report(self):
         """Generate validation report."""
-        print("\n" + "=" * 60)
-        print("📊 FOUNDATIONAL KNOWLEDGE VALIDATION REPORT")
-        print("=" * 60)
-        print(f"🕐 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 60 + "\n")
 
         # Group results by status
         passed = [r for r in self.validation_results if "PASS" in r["status"]]
@@ -284,47 +279,30 @@ class FoundationalKnowledgeValidator:
 
         # Summary
         total = len(self.validation_results)
-        print("📈 Summary:")
-        print(f"   Total Tests: {total}")
-        print(f"   ✅ Passed: {len(passed)} ({len(passed)/total*100:.1f}%)")
-        print(f"   ❌ Failed: {len(failed)} ({len(failed)/total*100:.1f}%)")
-        print(f"   ⚠️  Warnings: {len(warned)} ({len(warned)/total*100:.1f}%)")
-        print()
 
         # Detailed results
-        print("📋 Detailed Results:")
-        print("-" * 60)
 
         for result in self.validation_results:
-            print(f"{result['status']} {result['test']}")
             if result["details"]:
-                print(f"   → {result['details']}")
+                pass
 
-        print("-" * 60)
 
         # Recommendations
         if failed:
-            print("\n⚠️  RECOMMENDATIONS:")
             if any("MCP Server" in r["test"] for r in failed):
-                print(
-                    "   1. Start the MCP server: cd infrastructure/mcp_servers/notion_simple && python server.py"
-                )
+                pass
             if any("Database" in r["test"] for r in failed):
-                print(
-                    "   2. Run setup script: python scripts/setup_notion_simple.py <parent_page_id>"
-                )
+                pass
             if any("Notion Connection" in r["test"] for r in failed):
-                print("   3. Check your NOTION_API_KEY environment variable")
+                pass
 
         # Overall status
-        print("\n" + "=" * 60)
         if len(failed) == 0:
-            print("✅ SYSTEM STATUS: READY FOR PRODUCTION")
+            pass
         elif len(failed) < 3:
-            print("⚠️  SYSTEM STATUS: PARTIALLY OPERATIONAL")
+            pass
         else:
-            print("❌ SYSTEM STATUS: NOT READY")
-        print("=" * 60 + "\n")
+            pass
 
         # Save report
         report_file = (
@@ -346,11 +324,9 @@ class FoundationalKnowledgeValidator:
                 indent=2,
             )
 
-        print(f"📄 Report saved to: {report_file}")
 
     async def run_validation(self):
         """Run all validation tests."""
-        print("🚀 Starting Foundational Knowledge System Validation...")
 
         # Test 1: Notion connection
         await self.check_notion_connection()

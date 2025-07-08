@@ -346,7 +346,7 @@ class StandardizedMCPServer(ABC):
         """Run the MCP server."""
         uvicorn.run(
             self.app,
-            host="0.0.0.0",
+            host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production,
             port=self.config.port,
             log_level=self.config.log_level.lower(),
         )

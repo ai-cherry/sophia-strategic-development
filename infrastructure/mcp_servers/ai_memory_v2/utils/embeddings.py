@@ -143,7 +143,7 @@ class HybridEmbeddingService:
     def __init__(
         self,
         primary_provider: BaseEmbeddingProvider,
-        fallback_providers: Optional[list[BaseEmbeddingProvider]] = None,
+        fallback_providers: list[BaseEmbeddingProvider] | None = None,
         cache_embeddings: bool = True,
     ):
         self.primary_provider = primary_provider
@@ -227,7 +227,6 @@ def create_embedding_service(
     primary: str = "openai", enable_fallback: bool = True, **kwargs
 ) -> HybridEmbeddingService:
     """Create embedding service with specified configuration."""
-    providers = []
 
     # Create primary provider
     if primary == "openai":

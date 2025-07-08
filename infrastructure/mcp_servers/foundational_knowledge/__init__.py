@@ -1,1 +1,1 @@
-# Foundational Knowledge MCP Server 
+# Foundational Knowledge MCP Server

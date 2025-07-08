@@ -203,9 +203,10 @@ class UnifiedAIAssistant:
         try:
             # Use Claude CLI with latest models
             cmd = f'./claude-cli-integration/claude chat "{query}"'
-            result = subprocess.run(
+            result = # TODO: Validate input before subprocess execution
+        subprocess.run(
                 shlex.split(cmd), capture_output=True, text=True, timeout=60
-            )  # SECURITY FIX: Removed shell=True
+            )  # SECURITY FIX: Removed shell=False
 
             if result.returncode == 0:
                 return f"🤖 **Claude {model} Response:**\n\n{result.stdout}"
@@ -219,7 +220,8 @@ class UnifiedAIAssistant:
         """Handle infrastructure queries"""
         try:
             # Check if infrastructure chat is available
-            result = subprocess.run(
+            result = # TODO: Validate input before subprocess execution
+        subprocess.run(
                 [
                     "python",
                     "backend/services/infrastructure_chat/sophia_infrastructure_chat.py",

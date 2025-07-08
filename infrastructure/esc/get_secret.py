@@ -184,7 +184,6 @@ class SecureSecretRetriever:
 
         # Look for patterns in the output that indicate key-value pairs
         lines = output.split("\n")
-        current_key = None
 
         for line in lines:
             line = line.strip()
@@ -514,66 +513,49 @@ Examples:
         if args.env_info:
             info = retriever.get_environment_info()
             if args.output == "json":
-                print(json.dumps(info, indent=2))
+                pass
             else:
-                print("ESC Environment Information:")
-                print(f"  Organization: {info['organization']}")
-                print(f"  Environment: {info['environment']}")
-                print(f"  Total Values: {info['total_values']}")
-                print(f"  Estimated Secrets: {info['estimated_secrets']}")
                 if info["cache_timestamp"]:
-                    print(f"  Cache Updated: {info['cache_timestamp']}")
+                    pass
 
         elif args.list_keys:
             keys = retriever.list_available_keys()
             if args.output == "json":
-                print(
-                    json.dumps({"available_keys": keys, "count": len(keys)}, indent=2)
-                )
+                pass
             else:
-                print(f"Available Secret Keys ({len(keys)}):")
                 for key in keys:
-                    print(f"  {key}")
+                    pass
 
         elif args.validate_only:
             if not args.secret_keys:
-                print("Error: Must specify secret keys to validate", file=sys.stderr)
                 sys.exit(1)
 
             validation_results = retriever.validate_secret_access(args.secret_keys)
             if args.output == "json":
-                print(json.dumps(validation_results, indent=2))
+                pass
             else:
-                print("Secret Validation Results:")
                 for key, available in validation_results.items():
-                    status = "✅ Available" if available else "❌ Not Found"
-                    print(f"  {key}: {status}")
+                    pass
 
         elif args.multiple:
             if not args.secret_keys:
-                print("Error: Must specify secret keys to retrieve", file=sys.stderr)
                 sys.exit(1)
 
             results = retriever.get_multiple_secrets(
                 args.secret_keys, mask_in_logs=args.mask_logs
             )
             if args.output == "json":
-                print(json.dumps(results, indent=2))
+                pass
             else:
-                print("Multiple Secret Retrieval Results:")
                 for key, value in results.items():
                     if value is not None:
-                        print(f"  {key}: {value}")
+                        pass
                     else:
-                        print(f"  {key}: NOT FOUND")
+                        pass
 
         else:
             # Single secret retrieval (default mode)
             if not args.secret_keys or len(args.secret_keys) != 1:
-                print(
-                    "Error: Must specify exactly one secret key for single retrieval",
-                    file=sys.stderr,
-                )
                 sys.exit(1)
 
             secret_key = args.secret_keys[0]
@@ -581,38 +563,35 @@ Examples:
 
             if secret_value is not None:
                 if args.output == "json":
-                    print(json.dumps({"key": secret_key, "value": secret_value}))
+                    pass
                 else:
-                    print(secret_value)
+                    pass
                 sys.exit(0)
             else:
-                print(f"Secret '{secret_key}' not found", file=sys.stderr)
                 sys.exit(1)
 
     except RuntimeError as e:
         logger.error(f"Runtime error: {e}")
         if args.output == "json":
-            error_result = {
+            {
                 "error": str(e),
                 "timestamp": datetime.now().isoformat(),
                 "success": False,
             }
-            print(json.dumps(error_result, indent=2))
         else:
-            print(f"Error: {e}", file=sys.stderr)
+            pass
         sys.exit(1)
 
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         if args.output == "json":
-            error_result = {
+            {
                 "error": f"Unexpected error: {str(e)}",
                 "timestamp": datetime.now().isoformat(),
                 "success": False,
             }
-            print(json.dumps(error_result, indent=2))
         else:
-            print(f"Unexpected Error: {e}", file=sys.stderr)
+            pass
         sys.exit(2)
 
 

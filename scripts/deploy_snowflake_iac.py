@@ -17,7 +17,6 @@ class SnowflakeIaCDeployer:
 
     def check_prerequisites(self) -> bool:
         """Check if all prerequisites are met"""
-        print("🔍 Checking prerequisites...")
 
         # Check Pulumi CLI
         try:
@@ -25,42 +24,28 @@ class SnowflakeIaCDeployer:
                 ["pulumi", "version"], capture_output=True, text=True
             )
             if result.returncode == 0:
-                print(f"✅ Pulumi CLI installed: {result.stdout.strip()}")
+                pass
             else:
-                print(
-                    "❌ Pulumi CLI not found. Please install: curl -fsSL https://get.pulumi.com | sh"
-                )
                 return False
         except FileNotFoundError:
-            print(
-                "❌ Pulumi CLI not found. Please install: curl -fsSL https://get.pulumi.com | sh"
-            )
             return False
 
         # Check Python
-        if sys.version_info < (3, 8):
-            print(f"❌ Python 3.8+ required, found {sys.version}")
-            return False
-        print(f"✅ Python version: {sys.version.split()[0]}")
 
         # Check if IaC directory exists
         if not self.iac_path.exists():
-            print(f"❌ IaC directory not found: {self.iac_path}")
             return False
-        print(f"✅ IaC directory found: {self.iac_path}")
 
         return True
 
     def setup_virtual_environment(self):
         """Setup Python virtual environment"""
-        print("\n🐍 Setting up virtual environment...")
 
         venv_path = self.iac_path / ".venv"
         if not venv_path.exists():
             subprocess.run([sys.executable, "-m", "venv", str(venv_path)], check=True)
-            print("✅ Virtual environment created")
         else:
-            print("✅ Virtual environment already exists")
+            pass
 
         # Install requirements
         pip_path = venv_path / "bin" / "pip"
@@ -69,15 +54,12 @@ class SnowflakeIaCDeployer:
 
         requirements_path = self.iac_path / "requirements.txt"
         if requirements_path.exists():
-            print("📦 Installing dependencies...")
             subprocess.run(
                 [str(pip_path), "install", "-r", str(requirements_path)], check=True
             )
-            print("✅ Dependencies installed")
 
     def configure_pulumi(self, stack: str = "dev"):
         """Configure Pulumi stack"""
-        print(f"\n⚙️  Configuring Pulumi stack: {stack}")
 
         os.chdir(self.iac_path)
 
@@ -90,14 +72,11 @@ class SnowflakeIaCDeployer:
         )
         if stack not in result.stdout:
             subprocess.run(["pulumi", "stack", "init", stack], check=True)
-            print(f"✅ Created stack: {stack}")
         else:
             subprocess.run(["pulumi", "stack", "select", stack], check=True)
-            print(f"✅ Selected stack: {stack}")
 
     def set_config_values(self):
         """Set Pulumi configuration values"""
-        print("\n🔐 Setting configuration values...")
 
         # Try to get from environment or Pulumi ESC
         from backend.core.auto_esc_config import get_config_value
@@ -115,7 +94,6 @@ class SnowflakeIaCDeployer:
         for key, value in configs.items():
             if value:
                 subprocess.run(["pulumi", "config", "set", key, value], check=True)
-                print(f"✅ Set {key}")
 
         # Set password as secret
         password = get_config_value("snowflake_password")
@@ -124,16 +102,13 @@ class SnowflakeIaCDeployer:
                 ["pulumi", "config", "set", "snowflake:password", password, "--secret"],
                 check=True,
             )
-            print("✅ Set snowflake:password (secret)")
 
     def preview_deployment(self) -> bool:
         """Preview the deployment"""
-        print("\n👀 Previewing deployment...")
 
         result = subprocess.run(["pulumi", "preview"], cwd=self.iac_path)
 
         if result.returncode != 0:
-            print("❌ Preview failed")
             return False
 
         response = input("\n🚀 Proceed with deployment? (y/N): ")
@@ -141,12 +116,10 @@ class SnowflakeIaCDeployer:
 
     def deploy(self):
         """Deploy the infrastructure"""
-        print("\n🚀 Deploying infrastructure...")
 
         result = subprocess.run(["pulumi", "up", "--yes"], cwd=self.iac_path)
 
         if result.returncode == 0:
-            print("\n✅ Deployment successful!")
 
             # Show outputs
             outputs = subprocess.run(
@@ -156,16 +129,12 @@ class SnowflakeIaCDeployer:
                 text=True,
             )
             if outputs.returncode == 0:
-                print("\n📊 Deployment outputs:")
-                print(outputs.stdout)
+                pass
         else:
-            print("\n❌ Deployment failed")
             sys.exit(1)
 
     def run(self, stack: str = "dev", skip_preview: bool = False):
         """Run the deployment process"""
-        print("🚀 Snowflake IaC Deployment Tool")
-        print("=" * 50)
 
         if not self.check_prerequisites():
             sys.exit(1)
@@ -178,13 +147,11 @@ class SnowflakeIaCDeployer:
             if skip_preview or self.preview_deployment():
                 self.deploy()
             else:
-                print("\n❌ Deployment cancelled")
+                pass
 
-        except subprocess.CalledProcessError as e:
-            print(f"\n❌ Error: {e}")
+        except subprocess.CalledProcessError:
             sys.exit(1)
         except KeyboardInterrupt:
-            print("\n\n❌ Deployment interrupted")
             sys.exit(1)
 
 

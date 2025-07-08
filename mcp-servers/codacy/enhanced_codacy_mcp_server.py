@@ -435,7 +435,7 @@ class EnhancedQualityAnalyzer:
         """Calculate cyclomatic complexity of a function"""
         complexity = 1
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For)):
+            if isinstance(child, ast.If | ast.While | ast.For):
                 complexity += 1
             elif isinstance(child, ast.ExceptHandler):
                 complexity += 1
@@ -446,11 +446,10 @@ class EnhancedQualityAnalyzer:
     def _calculate_cognitive_complexity(self, node: ast.FunctionDef) -> int:
         """Calculate cognitive complexity (how hard code is to understand)"""
         complexity = 0
-        nesting_level = 0
 
         def visit_node(n, level):
             nonlocal complexity
-            if isinstance(n, (ast.If, ast.While, ast.For)):
+            if isinstance(n, ast.If | ast.While | ast.For):
                 complexity += 1 + level  # Nesting increases complexity
             elif isinstance(n, ast.BoolOp):
                 complexity += 1
@@ -459,7 +458,7 @@ class EnhancedQualityAnalyzer:
             for child in ast.iter_child_nodes(n):
                 new_level = (
                     level + 1
-                    if isinstance(n, (ast.If, ast.While, ast.For, ast.Try))
+                    if isinstance(n, ast.If | ast.While | ast.For | ast.Try)
                     else level
                 )
                 visit_node(child, new_level)
@@ -496,7 +495,7 @@ class EnhancedQualityAnalyzer:
 
             for child in ast.iter_child_nodes(node):
                 new_depth = depth
-                if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+                if isinstance(child, ast.If | ast.For | ast.While | ast.With | ast.Try):
                     new_depth = depth + 1
                 visit_node(child, new_depth)
 
@@ -521,7 +520,7 @@ class EnhancedQualityAnalyzer:
             "info": 2,
         }
 
-        total_penalty = sum(severity_weights.get(issue.severity, 0) for issue in issues)
+        sum(severity_weights.get(issue.severity, 0) for issue in issues)
 
         security_penalty = sum(
             severity_weights.get(issue.severity, 0)
@@ -649,7 +648,7 @@ class EnhancedQualityAnalyzer:
             Format: JSON with risk_level, prediction, confidence, action
             """
 
-            response = await self.cortex_service.complete(prediction_prompt)
+            await self.cortex_service.complete(prediction_prompt)
             # Parse AI response (simplified for example)
 
             # Add predictive insights
@@ -1007,4 +1006,4 @@ if __name__ == "__main__":
     port = 3008
     logger.info(f"🚀 Starting Enhanced Codacy MCP Server on port {port}...")
     logger.info(f"🤖 AI Services Available: {SNOWFLAKE_AVAILABLE}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=port)

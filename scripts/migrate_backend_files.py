@@ -94,7 +94,6 @@ class BackendMigrator:
 
     def run_migration(self):
         """Execute the full migration"""
-        print("Loading migration map...")
         migrations = self.load_migration_map()
         service_split = self.load_service_split()
 
@@ -112,7 +111,6 @@ class BackendMigrator:
             adjusted_migrations.append(migration)
 
         # Phase 1: Move files
-        print(f"Migrating {len(adjusted_migrations)} files...")
         for migration in adjusted_migrations:
             self.migrate_file(migration["old"], migration["new"])
 
@@ -120,17 +118,12 @@ class BackendMigrator:
         with open("reports/migration_log.txt", "w") as f:
             f.write("\n".join(self.migration_log))
 
-        print("Migration complete. Log saved to reports/migration_log.txt")
 
         # Summary
-        moved_count = len([log for log in self.migration_log if "MOVED:" in log])
-        skip_count = len([log for log in self.migration_log if "SKIP:" in log])
-        error_count = len([log for log in self.migration_log if "ERROR:" in log])
+        len([log for log in self.migration_log if "MOVED:" in log])
+        len([log for log in self.migration_log if "SKIP:" in log])
+        len([log for log in self.migration_log if "ERROR:" in log])
 
-        print("\nSummary:")
-        print(f"  Files moved: {moved_count}")
-        print(f"  Files skipped: {skip_count}")
-        print(f"  Errors: {error_count}")
 
 
 if __name__ == "__main__":
