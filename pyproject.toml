@@ -283,6 +283,7 @@ select = [
     "TRY",    # tryceratops
     "PERF",   # perflint
 ]
+extend-select = ["TID"]
 
 # Ignore specific rules
 ignore = [
@@ -303,7 +304,6 @@ ignore = [
     "TRY003",  # long exception message
     "TD002",   # missing TODO author
     "TD003",   # missing TODO link
-    "FIX002",  # TODO found
     "PGH003",  # blanket type ignore
     "RUF012",  # mutable class default
     "UP007",   # use X | Y for union types (requires Python 3.10+)
@@ -317,7 +317,7 @@ unfixable = []
 # Per-file rule ignores
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]  # unused imports, star imports
-"tests/*" = ["S101", "PLR2004"]   # assert statements, magic values in tests
+"tests/*" = ["S101", "PLR2004", "FIX002"]   # assert statements, magic values in tests, allow TODOs
 "scripts/*" = ["T201", "S603"]     # print statements, subprocess in scripts
 "migrations/*" = ["E501"]          # line length in migrations
 
@@ -353,6 +353,9 @@ omit = [
 precision = 2
 show_missing = true
 skip_covered = false
+
+[tool.ruff.flake8-tidy-imports.banned-api]
+"backend._deprecated" = { msg = "Import from deprecated quarantine!" }
 
 [dependency-groups]
 dev = [

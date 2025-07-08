@@ -262,6 +262,7 @@ docs_backup_*/
 *.bak
 *_old
 *_deprecated
+!backend/_deprecated/
 *_legacy
 *.tmp
 *.temp
