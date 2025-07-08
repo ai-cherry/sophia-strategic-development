@@ -1,152 +1,232 @@
 # Foundational Knowledge Quick Start Guide
+## Get Running in 30 Minutes
 
-## 🚀 TL;DR - Get Started in 30 Minutes
+This guide will help you set up the foundational knowledge system using Notion as the UI and integrating with Sophia AI.
 
-### Step 1: Deploy Minimal Schema (5 min)
-```sql
--- Run in Snowflake
-USE DATABASE SOPHIA_AI;
-source scripts/create_foundational_knowledge_schema.sql
-```
+---
 
-### Step 2: Add Your First Data (10 min)
-```sql
--- Add yourself as an employee
-INSERT INTO FOUNDATIONAL_KNOWLEDGE.EMPLOYEES 
-(FIRST_NAME, LAST_NAME, EMAIL, JOB_TITLE, DEPARTMENT)
-VALUES ('Your', 'Name', 'you@company.com', 'Your Title', 'Your Dept');
+## 🚀 Prerequisites
 
--- Add a key customer
-INSERT INTO FOUNDATIONAL_KNOWLEDGE.CUSTOMERS 
-(COMPANY_NAME, INDUSTRY, STATUS, TIER)
-VALUES ('Your Best Customer', 'Their Industry', 'active', 'enterprise');
-```
+1. **Notion Account** with API access
+2. **Sample Data Files** (employees, customers, Gong users)
+3. **Python 3.11+** installed
+4. **Sophia AI** development environment
 
-### Step 3: Test Search (5 min)
-```sql
--- Search for entities
-CALL FOUNDATIONAL_KNOWLEDGE.SEARCH_KNOWLEDGE('customer');
+---
 
--- View all data
-SELECT * FROM FOUNDATIONAL_KNOWLEDGE.VW_KNOWLEDGE_SEARCH;
-```
+## 📋 Step-by-Step Setup
 
-### Step 4: Import More Data (10 min)
-Create a CSV with these columns and import:
-- **Employees**: email, first_name, last_name, job_title, department
-- **Customers**: company_name, industry, status, tier
+### Step 1: Create Notion Workspace (5 minutes)
 
-## 📋 What We Built vs What We Skipped
-
-### ✅ Built (Essential Framework)
-- 4 simple tables (Employees, Customers, Products, Competitors)
-- Basic fields only (10-15 per table)
-- Simple search view
-- Basic CRUD operations
-- CSV import capability
-
-### ❌ Skipped (For Later)
-- Vector embeddings (no content to embed yet)
-- AI summaries (need real data first)
-- Complex JSON fields (wait for patterns)
-- Real-time sync (batch is fine)
-- Advanced RBAC (basic roles work)
-
-## 🎯 Smart First Steps for Real Data
-
-### Week 1: Manual Entry
-1. **Add 10 employees** - Start with leadership team
-2. **Add 10 customers** - Your most important ones
-3. **Add 5 products** - Core offerings only
-4. **Add 3 competitors** - Direct competitors
-
-### Week 2: Bulk Import
-1. **Export from existing systems**:
-   - Employee list from HR
-   - Customer list from CRM
-   - Product catalog from docs
-
-2. **Use simple CSV format**:
-   ```csv
-   email,first_name,last_name,job_title,department
-   john.doe@company.com,John,Doe,CEO,Executive
-   jane.smith@company.com,Jane,Smith,CTO,Engineering
+1. Open Notion and create a new page called "Pay Ready Foundational Knowledge"
+2. Copy the page ID from the URL:
    ```
+   https://www.notion.so/Pay-Ready-Foundational-Knowledge-[PAGE_ID_HERE]
+   ```
+3. Save this PAGE_ID - you'll need it!
 
-3. **Import via Python script**:
+### Step 2: Run Setup Script (5 minutes)
+
+```bash
+# Navigate to Sophia main directory
+cd /Users/lynnmusil/sophia-main
+
+# Run the setup script with your page ID
+python scripts/setup_notion_simple.py YOUR_PAGE_ID_HERE
+
+# This creates 4 databases:
+# - 👥 Employees
+# - 🏢 Customers
+# - 🥊 Competitors
+# - 📦 Products
+```
+
+The script will output database IDs - save these!
+
+### Step 3: Configure Environment (2 minutes)
+
+```bash
+# Copy the environment template
+cp infrastructure/mcp_servers/notion_simple/env.template infrastructure/mcp_servers/notion_simple/.env
+
+# Edit the .env file and add your database IDs
+# EMPLOYEES_DB_ID=xxx
+# CUSTOMERS_DB_ID=xxx
+# COMPETITORS_DB_ID=xxx
+# PRODUCTS_DB_ID=xxx
+```
+
+### Step 4: Start Notion MCP Server (3 minutes)
+
+```bash
+# Navigate to the server directory
+cd infrastructure/mcp_servers/notion_simple
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the server
+python server.py
+
+# You should see:
+# 🚀 Starting Notion Simple MCP Server on port 9003
+# ✅ Employees database configured
+# ✅ Customers database configured
+# ...
+```
+
+### Step 5: Import Sample Data (10 minutes)
+
+In a new terminal:
+
+```bash
+# Use the staging app to import data
+streamlit run scripts/foundational_knowledge_staging.py
+
+# This opens a web UI where you can:
+# 1. Upload CSV/JSON files
+# 2. Map columns to Notion fields
+# 3. Preview data
+# 4. Import to Notion
+```
+
+### Step 6: Test the System (5 minutes)
+
+```bash
+# Run validation script
+python scripts/validate_foundational_knowledge.py
+
+# This tests:
+# ✅ Notion connection
+# ✅ Database existence
+# ✅ MCP server health
+# ✅ Search functionality
+# ✅ Natural language queries
+```
+
+---
+
+## 🧪 Quick Tests
+
+### Test 1: Search API
+```bash
+# Search for an employee
+curl -X POST http://localhost:9003/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Smith", "entity_type": "employees"}'
+
+# Search for a customer
+curl -X POST http://localhost:9003/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Acme", "entity_type": "customers"}'
+```
+
+### Test 2: Employee Lookup
+```bash
+curl -X POST http://localhost:9003/employees/lookup \
+  -H "Content-Type: application/json" \
+  -d '{"email": "jane.smith@payready.com"}'
+```
+
+### Test 3: List Entities
+```bash
+# List employees
+curl http://localhost:9003/employees
+
+# List customers
+curl http://localhost:9003/customers
+```
+
+---
+
+## 🔗 Sophia AI Integration
+
+To integrate with Sophia AI chat:
+
+1. **Update Sophia Configuration**:
    ```python
-   import pandas as pd
-   
-   df = pd.read_csv('employees.csv')
-   for _, row in df.iterrows():
-       handler.create_employee(row.to_dict())
+   # In your chat service configuration
+   NOTION_MCP_ENDPOINT = "http://localhost:9003"
    ```
 
-### Week 3: Connect Systems
-1. **Gong Integration**:
-   - Just map user IDs first
-   - Don't sync call data yet
+2. **Test Natural Language Queries**:
+   - "Who is Jane Smith?"
+   - "Tell me about Acme Corp"
+   - "What are our main competitors?"
+   - "Show me our products"
 
-2. **HubSpot Integration**:
-   - Sync company records only
-   - Skip contacts initially
+---
 
-3. **Slack Integration**:
-   - Map user IDs only
-   - No message import
+## 📊 Sample Data Format
 
-## 🔍 What to Look For
+### Employees CSV
+```csv
+Full Name,Email,Job Title,Department,Location
+Jane Smith,jane.smith@payready.com,VP of Sales,Sales,New York
+John Doe,john.doe@payready.com,Senior Engineer,Engineering,San Francisco
+```
 
-As you add real data, watch for:
-1. **Empty fields** - Remove from schema
-2. **Missing fields** - Add as needed
-3. **Data patterns** - Inform JSON structure
-4. **Relationships** - Guide foreign keys
-5. **Search needs** - Drive indexing
+### Gong Users JSON
+```json
+[
+  {
+    "userId": "gong_123",
+    "email": "jane.smith@payready.com",
+    "name": "Jane Smith"
+  }
+]
+```
 
-## 📈 Success Metrics
+### Slack Users JSON
+```json
+{
+  "members": [
+    {
+      "id": "U123456",
+      "profile": {
+        "email": "jane.smith@payready.com",
+        "real_name": "Jane Smith"
+      }
+    }
+  ]
+}
+```
 
-### Week 1 Success:
-- [ ] Schema deployed
-- [ ] 20+ manual records
-- [ ] Search working
-- [ ] Team can add data
+---
 
-### Week 2 Success:
-- [ ] 100+ employees imported
-- [ ] 50+ customers imported
-- [ ] Import process documented
-- [ ] Data quality validated
+## 🚨 Troubleshooting
 
-### Week 3 Success:
-- [ ] External IDs mapped
-- [ ] Basic integration working
-- [ ] Schema adjustments identified
-- [ ] Ready for enhancement
+### Issue: "Database not configured"
+**Solution**: Make sure you've added the database IDs to your .env file
 
-## 🚫 Common Mistakes to Avoid
+### Issue: "Cannot connect to MCP server"
+**Solution**: Ensure the server is running on port 9003
 
-1. **Don't over-design fields** - Add only what you use
-2. **Don't build complex UIs** - Use SQL directly first
-3. **Don't automate too early** - Manual process reveals needs
-4. **Don't optimize performance** - Get data in first
-5. **Don't add AI features** - Need content to work with
+### Issue: "No results found"
+**Solution**: Check that you've imported data to Notion
 
-## 💡 Pro Tips
+### Issue: "Notion API error"
+**Solution**: Verify your NOTION_API_KEY is correct
 
-1. **Start with executives** - They're most searched
-2. **Focus on active data** - Skip historical records
-3. **Use spreadsheets** - Easiest for initial data prep
-4. **Document as you go** - Track what fields mean
-5. **Get feedback early** - Show search to users
+---
 
-## 🎉 Next Steps
+## 🎯 Next Steps
 
-Once you have 100+ records:
-1. **Analyze usage** - What do people search for?
-2. **Identify patterns** - What fields are always empty?
-3. **Plan enhancements** - Vector search, AI summaries
-4. **Build integrations** - Real-time sync with source systems
-5. **Add intelligence** - Embeddings, recommendations
+Once the basic system is working:
 
-Remember: **Simple and working beats complex and planned!** 
+1. **Add More Data**: Import full employee and customer lists
+2. **Enhance Search**: Add fuzzy matching and semantic search
+3. **Build Relationships**: Create employee-customer mappings
+4. **Add Integrations**: Connect Slack and Gong for auto-updates
+5. **Deploy to Production**: Use Docker for production deployment
+
+---
+
+## 📞 Need Help?
+
+1. Check the validation report: `validation_report_*.json`
+2. Review server logs for errors
+3. Ensure all database IDs are correctly configured
+4. Verify data was imported to Notion
+
+The system should be fully operational in 30 minutes!
