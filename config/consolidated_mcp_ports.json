@@ -170,11 +170,11 @@
         "description": "Notion integration for task management"
       },
       "linear": {
-        "port": 9004,
+        "port": 9040,
         "description": "Linear project management"
       },
       "asana": {
-        "port": 9006,
+        "port": 9041,
         "description": "Asana task and project management"
       },
       "github": {
@@ -182,21 +182,21 @@
         "description": "GitHub integration"
       },
       "ui_ux_agent": {
-        "port": 9008,
+        "port": 9042,
         "description": "UI/UX generation agent"
       }
     },
     "infrastructure": {
       "lambda_labs_cli": {
-        "port": 9200,
+        "port": 9043,
         "description": "Lambda Labs infrastructure management"
       },
       "snowflake_cortex": {
-        "port": 9201,
+        "port": 9044,
         "description": "Snowflake Cortex AI operations"
       },
       "snowflake_admin": {
-        "port": 9202,
+        "port": 9045,
         "description": "Snowflake administration"
       }
     },
