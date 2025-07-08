@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Blocks commits that include files matching one-time patterns unless ARCHIVE=ok
+regex='(fix_|migrate_|phase[0-9]+_|quick_cleanup|dead_code_|backup_|cleanup_).*\.py$'
+blocked=$(git diff --cached --name-only | grep -Ei "$regex" || true)
+
+if [[ -n "$blocked" && "$(git log -1 --pretty=%B)" != *"ARCHIVE=ok"* ]]; then
+  echo "🚫  Commit blocked: Potential one-time files detected:" >&2
+  echo "$blocked" >&2
+  echo "👉  If intentional, add ARCHIVE=ok in commit message." >&2
+  exit 1
+fi
