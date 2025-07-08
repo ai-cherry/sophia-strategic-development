@@ -447,3 +447,95 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     "warehouse_auto_suspend": 60,
     "warehouse_auto_resume": True,
 }
+
+
+def get_snowflake_pat(environment: str = None) -> str:
+    """
+    Get Snowflake PAT (Programmatic Access Token) for MCP authentication
+
+    Args:
+        environment: Environment name (prod, staging). Defaults to current environment.
+
+    Returns:
+        PAT string
+
+    Raises:
+        ValueError: If PAT not configured
+    """
+    if not environment:
+        environment = get_config_value("environment", "prod")
+
+    # Try environment-specific PAT first
+    pat_key = f"snowflake_pat_{environment.lower()}"
+    pat = get_config_value(pat_key)
+
+    if not pat:
+        # Try generic PAT
+        pat = get_config_value("snowflake_pat")
+
+    if not pat:
+        # Try with MCP prefix
+        pat = get_config_value("snowflake_mcp_pat")
+
+    if not pat:
+        raise ValueError(f"Snowflake PAT not configured for environment: {environment}")
+
+    # Validate PAT format (basic check)
+    if not pat.startswith("pat_") and len(pat) < 20:
+        logger.warning("Snowflake PAT format may be invalid")
+
+    return pat
+
+
+def get_snowflake_mcp_config() -> dict[str, Any]:
+    """
+    Get Snowflake MCP server configuration
+
+    Returns:
+        MCP configuration dictionary
+    """
+    environment = get_config_value("environment", "prod")
+
+    return {
+        "url": get_config_value(
+            "snowflake_mcp_url", "https://mcp-snowflake.sophia-ai.com"
+        ),
+        "pat": get_snowflake_pat(environment),
+        "timeout": int(get_config_value("snowflake_mcp_timeout", "120")),
+        "max_retries": int(get_config_value("snowflake_mcp_max_retries", "3")),
+        "pool_size": int(get_config_value("snowflake_mcp_pool_size", "20")),
+    }
+
+
+# Add PAT rotation check function
+def check_pat_rotation_needed() -> bool:
+    """
+    Check if Snowflake PAT needs rotation
+
+    Returns:
+        True if rotation needed
+    """
+    # This is a placeholder - in production, would check PAT metadata
+    # from Snowflake or a secure metadata store
+    pat_created_date = get_config_value("snowflake_pat_created_date")
+
+    if not pat_created_date:
+        logger.warning("PAT creation date not tracked")
+        return False
+
+    from datetime import datetime
+
+    try:
+        created = datetime.fromisoformat(pat_created_date)
+        days_old = (datetime.now() - created).days
+
+        # Rotate after 83 days (7 days before 90-day expiry)
+        return days_old >= 83
+
+    except Exception as e:
+        logger.error(f"Error checking PAT rotation: {e}")
+        return False
+
+
+# Update the esc_key_mappings in get_config_value to include PAT mappings
+# (This is already included in the existing mappings)

@@ -1409,6 +1409,115 @@ class MCPOrchestrationService:
             },
         }
 
+    async def route_cortex_request(
+        self,
+        query: Any,  # CortexQuery type from adapter
+        preferred_tier: str = "PRIMARY",
+    ) -> MCPServerEndpoint:
+        """
+        Intelligent routing for Snowflake Cortex requests with capability matching
+
+        Args:
+            query: CortexQuery object with task information
+            preferred_tier: Preferred server tier (PRIMARY, SECONDARY, TERTIARY)
+
+        Returns:
+            Selected MCP server endpoint
+
+        Raises:
+            ValueError: If no capable servers available
+        """
+        # Determine required capability based on task type
+        capability_map = {
+            "complete": "cortexComplete",
+            "search": "cortexSearch",
+            "analyst": "cortexAnalyst",
+        }
+
+        required_capability = capability_map.get(query.task.type)
+        if not required_capability:
+            raise ValueError(f"Unknown Cortex task type: {query.task.type}")
+
+        # Find servers with required capability
+        capable_servers = []
+        for server_name, server in self.servers.items():
+            if required_capability in server.capabilities:
+                # Check if server is healthy
+                if server.status in [ServerStatus.HEALTHY, ServerStatus.DEGRADED]:
+                    capable_servers.append((server_name, server))
+
+        if not capable_servers:
+            raise ValueError(
+                f"No MCP servers available for Cortex task: {query.task.type}"
+            )
+
+        # Sort by tier priority and health
+        tier_priority = {"PRIMARY": 1, "SECONDARY": 2, "TERTIARY": 3}
+
+        def sort_key(item):
+            server_name, server = item
+            # Get tier from server name or default to TERTIARY
+            tier = "PRIMARY"  # Default, would be loaded from registry
+            return (
+                tier_priority.get(tier, 999),
+                0 if server.status == ServerStatus.HEALTHY else 1,
+                server.response_time_ms,
+            )
+
+        capable_servers.sort(key=sort_key)
+
+        # Select best server
+        selected_name, selected_server = capable_servers[0]
+
+        logger.info(
+            f"Routing Cortex {query.task.type} to {selected_name} "
+            f"(status: {selected_server.status}, latency: {selected_server.response_time_ms}ms)"
+        )
+
+        return selected_server
+
+    async def execute_cortex_via_mcp(
+        self, query: Any, user_id: str | None = None  # CortexQuery type
+    ) -> dict[str, Any]:
+        """
+        Execute Cortex query through MCP orchestration
+
+        Args:
+            query: CortexQuery object
+            user_id: Optional user ID for tracking
+
+        Returns:
+            Cortex execution result
+        """
+        # Select appropriate server
+        server = await self.route_cortex_request(query)
+
+        # Prepare MCP operation parameters
+        params = {
+            "text": query.text,
+            "model": query.task.model,
+            "temperature": query.task.temperature,
+            "max_tokens": query.task.max_tokens,
+            "timeout": query.timeout_s,
+        }
+
+        if query.context:
+            params["context"] = query.context
+
+        if query.task.additional_params:
+            params.update(query.task.additional_params)
+
+        # Execute via MCP
+        tool_name = f"cortex{query.task.type.capitalize()}"
+        response = await self.route_to_mcp(
+            server.server_name, tool_name, params, user_id
+        )
+
+        if not response.success:
+            raise RuntimeError(f"Cortex MCP execution failed: {response.error_message}")
+
+        return response.data
+
 
 # Global orchestration service instance - using lazy initialization
 _orchestration_service = None
