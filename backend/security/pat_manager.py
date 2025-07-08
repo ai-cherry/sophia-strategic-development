@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Any
+from typing import Any, Optional
 
 import structlog
 from prometheus_client import Gauge

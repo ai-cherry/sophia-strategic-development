@@ -387,7 +387,7 @@ const ChatPanel: React.FC<{
               <p className="text-gray-500 mb-8">
                 Ask me anything about your business data, projects, or insights
               </p>
-              
+
               {/* Suggestions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                 {suggestions.map((suggestion, index) => (
@@ -416,7 +416,7 @@ const ChatPanel: React.FC<{
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{message.content}</p>
-                    
+
                     {/* Sources */}
                     {message.citations && message.citations.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-gray-200">
@@ -438,7 +438,7 @@ const ChatPanel: React.FC<{
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Metadata */}
                     {message.metadata && (
                       <div className="mt-2 text-xs opacity-70">
@@ -455,7 +455,7 @@ const ChatPanel: React.FC<{
                   </div>
                 </div>
               ))}
-              
+
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="bg-gray-100 rounded-lg p-4">
@@ -463,7 +463,7 @@ const ChatPanel: React.FC<{
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </>
           )}

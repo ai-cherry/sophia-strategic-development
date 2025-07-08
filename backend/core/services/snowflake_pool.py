@@ -7,7 +7,7 @@ import asyncio
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
 
 import structlog
 from prometheus_client import Gauge

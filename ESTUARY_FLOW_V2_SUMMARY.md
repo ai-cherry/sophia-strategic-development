@@ -145,4 +145,4 @@ All components are:
 - ✅ Monitored with Grafana
 - ✅ Deployed via automation
 
-**Next Step**: Run `./scripts/deploy-estuary-flow.sh` to activate! 🌊 
+**Next Step**: Run `./scripts/deploy-estuary-flow.sh` to activate! 🌊

@@ -1,7 +1,7 @@
 # 📚 Sophia AI Documentation Auto-Loading System
 
-**Version**: 1.0  
-**Purpose**: Intelligent context loading based on task complexity and type  
+**Version**: 1.0
+**Purpose**: Intelligent context loading based on task complexity and type
 **Integration**: Claude-Code-Development-Kit patterns with Snowflake Cortex
 
 ---
@@ -12,7 +12,7 @@
 
 ```
 Tier 1: Foundation (ai-context/)     - Core system knowledge
-Tier 2: Component (components/)      - Service-specific context  
+Tier 2: Component (components/)      - Service-specific context
 Tier 3: Feature (features/)         - Task-specific patterns
 ```
 
@@ -61,7 +61,7 @@ else:
 ```python
 COMPLEX_TASKS = [
     "system_architecture",
-    "infrastructure_design", 
+    "infrastructure_design",
     "multi_agent_orchestration",
     "data_pipeline_design",
     "security_implementation"

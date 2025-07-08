@@ -1,7 +1,7 @@
 # 🧠 Sophia AI Brain - AI Decision Patterns (Foundation Tier)
 
-**Purpose**: Core AI decision-making patterns and routing logic  
-**Auto-Loading**: Always loaded for complex tasks  
+**Purpose**: Core AI decision-making patterns and routing logic
+**Auto-Loading**: Always loaded for complex tasks
 **Last Updated**: July 2025
 
 ---
@@ -21,7 +21,7 @@ Intent Classification → Context Loading → Agent Routing → Model Selection 
 ```python
 def classify_task_complexity(user_input: str) -> str:
     """Snowflake Cortex classification of task complexity"""
-    
+
     COMPLEXITY_INDICATORS = {
         "simple": [
             "create", "write", "generate", "fix", "update", "show"
@@ -33,7 +33,7 @@ def classify_task_complexity(user_input: str) -> str:
             "architect", "orchestrate", "synthesize", "strategize"
         ],
         "architecture": [
-            "system design", "infrastructure", "multi-service", 
+            "system design", "infrastructure", "multi-service",
             "enterprise", "scalability", "distributed"
         ]
     }
@@ -65,7 +65,7 @@ MODEL_SELECTION_RULES = {
     "code_generation": ["deepseek-v3", "gpt-4o", "claude-3-5-sonnet"],
     "business_intelligence": ["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"],
     "research": ["gemini-1.5-pro", "claude-3-5-sonnet", "gpt-4o"],
-    
+
     # Cost optimization
     "budget_mode": ["gpt-3.5-turbo", "deepseek-v3", "mixtral-8x7b"],
     "balanced_mode": ["deepseek-v3", "gpt-4o", "mixtral-8x7b"],
@@ -81,13 +81,13 @@ MODEL_SELECTION_RULES = {
 ```python
 def can_execute_parallel(workflow_tasks: list) -> bool:
     """Determine if tasks can be executed in parallel"""
-    
+
     PARALLEL_COMPATIBLE = {
         "research": ["code_generation", "integration"],
         "business_intelligence": ["code_generation", "research"],
         "infrastructure": ["code_generation", "integration"]
     }
-    
+
     SEQUENTIAL_REQUIRED = {
         "quality_validation": ["requires_code_output"],
         "integration_testing": ["requires_implementation"],
@@ -103,13 +103,13 @@ AGENT_HANDOFF_WORKFLOWS = {
         ("code_development", "integration", "quality_validation"),
         ("integration", "sophia_intelligence", "response_synthesis")
     ],
-    
+
     "business_intelligence": [
         ("sophia_intelligence", "research", "context_retrieval"),
         ("research", "business_intelligence", "data_analysis"),
         ("business_intelligence", "sophia_intelligence", "insight_synthesis")
     ],
-    
+
     "infrastructure": [
         ("sophia_intelligence", "infrastructure", "requirements_analysis"),
         ("infrastructure", "integration", "deployment_planning"),
@@ -126,18 +126,18 @@ AGENT_HANDOFF_WORKFLOWS = {
 ```python
 def determine_documentation_tiers(complexity: str, task_type: str) -> list:
     """Determine which documentation tiers to load"""
-    
+
     TIER_LOADING_RULES = {
         "architecture": [1, 2, 3],  # Foundation + Component + Feature
-        "complex": [2, 3],          # Component + Feature  
+        "complex": [2, 3],          # Component + Feature
         "moderate": [2, 3],         # Component + Feature
         "simple": [3]               # Feature only
     }
-    
+
     # Special cases
     if task_type in ["system_design", "infrastructure"]:
         return [1, 2, 3]  # Always load all tiers
-    
+
     return TIER_LOADING_RULES.get(complexity, [3])
 ```
 
@@ -145,17 +145,17 @@ def determine_documentation_tiers(complexity: str, task_type: str) -> list:
 ```python
 def score_documentation_relevance(doc_content: str, task_type: str) -> float:
     """Score documentation relevance for intelligent loading"""
-    
+
     RELEVANCE_KEYWORDS = {
         "code_generation": ["implementation", "patterns", "examples", "code"],
         "business_intelligence": ["analytics", "metrics", "data", "insights"],
         "infrastructure": ["deployment", "scaling", "architecture", "systems"],
         "research": ["analysis", "investigation", "findings", "research"]
     }
-    
+
     keywords = RELEVANCE_KEYWORDS.get(task_type, [])
     score = sum(1 for keyword in keywords if keyword in doc_content.lower())
-    
+
     return min(score / len(keywords), 1.0) if keywords else 0.5
 ```
 
@@ -171,13 +171,13 @@ TOKEN_OPTIMIZATION_STRATEGIES = {
         "tier_prioritization": "Load higher-priority tiers first",
         "context_summarization": "Summarize large documents"
     },
-    
+
     "model_routing": {
         "cost_aware_selection": "Choose cost-effective models for simple tasks",
         "context_size_optimization": "Use models with appropriate context windows",
         "fallback_strategies": "Cheaper models as fallbacks"
     },
-    
+
     "agent_coordination": {
         "parallel_execution": "Reduce overall processing time",
         "task_specialization": "Use specialized agents for specific tasks",
@@ -193,17 +193,17 @@ PERFORMANCE_METRICS = {
         "target": "<3 seconds",
         "optimization": "Parallel agent execution"
     },
-    
+
     "token_usage": {
         "target": "15-20% reduction",
         "optimization": "Smart documentation loading"
     },
-    
+
     "cost_efficiency": {
-        "target": "20% cost reduction", 
+        "target": "20% cost reduction",
         "optimization": "Intelligent model routing"
     },
-    
+
     "quality_consistency": {
         "target": "25% improvement",
         "optimization": "Standardized context loading"
@@ -223,13 +223,13 @@ ERROR_RECOVERY_PATTERNS = {
         "all_models_fail": "Use cached response or simple generation",
         "timeout": "Switch to faster model with reduced quality"
     },
-    
+
     "agent_failure": {
         "agent_unavailable": "Route to alternative agent",
         "workflow_broken": "Switch to single-agent processing",
         "coordination_failure": "Fall back to sequential execution"
     },
-    
+
     "documentation_failure": {
         "loading_error": "Use cached documentation or minimal context",
         "context_too_large": "Intelligent truncation and summarization",
@@ -246,7 +246,7 @@ QUALITY_ASSURANCE = {
         "technical_accuracy": "Validate technical information",
         "context_alignment": "Check alignment with documentation"
     },
-    
+
     "consistency_monitoring": {
         "response_patterns": "Monitor for consistent response quality",
         "decision_tracking": "Track routing decisions for optimization",
@@ -267,7 +267,7 @@ MCP_INTEGRATION_PATTERNS = {
         "automatic_recovery": "Restart failed servers",
         "fallback_routing": "Route around unhealthy servers"
     },
-    
+
     "load_balancing": {
         "round_robin": "Distribute requests across available servers",
         "capability_based": "Route to servers with specific capabilities",
@@ -284,13 +284,13 @@ EXTERNAL_SERVICE_PATTERNS = {
         "fallback": "External LLM with Snowflake context",
         "optimization": "Cache query results and embeddings"
     },
-    
+
     "portkey_gateway": {
         "primary_use": "LLM routing and optimization",
         "fallback": "Direct provider APIs",
         "optimization": "Semantic caching and retry logic"
     },
-    
+
     "openrouter": {
         "primary_use": "Model selection and cost optimization",
         "fallback": "Fixed model selection",
@@ -328,7 +328,7 @@ LEARNING_PATTERNS = {
         "failure_analysis": "Analyze and learn from failures",
         "optimization_cycles": "Regular performance optimization"
     },
-    
+
     "adaptation_strategies": {
         "usage_pattern_analysis": "Adapt to user behavior patterns",
         "model_performance_tracking": "Optimize model selection",

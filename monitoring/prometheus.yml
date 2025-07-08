@@ -32,4 +32,4 @@ scrape_configs:
   # Redis exporter (if added)
   - job_name: 'redis'
     static_configs:
-      - targets: ['redis-exporter:9121'] 
+      - targets: ['redis-exporter:9121']

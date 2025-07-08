@@ -174,4 +174,4 @@ flowctl flows restart sophia-ai/gong-calls
 
 ---
 
-**Ready to stream real-time data!** 🌊 
+**Ready to stream real-time data!** 🌊

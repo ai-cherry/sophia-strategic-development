@@ -141,4 +141,4 @@ docker service update sophia-ai_sophia-backend \
 - All data sources (Snowflake, MCP servers, integrations) are accessible through natural language
 - WebSocket support provides real-time streaming responses
 - The system gracefully falls back to HTTP if WebSocket fails
-- All previous dashboard functionality is preserved but simplified 
+- All previous dashboard functionality is preserved but simplified

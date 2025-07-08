@@ -102,7 +102,9 @@ class DeploymentValidator:
         try:
             # Get service list
             cmd = f"ssh -o StrictHostKeyChecking=no ubuntu@{self.host} 'docker service ls --format json'"
-            result = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                cmd, shell=True, capture_output=True, text=True, check=False
+            )
 
             if result.returncode == 0:
                 for line in result.stdout.strip().split("\n"):

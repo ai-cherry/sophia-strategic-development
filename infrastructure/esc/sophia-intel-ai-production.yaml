@@ -22,7 +22,7 @@ values:
       fn::secret: ${LAMBDA_SSH_KEY}
     private_ssh_key:
       fn::secret: ${LAMBDA_PRIVATE_SSH_KEY}
-    
+
     instances:
       core:
         name: "sophia-ai-core"
@@ -34,7 +34,7 @@ values:
           api: "https://api.sophia-intel.ai"
           ai_memory: "192.222.58.232:9001"
           fastapi: "192.222.58.232:8000"
-        
+
       production:
         name: "sophia-production-instance"
         ip: "104.171.202.103"
@@ -45,7 +45,7 @@ values:
           status: "https://status.sophia-intel.ai"
           prometheus: "104.171.202.103:9090"
           grafana: "104.171.202.103:3000"
-        
+
       mcp_orchestrator:
         name: "sophia-mcp-orchestrator"
         ip: "104.171.202.117"
@@ -55,7 +55,7 @@ values:
         endpoints:
           mcp_gateway: "104.171.202.117:8080"
           api_mcp: "https://api.sophia-intel.ai/mcp"
-        
+
       data_pipeline:
         name: "sophia-data-pipeline"
         ip: "104.171.202.134"
@@ -65,7 +65,7 @@ values:
         endpoints:
           data_api: "https://api.sophia-intel.ai/data"
           snowflake: "104.171.202.134:8000"
-        
+
       development:
         name: "sophia-development"
         ip: "155.248.194.183"
@@ -80,7 +80,7 @@ values:
   vercel:
     api_token:
       fn::secret: ${VERCEL_API_TOKEN}
-    
+
     projects:
       app:
         name: "sophia-intel-ai-app"
@@ -98,7 +98,7 @@ values:
           VITE_LAMBDA_LABS_ENDPOINT: "https://${domain.api}/lambda"
           VITE_MCP_ENDPOINT: "https://${domain.api}/mcp"
           VITE_WEBSOCKET_URL: "wss://${domain.api}/ws"
-        
+
       admin:
         name: "sophia-intel-ai-admin"
         domain: ${domain.admin}
@@ -114,7 +114,7 @@ values:
           VITE_APP_NAME: "Sophia AI Admin"
           VITE_ADMIN_MODE: "true"
           VITE_AUTH_REQUIRED: "true"
-        
+
       docs:
         name: "sophia-intel-ai-docs"
         domain: ${domain.docs}
@@ -125,7 +125,7 @@ values:
         env_vars:
           VITE_DOMAIN: ${domain.primary}
           VITE_API_DOCS_URL: "https://${domain.api}/docs"
-        
+
       status:
         name: "sophia-intel-ai-status"
         domain: ${domain.status}
@@ -151,7 +151,7 @@ values:
       fn::secret: ${NAMECHEAP_API_KEY}
     username: "scoobyjava"
     domain: ${domain.primary}
-    
+
     dns_records:
       - name: "@"
         type: "A"
@@ -201,7 +201,7 @@ values:
       auto_renewal: true
       force_https: true
       hsts_enabled: true
-    
+
     cors:
       allowed_origins:
         - "https://${domain.app}"
@@ -220,7 +220,7 @@ values:
     prometheus:
       endpoint: "${lambda_labs.instances.production.endpoints.prometheus}"
       scrape_interval: "30s"
-      
+
     grafana:
       endpoint: "${lambda_labs.instances.production.endpoints.grafana}"
       dashboards:
@@ -228,12 +228,12 @@ values:
         - "lambda-labs-infrastructure"
         - "vercel-deployments"
         - "cost-monitoring"
-    
+
     alerts:
       cost_threshold: 130.00  # Daily cost alert threshold
       response_time_threshold: 1000  # API response time threshold (ms)
       uptime_threshold: 99.9  # Uptime percentage threshold
-      
+
     health_checks:
       endpoints:
         - url: "https://${domain.api}/health"
@@ -251,12 +251,12 @@ values:
     daily_budget: 120.00
     monthly_budget: 3600.00
     lambda_labs_cost_per_hour: 4.83
-    
+
     optimization:
       auto_scaling: true
       instance_scheduling: false  # Keep instances running 24/7 for production
       cost_alerts: true
-      
+
     tracking:
       lambda_labs: "${cost_management.lambda_labs_cost_per_hour} * 24 * 30"  # Monthly estimate
       vercel: 0  # Pro plan included
@@ -268,18 +268,18 @@ values:
     strategy: "rolling"
     rollback_enabled: true
     health_check_timeout: 300
-    
+
     environments:
       production:
         branch: "main"
         auto_deploy: true
         protection_rules: true
-      
+
       staging:
         branch: "develop"
         auto_deploy: true
         protection_rules: false
-      
+
       development:
         branch: "feature/*"
         auto_deploy: false
@@ -290,11 +290,11 @@ values:
     github:
       organization: "ai-cherry"
       repository: "sophia-main"
-      
+
     pulumi:
       stack: "scoobyjava-org/sophia-prod-on-lambda"
       environment: "sophia-intel-ai-production"
-      
+
     ci_cd:
       provider: "github_actions"
       workflows:
@@ -311,23 +311,22 @@ environmentVariables:
   SOPHIA_APP_URL: "https://${domain.app}"
   SOPHIA_ADMIN_URL: "https://${domain.admin}"
   SOPHIA_API_URL: "https://${domain.api}"
-  
+
   # Lambda Labs Configuration
   LAMBDA_LABS_API_KEY: ${lambda_labs.api_key}
   LAMBDA_LABS_SSH_KEY: ${lambda_labs.ssh_key}
   LAMBDA_LABS_CORE_IP: ${lambda_labs.instances.core.ip}
   LAMBDA_LABS_API_ENDPOINT: ${lambda_labs.instances.core.endpoints.api}
-  
+
   # Vercel Configuration
   VERCEL_API_TOKEN: ${vercel.api_token}
-  
+
   # Namecheap Configuration
   NAMECHEAP_API_KEY: ${namecheap.api_key}
-  
+
   # Security Configuration
   CORS_ALLOWED_ORIGINS: ${security.cors.allowed_origins}
-  
+
   # Monitoring Configuration
   PROMETHEUS_ENDPOINT: ${monitoring.prometheus.endpoint}
   GRAFANA_ENDPOINT: ${monitoring.grafana.endpoint}
-

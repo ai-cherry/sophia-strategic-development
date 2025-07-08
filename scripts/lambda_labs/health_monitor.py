@@ -126,7 +126,8 @@ class LambdaLabsMonitor:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=10, check=False,
+                timeout=10,
+                check=False,
             )
 
             return result.returncode == 0 and "OK" in result.stdout
@@ -187,7 +188,8 @@ class LambdaLabsMonitor:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=10, check=False,
+                timeout=10,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -212,7 +214,8 @@ class LambdaLabsMonitor:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=10, check=False,
+                timeout=10,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -232,7 +235,8 @@ class LambdaLabsMonitor:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=10, check=False,
+                timeout=10,
+                check=False,
             )
 
             if result.returncode == 0 and result.stdout.strip():

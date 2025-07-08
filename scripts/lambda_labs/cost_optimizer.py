@@ -81,7 +81,9 @@ class CostOptimizer:
                 "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits",
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10, check=False)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=10, check=False
+            )
 
             if result.returncode == 0 and result.stdout.strip():
                 return float(result.stdout.strip())
@@ -104,7 +106,9 @@ class CostOptimizer:
                 "free -b | grep Mem | awk '{print $2,$3}'",
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10, check=False)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=10, check=False
+            )
 
             if result.returncode == 0 and result.stdout.strip():
                 total, used = map(int, result.stdout.strip().split())

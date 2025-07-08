@@ -101,4 +101,4 @@ secrets:
   db_password:
     external: true
   openai_api_key:
-    external: true 
+    external: true

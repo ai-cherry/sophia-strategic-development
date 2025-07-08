@@ -56,19 +56,19 @@ SERVERS=(
 for server in "${SERVERS[@]}"; do
     echo ""
     echo "Building $server..."
-    
+
     # Build image
     docker build -t ${DOCKER_REGISTRY}/sophia-${server//_/-}:latest \
         -f infrastructure/mcp_servers/$server/Dockerfile \
         infrastructure/mcp_servers/$server/
-    
+
     if [ $? -eq 0 ]; then
         print_status "Built $server successfully"
-        
+
         # Push to registry
         echo "Pushing $server to registry..."
         docker push ${DOCKER_REGISTRY}/sophia-${server//_/-}:latest
-        
+
         if [ $? -eq 0 ]; then
             print_status "Pushed $server successfully"
         else
@@ -92,19 +92,19 @@ scp docker-compose.mcp-v2.yml ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST}:/home/ubun
 # SSH to Lambda Labs and deploy
 ssh ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST} << 'EOF'
     cd /home/ubuntu
-    
+
     # Initialize Docker Swarm if not already done
     docker swarm init 2>/dev/null || true
-    
+
     # Create network if not exists
     docker network create --driver overlay sophia-ai-network 2>/dev/null || true
-    
+
     # Deploy stack
     docker stack deploy -c docker-compose.mcp-v2.yml sophia-mcp-v2
-    
+
     # Wait for services to start
     sleep 10
-    
+
     # Check services
     docker stack services sophia-mcp-v2
 EOF
@@ -130,9 +130,9 @@ NAMES=(
 for i in "${!PORTS[@]}"; do
     PORT=${PORTS[$i]}
     NAME=${NAMES[$i]}
-    
+
     echo -n "Checking $NAME (port $PORT)... "
-    
+
     # Check health endpoint
     if curl -s -f http://${LAMBDA_LABS_HOST}:${PORT}/health > /dev/null 2>&1; then
         print_status "Healthy"
@@ -161,4 +161,4 @@ echo "- Perplexity V2 (9008) - Real-time documentation"
 echo "- Slack V2 (9007) - Team collaboration"
 echo ""
 echo "📝 View logs: ssh ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST} 'docker service logs sophia-mcp-v2_<service-name>'"
-echo "📊 View status: ssh ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST} 'docker stack ps sophia-mcp-v2'" 
+echo "📊 View status: ssh ${LAMBDA_LABS_USER}@${LAMBDA_LABS_HOST} 'docker stack ps sophia-mcp-v2'"

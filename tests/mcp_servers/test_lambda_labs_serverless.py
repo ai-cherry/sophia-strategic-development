@@ -1,7 +1,6 @@
-import os
-import pathlib
 import importlib.util
 import json
+import pathlib
 
 import pytest  # type: ignore
 
@@ -31,7 +30,7 @@ async def test_server_initializes_with_api_key(monkeypatch):
     cfg = MCPServerConfig(name="lambda_test", port=9900)
     server = LambdaLabsServerlessMCP(cfg)
     await server.server_specific_init()
-    assert server._session is not None  # noqa: SLF001
+    assert server._session is not None
     await server.server_specific_cleanup()
 
 
@@ -68,11 +67,7 @@ async def test_successful_inference(monkeypatch):
         mocked.post(
             endpoint,
             status=200,
-            payload={
-                "choices": [
-                    {"message": {"content": "Hello world"}}
-                ]
-            },
+            payload={"choices": [{"message": {"content": "Hello world"}}]},
         )
 
         content = await server.serverless_inference("Hello?")
@@ -118,7 +113,7 @@ async def test_budget_exceeded(monkeypatch):
     # Craft gigantic prompt so estimated cost blows past budget ( > $50 daily )
     huge_prompt = "x" * 4 * 1_000_000  # ~1M tokens estimated
 
-    result_json = await server._execute_optimized_inference(  # noqa: SLF001
+    result_json = await server._execute_optimized_inference(
         huge_prompt, complexity="premium", max_tokens=1, temperature=0
     )
 

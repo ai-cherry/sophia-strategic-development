@@ -1,7 +1,7 @@
 # 🏗️ Sophia AI Project Structure (Foundation Tier)
 
-**Purpose**: Core system architecture and file organization  
-**Auto-Loading**: Always loaded for complex tasks  
+**Purpose**: Core system architecture and file organization
+**Auto-Loading**: Always loaded for complex tasks
 **Last Updated**: July 2025
 
 ---
@@ -225,11 +225,11 @@ SNOWFLAKE_WAREHOUSE: "SOPHIA_AI_COMPUTE_WH"
 class BaseService:
     def __init__(self, config: Config):
         self.config = config
-        
+
     async def initialize(self):
         # Lazy initialization
         pass
-        
+
     async def health_check(self):
         # Standard health check
         pass
@@ -242,7 +242,7 @@ class BaseMCPServer:
     def __init__(self, port: int):
         self.port = port
         self.tools = []
-        
+
     async def handle_request(self, request):
         # Standard MCP request handling
         pass
@@ -255,7 +255,7 @@ class ExternalServiceClient:
     def __init__(self, config: ServiceConfig):
         self.config = config
         self.client = self._create_client()
-        
+
     async def _make_request(self, method, endpoint, **kwargs):
         # Rate limiting + error handling
         pass

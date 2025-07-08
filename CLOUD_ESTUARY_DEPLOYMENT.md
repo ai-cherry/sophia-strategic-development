@@ -153,4 +153,4 @@ docker service logs sophia-mcp-v2_gong-v2 --tail 50
 
 ---
 
-**Everything runs in the cloud - no local machine needed!** ☁️ 
+**Everything runs in the cloud - no local machine needed!** ☁️

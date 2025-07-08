@@ -78,13 +78,13 @@ async def semantic_search(self, query: str):
         query=query,
         user_id=self.current_user
     )
-    
+
     # Combine with our time-based results
     combined = self._merge_results(
         mem0_results,
         self.time_based_results
     )
-    
+
     return combined
 ```
 
@@ -97,4 +97,4 @@ async def semantic_search(self, query: str):
 - Our architecture supports future Mem0 addition
 - Focus on shipping and getting user feedback first
 
-Let's get Memory V2 working across all MCP servers first, then enhance with Mem0's semantic capabilities when the CEO needs them! 
+Let's get Memory V2 working across all MCP servers first, then enhance with Mem0's semantic capabilities when the CEO needs them!

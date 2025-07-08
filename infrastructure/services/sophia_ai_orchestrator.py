@@ -623,17 +623,17 @@ class SophiaAIOrchestrator:
                 analytics_type in ["comprehensive", "knowledge"]
                 and len(analytics_results) > 0
             ):
-                combined_analytics["service_analytics"]["knowledge_base"] = (
-                    analytics_results[0]
-                )
+                combined_analytics["service_analytics"][
+                    "knowledge_base"
+                ] = analytics_results[0]
 
             if (
                 analytics_type in ["comprehensive", "memory"]
                 and len(analytics_results) > 1
             ):
-                combined_analytics["service_analytics"]["memory_preservation"] = (
-                    analytics_results[-1]
-                )
+                combined_analytics["service_analytics"][
+                    "memory_preservation"
+                ] = analytics_results[-1]
 
             response = OrchestrationResponse(
                 request_id=request.request_id,
@@ -924,16 +924,16 @@ class SophiaAIOrchestrator:
             knowledge_items = kb_result["knowledge_items"]
 
             # Create knowledge summary
-            unified_response["knowledge_summary"] = (
-                f"Found {len(knowledge_items)} relevant knowledge items"
-            )
+            unified_response[
+                "knowledge_summary"
+            ] = f"Found {len(knowledge_items)} relevant knowledge items"
 
             # Create unified answer from top knowledge item
             if knowledge_items:
                 top_item = knowledge_items[0]
-                unified_response["unified_answer"] = (
-                    f"Based on our knowledge base: {top_item.get('content', '')[:200]}..."
-                )
+                unified_response[
+                    "unified_answer"
+                ] = f"Based on our knowledge base: {top_item.get('content', '')[:200]}..."
 
         # Add coaching insights if available
         for response in supporting_responses:

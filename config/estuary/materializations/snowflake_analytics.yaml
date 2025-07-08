@@ -16,7 +16,7 @@ materializations:
           database: SOPHIA_AI_PRODUCTION
           warehouse: SOPHIA_AI_COMPUTE_WH
           role: ESTUARY_FLOW_ROLE
-          
+
     bindings:
       # Gong calls - Full history
       - resource:
@@ -27,7 +27,7 @@ materializations:
           table: GONG_CALLS_ENRICHED
           primaryKey: [call_id]
           deltaUpdates: true
-          
+
       # Slack messages - 90 day retention
       - resource:
           stream: sophia-ai/slack-messages-enriched
@@ -41,7 +41,7 @@ materializations:
             - column: timestamp
               granularity: day
           retentionDays: 90
-          
+
       # GitHub events - Full history
       - resource:
           stream: sophia-ai/github-events-enriched
@@ -51,7 +51,7 @@ materializations:
           table: GITHUB_EVENTS_ENRICHED
           primaryKey: [event_id]
           deltaUpdates: true
-          
+
       # HubSpot CRM data
       - resource:
           stream: sophia-ai/hubspot-deals-enriched
@@ -62,7 +62,7 @@ materializations:
           primaryKey: [deal_id]
           deltaUpdates: true
           mergeKeys: [deal_id, updated_at]
-          
+
       # Executive rollup metrics
       - resource:
           stream: sophia-ai/executive-metrics
@@ -71,7 +71,7 @@ materializations:
           schema: EXECUTIVE_ANALYTICS
           table: DAILY_METRICS
           primaryKey: [metric_date, metric_type]
-          
+
     # Snowflake-specific optimizations
     snowflake:
       # Clustering for performance
@@ -80,28 +80,28 @@ materializations:
           keys: [timestamp, sentiment_category]
         - table: SLACK_MESSAGES_ENRICHED
           keys: [timestamp, channel]
-          
+
       # Automatic table optimization
       autoCluster: true
       autoCompact: true
-      
+
       # Streaming ingestion
       useSnowpipe: true
       snowpipeAutoIngest: true
-      
+
     # Post-materialization tasks
     postTasks:
       - name: "Update AI Memory Embeddings"
         type: stored_procedure
         procedure: SALES_INTELLIGENCE.GENERATE_CALL_EMBEDDINGS
         schedule: "*/15 * * * *"  # Every 15 minutes
-        
+
       - name: "Refresh Executive Dashboard"
         type: sql
         query: |
           MERGE INTO EXECUTIVE_ANALYTICS.DASHBOARD_CACHE AS target
           USING (
-            SELECT 
+            SELECT
               CURRENT_DATE() as metric_date,
               COUNT(*) as total_calls,
               AVG(sentiment) as avg_sentiment,
@@ -119,7 +119,7 @@ materializations:
           VALUES
             (source.metric_date, source.total_calls, source.avg_sentiment, source.at_risk_calls);
         schedule: "0 */6 * * *"  # Every 6 hours
-        
+
     # Performance settings
     performance:
       maxConcurrentWrites: 10
@@ -127,12 +127,12 @@ materializations:
       copyOptions:
         ON_ERROR: CONTINUE
         PURGE: TRUE
-        
+
     # Error handling
     errorHandling:
       maxRetries: 5
       retryDelayMs: 5000
-      onError: 
+      onError:
         action: stage_to_s3
         s3Bucket: sophia-ai-error-records
         notifySlack: "#data-alerts"
@@ -143,20 +143,20 @@ monitoring:
     - name: snowflake_rows_written_total
       type: counter
       labels: [schema, table]
-      
+
     - name: snowflake_merge_duration_seconds
       type: histogram
       labels: [schema, table]
-      
+
     - name: snowflake_credits_used
       type: gauge
       labels: [warehouse]
-      
+
   alerts:
     - name: "Snowflake Materialization Lag"
       condition: "snowflake_lag_seconds > 300"
       severity: warning
-      
+
     - name: "High Credit Usage"
       condition: "snowflake_credits_used > 100"
       severity: warning
@@ -173,4 +173,4 @@ metadata:
   tags:
     - analytics
     - data-warehouse
-    - ai-training 
+    - ai-training

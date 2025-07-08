@@ -215,7 +215,8 @@ class LambdaLabsComprehensiveDeployment:
             result = subprocess.run(
                 ["gh", "secret", "list", "--org", "ai-cherry"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                check=False,
             )
 
             required_secrets = ["LAMBDA_LABS_API_KEY"]
@@ -259,7 +260,10 @@ class LambdaLabsComprehensiveDeployment:
             deploy_script = Path("scripts/deploy_lambda_mcp_server.sh")
             if deploy_script.exists():
                 result = subprocess.run(
-                    ["bash", str(deploy_script)], capture_output=True, text=True, check=False
+                    ["bash", str(deploy_script)],
+                    capture_output=True,
+                    text=True,
+                    check=False,
                 )
 
                 return {
@@ -409,7 +413,8 @@ class LambdaLabsComprehensiveDeployment:
             result = subprocess.run(
                 ["pytest", "tests/test_lambda_labs_service.py", "-v"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                check=False,
             )
 
             return {

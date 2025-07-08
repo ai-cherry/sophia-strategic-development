@@ -1,4 +1,3 @@
-from typing import Any, Tuple
 
 # SQL injection fixes applied - using parameterized queries
 """
@@ -63,9 +62,13 @@ class SnowflakeCortexService:
             await self.connection_manager.initialize()
 
             # Set database and schema context
-            await self.connection_manager.execute_query("USE DATABASE %s", (self.database,))
+            await self.connection_manager.execute_query(
+                "USE DATABASE %s", (self.database,)
+            )
             await self.connection_manager.execute_query("USE SCHEMA %s", (self.schema,))
-            await self.connection_manager.execute_query("USE WAREHOUSE %s", (self.warehouse,))
+            await self.connection_manager.execute_query(
+                "USE WAREHOUSE %s", (self.warehouse,)
+            )
 
             # Ensure vector tables exist
             await self._create_vector_tables()
