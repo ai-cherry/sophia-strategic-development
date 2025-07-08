@@ -1,0 +1,383 @@
+version: "3.8"
+
+# Enhanced Docker Swarm Configuration for Sophia AI
+# Improvements: Better resource management, logging, monitoring hooks
+
+x-default-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+    labels: "service,environment"
+    tag: "{{.Name}}/{{.ID}}"
+
+x-default-deploy: &default-deploy
+  restart_policy:
+    condition: on-failure
+    delay: 5s
+    max_attempts: 5
+    window: 120s
+  update_config:
+    parallelism: 1
+    delay: 30s
+    failure_action: rollback
+    monitor: 60s
+    max_failure_ratio: 0.2
+    order: stop-first
+  rollback_config:
+    parallelism: 1
+    delay: 0s
+    failure_action: pause
+    monitor: 60s
+
+x-healthcheck-defaults: &healthcheck-defaults
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
+
+services:
+  # Enhanced Sophia Backend with better resource management
+  sophia-backend:
+    image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai:${IMAGE_TAG:-latest}
+    logging: *default-logging
+    environment:
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+      - PULUMI_ACCESS_TOKEN_FILE=/run/secrets/pulumi_access_token
+      - LOG_LEVEL=INFO
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia
+      - METRICS_ENABLED=true
+      - METRICS_PORT=9090
+    ports:
+      - target: 8000
+        published: 8000
+        mode: ingress
+      - target: 9090
+        published: 9090
+        mode: ingress
+    secrets:
+      - pulumi_access_token
+      - postgres_password
+    deploy:
+      <<: *default-deploy
+      mode: replicated
+      replicas: 3
+      placement:
+        max_replicas_per_node: 1
+        preferences:
+          - spread: node.labels.zone
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+      labels:
+        - "prometheus.scrape=true"
+        - "prometheus.port=9090"
+        - "prometheus.path=/metrics"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+    networks:
+      - sophia-public
+      - sophia-private
+
+  # Enhanced Redis with persistence and clustering
+  redis:
+    image: redis:7.2-alpine
+    logging: *default-logging
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data:/data
+      - redis_backup:/backup
+    deploy:
+      <<: *default-deploy
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.storage == ssd
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2.5G
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+    networks:
+      - sophia-private
+
+  # Enhanced PostgreSQL with better configuration
+  postgres:
+    image: postgres:16-alpine
+    logging: *default-logging
+    environment:
+      - POSTGRES_DB=sophia
+      - POSTGRES_USER=sophia
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --data-checksums
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      # Performance tuning
+      - POSTGRES_MAX_CONNECTIONS=200
+      - POSTGRES_SHARED_BUFFERS=1GB
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=3GB
+      - POSTGRES_MAINTENANCE_WORK_MEM=256MB
+      - POSTGRES_WORK_MEM=16MB
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backup
+    deploy:
+      <<: *default-deploy
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.storage == ssd
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 6G
+        reservations:
+          cpus: "1.0"
+          memory: 2G
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD-SHELL", "pg_isready -U sophia -d sophia"]
+      interval: 10s
+      timeout: 5s
+    networks:
+      - sophia-private
+
+  # Enhanced Traefik with metrics
+  traefik:
+    image: traefik:v3.0
+    logging: *default-logging
+    command:
+      - "--api.dashboard=true"
+      - "--api.debug=false"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=sophia-public"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.email=admin@sophia-ai.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0"
+      - "--ping=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+    ports:
+      - target: 80
+        published: 80
+        mode: ingress
+      - target: 443
+        published: 443
+        mode: ingress
+      - target: 8080
+        published: 8090
+        mode: ingress
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    deploy:
+      <<: *default-deploy
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == manager
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.dashboard.rule=Host(`traefik.sophia-ai.lambda.cloud`)"
+        - "traefik.http.routers.dashboard.service=api@internal"
+        - "traefik.http.routers.dashboard.tls=true"
+        - "traefik.http.routers.dashboard.tls.certresolver=le"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+    networks:
+      - sophia-public
+
+  # MCP Servers with enhanced configuration
+  mem0-server:
+    image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai-mem0:${IMAGE_TAG:-latest}
+    logging: *default-logging
+    environment:
+      - MEM0_API_KEY_FILE=/run/secrets/mem0_api_key
+      - MEM0_HOST=mem0-service
+      - MEM0_PORT=8765
+      - HEALTH_CHECK_ENABLED=true
+      - METRICS_ENABLED=true
+    ports:
+      - target: 8080
+        published: 8080
+        mode: ingress
+    secrets:
+      - mem0_api_key
+    deploy:
+      <<: *default-deploy
+      mode: replicated
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+      labels:
+        - "prometheus.scrape=true"
+        - "prometheus.port=8080"
+        - "prometheus.path=/metrics"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    networks:
+      - sophia-private
+
+  cortex-aisql-server:
+    image: ${DOCKER_REGISTRY:-scoobyjava15}/sophia-ai-cortex-aisql:${IMAGE_TAG:-latest}
+    logging: *default-logging
+    environment:
+      - CORTEX_API_KEY_FILE=/run/secrets/cortex_api_key
+      - CORTEX_HOST=cortex-service
+      - CORTEX_PORT=8766
+      - SNOWFLAKE_ACCOUNT_FILE=/run/secrets/snowflake_account
+      - HEALTH_CHECK_ENABLED=true
+      - METRICS_ENABLED=true
+    ports:
+      - target: 8080
+        published: 8081
+        mode: ingress
+    secrets:
+      - cortex_api_key
+      - snowflake_account
+      - snowflake_user
+      - snowflake_password
+    deploy:
+      <<: *default-deploy
+      mode: replicated
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 3G
+        reservations:
+          cpus: "1.0"
+          memory: 1.5G
+      labels:
+        - "prometheus.scrape=true"
+        - "prometheus.port=8080"
+        - "prometheus.path=/metrics"
+    healthcheck:
+      <<: *healthcheck-defaults
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    networks:
+      - sophia-private
+
+networks:
+  sophia-public:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: "true"
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
+
+  sophia-private:
+    driver: overlay
+    internal: true
+    driver_opts:
+      encrypted: "true"
+    ipam:
+      config:
+        - subnet: 10.0.2.0/24
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/postgres
+
+  postgres_backup:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/backup/postgres
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/redis
+
+  redis_backup:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/backup/redis
+
+  traefik_letsencrypt:
+    driver: local
+
+secrets:
+  pulumi_access_token:
+    external: true
+  postgres_password:
+    external: true
+  mem0_api_key:
+    external: true
+  cortex_api_key:
+    external: true
+  snowflake_account:
+    external: true
+  snowflake_user:
+    external: true
+  snowflake_password:
+    external: true
