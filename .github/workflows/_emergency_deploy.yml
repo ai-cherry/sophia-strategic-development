@@ -1,0 +1,92 @@
+name: 🚨 Emergency Deploy (Minimal)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "DEPLOY" to confirm emergency deployment'
+        required: true
+        type: string
+
+env:
+  DOCKER_REGISTRY: scoobyjava15
+  LAMBDA_LABS_HOST: 192.222.51.122
+
+jobs:
+  deploy:
+    name: Emergency Deploy
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'DEPLOY'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_REGISTRY }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and Push Backend
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag ${{ env.DOCKER_REGISTRY }}/sophia-backend:emergency-${{ github.sha }} \
+            --tag ${{ env.DOCKER_REGISTRY }}/sophia-backend:latest \
+            --push \
+            --file backend/Dockerfile \
+            --cache-from type=registry,ref=${{ env.DOCKER_REGISTRY }}/sophia-backend:buildcache \
+            --cache-to type=registry,ref=${{ env.DOCKER_REGISTRY }}/sophia-backend:buildcache,mode=max \
+            backend/
+
+      - name: Setup Pulumi
+        uses: pulumi/actions@v5
+        with:
+          pulumi-version: 'latest'
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Pulumi Login
+        run: |
+          export PULUMI_ACCESS_TOKEN="${{ secrets.PULUMI_ACCESS_TOKEN }}"
+          pulumi login
+
+      - name: Deploy Infrastructure
+        run: |
+          cd infrastructure
+          pulumi stack select scoobyjava-org/sophia-ai-production --non-interactive
+          pulumi up --yes --non-interactive
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Deploy to Swarm
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.LAMBDA_LABS_HOST }} >> ~/.ssh/known_hosts
+
+          # Deploy stack
+          ssh ubuntu@${{ env.LAMBDA_LABS_HOST }} << 'EOF'
+            docker service update \
+              --image ${{ env.DOCKER_REGISTRY }}/sophia-backend:emergency-${{ github.sha }} \
+              --update-parallelism 1 \
+              --update-delay 10s \
+              sophia-ai_backend || \
+            docker service create \
+              --name sophia-ai_backend \
+              --replicas 3 \
+              --publish 8000:8000 \
+              ${{ env.DOCKER_REGISTRY }}/sophia-backend:emergency-${{ github.sha }}
+          EOF
+
+      - name: Verify Deployment
+        run: |
+          sleep 30
+          curl -f http://${{ env.LAMBDA_LABS_HOST }}:8000/health || exit 1
+          echo "✅ Emergency deployment successful!"
