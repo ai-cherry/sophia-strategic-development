@@ -127,12 +127,11 @@ class DeploymentStatusChecker:
                         }
                     )
 
-
             return {
                 "commits": recent_commits,
-                "latest_commit_age_minutes": recent_commits[0]["age_minutes"]
-                if recent_commits
-                else 0,
+                "latest_commit_age_minutes": (
+                    recent_commits[0]["age_minutes"] if recent_commits else 0
+                ),
             }
 
         except subprocess.CalledProcessError as e:
@@ -228,7 +227,6 @@ class DeploymentStatusChecker:
             "recommendations": [],
         }
 
-
         # Generate recommendations
         if phase == "Not Started":
             analysis["recommendations"].append(
@@ -259,7 +257,7 @@ class DeploymentStatusChecker:
             analysis["recommendations"].append("Test all API endpoints")
 
         if analysis["recommendations"]:
-            for i, rec in enumerate(analysis["recommendations"], 1):
+            for _i, _rec in enumerate(analysis["recommendations"], 1):
                 pass
 
         return analysis
@@ -291,11 +289,10 @@ class DeploymentStatusChecker:
         with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
-
         # Final status
 
         if analysis["phase"] in ["Fully Deployed", "Partial Deployment"]:
-            for service_name, status in connectivity_status.items():
+            for status in connectivity_status.values():
                 if "✅" in status.get("status", ""):
                     status["port"]
 

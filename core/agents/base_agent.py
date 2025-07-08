@@ -133,8 +133,8 @@ class BaseAgent(ABC):
 
         except Exception as e:
             self.status = AgentStatus.ERROR
-            self.logger.error(
-                f"Failed to initialize {self.agent_config.name}: {str(e)}"
+            self.logger.exception(
+                f"Failed to initialize {self.agent_config.name}: {e!s}"
             )
             raise
 
@@ -221,7 +221,7 @@ class BaseAgent(ABC):
                 # No tasks available, continue
                 continue
             except Exception as e:
-                self.logger.error(f"Error in task processing loop: {str(e)}")
+                self.logger.exception(f"Error in task processing loop: {e!s}")
                 await asyncio.sleep(1.0)
 
     async def _process_task(self, task: Task):
@@ -278,7 +278,7 @@ class BaseAgent(ABC):
                 execution_time=(datetime.now(UTC) - start_time).total_seconds(),
             )
             self.metrics["tasks_failed"] += 1
-            self.logger.error(f"Task {task.id} failed: {str(e)}")
+            self.logger.exception(f"Task {task.id} failed: {e!s}")
 
         finally:
             # Store result and cleanup
@@ -313,15 +313,14 @@ class BaseAgent(ABC):
                             self.logger.info(
                                 f"{self.agent_config.name} agent is now idle"
                             )
-                    else:
-                        if self.status == AgentStatus.IDLE:
-                            self.status = AgentStatus.ACTIVE
-                            self.logger.info(
-                                f"{self.agent_config.name} agent is now active"
-                            )
+                    elif self.status == AgentStatus.IDLE:
+                        self.status = AgentStatus.ACTIVE
+                        self.logger.info(
+                            f"{self.agent_config.name} agent is now active"
+                        )
 
             except Exception as e:
-                self.logger.error(f"Error in health monitoring: {str(e)}")
+                self.logger.exception(f"Error in health monitoring: {e!s}")
 
     def _update_avg_execution_time(self, execution_time: float):
         """Update average execution time metric"""

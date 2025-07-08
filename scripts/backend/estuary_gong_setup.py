@@ -194,7 +194,7 @@ class EstuaryGongOrchestrator:
             logger.info("✅ Estuary Gong Orchestrator initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Estuary orchestrator: {e}")
+            logger.exception(f"Failed to initialize Estuary orchestrator: {e}")
             raise
 
     async def execute_with_retry(
@@ -235,7 +235,7 @@ class EstuaryGongOrchestrator:
                     ErrorType.CONFIGURATION_ERROR,
                     ErrorType.VALIDATION_ERROR,
                 ]:
-                    logger.error(
+                    logger.exception(
                         f"Non-retryable error for {operation_name}: {error_type}"
                     )
                     break
@@ -251,7 +251,7 @@ class EstuaryGongOrchestrator:
         logger.error(
             f"❌ {operation_name} failed after {self.retry_config.max_attempts} attempts"
         )
-        raise Exception(f"{operation_name} failed: {str(last_error)}")
+        raise Exception(f"{operation_name} failed: {last_error!s}")
 
     def _classify_error(self, error: Exception) -> ErrorType:
         """Classify error into appropriate error type"""
@@ -361,7 +361,7 @@ class EstuaryGongOrchestrator:
             }
 
         except Exception as e:
-            logger.error(f"Failed to set up Gong pipeline: {e}")
+            logger.exception(f"Failed to set up Gong pipeline: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -511,7 +511,7 @@ class EstuaryGongOrchestrator:
                     )
 
         except Exception as e:
-            logger.error(f"Error creating Snowflake destination: {e}")
+            logger.exception(f"Error creating Snowflake destination: {e}")
             raise
 
     async def _create_connection(self) -> dict[str, Any]:
@@ -626,7 +626,7 @@ class EstuaryGongOrchestrator:
                     )
 
         except Exception as e:
-            logger.error(f"Error creating connection: {e}")
+            logger.exception(f"Error creating connection: {e}")
             raise
 
     async def _configure_sync_schedule(self) -> bool:
@@ -668,7 +668,7 @@ class EstuaryGongOrchestrator:
                     )
 
         except Exception as e:
-            logger.error(f"Error configuring sync schedule: {e}")
+            logger.exception(f"Error configuring sync schedule: {e}")
             raise
 
     async def _test_connection(self) -> bool:
@@ -702,7 +702,7 @@ class EstuaryGongOrchestrator:
                     return False
 
         except Exception as e:
-            logger.error(f"Error testing connection: {e}")
+            logger.exception(f"Error testing connection: {e}")
             return False
 
     async def _trigger_sync(self) -> dict[str, Any]:
@@ -734,7 +734,7 @@ class EstuaryGongOrchestrator:
                     )
 
         except Exception as e:
-            logger.error(f"Error triggering sync: {e}")
+            logger.exception(f"Error triggering sync: {e}")
             raise
 
     async def _get_source_definition_id(self, source_name: str) -> str:
@@ -833,7 +833,7 @@ class EstuaryGongOrchestrator:
                     return {"error": f"Failed to fetch jobs: {response.status}"}
 
         except Exception as e:
-            logger.error(f"Failed to monitor sync jobs: {e}")
+            logger.exception(f"Failed to monitor sync jobs: {e}")
             return {"error": str(e)}
 
     async def cleanup(self) -> None:
@@ -883,7 +883,7 @@ async def main():
             await orchestrator._trigger_sync()
 
     except Exception as e:
-        logger.error(f"Operation failed: {e}")
+        logger.exception(f"Operation failed: {e}")
         sys.exit(1)
 
     finally:

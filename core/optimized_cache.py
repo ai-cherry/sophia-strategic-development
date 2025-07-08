@@ -235,7 +235,7 @@ class OptimizedHierarchicalCache:
             logger.info("✅ Optimized cache system initialized")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize cache system: {e}")
+            logger.exception(f"❌ Failed to initialize cache system: {e}")
             raise
 
     async def _initialize_redis(self) -> None:
@@ -325,7 +325,7 @@ class OptimizedHierarchicalCache:
             return None
 
         except Exception as e:
-            logger.error(f"Cache get error for key {full_key}: {e}")
+            logger.exception(f"Cache get error for key {full_key}: {e}")
             self._track_get_time(time.time() - start_time)
             return None
 
@@ -371,7 +371,7 @@ class OptimizedHierarchicalCache:
             self._track_set_time(time.time() - start_time)
 
         except Exception as e:
-            logger.error(f"Cache set error for key {full_key}: {e}")
+            logger.exception(f"Cache set error for key {full_key}: {e}")
             self._track_set_time(time.time() - start_time)
 
     async def get_many(
@@ -549,7 +549,7 @@ class OptimizedHierarchicalCache:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"Background cleanup error: {e}")
+                logger.exception(f"Background cleanup error: {e}")
                 await asyncio.sleep(60)  # Wait before retrying
 
     async def close(self) -> None:

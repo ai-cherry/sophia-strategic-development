@@ -77,7 +77,7 @@ const AIMemoryHealthTab: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{healthData.response_times.average}ms</div>
-            <p className="text-xs text-green-600">Target: <100ms</p>
+            <p className="text-xs text-green-600">Target: &lt;100ms</p>
           </CardContent>
         </Card>
 

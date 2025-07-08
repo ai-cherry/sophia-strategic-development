@@ -196,7 +196,7 @@ class AlignedSnowflakeConfig:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Snowflake connection validation failed: {e}")
+            logger.exception(f"❌ Snowflake connection validation failed: {e}")
             return False
 
     def get_estuary_materialization_config(self) -> dict:

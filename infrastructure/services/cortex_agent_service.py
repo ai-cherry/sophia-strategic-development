@@ -206,7 +206,7 @@ class CortexAgentService:
             logger.info("✅ Cortex Agent Service initialized successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Cortex Agent Service: {e}")
+            logger.exception(f"❌ Failed to initialize Cortex Agent Service: {e}")
             raise
 
     def generate_jwt(self, user_id: str, agent_name: str) -> str:
@@ -308,7 +308,7 @@ class CortexAgentService:
             )
 
         except Exception as e:
-            logger.error(f"Error invoking agent {agent_name}: {e}")
+            logger.exception(f"Error invoking agent {agent_name}: {e}")
             raise
 
     async def _call_cortex_model(
@@ -348,7 +348,7 @@ class CortexAgentService:
             }
 
         except Exception as e:
-            logger.error(f"Cortex model call failed: {e}")
+            logger.exception(f"Cortex model call failed: {e}")
             raise
 
     async def _execute_tool(

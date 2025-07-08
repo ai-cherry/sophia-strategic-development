@@ -170,12 +170,12 @@ class BaseChatService(ABC):
             return response
 
         except ValueError as e:
-            self.logger.warning(f"Invalid request: {str(e)}")
+            self.logger.warning(f"Invalid request: {e!s}")
             raise
         except Exception as e:
             processing_time_ms = int((time.time() - start_time) * 1000)
-            self.logger.error(
-                f"Chat processing failed after {processing_time_ms}ms: {str(e)}"
+            self.logger.exception(
+                f"Chat processing failed after {processing_time_ms}ms: {e!s}"
             )
 
             # Return error response
@@ -187,7 +187,7 @@ class BaseChatService(ABC):
 
             return self.create_response(
                 request=request,
-                response_text=f"I apologize, but I encountered an error processing your request: {str(e)}",
+                response_text=f"I apologize, but I encountered an error processing your request: {e!s}",
                 metadata=error_metadata,
                 status=ChatStatus.FAILED,
             )

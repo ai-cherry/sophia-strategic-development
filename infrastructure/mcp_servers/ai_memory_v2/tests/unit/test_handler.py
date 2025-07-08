@@ -1,6 +1,7 @@
 """Unit tests for ai_memory_v2 handler."""
+
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import numpy as np
 import pytest
@@ -14,7 +15,6 @@ from infrastructure.mcp_servers.ai_memory_v2.models.data_models import (
     MemoryEntry,
     MemoryUpdateRequest,
     SearchRequest,
-    SearchResult,
 )
 
 
@@ -25,16 +25,20 @@ def handler():
     handler.openai_client = AsyncMock()
     return handler
 
+
 @pytest.mark.asyncio
 async def test_handler_initialization():
     """Test handler initialization."""
-    with patch('infrastructure.mcp_servers.ai_memory_v2.config.settings') as mock_settings:
+    with patch(
+        "infrastructure.mcp_servers.ai_memory_v2.config.settings"
+    ) as mock_settings:
         mock_settings.OPENAI_API_KEY = "test-key"
 
         handler = AiMemoryV2Handler()
         await handler.initialize()
 
         assert handler.openai_client is not None
+
 
 @pytest.mark.asyncio
 async def test_store_memory_success(handler):
@@ -50,7 +54,7 @@ async def test_store_memory_success(handler):
         content="Test memory content",
         category=MemoryCategory.TECHNICAL,
         tags=["test", "unit-test"],
-        metadata={"source": "test"}
+        metadata={"source": "test"},
     )
 
     # Verify
@@ -60,6 +64,7 @@ async def test_store_memory_success(handler):
     assert memory.metadata == {"source": "test"}
     assert memory.id == 1
     handler._generate_embedding.assert_called_once_with("Test memory content")
+
 
 @pytest.mark.asyncio
 async def test_store_memory_duplicate_detection(handler):
@@ -73,7 +78,7 @@ async def test_store_memory_duplicate_detection(handler):
         content="Existing memory",
         category=MemoryCategory.GENERAL,
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
     handler._get_memory_by_id = AsyncMock(return_value=existing_memory)
 
@@ -83,6 +88,7 @@ async def test_store_memory_duplicate_detection(handler):
     # Should return existing memory
     assert memory.id == 123
     assert memory.content == "Existing memory"
+
 
 @pytest.mark.asyncio
 async def test_search_memories(handler):
@@ -95,7 +101,7 @@ async def test_search_memories(handler):
         content="Test memory about Python programming",
         category=MemoryCategory.TECHNICAL,
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
     handler._search_in_db = AsyncMock(return_value=[(mock_memory, 0.95)])
@@ -109,6 +115,7 @@ async def test_search_memories(handler):
     assert results[0].memory.id == 1
     assert results[0].similarity == 0.95
     assert len(results[0].highlights) > 0
+
 
 @pytest.mark.asyncio
 async def test_auto_categorization(handler):
@@ -133,24 +140,45 @@ async def test_auto_categorization(handler):
     category = await handler._auto_categorize("This is a general note")
     assert category == MemoryCategory.GENERAL
 
+
 @pytest.mark.asyncio
 async def test_bulk_store_memories(handler):
     """Test bulk memory storage."""
     # Mock methods
-    handler.store_memory = AsyncMock(side_effect=[
-        MemoryEntry(id=1, content="Memory 1", category=MemoryCategory.GENERAL,
-                   created_at=datetime.utcnow(), updated_at=datetime.utcnow()),
-        MemoryEntry(id=2, content="Memory 2", category=MemoryCategory.GENERAL,
-                   created_at=datetime.utcnow(), updated_at=datetime.utcnow())
-    ])
+    handler.store_memory = AsyncMock(
+        side_effect=[
+            MemoryEntry(
+                id=1,
+                content="Memory 1",
+                category=MemoryCategory.GENERAL,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow(),
+            ),
+            MemoryEntry(
+                id=2,
+                content="Memory 2",
+                category=MemoryCategory.GENERAL,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow(),
+            ),
+        ]
+    )
 
     # Bulk store
     request = BulkMemoryRequest(
         memories=[
-            MemoryEntry(content="Memory 1", category=MemoryCategory.GENERAL,
-                       created_at=datetime.utcnow(), updated_at=datetime.utcnow()),
-            MemoryEntry(content="Memory 2", category=MemoryCategory.GENERAL,
-                       created_at=datetime.utcnow(), updated_at=datetime.utcnow())
+            MemoryEntry(
+                content="Memory 1",
+                category=MemoryCategory.GENERAL,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow(),
+            ),
+            MemoryEntry(
+                content="Memory 2",
+                category=MemoryCategory.GENERAL,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow(),
+            ),
         ]
     )
 
@@ -160,6 +188,7 @@ async def test_bulk_store_memories(handler):
     assert len(results) == 2
     assert results[0].id == 1
     assert results[1].id == 2
+
 
 @pytest.mark.asyncio
 async def test_update_memory(handler):
@@ -171,7 +200,7 @@ async def test_update_memory(handler):
         category=MemoryCategory.GENERAL,
         tags=["old"],
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
     handler._get_memory_by_id = AsyncMock(return_value=existing)
@@ -182,7 +211,7 @@ async def test_update_memory(handler):
     request = MemoryUpdateRequest(
         content="New content",
         category=MemoryCategory.TECHNICAL,
-        tags=["new", "updated"]
+        tags=["new", "updated"],
     )
 
     updated = await handler.update_memory(1, request)
@@ -193,6 +222,7 @@ async def test_update_memory(handler):
     assert updated.tags == ["new", "updated"]
     handler._update_in_db.assert_called_once()
 
+
 @pytest.mark.asyncio
 async def test_delete_memory(handler):
     """Test memory deletion."""
@@ -202,6 +232,7 @@ async def test_delete_memory(handler):
 
     assert result is True
     handler._delete_from_db.assert_called_once_with(1)
+
 
 @pytest.mark.asyncio
 async def test_generate_highlights(handler):

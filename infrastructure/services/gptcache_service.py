@@ -2,6 +2,7 @@
 GPTCache Service for Sophia AI
 Intelligent caching with semantic similarity matching
 """
+
 import json
 import logging
 import time
@@ -68,7 +69,7 @@ class GPTCacheService:
             # Pre-warm cache with CEO queries
             await self._prewarm_cache()
         except Exception as e:
-            logger.error(f"Failed to initialize cache service: {e}")
+            logger.exception(f"Failed to initialize cache service: {e}")
             # Continue without cache if Redis is unavailable
             self.redis_client = None
             self.model = None
@@ -106,7 +107,7 @@ class GPTCacheService:
             embedding = self.model.encode(text, convert_to_numpy=True)
             return embedding
         except Exception as e:
-            logger.error(f"Error generating embedding: {e}")
+            logger.exception(f"Error generating embedding: {e}")
             # Fallback embedding
             return np.array([0.0] * 384)
 
@@ -126,7 +127,7 @@ class GPTCacheService:
             similarity = np.dot(embedding1, embedding2) / (norm1 * norm2)
             return float(similarity)
         except Exception as e:
-            logger.error(f"Error calculating similarity: {e}")
+            logger.exception(f"Error calculating similarity: {e}")
             return 0.0
 
     async def get(self, query: str) -> tuple[Any, float] | None:
@@ -183,7 +184,7 @@ class GPTCacheService:
                 return None
 
         except Exception as e:
-            logger.error(f"Cache get error: {e}")
+            logger.exception(f"Cache get error: {e}")
             return None
 
     async def set(self, query: str, result: Any, ttl_seconds: int | None = None):
@@ -214,7 +215,7 @@ class GPTCacheService:
             self.stats["cache_size"] = await self.redis_client.dbsize()
 
         except Exception as e:
-            logger.error(f"Cache set error: {e}")
+            logger.exception(f"Cache set error: {e}")
 
     async def clear(self):
         """Clear all cache entries"""
@@ -226,7 +227,7 @@ class GPTCacheService:
             self.stats["cache_size"] = 0
             logger.info("Cache cleared successfully")
         except Exception as e:
-            logger.error(f"Cache clear error: {e}")
+            logger.exception(f"Cache clear error: {e}")
 
     def get_stats(self) -> dict[str, Any]:
         """Get cache statistics"""

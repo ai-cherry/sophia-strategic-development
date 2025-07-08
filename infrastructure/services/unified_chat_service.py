@@ -110,7 +110,7 @@ class UnifiedChatService:
                 return await self._handle_business_intelligence(request)
 
         except Exception as e:
-            logger.error(f"Chat processing error: {e}")
+            logger.exception(f"Chat processing error: {e}")
             return ChatResponse(
                 response="I encountered an error processing your request. Please try again.",
                 metadata={"error": str(e)},
@@ -242,7 +242,7 @@ class UnifiedChatService:
                 )
 
         except Exception as e:
-            logger.error(f"Infrastructure chat error: {e}")
+            logger.exception(f"Infrastructure chat error: {e}")
             return ChatResponse(
                 response="I encountered an error checking infrastructure status. Please check the logs.",
                 metadata={"error": str(e)},

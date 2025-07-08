@@ -298,7 +298,7 @@ Respond with specific, actionable steps and use the available tools to execute o
                 self,
                 command: str,
                 platforms: list[str],
-                parameters: dict[str, Any] = None,
+                parameters: dict[str, Any] | None = None,
             ) -> str:
                 return asyncio.run(
                     self.orchestrator._execute_infrastructure_command(
@@ -364,8 +364,8 @@ Respond with specific, actionable steps and use the available tools to execute o
             return f"Successfully configured {platform}. Checkpoint: {checkpoint_id}"
 
         except Exception as e:
-            self.logger.error(f"Failed to configure {platform}: {e}")
-            return f"Failed to configure {platform}: {str(e)}"
+            self.logger.exception(f"Failed to configure {platform}: {e}")
+            return f"Failed to configure {platform}: {e!s}"
 
     async def _get_platform_status(self, platforms: list[str] | None = None) -> str:
         """Get status of specified platforms or all platforms."""
@@ -420,8 +420,8 @@ Respond with specific, actionable steps and use the available tools to execute o
             return json.dumps(results, indent=2)
 
         except Exception as e:
-            self.logger.error(f"Failed to execute command '{command}': {e}")
-            return f"Failed to execute command: {str(e)}"
+            self.logger.exception(f"Failed to execute command '{command}': {e}")
+            return f"Failed to execute command: {e!s}"
 
     async def _manage_dependencies(self, operation: str) -> str:
         """Manage platform dependencies."""
@@ -437,7 +437,7 @@ Respond with specific, actionable steps and use the available tools to execute o
             else:
                 return f"Unknown dependency operation: {operation}"
         except Exception as e:
-            return f"Dependency management failed: {str(e)}"
+            return f"Dependency management failed: {e!s}"
 
     async def _rollback_changes(self, platforms: list[str], checkpoint_id: str) -> str:
         """Rollback changes to specified platforms."""
@@ -459,7 +459,7 @@ Respond with specific, actionable steps and use the available tools to execute o
             return json.dumps(results, indent=2)
 
         except Exception as e:
-            return f"Rollback failed: {str(e)}"
+            return f"Rollback failed: {e!s}"
 
     async def process_natural_language_command(self, command: str) -> str:
         """Process natural language infrastructure commands."""
@@ -471,8 +471,8 @@ Respond with specific, actionable steps and use the available tools to execute o
             return result["output"]
 
         except Exception as e:
-            self.logger.error(f"Failed to process command: {e}")
-            return f"Failed to process command: {str(e)}"
+            self.logger.exception(f"Failed to process command: {e}")
+            return f"Failed to process command: {e!s}"
 
     async def start_webhook_server(self, port: int = 8000):
         """Start the webhook server for receiving platform events."""

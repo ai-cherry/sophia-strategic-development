@@ -263,7 +263,7 @@ class MCPMetricsCollector:
             logger.info(f"✅ Prometheus metrics initialized for {self.server_name}")
 
         except Exception as e:
-            logger.error(
+            logger.exception(
                 f"❌ Failed to initialize Prometheus metrics for {self.server_name}: {e}"
             )
 
@@ -299,7 +299,9 @@ class MCPMetricsCollector:
                 )
 
         except Exception as e:
-            logger.error(f"Failed to create Prometheus metric {metric_def.name}: {e}")
+            logger.exception(
+                f"Failed to create Prometheus metric {metric_def.name}: {e}"
+            )
 
     def start_prometheus_server(self) -> None:
         """Start Prometheus metrics server."""
@@ -310,7 +312,7 @@ class MCPMetricsCollector:
                     f"✅ Prometheus metrics server started on port {self.prometheus_port}"
                 )
             except Exception as e:
-                logger.error(f"❌ Failed to start Prometheus server: {e}")
+                logger.exception(f"❌ Failed to start Prometheus server: {e}")
 
     def record_request(
         self, method: str, endpoint: str, status: str, duration_seconds: float
@@ -341,7 +343,7 @@ class MCPMetricsCollector:
                 self.error_rates[endpoint] += 1
 
         except Exception as e:
-            logger.error(f"Failed to record request metrics: {e}")
+            logger.exception(f"Failed to record request metrics: {e}")
 
     def record_sync_metrics(
         self,
@@ -401,7 +403,7 @@ class MCPMetricsCollector:
             )
 
         except Exception as e:
-            logger.error(f"Failed to record sync metrics: {e}")
+            logger.exception(f"Failed to record sync metrics: {e}")
 
     def record_ai_processing_metrics(
         self,
@@ -457,7 +459,7 @@ class MCPMetricsCollector:
             )
 
         except Exception as e:
-            logger.error(f"Failed to record AI processing metrics: {e}")
+            logger.exception(f"Failed to record AI processing metrics: {e}")
 
     def record_workflow_metrics(
         self,
@@ -498,7 +500,7 @@ class MCPMetricsCollector:
             )
 
         except Exception as e:
-            logger.error(f"Failed to record workflow metrics: {e}")
+            logger.exception(f"Failed to record workflow metrics: {e}")
 
     def update_health_status(
         self, is_healthy: bool, component: str = "overall"
@@ -521,7 +523,7 @@ class MCPMetricsCollector:
                 self._evaluate_health_alerts(component, is_healthy)
 
         except Exception as e:
-            logger.error(f"Failed to update health status: {e}")
+            logger.exception(f"Failed to update health status: {e}")
 
     def update_resource_metrics(self) -> None:
         """Update system resource metrics."""
@@ -553,7 +555,7 @@ class MCPMetricsCollector:
             )
 
         except Exception as e:
-            logger.error(f"Failed to update resource metrics: {e}")
+            logger.exception(f"Failed to update resource metrics: {e}")
 
     def add_health_threshold(self, threshold: HealthThreshold) -> None:
         """Add a health monitoring threshold."""
@@ -596,7 +598,7 @@ class MCPMetricsCollector:
                 del self.active_alerts[alert_id]
 
         except Exception as e:
-            logger.error(f"Failed to evaluate health alerts: {e}")
+            logger.exception(f"Failed to evaluate health alerts: {e}")
 
     def _trigger_alert(self, alert: Alert) -> None:
         """Trigger an alert by calling all registered callbacks."""
@@ -606,7 +608,7 @@ class MCPMetricsCollector:
             try:
                 callback(alert)
             except Exception as e:
-                logger.error(f"Alert callback failed: {e}")
+                logger.exception(f"Alert callback failed: {e}")
 
     def _resolve_alert(self, alert: Alert) -> None:
         """Resolve an alert."""
@@ -647,18 +649,12 @@ class MCPMetricsCollector:
                 summary["metrics"]["overall_success_rate"] = overall_success_rate
 
             # Recent sync performance
-            if (
-                "sync_success_rate" in self.custom_metrics
-                and self.custom_metrics["sync_success_rate"]
-            ):
+            if self.custom_metrics.get("sync_success_rate"):
                 recent_sync = self.custom_metrics["sync_success_rate"][-1]
                 summary["metrics"]["latest_sync_success_rate"] = recent_sync["value"]
 
             # Recent AI performance
-            if (
-                "ai_processing_times" in self.custom_metrics
-                and self.custom_metrics["ai_processing_times"]
-            ):
+            if self.custom_metrics.get("ai_processing_times"):
                 recent_ai = self.custom_metrics["ai_processing_times"][
                     -5:
                 ]  # Last 5 AI operations
@@ -666,10 +662,7 @@ class MCPMetricsCollector:
                 summary["metrics"]["average_ai_processing_time"] = avg_ai_time
 
             # Workflow performance
-            if (
-                "workflow_executions" in self.custom_metrics
-                and self.custom_metrics["workflow_executions"]
-            ):
+            if self.custom_metrics.get("workflow_executions"):
                 recent_workflows = self.custom_metrics["workflow_executions"][
                     -10:
                 ]  # Last 10 workflows
@@ -681,7 +674,7 @@ class MCPMetricsCollector:
             return summary
 
         except Exception as e:
-            logger.error(f"Failed to generate metrics summary: {e}")
+            logger.exception(f"Failed to generate metrics summary: {e}")
             return {
                 "server_name": self.server_name,
                 "timestamp": datetime.now(UTC).isoformat(),
@@ -749,7 +742,7 @@ class MCPMetricsCollector:
             return bi_metrics
 
         except Exception as e:
-            logger.error(f"Failed to generate business intelligence metrics: {e}")
+            logger.exception(f"Failed to generate business intelligence metrics: {e}")
             return {"error": str(e)}
 
     async def start_continuous_monitoring(self, interval_seconds: int = 60) -> None:
@@ -771,7 +764,7 @@ class MCPMetricsCollector:
                 await asyncio.sleep(interval_seconds)
 
             except Exception as e:
-                logger.error(f"Error in continuous monitoring: {e}")
+                logger.exception(f"Error in continuous monitoring: {e}")
                 await asyncio.sleep(interval_seconds)
 
     async def _check_threshold(self, threshold: HealthThreshold) -> None:
@@ -783,7 +776,7 @@ class MCPMetricsCollector:
         """Clean up metrics older than 24 hours."""
         cutoff_time = datetime.now(UTC) - timedelta(hours=24)
 
-        for _metric_name, metric_data in self.custom_metrics.items():
+        for metric_data in self.custom_metrics.values():
             # Remove old entries
             while metric_data and metric_data[0]["timestamp"] < cutoff_time:
                 metric_data.popleft()

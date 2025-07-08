@@ -188,7 +188,7 @@ class SnowflakeWebhookClient:
 
             except Exception as e:
                 conn.rollback()
-                self.logger.error(
+                self.logger.exception(
                     "Failed to store raw webhook", webhook_id=webhook_id, error=str(e)
                 )
                 raise
@@ -228,7 +228,7 @@ class SnowflakeWebhookClient:
 
             except Exception as e:
                 conn.rollback()
-                self.logger.error(
+                self.logger.exception(
                     "Failed to update webhook status",
                     webhook_id=webhook_id,
                     error=str(e),
@@ -320,7 +320,7 @@ class SnowflakeWebhookClient:
 
             except Exception as e:
                 conn.rollback()
-                self.logger.error(
+                self.logger.exception(
                     "Failed to store enhanced call data",
                     call_id=enhanced_data.get("call_id"),
                     error=str(e),
@@ -363,7 +363,7 @@ class SnowflakeWebhookClient:
                 conn.commit()
 
             except Exception as e:
-                self.logger.error(
+                self.logger.exception(
                     "Failed to log processing stage",
                     webhook_id=webhook_id,
                     stage=stage,
@@ -421,7 +421,7 @@ class SnowflakeWebhookClient:
 
             except Exception as e:
                 conn.rollback()
-                self.logger.error("Batch insert failed", table=table, error=str(e))
+                self.logger.exception("Batch insert failed", table=table, error=str(e))
                 raise
 
     def _generate_webhook_id(self, data: dict[str, Any]) -> str:

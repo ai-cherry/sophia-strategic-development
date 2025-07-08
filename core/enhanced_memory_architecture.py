@@ -10,7 +10,7 @@ import logging
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import redis
 
@@ -150,7 +150,7 @@ class EnhancedMemoryArchitecture:
             logger.info("✅ Redis connection established for L1 tier")
             return client
         except Exception as e:
-            logger.error(f"❌ Redis connection failed: {e}")
+            logger.exception(f"❌ Redis connection failed: {e}")
             raise
 
     async def initialize_gpu_memory_manager(self):
@@ -168,7 +168,7 @@ class EnhancedMemoryArchitecture:
             }
             logger.info("✅ GPU memory manager initialized for L0 tier")
         except Exception as e:
-            logger.error(f"❌ GPU memory manager initialization failed: {e}")
+            logger.exception(f"❌ GPU memory manager initialization failed: {e}")
             raise
 
     async def initialize_snowflake_connection(self):
@@ -189,7 +189,7 @@ class EnhancedMemoryArchitecture:
             )
             logger.info("✅ Snowflake connection established for L2-L5 tiers")
         except Exception as e:
-            logger.error(f"❌ Snowflake connection failed: {e}")
+            logger.exception(f"❌ Snowflake connection failed: {e}")
             raise
 
     async def store_data(
@@ -226,7 +226,7 @@ class EnhancedMemoryArchitecture:
             return success
 
         except Exception as e:
-            logger.error(f"❌ Failed to store data in {tier}: {e}")
+            logger.exception(f"❌ Failed to store data in {tier}: {e}")
             return False
 
     async def retrieve_data(
@@ -330,7 +330,7 @@ class EnhancedMemoryArchitecture:
             return True
 
         except Exception as e:
-            logger.error(f"❌ GPU memory storage failed: {e}")
+            logger.exception(f"❌ GPU memory storage failed: {e}")
             return False
 
     async def _retrieve_gpu_memory(self, key: str) -> Any | None:
@@ -340,7 +340,7 @@ class EnhancedMemoryArchitecture:
 
         try:
             # Search all GPU memory pools
-            for pool_name, pool in self.gpu_memory_manager.items():
+            for pool in self.gpu_memory_manager.values():
                 if isinstance(pool, dict) and key in pool:
                     item = pool[key]
 
@@ -365,7 +365,7 @@ class EnhancedMemoryArchitecture:
             return None
 
         except Exception as e:
-            logger.error(f"❌ GPU memory retrieval failed: {e}")
+            logger.exception(f"❌ GPU memory retrieval failed: {e}")
             return None
 
     async def _store_redis_cache(
@@ -396,7 +396,7 @@ class EnhancedMemoryArchitecture:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Redis cache storage failed: {e}")
+            logger.exception(f"❌ Redis cache storage failed: {e}")
             return False
 
     async def _retrieve_redis_cache(self, key: str) -> Any | None:
@@ -409,7 +409,7 @@ class EnhancedMemoryArchitecture:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Redis cache retrieval failed: {e}")
+            logger.exception(f"❌ Redis cache retrieval failed: {e}")
             return None
 
     async def _store_cortex_cache(
@@ -449,7 +449,7 @@ class EnhancedMemoryArchitecture:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Cortex cache storage failed: {e}")
+            logger.exception(f"❌ Cortex cache storage failed: {e}")
             return False
 
     async def _retrieve_cortex_cache(self, key: str) -> Any | None:
@@ -477,7 +477,7 @@ class EnhancedMemoryArchitecture:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Cortex cache retrieval failed: {e}")
+            logger.exception(f"❌ Cortex cache retrieval failed: {e}")
             return None
 
     async def _store_persistent_memory(
@@ -518,7 +518,7 @@ class EnhancedMemoryArchitecture:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Persistent memory storage failed: {e}")
+            logger.exception(f"❌ Persistent memory storage failed: {e}")
             return False
 
     async def _retrieve_persistent_memory(self, key: str) -> Any | None:
@@ -544,7 +544,7 @@ class EnhancedMemoryArchitecture:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Persistent memory retrieval failed: {e}")
+            logger.exception(f"❌ Persistent memory retrieval failed: {e}")
             return None
 
     async def _store_knowledge_graph(
@@ -616,7 +616,7 @@ class EnhancedMemoryArchitecture:
             target_free_space = self.gpu_memory_manager["max_memory"] * 0.25
             freed_space = 0
 
-            for timestamp, pool_name, key, size in oldest_items:
+            for _timestamp, pool_name, key, size in oldest_items:
                 if freed_space >= target_free_space:
                     break
 
@@ -629,7 +629,7 @@ class EnhancedMemoryArchitecture:
             logger.info(f"✅ Freed {freed_space / 1024**3:.2f}GB from GPU memory")
 
         except Exception as e:
-            logger.error(f"❌ GPU memory eviction failed: {e}")
+            logger.exception(f"❌ GPU memory eviction failed: {e}")
 
     async def _promote_to_faster_tier(
         self, key: str, value: Any, current_tier: MemoryTier
@@ -707,12 +707,16 @@ class EnhancedMemoryArchitecture:
                 / max(total_hits, 1),
             },
             "gpu_memory_usage": {
-                "total_usage": self.gpu_memory_manager["total_usage"]
-                if self.gpu_memory_manager
-                else 0,
-                "max_memory": self.gpu_memory_manager["max_memory"]
-                if self.gpu_memory_manager
-                else 0,
+                "total_usage": (
+                    self.gpu_memory_manager["total_usage"]
+                    if self.gpu_memory_manager
+                    else 0
+                ),
+                "max_memory": (
+                    self.gpu_memory_manager["max_memory"]
+                    if self.gpu_memory_manager
+                    else 0
+                ),
                 "usage_percentage": (
                     self.gpu_memory_manager["total_usage"]
                     / self.gpu_memory_manager["max_memory"]
@@ -831,7 +835,7 @@ async def initialize_enhanced_memory_architecture():
         return enhanced_memory_architecture
 
     except Exception as e:
-        logger.error(f"❌ Enhanced Memory Architecture initialization failed: {e}")
+        logger.exception(f"❌ Enhanced Memory Architecture initialization failed: {e}")
         raise
 
 

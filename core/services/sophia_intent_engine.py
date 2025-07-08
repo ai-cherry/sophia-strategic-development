@@ -337,7 +337,7 @@ class SophiaIntentEngine:
             max_tokens=100
         )
 
-        response = await self.async for chunk in smart_ai.complete(
+        response = async for chunk in smart_ai.complete(
     prompt=request.prompt if hasattr(request, 'prompt') else request.get('prompt', ''),
     task_type=TaskType.BUSINESS_INTELLIGENCE,  # TODO: Set appropriate task type
     stream=True

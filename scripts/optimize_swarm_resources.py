@@ -7,8 +7,7 @@ Analyzes actual resource usage and provides optimization recommendations
 import json
 import statistics
 import time
-from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
+from datetime import datetime
 
 import docker
 
@@ -45,7 +44,6 @@ class SwarmResourceOptimizer:
 
         cpu_samples = []
         memory_samples = []
-
 
         for i in range(sample_count):
             for container in containers:
@@ -188,18 +186,14 @@ class SwarmResourceOptimizer:
         total_memory_savings = 0
 
         for result in results:
-
             rec = result["recommendation"]
-
 
             if (
                 rec["savings"]["cpu_reduction"] > 0
                 or rec["savings"]["memory_reduction_mb"] > 0
             ):
-
                 total_cpu_savings += rec["savings"]["cpu_reduction"]
                 total_memory_savings += rec["savings"]["memory_reduction_mb"]
-
 
     def save_report(
         self, results: list[dict], filename: str = "resource_optimization_report.json"
@@ -213,7 +207,6 @@ class SwarmResourceOptimizer:
 
         with open(filename, "w") as f:
             json.dump(report, f, indent=2)
-
 
 
 def main():
@@ -233,12 +226,11 @@ def main():
     # Generate update commands
     commands = optimizer.generate_update_commands(results)
 
-    for cmd in commands:
+    for _cmd in commands:
         pass
 
     # Save report
     optimizer.save_report(results)
-
 
 
 if __name__ == "__main__":

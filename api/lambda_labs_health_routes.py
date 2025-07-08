@@ -4,11 +4,9 @@ Lambda Labs Health Monitoring API Routes
 Provides health data for Lambda Labs instances and MCP servers
 """
 
-import asyncio
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Optional
 
 import aiohttp
 from fastapi import APIRouter, HTTPException
@@ -498,7 +496,7 @@ class LambdaLabsHealthService:
             return metrics
 
         except Exception as e:
-            logger.error(f"Error getting health metrics: {e}")
+            logger.exception(f"Error getting health metrics: {e}")
             return self.get_mock_metrics()
 
     async def check_instance_health(self) -> list[LambdaLabsInstance]:
@@ -538,7 +536,9 @@ class LambdaLabsHealthService:
                 instances.append(instance)
 
             except Exception as e:
-                logger.error(f"Error checking instance {instance_config['name']}: {e}")
+                logger.exception(
+                    f"Error checking instance {instance_config['name']}: {e}"
+                )
                 # Add unhealthy instance
                 instances.append(
                     LambdaLabsInstance(
@@ -632,7 +632,7 @@ class LambdaLabsHealthService:
                 active_connections=0,
             )
         except Exception as e:
-            logger.error(f"Error checking MCP server {config['name']}: {e}")
+            logger.exception(f"Error checking MCP server {config['name']}: {e}")
             return MCPServer(
                 id=config["id"],
                 name=config["name"],
@@ -662,9 +662,9 @@ class LambdaLabsHealthService:
                 alerts.append(
                     HealthAlert(
                         id=f"instance-{instance.id}-{int(time.time())}",
-                        severity="critical"
-                        if instance.status == "unhealthy"
-                        else "warning",
+                        severity=(
+                            "critical" if instance.status == "unhealthy" else "warning"
+                        ),
                         title=f"Instance {instance.name} {instance.status}",
                         message=f"Lambda Labs instance {instance.name} is {instance.status}",
                         timestamp=datetime.now().isoformat(),
@@ -703,9 +703,11 @@ class LambdaLabsHealthService:
                 alerts.append(
                     HealthAlert(
                         id=f"server-{server.id}-{int(time.time())}",
-                        severity="critical"
-                        if server.status in ["unhealthy", "unreachable"]
-                        else "warning",
+                        severity=(
+                            "critical"
+                            if server.status in ["unhealthy", "unreachable"]
+                            else "warning"
+                        ),
                         title=f"MCP Server {server.name} {server.status}",
                         message=f"MCP server {server.name} is {server.status}",
                         timestamp=datetime.now().isoformat(),
@@ -971,7 +973,7 @@ async def get_lambda_labs_health():
         metrics = await health_service.get_health_metrics()
         return metrics
     except Exception as e:
-        logger.error(f"Error getting Lambda Labs health: {e}")
+        logger.exception(f"Error getting Lambda Labs health: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve health metrics")
 
 
@@ -982,7 +984,7 @@ async def get_instances():
         metrics = await health_service.get_health_metrics()
         return {"instances": metrics.instances}
     except Exception as e:
-        logger.error(f"Error getting instances: {e}")
+        logger.exception(f"Error getting instances: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve instances")
 
 
@@ -993,7 +995,7 @@ async def get_mcp_servers():
         metrics = await health_service.get_health_metrics()
         return {"mcp_servers": metrics.mcp_servers}
     except Exception as e:
-        logger.error(f"Error getting MCP servers: {e}")
+        logger.exception(f"Error getting MCP servers: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve MCP servers")
 
 
@@ -1004,7 +1006,7 @@ async def get_alerts():
         metrics = await health_service.get_health_metrics()
         return {"alerts": metrics.alerts}
     except Exception as e:
-        logger.error(f"Error getting alerts: {e}")
+        logger.exception(f"Error getting alerts: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve alerts")
 
 
@@ -1015,7 +1017,7 @@ async def get_performance_trends():
         metrics = await health_service.get_health_metrics()
         return {"performance_trends": metrics.performance_trends}
     except Exception as e:
-        logger.error(f"Error getting trends: {e}")
+        logger.exception(f"Error getting trends: {e}")
         raise HTTPException(
             status_code=500, detail="Failed to retrieve performance trends"
         )
@@ -1035,5 +1037,5 @@ async def refresh_health_data():
             "overall_health": metrics.overall_health,
         }
     except Exception as e:
-        logger.error(f"Error refreshing health data: {e}")
+        logger.exception(f"Error refreshing health data: {e}")
         raise HTTPException(status_code=500, detail="Failed to refresh health data")

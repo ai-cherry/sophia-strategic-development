@@ -1,10 +1,9 @@
 """Performance optimization utilities"""
 
-import asyncio
 import time
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Dict
+from typing import Any
 
 
 class PerformanceOptimizer:
@@ -16,6 +15,7 @@ class PerformanceOptimizer:
 
     def measure_time(self, func_name: str):
         """Decorator to measure function execution time"""
+
         def decorator(func: Callable):
             @wraps(func)
             async def wrapper(*args, **kwargs):
@@ -26,7 +26,9 @@ class PerformanceOptimizer:
                 finally:
                     duration = time.time() - start_time
                     self._record_metric(func_name, duration)
+
             return wrapper
+
         return decorator
 
     def _record_metric(self, name: str, duration: float):
@@ -48,6 +50,6 @@ class PerformanceOptimizer:
                     "avg": sum(durations) / len(durations),
                     "min": min(durations),
                     "max": max(durations),
-                    "count": len(durations)
+                    "count": len(durations),
                 }
         return result

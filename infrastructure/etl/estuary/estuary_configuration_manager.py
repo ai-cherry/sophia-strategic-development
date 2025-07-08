@@ -232,7 +232,7 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"Failed to initialize Estuary manager: {e}")
+            logger.exception(f"Failed to initialize Estuary manager: {e}")
 
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
@@ -351,7 +351,7 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to configure Asana source: {e}")
+            logger.exception(f"❌ Failed to configure Asana source: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="configure_asana_source",
@@ -401,7 +401,9 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to configure Snowflake destination for Asana: {e}")
+            logger.exception(
+                f"❌ Failed to configure Snowflake destination for Asana: {e}"
+            )
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="configure_asana_snowflake_destination",
@@ -528,7 +530,7 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to create Asana connection: {e}")
+            logger.exception(f"❌ Failed to create Asana connection: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="create_asana_connection",
@@ -588,7 +590,7 @@ class EnhancedEstuaryManager:
             return results
 
         except Exception as e:
-            logger.error(f"❌ Complete Asana pipeline setup failed: {e}")
+            logger.exception(f"❌ Complete Asana pipeline setup failed: {e}")
             raise
 
     async def trigger_asana_sync(self, connection_id: str) -> EstuaryOperationResult:
@@ -613,7 +615,7 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to trigger Asana sync: {e}")
+            logger.exception(f"❌ Failed to trigger Asana sync: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="trigger_asana_sync",
@@ -634,7 +636,7 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to get Asana sync status: {e}")
+            logger.exception(f"❌ Failed to get Asana sync status: {e}")
             return EstuaryOperationResult(
                 status=EstuaryOperationStatus.FAILED,
                 operation_type="get_asana_sync_status",
@@ -695,7 +697,7 @@ class EnhancedEstuaryManager:
                                 )
 
                 except Exception as e:
-                    issues.append(f"Failed to validate {table}: {str(e)}")
+                    issues.append(f"Failed to validate {table}: {e!s}")
 
             quality_score = (
                 (valid_records / total_records * 100) if total_records > 0 else 0
@@ -711,11 +713,11 @@ class EnhancedEstuaryManager:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to validate Asana data quality: {e}")
+            logger.exception(f"❌ Failed to validate Asana data quality: {e}")
             return DataQualityMetrics(
                 quality_score=0.0,
                 validation_timestamp=datetime.now(UTC),
-                issues=[f"Validation failed: {str(e)}"],
+                issues=[f"Validation failed: {e!s}"],
             )
 
     async def perform_health_check(self) -> dict[str, Any]:
@@ -735,7 +737,7 @@ class EnhancedEstuaryManager:
                 await self._make_estuary_request("GET", "health")
                 health_status["components"]["estuary_server"] = "healthy"
             except Exception as e:
-                health_status["components"]["estuary_server"] = f"unhealthy: {str(e)}"
+                health_status["components"]["estuary_server"] = f"unhealthy: {e!s}"
                 health_status["overall_status"] = "degraded"
 
             # Check Snowflake connectivity
@@ -743,7 +745,7 @@ class EnhancedEstuaryManager:
                 await self.cortex_service.execute_query("SELECT 1 as health_check")
                 health_status["components"]["snowflake"] = "healthy"
             except Exception as e:
-                health_status["components"]["snowflake"] = f"unhealthy: {str(e)}"
+                health_status["components"]["snowflake"] = f"unhealthy: {e!s}"
                 health_status["overall_status"] = "degraded"
 
             # Validate Asana data quality
@@ -761,7 +763,7 @@ class EnhancedEstuaryManager:
             return health_status
 
         except Exception as e:
-            logger.error(f"❌ Health check failed: {e}")
+            logger.exception(f"❌ Health check failed: {e}")
             return {
                 "timestamp": datetime.now(UTC).isoformat(),
                 "overall_status": "unhealthy",

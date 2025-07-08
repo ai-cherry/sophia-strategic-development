@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/v1/deployment", tags=["deployment-status"])

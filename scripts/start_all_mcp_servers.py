@@ -239,7 +239,7 @@ class MCPServerOrchestrator:
     def stop_all_servers(self):
         """Stop all running servers"""
 
-        for _server_name, process in self.processes.items():
+        for process in self.processes.values():
             try:
                 process.terminate()
                 process.wait(timeout=5)

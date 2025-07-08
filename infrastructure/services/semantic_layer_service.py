@@ -31,7 +31,6 @@ class SemanticLayerService:
             or not self.snowflake_service.initialized
         ):
             await self.snowflake_service.initialize()
-        return None  # We'll use the service methods directly
 
     async def _execute_sql_file(self, file_path: str) -> None:
         """Executes a SQL script file."""
@@ -43,7 +42,7 @@ class SemanticLayerService:
                     await self.snowflake_service.execute_query(statement.strip())
             logger.info(f"Successfully executed SQL script: {file_path}")
         except Exception as e:
-            logger.error(f"Error executing SQL file {file_path}: {e}")
+            logger.exception(f"Error executing SQL file {file_path}: {e}")
             raise
 
     @performance_monitor.monitor_performance("semantic_execute_query")
@@ -76,7 +75,7 @@ class SemanticLayerService:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to initialize semantic layer: {e}")
+            logger.exception(f"Failed to initialize semantic layer: {e}")
             return False
 
     async def get_business_entity(

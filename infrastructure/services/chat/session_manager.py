@@ -47,7 +47,7 @@ class SessionManager:
                     await self._cleanup_expired_sessions()
                     await asyncio.sleep(300)  # Check every 5 minutes
                 except Exception as e:
-                    self.logger.error(f"Session cleanup error: {str(e)}")
+                    self.logger.exception(f"Session cleanup error: {e!s}")
                     await asyncio.sleep(60)  # Retry after 1 minute on error
 
         self._cleanup_task = asyncio.create_task(cleanup_expired_sessions())

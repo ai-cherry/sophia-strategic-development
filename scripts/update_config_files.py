@@ -2,8 +2,6 @@ import json
 import os
 import re
 
-import yaml
-
 
 def update_dockerfile(file_path):
     """Update Dockerfile paths"""
@@ -153,7 +151,6 @@ def main():
 
         with open(vscode_settings, "w") as f:
             json.dump(settings, f, indent=2)
-
 
 
 if __name__ == "__main__":

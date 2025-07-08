@@ -82,10 +82,10 @@ class GeminiMCPIntegration:
                     f"Configuration file not found: {self.config_path}"
                 )
         except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON in configuration file: {e}")
+            logger.exception(f"Invalid JSON in configuration file: {e}")
             raise
         except Exception as e:
-            logger.error(f"Error loading configuration: {e}")
+            logger.exception(f"Error loading configuration: {e}")
             raise
 
     def _initialize_servers(self) -> None:
@@ -144,7 +144,7 @@ class GeminiMCPIntegration:
             env.update(server_config.get("env", {}))
 
             # Start process
-            full_command = [command] + args
+            full_command = [command, *args]
             logger.info(f"Starting server {server_name}: {' '.join(full_command)}")
 
             process = subprocess.Popen(
@@ -174,7 +174,7 @@ class GeminiMCPIntegration:
                 return False
 
         except Exception as e:
-            logger.error(f"Error starting server {server_name}: {e}")
+            logger.exception(f"Error starting server {server_name}: {e}")
             server_info.status = MCPServerStatus.ERROR
             server_info.error_message = str(e)
             return False
@@ -222,7 +222,7 @@ class GeminiMCPIntegration:
             return True
 
         except Exception as e:
-            logger.error(f"Error stopping server {server_name}: {e}")
+            logger.exception(f"Error stopping server {server_name}: {e}")
             server_info.status = MCPServerStatus.ERROR
             server_info.error_message = str(e)
             return False
@@ -379,7 +379,7 @@ class GeminiMCPIntegration:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"Error in monitoring loop: {e}")
+                logger.exception(f"Error in monitoring loop: {e}")
                 await asyncio.sleep(interval)
 
     async def route_request(self, query: str) -> str:

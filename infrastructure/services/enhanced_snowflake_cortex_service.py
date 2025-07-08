@@ -186,7 +186,9 @@ class EnhancedSnowflakeCortexService:
             logger.info("✅ Enhanced Snowflake Cortex Service initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Enhanced Snowflake Cortex Service: {e}")
+            logger.exception(
+                f"Failed to initialize Enhanced Snowflake Cortex Service: {e}"
+            )
             raise
 
     async def _get_connection(self) -> snowflake.connector.SnowflakeConnection:
@@ -271,7 +273,7 @@ class EnhancedSnowflakeCortexService:
             cursor.close()
 
         except Exception as e:
-            logger.error(f"Error initializing custom functions: {e}")
+            logger.exception(f"Error initializing custom functions: {e}")
 
     async def advanced_cortex_search(
         self, query: str, search_service: str, config: CortexSearchConfig | None = None
@@ -434,7 +436,7 @@ class EnhancedSnowflakeCortexService:
             }
 
         except Exception as e:
-            logger.error(f"Error in advanced Cortex search: {e}")
+            logger.exception(f"Error in advanced Cortex search: {e}")
             raise
 
     async def create_data_pipeline(self, config: DataPipelineConfig) -> str:
@@ -487,7 +489,7 @@ class EnhancedSnowflakeCortexService:
             return execution_id
 
         except Exception as e:
-            logger.error(f"Error creating data pipeline: {e}")
+            logger.exception(f"Error creating data pipeline: {e}")
             raise
 
     async def _execute_batch_pipeline(
@@ -536,7 +538,7 @@ class EnhancedSnowflakeCortexService:
             await self._complete_pipeline(execution_id, "batch_completed")
 
         except Exception as e:
-            logger.error(f"Error in batch pipeline execution: {e}")
+            logger.exception(f"Error in batch pipeline execution: {e}")
             await self._fail_pipeline(execution_id, str(e))
 
     async def _process_batch_with_ai(
@@ -576,7 +578,7 @@ class EnhancedSnowflakeCortexService:
                     self.pipeline_results[execution_id].append(result)
 
                 except Exception as e:
-                    logger.error(f"Error applying AI function {ai_function}: {e}")
+                    logger.exception(f"Error applying AI function {ai_function}: {e}")
                     processed_row[f"{ai_function.value}_error"] = str(e)
 
             processed_results.append(processed_row)
@@ -691,7 +693,7 @@ class EnhancedSnowflakeCortexService:
             )
 
         except Exception as e:
-            logger.error(f"Error in sentiment analysis: {e}")
+            logger.exception(f"Error in sentiment analysis: {e}")
             return AIProcessingResult(
                 operation_id=str(uuid.uuid4()),
                 function_type=AIFunctionType.SENTIMENT_ANALYSIS,
@@ -865,7 +867,7 @@ class EnhancedSnowflakeCortexService:
             cursor.executemany(insert_sql, insert_data)
 
         except Exception as e:
-            logger.error(f"Error inserting processed data: {e}")
+            logger.exception(f"Error inserting processed data: {e}")
             raise
 
     async def _execute_realtime_pipeline(
@@ -993,7 +995,7 @@ class EnhancedSnowflakeCortexService:
             return service_name
 
         except Exception as e:
-            logger.error(f"Error creating Cortex Search service: {e}")
+            logger.exception(f"Error creating Cortex Search service: {e}")
             raise
 
     async def analyze_data_quality(self, table_name: str) -> dict[str, Any]:
@@ -1053,7 +1055,7 @@ class EnhancedSnowflakeCortexService:
             }
 
         except Exception as e:
-            logger.error(f"Error analyzing data quality: {e}")
+            logger.exception(f"Error analyzing data quality: {e}")
             raise
 
     async def _generate_quality_recommendations(
@@ -1084,7 +1086,7 @@ class EnhancedSnowflakeCortexService:
         while True:
             try:
                 # Monitor active pipelines
-                for execution_id, _config in self.active_pipelines.items():
+                for execution_id in self.active_pipelines:
                     results = self.pipeline_results.get(execution_id, [])
 
                     # Check for performance issues
@@ -1112,7 +1114,7 @@ class EnhancedSnowflakeCortexService:
                 await asyncio.sleep(300)
 
             except Exception as e:
-                logger.error(f"Error in pipeline monitoring: {e}")
+                logger.exception(f"Error in pipeline monitoring: {e}")
                 await asyncio.sleep(60)
 
     async def _performance_optimization_task(self) -> None:
@@ -1126,7 +1128,7 @@ class EnhancedSnowflakeCortexService:
                 await self._optimize_pipeline_performance()
 
             except Exception as e:
-                logger.error(f"Error in performance optimization: {e}")
+                logger.exception(f"Error in performance optimization: {e}")
                 await asyncio.sleep(1800)
 
     async def _optimize_pipeline_performance(self) -> None:

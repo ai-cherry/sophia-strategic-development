@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 
 from notion_client import Client
-from notion_client.errors import APIResponseError
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -248,7 +247,7 @@ class SimplifiedNotionSetup:
                 )
                 logger.info("✅ Created sample employee")
             except Exception as e:
-                logger.error(f"Error creating sample employee: {e}")
+                logger.exception(f"Error creating sample employee: {e}")
 
         # Sample customer
         if "customers" in self.database_ids:
@@ -265,7 +264,7 @@ class SimplifiedNotionSetup:
                 )
                 logger.info("✅ Created sample customer")
             except Exception as e:
-                logger.error(f"Error creating sample customer: {e}")
+                logger.exception(f"Error creating sample customer: {e}")
 
 
 def main():
@@ -289,12 +288,11 @@ def main():
         # Create sample data
         setup.create_sample_data()
 
-        for name, db_id in database_ids.items():
+        for _name, _db_id in database_ids.items():
             pass
 
-
     except Exception as e:
-        logger.error(f"❌ Setup failed: {str(e)}")
+        logger.exception(f"❌ Setup failed: {e!s}")
         raise
 
 

@@ -21,7 +21,9 @@ class GeminiCLIMixin:
         try:
             import subprocess
 
-            result = subprocess.run(["gemini", "--version"], capture_output=True)
+            result = subprocess.run(
+                ["gemini", "--version"], check=False, capture_output=True
+            )
             return result.returncode == 0
         except Exception:
             return False
@@ -42,7 +44,7 @@ class GeminiCLIMixin:
             import subprocess
 
             cmd = ["gemini", "chat", "-f", temp_path, "-p", prompt]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
             return result.stdout
         finally:
             os.unlink(temp_path)

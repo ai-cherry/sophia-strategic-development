@@ -5,7 +5,6 @@ Integrates with Snowflake Cortex AI for native SQL + AI capabilities
 """
 
 import asyncio
-import os
 from datetime import datetime
 from typing import Any
 

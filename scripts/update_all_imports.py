@@ -1,8 +1,6 @@
-import ast
 import os
 import re
 from pathlib import Path
-from typing import Dict, Set, Tuple
 
 
 class ImportUpdater:
@@ -155,15 +153,13 @@ class ImportUpdater:
         module_parts = file_path.parts
 
         # Find which layer this file belongs to
-        if "api" in module_parts:
-            pass
-        elif "core" in module_parts:
-            pass
-        elif "domain" in module_parts:
-            pass
-        elif "infrastructure" in module_parts:
-            pass
-        elif "shared" in module_parts:
+        if (
+            "api" in module_parts
+            or "core" in module_parts
+            or "domain" in module_parts
+            or "infrastructure" in module_parts
+            or "shared" in module_parts
+        ):
             pass
         else:
             return content
@@ -182,7 +178,7 @@ class ImportUpdater:
             if not os.path.exists(layer):
                 continue
 
-            for root, dirs, files in os.walk(layer):
+            for root, _dirs, files in os.walk(layer):
                 if "__pycache__" in root:
                     continue
 
@@ -194,7 +190,7 @@ class ImportUpdater:
 
         # Also update any remaining files in backend directory
         if os.path.exists("backend"):
-            for root, dirs, files in os.walk("backend"):
+            for root, _dirs, files in os.walk("backend"):
                 if "__pycache__" in root:
                     continue
 
@@ -206,7 +202,7 @@ class ImportUpdater:
 
         # Update test files
         if os.path.exists("tests"):
-            for root, dirs, files in os.walk("tests"):
+            for root, _dirs, files in os.walk("tests"):
                 if "__pycache__" in root:
                     continue
 
@@ -215,7 +211,6 @@ class ImportUpdater:
                         file_path = Path(root) / file
                         if self.update_file_imports(file_path):
                             updated_files += 1
-
 
 
 if __name__ == "__main__":

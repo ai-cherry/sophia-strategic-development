@@ -9,7 +9,7 @@ from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 
@@ -346,7 +346,7 @@ class EnhancedPortkeyLLMGateway:
             score = 0.0
 
             # Task type alignment score
-            if task_type in [use_case for use_case in model.use_cases]:
+            if task_type in list(model.use_cases):
                 score += 30
 
             # Complexity alignment score
@@ -520,7 +520,7 @@ Selected {selected_model.name} for this request:
         except Exception as e:
             logger.error(f"Routing error: {e}")
             self.performance_metrics["failed_requests"] += 1
-            yield f"Error: Routing failed - {str(e)}"
+            yield f"Error: Routing failed - {e!s}"
 
     async def _complete_with_model(
         self,
@@ -581,33 +581,33 @@ Selected {selected_model.name} for this request:
             **kwargs,
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
+        async with (
+            aiohttp.ClientSession() as session,
+            session.post(
                 f"{self.base_url}/chat/completions", headers=headers, json=payload
-            ) as response:
-                if stream:
-                    async for line in response.content:
-                        if line:
-                            try:
-                                data = json.loads(line.decode().replace("data: ", ""))
-                                if "choices" in data and data["choices"]:
-                                    content = (
-                                        data["choices"][0]
-                                        .get("delta", {})
-                                        .get("content", "")
-                                    )
-                                    if content:
-                                        yield content
-                            except (json.JSONDecodeError, KeyError):
-                                continue
-                else:
-                    result = await response.json()
-                    if "choices" in result and result["choices"]:
-                        content = (
-                            result["choices"][0].get("message", {}).get("content", "")
-                        )
-                        if content:
-                            yield content
+            ) as response,
+        ):
+            if stream:
+                async for line in response.content:
+                    if line:
+                        try:
+                            data = json.loads(line.decode().replace("data: ", ""))
+                            if data.get("choices"):
+                                content = (
+                                    data["choices"][0]
+                                    .get("delta", {})
+                                    .get("content", "")
+                                )
+                                if content:
+                                    yield content
+                        except (json.JSONDecodeError, KeyError):
+                            continue
+            else:
+                result = await response.json()
+                if result.get("choices"):
+                    content = result["choices"][0].get("message", {}).get("content", "")
+                    if content:
+                        yield content
 
     async def _complete_via_openrouter(
         self,
@@ -635,35 +635,35 @@ Selected {selected_model.name} for this request:
             **kwargs,
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
+        async with (
+            aiohttp.ClientSession() as session,
+            session.post(
                 f"{self.openrouter_base_url}/chat/completions",
                 headers=headers,
                 json=payload,
-            ) as response:
-                if stream:
-                    async for line in response.content:
-                        if line:
-                            try:
-                                data = json.loads(line.decode().replace("data: ", ""))
-                                if "choices" in data and data["choices"]:
-                                    content = (
-                                        data["choices"][0]
-                                        .get("delta", {})
-                                        .get("content", "")
-                                    )
-                                    if content:
-                                        yield content
-                            except (json.JSONDecodeError, KeyError):
-                                continue
-                else:
-                    result = await response.json()
-                    if "choices" in result and result["choices"]:
-                        content = (
-                            result["choices"][0].get("message", {}).get("content", "")
-                        )
-                        if content:
-                            yield content
+            ) as response,
+        ):
+            if stream:
+                async for line in response.content:
+                    if line:
+                        try:
+                            data = json.loads(line.decode().replace("data: ", ""))
+                            if data.get("choices"):
+                                content = (
+                                    data["choices"][0]
+                                    .get("delta", {})
+                                    .get("content", "")
+                                )
+                                if content:
+                                    yield content
+                        except (json.JSONDecodeError, KeyError):
+                            continue
+            else:
+                result = await response.json()
+                if result.get("choices"):
+                    content = result["choices"][0].get("message", {}).get("content", "")
+                    if content:
+                        yield content
 
     def _update_performance_metrics(
         self,

@@ -104,9 +104,9 @@ class MigrationOrchestratorClient:
 
                 return {
                     "status": self.current_status.value,
-                    "metrics": self.current_metrics.dict()
-                    if self.current_metrics
-                    else None,
+                    "metrics": (
+                        self.current_metrics.dict() if self.current_metrics else None
+                    ),
                     "alerts": [alert.dict() for alert in self.alerts],
                     "last_updated": datetime.now(UTC).isoformat(),
                     "health_indicators": await self._get_system_health(),
@@ -117,7 +117,7 @@ class MigrationOrchestratorClient:
                 )
 
         except Exception as e:
-            logger.error(f"Failed to get migration status: {e}")
+            logger.exception(f"Failed to get migration status: {e}")
             return {
                 "status": "error",
                 "error_message": str(e),
@@ -169,7 +169,7 @@ class MigrationOrchestratorClient:
                 raise Exception(f"Migration start failed: {response.text}")
 
         except Exception as e:
-            logger.error(f"Failed to start migration: {e}")
+            logger.exception(f"Failed to start migration: {e}")
             return {
                 "success": False,
                 "error_message": str(e),
@@ -203,7 +203,7 @@ class MigrationOrchestratorClient:
                 raise Exception(f"Migration pause failed: {response.text}")
 
         except Exception as e:
-            logger.error(f"Failed to pause migration: {e}")
+            logger.exception(f"Failed to pause migration: {e}")
             return {
                 "success": False,
                 "error_message": str(e),
@@ -236,7 +236,7 @@ class MigrationOrchestratorClient:
                 raise Exception(f"Migration resume failed: {response.text}")
 
         except Exception as e:
-            logger.error(f"Failed to resume migration: {e}")
+            logger.exception(f"Failed to resume migration: {e}")
             return {
                 "success": False,
                 "error_message": str(e),
@@ -270,7 +270,7 @@ class MigrationOrchestratorClient:
                 raise Exception(f"Migration stop failed: {response.text}")
 
         except Exception as e:
-            logger.error(f"Failed to stop migration: {e}")
+            logger.exception(f"Failed to stop migration: {e}")
             return {
                 "success": False,
                 "error_message": str(e),
@@ -305,7 +305,7 @@ class MigrationOrchestratorClient:
                 raise Exception(f"Migration rollback failed: {response.text}")
 
         except Exception as e:
-            logger.error(f"Failed to rollback migration: {e}")
+            logger.exception(f"Failed to rollback migration: {e}")
             return {
                 "success": False,
                 "error_message": str(e),
@@ -338,7 +338,7 @@ class MigrationOrchestratorClient:
                 raise Exception(f"Issues request failed: {response.status_code}")
 
         except Exception as e:
-            logger.error(f"Failed to get migration issues: {e}")
+            logger.exception(f"Failed to get migration issues: {e}")
             return []
 
     async def process_natural_language_command(
@@ -423,7 +423,7 @@ class MigrationOrchestratorClient:
                 }
 
         except Exception as e:
-            logger.error(f"Failed to process command '{command}': {e}")
+            logger.exception(f"Failed to process command '{command}': {e}")
             return {
                 "success": False,
                 "error_message": str(e),
@@ -467,7 +467,7 @@ class MigrationOrchestratorClient:
             }
 
         except Exception as e:
-            logger.error(f"Failed to get executive summary: {e}")
+            logger.exception(f"Failed to get executive summary: {e}")
             return {
                 "error": str(e),
                 "last_updated": datetime.now(UTC).isoformat(),

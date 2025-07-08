@@ -265,7 +265,9 @@ class UVConflictResolver:
 
         try:
             # Check UV installation
-            result = subprocess.run(["uv", "--version"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["uv", "--version"], check=False, capture_output=True, text=True
+            )
             if result.returncode != 0:
                 logger.error("❌ UV is not installed or not in PATH")
                 return False
@@ -292,6 +294,7 @@ class UVConflictResolver:
             logger.info("🔄 Testing UV sync...")
             result = subprocess.run(
                 ["uv", "sync", "--frozen"],
+                check=False,
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,
@@ -309,7 +312,7 @@ class UVConflictResolver:
             logger.warning("⚠️ UV sync timeout, but environment appears valid")
             return True
         except Exception as e:
-            logger.error(f"❌ UV validation failed: {e}")
+            logger.exception(f"❌ UV validation failed: {e}")
             return False
 
     def generate_report(self) -> None:
@@ -509,7 +512,7 @@ uv export -o requirements.txt
                 return False
 
         except Exception as e:
-            logger.error(f"❌ UV conflict resolution failed: {e}")
+            logger.exception(f"❌ UV conflict resolution failed: {e}")
             return False
 
 

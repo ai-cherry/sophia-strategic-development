@@ -1,8 +1,7 @@
 """Health monitoring for MCP server"""
 
-import asyncio
 import time
-from typing import Any, Dict
+from typing import Any
 
 
 class HealthMonitor:
@@ -23,7 +22,7 @@ class HealthMonitor:
             "uptime_seconds": uptime,
             "request_count": self.request_count,
             "error_count": self.error_count,
-            "error_rate": error_rate
+            "error_rate": error_rate,
         }
 
     def record_request(self):

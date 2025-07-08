@@ -348,7 +348,7 @@ class GongDataQualityMonitor:
         api_response: dict[str, Any] | None,
         api_calls_made: int,
         duration_ms: float,
-        errors: list[dict[str, Any]] = None,
+        errors: list[dict[str, Any]] | None = None,
     ) -> EnhancementReport:
         """
         Monitor API call success and data enrichment.
@@ -869,7 +869,7 @@ class GongDataQualityMonitor:
 
             data_freshness_score.set(freshness)
         except Exception as e:
-            self.logger.error("Error calculating data freshness", error=str(e))
+            self.logger.exception("Error calculating data freshness", error=str(e))
             data_freshness_score.set(0.5)
 
     def _is_field_populated(self, data: dict[str, Any], field_path: str) -> bool:

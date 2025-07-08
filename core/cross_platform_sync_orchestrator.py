@@ -147,7 +147,9 @@ class DataConflictResolver:
                 return await self._resolve_with_ai(conflict)
 
         except Exception as e:
-            logger.error(f"❌ Failed to resolve conflict {conflict.conflict_id}: {e}")
+            logger.exception(
+                f"❌ Failed to resolve conflict {conflict.conflict_id}: {e}"
+            )
             return {
                 "status": "failed",
                 "error": str(e),
@@ -218,7 +220,7 @@ class DataConflictResolver:
             }
 
         except Exception as e:
-            logger.error(f"Data mismatch resolution failed: {e}")
+            logger.exception(f"Data mismatch resolution failed: {e}")
             return {"status": "failed", "error": str(e)}
 
     async def _resolve_timestamp_conflict(
@@ -268,7 +270,7 @@ class DataConflictResolver:
                 }
 
         except Exception as e:
-            logger.error(f"AI conflict resolution failed: {e}")
+            logger.exception(f"AI conflict resolution failed: {e}")
             return {"status": "failed", "error": str(e)}
 
     def _calculate_data_quality_score(self, data: dict[str, Any]) -> float:
@@ -297,7 +299,7 @@ class DataConflictResolver:
         freshness = 0.5  # Default freshness
 
         for field in timestamp_fields:
-            if field in data and data[field]:
+            if data.get(field):
                 try:
                     # Simple freshness calculation
                     freshness = 0.9
@@ -525,7 +527,7 @@ class CrossPlatformSyncOrchestrator:
 
         except Exception as e:
             error_msg = str(e)
-            logger.error(f"❌ Sync orchestration failed: {error_msg}")
+            logger.exception(f"❌ Sync orchestration failed: {error_msg}")
 
             orchestration_result.update(
                 {
@@ -691,7 +693,7 @@ class CrossPlatformSyncOrchestrator:
 
             except Exception as e:
                 error_msg = str(e)
-                logger.error(f"❌ Sync failed for {sync_key}: {error_msg}")
+                logger.exception(f"❌ Sync failed for {sync_key}: {error_msg}")
 
                 sync_result = SyncResult(
                     platform=config.platform,
@@ -728,7 +730,7 @@ class CrossPlatformSyncOrchestrator:
             return conflicts
 
         except Exception as e:
-            logger.error(f"❌ Conflict detection failed: {e}")
+            logger.exception(f"❌ Conflict detection failed: {e}")
             return []
 
     async def _resolve_conflicts(self, conflicts: list[DataConflict]) -> dict[str, Any]:
@@ -757,7 +759,9 @@ class CrossPlatformSyncOrchestrator:
                     resolution_results["failed"] += 1
 
             except Exception as e:
-                logger.error(f"Failed to resolve conflict {conflict.conflict_id}: {e}")
+                logger.exception(
+                    f"Failed to resolve conflict {conflict.conflict_id}: {e}"
+                )
                 resolution_results["failed"] += 1
 
         return resolution_results
@@ -787,7 +791,7 @@ class CrossPlatformSyncOrchestrator:
             logger.info(f"📊 Orchestration metrics: {metrics_data}")
 
         except Exception as e:
-            logger.error(f"Failed to update orchestration metrics: {e}")
+            logger.exception(f"Failed to update orchestration metrics: {e}")
 
     async def _get_sync_metrics_summary(self) -> dict[str, Any]:
         """Get summary of sync metrics."""

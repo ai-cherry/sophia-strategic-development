@@ -8,8 +8,8 @@ Focuses on replacing direct environment access with centralized configuration
 import os
 import re
 import shutil
+import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 
 class RemediationFixer:
@@ -79,7 +79,7 @@ class RemediationFixer:
 
             # Add import if needed and env access found
             needs_import = False
-            for old_pattern in self.secret_mappings.keys():
+            for old_pattern in self.secret_mappings:
                 if old_pattern in modified_content:
                     needs_import = True
                     break
@@ -382,11 +382,9 @@ def main():
     with open(report_path, "w") as f:
         f.write(report)
 
-
     # Print summary
     successful_fixes = sum(1 for result in results.values() if result)
     total_fixes = len(results)
-
 
     if successful_fixes == total_fixes:
         pass
@@ -397,4 +395,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

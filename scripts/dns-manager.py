@@ -341,7 +341,7 @@ class SophiaDNSManager:
             raise
 
     async def setup_domain_records(
-        self, domain: str = "sophia-intel.ai", server_ip: str = None
+        self, domain: str = "sophia-intel.ai", server_ip: str | None = None
     ):
         """Set up all DNS records for the domain"""
         if not self.dns_manager:
@@ -369,7 +369,7 @@ class SophiaDNSManager:
         return success_count == len(records)
 
     async def validate_dns_records(
-        self, domain: str = "sophia-intel.ai", expected_ip: str = None
+        self, domain: str = "sophia-intel.ai", expected_ip: str | None = None
     ):
         """Validate DNS record propagation"""
         if not expected_ip:

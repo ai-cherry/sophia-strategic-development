@@ -28,10 +28,10 @@ def handle_hubspot_errors(func: Callable) -> Callable:
         try:
             return func(*args, **kwargs)
         except ApiException as e:
-            logger.error(f"API Exception in {func.__name__}: {str(e)}")
+            logger.exception(f"API Exception in {func.__name__}: {e!s}")
             return json.dumps({"error": str(e)})
         except Exception as e:
-            logger.error(f"Exception in {func.__name__}: {str(e)}")
+            logger.exception(f"Exception in {func.__name__}: {e!s}")
             return json.dumps({"error": str(e)})
 
     return wrapper

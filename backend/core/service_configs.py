@@ -3,8 +3,6 @@ Centralized service configuration classes
 Uses auto_esc_config for secure secret management
 """
 
-from typing import Dict, Optional
-
 from .auto_esc_config import get_config_value
 
 

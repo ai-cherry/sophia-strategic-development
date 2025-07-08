@@ -114,7 +114,7 @@ class EstuaryAdapter(PlatformAdapter):
             return results
 
         except Exception as e:
-            self.logger.error(f"Estuary configuration failed: {e}")
+            self.logger.exception(f"Estuary configuration failed: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_status(self) -> PlatformStatus:
@@ -199,7 +199,7 @@ class EstuaryAdapter(PlatformAdapter):
             )
 
         except Exception as e:
-            self.logger.error(f"Estuary status check failed: {e}")
+            self.logger.exception(f"Estuary status check failed: {e}")
             return PlatformStatus(
                 name=self.name,
                 type=self.platform_type,
@@ -228,7 +228,7 @@ class EstuaryAdapter(PlatformAdapter):
                 self.logger.warning(f"Unknown webhook event type: {event_type}")
 
         except Exception as e:
-            self.logger.error(f"Webhook handling failed: {e}")
+            self.logger.exception(f"Webhook handling failed: {e}")
 
     async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration before applying."""
@@ -260,7 +260,7 @@ class EstuaryAdapter(PlatformAdapter):
             return True
 
         except Exception as e:
-            self.logger.error(f"Configuration validation failed: {e}")
+            self.logger.exception(f"Configuration validation failed: {e}")
             return False
 
     # API Helper Methods
@@ -457,7 +457,7 @@ class EstuaryAdapter(PlatformAdapter):
             return {"status": "unknown"}
 
         except Exception as e:
-            self.logger.error(f"Failed to get sync status for {connection_id}: {e}")
+            self.logger.exception(f"Failed to get sync status for {connection_id}: {e}")
             return {"status": "error", "error": str(e)}
 
     # Webhook Handlers

@@ -1,5 +1,4 @@
 import ast
-import os
 from pathlib import Path
 
 
@@ -49,17 +48,16 @@ class ServiceAnalyzer(ast.NodeVisitor):
 
     def visit_Call(self, node):
         # Check for I/O operations
-        if isinstance(node.func, ast.Attribute):
-            if node.func.attr in [
-                "get",
-                "post",
-                "put",
-                "delete",
-                "execute",
-                "query",
-                "connect",
-            ]:
-                self.has_io_operations = True
+        if isinstance(node.func, ast.Attribute) and node.func.attr in [
+            "get",
+            "post",
+            "put",
+            "delete",
+            "execute",
+            "query",
+            "connect",
+        ]:
+            self.has_io_operations = True
         self.generic_visit(node)
 
 
@@ -120,7 +118,6 @@ def split_services():
         f.write(f"\nManual Review Required ({len(manual_review)}):\n")
         for svc in manual_review:
             f.write(f"  - {svc}\n")
-
 
 
 if __name__ == "__main__":

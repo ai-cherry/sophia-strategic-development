@@ -3,7 +3,6 @@ Sophia AI Snowflake Infrastructure as Code
 Main Pulumi program for managing Snowflake resources
 """
 
-from pulumi_snowflake import Database, Schema, Warehouse
 from snowflake_resources.database import create_sophia_ai_database
 from snowflake_resources.roles_grants import setup_roles_and_grants
 from snowflake_resources.schemas import (

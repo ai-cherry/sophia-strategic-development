@@ -181,7 +181,7 @@ class LangGraphAgentBase(ABC):
 
         except Exception as e:
             self.status = AgentStatus.FAILED
-            logger.error(f"❌ Failed to initialize {self.name} agent: {e}")
+            logger.exception(f"❌ Failed to initialize {self.name} agent: {e}")
             raise
 
     async def _initialize_services(self) -> None:
@@ -209,7 +209,7 @@ class LangGraphAgentBase(ABC):
         except ImportError as e:
             logger.warning(f"Some services not available during initialization: {e}")
         except Exception as e:
-            logger.error(f"Failed to initialize services: {e}")
+            logger.exception(f"Failed to initialize services: {e}")
             raise
 
     @abstractmethod
@@ -294,7 +294,7 @@ class LangGraphAgentBase(ABC):
             self.metrics.record_request(False, processing_time_ms)
             self.status = AgentStatus.FAILED
 
-            logger.error(
+            logger.exception(
                 f"❌ {self.name} request failed after {processing_time_ms:.2f}ms: {e}"
             )
 

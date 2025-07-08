@@ -7,7 +7,7 @@ Monitors all MCP servers and reports status
 import asyncio
 import json
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import aiohttp
 from aiohttp import ClientTimeout  # Import ClientTimeout
@@ -95,7 +95,6 @@ async def main():
 
     with open(args.output, "w") as f:
         json.dump(report, f, indent=2)
-
 
 
 if __name__ == "__main__":

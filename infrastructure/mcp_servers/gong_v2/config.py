@@ -1,5 +1,4 @@
 """Configuration for gong_v2 MCP server."""
-import os
 
 from pydantic import Field
 from pydantic_settings import BaseSettings

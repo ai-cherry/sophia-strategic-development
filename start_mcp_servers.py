@@ -151,7 +151,7 @@ if __name__ == '__main__':
         while True:
             try:
                 for server_info in self.processes:
-                    name = server_info["name"]
+                    server_info["name"]
                     port = server_info["port"]
                     proc = server_info["process"]
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         """Stop all running servers"""
 
         for server_info in self.processes:
-            name = server_info["name"]
+            server_info["name"]
             proc = server_info["process"]
             script_path = server_info["script_path"]
 

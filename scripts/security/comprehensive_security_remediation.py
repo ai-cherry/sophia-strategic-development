@@ -148,7 +148,7 @@ class SecurityRemediator:
                 )
 
         except Exception as e:
-            logger.error(f"Error fixing SQL injection in {file_path}: {e}")
+            logger.exception(f"Error fixing SQL injection in {file_path}: {e}")
 
         return fixes
 
@@ -327,7 +327,7 @@ class SecurityRemediator:
                 logger.info(f"Fixed {fixes} hardcoded secrets in {file_path}")
 
         except Exception as e:
-            logger.error(f"Error fixing secrets in {file_path}: {e}")
+            logger.exception(f"Error fixing secrets in {file_path}: {e}")
 
         return fixes
 
@@ -378,7 +378,7 @@ class SecurityRemediator:
                 logger.info(f"Fixed {fixes} subprocess vulnerabilities in {file_path}")
 
         except Exception as e:
-            logger.error(f"Error fixing subprocess in {file_path}: {e}")
+            logger.exception(f"Error fixing subprocess in {file_path}: {e}")
 
         return fixes
 
@@ -492,7 +492,7 @@ class SecurityRemediator:
                 logger.info(f"Fixed {fixes} insecure GRANT statements in {file_path}")
 
         except Exception as e:
-            logger.error(f"Error fixing grants in {file_path}: {e}")
+            logger.exception(f"Error fixing grants in {file_path}: {e}")
 
         return fixes
 
@@ -523,7 +523,7 @@ class SecurityRemediator:
                     self.files_modified.add(req_file)
 
             except Exception as e:
-                logger.error(f"Error updating dependencies in {req_file}: {e}")
+                logger.exception(f"Error updating dependencies in {req_file}: {e}")
 
         return fixes
 
@@ -560,7 +560,7 @@ class SecurityRemediator:
                 self._add_dependency_if_needed("defusedxml")
 
         except Exception as e:
-            logger.error(f"Error fixing XML in {file_path}: {e}")
+            logger.exception(f"Error fixing XML in {file_path}: {e}")
 
         return fixes
 
@@ -636,7 +636,7 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
                 logger.info(f"Added pickle security measures in {file_path}")
 
         except Exception as e:
-            logger.error(f"Error fixing pickle in {file_path}: {e}")
+            logger.exception(f"Error fixing pickle in {file_path}: {e}")
 
         return fixes
 
@@ -685,7 +685,7 @@ def safe_pickle_loads(data: bytes, expected_hmac: str = None) -> Any:
                     logger.info(f"Added {package} to {req_file}")
 
             except Exception as e:
-                logger.error(f"Error adding dependency to {req_file}: {e}")
+                logger.exception(f"Error adding dependency to {req_file}: {e}")
 
     def scan_directory(self, directory: Path, fix_type: str) -> int:
         """Scan a directory and fix issues based on type"""

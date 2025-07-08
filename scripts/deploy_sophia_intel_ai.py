@@ -10,13 +10,10 @@ Usage:
 """
 
 import argparse
-import json
 import logging
 import os
-import subprocess
 import sys
 from datetime import datetime
-from typing import Optional
 
 import requests
 
@@ -33,6 +30,7 @@ try:
 except ImportError:
     logging.warning("⚠️  Warning: Could not import Sophia AI config")
     get_lambda_labs_config = None
+
     def get_config_value(key, default=None):
         return os.getenv(key.upper(), default)
 
@@ -314,10 +312,10 @@ class SophiaIntelAIDeployer:
                     f"   ℹ️  Project {project_name} not found, skipping deletion."
                 )
                 return True
-            logging.error(f"   ❌ Error deleting project {project_name}: {e}")
+            logging.exception(f"   ❌ Error deleting project {project_name}: {e}")
             return False
         except Exception as e:
-            logging.error(f"   ❌ Error deleting project {project_name}: {e}")
+            logging.exception(f"   ❌ Error deleting project {project_name}: {e}")
             return False
 
     def _get_vercel_project_id(self, project_name: str) -> str | None:
@@ -340,7 +338,7 @@ class SophiaIntelAIDeployer:
 
             return None
         except Exception as e:
-            logging.error(f"   ❌ Error getting project ID for {project_name}: {e}")
+            logging.exception(f"   ❌ Error getting project ID for {project_name}: {e}")
             return None
 
     def _rename_vercel_project(self, old_name: str, new_name: str) -> bool:
@@ -368,10 +366,10 @@ class SophiaIntelAIDeployer:
             if e.response.status_code == 404:
                 logging.info(f"   ℹ️  Project {old_name} not found, skipping rename.")
                 return True
-            logging.error(f"   ❌ Error renaming project {old_name}: {e}")
+            logging.exception(f"   ❌ Error renaming project {old_name}: {e}")
             return False
         except Exception as e:
-            logging.error(f"   ❌ Error renaming project {old_name}: {e}")
+            logging.exception(f"   ❌ Error renaming project {old_name}: {e}")
             return False
 
     def _update_vercel_project_config(self, project_name: str, config: dict) -> bool:
@@ -408,7 +406,9 @@ class SophiaIntelAIDeployer:
             response.raise_for_status()
             return response.status_code == 200
         except Exception as e:
-            logging.error(f"   ❌ Error updating project config for {project_name}: {e}")
+            logging.exception(
+                f"   ❌ Error updating project config for {project_name}: {e}"
+            )
             return False
 
     def _sync_environment_variables(
@@ -470,12 +470,12 @@ class SophiaIntelAIDeployer:
 
             return True
         except requests.exceptions.HTTPError as e:
-            logging.error(
+            logging.exception(
                 f"   ❌ HTTP Error syncing environment variables for {project_name}: {e.response.text}"
             )
             return False
         except Exception as e:
-            logging.error(
+            logging.exception(
                 f"   ❌ Error syncing environment variables for {project_name}: {e}"
             )
             return False
@@ -508,12 +508,12 @@ class SophiaIntelAIDeployer:
             response.raise_for_status()
             return response.status_code in [200, 201]
         except requests.exceptions.HTTPError as e:
-            logging.error(
+            logging.exception(
                 f"   ❌ HTTP Error adding custom domain {domain}: {e.response.text}"
             )
             return False
         except Exception as e:
-            logging.error(f"   ❌ Error adding custom domain {domain}: {e}")
+            logging.exception(f"   ❌ Error adding custom domain {domain}: {e}")
             return False
 
     def _get_current_dns_records(self) -> list[dict]:
@@ -617,10 +617,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.phase == "all":
-        phases = [1, 2, 3, 4]
-    else:
-        phases = [int(args.phase)]
+    phases = [1, 2, 3, 4] if args.phase == "all" else [int(args.phase)]
 
     deployer = SophiaIntelAIDeployer()
     success = deployer.run_deployment(phases)

@@ -1,4 +1,4 @@
-import random
+import secrets
 import uuid
 from datetime import datetime, timedelta
 
@@ -11,35 +11,36 @@ router = APIRouter(prefix="/api/v1/ai-memory", tags=["ai-memory-health"])
 async def get_ai_memory_health():
     """Get comprehensive AI Memory health status with mock data"""
     return {
-        "performance_score": random.randint(90, 99),
+        "performance_score": secrets.randbelow(99 - 90 + 1) + 90,
         "response_times": {
-            "average": random.randint(35, 50),
-            "p95": random.randint(80, 120),
-            "p99": random.randint(150, 200),
+            "average": secrets.randbelow(50 - 35 + 1) + 35,
+            "p95": secrets.randbelow(120 - 80 + 1) + 80,
+            "p99": secrets.randbelow(200 - 150 + 1) + 150,
         },
         "cache_performance": {
             "hit_rate": random.uniform(0.85, 0.95),
-            "size": random.randint(5000, 10000),
+            "size": secrets.randbelow(10000 - 5000 + 1) + 5000,
             "efficiency": random.uniform(0.9, 0.98),
         },
         "operation_stats": {
-            "total_operations": random.randint(1000, 2000),
-            "successful_operations": random.randint(990, 1980),
+            "total_operations": secrets.randbelow(2000 - 1000 + 1) + 1000,
+            "successful_operations": secrets.randbelow(1980 - 990 + 1) + 990,
             "error_rate": random.uniform(0.001, 0.01),
         },
         "memory_usage": {
-            "current": random.randint(1024, 2048),
-            "peak": random.randint(2048, 4096),
+            "current": secrets.randbelow(2048 - 1024 + 1) + 1024,
+            "peak": secrets.randbelow(4096 - 2048 + 1) + 2048,
             "efficiency": random.uniform(0.8, 0.95),
         },
         "recent_operations": [
             {
                 "id": str(uuid.uuid4()),
                 "operation": "recall_memory",
-                "duration": random.randint(20, 50),
+                "duration": secrets.randbelow(50 - 20 + 1) + 20,
                 "status": "success",
                 "timestamp": (
-                    datetime.utcnow() - timedelta(seconds=random.randint(1, 10))
+                    datetime.utcnow()
+                    - timedelta(seconds=secrets.randbelow(10 - 1 + 1) + 1)
                 ).isoformat()
                 + "Z",
             }

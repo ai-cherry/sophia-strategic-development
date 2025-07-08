@@ -124,7 +124,7 @@ class EnhancedUIUXAgentSystemManager:
             logger.info(f"✅ Enhanced Figma MCP Server started (PID: {process.pid})")
 
         except Exception as e:
-            logger.error(f"❌ Failed to start Enhanced Figma MCP Server: {e}")
+            logger.exception(f"❌ Failed to start Enhanced Figma MCP Server: {e}")
             raise
 
     async def _start_enhanced_uiux_agent(self):
@@ -140,7 +140,7 @@ class EnhancedUIUXAgentSystemManager:
             logger.info(f"✅ Enhanced UI/UX Agent started (PID: {process.pid})")
 
         except Exception as e:
-            logger.error(f"❌ Failed to start Enhanced UI/UX Agent: {e}")
+            logger.exception(f"❌ Failed to start Enhanced UI/UX Agent: {e}")
             raise
 
     async def _wait_for_server(self, port, service_name):
@@ -174,7 +174,7 @@ class EnhancedUIUXAgentSystemManager:
             else:
                 logger.warning("   ⚠️  Figma MCP Server health check failed")
         except Exception as e:
-            logger.error(f"   ❌ Figma MCP Server test failed: {e}")
+            logger.exception(f"   ❌ Figma MCP Server test failed: {e}")
 
     async def _test_enhanced_uiux_agent(self):
         """Test enhanced UI/UX agent functionality"""
@@ -187,7 +187,7 @@ class EnhancedUIUXAgentSystemManager:
             else:
                 logger.warning("   ⚠️  Enhanced UI/UX Agent health check failed")
         except Exception as e:
-            logger.error(f"   ❌ Enhanced UI/UX Agent test failed: {e}")
+            logger.exception(f"   ❌ Enhanced UI/UX Agent test failed: {e}")
 
     async def _initialize_dashboard_takeover(self):
         """Initialize dashboard takeover capabilities"""
@@ -214,7 +214,7 @@ class EnhancedUIUXAgentSystemManager:
                 logger.info("✅ Component generation pipeline ready")
 
             except Exception as e:
-                logger.error(f"❌ Dashboard takeover initialization failed: {e}")
+                logger.exception(f"❌ Dashboard takeover initialization failed: {e}")
         else:
             logger.info("💡 Dashboard takeover running in demonstration mode")
 
@@ -238,7 +238,7 @@ class EnhancedUIUXAgentSystemManager:
                 "complexity_score": "medium",
             }
         except Exception as e:
-            logger.error(f"Dashboard analysis failed: {e}")
+            logger.exception(f"Dashboard analysis failed: {e}")
             return {"component_count": 0, "enhancement_opportunities": []}
 
     async def _identify_enhancement_targets(self, analysis):
@@ -319,7 +319,7 @@ class EnhancedUIUXAgentSystemManager:
                 )
 
         except Exception as e:
-            logger.error(f"   ❌ Dashboard takeover test failed: {e}")
+            logger.exception(f"   ❌ Dashboard takeover test failed: {e}")
 
     async def _demo_dashboard_takeover(self):
         """Demo dashboard takeover in standalone mode"""
@@ -344,7 +344,7 @@ class EnhancedUIUXAgentSystemManager:
             logger.info("   ♿ Accessibility improvements: 100% WCAG 2.1 AA compliance")
 
         except Exception as e:
-            logger.error(f"   ❌ Dashboard demo failed: {e}")
+            logger.exception(f"   ❌ Dashboard demo failed: {e}")
 
     async def _test_advanced_workflows(self):
         """Test advanced workflow orchestration capabilities"""
@@ -370,13 +370,13 @@ class EnhancedUIUXAgentSystemManager:
                 )
 
         except Exception as e:
-            logger.error(f"   ❌ Advanced workflow test failed: {e}")
+            logger.exception(f"   ❌ Advanced workflow test failed: {e}")
 
     async def _keep_enhanced_system_running(self):
         """Keep the enhanced system running with comprehensive status"""
         # Check if FIGMA_PAT is available
         figma_pat_available = bool(
-            get_config_value("figma_pat") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
+            os.getenv("FIGMA_PAT") or os.getenv("FIGMA_PERSONAL_ACCESS_TOKEN")
         )
 
         logger.info("============================================================")
@@ -467,7 +467,7 @@ async def main():
     except KeyboardInterrupt:
         logger.info("🛑 Interrupted by user")
     except Exception as e:
-        logger.error(f"❌ System failed: {e}")
+        logger.exception(f"❌ System failed: {e}")
         sys.exit(1)
 
 

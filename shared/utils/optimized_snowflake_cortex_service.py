@@ -142,7 +142,7 @@ class OptimizedSnowflakeCortexService:
             logger.info("✅ Optimized Snowflake Cortex Service initialized")
 
         except Exception as e:
-            logger.error(f"❌ Cortex service initialization failed: {e}")
+            logger.exception(f"❌ Cortex service initialization failed: {e}")
             raise
 
     async def _test_cortex_connectivity(self):
@@ -218,7 +218,7 @@ class OptimizedSnowflakeCortexService:
             return results
 
         except Exception as e:
-            logger.error(f"❌ Batch sentiment analysis failed: {e}")
+            logger.exception(f"❌ Batch sentiment analysis failed: {e}")
             self.metrics.error_count += 1
             raise
 
@@ -423,7 +423,7 @@ class OptimizedSnowflakeCortexService:
             return final_results
 
         except Exception as e:
-            logger.error(f"❌ Batch embedding generation failed: {e}")
+            logger.exception(f"❌ Batch embedding generation failed: {e}")
             self.metrics.error_count += 1
             raise
 
@@ -667,7 +667,7 @@ class OptimizedSnowflakeCortexService:
             return search_results
 
         except Exception as e:
-            logger.error(f"❌ Vector search failed: {e}")
+            logger.exception(f"❌ Vector search failed: {e}")
             self.metrics.error_count += 1
             raise
 
@@ -710,10 +710,8 @@ class OptimizedSnowflakeCortexService:
         avg_text_length = sum(len(text) for text in texts) / total_texts if texts else 0
 
         # Simple heuristics for processing mode selection
-        if (
-            total_texts <= self.optimal_batch_size
-            or total_texts <= self.max_batch_size
-            and avg_text_length < 1000
+        if total_texts <= self.optimal_batch_size or (
+            total_texts <= self.max_batch_size and avg_text_length < 1000
         ):
             return ProcessingMode.BATCH
         elif total_texts > self.max_batch_size:

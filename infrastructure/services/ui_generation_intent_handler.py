@@ -222,7 +222,7 @@ class UIGenerationIntentHandler:
             )
 
         except Exception as e:
-            logger.error(f"UI generation failed: {e}")
+            logger.exception(f"UI generation failed: {e}")
             return UIGenerationResponse(success=False, error_message=str(e))
 
     async def generate_ui_from_chat(

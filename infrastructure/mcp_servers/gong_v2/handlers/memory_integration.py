@@ -5,7 +5,7 @@ Stores call insights, decisions, and important moments as memories
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from shared.clients.memory_client import (
     MemoryClient,
@@ -86,7 +86,7 @@ class GongMemoryIntegration:
             return memories_created
 
         except Exception as e:
-            logger.error(f"Failed to process call memories: {e}")
+            logger.exception(f"Failed to process call memories: {e}")
             return memories_created
 
     async def _store_positive_insight(self, call_data: dict[str, Any]):

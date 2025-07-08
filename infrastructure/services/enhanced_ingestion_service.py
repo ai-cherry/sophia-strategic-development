@@ -162,7 +162,7 @@ class EnhancedIngestionService:
             self.connection = connection_manager
             logger.info("✅ Enhanced Ingestion Service connected to Snowflake")
         except Exception as e:
-            logger.error(f"❌ Enhanced Ingestion Service connection failed: {e}")
+            logger.exception(f"❌ Enhanced Ingestion Service connection failed: {e}")
             raise
 
     async def disconnect(self):
@@ -178,7 +178,7 @@ class EnhancedIngestionService:
             result = await self.connection.execute_query(query, params)
             return result
         except Exception as e:
-            logger.error(f"Query execution failed: {e}")
+            logger.exception(f"Query execution failed: {e}")
             raise
 
     async def create_ingestion_job(
@@ -284,7 +284,7 @@ class EnhancedIngestionService:
             )
 
         except Exception as e:
-            logger.error(f"Error processing job {job_id}: {e}")
+            logger.exception(f"Error processing job {job_id}: {e}")
             if job_id in self.active_jobs:
                 job = self.active_jobs[job_id]
                 job.status = IngestionStatus.FAILED
@@ -297,7 +297,7 @@ class EnhancedIngestionService:
     ) -> str:
         """Extract text content from various file types with enhanced support"""
         try:
-            if file_type == FileType.TXT.value or file_type == FileType.MD.value:
+            if file_type in (FileType.TXT.value, FileType.MD.value):
                 return file_content.decode("utf-8", errors="ignore")
 
             elif file_type == FileType.CSV.value and HAS_PANDAS:
@@ -310,7 +310,7 @@ class EnhancedIngestionService:
                     # Include all data for context, not just sample
                     for index, row in df.iterrows():
                         row_text = " | ".join(
-                            [f"{col}: {str(val)}" for col, val in row.items()]
+                            [f"{col}: {val!s}" for col, val in row.items()]
                         )
                         text += f"Row {index + 1}: {row_text}\n"
 
@@ -403,8 +403,8 @@ class EnhancedIngestionService:
                 return file_content.decode("utf-8", errors="ignore")
 
         except Exception as e:
-            logger.error(f"Text extraction failed for {filename}: {e}")
-            return f"Content from {filename} (extraction failed: {str(e)})"
+            logger.exception(f"Text extraction failed for {filename}: {e}")
+            return f"Content from {filename} (extraction failed: {e!s})"
 
     async def _create_intelligent_chunks(
         self, text_content: str, job: IngestionJob

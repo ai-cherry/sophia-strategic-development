@@ -115,7 +115,9 @@ class WebhookProcessor:
         except Exception as e:
             processing_result["status"] = "failed"
             processing_result["error"] = str(e)
-            self.logger.error(f"Webhook processing failed: {webhook_id}, error: {e}")
+            self.logger.exception(
+                f"Webhook processing failed: {webhook_id}, error: {e}"
+            )
             raise
 
         return processing_result

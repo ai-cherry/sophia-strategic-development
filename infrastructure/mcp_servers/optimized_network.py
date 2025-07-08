@@ -426,7 +426,7 @@ class OptimizedMCPNetwork:
                 # Check if we should retry
                 if attempt < max_attempts:
                     logger.warning(
-                        f"Request to {url} failed with error: {str(e)}, "
+                        f"Request to {url} failed with error: {e!s}, "
                         f"retrying ({attempt}/{max_attempts-1})"
                     )
 
@@ -442,8 +442,8 @@ class OptimizedMCPNetwork:
                     continue
                 else:
                     # Max retries reached, raise the exception
-                    logger.error(
-                        f"Request to {url} failed after {max_attempts} attempts: {str(e)}"
+                    logger.exception(
+                        f"Request to {url} failed after {max_attempts} attempts: {e!s}"
                     )
                     self.stats.failed_requests += 1
                     raise

@@ -34,7 +34,7 @@ class CursorConfigOptimizer:
             with open(self.config_path) as f:
                 return json.load(f)
         except Exception as e:
-            logger.error(f"Failed to load config: {e}")
+            logger.exception(f"Failed to load config: {e}")
             return self._create_default_config()
 
     def _create_default_config(self) -> dict[str, Any]:
@@ -128,7 +128,7 @@ class CursorConfigOptimizer:
         logger.info("🔌 Optimizing MCP server configurations...")
 
         # Enhance existing MCP servers with GitHub integration
-        for _server_name, server_config in self.config["mcpServers"].items():
+        for server_config in self.config["mcpServers"].values():
             # Add GitHub-aware capabilities
             if "capabilities" not in server_config:
                 server_config["capabilities"] = []
@@ -277,7 +277,7 @@ class CursorConfigOptimizer:
                 json.dump(self.config, f, indent=2)
             logger.info(f"✅ Optimized configuration saved to {self.config_path}")
         except Exception as e:
-            logger.error(f"Failed to save config: {e}")
+            logger.exception(f"Failed to save config: {e}")
             raise
 
     def validate_config(self) -> bool:
@@ -422,7 +422,7 @@ def main():
         return 0
 
     except Exception as e:
-        logger.error(f"❌ Optimization failed: {e}")
+        logger.exception(f"❌ Optimization failed: {e}")
         return 1
 
 

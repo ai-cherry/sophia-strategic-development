@@ -136,7 +136,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             logger.info("✅ Asana Project Intelligence Agent initialized")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Asana intelligence agent: {e}")
+            logger.exception(f"❌ Failed to initialize Asana intelligence agent: {e}")
             raise
 
     async def get_project_metrics(
@@ -224,7 +224,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return metrics
 
         except Exception as e:
-            logger.error(f"❌ Failed to get project metrics: {e}")
+            logger.exception(f"❌ Failed to get project metrics: {e}")
             return []
 
     def _calculate_project_health_score(self, project_data: dict[str, Any]) -> float:
@@ -268,7 +268,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return min(1.0, max(0.0, score))
 
         except Exception as e:
-            logger.error(f"❌ Error calculating health score: {e}")
+            logger.exception(f"❌ Error calculating health score: {e}")
             return 0.5
 
     def _assess_project_risk_level(self, project_data: dict[str, Any]) -> RiskLevel:
@@ -312,7 +312,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 return RiskLevel.LOW
 
         except Exception as e:
-            logger.error(f"❌ Error assessing risk level: {e}")
+            logger.exception(f"❌ Error assessing risk level: {e}")
             return RiskLevel.MEDIUM
 
     async def analyze_team_productivity(
@@ -405,7 +405,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return team_metrics
 
         except Exception as e:
-            logger.error(f"❌ Failed to analyze team productivity: {e}")
+            logger.exception(f"❌ Failed to analyze team productivity: {e}")
             return []
 
     def _calculate_team_productivity_score(
@@ -437,7 +437,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return min(1.0, max(0.0, score))
 
         except Exception as e:
-            logger.error(f"❌ Error calculating team productivity score: {e}")
+            logger.exception(f"❌ Error calculating team productivity score: {e}")
             return 0.5
 
     async def perform_risk_assessment(
@@ -517,7 +517,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return risk_assessments
 
         except Exception as e:
-            logger.error(f"❌ Failed to perform risk assessment: {e}")
+            logger.exception(f"❌ Failed to perform risk assessment: {e}")
             return []
 
     def _assess_schedule_risk(
@@ -683,7 +683,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return risk_factors, mitigation_suggestions
 
         except Exception as e:
-            logger.error(f"❌ Error generating risk insights: {e}")
+            logger.exception(f"❌ Error generating risk insights: {e}")
             return self._generate_fallback_insights(
                 project,
                 task_data,
@@ -769,7 +769,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return predicted_date
 
         except Exception as e:
-            logger.error(f"❌ Error predicting completion date: {e}")
+            logger.exception(f"❌ Error predicting completion date: {e}")
             return None
 
     async def generate_project_intelligence_report(
@@ -846,7 +846,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return report
 
         except Exception as e:
-            logger.error(f"❌ Failed to generate intelligence report: {e}")
+            logger.exception(f"❌ Failed to generate intelligence report: {e}")
             return {"error": str(e), "generated_at": datetime.now().isoformat()}
 
     async def _store_intelligence_insights(
@@ -907,7 +907,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 )
 
         except Exception as e:
-            logger.error(f"❌ Failed to store intelligence insights: {e}")
+            logger.exception(f"❌ Failed to store intelligence insights: {e}")
 
     async def _generate_summary_insights(
         self,
@@ -979,7 +979,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
             return summary
 
         except Exception as e:
-            logger.error(f"❌ Failed to generate summary insights: {e}")
+            logger.exception(f"❌ Failed to generate summary insights: {e}")
             return {"error": str(e)}
 
     async def close(self) -> None:
@@ -993,7 +993,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 await self.llm_service.close()
             await super().close()
         except Exception as e:
-            logger.error(f"❌ Error closing Asana intelligence agent: {e}")
+            logger.exception(f"❌ Error closing Asana intelligence agent: {e}")
 
 
 # Example usage and testing

@@ -2,7 +2,6 @@
 Unified configuration for Sophia AI platform
 """
 
-import os
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings

@@ -342,7 +342,7 @@ class RedisCache:
                 cache_operations_total.labels(operation="get", status="miss").inc()
                 return None
         except Exception as e:
-            logger.error("Cache get error", error=str(e))
+            logger.exception("Cache get error", error=str(e))
             return None
 
     async def set(
@@ -364,7 +364,7 @@ class RedisCache:
             await self.redis.setex(key, ttl, json.dumps(data))
             cache_operations_total.labels(operation="set", status="success").inc()
         except Exception as e:
-            logger.error("Cache set error", error=str(e))
+            logger.exception("Cache set error", error=str(e))
             cache_operations_total.labels(operation="set", status="error").inc()
 
     def _get_cache_type(self, endpoint: str) -> str:
@@ -1080,7 +1080,9 @@ class EnhancedGongAPIClient:
             )
             return response.get("call", {})
         except Exception as e:
-            self.logger.error("Failed to get call data", call_id=call_id, error=str(e))
+            self.logger.exception(
+                "Failed to get call data", call_id=call_id, error=str(e)
+            )
             raise
 
     async def _get_transcript_safe(self, call_id: str) -> GongCallTranscript | None:
@@ -1093,12 +1095,12 @@ class EnhancedGongAPIClient:
             if e.category == ErrorCategory.NOT_FOUND:
                 self.logger.info("Transcript not available", call_id=call_id)
             else:
-                self.logger.error(
+                self.logger.exception(
                     "Failed to get transcript", call_id=call_id, error=str(e)
                 )
             return None
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "Unexpected error getting transcript", call_id=call_id, error=str(e)
             )
             return None
@@ -1110,7 +1112,7 @@ class EnhancedGongAPIClient:
                 call_id, priority=RequestPriority.REAL_TIME
             )
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "Failed to get participants", call_id=call_id, error=str(e)
             )
             return []
@@ -1142,7 +1144,9 @@ class EnhancedGongAPIClient:
                 coaching_opportunities=analytics_data.get("coachingOpportunities", []),
             )
         except Exception as e:
-            self.logger.error("Failed to get analytics", call_id=call_id, error=str(e))
+            self.logger.exception(
+                "Failed to get analytics", call_id=call_id, error=str(e)
+            )
             return None
 
     def _build_fallback_call_data(self, webhook_data: dict[str, Any]) -> dict[str, Any]:
@@ -1293,6 +1297,6 @@ class EnhancedGongAPIClient:
             health["api_connectivity"] = "ok"
         except Exception as e:
             health["status"] = "degraded"
-            health["api_connectivity"] = f"error: {str(e)}"
+            health["api_connectivity"] = f"error: {e!s}"
 
         return health

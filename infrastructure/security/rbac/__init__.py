@@ -37,22 +37,22 @@ from infrastructure.security.rbac.service import (
 )
 
 __all__ = [
+    "SYSTEM_ROLES",
     # Models
     "ActionType",
     "Permission",
+    # Service
+    "RBACService",
     "ResourceType",
     "Role",
     "RoleAssignment",
     "User",
-    "SYSTEM_ROLES",
-    "has_permission",
-    # Service
-    "RBACService",
-    "initialize_rbac_service",
-    "get_rbac_service",
     # Dependencies
     "get_current_user",
     "get_optional_user",
+    "get_rbac_service",
+    "has_permission",
+    "initialize_rbac_service",
     "require_permission",
     "require_system_admin",
     "requires_permission",

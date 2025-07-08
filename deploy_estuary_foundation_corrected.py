@@ -50,7 +50,7 @@ class EstuaryFoundationDeploymentCorrected:
         """Execute a flowctl command with error handling"""
         try:
             if command[0] != "flowctl":
-                command = ["flowctl"] + command
+                command = ["flowctl", *command]
 
             logger.info(f"🔧 Executing: {' '.join(command)}")
             if description:
@@ -58,6 +58,7 @@ class EstuaryFoundationDeploymentCorrected:
 
             result = subprocess.run(
                 command,
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -75,10 +76,10 @@ class EstuaryFoundationDeploymentCorrected:
                 return False
 
         except subprocess.TimeoutExpired:
-            logger.error(f"❌ Command timeout: {' '.join(command)}")
+            logger.exception(f"❌ Command timeout: {' '.join(command)}")
             return False
         except Exception as e:
-            logger.error(f"❌ Command exception: {' '.join(command)} - {str(e)}")
+            logger.exception(f"❌ Command exception: {' '.join(command)} - {e!s}")
             return False
 
     def create_flow_yaml(self):
@@ -344,7 +345,7 @@ class EstuaryFoundationDeploymentCorrected:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Foundation deployment failed: {e}")
+            logger.exception(f"❌ Foundation deployment failed: {e}")
             return False
 
     def create_capture_templates(self):

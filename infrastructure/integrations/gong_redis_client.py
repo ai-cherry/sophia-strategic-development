@@ -378,7 +378,7 @@ class RedisNotificationClient:
                         data = json.loads(message["data"])
                         await callback(data)
                     except Exception as e:
-                        self.logger.error(
+                        self.logger.exception(
                             "Error in subscription callback",
                             channel=channel,
                             error=str(e),

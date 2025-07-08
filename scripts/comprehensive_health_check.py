@@ -105,7 +105,7 @@ class ConfigurationHealthCheck(ComponentHealthCheck):
         except Exception as e:
             self.status = HealthCheckStatus.CRITICAL
             self.details = {"error": str(e)}
-            logger.error(f"Configuration health check failed: {e}")
+            logger.exception(f"Configuration health check failed: {e}")
 
         self.end_time = datetime.now(UTC)
 
@@ -173,7 +173,7 @@ class MCPServerHealthCheck(ComponentHealthCheck):
         except Exception as e:
             self.status = HealthCheckStatus.CRITICAL
             self.details = {"error": str(e)}
-            logger.error(f"MCP server health check failed: {e}")
+            logger.exception(f"MCP server health check failed: {e}")
 
         self.end_time = datetime.now(UTC)
 
@@ -233,7 +233,7 @@ class AgentFrameworkHealthCheck(ComponentHealthCheck):
         except Exception as e:
             self.status = HealthCheckStatus.CRITICAL
             self.details = {"error": str(e)}
-            logger.error(f"Agent framework health check failed: {e}")
+            logger.exception(f"Agent framework health check failed: {e}")
 
         self.end_time = datetime.now(UTC)
 
@@ -285,7 +285,7 @@ class FastAPIHealthCheck(ComponentHealthCheck):
         except Exception as e:
             self.status = HealthCheckStatus.CRITICAL
             self.details = {"error": str(e)}
-            logger.error(f"FastAPI health check failed: {e}")
+            logger.exception(f"FastAPI health check failed: {e}")
 
         self.end_time = datetime.now(UTC)
 
@@ -360,7 +360,7 @@ class DependencyHealthCheck(ComponentHealthCheck):
         except Exception as e:
             self.status = HealthCheckStatus.CRITICAL
             self.details = {"error": str(e)}
-            logger.error(f"Dependency health check failed: {e}")
+            logger.exception(f"Dependency health check failed: {e}")
 
         self.end_time = datetime.now(UTC)
 
@@ -459,7 +459,9 @@ class SophiaHealthChecker:
             "status_distribution": status_counts,
         }
 
-    def save_report(self, report: dict[str, Any], output_file: str = None) -> str:
+    def save_report(
+        self, report: dict[str, Any], output_file: str | None = None
+    ) -> str:
         """Save health check report to file"""
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -496,7 +498,7 @@ class SophiaHealthChecker:
                 if "error" in details:
                     pass
                 elif isinstance(details, dict):
-                    for _key, value in details.items():
+                    for value in details.values():
                         if isinstance(value, dict) and not all(
                             v for v in value.values()
                         ):

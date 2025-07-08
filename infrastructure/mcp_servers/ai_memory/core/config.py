@@ -5,8 +5,7 @@ Centralized configuration with validation and environment support
 
 from __future__ import annotations
 
-import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseSettings, Field, validator
 

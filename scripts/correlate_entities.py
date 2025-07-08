@@ -2,12 +2,9 @@
 """Correlate employees across different systems (HR, Gong, Slack)."""
 
 import argparse
-import csv
 import json
 import logging
 from difflib import SequenceMatcher
-from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 import pandas as pd
 
@@ -271,9 +268,9 @@ class EmployeeCorrelator:
                 "gong_id": corr["gong_match"]["id"] if corr["gong_match"] else "",
                 "gong_email": corr["gong_match"]["email"] if corr["gong_match"] else "",
                 "slack_id": corr["slack_match"]["id"] if corr["slack_match"] else "",
-                "slack_email": corr["slack_match"]["email"]
-                if corr["slack_match"]
-                else "",
+                "slack_email": (
+                    corr["slack_match"]["email"] if corr["slack_match"] else ""
+                ),
                 "confidence": corr["confidence"],
             }
             rows.append(row)
@@ -320,7 +317,6 @@ def main():
 
     # Save results
     correlator.save_results(args.output)
-
 
 
 if __name__ == "__main__":

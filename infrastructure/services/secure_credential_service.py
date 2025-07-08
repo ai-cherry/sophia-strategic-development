@@ -106,7 +106,7 @@ class SecureCredentialService:
                 raise ValueError(f"Unsupported platform: {platform}")
 
         except Exception as e:
-            self.logger.error(f"Failed to retrieve credentials for {platform}: {e}")
+            self.logger.exception(f"Failed to retrieve credentials for {platform}: {e}")
             raise
 
     async def get_platform_endpoints(self, platform: str) -> dict[str, dict[str, str]]:

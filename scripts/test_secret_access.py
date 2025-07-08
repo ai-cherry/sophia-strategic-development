@@ -28,12 +28,11 @@ try:
         passed = 0
         total = len(tests)
 
-        for name, value in tests:
+        for _name, value in tests:
             if value and len(str(value)) > 5:
                 passed += 1
             else:
                 pass
-
 
         # Test service configurations
 
@@ -44,12 +43,11 @@ try:
         ]
 
         service_passed = 0
-        for name, valid in service_tests:
+        for _name, valid in service_tests:
             if valid:
                 service_passed += 1
             else:
                 pass
-
 
         return passed == total and service_passed == len(service_tests)
 

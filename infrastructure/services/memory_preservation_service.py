@@ -200,12 +200,12 @@ class MemoryPreservationService:
             logger.info("✅ Memory Preservation Service initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Memory Preservation Service: {e}")
+            logger.exception(f"Failed to initialize Memory Preservation Service: {e}")
             raise
 
     async def preserve_all_memories(
         self,
-        source_systems: list[MemorySourceSystem] = None,
+        source_systems: list[MemorySourceSystem] | None = None,
         migration_type: MemoryMigrationType = MemoryMigrationType.FULL_MIGRATION,
     ) -> dict[str, Any]:
         """
@@ -321,7 +321,7 @@ class MemoryPreservationService:
             return result
 
         except Exception as e:
-            logger.error(f"Error in memory preservation: {e}")
+            logger.exception(f"Error in memory preservation: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -429,7 +429,7 @@ class MemoryPreservationService:
             return result
 
         except Exception as e:
-            logger.error(f"Error in memory validation: {e}")
+            logger.exception(f"Error in memory validation: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -437,7 +437,7 @@ class MemoryPreservationService:
             }
 
     async def incremental_memory_sync(
-        self, source_system: MemorySourceSystem, since_timestamp: datetime = None
+        self, source_system: MemorySourceSystem, since_timestamp: datetime | None = None
     ) -> dict[str, Any]:
         """
         Perform incremental sync of memories since last migration
@@ -508,7 +508,7 @@ class MemoryPreservationService:
             return result
 
         except Exception as e:
-            logger.error(f"Error in incremental sync: {e}")
+            logger.exception(f"Error in incremental sync: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -565,7 +565,7 @@ class MemoryPreservationService:
             return comprehensive_analytics
 
         except Exception as e:
-            logger.error(f"Error getting migration analytics: {e}")
+            logger.exception(f"Error getting migration analytics: {e}")
             return {"error": str(e)}
 
     # Private helper methods
@@ -740,7 +740,7 @@ class MemoryPreservationService:
         except Exception as e:
             batch.status = MigrationStatus.FAILED
             batch.completed_at = datetime.now()
-            logger.error(f"Error processing batch {batch.batch_id}: {e}")
+            logger.exception(f"Error processing batch {batch.batch_id}: {e}")
 
             return {"batch_id": batch.batch_id, "success": False, "error": str(e)}
 
@@ -802,7 +802,7 @@ class MemoryPreservationService:
             return max(0.0, min(1.0, similarity))  # Ensure between 0 and 1
 
         except Exception as e:
-            logger.error(f"Error calculating similarity: {e}")
+            logger.exception(f"Error calculating similarity: {e}")
             return 0.0
 
     # Additional helper methods (simplified implementations)

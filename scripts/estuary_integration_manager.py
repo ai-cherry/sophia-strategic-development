@@ -277,7 +277,7 @@ class EstuaryIntegrationManager:
             results["success"] = len(results["errors"]) == 0
 
         except Exception as e:
-            error_msg = f"Integration setup error: {str(e)}"
+            error_msg = f"Integration setup error: {e!s}"
             results["errors"].append(error_msg)
             results["success"] = False
 

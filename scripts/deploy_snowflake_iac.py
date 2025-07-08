@@ -7,7 +7,6 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 
 class SnowflakeIaCDeployer:
@@ -21,7 +20,7 @@ class SnowflakeIaCDeployer:
         # Check Pulumi CLI
         try:
             result = subprocess.run(
-                ["pulumi", "version"], capture_output=True, text=True
+                ["pulumi", "version"], check=False, capture_output=True, text=True
             )
             if result.returncode == 0:
                 pass
@@ -33,10 +32,7 @@ class SnowflakeIaCDeployer:
         # Check Python
 
         # Check if IaC directory exists
-        if not self.iac_path.exists():
-            return False
-
-        return True
+        return self.iac_path.exists()
 
     def setup_virtual_environment(self):
         """Setup Python virtual environment"""
@@ -68,7 +64,7 @@ class SnowflakeIaCDeployer:
 
         # Select or create stack
         result = subprocess.run(
-            ["pulumi", "stack", "ls"], capture_output=True, text=True
+            ["pulumi", "stack", "ls"], check=False, capture_output=True, text=True
         )
         if stack not in result.stdout:
             subprocess.run(["pulumi", "stack", "init", stack], check=True)
@@ -106,7 +102,7 @@ class SnowflakeIaCDeployer:
     def preview_deployment(self) -> bool:
         """Preview the deployment"""
 
-        result = subprocess.run(["pulumi", "preview"], cwd=self.iac_path)
+        result = subprocess.run(["pulumi", "preview"], check=False, cwd=self.iac_path)
 
         if result.returncode != 0:
             return False
@@ -117,13 +113,15 @@ class SnowflakeIaCDeployer:
     def deploy(self):
         """Deploy the infrastructure"""
 
-        result = subprocess.run(["pulumi", "up", "--yes"], cwd=self.iac_path)
+        result = subprocess.run(
+            ["pulumi", "up", "--yes"], check=False, cwd=self.iac_path
+        )
 
         if result.returncode == 0:
-
             # Show outputs
             outputs = subprocess.run(
                 ["pulumi", "stack", "output", "--json"],
+                check=False,
                 cwd=self.iac_path,
                 capture_output=True,
                 text=True,

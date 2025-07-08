@@ -7,8 +7,8 @@ Safely removes identified dead code files with backup and logging
 import argparse
 import json
 import logging
-import os
 import shutil
+import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -43,7 +43,7 @@ class DeadCodeCleaner:
                 )
                 return True
         except Exception as e:
-            logger.error(f"Failed to load report: {e}")
+            logger.exception(f"Failed to load report: {e}")
             return False
 
     def categorize_files(self):
@@ -85,9 +85,9 @@ class DeadCodeCleaner:
         if self.backup_dir:
             pass
 
-        for cat, files in sorted(self.categories.items(), key=lambda x: -len(x[1])):
+        for _cat, files in sorted(self.categories.items(), key=lambda x: -len(x[1])):
             # Show first 3 files in each category
-            for f in files[:3]:
+            for _f in files[:3]:
                 pass
             if len(files) > 3:
                 pass
@@ -116,7 +116,7 @@ class DeadCodeCleaner:
             logger.debug(f"Backed up: {filepath} -> {backup_path}")
             return True
         except Exception as e:
-            logger.error(f"Failed to backup {filepath}: {e}")
+            logger.exception(f"Failed to backup {filepath}: {e}")
             return False
 
     def remove_file(self, filepath):
@@ -131,7 +131,7 @@ class DeadCodeCleaner:
                 return True
             return False
         except Exception as e:
-            logger.error(f"Failed to remove {filepath}: {e}")
+            logger.exception(f"Failed to remove {filepath}: {e}")
             return False
 
     def remove_category(self, category):
@@ -162,7 +162,7 @@ class DeadCodeCleaner:
 
         # Display categories with numbers
         cat_list = sorted(self.categories.items(), key=lambda x: -len(x[1]))
-        for i, (cat, files) in enumerate(cat_list, 1):
+        for _i, (_cat, _files) in enumerate(cat_list, 1):
             pass
 
         choice = input("\nYour choice: ").strip().lower()
@@ -181,7 +181,7 @@ class DeadCodeCleaner:
                         total_removed += self.remove_category(category)
                 return total_removed
             except ValueError:
-                logger.error("Invalid input")
+                logger.exception("Invalid input")
                 return 0
 
         return 0
@@ -266,4 +266,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

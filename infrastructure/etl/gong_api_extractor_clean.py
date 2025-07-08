@@ -65,7 +65,7 @@ class GongAPIExtractor:
         encoded_credentials = base64.b64encode(credentials.encode()).decode()
         return f"Basic {encoded_credentials}"
 
-    async def _make_request(self, endpoint: str, params: dict = None) -> dict:
+    async def _make_request(self, endpoint: str, params: dict | None = None) -> dict:
         """Make authenticated request to Gong API with rate limiting"""
         url = f"{self.config.base_url}{endpoint}"
         headers = {
@@ -92,7 +92,7 @@ class GongAPIExtractor:
                     return await response.json()
 
             except Exception as e:
-                logger.error(f"Request failed (attempt {attempt + 1}): {e}")
+                logger.exception(f"Request failed (attempt {attempt + 1}): {e}")
                 if attempt == self.config.max_retries - 1:
                     raise
                 await asyncio.sleep(2**attempt)
@@ -296,7 +296,7 @@ class PostgreSQLStaging:
         pipeline_id: str,
         status: str,
         records_processed: int = 0,
-        error_message: str = None,
+        error_message: str | None = None,
     ):
         """Update pipeline execution status"""
         conn = await asyncpg.connect(self.connection_string)
@@ -361,7 +361,7 @@ async def main():
         logger.info(f"Pipeline completed successfully. Total records: {total_records}")
 
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.exception(f"Pipeline failed: {e}")
         await staging.update_pipeline_status(pipeline_id, "failed", 0, str(e))
         raise
 

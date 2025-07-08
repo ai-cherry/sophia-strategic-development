@@ -5,7 +5,6 @@ import asyncio
 import json
 import logging
 import os
-import sys
 from datetime import datetime
 
 import httpx
@@ -118,7 +117,7 @@ class FoundationalKnowledgeValidator:
                     {
                         "test": "MCP Server Health",
                         "status": "❌ FAIL",
-                        "details": f"Cannot connect: {str(e)}",
+                        "details": f"Cannot connect: {e!s}",
                     }
                 )
                 return False
@@ -286,7 +285,6 @@ class FoundationalKnowledgeValidator:
             if result["details"]:
                 pass
 
-
         # Recommendations
         if failed:
             if any("MCP Server" in r["test"] for r in failed):
@@ -297,9 +295,7 @@ class FoundationalKnowledgeValidator:
                 pass
 
         # Overall status
-        if len(failed) == 0:
-            pass
-        elif len(failed) < 3:
+        if len(failed) == 0 or len(failed) < 3:
             pass
         else:
             pass
@@ -323,7 +319,6 @@ class FoundationalKnowledgeValidator:
                 f,
                 indent=2,
             )
-
 
     async def run_validation(self):
         """Run all validation tests."""

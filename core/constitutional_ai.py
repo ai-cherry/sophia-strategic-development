@@ -144,7 +144,7 @@ class SophiaConstitutionalFramework:
                 score = await validation_func(query, context)
                 scores.append(score)
             except Exception as e:
-                logger.error(
+                logger.exception(
                     f"Error in validation function {validation_func.__name__}: {e}"
                 )
                 scores.append(0.5)  # Neutral score on error

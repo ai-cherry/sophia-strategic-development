@@ -1,5 +1,5 @@
 """Logging configuration for gong_v2 MCP server."""
-import logging
+
 from logging.config import dictConfig
 
 

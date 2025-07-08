@@ -146,7 +146,7 @@ class AIEvaluationFramework:
                     self.test_cases.append(test_case)
 
             except Exception as e:
-                logger.error(f"Error loading test cases from {test_file}: {e}")
+                logger.exception(f"Error loading test cases from {test_file}: {e}")
 
     def _create_default_test_cases(self):
         """Create default test cases for Sophia AI"""
@@ -255,7 +255,7 @@ class AIEvaluationFramework:
                     warnings.append(f"Unknown evaluation metric: {metric}")
 
             except Exception as e:
-                errors.append(f"Error evaluating {metric}: {str(e)}")
+                errors.append(f"Error evaluating {metric}: {e!s}")
                 metric_scores[metric] = 0.0
 
         # Calculate overall score
@@ -588,7 +588,7 @@ class AIEvaluationFramework:
                 )
 
             except Exception as e:
-                logger.error(f"Error running test case {test_case.id}: {e}")
+                logger.exception(f"Error running test case {test_case.id}: {e}")
 
                 error_result = EvaluationResult(
                     test_case_id=test_case.id,

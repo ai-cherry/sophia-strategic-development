@@ -3,12 +3,10 @@ Enhanced Snowflake Cortex Integration Service for Project Chimera
 Provides natural language to advanced analytics capabilities
 """
 
-import asyncio
-import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +45,7 @@ class EnhancedCortexService:
         self.operation_cache = {}
 
     async def process_natural_language_query(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Process natural language query and execute appropriate Cortex operations"""
         try:
@@ -70,11 +68,11 @@ class EnhancedCortexService:
             }
 
         except Exception as e:
-            logger.error(f"Cortex query processing failed: {str(e)}")
+            logger.exception(f"Cortex query processing failed: {e!s}")
             return {"success": False, "error": str(e), "query": query}
 
     async def analyze_query_for_cortex_operation(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> CortexOperation:
         """Analyze natural language query to determine appropriate Cortex operation"""
         query_lower = query.lower()

@@ -213,7 +213,7 @@ class EnhancedSentimentAnalyzer:
             )
 
         except Exception as e:
-            logger.error(f"Sentiment analysis failed: {e}")
+            logger.exception(f"Sentiment analysis failed: {e}")
             # Return neutral result on error
             return self._create_fallback_result(text, channel)
 
@@ -267,7 +267,7 @@ class EnhancedSentimentAnalyzer:
         adjustment = 0.0
         text_lower = text.lower()
 
-        for _domain, phrases in self.sentiment_adjustments.items():
+        for phrases in self.sentiment_adjustments.values():
             for phrase, score_adjustment in phrases.items():
                 if phrase in text_lower:
                     adjustment += score_adjustment * 0.1  # Scale down the adjustment

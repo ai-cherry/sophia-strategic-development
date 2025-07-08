@@ -1,8 +1,9 @@
 """Main handler for ai_memory_v2 MCP server."""
+
 import hashlib
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -19,6 +20,7 @@ from infrastructure.mcp_servers.ai_memory_v2.models.data_models import (
 
 logger = logging.getLogger(__name__)
 
+
 class AiMemoryV2Handler:
     """Handler for ai_memory_v2 operations."""
 
@@ -31,6 +33,7 @@ class AiMemoryV2Handler:
         """Initialize handler with required clients."""
         if settings.OPENAI_API_KEY:
             import openai
+
             self.openai_client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
         else:
             logger.warning("No OpenAI API key configured - embeddings will be disabled")
@@ -44,13 +47,15 @@ class AiMemoryV2Handler:
         metadata: dict[str, Any] | None = None,
         tags: list[str] | None = None,
         user_id: str | None = None,
-        source: str | None = None
+        source: str | None = None,
     ) -> MemoryEntry:
         """Store a single memory with embedding."""
         try:
             # Validate content length
             if len(content) > settings.MAX_MEMORY_SIZE:
-                raise ValueError(f"Content exceeds maximum size of {settings.MAX_MEMORY_SIZE} characters")
+                raise ValueError(
+                    f"Content exceeds maximum size of {settings.MAX_MEMORY_SIZE} characters"
+                )
 
             # Generate embedding if OpenAI is configured
             embedding = None
@@ -79,7 +84,7 @@ class AiMemoryV2Handler:
                 user_id=user_id,
                 source=source,
                 created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
+                updated_at=datetime.utcnow(),
             )
 
             # Store in database (placeholder - actual DB implementation needed)
@@ -89,7 +94,7 @@ class AiMemoryV2Handler:
             return memory
 
         except Exception as e:
-            logger.error(f"Error storing memory: {e}")
+            logger.exception(f"Error storing memory: {e}")
             raise
 
     async def search_memories(self, request: SearchRequest) -> list[SearchResult]:
@@ -109,23 +114,29 @@ class AiMemoryV2Handler:
                 tags=request.tags,
                 user_id=request.user_id,
                 date_from=request.date_from,
-                date_to=request.date_to
+                date_to=request.date_to,
             )
 
             # Format results
             search_results = []
             for memory, similarity in results:
-                search_results.append(SearchResult(
-                    memory=memory,
-                    similarity=similarity,
-                    highlights=self._generate_highlights(memory.content, request.query)
-                ))
+                search_results.append(
+                    SearchResult(
+                        memory=memory,
+                        similarity=similarity,
+                        highlights=self._generate_highlights(
+                            memory.content, request.query
+                        ),
+                    )
+                )
 
-            logger.info(f"Found {len(search_results)} memories for query: {request.query[:50]}...")
+            logger.info(
+                f"Found {len(search_results)} memories for query: {request.query[:50]}..."
+            )
             return search_results
 
         except Exception as e:
-            logger.error(f"Error searching memories: {e}")
+            logger.exception(f"Error searching memories: {e}")
             raise
 
     async def get_memory_stats(self) -> MemoryStats:
@@ -140,14 +151,16 @@ class AiMemoryV2Handler:
                 top_tags=stats.get("top_tags", []),
                 storage_size_mb=stats.get("storage_mb", 0.0),
                 oldest_memory=stats.get("oldest"),
-                newest_memory=stats.get("newest")
+                newest_memory=stats.get("newest"),
             )
 
         except Exception as e:
-            logger.error(f"Error getting memory stats: {e}")
+            logger.exception(f"Error getting memory stats: {e}")
             raise
 
-    async def bulk_store_memories(self, request: BulkMemoryRequest) -> list[MemoryEntry]:
+    async def bulk_store_memories(
+        self, request: BulkMemoryRequest
+    ) -> list[MemoryEntry]:
         """Store multiple memories in bulk."""
         stored_memories = []
 
@@ -159,7 +172,7 @@ class AiMemoryV2Handler:
                     metadata=memory_data.metadata,
                     tags=memory_data.tags,
                     user_id=memory_data.user_id,
-                    source=memory_data.source
+                    source=memory_data.source,
                 )
                 stored_memories.append(memory)
             except Exception as e:
@@ -170,7 +183,9 @@ class AiMemoryV2Handler:
         logger.info(f"Bulk stored {len(stored_memories)} memories")
         return stored_memories
 
-    async def update_memory(self, memory_id: int, request: MemoryUpdateRequest) -> MemoryEntry:
+    async def update_memory(
+        self, memory_id: int, request: MemoryUpdateRequest
+    ) -> MemoryEntry:
         """Update an existing memory."""
         try:
             # Get existing memory
@@ -204,7 +219,7 @@ class AiMemoryV2Handler:
             return memory
 
         except Exception as e:
-            logger.error(f"Error updating memory {memory_id}: {e}")
+            logger.exception(f"Error updating memory {memory_id}: {e}")
             raise
 
     async def delete_memory(self, memory_id: int) -> bool:
@@ -215,7 +230,7 @@ class AiMemoryV2Handler:
                 logger.info(f"Deleted memory {memory_id}")
             return success
         except Exception as e:
-            logger.error(f"Error deleting memory {memory_id}: {e}")
+            logger.exception(f"Error deleting memory {memory_id}: {e}")
             raise
 
     # Private helper methods
@@ -223,8 +238,7 @@ class AiMemoryV2Handler:
     async def _generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding using OpenAI."""
         response = await self.openai_client.embeddings.create(
-            model=settings.EMBEDDING_MODEL,
-            input=text
+            model=settings.EMBEDDING_MODEL, input=text
         )
         return np.array(response.data[0].embedding)
 
@@ -233,18 +247,30 @@ class AiMemoryV2Handler:
         content_lower = content.lower()
 
         # Simple keyword-based categorization
-        if any(word in content_lower for word in ["code", "function", "api", "bug", "error"]):
+        if any(
+            word in content_lower
+            for word in ["code", "function", "api", "bug", "error"]
+        ):
             return MemoryCategory.TECHNICAL
-        elif any(word in content_lower for word in ["revenue", "customer", "sales", "market"]):
+        elif any(
+            word in content_lower for word in ["revenue", "customer", "sales", "market"]
+        ):
             return MemoryCategory.BUSINESS
-        elif any(word in content_lower for word in ["project", "task", "milestone", "deadline"]):
+        elif any(
+            word in content_lower
+            for word in ["project", "task", "milestone", "deadline"]
+        ):
             return MemoryCategory.PROJECT
-        elif any(word in content_lower for word in ["learn", "study", "research", "article"]):
+        elif any(
+            word in content_lower for word in ["learn", "study", "research", "article"]
+        ):
             return MemoryCategory.LEARNING
         else:
             return MemoryCategory.GENERAL
 
-    async def _check_duplicate(self, content: str, embedding: np.ndarray | None) -> int | None:
+    async def _check_duplicate(
+        self, content: str, embedding: np.ndarray | None
+    ) -> int | None:
         """Check for duplicate memories using content hash or embedding similarity."""
         # Simple content hash check
         hashlib.sha256(content.encode()).hexdigest()
@@ -288,12 +314,7 @@ class AiMemoryV2Handler:
     async def _get_stats_from_db(self) -> dict[str, Any]:
         """Get statistics from database."""
         # Placeholder
-        return {
-            "total": 0,
-            "by_category": {},
-            "top_tags": [],
-            "storage_mb": 0.0
-        }
+        return {"total": 0, "by_category": {}, "top_tags": [], "storage_mb": 0.0}
 
     async def _update_in_db(self, memory: MemoryEntry) -> None:
         """Update memory in database."""

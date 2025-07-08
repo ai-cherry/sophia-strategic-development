@@ -135,7 +135,7 @@ class CallAnalysisAgent:
             logger.info("✅ Call Analysis Agent initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Call Analysis Agent: {e}")
+            logger.exception(f"Failed to initialize Call Analysis Agent: {e}")
             raise
 
     async def analyze_deal_calls(
@@ -335,7 +335,7 @@ class CallAnalysisAgent:
             }
 
         except Exception as e:
-            logger.error(f"Error analyzing deal calls: {e}")
+            logger.exception(f"Error analyzing deal calls: {e}")
             return {"status": "error", "error": str(e), "call_count": 0, "insights": {}}
 
     def _generate_call_recommendations(
@@ -429,7 +429,7 @@ class SupervisorAgent:
             logger.info("✅ Supervisor Agent initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Supervisor Agent: {e}")
+            logger.exception(f"Failed to initialize Supervisor Agent: {e}")
             raise
 
     async def plan_analysis(self, state: WorkflowState) -> WorkflowState:
@@ -485,8 +485,8 @@ class SupervisorAgent:
             return state
 
         except Exception as e:
-            logger.error(f"Error planning analysis: {e}")
-            state["error_messages"].append(f"Planning error: {str(e)}")
+            logger.exception(f"Error planning analysis: {e}")
+            state["error_messages"].append(f"Planning error: {e!s}")
             state["supervisor_status"] = AgentStatus.FAILED
             state["next_action"] = "error_handling"
             return state
@@ -607,8 +607,8 @@ class SupervisorAgent:
             return state
 
         except Exception as e:
-            logger.error(f"Error consolidating findings: {e}")
-            state["error_messages"].append(f"Consolidation error: {str(e)}")
+            logger.exception(f"Error consolidating findings: {e}")
+            state["error_messages"].append(f"Consolidation error: {e!s}")
             state["next_action"] = "error_handling"
             return state
 
@@ -740,7 +740,7 @@ async def run_deal_analysis_workflow(deal_id: str) -> dict[str, Any]:
         return result
 
     except Exception as e:
-        logger.error(f"Failed to run workflow: {e}")
+        logger.exception(f"Failed to run workflow: {e}")
         return {"status": "error", "error": str(e), "deal_id": deal_id}
 
 

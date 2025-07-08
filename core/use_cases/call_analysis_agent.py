@@ -125,7 +125,7 @@ class CallAnalysisAgent(BaseAgent):
             )
 
         except Exception as e:
-            logger.error(f"Failed to initialize Call Analysis Agent: {e}")
+            logger.exception(f"Failed to initialize Call Analysis Agent: {e}")
             raise
 
     async def get_capabilities(self) -> list[str]:
@@ -166,7 +166,7 @@ class CallAnalysisAgent(BaseAgent):
                 return await self._handle_general_analysis_query(task)
 
         except Exception as e:
-            logger.error(f"Error processing call analysis task: {e}")
+            logger.exception(f"Error processing call analysis task: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -259,7 +259,7 @@ class CallAnalysisAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Error analyzing call {call_id}: {e}")
+            logger.exception(f"Error analyzing call {call_id}: {e}")
 
             # Fallback to traditional analysis
             if self.traditional_gong_client:
@@ -330,7 +330,7 @@ class CallAnalysisAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Error in batch call analysis: {e}")
+            logger.exception(f"Error in batch call analysis: {e}")
             return {"success": False, "error": str(e)}
 
     async def _find_call_patterns(self, task: dict[str, Any]) -> dict[str, Any]:
@@ -395,7 +395,7 @@ class CallAnalysisAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Error finding call patterns: {e}")
+            logger.exception(f"Error finding call patterns: {e}")
             return {"success": False, "error": str(e)}
 
     async def _track_sentiment_trends(self, task: dict[str, Any]) -> dict[str, Any]:
@@ -450,7 +450,7 @@ class CallAnalysisAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Error tracking sentiment trends: {e}")
+            logger.exception(f"Error tracking sentiment trends: {e}")
             return {"success": False, "error": str(e)}
 
     async def _generate_ai_insights(
@@ -979,7 +979,7 @@ class CallAnalysisAgent(BaseAgent):
 
 # Agent factory function for AGNO integration
 async def create_call_analysis_agent(
-    config: dict[str, Any] = None,
+    config: dict[str, Any] | None = None,
 ) -> CallAnalysisAgent:
     """Create and initialize a Call Analysis Agent instance"""
     agent = CallAnalysisAgent(config)

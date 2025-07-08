@@ -62,7 +62,7 @@ class UnifiedAIOrchestrationService:
             logger.info("✅ Unified AI Orchestration Service initialized successfully")
             return True
         except Exception as e:
-            logger.error(f"❌ Failed to initialize service: {e}")
+            logger.exception(f"❌ Failed to initialize service: {e}")
             return False
 
     async def _initialize_snowflake_connection(self):
@@ -72,7 +72,7 @@ class UnifiedAIOrchestrationService:
             self.snowflake_conn = snowflake.connector.connect(**config)
             logger.info("✅ Snowflake connection established")
         except Exception as e:
-            logger.error(f"❌ Snowflake connection failed: {e}")
+            logger.exception(f"❌ Snowflake connection failed: {e}")
             raise
 
     async def _initialize_estuary_client(self):
@@ -88,7 +88,7 @@ class UnifiedAIOrchestrationService:
             )
             logger.info("✅ Estuary Flow client initialized")
         except Exception as e:
-            logger.error(f"❌ Estuary client initialization failed: {e}")
+            logger.exception(f"❌ Estuary client initialization failed: {e}")
             raise
 
     async def _initialize_cortex_agents(self):
@@ -124,7 +124,7 @@ class UnifiedAIOrchestrationService:
             logger.info(f"✅ Loaded {len(self.cortex_agents)} Cortex Agents")
             cursor.close()
         except Exception as e:
-            logger.error(f"❌ Cortex Agents initialization failed: {e}")
+            logger.exception(f"❌ Cortex Agents initialization failed: {e}")
             # Continue without agents if they're not configured yet
 
     async def _verify_data_pipelines(self):
@@ -176,7 +176,7 @@ class UnifiedAIOrchestrationService:
             }
 
         except Exception as e:
-            logger.error(f"❌ Customer intelligence query failed: {e}")
+            logger.exception(f"❌ Customer intelligence query failed: {e}")
             return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def process_sales_optimization_query(
@@ -213,7 +213,7 @@ class UnifiedAIOrchestrationService:
             }
 
         except Exception as e:
-            logger.error(f"❌ Sales optimization query failed: {e}")
+            logger.exception(f"❌ Sales optimization query failed: {e}")
             return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def process_compliance_monitoring_query(
@@ -250,7 +250,7 @@ class UnifiedAIOrchestrationService:
             }
 
         except Exception as e:
-            logger.error(f"❌ Compliance monitoring query failed: {e}")
+            logger.exception(f"❌ Compliance monitoring query failed: {e}")
             return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def _get_customer_context(self, customer_id: str) -> dict[str, Any]:
@@ -285,7 +285,7 @@ class UnifiedAIOrchestrationService:
                 return {"customer_id": customer_id, "status": "no_data_found"}
 
         except Exception as e:
-            logger.error(f"❌ Failed to get customer context: {e}")
+            logger.exception(f"❌ Failed to get customer context: {e}")
             return {"customer_id": customer_id, "error": str(e)}
 
     async def _get_deal_context(self, deal_id: str) -> dict[str, Any]:
@@ -321,7 +321,7 @@ class UnifiedAIOrchestrationService:
                 return {"deal_id": deal_id, "status": "no_data_found"}
 
         except Exception as e:
-            logger.error(f"❌ Failed to get deal context: {e}")
+            logger.exception(f"❌ Failed to get deal context: {e}")
             return {"deal_id": deal_id, "error": str(e)}
 
     async def _get_compliance_context(self, time_range: str) -> dict[str, Any]:
@@ -351,7 +351,7 @@ class UnifiedAIOrchestrationService:
                 return {"status": "no_compliance_data"}
 
         except Exception as e:
-            logger.error(f"❌ Failed to get compliance context: {e}")
+            logger.exception(f"❌ Failed to get compliance context: {e}")
             return {"error": str(e)}
 
     async def _invoke_cortex_agent(
@@ -392,8 +392,8 @@ class UnifiedAIOrchestrationService:
             return response
 
         except Exception as e:
-            logger.error(f"❌ Cortex Agent invocation failed: {e}")
-            return f"Error invoking agent: {str(e)}"
+            logger.exception(f"❌ Cortex Agent invocation failed: {e}")
+            return f"Error invoking agent: {e!s}"
 
     async def _get_real_time_customer_insights(
         self, customer_id: str
@@ -425,7 +425,7 @@ class UnifiedAIOrchestrationService:
                 return {"customer_id": customer_id, "status": "no_insights_available"}
 
         except Exception as e:
-            logger.error(f"❌ Failed to get real-time insights: {e}")
+            logger.exception(f"❌ Failed to get real-time insights: {e}")
             return {"customer_id": customer_id, "error": str(e)}
 
     async def _get_competitive_intelligence(self, deal_id: str) -> dict[str, Any]:
@@ -459,7 +459,7 @@ class UnifiedAIOrchestrationService:
                 return {"deal_id": deal_id, "status": "no_competitive_data"}
 
         except Exception as e:
-            logger.error(f"❌ Failed to get competitive intelligence: {e}")
+            logger.exception(f"❌ Failed to get competitive intelligence: {e}")
             return {"deal_id": deal_id, "error": str(e)}
 
     async def _get_compliance_violations(self, time_range: str) -> list[dict[str, Any]]:
@@ -492,7 +492,7 @@ class UnifiedAIOrchestrationService:
             return [dict(violation) for violation in violations]
 
         except Exception as e:
-            logger.error(f"❌ Failed to get compliance violations: {e}")
+            logger.exception(f"❌ Failed to get compliance violations: {e}")
             return []
 
     async def _log_agent_interaction(
@@ -524,7 +524,7 @@ class UnifiedAIOrchestrationService:
             cursor.close()
 
         except Exception as e:
-            logger.error(f"❌ Failed to log interaction: {e}")
+            logger.exception(f"❌ Failed to log interaction: {e}")
 
     async def get_system_health_status(self) -> dict[str, Any]:
         """Get comprehensive system health status"""
@@ -561,7 +561,7 @@ class UnifiedAIOrchestrationService:
             }
 
         except Exception as e:
-            logger.error(f"❌ Failed to get system health: {e}")
+            logger.exception(f"❌ Failed to get system health: {e}")
             return {"error": str(e), "timestamp": datetime.now(UTC).isoformat()}
 
     async def _get_pipeline_health(self) -> dict[str, Any]:
@@ -593,7 +593,7 @@ class UnifiedAIOrchestrationService:
                 await self.estuary_client.aclose()
             logger.info("✅ All connections closed")
         except Exception as e:
-            logger.error(f"❌ Error closing connections: {e}")
+            logger.exception(f"❌ Error closing connections: {e}")
 
 
 # Global service instance

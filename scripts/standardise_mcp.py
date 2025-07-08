@@ -57,7 +57,7 @@ def insert_health_endpoint(py_file):
 def update_ports_and_health():
     registry = load_port_registry()
     port_map = {}
-    for _category, servers in registry["port_allocation"].items():
+    for servers in registry["port_allocation"].values():
         for name, port in servers.items():
             port_map[name] = port
     report = {"updated_ports": [], "added_inits": [], "added_health": []}

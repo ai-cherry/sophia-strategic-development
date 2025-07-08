@@ -104,7 +104,7 @@ class SecureSnowflakeConfig:
             return True
 
         except Exception as e:
-            logger.error(f"Snowflake connection validation failed: {e}")
+            logger.exception(f"Snowflake connection validation failed: {e}")
             return False
 
 
@@ -139,10 +139,10 @@ def get_secure_snowflake_connection():
         config = get_secure_snowflake_config()
         return snowflake.connector.connect(**config.get_connection_params())
     except ImportError:
-        logger.error("snowflake-connector-python not installed")
+        logger.exception("snowflake-connector-python not installed")
         raise
     except Exception as e:
-        logger.error(f"Failed to create Snowflake connection: {e}")
+        logger.exception(f"Failed to create Snowflake connection: {e}")
         raise
 
 

@@ -1,6 +1,6 @@
 """Configuration for ai_memory_v2 MCP server."""
+
 import os
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings

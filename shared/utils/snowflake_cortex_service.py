@@ -139,7 +139,7 @@ class SnowflakeCortexService(CoreService):
             return embeddings
 
         except Exception as e:
-            logger.error(f"Error generating embeddings with Cortex: {e}")
+            logger.exception(f"Error generating embeddings with Cortex: {e}")
             raise
 
     async def vector_search_in_snowflake(
@@ -202,7 +202,7 @@ class SnowflakeCortexService(CoreService):
             return vector_results
 
         except Exception as e:
-            logger.error(f"Error performing vector search: {e}")
+            logger.exception(f"Error performing vector search: {e}")
             raise
 
     async def complete_text_with_cortex(
@@ -242,7 +242,7 @@ class SnowflakeCortexService(CoreService):
             return completion
 
         except Exception as e:
-            logger.error(f"Error generating text completion: {e}")
+            logger.exception(f"Error generating text completion: {e}")
             raise
 
     async def extract_entities_from_text(
@@ -290,7 +290,7 @@ class SnowflakeCortexService(CoreService):
             return entities
 
         except Exception as e:
-            logger.error(f"Error extracting entities: {e}")
+            logger.exception(f"Error extracting entities: {e}")
             raise
 
     async def generate_embedding(
@@ -320,7 +320,7 @@ class SnowflakeCortexService(CoreService):
                     "Failed to generate embedding, no result from Snowflake."
                 )
         except Exception as e:
-            logger.error(f"Error generating single text embedding: {e}")
+            logger.exception(f"Error generating single text embedding: {e}")
             raise CortexEmbeddingError(f"Cortex embedding failed: {e}") from e
 
     # Delegate business operations to business handlers
@@ -437,7 +437,7 @@ class SnowflakeCortexService(CoreService):
             return search_results
 
         except Exception as e:
-            logger.error(f"Error in vector search: {e}")
+            logger.exception(f"Error in vector search: {e}")
             raise
 
     async def _store_embeddings(
@@ -471,7 +471,7 @@ class SnowflakeCortexService(CoreService):
             logger.info(f"Stored {len(embeddings)} embeddings in {vector_table}")
 
         except Exception as e:
-            logger.error(f"Error storing embeddings: {e}")
+            logger.exception(f"Error storing embeddings: {e}")
 
     # Simplified business intelligence methods for backward compatibility
     async def search_hubspot_deals_with_ai_memory(
@@ -548,7 +548,7 @@ class SnowflakeCortexService(CoreService):
             return True
 
         except Exception as e:
-            logger.error(f"Error logging ETL job status: {e}")
+            logger.exception(f"Error logging ETL job status: {e}")
             return False
 
     def get_performance_stats(self) -> dict[str, Any]:
@@ -599,10 +599,10 @@ async def summarize_hubspot_contact_notes(
             }
 
     except Exception as e:
-        logger.error(f"Error summarizing contact notes: {e}")
+        logger.exception(f"Error summarizing contact notes: {e}")
         return {
             "contact_id": contact_id,
-            "summary": f"Error: {str(e)}",
+            "summary": f"Error: {e!s}",
             "original_notes_count": 0,
             "processed_at": None,
         }
@@ -631,11 +631,13 @@ async def analyze_gong_call_sentiment(call_id: str) -> dict[str, Any]:
                 "average_sentiment": avg_sentiment,
                 "sentiment_distribution": sentiment_distribution,
                 "segments_analyzed": len(results),
-                "overall_sentiment": "POSITIVE"
-                if avg_sentiment > 0.1
-                else "NEGATIVE"
-                if avg_sentiment < -0.1
-                else "NEUTRAL",
+                "overall_sentiment": (
+                    "POSITIVE"
+                    if avg_sentiment > 0.1
+                    else "NEGATIVE"
+                    if avg_sentiment < -0.1
+                    else "NEUTRAL"
+                ),
             }
         else:
             return {
@@ -647,7 +649,7 @@ async def analyze_gong_call_sentiment(call_id: str) -> dict[str, Any]:
             }
 
     except Exception as e:
-        logger.error(f"Error analyzing call sentiment: {e}")
+        logger.exception(f"Error analyzing call sentiment: {e}")
         return {
             "call_id": call_id,
             "error": str(e),

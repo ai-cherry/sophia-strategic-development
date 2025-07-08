@@ -123,11 +123,11 @@ class EphemeralCredentialsService:
                     cred_data["expires_at"] = datetime.fromisoformat(
                         cred_data["expires_at"]
                     )
-                if "last_used_at" in cred_data and cred_data["last_used_at"]:
+                if cred_data.get("last_used_at"):
                     cred_data["last_used_at"] = datetime.fromisoformat(
                         cred_data["last_used_at"]
                     )
-                if "revoked_at" in cred_data and cred_data["revoked_at"]:
+                if cred_data.get("revoked_at"):
                     cred_data["revoked_at"] = datetime.fromisoformat(
                         cred_data["revoked_at"]
                     )
@@ -155,7 +155,7 @@ class EphemeralCredentialsService:
             self.logger.info(f"Loaded {len(self.credentials)} credentials from storage")
 
         except Exception as e:
-            self.logger.error(f"Failed to load credentials from storage: {e}")
+            self.logger.exception(f"Failed to load credentials from storage: {e}")
             # Start with empty state
             self.credentials = {}
 
@@ -172,9 +172,9 @@ class EphemeralCredentialsService:
                     cred_dict["created_at"] = cred_dict["created_at"].isoformat()
                 if "expires_at" in cred_dict:
                     cred_dict["expires_at"] = cred_dict["expires_at"].isoformat()
-                if "last_used_at" in cred_dict and cred_dict["last_used_at"]:
+                if cred_dict.get("last_used_at"):
                     cred_dict["last_used_at"] = cred_dict["last_used_at"].isoformat()
-                if "revoked_at" in cred_dict and cred_dict["revoked_at"]:
+                if cred_dict.get("revoked_at"):
                     cred_dict["revoked_at"] = cred_dict["revoked_at"].isoformat()
 
                 # Convert enum values to strings
@@ -194,7 +194,7 @@ class EphemeralCredentialsService:
             self.logger.info(f"Saved {len(self.credentials)} credentials to storage")
 
         except Exception as e:
-            self.logger.error(f"Failed to save credentials to storage: {e}")
+            self.logger.exception(f"Failed to save credentials to storage: {e}")
 
     def _generate_token(
         self,
@@ -401,7 +401,7 @@ class EphemeralCredentialsService:
 
             return CredentialValidationResponse(
                 valid=False,
-                error=f"Validation error: {str(e)}",
+                error=f"Validation error: {e!s}",
             )
 
     async def revoke_credential(

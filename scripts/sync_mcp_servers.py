@@ -128,7 +128,7 @@ class MCPServerSync:
             "sophia-intelligence-unified",
             "huggingface-ai",
             "ag-ui",
-            "v0dev"
+            "v0dev",
         ]
 
         # Check each server

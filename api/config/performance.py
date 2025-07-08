@@ -361,10 +361,10 @@ class PerformanceMonitor:
 # Export key components
 __all__ = [
     "PerformanceConfig",
-    "PerformanceOptimizer",
-    "performance_optimizer",
-    "cached",
-    "rate_limited",
-    "SessionManager",
     "PerformanceMonitor",
+    "PerformanceOptimizer",
+    "SessionManager",
+    "cached",
+    "performance_optimizer",
+    "rate_limited",
 ]

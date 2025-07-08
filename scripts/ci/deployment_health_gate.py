@@ -16,8 +16,8 @@ def main():
         "checks": {
             "environment": "passed",
             "dependencies": "passed",
-            "configuration": "passed"
-        }
+            "configuration": "passed",
+        },
     }
 
     # Save report
@@ -26,6 +26,7 @@ def main():
         json.dump(health_report, f, indent=2)
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

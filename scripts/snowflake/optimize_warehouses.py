@@ -26,7 +26,7 @@ class SnowflakeOptimizer:
             self.connection = snowflake.connector.connect(**self.config)
             logger.info("✅ Connected to Snowflake")
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Snowflake: {e}")
+            logger.exception(f"❌ Failed to connect to Snowflake: {e}")
             raise
 
     def optimize_ai_warehouses(self):

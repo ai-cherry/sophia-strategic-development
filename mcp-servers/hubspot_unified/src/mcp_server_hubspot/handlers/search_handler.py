@@ -4,7 +4,7 @@ Handler for search operations on indexed HubSpot data.
 
 from typing import Any
 
-import mcp.types as types
+from mcp import types
 from sentence_transformers import SentenceTransformer
 
 from ..faiss_manager import FaissManager
@@ -73,5 +73,5 @@ class SearchHandler(BaseHandler):
 
             return self.create_text_response(results)
         except Exception as e:
-            self.logger.error(f"Error searching in FAISS: {str(e)}")
-            return self.create_text_response(f"Error searching data: {str(e)}")
+            self.logger.exception(f"Error searching in FAISS: {e!s}")
+            return self.create_text_response(f"Error searching data: {e!s}")

@@ -9,8 +9,8 @@ import os
 from typing import Any
 
 import mcp.server.stdio
-import mcp.types as types
 from dotenv import load_dotenv
+from mcp import types
 from pydantic import AnyUrl
 from sentence_transformers import SentenceTransformer
 
@@ -291,9 +291,9 @@ def register_tool_call_handler(
             else:
                 raise ValueError(f"Unknown tool: {name}")
         except ApiException as e:
-            return [types.TextContent(type="text", text=f"HubSpot API error: {str(e)}")]
+            return [types.TextContent(type="text", text=f"HubSpot API error: {e!s}")]
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error: {str(e)}")]
+            return [types.TextContent(type="text", text=f"Error: {e!s}")]
 
 
 if __name__ == "__main__":

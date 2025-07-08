@@ -13,7 +13,7 @@ from .core.auto_esc_config import (
 __version__ = "1.0.0"
 __all__ = [
     "get_config_value",
-    "get_snowflake_config",
     "get_integration_config",
     "get_lambda_labs_config",
+    "get_snowflake_config",
 ]

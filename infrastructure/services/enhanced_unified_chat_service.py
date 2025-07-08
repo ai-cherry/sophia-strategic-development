@@ -6,7 +6,7 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from core.services.sophia_intent_engine import (
     CodeModificationIntent,
@@ -326,7 +326,7 @@ class EnhancedUnifiedChatService(UnifiedChatService):
             return True
 
         except Exception as e:
-            logger.error(f"Error applying changes to {file_path}: {e}")
+            logger.exception(f"Error applying changes to {file_path}: {e}")
             return False
 
     async def _execute_infrastructure_command(

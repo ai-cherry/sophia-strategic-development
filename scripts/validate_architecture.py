@@ -1,6 +1,6 @@
 import ast
 import os
-from collections import defaultdict
+import sys
 from pathlib import Path
 
 
@@ -60,9 +60,8 @@ class ArchitectureValidator:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         self.check_import(module_path, alias.name)
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        self.check_import(module_path, node.module)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    self.check_import(module_path, node.module)
         except Exception:
             pass  # Skip files with syntax errors
 
@@ -74,7 +73,7 @@ class ArchitectureValidator:
             if not os.path.exists(layer):
                 continue
 
-            for root, dirs, files in os.walk(layer):
+            for root, _dirs, files in os.walk(layer):
                 if "__pycache__" in root:
                     continue
 
@@ -90,8 +89,7 @@ class ArchitectureValidator:
         if not self.violations:
             pass
         else:
-
-            for v in self.violations[:20]:  # Show first 20
+            for _v in self.violations[:20]:  # Show first 20
                 pass
 
         # Summary by layer
@@ -109,4 +107,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

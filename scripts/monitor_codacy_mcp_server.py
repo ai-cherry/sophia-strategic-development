@@ -17,7 +17,6 @@ import json
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Optional
 
 import requests
 
@@ -166,7 +165,6 @@ class CodacyMCPMonitor:
         elapsed = datetime.now() - self.deployment_start
         str(elapsed).split(".")[0]  # Remove microseconds
 
-
         if health.error_message:
             pass
 
@@ -176,7 +174,7 @@ class CodacyMCPMonitor:
         # Check additional endpoints if main health is good
         if health.status_code == 200:
             endpoint_status = self.check_api_endpoints()
-            for endpoint, status in endpoint_status.items():
+            for _endpoint, _status in endpoint_status.items():
                 pass
 
         # GitHub Actions status
@@ -188,7 +186,6 @@ class CodacyMCPMonitor:
         completion = self.estimate_completion(health)
         if completion and completion != "completed":
             pass
-
 
     def continuous_monitor(self):
         """Run continuous monitoring until service is healthy."""
@@ -239,7 +236,6 @@ class CodacyMCPMonitor:
         with open(filename, "w") as f:
             json.dump(report, f, indent=2)
 
-
     def generate_timeout_report(self):
         """Generate timeout investigation report."""
         report = {
@@ -248,9 +244,9 @@ class CodacyMCPMonitor:
                 "."
             )[0],
             "attempts_made": len(self.health_history),
-            "last_health_check": asdict(self.health_history[-1])
-            if self.health_history
-            else None,
+            "last_health_check": (
+                asdict(self.health_history[-1]) if self.health_history else None
+            ),
             "recommendations": [
                 "Check GitHub Actions logs for deployment errors",
                 "Verify Lambda Labs instance connectivity",
@@ -265,7 +261,6 @@ class CodacyMCPMonitor:
         with open(filename, "w") as f:
             json.dump(report, f, indent=2)
 
-
     def single_check(self):
         """Perform a single health check and report."""
         health = self.check_health()
@@ -273,7 +268,7 @@ class CodacyMCPMonitor:
 
         if health.status_code == 200:
             endpoint_status = self.check_api_endpoints()
-            for endpoint, status in endpoint_status.items():
+            for _endpoint, _status in endpoint_status.items():
                 pass
 
         return health.status_code == 200

@@ -1,4 +1,5 @@
 """Integration tests for codacy_v2 server."""
+
 import pytest
 from httpx import AsyncClient
 

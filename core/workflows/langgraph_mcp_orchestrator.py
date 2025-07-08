@@ -2,6 +2,7 @@
 LangGraph MCP Orchestrator for Sophia AI
 Provides intelligent routing and failover for MCP servers
 """
+
 import asyncio
 import logging
 from datetime import datetime
@@ -240,7 +241,7 @@ class LangGraphMCPOrchestrator:
             }
 
         except Exception as e:
-            logger.error(f"Error executing on {server_name}: {e}")
+            logger.exception(f"Error executing on {server_name}: {e}")
             return {"success": False, "error": str(e), "server": server_name}
 
     def get_server_info(self, server_name: str) -> dict[str, Any] | None:
@@ -281,7 +282,7 @@ class SimpleOrchestrationGraph:
             return result
 
         except Exception as e:
-            logger.error(f"Orchestration error: {e}")
+            logger.exception(f"Orchestration error: {e}")
             return {
                 "success": False,
                 "error": str(e),

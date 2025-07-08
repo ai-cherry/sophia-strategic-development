@@ -6,7 +6,7 @@ with constitutional AI constraints and self-optimization.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -72,7 +72,7 @@ class UnifiedIntelligenceService:
             }
 
         except DataError as e:
-            logger.error(f"DataError while processing query '{query}': {e}")
+            logger.exception(f"DataError while processing query '{query}': {e}")
             return {"error": str(e), "type": "data_error"}
         except Exception:
             logger.exception(f"Unexpected error processing query: '{query}'")

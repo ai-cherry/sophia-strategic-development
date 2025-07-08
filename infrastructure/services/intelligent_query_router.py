@@ -253,7 +253,7 @@ class IntelligentQueryRouter:
             )
 
         except Exception as e:
-            logger.error(f"Error in query analysis: {e}")
+            logger.exception(f"Error in query analysis: {e}")
             # Return safe fallback
             return await self._fallback_analysis(query, user_context)
 
@@ -411,7 +411,7 @@ class IntelligentQueryRouter:
             )
 
         except Exception as e:
-            logger.error(f"Error getting routing recommendations: {e}")
+            logger.exception(f"Error getting routing recommendations: {e}")
             return {"preferred_systems": ["snowflake_cortex"], "strategy": "balanced"}
 
     async def optimize_routing_performance(self) -> dict[str, Any]:
@@ -429,7 +429,7 @@ class IntelligentQueryRouter:
             return optimization_report
 
         except Exception as e:
-            logger.error(f"Error optimizing routing performance: {e}")
+            logger.exception(f"Error optimizing routing performance: {e}")
             return {"error": "Performance optimization unavailable"}
 
 

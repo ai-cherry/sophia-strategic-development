@@ -38,7 +38,7 @@ class InfrastructureValidator:
                 "scoobyjava-org/default/sophia-ai-production",
                 "lambda_labs_ssh_public_key_base64",
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
             if result.returncode != 0:
                 return False
 
@@ -95,7 +95,6 @@ class InfrastructureValidator:
             len(mappings.get("github_to_pulumi", {}))
             len(mappings.get("services", {}))
 
-
             self.results["secret_sync"] = True
             return True
 
@@ -107,7 +106,7 @@ class InfrastructureValidator:
 
         try:
             cmd = ["pulumi", "whoami"]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
             if result.returncode != 0:
                 return False
 
@@ -122,10 +121,9 @@ class InfrastructureValidator:
                 "--format",
                 "json",
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
             if result.returncode != 0:
                 return False
-
 
             self.results["pulumi_auth"] = True
             return True
@@ -144,7 +142,7 @@ class InfrastructureValidator:
             ]
 
             all_good = True
-            for name, ip in instances:
+            for _name, ip in instances:
                 cmd = [
                     "ssh",
                     "-i",
@@ -156,7 +154,9 @@ class InfrastructureValidator:
                     f"ubuntu@{ip}",
                     "echo 'connected'",
                 ]
-                result = subprocess.run(cmd, capture_output=True, text=True)
+                result = subprocess.run(
+                    cmd, check=False, capture_output=True, text=True
+                )
 
                 if result.returncode == 0:
                     pass
@@ -189,7 +189,7 @@ class InfrastructureValidator:
             "--format",
             "json",
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
         if result.returncode == 0:
             esc_data = json.loads(result.stdout)
@@ -229,7 +229,7 @@ class InfrastructureValidator:
         # Core components
 
         # Service readiness
-        for service, ready in self.results["services_ready"].items():
+        for _service, _ready in self.results["services_ready"].items():
             pass
 
         # Overall status
@@ -244,7 +244,6 @@ class InfrastructureValidator:
 
         services_ready = sum(self.results["services_ready"].values())
         len(self.results["services_ready"])
-
 
         if core_ready and services_ready >= 3:
             pass

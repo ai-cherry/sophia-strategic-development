@@ -277,7 +277,7 @@ class SecurityMiddleware:
                 return request_count >= config["requests"]
 
             except Exception as e:
-                logger.error(f"Redis rate limiting error: {e}")
+                logger.exception(f"Redis rate limiting error: {e}")
                 # Fall back to in-memory storage
 
         # In-memory rate limiting fallback

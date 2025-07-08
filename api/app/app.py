@@ -57,7 +57,7 @@ async def initialize_core_services():
             logger.warning("⚠️ LLM service not available")
 
     except Exception as e:
-        logger.error(f"❌ Error initializing services: {e}")
+        logger.exception(f"❌ Error initializing services: {e}")
         raise
 
 
@@ -71,7 +71,7 @@ async def cleanup_services():
                 await service.close()
             logger.info(f"✅ {service_name} cleaned up")
         except Exception as e:
-            logger.error(f"❌ Error cleaning up {service_name}: {e}")
+            logger.exception(f"❌ Error cleaning up {service_name}: {e}")
 
 
 def create_app() -> FastAPI:

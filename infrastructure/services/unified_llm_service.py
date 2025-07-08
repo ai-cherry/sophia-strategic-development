@@ -314,7 +314,7 @@ class UnifiedLLMService:
 
         except Exception as e:
             logger.error(f"Snowflake Cortex error: {e}")
-            yield f"Error: {str(e)}"
+            yield f"Error: {e!s}"
         finally:
             if cursor:
                 cursor.close()
@@ -462,7 +462,7 @@ class UnifiedLLMService:
 
         except Exception as e:
             logger.error(f"OpenRouter error: {e}")
-            yield f"Error: All LLM providers failed - {str(e)}"
+            yield f"Error: All LLM providers failed - {e!s}"
 
     async def get_available_models(self) -> dict[str, list[str]]:
         """Get list of available models by provider"""

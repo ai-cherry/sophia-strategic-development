@@ -1,4 +1,5 @@
 """Configuration for linear_v2 MCP server."""
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -11,5 +12,6 @@ class Linear_V2Settings(BaseSettings):
 
     class Config:
         env_prefix = "LINEAR_V2_"
+
 
 settings = Linear_V2Settings()

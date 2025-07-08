@@ -4,7 +4,7 @@ Handler for conversation-related HubSpot operations.
 
 from typing import Any
 
-import mcp.types as types
+from mcp import types
 
 from .base_handler import BaseHandler
 
@@ -118,7 +118,7 @@ class ConversationHandler(BaseHandler):
                     )
         except Exception as e:
             self.logger.error(
-                f"Error storing conversations in FAISS: {str(e)}", exc_info=True
+                f"Error storing conversations in FAISS: {e!s}", exc_info=True
             )
 
     def _truncate_conversation_messages(

@@ -4,11 +4,8 @@ Clean up Python cache files and virtual environments
 Preserves the main .venv directory at project root
 """
 
-import os
 import shutil
-import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 class PythonCacheCleaner:
@@ -124,7 +121,7 @@ class PythonCacheCleaner:
         existing_lines = set()
         if gitignore_path.exists():
             with open(gitignore_path) as f:
-                existing_lines = set(line.strip() for line in f)
+                existing_lines = {line.strip() for line in f}
 
         lines_to_add = [line for line in python_ignores if line not in existing_lines]
 
@@ -142,7 +139,6 @@ class PythonCacheCleaner:
         pyc_files = self.find_pyc_files()
         venv_dirs = self.find_venv_dirs()
 
-
         if dry_run:
             return
 
@@ -153,7 +149,6 @@ class PythonCacheCleaner:
         response = input("\n⚠️  Proceed with cleanup? (y/N): ")
         if response.lower() != "y":
             return
-
 
         # Clean
         pycache_count, pycache_mb = self.clean_pycache()

@@ -51,7 +51,7 @@ class CodeModificationService:
         try:
             current_code = full_path.read_text()
         except Exception as e:
-            return {"success": False, "error": f"Error reading file: {str(e)}"}
+            return {"success": False, "error": f"Error reading file: {e!s}"}
 
         # Generate modifications using AI
         modified_code = await self._generate_modifications(
@@ -321,10 +321,7 @@ class CodeModificationService:
                 return True
 
         # Require approval for any errors
-        if validation["errors"]:
-            return True
-
-        return False
+        return bool(validation["errors"])
 
     def _detect_language(self, file_path: str) -> str:
         """Detect programming language from file extension"""

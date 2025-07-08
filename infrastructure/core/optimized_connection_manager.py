@@ -254,7 +254,7 @@ class OptimizedConnectionPool:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize {self.connection_type} pool: {e}")
+            logger.exception(f"❌ Failed to initialize {self.connection_type} pool: {e}")
             raise
 
     async def _create_connection(self) -> Any | None:
@@ -283,7 +283,9 @@ class OptimizedConnectionPool:
             return connection
 
         except Exception as e:
-            logger.error(f"❌ Failed to create {self.connection_type} connection: {e}")
+            logger.exception(
+                f"❌ Failed to create {self.connection_type} connection: {e}"
+            )
             self.circuit_breaker.record_failure()
             return None
 
@@ -340,7 +342,7 @@ class OptimizedConnectionPool:
             yield connection
             self.circuit_breaker.record_success()
         except Exception as e:
-            logger.error(f"Connection error: {e}")
+            logger.exception(f"Connection error: {e}")
             self.circuit_breaker.record_failure()
             raise
         finally:
@@ -429,9 +431,9 @@ class OptimizedConnectionPool:
                     connection.close()
 
                 await asyncio.to_thread(_sync_close)
-            elif (
-                self.connection_type == ConnectionType.POSTGRES
-                or self.connection_type == ConnectionType.REDIS
+            elif self.connection_type in (
+                ConnectionType.POSTGRES,
+                ConnectionType.REDIS,
             ):
                 await connection.close()
 
@@ -440,7 +442,7 @@ class OptimizedConnectionPool:
             self._connection_last_used.pop(connection, None)
 
         except Exception as e:
-            logger.error(f"Error closing connection: {e}")
+            logger.exception(f"Error closing connection: {e}")
 
     async def _health_check_loop(self):
         """Background health check loop"""
@@ -449,7 +451,7 @@ class OptimizedConnectionPool:
                 await asyncio.sleep(60)  # Check every minute
                 await self._perform_health_check()
             except Exception as e:
-                logger.error(f"Health check error: {e}")
+                logger.exception(f"Health check error: {e}")
 
     async def _cleanup_loop(self):
         """Background cleanup loop"""
@@ -458,7 +460,7 @@ class OptimizedConnectionPool:
                 await asyncio.sleep(300)  # Cleanup every 5 minutes
                 await self._cleanup_idle_connections()
             except Exception as e:
-                logger.error(f"Cleanup error: {e}")
+                logger.exception(f"Cleanup error: {e}")
 
     async def _perform_health_check(self):
         """Perform health check on pool"""
@@ -587,7 +589,7 @@ class OptimizedConnectionManager:
             logger.info("✅ Optimized Connection Manager initialized")
 
         except Exception as e:
-            logger.error(f"❌ Connection manager initialization failed: {e}")
+            logger.exception(f"❌ Connection manager initialization failed: {e}")
             raise
 
     @performance_monitor.monitor_performance("execute_query", 1000)
@@ -649,7 +651,7 @@ class OptimizedConnectionManager:
             except Exception as e:
                 pool.stats.total_queries += 1
                 pool.stats.failed_queries += 1
-                logger.error(f"Query execution failed: {e}")
+                logger.exception(f"Query execution failed: {e}")
                 raise
 
     @performance_monitor.monitor_performance("execute_batch_queries", 5000)
@@ -759,7 +761,7 @@ class OptimizedConnectionManager:
                 return results
 
             except Exception as e:
-                logger.error(f"Batch query execution failed: {e}")
+                logger.exception(f"Batch query execution failed: {e}")
                 raise
 
     async def get_connection_stats(self) -> dict[str, Any]:

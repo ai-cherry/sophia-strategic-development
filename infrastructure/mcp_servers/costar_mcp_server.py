@@ -157,7 +157,7 @@ class CoStarMCPServer:
             logger.info("Database connection pool initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize database: {e}")
+            logger.exception(f"Failed to initialize database: {e}")
             raise
 
     async def _watch_files_continuously(self) -> None:
@@ -167,7 +167,7 @@ class CoStarMCPServer:
                 await self.watch_files()
                 await asyncio.sleep(30)  # Check every 30 seconds
             except Exception as e:
-                logger.error(f"Error in file watching loop: {e}")
+                logger.exception(f"Error in file watching loop: {e}")
                 await asyncio.sleep(60)  # Wait longer on error
 
     async def watch_files(self) -> list[str]:
@@ -191,7 +191,7 @@ class CoStarMCPServer:
                         await self._archive_processed_file(file_path)
 
         except Exception as e:
-            logger.error(f"Error watching files: {e}")
+            logger.exception(f"Error watching files: {e}")
 
         return processed_files
 
@@ -253,7 +253,7 @@ class CoStarMCPServer:
             )
 
         except Exception as e:
-            logger.error(f"Error processing file {file_path.name}: {e}")
+            logger.exception(f"Error processing file {file_path.name}: {e}")
             result.import_status = "failed"
             result.error_message = str(e)
 
@@ -330,7 +330,7 @@ class CoStarMCPServer:
             return records
 
         except Exception as e:
-            logger.error(f"Error reading file {file_path}: {e}")
+            logger.exception(f"Error reading file {file_path}: {e}")
             raise
 
     def _map_columns(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -448,7 +448,7 @@ class CoStarMCPServer:
                         imported_count += 1
 
                     except Exception as e:
-                        logger.error(
+                        logger.exception(
                             f"Failed to import record for {record.metro_area}: {e}"
                         )
                         failed_count += 1

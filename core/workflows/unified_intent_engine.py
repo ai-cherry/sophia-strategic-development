@@ -179,7 +179,7 @@ class UnifiedIntentEngine:
             )
 
         except Exception as e:
-            logger.error(f"Error in intent analysis: {e}")
+            logger.exception(f"Error in intent analysis: {e}")
             # Fallback to pattern matching
             intent_analysis = await self._fallback_intent_analysis(message, entities)
 
@@ -215,7 +215,7 @@ class UnifiedIntentEngine:
 
             return memories[:5]  # Limit to 5 total
         except Exception as e:
-            logger.error(f"Error recalling memories: {e}")
+            logger.exception(f"Error recalling memories: {e}")
             return []
 
     async def _extract_entities(self, message: str) -> dict[str, list[str]]:
@@ -297,9 +297,9 @@ class UnifiedIntentEngine:
             primary_category=category_enum,
             confidence=min(0.9, best_category[1]),
             required_capabilities=self.capability_mapping.get(category_enum, []),
-            suggested_workflow="multi_agent_parallel"
-            if complexity > 0.5
-            else "single_agent",
+            suggested_workflow=(
+                "multi_agent_parallel" if complexity > 0.5 else "single_agent"
+            ),
             context_factors={},
             entities=entities,
             complexity_score=complexity,

@@ -5,11 +5,10 @@ Real-time monitoring of all MCP servers
 """
 
 import asyncio
-import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class MCPHealthDashboard:
@@ -33,7 +32,7 @@ class MCPHealthDashboard:
         # Scan for MCP servers
         mcp_dirs = [
             self.project_root / "backend" / "mcp_servers",
-            self.project_root / "mcp-servers"
+            self.project_root / "mcp-servers",
         ]
 
         for directory in mcp_dirs:
@@ -54,21 +53,21 @@ class MCPHealthDashboard:
                     "status": "healthy",
                     "uptime": time.time(),
                     "last_check": datetime.utcnow().isoformat(),
-                    "has_monitoring": True
+                    "has_monitoring": True,
                 }
             else:
                 return {
                     "status": "unknown",
                     "uptime": 0,
                     "last_check": datetime.utcnow().isoformat(),
-                    "has_monitoring": False
+                    "has_monitoring": False,
                 }
         except Exception as e:
             return {
                 "status": "error",
                 "error": str(e),
                 "last_check": datetime.utcnow().isoformat(),
-                "has_monitoring": False
+                "has_monitoring": False,
             }
 
     def display_dashboard(self):
@@ -77,18 +76,13 @@ class MCPHealthDashboard:
         healthy_count = 0
         len(self.health_data)
 
-        for server_name, health in self.health_data.items():
+        for health in self.health_data.values():
             status = health.get("status", "unknown")
             health.get("has_monitoring", False)
 
-            {
-                "healthy": "✅",
-                "degraded": "⚠️",
-                "error": "❌",
-                "unknown": "❓"
-            }.get(status, "❓")
-
-
+            {"healthy": "✅", "degraded": "⚠️", "error": "❌", "unknown": "❓"}.get(
+                status, "❓"
+            )
 
             if status == "healthy":
                 healthy_count += 1
@@ -98,6 +92,7 @@ async def main():
     """Main entry point"""
     dashboard = MCPHealthDashboard("/home/ubuntu/sophia-main")
     await dashboard.start_monitoring()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

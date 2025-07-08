@@ -6,7 +6,6 @@ Enhanced adapter that integrates with the central orchestrator
 
 import asyncio
 import json
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -49,13 +48,13 @@ class SnowflakeAdapter(PlatformAdapter):
             results = {"success": True, "operations": [], "errors": []}
 
             # Handle different configuration operations
-            if "sync_schemas" in config and config["sync_schemas"]:
+            if config.get("sync_schemas"):
                 sync_result = await self.config_manager.sync_github_schemas()
                 results["operations"].append("schema_sync")
                 if sync_result.get("errors"):
                     results["errors"].extend(sync_result["errors"])
 
-            if "optimize_performance" in config and config["optimize_performance"]:
+            if config.get("optimize_performance"):
                 optimize_result = await self.config_manager.optimize_performance()
                 results["operations"].append("performance_optimization")
                 if optimize_result.get("errors"):
@@ -89,7 +88,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return results
 
         except Exception as e:
-            self.logger.error(f"Configuration failed: {e}")
+            self.logger.exception(f"Configuration failed: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_status(self) -> PlatformStatus:
@@ -153,7 +152,7 @@ class SnowflakeAdapter(PlatformAdapter):
             )
 
         except Exception as e:
-            self.logger.error(f"Status check failed: {e}")
+            self.logger.exception(f"Status check failed: {e}")
             return PlatformStatus(
                 name=self.name,
                 type=self.platform_type,
@@ -194,7 +193,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return True
 
         except Exception as e:
-            self.logger.error(f"Configuration validation failed: {e}")
+            self.logger.exception(f"Configuration validation failed: {e}")
             return False
 
     async def rollback(self, checkpoint: dict[str, Any]) -> dict[str, Any]:
@@ -220,7 +219,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return result
 
         except Exception as e:
-            self.logger.error(f"Rollback failed: {e}")
+            self.logger.exception(f"Rollback failed: {e}")
             return {"success": False, "error": str(e)}
 
     # Additional Snowflake-specific methods
@@ -365,7 +364,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return stats
 
         except Exception as e:
-            self.logger.error(f"Failed to get data statistics: {e}")
+            self.logger.exception(f"Failed to get data statistics: {e}")
             return {"error": str(e)}
 
 

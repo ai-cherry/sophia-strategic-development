@@ -893,7 +893,7 @@ class LangGraphAgentWorkflowOrchestrator:
             self.active_workflows[workflow_id]["completed_at"] = datetime.now(UTC)
 
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "LangGraph workflow orchestration failed",
                 workflow_id=workflow_id,
                 error=str(e),
@@ -949,7 +949,7 @@ class LangGraphAgentWorkflowOrchestrator:
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.COMPLETED
 
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "LangGraph insight workflow failed",
                 workflow_id=workflow_id,
                 error=str(e),
@@ -1008,7 +1008,7 @@ class LangGraphAgentWorkflowOrchestrator:
             self.active_workflows[workflow_id]["status"] = WorkflowStatus.COMPLETED
 
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "LangGraph action workflow failed",
                 workflow_id=workflow_id,
                 error=str(e),
@@ -1055,7 +1055,7 @@ class LangGraphAgentWorkflowOrchestrator:
                 response = await agent.process_request(request, agent_context)
                 return response
             except Exception as e:
-                self.logger.error(f"Agent {agent_type} processing failed: {e}")
+                self.logger.exception(f"Agent {agent_type} processing failed: {e}")
                 return {
                     "success": False,
                     "error": str(e),
@@ -1441,7 +1441,7 @@ class GongAgentIntegrationManager:
 
         except Exception as e:
             self.metrics["errors"] += 1
-            self.logger.error(
+            self.logger.exception(
                 "Error processing call notification",
                 error=str(e),
                 notification_data=notification_data,
@@ -1500,7 +1500,7 @@ class GongAgentIntegrationManager:
 
         except Exception as e:
             self.metrics["errors"] += 1
-            self.logger.error(
+            self.logger.exception(
                 "Error processing insight notification",
                 error=str(e),
                 notification_data=notification_data,
@@ -1538,7 +1538,7 @@ class GongAgentIntegrationManager:
 
         except Exception as e:
             self.metrics["errors"] += 1
-            self.logger.error(
+            self.logger.exception(
                 "Error processing action notification",
                 error=str(e),
                 notification_data=notification_data,
@@ -1573,7 +1573,7 @@ class GongAgentIntegrationManager:
             await self._update_agent_metrics(agent_type, response_data)
 
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "Error processing agent response",
                 error=str(e),
                 response_data=response_data,

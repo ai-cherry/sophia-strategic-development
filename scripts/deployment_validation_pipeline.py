@@ -35,7 +35,9 @@ def validate_dockerfile():
             timeout=300,  # 5 minute timeout
         )
         # Cleanup test image
-        subprocess.run(["docker", "rmi", "sophia-ai-validation"], capture_output=True)
+        subprocess.run(
+            ["docker", "rmi", "sophia-ai-validation"], check=False, capture_output=True
+        )
         return True
     except subprocess.CalledProcessError:
         return False
@@ -69,10 +71,7 @@ def validate_secrets():
         from backend.core.auto_esc_config import get_config_value
 
         test_secret = get_config_value("openai_api_key")
-        if test_secret and len(test_secret) > 10:
-            return True
-        else:
-            return False
+        return bool(test_secret and len(test_secret) > 10)
     except Exception:
         return False
 
@@ -91,7 +90,6 @@ def main():
 
     args = parser.parse_args()
 
-
     if args.skip_docker:
         validations = [validate_compose_file, validate_secrets]
     else:
@@ -103,10 +101,7 @@ def main():
 
     sum(results) / len(results) * 100
 
-    if all(results):
-        return True
-    else:
-        return False
+    return bool(all(results))
 
 
 if __name__ == "__main__":

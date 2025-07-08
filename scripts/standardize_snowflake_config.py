@@ -6,6 +6,7 @@ This script identifies and fixes Snowflake configuration inconsistencies
 
 import json
 import logging
+import sys
 from pathlib import Path
 
 logging.basicConfig(
@@ -153,7 +154,7 @@ class SnowflakeConfigStandardizer:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to fix {file_path}: {e}")
+            logger.exception(f"❌ Failed to fix {file_path}: {e}")
             return False
 
     def create_standard_config_file(self):
@@ -335,7 +336,7 @@ def main():
 
     standardizer = SnowflakeConfigStandardizer()
     success = standardizer.run(fix=args.fix)
-    exit(0 if success else 1)
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":

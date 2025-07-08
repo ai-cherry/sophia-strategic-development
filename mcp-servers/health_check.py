@@ -5,6 +5,7 @@ Monitors all MCP servers and provides consolidated health status
 """
 
 import asyncio
+import sys
 from datetime import datetime
 
 import aiohttp
@@ -116,7 +117,7 @@ async def main():
 
     # Exit with error code if any servers are unhealthy
     if health_status["summary"]["unhealthy_servers"] > 0:
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

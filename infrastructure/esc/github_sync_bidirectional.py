@@ -24,7 +24,7 @@ class BiDirectionalSync:
     def get_github_secrets(self) -> set[str]:
         """Get list of GitHub organization secrets"""
         cmd = ["gh", "secret", "list", "--org", "ai-cherry", "--json", "name"]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         if result.returncode == 0:
             secrets = json.loads(result.stdout)
             return {s["name"] for s in secrets}
@@ -40,7 +40,7 @@ class BiDirectionalSync:
             "--format",
             "json",
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         if result.returncode == 0:
             return json.loads(result.stdout)
         return {}
@@ -64,7 +64,7 @@ class BiDirectionalSync:
                         value,
                         "--secret",
                     ]
-                    subprocess.run(cmd, capture_output=True)
+                    subprocess.run(cmd, check=False, capture_output=True)
 
     def sync_pulumi_to_github(self):
         """Sync Pulumi ESC secrets to GitHub"""
@@ -92,14 +92,14 @@ class BiDirectionalSync:
                     "--body",
                     value,
                 ]
-                subprocess.run(cmd, capture_output=True)
+                subprocess.run(cmd, check=False, capture_output=True)
 
     def validate_sync(self):
         """Validate that all required secrets are present"""
         pulumi_secrets = self.get_pulumi_secrets()
 
         all_valid = True
-        for service, config in self.mappings["services"].items():
+        for config in self.mappings["services"].values():
             for secret in config["required_secrets"]:
                 # Check if secret exists and is not a placeholder
                 value = pulumi_secrets.get(secret, "")

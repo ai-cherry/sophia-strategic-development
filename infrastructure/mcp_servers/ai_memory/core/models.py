@@ -6,9 +6,9 @@ Comprehensive Pydantic models with validation and serialization
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import UUID
 
 import numpy as np
@@ -362,16 +362,10 @@ class SearchQuery(BaseModel):
     )
 
     # Time filters
-    created_after: datetime | None = Field(
-        None, description="Filter by creation time"
-    )
-    created_before: datetime | None = Field(
-        None, description="Filter by creation time"
-    )
+    created_after: datetime | None = Field(None, description="Filter by creation time")
+    created_before: datetime | None = Field(None, description="Filter by creation time")
     updated_after: datetime | None = Field(None, description="Filter by update time")
-    updated_before: datetime | None = Field(
-        None, description="Filter by update time"
-    )
+    updated_before: datetime | None = Field(None, description="Filter by update time")
 
     # Advanced filters
     include_expired: bool = Field(default=False, description="Include expired memories")

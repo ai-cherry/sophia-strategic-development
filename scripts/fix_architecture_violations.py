@@ -210,7 +210,6 @@ class MCPServerInterface(ABC):
             with open(f"core/ports/{filename}", "w") as f:
                 f.write(content)
 
-
     def fix_imports_in_file(self, file_path):
         """Fix imports in a single file"""
         with open(file_path) as f:
@@ -245,7 +244,7 @@ class MCPServerInterface(ABC):
     def fix_violations(self):
         """Fix architecture violations in API and Core layers"""
         # Fix files in API layer
-        for root, dirs, files in os.walk("api"):
+        for root, _dirs, files in os.walk("api"):
             if "__pycache__" in root:
                 continue
 
@@ -256,7 +255,7 @@ class MCPServerInterface(ABC):
                         pass
 
         # Fix files in Core layer
-        for root, dirs, files in os.walk("core"):
+        for root, _dirs, files in os.walk("core"):
             if "__pycache__" in root:
                 continue
 
@@ -311,7 +310,6 @@ class {adapter_class}({interface_class}):
                 f.write(content)
 
 
-
 def main():
     fixer = ArchitectureFixer()
 
@@ -320,7 +318,6 @@ def main():
     fixer.fix_violations()
 
     fixer.create_adapters()
-
 
 
 if __name__ == "__main__":

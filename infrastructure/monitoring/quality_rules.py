@@ -323,7 +323,7 @@ class TimeConsistencyRule(ValidationRule):
                     issues.append(f"Call started {abs(delay) / 60:.0f} minutes early")
 
         except Exception as e:
-            issues.append(f"Timestamp parsing error: {str(e)}")
+            issues.append(f"Timestamp parsing error: {e!s}")
 
         if issues:
             return ValidationResult(
@@ -546,13 +546,13 @@ class CustomRuleRegistry:
                 result = await rule.validate(data)
                 results.append(result)
             except Exception as e:
-                self.logger.error(f"Error in rule {rule.name}: {str(e)}")
+                self.logger.exception(f"Error in rule {rule.name}: {e!s}")
                 results.append(
                     ValidationResult(
                         rule_name=rule.name,
                         passed=False,
                         severity=AlertSeverity.MEDIUM,
-                        message=f"Rule execution error: {str(e)}",
+                        message=f"Rule execution error: {e!s}",
                     )
                 )
 
@@ -570,7 +570,7 @@ class CustomRuleRegistry:
                     result = await rule.validate(data)
                     results.append(result)
                 except Exception as e:
-                    self.logger.error(f"Error in rule {rule.name}: {str(e)}")
+                    self.logger.exception(f"Error in rule {rule.name}: {e!s}")
 
         return results
 

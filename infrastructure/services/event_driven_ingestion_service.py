@@ -132,7 +132,7 @@ class IngestionEventBus:
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to publish event: {e}")
+            logger.exception(f"❌ Failed to publish event: {e}")
             raise
 
     async def subscribe(self, event_pattern: str, handler: callable):
@@ -159,10 +159,10 @@ class IngestionEventBus:
                         event = IngestionEvent.from_dict(event_data)
                         await self._handle_event(event)
                     except Exception as e:
-                        logger.error(f"❌ Error handling Redis event: {e}")
+                        logger.exception(f"❌ Error handling Redis event: {e}")
 
         except Exception as e:
-            logger.error(f"❌ Redis subscriber error: {e}")
+            logger.exception(f"❌ Redis subscriber error: {e}")
 
     async def _handle_event(self, event: IngestionEvent):
         """Handle incoming event by calling subscribers"""
@@ -172,7 +172,7 @@ class IngestionEventBus:
                     try:
                         await handler(event)
                     except Exception as e:
-                        logger.error(f"❌ Event handler error: {e}")
+                        logger.exception(f"❌ Event handler error: {e}")
 
     async def _handle_in_memory_event(self, event: IngestionEvent):
         """Handle event in memory (fallback mode)"""
@@ -193,7 +193,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
     Implements enterprise-grade event orchestration while maintaining backwards compatibility
     """
 
-    def __init__(self, snowflake_config: dict[str, str] = None):
+    def __init__(self, snowflake_config: dict[str, str] | None = None):
         # Initialize parent class
         super().__init__(snowflake_config or {})
 
@@ -221,7 +221,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             logger.info("✅ Event-driven ingestion service initialized")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize event-driven service: {e}")
+            logger.exception(f"❌ Failed to initialize event-driven service: {e}")
             raise
 
     async def create_ingestion_job_event_driven(
@@ -230,7 +230,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
         filename: str,
         file_content: bytes,
         file_type: str,
-        metadata: dict[str, Any] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Create ingestion job with event-driven processing
@@ -270,7 +270,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             return job.job_id
 
         except Exception as e:
-            logger.error(f"❌ Failed to create event-driven ingestion job: {e}")
+            logger.exception(f"❌ Failed to create event-driven ingestion job: {e}")
             raise
 
     async def publish_progress_event(self, job_id: str, progress_data: dict[str, Any]):
@@ -288,7 +288,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             await self.event_bus.publish(event)
 
         except Exception as e:
-            logger.error(f"❌ Failed to publish progress event: {e}")
+            logger.exception(f"❌ Failed to publish progress event: {e}")
 
     async def get_service_metrics(self) -> dict[str, Any]:
         """Get event-driven service metrics"""
@@ -320,7 +320,7 @@ class EventDrivenIngestionService(EnhancedIngestionService):
             logger.info("✅ Event-driven ingestion service shutdown complete")
 
         except Exception as e:
-            logger.error(f"❌ Error during shutdown: {e}")
+            logger.exception(f"❌ Error during shutdown: {e}")
 
 
 # Convenience functions for integration
@@ -356,7 +356,7 @@ if __name__ == "__main__":
             logger.info(f"📊 Service metrics: {metrics}")
 
         except Exception as e:
-            logger.error(f"❌ Test failed: {e}")
+            logger.exception(f"❌ Test failed: {e}")
         finally:
             await service.shutdown()
 

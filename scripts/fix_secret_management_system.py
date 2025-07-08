@@ -4,13 +4,11 @@ Fix Secret Management System Script
 Comprehensive infrastructure fixes for Sophia AI secret management
 """
 
-import json
 import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 
 class SecretManagementFixer:
@@ -24,7 +22,7 @@ class SecretManagementFixer:
         """Check if Pulumi CLI is installed"""
         try:
             result = subprocess.run(
-                ["pulumi", "version"], capture_output=True, text=True
+                ["pulumi", "version"], check=False, capture_output=True, text=True
             )
             if result.returncode == 0:
                 self.fixes_applied.append(
@@ -41,7 +39,7 @@ class SecretManagementFixer:
             # Download and install Pulumi
             install_cmd = "curl -fsSL https://get.pulumi.com | sh"
             result = subprocess.run(
-                install_cmd, shell=True, capture_output=True, text=True
+                install_cmd, check=False, shell=True, capture_output=True, text=True
             )
 
             if result.returncode == 0:
@@ -489,7 +487,7 @@ except ImportError as e:
         report = f"""
 # Secret Management Infrastructure Fix Report
 
-**Date:** {subprocess.run(['date'], capture_output=True, text=True).stdout.strip()}
+**Date:** {subprocess.run(['date'], check=False, capture_output=True, text=True).stdout.strip()}
 **Status:** {'✅ Success' if all(results.values()) else '⚠️ Partial Success'}
 
 ## Results Summary
@@ -553,11 +551,9 @@ def main():
     with open(report_path, "w") as f:
         f.write(report)
 
-
     # Print summary
     successful_fixes = sum(1 for result in results.values() if result)
     total_fixes = len(results)
-
 
     if successful_fixes == total_fixes:
         pass
@@ -568,4 +564,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

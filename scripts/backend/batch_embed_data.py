@@ -313,7 +313,7 @@ class BatchEmbeddingProcessor:
             return records
 
         except Exception as e:
-            logger.error(f"Error querying records from {config.table_name}: {e}")
+            logger.exception(f"Error querying records from {config.table_name}: {e}")
             raise
         finally:
             if cursor:
@@ -377,7 +377,7 @@ class BatchEmbeddingProcessor:
                         )
                         await asyncio.sleep(wait_time)
                     else:
-                        logger.error(
+                        logger.exception(
                             f"Failed to process {record_id} after {self.max_retries} retries: {e}"
                         )
                         failed += 1
@@ -401,7 +401,7 @@ class BatchEmbeddingProcessor:
         try:
             await self.cortex_service.ensure_embedding_columns_exist(config.table_name)
         except Exception as e:
-            logger.error(
+            logger.exception(
                 f"Failed to ensure embedding columns exist in {config.table_name}: {e}"
             )
             raise
@@ -454,7 +454,7 @@ class BatchEmbeddingProcessor:
                     )
 
                 except Exception as e:
-                    logger.error(f"Error processing batch {batch_idx + 1}: {e}")
+                    logger.exception(f"Error processing batch {batch_idx + 1}: {e}")
                     stats.failed_embeddings += len(batch)
                     stats.processed_records += len(batch)
                     pbar.update(len(batch))
@@ -499,7 +499,7 @@ class BatchEmbeddingProcessor:
                 total_stats.skipped_records += stats.skipped_records
 
             except Exception as e:
-                logger.error(f"Failed to process table {table.value}: {e}")
+                logger.exception(f"Failed to process table {table.value}: {e}")
                 results[table.value] = ProcessingStats()
 
         total_stats.end_time = datetime.now()
@@ -557,7 +557,7 @@ class BatchEmbeddingProcessor:
                 }
 
             except Exception as e:
-                logger.error(f"Error getting status for {table.value}: {e}")
+                logger.exception(f"Error getting status for {table.value}: {e}")
                 status[table.value] = {"error": str(e)}
             finally:
                 if cursor:
@@ -636,7 +636,7 @@ async def main():
         if args.status:
             # Show status
             status = await processor.get_processing_status()
-            for _table_name, table_status in status.items():
+            for table_status in status.values():
                 if "error" in table_status:
                     pass
                 else:
@@ -666,7 +666,7 @@ async def main():
         logger.info("Processing interrupted by user")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Processing failed: {e}")
+        logger.exception(f"Processing failed: {e}")
         sys.exit(1)
     finally:
         await processor.close()

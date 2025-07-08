@@ -101,7 +101,7 @@ class SnowflakeHubSpotConnector:
             logger.info("✅ Snowflake HubSpot connector initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake HubSpot connector: {e}")
+            logger.exception(f"Failed to initialize Snowflake HubSpot connector: {e}")
             raise
 
     async def query_hubspot_contacts(
@@ -139,7 +139,7 @@ class SnowflakeHubSpotConnector:
             return df
 
         except Exception as e:
-            logger.error(f"Error querying HubSpot contacts: {e}")
+            logger.exception(f"Error querying HubSpot contacts: {e}")
             raise
         finally:
             if cursor:
@@ -183,7 +183,7 @@ class SnowflakeHubSpotConnector:
             return df
 
         except Exception as e:
-            logger.error(f"Error querying HubSpot deals: {e}")
+            logger.exception(f"Error querying HubSpot deals: {e}")
             raise
         finally:
             if cursor:
@@ -229,7 +229,7 @@ class SnowflakeHubSpotConnector:
             return df
 
         except Exception as e:
-            logger.error(f"Error querying HubSpot activities: {e}")
+            logger.exception(f"Error querying HubSpot activities: {e}")
             raise
         finally:
             if cursor:

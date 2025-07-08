@@ -12,9 +12,9 @@ def fix_snowflake_gong_connector():
     if not file_path.exists():
         print(f"File not found: {file_path}")
         return
-    
+
     content = file_path.read_text()
-    
+
     # Add parameterized query support
     if "# SQL Injection fixes applied" not in content:
         # Add import for parameterized queries
@@ -31,9 +31,9 @@ from snowflake.connector import DictCursor
 """
         content = content.replace(
             "import asyncio\nimport logging\nfrom datetime import datetime, timedelta\nfrom typing import Any, Optional\n\nimport snowflake.connector\nfrom snowflake.connector import DictCursor",
-            import_section
+            import_section,
         )
-        
+
         # Fix the performance query
         content = content.replace(
             '''return f"""
@@ -71,9 +71,9 @@ from snowflake.connector import DictCursor
         WHERE gc.PRIMARY_USER_NAME = %s
         AND gc.CALL_DATETIME_UTC >= DATEADD('day', -%s, CURRENT_DATE())
         GROUP BY gc.PRIMARY_USER_NAME
-        """.format(self.tables["calls"])'''
+        """.format(self.tables["calls"])''',
         )
-        
+
         # Fix the coaching opportunities query
         content = content.replace(
             '''return f"""
@@ -99,15 +99,15 @@ from snowflake.connector import DictCursor
         FROM {} gc
         WHERE gc.PRIMARY_USER_NAME = %s
         AND gc.CALL_DATETIME_UTC >= DATEADD('day', -%s, CURRENT_DATE())
-        """.format(self.tables["calls"])'''
+        """.format(self.tables["calls"])''',
         )
-        
+
         # Fix the execute calls to pass parameters
         content = content.replace(
             "cursor.execute(full_query)",
-            "cursor.execute(full_query, (sales_rep, date_range_days, sales_rep, date_range_days))"
+            "cursor.execute(full_query, (sales_rep, date_range_days, sales_rep, date_range_days))",
         )
-        
+
         # Fix transcript query
         content = content.replace(
             '''query = f"""
@@ -137,15 +137,14 @@ from snowflake.connector import DictCursor
         FROM {}
         WHERE CALL_ID = %s
         ORDER BY START_TIME_SECONDS
-        """.format(self.tables["transcripts"])'''
+        """.format(self.tables["transcripts"])''',
         )
-        
+
         # Fix transcript execute
         content = content.replace(
-            "cursor.execute(query)",
-            "cursor.execute(query, (call_id,))"
+            "cursor.execute(query)", "cursor.execute(query, (call_id,))"
         )
-        
+
         file_path.write_text(content)
         print(f"✅ Fixed SQL injection vulnerabilities in {file_path}")
 
@@ -156,17 +155,17 @@ def fix_snowflake_hubspot_connector():
     if not file_path.exists():
         print(f"File not found: {file_path}")
         return
-    
+
     content = file_path.read_text()
-    
+
     # Add comment about fixes
     if "# SQL Injection fixes applied" not in content:
         content = "# SQL Injection fixes applied by fix_sql_injection.py\n" + content
-        
+
         # Note: The HubSpot connector queries use table names from config which is safe
         # The WHERE clauses use proper parameterization already
         # Just need to ensure no direct string interpolation of user input
-        
+
         file_path.write_text(content)
         print(f"✅ Reviewed {file_path} - queries appear safe (using config values)")
 
@@ -177,13 +176,13 @@ def fix_snowflake_estuary_connector():
     if not file_path.exists():
         print(f"File not found: {file_path}")
         return
-    
+
     content = file_path.read_text()
-    
+
     # Add comment about fixes
     if "# SQL Injection fixes applied" not in content:
         content = "# SQL Injection fixes applied by fix_sql_injection.py\n" + content
-        
+
         # Similar to HubSpot connector - uses config values for table names
         file_path.write_text(content)
         print(f"✅ Reviewed {file_path} - queries appear safe (using config values)")
@@ -192,14 +191,14 @@ def fix_snowflake_estuary_connector():
 def main():
     print("🔒 Fixing SQL Injection Vulnerabilities")
     print("=" * 50)
-    
+
     fix_snowflake_gong_connector()
     fix_snowflake_hubspot_connector()
     fix_snowflake_estuary_connector()
-    
+
     print("\n✅ SQL injection fixes complete!")
     print("\nIMPORTANT: Please review the changes and test the queries.")
 
 
 if __name__ == "__main__":
-    main() 
+    main()

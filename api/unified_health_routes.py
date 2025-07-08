@@ -1,5 +1,3 @@
-import random
-
 from fastapi import APIRouter
 
 from api.ai_memory_health_routes import get_ai_memory_health

@@ -1,11 +1,11 @@
 """Database helpers for ai_memory_v2 MCP server."""
+
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, Column, DateTime, Float, Index, Integer, String, Text
+from sqlalchemy import JSON, Column, DateTime, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -29,6 +29,7 @@ _session_factory: async_sessionmaker[AsyncSession] | None = None
 
 class MemoryTable(Base):
     """SQLAlchemy model for memory entries."""
+
     __tablename__ = "memory_entries"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -45,9 +46,9 @@ class MemoryTable(Base):
 
     # Indexes for performance
     __table_args__ = (
-        Index('idx_memory_category', 'category'),
-        Index('idx_memory_user', 'user_id'),
-        Index('idx_memory_created', 'created_at'),
+        Index("idx_memory_category", "category"),
+        Index("idx_memory_user", "user_id"),
+        Index("idx_memory_created", "created_at"),
         # Vector index will be created separately with pgvector
     )
 
@@ -62,7 +63,7 @@ async def get_engine() -> AsyncEngine:
             pool_size=settings.DB_POOL_MIN,
             max_overflow=settings.DB_POOL_MAX - settings.DB_POOL_MIN,
             pool_pre_ping=True,
-            echo=settings.LOG_LEVEL == "DEBUG"
+            echo=settings.LOG_LEVEL == "DEBUG",
         )
         logger.info("Created database engine")
 
@@ -76,9 +77,7 @@ async def get_session_factory() -> async_sessionmaker[AsyncSession]:
     if _session_factory is None:
         engine = await get_engine()
         _session_factory = async_sessionmaker(
-            engine,
-            class_=AsyncSession,
-            expire_on_commit=False
+            engine, class_=AsyncSession, expire_on_commit=False
         )
         logger.info("Created session factory")
 
@@ -112,12 +111,14 @@ async def init_db() -> None:
         await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
 
         # Create vector index for similarity search
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_memory_embedding
             ON memory_entries
             USING ivfflat (embedding vector_cosine_ops)
             WITH (lists = 100)
-        """)
+        """
+        )
 
     logger.info("Database initialized")
 
@@ -140,5 +141,5 @@ async def check_db_health() -> bool:
             result = await session.execute("SELECT 1")
             return result.scalar() == 1
     except Exception as e:
-        logger.error(f"Database health check failed: {e}")
+        logger.exception(f"Database health check failed: {e}")
         return False

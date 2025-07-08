@@ -19,15 +19,15 @@ from .universal_chat_service import UnifiedChatService
 __all__ = [
     # Core Services
     "BaseChatService",
-    "SophiaChatService",
-    "ExecutiveChatService",
-    "UnifiedChatService",
-    "UnifiedChatService",
-    # Managers
-    "SessionManager",
-    "ContextManager",
     # Providers
     "BaseProvider",
+    "ContextManager",
+    "ExecutiveChatService",
     "OpenAIProvider",
     "PortkeyProvider",
+    # Managers
+    "SessionManager",
+    "SophiaChatService",
+    "UnifiedChatService",
+    "UnifiedChatService",
 ]

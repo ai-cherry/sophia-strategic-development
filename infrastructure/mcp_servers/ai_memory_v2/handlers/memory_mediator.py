@@ -3,13 +3,12 @@ Memory Mediator for AI Memory V2 MCP Server
 Provides unified interface for memory operations across Redis, Snowflake, and Vector DBs
 """
 
-import asyncio
 import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import redis.asyncio as redis
 from pydantic import BaseModel, Field
@@ -110,7 +109,7 @@ class MemoryMediator:
             # TODO: Initialize Vector DB connection
 
         except Exception as e:
-            logger.error(f"Failed to initialize Memory Mediator: {e}")
+            logger.exception(f"Failed to initialize Memory Mediator: {e}")
             raise
 
     async def store(
@@ -153,7 +152,7 @@ class MemoryMediator:
             return {"id": memory.id, "status": "stored", "cache_ttl": ttl}
 
         except Exception as e:
-            logger.error(f"Failed to store memory: {e}")
+            logger.exception(f"Failed to store memory: {e}")
             raise
 
     async def retrieve(
@@ -195,7 +194,7 @@ class MemoryMediator:
             return None
 
         except Exception as e:
-            logger.error(f"Failed to retrieve memory: {e}")
+            logger.exception(f"Failed to retrieve memory: {e}")
             return None
 
     async def search(
@@ -243,7 +242,7 @@ class MemoryMediator:
             return results[:limit]
 
         except Exception as e:
-            logger.error(f"Search failed: {e}")
+            logger.exception(f"Search failed: {e}")
             return []
 
     async def update(
@@ -279,7 +278,7 @@ class MemoryMediator:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to update memory: {e}")
+            logger.exception(f"Failed to update memory: {e}")
             return False
 
     async def delete(
@@ -326,7 +325,7 @@ class MemoryMediator:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to delete memory: {e}")
+            logger.exception(f"Failed to delete memory: {e}")
             return False
 
     async def get_stats(self) -> dict[str, Any]:

@@ -64,7 +64,7 @@ def migrate_remaining_files():
     moved_count = 0
 
     # Process each remaining file
-    for root, dirs, files in os.walk("backend"):
+    for root, _dirs, files in os.walk("backend"):
         if "__pycache__" in root:
             continue
 
@@ -105,11 +105,10 @@ def migrate_remaining_files():
                     except Exception:
                         pass
 
-
     # Check if backend directory is empty
     remaining = list(Path("backend").rglob("*.py"))
     if remaining:
-        for f in remaining[:10]:
+        for _f in remaining[:10]:
             pass
     else:
         pass

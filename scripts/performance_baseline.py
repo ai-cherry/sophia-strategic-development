@@ -101,9 +101,11 @@ class PerformanceBaseline:
             if times:
                 self.results["mcp_servers"][server_name] = {
                     "avg_ms": statistics.mean(times),
-                    "p95_ms": statistics.quantiles(times, n=20)[18]
-                    if len(times) > 1
-                    else times[0],
+                    "p95_ms": (
+                        statistics.quantiles(times, n=20)[18]
+                        if len(times) > 1
+                        else times[0]
+                    ),
                     "max_ms": max(times),
                     "min_ms": min(times),
                     "success_rate": (10 - errors) / 10,

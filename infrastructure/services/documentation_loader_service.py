@@ -3,15 +3,12 @@ Documentation Loader Service
 Implements 3-tier auto-loading system following Claude-Code-Development-Kit patterns
 """
 
-import json
-import os
 import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-from core.auto_esc_config import get_config_value
 from shared.utils.custom_logger import logger
 
 

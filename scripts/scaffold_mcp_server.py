@@ -6,10 +6,8 @@ Creates production-ready MCP servers with all best practices
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
-from typing import Any, Dict
 
 # Color codes for output
 RED = "\033[0;31m"

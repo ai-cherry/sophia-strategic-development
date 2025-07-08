@@ -60,7 +60,7 @@ class ComprehensiveSyntaxScanner:
                     "type": "SyntaxError",
                 }
                 self.results["python_files"]["errors"].append(error_info)
-                self.logger.error(f"❌ {py_file.name}: {e}")
+                self.logger.exception(f"❌ {py_file.name}: {e}")
 
             except UnicodeDecodeError as e:
                 error_info = {
@@ -207,7 +207,7 @@ class ComprehensiveSyntaxScanner:
                     "type": "JSONDecodeError",
                 }
                 self.results["json_files"]["errors"].append(error_info)
-                self.logger.error(f"❌ {json_file.name}: {e}")
+                self.logger.exception(f"❌ {json_file.name}: {e}")
 
             except Exception as e:
                 error_info = {
@@ -254,7 +254,7 @@ class ComprehensiveSyntaxScanner:
                     "type": "YAMLError",
                 }
                 self.results["yaml_files"]["errors"].append(error_info)
-                self.logger.error(f"❌ {yaml_file.name}: {e}")
+                self.logger.exception(f"❌ {yaml_file.name}: {e}")
 
             except Exception as e:
                 error_info = {
@@ -287,6 +287,7 @@ class ComprehensiveSyntaxScanner:
             # Run ruff check
             result = subprocess.run(
                 ["uv", "run", "ruff", "check", ".", "--output-format", "json"],
+                check=False,
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,

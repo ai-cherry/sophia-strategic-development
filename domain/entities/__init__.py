@@ -11,12 +11,12 @@ from .user import PermissionLevel, User, UserRole
 
 __all__ = [
     "Call",
-    "Deal",
-    "DealStage",
     "Contact",
     "ContactType",
+    "Deal",
+    "DealStage",
     "EngagementLevel",
+    "PermissionLevel",
     "User",
     "UserRole",
-    "PermissionLevel",
 ]

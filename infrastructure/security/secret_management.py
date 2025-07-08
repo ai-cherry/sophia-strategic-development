@@ -159,7 +159,7 @@ class SecretManager:
                 return base64.urlsafe_b64decode(encryption_key.encode())
             return encryption_key
         except Exception as e:
-            self.logger.error(f"Failed to decode encryption key: {e}")
+            self.logger.exception(f"Failed to decode encryption key: {e}")
             # Fallback to new key
             return Fernet.generate_key()
 
@@ -200,7 +200,7 @@ class SecretManager:
             return validation_results
 
         except Exception as e:
-            self.logger.error(f"Secret validation failed: {str(e)}")
+            self.logger.exception(f"Secret validation failed: {e!s}")
             await self._audit_log_event(
                 event_type="secret_validation",
                 resource="all_secrets",
@@ -330,7 +330,7 @@ class SecretManager:
                 return success
 
         except Exception as e:
-            self.logger.error(f"Asana API validation failed: {e}")
+            self.logger.exception(f"Asana API validation failed: {e}")
             return False
 
     async def _validate_salesforce_credentials(self) -> bool:
@@ -350,7 +350,7 @@ class SecretManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Salesforce validation failed: {e}")
+            self.logger.exception(f"Salesforce validation failed: {e}")
             return False
 
     async def _validate_slack_enhanced_credentials(self) -> bool:
@@ -376,7 +376,7 @@ class SecretManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Enhanced Slack validation failed: {e}")
+            self.logger.exception(f"Enhanced Slack validation failed: {e}")
             return False
 
     async def _validate_jwt_keys(self) -> bool:
@@ -403,7 +403,7 @@ class SecretManager:
             return success
 
         except Exception as e:
-            self.logger.error(f"JWT key validation failed: {e}")
+            self.logger.exception(f"JWT key validation failed: {e}")
             return False
 
     async def _validate_openai_key(self) -> bool:
@@ -424,7 +424,7 @@ class SecretManager:
                 return success
 
         except Exception as e:
-            self.logger.error(f"OpenAI API validation failed: {e}")
+            self.logger.exception(f"OpenAI API validation failed: {e}")
             return False
 
     async def _validate_anthropic_key(self) -> bool:
@@ -457,7 +457,7 @@ class SecretManager:
                 return success
 
         except Exception as e:
-            self.logger.error(f"Anthropic API validation failed: {e}")
+            self.logger.exception(f"Anthropic API validation failed: {e}")
             return False
 
     async def _validate_snowflake_credentials(self) -> bool:
@@ -479,7 +479,7 @@ class SecretManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Snowflake validation failed: {e}")
+            self.logger.exception(f"Snowflake validation failed: {e}")
             return False
 
     async def _validate_redis_credentials(self) -> bool:
@@ -495,7 +495,7 @@ class SecretManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Redis validation failed: {e}")
+            self.logger.exception(f"Redis validation failed: {e}")
             return False
 
     async def _validate_gong_credentials(self) -> bool:
@@ -521,7 +521,7 @@ class SecretManager:
                 return success
 
         except Exception as e:
-            self.logger.error(f"Gong API validation failed: {e}")
+            self.logger.exception(f"Gong API validation failed: {e}")
             return False
 
     async def _validate_arize_key(self) -> bool:
@@ -537,7 +537,7 @@ class SecretManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Arize validation failed: {e}")
+            self.logger.exception(f"Arize validation failed: {e}")
             return False
 
     def _validate_sentry_dsn(self) -> bool:
@@ -559,7 +559,7 @@ class SecretManager:
             return True
 
         except Exception as e:
-            self.logger.error(f"Sentry DSN validation failed: {e}")
+            self.logger.exception(f"Sentry DSN validation failed: {e}")
             return False
 
     def _validate_token_format(self, token: str) -> bool:
@@ -576,7 +576,7 @@ class SecretManager:
             return len(token) >= 16 and token.isalnum()
 
         except Exception as e:
-            self.logger.error(f"Token format validation failed: {e}")
+            self.logger.exception(f"Token format validation failed: {e}")
             return False
 
     async def setup_secret_rotation_monitoring(self) -> None:
@@ -598,7 +598,7 @@ class SecretManager:
             )
 
         except Exception as e:
-            self.logger.error(f"Secret rotation monitoring setup failed: {e}")
+            self.logger.exception(f"Secret rotation monitoring setup failed: {e}")
 
     async def _initialize_secret_metadata(self) -> None:
         """Initialize metadata for all managed secrets."""

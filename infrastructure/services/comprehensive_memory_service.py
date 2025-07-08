@@ -249,7 +249,7 @@ class ComprehensiveMemoryService:
                     logger.debug(f"Processed Gong call: {gong_call.call_id}")
 
                 except Exception as e:
-                    logger.error(
+                    logger.exception(
                         f"Failed to process Gong call {call_data.get('call_id', 'unknown')}: {e}"
                     )
                     continue
@@ -307,7 +307,7 @@ class ComprehensiveMemoryService:
                     logger.debug(f"Processed Slack message: {slack_message.message_id}")
 
                 except Exception as e:
-                    logger.error(
+                    logger.exception(
                         f"Failed to process Slack message {message_data.get('ts', 'unknown')}: {e}"
                     )
                     continue
@@ -378,7 +378,7 @@ class ComprehensiveMemoryService:
                     )
 
                 except Exception as e:
-                    logger.error(
+                    logger.exception(
                         f"Failed to create integrated memory for {conv_data.get('conversation_id', 'unknown')}: {e}"
                     )
                     continue
@@ -432,7 +432,7 @@ class ComprehensiveMemoryService:
             }
 
         except Exception as e:
-            logger.error(
+            logger.exception(
                 f"Failed to generate insights for conversation {conversation.conversation_id}: {e}"
             )
             return {
@@ -443,7 +443,7 @@ class ComprehensiveMemoryService:
             }
 
     async def search_cross_platform_memories(
-        self, query: str, platforms: list[str] = None, top_k: int = 10
+        self, query: str, platforms: list[str] | None = None, top_k: int = 10
     ) -> list[MemoryRecord]:
         """
         Search for memories across multiple platforms (Gong, Slack, etc.).

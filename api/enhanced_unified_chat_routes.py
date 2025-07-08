@@ -230,10 +230,8 @@ async def send_chat_message(
         return response
 
     except Exception as e:
-        logger.error(f"Error processing chat message: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Error processing message: {str(e)}"
-        )
+        logger.exception(f"Error processing chat message: {e}")
+        raise HTTPException(status_code=500, detail=f"Error processing message: {e!s}")
 
 
 @router.get("/history/{session_id}")
@@ -275,9 +273,9 @@ async def get_chat_history(
         return {"session_id": session_id, "history": history_response}
 
     except Exception as e:
-        logger.error(f"Error getting chat history: {e}")
+        logger.exception(f"Error getting chat history: {e}")
         raise HTTPException(
-            status_code=500, detail=f"Error getting chat history: {str(e)}"
+            status_code=500, detail=f"Error getting chat history: {e!s}"
         )
 
 
@@ -336,10 +334,8 @@ async def create_workflow(
         return response
 
     except Exception as e:
-        logger.error(f"Error creating workflow: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Error creating workflow: {str(e)}"
-        )
+        logger.exception(f"Error creating workflow: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating workflow: {e!s}")
 
 
 @router.get("/workflow/{workflow_id}", response_model=WorkflowResponse)
@@ -374,9 +370,9 @@ async def get_workflow_status(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error getting workflow status: {e}")
+        logger.exception(f"Error getting workflow status: {e}")
         raise HTTPException(
-            status_code=500, detail=f"Error getting workflow status: {str(e)}"
+            status_code=500, detail=f"Error getting workflow status: {e!s}"
         )
 
 
@@ -396,10 +392,8 @@ async def get_user_workflows(current_user: dict[str, Any] = Depends(get_current_
         return {"user_id": user_id, "workflows": workflows}
 
     except Exception as e:
-        logger.error(f"Error getting user workflows: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Error getting workflows: {str(e)}"
-        )
+        logger.exception(f"Error getting user workflows: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting workflows: {e!s}")
 
 
 @router.post("/approval/{checkpoint_id}", response_model=ApprovalResponse)
@@ -456,10 +450,8 @@ async def handle_approval(
         return response
 
     except Exception as e:
-        logger.error(f"Error handling approval: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Error handling approval: {str(e)}"
-        )
+        logger.exception(f"Error handling approval: {e}")
+        raise HTTPException(status_code=500, detail=f"Error handling approval: {e!s}")
 
 
 @router.get("/approvals")
@@ -480,10 +472,8 @@ async def get_pending_approvals(
         return {"user_id": user_id, "pending_approvals": approvals}
 
     except Exception as e:
-        logger.error(f"Error getting pending approvals: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Error getting approvals: {str(e)}"
-        )
+        logger.exception(f"Error getting pending approvals: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting approvals: {e!s}")
 
 
 @router.websocket("/ws/{user_id}")
@@ -578,10 +568,10 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 # Invalid JSON, ignore
                 pass
             except Exception as e:
-                logger.error(f"Error processing WebSocket message: {e}")
+                logger.exception(f"Error processing WebSocket message: {e}")
                 error_response = {
                     "type": "error",
-                    "message": f"Error processing message: {str(e)}",
+                    "message": f"Error processing message: {e!s}",
                     "timestamp": datetime.now().isoformat(),
                 }
                 await websocket.send_text(json.dumps(error_response))
@@ -589,7 +579,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     except WebSocketDisconnect:
         manager.disconnect(websocket, user_id)
     except Exception as e:
-        logger.error(f"WebSocket error: {e}")
+        logger.exception(f"WebSocket error: {e}")
         manager.disconnect(websocket, user_id)
 
 
@@ -645,8 +635,8 @@ async def create_agent_via_api(
         }
 
     except Exception as e:
-        logger.error(f"Error creating agent: {e}")
-        raise HTTPException(status_code=500, detail=f"Error creating agent: {str(e)}")
+        logger.exception(f"Error creating agent: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating agent: {e!s}")
 
 
 @router.get("/health")
@@ -671,7 +661,7 @@ async def health_check():
         }
 
     except Exception as e:
-        logger.error(f"Health check error: {e}")
+        logger.exception(f"Health check error: {e}")
         return JSONResponse(
             status_code=503,
             content={
@@ -720,12 +710,12 @@ async def periodic_status_updates():
                         await manager.broadcast_to_user(status_update, user_id)
 
                 except Exception as e:
-                    logger.error(
+                    logger.exception(
                         f"Error sending periodic update to user {user_id}: {e}"
                     )
 
         except Exception as e:
-            logger.error(f"Error in periodic status updates: {e}")
+            logger.exception(f"Error in periodic status updates: {e}")
 
 
 # Start background task when module is imported

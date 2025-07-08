@@ -38,8 +38,8 @@ class EphemeralCredentialsMiddleware(BaseHTTPMiddleware):
         self,
         app: FastAPI,
         credentials_service: EphemeralCredentialsService,
-        exclude_paths: list[str] = None,
-        required_scopes_by_path: dict[str, list[CredentialScope]] = None,
+        exclude_paths: list[str] | None = None,
+        required_scopes_by_path: dict[str, list[CredentialScope]] | None = None,
     ):
         """
         Initialize the middleware.

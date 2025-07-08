@@ -66,10 +66,8 @@ async def send_chat_message(
         return response
 
     except Exception as e:
-        logger.error(f"Error processing chat message: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Error processing message: {str(e)}"
-        )
+        logger.exception(f"Error processing chat message: {e}")
+        raise HTTPException(status_code=500, detail=f"Error processing message: {e!s}")
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -82,7 +80,7 @@ async def chat_health_check(
         return HealthResponse(**health_status)
 
     except Exception as e:
-        logger.error(f"Error getting health status: {e}")
+        logger.exception(f"Error getting health status: {e}")
         return HealthResponse(
             status="unhealthy",
             initialized=False,

@@ -4,7 +4,7 @@ Handler for ticket-related HubSpot operations.
 
 from typing import Any
 
-import mcp.types as types
+from mcp import types
 
 from .base_handler import BaseHandler
 
@@ -139,9 +139,7 @@ class TicketHandler(BaseHandler):
                     data=data, data_type="ticket", metadata_extras=metadata_extras
                 )
         except Exception as e:
-            self.logger.error(
-                f"Error storing tickets in FAISS: {str(e)}", exc_info=True
-            )
+            self.logger.error(f"Error storing tickets in FAISS: {e!s}", exc_info=True)
 
     def get_ticket_conversation_threads(
         self, arguments: dict[str, Any] | None
@@ -184,7 +182,7 @@ class TicketHandler(BaseHandler):
             return self.create_text_response(results)
         except Exception as e:
             self.logger.error(
-                f"Exception in get_ticket_conversation_threads: {str(e)}", exc_info=True
+                f"Exception in get_ticket_conversation_threads: {e!s}", exc_info=True
             )
             return self.create_text_response(
                 {
@@ -225,6 +223,6 @@ class TicketHandler(BaseHandler):
                 )
         except Exception as e:
             self.logger.error(
-                f"Error storing ticket conversation threads in FAISS: {str(e)}",
+                f"Error storing ticket conversation threads in FAISS: {e!s}",
                 exc_info=True,
             )

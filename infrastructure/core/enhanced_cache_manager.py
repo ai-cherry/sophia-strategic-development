@@ -376,7 +376,7 @@ class EnhancedCacheManager:
             return cached_count
 
         except Exception as e:
-            logger.error(f"Cache warming error: {e}")
+            logger.exception(f"Cache warming error: {e}")
             return cached_count
 
     async def invalidate_pattern(self, pattern: str) -> int:

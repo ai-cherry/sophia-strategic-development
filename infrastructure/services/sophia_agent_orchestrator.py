@@ -7,13 +7,11 @@ with Portkey gateway and OpenRouter model selection
 import asyncio
 import json
 import time
-from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from core.auto_esc_config import get_config_value
 from infrastructure.services.unified_llm_service import TaskType, UnifiedLLMService
 from shared.utils.custom_logger import logger
 
@@ -325,9 +323,9 @@ class SophiaAgentOrchestrator:
                 metadata={
                     "workflow_type": workflow_type,
                     "intent": intent_result,
-                    "execution_mode": "parallel"
-                    if parallel_execution
-                    else "sequential",
+                    "execution_mode": (
+                        "parallel" if parallel_execution else "sequential"
+                    ),
                 },
                 execution_time=execution_time,
                 agent_chain=agent_chain,
@@ -344,7 +342,7 @@ class SophiaAgentOrchestrator:
 
             return WorkflowResult(
                 success=False,
-                result=f"Error: {str(e)}",
+                result=f"Error: {e!s}",
                 metadata={"error": str(e), "workflow_type": workflow_type},
                 execution_time=execution_time,
                 agent_chain=agent_chain,

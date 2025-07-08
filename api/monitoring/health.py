@@ -151,7 +151,7 @@ class HealthMonitor:
                 )
 
             except Exception as e:
-                logger.error(f"Liveness check failed: {e}")
+                logger.exception(f"Liveness check failed: {e}")
                 return (
                     jsonify(
                         {
@@ -249,7 +249,7 @@ class HealthMonitor:
             }
 
         except Exception as e:
-            logger.error(f"Failed to get system health: {e}")
+            logger.exception(f"Failed to get system health: {e}")
             return {
                 "status": "unhealthy",
                 "error": str(e),
@@ -274,7 +274,7 @@ class HealthMonitor:
                 }
 
         except Exception as e:
-            logger.error(f"Health check failed for {component}: {e}")
+            logger.exception(f"Health check failed for {component}: {e}")
             return {
                 "status": "unhealthy",
                 "error": str(e),

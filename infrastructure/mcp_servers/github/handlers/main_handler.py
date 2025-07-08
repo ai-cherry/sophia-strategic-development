@@ -1,4 +1,5 @@
 """Main handler for github MCP server."""
+
 import logging
 
 logger = logging.getLogger(__name__)

@@ -5,7 +5,7 @@ Comprehensive error handling with specific exception types
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class MemoryError(Exception):
@@ -259,7 +259,7 @@ def map_external_error(
     error_class = EXTERNAL_ERROR_MAPPING.get(service, MemoryError)
 
     # Extract relevant information from the original error
-    message = f"{service.title()} error: {str(error)}"
+    message = f"{service.title()} error: {error!s}"
     context = {
         "service": service,
         "original_error": error.__class__.__name__,
@@ -291,7 +291,6 @@ def map_external_error(
 
 def handle_async_exception(func):
     """Decorator to handle async exceptions consistently"""
-    import asyncio
     import functools
 
     @functools.wraps(func)
@@ -309,7 +308,7 @@ def handle_async_exception(func):
                 raise
             else:
                 raise MemoryError(
-                    message=f"Unexpected error in {func.__name__}: {str(e)}",
+                    message=f"Unexpected error in {func.__name__}: {e!s}",
                     context={"function": func.__name__},
                     cause=e,
                 )

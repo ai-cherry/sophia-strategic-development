@@ -3,11 +3,10 @@ Federated Query Service for Project Chimera
 Provides unified access to all data sources through intelligent query planning
 """
 
-import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ class FederatedQueryService:
         self.performance_metrics = {}
 
     async def execute_federated_query(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Execute a federated query across multiple data sources"""
         try:
@@ -59,11 +58,11 @@ class FederatedQueryService:
             }
 
         except Exception as e:
-            logger.error(f"Federated query execution failed: {str(e)}")
+            logger.exception(f"Federated query execution failed: {e!s}")
             return {"success": False, "error": str(e), "query": query}
 
     async def generate_query_plan(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> QueryPlan:
         """Generate optimal query execution plan"""
         # This would implement sophisticated query planning logic

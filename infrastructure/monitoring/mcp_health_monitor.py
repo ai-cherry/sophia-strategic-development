@@ -2,6 +2,7 @@
 MCP Health Monitoring System
 Implements LangConnect-style health monitoring for all 28 MCP servers
 """
+
 import asyncio
 import logging
 import time
@@ -157,7 +158,7 @@ class MCPHealthMonitor:
                 server_name=server_name, error_type="connection_error"
             ).inc()
             mcp_health_status.labels(server_name=server_name).set(0)
-            logger.error(f"Health check failed for {server_name}: {e}")
+            logger.exception(f"Health check failed for {server_name}: {e}")
 
         # Update cache
         self.health_cache[server_name] = health
@@ -198,7 +199,7 @@ class MCPHealthMonitor:
                 self.health_cache[server_name].consecutive_failures = 0
 
         except Exception as e:
-            logger.error(f"Failed to restart {server_name}: {e}")
+            logger.exception(f"Failed to restart {server_name}: {e}")
 
     async def check_all_servers(self) -> dict[str, ServerHealth]:
         """Check health of all configured servers"""
@@ -228,7 +229,7 @@ class MCPHealthMonitor:
                 await self.check_all_servers()
                 await asyncio.sleep(self.check_interval)
             except Exception as e:
-                logger.error(f"Error in monitoring loop: {e}")
+                logger.exception(f"Error in monitoring loop: {e}")
                 await asyncio.sleep(self.check_interval)
 
     def get_health_summary(self) -> dict:

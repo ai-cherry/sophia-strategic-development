@@ -69,7 +69,7 @@ class MCPClient:
                 response.raise_for_status()
                 return await response.json()
         except aiohttp.ClientError as e:
-            logger.error(f"Error calling MCP server '{server_name}': {e}")
+            logger.exception(f"Error calling MCP server '{server_name}': {e}")
             raise Exception(
                 f"Failed to communicate with MCP server '{server_name}'."
             ) from e

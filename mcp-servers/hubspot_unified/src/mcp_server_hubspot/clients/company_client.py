@@ -141,7 +141,7 @@ class CompanyClient:
                 formatted_engagement = self._format_engagement(engagement_response)
                 activities.append(formatted_engagement)
             except Exception as e:
-                logger.error(f"Error retrieving engagement {engagement_id}: {str(e)}")
+                logger.exception(f"Error retrieving engagement {engagement_id}: {e!s}")
 
         return activities
 

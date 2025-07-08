@@ -1,4 +1,5 @@
 """Data models for github MCP server."""
+
 from datetime import datetime
 
 from pydantic import BaseModel, Field

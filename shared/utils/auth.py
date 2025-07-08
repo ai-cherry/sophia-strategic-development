@@ -74,7 +74,7 @@ class AuthManager:
             )
             return encoded_jwt
         except Exception as e:
-            logger.error("Failed to create access token", error=str(e))
+            logger.exception("Failed to create access token", error=str(e))
             raise
 
     def verify_token(self, token: str) -> dict[str, Any] | None:

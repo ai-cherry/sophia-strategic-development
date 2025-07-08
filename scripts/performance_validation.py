@@ -9,7 +9,6 @@ Validates research-backed performance targets:
 
 import asyncio
 import json
-import os
 import time
 
 import aiohttp

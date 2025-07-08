@@ -1,8 +1,5 @@
 """Snowflake configuration utilities for Sophia AI"""
 
-import os
-from typing import Dict, Optional
-
 from backend.core.auto_esc_config import get_config_value
 
 

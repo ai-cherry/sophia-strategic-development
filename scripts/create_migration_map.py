@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 
 
 def create_migration_map():
@@ -75,7 +74,7 @@ def generate_file_list(migration_map):
         for old_path, new_path in mappings.items():
             if os.path.exists(old_path):
                 if os.path.isdir(old_path):
-                    for root, dirs, files in os.walk(old_path):
+                    for root, _dirs, files in os.walk(old_path):
                         for file in files:
                             if file.endswith(".py"):
                                 old_file = os.path.join(root, file)

@@ -66,7 +66,7 @@ class MemoryStorageHandler:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to store memory: {e}")
+            logger.exception(f"❌ Failed to store memory: {e}")
             raise MemoryStorageError(f"Storage failed: {e}")
 
     async def retrieve_memory(self, memory_id: str) -> MemoryRecord | None:
@@ -89,7 +89,7 @@ class MemoryStorageHandler:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Failed to retrieve memory {memory_id}: {e}")
+            logger.exception(f"❌ Failed to retrieve memory {memory_id}: {e}")
             raise MemoryStorageError(f"Retrieval failed: {e}")
 
     async def update_memory(self, memory_id: str, updates: dict[str, Any]) -> bool:
@@ -118,7 +118,7 @@ class MemoryStorageHandler:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to update memory {memory_id}: {e}")
+            logger.exception(f"❌ Failed to update memory {memory_id}: {e}")
             raise MemoryStorageError(f"Update failed: {e}")
 
     async def delete_memory(self, memory_id: str) -> bool:
@@ -140,7 +140,7 @@ class MemoryStorageHandler:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to delete memory {memory_id}: {e}")
+            logger.exception(f"❌ Failed to delete memory {memory_id}: {e}")
             raise MemoryStorageError(f"Deletion failed: {e}")
 
     async def _validate_memory(self, memory: MemoryRecord):
@@ -247,7 +247,7 @@ class MemorySearchHandler:
             return results
 
         except Exception as e:
-            logger.error(f"❌ Search failed: {e}")
+            logger.exception(f"❌ Search failed: {e}")
             return []
 
     async def semantic_search(
@@ -265,7 +265,7 @@ class MemorySearchHandler:
             return results
 
         except Exception as e:
-            logger.error(f"❌ Semantic search failed: {e}")
+            logger.exception(f"❌ Semantic search failed: {e}")
             return []
 
     async def contextual_search(
@@ -298,7 +298,7 @@ class MemorySearchHandler:
             return enhanced_results
 
         except Exception as e:
-            logger.error(f"❌ Contextual search failed: {e}")
+            logger.exception(f"❌ Contextual search failed: {e}")
             return []
 
     async def _perform_search(self, query: SearchQuery) -> list[SearchResult]:
@@ -414,7 +414,7 @@ class MemoryAnalyticsHandler:
             return stats
 
         except Exception as e:
-            logger.error(f"❌ Failed to get memory stats: {e}")
+            logger.exception(f"❌ Failed to get memory stats: {e}")
             return MemoryStats()
 
     async def get_category_distribution(self) -> dict[str, int]:
@@ -441,7 +441,7 @@ class MemoryAnalyticsHandler:
             return activity
 
         except Exception as e:
-            logger.error(f"❌ Failed to get recent activity: {e}")
+            logger.exception(f"❌ Failed to get recent activity: {e}")
             return {}
 
     async def get_memory_health_score(self) -> float:
@@ -488,7 +488,7 @@ class MemoryAnalyticsHandler:
             return min(health_score, 1.0)
 
         except Exception as e:
-            logger.error(f"❌ Failed to calculate health score: {e}")
+            logger.exception(f"❌ Failed to calculate health score: {e}")
             return 0.0
 
     async def _calculate_stats(self) -> MemoryStats:
@@ -537,7 +537,7 @@ class MemoryMaintenanceHandler:
             return expired_count
 
         except Exception as e:
-            logger.error(f"❌ Failed to cleanup expired memories: {e}")
+            logger.exception(f"❌ Failed to cleanup expired memories: {e}")
             return 0
 
     async def optimize_memory_storage(self) -> dict[str, Any]:
@@ -557,7 +557,7 @@ class MemoryMaintenanceHandler:
             return optimization_results
 
         except Exception as e:
-            logger.error(f"❌ Failed to optimize storage: {e}")
+            logger.exception(f"❌ Failed to optimize storage: {e}")
             return {}
 
     async def validate_memory_integrity(self) -> dict[str, Any]:
@@ -578,7 +578,7 @@ class MemoryMaintenanceHandler:
             return validation_results
 
         except Exception as e:
-            logger.error(f"❌ Failed to validate memory integrity: {e}")
+            logger.exception(f"❌ Failed to validate memory integrity: {e}")
             return {}
 
     async def backup_memories(self, backup_path: str) -> bool:
@@ -589,7 +589,7 @@ class MemoryMaintenanceHandler:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to backup memories: {e}")
+            logger.exception(f"❌ Failed to backup memories: {e}")
             return False
 
     async def restore_memories(self, backup_path: str) -> int:
@@ -603,7 +603,7 @@ class MemoryMaintenanceHandler:
             return restored_count
 
         except Exception as e:
-            logger.error(f"❌ Failed to restore memories: {e}")
+            logger.exception(f"❌ Failed to restore memories: {e}")
             return 0
 
 

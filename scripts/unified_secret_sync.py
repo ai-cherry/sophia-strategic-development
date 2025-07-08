@@ -10,7 +10,6 @@ import json
 import os
 import subprocess
 import sys
-from typing import Any, Dict
 
 
 def get_secret(secret_name: str) -> str:
@@ -27,7 +26,6 @@ def sync_secrets_to_pulumi_esc():
     # The Pulumi organization and environment
     pulumi_org = os.environ.get("PULUMI_ORG", "scoobyjava-org")
     esc_environment = f"{pulumi_org}/default/sophia-ai-production"
-
 
     # Define the secret structure that matches your ACTUAL GitHub organization secrets
     # Using the EXACT names from GitHub Organization Secrets
@@ -109,10 +107,9 @@ def sync_secrets_to_pulumi_esc():
         # Set the configuration in Pulumi ESC
         cmd = ["esc", "env", "set", esc_environment, "--file", temp_file]
 
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
         if result.returncode == 0:
-
             # List the secrets that were synced
             sum(1 for v in secrets_structure.values() if v)
             len(secrets_structure)

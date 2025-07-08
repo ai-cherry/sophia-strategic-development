@@ -76,8 +76,9 @@ class CodebaseAnalyzer:
             with open(filepath, encoding="utf-8") as f:
                 code = f.read()
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
+            async with (
+                aiohttp.ClientSession() as session,
+                session.post(
                     f"{self.base_url}/api/v1/analyze/code",
                     json={
                         "code": code,
@@ -88,14 +89,15 @@ class CodebaseAnalyzer:
                         "context": {"is_production": "production" in str(filepath)},
                     },
                     timeout=aiohttp.ClientTimeout(total=30),
-                ) as response:
-                    if response.status == 200:
-                        return await response.json()
-                    else:
-                        console.print(
-                            f"[red]Error analyzing {filepath}: {response.status}[/red]"
-                        )
-                        return None
+                ) as response,
+            ):
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    console.print(
+                        f"[red]Error analyzing {filepath}: {response.status}[/red]"
+                    )
+                    return None
         except Exception as e:
             console.print(f"[red]Error analyzing {filepath}: {e}[/red]")
             return None
@@ -112,7 +114,7 @@ class CodebaseAnalyzer:
             tasks = [self.analyze_file(f) for f in batch]
             batch_results = await asyncio.gather(*tasks)
 
-            for filepath, result in zip(batch, batch_results, strict=False):
+            for _filepath, result in zip(batch, batch_results, strict=False):
                 if result:
                     results.append(result)
                     self.update_summary(result)

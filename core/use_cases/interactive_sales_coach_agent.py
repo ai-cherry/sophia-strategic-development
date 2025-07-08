@@ -134,7 +134,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             logger.info("✅ Interactive Sales Coach Agent initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Sales Coach Agent: {e}")
+            logger.exception(f"Failed to initialize Sales Coach Agent: {e}")
             raise
 
     async def _agent_initialize(self) -> None:
@@ -233,7 +233,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             return result
 
         except Exception as e:
-            logger.error(f"Error providing real-time coaching: {e}")
+            logger.exception(f"Error providing real-time coaching: {e}")
             return {"success": False, "error": str(e), "sales_rep_id": sales_rep_id}
 
     async def slack_coaching_interface(
@@ -284,7 +284,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Error in Slack coaching interface: {e}")
+            logger.exception(f"Error in Slack coaching interface: {e}")
             return {"success": False, "error": str(e), "slack_event": slack_event}
 
     async def deliver_slack_coaching(self, insight: CoachingInsight) -> dict[str, Any]:
@@ -329,7 +329,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             return delivery_result
 
         except Exception as e:
-            logger.error(f"Error delivering Slack coaching: {e}")
+            logger.exception(f"Error delivering Slack coaching: {e}")
             return {"success": False, "error": str(e), "insight_id": insight.insight_id}
 
     async def generate_coaching_insights(
@@ -411,7 +411,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             return result
 
         except Exception as e:
-            logger.error(f"Error generating coaching insights: {e}")
+            logger.exception(f"Error generating coaching insights: {e}")
             return {
                 "success": False,
                 "error": str(e),

@@ -2,10 +2,9 @@
 Gong V2 Main Handler - Sales conversation intelligence and analytics
 """
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -16,7 +15,6 @@ from ..models.data_models import (
     CoachingRequest,
     InsightRequest,
     SearchRequest,
-    TeamAnalyticsRequest,
     TranscriptRequest,
 )
 
@@ -42,12 +40,16 @@ class GongHandler:
         try:
             # Build query parameters
             params = {
-                "fromDateTime": request.from_date.isoformat()
-                if request.from_date
-                else (datetime.utcnow() - timedelta(days=7)).isoformat(),
-                "toDateTime": request.to_date.isoformat()
-                if request.to_date
-                else datetime.utcnow().isoformat(),
+                "fromDateTime": (
+                    request.from_date.isoformat()
+                    if request.from_date
+                    else (datetime.utcnow() - timedelta(days=7)).isoformat()
+                ),
+                "toDateTime": (
+                    request.to_date.isoformat()
+                    if request.to_date
+                    else datetime.utcnow().isoformat()
+                ),
             }
 
             if request.user_id:
@@ -85,7 +87,7 @@ class GongHandler:
             )
 
         except Exception as e:
-            logger.error(f"Error fetching calls: {e}")
+            logger.exception(f"Error fetching calls: {e}")
             return CallResponse(success=False, error=str(e))
 
     async def get_call_transcript(self, request: TranscriptRequest) -> dict[str, Any]:
@@ -137,7 +139,7 @@ class GongHandler:
             return result
 
         except Exception as e:
-            logger.error(f"Error fetching transcript: {e}")
+            logger.exception(f"Error fetching transcript: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_sales_insights(self, request: InsightRequest) -> dict[str, Any]:
@@ -176,7 +178,7 @@ class GongHandler:
             return insights
 
         except Exception as e:
-            logger.error(f"Error generating insights: {e}")
+            logger.exception(f"Error generating insights: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_coaching_opportunities(
@@ -224,7 +226,7 @@ class GongHandler:
             }
 
         except Exception as e:
-            logger.error(f"Error finding coaching opportunities: {e}")
+            logger.exception(f"Error finding coaching opportunities: {e}")
             return {"success": False, "error": str(e)}
 
     async def search_conversations(self, request: SearchRequest) -> dict[str, Any]:
@@ -236,12 +238,12 @@ class GongHandler:
                 json={
                     "query": request.query,
                     "filters": {
-                        "fromDateTime": request.from_date.isoformat()
-                        if request.from_date
-                        else None,
-                        "toDateTime": request.to_date.isoformat()
-                        if request.to_date
-                        else None,
+                        "fromDateTime": (
+                            request.from_date.isoformat() if request.from_date else None
+                        ),
+                        "toDateTime": (
+                            request.to_date.isoformat() if request.to_date else None
+                        ),
                     },
                 },
             )
@@ -273,7 +275,7 @@ class GongHandler:
             }
 
         except Exception as e:
-            logger.error(f"Search error: {e}")
+            logger.exception(f"Search error: {e}")
             return {"success": False, "error": str(e)}
 
     # Helper methods
@@ -334,7 +336,7 @@ class GongHandler:
         key_moments = []
 
         # Look for questions, objections, and decisions
-        for i, segment in enumerate(segments):
+        for _i, segment in enumerate(segments):
             text = segment["text"].lower()
 
             if "?" in text:
@@ -424,12 +426,12 @@ class GongHandler:
         """Analyze trends in the data"""
         # Simplified trend analysis
         return {
-            "call_volume": "increasing"
-            if stats_data.get("totalCalls", 0) > 100
-            else "stable",
-            "quality": "improving"
-            if stats_data.get("avgScore", 0) > 80
-            else "needs attention",
+            "call_volume": (
+                "increasing" if stats_data.get("totalCalls", 0) > 100 else "stable"
+            ),
+            "quality": (
+                "improving" if stats_data.get("avgScore", 0) > 80 else "needs attention"
+            ),
             "engagement": "high" if stats_data.get("avgTalkRatio", 0) < 0.6 else "low",
         }
 

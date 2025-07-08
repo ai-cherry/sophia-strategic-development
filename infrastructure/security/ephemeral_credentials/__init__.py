@@ -35,8 +35,8 @@ __all__ = [
     "CredentialValidationRequest",
     "CredentialValidationResponse",
     "EphemeralCredential",
-    "TokenMetadata",
-    "EphemeralCredentialsService",
     "EphemeralCredentialsMiddleware",
+    "EphemeralCredentialsService",
+    "TokenMetadata",
     "setup_ephemeral_credentials_middleware",
 ]

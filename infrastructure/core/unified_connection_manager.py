@@ -167,7 +167,7 @@ class ConnectionPool:
             self.circuit_breaker.record_success()
         except Exception as e:
             self.circuit_breaker.record_failure()
-            logger.error(f"Connection error for {self.connection_type}: {e}")
+            logger.exception(f"Connection error for {self.connection_type}: {e}")
             raise
         finally:
             await self._return_connection_to_pool(connection)
@@ -182,7 +182,7 @@ class ConnectionPool:
             elif self.connection_type == ConnectionType.REDIS:
                 return await self._create_redis_connection()
         except Exception as e:
-            logger.error(f"Failed to create {self.connection_type} connection: {e}")
+            logger.exception(f"Failed to create {self.connection_type} connection: {e}")
             return None
 
     async def _create_snowflake_connection(self):
@@ -289,13 +289,13 @@ class ConnectionPool:
                     connection.close()
 
                 await asyncio.to_thread(_sync_close)
-            elif (
-                self.connection_type == ConnectionType.POSTGRES
-                or self.connection_type == ConnectionType.REDIS
+            elif self.connection_type in (
+                ConnectionType.POSTGRES,
+                ConnectionType.REDIS,
             ):
                 await connection.close()
         except Exception as e:
-            logger.error(f"Error closing {self.connection_type} connection: {e}")
+            logger.exception(f"Error closing {self.connection_type} connection: {e}")
 
     async def _health_check_loop(self):
         """Background health check loop"""
@@ -304,7 +304,7 @@ class ConnectionPool:
                 await asyncio.sleep(self.config.health_check_interval)
                 await self._perform_health_check()
             except Exception as e:
-                logger.error(f"Health check error for {self.connection_type}: {e}")
+                logger.exception(f"Health check error for {self.connection_type}: {e}")
 
     async def _perform_health_check(self) -> HealthCheckResult:
         """Perform health check"""

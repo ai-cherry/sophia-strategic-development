@@ -18,7 +18,7 @@ def main() -> None:
 
     cmd = ["pytest", str(target)]
     # TODO: Validate input before subprocess execution
-        subprocess.run(cmd, check=False)
+    subprocess.run(cmd, check=False)
 
 
 if __name__ == "__main__":

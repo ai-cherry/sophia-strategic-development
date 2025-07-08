@@ -69,11 +69,13 @@ class EnhancedKnowledgeBaseService:
             logger.info("✅ Enhanced Knowledge Base Service initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Enhanced Knowledge Base Service: {e}")
+            logger.exception(
+                f"Failed to initialize Enhanced Knowledge Base Service: {e}"
+            )
             raise
 
     async def interactive_knowledge_ingestion(
-        self, content: str, source: str, metadata: dict[str, Any] = None
+        self, content: str, source: str, metadata: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Interactive knowledge ingestion with contextual tagging"""
         if not self.initialized:
@@ -110,11 +112,11 @@ class EnhancedKnowledgeBaseService:
             return result
 
         except Exception as e:
-            logger.error(f"Error in knowledge ingestion: {e}")
+            logger.exception(f"Error in knowledge ingestion: {e}")
             return {"success": False, "error": str(e)}
 
     async def contextual_knowledge_retrieval(
-        self, query: str, context: dict[str, Any] = None, limit: int = 5
+        self, query: str, context: dict[str, Any] | None = None, limit: int = 5
     ) -> dict[str, Any]:
         """Context-aware knowledge retrieval for universal chat"""
         if not self.initialized:
@@ -152,7 +154,7 @@ class EnhancedKnowledgeBaseService:
             }
 
         except Exception as e:
-            logger.error(f"Error in contextual knowledge retrieval: {e}")
+            logger.exception(f"Error in contextual knowledge retrieval: {e}")
             return {"success": False, "error": str(e)}
 
     async def knowledge_teaching_interface(
@@ -186,7 +188,7 @@ class EnhancedKnowledgeBaseService:
             return result
 
         except Exception as e:
-            logger.error(f"Error in knowledge teaching interface: {e}")
+            logger.exception(f"Error in knowledge teaching interface: {e}")
             return {"success": False, "error": str(e)}
 
     def _extract_title(self, content: str) -> str:
@@ -263,5 +265,5 @@ class EnhancedKnowledgeBaseService:
             return analytics
 
         except Exception as e:
-            logger.error(f"Error getting knowledge analytics: {e}")
+            logger.exception(f"Error getting knowledge analytics: {e}")
             return {"error": str(e), "service": "enhanced_knowledge_base"}

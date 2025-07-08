@@ -249,7 +249,9 @@ class EnhancedLangGraphOrchestrator:
             logger.info("✅ Enhanced LangGraph Orchestrator initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Enhanced LangGraph Orchestrator: {e}")
+            logger.exception(
+                f"Failed to initialize Enhanced LangGraph Orchestrator: {e}"
+            )
             raise
 
     def _register_default_event_handlers(self) -> None:
@@ -445,7 +447,7 @@ class EnhancedLangGraphOrchestrator:
             return workflow_id
 
         except Exception as e:
-            logger.error(f"Error creating workflow from natural language: {e}")
+            logger.exception(f"Error creating workflow from natural language: {e}")
             raise
 
     async def execute_parallel_tasks(
@@ -537,7 +539,7 @@ class EnhancedLangGraphOrchestrator:
             return result
 
         except Exception as e:
-            logger.error(f"Error executing task {task.task_id}: {e}")
+            logger.exception(f"Error executing task {task.task_id}: {e}")
             raise
 
     async def create_human_checkpoint(
@@ -699,7 +701,7 @@ class EnhancedLangGraphOrchestrator:
             try:
                 await handler(workflow_id, event)
             except Exception as e:
-                logger.error(f"Error in event handler: {e}")
+                logger.exception(f"Error in event handler: {e}")
                 workflow_state["error_messages"].append(f"Event handler error: {e}")
 
     async def _handle_task_completion(

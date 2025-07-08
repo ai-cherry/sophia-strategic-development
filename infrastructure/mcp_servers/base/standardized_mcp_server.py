@@ -259,7 +259,8 @@ class StandardizedMCPServer(ABC):
         await self.initialize()
 
         uvicorn_config = uvicorn.Config(
-            self.app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=self.config.port, log_level="info"
+            self.app,
+            host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production, port=self.config.port, log_level="info"
         )
         server = uvicorn.Server(uvicorn_config)
         await server.serve()
@@ -353,7 +354,9 @@ class StandardizedMCPServer(ABC):
             logger.info(f"✅ Metrics initialized for {self.server_name} (v3.18)")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize metrics for {self.server_name}: {e}")
+            logger.exception(
+                f"❌ Failed to initialize metrics for {self.server_name}: {e}"
+            )
 
     async def initialize(self) -> None:
         """Initialize MCP server with all dependencies."""
@@ -415,7 +418,7 @@ class StandardizedMCPServer(ABC):
             )
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize {self.server_name}: {e}")
+            logger.exception(f"❌ Failed to initialize {self.server_name}: {e}")
             if self.config.enable_metrics:
                 self.health_gauge.set(0)
             # Don't raise - allow server to start without full capabilities
@@ -563,7 +566,7 @@ class StandardizedMCPServer(ABC):
         except Exception as e:
             fetch_time_ms = (time.time() - start_time) * 1000
             error_msg = str(e)
-            logger.error(f"❌ WebFetch failed for {url}: {error_msg}")
+            logger.exception(f"❌ WebFetch failed for {url}: {error_msg}")
 
             if self.config.enable_metrics:
                 self.webfetch_counter.labels(status="error", cached="false").inc()
@@ -773,7 +776,7 @@ class StandardizedMCPServer(ABC):
             logger.info(f"✅ {self.server_name} MCP server (v3.18) shutdown complete")
 
         except Exception as e:
-            logger.error(f"❌ Error during {self.server_name} shutdown: {e}")
+            logger.exception(f"❌ Error during {self.server_name} shutdown: {e}")
 
     async def comprehensive_health_check(self) -> dict[str, Any]:
         """Perform comprehensive health check of all components."""
@@ -845,7 +848,7 @@ class StandardizedMCPServer(ABC):
             }
 
         except Exception as e:
-            logger.error(f"❌ Health check failed for {self.server_name}: {e}")
+            logger.exception(f"❌ Health check failed for {self.server_name}: {e}")
             self.is_healthy = False
             if self.config.enable_metrics:
                 self.health_gauge.set(0)

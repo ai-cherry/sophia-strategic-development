@@ -22,7 +22,6 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -143,6 +142,7 @@ class SophiaProductionDeployment:
                     f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                     "echo 'Infrastructure Ready' && nvidia-smi --query-gpu=name,memory.total --format=csv,noheader",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=15,
@@ -159,7 +159,7 @@ class SophiaProductionDeployment:
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Infrastructure verification failed: {e}")
+            logger.exception(f"❌ Infrastructure verification failed: {e}")
             return False
 
     def setup_docker_environment(self) -> bool:
@@ -191,6 +191,7 @@ class SophiaProductionDeployment:
                         f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                         cmd,
                     ],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=60,
@@ -206,7 +207,7 @@ class SophiaProductionDeployment:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Docker setup failed: {e}")
+            logger.exception(f"❌ Docker setup failed: {e}")
             return False
 
     def deploy_application_stack(self) -> bool:
@@ -227,6 +228,7 @@ class SophiaProductionDeployment:
                     f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                     "mkdir -p ~/sophia-deployment && cd ~/sophia-deployment",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -245,6 +247,7 @@ class SophiaProductionDeployment:
                     str(PROJECT_ROOT),
                     f"ubuntu@{self.lambda_labs_config['instance_ip']}:~/sophia-deployment/",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=300,
@@ -271,6 +274,7 @@ class SophiaProductionDeployment:
                     f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                     "cd ~/sophia-deployment/sophia-main && docker-compose -f docker-compose.prod.yml up -d",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=600,
@@ -287,7 +291,7 @@ class SophiaProductionDeployment:
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Application stack deployment failed: {e}")
+            logger.exception(f"❌ Application stack deployment failed: {e}")
             return False
 
     def validate_services(self) -> bool:
@@ -312,6 +316,7 @@ class SophiaProductionDeployment:
                         f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                         f"curl -f http://localhost:{service['port']}{service['health_endpoint']} || echo 'Service not ready'",
                     ],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=15,
@@ -336,7 +341,7 @@ class SophiaProductionDeployment:
                     }
 
             except Exception as e:
-                logger.error(f"❌ Failed to check {service['name']}: {e}")
+                logger.exception(f"❌ Failed to check {service['name']}: {e}")
                 self.services_failed.append(service["name"])
                 self.deployment_report["services"][service["name"]] = {
                     "status": "failed",
@@ -377,6 +382,7 @@ class SophiaProductionDeployment:
                         f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                         cmd,
                     ],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=60,
@@ -391,7 +397,7 @@ class SophiaProductionDeployment:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Monitoring setup failed: {e}")
+            logger.exception(f"❌ Monitoring setup failed: {e}")
             return False
 
     def configure_cost_optimization(self) -> bool:
@@ -433,6 +439,7 @@ class SophiaProductionDeployment:
                     f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                     f"echo '{json.dumps(cost_config)}' > ~/sophia-deployment/cost_optimization.json",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -450,7 +457,7 @@ class SophiaProductionDeployment:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Cost optimization failed: {e}")
+            logger.exception(f"❌ Cost optimization failed: {e}")
             return False
 
     def setup_business_intelligence(self) -> bool:
@@ -481,6 +488,7 @@ class SophiaProductionDeployment:
                     f"ubuntu@{self.lambda_labs_config['instance_ip']}",
                     f"echo '{json.dumps(bi_config)}' > ~/sophia-deployment/business_intelligence.json",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -492,7 +500,7 @@ class SophiaProductionDeployment:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Business intelligence setup failed: {e}")
+            logger.exception(f"❌ Business intelligence setup failed: {e}")
             return False
 
     def generate_deployment_report(self) -> str:
@@ -543,9 +551,8 @@ class SophiaProductionDeployment:
         """
 
         if self.services_failed:
-            for service in self.services_failed:
+            for _service in self.services_failed:
                 pass
-
 
     async def execute_deployment(self) -> bool:
         """Execute the complete production deployment"""
@@ -596,7 +603,7 @@ class SophiaProductionDeployment:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Deployment failed: {e}")
+            logger.exception(f"❌ Deployment failed: {e}")
             return False
 
 
@@ -618,7 +625,7 @@ async def main():
         logger.warning("⚠️  Deployment interrupted by user")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        logger.exception(f"❌ Unexpected error: {e}")
         sys.exit(1)
 
 

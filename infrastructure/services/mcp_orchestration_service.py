@@ -250,7 +250,7 @@ class MCPOrchestrationService:
                 self._load_default_configuration()
 
         except Exception as e:
-            logger.error(f"Failed to load MCP configuration: {e}")
+            logger.exception(f"Failed to load MCP configuration: {e}")
             self._load_default_configuration()
 
     def _extract_port_from_config(self, server_config: dict, name: str) -> int:
@@ -373,7 +373,7 @@ class MCPOrchestrationService:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to start MCP server {server_name}: {e}")
+            logger.exception(f"Failed to start MCP server {server_name}: {e}")
             return False
 
     async def route_to_mcp(
@@ -438,7 +438,7 @@ class MCPOrchestrationService:
 
         except Exception as e:
             response_time = (datetime.now() - start_time).total_seconds() * 1000
-            logger.error(f"MCP operation failed for {server}.{tool}: {e}")
+            logger.exception(f"MCP operation failed for {server}.{tool}: {e}")
 
             return MCPResponse(
                 success=False,
@@ -696,7 +696,7 @@ class MCPOrchestrationService:
             return await self._check_server_health(server_name)
 
         except Exception as e:
-            logger.error(f"Failed to restart {server_name}: {e}")
+            logger.exception(f"Failed to restart {server_name}: {e}")
             return False
 
     async def get_server_capabilities(self, server_name: str) -> list[str]:
@@ -723,7 +723,7 @@ class MCPOrchestrationService:
                     if process.poll() is None:
                         process.kill()
             except Exception as e:
-                logger.error(f"Error shutting down {server_name}: {e}")
+                logger.exception(f"Error shutting down {server_name}: {e}")
 
         logger.info("MCP orchestration service shutdown complete")
 
@@ -1163,7 +1163,7 @@ class MCPOrchestrationService:
 
         except Exception as e:
             execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
-            logger.error(f"Task execution failed for {task_id}: {e}")
+            logger.exception(f"Task execution failed for {task_id}: {e}")
 
             result = OrchestrationResult(
                 task_id=task_id,

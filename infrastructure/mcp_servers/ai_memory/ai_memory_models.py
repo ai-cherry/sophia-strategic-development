@@ -537,9 +537,9 @@ def create_ai_agent_auth_memory(
         memory_type=MemoryType.SECURITY_EVENT,
         category=MemoryCategory.AI_AGENT_AUTH,
         context=context,
-        priority=MemoryPriority.CRITICAL
-        if risk_level == "CRITICAL"
-        else MemoryPriority.HIGH,
+        priority=(
+            MemoryPriority.CRITICAL if risk_level == "CRITICAL" else MemoryPriority.HIGH
+        ),
         **{k: v for k, v in kwargs.items() if k != "context"},
     )
 
@@ -587,9 +587,9 @@ def create_security_decision_memory(
         memory_type=MemoryType.TECHNICAL_DECISION,
         category=MemoryCategory.SECURITY_DECISIONS,
         context=context,
-        priority=MemoryPriority.CRITICAL
-        if impact_level == "HIGH"
-        else MemoryPriority.HIGH,
+        priority=(
+            MemoryPriority.CRITICAL if impact_level == "HIGH" else MemoryPriority.HIGH
+        ),
         **{k: v for k, v in kwargs.items() if k != "context"},
     )
 

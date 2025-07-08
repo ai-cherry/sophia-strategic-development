@@ -1,0 +1,414 @@
+version: '3.8'
+
+services:
+  # Core Backend Services
+  sophia-backend:
+    image: scoobyjava15/sophia-ai-backend:latest
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+        delay: 5s
+    environment:
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
+    ports:
+      - "8000:8000"
+    networks:
+      - sophia-public
+      - sophia-private
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    secrets:
+      - source: pulumi_access_token
+        target: PULUMI_ACCESS_TOKEN
+
+  # Unified Chat Service
+  unified-chat:
+    image: scoobyjava15/sophia-ai-unified-chat:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    environment:
+      - ENVIRONMENT=prod
+      - BACKEND_URL=http://sophia-backend:8000
+      - WEBSOCKET_ENABLED=true
+      - SNOWFLAKE_CORTEX_ENABLED=true
+    ports:
+      - "8001:8001"
+    networks:
+      - sophia-public
+      - sophia-private
+    depends_on:
+      - sophia-backend
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Unified Dashboard Frontend
+  unified-dashboard:
+    image: scoobyjava15/sophia-ai-dashboard:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    environment:
+      - REACT_APP_API_URL=https://api.sophia-intel.ai
+      - REACT_APP_WEBSOCKET_URL=wss://api.sophia-intel.ai/ws
+      - REACT_APP_ENVIRONMENT=production
+    ports:
+      - "3000:80"
+    networks:
+      - sophia-public
+    depends_on:
+      - sophia-backend
+      - unified-chat
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MCP Gateway with Load Balancing
+  mcp-gateway:
+    image: scoobyjava15/sophia-ai-mcp-gateway:latest
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - MCP_SERVERS_CONFIG=/config/mcp_servers.json
+    ports:
+      - "9000:9000"
+    networks:
+      - sophia-public
+      - sophia-private
+    volumes:
+      - ./config/mcp_servers.json:/config/mcp_servers.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database Services
+  postgres:
+    image: postgres:16-alpine
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - POSTGRES_DB=sophia_ai
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sophia-private
+    secrets:
+      - postgres_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - sophia-private
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - sophia-public
+    depends_on:
+      - sophia-backend
+      - unified-chat
+      - unified-dashboard
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # V2 MCP Servers (10 servers)
+  ai_memory_v2:
+    image: scoobyjava15/sophia-ai-memory-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9010
+      - REDIS_URL=redis://redis:6379
+      - SNOWFLAKE_URL=${SNOWFLAKE_URL}
+    networks:
+      - sophia-private
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  gong_v2:
+    image: scoobyjava15/sophia-gong-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9011
+      - GONG_API_KEY_FILE=/run/secrets/gong_api_key
+    networks:
+      - sophia-private
+    secrets:
+      - gong_api_key
+
+  snowflake_v2:
+    image: scoobyjava15/sophia-snowflake-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9012
+      - SNOWFLAKE_URL_FILE=/run/secrets/snowflake_url
+    networks:
+      - sophia-private
+    secrets:
+      - snowflake_url
+
+  slack_v2:
+    image: scoobyjava15/sophia-slack-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9013
+      - SLACK_TOKEN_FILE=/run/secrets/slack_token
+    networks:
+      - sophia-private
+    secrets:
+      - slack_token
+
+  notion_v2:
+    image: scoobyjava15/sophia-notion-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9014
+      - NOTION_API_KEY_FILE=/run/secrets/notion_api_key
+    networks:
+      - sophia-private
+    secrets:
+      - notion_api_key
+
+  linear_v2:
+    image: scoobyjava15/sophia-linear-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9015
+      - LINEAR_API_KEY_FILE=/run/secrets/linear_api_key
+    networks:
+      - sophia-private
+    secrets:
+      - linear_api_key
+
+  github_v2:
+    image: scoobyjava15/sophia-github-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9016
+      - GITHUB_TOKEN_FILE=/run/secrets/github_token
+    networks:
+      - sophia-private
+    secrets:
+      - github_token
+
+  codacy_v2:
+    image: scoobyjava15/sophia-codacy-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9017
+      - CODACY_API_TOKEN_FILE=/run/secrets/codacy_api_token
+    networks:
+      - sophia-private
+    secrets:
+      - codacy_api_token
+
+  asana_v2:
+    image: scoobyjava15/sophia-asana-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9018
+      - ASANA_ACCESS_TOKEN_FILE=/run/secrets/asana_access_token
+    networks:
+      - sophia-private
+    secrets:
+      - asana_access_token
+
+  perplexity_v2:
+    image: scoobyjava15/sophia-perplexity-v2:latest
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    environment:
+      - ENVIRONMENT=prod
+      - PORT=9019
+      - PERPLEXITY_API_KEY_FILE=/run/secrets/perplexity_api_key
+    networks:
+      - sophia-private
+    secrets:
+      - perplexity_api_key
+
+networks:
+  sophia-public:
+    driver: overlay
+    attachable: true
+  sophia-private:
+    driver: overlay
+    internal: true
+    attachable: true
+    encrypted: true
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+secrets:
+  pulumi_access_token:
+    external: true
+  postgres_password:
+    external: true
+  gong_api_key:
+    external: true
+  snowflake_url:
+    external: true
+  slack_token:
+    external: true
+  notion_api_key:
+    external: true
+  linear_api_key:
+    external: true
+  github_token:
+    external: true
+  codacy_api_token:
+    external: true
+  asana_access_token:
+    external: true
+  perplexity_api_key:
+    external: true

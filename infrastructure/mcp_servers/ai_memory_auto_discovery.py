@@ -117,7 +117,7 @@ class IntelligentContextDetector:
             self.initialized = True
 
         except Exception as e:
-            logger.error(f"Failed to initialize Intelligent Context Detector: {e}")
+            logger.exception(f"Failed to initialize Intelligent Context Detector: {e}")
             self.initialized = True  # Continue with pattern-based detection
 
     def _initialize_patterns(self) -> list[ContextPattern]:
@@ -627,7 +627,7 @@ class IntelligentContextDetector:
                 return []
 
         except Exception as e:
-            logger.error(f"AI context detection failed: {e}")
+            logger.exception(f"AI context detection failed: {e}")
             return []
 
     def _parse_context_type(self, type_str: str) -> ContextType | None:
@@ -757,7 +757,7 @@ class AutoDiscoveryOrchestrator:
     async def analyze_and_store_conversation(
         self,
         conversation: str,
-        participants: list[str] = None,
+        participants: list[str] | None = None,
         file_context: dict[str, Any] | None = None,
         auto_store: bool = True,
     ) -> dict[str, Any]:
@@ -827,7 +827,7 @@ class AutoDiscoveryOrchestrator:
                             self.discovery_stats["memories_stored"] += 1
 
                         except Exception as e:
-                            logger.error(f"Failed to store context memory: {e}")
+                            logger.exception(f"Failed to store context memory: {e}")
                             stored_memories.append(
                                 {
                                     "context_type": context.context_type.value,
@@ -862,14 +862,14 @@ class AutoDiscoveryOrchestrator:
             }
 
         except Exception as e:
-            logger.error(f"Auto-discovery analysis failed: {e}")
+            logger.exception(f"Auto-discovery analysis failed: {e}")
             return {"status": "error", "error": str(e), "stats": self.discovery_stats}
 
     def _create_memory_content(
         self,
         conversation: str,
         context: DetectedContext,
-        participants: list[str] = None,
+        participants: list[str] | None = None,
         file_context: dict[str, Any] | None = None,
     ) -> str:
         """Create comprehensive memory content from detected context"""
@@ -1007,7 +1007,7 @@ class AutoDiscoveryOrchestrator:
             return contextual_memories[:limit]
 
         except Exception as e:
-            logger.error(f"Smart recall failed: {e}")
+            logger.exception(f"Smart recall failed: {e}")
             return []
 
 
@@ -1017,7 +1017,7 @@ auto_discovery = AutoDiscoveryOrchestrator()
 
 async def analyze_conversation_auto(
     conversation: str,
-    participants: list[str] = None,
+    participants: list[str] | None = None,
     file_context: dict[str, Any] | None = None,
     auto_store: bool = True,
 ) -> dict[str, Any]:

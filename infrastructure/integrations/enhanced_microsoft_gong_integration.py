@@ -148,7 +148,7 @@ class EnhancedMicrosoftGongIntegration:
             }
 
         except Exception as e:
-            logger.error(f"Error analyzing sales rep performance: {e}")
+            logger.exception(f"Error analyzing sales rep performance: {e}")
             return {"error": str(e), "sales_rep": sales_rep}
 
     async def _get_gong_comprehensive_data(

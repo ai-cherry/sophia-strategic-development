@@ -2,10 +2,10 @@
 
 Supports multiple embedding providers with fallback options.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List, Optional, Union
 
 import numpy as np
 
@@ -57,7 +57,7 @@ class OpenAIEmbeddingProvider(BaseEmbeddingProvider):
             response = await self.client.embeddings.create(model=self.model, input=text)
             return np.array(response.data[0].embedding)
         except Exception as e:
-            logger.error(f"OpenAI embedding error: {e}")
+            logger.exception(f"OpenAI embedding error: {e}")
             raise
 
     async def generate_batch_embeddings(self, texts: list[str]) -> list[np.ndarray]:
@@ -68,7 +68,7 @@ class OpenAIEmbeddingProvider(BaseEmbeddingProvider):
             )
             return [np.array(data.embedding) for data in response.data]
         except Exception as e:
-            logger.error(f"OpenAI batch embedding error: {e}")
+            logger.exception(f"OpenAI batch embedding error: {e}")
             raise
 
     @property
@@ -95,7 +95,7 @@ class SentenceTransformerProvider(BaseEmbeddingProvider):
             embedding = await loop.run_in_executor(None, self.model.encode, text)
             return np.array(embedding)
         except Exception as e:
-            logger.error(f"Sentence Transformer embedding error: {e}")
+            logger.exception(f"Sentence Transformer embedding error: {e}")
             raise
 
     async def generate_batch_embeddings(self, texts: list[str]) -> list[np.ndarray]:
@@ -107,7 +107,7 @@ class SentenceTransformerProvider(BaseEmbeddingProvider):
             embeddings = await loop.run_in_executor(None, self.model.encode, texts)
             return [np.array(emb) for emb in embeddings]
         except Exception as e:
-            logger.error(f"Sentence Transformer batch embedding error: {e}")
+            logger.exception(f"Sentence Transformer batch embedding error: {e}")
             raise
 
     @property
@@ -151,8 +151,6 @@ class HybridEmbeddingService:
         self.cache_embeddings = cache_embeddings
 
         if cache_embeddings:
-            from functools import lru_cache
-
             self._cache = {}
 
     async def generate_embedding(self, text: str, use_cache: bool = True) -> np.ndarray:

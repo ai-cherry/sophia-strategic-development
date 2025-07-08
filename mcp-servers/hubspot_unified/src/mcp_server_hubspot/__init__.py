@@ -46,4 +46,4 @@ if __name__ == "__main__":
     run_main()
 
 # Expose important items at package level
-__all__ = ["main", "run_main", "server", "HubSpotClient"]
+__all__ = ["HubSpotClient", "main", "run_main", "server"]

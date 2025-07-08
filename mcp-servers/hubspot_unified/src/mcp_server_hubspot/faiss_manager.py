@@ -136,7 +136,7 @@ class FaissManager:
 
             logger.info(f"Loaded index for {date_str} with {index.ntotal} vectors")
         except Exception as e:
-            logger.error(f"Failed to load index for {date_str}: {str(e)}")
+            logger.exception(f"Failed to load index for {date_str}: {e!s}")
 
     def _create_new_index(self, date_str: str) -> None:
         """Create a new empty index.
@@ -174,7 +174,7 @@ class FaissManager:
                 os.remove(metadata_path)
             logger.info(f"Removed old index for {date_str}")
         except Exception as e:
-            logger.error(f"Failed to remove index for {date_str}: {str(e)}")
+            logger.exception(f"Failed to remove index for {date_str}: {e!s}")
 
         # Remove from memory
         self.indexes.pop(date_str, None)
@@ -231,9 +231,7 @@ class FaissManager:
                 f"Saved index for {date_str} with {self.indexes[date_str].ntotal} vectors"
             )
         except Exception as e:
-            logger.error(
-                f"Failed to save index for {date_str}: {str(e)}", exc_info=True
-            )
+            logger.error(f"Failed to save index for {date_str}: {e!s}", exc_info=True)
 
     def add_data(
         self, vectors: np.ndarray, metadata_list: list[dict[str, Any]]

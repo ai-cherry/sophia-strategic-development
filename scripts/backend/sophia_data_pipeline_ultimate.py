@@ -309,7 +309,7 @@ class SnowflakeDataLoader:
             logger.info("✅ Snowflake connection established successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake connection: {e}")
+            logger.exception(f"Failed to initialize Snowflake connection: {e}")
             raise
 
     async def _ensure_schemas_exist(self):
@@ -330,7 +330,7 @@ class SnowflakeDataLoader:
                 )
                 logger.debug(f"Ensured schema exists: {schema}")
         except Exception as e:
-            logger.error(f"Failed to ensure schemas exist: {e}")
+            logger.exception(f"Failed to ensure schemas exist: {e}")
             raise
         finally:
             cursor.close()
@@ -391,7 +391,7 @@ class SnowflakeDataLoader:
         except Exception as e:
             # Rollback on error
             cursor.execute("ROLLBACK")
-            logger.error(f"Failed to load calls data: {e}")
+            logger.exception(f"Failed to load calls data: {e}")
             raise
         finally:
             cursor.close()
@@ -456,7 +456,7 @@ class SnowflakeDataLoader:
         except Exception as e:
             # Rollback on error
             cursor.execute("ROLLBACK")
-            logger.error(f"Failed to load transcripts data: {e}")
+            logger.exception(f"Failed to load transcripts data: {e}")
             raise
         finally:
             cursor.close()
@@ -490,7 +490,7 @@ class SnowflakeDataLoader:
             logger.info(f"✅ Transformation completed: {results}")
 
         except Exception as e:
-            logger.error(f"Failed to execute transformation procedures: {e}")
+            logger.exception(f"Failed to execute transformation procedures: {e}")
             raise
         finally:
             cursor.close()
@@ -523,7 +523,7 @@ class SnowflakeDataLoader:
             logger.info(f"✅ AI enrichment completed: {results}")
 
         except Exception as e:
-            logger.error(f"Failed to execute AI enrichment: {e}")
+            logger.exception(f"Failed to execute AI enrichment: {e}")
             raise
         finally:
             cursor.close()
@@ -574,7 +574,7 @@ class SnowflakeDataLoader:
             logger.info(f"✅ Pipeline execution logged: {pipeline_id}")
 
         except Exception as e:
-            logger.error(f"Failed to log pipeline execution: {e}")
+            logger.exception(f"Failed to log pipeline execution: {e}")
             # Don't raise - logging failure shouldn't stop pipeline
         finally:
             cursor.close()
@@ -661,11 +661,11 @@ class SophiaDataPipelineUltimate:
                     self.metrics, ProcessingStatus.FAILED
                 )
 
-            logger.error("=" * 80)
-            logger.error("❌ SOPHIA AI ULTIMATE DATA PIPELINE - FAILED")
-            logger.error(f"Error: {str(e)}")
-            logger.error(f"Traceback: {traceback.format_exc()}")
-            logger.error("=" * 80)
+            logger.exception("=" * 80)
+            logger.exception("❌ SOPHIA AI ULTIMATE DATA PIPELINE - FAILED")
+            logger.exception(f"Error: {e!s}")
+            logger.exception(f"Traceback: {traceback.format_exc()}")
+            logger.exception("=" * 80)
 
             return {
                 "status": "failed",
@@ -778,7 +778,7 @@ class SophiaDataPipelineUltimate:
                 )
 
             except Exception as e:
-                logger.error(f"Error processing calls batch: {e}")
+                logger.exception(f"Error processing calls batch: {e}")
                 self.metrics.errors += 1
                 break
 

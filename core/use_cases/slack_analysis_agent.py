@@ -99,7 +99,7 @@ class SlackAnalysisAgent(BaseAgent):
             logger.info("✅ Slack Analysis Agent initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Slack Analysis Agent: {e}")
+            logger.exception(f"Failed to initialize Slack Analysis Agent: {e}")
             raise
 
     async def analyze_conversation(
@@ -165,7 +165,7 @@ class SlackAnalysisAgent(BaseAgent):
             return result
 
         except Exception as e:
-            logger.error(f"Error analyzing Slack conversation: {e}")
+            logger.exception(f"Error analyzing Slack conversation: {e}")
             raise
 
     async def _analyze_sentiment(
@@ -199,7 +199,7 @@ class SlackAnalysisAgent(BaseAgent):
                 )
 
         except Exception as e:
-            logger.error(f"Error analyzing sentiment: {e}")
+            logger.exception(f"Error analyzing sentiment: {e}")
             return None
 
     async def _extract_topics(
@@ -232,7 +232,7 @@ class SlackAnalysisAgent(BaseAgent):
                 )
 
         except Exception as e:
-            logger.error(f"Error extracting topics: {e}")
+            logger.exception(f"Error extracting topics: {e}")
             return None
 
     def _extract_conversation_text(self, conversation: SlackConversation) -> str:
@@ -356,4 +356,4 @@ class SlackAnalysisAgent(BaseAgent):
             )
 
         except Exception as e:
-            logger.error(f"Error storing analysis in AI Memory: {e}")
+            logger.exception(f"Error storing analysis in AI Memory: {e}")

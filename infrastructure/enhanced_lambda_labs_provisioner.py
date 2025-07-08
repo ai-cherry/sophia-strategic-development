@@ -5,12 +5,11 @@ Optimized for Sophia AI Platform with Kubernetes and Snowflake integration
 """
 
 import asyncio
-import json
 import logging
 import subprocess
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -152,7 +151,7 @@ class EnhancedLambdaLabsProvisioner:
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            logger.error(f"❌ Lambda Labs API request failed: {e}")
+            logger.exception(f"❌ Lambda Labs API request failed: {e}")
             raise
 
     async def get_available_instance_types(self) -> list[dict[str, Any]]:
@@ -230,7 +229,7 @@ class EnhancedLambdaLabsProvisioner:
             return self.cluster_state
 
         except Exception as e:
-            logger.error(f"❌ Cluster launch failed: {e}")
+            logger.exception(f"❌ Cluster launch failed: {e}")
             await self._cleanup_failed_deployment()
             raise
 
@@ -363,7 +362,7 @@ class EnhancedLambdaLabsProvisioner:
             return kubeconfig
 
         except Exception as e:
-            logger.error(f"❌ Kubernetes setup failed: {e}")
+            logger.exception(f"❌ Kubernetes setup failed: {e}")
             raise
 
     async def _initialize_k8s_master(self, master_node: dict[str, Any]) -> str:
@@ -869,7 +868,7 @@ echo "✅ Monitoring and GPU observability deployed"
                     os.unlink(script_file_path)
 
         except Exception as e:
-            logger.error(f"❌ Failed to execute {script_name} on {ip_address}: {e}")
+            logger.exception(f"❌ Failed to execute {script_name} on {ip_address}: {e}")
             raise
 
     async def _get_kubeconfig(self, master_ip: str) -> str:
@@ -914,7 +913,7 @@ echo "✅ Monitoring and GPU observability deployed"
                 os.unlink(key_file_path)
 
         except Exception as e:
-            logger.error(f"❌ Failed to get kubeconfig: {e}")
+            logger.exception(f"❌ Failed to get kubeconfig: {e}")
             raise
 
     async def _get_k8s_join_command(self, master_ip: str) -> str:
@@ -956,7 +955,7 @@ echo "✅ Monitoring and GPU observability deployed"
                 os.unlink(key_file_path)
 
         except Exception as e:
-            logger.error(f"❌ Failed to get join command: {e}")
+            logger.exception(f"❌ Failed to get join command: {e}")
             raise
 
     async def _cleanup_failed_deployment(self):
@@ -986,7 +985,7 @@ echo "✅ Monitoring and GPU observability deployed"
             }
 
         except Exception as e:
-            logger.error(f"❌ Cleanup failed: {e}")
+            logger.exception(f"❌ Cleanup failed: {e}")
 
     async def get_cluster_status(self) -> dict[str, Any]:
         """Get current cluster status and metrics"""
@@ -1039,7 +1038,7 @@ echo "✅ Monitoring and GPU observability deployed"
             }
 
         except Exception as e:
-            logger.error(f"❌ Failed to get cluster status: {e}")
+            logger.exception(f"❌ Failed to get cluster status: {e}")
             return {"status": "error", "error": str(e)}
 
     async def scale_cluster(self, target_size: int) -> dict[str, Any]:
@@ -1108,7 +1107,7 @@ echo "✅ Monitoring and GPU observability deployed"
             return {"status": "terminated", "instances_terminated": len(instance_ids)}
 
         except Exception as e:
-            logger.error(f"❌ Cluster termination failed: {e}")
+            logger.exception(f"❌ Cluster termination failed: {e}")
             raise
 
 
@@ -1126,7 +1125,7 @@ async def deploy_enhanced_lambda_labs_cluster():
         return result
 
     except Exception as e:
-        logger.error(f"❌ Enhanced Lambda Labs deployment failed: {e}")
+        logger.exception(f"❌ Enhanced Lambda Labs deployment failed: {e}")
         raise
 
 

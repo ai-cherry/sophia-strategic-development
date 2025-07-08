@@ -2,7 +2,6 @@ import json
 import os
 import shutil
 import subprocess
-from pathlib import Path
 
 
 class BackendMigrator:
@@ -118,12 +117,10 @@ class BackendMigrator:
         with open("reports/migration_log.txt", "w") as f:
             f.write("\n".join(self.migration_log))
 
-
         # Summary
         len([log for log in self.migration_log if "MOVED:" in log])
         len([log for log in self.migration_log if "SKIP:" in log])
         len([log for log in self.migration_log if "ERROR:" in log])
-
 
 
 if __name__ == "__main__":

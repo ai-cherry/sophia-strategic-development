@@ -3,7 +3,7 @@ Data models for Gong V2 MCP server
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -32,9 +32,7 @@ class InsightRequest(BaseModel):
     from_date: datetime = Field(..., description="Start date for analysis")
     to_date: datetime = Field(..., description="End date for analysis")
     team_id: str | None = Field(None, description="Filter by team")
-    insight_type: str | None = Field(
-        "all", description="Type of insights to generate"
-    )
+    insight_type: str | None = Field("all", description="Type of insights to generate")
 
 
 class TeamAnalyticsRequest(BaseModel):
@@ -211,9 +209,7 @@ class ErrorResponse(BaseModel):
     """Standard error response"""
 
     error: str = Field(..., description="Error message")
-    details: dict[str, Any] | None = Field(
-        None, description="Additional error details"
-    )
+    details: dict[str, Any] | None = Field(None, description="Additional error details")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 

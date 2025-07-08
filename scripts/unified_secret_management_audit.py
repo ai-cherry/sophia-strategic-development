@@ -6,13 +6,11 @@ and creates a unified strategy for GitHub → Pulumi ESC → Application flow
 """
 
 import json
-import os
 import re
 import subprocess
-import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any
 
 
 class UnifiedSecretManagementAuditor:
@@ -182,6 +180,7 @@ class UnifiedSecretManagementAuditor:
             # Check if we can access ESC
             result = subprocess.run(
                 ["esc", "env", "get", "default/sophia-ai-production"],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -472,16 +471,14 @@ else:
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
-
         # Print summary
 
         if self.findings["issues"]:
-            for issue in self.findings["issues"]:
+            for _issue in self.findings["issues"]:
                 pass
 
 
 def main():
-
     auditor = UnifiedSecretManagementAuditor()
 
     # Run audit
@@ -497,7 +494,6 @@ def main():
 
     # Generate report
     auditor.generate_report()
-
 
 
 if __name__ == "__main__":

@@ -119,7 +119,7 @@ class SnowflakeGongConnector:
             logger.info("✅ Snowflake Gong connector initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake Gong connector: {e}")
+            logger.exception(f"Failed to initialize Snowflake Gong connector: {e}")
             raise
 
     async def get_calls_for_coaching(
@@ -143,8 +143,6 @@ class SnowflakeGongConnector:
         """
         if not self.initialized:
             await self.initialize()
-
-        rep_filter = f"AND gc.PRIMARY_USER_NAME = '{sales_rep}'" if sales_rep else ""
 
         query = """
 
@@ -233,7 +231,7 @@ class SnowflakeGongConnector:
             return calls
 
         except Exception as e:
-            logger.error(f"Error getting calls for coaching: {e}")
+            logger.exception(f"Error getting calls for coaching: {e}")
             raise
         finally:
             if cursor:
@@ -384,7 +382,7 @@ class SnowflakeGongConnector:
             return call_data
 
         except Exception as e:
-            logger.error(f"Error getting call analysis data: {e}")
+            logger.exception(f"Error getting call analysis data: {e}")
             raise
         finally:
             if cursor:
@@ -472,7 +470,7 @@ class SnowflakeGongConnector:
             logger.info(f"Retrieved performance analysis for {sales_rep}")
             return performance_data
         except Exception as e:
-            logger.error(f"Error getting sales rep performance: {e}")
+            logger.exception(f"Error getting sales rep performance: {e}")
             raise
         finally:
             if cursor:
@@ -496,7 +494,7 @@ class SnowflakeGongConnector:
             await self.initialize()
 
         # Build search conditions
-        search_conditions = " OR ".join(
+        " OR ".join(
             [
                 f"LOWER(t.TRANSCRIPT_TEXT) LIKE '%{term.lower()}%'"
                 for term in search_terms
@@ -559,7 +557,7 @@ class SnowflakeGongConnector:
             return calls
 
         except Exception as e:
-            logger.error(f"Error searching calls by content: {e}")
+            logger.exception(f"Error searching calls by content: {e}")
             raise
         finally:
             if cursor:
@@ -621,7 +619,7 @@ async def get_gong_connector() -> SnowflakeGongConnector:
 
 # Convenience functions for agents
 async def get_coaching_opportunities(
-    sales_rep: str = None, days: int = 7
+    sales_rep: str | None = None, days: int = 7
 ) -> list[dict[str, Any]]:
     """Get calls needing coaching attention"""
     connector = await get_gong_connector()

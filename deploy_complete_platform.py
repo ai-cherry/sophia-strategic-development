@@ -57,7 +57,7 @@ class CompletePlatformDeployment:
             logger.info("🎉 Complete platform deployment finished!")
 
         except Exception as e:
-            logger.error(f"❌ Platform deployment failed: {e}")
+            logger.exception(f"❌ Platform deployment failed: {e}")
             raise
 
     async def _deploy_snowflake_infrastructure(self):
@@ -72,6 +72,7 @@ class CompletePlatformDeployment:
                     "python3",
                     "/home/ubuntu/snowflake_advanced_features_implementation.py",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd="/home/ubuntu",
@@ -89,6 +90,7 @@ class CompletePlatformDeployment:
             # Deploy Cortex Agents
             result = subprocess.run(
                 ["python3", "/home/ubuntu/cortex_agents_advanced_implementation.py"],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd="/home/ubuntu",
@@ -108,8 +110,8 @@ class CompletePlatformDeployment:
 
         except Exception as e:
             self.deployment_status["snowflake"]["status"] = "failed"
-            self.deployment_status["snowflake"]["details"].append(f"❌ Error: {str(e)}")
-            logger.error(f"❌ Snowflake deployment failed: {e}")
+            self.deployment_status["snowflake"]["details"].append(f"❌ Error: {e!s}")
+            logger.exception(f"❌ Snowflake deployment failed: {e}")
 
     async def _deploy_estuary_configuration(self):
         """Deploy Estuary Flow configurations"""
@@ -143,7 +145,7 @@ class CompletePlatformDeployment:
                             )
                 except Exception as e:
                     self.deployment_status["estuary"]["details"].append(
-                        f"⚠️ Validation error: {str(e)}"
+                        f"⚠️ Validation error: {e!s}"
                     )
 
                 # Note: Actual deployment would require valid Estuary token
@@ -160,8 +162,8 @@ class CompletePlatformDeployment:
 
         except Exception as e:
             self.deployment_status["estuary"]["status"] = "failed"
-            self.deployment_status["estuary"]["details"].append(f"❌ Error: {str(e)}")
-            logger.error(f"❌ Estuary deployment failed: {e}")
+            self.deployment_status["estuary"]["details"].append(f"❌ Error: {e!s}")
+            logger.exception(f"❌ Estuary deployment failed: {e}")
 
     async def _deploy_application_services(self):
         """Deploy application services and API endpoints"""
@@ -212,10 +214,8 @@ class CompletePlatformDeployment:
 
         except Exception as e:
             self.deployment_status["application"]["status"] = "failed"
-            self.deployment_status["application"]["details"].append(
-                f"❌ Error: {str(e)}"
-            )
-            logger.error(f"❌ Application deployment failed: {e}")
+            self.deployment_status["application"]["details"].append(f"❌ Error: {e!s}")
+            logger.exception(f"❌ Application deployment failed: {e}")
 
     async def _verify_deployment(self):
         """Verify deployment and test connectivity"""
@@ -246,7 +246,7 @@ class CompletePlatformDeployment:
 
             except Exception as e:
                 self.deployment_status["verification"]["details"].append(
-                    f"❌ Snowflake connectivity failed: {str(e)}"
+                    f"❌ Snowflake connectivity failed: {e!s}"
                 )
 
             # Test database structure
@@ -286,7 +286,7 @@ class CompletePlatformDeployment:
 
             except Exception as e:
                 self.deployment_status["verification"]["details"].append(
-                    f"❌ Database verification failed: {str(e)}"
+                    f"❌ Database verification failed: {e!s}"
                 )
 
             # Test AI functions
@@ -318,7 +318,7 @@ class CompletePlatformDeployment:
 
             except Exception as e:
                 self.deployment_status["verification"]["details"].append(
-                    f"⚠️ AI functions test: {str(e)}"
+                    f"⚠️ AI functions test: {e!s}"
                 )
 
             self.deployment_status["verification"]["status"] = "completed"
@@ -326,10 +326,8 @@ class CompletePlatformDeployment:
 
         except Exception as e:
             self.deployment_status["verification"]["status"] = "failed"
-            self.deployment_status["verification"]["details"].append(
-                f"❌ Error: {str(e)}"
-            )
-            logger.error(f"❌ Deployment verification failed: {e}")
+            self.deployment_status["verification"]["details"].append(f"❌ Error: {e!s}")
+            logger.exception(f"❌ Deployment verification failed: {e}")
 
     async def _generate_deployment_report(self):
         """Generate comprehensive deployment report"""
@@ -384,7 +382,7 @@ class CompletePlatformDeployment:
             self._print_deployment_summary(report)
 
         except Exception as e:
-            logger.error(f"❌ Report generation failed: {e}")
+            logger.exception(f"❌ Report generation failed: {e}")
 
     def _get_overall_status(self) -> str:
         """Determine overall deployment status"""
@@ -402,7 +400,7 @@ class CompletePlatformDeployment:
     def _print_deployment_summary(self, report: dict[str, Any]):
         """Print deployment summary to console"""
 
-        for _component, status in self.deployment_status.items():
+        for status in self.deployment_status.values():
             (
                 "✅"
                 if status["status"] == "completed"

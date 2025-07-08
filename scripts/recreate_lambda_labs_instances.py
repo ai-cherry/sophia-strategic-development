@@ -3,6 +3,7 @@
 Recreate Lambda Labs GH200 instances with correct SSH key.
 """
 
+import contextlib
 import json
 import os
 import time
@@ -65,7 +66,6 @@ def create_instance(name):
 
 
 def main():
-
     # Get current instances
     current_instances = list_instances()
 
@@ -92,10 +92,8 @@ def main():
     # Terminate existing instances
     for target in INSTANCES_TO_RECREATE:
         if target.get("current_id"):
-            try:
+            with contextlib.suppress(Exception):
                 terminate_instance(target["current_id"])
-            except Exception:
-                pass
 
     # Wait for termination to complete
     time.sleep(30)
@@ -132,7 +130,6 @@ def main():
 
     with open("lambda_labs_recreation_report.json", "w") as f:
         json.dump(report, f, indent=2)
-
 
 
 if __name__ == "__main__":

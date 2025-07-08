@@ -70,7 +70,7 @@ class ConnectionManager:
             try:
                 await self.active_connections[session_id].send_json(message)
             except Exception as e:
-                logger.error(f"Error sending message to {session_id}: {e}")
+                logger.exception(f"Error sending message to {session_id}: {e}")
                 self.disconnect(session_id)
 
     async def broadcast(self, message: dict):
@@ -203,12 +203,12 @@ async def websocket_chat(
             except Exception as e:
                 logger.exception(f"Chat processing error: {e}")
                 await websocket.send_json(
-                    {"type": "error", "message": f"Error processing message: {str(e)}"}
+                    {"type": "error", "message": f"Error processing message: {e!s}"}
                 )
 
     except WebSocketDisconnect:
         manager.disconnect(session_id)
     except Exception as e:
-        logger.error(f"WebSocket error in session {session_id}: {e}")
+        logger.exception(f"WebSocket error in session {session_id}: {e}")
     finally:
         manager.disconnect(session_id)

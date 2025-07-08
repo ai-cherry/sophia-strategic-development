@@ -95,7 +95,7 @@ class LambdaLabsDeployer:
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            logger.error(f"Lambda Labs API request failed: {e}")
+            logger.exception(f"Lambda Labs API request failed: {e}")
             raise
 
     def list_instance_types(self) -> list[dict[str, Any]]:

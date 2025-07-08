@@ -43,6 +43,7 @@ def _load_esc_environment() -> dict[str, Any]:
         # Get the ESC environment using pulumi env get
         result = subprocess.run(
             ["pulumi", "env", "get", "default/sophia-ai-production"],
+            check=False,
             capture_output=True,
             text=True,
             timeout=30,
@@ -200,6 +201,7 @@ def get_config_value(key: str, default: Any = None) -> Any:
                     "default/sophia-ai-production",
                     "--show-secrets",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
