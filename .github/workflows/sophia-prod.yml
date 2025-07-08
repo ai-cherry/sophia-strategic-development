@@ -107,7 +107,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKER_REGISTRY }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build and Push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
@@ -163,7 +163,7 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_LABS_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ needs.deploy-infrastructure.outputs.instance_ip || env.LAMBDA_LABS_HOST }} >> ~/.ssh/known_hosts
 
