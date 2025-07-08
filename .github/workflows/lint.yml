@@ -1,0 +1,17 @@
+name: Lint
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install tools
+        run: pip install black ruff
+      - name: Syntax compile
+        run: python -m compileall .
+      - name: Lint
+        run: ruff check . --output-format=github
