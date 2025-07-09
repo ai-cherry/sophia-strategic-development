@@ -1,0 +1,55 @@
+# Sophia AI MCP Server Base Image
+# Deployed to Lambda Labs Cloud Server: 104.171.202.117
+
+FROM python:3.12-slim
+
+# Build arguments
+ARG ENVIRONMENT=prod
+ARG LAMBDA_LABS_HOST=104.171.202.117
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    ENVIRONMENT=${ENVIRONMENT} \
+    LAMBDA_LABS_HOST=${LAMBDA_LABS_HOST} \
+    PULUMI_ORG=scoobyjava-org
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install additional MCP dependencies
+RUN pip install --no-cache-dir \
+    fastapi==0.104.1 \
+    uvicorn[standard]==0.24.0 \
+    prometheus-client==0.19.0 \
+    pydantic==2.5.0 \
+    aiohttp==3.9.1 \
+    PyYAML==6.0.1
+
+# Copy unified base class
+COPY mcp-servers/base/unified_standardized_base.py /app/mcp_servers/base/
+
+# Copy shared utilities
+COPY backend/core/auto_esc_config.py /app/backend/core/
+COPY shared/ /app/shared/
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# Default command (overridden by specific servers)
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"] 

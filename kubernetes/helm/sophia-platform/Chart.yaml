@@ -1,0 +1,44 @@
+apiVersion: v2
+name: sophia-platform
+description: Sophia AI - Unified Cloud Platform for Lambda Labs Kubernetes
+type: application
+version: 3.0.0
+appVersion: "2025.1"
+
+keywords:
+  - sophia-ai
+  - kubernetes
+  - lambda-labs
+  - gpu
+  - ai-platform
+
+home: https://github.com/ai-cherry/sophia-main
+sources:
+  - https://github.com/ai-cherry/sophia-main
+
+maintainers:
+  - name: Sophia AI Team
+    email: team@sophia-ai.com
+
+dependencies:
+  - name: postgresql
+    version: "13.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: "18.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: prometheus
+    version: "25.x"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: monitoring.prometheus.enabled
+  - name: grafana
+    version: "7.x"
+    repository: https://grafana.github.io/helm-charts
+    condition: monitoring.grafana.enabled
+
+annotations:
+  "cloud-provider": "lambda-labs"
+  "gpu-enabled": "true"
+  "llm-gateway": "portkey-openrouter" 

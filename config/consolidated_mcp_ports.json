@@ -252,5 +252,192 @@
     ]
   },
   "snowflake_v2": 9001,
-  "version": "4.0"
+  "version": "4.0",
+  "unified_mcp_servers": {
+    "tier_1_primary": {
+      "ai_memory": {
+        "name": "AI Memory",
+        "port": 9000,
+        "status": "active",
+        "capabilities": ["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS"],
+        "replicas": 2,
+        "resources": {
+          "memory": "4Gi",
+          "cpu": "2000m"
+        }
+      },
+      "snowflake_unified": {
+        "name": "Snowflake Unified",
+        "port": 9001,
+        "status": "active",
+        "capabilities": ["ANALYTICS", "EMBEDDING", "SEARCH", "COMPLETION"],
+        "replicas": 2,
+        "resources": {
+          "memory": "4Gi",
+          "cpu": "2000m"
+        }
+      },
+      "gong": {
+        "name": "Gong v2",
+        "port": 9002,
+        "status": "active",
+        "capabilities": ["ANALYTICS", "CRM", "COMMUNICATION"],
+        "replicas": 2,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      },
+      "hubspot_unified": {
+        "name": "HubSpot Unified",
+        "port": 9003,
+        "status": "active",
+        "capabilities": ["CRM", "ANALYTICS", "WORKFLOW"],
+        "replicas": 2,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      },
+      "slack": {
+        "name": "Slack v2",
+        "port": 9004,
+        "status": "active",
+        "capabilities": ["COMMUNICATION", "SEARCH", "WORKFLOW"],
+        "replicas": 2,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      }
+    },
+    "tier_2_secondary": {
+      "github": {
+        "name": "GitHub v2",
+        "port": 9005,
+        "status": "active",
+        "capabilities": ["CODE_ANALYSIS", "WORKFLOW", "SEARCH"],
+        "replicas": 1,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      },
+      "linear": {
+        "name": "Linear v2",
+        "port": 9006,
+        "status": "active",
+        "capabilities": ["WORKFLOW", "ANALYTICS", "SEARCH"],
+        "replicas": 1,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      },
+      "asana": {
+        "name": "Asana v2",
+        "port": 9007,
+        "status": "active",
+        "capabilities": ["WORKFLOW", "ANALYTICS", "SEARCH"],
+        "replicas": 1,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      },
+      "notion": {
+        "name": "Notion v2",
+        "port": 9008,
+        "status": "active",
+        "capabilities": ["WORKFLOW", "SEARCH", "MEMORY"],
+        "replicas": 1,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      },
+      "codacy": {
+        "name": "Codacy Production",
+        "port": 3008,
+        "status": "active",
+        "capabilities": ["CODE_ANALYSIS", "ANALYTICS"],
+        "replicas": 1,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      }
+    },
+    "tier_3_tertiary": {
+      "figma": {
+        "name": "Figma Context",
+        "port": 9009,
+        "status": "active",
+        "capabilities": ["WORKFLOW", "ANALYTICS"],
+        "replicas": 1,
+        "resources": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        }
+      },
+      "lambda_labs_cli": {
+        "name": "Lambda Labs CLI",
+        "port": 9010,
+        "status": "active",
+        "capabilities": ["INFRASTRUCTURE", "ANALYTICS"],
+        "replicas": 1,
+        "resources": {
+          "memory": "1Gi",
+          "cpu": "500m"
+        }
+      },
+      "ui_ux_agent": {
+        "name": "UI/UX Agent",
+        "port": 9011,
+        "status": "active",
+        "capabilities": ["WORKFLOW", "CODE_ANALYSIS"],
+        "replicas": 1,
+        "resources": {
+          "memory": "2Gi",
+          "cpu": "1000m"
+        }
+      }
+    },
+    "central_services": {
+      "mcp_orchestration": {
+        "name": "MCP Orchestration",
+        "port": 8080,
+        "status": "active",
+        "replicas": 2
+      },
+      "registry_v2": {
+        "name": "Registry v2",
+        "port": 8081,
+        "status": "active",
+        "replicas": 1
+      },
+      "health_monitor": {
+        "name": "Health Monitor",
+        "port": 8082,
+        "status": "active",
+        "replicas": 1
+      }
+    }
+  },
+  "deployment": {
+    "host": "104.171.202.117",
+    "platform": "kubernetes",
+    "namespace": "sophia-mcp",
+    "registry": "docker.io/scoobyjava15",
+    "environment": "prod"
+  },
+  "removed_servers": [
+    "mcp_test_server",
+    "portkey_admin",
+    "unified_ai",
+    "graphiti",
+    "lambda_labs_unified",
+    "lambda_labs_serverless",
+    "various_v2_duplicates"
+  ]
 }

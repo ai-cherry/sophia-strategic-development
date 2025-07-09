@@ -79,15 +79,15 @@ jobs:
     - name: Apply Kubernetes manifests
       run: |
         # Apply all manifests
-        kubectl apply -f kubernetes/production/storage.yaml
-        kubectl apply -f kubernetes/production/postgres-deployment.yaml
-        kubectl apply -f kubernetes/production/redis-deployment.yaml
-        kubectl apply -f kubernetes/production/sophia-backend-deployment.yaml
-        kubectl apply -f kubernetes/production/frontend-deployment.yaml
-        kubectl apply -f kubernetes/production/mcp-*-deployment.yaml
-        kubectl apply -f kubernetes/production/mcp-*-service.yaml
-        kubectl apply -f kubernetes/production/ingress.yaml
-        kubectl apply -f kubernetes/monitoring/
+        scripts/deploy_unified_kubernetes.sh deployproduction/storage.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/postgres-deployment.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/redis-deployment.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/sophia-backend-deployment.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/frontend-deployment.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/mcp-*-deployment.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/mcp-*-service.yaml
+        scripts/deploy_unified_kubernetes.sh deployproduction/ingress.yaml
+        scripts/deploy_unified_kubernetes.sh deploymonitoring/
     
     - name: Wait for rollout
       run: |
