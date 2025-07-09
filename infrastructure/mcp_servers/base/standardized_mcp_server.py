@@ -20,6 +20,7 @@ TODO: Implement file decomposition
 import hashlib
 import json
 import logging
+import os
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -98,6 +99,9 @@ class MCPServerConfig:
     enable_self_knowledge: bool = True
     enable_improved_diff: bool = True
     preferred_model: ModelProvider = ModelProvider.CLAUDE_4
+    # Deployment environment detection (prod/staging/dev) – follows
+    # ENVIRONMENT stabilization rules (always default to prod).
+    environment: str = os.getenv("ENVIRONMENT", "prod")
 
 
 @dataclass
@@ -174,6 +178,9 @@ class StandardizedMCPServer(ABC):
         self.webfetch_cache: dict[str, WebFetchResult] = {}
         self.server_capabilities: list[ServerCapability] = []
         self.diff_success_rate = 1.0
+
+        # Source-Coverage Registry pinned API version (if available)
+        self.pinned_api_version: str | None = self._load_pinned_api_version()
 
         # Initialize metrics if enabled
         if config.enable_metrics:
@@ -428,6 +435,16 @@ class StandardizedMCPServer(ABC):
 
             # Server-specific initialization
             await self.server_specific_init()
+
+            # ---------------- Version-bump Guardrail ----------------
+            try:
+                current_version = await self.fetch_current_api_version()
+                await self._verify_api_version_guardrail(current_version)
+            except NotImplementedError:
+                logger.warning(
+                    "⚠️ fetch_current_api_version not implemented for %s → version guardrail skipped",
+                    self.server_name,
+                )
 
             # Perform initial health check
             await self.comprehensive_health_check()
@@ -1060,6 +1077,67 @@ class StandardizedMCPServer(ABC):
     ) -> Any:
         """Process data using AI capabilities."""
         pass
+
+    # ------------------------------------------------------------------
+    # Version-bump Guardrail helpers
+    # ------------------------------------------------------------------
+
+    def _load_pinned_api_version(self) -> str | None:
+        """Load the pinned API version from the SCR YAML file if present."""
+        scr_path = Path("config/mcp") / f"{self.server_name}_coverage.yml"
+        if not scr_path.exists():
+            logger.debug("No SCR file found for %s – skipping pinned version load", self.server_name)
+            return None
+
+        try:
+            import yaml  # type: ignore
+
+            with scr_path.open("r", encoding="utf-8") as fh:
+                data = yaml.safe_load(fh)
+            return data.get("api_version")  # type: ignore[index]
+        except Exception as exc:  # pragma: no cover
+            logger.warning("Failed to load pinned API version from %s: %s", scr_path, exc)
+            return None
+
+    async def _verify_api_version_guardrail(self, current_version: str | None) -> None:
+        """Fail startup in production if vendor bumps API version beyond what is in SCR."""
+        if self.config.environment != "prod":
+            # Guardrail only enforced in prod; log in other envs.
+            if self.pinned_api_version and current_version and current_version != self.pinned_api_version:
+                logger.warning(
+                    "⚠️ API version mismatch for %s (env=%s) – pinned=%s, detected=%s",
+                    self.server_name,
+                    self.config.environment,
+                    self.pinned_api_version,
+                    current_version,
+                )
+            return
+
+        # Production enforcement
+        if self.pinned_api_version is None:
+            logger.error("❌ No pinned api_version in SCR for %s – refuse to start in prod", self.server_name)
+            raise RuntimeError("Pinned API version missing")
+
+        if current_version is None:
+            logger.error("❌ Could not detect current API version for %s – refuse to start in prod", self.server_name)
+            raise RuntimeError("Unable to detect API version")
+
+        if current_version != self.pinned_api_version:
+            logger.error(
+                "❌ API version mismatch for %s – pinned=%s, detected=%s. Update SCR before deploying to prod.",
+                self.server_name,
+                self.pinned_api_version,
+                current_version,
+            )
+            raise RuntimeError("API version mismatch – deployment blocked")
+
+        logger.info("✅ API version verified for %s (version=%s)", self.server_name, current_version)
+
+    # Servers must implement this so guardrail can compare.
+    @abstractmethod
+    async def fetch_current_api_version(self) -> str | None:
+        """Return current vendor API version (e.g. from response header or version endpoint)."""
+        raise NotImplementedError
 
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Unknown-Field Telemetry
