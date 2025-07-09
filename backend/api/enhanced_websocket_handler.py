@@ -616,12 +616,18 @@ class EnhancedWebSocketHandler:
     async def get_session_metrics(self) -> dict[str, Any]:
         """Get metrics for all active sessions"""
         now = date_manager.now()
+        
+        # Count actual subscriptions per channel
+        channel_subscriptions = {}
+        for channel in self.channels.keys():
+            channel_subscriptions[channel] = sum(
+                1 for session in self.active_sessions.values()
+                if session.is_subscribed_to(channel)
+            )
+        
         return {
             "active_sessions": len(self.active_sessions),
-            "channel_subscriptions": {
-                channel: len(config.subscribers)
-                for channel, config in self.channels.items()
-            },
+            "channel_subscriptions": channel_subscriptions,
             "session_durations": [
                 (now - session.connected_at).total_seconds()
                 for session in self.active_sessions.values()
@@ -648,12 +654,18 @@ class EnhancedWebSocketHandler:
     async def health_check(self) -> dict[str, Any]:
         """Perform a health check of the WebSocket handler"""
         self.system_status["last_health_check"] = date_manager.get_current_isoformat()
+        
+        # Count actual subscriptions per channel
+        channel_subscriptions = {}
+        for channel in self.channels.keys():
+            channel_subscriptions[channel] = sum(
+                1 for session in self.active_sessions.values()
+                if session.is_subscribed_to(channel)
+            )
+        
         return {
             "status": "healthy",
             "active_sessions": len(self.active_sessions),
-            "channel_subscriptions": {
-                channel: len(config.subscribers)
-                for channel, config in self.channels.items()
-            },
+            "channel_subscriptions": channel_subscriptions,
             "system_status": self.system_status,
         }

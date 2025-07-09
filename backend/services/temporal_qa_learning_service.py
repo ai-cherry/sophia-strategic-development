@@ -144,7 +144,7 @@ class TemporalQALearningService:
                 system_response=response_data["response"],
                 learning_type=learning_type,
                 confidence=LearningConfidence.MEDIUM,
-                timestamp=date_manager.now(UTC),
+                timestamp=date_manager.now(),
                 context=context,
             )
 
@@ -427,7 +427,7 @@ class TemporalQALearningService:
             # Update existing knowledge
             knowledge = self.temporal_knowledge[concept_key]
             knowledge.usage_count += 1
-            knowledge.last_updated = date_manager.now(UTC)
+            knowledge.last_updated = date_manager.now()
             knowledge.source_interactions.append(interaction.id)
 
             # Update confidence based on reinforcement
@@ -444,7 +444,7 @@ class TemporalQALearningService:
                 examples=[interaction.user_question],
                 confidence=LearningConfidence.LOW,
                 source_interactions=[interaction.id],
-                last_updated=date_manager.now(UTC),
+                last_updated=date_manager.now(),
                 usage_count=1,
             )
 
@@ -573,7 +573,7 @@ class TemporalQALearningService:
         recent_knowledge = {
             concept: knowledge
             for concept, knowledge in self.temporal_knowledge.items()
-            if (date_manager.now(UTC) - knowledge.last_updated).total_seconds()
+            if (date_manager.now() - knowledge.last_updated).total_seconds()
             < 300  # Last 5 minutes
         }
 
