@@ -2,6 +2,15 @@
 # Lambda Labs Optimized Deployment Script
 # Part of the Lambda Labs Infrastructure Migration Plan
 
+# Lambda Labs Cloud API Configuration (Primary)
+LAMBDA_CLOUD_API_KEY="${LAMBDA_CLOUD_API_KEY}"
+LAMBDA_CLOUD_ENDPOINT="https://cloud.lambda.ai/api/v1/instances"
+
+# Lambda Labs Standard API Configuration (Secondary)
+LAMBDA_API_KEY="${LAMBDA_API_KEY}"
+LAMBDA_API_ENDPOINT="https://cloud.lambda.ai/api/v1/instances"
+
+
 set -e
 
 # Colors for output
