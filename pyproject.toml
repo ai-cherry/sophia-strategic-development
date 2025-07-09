@@ -153,6 +153,9 @@ dev = [
     "line-profiler>=4.1.1",
     "locust>=2.17.0",
     "aioresponses>=0.7.6",
+    "types-PyYAML>=6.0.12",
+    "types-requests>=2.31.0.20240218",
+    "types-aiohttp>=3.9.0.20240406",
 ]
 
 performance = [

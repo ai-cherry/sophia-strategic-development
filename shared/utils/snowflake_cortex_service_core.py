@@ -7,6 +7,7 @@ Contains the main service class with connection management and basic operations
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from core.config_manager import get_config_value
 
@@ -23,10 +24,13 @@ class SnowflakeCortexService:
     """
 
     def __init__(self):
-        # Remove individual connection - use optimized connection manager
-        from core.optimized_connection_manager import connection_manager
+        # Import lazily to avoid heavy dependencies during module import
+        from core.optimized_connection_manager import (
+            connection_manager as shared_connection_manager,
+        )
 
-        self.connection_manager = connection_manager
+        # Shared async connection manager instance
+        self.connection_manager: Any = shared_connection_manager  # type: ignore[attr-defined]
 
         self.database = get_config_value("snowflake_database", "SOPHIA_AI")
         self.schema = get_config_value("snowflake_schema", "AI_PROCESSING")
@@ -115,8 +119,13 @@ class SnowflakeCortexService:
             await self.initialize()
         return self.connection_manager
 
-    async def execute_query(self, query: str, params: tuple | None = None):
-        """Execute a query using the connection manager"""
+    async def execute_query(self, query: str, params: tuple | None = None) -> Any:
+        """Execute a query using the connection manager.
+
+        Returns whatever the underlying connection manager returns (often
+        `AsyncCursor` or iterable of rows).  We use `Any` for broader
+        compatibility across different DB back-ends.
+        """
         if not self.initialized:
             await self.initialize()
         return await self.connection_manager.execute_query(query, params)
