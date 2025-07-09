@@ -90,7 +90,6 @@ large_files_list.txt
 LARGE_FILE_ANALYSIS_REPORT.md
 
 # Package lock files (manage separately)
-package-lock.json
 pnpm-lock.yaml
 
 # User-specific configs
