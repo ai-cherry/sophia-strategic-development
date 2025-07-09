@@ -51,11 +51,11 @@ def fix_workflow_file(filepath: Path) -> bool:
     # Find patterns like:
     # username: ${{ env.DOCKER_REGISTRY }}
     # and replace with:
-    # username: ${{ secrets.DOCKER_USERNAME }}
+    # username: ${{ secrets.DOCKERHUB_USERNAME }}
     docker_login_pattern = r'(username:\s*\$\{{\s*env\.DOCKER_REGISTRY\s*\}\})'
     if re.search(docker_login_pattern, content):
-        content = re.sub(docker_login_pattern, 'username: ${{ secrets.DOCKER_USERNAME }}', content)
-        print(f"  ✅ Fixed docker/login-action username to use secrets.DOCKER_USERNAME")
+        content = re.sub(docker_login_pattern, 'username: ${{ secrets.DOCKERHUB_USERNAME }}', content)
+        print(f"  ✅ Fixed docker/login-action username to use secrets.DOCKERHUB_USERNAME")
         changes_made = True
     
     # Write back if changes were made

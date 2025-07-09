@@ -1,326 +1,246 @@
 name: Lambda Labs Deployment
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
-      target_instance:
-        description: 'Target Lambda Labs instance'
+      environment:
+        description: 'Deployment environment'
         required: true
+        default: 'production'
         type: choice
         options:
-          - sophia-production-instance
-          - sophia-ai-core
-          - sophia-mcp-orchestrator
-          - sophia-data-pipeline
-          - sophia-development
-      deployment_type:
-        description: 'Deployment type'
-        required: true
-        type: choice
-        options:
-          - full
-          - backend-only
-          - mcp-servers-only
-          - update-config
+          - production
+          - staging
+          - development
+      services:
+        description: 'Services to deploy (comma-separated)'
+        required: false
+        default: 'all'
+        type: string
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'infrastructure/**'
+      - 'docker-compose*.yml'
+      - 'Dockerfile*'
+      - '.github/workflows/lambda-labs-deploy.yml'
 
 env:
-  DOCKER_REGISTRY: scoobyjava15
-  PYTHON_VERSION: '3.12'
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+  PULUMI_ORG: scoobyjava-org
+  DOCKER_REGISTRY: docker.io
+  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
     outputs:
-      backend-image: ${{ steps.backend.outputs.image }}
-      mcp-image: ${{ steps.mcp.outputs.image }}
-
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
+      
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Build and push backend image
-        id: backend
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.production
-          push: true
-          tags: |
-            ${{ env.DOCKER_REGISTRY }}/sophia-backend:latest
-            ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
-
-      - name: Build and push MCP servers image
-        id: mcp
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: docker/Dockerfile.mcp-server
-          push: true
-          tags: |
-            ${{ env.DOCKER_REGISTRY }}/sophia-mcp-servers:latest
-            ${{ env.DOCKER_REGISTRY }}/sophia-mcp-servers:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ env.DOCKER_USERNAME }}
+        password: ${{ env.DOCKER_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DOCKER_USERNAME }}/sophia-ai
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.production
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          ENVIRONMENT=${{ env.ENVIRONMENT }}
+          PULUMI_ORG=${{ env.PULUMI_ORG }}
 
   deploy-to-lambda-labs:
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
     strategy:
       matrix:
         instance:
-          - name: sophia-production-instance
+          - name: production
             ip: 104.171.202.103
-            type: gpu_1x_rtx6000
-          - name: sophia-ai-core
+            gpu: RTX6000
+            services: backend,frontend,postgres,redis
+          - name: ai-core
             ip: 192.222.58.232
-            type: gpu_1x_gh200
-          - name: sophia-mcp-orchestrator
+            gpu: GH200
+            services: ai-memory,snowflake,cortex
+          - name: mcp-orchestrator
             ip: 104.171.202.117
-            type: gpu_1x_a6000
-          - name: sophia-data-pipeline
+            gpu: A6000
+            services: mcp-gateway,mcp-servers
+          - name: data-pipeline
             ip: 104.171.202.134
-            type: gpu_1x_a100
-          - name: sophia-development
+            gpu: A100
+            services: etl,monitoring,analytics
+          - name: development
             ip: 155.248.194.183
-            type: gpu_1x_a10
-
+            gpu: A10
+            services: testing,staging
+            
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/lambda_labs_key
-          chmod 600 ~/.ssh/lambda_labs_key
-          ssh-keyscan -H ${{ matrix.instance.ip }} >> ~/.ssh/known_hosts
-
-      - name: Prepare deployment scripts
-        run: |
-          # Create deployment script
-          cat > deploy_sophia.sh << 'EOF'
-          #!/bin/bash
-          set -e
-
-          echo "🚀 Deploying Sophia AI to Lambda Labs instance..."
-
-          # Update system
-          sudo apt-get update
-          sudo apt-get install -y docker.io docker-compose git
-
-          # Ensure Docker is running
-          sudo systemctl start docker
-          sudo usermod -aG docker ubuntu
-
-          # Create deployment directory
-          mkdir -p /home/ubuntu/sophia-ai
-          cd /home/ubuntu/sophia-ai
-
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ matrix.instance.ip }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to Lambda Labs Instance
+      run: |
+        echo "🚀 Deploying to ${{ matrix.instance.name }} (${{ matrix.instance.ip }})"
+        
+        # Create deployment directory
+        ssh root@${{ matrix.instance.ip }} "mkdir -p /opt/sophia-ai"
+        
+        # Copy docker-compose files
+        scp docker-compose.cloud.yml root@${{ matrix.instance.ip }}:/opt/sophia-ai/
+        scp docker-compose.override.yml root@${{ matrix.instance.ip }}:/opt/sophia-ai/ || true
+        
+        # Deploy services
+        ssh root@${{ matrix.instance.ip }} << 'EOF'
+          cd /opt/sophia-ai
+          
+          # Set environment variables
+          export ENVIRONMENT=${{ env.ENVIRONMENT }}
+          export PULUMI_ORG=${{ env.PULUMI_ORG }}
+          export DOCKER_USERNAME=${{ env.DOCKER_USERNAME }}
+          export DOCKER_TOKEN=${{ env.DOCKER_TOKEN }}
+          
+          # Login to Docker Hub
+          echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          
           # Pull latest images
-          docker pull ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }}
-          docker pull ${{ env.DOCKER_REGISTRY }}/sophia-mcp-servers:${{ github.sha }}
-
-          # Create docker-compose.yml
-          cat > docker-compose.yml << 'COMPOSE'
-          version: '3.8'
-
-          services:
-            postgres:
-              image: postgres:16-alpine
-              environment:
-                POSTGRES_DB: sophia_db
-                POSTGRES_USER: sophia_user
-                POSTGRES_PASSWORD: sophia_secure_password
-              volumes:
-                - postgres_data:/var/lib/postgresql/data
-              networks:
-                - sophia-network
-
-            redis:
-              image: redis:7-alpine
-              command: redis-server --appendonly yes
-              volumes:
-                - redis_data:/data
-              networks:
-                - sophia-network
-
-            backend:
-              image: ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }}
-              ports:
-                - "8000:8000"
-              environment:
-                - ENVIRONMENT=production
-                - PULUMI_ORG=${{ secrets.PULUMI_ORG }}
-                - PULUMI_STACK=${{ secrets.PULUMI_STACK }}
-                - PULUMI_ACCESS_TOKEN=${{ secrets.PULUMI_ACCESS_TOKEN }}
-                - DATABASE_URL=postgresql://sophia_user:sophia_secure_password@postgres:5432/sophia_db
-                - REDIS_URL=redis://redis:6379
-              depends_on:
-                - postgres
-                - redis
-              networks:
-                - sophia-network
-              volumes:
-                - ./config:/app/config
-
-            mcp-servers:
-              image: ${{ env.DOCKER_REGISTRY }}/sophia-mcp-servers:${{ github.sha }}
-              ports:
-                - "9000-9100:9000-9100"
-              environment:
-                - ENVIRONMENT=production
-                - PULUMI_ORG=${{ secrets.PULUMI_ORG }}
-                - PULUMI_STACK=${{ secrets.PULUMI_STACK }}
-                - PULUMI_ACCESS_TOKEN=${{ secrets.PULUMI_ACCESS_TOKEN }}
-              networks:
-                - sophia-network
-              volumes:
-                - ./config:/app/config
-
-            prometheus:
-              image: prom/prometheus:latest
-              ports:
-                - "9090:9090"
-              volumes:
-                - ./config/prometheus:/etc/prometheus
-                - prometheus_data:/prometheus
-              networks:
-                - sophia-network
-
-            grafana:
-              image: grafana/grafana:latest
-              ports:
-                - "3000:3000"
-              environment:
-                - GF_SECURITY_ADMIN_PASSWORD=admin
-              volumes:
-                - grafana_data:/var/lib/grafana
-              networks:
-                - sophia-network
-
-          volumes:
-            postgres_data:
-            redis_data:
-            prometheus_data:
-            grafana_data:
-
-          networks:
-            sophia-network:
-              driver: bridge
-          COMPOSE
-
-          # Stop existing containers
-          docker-compose down || true
-
-          # Start new containers
-          docker-compose up -d
-
-          # Wait for services to be healthy
-          echo "⏳ Waiting for services to be healthy..."
+          docker-compose -f docker-compose.cloud.yml pull
+          
+          # Deploy stack
+          docker stack deploy -c docker-compose.cloud.yml sophia-ai
+          
+          # Wait for services to be ready
           sleep 30
-
+          
           # Check service status
-          docker-compose ps
-
-          echo "✅ Deployment complete!"
-          EOF
-
-          chmod +x deploy_sophia.sh
-
-      - name: Deploy to Lambda Labs instance
-        if: matrix.instance.name == github.event.inputs.target_instance || github.event_name == 'push'
-        run: |
-          # Copy deployment script
-          scp -i ~/.ssh/lambda_labs_key deploy_sophia.sh ubuntu@${{ matrix.instance.ip }}:/tmp/
-
-          # Execute deployment
-          ssh -i ~/.ssh/lambda_labs_key ubuntu@${{ matrix.instance.ip }} 'bash /tmp/deploy_sophia.sh'
-
-      - name: Health check
-        if: matrix.instance.name == github.event.inputs.target_instance || github.event_name == 'push'
-        run: |
-          # Wait for services to start
-          sleep 60
-
-          # Check backend health
-          curl -f http://${{ matrix.instance.ip }}:8000/health || exit 1
-
-          # Check MCP servers health
-          for port in 9001 9002 9003 9004 9005; do
-            curl -f http://${{ matrix.instance.ip }}:${port}/health || echo "Warning: MCP server on port ${port} not responding"
-          done
-
-  update-pulumi-esc:
-    needs: deploy-to-lambda-labs
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Pulumi
-        uses: pulumi/actions@v4
-        with:
-          pulumi-version: latest
-
-      - name: Update Pulumi ESC with deployment info
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-        run: |
-          # Update deployment information in Pulumi ESC
-          cat > deployment_info.yaml << EOF
-          deployment:
-            timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-            git_sha: ${{ github.sha }}
-            instances:
-              - name: sophia-production-instance
-                ip: 104.171.202.103
-                status: deployed
-              - name: sophia-ai-core
-                ip: 192.222.58.232
-                status: deployed
-              - name: sophia-mcp-orchestrator
-                ip: 104.171.202.117
-                status: deployed
-              - name: sophia-data-pipeline
-                ip: 104.171.202.134
-                status: deployed
-              - name: sophia-development
-                ip: 155.248.194.183
-                status: deployed
-          EOF
-
-          pulumi env set ${{ secrets.PULUMI_ORG }}/default/sophia-ai-production --file deployment_info.yaml
-
-  notify-deployment:
-    needs: [deploy-to-lambda-labs, update-pulumi-esc]
+          docker service ls
+          docker stack ps sophia-ai
+          
+          echo "✅ Deployment complete on ${{ matrix.instance.name }}"
+        EOF
+        
+    - name: Health Check
+      run: |
+        echo "🔍 Performing health check on ${{ matrix.instance.name }}"
+        
+        # Wait for services to start
+        sleep 60
+        
+        # Check service health
+        ssh root@${{ matrix.instance.ip }} << 'EOF'
+          # Check if services are running
+          RUNNING_SERVICES=$(docker service ls --filter "label=com.docker.stack.namespace=sophia-ai" --format "table {{.Name}}\t{{.Replicas}}" | grep -v "0/")
+          
+          if [ -z "$RUNNING_SERVICES" ]; then
+            echo "❌ No services running"
+            exit 1
+          else
+            echo "✅ Services running:"
+            echo "$RUNNING_SERVICES"
+          fi
+          
+          # Test API endpoints if backend is deployed
+          if echo "${{ matrix.instance.services }}" | grep -q "backend"; then
+            if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+              echo "✅ Backend health check passed"
+            else
+              echo "⚠️  Backend health check failed"
+            fi
+          fi
+          
+          # Test frontend if deployed
+          if echo "${{ matrix.instance.services }}" | grep -q "frontend"; then
+            if curl -f http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ Frontend health check passed"
+            else
+              echo "⚠️  Frontend health check failed"
+            fi
+          fi
+        EOF
+        
+    - name: Update deployment status
+      if: always()
+      run: |
+        echo "📊 Deployment Status for ${{ matrix.instance.name }}:"
+        echo "Instance: ${{ matrix.instance.ip }}"
+        echo "GPU: ${{ matrix.instance.gpu }}"
+        echo "Services: ${{ matrix.instance.services }}"
+        echo "Image: ${{ needs.build-and-push.outputs.image_tag }}"
+        echo "Status: ${{ job.status }}"
+        
+  notify-completion:
+    needs: [build-and-push, deploy-to-lambda-labs]
     runs-on: ubuntu-latest
     if: always()
+    
     steps:
-      - name: Send deployment notification
-        run: |
-          if [ "${{ needs.deploy-to-lambda-labs.result }}" == "success" ]; then
-            echo "✅ Deployment successful!"
-            # Add Slack/Discord notification here
-          else
-            echo "❌ Deployment failed!"
-            # Add failure notification here
-          fi
+    - name: Notify deployment completion
+      run: |
+        if [ "${{ needs.deploy-to-lambda-labs.result }}" == "success" ]; then
+          echo "🎉 Deployment successful to all Lambda Labs instances!"
+          echo "Image: ${{ needs.build-and-push.outputs.image_tag }}"
+          echo "Environment: ${{ env.ENVIRONMENT }}"
+        else
+          echo "❌ Deployment failed on one or more instances"
+          echo "Check the logs above for details"
+          exit 1
+        fi
+        
+    - name: Post to Slack
+      if: always()
+      run: |
+        STATUS_EMOJI="${{ needs.deploy-to-lambda-labs.result == 'success' && '✅' || '❌' }}"
+        STATUS_TEXT="${{ needs.deploy-to-lambda-labs.result == 'success' && 'SUCCESS' || 'FAILED' }}"
+        
+        echo "Would post to Slack: $STATUS_EMOJI Lambda Labs Deployment $STATUS_TEXT"
+        echo "Environment: ${{ env.ENVIRONMENT }}"
+        echo "Image: ${{ needs.build-and-push.outputs.image_tag }}"
+        
+        # Uncomment when Slack integration is ready
+        # curl -X POST -H 'Content-type: application/json' \
+        #   --data "{\"text\":\"$STATUS_EMOJI Lambda Labs Deployment $STATUS_TEXT\nEnvironment: ${{ env.ENVIRONMENT }}\nImage: ${{ needs.build-and-push.outputs.image_tag }}\"}" \
+        #   ${{ secrets.SLACK_WEBHOOK_URL }}

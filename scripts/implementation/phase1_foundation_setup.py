@@ -466,8 +466,8 @@ CMD ["uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8
                             "name": "Login to Docker Hub",
                             "uses": "docker/login-action@v3",
                             "with": {
-                                "username": "${{ secrets.DOCKER_USER_NAME }}",
-                                "password": "${{ secrets.DOCKER_PERSONAL_ACCESS_TOKEN }}",
+                                "username": "${{ secrets.DOCKERHUB_USERNAME_NAME }}",
+                                "password": "${{ secrets.DOCKER_TOKEN }}",
                             },
                         },
                         {

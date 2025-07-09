@@ -109,7 +109,7 @@ jobs:
 
       - name: Validate Lambda Labs infrastructure
         env:
-          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+          LAMBDA_LABS_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
           LAMBDA_SSH_KEY: ${{ secrets.LAMBDA_SSH_KEY }}
         run: |
           python scripts/validate_lambda_infrastructure.py
@@ -196,7 +196,7 @@ jobs:
         env:
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           NAMECHEAP_API_KEY: ${{ secrets.NAMECHEAP_API_KEY }}
-          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+          LAMBDA_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
           LAMBDA_SSH_KEY: ${{ secrets.LAMBDA_SSH_KEY }}
           LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
         run: |
@@ -254,7 +254,7 @@ jobs:
         env:
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           NAMECHEAP_API_KEY: ${{ secrets.NAMECHEAP_API_KEY }}
-          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+          LAMBDA_API_KEY: ${{ secrets.LAMBDA_LABS_API_KEY }}
           LAMBDA_SSH_KEY: ${{ secrets.LAMBDA_SSH_KEY }}
           LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
         run: |

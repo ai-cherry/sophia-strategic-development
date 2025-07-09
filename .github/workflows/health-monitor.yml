@@ -103,7 +103,7 @@ jobs:
 
       - name: Analyze recent workflow performance
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
         run: |
           echo "📊 Analyzing recent workflow performance..."
 

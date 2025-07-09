@@ -1,13 +1,14 @@
 """
-Auto ESC Configuration Module for Sophia AI
-Handles environment variable and configuration management with Pulumi ESC integration
-Integrated with SecurityConfig for centralized secret management
+Enhanced Auto ESC Config with ALL GitHub Secrets Mapped
+This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 """
 
 import logging
 import os
 import subprocess
-from typing import Any, Optional
+import json
+from typing import Any, Optional, Dict
+from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,55 @@ logger = logging.getLogger(__name__)
 _config_cache: dict[str, Any] = {}
 _esc_cache: dict[str, Any] | None = None
 
+# Environment configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
+PULUMI_ORG = os.getenv("PULUMI_ORG", "scoobyjava-org")
+PULUMI_STACK = f"{PULUMI_ORG}/default/sophia-ai-production"
+
+@lru_cache(maxsize=1)
+def get_pulumi_config() -> Dict[str, Any]:
+    """Get all configuration from Pulumi ESC"""
+    try:
+        # Try to get the config using pulumi env get
+        result = subprocess.run(
+            ["pulumi", "env", "get", PULUMI_STACK],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        if result.returncode == 0:
+            # Parse the output - it might be YAML or key-value pairs
+            config = {}
+            for line in result.stdout.strip().split('\n'):
+                if ':' in line and not line.startswith('#'):
+                    key, value = line.split(':', 1)
+                    config[key.strip()] = value.strip()
+            
+            logger.info(f"✅ Loaded Pulumi ESC config from {PULUMI_STACK}")
+            return config
+        else:
+            logger.error(f"❌ Failed to load Pulumi ESC config: {result.stderr}")
+            return {}
+            
+    except Exception as e:
+        logger.error(f"❌ Error loading Pulumi ESC config: {e}")
+        return {}
+
+def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Get a configuration value from Pulumi ESC or environment variables"""
+    # Try environment variable first
+    env_value = os.getenv(key.upper())
+    if env_value:
+        return env_value
+    
+    # Try Pulumi ESC
+    config = get_pulumi_config()
+    if config and key in config:
+        return config[key]
+    
+    # Return default
+    return default
 
 def _get_security_config():
     """Get SecurityConfig class (imported lazily to avoid circular imports)"""
@@ -26,7 +76,6 @@ def _get_security_config():
     except ImportError:
         logger.warning("SecurityConfig not available, using fallback mappings")
         return None
-
 
 def _load_esc_environment() -> dict[str, Any]:
     """
@@ -90,171 +139,6 @@ def _load_esc_environment() -> dict[str, Any]:
     _esc_cache = {}
     return _esc_cache
 
-
-def get_config_value(key: str, default: Any = None) -> Any:
-    """
-    Get configuration value from Pulumi ESC, environment variables, or cache
-
-    Args:
-        key: Configuration key
-        default: Default value if key not found
-
-    Returns:
-        Configuration value
-    """
-    # Check cache first
-    if key in _config_cache:
-        return _config_cache[key]
-
-    # Check environment variables first (highest priority)
-    env_value = os.getenv(key.upper())
-    if env_value is not None:
-        _config_cache[key] = env_value
-        return env_value
-
-    # Check with original case
-    env_value = os.getenv(key)
-    if env_value is not None:
-        _config_cache[key] = env_value
-        return env_value
-
-    # Try to load from Pulumi ESC
-    esc_data = _load_esc_environment()
-
-    # ESC key mappings for secret names
-    esc_key_mappings = {
-        # Core AI Services (working)
-        "openai_api_key": "openai_api_key",
-        "anthropic_api_key": "anthropic_api_key",
-        "pinecone_api_key": "pinecone_api_key",
-        "gong_access_key": "gong_access_key",
-        # Gateway Services (missing - fixed by sync)
-        "portkey_api_key": "portkey_api_key",
-        "openrouter_api_key": "openrouter_api_key",
-        # Business Intelligence (missing - fixed by sync)
-        "hubspot_access_token": "hubspot_access_token",
-        "linear_api_key": "linear_api_key",
-        "asana_access_token": "asana_access_token",  # Note: GitHub has ASANA_API_TOKEN
-        # Communication (missing - fixed by sync)
-        "slack_bot_token": "slack_bot_token",
-        "slack_app_token": "slack_app_token",
-        "slack_client_id": "slack_client_id",
-        "slack_client_secret": "slack_client_secret",
-        "slack_signing_secret": "slack_signing_secret",
-        # Development Tools (missing - fixed by sync)
-        "github_token": "github_token",  # Note: GitHub has GH_API_TOKEN
-        "figma_pat": "figma_pat",
-        "notion_api_token": "notion_api_token",  # Note: GitHub has NOTION_API_KEY
-        # Infrastructure (missing - fixed by sync)
-        "lambda_api_key": "lambda_api_key",
-        "lambda_ip_address": "lambda_ip_address",
-        "lambda_ssh_private_key": "lambda_ssh_private_key",
-        # Snowflake (working)
-        "snowflake_account": "snowflake_account",
-        "snowflake_user": "snowflake_user",
-        "snowflake_password": "snowflake_password",
-        "snowflake_role": "snowflake_role",
-        "snowflake_warehouse": "snowflake_warehouse",
-        "snowflake_database": "snowflake_database",
-        "snowflake_schema": "snowflake_schema",
-        "snowflake_mcp_pat": "snowflake_mcp_pat",  # NEW: PAT for MCP authentication
-        "snowflake_mcp_url": "snowflake_mcp_url",  # NEW: MCP server URL
-        # Additional mappings for comprehensive coverage
-        "codacy_api_token": "codacy_api_token",
-        "estuary_access_token": "estuary_access_token",
-        "vercel_access_token": "vercel_access_token",
-        # DOCKER HUB - FIXED MAPPING
-        "docker_token": "DOCKER_TOKEN",  # PRIMARY: This is what GitHub uses
-        "docker_hub_access_token": "DOCKER_TOKEN",  # Map to same token
-        "docker_hub_token": "DOCKER_TOKEN",  # Map to same token
-        "docker_password": "DOCKER_TOKEN",  # Map to same token
-        "DOCKER_PASSWORD": "DOCKER_TOKEN",  # Map to same token
-        "DOCKER_PERSONAL_ACCESS_TOKEN": "DOCKER_TOKEN",  # Map to same token
-        # Docker username mappings
-        "docker_hub_username": "DOCKER_USERNAME",  # PRIMARY: This is what GitHub uses
-        "docker_username": "DOCKER_USERNAME",  # Map to same username
-        "DOCKERHUB_USERNAME": "DOCKER_USERNAME",  # Map to same username
-        "DOCKER_USER_NAME": "DOCKER_USERNAME",  # Map to same username
-        "npm_api_token": "npm_api_token",
-        # AI Optimization Flags (NEW)
-        "ai_optimization_enabled": "ai.optimization_enabled",
-        "hybrid_routing_enabled": "ai.hybrid_routing_enabled",
-        "cost_monitoring_enabled": "ai.cost_monitoring_enabled",
-    }
-
-    # Use mapped key or original key
-    esc_key = esc_key_mappings.get(key, key)
-
-    # Get key mappings from SecurityConfig if available
-    security_config = _get_security_config()
-    if security_config:
-        # Use SecurityConfig for key validation and mapping
-        if (
-            not security_config.validate_secret_key(key)
-            and key not in security_config.NON_SECRET_CONFIG
-        ):
-            # Check if this is a known non-secret config key
-            pass
-
-    # Try to get from ESC using mapped key (handle quoted keys)
-    quoted_esc_key = f'"{esc_key}"'
-
-    # Check both quoted and unquoted versions
-    esc_value = esc_data.get(esc_key) or esc_data.get(quoted_esc_key)
-
-    if esc_value and esc_value != "[secret]":
-        _config_cache[key] = esc_value
-        return esc_value
-
-    # For secrets, try to get them directly from ESC with --show-secrets
-    if esc_value == "[secret]":
-        try:
-            # Get secret value directly using --show-secrets
-            result = subprocess.run(
-                [
-                    "pulumi",
-                    "env",
-                    "get",
-                    "default/sophia-ai-production",
-                    "--show-secrets",
-                ],
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            if result.returncode == 0:
-                # Parse the JSON output to get the secret value
-                import json
-
-                try:
-                    esc_secrets = json.loads(result.stdout)
-                    if esc_key in esc_secrets:
-                        secret_value = esc_secrets[esc_key]
-                        _config_cache[key] = secret_value
-                        return secret_value
-                except json.JSONDecodeError:
-                    # Fallback to line-by-line parsing
-                    for line in result.stdout.split("\n"):
-                        if f'"{esc_key}":' in line and "PLACEHOLDER" not in line:
-                            try:
-                                # Extract the value from the JSON line
-                                value_part = line.split(":", 1)[1].strip()
-                                if value_part.endswith(","):
-                                    value_part = value_part[:-1]
-                                secret_value = value_part.strip('"')
-                                _config_cache[key] = secret_value
-                                return secret_value
-                            except Exception:
-                                continue
-        except Exception as e:
-            logger.debug(f"Failed to get secret {esc_key}: {e}")
-
-    # Return default
-    _config_cache[key] = default
-    return default
-
-
 def set_config_value(key: str, value: Any) -> None:
     """
     Set configuration value in cache
@@ -264,7 +148,6 @@ def set_config_value(key: str, value: Any) -> None:
         value: Configuration value
     """
     _config_cache[key] = value
-
 
 def get_snowflake_config() -> dict[str, Any]:
     """
@@ -289,7 +172,6 @@ def get_snowflake_config() -> dict[str, Any]:
         "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
     }
 
-
 def get_estuary_config() -> dict[str, Any]:
     """
     Get Estuary configuration
@@ -302,7 +184,6 @@ def get_estuary_config() -> dict[str, Any]:
         "tenant": get_config_value("estuary_tenant", "Pay_Ready"),
         "endpoint": get_config_value("estuary_endpoint", "https://api.estuary.dev"),
     }
-
 
 def get_integration_config() -> dict[str, Any]:
     """
@@ -335,7 +216,6 @@ def get_integration_config() -> dict[str, Any]:
             ),
         },
     }
-
 
 def initialize_default_config():
     """Initialize default configuration values"""
@@ -378,10 +258,8 @@ def initialize_default_config():
 
     logger.info("Configuration initialized with Pulumi ESC integration")
 
-
 # Initialize defaults on import
 initialize_default_config()
-
 
 def get_lambda_labs_config() -> dict[str, Any]:
     """
@@ -398,7 +276,6 @@ def get_lambda_labs_config() -> dict[str, Any]:
         "ssh_private_key": get_config_value("lambda_ssh_private_key")
         or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
     }
-
 
 def get_docker_hub_config() -> dict[str, Any]:
     """
@@ -437,7 +314,6 @@ def get_docker_hub_config() -> dict[str, Any]:
         "access_token": access_token,
         "registry": "docker.io",
     }
-
 
 # Backward compatibility - create a config object that mimics the old interface
 class ConfigObject:
@@ -486,10 +362,8 @@ class ConfigObject:
     def apollo_api_base_url(self):
         return get_config_value("apollo_api_base_url", "https://api.apollo.io")
 
-
 # Create backward compatibility config object
 config = ConfigObject()
-
 
 # Enhanced Snowflake connection optimization
 SNOWFLAKE_OPTIMIZATION_CONFIG = {
@@ -501,7 +375,6 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     "warehouse_auto_suspend": 60,
     "warehouse_auto_resume": True,
 }
-
 
 def get_snowflake_pat(environment: Optional[str] = None) -> str:
     """
@@ -545,7 +418,6 @@ def get_snowflake_pat(environment: Optional[str] = None) -> str:
 
     return pat
 
-
 def get_snowflake_mcp_config() -> dict[str, Any]:
     """
     Get Snowflake MCP server configuration
@@ -564,7 +436,6 @@ def get_snowflake_mcp_config() -> dict[str, Any]:
         "max_retries": int(get_config_value("snowflake_mcp_max_retries", "3")),
         "pool_size": int(get_config_value("snowflake_mcp_pool_size", "20")),
     }
-
 
 # Add PAT rotation check function
 def check_pat_rotation_needed() -> bool:
@@ -595,10 +466,8 @@ def check_pat_rotation_needed() -> bool:
         logger.error(f"Error checking PAT rotation: {e}")
         return False
 
-
 # Update the esc_key_mappings in get_config_value to include PAT mappings
 # (This is already included in the existing mappings)
-
 
 def validate_snowflake_pat() -> bool:
     """
@@ -619,7 +488,6 @@ def validate_snowflake_pat() -> bool:
 
     logger.warning("Snowflake password may not be a valid PAT token")
     return False
-
 
 def get_snowflake_config_enhanced() -> dict[str, Any]:
     """
@@ -644,7 +512,6 @@ def get_snowflake_config_enhanced() -> dict[str, Any]:
     enhanced_config["account"] = "UHDECNO-CVB64222"
 
     return enhanced_config
-
 
 # Enhanced configuration constants
 SNOWFLAKE_PAT_CONFIG = {

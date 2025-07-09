@@ -203,7 +203,7 @@ main() {
 if [ -z "${DOCKER_HUB_ACCESS_TOKEN}" ]; then
     echo -e "${YELLOW}Loading Docker Hub credentials from Pulumi ESC...${NC}"
     source backend/core/auto_esc_config.py
-    export DOCKER_HUB_ACCESS_TOKEN=$(python -c "from backend.core.auto_esc_config import get_docker_hub_config; print(get_docker_hub_config()['access_token'])")
+    export DOCKER_TOKEN=$(python -c "from backend.core.auto_esc_config import get_docker_hub_config; print(get_docker_hub_config()['access_token'])")
 fi
 
 # Run main

@@ -138,7 +138,7 @@ def generate_fix_commands() -> None:
     print("\n🔧 Fix Commands:")
     print("\nIf running locally, set these environment variables:")
     print("export PULUMI_ACCESS_TOKEN='pul-...'")
-    print("export DOCKER_USERNAME='scoobyjava15'")
+    print("export DOCKERHUB_USERNAME='scoobyjava15'")
     print("export DOCKER_TOKEN='your-docker-hub-token'")
     print("\nThen run:")
     print("python3 scripts/comprehensive_secret_mapping.py")
