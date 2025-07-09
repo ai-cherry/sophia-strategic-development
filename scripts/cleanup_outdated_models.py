@@ -6,6 +6,7 @@ Identifies and reports all outdated AI model references in the codebase
 
 import re
 from pathlib import Path
+from typing import Dict, List, Any
 
 # Define outdated models
 OUTDATED_MODELS = {
@@ -158,18 +159,20 @@ def generate_report(findings: dict[str, list[dict]]) -> str:
     return "\n".join(report)
 
 
-def check_estuary_references(root_path: Path) -> dict[str, list[dict]]:
-    """Check for Estuary Flow references that should be Estuary"""
-    airbyte_findings = {}
-
-    airbyte_patterns = [
-        r"\bairbyte\b",
-        r"\bAirbyte\b",
-        r"\bAIRBYTE\b",
-        r"RAW_ESTUARY",
-        r"STG_ESTUARY",
+def check_outdated_references(root_path: Path) -> Dict[str, List[Dict[str, Any]]]:
+    """Check for outdated model and service references"""
+    outdated_findings = {}
+    
+    outdated_patterns = [
+        # Outdated models
+        (r"text-davinci-00[0-3]", "gpt-3.5-turbo or gpt-4"),
+        (r"code-davinci-00[0-2]", "gpt-3.5-turbo or gpt-4"),
+        (r"text-curie-001", "gpt-3.5-turbo"),
+        (r"text-babbage-001", "gpt-3.5-turbo"),
+        (r"text-ada-001", "gpt-3.5-turbo"),
+        # Add more outdated patterns as needed
     ]
-
+    
     for pattern in FILE_PATTERNS:
         for file_path in root_path.glob(pattern):
             if any(skip_dir in str(file_path) for skip_dir in SKIP_DIRS):
@@ -178,17 +181,61 @@ def check_estuary_references(root_path: Path) -> dict[str, list[dict]]:
             try:
                 content = file_path.read_text(encoding="utf-8")
 
-                for airbyte_pattern in airbyte_patterns:
-                    matches = list(re.finditer(airbyte_pattern, content, re.IGNORECASE))
+                for outdated_pattern in outdated_patterns:
+                    pattern, replacement = outdated_pattern
+                    matches = list(re.finditer(pattern, content, re.IGNORECASE))
                     if matches:
-                        if str(file_path) not in airbyte_findings:
-                            airbyte_findings[str(file_path)] = []
+                        if str(file_path) not in outdated_findings:
+                            outdated_findings[str(file_path)] = []
 
                         for match in matches:
                             line_num = content[: match.start()].count("\n") + 1
                             line = content.split("\n")[line_num - 1].strip()
 
-                            airbyte_findings[str(file_path)].append(
+                            outdated_findings[str(file_path)].append(
+                                {
+                                    "pattern": match.group(),
+                                    "line": line_num,
+                                    "content": line,
+                                    "replacement": replacement,
+                                }
+                            )
+
+            except Exception:
+                pass
+
+    return outdated_findings
+
+
+def check_estuary_references(root_path: Path) -> Dict[str, List[Dict[str, Any]]]:
+    """Check for Estuary Flow references"""
+    estuary_findings = {}
+    
+    estuary_patterns = [
+        r"\bestuary\b",
+        r"\bEstuary\b",
+        r"\bESTUARY\b",
+    ]
+    
+    for pattern in FILE_PATTERNS:
+        for file_path in root_path.glob(pattern):
+            if any(skip_dir in str(file_path) for skip_dir in SKIP_DIRS):
+                continue
+
+            try:
+                content = file_path.read_text(encoding="utf-8")
+
+                for estuary_pattern in estuary_patterns:
+                    matches = list(re.finditer(estuary_pattern, content, re.IGNORECASE))
+                    if matches:
+                        if str(file_path) not in estuary_findings:
+                            estuary_findings[str(file_path)] = []
+
+                        for match in matches:
+                            line_num = content[: match.start()].count("\n") + 1
+                            line = content.split("\n")[line_num - 1].strip()
+
+                            estuary_findings[str(file_path)].append(
                                 {
                                     "pattern": match.group(),
                                     "line": line_num,
@@ -199,19 +246,22 @@ def check_estuary_references(root_path: Path) -> dict[str, list[dict]]:
             except Exception:
                 pass
 
-    return airbyte_findings
+    return estuary_findings
 
 
 def main():
-    """Main execution"""
+    """Main function to run all checks"""
     root_path = Path.cwd()
-
-    print("🔍 Scanning for outdated model references...")
-    model_findings = find_outdated_references(root_path)
-
-    print("🔍 Scanning for Estuary Flow references...")
-    airbyte_findings = check_estuary_references(root_path)
-
+    
+    print("🔍 Scanning codebase for outdated references...")
+    print("=" * 60)
+    
+    # Check for outdated models
+    model_findings = check_outdated_references(root_path)
+    
+    # Check for Estuary Flow references
+    estuary_findings = check_estuary_references(root_path)
+    
     # Generate reports
     model_report = generate_report(model_findings)
 
@@ -222,36 +272,36 @@ def main():
     print(f"\n✅ Model report saved to: {report_path}")
 
     # Generate Estuary Flow report
-    if airbyte_findings:
-        airbyte_report = ["# Estuary Flow References Report\n"]
-        airbyte_report.append(
-            f"Total files with Estuary Flow references: {len(airbyte_findings)}\n"
+    if estuary_findings:
+        estuary_report = ["# Estuary Flow References Report\n"]
+        estuary_report.append(
+            f"Total files with Estuary Flow references: {len(estuary_findings)}\n"
         )
 
-        for file_path, findings in sorted(airbyte_findings.items()):
-            airbyte_report.append(f"\n## {file_path}\n")
+        for file_path, findings in sorted(estuary_findings.items()):
+            estuary_report.append(f"\n## {file_path}\n")
             for finding in findings:
-                airbyte_report.append(
+                estuary_report.append(
                     f"- Line {finding['line']}: `{finding['pattern']}`"
                 )
-                airbyte_report.append(f"  ```\n  {finding['content']}\n  ```")
+                estuary_report.append(f"  ```\n  {finding['content']}\n  ```")
 
-        airbyte_report_path = root_path / "reports" / "airbyte_references_report.md"
-        airbyte_report_path.write_text("\n".join(airbyte_report))
-        print(f"✅ Estuary Flow report saved to: {airbyte_report_path}")
+        estuary_report_path = root_path / "reports" / "estuary_references_report.md"
+        estuary_report_path.write_text("\n".join(estuary_report))
+        print(f"✅ Estuary Flow report saved to: {estuary_report_path}")
 
     # Print summary
     print("\n📊 Summary:")
     print(f"- Files with outdated models: {len(model_findings)}")
-    print(f"- Files with Estuary Flow references: {len(airbyte_findings)}")
+    print(f"- Files with Estuary Flow references: {len(estuary_findings)}")
 
     total_issues = sum(len(findings) for findings in model_findings.values())
-    total_airbyte = sum(len(findings) for findings in airbyte_findings.values())
+    total_estuary = sum(len(findings) for findings in estuary_findings.values())
 
     print(f"- Total outdated model references: {total_issues}")
-    print(f"- Total Estuary Flow references: {total_airbyte}")
+    print(f"- Total Estuary Flow references: {total_estuary}")
 
-    return len(model_findings) + len(airbyte_findings)
+    return len(model_findings) + len(estuary_findings)
 
 
 if __name__ == "__main__":

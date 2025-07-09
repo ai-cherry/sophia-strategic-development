@@ -1,23 +1,54 @@
 apiVersion: v1
-data:
-  prometheus.yml:
-    "global:\n  scrape_interval: 15s\n  evaluation_interval: 15s\n\n\
-    scrape_configs:\n# Docker Build Cloud metrics\n- job_name: 'docker-build-cloud'\n\
-    \  static_configs:\n  - targets: ['build-metrics.docker.com:443']\n  scheme: https\n\
-    \  metrics_path: '/metrics'\n  \n# N8N performance metrics\n- job_name: 'n8n-main'\n\
-    \  kubernetes_sd_configs:\n  - role: pod\n    namespaces:\n      names: ['sophia-ai']\n\
-    \  relabel_configs:\n  - source_labels: [__meta_kubernetes_pod_label_app]\n  \
-    \  regex: n8n-main\n    action: keep\n\n- job_name: 'n8n-workers'\n  kubernetes_sd_configs:\n\
-    \  - role: pod\n    namespaces:\n      names: ['sophia-ai']\n  relabel_configs:\n\
-    \  - source_labels: [__meta_kubernetes_pod_label_app]\n    regex: n8n-worker\n\
-    \    action: keep\n\n# Estuary Flow metrics\n- job_name: 'estuary-flow'\n  static_configs:\n\
-    \  - targets: ['flow-metrics.estuary.dev:443']\n  scheme: https\n  \n# Sophia\
-    \ AI application metrics\n- job_name: 'sophia-ai'\n  kubernetes_sd_configs:\n\
-    \  - role: pod\n    namespaces:\n      names: ['sophia-ai']\n  relabel_configs:\n\
-    \  - source_labels: [__meta_kubernetes_pod_label_app]\n    regex: sophia-ai\n\
-    \    action: keep\n\nrule_files:\n- \"alert_rules.yml\"\n\nalerting:\n  alertmanagers:\n\
-    \  - static_configs:\n    - targets: ['alertmanager:9093']\n"
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: sophia-ai
+  namespace: sophia-ai-prod
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    scrape_configs:
+    - job_name: 'sophia-backend'
+      static_configs:
+      - targets: ['sophia-backend:8000']
+      metrics_path: /metrics
+    
+    - job_name: 'mcp-servers'
+      static_configs:
+      - targets: 
+        - 'mcp-ai-memory:9000'
+        - 'mcp-gong:9001'
+        - 'mcp-snowflake:9002'
+        - 'mcp-slack:9003'
+        - 'mcp-linear:9004'
+        - 'mcp-github:9005'
+        - 'mcp-codacy:9006'
+        - 'mcp-asana:9007'
+      metrics_path: /metrics
+    
+    - job_name: 'kubernetes-pods'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name

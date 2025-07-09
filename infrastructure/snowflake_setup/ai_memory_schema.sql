@@ -70,8 +70,8 @@ GRANT USAGE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE SOPHIA_AI_DEVELOPER;
 GRANT CREATE TABLE ON SCHEMA SOPHIA_GONG_RAW TO ROLE SOPHIA_AI_DEVELOPER;
 GRANT CREATE TABLE ON SCHEMA SOPHIA_SLACK_RAW TO ROLE SOPHIA_AI_DEVELOPER;
 
--- Note: Airbyte will create the actual tables in these schemas based on the data streams
--- Examples of tables Airbyte might create:
+-- Note: Estuary Flow will create the actual tables in these schemas based on the data streams
+-- Examples of tables Estuary might create:
 -- SOPHIA_GONG_RAW.gong_calls
 -- SOPHIA_GONG_RAW.gong_transcripts
 -- SOPHIA_GONG_RAW.gong_participants

@@ -780,7 +780,7 @@ CREATE SCHEMA IF NOT EXISTS SOPHIA_AI_DEV.APOLLO_IO CLONE SOPHIA_AI_PROD.APOLLO_
 -- 5. Security policies and PII protection
 -- 6. Search optimization for performance
 -- 7. Multi-environment support (PROD/STG/DEV)
--- 8. Integration points for Airbyte and custom ETL
+-- 8. Integration points for Estuary Flow and custom ETL
 -- 9. Analytical views for business intelligence
 -- 10. Comprehensive audit and lineage tracking
 

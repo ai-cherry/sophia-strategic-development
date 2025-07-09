@@ -642,7 +642,7 @@ AS
 CREATE OR REPLACE TASK TASK_TRANSFORM_GONG_CALLS
     WAREHOUSE = WH_SOPHIA_AI_PROCESSING
     SCHEDULE = 'USING CRON 0,15,30,45 * * * * UTC'
-    COMMENT = 'Transform raw Gong calls from Airbyte to structured format'
+    COMMENT = 'Transform raw Gong calls from Estuary to structured format'
 AS
     CALL TRANSFORM_RAW_GONG_CALLS();
 
@@ -650,7 +650,7 @@ AS
 CREATE OR REPLACE TASK TASK_TRANSFORM_GONG_TRANSCRIPTS
     WAREHOUSE = WH_SOPHIA_AI_PROCESSING
     SCHEDULE = 'USING CRON 0,30 * * * * UTC'
-    COMMENT = 'Transform raw Gong transcripts from Airbyte to structured format'
+    COMMENT = 'Transform raw Gong transcripts from Estuary to structured format'
 AS
     CALL TRANSFORM_RAW_GONG_TRANSCRIPTS();
 

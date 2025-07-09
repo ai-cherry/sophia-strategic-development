@@ -1,17 +1,19 @@
 # Build stage
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm install
+
+# Install dependencies with platform-specific handling
+RUN npm ci --omit=dev || npm install
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN npm run build || (rm -rf node_modules package-lock.json && npm install && npm run build)
 
 # Production stage
 FROM nginx:alpine

@@ -18,13 +18,12 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-scoobyjava15}"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 # Instance Configuration
-declare -A INSTANCES=(
-    ["production"]="104.171.202.103:RTX6000:docker-compose-production.yml:Core Platform Services"
-    ["ai-core"]="192.222.58.232:GH200:docker-compose-ai-core.yml:AI/ML Compute Engine"
-    ["mcp-orchestrator"]="104.171.202.117:A6000:docker-compose-mcp-orchestrator.yml:MCP Services Hub"
-    ["data-pipeline"]="104.171.202.134:A100:docker-compose-data-pipeline.yml:Data Processing Center"
-    ["development"]="155.248.194.183:A10:docker-compose-development.yml:Development & Monitoring"
-)
+declare -A INSTANCES
+INSTANCES["production"]="104.171.202.103:RTX6000:docker-compose-production.yml:Core Platform Services"
+INSTANCES["ai-core"]="192.222.58.232:GH200:docker-compose-ai-core.yml:AI/ML Compute Engine"
+INSTANCES["mcp-orchestrator"]="104.171.202.117:A6000:docker-compose-mcp-orchestrator.yml:MCP Services Hub"
+INSTANCES["data-pipeline"]="104.171.202.134:A100:docker-compose-data-pipeline.yml:Data Processing Center"
+INSTANCES["development"]="155.248.194.183:A10:docker-compose-development.yml:Development & Monitoring"
 
 # Function to print colored output
 print_status() {

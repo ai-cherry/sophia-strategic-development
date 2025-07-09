@@ -9,9 +9,17 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
 # Define model replacements
 MODEL_REPLACEMENTS = {
+    # OpenAI model updates
+    "text-davinci-003": "gpt-3.5-turbo",
+    "text-davinci-002": "gpt-3.5-turbo",
+    "code-davinci-002": "gpt-3.5-turbo",
+    "text-curie-001": "gpt-3.5-turbo",
+    "text-babbage-001": "gpt-3.5-turbo",
+    "text-ada-001": "gpt-3.5-turbo",
     # Claude replacements
     "claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
     "claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
@@ -25,15 +33,6 @@ MODEL_REPLACEMENTS = {
     "gpt-4o": "gpt-4o",
     "openai/gpt-4o": "openai/gpt-4o",
     "openai/gpt-4o": "openai/gpt-4o",
-}
-
-# Estuary Flow to Estuary replacements
-AIRBYTE_REPLACEMENTS = {
-    "RAW_ESTUARY": "RAW_ESTUARY",
-    "STG_ESTUARY": "STG_ESTUARY",
-    "Estuary Flow": "Estuary Flow",
-    "estuary": "estuary",
-    "ESTUARY": "ESTUARY",
 }
 
 # Critical files to update
@@ -86,190 +85,37 @@ def create_backup(file_path: Path) -> Path:
     return backup_path
 
 
-def update_json_file(file_path: Path, dry_run: bool = False) -> int:
-    """Update JSON file with model replacements"""
-    changes = 0
+def update_files(files_to_update: List[Path], dry_run: bool = False) -> int:
+    """Update files with new model names"""
+    changes = []
+    total_replacements = 0
 
-    try:
-        with open(file_path) as f:
-            content = f.read()
-            data = json.loads(content)
+    for file_path in files_to_update:
+        try:
+            with open(file_path) as f:
+                content = f.read()
 
-        original_content = content
+            original_content = content
 
-        # Convert to string for replacement
-        json_str = json.dumps(data, indent=2)
+            # Apply model replacements
+            for old_model, new_model in MODEL_REPLACEMENTS.items():
+                if old_model in content:
+                    new_content = content.replace(old_model, new_model)
+                    changes.append(f"  - {old_model} → {new_model}")
+                    total_replacements += content.count(old_model)
 
-        # Replace models
-        for old_model, new_model in MODEL_REPLACEMENTS.items():
-            if old_model in json_str:
-                json_str = json_str.replace(f'"{old_model}"', f'"{new_model}"')
-                changes += json_str.count(f'"{new_model}"')
+            if changes and not dry_run:
+                create_backup(file_path)
+                with open(file_path, "w") as f:
+                    f.write(new_content)
+                print(f"✅ Updated {file_path}: {total_replacements} replacements")
+            elif changes:
+                print(f"🔍 Would update {file_path}: {total_replacements} replacements")
 
-        if changes > 0 and not dry_run:
-            # Parse back to ensure valid JSON
-            updated_data = json.loads(json_str)
+        except Exception as e:
+            print(f"❌ Error processing {file_path}: {e}")
 
-            # Create backup
-            create_backup(file_path)
-
-            # Write updated content
-            with open(file_path, "w") as f:
-                json.dump(updated_data, f, indent=2)
-                f.write("\n")  # Add trailing newline
-
-            print(f"✅ Updated {file_path}: {changes} replacements")
-        elif changes > 0:
-            print(f"🔍 Would update {file_path}: {changes} replacements")
-
-    except Exception as e:
-        print(f"❌ Error processing {file_path}: {e}")
-
-    return changes
-
-
-def update_yaml_file(file_path: Path, dry_run: bool = False) -> int:
-    """Update YAML file with model replacements"""
-    changes = 0
-
-    try:
-        with open(file_path) as f:
-            content = f.read()
-
-        original_content = content
-
-        # Replace models
-        for old_model, new_model in MODEL_REPLACEMENTS.items():
-            # Count occurrences before replacement
-            count_before = content.count(old_model)
-            content = content.replace(old_model, new_model)
-            changes += count_before
-
-        # Replace Estuary Flow references
-        for old_term, new_term in AIRBYTE_REPLACEMENTS.items():
-            if old_term in ["estuary", "Estuary Flow", "ESTUARY"]:
-                # Use word boundaries for these
-                pattern = rf"\b{old_term}\b"
-                count_before = len(re.findall(pattern, content))
-                content = re.sub(pattern, new_term, content)
-                changes += count_before
-            else:
-                count_before = content.count(old_term)
-                content = content.replace(old_term, new_term)
-                changes += count_before
-
-        if changes > 0 and not dry_run:
-            create_backup(file_path)
-            with open(file_path, "w") as f:
-                f.write(content)
-            print(f"✅ Updated {file_path}: {changes} replacements")
-        elif changes > 0:
-            print(f"🔍 Would update {file_path}: {changes} replacements")
-
-    except Exception as e:
-        print(f"❌ Error processing {file_path}: {e}")
-
-    return changes
-
-
-def update_python_file(file_path: Path, dry_run: bool = False) -> int:
-    """Update Python file with model replacements"""
-    changes = 0
-
-    try:
-        with open(file_path) as f:
-            content = f.read()
-
-        original_content = content
-
-        # Replace models in strings
-        for old_model, new_model in MODEL_REPLACEMENTS.items():
-            # Replace in double quotes
-            pattern = f'"{old_model}"'
-            replacement = f'"{new_model}"'
-            count_before = content.count(pattern)
-            content = content.replace(pattern, replacement)
-            changes += count_before
-
-            # Replace in single quotes
-            pattern = f"'{old_model}'"
-            replacement = f"'{new_model}'"
-            count_before = content.count(pattern)
-            content = content.replace(pattern, replacement)
-            changes += count_before
-
-        # Replace Estuary Flow references
-        for old_term, new_term in AIRBYTE_REPLACEMENTS.items():
-            if old_term in ["estuary", "Estuary Flow", "ESTUARY"]:
-                # Use word boundaries for these
-                pattern = rf"\b{old_term}\b"
-                count_before = len(re.findall(pattern, content))
-                content = re.sub(pattern, new_term, content)
-                changes += count_before
-            else:
-                count_before = content.count(old_term)
-                content = content.replace(old_term, new_term)
-                changes += count_before
-
-        if changes > 0 and not dry_run:
-            create_backup(file_path)
-            with open(file_path, "w") as f:
-                f.write(content)
-            print(f"✅ Updated {file_path}: {changes} replacements")
-        elif changes > 0:
-            print(f"🔍 Would update {file_path}: {changes} replacements")
-
-    except Exception as e:
-        print(f"❌ Error processing {file_path}: {e}")
-
-    return changes
-
-
-def update_sql_file(file_path: Path, dry_run: bool = False) -> int:
-    """Update SQL file with schema replacements"""
-    changes = 0
-
-    try:
-        with open(file_path) as f:
-            content = f.read()
-
-        original_content = content
-
-        # Replace schemas
-        for old_schema, new_schema in AIRBYTE_REPLACEMENTS.items():
-            if old_schema in ["RAW_ESTUARY", "STG_ESTUARY"]:
-                count_before = content.count(old_schema)
-                content = content.replace(old_schema, new_schema)
-                changes += count_before
-
-        if changes > 0 and not dry_run:
-            create_backup(file_path)
-            with open(file_path, "w") as f:
-                f.write(content)
-            print(f"✅ Updated {file_path}: {changes} replacements")
-        elif changes > 0:
-            print(f"🔍 Would update {file_path}: {changes} replacements")
-
-    except Exception as e:
-        print(f"❌ Error processing {file_path}: {e}")
-
-    return changes
-
-
-def process_file(file_path: Path, dry_run: bool = False) -> int:
-    """Process a single file based on its type"""
-    if file_path.suffix == ".json":
-        return update_json_file(file_path, dry_run)
-    elif file_path.suffix in [".yaml", ".yml"]:
-        return update_yaml_file(file_path, dry_run)
-    elif file_path.suffix == ".py":
-        return update_python_file(file_path, dry_run)
-    elif file_path.suffix == ".sql":
-        return update_sql_file(file_path, dry_run)
-    elif file_path.suffix == ".md":
-        return update_yaml_file(file_path, dry_run)  # Use same logic as YAML
-    else:
-        return 0
+    return total_replacements
 
 
 def main(dry_run: bool = True):
@@ -286,7 +132,7 @@ def main(dry_run: bool = True):
     for file_path in CRITICAL_FILES:
         full_path = root_path / file_path
         if full_path.exists():
-            changes = process_file(full_path, dry_run)
+            changes = update_files([full_path], dry_run)
             if changes > 0:
                 total_changes += changes
                 files_processed += 1
@@ -303,7 +149,7 @@ def main(dry_run: bool = True):
             if str(file_path.relative_to(root_path)) in CRITICAL_FILES:
                 continue
 
-            changes = process_file(file_path, dry_run)
+            changes = update_files([file_path], dry_run)
             if changes > 0:
                 total_changes += changes
                 files_processed += 1
