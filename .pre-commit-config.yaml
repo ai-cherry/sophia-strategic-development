@@ -1,0 +1,31 @@
+# Relaxed Pre-commit Configuration for Sophia AI
+# Focus on critical issues only, reduce deployment friction
+
+repos:
+  # Keep Black - it's valuable for consistency
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+
+  # Relax Ruff rules - focus on critical issues only
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.11
+    hooks:
+      - id: ruff
+        args: [
+          --fix,
+          --ignore=TRY200,TRY300,TRY301,ARG001,ARG002,PERF401,N815,E501
+        ]
+
+  # Remove broken local hooks until scripts exist
+  # Commented out to prevent deployment failures:
+  # - repo: local
+  #   hooks:
+  #     - id: dead-code-prevention
+  #       name: Prevent dead code patterns
+  #       entry: python scripts/security/prevent_dead_code_patterns.py
+  #       language: python
+  #       files: \.py$

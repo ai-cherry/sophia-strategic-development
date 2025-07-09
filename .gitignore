@@ -272,3 +272,6 @@ frontend-backup-*
 *.env
 !*.env.example
 !*.env.template
+
+# Cleanup archives
+archive/
