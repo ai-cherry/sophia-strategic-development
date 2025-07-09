@@ -39,7 +39,7 @@ class PulumiESCManager:
         """Check if Pulumi CLI is installed and authenticated"""
         try:
             result = subprocess.run(
-                ["pulumi", "whoami"], capture_output=True, text=True
+                ["pulumi", "whoami"], check=False, capture_output=True, text=True
             )
             if result.returncode == 0:
                 logger.info(f"✅ Pulumi CLI authenticated as: {result.stdout.strip()}")
@@ -50,13 +50,17 @@ class PulumiESCManager:
                 )
                 return False
         except FileNotFoundError:
-            logger.error("❌ Pulumi CLI not found. Install from https://get.pulumi.com/")
+            logger.exception(
+                "❌ Pulumi CLI not found. Install from https://get.pulumi.com/"
+            )
             return False
 
     def check_esc_cli(self) -> bool:
         """Check if ESC CLI is installed"""
         try:
-            result = subprocess.run(["esc", "version"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["esc", "version"], check=False, capture_output=True, text=True
+            )
             if result.returncode == 0:
                 logger.info(f"✅ ESC CLI available: {result.stdout.strip()}")
                 return True
@@ -64,7 +68,7 @@ class PulumiESCManager:
                 logger.error("❌ ESC CLI not available.")
                 return False
         except FileNotFoundError:
-            logger.error(
+            logger.exception(
                 "❌ ESC CLI not found. Install from https://get.pulumi.com/esc/install.sh"
             )
             return False
@@ -73,11 +77,14 @@ class PulumiESCManager:
         """Check if the ESC environment exists"""
         try:
             result = subprocess.run(
-                ["esc", "env", "get", self.full_env], capture_output=True, text=True
+                ["esc", "env", "get", self.full_env],
+                check=False,
+                capture_output=True,
+                text=True,
             )
             return result.returncode == 0
         except Exception as e:
-            logger.error(f"Error checking environment: {e}")
+            logger.exception(f"Error checking environment: {e}")
             return False
 
     def create_environment(self) -> bool:
@@ -100,7 +107,10 @@ class PulumiESCManager:
 
             # Create environment using ESC CLI
             result = subprocess.run(
-                ["esc", "env", "init", self.full_env], capture_output=True, text=True
+                ["esc", "env", "init", self.full_env],
+                check=False,
+                capture_output=True,
+                text=True,
             )
 
             if result.returncode != 0:
@@ -110,6 +120,7 @@ class PulumiESCManager:
             # Set the environment definition
             result = subprocess.run(
                 ["esc", "env", "set", self.full_env, "--file", str(template_path)],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -122,7 +133,7 @@ class PulumiESCManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Error creating environment: {e}")
+            logger.exception(f"❌ Error creating environment: {e}")
             return False
 
     def set_secret(self, key: str, value: str, secret: bool = True) -> bool:
@@ -132,7 +143,7 @@ class PulumiESCManager:
             if secret:
                 cmd.append("--secret")
 
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
             if result.returncode == 0:
                 secret_type = "secret" if secret else "config"
@@ -143,7 +154,7 @@ class PulumiESCManager:
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Error setting {key}: {e}")
+            logger.exception(f"❌ Error setting {key}: {e}")
             return False
 
     def get_secret(self, key: str) -> str | None:
@@ -151,6 +162,7 @@ class PulumiESCManager:
         try:
             result = subprocess.run(
                 ["esc", "env", "get", self.full_env, key, "--show-secrets"],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -161,7 +173,7 @@ class PulumiESCManager:
                 return None
 
         except Exception as e:
-            logger.error(f"❌ Error getting {key}: {e}")
+            logger.exception(f"❌ Error getting {key}: {e}")
             return None
 
     def validate_secrets(self) -> tuple[list[str], list[str]]:
@@ -252,7 +264,7 @@ class PulumiESCManager:
             return passed == total
 
         except Exception as e:
-            logger.error(f"❌ Error testing secret loading: {e}")
+            logger.exception(f"❌ Error testing secret loading: {e}")
             return False
 
     def export_environment_template(self) -> bool:
@@ -275,7 +287,7 @@ class PulumiESCManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Error exporting template: {e}")
+            logger.exception(f"❌ Error exporting template: {e}")
             return False
 
     def cleanup_placeholder_secrets(self) -> bool:
@@ -294,6 +306,7 @@ class PulumiESCManager:
                     "--format",
                     "json",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -326,7 +339,7 @@ class PulumiESCManager:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Error checking for placeholders: {e}")
+            logger.exception(f"❌ Error checking for placeholders: {e}")
             return False
 
 

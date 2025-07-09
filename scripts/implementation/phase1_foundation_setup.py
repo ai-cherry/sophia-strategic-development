@@ -7,7 +7,6 @@ Research-validated 39x build performance, 10-100x package management, 220+ exec/
 
 import asyncio
 import logging
-import os
 import subprocess
 from pathlib import Path
 
@@ -23,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Phase1FoundationSetup:
     def __init__(self):
         self.project_root = Path(__file__).parent.parent.parent
-        self.docker_user = os.getenv("DOCKER_USER_NAME", "scoobyjava15")
+        self.docker_user = get_config_value("docker_user_name", "scoobyjava15")
         self.builder_name = f"{self.docker_user}/sophia-ai-builder"
 
     async def setup_docker_build_cloud(self) -> bool:
@@ -42,13 +41,15 @@ class Phase1FoundationSetup:
                 "docker-container",
                 "--use",
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, check=False, capture_output=True, text=True)
 
             if result.returncode != 0:
                 # Builder might already exist, try to use it
                 logger.info("Builder exists, attempting to use existing builder...")
                 use_cmd = ["docker", "buildx", "use", "sophia-ai-builder"]
-                use_result = subprocess.run(use_cmd, capture_output=True, text=True)
+                use_result = subprocess.run(
+                    use_cmd, check=False, capture_output=True, text=True
+                )
 
                 if use_result.returncode != 0:
                     logger.error(f"Failed to use builder: {use_result.stderr}")
@@ -57,6 +58,7 @@ class Phase1FoundationSetup:
             # Bootstrap the builder
             bootstrap_result = subprocess.run(
                 ["docker", "buildx", "inspect", "--bootstrap"],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -70,7 +72,7 @@ class Phase1FoundationSetup:
             return True
 
         except Exception as e:
-            logger.error(f"Docker Buildx setup failed: {e}")
+            logger.exception(f"Docker Buildx setup failed: {e}")
             return False
 
     def create_optimized_dockerfile(self) -> None:
@@ -464,8 +466,8 @@ CMD ["uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8
                             "name": "Login to Docker Hub",
                             "uses": "docker/login-action@v3",
                             "with": {
-                                "username": "${{ secrets.DOCKER_USER_NAME }}",
-                                "password": "${{ secrets.DOCKER_PERSONAL_ACCESS_TOKEN }}",
+                                "username": "${{ secrets.DOCKERHUB_USERNAME_NAME }}",
+                                "password": "${{ secrets.DOCKER_TOKEN }}",
                             },
                         },
                         {
@@ -521,7 +523,7 @@ CMD ["uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8
         # Check Docker Build Cloud
         try:
             result = subprocess.run(
-                ["docker", "buildx", "ls"], capture_output=True, text=True
+                ["docker", "buildx", "ls"], check=False, capture_output=True, text=True
             )
             results["docker_build_cloud"] = "sophia-ai-builder" in result.stdout
         except Exception:
@@ -579,7 +581,7 @@ CMD ["uvicorn", "backend.app.fastapi_app:app", "--host", "0.0.0.0", "--port", "8
                 return False
 
         except Exception as e:
-            logger.error(f"Phase 1 setup failed: {e}")
+            logger.exception(f"Phase 1 setup failed: {e}")
             return False
 
 

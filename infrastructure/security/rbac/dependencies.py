@@ -88,7 +88,7 @@ async def get_current_user(token: str | None = Depends(oauth2_scheme)) -> User:
         return user
 
     except Exception as e:
-        logger.error(f"Authentication error: {e}")
+        logger.exception(f"Authentication error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication failed",
@@ -422,7 +422,7 @@ class RBACMiddleware:
             return await call_next(request)
 
         except Exception as e:
-            logger.error(f"RBAC middleware error: {e}")
+            logger.exception(f"RBAC middleware error: {e}")
             return await call_next(request)
 
     def get_route_config(self, request: Request) -> dict[str, Any]:

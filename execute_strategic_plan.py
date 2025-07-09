@@ -93,7 +93,7 @@ class StrategicPlanExecutor:
             return self.results
 
         except Exception as e:
-            logger.error(f"❌ Strategic Plan Execution Failed: {e}")
+            logger.exception(f"❌ Strategic Plan Execution Failed: {e}")
             self.results["execution_error"] = str(e)
             self.results["deployment_status"] = "failed"
             return self.results
@@ -135,10 +135,8 @@ class StrategicPlanExecutor:
                         and not line.strip().endswith(",")
                     ):
                         # Add closing parenthesis if it seems to be missing
-                        if (
-                            line.strip().endswith("(")
-                            or "(" in line
-                            and line.count("(") > line.count(")")
+                        if line.strip().endswith("(") or (
+                            "(" in line and line.count("(") > line.count(")")
                         ):
                             lines[i] = line + ")"
 
@@ -252,6 +250,7 @@ class StrategicPlanExecutor:
                     "--exclude",
                     ".venv",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd=self.base_dir,
@@ -283,6 +282,7 @@ class StrategicPlanExecutor:
                     "--skip",
                     ".venv",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd=self.base_dir,
@@ -311,6 +311,7 @@ class StrategicPlanExecutor:
                     "scripts/",
                     "mcp-servers/",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd=self.base_dir,
@@ -502,7 +503,7 @@ markers = [
 
                     # Update Python paths to use UV
                     if "mcpServers" in config:
-                        for _server_name, server_config in config["mcpServers"].items():
+                        for server_config in config["mcpServers"].values():
                             if (
                                 "command" in server_config
                                 and server_config["command"] == "python"
@@ -511,7 +512,8 @@ markers = [
                                 server_config["args"] = [
                                     "run",
                                     "python",
-                                ] + server_config.get("args", [])
+                                    *server_config.get("args", []),
+                                ]
 
                     with open(config_file, "w") as f:
                         json.dump(config, f, indent=2)
@@ -730,7 +732,7 @@ mcp_orchestration = MCPOrchestrationService()
 
                 # Add timeout and retry configurations
                 if "mcpServers" in config:
-                    for _server_name, server_config in config["mcpServers"].items():
+                    for server_config in config["mcpServers"].values():
                         server_config["timeout"] = server_config.get("timeout", 30)
                         server_config["retries"] = server_config.get("retries", 3)
                         server_config["health_check"] = server_config.get(
@@ -1176,6 +1178,7 @@ class TestStrategicPlanExecution:
         try:
             result = subprocess.run(
                 ["python3", "-m", "pytest", "tests/", "-v", "--tb=short"],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd=self.base_dir,
@@ -1211,6 +1214,7 @@ class TestStrategicPlanExecution:
         try:
             result = subprocess.run(
                 ["python3", "scripts/comprehensive_syntax_scanner.py"],
+                check=False,
                 capture_output=True,
                 text=True,
                 cwd=self.base_dir,

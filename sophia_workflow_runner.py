@@ -35,7 +35,10 @@ class SophiaWorkflowRunner:
         """Automated workflow: Issue to Code"""
 
         # 1. Use Sophia AI to analyze issue
-        analysis_result = subprocess.run(
+        analysis_result = # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
+        subprocess.run(
             [
                 "python",
                 "unified_ai_assistant.py",
@@ -46,7 +49,10 @@ class SophiaWorkflowRunner:
         )
 
         # 2. Generate code using Claude
-        code_result = subprocess.run(
+        code_result = # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
+        subprocess.run(
             [
                 "./claude-cli-integration/claude",
                 "chat",
@@ -78,6 +84,9 @@ class SophiaWorkflowRunner:
         """Automated code review workflow"""
 
         # Use Sophia AI for comprehensive review
+        # TODO: Validate input before subprocess execution
+        # TODO: Validate input before subprocess execution
+
         subprocess.run(
             [
                 "python",

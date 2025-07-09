@@ -8,4 +8,4 @@ from .call_participant import CallParticipant, ParticipantRole
 from .money import Currency, Money
 from .sentiment import Sentiment
 
-__all__ = ["Sentiment", "CallParticipant", "ParticipantRole", "Money", "Currency"]
+__all__ = ["CallParticipant", "Currency", "Money", "ParticipantRole", "Sentiment"]

@@ -3,14 +3,11 @@ Secure Action Framework for Project Chimera
 Provides secure execution of business operations through chat interface
 """
 
-import asyncio
-import json
 import logging
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -56,11 +53,13 @@ class ActionExecution:
     action_id: str
     user_id: str
     parameters: dict[str, Any]
-    status: str  # 'pending', 'approved', 'executing', 'completed', 'failed', 'rolled_back'
+    status: (
+        str  # 'pending', 'approved', 'executing', 'completed', 'failed', 'rolled_back'
+    )
     start_time: datetime
-    end_time: Optional[datetime] = None
-    result: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    end_time: datetime | None = None
+    result: dict[str, Any] | None = None
+    error: str | None = None
 
 
 class SecureActionService:
@@ -173,7 +172,7 @@ class SecureActionService:
             return result
 
         except Exception as e:
-            logger.error(f"Action execution failed: {str(e)}")
+            logger.exception(f"Action execution failed: {e!s}")
             return {"success": False, "error": str(e)}
 
     def check_permissions(

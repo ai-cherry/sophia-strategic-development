@@ -1,4 +1,5 @@
 """Integration tests for github server."""
+
 import pytest
 from httpx import AsyncClient
 

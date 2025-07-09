@@ -1,0 +1,108 @@
+groups:
+  - name: sophia_ai_alerts
+    interval: 30s
+    rules:
+      # Service availability alerts
+      - alert: ServiceDown
+        expr: up{job=~"sophia-backend|mcp-servers"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 2 minutes."
+
+      - alert: HighErrorRate
+        expr: rate(sophia_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} for {{ $labels.service }}"
+
+      # Resource alerts
+      - alert: HighCPUUsage
+        expr: container_cpu_usage_seconds_total > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High CPU usage on {{ $labels.container_name }}"
+          description: "CPU usage is above 80% for {{ $labels.container_name }}"
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High memory usage on {{ $labels.container_name }}"
+          description: "Memory usage is above 90% for {{ $labels.container_name }}"
+
+      # Database alerts
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL has been down for more than 1 minute"
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute"
+
+      # Swarm health alerts
+      - alert: SwarmNodeDown
+        expr: dockerswarm_node_status != 1
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Docker Swarm node {{ $labels.node }} is down"
+          description: "Node {{ $labels.node }} has been down for more than 5 minutes"
+
+      - alert: ServiceReplicasDown
+        expr: dockerswarm_service_replicas_running < dockerswarm_service_replicas_desired
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Service {{ $labels.service }} has insufficient replicas"
+          description: "{{ $labels.service }} has {{ $value }} running replicas, but {{ $labels.desired }} are desired"
+
+      # Performance alerts
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, sophia_request_duration_seconds_bucket) > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High response time on {{ $labels.service }}"
+          description: "95th percentile response time is {{ $value }}s for {{ $labels.service }}"
+
+      - alert: HighConnectionCount
+        expr: sophia_active_connections > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High connection count on {{ $labels.service }}"
+          description: "{{ $labels.service }} has {{ $value }} active connections"

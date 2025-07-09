@@ -64,7 +64,7 @@ class EnhancedIngestionService:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to setup enhanced pipelines: {e}")
+            logger.exception(f"Failed to setup enhanced pipelines: {e}")
             return False
 
     async def _setup_enhanced_connection(self, config: dict[str, Any]) -> bool:
@@ -105,7 +105,7 @@ class EnhancedIngestionService:
             return True
 
         except Exception as e:
-            logger.error(
+            logger.exception(
                 f"Failed to setup connection for {config['source'].value}: {e}"
             )
             return False
@@ -250,7 +250,9 @@ class EnhancedIngestionService:
                 )
 
             except Exception as e:
-                logger.error(f"Quality check failed for rule {rule['rule_name']}: {e}")
+                logger.exception(
+                    f"Quality check failed for rule {rule['rule_name']}: {e}"
+                )
                 quality_results["checks_failed"] += 1
 
         return quality_results

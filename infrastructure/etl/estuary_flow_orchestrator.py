@@ -91,7 +91,7 @@ class EstuaryFlowOrchestrator:
                 response.raise_for_status()
                 return await response.json()
         except aiohttp.ClientError as e:
-            logger.error(f"Estuary Flow API request failed: {e}")
+            logger.exception(f"Estuary Flow API request failed: {e}")
             raise
 
     async def create_hubspot_flow(self) -> dict[str, Any]:
@@ -343,7 +343,7 @@ class EstuaryFlowOrchestrator:
             return results
 
         except Exception as e:
-            logger.error(f"Pipeline setup failed: {e}")
+            logger.exception(f"Pipeline setup failed: {e}")
             raise
 
 

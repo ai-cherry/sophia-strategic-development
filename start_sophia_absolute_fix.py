@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "backend.app.fastapi_app:app",
-        host="0.0.0.0",
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production,
         port=8000,
         reload=False,
         log_level="info",

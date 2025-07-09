@@ -48,8 +48,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         self,
         query: str,
         query_type: str = "general",
-        context: dict[str, Any] = None,
-        user_id: str = None,
+        context: dict[str, Any] | None = None,
+        user_id: str | None = None,
         include_analytics: bool = True,
         max_results: int = 10,
     ) -> dict[str, Any]:
@@ -77,7 +77,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             )
 
         except Exception as e:
-            logger.error(f"Error in unified business query: {e}")
+            logger.exception(f"Error in unified business query: {e}")
             return {"error": str(e), "results": []}
 
     async def _prepare_query_context(
@@ -162,7 +162,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 "insights": ["UI component generated successfully"],
             }
         except Exception as e:
-            logger.error(f"UI generation failed: {e}")
+            logger.exception(f"UI generation failed: {e}")
             return {
                 "type": "ui_generation",
                 "results": [],
@@ -282,7 +282,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             return await self._simulate_snowflake_response(query, context)
 
         except Exception as e:
-            logger.error(f"Snowflake intelligence execution failed: {e}")
+            logger.exception(f"Snowflake intelligence execution failed: {e}")
             raise
 
     async def _simulate_snowflake_response(

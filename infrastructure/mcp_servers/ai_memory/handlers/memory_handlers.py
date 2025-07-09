@@ -1,7 +1,7 @@
 """Memory operation handlers"""
 
 import asyncio
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..core.config import AIMemoryConfig
 from ..core.exceptions import MemoryStorageException
@@ -19,8 +19,8 @@ class MemoryHandler:
     async def store_memory(
         self,
         content: str,
-        metadata: Optional[dict] = None,
-        tags: Optional[list[str]] = None,
+        metadata: dict | None = None,
+        tags: list[str] | None = None,
     ) -> dict[str, Any]:
         """Store a memory entry"""
         try:
@@ -45,7 +45,7 @@ class MemoryHandler:
             }
 
         except Exception as e:
-            raise MemoryStorageException(f"Failed to store memory: {str(e)}")
+            raise MemoryStorageException(f"Failed to store memory: {e!s}")
 
     async def get_memory_count(self) -> int:
         """Get total memory count"""

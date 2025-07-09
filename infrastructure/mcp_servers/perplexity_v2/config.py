@@ -1,6 +1,8 @@
 """Configuration for perplexity_v2 MCP server."""
-from pydantic_settings import BaseSettings
+
 from pydantic import Field
+from pydantic_settings import BaseSettings
+
 
 class Perplexity_V2Settings(BaseSettings):
     """Settings for perplexity_v2 MCP server."""
@@ -10,5 +12,6 @@ class Perplexity_V2Settings(BaseSettings):
 
     class Config:
         env_prefix = "PERPLEXITY_V2_"
+
 
 settings = Perplexity_V2Settings()

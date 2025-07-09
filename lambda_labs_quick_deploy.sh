@@ -39,11 +39,11 @@ fi
 
 # Check for required environment variables
 print_header "0. Checking required environment variables..."
-if [ -z "$DOCKER_USER_NAME" ] || [ -z "$DOCKER_PERSONAL_ACCESS_TOKEN" ]; then
+if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKER_TOKEN" ]; then
     print_error "Required environment variables not set!"
-    print_error "Please set DOCKER_USER_NAME and DOCKER_PERSONAL_ACCESS_TOKEN"
-    print_error "Example: export DOCKER_USER_NAME=your_username"
-    print_error "Example: export DOCKER_PERSONAL_ACCESS_TOKEN=your_token"
+    print_error "Please set DOCKERHUB_USERNAME and DOCKER_TOKEN"
+    print_error "Example: export DOCKERHUB_USERNAME=your_username"
+    print_error "Example: export DOCKER_TOKEN=your_token"
     exit 1
 fi
 
@@ -112,7 +112,7 @@ pip install -r requirements.txt
 
 # Step 6: Configure Docker authentication
 print_header "6. Configuring Docker authentication..."
-echo "$DOCKER_PERSONAL_ACCESS_TOKEN" | docker login --username "$DOCKER_USER_NAME" --password-stdin
+echo "$DOCKER_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
 
 # Step 7: Set up environment variables
 print_header "7. Setting up environment variables..."
@@ -126,8 +126,8 @@ SECRET_KEY=$(openssl rand -hex 32)
 JWT_SECRET=$(openssl rand -hex 32)
 
 # Docker Configuration
-DOCKER_USER_NAME=${DOCKER_USER_NAME}
-DOCKER_PERSONAL_ACCESS_TOKEN=${DOCKER_PERSONAL_ACCESS_TOKEN}
+DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME}
+DOCKER_TOKEN=${DOCKER_TOKEN}
 
 # Lambda Labs Configuration
 LAMBDA_LABS_API_KEY=${LAMBDA_LABS_API_KEY}
@@ -148,32 +148,32 @@ sudo systemctl enable redis-server
 
 # Step 10: Build Docker images
 print_header "10. Building Docker images..."
-docker build -t ${DOCKER_USER_NAME}/sophia-ai:latest .
+docker build -t ${DOCKERHUB_USERNAME}/sophia-ai:latest .
 
 # Build MCP servers
 for server in mcp-servers/*/; do
     if [ -f "$server/Dockerfile" ]; then
         server_name=$(basename "$server")
         print_status "Building MCP server: $server_name"
-        docker build -t ${DOCKER_USER_NAME}/sophia-mcp-$server_name:latest "$server"
+        docker build -t ${DOCKERHUB_USERNAME}/sophia-mcp-$server_name:latest "$server"
     fi
 done
 
 # Step 11: Push images to Docker Hub
 print_header "11. Pushing images to Docker Hub..."
-docker push ${DOCKER_USER_NAME}/sophia-ai:latest
+docker push ${DOCKERHUB_USERNAME}/sophia-ai:latest
 
 for server in mcp-servers/*/; do
     if [ -f "$server/Dockerfile" ]; then
         server_name=$(basename "$server")
         print_status "Pushing MCP server: $server_name"
-        docker push ${DOCKER_USER_NAME}/sophia-mcp-$server_name:latest
+        docker push ${DOCKERHUB_USERNAME}/sophia-mcp-$server_name:latest
     fi
 done
 
 # Step 12: Start services with Docker Compose
 print_header "12. Starting services with Docker Compose..."
-docker-compose up -d
+docker stack deploy
 
 # Step 13: Configure Nginx reverse proxy
 print_header "13. Configuring Nginx..."

@@ -117,7 +117,7 @@ class ResilientWebSocketManager:
             logger.info(f"✅ WebSocket connected: {client_id}")
 
         except Exception as e:
-            logger.error(f"❌ WebSocket connection failed for {client_id}: {e}")
+            logger.exception(f"❌ WebSocket connection failed for {client_id}: {e}")
             await self.disconnect(websocket, client_id)
 
     async def disconnect(self, websocket: WebSocket, client_id: str):
@@ -141,7 +141,7 @@ class ResilientWebSocketManager:
             logger.info(f"🔌 WebSocket disconnected: {client_id}")
 
         except Exception as e:
-            logger.error(f"Error during WebSocket disconnect for {client_id}: {e}")
+            logger.exception(f"Error during WebSocket disconnect for {client_id}: {e}")
 
     async def send_message(self, client_id: str, message: dict[str, Any]) -> bool:
         """Send message with automatic queuing on failure"""
@@ -166,13 +166,13 @@ class ResilientWebSocketManager:
             self.stats["messages_queued"] += 1
             return False
         except Exception as e:
-            logger.error(f"WebSocket send error for {client_id}: {e}")
+            logger.exception(f"WebSocket send error for {client_id}: {e}")
             await self.message_queue.enqueue(client_id, message)
             self.stats["messages_queued"] += 1
             return False
 
     async def broadcast_message(
-        self, message: dict[str, Any], exclude_clients: list[str] = None
+        self, message: dict[str, Any], exclude_clients: list[str] | None = None
     ):
         """Broadcast message to all connected clients"""
         exclude_clients = exclude_clients or []
@@ -220,7 +220,7 @@ class ResilientWebSocketManager:
                 await asyncio.sleep(30)
 
             except Exception as e:
-                logger.error(f"Connection monitoring error for {client_id}: {e}")
+                logger.exception(f"Connection monitoring error for {client_id}: {e}")
                 await self.disconnect(self.connections[client_id].websocket, client_id)
                 break
 

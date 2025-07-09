@@ -202,8 +202,8 @@ cd infrastructure/mcp_servers/ai_memory_v2
 # Test locally
 
 # 2. Deploy to Lambda Labs
-docker build -t scoobyjava15/sophia-ai-memory-v2:latest .
-docker push scoobyjava15/sophia-ai-memory-v2:latest
+docker build -t scoobyjava15/sophia-ai-memory:latest .
+docker push scoobyjava15/sophia-ai-memory:latest
 docker service update sophia-mcp-v2_ai-memory-v2
 
 # 3. Update other MCP servers

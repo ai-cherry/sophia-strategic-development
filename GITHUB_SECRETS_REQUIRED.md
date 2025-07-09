@@ -13,11 +13,11 @@
 **Description**: Lambda Labs API key for GPU instance management
 **Required**: ✅ Critical
 
-### `DOCKER_USER_NAME`
+### `DOCKERHUB_USERNAME`
 **Description**: Docker Hub username (scoobyjava15)
 **Required**: ✅ Critical
 
-### `DOCKER_PERSONAL_ACCESS_TOKEN`
+### `DOCKER_TOKEN`
 **Description**: Docker Hub personal access token
 **Required**: ✅ Critical
 

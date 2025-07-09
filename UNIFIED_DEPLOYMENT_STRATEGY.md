@@ -132,7 +132,7 @@ python configure_dns.py
 ### **Phase 2: Backend**
 ```bash
 # 1. Build Docker images
-docker build -f Dockerfile.production -t scoobyjava15/sophia-backend:latest .
+docker build -f docker/Dockerfile.optimized -t scoobyjava15/sophia-backend:latest .
 docker push scoobyjava15/sophia-backend:latest
 
 # 2. Deploy to K3s

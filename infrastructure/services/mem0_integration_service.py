@@ -43,7 +43,7 @@ class Mem0IntegrationService:
             else:
                 logger.error(f"❌ Mem0 health check failed: {response.status_code}")
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Mem0: {e}")
+            logger.exception(f"❌ Failed to connect to Mem0: {e}")
             self.initialized = False
 
     async def store_conversation_memory(
@@ -77,9 +77,11 @@ class Mem0IntegrationService:
                     "source": "sophia_ai",
                     "timestamp": datetime.now().isoformat(),
                     "session_id": metadata.get("session_id") if metadata else None,
-                    "category": metadata.get("category", "conversation")
-                    if metadata
-                    else "conversation",
+                    "category": (
+                        metadata.get("category", "conversation")
+                        if metadata
+                        else "conversation"
+                    ),
                     **(metadata or {}),
                 },
             }
@@ -94,7 +96,7 @@ class Mem0IntegrationService:
                 return ""
 
         except Exception as e:
-            logger.error(f"Error storing conversation memory: {e}")
+            logger.exception(f"Error storing conversation memory: {e}")
             return ""
 
     async def recall_memories(
@@ -138,7 +140,7 @@ class Mem0IntegrationService:
                 return []
 
         except Exception as e:
-            logger.error(f"Error recalling memories: {e}")
+            logger.exception(f"Error recalling memories: {e}")
             return []
 
     async def update_memory_with_feedback(
@@ -180,7 +182,7 @@ class Mem0IntegrationService:
                 return False
 
         except Exception as e:
-            logger.error(f"Error updating memory feedback: {e}")
+            logger.exception(f"Error updating memory feedback: {e}")
             return False
 
     async def get_user_profile(self, user_id: str) -> dict[str, Any]:
@@ -203,7 +205,7 @@ class Mem0IntegrationService:
                 return {}
 
         except Exception as e:
-            logger.error(f"Error getting user profile: {e}")
+            logger.exception(f"Error getting user profile: {e}")
             return {}
 
     async def delete_memory(self, memory_id: str) -> bool:
@@ -227,7 +229,7 @@ class Mem0IntegrationService:
                 return False
 
         except Exception as e:
-            logger.error(f"Error deleting memory: {e}")
+            logger.exception(f"Error deleting memory: {e}")
             return False
 
     async def get_learning_analytics(
@@ -265,7 +267,7 @@ class Mem0IntegrationService:
                 return {}
 
         except Exception as e:
-            logger.error(f"Error getting learning analytics: {e}")
+            logger.exception(f"Error getting learning analytics: {e}")
             return {}
 
     async def close(self):

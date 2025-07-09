@@ -70,7 +70,7 @@ class SophiaConfig:
             return None
 
         try:
-            org = os.getenv("PULUMI_ORG", "scoobyjava-org")
+            org = get_config_value("pulumi_org", "scoobyjava-org")
             stack = "sophia-ai-production"
 
             cmd = [
@@ -104,7 +104,7 @@ class SophiaConfig:
                 return None
 
         except FileNotFoundError:
-            logger.error(
+            logger.exception(
                 "Pulumi command not found. Please ensure Pulumi is installed and in your PATH."
             )
             return None
@@ -265,5 +265,5 @@ if __name__ == "__main__":
 
     # Test critical secrets
     validation = config.validate_critical_secrets()
-    for _key, valid in validation.items():
+    for valid in validation.values():
         status = "✅" if valid else "❌"

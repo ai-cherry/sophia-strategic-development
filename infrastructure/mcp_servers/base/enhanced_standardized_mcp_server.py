@@ -290,7 +290,7 @@ class EnhancedStandardizedMCPServer(ABC):
             logger.info(f"✅ {self.config.name} MCP Server initialized successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize {self.config.name}: {e}")
+            logger.exception(f"❌ Failed to initialize {self.config.name}: {e}")
             self.health_status = ServerStatus.UNHEALTHY
             if self.metrics:
                 self.metrics.health_status.set(0)
@@ -322,7 +322,7 @@ class EnhancedStandardizedMCPServer(ABC):
             await self.cortex_service.initialize()
             logger.info(f"✅ Snowflake Cortex initialized for {self.config.name}")
         except Exception as e:
-            logger.error(f"Failed to initialize Cortex service: {e}")
+            logger.exception(f"Failed to initialize Cortex service: {e}")
             self.warning_count += 1
 
     async def _start_background_tasks(self):
@@ -335,7 +335,7 @@ class EnhancedStandardizedMCPServer(ABC):
                     await asyncio.sleep(self.config.health_check_interval)
                     await self._perform_health_check()
                 except Exception as e:
-                    logger.error(f"Health check error: {e}")
+                    logger.exception(f"Health check error: {e}")
 
         # Cache cleanup task
         async def cache_cleanup_loop():
@@ -344,7 +344,7 @@ class EnhancedStandardizedMCPServer(ABC):
                     await asyncio.sleep(60)  # Check every minute
                     await self._cleanup_cache()
                 except Exception as e:
-                    logger.error(f"Cache cleanup error: {e}")
+                    logger.exception(f"Cache cleanup error: {e}")
 
         self.background_tasks.append(asyncio.create_task(health_check_loop()))
 
@@ -370,7 +370,7 @@ class EnhancedStandardizedMCPServer(ABC):
             self.last_health_check = datetime.now(UTC)
 
         except Exception as e:
-            logger.error(f"Health check failed: {e}")
+            logger.exception(f"Health check failed: {e}")
             self.health_status = ServerStatus.UNHEALTHY
             if self.metrics:
                 self.metrics.health_status.set(0)

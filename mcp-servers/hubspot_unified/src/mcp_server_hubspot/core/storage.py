@@ -36,7 +36,7 @@ class ThreadStorage:
                     return json.load(f)
             return {"results": [], "paging": {"next": {"after": None}}}
         except Exception as e:
-            logger.error(f"Error loading threads cache: {str(e)}")
+            logger.exception(f"Error loading threads cache: {e!s}")
             return {"results": [], "paging": {"next": {"after": None}}}
 
     def save_cache(self, threads_data: dict[str, Any]) -> None:
@@ -49,7 +49,7 @@ class ThreadStorage:
             with open(self.threads_file, "w") as f:
                 json.dump(threads_data, f, indent=2)
         except Exception as e:
-            logger.error(f"Error saving threads cache: {str(e)}")
+            logger.exception(f"Error saving threads cache: {e!s}")
 
     def get_cached_threads(self) -> dict[str, Any]:
         """Get the current cached threads.

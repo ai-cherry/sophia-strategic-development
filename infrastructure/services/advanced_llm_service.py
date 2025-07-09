@@ -4,7 +4,6 @@ from typing import Any
 
 import tiktoken
 
-from core.auto_esc_config import get_config_value
 from core.services.constitutional_ai import ConstitutionalAI
 from infrastructure.services.enhanced_portkey_llm_gateway import (
     TaskComplexity,
@@ -175,9 +174,9 @@ class AdvancedLLMService:
             return response
 
         except Exception as e:
-            logger.error(f"Unified gateway error: {e}")
+            logger.exception(f"Unified gateway error: {e}")
             # Fallback through gateway's built-in fallback mechanisms
-            raise ValueError(f"LLM request failed through unified gateway: {str(e)}")
+            raise ValueError(f"LLM request failed through unified gateway: {e!s}")
 
     def _prepare_data_for_llm(self, results: list[dict]) -> str:
         """Prepare data for LLM consumption"""
@@ -265,10 +264,7 @@ Based *only* on the provided context and data, provide a comprehensive, actionab
 
         # Check for error messages
         error_indicators = ["error:", "failed:", "unable to", "cannot process"]
-        if any(indicator in response.lower() for indicator in error_indicators):
-            return False
-
-        return True
+        return not any(indicator in response.lower() for indicator in error_indicators)
 
     async def _quality_fallback(self) -> str:
         """Fallback mechanism if quality check fails"""

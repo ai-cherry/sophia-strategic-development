@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Sophia AI - Estuary Platform Adapter
 Optimal mix of API, CLI, and webhook integration for data pipeline management
 """
@@ -23,7 +24,6 @@ from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformStatus,
     PlatformType,
 )
-
 from core.config_manager import get_config_value
 
 
@@ -54,7 +54,7 @@ class EstuaryAdapter(PlatformAdapter):
             "client_secret": os.getenv(
                 "ESTUARY_CLIENT_SECRET", "NfwyhFUjemKlC66h7iECE9Tjedo6SGFh"
             ),
-            "access_token": os.getenv("ESTUARY_ACCESS_TOKEN", ""),
+            "access_token": get_config_value("estuary_access_token", ""),
             "webhook_url": os.getenv(
                 "ESTUARY_WEBHOOK_URL", "https://app.sophia-intel.ai/webhook/estuary"
             ),
@@ -114,7 +114,7 @@ class EstuaryAdapter(PlatformAdapter):
             return results
 
         except Exception as e:
-            self.logger.error(f"Estuary configuration failed: {e}")
+            self.logger.exception(f"Estuary configuration failed: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_status(self) -> PlatformStatus:
@@ -199,7 +199,7 @@ class EstuaryAdapter(PlatformAdapter):
             )
 
         except Exception as e:
-            self.logger.error(f"Estuary status check failed: {e}")
+            self.logger.exception(f"Estuary status check failed: {e}")
             return PlatformStatus(
                 name=self.name,
                 type=self.platform_type,
@@ -228,7 +228,7 @@ class EstuaryAdapter(PlatformAdapter):
                 self.logger.warning(f"Unknown webhook event type: {event_type}")
 
         except Exception as e:
-            self.logger.error(f"Webhook handling failed: {e}")
+            self.logger.exception(f"Webhook handling failed: {e}")
 
     async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration before applying."""
@@ -260,7 +260,7 @@ class EstuaryAdapter(PlatformAdapter):
             return True
 
         except Exception as e:
-            self.logger.error(f"Configuration validation failed: {e}")
+            self.logger.exception(f"Configuration validation failed: {e}")
             return False
 
     # API Helper Methods
@@ -457,7 +457,7 @@ class EstuaryAdapter(PlatformAdapter):
             return {"status": "unknown"}
 
         except Exception as e:
-            self.logger.error(f"Failed to get sync status for {connection_id}: {e}")
+            self.logger.exception(f"Failed to get sync status for {connection_id}: {e}")
             return {"status": "error", "error": str(e)}
 
     # Webhook Handlers
@@ -539,7 +539,7 @@ class EstuaryAdapter(PlatformAdapter):
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
                 "schema": "PUBLIC",
-                "username": os.getenv("SNOWFLAKE_USER"),
+                "username": get_config_value("snowflake_user"),
                 "password": os.getenv("SOPHIA_AI_TOKEN"),
             },
         }

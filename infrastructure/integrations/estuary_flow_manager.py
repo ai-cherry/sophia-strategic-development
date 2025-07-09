@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Estuary Flow Manager for Sophia AI Platform
 Comprehensive integration replacing Estuary with Estuary Flow
 """
@@ -70,14 +71,15 @@ class EstuaryCredentials:
                     "--stack",
                     "sophia-ai-prod",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
             )
 
             if result.returncode != 0:
                 # Fallback to environment variables
-                access_token = os.getenv("ESTUARY_ACCESS_TOKEN")
-                refresh_token = os.getenv("ESTUARY_REFRESH_TOKEN")
+                access_token = get_config_value("estuary_access_token")
+                refresh_token = get_config_value("estuary_refresh_token")
 
                 if not access_token or not refresh_token:
                     raise ValueError(
@@ -98,6 +100,7 @@ class EstuaryCredentials:
                     "--stack",
                     "sophia-ai-prod",
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -105,7 +108,7 @@ class EstuaryCredentials:
             refresh_token = (
                 result.stdout.strip()
                 if result.returncode == 0
-                else os.getenv("ESTUARY_REFRESH_TOKEN")
+                else get_config_value("estuary_refresh_token")
             )
 
             # Ensure refresh_token is not None
@@ -119,7 +122,7 @@ class EstuaryCredentials:
             return cls(access_token=access_token, refresh_token=refresh_token_str)
 
         except Exception as e:
-            logger.error(f"Failed to load Estuary credentials: {e}")
+            logger.exception(f"Failed to load Estuary credentials: {e}")
             raise
 
 
@@ -195,7 +198,7 @@ class EstuaryFlowManager:
         try:
             # Check if flowctl is already available
             result = subprocess.run(
-                ["which", "flowctl"], capture_output=True, text=True
+                ["which", "flowctl"], check=False, capture_output=True, text=True
             )
             if result.returncode == 0:
                 logger.info(f"✅ flowctl found at: {result.stdout.strip()}")
@@ -226,7 +229,7 @@ class EstuaryFlowManager:
             return "/usr/local/bin/flowctl"
 
         except Exception as e:
-            logger.error(f"❌ Failed to install flowctl: {e}")
+            logger.exception(f"❌ Failed to install flowctl: {e}")
             raise
 
     def _authenticate_flowctl(self):
@@ -237,6 +240,7 @@ class EstuaryFlowManager:
             # Use access token for authentication
             result = subprocess.run(
                 ["flowctl", "auth", "token", "--token", self.credentials.access_token],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -248,7 +252,7 @@ class EstuaryFlowManager:
                 raise Exception(f"Authentication failed: {result.stderr}")
 
         except Exception as e:
-            logger.error(f"❌ Failed to authenticate flowctl: {e}")
+            logger.exception(f"❌ Failed to authenticate flowctl: {e}")
             raise
 
     def run_flowctl_command(
@@ -257,7 +261,7 @@ class EstuaryFlowManager:
         """Execute a flowctl command with error handling"""
         try:
             if command[0] != "flowctl":
-                command = ["flowctl"] + command
+                command = ["flowctl", *command]
 
             logger.info(f"🔧 Executing: {' '.join(command)}")
             if description:
@@ -265,6 +269,7 @@ class EstuaryFlowManager:
 
             result = subprocess.run(
                 command,
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -285,10 +290,10 @@ class EstuaryFlowManager:
                 return None
 
         except subprocess.TimeoutExpired:
-            logger.error(f"❌ Command timeout: {' '.join(command)}")
+            logger.exception(f"❌ Command timeout: {' '.join(command)}")
             return None
         except Exception as e:
-            logger.error(f"❌ Command exception: {' '.join(command)} - {str(e)}")
+            logger.exception(f"❌ Command exception: {' '.join(command)} - {e!s}")
             return None
 
     def create_github_capture(
@@ -492,7 +497,7 @@ class EstuaryFlowManager:
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Failed to deploy capture {capture.name}: {e}")
+            logger.exception(f"❌ Failed to deploy capture {capture.name}: {e}")
             return False
 
     def deploy_materialization(self, materialization: EstuaryMaterialization) -> bool:
@@ -532,7 +537,7 @@ class EstuaryFlowManager:
                 return False
 
         except Exception as e:
-            logger.error(
+            logger.exception(
                 f"❌ Failed to deploy materialization {materialization.name}: {e}"
             )
             return False
@@ -737,7 +742,7 @@ class EstuaryFlowManager:
             logger.info("✅ Sophia AI foundation configurations created successfully")
 
         except Exception as e:
-            logger.error(f"❌ Failed to create Sophia AI foundation: {e}")
+            logger.exception(f"❌ Failed to create Sophia AI foundation: {e}")
             deployment_results["errors"].append(str(e))
 
         return deployment_results

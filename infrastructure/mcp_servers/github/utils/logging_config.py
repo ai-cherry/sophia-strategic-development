@@ -1,5 +1,5 @@
 """Logging configuration for github MCP server."""
-import logging
+
 from logging.config import dictConfig
 
 

@@ -1,0 +1,58 @@
+name: 'Login to Pulumi'
+description: 'Authenticate with Pulumi Cloud and select stack'
+inputs:
+  stack:
+    description: 'Pulumi stack to select (e.g., org/project/stack)'
+    required: true
+  access-token:
+    description: 'Pulumi access token'
+    required: true
+  version:
+    description: 'Pulumi CLI version'
+    required: false
+    default: 'latest'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Pulumi CLI
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          curl -fsSL https://get.pulumi.com | sh
+        else
+          curl -fsSL https://get.pulumi.com | sh -s -- --version ${{ inputs.version }}
+        fi
+
+        # Add to PATH
+        echo "$HOME/.pulumi/bin" >> $GITHUB_PATH
+
+    - name: Verify Pulumi installation
+      shell: bash
+      run: |
+        export PATH="$HOME/.pulumi/bin:$PATH"
+        pulumi version
+
+    - name: Login to Pulumi Cloud
+      shell: bash
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ inputs.access-token }}
+      run: |
+        export PATH="$HOME/.pulumi/bin:$PATH"
+        pulumi login
+
+    - name: Select stack
+      shell: bash
+      run: |
+        export PATH="$HOME/.pulumi/bin:$PATH"
+        pulumi stack select ${{ inputs.stack }} || pulumi stack init ${{ inputs.stack }}
+
+    - name: Show stack info
+      shell: bash
+      run: |
+        export PATH="$HOME/.pulumi/bin:$PATH"
+        echo "Current stack:"
+        pulumi stack
+        echo ""
+        echo "Stack configuration:"
+        pulumi config

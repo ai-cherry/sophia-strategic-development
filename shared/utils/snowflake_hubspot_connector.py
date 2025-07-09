@@ -1,3 +1,4 @@
+# SQL Injection fixes applied by phase1_ruff_remediation.py
 """
 Snowflake HubSpot Connector
 
@@ -100,7 +101,7 @@ class SnowflakeHubSpotConnector:
             logger.info("✅ Snowflake HubSpot connector initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake HubSpot connector: {e}")
+            logger.exception(f"Failed to initialize Snowflake HubSpot connector: {e}")
             raise
 
     async def query_hubspot_contacts(
@@ -138,7 +139,7 @@ class SnowflakeHubSpotConnector:
             return df
 
         except Exception as e:
-            logger.error(f"Error querying HubSpot contacts: {e}")
+            logger.exception(f"Error querying HubSpot contacts: {e}")
             raise
         finally:
             if cursor:
@@ -182,7 +183,7 @@ class SnowflakeHubSpotConnector:
             return df
 
         except Exception as e:
-            logger.error(f"Error querying HubSpot deals: {e}")
+            logger.exception(f"Error querying HubSpot deals: {e}")
             raise
         finally:
             if cursor:
@@ -228,7 +229,7 @@ class SnowflakeHubSpotConnector:
             return df
 
         except Exception as e:
-            logger.error(f"Error querying HubSpot activities: {e}")
+            logger.exception(f"Error querying HubSpot activities: {e}")
             raise
         finally:
             if cursor:
@@ -242,7 +243,8 @@ class SnowflakeHubSpotConnector:
     ) -> str:
         """Build SQL query for HubSpot contacts"""
 
-        base_query = f"""
+        base_query = """
+
         SELECT
             contact_id,
             email,
@@ -266,7 +268,7 @@ class SnowflakeHubSpotConnector:
             property_portfolio_size,
             property_management_software,
             property_decision_maker_role
-        FROM {self.hubspot_database}.{self.hubspot_schema}.{self.table_mappings["contacts"]}
+        FROM %(self.hubspot_database)s.%(self.hubspot_schema)s.%(self.table_mappings["contacts"])s
         WHERE 1=1
         """
 
@@ -309,7 +311,8 @@ class SnowflakeHubSpotConnector:
     ) -> str:
         """Build SQL query for HubSpot deals"""
 
-        base_query = f"""
+        base_query = """
+
         SELECT
             d.deal_id,
             d.deal_name,
@@ -333,8 +336,8 @@ class SnowflakeHubSpotConnector:
             c.industry,
             c.num_employees,
             c.annual_revenue as company_revenue
-        FROM {self.hubspot_database}.{self.hubspot_schema}.{self.table_mappings["deals"]} d
-        LEFT JOIN {self.hubspot_database}.{self.hubspot_schema}.{self.table_mappings["companies"]} c
+        FROM %(self.hubspot_database)s.%(self.hubspot_schema)s.%(self.table_mappings["deals"])s d
+        LEFT JOIN %(self.hubspot_database)s.%(self.hubspot_schema)s.%(self.table_mappings["companies"])s c
             ON d.associated_company_id = c.company_id
         WHERE 1=1
         """
@@ -376,7 +379,8 @@ class SnowflakeHubSpotConnector:
     ) -> str:
         """Build SQL query for HubSpot activities"""
 
-        base_query = f"""
+        base_query = """
+
         SELECT
             activity_id,
             activity_type,
@@ -394,7 +398,7 @@ class SnowflakeHubSpotConnector:
             email_status,
             created_date,
             last_modified_date
-        FROM {self.hubspot_database}.{self.hubspot_schema}.{self.table_mappings["activities"]}
+        FROM %(self.hubspot_database)s.%(self.hubspot_schema)s.%(self.table_mappings["activities"])s
         WHERE 1=1
         """
 

@@ -1,0 +1,34 @@
+{
+  "current_date": "July 9, 2025",
+  "agents": {
+    "database": {
+      "enabled": true,
+      "priority": 1,
+      "timeout": 30
+    },
+    "web_search": {
+      "enabled": true,
+      "priority": 2,
+      "timeout": 45
+    },
+    "project_intelligence": {
+      "enabled": true,
+      "priority": 3,
+      "timeout": 60
+    },
+    "synthesis": {
+      "enabled": true,
+      "priority": 4,
+      "timeout": 30
+    }
+  },
+  "execution": {
+    "strategy": "parallel",
+    "max_concurrent": 4,
+    "timeout": 120
+  },
+  "fallback": {
+    "enabled": true,
+    "use_existing_orchestrator": true
+  }
+}

@@ -165,7 +165,7 @@ class PerformanceMonitoringIntegration:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to initialize monitoring: {e}")
+            logger.exception(f"Failed to initialize monitoring: {e}")
             return False
 
     async def track_performance(
@@ -173,7 +173,7 @@ class PerformanceMonitoringIntegration:
         service_name: str,
         metric_name: str,
         value: float,
-        tags: dict[str, str] = None,
+        tags: dict[str, str] | None = None,
     ):
         """Track a performance metric"""
         try:
@@ -196,14 +196,14 @@ class PerformanceMonitoringIntegration:
             await self._check_metric_alerts(metric)
 
         except Exception as e:
-            logger.error(f"Error tracking performance metric: {e}")
+            logger.exception(f"Error tracking performance metric: {e}")
 
     async def track_service_health(
         self,
         service_name: str,
         response_time: float,
         error_rate: float,
-        details: dict[str, Any] = None,
+        details: dict[str, Any] | None = None,
     ):
         """Track service health status"""
         try:
@@ -237,7 +237,7 @@ class PerformanceMonitoringIntegration:
             )
 
         except Exception as e:
-            logger.error(f"Error tracking service health: {e}")
+            logger.exception(f"Error tracking service health: {e}")
 
     def _calculate_health_status(self, response_time: float, error_rate: float) -> str:
         """Calculate health status based on metrics"""
@@ -308,7 +308,7 @@ class PerformanceMonitoringIntegration:
                 await asyncio.sleep(self.config["health_check_interval"])
 
             except Exception as e:
-                logger.error(f"Error in metrics collector: {e}")
+                logger.exception(f"Error in metrics collector: {e}")
                 await asyncio.sleep(10)
 
     async def _health_checker_task(self):
@@ -348,7 +348,7 @@ class PerformanceMonitoringIntegration:
                 await asyncio.sleep(self.config["health_check_interval"])
 
             except Exception as e:
-                logger.error(f"Error in health checker: {e}")
+                logger.exception(f"Error in health checker: {e}")
                 await asyncio.sleep(30)
 
     async def _metrics_flusher_task(self):
@@ -359,7 +359,7 @@ class PerformanceMonitoringIntegration:
                 await self._flush_metrics()
 
             except Exception as e:
-                logger.error(f"Error in metrics flusher: {e}")
+                logger.exception(f"Error in metrics flusher: {e}")
                 await asyncio.sleep(10)
 
     async def _flush_metrics(self):
@@ -392,7 +392,7 @@ class PerformanceMonitoringIntegration:
             self.metrics_buffer.clear()
 
         except Exception as e:
-            logger.error(f"Error flushing metrics: {e}")
+            logger.exception(f"Error flushing metrics: {e}")
 
     async def _alert_processor_task(self):
         """Background task to process alerts"""
@@ -403,7 +403,7 @@ class PerformanceMonitoringIntegration:
                 await asyncio.sleep(60)  # Check every minute
 
             except Exception as e:
-                logger.error(f"Error in alert processor: {e}")
+                logger.exception(f"Error in alert processor: {e}")
                 await asyncio.sleep(60)
 
     async def _check_metric_alerts(self, metric: PerformanceMetric):
@@ -429,7 +429,7 @@ class PerformanceMonitoringIntegration:
                     self.last_alerts[alert_key] = datetime.now(UTC)
 
         except Exception as e:
-            logger.error(f"Error checking metric alerts: {e}")
+            logger.exception(f"Error checking metric alerts: {e}")
 
     async def _send_alert(self, severity: str, metric: PerformanceMetric):
         """Send performance alert"""
@@ -454,7 +454,7 @@ class PerformanceMonitoringIntegration:
             logger.warning(f"🚨 PERFORMANCE ALERT: {alert_data['message']}")
 
         except Exception as e:
-            logger.error(f"Error sending alert: {e}")
+            logger.exception(f"Error sending alert: {e}")
 
     async def _process_pending_alerts(self):
         """Process any pending alerts"""
@@ -476,7 +476,7 @@ class PerformanceMonitoringIntegration:
                     logger.info(f"Processing alert: {alert['message']}")
 
         except Exception as e:
-            logger.error(f"Error processing alerts: {e}")
+            logger.exception(f"Error processing alerts: {e}")
 
     async def get_performance_dashboard(self) -> dict[str, Any]:
         """Get comprehensive performance dashboard data"""
@@ -519,7 +519,7 @@ class PerformanceMonitoringIntegration:
             return dashboard_data
 
         except Exception as e:
-            logger.error(f"Error getting performance dashboard: {e}")
+            logger.exception(f"Error getting performance dashboard: {e}")
             return {"error": str(e)}
 
     async def get_service_metrics(
@@ -565,7 +565,7 @@ class PerformanceMonitoringIntegration:
             return metrics_data
 
         except Exception as e:
-            logger.error(f"Error getting service metrics: {e}")
+            logger.exception(f"Error getting service metrics: {e}")
             return {}
 
     async def close(self):
@@ -581,7 +581,7 @@ performance_monitoring = PerformanceMonitoringIntegration()
 
 
 # Decorator for automatic performance tracking
-def track_performance(metric_name: str = None, service_name: str = None):
+def track_performance(metric_name: str | None = None, service_name: str | None = None):
     """Decorator to automatically track function performance"""
 
     def decorator(func):
@@ -671,7 +671,10 @@ async def get_performance_dashboard() -> dict[str, Any]:
 
 
 async def track_metric(
-    service_name: str, metric_name: str, value: float, tags: dict[str, str] = None
+    service_name: str,
+    metric_name: str,
+    value: float,
+    tags: dict[str, str] | None = None,
 ):
     """Track a performance metric"""
     await performance_monitoring.track_performance(

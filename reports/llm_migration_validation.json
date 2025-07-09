@@ -1,0 +1,91 @@
+{
+  "summary": {
+    "total_files_scanned": 7805,
+    "files_with_issues": 5,
+    "migration_progress": 99.94,
+    "critical_issues": 0,
+    "router_adoption": 15
+  },
+  "statistics": {
+    "total_files": 7805,
+    "files_with_issues": 5,
+    "direct_openai_calls": 4,
+    "direct_portkey_calls": 1,
+    "direct_anthropic_calls": 0,
+    "hardcoded_keys": 0,
+    "old_imports": 2,
+    "router_usage": 15
+  },
+  "issues_by_file": {
+    "/Users/lynnmusil/sophia-main/archive/unified_chat_duplicates/enhanced_unified_chat_service.py": [
+      {
+        "type": "old_service_import",
+        "severity": "warning",
+        "line": 27
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/external/anthropic-mcp-python-sdk/examples/fastmcp/memory.py": [
+      {
+        "type": "direct_import",
+        "provider": "openai",
+        "line": 23
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "line": 276
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "line": 285
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/services/unified_llm_service_backup.py": [
+      {
+        "type": "direct_import",
+        "provider": "openai",
+        "line": 17
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "portkey",
+        "pattern": "AsyncPortkey()"
+      },
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "line": 92
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/mcp_servers/ai_memory_v2/utils/embeddings.py": [
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      }
+    ],
+    "/Users/lynnmusil/sophia-main/infrastructure/mcp_servers/ai_memory_v2/handlers/main_handler.py": [
+      {
+        "type": "direct_client_init",
+        "provider": "openai",
+        "pattern": "AsyncOpenAI()"
+      }
+    ]
+  },
+  "recommendations": [
+    "Found 4 direct OpenAI API calls. Run 'python scripts/codemod/replace_llm_clients.py --write' to migrate.",
+    "Found 2 old LLM client imports. These should be replaced with 'from infrastructure.services.llm_router import llm_router'.",
+    "Low router adoption detected. Consider running the codemod script to accelerate migration to the unified LLM router."
+  ]
+}

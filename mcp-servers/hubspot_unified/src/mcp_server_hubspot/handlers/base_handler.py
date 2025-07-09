@@ -7,7 +7,7 @@ import json
 import logging
 from typing import Any
 
-import mcp.types as types
+from mcp import types
 from sentence_transformers import SentenceTransformer
 
 from ..faiss_manager import FaissManager
@@ -76,7 +76,7 @@ class BaseHandler:
 
         except Exception as e:
             self.logger.error(
-                f"Error storing {data_type} in FAISS: {str(e)}", exc_info=True
+                f"Error storing {data_type} in FAISS: {e!s}", exc_info=True
             )
 
     def create_text_response(self, content: Any) -> list[types.TextContent]:

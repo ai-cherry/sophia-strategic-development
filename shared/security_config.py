@@ -416,7 +416,7 @@ values:
         # Map GitHub secret names (typically UPPER_CASE) to ESC keys (lower_case)
         mapping = {}
 
-        for secret_key in cls.SECRETS_REGISTRY.keys():
+        for secret_key in cls.SECRETS_REGISTRY:
             # Convert to GitHub convention (UPPER_CASE with underscores)
             github_name = secret_key.upper()
             mapping[github_name] = secret_key
@@ -448,4 +448,4 @@ def initialize_security_config():
 
 
 # Export commonly used functions
-__all__ = ["SecurityConfig", "SecretType", "SecretConfig", "initialize_security_config"]
+__all__ = ["SecretConfig", "SecretType", "SecurityConfig", "initialize_security_config"]

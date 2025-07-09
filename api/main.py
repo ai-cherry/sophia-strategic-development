@@ -6,7 +6,7 @@ Modern FastAPI with streaming chat support
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,12 +17,12 @@ from api.ai_memory_health_routes import router as ai_memory_router
 from api.deployment_status_routes import router as deployment_router
 from api.lambda_labs_health_routes import router as lambda_labs_router
 from api.unified_health_routes import router as unified_health_router
-from infrastructure.services.unified_chat_service import (
+from backend.services.unified_chat_service import (
     AccessLevel,
     ChatContext,
     UnifiedChatService,
 )
-from infrastructure.services.unified_chat_service import (
+from backend.services.unified_chat_service import (
     ChatRequest as InternalChatRequest,
 )
 
@@ -137,7 +137,7 @@ async def chat_endpoint(request: ChatRequest):
 
     except Exception as e:
         logger.error(f"Chat endpoint error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {e!s}")
 
 
 # Debug routes
@@ -153,4 +153,9 @@ async def debug_routes():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
+        port=8000,
+        log_level="info",
+    )

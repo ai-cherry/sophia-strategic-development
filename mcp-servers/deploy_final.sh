@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # 🚀 FINAL MCP SERVERS DEPLOYMENT SCRIPT
 set -e
 
@@ -13,68 +14,68 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 print_status() {
-    local color=$1
-    local message=$2
+    local color="$1"
+    local message="$2"
     echo -e "${color}${message}${NC}"
 }
 
 check_port() {
-    local port=$1
-    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
-        print_status $RED "⚠️  Port $port is already in use"
+    local port="$1"
+    if lsof -Pi :"$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+        print_status "$RED" "⚠️  Port "$port" is already in use"
         return 1
     else
-        print_status $GREEN "✅ Port $port is available"
+        print_status "$GREEN" "✅ Port "$port" is available"
         return 0
     fi
 }
 
 test_server_startup() {
-    local server_name=$1
-    local port=$2
+    local server_name="$1"
+    local port="$2"
     local timeout=10
 
-    print_status $BLUE "🧪 Testing $server_name startup..."
+    print_status "$BLUE" "🧪 Testing "$server_name" startup..."
 
-    for i in $(seq 1 $timeout); do
-        if curl -s "http://localhost:$port/health" >/dev/null 2>&1; then
-            print_status $GREEN "✅ $server_name is responding on port $port"
+    for i in $(seq 1 "$timeout"); do
+        if curl -s "http://localhost:"$port"/health" >/dev/null 2>&1; then
+            print_status "$GREEN" "✅ "$server_name" is responding on port $port"
             return 0
         fi
         sleep 1
     done
 
-    print_status $RED "❌ $server_name failed to start or not responding"
+    print_status "$RED" "❌ "$server_name" failed to start or not responding"
     return 1
 }
 
 mkdir -p logs
 
-print_status $BLUE "🔍 Phase 1: Port Availability Check"
-check_port 9000 || { print_status $RED "Port 9000 unavailable"; exit 1; }
-check_port 9300 || { print_status $RED "Port 9300 unavailable"; exit 1; }
-check_port 9999 || { print_status $RED "Port 9999 unavailable"; exit 1; }
+print_status "$BLUE" "🔍 Phase 1: Port Availability Check"
+check_port 9000 || { print_status "$RED" "Port 9000 unavailable"; exit 1; }
+check_port 9300 || { print_status "$RED" "Port 9300 unavailable"; exit 1; }
+check_port 9999 || { print_status "$RED" "Port 9999 unavailable"; exit 1; }
 
-print_status $GREEN "✅ All required ports are available"
+print_status "$GREEN" "✅ All required ports are available"
 
-print_status $BLUE "🧪 Phase 2: Test Server Validation"
+print_status "$BLUE" "🧪 Phase 2: Test Server Validation"
 python test_server.py 9999 > logs/test_server.log 2>&1 &
 TEST_PID=$!
-echo $TEST_PID > logs/test_server.pid
+echo "$TEST_PID" > logs/test_server.pid
 
 sleep 3
 if test_server_startup "test_server" 9999; then
-    print_status $GREEN "✅ Test server validation successful"
+    print_status "$GREEN" "✅ Test server validation successful"
 else
-    print_status $RED "❌ Test server validation failed"
-    kill $TEST_PID 2>/dev/null || true
+    print_status "$RED" "❌ Test server validation failed"
+    kill "$TEST_PID" 2>/dev/null || true
     exit 1
 fi
 
-kill $TEST_PID 2>/dev/null || true
-print_status $BLUE "🛑 Test server stopped"
+kill "$TEST_PID" 2>/dev/null || true
+print_status "$BLUE" "🛑 Test server stopped"
 
-print_status $YELLOW "📋 DEPLOYMENT ANALYSIS RESULTS:"
+print_status "$YELLOW" "📋 DEPLOYMENT ANALYSIS RESULTS:"
 echo ""
 echo "Based on comprehensive testing:"
 echo "1. ✅ Pinecone dependency conflict RESOLVED"
@@ -83,7 +84,7 @@ echo "3. ✅ Health monitoring system WORKING"
 echo "4. ❌ MCP servers have complex backend dependencies"
 echo "5. ❌ Import chain issues prevent direct startup"
 
-print_status $BLUE "🎯 RECOMMENDED NEXT STEPS:"
+print_status "$BLUE" "🎯 RECOMMENDED NEXT STEPS:"
 echo ""
 echo "IMMEDIATE (Working Now):"
 echo "• ✅ Test server deployment and health monitoring"
@@ -133,9 +134,9 @@ cat > DEPLOYMENT_STATUS_REPORT.md << 'EOL'
 **TIMELINE**: 2-4 weeks for full production deployment
 EOL
 
-print_status $GREEN "📋 Deployment status report created: DEPLOYMENT_STATUS_REPORT.md"
+print_status "$GREEN" "📋 Deployment status report created: DEPLOYMENT_STATUS_REPORT.md"
 
-print_status $BLUE "🎉 DEPLOYMENT SUMMARY"
+print_status "$BLUE" "🎉 DEPLOYMENT SUMMARY"
 echo "======================"
 echo "Infrastructure: ✅ READY"
 echo "Port Management: ✅ WORKING"
@@ -145,4 +146,4 @@ echo ""
 echo "MCP Servers: ⚠️ NEEDS PROTOCOL IMPLEMENTATION"
 echo "Backend Integration: ⚠️ NEEDS DEPENDENCY FIXES"
 echo ""
-print_status $GREEN "🚀 Ready for Phase 2: MCP Protocol Implementation!"
+print_status "$GREEN" "🚀 Ready for Phase 2: MCP Protocol Implementation!"

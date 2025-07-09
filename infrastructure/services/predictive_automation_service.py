@@ -307,7 +307,7 @@ class PredictiveAutomationService:
         metric_name: str,
         value: float,
         source: str,
-        metadata: dict[str, Any] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         """Add new metric data point for analysis"""
         if metadata is None:
@@ -586,7 +586,7 @@ class PredictiveAutomationService:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to execute automation rule {rule.rule_id}: {e}")
+            logger.exception(f"Failed to execute automation rule {rule.rule_id}: {e}")
             rule.success_rate = rule.success_rate * 0.9 + 0.0 * 0.1  # Penalize failure
             return False
 
@@ -610,7 +610,7 @@ class PredictiveAutomationService:
                 return True
 
         except Exception as e:
-            logger.error(f"Failed to execute action {action.value}: {e}")
+            logger.exception(f"Failed to execute action {action.value}: {e}")
             return False
 
     async def _optimize_resources(self, prediction: Prediction) -> bool:

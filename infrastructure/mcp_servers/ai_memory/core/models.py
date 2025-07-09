@@ -6,13 +6,13 @@ Comprehensive Pydantic models with validation and serialization
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import UUID
 
 import numpy as np
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, root_validator
 
 
 class MemoryType(str, Enum):
@@ -81,8 +81,8 @@ class SearchScope(str, Enum):
 class MemoryMetadata(BaseModel):
     """Metadata for memory records"""
 
-    source: Optional[str] = Field(None, description="Source of the memory")
-    author: Optional[str] = Field(None, description="Author or creator")
+    source: str | None = Field(None, description="Source of the memory")
+    author: str | None = Field(None, description="Author or creator")
     tags: list[str] = Field(default_factory=list, description="Tags for categorization")
     confidence_score: float = Field(
         default=1.0, ge=0.0, le=1.0, description="Confidence in memory accuracy"
@@ -91,7 +91,7 @@ class MemoryMetadata(BaseModel):
         default=1.0, ge=0.0, le=1.0, description="Relevance score"
     )
     access_count: int = Field(default=0, ge=0, description="Number of times accessed")
-    last_accessed: Optional[datetime] = Field(None, description="Last access timestamp")
+    last_accessed: datetime | None = Field(None, description="Last access timestamp")
     related_memories: list[str] = Field(
         default_factory=list, description="Related memory IDs"
     )
@@ -102,12 +102,14 @@ class MemoryMetadata(BaseModel):
         default_factory=dict, description="Custom metadata attributes"
     )
 
-    @validator("tags")
+    @field_validator("tags", mode="before")
+    @classmethod
     def validate_tags(cls, v: list[str]) -> list[str]:
         """Validate and normalize tags"""
         return [tag.lower().strip() for tag in v if tag.strip()]
 
-    @validator("related_memories")
+    @field_validator("related_memories", mode="before")
+    @classmethod
     def validate_related_memories(cls, v: list[str]) -> list[str]:
         """Validate related memory IDs"""
         validated = []
@@ -132,7 +134,8 @@ class MemoryEmbedding(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     content_hash: str = Field(..., description="Hash of the content that was embedded")
 
-    @validator("vector")
+    @field_validator("vector", mode="before")
+    @classmethod
     def validate_vector(cls, v: list[float]) -> list[float]:
         """Validate embedding vector"""
         if not v:
@@ -140,7 +143,7 @@ class MemoryEmbedding(BaseModel):
 
         # Check for valid float values
         for i, val in enumerate(v):
-            if not isinstance(val, (int, float)) or np.isnan(val) or np.isinf(val):
+            if not isinstance(val, int | float) or np.isnan(val) or np.isinf(val):
                 raise ValueError(f"Invalid value at index {i}: {val}")
 
         return v
@@ -193,7 +196,7 @@ class MemoryRecord(BaseModel):
     content: str = Field(
         ..., min_length=1, max_length=50000, description="Memory content"
     )
-    summary: Optional[str] = Field(None, max_length=500, description="Brief summary")
+    summary: str | None = Field(None, max_length=500, description="Brief summary")
     memory_type: MemoryType = Field(..., description="Type of memory")
     category: MemoryCategory = Field(..., description="Memory category")
     priority: MemoryPriority = Field(
@@ -206,10 +209,10 @@ class MemoryRecord(BaseModel):
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    expires_at: Optional[datetime] = Field(None, description="Expiration timestamp")
+    expires_at: datetime | None = Field(None, description="Expiration timestamp")
 
     # Associated data
-    embedding: Optional[MemoryEmbedding] = Field(None, description="Vector embedding")
+    embedding: MemoryEmbedding | None = Field(None, description="Vector embedding")
     metadata: MemoryMetadata = Field(
         default_factory=MemoryMetadata, description="Additional metadata"
     )
@@ -218,14 +221,15 @@ class MemoryRecord(BaseModel):
     context: dict[str, Any] = Field(
         default_factory=dict, description="Contextual information"
     )
-    parent_memory_id: Optional[str] = Field(
+    parent_memory_id: str | None = Field(
         None, description="Parent memory ID for hierarchical memories"
     )
     child_memory_ids: list[str] = Field(
         default_factory=list, description="Child memory IDs"
     )
 
-    @validator("id")
+    @field_validator("id", mode="before")
+    @classmethod
     def validate_id(cls, v: str) -> str:
         """Validate memory ID format"""
         try:
@@ -234,7 +238,8 @@ class MemoryRecord(BaseModel):
         except ValueError:
             raise ValueError("Memory ID must be a valid UUID")
 
-    @validator("content")
+    @field_validator("content", mode="before")
+    @classmethod
     def validate_content(cls, v: str) -> str:
         """Validate and normalize content"""
         content = v.strip()
@@ -242,18 +247,20 @@ class MemoryRecord(BaseModel):
             raise ValueError("Memory content cannot be empty")
         return content
 
-    @validator("summary")
-    def validate_summary(cls, v: Optional[str]) -> Optional[str]:
+    @field_validator("summary", mode="before")
+    @classmethod
+    def validate_summary(cls, v: str | None) -> str | None:
         """Validate and normalize summary"""
         if v is None:
             return None
         summary = v.strip()
         return summary if summary else None
 
-    @validator("expires_at")
+    @field_validator("expires_at", mode="before")
+    @classmethod
     def validate_expires_at(
-        cls, v: Optional[datetime], values: dict[str, Any]
-    ) -> Optional[datetime]:
+        self, v: datetime | None, values: dict[str, Any]
+    ) -> datetime | None:
         """Validate expiration timestamp"""
         if v is None:
             return None
@@ -264,8 +271,9 @@ class MemoryRecord(BaseModel):
 
         return v
 
-    @validator("parent_memory_id")
-    def validate_parent_memory_id(cls, v: Optional[str]) -> Optional[str]:
+    @field_validator("parent_memory_id", mode="before")
+    @classmethod
+    def validate_parent_memory_id(cls, v: str | None) -> str | None:
         """Validate parent memory ID"""
         if v is None:
             return None
@@ -275,7 +283,8 @@ class MemoryRecord(BaseModel):
         except ValueError:
             raise ValueError("Parent memory ID must be a valid UUID")
 
-    @validator("child_memory_ids")
+    @field_validator("child_memory_ids", mode="before")
+    @classmethod
     def validate_child_memory_ids(cls, v: list[str]) -> list[str]:
         """Validate child memory IDs"""
         validated = []
@@ -362,26 +371,21 @@ class SearchQuery(BaseModel):
     )
 
     # Time filters
-    created_after: Optional[datetime] = Field(
-        None, description="Filter by creation time"
-    )
-    created_before: Optional[datetime] = Field(
-        None, description="Filter by creation time"
-    )
-    updated_after: Optional[datetime] = Field(None, description="Filter by update time")
-    updated_before: Optional[datetime] = Field(
-        None, description="Filter by update time"
-    )
+    created_after: datetime | None = Field(None, description="Filter by creation time")
+    created_before: datetime | None = Field(None, description="Filter by creation time")
+    updated_after: datetime | None = Field(None, description="Filter by update time")
+    updated_before: datetime | None = Field(None, description="Filter by update time")
 
     # Advanced filters
     include_expired: bool = Field(default=False, description="Include expired memories")
     include_archived: bool = Field(
         default=False, description="Include archived memories"
     )
-    author_filter: Optional[str] = Field(None, description="Filter by author")
-    source_filter: Optional[str] = Field(None, description="Filter by source")
+    author_filter: str | None = Field(None, description="Filter by author")
+    source_filter: str | None = Field(None, description="Filter by source")
 
-    @validator("query")
+    @field_validator("query", mode="before")
+    @classmethod
     def validate_query(cls, v: str) -> str:
         """Validate and normalize query"""
         query = v.strip()
@@ -389,7 +393,8 @@ class SearchQuery(BaseModel):
             raise ValueError("Search query cannot be empty")
         return query
 
-    @validator("tags")
+    @field_validator("tags", mode="before")
+    @classmethod
     def validate_tags(cls, v: list[str]) -> list[str]:
         """Validate and normalize tags"""
         return [tag.lower().strip() for tag in v if tag.strip()]
@@ -419,7 +424,7 @@ class SearchResult(BaseModel):
 
     memory: MemoryRecord = Field(..., description="The memory record")
     relevance_score: float = Field(..., ge=0.0, le=1.0, description="Relevance score")
-    similarity_score: Optional[float] = Field(
+    similarity_score: float | None = Field(
         None, ge=0.0, le=1.0, description="Semantic similarity score"
     )
     match_type: str = Field(
@@ -429,7 +434,8 @@ class SearchResult(BaseModel):
         default_factory=dict, description="Details about the match"
     )
 
-    @validator("match_type")
+    @field_validator("match_type", mode="before")
+    @classmethod
     def validate_match_type(cls, v: str) -> str:
         """Validate match type"""
         valid_types = {
@@ -454,13 +460,13 @@ class MemoryOperationResult(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     operation: str = Field(..., description="Operation that was performed")
-    memory_id: Optional[str] = Field(None, description="ID of affected memory")
-    message: Optional[str] = Field(None, description="Result message")
-    data: Optional[dict[str, Any]] = Field(None, description="Additional result data")
-    error_details: Optional[dict[str, Any]] = Field(
+    memory_id: str | None = Field(None, description="ID of affected memory")
+    message: str | None = Field(None, description="Result message")
+    data: dict[str, Any] | None = Field(None, description="Additional result data")
+    error_details: dict[str, Any] | None = Field(
         None, description="Error details if failed"
     )
-    execution_time: Optional[float] = Field(
+    execution_time: float | None = Field(
         None, ge=0.0, description="Execution time in seconds"
     )
 
@@ -468,10 +474,10 @@ class MemoryOperationResult(BaseModel):
     def success_result(
         cls,
         operation: str,
-        memory_id: Optional[str] = None,
-        message: Optional[str] = None,
-        data: Optional[dict[str, Any]] = None,
-        execution_time: Optional[float] = None,
+        memory_id: str | None = None,
+        message: str | None = None,
+        data: dict[str, Any] | None = None,
+        execution_time: float | None = None,
     ) -> MemoryOperationResult:
         """Create a success result"""
         return cls(
@@ -488,9 +494,9 @@ class MemoryOperationResult(BaseModel):
         cls,
         operation: str,
         message: str,
-        memory_id: Optional[str] = None,
-        error_details: Optional[dict[str, Any]] = None,
-        execution_time: Optional[float] = None,
+        memory_id: str | None = None,
+        error_details: dict[str, Any] | None = None,
+        execution_time: float | None = None,
     ) -> MemoryOperationResult:
         """Create an error result"""
         return cls(
@@ -512,7 +518,8 @@ class MemoryBatch(BaseModel):
     )
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @validator("memories")
+    @field_validator("memories", mode="before")
+    @classmethod
     def validate_memories(cls, v: list[MemoryRecord]) -> list[MemoryRecord]:
         """Validate memory records in batch"""
         if not v:
@@ -533,7 +540,7 @@ class MemoryBatch(BaseModel):
         """Get batch size"""
         return len(self.memories)
 
-    def get_memory_by_id(self, memory_id: str) -> Optional[MemoryRecord]:
+    def get_memory_by_id(self, memory_id: str) -> MemoryRecord | None:
         """Get memory by ID from batch"""
         for memory in self.memories:
             if memory.id == memory_id:

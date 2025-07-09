@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-linear
+  namespace: sophia-ai-prod
+  labels:
+    app: mcp-linear
+    component: mcp-server
+    server: linear
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mcp-linear
+  template:
+    metadata:
+      labels:
+        app: mcp-linear
+        component: mcp-server
+        server: linear
+    spec:
+      containers:
+      - name: mcp-linear
+        image: scoobyjava15/sophia-mcp-linear:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9004
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: PULUMI_ORG
+          value: "scoobyjava-org"
+        - name: MCP_SERVER_NAME
+          value: "linear"
+        - name: MCP_SERVER_PORT
+          value: "9004"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9004
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9004
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m" 

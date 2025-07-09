@@ -28,7 +28,7 @@ class CodacyAPIClient:
                     response.raise_for_status()
                     return await response.json()
             except aiohttp.ClientError as e:
-                logger.error(f"Error calling Codacy API at {url}: {e}")
+                logger.exception(f"Error calling Codacy API at {url}: {e}")
                 raise
 
     async def get_project_issues(

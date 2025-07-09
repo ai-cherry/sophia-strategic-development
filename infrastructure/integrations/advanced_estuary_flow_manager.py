@@ -66,7 +66,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 deployment_results[capture_name] = result
                 logger.info(f"✅ Deployed {capture_name}")
             except Exception as e:
-                logger.error(f"❌ Failed to deploy {capture_name}: {e}")
+                logger.exception(f"❌ Failed to deploy {capture_name}: {e}")
                 deployment_results[capture_name] = {"error": str(e)}
 
         return deployment_results
@@ -230,7 +230,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
                 deployment_results[mat_name] = result
                 logger.info(f"✅ Deployed {mat_name}")
             except Exception as e:
-                logger.error(f"❌ Failed to deploy {mat_name}: {e}")
+                logger.exception(f"❌ Failed to deploy {mat_name}: {e}")
                 deployment_results[mat_name] = {"error": str(e)}
 
         return deployment_results
@@ -829,7 +829,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             return performance_analysis
 
         except Exception as e:
-            logger.error(f"Error monitoring flow performance: {e}")
+            logger.exception(f"Error monitoring flow performance: {e}")
             return {"error": str(e)}
 
     async def optimize_flow_configuration(self) -> dict[str, Any]:
@@ -868,7 +868,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             return optimizations
 
         except Exception as e:
-            logger.error(f"Error optimizing flow configuration: {e}")
+            logger.exception(f"Error optimizing flow configuration: {e}")
             return {"error": str(e)}
 
 

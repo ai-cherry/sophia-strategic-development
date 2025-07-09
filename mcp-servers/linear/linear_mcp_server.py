@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Linear MCP Server
 
 A Model Context Protocol (MCP) server implementation for Linear.
@@ -58,7 +59,7 @@ class LinearMCPServer(StandardizedMCPServer):
 
     async def server_specific_init(self) -> None:
         """Initialize Linear client."""
-        api_key = os.getenv("LINEAR_API_KEY")
+        api_key = get_config_value("linear_api_key")
         if not api_key:
             self.logger.warning("LINEAR_API_KEY not set, running in demo mode")
             return
@@ -71,7 +72,7 @@ class LinearMCPServer(StandardizedMCPServer):
             self.linear_client = LinearClient(api_key)
             self.logger.info("Linear client initialized successfully")
         except Exception as e:
-            self.logger.error(f"Failed to initialize Linear client: {e}")
+            self.logger.exception(f"Failed to initialize Linear client: {e}")
 
     async def server_specific_cleanup(self) -> None:
         """Cleanup Linear resources."""
@@ -89,7 +90,7 @@ class LinearMCPServer(StandardizedMCPServer):
             # This is a placeholder - actual Linear SDK may have different methods
             return True
         except Exception as e:
-            self.logger.error(f"Linear health check failed: {e}")
+            self.logger.exception(f"Linear health check failed: {e}")
             return False
 
     async def get_tools(self) -> list[dict[str, Any]]:
@@ -214,7 +215,7 @@ class LinearMCPServer(StandardizedMCPServer):
             return {"projects": [], "total": 0}
 
         except Exception as e:
-            self.logger.error(f"Failed to list projects: {e}")
+            self.logger.exception(f"Failed to list projects: {e}")
             return {"error": str(e), "projects": []}
 
     async def _create_issue(self, args: dict[str, Any]) -> dict[str, Any]:
@@ -239,7 +240,7 @@ class LinearMCPServer(StandardizedMCPServer):
             return {"error": "Not implemented"}
 
         except Exception as e:
-            self.logger.error(f"Failed to create issue: {e}")
+            self.logger.exception(f"Failed to create issue: {e}")
             return {"error": str(e)}
 
     async def _update_issue(self, args: dict[str, Any]) -> dict[str, Any]:
@@ -259,7 +260,7 @@ class LinearMCPServer(StandardizedMCPServer):
             return {"error": "Not implemented"}
 
         except Exception as e:
-            self.logger.error(f"Failed to update issue: {e}")
+            self.logger.exception(f"Failed to update issue: {e}")
             return {"error": str(e)}
 
     async def _get_project_health(self, args: dict[str, Any]) -> dict[str, Any]:
@@ -293,7 +294,7 @@ class LinearMCPServer(StandardizedMCPServer):
             }
 
         except Exception as e:
-            self.logger.error(f"Failed to get project health: {e}")
+            self.logger.exception(f"Failed to get project health: {e}")
             return {"error": str(e)}
 
 

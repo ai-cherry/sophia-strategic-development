@@ -1,15 +1,15 @@
 # Lambda Labs Configuration Audit - Final Report
 
-**Date:** July 4, 2025  
+**Date:** July 4, 2025
 **Status:** ✅ FULLY ALIGNED - ALL CONFIGURATIONS UPDATED
 
 ## 🎯 **Current Lambda Labs Instances**
 
 | **Instance** | **Name** | **IP Address** | **Type** | **Region** | **Purpose** |
 |--------------|----------|----------------|----------|------------|-------------|
-| **Platform** | `sophia-platform-prod` | `146.235.200.1` | `gpu_1x_a10` | `us-west-1` | Main Platform Services |
+| **Platform** | `sophia-platform-prod` | `192.222.58.232` | `gpu_1x_a10` | `us-west-1` | Main Platform Services |
 | **MCP** | `sophia-mcp-prod` | `165.1.69.44` | `gpu_1x_a10` | `us-west-1` | MCP Servers (Codacy, etc.) |
-| **AI** | `sophia-ai-prod` | `137.131.6.213` | `gpu_1x_a100_sxm4` | `us-west-2` | AI Processing & ML Workloads |
+| **AI** | `sophia-ai-prod` | `192.222.58.232` | `gpu_1x_a100_sxm4` | `us-west-2` | AI Processing & ML Workloads |
 
 ## ✅ **AUDIT RESULTS: 100% COMPLIANCE**
 
@@ -20,15 +20,15 @@
 - ✅ `.github/workflows/deploy-v0dev-mcp.yml` → `165.1.69.44` (sophia-mcp-prod)
 
 #### **🐳 Docker Configuration**
-- ✅ `docker-compose.cloud.yml` → `137.131.6.213` (sophia-ai-prod)
-- ✅ `docker-compose.lambda.yml` → `137.131.6.213` (sophia-ai-prod)
+- ✅ `docker-compose.cloud.yml` → `192.222.58.232` (sophia-ai-prod)
+- ✅ `docker-compose.lambda.yml` → `192.222.58.232` (sophia-ai-prod)
 
 #### **📊 Monitoring & Deployment Scripts**
 - ✅ `scripts/monitor_codacy_mcp_server.py` → `165.1.69.44`
 - ✅ `scripts/test_lambda_labs_connectivity.py` → `165.1.69.44`
 - ✅ `scripts/check_deployment_status.py` → `165.1.69.44`
 - ✅ `scripts/monitor_github_deployment.py` → `165.1.69.44`
-- ✅ `scripts/deploy_to_lambda_labs_cloud.py` → `146.235.200.1`
+- ✅ `scripts/deploy_to_lambda_labs_cloud.py` → `192.222.58.232`
 - ✅ `scripts/deploy_sophia_optimized.sh` → All three IPs correctly mapped
 
 #### **🔗 MCP Configuration**
@@ -38,27 +38,27 @@
 
 #### **📋 Documentation**
 - ✅ `docs/LAMBDA_LABS_INSTANCE_MAPPING.md` → Complete mapping table
-- ✅ `.cursorrules` → Updated for `146.235.200.1` targeting
+- ✅ `.cursorrules` → Updated for `192.222.58.232` targeting
 - ✅ All deployment documentation updated with correct IPs
 
 #### **🔒 Infrastructure & Secrets**
-- ✅ `infrastructure/esc/production.yaml` → `137.131.6.213`
+- ✅ `infrastructure/esc/production.yaml` → `192.222.58.232`
 - ✅ `scripts/update_lambda_github_secrets_template.py` → All three IPs
 - ✅ Pulumi ESC configurations aligned
 
 ### **SSH Connection Strings Verified**
 
-#### **✅ Platform Services (sophia-platform-prod: 146.235.200.1)**
-- Scripts properly reference `ssh ubuntu@146.235.200.1`
+#### **✅ Platform Services (sophia-platform-prod: 192.222.58.232)**
+- Scripts properly reference `ssh ubuntu@192.222.58.232`
 - Deployment packages target correct instance
-- API endpoints point to `http://146.235.200.1:8000`
+- API endpoints point to `http://192.222.58.232:8000`
 
 #### **✅ MCP Services (sophia-mcp-prod: 165.1.69.44)**
 - GitHub Actions deploy to `ssh ubuntu@165.1.69.44`
 - Codacy MCP accessible at `http://165.1.69.44:3008`
 - All MCP monitoring scripts target correct instance
 
-#### **✅ AI Services (sophia-ai-prod: 137.131.6.213)**
+#### **✅ AI Services (sophia-ai-prod: 192.222.58.232)**
 - Docker Swarm configurations target correct instance
 - Snowflake Cortex endpoints properly configured
 - AI processing workflows correctly routed
@@ -92,30 +92,30 @@ python scripts/check_deployment_status.py
 ### **Instance Access Commands**
 ```bash
 # Platform services
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # MCP services (Codacy, etc.)
 ssh ubuntu@165.1.69.44
 
 # AI processing
-ssh ubuntu@137.131.6.213
+ssh ubuntu@192.222.58.232
 ```
 
 ## 📈 **Service Endpoints**
 
-### **Platform Services (sophia-platform-prod: 146.235.200.1)**
-- Main API: `http://146.235.200.1:8000`
-- Frontend: `http://146.235.200.1:3000`
-- API Docs: `http://146.235.200.1:8000/docs`
+### **Platform Services (sophia-platform-prod: 192.222.58.232)**
+- Main API: `http://192.222.58.232:8000`
+- Frontend: `http://192.222.58.232:3000`
+- API Docs: `http://192.222.58.232:8000/docs`
 
 ### **MCP Services (sophia-mcp-prod: 165.1.69.44)**
 - Codacy MCP: `http://165.1.69.44:3008`
 - AI Memory: `http://165.1.69.44:9001`
 - Other MCP Servers: `http://165.1.69.44:<port>`
 
-### **AI Services (sophia-ai-prod: 137.131.6.213)**
-- Snowflake Cortex: `http://137.131.6.213:9030`
-- AI Processing: `http://137.131.6.213:<port>`
+### **AI Services (sophia-ai-prod: 192.222.58.232)**
+- Snowflake Cortex: `http://192.222.58.232:9030`
+- AI Processing: `http://192.222.58.232:<port>`
 
 ## 🎯 **FINAL STATUS**
 
@@ -143,5 +143,5 @@ The Sophia AI platform is now **100% aligned** with the current Lambda Labs inst
 
 ---
 
-**Audit Completed:** July 4, 2025  
-**Next Action:** Monitor automated deployment progress 
+**Audit Completed:** July 4, 2025
+**Next Action:** Monitor automated deployment progress

@@ -9,7 +9,6 @@ Provides free access to Gemini models through the CLI
 import asyncio
 import json
 import logging
-import os
 import subprocess
 from typing import Any
 
@@ -20,21 +19,26 @@ class GeminiCLIProvider:
     """Wrapper for Gemini CLI to integrate with Sophia AI"""
 
     def __init__(self):
-        self.cli_path = os.getenv("GEMINI_CLI_PATH", "gemini")
-        self.default_model = os.getenv("GEMINI_MODEL_PREFERENCE", "gemini-2.5-pro")
+        self.cli_path = get_config_value("gemini_cli_path", "gemini")
+        self.default_model = get_config_value(
+            "gemini_model_preference", "gemini-2.5-pro"
+        )
         self.verify_installation()
 
     def verify_installation(self) -> bool:
         """Verify Gemini CLI is installed and authenticated"""
         try:
             result = subprocess.run(
-                [self.cli_path, "--version"], capture_output=True, text=True
+                [self.cli_path, "--version"],
+                check=False,
+                capture_output=True,
+                text=True,
             )
             if result.returncode == 0:
                 logger.info(f"Gemini CLI verified: {result.stdout.strip()}")
                 return True
         except Exception as e:
-            logger.error(f"Gemini CLI not found: {e}")
+            logger.exception(f"Gemini CLI not found: {e}")
             return False
 
     async def generate(
@@ -95,7 +99,7 @@ class GeminiCLIProvider:
             }
 
         except Exception as e:
-            logger.error(f"Gemini generation error: {e}")
+            logger.exception(f"Gemini generation error: {e}")
             return {"success": False, "error": str(e), "model": model}
 
     async def count_tokens(self, text: str, model: str | None = None) -> int:
@@ -210,6 +214,7 @@ Include:
         try:
             result = subprocess.run(
                 [self.cli_path, "models", "list", "--json"],
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -261,7 +266,7 @@ class GeminiCLIModelRouter:
             return True
 
         # Use if explicitly requested
-        return os.getenv("PREFER_GEMINI_CLI", "false").lower() == "true"
+        return get_config_value("prefer_gemini_cli", "false").lower() == "true"
 
     async def route_request(
         self, prompt: str, context: dict[str, Any], **kwargs

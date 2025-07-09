@@ -6,7 +6,7 @@
 ```python
 # Current: Hardcoded Redis URL
 self.redis_client = await redis.from_url(
-    "redis://146.235.200.1:6379",  # ❌ Hardcoded!
+    "redis://192.222.58.232:6379",  # ❌ Hardcoded!
     password=settings.REDIS_PASSWORD,
     encoding="utf-8",
     decode_responses=True,
@@ -16,7 +16,7 @@ self.redis_client = await redis.from_url(
 self.redis_client = await redis.from_url(
     f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
     password=settings.REDIS_PASSWORD,
-    encoding="utf-8", 
+    encoding="utf-8",
     decode_responses=True,
 )
 ```
@@ -24,7 +24,7 @@ self.redis_client = await redis.from_url(
 ### 2. **Missing Config Settings** 🟡 MEDIUM PRIORITY
 Need to add to `infrastructure/mcp_servers/ai_memory_v2/config.py`:
 ```python
-REDIS_HOST = os.getenv("REDIS_HOST", "146.235.200.1")
+REDIS_HOST = os.getenv("REDIS_HOST", "192.222.58.232")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_PASSWORD = get_config_value("redis_password")
 ```
@@ -114,7 +114,7 @@ async def health_check():
         redis_status = "healthy"
     except:
         redis_status = "unhealthy"
-    
+
     return {
         "status": "healthy" if redis_status == "healthy" else "degraded",
         "redis": redis_status,
@@ -125,7 +125,7 @@ async def health_check():
 ### 8. **Docker Configuration** 🟡 MEDIUM PRIORITY
 Update `infrastructure/mcp_servers/ai_memory_v2/Dockerfile`:
 ```dockerfile
-ENV REDIS_HOST=146.235.200.1
+ENV REDIS_HOST=192.222.58.232
 ENV REDIS_PORT=6379
 ```
 
@@ -189,4 +189,4 @@ Everything else can be added iteratively after initial deployment.
 - [ ] Health check implemented
 - [ ] Docker image updated
 
-Total estimated time: **1.5 hours** to address critical issues 
+Total estimated time: **1.5 hours** to address critical issues

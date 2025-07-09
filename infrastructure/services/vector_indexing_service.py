@@ -58,7 +58,6 @@ class VectorIndexingService:
         # ON my_table(text_column)
         # SEARCH_METHOD = 'VECTOR';
         await asyncio.sleep(0.1)  # Simulate async operation
-        return
 
     async def initialize_vector_indexes(self) -> bool:
         """Initialize vector search indexes for all content types"""
@@ -107,7 +106,7 @@ class VectorIndexingService:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to initialize vector indexes: {e}")
+            logger.exception(f"Failed to initialize vector indexes: {e}")
             return False
 
     async def index_slack_content(self) -> int:

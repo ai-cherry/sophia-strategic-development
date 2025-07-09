@@ -22,7 +22,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 # Advanced security analysis
 try:
@@ -73,8 +73,9 @@ class CodeAnalysisRequest(BaseModel):
     filename: str = Field("snippet.py", description="Filename for context")
     language: str = Field("python", description="Programming language")
 
-    @validator("code")
-    def validate_code(self, v):
+    @field_validator("code", mode="before")
+    @classmethod
+    def validate_code(cls, v):
         if len(v.strip()) == 0:
             raise ValueError("Code cannot be empty")
         return v
@@ -267,9 +268,11 @@ class AdvancedSecurityAnalyzer:
                             description=result.text,
                             file_path=filename,
                             line_number=result.lineno,
-                            code_snippet=result.get_code()
-                            if hasattr(result, "get_code")
-                            else None,
+                            code_snippet=(
+                                result.get_code()
+                                if hasattr(result, "get_code")
+                                else None
+                            ),
                             rule_id=result.test_id,
                             confidence=result.confidence.value / 3.0,
                         )
@@ -278,7 +281,7 @@ class AdvancedSecurityAnalyzer:
                 os.unlink(temp_path)
 
         except Exception as e:
-            logger.error(f"Bandit analysis failed: {e}")
+            logger.exception(f"Bandit analysis failed: {e}")
 
         return issues
 
@@ -378,9 +381,11 @@ class EnhancedComplexityAnalyzer:
                     issues.append(
                         CodeIssue(
                             category=IssueCategory.COMPLEXITY,
-                            severity=SeverityLevel.MEDIUM
-                            if complexity < 20
-                            else SeverityLevel.HIGH,
+                            severity=(
+                                SeverityLevel.MEDIUM
+                                if complexity < 20
+                                else SeverityLevel.HIGH
+                            ),
                             title="High Function Complexity",
                             description=f"Function '{node.name}' has complexity {complexity}",
                             file_path=filename,
@@ -488,7 +493,7 @@ class EnhancedComplexityAnalyzer:
                 )
 
         except Exception as e:
-            logger.error(f"Radon analysis failed: {e}")
+            logger.exception(f"Radon analysis failed: {e}")
 
         return issues, metrics
 
@@ -843,8 +848,8 @@ async def analyze_code(
         return result
 
     except Exception as e:
-        logger.error(f"❌ Analysis failed for {request.filename}: {e}")
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        logger.exception(f"❌ Analysis failed for {request.filename}: {e}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}")
 
 
 @app.post("/api/v1/security/scan")
@@ -892,8 +897,8 @@ async def security_scan(
         }
 
     except Exception as e:
-        logger.error(f"❌ Security scan failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Security scan failed: {str(e)}")
+        logger.exception(f"❌ Security scan failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Security scan failed: {e!s}")
 
 
 @app.post("/api/v1/analyze/file")
@@ -939,8 +944,8 @@ async def analyze_file(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ File analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=f"File analysis failed: {str(e)}")
+        logger.exception(f"❌ File analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=f"File analysis failed: {e!s}")
 
 
 @app.get("/api/v1/stats")
@@ -1004,7 +1009,8 @@ async def main():
     logger.info("🚀 Starting Unified Codacy MCP Server on port 3008...")
 
     config = uvicorn.Config(
-        app=app, host="0.0.0.0", port=3008, log_level="info", access_log=True
+        app=app,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production, port=3008, log_level="info", access_log=True
     )
 
     server = uvicorn.Server(config)

@@ -3,10 +3,7 @@
 Snowflake V2 MCP Server - Enhanced Snowflake data management with modern features
 """
 
-import asyncio
-import logging
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,7 +22,7 @@ class SnowflakeV2Server:
 
     def __init__(self):
         self.config = Config()
-        self.handler: Optional[SnowflakeHandler] = None
+        self.handler: SnowflakeHandler | None = None
         self.app = self._create_app()
 
     @asynccontextmanager
@@ -213,7 +210,12 @@ class SnowflakeV2Server:
         """Run the server"""
         import uvicorn
 
-        uvicorn.run(self.app, host="0.0.0.0", port=self.config.PORT, log_level="info")
+        uvicorn.run(
+            self.app,
+            host="127.0.0.1",  # Changed for security. Use ENV variable in production
+            port=self.config.PORT,
+            log_level="info",
+        )
 
 
 def main():

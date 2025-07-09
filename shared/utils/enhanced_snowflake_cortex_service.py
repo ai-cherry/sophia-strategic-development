@@ -162,7 +162,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             logger.info("✅ AI processing tables created/verified")
 
         except Exception as e:
-            logger.error(f"❌ Failed to create AI processing tables: {e}")
+            logger.exception(f"❌ Failed to create AI processing tables: {e}")
             raise
 
     async def generate_embeddings(
@@ -226,7 +226,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             return results
 
         except Exception as e:
-            logger.error(f"❌ Failed to generate embeddings: {e}")
+            logger.exception(f"❌ Failed to generate embeddings: {e}")
             raise
 
     async def semantic_search(
@@ -294,7 +294,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             return search_results
 
         except Exception as e:
-            logger.error(f"❌ Semantic search failed: {e}")
+            logger.exception(f"❌ Semantic search failed: {e}")
             return []
 
     async def generate_ai_summary(
@@ -348,8 +348,8 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             return summary
 
         except Exception as e:
-            logger.error(f"❌ AI summary generation failed: {e}")
-            return f"Failed to generate summary: {str(e)}"
+            logger.exception(f"❌ AI summary generation failed: {e}")
+            return f"Failed to generate summary: {e!s}"
 
     async def generate_ai_insights(
         self,
@@ -439,11 +439,11 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             return ai_insights
 
         except Exception as e:
-            logger.error(f"❌ AI insights generation failed: {e}")
+            logger.exception(f"❌ AI insights generation failed: {e}")
             return [
                 AIInsight(
                     insight_type=insight_type,
-                    content=f"Failed to generate insights: {str(e)}",
+                    content=f"Failed to generate insights: {e!s}",
                     confidence_score=0.0,
                     supporting_data=[],
                     generated_at=datetime.now(UTC),
@@ -507,5 +507,5 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to index content: {e}")
+            logger.exception(f"❌ Failed to index content: {e}")
             return False

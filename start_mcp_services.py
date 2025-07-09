@@ -39,7 +39,7 @@ async def start_all_services():
         try:
             await server.start()
         except Exception as e:
-            logger.error(f"❌ Failed to start {name}: {e}")
+            logger.exception(f"❌ Failed to start {name}: {e}")
 
     logger.info("✅ All MCP services started")
 
@@ -54,7 +54,7 @@ async def start_all_services():
             try:
                 await server.stop()
             except Exception as e:
-                logger.error(f"❌ Failed to stop {name}: {e}")
+                logger.exception(f"❌ Failed to stop {name}: {e}")
 
 
 if __name__ == "__main__":

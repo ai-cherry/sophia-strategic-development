@@ -90,7 +90,7 @@ class FoundationalKnowledgeService:
                     sync_results["synced_records"] += result["synced"]
                     sync_results["failed_records"] += result["failed"]
                 except Exception as e:
-                    error_msg = f"Failed to sync {data_type.value}: {str(e)}"
+                    error_msg = f"Failed to sync {data_type.value}: {e!s}"
                     logger.error(error_msg)
                     sync_results["errors"].append(error_msg)
 
@@ -100,7 +100,7 @@ class FoundationalKnowledgeService:
             return sync_results
 
         except Exception as e:
-            logger.error(f"Foundational knowledge sync failed: {str(e)}")
+            logger.error(f"Foundational knowledge sync failed: {e!s}")
             raise
 
     async def _sync_data_type(self, data_type: FoundationalDataType) -> dict[str, int]:
@@ -122,7 +122,7 @@ class FoundationalKnowledgeService:
                 result["synced"] += 1
 
             except Exception as e:
-                logger.error(f"Failed to sync record {record.record_id}: {str(e)}")
+                logger.error(f"Failed to sync record {record.record_id}: {e!s}")
                 result["failed"] += 1
 
         return result
@@ -289,7 +289,7 @@ class FoundationalKnowledgeService:
             return records
 
         except Exception as e:
-            logger.error(f"Failed to fetch {data_type.value} records: {str(e)}")
+            logger.error(f"Failed to fetch {data_type.value} records: {e!s}")
             return []
 
     async def _convert_to_knowledge_document(
@@ -393,7 +393,7 @@ class FoundationalKnowledgeService:
             return results
 
         except Exception as e:
-            logger.error(f"Foundational knowledge search failed: {str(e)}")
+            logger.error(f"Foundational knowledge search failed: {e!s}")
             return []
 
     async def get_foundational_stats(self) -> dict[str, Any]:
@@ -440,7 +440,7 @@ class FoundationalKnowledgeService:
             return stats
 
         except Exception as e:
-            logger.error(f"Failed to get foundational stats: {str(e)}")
+            logger.error(f"Failed to get foundational stats: {e!s}")
             return {
                 "total_foundational_records": 0,
                 "data_types": {},
@@ -507,7 +507,7 @@ class FoundationalKnowledgeService:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to update foundational record {record_id}: {str(e)}")
+            logger.error(f"Failed to update foundational record {record_id}: {e!s}")
             return False
 
     def _get_primary_key_field(self, data_type: FoundationalDataType) -> str:
@@ -644,5 +644,5 @@ class FoundationalKnowledgeService:
             return insights
 
         except Exception as e:
-            logger.error(f"Failed to generate foundational insights: {str(e)}")
+            logger.error(f"Failed to generate foundational insights: {e!s}")
             return {}

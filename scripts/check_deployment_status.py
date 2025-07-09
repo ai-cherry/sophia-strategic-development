@@ -36,7 +36,6 @@ class DeploymentStatusChecker:
 
     async def check_docker_hub_images(self) -> dict[str, Any]:
         """Check if Docker images are available on Docker Hub"""
-        print("🐳 Checking Docker Hub images...")
 
         # Expected image names based on docker-compose.cloud.yml
         expected_images = [
@@ -71,28 +70,22 @@ class DeploymentStatusChecker:
                                 "total_tags": len(tags),
                                 "status": "✅ Available",
                             }
-                            print(
-                                f"   ✅ {image_name} - Latest: {latest_tag}, Total tags: {len(tags)}"
-                            )
                         else:
                             image_status[image_name] = {
                                 "exists": False,
                                 "status": f"❌ Not found (HTTP {response.status})",
                             }
-                            print(f"   ❌ {image_name} - Not found")
             except Exception as e:
                 image_status[image_name] = {
                     "exists": False,
                     "error": str(e),
                     "status": f"❌ Error: {str(e)[:30]}",
                 }
-                print(f"   ❌ {image_name} - Error: {str(e)[:50]}")
 
         return image_status
 
     def check_recent_commits(self) -> dict[str, Any]:
         """Check recent Git commits for deployment-related changes"""
-        print("\n📝 Checking recent commits...")
 
         try:
             # Get last 5 commits
@@ -134,24 +127,18 @@ class DeploymentStatusChecker:
                         }
                     )
 
-                    print(
-                        f"   📌 {commit_hash}: {commit_msg} ({commit_date.strftime('%H:%M:%S')})"
-                    )
-
             return {
                 "commits": recent_commits,
-                "latest_commit_age_minutes": recent_commits[0]["age_minutes"]
-                if recent_commits
-                else 0,
+                "latest_commit_age_minutes": (
+                    recent_commits[0]["age_minutes"] if recent_commits else 0
+                ),
             }
 
         except subprocess.CalledProcessError as e:
-            print(f"   ❌ Error getting commits: {e}")
             return {"error": str(e)}
 
     async def quick_connectivity_test(self) -> dict[str, Any]:
         """Quick connectivity test to key services"""
-        print("\n🔗 Quick connectivity test...")
 
         results = {}
 
@@ -173,25 +160,17 @@ class DeploymentStatusChecker:
                                 "response_time": response_time,
                                 "port": port,
                             }
-                            print(
-                                f"   ✅ {service_name} ({port}) - {response_time:.1f}ms"
-                            )
                         else:
                             results[service_name] = {
                                 "status": f"⚠️ HTTP {response.status}",
                                 "response_time": response_time,
                                 "port": port,
                             }
-                            print(
-                                f"   ⚠️ {service_name} ({port}) - HTTP {response.status}"
-                            )
 
             except TimeoutError:
                 results[service_name] = {"status": "❌ Timeout", "port": port}
-                print(f"   ❌ {service_name} ({port}) - Timeout")
             except Exception as e:
                 results[service_name] = {"status": f"❌ {str(e)[:30]}", "port": port}
-                print(f"   ❌ {service_name} ({port}) - {str(e)[:30]}")
 
         return results
 
@@ -199,8 +178,6 @@ class DeploymentStatusChecker:
         self, docker_status: dict, git_status: dict, connectivity_status: dict
     ) -> dict:
         """Analyze overall deployment status"""
-        print("\n📊 Deployment Status Analysis")
-        print("=" * 60)
 
         # Calculate metrics
         total_images = len(docker_status)
@@ -250,11 +227,6 @@ class DeploymentStatusChecker:
             "recommendations": [],
         }
 
-        print(f"🎯 Current Phase: {phase_emoji} {phase}")
-        print(f"📦 Docker Images: {available_images}/{total_images} available")
-        print(f"🏥 Healthy Services: {healthy_services}/{total_services}")
-        print(f"⏰ Latest Commit: {latest_commit_age:.1f} minutes ago")
-
         # Generate recommendations
         if phase == "Not Started":
             analysis["recommendations"].append(
@@ -285,17 +257,13 @@ class DeploymentStatusChecker:
             analysis["recommendations"].append("Test all API endpoints")
 
         if analysis["recommendations"]:
-            print("\n💡 Recommendations:")
-            for i, rec in enumerate(analysis["recommendations"], 1):
-                print(f"   {i}. {rec}")
+            for _i, _rec in enumerate(analysis["recommendations"], 1):
+                pass
 
         return analysis
 
     async def run_comprehensive_check(self):
         """Run comprehensive deployment status check"""
-        print("🔍 Sophia AI Deployment Status Checker")
-        print(f"⏰ Check started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("=" * 60)
 
         # Run all checks
         docker_status = await self.check_docker_hub_images()
@@ -321,17 +289,12 @@ class DeploymentStatusChecker:
         with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
-        print(f"\n📄 Detailed report saved to: {report_file}")
-
         # Final status
-        print(f"\n🎯 FINAL STATUS: {analysis['phase_emoji']} {analysis['phase']}")
 
         if analysis["phase"] in ["Fully Deployed", "Partial Deployment"]:
-            print("\n🌐 Access URLs:")
-            for service_name, status in connectivity_status.items():
+            for status in connectivity_status.values():
                 if "✅" in status.get("status", ""):
-                    port = status["port"]
-                    print(f"   {service_name}: http://{self.lambda_labs_ip}:{port}")
+                    status["port"]
 
         return analysis
 
@@ -343,9 +306,7 @@ async def main():
 
     # If deployment is in progress, offer to monitor
     if analysis["phase"] in ["Building Images", "Deploying Services"]:
-        print("\n⏳ Deployment appears to be in progress...")
-        print("💡 You can run this script again in a few minutes to check progress.")
-        print("💡 Or use the monitoring script once services are healthy.")
+        pass
 
 
 if __name__ == "__main__":

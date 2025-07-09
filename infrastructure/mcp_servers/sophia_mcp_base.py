@@ -170,7 +170,7 @@ class SophiaMCPServer(ABC):
 
         except Exception as e:
             self.metrics["failed_requests"] += 1
-            self.logger.error(f"Request failed: {e}")
+            self.logger.exception(f"Request failed: {e}")
             raise
 
     @abstractmethod

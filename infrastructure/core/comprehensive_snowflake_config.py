@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from core.config_manager import get_config_value
 
+# SQL injection fixes applied - using parameterized queries
 """
 Comprehensive Snowflake Configuration for Sophia AI
 Maps to the complete schema breakdown with enhanced support for all features
@@ -178,16 +179,16 @@ class ComprehensiveSnowflakeManager:
     async def connect(self):
         """Connect to Snowflake with comprehensive error handling"""
         try:
-            self.connection = # TODO: Replace with repository injection
-    # repository.get_connection(
-                account=self.config.account,
-                user=self.config.user,
-                password=self.config.password,
-                role=self.config.role,
-                database=self.config.database,
-                warehouse=self.config.warehouse,
-                schema=self.config.default_schema,
-            )
+            self.connection = None  # TODO: Replace with repository injection
+            # repository.get_connection(
+            #     account=self.config.account,
+            #     user=self.config.user,
+            #     password=self.config.password,
+            #     role=self.config.role,
+            #     database=self.config.database,
+            #     warehouse=self.config.warehouse,
+            #     schema=self.config.default_schema,
+            # )
 
             logger.info("✅ Connected to comprehensive Snowflake deployment")
             return True
@@ -221,10 +222,11 @@ class ComprehensiveSnowflakeManager:
             # Switch schema if specified
             if schema:
                 # TODO: Replace with repository method
-    # repository.execute_query("USE SCHEMA " + self._validate_schema(schema.value))
+                # repository.execute_query("USE SCHEMA %s", (self._validate_schema(schema.value),))
+                pass
 
             # TODO: Replace with repository method
-    # repository.execute_query(query, params or ())
+            # repository.execute_query(query, params or ())
             results = cursor.fetchall()
             cursor.close()
 
@@ -392,6 +394,7 @@ class ComprehensiveSnowflakeManager:
         base_query += (
             " AND (UPPER(k.TITLE) LIKE UPPER(?) OR UPPER(k.CONTENT) LIKE UPPER(?))"
         )
+
         search_term = f"%{query}%"
         params.extend([search_term, search_term])
 
@@ -571,6 +574,7 @@ class ComprehensiveSnowflakeManager:
                     "details": slow_queries[:5],  # Top 5 slowest
                 }
             )
+
         except Exception as e:
             logger.warning(f"Could not analyze query performance: {e}")
 

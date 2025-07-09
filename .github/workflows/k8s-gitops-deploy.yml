@@ -1,0 +1,168 @@
+name: 🚀 GitOps Kubernetes Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: false
+        default: 'latest'
+
+env:
+  DOCKER_REGISTRY: scoobyjava15
+  KUSTOMIZE_VERSION: v5.3.0
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: |
+          image=moby/buildkit:v0.12.0
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+    
+    - name: Generate metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ env.DOCKER_REGISTRY }}/sophia-backend
+          ${{ env.DOCKER_REGISTRY }}/sophia-frontend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=${{ github.event.inputs.image_tag || 'latest' }}
+    
+    - name: Build and push backend
+      id: build-backend
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.production.2025
+        push: true
+        tags: |
+          ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }}
+          ${{ env.DOCKER_REGISTRY }}/sophia-backend:latest
+        cache-from: type=registry,ref=${{ env.DOCKER_REGISTRY }}/sophia-backend:buildcache
+        cache-to: type=registry,ref=${{ env.DOCKER_REGISTRY }}/sophia-backend:buildcache,mode=max
+        platforms: linux/amd64
+    
+    - name: Build and push frontend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: |
+          ${{ env.DOCKER_REGISTRY }}/sophia-frontend:${{ github.sha }}
+          ${{ env.DOCKER_REGISTRY }}/sophia-frontend:latest
+        cache-from: type=registry,ref=${{ env.DOCKER_REGISTRY }}/sophia-frontend:buildcache
+        cache-to: type=registry,ref=${{ env.DOCKER_REGISTRY }}/sophia-frontend:buildcache,mode=max
+        platforms: linux/amd64
+    
+    - name: Security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.DOCKER_REGISTRY }}/sophia-backend:${{ github.sha }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+    
+    - name: Upload scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  update-manifests:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GH_API_TOKEN }}
+    
+    - name: Install Kustomize
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        sudo mv kustomize /usr/local/bin/
+    
+    - name: Update image tags
+      run: |
+        cd kubernetes/gitops
+        kustomize edit set image scoobyjava15/sophia-backend:${{ github.sha }}
+        kustomize edit set image scoobyjava15/sophia-frontend:${{ github.sha }}
+    
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add kubernetes/gitops/kustomization.yaml
+        git commit -m "Update image tags to ${{ github.sha }}"
+        git push
+
+  deploy-to-lambda:
+    needs: update-manifests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Configure kubectl
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.LAMBDA_KUBECONFIG }}" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+    
+    - name: Apply Kustomization
+      run: |
+        kubectl apply -k kubernetes/gitops/
+    
+    - name: Wait for rollout
+      run: |
+        kubectl -n sophia-ai-prod rollout status deployment/sophia-backend --timeout=300s
+        kubectl -n sophia-ai-prod rollout status deployment/sophia-frontend --timeout=300s
+    
+    - name: Verify deployment
+      run: |
+        kubectl -n sophia-ai-prod get pods
+        kubectl -n sophia-ai-prod get services
+        
+        # Get external IPs
+        BACKEND_IP=$(kubectl -n sophia-ai-prod get svc sophia-backend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        FRONTEND_IP=$(kubectl -n sophia-ai-prod get svc sophia-frontend -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        
+        echo "Backend: http://${BACKEND_IP}:8000"
+        echo "Frontend: http://${FRONTEND_IP}"
+    
+    - name: Notify deployment
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        text: |
+          Deployment ${{ job.status }}
+          Commit: ${{ github.sha }}
+          Backend: scoobyjava15/sophia-backend:${{ github.sha }}
+          Frontend: scoobyjava15/sophia-frontend:${{ github.sha }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} 

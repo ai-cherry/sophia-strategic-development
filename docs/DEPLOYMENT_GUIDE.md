@@ -44,8 +44,8 @@ kubectl rollout status deployment/sophia-ai
 ## Environment Variables
 
 Required secrets (managed in GitHub):
-- `DOCKER_USER_NAME` - Docker Hub username
-- `DOCKER_PERSONAL_ACCESS_TOKEN` - Docker Hub token
+- `DOCKERHUB_USERNAME` - Docker Hub username
+- `DOCKER_TOKEN` - Docker Hub token
 - `PULUMI_ACCESS_TOKEN` - Pulumi access token
 - `LAMBDA_LABS_API_KEY` - Lambda Labs API key
 

@@ -5,7 +5,6 @@ Integrates with Snowflake Cortex AI for native SQL + AI capabilities
 """
 
 import asyncio
-import os
 from datetime import datetime
 from typing import Any
 
@@ -32,11 +31,11 @@ app = FastMCP("Snowflake Cortex Agent MCP")
 
 class SnowflakeCortexMCPServer:
     def __init__(self):
-        self.account = os.getenv("SNOWFLAKE_ACCOUNT")
-        self.user = os.getenv("SNOWFLAKE_USER")
+        self.account = get_config_value("snowflake_account")
+        self.user = get_config_value("snowflake_user")
         self.password = get_config_value("snowflake_password")
-        self.warehouse = os.getenv("SNOWFLAKE_WAREHOUSE", "COMPUTE_WH")
-        self.database = os.getenv("SNOWFLAKE_DATABASE", "SOPHIA_AI")
+        self.warehouse = get_config_value("snowflake_warehouse", "COMPUTE_WH")
+        self.database = get_config_value("snowflake_database", "SOPHIA_AI")
 
     @app.tool()
     async def cortex_complete(

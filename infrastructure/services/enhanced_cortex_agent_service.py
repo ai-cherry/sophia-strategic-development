@@ -204,9 +204,9 @@ class EnhancedCortexAgentService(CortexAgentService):
             )
 
         except Exception as e:
-            logger.error(f"Error processing multimodal request: {e}")
+            logger.exception(f"Error processing multimodal request: {e}")
             raise HTTPException(
-                status_code=500, detail=f"Multimodal processing failed: {str(e)}"
+                status_code=500, detail=f"Multimodal processing failed: {e!s}"
             )
 
     async def _process_audio_file(self, file: MultimodalFile) -> dict[str, Any]:
@@ -332,13 +332,13 @@ class EnhancedCortexAgentService(CortexAgentService):
             # Combine all processing results into a comprehensive analysis
             combined_content = []
             for file_id, result in processing_results.items():
-                if "transcript" in result and result["transcript"]:
+                if result.get("transcript"):
                     combined_content.append(f"Audio {file_id}: {result['transcript']}")
-                if "text_content" in result and result["text_content"]:
+                if result.get("text_content"):
                     combined_content.append(
                         f"Document {file_id}: {result['text_content']}"
                     )
-                if "description" in result and result["description"]:
+                if result.get("description"):
                     combined_content.append(f"Image {file_id}: {result['description']}")
 
             content_summary = " ".join(combined_content)[:4000]  # Limit for API
@@ -437,7 +437,7 @@ class EnhancedCortexAgentService(CortexAgentService):
             logger.info(f"Stored multimodal results with ID: {processing_id}")
 
         except Exception as e:
-            logger.error(f"Error storing multimodal results: {e}")
+            logger.exception(f"Error storing multimodal results: {e}")
         finally:
             cursor.close()
             conn.close()
@@ -475,9 +475,9 @@ class EnhancedCortexAgentService(CortexAgentService):
             )
 
         except Exception as e:
-            logger.error(f"Error executing advanced analytics: {e}")
+            logger.exception(f"Error executing advanced analytics: {e}")
             raise HTTPException(
-                status_code=500, detail=f"Analytics execution failed: {str(e)}"
+                status_code=500, detail=f"Analytics execution failed: {e!s}"
             )
 
     async def _analyze_customer_intelligence(
@@ -500,7 +500,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 overall_sentiment,
                 churn_risk,
                 ai_customer_insights
-            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.CUSTOMER_INTELLIGENCE_ADVANCED
+            FROM SOPHIA_AI_ADVANCED.STG_ESTUARY.CUSTOMER_INTELLIGENCE_ADVANCED
             WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             ORDER BY overall_sentiment ASC
             LIMIT 100
@@ -573,7 +573,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 deal_sentiment,
                 ai_priority_score,
                 ai_deal_analysis
-            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.SALES_OPPORTUNITY_INTELLIGENCE
+            FROM SOPHIA_AI_ADVANCED.STG_ESTUARY.SALES_OPPORTUNITY_INTELLIGENCE
             WHERE created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
             ORDER BY deal_amount DESC
             LIMIT 50
@@ -686,7 +686,7 @@ class EnhancedCortexAgentService(CortexAgentService):
                 ai_message_classification,
                 message_sentiment,
                 message_timestamp
-            FROM SOPHIA_AI_ADVANCED.STG_TRANSFORMED.COMMUNICATION_INTELLIGENCE_REALTIME
+            FROM SOPHIA_AI_ADVANCED.STG_ESTUARY.COMMUNICATION_INTELLIGENCE_REALTIME
             WHERE message_timestamp >= CURRENT_TIMESTAMP - INTERVAL '1 hour'
             AND (
                 message_sentiment < %s

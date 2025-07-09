@@ -85,8 +85,8 @@ gh pr merge 137
 ### **Step 2: Generate SSH Key**
 ```bash
 # Generate ED25519 key for H200 instances
-ssh-keygen -t ed25519 -f ~/.ssh/lynn_sophia_h200_key -C 'lynn-sophia-h200'
-chmod 600 ~/.ssh/lynn_sophia_h200_key
+ssh-keygen -t ed25519 -f ~/.ssh/sophia2025.pem -C 'lynn-sophia-h200'
+chmod 600 ~/.ssh/sophia2025.pem
 ```
 
 ### **Step 3: Set Environment Variables**

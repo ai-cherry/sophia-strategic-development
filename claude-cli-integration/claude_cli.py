@@ -45,7 +45,7 @@ class ClaudeMCPIntegration:
             else:
                 logger.error(f"❌ Configuration file not found: {self.config_path}")
         except Exception as e:
-            logger.error(f"❌ Error loading configuration: {e}")
+            logger.exception(f"❌ Error loading configuration: {e}")
             raise
 
     def _setup_anthropic(self) -> None:
@@ -208,7 +208,7 @@ Always provide practical, actionable responses that leverage the available MCP c
                     logger.error(f"Claude API error: {response.status} - {error_text}")
                     return self._fallback_response(message, mcp_context)
         except Exception as e:
-            logger.error(f"Claude API call failed: {e}")
+            logger.exception(f"Claude API call failed: {e}")
             return self._fallback_response(message, mcp_context)
 
     def _fallback_response(self, message: str, mcp_context: str) -> str:
@@ -317,7 +317,7 @@ Always provide practical, actionable responses that leverage the available MCP c
         # Check server health
         servers = await self.list_servers()
 
-        for _server_name, server_info in servers.items():
+        for server_info in servers.values():
             health = server_info["health"]
             status = health.get("status", "unknown")
 
@@ -370,12 +370,12 @@ async def main_async():
 
         elif args.command == "servers":
             servers = await claude_mcp.list_servers()
-            for _name, info in servers.items():
+            for info in servers.values():
                 info["health"].get("status", "unknown")
 
         elif args.command == "health":
             servers = await claude_mcp.list_servers()
-            for _name, info in servers.items():
+            for info in servers.values():
                 info["health"]
 
         elif args.command == "models":

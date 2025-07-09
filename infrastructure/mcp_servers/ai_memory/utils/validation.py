@@ -1,6 +1,6 @@
 """Validation utilities"""
 
-from typing import Any, Dict, List
+from typing import Any
 
 from ..core.exceptions import ConfigurationException
 

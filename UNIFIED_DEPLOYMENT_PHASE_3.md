@@ -29,23 +29,23 @@ logger = logging.getLogger(__name__)
 
 class GitHubHandler:
     """Enhanced GitHub operations handler for live coding assistance"""
-    
+
     def __init__(self):
         self.github = Github(settings.GITHUB_TOKEN)
         self._cache = {}
-        
+
     async def get_repository(self, request: RepoRequest) -> RepoResponse:
         """Get repository information with caching"""
         cache_key = f"repo:{request.owner}/{request.repo}"
-        
+
         if cache_key in self._cache:
             return RepoResponse(**self._cache[cache_key])
-        
+
         try:
             repo = await asyncio.to_thread(
                 self.github.get_repo, f"{request.owner}/{request.repo}"
             )
-            
+
             response_data = {
                 "success": True,
                 "data": {
@@ -61,17 +61,17 @@ class GitHubHandler:
                     "updated_at": repo.updated_at.isoformat()
                 }
             }
-            
+
             self._cache[cache_key] = response_data
             return RepoResponse(**response_data)
-            
+
         except GithubException as e:
             logger.error(f"GitHub API error: {e}")
             return RepoResponse(
                 success=False,
                 error=f"GitHub API error: {e.status} - {e.data}"
             )
-    
+
     async def search_code(self, request: SearchRequest) -> Dict[str, Any]:
         """Search code across repositories"""
         try:
@@ -81,14 +81,14 @@ class GitHubHandler:
                 query_parts.append(f"language:{request.language}")
             if request.repo:
                 query_parts.append(f"repo:{request.repo}")
-            
+
             query = " ".join(query_parts)
-            
+
             # Perform search
             results = await asyncio.to_thread(
                 self.github.search_code, query
             )
-            
+
             # Process results
             items = []
             for item in results[:request.limit]:
@@ -99,31 +99,31 @@ class GitHubHandler:
                     "score": item.score,
                     "sha": item.sha
                 })
-            
+
             return {
                 "success": True,
                 "total_count": results.totalCount,
                 "items": items
             }
-            
+
         except Exception as e:
             logger.error(f"Code search error: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
+
     async def get_file_content(self, owner: str, repo: str, path: str) -> Dict[str, Any]:
         """Get file content from repository"""
         try:
             repo_obj = await asyncio.to_thread(
                 self.github.get_repo, f"{owner}/{repo}"
             )
-            
+
             content = await asyncio.to_thread(
                 repo_obj.get_contents, path
             )
-            
+
             if content.type == "file":
                 return {
                     "success": True,
@@ -137,7 +137,7 @@ class GitHubHandler:
                     "success": False,
                     "error": "Path is not a file"
                 }
-                
+
         except Exception as e:
             logger.error(f"Get file content error: {e}")
             return {
@@ -165,7 +165,7 @@ logger = logging.getLogger(__name__)
 
 class PerplexityHandler:
     """Real-time documentation and code search handler"""
-    
+
     def __init__(self):
         self.api_key = settings.PERPLEXITY_API_KEY
         self.base_url = "https://api.perplexity.ai"
@@ -174,21 +174,21 @@ class PerplexityHandler:
         )
         self._cache = {}
         self._cache_ttl = timedelta(minutes=30)
-    
+
     async def search_documentation(self, request: SearchRequest) -> SearchResponse:
         """Search technical documentation with caching"""
         cache_key = f"doc:{request.query}:{request.context}"
-        
+
         # Check cache
         if cache_key in self._cache:
             cached = self._cache[cache_key]
             if cached['expires'] > datetime.utcnow():
                 return SearchResponse(**cached['data'])
-        
+
         try:
             # Enhance query for technical documentation
             enhanced_query = f"{request.query} site:docs.python.org OR site:developer.mozilla.org OR site:docs.github.com"
-            
+
             response = await self.client.post(
                 f"{self.base_url}/chat/completions",
                 json={
@@ -207,10 +207,10 @@ class PerplexityHandler:
                     "return_citations": True
                 }
             )
-            
+
             response.raise_for_status()
             data = response.json()
-            
+
             # Process response
             result = {
                 "success": True,
@@ -219,22 +219,22 @@ class PerplexityHandler:
                 "sources": self._extract_sources(data),
                 "timestamp": datetime.utcnow().isoformat()
             }
-            
+
             # Cache result
             self._cache[cache_key] = {
                 'data': result,
                 'expires': datetime.utcnow() + self._cache_ttl
             }
-            
+
             return SearchResponse(**result)
-            
+
         except Exception as e:
             logger.error(f"Documentation search error: {e}")
             return SearchResponse(
                 success=False,
                 error=str(e)
             )
-    
+
     async def find_code_examples(self, request: CodeExampleRequest) -> Dict[str, Any]:
         """Find relevant code examples"""
         try:
@@ -242,9 +242,9 @@ class PerplexityHandler:
             query = f"{request.topic} code example {request.language}"
             if request.framework:
                 query += f" {request.framework}"
-            
+
             query += " site:github.com OR site:stackoverflow.com"
-            
+
             response = await self.client.post(
                 f"{self.base_url}/chat/completions",
                 json={
@@ -263,36 +263,36 @@ class PerplexityHandler:
                     "max_tokens": 2000
                 }
             )
-            
+
             response.raise_for_status()
             data = response.json()
-            
+
             # Extract code blocks
             content = data['choices'][0]['message']['content']
             code_blocks = self._extract_code_blocks(content)
-            
+
             return {
                 "success": True,
                 "examples": code_blocks,
                 "explanation": content,
                 "sources": self._extract_sources(data)
             }
-            
+
         except Exception as e:
             logger.error(f"Code example search error: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
+
     def _extract_code_blocks(self, content: str) -> List[Dict[str, str]]:
         """Extract code blocks from markdown content"""
         import re
-        
+
         blocks = []
         pattern = r'```(\w+)?\n(.*?)```'
         matches = re.finditer(pattern, content, re.DOTALL)
-        
+
         for match in matches:
             language = match.group(1) or 'plaintext'
             code = match.group(2).strip()
@@ -300,9 +300,9 @@ class PerplexityHandler:
                 "language": language,
                 "code": code
             })
-        
+
         return blocks
-    
+
     def _extract_sources(self, response_data: dict) -> List[str]:
         """Extract source URLs from response"""
         sources = []
@@ -333,35 +333,35 @@ logger = logging.getLogger(__name__)
 
 class SlackHandler:
     """Enhanced Slack operations for team collaboration"""
-    
+
     def __init__(self):
         self.client = AsyncWebClient(token=settings.SLACK_BOT_TOKEN)
         self.user_cache = {}
         self.channel_cache = {}
-        
+
     async def send_message(self, request: MessageRequest) -> MessageResponse:
         """Send message with formatting and attachments"""
         try:
             # Resolve channel name to ID if needed
             channel_id = await self._resolve_channel(request.channel)
-            
+
             # Build message
             kwargs = {
                 "channel": channel_id,
                 "text": request.text
             }
-            
+
             # Add blocks for rich formatting
             if request.blocks:
                 kwargs["blocks"] = request.blocks
-            
+
             # Add thread support
             if request.thread_ts:
                 kwargs["thread_ts"] = request.thread_ts
-            
+
             # Send message
             response = await self.client.chat_postMessage(**kwargs)
-            
+
             return MessageResponse(
                 success=True,
                 data={
@@ -370,14 +370,14 @@ class SlackHandler:
                     "message": response["message"]
                 }
             )
-            
+
         except SlackApiError as e:
             logger.error(f"Slack API error: {e}")
             return MessageResponse(
                 success=False,
                 error=f"Slack error: {e.response['error']}"
             )
-    
+
     async def search_messages(self, query: str, channel: Optional[str] = None) -> Dict[str, Any]:
         """Search messages across workspace"""
         try:
@@ -385,14 +385,14 @@ class SlackHandler:
             if channel:
                 channel_id = await self._resolve_channel(channel)
                 search_query = f"in:{channel_id} {query}"
-            
+
             response = await self.client.search_messages(
                 query=search_query,
                 sort="timestamp",
                 sort_dir="desc",
                 count=20
             )
-            
+
             # Process results
             messages = []
             for match in response["messages"]["matches"]:
@@ -403,22 +403,22 @@ class SlackHandler:
                     "timestamp": match["ts"],
                     "permalink": match["permalink"]
                 })
-            
+
             return {
                 "success": True,
                 "total": response["messages"]["total"],
                 "messages": messages
             }
-            
+
         except Exception as e:
             logger.error(f"Search error: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
-    async def create_code_snippet(self, title: str, content: str, 
-                                 language: str = "python", 
+
+    async def create_code_snippet(self, title: str, content: str,
+                                 language: str = "python",
                                  channel: Optional[str] = None) -> Dict[str, Any]:
         """Share code snippet with syntax highlighting"""
         try:
@@ -429,12 +429,12 @@ class SlackHandler:
                 "title": title,
                 "filetype": language
             }
-            
+
             if channel:
                 kwargs["channels"] = await self._resolve_channel(channel)
-            
+
             response = await self.client.files_upload_v2(**kwargs)
-            
+
             return {
                 "success": True,
                 "file": {
@@ -443,39 +443,39 @@ class SlackHandler:
                     "permalink": response["file"]["permalink"]
                 }
             }
-            
+
         except Exception as e:
             logger.error(f"File upload error: {e}")
             return {
                 "success": False,
                 "error": str(e)
             }
-    
+
     async def _resolve_channel(self, channel: str) -> str:
         """Resolve channel name to ID"""
         if channel.startswith('C'):  # Already an ID
             return channel
-            
+
         if channel in self.channel_cache:
             return self.channel_cache[channel]
-        
+
         # Fetch channel list
         response = await self.client.conversations_list(
             types="public_channel,private_channel"
         )
-        
+
         for ch in response["channels"]:
             self.channel_cache[ch["name"]] = ch["id"]
             if ch["name"] == channel.lstrip('#'):
                 return ch["id"]
-        
+
         raise ValueError(f"Channel {channel} not found")
-    
+
     async def _get_user_name(self, user_id: str) -> str:
         """Get user display name with caching"""
         if user_id in self.user_cache:
             return self.user_cache[user_id]
-        
+
         try:
             response = await self.client.users_info(user=user_id)
             name = response["user"]["profile"]["display_name"] or response["user"]["name"]
@@ -483,7 +483,7 @@ class SlackHandler:
             return name
         except:
             return user_id
-    
+
     def _get_extension(self, language: str) -> str:
         """Get file extension for language"""
         extensions = {
@@ -527,17 +527,17 @@ echo "========================="
 for server_port in "${SERVERS[@]}"; do
     IFS=':' read -r server port <<< "$server_port"
     server_name=${server//_/-}
-    
+
     echo ""
     echo "📦 Building $server (port $port)..."
-    
+
     # Build image
     docker build \
         -t ${REGISTRY}/sophia-${server_name}:latest \
         -f infrastructure/mcp_servers/${server}/Dockerfile \
         --build-arg PORT=${port} \
         infrastructure/mcp_servers/${server}/
-    
+
     if [ $? -eq 0 ]; then
         echo "✅ Built $server successfully"
     else
@@ -557,7 +557,7 @@ echo "🎉 All V2 MCP servers built successfully!"
 
 set -e
 
-LAMBDA_HOST="${LAMBDA_LABS_HOST:-146.235.200.1}"
+LAMBDA_HOST="${LAMBDA_LABS_HOST:-192.222.58.232}"
 LAMBDA_USER="${LAMBDA_LABS_USER:-ubuntu}"
 REGISTRY="scoobyjava15"
 
@@ -576,20 +576,20 @@ scp docker-compose.mcp-v2.yml ${LAMBDA_USER}@${LAMBDA_HOST}:~/sophia-mcp-v2/
 # Deploy stack
 ssh ${LAMBDA_USER}@${LAMBDA_HOST} << 'EOF'
     cd ~/sophia-mcp-v2
-    
+
     # Pull latest images
     docker-compose pull
-    
+
     # Deploy with Docker Compose
-    docker-compose up -d
-    
+    docker stack deploy
+
     # Wait for services
     echo "⏳ Waiting for services to start..."
     sleep 30
-    
+
     # Check health
     docker-compose ps
-    
+
     # Test endpoints
     for port in 9000 9001 9002 9003 9004 9005 9006 9007 9008; do
         echo -n "Testing port $port: "
@@ -631,7 +631,7 @@ MCP_SERVERS = {
 async def list_mcp_servers():
     """List all available MCP servers and their status"""
     statuses = {}
-    
+
     async def check_server(name: str, url: str):
         try:
             async with httpx.AsyncClient() as client:
@@ -647,12 +647,12 @@ async def list_mcp_servers():
                 "status": "offline",
                 "response_time": None
             }
-    
+
     # Check all servers in parallel
     await asyncio.gather(*[
         check_server(name, url) for name, url in MCP_SERVERS.items()
     ])
-    
+
     return statuses
 
 @router.post("/{server}/{endpoint:path}")
@@ -660,9 +660,9 @@ async def proxy_mcp_request(server: str, endpoint: str, body: Dict[str, Any]):
     """Proxy requests to MCP servers"""
     if server not in MCP_SERVERS:
         raise HTTPException(status_code=404, detail=f"MCP server '{server}' not found")
-    
+
     server_url = MCP_SERVERS[server]
-    
+
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -737,10 +737,10 @@ async def test_mcp_servers_health():
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{API_BASE}/api/v1/mcp/servers")
         assert response.status_code == 200
-        
+
         servers = response.json()
         assert len(servers) == 9
-        
+
         # Check priority servers
         priority_servers = ["github", "slack", "perplexity", "ai-memory", "snowflake"]
         for server in priority_servers:
@@ -814,11 +814,11 @@ async def test_chat_with_github_context():
             "search_context": "code_search",
             "access_level": "employee"
         }))
-        
+
         # Receive response
         response = await websocket.recv()
         data = json.loads(response)
-        
+
         assert data["type"] == "response"
         assert "WebSocket" in data["data"]["response"]
         assert len(data["data"]["sources"]) > 0
@@ -833,11 +833,11 @@ async def test_chat_with_documentation():
             "search_context": "documentation",
             "access_level": "employee"
         }))
-        
+
         # Receive response
         response = await websocket.recv()
         data = json.loads(response)
-        
+
         assert data["type"] == "response"
         assert "FastAPI" in data["data"]["response"]
         assert "authentication" in data["data"]["response"].lower()
@@ -854,7 +854,7 @@ async def test_chat_with_documentation():
 ## Rollback Plan 🔄
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Stop specific MCP server
 cd ~/sophia-mcp-v2
@@ -862,7 +862,7 @@ docker-compose stop <service-name>
 
 # Rollback all MCP servers
 docker-compose down
-docker-compose up -d --scale github=0 --scale slack=0 --scale perplexity=0
+docker stack deploy --scale github=0 --scale slack=0 --scale perplexity=0
 
 # Remove problematic server
 docker-compose rm -f <service-name>
@@ -884,4 +884,4 @@ docker-compose rm -f <service-name>
 - Issues Encountered: ___________
 
 ## Notes
-_Document any deviations from the plan or additional fixes required_ 
+_Document any deviations from the plan or additional fixes required_

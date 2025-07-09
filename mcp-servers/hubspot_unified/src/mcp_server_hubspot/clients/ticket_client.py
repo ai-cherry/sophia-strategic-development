@@ -243,7 +243,7 @@ class TicketClient:
 
                     # Check if we've reached max retries
                     if retry_count > max_retries:
-                        logger.error(
+                        logger.exception(
                             f"Max retries ({max_retries}) exceeded for API request"
                         )
                         raise
@@ -299,7 +299,7 @@ class TicketClient:
             }
         except Exception as e:
             logger.error(
-                f"Error retrieving conversation threads for ticket {ticket_id}: {str(e)}",
+                f"Error retrieving conversation threads for ticket {ticket_id}: {e!s}",
                 exc_info=True,
             )
             return self._create_empty_ticket_threads_response(ticket_id)
@@ -410,8 +410,8 @@ class TicketClient:
                 total_messages += len(formatted_thread["messages"])
 
             except Exception as e:
-                logger.error(
-                    f"Error fetching messages for thread {thread_id}: {str(e)}"
+                logger.exception(
+                    f"Error fetching messages for thread {thread_id}: {e!s}"
                 )
 
         return threads, total_messages

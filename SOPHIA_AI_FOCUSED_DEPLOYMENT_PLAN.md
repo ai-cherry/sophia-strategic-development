@@ -108,7 +108,7 @@ async def dashboard_main():
 #### 2.2 Deploy to Lambda Labs
 ```bash
 # Simple deployment script
-ssh ubuntu@146.235.200.1 << 'EOF'
+ssh ubuntu@192.222.58.232 << 'EOF'
 cd /opt/sophia-ai
 git pull
 docker-compose -f docker-compose.api.yml up -d --build

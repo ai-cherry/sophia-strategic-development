@@ -9,7 +9,6 @@ Validates research-backed performance targets:
 
 import asyncio
 import json
-import os
 import time
 
 import aiohttp
@@ -17,7 +16,7 @@ import aiohttp
 
 class PerformanceValidator:
     def __init__(self):
-        self.lambda_ip = os.getenv("LAMBDA_LABS_INSTANCE_IP", "localhost")
+        self.lambda_ip = get_config_value("lambda_labs_instance_ip", "localhost")
         self.targets = {
             "api_response_time_ms": 200,
             "n8n_throughput_per_second": 220,

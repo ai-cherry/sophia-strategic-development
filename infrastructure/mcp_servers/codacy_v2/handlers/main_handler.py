@@ -1,7 +1,9 @@
 """Main handler for codacy_v2 MCP server."""
+
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class Codacy_V2Handler:
     """Handler for codacy_v2 operations."""

@@ -173,7 +173,7 @@ class PureEstuaryDataPipeline:
             logger.info("✅ Estuary Flow orchestrator initialized")
 
         except Exception as e:
-            logger.error(f"❌ Connection initialization failed: {e}")
+            logger.exception(f"❌ Connection initialization failed: {e}")
             await self._cleanup_connections()
             raise
 
@@ -256,7 +256,7 @@ class PureEstuaryDataPipeline:
             return results
 
         except Exception as e:
-            logger.error(f"❌ Pipeline setup failed: {e}")
+            logger.exception(f"❌ Pipeline setup failed: {e}")
             results["errors"].append(str(e))
             raise
 
@@ -364,7 +364,9 @@ class PureEstuaryDataPipeline:
                 logger.info(f"✅ Created Estuary collection: {full_collection_name}")
 
             except Exception as e:
-                logger.error(f"❌ Failed to create collection {collection_name}: {e}")
+                logger.exception(
+                    f"❌ Failed to create collection {collection_name}: {e}"
+                )
                 self.status.errors.append(
                     f"Collection creation failed: {collection_name} - {e}"
                 )
@@ -436,7 +438,7 @@ class PureEstuaryDataPipeline:
                 self.status.sources_active["hubspot"] = FlowStatus.ACTIVE
 
             except Exception as e:
-                logger.error(f"❌ HubSpot source setup failed: {e}")
+                logger.exception(f"❌ HubSpot source setup failed: {e}")
                 self.status.errors.append(f"HubSpot setup failed: {e}")
                 self.status.sources_active["hubspot"] = FlowStatus.FAILED
 
@@ -471,7 +473,7 @@ class PureEstuaryDataPipeline:
                 self.status.sources_active["gong"] = FlowStatus.ACTIVE
 
             except Exception as e:
-                logger.error(f"❌ Gong source setup failed: {e}")
+                logger.exception(f"❌ Gong source setup failed: {e}")
                 self.status.errors.append(f"Gong setup failed: {e}")
                 self.status.sources_active["gong"] = FlowStatus.FAILED
 
@@ -510,7 +512,7 @@ class PureEstuaryDataPipeline:
                 self.status.sources_active["slack"] = FlowStatus.ACTIVE
 
             except Exception as e:
-                logger.error(f"❌ Slack source setup failed: {e}")
+                logger.exception(f"❌ Slack source setup failed: {e}")
                 self.status.errors.append(f"Slack setup failed: {e}")
                 self.status.sources_active["slack"] = FlowStatus.FAILED
 
@@ -796,7 +798,7 @@ class PureEstuaryDataPipeline:
                 self.status.flows_active[flow_name] = FlowStatus.ACTIVE
                 logger.info(f"✅ Started flow: {flow_name}")
             except Exception as e:
-                logger.error(f"❌ Failed to start flow {flow_name}: {e}")
+                logger.exception(f"❌ Failed to start flow {flow_name}: {e}")
                 self.status.flows_active[flow_name] = FlowStatus.FAILED
                 self.status.errors.append(f"Flow start failed: {flow_name} - {e}")
 
@@ -853,7 +855,7 @@ class PureEstuaryDataPipeline:
             return self.status
 
         except Exception as e:
-            logger.error(f"❌ Failed to get pipeline status: {e}")
+            logger.exception(f"❌ Failed to get pipeline status: {e}")
             self.status.errors.append(f"Status check failed: {e}")
             return self.status
 
@@ -866,7 +868,7 @@ class PureEstuaryDataPipeline:
                 await self.estuary_orchestrator.disable_flow(flow_name)
                 self.status.flows_active[flow_name] = FlowStatus.PAUSED
             except Exception as e:
-                logger.error(f"❌ Failed to pause flow {flow_name}: {e}")
+                logger.exception(f"❌ Failed to pause flow {flow_name}: {e}")
 
     async def resume_pipeline(self):
         """Resume all pipeline flows"""
@@ -877,7 +879,7 @@ class PureEstuaryDataPipeline:
                 await self.estuary_orchestrator.enable_flow(flow_name)
                 self.status.flows_active[flow_name] = FlowStatus.ACTIVE
             except Exception as e:
-                logger.error(f"❌ Failed to resume flow {flow_name}: {e}")
+                logger.exception(f"❌ Failed to resume flow {flow_name}: {e}")
 
 
 # Convenience functions for easy pipeline management
@@ -928,7 +930,7 @@ if __name__ == "__main__":
             logger.info(f"📊 Pipeline status: {status}")
 
         except Exception as e:
-            logger.error(f"❌ Pipeline setup failed: {e}")
+            logger.exception(f"❌ Pipeline setup failed: {e}")
             raise
 
     asyncio.run(main())

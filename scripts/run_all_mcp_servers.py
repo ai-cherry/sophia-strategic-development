@@ -81,7 +81,7 @@ def main():
                 processes[server_name] = proc
                 logger.info(f"Started {server_name} with PID: {proc.pid}")
             except Exception as e:
-                logger.error(f"Could not start server {server_name}: {e}")
+                logger.exception(f"Could not start server {server_name}: {e}")
         else:
             logger.info(
                 f"Server script for '{server_name}' not found at {server_script_path}. Skipping."

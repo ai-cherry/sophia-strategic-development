@@ -1,0 +1,5 @@
+# Consolidated MCP configuration
+# This file merges ports and server settings used across the platform
+servers:
+  default_port: 8080
+  # Additional server entries will be merged here in future phases

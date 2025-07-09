@@ -43,14 +43,14 @@ Ran comprehensive validation achieving:
 ### **1. Generate SSH Key (5 minutes)**
 ```bash
 # Generate the key
-ssh-keygen -t ed25519 -f ~/.ssh/lynn_sophia_h200_key -C "lynn-sophia-h200"
+ssh-keygen -t ed25519 -f ~/.ssh/sophia2025.pem -C "lynn-sophia-h200"
 
 # Set permissions
-chmod 600 ~/.ssh/lynn_sophia_h200_key
-chmod 644 ~/.ssh/lynn_sophia_h200_key.pub
+chmod 600 ~/.ssh/sophia2025.pem
+chmod 644 ~/.ssh/sophia2025.pem.pub
 
 # Display public key for Lambda Labs
-cat ~/.ssh/lynn_sophia_h200_key.pub
+cat ~/.ssh/sophia2025.pem.pub
 ```
 
 ### **2. Create Pulumi H200 Environment (5 minutes)**
@@ -151,7 +151,7 @@ GGH200 GPU Cluster (3-16 nodes)
 ## 📝 **Notes**
 
 - Docker image already built: `scoobyjava15/sophia-ai:latest`
-- Current Lambda Labs instance operational: `146.235.200.1`
+- Current Lambda Labs instance operational: `192.222.58.232`
 - All secrets follow `lynn-sophia` naming convention
 - Integration follows enterprise best practices
 

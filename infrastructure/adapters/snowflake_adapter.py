@@ -6,23 +6,34 @@ Enhanced adapter that integrates with the central orchestrator
 
 import asyncio
 import json
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
+import snowflake.connector  # type: ignore[import-not-found]
+from snowflake.connector import SnowflakeConnection  # type: ignore[import-not-found]
+from tenacity import (  # type: ignore[import-not-found]
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+)
+
+from backend.core.auto_esc_config import (
+    get_config_value,  # type: ignore[import-not-found]
+)
 from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformAdapter,
     PlatformStatus,
     PlatformType,
 )
-
 from scripts.snowflake_config_manager import SnowflakeConfigManager
+
+logger = logging.getLogger(__name__)
 
 
 class SnowflakeAdapter(PlatformAdapter):
@@ -50,13 +61,13 @@ class SnowflakeAdapter(PlatformAdapter):
             results = {"success": True, "operations": [], "errors": []}
 
             # Handle different configuration operations
-            if "sync_schemas" in config and config["sync_schemas"]:
+            if config.get("sync_schemas"):
                 sync_result = await self.config_manager.sync_github_schemas()
                 results["operations"].append("schema_sync")
                 if sync_result.get("errors"):
                     results["errors"].extend(sync_result["errors"])
 
-            if "optimize_performance" in config and config["optimize_performance"]:
+            if config.get("optimize_performance"):
                 optimize_result = await self.config_manager.optimize_performance()
                 results["operations"].append("performance_optimization")
                 if optimize_result.get("errors"):
@@ -90,7 +101,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return results
 
         except Exception as e:
-            self.logger.error(f"Configuration failed: {e}")
+            self.logger.exception(f"Configuration failed: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_status(self) -> PlatformStatus:
@@ -130,7 +141,7 @@ class SnowflakeAdapter(PlatformAdapter):
 
             # Get configuration info
             configuration = {
-                "account": os.getenv("SNOWFLAKE_ACCOUNT", "ZNB04675.us-east-1"),
+                "account": get_config_value("snowflake_account", "ZNB04675.us-east-1"),
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
@@ -154,7 +165,7 @@ class SnowflakeAdapter(PlatformAdapter):
             )
 
         except Exception as e:
-            self.logger.error(f"Status check failed: {e}")
+            self.logger.exception(f"Status check failed: {e}")
             return PlatformStatus(
                 name=self.name,
                 type=self.platform_type,
@@ -195,7 +206,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return True
 
         except Exception as e:
-            self.logger.error(f"Configuration validation failed: {e}")
+            self.logger.exception(f"Configuration validation failed: {e}")
             return False
 
     async def rollback(self, checkpoint: dict[str, Any]) -> dict[str, Any]:
@@ -221,7 +232,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return result
 
         except Exception as e:
-            self.logger.error(f"Rollback failed: {e}")
+            self.logger.exception(f"Rollback failed: {e}")
             return {"success": False, "error": str(e)}
 
     # Additional Snowflake-specific methods
@@ -366,8 +377,357 @@ class SnowflakeAdapter(PlatformAdapter):
             return stats
 
         except Exception as e:
-            self.logger.error(f"Failed to get data statistics: {e}")
+            self.logger.exception(f"Failed to get data statistics: {e}")
             return {"error": str(e)}
+
+    async def natural_language_to_sql(self, query: str) -> dict[str, Any]:
+        """Convert natural language query to SQL using Lambda Labs AI."""
+        try:
+            if not await self.config_manager.connect():
+                return {"success": False, "error": "Connection failed"}
+
+            # Get schema context
+            schema_context = await self._get_schema_context()
+
+            # Import Lambda Labs service
+            from backend.services.lambda_labs_service import LambdaLabsService
+
+            lambda_service = LambdaLabsService()
+
+            # Convert natural language to SQL
+            sql_query = await lambda_service.natural_language_to_sql(
+                query=query, schema_context=schema_context
+            )
+
+            # Execute the generated SQL
+            results = self.config_manager.execute_query(sql_query)
+
+            return {
+                "success": True,
+                "natural_language_query": query,
+                "generated_sql": sql_query,
+                "results": results,
+                "row_count": len(results) if results else 0,
+            }
+
+        except Exception as e:
+            self.logger.exception(f"Natural language to SQL failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    async def _get_schema_context(self) -> str:
+        """Get schema context for AI query generation."""
+        try:
+            # Get key tables and their structures
+            key_tables = [
+                "SOPHIA_AI_CORE.AI_MEMORY.MEMORY_RECORDS",
+                "SOPHIA_GONG_RAW.GONG_CALLS",
+                "SOPHIA_SLACK_RAW.SLACK_MESSAGES",
+                "SOPHIA_AI_CORE.AI_USAGE_ANALYTICS",
+            ]
+
+            schema_info = []
+
+            for table in key_tables:
+                parts = table.split(".")
+                catalog = parts[0] if len(parts) > 2 else "SOPHIA_AI_CORE"
+                schema = parts[1] if len(parts) > 2 else parts[0]
+                table_name = parts[2] if len(parts) > 2 else parts[1]
+
+                columns_query = f"""
+                SELECT column_name, data_type, is_nullable
+                FROM information_schema.columns
+                WHERE table_catalog = '{catalog}'
+                AND table_schema = '{schema}'
+                AND table_name = '{table_name}'
+                ORDER BY ordinal_position
+                """
+
+                columns = self.config_manager.execute_query(columns_query)
+
+                if columns:
+                    table_info = f"\nTable: {table}\nColumns:"
+                    for col in columns:
+                        table_info += f"\n  - {col['COLUMN_NAME']} ({col['DATA_TYPE']})"
+                    schema_info.append(table_info)
+
+            return "\n".join(schema_info)
+
+        except Exception as e:
+            self.logger.warning(f"Failed to get schema context: {e}")
+            return "Schema context unavailable"
+
+    async def optimize_with_ai(self, query: str) -> dict[str, Any]:
+        """Optimize SQL query using Lambda Labs AI."""
+        try:
+            from backend.services.lambda_labs_service import LambdaLabsService
+
+            lambda_service = LambdaLabsService()
+
+            optimization_prompt = f"""Optimize this Snowflake SQL query for performance:
+
+Original Query:
+{query}
+
+Optimization requirements:
+- Use appropriate indexes and clustering keys
+- Minimize data scans
+- Optimize JOIN order
+- Add appropriate WHERE clause filters
+- Use CTEs for readability
+
+Optimized Query:"""
+
+            optimized_sql = await lambda_service.simple_inference(
+                optimization_prompt, complexity="premium"
+            )
+
+            return {
+                "success": True,
+                "original_query": query,
+                "optimized_query": optimized_sql,
+                "optimization_applied": True,
+            }
+
+        except Exception as e:
+            self.logger.exception(f"Query optimization failed: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "original_query": query,
+                "optimization_applied": False,
+            }
+
+
+class SnowflakeConfigManager:
+    """Manages Snowflake configuration with retry logic.
+
+    This manager provides:
+    - Automatic connection retry with exponential backoff
+    - Async context manager support
+    - Connection pooling
+    - Graceful error handling
+
+    Attributes:
+        account: Snowflake account identifier
+        user: Username for authentication
+        password: Password for authentication
+        warehouse: Default warehouse
+        database: Default database
+        schema: Default schema
+        role: Default role
+        connection: Active connection instance
+    """
+
+    def __init__(
+        self,
+        warehouse: str = "SOPHIA_AI_COMPUTE_WH",
+        database: str = "SOPHIA_AI",
+        schema: str = "AI_INSIGHTS",
+        role: str = "SOPHIA_ADMIN_ROLE",
+    ):
+        """Initialize Snowflake configuration.
+
+        Args:
+            warehouse: Default warehouse name
+            database: Default database name
+            schema: Default schema name
+            role: Default role name
+        """
+        self.account = get_config_value("snowflake_account")
+        self.user = get_config_value("snowflake_user")
+        self.password = get_config_value("snowflake_password")
+        self.warehouse = warehouse
+        self.database = database
+        self.schema = schema
+        self.role = role
+        self.connection: Optional[SnowflakeConnection] = None
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+        reraise=True,
+    )
+    async def _create_connection(self) -> SnowflakeConnection:
+        """Create Snowflake connection with retry logic.
+
+        Returns:
+            Active Snowflake connection
+
+        Raises:
+            ConnectionError: If connection fails after retries
+        """
+        try:
+            # Run synchronous connection in thread pool
+            loop = asyncio.get_event_loop()
+            connection = await loop.run_in_executor(
+                None,
+                snowflake.connector.connect,
+                {
+                    "account": self.account,
+                    "user": self.user,
+                    "password": self.password,
+                    "warehouse": self.warehouse,
+                    "database": self.database,
+                    "schema": self.schema,
+                    "role": self.role,
+                    "session_parameters": {
+                        "QUERY_TAG": "sophia_ai_lambda_labs",
+                    },
+                },
+            )
+
+            logger.info(f"Connected to Snowflake: {self.database}.{self.schema}")
+            return connection
+
+        except Exception as e:
+            logger.error(f"Failed to connect to Snowflake: {e}")
+            raise ConnectionError(f"Snowflake connection failed: {e}")
+
+    async def __aenter__(self) -> "SnowflakeConfigManager":
+        """Async context manager entry.
+
+        Returns:
+            Self with active connection
+
+        Raises:
+            ConnectionError: If connection fails
+        """
+        try:
+            self.connection = await self._create_connection()
+            return self
+        except Exception as e:
+            logger.error(f"Failed to enter Snowflake context: {e}")
+            raise
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Async context manager exit.
+
+        Args:
+            exc_type: Exception type if any
+            exc_val: Exception value if any
+            exc_tb: Exception traceback if any
+        """
+        if self.connection:
+            try:
+                loop = asyncio.get_event_loop()
+                await loop.run_in_executor(None, self.connection.close)
+                logger.info("Closed Snowflake connection")
+            except Exception as e:
+                logger.error(f"Error closing Snowflake connection: {e}")
+            finally:
+                self.connection = None
+
+    async def execute_query(
+        self,
+        query: str,
+        params: Optional[dict[str, Any]] = None,
+    ) -> list[dict[str, Any]]:
+        """Execute a query and return results.
+
+        Args:
+            query: SQL query to execute
+            params: Optional query parameters
+
+        Returns:
+            List of result rows as dictionaries
+
+        Raises:
+            RuntimeError: If no active connection
+            ValueError: If query is invalid
+        """
+        if not self.connection:
+            raise RuntimeError("No active Snowflake connection")
+
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError("Query must be a non-empty string")
+
+        try:
+            loop = asyncio.get_event_loop()
+            cursor = await loop.run_in_executor(
+                None, self.connection.cursor().execute, query, params
+            )
+
+            # Fetch results
+            columns = [desc[0] for desc in cursor.description]
+            rows = await loop.run_in_executor(None, cursor.fetchall)
+
+            # Convert to list of dicts
+            results = []
+            for row in rows:
+                results.append(dict(zip(columns, row, strict=False)))
+
+            return results
+
+        except Exception as e:
+            logger.error(f"Query execution failed: {e}")
+            raise
+
+    async def record_lambda_usage(
+        self,
+        request_id: str,
+        user_id: str,
+        session_id: str,
+        model: str,
+        backend: str,
+        prompt_tokens: int,
+        completion_tokens: int,
+        cost_usd: float,
+        latency_ms: int,
+        cost_priority: str,
+        error_message: Optional[str] = None,
+        metadata: Optional[dict[str, Any]] = None,
+    ) -> None:
+        """Record Lambda Labs usage to Snowflake.
+
+        Args:
+            request_id: Unique request identifier
+            user_id: User identifier
+            session_id: Session identifier
+            model: Model used
+            backend: Backend used (serverless/gpu)
+            prompt_tokens: Number of prompt tokens
+            completion_tokens: Number of completion tokens
+            cost_usd: Cost in USD
+            latency_ms: Latency in milliseconds
+            cost_priority: Cost priority setting
+            error_message: Optional error message
+            metadata: Optional additional metadata
+        """
+        if not self.connection:
+            raise RuntimeError("No active Snowflake connection")
+
+        await self.execute_query(
+            """
+            CALL RECORD_LAMBDA_USAGE(
+                :request_id,
+                :user_id,
+                :session_id,
+                :model,
+                :backend,
+                :prompt_tokens,
+                :completion_tokens,
+                :cost_usd,
+                :latency_ms,
+                :cost_priority,
+                :error_message,
+                :metadata
+            )
+            """,
+            {
+                "request_id": request_id,
+                "user_id": user_id,
+                "session_id": session_id,
+                "model": model,
+                "backend": backend,
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "cost_usd": cost_usd,
+                "latency_ms": latency_ms,
+                "cost_priority": cost_priority,
+                "error_message": error_message,
+                "metadata": metadata,
+            },
+        )
 
 
 # CLI interface for testing

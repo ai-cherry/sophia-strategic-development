@@ -1,0 +1,304 @@
+version: '3.9'
+
+x-default-deploy: &default-deploy
+  restart_policy:
+    condition: on-failure
+    delay: 5s
+    max_attempts: 3
+    window: 120s
+  update_config:
+    parallelism: 1
+    delay: 10s
+    failure_action: rollback
+    monitor: 60s
+  rollback_config:
+    parallelism: 1
+    delay: 10s
+    failure_action: pause
+    monitor: 60s
+
+x-default-healthcheck: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+services:
+  # Snowflake Data Hub (Port 9001)
+  snowflake-v2:
+    image: ${DOCKER_REGISTRY}/sophia-snowflake-v2:${IMAGE_TAG}
+    ports:
+      - "9001:9001"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - PULUMI_ORG=${PULUMI_ORG:-scoobyjava-org}
+      - PORT=9001
+      - POSTGRES_URL=postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 3
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
+
+  # Snowflake Unified Processing (Port 9028)
+  snowflake-unified:
+    image: ${DOCKER_REGISTRY}/sophia-snowflake-unified:${IMAGE_TAG}
+    ports:
+      - "9028:9028"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - PULUMI_ORG=${PULUMI_ORG:-scoobyjava-org}
+      - PORT=9028
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:9028/health"]
+
+  # Gong Webhook Service (Port 8080)
+  gong-webhook:
+    image: ${DOCKER_REGISTRY}/sophia-gong-webhook:${IMAGE_TAG}
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - PULUMI_ORG=${PULUMI_ORG:-scoobyjava-org}
+      - PORT=8080
+      - POSTGRES_URL=postgresql://sophia:${POSTGRES_PASSWORD}@postgres:5432/sophia_ai
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 2
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+
+  # Snowflake Cortex Processing (Port 9029)
+  snowflake-cortex:
+    image: ${DOCKER_REGISTRY}/sophia-snowflake-cortex:${IMAGE_TAG}
+    ports:
+      - "9029:9029"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - PULUMI_ORG=${PULUMI_ORG:-scoobyjava-org}
+      - PORT=9029
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 2
+      resources:
+        limits:
+          cpus: '4'
+          memory: 16G
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:9029/health"]
+
+  # PostgreSQL Database (Port 5432)
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=sophia_ai
+      - POSTGRES_USER=sophia
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sophia2025}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./configs/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U sophia"]
+
+  # Estuary Flow Real-time Pipeline (Port 9031)
+  estuary-flow:
+    image: ${DOCKER_REGISTRY}/sophia-estuary-flow:${IMAGE_TAG}
+    ports:
+      - "9031:9031"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-prod}
+      - PULUMI_ORG=${PULUMI_ORG:-scoobyjava-org}
+      - PORT=9031
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 2
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:9031/health"]
+
+  # Prometheus Metrics (Port 9090)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+
+  # Grafana Visualization (Port 3000)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./configs/grafana-provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+
+  # Alert Manager (Port 9093)
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager-data:/alertmanager
+      - ./configs/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - sophia-network
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+
+  # Loki Log Aggregation (Port 3100)
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki-data:/loki
+      - ./configs/loki-config.yaml:/etc/loki/local-config.yaml:ro
+    networks:
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - sophia-private
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "redis-cli", "ping"]
+
+networks:
+  sophia-network:
+    driver: overlay
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.1.0/24
+
+  sophia-public:
+    driver: overlay
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.2.0/24
+
+  sophia-private:
+    driver: overlay
+    attachable: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.3.0/24
+
+volumes:
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  alertmanager-data:
+    driver: local
+  loki-data:
+    driver: local
+  redis-data:
+    driver: local 

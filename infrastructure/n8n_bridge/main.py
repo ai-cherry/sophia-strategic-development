@@ -7,7 +7,6 @@ Provides seamless integration between N8N workflows and MCP orchestration servic
 
 import asyncio
 import logging
-import os
 from typing import Any
 
 import redis.asyncio as redis
@@ -90,7 +89,7 @@ async def startup_event():
         logger.info("MCP orchestration service initialized")
 
         # Initialize Redis for caching and state management
-        redis_url = os.getenv("REDIS_URL", "redis://redis-cache:6379")
+        redis_url = get_config_value("redis_url", "redis://redis-cache:6379")
         redis_client = redis.from_url(redis_url, decode_responses=True)
         await redis_client.ping()
         logger.info("Redis connection established")
@@ -157,7 +156,7 @@ async def health_check():
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Health check failed: {e!s}")
 
 
 @app.post("/api/v1/n8n/process", response_model=N8NResponse)
@@ -378,4 +377,9 @@ async def n8n_webhook_handler(workflow_id: str, data: dict[str, Any]):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=9099)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
+        port=9099,
+        log_level="info",
+    )

@@ -79,7 +79,7 @@ class MCPServerStarter:
         env = config.get("env", {})
 
         # Build full command
-        full_command = [command] + args
+        full_command = [command, *args]
 
         # Set up environment
         full_env = os.environ.copy()
@@ -118,7 +118,7 @@ class MCPServerStarter:
                 return process
 
         except Exception as e:
-            logger.error(f"❌ Failed to start {server_name}: {e}")
+            logger.exception(f"❌ Failed to start {server_name}: {e}")
             return None
 
     def stop_server(self, server_name: str):

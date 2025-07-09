@@ -7,6 +7,7 @@ Leverages LangChain Agents v0.3 (June 2025) for design automation workflows
 """
 
 import logging
+import os
 from datetime import UTC
 from typing import Any
 
@@ -21,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 FIGMA_MCP_SERVER = "http://localhost:9001"
-OPENAI_API_KEY = get_config_value("openai_api_key")
-OPENROUTER_API_KEY = get_config_value("openrouter_api_key")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
 
 class CodeGenerationRequest(BaseModel):
@@ -112,7 +113,7 @@ class UIUXAgent:
 
                 return component
             except Exception as e:
-                logger.error(f"Failed to generate component: {e}")
+                logger.exception(f"Failed to generate component: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
         @self.app.post("/analyze-design")
@@ -130,7 +131,7 @@ class UIUXAgent:
                 analysis = await self._analyze_design(file_id, node_id)
                 return analysis
             except Exception as e:
-                logger.error(f"Failed to analyze design: {e}")
+                logger.exception(f"Failed to analyze design: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
         @self.app.post("/validate-design-system")
@@ -147,7 +148,7 @@ class UIUXAgent:
                 validation = await self._validate_design_system(component_code)
                 return validation
             except Exception as e:
-                logger.error(f"Failed to validate design system: {e}")
+                logger.exception(f"Failed to validate design system: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
     async def _check_figma_server(self) -> str:
@@ -172,7 +173,7 @@ class UIUXAgent:
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            logger.error(f"Failed to get design context: {e}")
+            logger.exception(f"Failed to get design context: {e}")
             raise
 
     async def _generate_component_code(
@@ -456,4 +457,5 @@ if __name__ == "__main__":
     logger.info("📍 Health: http://localhost:9002/health")
     logger.info(f"🔗 Figma MCP Server: {FIGMA_MCP_SERVER}")
 
-    uvicorn.run(app, host="0.0.0.0", port=9002, log_level="info", reload=False)
+    # Changed from 0.0.0.0 for security. Use environment variable for production
+    uvicorn.run(app, host="127.0.0.1", port=9002, log_level="info", reload=False)

@@ -176,7 +176,7 @@ class SophiaAIOrchestrator:
             logger.info("✅ Sophia AI Orchestrator initialized successfully")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Sophia AI Orchestrator: {e}")
+            logger.exception(f"Failed to initialize Sophia AI Orchestrator: {e}")
             raise
 
     async def process_request(
@@ -250,7 +250,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing orchestration request: {e}")
+            logger.exception(f"Error processing orchestration request: {e}")
 
             processing_time = (datetime.now() - start_time).total_seconds() * 1000
             self.orchestration_analytics["failed_requests"] += 1
@@ -340,7 +340,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing knowledge query: {e}")
+            logger.exception(f"Error processing knowledge query: {e}")
             raise
 
     async def _process_knowledge_ingestion(
@@ -398,7 +398,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing knowledge ingestion: {e}")
+            logger.exception(f"Error processing knowledge ingestion: {e}")
             raise
 
     async def _process_sales_coaching_request(
@@ -461,7 +461,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing sales coaching request: {e}")
+            logger.exception(f"Error processing sales coaching request: {e}")
             raise
 
     async def _process_memory_preservation(
@@ -527,7 +527,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing memory preservation: {e}")
+            logger.exception(f"Error processing memory preservation: {e}")
             raise
 
     async def _process_teaching_session(
@@ -583,7 +583,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing teaching session: {e}")
+            logger.exception(f"Error processing teaching session: {e}")
             raise
 
     async def _process_analytics_request(
@@ -657,7 +657,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing analytics request: {e}")
+            logger.exception(f"Error processing analytics request: {e}")
             raise
 
     async def _process_health_check(
@@ -747,7 +747,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing health check: {e}")
+            logger.exception(f"Error processing health check: {e}")
             raise
 
     async def _process_unified_intelligence(
@@ -824,7 +824,7 @@ class SophiaAIOrchestrator:
             return response
 
         except Exception as e:
-            logger.error(f"Error processing unified intelligence: {e}")
+            logger.exception(f"Error processing unified intelligence: {e}")
             raise
 
     # Helper methods

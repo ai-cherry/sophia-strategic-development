@@ -273,7 +273,7 @@ class DependencyManager:
             if node in rec_stack:
                 # Found a cycle
                 cycle_start = path.index(node)
-                cycles.append(path[cycle_start:] + [node])
+                cycles.append([*path[cycle_start:], node])
                 return True
 
             if node in visited:

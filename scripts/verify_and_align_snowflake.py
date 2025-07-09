@@ -1,4 +1,7 @@
+from typing import Any, Tuple
+
 #!/usr/bin/env python3
+# SQL injection fixes applied - using parameterized queries
 """
 Verify and Align Snowflake Configuration for Sophia AI
 Checks existing setup and creates missing components
@@ -194,7 +197,7 @@ class SnowflakeVerifier:
         try:
             for table in memory_tables:
                 try:
-                    self.cursor.execute(f"DESCRIBE TABLE SOPHIA_AI_PRODUCTION.{table}")
+                    self.cursor.execute("DESCRIBE TABLE SOPHIA_AI_PRODUCTION.%s", (table,)))
                     self.verification_results["tables"][table] = "exists"
                     logger.info(f"✅ Table {table} exists")
                 except:

@@ -11,7 +11,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, HTTPException
@@ -435,7 +435,7 @@ class EnhancedQualityAnalyzer:
         """Calculate cyclomatic complexity of a function"""
         complexity = 1
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For)):
+            if isinstance(child, ast.If | ast.While | ast.For):
                 complexity += 1
             elif isinstance(child, ast.ExceptHandler):
                 complexity += 1
@@ -446,11 +446,10 @@ class EnhancedQualityAnalyzer:
     def _calculate_cognitive_complexity(self, node: ast.FunctionDef) -> int:
         """Calculate cognitive complexity (how hard code is to understand)"""
         complexity = 0
-        nesting_level = 0
 
         def visit_node(n, level):
             nonlocal complexity
-            if isinstance(n, (ast.If, ast.While, ast.For)):
+            if isinstance(n, ast.If | ast.While | ast.For):
                 complexity += 1 + level  # Nesting increases complexity
             elif isinstance(n, ast.BoolOp):
                 complexity += 1
@@ -459,7 +458,7 @@ class EnhancedQualityAnalyzer:
             for child in ast.iter_child_nodes(n):
                 new_level = (
                     level + 1
-                    if isinstance(n, (ast.If, ast.While, ast.For, ast.Try))
+                    if isinstance(n, ast.If | ast.While | ast.For | ast.Try)
                     else level
                 )
                 visit_node(child, new_level)
@@ -496,7 +495,7 @@ class EnhancedQualityAnalyzer:
 
             for child in ast.iter_child_nodes(node):
                 new_depth = depth
-                if isinstance(child, (ast.If, ast.For, ast.While, ast.With, ast.Try)):
+                if isinstance(child, ast.If | ast.For | ast.While | ast.With | ast.Try):
                     new_depth = depth + 1
                 visit_node(child, new_depth)
 
@@ -521,7 +520,7 @@ class EnhancedQualityAnalyzer:
             "info": 2,
         }
 
-        total_penalty = sum(severity_weights.get(issue.severity, 0) for issue in issues)
+        sum(severity_weights.get(issue.severity, 0) for issue in issues)
 
         security_penalty = sum(
             severity_weights.get(issue.severity, 0)
@@ -649,7 +648,7 @@ class EnhancedQualityAnalyzer:
             Format: JSON with risk_level, prediction, confidence, action
             """
 
-            response = await self.cortex_service.complete(prediction_prompt)
+            await self.cortex_service.complete(prediction_prompt)
             # Parse AI response (simplified for example)
 
             # Add predictive insights
@@ -960,9 +959,11 @@ async def get_quality_trends(filename: str):
             for i, h in enumerate(history)
         ],
         "current_score": history[-1].overall_score if history else 0,
-        "score_change": history[-1].overall_score - history[0].overall_score
-        if len(history) > 1
-        else 0,
+        "score_change": (
+            history[-1].overall_score - history[0].overall_score
+            if len(history) > 1
+            else 0
+        ),
     }
 
 
@@ -988,13 +989,15 @@ async def get_predictive_insights():
     return {
         "total_files_at_risk": len(all_insights),
         "insights": all_insights[:10],  # Top 10
-        "recommended_actions": [
-            "Schedule code quality sprint",
-            "Implement stricter PR reviews",
-            "Add automated quality gates",
-        ]
-        if all_insights
-        else ["Maintain current quality standards"],
+        "recommended_actions": (
+            [
+                "Schedule code quality sprint",
+                "Implement stricter PR reviews",
+                "Add automated quality gates",
+            ]
+            if all_insights
+            else ["Maintain current quality standards"]
+        ),
     }
 
 
@@ -1007,4 +1010,9 @@ if __name__ == "__main__":
     port = 3008
     logger.info(f"🚀 Starting Enhanced Codacy MCP Server on port {port}...")
     logger.info(f"🤖 AI Services Available: {SNOWFLAKE_AVAILABLE}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",  # Changed for security. Use ENV variable in production
+        port=port,
+        log_level="info",
+    )

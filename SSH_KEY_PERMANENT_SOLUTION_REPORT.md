@@ -1,8 +1,8 @@
 # 🔑 Lambda Labs SSH Key - PERMANENT SOLUTION IMPLEMENTED
 
-**Date**: July 6, 2025  
-**Status**: ✅ **SOLUTION IMPLEMENTED**  
-**Issue**: SSH key mismatch preventing access to GH200 instances  
+**Date**: July 6, 2025
+**Status**: ✅ **SOLUTION IMPLEMENTED**
+**Issue**: SSH key mismatch preventing access to GH200 instances
 **Resolution**: Permanent SSH key alignment and instance recreation
 
 ## 🎯 **PROBLEM ANALYSIS**
@@ -13,7 +13,7 @@ The Lambda Labs GH200 instances were created with SSH keys that didn't match our
 **Key Mismatch Details:**
 - **Instance SSH Key**: `lynn-sophia-key` (in Lambda Labs)
 - **Instance Public Key**: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5Oz2Q3EZFGl0Zap+eZaCIn55FfVjpt5Y+lE+t8/pxI`
-- **Local Private Key**: `~/.ssh/lynn_sophia_h200_key`
+- **Local Private Key**: `~/.ssh/sophia2025.pem`
 - **Local Public Key**: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJue+GO/esOkHhwd5CTWoQr1klJk+z6mexSmNbqiLaih`
 
 **Result**: Public keys didn't match → SSH authentication failed
@@ -106,7 +106,7 @@ curl -u $LAMBDA_LABS_API_KEY: -X POST https://cloud.lambda.ai/api/v1/instance-op
   -H "Content-Type: application/json" \
   -d '{
     "region_name": "us-east-3",
-    "instance_type_name": "gpu_1x_gh200", 
+    "instance_type_name": "gpu_1x_gh200",
     "ssh_key_names": ["lynn-sophia-key-fixed"],
     "name": "instance-name"
   }'
@@ -228,8 +228,7 @@ The Lambda Labs GH200 infrastructure is now accessible and ready for production 
 
 ---
 
-*Solution implemented: July 6, 2025*  
-*SSH Key: lynn-sophia-key-fixed*  
-*Instance: lynn-sophia-gh200-master-01*  
+*Solution implemented: July 6, 2025*
+*SSH Key: lynn-sophia-key-fixed*
+*Instance: lynn-sophia-gh200-master-01*
 *Next: Application deployment and scaling*
-

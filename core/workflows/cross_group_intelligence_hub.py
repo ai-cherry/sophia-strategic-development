@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
@@ -78,7 +78,7 @@ class SharedInsightStore:
         """Search for relevant insights"""
         results = []
 
-        for insight_id, insight in self.insights.items():
+        for insight in self.insights.values():
             # Skip if from excluded group
             if exclude_group and insight.source_group == exclude_group:
                 continue
@@ -224,9 +224,9 @@ class CrossGroupIntelligenceHub:
             return None
 
         # Record collaboration
-        contributing_groups = list(set(i.source_group for i in relevant_insights))
+        contributing_groups = list({i.source_group for i in relevant_insights})
         await self.collaboration_learner.record_collaboration(
-            groups=[requesting_group] + contributing_groups,
+            groups=[requesting_group, *contributing_groups],
             query=query,
             outcome=synthesis.content[:100],
             success_score=synthesis.confidence,
@@ -282,7 +282,7 @@ class CrossGroupIntelligenceHub:
             relevance_score=max(i.relevance_score for i in insights),
             metadata={
                 "source_insights": [i.id for i in insights],
-                "contributing_groups": list(set(i.source_group for i in insights)),
+                "contributing_groups": list({i.source_group for i in insights}),
             },
             created_at=datetime.now(),
         )
@@ -313,10 +313,10 @@ class CrossGroupIntelligenceHub:
             "insights_by_group": insights_by_group,
             "insights_by_type": insights_by_type,
             "collaboration_patterns": self.collaboration_learner.success_patterns,
-            "average_relevance_score": sum(
-                i.relevance_score for i in self.insight_store.insights.values()
-            )
-            / total_insights
-            if total_insights > 0
-            else 0,
+            "average_relevance_score": (
+                sum(i.relevance_score for i in self.insight_store.insights.values())
+                / total_insights
+                if total_insights > 0
+                else 0
+            ),
         }

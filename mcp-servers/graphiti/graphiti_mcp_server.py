@@ -103,7 +103,7 @@ class GraphitiMCPServer:
             await self.graphiti_client.build_indices_and_constraints()
             logger.info("Graphiti MCP Server initialized with Neo4j backend")
         except Exception as e:
-            logger.error(f"Failed to initialize Graphiti: {e}")
+            logger.exception(f"Failed to initialize Graphiti: {e}")
             self.graphiti_client = None
 
     async def cleanup(self) -> None:
@@ -360,7 +360,7 @@ class GraphitiMCPServer:
             else:
                 return {"error": f"Unknown tool: {tool_name}"}
         except Exception as e:
-            logger.error(f"Error handling {tool_name}: {e}")
+            logger.exception(f"Error handling {tool_name}: {e}")
             return {"error": str(e)}
 
     async def _add_business_entity(self, params: dict[str, Any]) -> dict[str, Any]:

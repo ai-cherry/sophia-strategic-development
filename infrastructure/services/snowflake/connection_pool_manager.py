@@ -102,7 +102,7 @@ class SnowflakeConnectionPool:
                 self._stats["total_created"] += 1
                 self._stats["current_idle"] += 1
             except Exception as e:
-                logger.error(f"Failed to initialize pool connection: {e}")
+                logger.exception(f"Failed to initialize pool connection: {e}")
 
     def _create_connection(self) -> PooledConnection:
         """Create a new pooled connection"""
@@ -122,7 +122,7 @@ class SnowflakeConnectionPool:
             return pooled_conn
 
         except Exception as e:
-            logger.error(f"Failed to create Snowflake connection: {e}")
+            logger.exception(f"Failed to create Snowflake connection: {e}")
             raise
 
     def _destroy_connection(self, pooled_conn: PooledConnection):
@@ -148,7 +148,7 @@ class SnowflakeConnectionPool:
                     break
 
             except Exception as e:
-                logger.error(f"Health check worker error: {e}")
+                logger.exception(f"Health check worker error: {e}")
                 # Brief pause on error, also interruptible
                 if self._shutdown_event.wait(timeout=5):
                     break
@@ -193,7 +193,7 @@ class SnowflakeConnectionPool:
                     self._stats["total_created"] += 1
                     self._stats["current_idle"] += 1
                 except Exception as e:
-                    logger.error(f"Failed to create minimum connection: {e}")
+                    logger.exception(f"Failed to create minimum connection: {e}")
                     break
 
     @contextmanager
@@ -241,7 +241,7 @@ class SnowflakeConnectionPool:
             yield pooled_conn.connection
 
         except Exception as e:
-            logger.error(f"Error using pooled connection: {e}")
+            logger.exception(f"Error using pooled connection: {e}")
             if pooled_conn:
                 # Destroy problematic connection
                 self._destroy_connection(pooled_conn)

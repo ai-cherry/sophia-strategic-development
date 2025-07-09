@@ -21,8 +21,7 @@ try:
         mcp_tool,
     )
     from backend.utils.custom_logger import setup_logger
-except ImportError as e:
-    print(f"Failed to import necessary modules: {e}")
+except ImportError:
     sys.exit(1)
 
 logger = setup_logger("mcp.github")
@@ -83,7 +82,7 @@ class GitHubMCPServer(SimpleMCPServer):
                 "repositories": repos,
             }
         except Exception as e:
-            self.logger.error(f"Error listing repos: {e}")
+            self.logger.exception(f"Error listing repos: {e}")
             return {"status": "error", "message": str(e)}
 
     @mcp_tool(
@@ -120,7 +119,7 @@ class GitHubMCPServer(SimpleMCPServer):
             self.logger.info(f"Retrieved info for {owner}/{repo}")
             return {"status": "success", "repository": repo_info}
         except Exception as e:
-            self.logger.error(f"Error getting repo: {e}")
+            self.logger.exception(f"Error getting repo: {e}")
             return {"status": "error", "message": str(e)}
 
     @mcp_tool(
@@ -170,7 +169,7 @@ class GitHubMCPServer(SimpleMCPServer):
                 "issues": issues,
             }
         except Exception as e:
-            self.logger.error(f"Error listing issues: {e}")
+            self.logger.exception(f"Error listing issues: {e}")
             return {"status": "error", "message": str(e)}
 
     @mcp_tool(
@@ -219,7 +218,7 @@ class GitHubMCPServer(SimpleMCPServer):
             self.logger.info(f"Created issue #{issue['number']} in {owner}/{repo}")
             return {"status": "success", "issue": issue}
         except Exception as e:
-            self.logger.error(f"Error creating issue: {e}")
+            self.logger.exception(f"Error creating issue: {e}")
             return {"status": "error", "message": str(e)}
 
     async def check_server_health(self) -> bool:

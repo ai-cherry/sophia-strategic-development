@@ -45,8 +45,8 @@ class PortkeyIntegration:
                 "max_retries": 3,
                 "retry_delay_ms": 1000,
                 "alternative_models": [
-                    "gpt-4-turbo-preview",
-                    "claude-3-opus",
+                    "gpt-4o",
+                    "claude-3-5-sonnet-20241022",
                     "gpt-3.5-turbo",
                 ],
             },
@@ -132,7 +132,7 @@ class PortkeyIntegration:
             "semantic_similarity_threshold"
         ]
 
-        for _cached_key, cache_entry in self.response_cache.items():
+        for cache_entry in self.response_cache.values():
             if (
                 time.time() - cache_entry["timestamp"]
                 < self.quality_config["intelligent_caching"]["cache_ttl_seconds"]
@@ -154,7 +154,7 @@ class PortkeyIntegration:
         # Base request
         request_data = {
             "messages": [],
-            "model": settings.get("model", "gpt-4-turbo-preview"),
+            "model": settings.get("model", "gpt-4o"),
             "temperature": settings.get("temperature", 0.7),
             "max_tokens": settings.get("max_tokens", 4096),
             "top_p": settings.get("top_p", 0.9),
@@ -226,10 +226,10 @@ class PortkeyIntegration:
                         raise Exception(f"API error: {response.status}")
 
             except TimeoutError:
-                logger.error("Portkey API timeout")
+                logger.exception("Portkey API timeout")
                 raise
             except Exception as e:
-                logger.error(f"Portkey execution error: {e}")
+                logger.exception(f"Portkey execution error: {e}")
                 raise
 
     async def _validate_response_quality(self, response: str) -> bool:
@@ -282,7 +282,7 @@ class PortkeyIntegration:
                     return response
 
             except Exception as e:
-                logger.error(f"Fallback failed with {model}: {e}")
+                logger.exception(f"Fallback failed with {model}: {e}")
                 continue
 
         # Ultimate fallback

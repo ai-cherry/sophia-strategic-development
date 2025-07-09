@@ -175,7 +175,7 @@ class OptimizedDatabaseManager:
             logger.info("✅ Snowflake connection pool initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Snowflake pool: {e}")
+            logger.exception(f"Failed to initialize Snowflake pool: {e}")
             raise
 
     async def _initialize_postgres_pool(self):
@@ -193,7 +193,7 @@ class OptimizedDatabaseManager:
             logger.info("✅ PostgreSQL connection pool initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize PostgreSQL pool: {e}")
+            logger.exception(f"Failed to initialize PostgreSQL pool: {e}")
             raise
 
     async def _initialize_redis_pool(self):
@@ -212,7 +212,7 @@ class OptimizedDatabaseManager:
             logger.info("✅ Redis connection pool initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Redis pool: {e}")
+            logger.exception(f"Failed to initialize Redis pool: {e}")
             raise
 
     @asynccontextmanager
@@ -299,7 +299,7 @@ class OptimizedDatabaseManager:
             return result
 
         except Exception as e:
-            logger.error(f"Query execution failed: {e}")
+            logger.exception(f"Query execution failed: {e}")
             raise
 
     def _execute_snowflake_query(
@@ -362,7 +362,7 @@ class OptimizedDatabaseManager:
             return results
 
         except Exception as e:
-            logger.error(f"Batch execution failed: {e}")
+            logger.exception(f"Batch execution failed: {e}")
             results["success"] = False
             results["errors"].append(str(e))
             return results
@@ -504,7 +504,7 @@ class OptimizedDatabaseManager:
                 cursor.close()
             health_status["databases"]["snowflake"] = "healthy"
         except Exception as e:
-            health_status["databases"]["snowflake"] = f"unhealthy: {str(e)}"
+            health_status["databases"]["snowflake"] = f"unhealthy: {e!s}"
 
         # Check PostgreSQL
         try:
@@ -512,7 +512,7 @@ class OptimizedDatabaseManager:
                 await conn.fetchval("SELECT 1")
             health_status["databases"]["postgres"] = "healthy"
         except Exception as e:
-            health_status["databases"]["postgres"] = f"unhealthy: {str(e)}"
+            health_status["databases"]["postgres"] = f"unhealthy: {e!s}"
 
         # Check Redis
         try:
@@ -520,7 +520,7 @@ class OptimizedDatabaseManager:
                 await client.ping()
             health_status["databases"]["redis"] = "healthy"
         except Exception as e:
-            health_status["databases"]["redis"] = f"unhealthy: {str(e)}"
+            health_status["databases"]["redis"] = f"unhealthy: {e!s}"
 
         return health_status
 

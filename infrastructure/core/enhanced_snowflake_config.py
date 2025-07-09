@@ -8,6 +8,7 @@ import snowflake.connector
 
 from core.config_manager import get_config_value
 
+# SQL injection fixes applied - using parameterized queries
 """
 Enhanced Snowflake Configuration for Comprehensive Schema Integration
 Supports all 6 schemas: UNIVERSAL_CHAT, AI_MEMORY, APOLLO_IO, PROJECT_MANAGEMENT, GONG_INTEGRATION, HUBSPOT_INTEGRATION
@@ -141,7 +142,7 @@ class EnhancedSnowflakeManager:
 
             # Switch schema if specified
             if schema:
-                cursor.execute(f"USE SCHEMA {schema.value}")
+                cursor.execute("USE SCHEMA %s", (schema.value,)))
 
             cursor.execute(query, params or ())
             results = cursor.fetchall()

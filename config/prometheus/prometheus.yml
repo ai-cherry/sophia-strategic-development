@@ -1,0 +1,63 @@
+# Prometheus configuration for Sophia AI Snowflake Monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'sophia-ai-snowflake'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - 'alertmanager:9093'
+
+# Load rules
+rule_files:
+  - 'snowflake_alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Snowflake monitoring metrics
+  - job_name: 'snowflake-monitor'
+    static_configs:
+      - targets: ['localhost:8003']
+        labels:
+          service: 'snowflake-monitoring'
+          component: 'cortex-gateway'
+
+  # FastAPI application metrics
+  - job_name: 'sophia-api'
+    static_configs:
+      - targets: ['localhost:8000']
+        labels:
+          service: 'sophia-ai'
+          component: 'api'
+
+  # Lambda Labs instances
+  - job_name: 'lambda-labs'
+    static_configs:
+      - targets:
+          - '192.222.58.232:8000'
+          - '104.171.202.117:8001'
+        labels:
+          service: 'lambda-labs'
+          component: 'gpu-instance'
+
+  # MCP Orchestrator
+  - job_name: 'mcp-orchestrator'
+    static_configs:
+      - targets: ['localhost:8001']
+        labels:
+          service: 'mcp'
+          component: 'orchestrator'
+
+  # Node exporter for system metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+        labels:
+          service: 'system'
+          component: 'node-exporter'

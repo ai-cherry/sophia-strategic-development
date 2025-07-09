@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-linear
+  namespace: sophia-ai-prod
+  labels:
+    app: mcp-linear
+    component: mcp-server
+    server: linear
+spec:
+  selector:
+    app: mcp-linear
+  ports:
+  - port: 9004
+    targetPort: 9004
+    name: http
+  type: ClusterIP

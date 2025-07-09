@@ -344,7 +344,7 @@ class EstuaryFoundationDeployment:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Foundation deployment failed: {e}")
+            logger.exception(f"❌ Foundation deployment failed: {e}")
             return False
 
 

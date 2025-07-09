@@ -1,116 +1,155 @@
 {
-  "version": "4.0",
-  "description": "Consolidated MCP Server Port Configuration - 48+ Servers",
-  "last_updated": "2025-07-03T13:39:27",
   "active_servers": {
+    "ag_ui": 9039,
     "ai_memory": 9000,
-    "figma_context": 9001,
-    "ui_ux_agent": 9002,
-    "codacy": 9003,
+    "apify_intelligence": 9017,
+    "apollo_io": 9102,
     "asana": 9004,
-    "notion": 9005,
-    "linear": 9006,
+    "bright_data": 9018,
+    "codacy": 9003,
+    "code_modifier": 9035,
+    "cortex_aisql": 9034,
+    "docker": 9024,
+    "estuary": 9202,
+    "estuary_flow_cli": 9022,
+    "figma_context": 9001,
     "github": 9007,
-    "slack": 9008,
+    "gong": 9101,
+    "graphiti": 9019,
+    "hubspot": 9100,
+    "hubspot_unified": 9103,
+    "huggingface_ai": 9038,
+    "intercom": 9106,
+    "lambda_labs_cli": 9020,
+    "linear": 9006,
+    "mem0_bridge": 9031,
+    "mem0_openmemory": 9032,
+    "mem0_persistent": 9033,
+    "migration_orchestrator": 9036,
+    "notion": 9005,
+    "openrouter_search": 9014,
+    "portkey_admin": 9013,
     "postgres": 9009,
+    "prompt_optimizer": 9030,
+    "pulumi": 9023,
+    "salesforce": 9107,
+    "slack": 9008,
+    "slack_integration": 9104,
+    "slack_unified": 9105,
+    "snowflake": 9200,
+    "snowflake_admin": 9012,
+    "snowflake_cli_enhanced": 9021,
+    "snowflake_cortex": 9201,
+    "snowflake_unified": 9203,
+    "sophia_ai_intelligence": 9016,
+    "sophia_business_intelligence": 9015,
     "sophia_data_intelligence": 9010,
     "sophia_infrastructure": 9011,
-    "snowflake_admin": 9012,
-    "portkey_admin": 9013,
-    "openrouter_search": 9014,
-    "sophia_business_intelligence": 9015,
-    "sophia_ai_intelligence": 9016,
-    "apify_intelligence": 9017,
-    "bright_data": 9018,
-    "graphiti": 9019,
-    "lambda_labs_cli": 9020,
-    "snowflake_cli_enhanced": 9021,
-    "estuary_flow_cli": 9022,
-    "pulumi": 9023,
-    "docker": 9024,
-    "hubspot": 9100,
-    "gong": 9101,
-    "apollo_io": 9102,
-    "snowflake": 9200,
-    "snowflake_cortex": 9201,
-    "estuary": 9202,
-    "prompt_optimizer": 9030,
-    "mem0_bridge": 9031,
-    "ai-memory": 9000,
-    "figma-context": 9001,
-    "ui-ux-agent": 9002,
-    "sophia-data-intelligence": 9010,
-    "sophia-infrastructure": 9011,
-    "snowflake-admin": 9012,
-    "portkey-admin": 9013,
-    "openrouter-search": 9014,
-    "sophia-business-intelligence": 9015,
-    "sophia-ai-intelligence": 9016,
-    "apify-intelligence": 9017,
-    "bright-data": 9018,
-    "lambda-labs-cli": 9020,
-    "snowflake-cli-enhanced": 9021,
-    "estuary-flow-cli": 9022,
-    "apollo-io": 9102,
-    "hubspot-unified": 9103,
-    "slack-integration": 9104,
-    "slack-unified": 9105,
-    "intercom": 9106,
-    "salesforce": 9107,
-    "snowflake-cortex": 9201,
-    "snowflake-unified": 9203,
-    "prompt-optimizer": 9030,
-    "mem0-bridge": 9031,
-    "mem0-openmemory": 9032,
-    "mem0-persistent": 9033,
-    "cortex-aisql": 9034,
-    "code-modifier": 9035,
-    "migration-orchestrator": 9036,
-    "sophia-intelligence-unified": 9037,
-    "huggingface-ai": 9038,
-    "ag-ui": 9039,
-    "v0dev": 9040
+    "sophia_intelligence_unified": 9037,
+    "ui_ux_agent": 9002,
+    "v0dev": 9040,
+    "lambda_labs_serverless": 9025
   },
+  "ai_memory_v2": 9002,
+  "asana_v2": 9015,
+  "description": "Consolidated MCP Server Port Configuration - 48+ Servers",
+  "gong_v2": 9013,
+  "hubspot_unified_v2": 9012,
+  "infrastructure_management_v2": 9005,
   "lambda_labs": {
-    "host": "165.1.69.44",
     "gateway_port": 8080,
+    "host": "165.1.69.44",
     "monitoring_port": 9090
   },
+  "lambda_labs_cli_v2": 9006,
+  "last_updated": "2025-07-03T13:39:27",
+  "linear_v2": 9014,
+  "mcp_servers": {
+    "business_intelligence": {
+      "gong": {
+        "description": "Gong call intelligence",
+        "port": 9302
+      },
+      "hubspot_unified": {
+        "description": "HubSpot CRM integration",
+        "port": 9301
+      }
+    },
+    "communication": {
+      "slack_unified": {
+        "description": "Slack integration",
+        "port": 9105
+      }
+    },
+    "core_intelligence": {
+      "ai_memory": {
+        "description": "AI Memory and context management",
+        "port": 9000
+      },
+      "asana": {
+        "description": "Asana task and project management",
+        "port": 9041
+      },
+      "github": {
+        "description": "GitHub integration",
+        "port": 9007
+      },
+      "linear": {
+        "description": "Linear project management",
+        "port": 9040
+      },
+      "notion": {
+        "description": "Notion integration for task management",
+        "port": 9005
+      },
+      "ui_ux_agent": {
+        "description": "UI/UX generation agent",
+        "port": 9042
+      }
+    },
+    "development_tools": {
+      "codacy": {
+        "description": "Code quality analysis",
+        "port": 3008
+      }
+    },
+    "gateway_orchestration": {
+      "mcp_gateway": {
+        "description": "MCP Gateway and router",
+        "port": 8080
+      },
+      "sophia_intelligence_unified": {
+        "description": "Sophia AI orchestration",
+        "port": 8081
+      }
+    },
+    "infrastructure": {
+      "lambda_labs_cli": {
+        "description": "Lambda Labs infrastructure management",
+        "port": 9043
+      },
+      "snowflake_admin": {
+        "description": "Snowflake administration",
+        "port": 9045
+      },
+      "snowflake_cortex": {
+        "description": "Snowflake Cortex AI operations",
+        "port": 9044
+      }
+    }
+  },
+  "port_ranges": {
+    "business_intelligence": "9300-9399",
+    "communication": "9100-9199",
+    "core_intelligence": "9000-9099",
+    "development_tools": "3000-3099",
+    "gateway_orchestration": "8000-8099",
+    "infrastructure": "9200-9299"
+  },
+  "postgres_v2": 9003,
+  "redis_cache_v2": 9004,
+  "salesforce_v2": 9011,
   "server_groups": {
-    "core_intelligence": [
-      9000,
-      9001,
-      9002,
-      9003,
-      9004,
-      9005,
-      9006,
-      9007,
-      9008,
-      9009,
-      9010,
-      9011,
-      9012,
-      9013,
-      9014,
-      9015,
-      9016,
-      9017,
-      9018,
-      9019
-    ],
-    "strategic_enhancements": [
-      9020,
-      9021,
-      9022,
-      9023,
-      9024,
-      9025,
-      9026,
-      9027,
-      9028,
-      9029
-    ],
     "business_intelligence": [
       9100,
       9101,
@@ -132,6 +171,28 @@
       9117,
       9118,
       9119
+    ],
+    "core_intelligence": [
+      9000,
+      9001,
+      9002,
+      9003,
+      9004,
+      9005,
+      9006,
+      9007,
+      9008,
+      9009,
+      9010,
+      9011,
+      9012,
+      9013,
+      9014,
+      9015,
+      9016,
+      9017,
+      9018,
+      9019
     ],
     "data_integrations": [
       9200,
@@ -176,88 +237,20 @@
       9317,
       9318,
       9319
+    ],
+    "strategic_enhancements": [
+      9020,
+      9021,
+      9022,
+      9023,
+      9024,
+      9025,
+      9026,
+      9027,
+      9028,
+      9029
     ]
   },
-  "mcp_servers": {
-    "core_intelligence": {
-      "ai_memory": {
-        "port": 9000,
-        "description": "AI Memory and context management"
-      },
-      "notion": {
-        "port": 9005,
-        "description": "Notion integration for task management"
-      },
-      "linear": {
-        "port": 9004,
-        "description": "Linear project management"
-      },
-      "asana": {
-        "port": 9006,
-        "description": "Asana task and project management"
-      },
-      "github": {
-        "port": 9007,
-        "description": "GitHub integration"
-      },
-      "ui_ux_agent": {
-        "port": 9008,
-        "description": "UI/UX generation agent"
-      }
-    },
-    "infrastructure": {
-      "lambda_labs_cli": {
-        "port": 9200,
-        "description": "Lambda Labs infrastructure management"
-      },
-      "snowflake_cortex": {
-        "port": 9201,
-        "description": "Snowflake Cortex AI operations"
-      },
-      "snowflake_admin": {
-        "port": 9202,
-        "description": "Snowflake administration"
-      }
-    },
-    "communication": {
-      "slack_unified": {
-        "port": 9105,
-        "description": "Slack integration"
-      }
-    },
-    "business_intelligence": {
-      "hubspot_unified": {
-        "port": 9301,
-        "description": "HubSpot CRM integration"
-      },
-      "gong": {
-        "port": 9302,
-        "description": "Gong call intelligence"
-      }
-    },
-    "gateway_orchestration": {
-      "mcp_gateway": {
-        "port": 8080,
-        "description": "MCP Gateway and router"
-      },
-      "sophia_intelligence_unified": {
-        "port": 8081,
-        "description": "Sophia AI orchestration"
-      }
-    },
-    "development_tools": {
-      "codacy": {
-        "port": 3008,
-        "description": "Code quality analysis"
-      }
-    }
-  },
-  "port_ranges": {
-    "core_intelligence": "9000-9099",
-    "communication": "9100-9199",
-    "infrastructure": "9200-9299",
-    "business_intelligence": "9300-9399",
-    "gateway_orchestration": "8000-8099",
-    "development_tools": "3000-3099"
-  }
+  "snowflake_v2": 9001,
+  "version": "4.0"
 }

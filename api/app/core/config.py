@@ -2,7 +2,6 @@
 Unified configuration for Sophia AI platform
 """
 
-import os
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings
@@ -26,7 +25,7 @@ class Settings(BaseSettings):
     reload: bool = False
 
     # Security
-    secret_key: str = os.getenv("SECRET_KEY", "your-secret-key-here")
+    secret_key: str = get_config_value("secret_key", "your-secret-key-here")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
 
@@ -41,7 +40,7 @@ class Settings(BaseSettings):
     rate_limit_period: int = 60  # seconds
 
     # Database
-    database_url: str = os.getenv("DATABASE_URL", "")
+    database_url: str = get_config_value("database_url", "")
 
     # MCP Configuration
     mcp_config_path: str = "config/cursor_enhanced_mcp_config.json"

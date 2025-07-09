@@ -33,9 +33,11 @@ def apply_permanent_snowflake_fix():
     import subprocess
 
     try:
+        # TODO: Validate input before subprocess execution
         subprocess.run(
             ["find", ".", "-name", "*.pyc", "-delete"], capture_output=True, check=False
         )
+        # TODO: Validate input before subprocess execution
         subprocess.run(
             [
                 "find",

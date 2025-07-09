@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 """
 Redis Notification Client for Gong Webhook Processing.
 
@@ -8,13 +6,18 @@ Handles real-time notifications to Sophia agents via Redis pub/sub.
 
 from __future__ import annotations
 
+# Standard library imports
 import json
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
+# Third-party imports
 import redis.asyncio as redis
 import structlog
 from pydantic import BaseModel, Field
+
+# Local imports
 
 logger = structlog.get_logger()
 
@@ -378,7 +381,7 @@ class RedisNotificationClient:
                         data = json.loads(message["data"])
                         await callback(data)
                     except Exception as e:
-                        self.logger.error(
+                        self.logger.exception(
                             "Error in subscription callback",
                             channel=channel,
                             error=str(e),

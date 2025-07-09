@@ -73,7 +73,7 @@ def store_in_faiss(
         faiss_manager.add_data(vectors=embeddings, metadata_list=metadata_list)
         logger.info(f"Successfully stored {len(data)} {data_type} items in FAISS")
     except Exception as e:
-        logger.error(f"Error storing {data_type} in FAISS: {str(e)}", exc_info=True)
+        logger.error(f"Error storing {data_type} in FAISS: {e!s}", exc_info=True)
 
 
 def search_in_faiss(
@@ -116,5 +116,5 @@ def search_in_faiss(
 
         return results, distances
     except Exception as e:
-        logger.error(f"Error searching in FAISS: {str(e)}")
+        logger.exception(f"Error searching in FAISS: {e!s}")
         raise

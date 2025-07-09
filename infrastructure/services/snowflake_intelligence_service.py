@@ -82,7 +82,7 @@ class SnowflakeIntelligenceService:
                 f"Failed to process natural language query: {e}", exc_info=True
             )
             return IntelligenceResponse(
-                answer=f"I encountered an error processing your query: {str(e)}",
+                answer=f"I encountered an error processing your query: {e!s}",
                 sources_used=[],
                 confidence_score=0.0,
                 sql_queries=[],
@@ -118,7 +118,7 @@ class SnowflakeIntelligenceService:
                 logger.info(f"Query intent analysis for '{query_text}': {analysis}")
                 return analysis
         except Exception as e:
-            logger.error(f"Cortex query intent analysis failed: {e}")
+            logger.exception(f"Cortex query intent analysis failed: {e}")
 
         # Fallback to basic analysis
         return {
@@ -168,8 +168,9 @@ class SnowflakeIntelligenceService:
         """Retrieve relevant unstructured data using vector search"""
         unstructured_results = {}
 
-        search_terms = query_analysis.get("entities", []) + [
-            query_analysis.get("intent", "")
+        search_terms = [
+            *query_analysis.get("entities", []),
+            query_analysis.get("intent", ""),
         ]
         search_query = " ".join(filter(None, search_terms)) or query_text
 
@@ -247,7 +248,7 @@ class SnowflakeIntelligenceService:
                 logger.info(f"Successfully synthesized response for query: '{query}'")
                 return synthesis
         except Exception as e:
-            logger.error(f"Cortex response synthesis failed: {e}")
+            logger.exception(f"Cortex response synthesis failed: {e}")
 
         return {
             "answer": "I found relevant information but had difficulty synthesizing a complete response.",

@@ -82,14 +82,14 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# Large reports and analysis files
+# Reports and analysis files
+reports/
 *_report.json
 *_results.json
 large_files_list.txt
 LARGE_FILE_ANALYSIS_REPORT.md
 
 # Package lock files (manage separately)
-package-lock.json
 pnpm-lock.yaml
 
 # User-specific configs
@@ -262,7 +262,16 @@ docs_backup_*/
 *.bak
 *_old
 *_deprecated
+!backend/_deprecated/
 *_legacy
 *.tmp
 *.temp
 frontend-backup-*
+
+# Environment files
+*.env
+!*.env.example
+!*.env.template
+
+# Cleanup archives
+archive/

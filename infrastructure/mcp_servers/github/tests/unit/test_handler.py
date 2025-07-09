@@ -1,4 +1,5 @@
 """Unit tests for github handler."""
+
 import pytest
 
 from infrastructure.mcp_servers.github.handlers.main_handler import GithubHandler

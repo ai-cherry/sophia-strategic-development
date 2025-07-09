@@ -15,11 +15,11 @@ RUN useradd -m -u 1000 sophia
 WORKDIR /app
 
 # Copy requirements first for better caching
-COPY requirements.docker.txt ./
+COPY requirements.docker.clean.txt ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.docker.txt
+    pip install --no-cache-dir -r requirements.docker.clean.txt
 
 # Copy application code
 COPY api/ core/ domain/ infrastructure/ shared/ ./backend/

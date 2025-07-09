@@ -86,7 +86,7 @@ class EnhancedChatContextService:
             self.connection = await connection_manager.get_connection()
             logger.info("✅ Enhanced Chat Context Service connected")
         except Exception as e:
-            logger.error(f"❌ Connection failed: {e}")
+            logger.exception(f"❌ Connection failed: {e}")
             raise
 
     async def get_enhanced_context(

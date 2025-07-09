@@ -196,7 +196,7 @@ class UnifiedAIAssistant:
             else:
                 return await self._handle_chat(query, selected_model)
         except Exception as e:
-            return f"❌ Error processing query: {str(e)}"
+            return f"❌ Error processing query: {e!s}"
 
     async def _handle_coding(self, query: str, model: str) -> str:
         """Handle coding-related queries with latest Claude models"""
@@ -204,8 +204,12 @@ class UnifiedAIAssistant:
             # Use Claude CLI with latest models
             cmd = f'./claude-cli-integration/claude chat "{query}"'
             result = subprocess.run(
-                shlex.split(cmd), capture_output=True, text=True, timeout=60
-            )  # SECURITY FIX: Removed shell=True
+                shlex.split(cmd),
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            )  # SECURITY FIX: Removed shell=False
 
             if result.returncode == 0:
                 return f"🤖 **Claude {model} Response:**\n\n{result.stdout}"
@@ -228,6 +232,7 @@ class UnifiedAIAssistant:
                 capture_output=True,
                 text=True,
                 timeout=30,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -235,7 +240,7 @@ class UnifiedAIAssistant:
             else:
                 return f"🏗️ **Infrastructure Status:**\n\nInfrastructure agent is available. Try:\n- `python backend/services/infrastructure_chat/sophia_infrastructure_chat.py`\n- Direct query: {query}"
         except Exception as e:
-            return f"⚠️ Infrastructure agent offline. Error: {str(e)}"
+            return f"⚠️ Infrastructure agent offline. Error: {e!s}"
 
     async def _handle_data(self, query: str) -> str:
         """Handle data and analytics queries"""
@@ -255,7 +260,7 @@ class UnifiedAIAssistant:
 
             return f"📊 **Snowflake Integration Available:**\n\nYour query: {query}\n\nAvailable data capabilities:\n- Natural language SQL queries\n- Business intelligence analysis\n- Real-time data insights\n- Executive dashboard integration"
         except Exception as e:
-            return f"📊 **Data Services:** Available but not connected. Error: {str(e)}"
+            return f"📊 **Data Services:** Available but not connected. Error: {e!s}"
 
     async def _handle_design(self, query: str) -> str:
         """Handle design and UI/UX queries"""
@@ -277,7 +282,7 @@ class UnifiedAIAssistant:
 
             return f"🎨 **Design & UI/UX Capabilities:**\n\n{chr(10).join(status)}\n\nQuery: {query}\n\nAvailable features:\n- React component generation\n- Figma design token extraction\n- Dashboard component enhancement\n- Accessibility optimization\n- Performance improvements"
         except Exception as e:
-            return f"🎨 **Design Services:** {str(e)}"
+            return f"🎨 **Design Services:** {e!s}"
 
     async def _handle_business(self, query: str) -> str:
         """Handle business intelligence queries"""
@@ -296,7 +301,7 @@ class UnifiedAIAssistant:
 
             return f"📈 **Business Intelligence Available:**\n\nQuery: {query}\n\nIntegrations ready:\n- HubSpot CRM data\n- Gong call analysis\n- Sales performance metrics\n- Marketing campaign analysis\n- Revenue forecasting"
         except Exception as e:
-            return f"📈 **Business Intelligence:** {str(e)}"
+            return f"📈 **Business Intelligence:** {e!s}"
 
     async def _handle_mcp(self, query: str) -> str:
         """Handle MCP server queries"""
@@ -322,7 +327,7 @@ class UnifiedAIAssistant:
 
             return f"🔗 **MCP Server Status:**\n\n{chr(10).join(status)}\n\nQuery: {query}\n\nMCP capabilities:\n- AI Memory storage and recall\n- Code quality analysis\n- Design system integration\n- Real-time context management"
         except Exception as e:
-            return f"🔗 **MCP Services:** {str(e)}"
+            return f"🔗 **MCP Services:** {e!s}"
 
     async def _handle_chat(self, query: str, model: str) -> str:
         """Handle general chat queries with latest models"""
@@ -429,7 +434,7 @@ class UnifiedAIAssistant:
    python unified_ai_assistant.py "Check system health"
 """
         except Exception as e:
-            return f"❌ Error checking status: {str(e)}"
+            return f"❌ Error checking status: {e!s}"
 
     async def interactive_mode(self):
         """Interactive chat mode"""

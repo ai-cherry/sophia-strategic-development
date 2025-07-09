@@ -4,12 +4,11 @@ Provides real-time streaming responses with progressive disclosure
 """
 
 import asyncio
-import json
 import logging
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,7 @@ class StreamingResponseService:
         self.stream_history = {}
 
     async def create_streaming_response(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> AsyncGenerator[StreamChunk, None]:
         """Create a streaming response for a query"""
         stream_id = f"stream_{datetime.utcnow().timestamp()}"
@@ -128,7 +127,7 @@ class StreamingResponseService:
             )
 
     async def generate_final_response(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> dict[str, Any]:
         """Generate the final comprehensive response"""
         # This would integrate with all the enhanced services

@@ -28,7 +28,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-async def start_server(name: str, command: list, env: dict = None):
+async def start_server(name: str, command: list, env: dict | None = None):
     """Start a single MCP server."""
 
     # Merge environment variables

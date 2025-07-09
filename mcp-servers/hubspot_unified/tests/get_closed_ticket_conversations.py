@@ -78,7 +78,7 @@ def get_ticket_conversations(
 
         return threads_response
     except Exception as e:
-        logger.error(f"Exception retrieving conversation threads: {str(e)}")
+        logger.exception(f"Exception retrieving conversation threads: {e!s}")
         return {"error": str(e), "total_threads": 0, "total_messages": 0, "threads": []}
 
 

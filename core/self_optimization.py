@@ -116,7 +116,7 @@ class SophiaSelfOptimizer:
                 await asyncio.sleep(sleep_duration)
 
             except Exception as e:
-                logger.error(f"Error in optimization loop: {e}")
+                logger.exception(f"Error in optimization loop: {e}")
                 await asyncio.sleep(300)  # 5 minutes on error
 
     async def identify_optimization_opportunities(
@@ -229,7 +229,7 @@ class SophiaSelfOptimizer:
             result["status"] = "completed"
 
         except Exception as e:
-            logger.error(f"Optimization failed: {e}")
+            logger.exception(f"Optimization failed: {e}")
             result["status"] = "failed"
             result["error"] = str(e)
 

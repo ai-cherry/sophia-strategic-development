@@ -179,7 +179,7 @@ CREATE TABLE memory_entries (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_memory_embedding ON memory_entries 
+CREATE INDEX idx_memory_embedding ON memory_entries
 USING ivfflat (embedding vector_cosine_ops);
 CREATE INDEX idx_memory_category ON memory_entries (category);
 CREATE INDEX idx_memory_user ON memory_entries (user_id);
@@ -253,7 +253,7 @@ ALTER SYSTEM SET random_page_cost = 1.1;
 ```sql
 -- Adjust IVFFlat lists based on data size
 -- For 1M vectors, use ~1000 lists
-CREATE INDEX idx_memory_embedding ON memory_entries 
+CREATE INDEX idx_memory_embedding ON memory_entries
 USING ivfflat (embedding vector_cosine_ops)
 WITH (lists = 1000);
 ```

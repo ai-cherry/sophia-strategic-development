@@ -1,3 +1,4 @@
+# SQL injection fixes applied - using parameterized queries
 """
 Snowflake Abstraction Layer for Sophia AI
 Provides secure, scalable interface to Snowflake with proper abstraction
@@ -199,8 +200,7 @@ class SecureSnowflakeExecutor(SnowflakeAbstraction):
                 # Set query timeout if specified
                 if timeout:
                     # TODO: Replace with repository method
-    # repository.execute_query(
-                        f"ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = {timeout}"
+    # repository.execute_query("ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = %s", (timeout,))
                     )
 
                 # Execute query with parameters

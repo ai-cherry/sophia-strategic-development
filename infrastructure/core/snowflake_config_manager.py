@@ -42,7 +42,7 @@ from typing import Any, TypeVar
 
 import snowflake.connector
 
-from core.config_manager import get_config_value as config as esc_config
+from backend.core.auto_esc_config import get_config_value as esc_config
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +105,7 @@ class ConfigValue:
                         if isinstance(self.value, str)
                         else self.value
                     )
+
             elif self.data_type == ConfigDataType.ARRAY:
                 if target_type == list:
                     return (
@@ -168,6 +169,7 @@ class FeatureFlag:
             user_hash = int(
                 hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16
             )
+
             user_percentage = (user_hash % 100) + 1
             return user_percentage <= self.rollout_percentage
 
@@ -198,6 +200,7 @@ class FeatureFlag:
             user_hash = int(
                 hashlib.md5(user_id.encode(), usedforsecurity=False).hexdigest(), 16
             )
+
             variant_index = user_hash % len(variant_names)
             selected_variant = variant_names[variant_index]
 
@@ -258,16 +261,16 @@ class SnowflakeConfigManager:
             return
 
         try:
-            self.connection = # TODO: Replace with repository injection
-    # repository.get_connection(
-                user=esc_config.get("snowflake_user"),
-                password=esc_config.get("snowflake_password"),
-                account=esc_config.get("snowflake_account"),
-                warehouse=self.warehouse,
-                database=self.database,
-                schema="CONFIG",
-                role=esc_config.get("snowflake_role", "ROLE_SOPHIA_AI_AGENT_SERVICE"),
-            )
+            self.connection = None  # TODO: Replace with repository injection
+            # repository.get_connection(
+            #     user=esc_config.get("snowflake_user"),
+            #     password=esc_config.get("snowflake_password"),
+            #     account=esc_config.get("snowflake_account"),
+            #     warehouse=self.warehouse,
+            #     database=self.database,
+            #     schema="CONFIG",
+            #     role=esc_config.get("snowflake_role", "ROLE_SOPHIA_AI_AGENT_SERVICE"),
+            # )
 
             self.initialized = True
             logger.info("✅ Snowflake Configuration Manager initialized")
@@ -683,7 +686,7 @@ class SnowflakeConfigManager:
                 COUNT(*) as total_flags,
                 COUNT(CASE WHEN IS_ENABLED = TRUE THEN 1 END) as enabled_flags,
                 COUNT(CASE WHEN START_DATE <= CURRENT_TIMESTAMP() AND
-                              (END_DATE IS NULL OR END_DATE > CURRENT_TIMESTAMP()) THEN 1 END) as active_flags
+                              (END_DATE IS NULL OR END_DATE > CURRENT_TIMESTAMP()) THEN 1 END as active_flags
             FROM FEATURE_FLAGS
             WHERE ENVIRONMENT = %s
             AND APPLICATION_NAME = %s
@@ -696,6 +699,7 @@ class SnowflakeConfigManager:
     # repository.execute_query(
                 config_health_query, (self.environment, self.application_name)
             )
+
             config_result = cursor.fetchone()
 
             # Get feature flag health
@@ -794,6 +798,11 @@ class SnowflakeConfigManager:
             )
         except Exception as e:
             logger.warning(f"Failed to log feature flag evaluation: {e}")
+
+    async def execute_query(
+        self, query: str, params: tuple | None = None, schema: SchemaType = None
+    ) -> list[dict[str, Any]]:
+        """Execute query with schema context"""
 
 
 # Convenience functions for common use cases

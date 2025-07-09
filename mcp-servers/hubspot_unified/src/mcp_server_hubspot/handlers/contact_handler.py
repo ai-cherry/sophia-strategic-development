@@ -5,7 +5,7 @@ Handler for contact-related HubSpot operations.
 import json
 from typing import Any
 
-import mcp.types as types
+from mcp import types
 
 from ..hubspot_client import ApiException
 from .base_handler import BaseHandler
@@ -142,9 +142,9 @@ class ContactHandler(BaseHandler):
             return self.create_text_response(str(api_response.to_dict()))
 
         except ApiException as e:
-            return self.create_text_response(f"HubSpot API error: {str(e)}")
+            return self.create_text_response(f"HubSpot API error: {e!s}")
         except Exception as e:
-            return self.create_text_response(f"Error: {str(e)}")
+            return self.create_text_response(f"Error: {e!s}")
 
     def get_active_contacts(
         self, arguments: dict[str, Any] | None
@@ -170,6 +170,6 @@ class ContactHandler(BaseHandler):
             metadata_extras = {"limit": limit}
             self.store_in_faiss_safely(data, "contact", metadata_extras)
         except Exception as e:
-            self.logger.error(f"Error parsing contact data: {str(e)}")
+            self.logger.exception(f"Error parsing contact data: {e!s}")
 
         return self.create_text_response(results)

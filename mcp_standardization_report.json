@@ -46,9 +46,9 @@
   "issues_found": [],
   "configuration_standards": {
     "lambda_labs_ips": {
-      "platform": "146.235.200.1",
+      "platform": "192.222.58.232",
       "mcp": "165.1.69.44",
-      "ai": "137.131.6.213"
+      "ai": "192.222.58.232"
     },
     "standard_ports": {
       "ai_memory": 9001,

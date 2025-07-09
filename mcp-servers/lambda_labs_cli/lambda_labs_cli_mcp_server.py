@@ -218,7 +218,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
                 }
 
         except Exception as e:
-            logger.error(f"Failed to sync Lambda Labs data: {e}")
+            logger.exception(f"Failed to sync Lambda Labs data: {e}")
             return {"synced": False, "error": str(e)}
 
     async def process_with_ai(
@@ -238,7 +238,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
             self.lambda_cli_available = result["success"]
             logger.info(f"Lambda CLI availability: {self.lambda_cli_available}")
         except Exception as e:
-            logger.error(f"Failed to check Lambda CLI availability: {e}")
+            logger.exception(f"Failed to check Lambda CLI availability: {e}")
             self.lambda_cli_available = False
 
     async def _check_lambda_auth(self) -> None:
@@ -249,13 +249,13 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
             self.lambda_auth_configured = result["success"]
             logger.info(f"Lambda CLI authentication: {self.lambda_auth_configured}")
         except Exception as e:
-            logger.error(f"Failed to check Lambda CLI authentication: {e}")
+            logger.exception(f"Failed to check Lambda CLI authentication: {e}")
             self.lambda_auth_configured = False
 
     async def _run_lambda_command(self, args: list[str]) -> dict[str, Any]:
         """Run a Lambda CLI command"""
         try:
-            cmd = ["lambda"] + args
+            cmd = ["lambda", *args]
 
             # Run the command
             process = await asyncio.create_subprocess_exec(
@@ -305,7 +305,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
                 return {"success": False, "error": result["error"]}
 
         except Exception as e:
-            logger.error(f"Failed to list instances: {e}")
+            logger.exception(f"Failed to list instances: {e}")
             return {"success": False, "error": str(e)}
 
     async def launch_instance(
@@ -333,7 +333,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
                 return {"success": False, "error": result["error"]}
 
         except Exception as e:
-            logger.error(f"Failed to launch instance: {e}")
+            logger.exception(f"Failed to launch instance: {e}")
             return {"success": False, "error": str(e)}
 
     async def terminate_instance(self, instance_id: str) -> dict[str, Any]:
@@ -350,7 +350,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
                 return {"success": False, "error": result["error"]}
 
         except Exception as e:
-            logger.error(f"Failed to terminate instance: {e}")
+            logger.exception(f"Failed to terminate instance: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_instance_types(self) -> dict[str, Any]:
@@ -370,7 +370,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
                 return {"success": False, "error": result["error"]}
 
         except Exception as e:
-            logger.error(f"Failed to get instance types: {e}")
+            logger.exception(f"Failed to get instance types: {e}")
             return {"success": False, "error": str(e)}
 
     async def estimate_costs(
@@ -413,7 +413,7 @@ class LambdaLabsCLIMCPServer(EnhancedStandardizedMCPServer):
             }
 
         except Exception as e:
-            logger.error(f"Failed to estimate costs: {e}")
+            logger.exception(f"Failed to estimate costs: {e}")
             return {"success": False, "error": str(e)}
 
     def _generate_cost_recommendations(

@@ -6,12 +6,13 @@ Bypasses problematic services to focus on core functionality and sentiment analy
 
 import asyncio
 import logging
-import os
 from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
+from backend.core.auto_esc_config import get_config_value
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +40,7 @@ async def lifespan(app: FastAPI):
         logger.info("✅ Sophia AI Simplified Platform startup complete")
 
     except Exception as e:
-        logger.error(f"❌ Startup failed: {e}")
+        logger.exception(f"❌ Startup failed: {e}")
         raise
 
     yield
@@ -86,7 +87,7 @@ async def health_check():
         "uptime_seconds": asyncio.get_event_loop().time()
         - app_state.get("startup_time", 0),
         "services": app_state.get("services", {}),
-        "environment": os.getenv("ENVIRONMENT", "development"),
+        "environment": get_config_value("environment", "development"),
     }
 
 
@@ -167,8 +168,8 @@ async def analyze_sentiment(data: dict[str, Any]):
         }
 
     except Exception as e:
-        logger.error(f"Sentiment analysis error: {e}")
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        logger.exception(f"Sentiment analysis error: {e}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {e!s}")
 
 
 @app.get("/api/sentiment/dashboard")
@@ -211,10 +212,11 @@ if __name__ == "__main__":
     import uvicorn
 
     # Get port from environment or default to 8000
-    port = int(os.getenv("PORT", "8000"))
+    port = int(get_config_value("port", "8000"))
 
     logger.info(f"Starting Sophia AI Simplified Platform on port {port}")
 
     uvicorn.run(
-        "simple_startup:app", host="0.0.0.0", port=port, reload=True, log_level="info"
+        "simple_startup:app",
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production, port=port, reload=True, log_level="info"
     )

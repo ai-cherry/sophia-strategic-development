@@ -8,7 +8,7 @@ import argparse
 import json
 import subprocess
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 
 def get_docker_status(host: str) -> dict[str, Any]:
@@ -21,6 +21,7 @@ def get_docker_status(host: str) -> dict[str, Any]:
                 f"root@{host}",
                 "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'",
             ],
+            check=False,
             capture_output=True,
             text=True,
         )
@@ -69,8 +70,6 @@ def main():
 
     with open(args.output, "w") as f:
         json.dump(report, f, indent=2)
-
-    print(f"📊 Deployment report saved to {args.output}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,10 @@
 """Integration tests for slack_v2 server."""
+
 import pytest
 from httpx import AsyncClient
+
 from infrastructure.mcp_servers.slack_v2.server import app
+
 
 @pytest.mark.asyncio
 async def test_health_endpoint():

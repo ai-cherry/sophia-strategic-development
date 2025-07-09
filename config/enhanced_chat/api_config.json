@@ -1,0 +1,32 @@
+{
+  "endpoints": {
+    "/api/enhanced-chat/query": {
+      "method": "POST",
+      "handler": "enhanced_multi_agent_orchestrator.process_query",
+      "timeout": 120,
+      "date_validation": true
+    },
+    "/api/enhanced-chat/stream": {
+      "method": "POST",
+      "handler": "enhanced_multi_agent_orchestrator.stream_process",
+      "timeout": 300,
+      "streaming": true
+    },
+    "/api/enhanced-chat/status": {
+      "method": "GET",
+      "handler": "enhanced_websocket_handler.get_session_metrics",
+      "timeout": 10
+    },
+    "/api/enhanced-chat/health": {
+      "method": "GET",
+      "handler": "enhanced_websocket_handler.health_check",
+      "timeout": 5
+    }
+  },
+  "middleware": {
+    "date_injection": true,
+    "error_handling": true,
+    "rate_limiting": true
+  },
+  "current_date": "July 9, 2025"
+}

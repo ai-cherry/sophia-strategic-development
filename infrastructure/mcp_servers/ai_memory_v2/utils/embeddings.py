@@ -2,10 +2,10 @@
 
 Supports multiple embedding providers with fallback options.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List, Optional, Union
 
 import numpy as np
 
@@ -45,11 +45,9 @@ class OpenAIEmbeddingProvider(BaseEmbeddingProvider):
     """OpenAI embedding provider."""
 
     def __init__(self, api_key: str, model: str = "text-embedding-ada-002"):
-        import openai
-
         self.client = openai.AsyncOpenAI(api_key=api_key)
         self.model = model
-        self._dimension = 1536  # Ada-002 dimension
+        self._dimension = 1536
 
     async def generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding using OpenAI."""
@@ -57,7 +55,7 @@ class OpenAIEmbeddingProvider(BaseEmbeddingProvider):
             response = await self.client.embeddings.create(model=self.model, input=text)
             return np.array(response.data[0].embedding)
         except Exception as e:
-            logger.error(f"OpenAI embedding error: {e}")
+            logger.exception(f"OpenAI embedding error: {e}")
             raise
 
     async def generate_batch_embeddings(self, texts: list[str]) -> list[np.ndarray]:
@@ -68,7 +66,7 @@ class OpenAIEmbeddingProvider(BaseEmbeddingProvider):
             )
             return [np.array(data.embedding) for data in response.data]
         except Exception as e:
-            logger.error(f"OpenAI batch embedding error: {e}")
+            logger.exception(f"OpenAI batch embedding error: {e}")
             raise
 
     @property
@@ -88,14 +86,13 @@ class SentenceTransformerProvider(BaseEmbeddingProvider):
     async def generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding using Sentence Transformers."""
         try:
-            # Run in thread pool to avoid blocking
             import asyncio
 
             loop = asyncio.get_event_loop()
             embedding = await loop.run_in_executor(None, self.model.encode, text)
             return np.array(embedding)
         except Exception as e:
-            logger.error(f"Sentence Transformer embedding error: {e}")
+            logger.exception(f"Sentence Transformer embedding error: {e}")
             raise
 
     async def generate_batch_embeddings(self, texts: list[str]) -> list[np.ndarray]:
@@ -107,7 +104,7 @@ class SentenceTransformerProvider(BaseEmbeddingProvider):
             embeddings = await loop.run_in_executor(None, self.model.encode, texts)
             return [np.array(emb) for emb in embeddings]
         except Exception as e:
-            logger.error(f"Sentence Transformer batch embedding error: {e}")
+            logger.exception(f"Sentence Transformer batch embedding error: {e}")
             raise
 
     @property
@@ -120,12 +117,10 @@ class SnowflakeCortexProvider(BaseEmbeddingProvider):
 
     def __init__(self, connection_params: dict):
         self.connection_params = connection_params
-        self._dimension = 768  # Cortex default
+        self._dimension = 768
 
     async def generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding using Snowflake Cortex."""
-        # Implementation would use Snowflake connection
-        # This is a placeholder
         raise NotImplementedError("Snowflake Cortex provider not implemented")
 
     async def generate_batch_embeddings(self, texts: list[str]) -> list[np.ndarray]:
@@ -143,28 +138,22 @@ class HybridEmbeddingService:
     def __init__(
         self,
         primary_provider: BaseEmbeddingProvider,
-        fallback_providers: Optional[list[BaseEmbeddingProvider]] = None,
+        fallback_providers: list[BaseEmbeddingProvider] | None = None,
         cache_embeddings: bool = True,
     ):
         self.primary_provider = primary_provider
         self.fallback_providers = fallback_providers or []
         self.cache_embeddings = cache_embeddings
-
         if cache_embeddings:
-            from functools import lru_cache
-
             self._cache = {}
 
     async def generate_embedding(self, text: str, use_cache: bool = True) -> np.ndarray:
         """Generate embedding with fallback support."""
-        # Check cache first
         if self.cache_embeddings and use_cache:
             cache_key = hash(text)
             if cache_key in self._cache:
                 logger.debug("Returning cached embedding")
                 return self._cache[cache_key]
-
-        # Try primary provider
         try:
             embedding = await self.primary_provider.generate_embedding(text)
             if self.cache_embeddings:
@@ -172,8 +161,6 @@ class HybridEmbeddingService:
             return embedding
         except Exception as e:
             logger.warning(f"Primary provider failed: {e}")
-
-            # Try fallback providers
             for provider in self.fallback_providers:
                 try:
                     logger.info(
@@ -186,8 +173,6 @@ class HybridEmbeddingService:
                 except Exception as fallback_error:
                     logger.warning(f"Fallback provider failed: {fallback_error}")
                     continue
-
-            # All providers failed
             raise RuntimeError("All embedding providers failed")
 
     async def generate_batch_embeddings(
@@ -195,11 +180,8 @@ class HybridEmbeddingService:
     ) -> list[np.ndarray]:
         """Generate embeddings for multiple texts with batching."""
         all_embeddings = []
-
-        # Process in batches
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]
-
             try:
                 embeddings = await self.primary_provider.generate_batch_embeddings(
                     batch
@@ -209,11 +191,9 @@ class HybridEmbeddingService:
                 logger.warning(
                     f"Batch embedding failed, falling back to individual: {e}"
                 )
-                # Fall back to individual embeddings
                 for text in batch:
                     embedding = await self.generate_embedding(text)
                     all_embeddings.append(embedding)
-
         return all_embeddings
 
     @property
@@ -222,14 +202,10 @@ class HybridEmbeddingService:
         return self.primary_provider.dimension
 
 
-# Factory function for creating embedding service
 def create_embedding_service(
     primary: str = "openai", enable_fallback: bool = True, **kwargs
 ) -> HybridEmbeddingService:
     """Create embedding service with specified configuration."""
-    providers = []
-
-    # Create primary provider
     if primary == "openai":
         primary_provider = OpenAIEmbeddingProvider(
             api_key=kwargs.get("openai_api_key"),
@@ -241,16 +217,12 @@ def create_embedding_service(
         )
     else:
         raise ValueError(f"Unknown primary provider: {primary}")
-
-    # Create fallback providers if enabled
     fallback_providers = []
     if enable_fallback:
-        # Add sentence transformer as fallback if not primary
         if primary != "sentence_transformer":
             fallback_providers.append(
                 SentenceTransformerProvider(model_name="all-MiniLM-L6-v2")
             )
-
     return HybridEmbeddingService(
         primary_provider=primary_provider,
         fallback_providers=fallback_providers,

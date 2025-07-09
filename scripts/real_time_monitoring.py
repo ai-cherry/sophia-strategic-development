@@ -193,7 +193,7 @@ class RealTimeMonitor:
         )
 
         # Service Details
-        for _service_id, service_data in results["services"].items():
+        for service_data in results["services"].values():
             self.get_status_icon(service_data["status"])
             service_data["name"]
             service_data["port"]

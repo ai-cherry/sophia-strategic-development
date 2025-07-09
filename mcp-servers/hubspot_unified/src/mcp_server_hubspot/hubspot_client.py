@@ -19,7 +19,7 @@ from .clients.ticket_client import TicketClient
 from .core.storage import ThreadStorage
 
 # Re-export ApiException
-__all__ = ["HubSpotClient", "ApiException"]
+__all__ = ["ApiException", "HubSpotClient"]
 
 logger = logging.getLogger("mcp_hubspot_client")
 

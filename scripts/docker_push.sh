@@ -12,13 +12,13 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Docker Hub configuration
-DOCKER_USERNAME="scoobyjava15"
+DOCKERHUB_USERNAME="scoobyjava15"
 DOCKER_REGISTRY="docker.io"
 
 # Image configuration
 IMAGE_NAME="sophia-backend"
 IMAGE_TAG="${IMAGE_TAG:-latest}"
-FULL_IMAGE_NAME="${DOCKER_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+FULL_IMAGE_NAME="${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 
 echo -e "${YELLOW}🐳 Docker Push Script for Sophia AI${NC}"
 echo "========================================="
@@ -37,7 +37,7 @@ if [ -z "$DOCKER_TOKEN" ]; then
 fi
 
 echo -e "${YELLOW}📝 Logging into Docker Hub...${NC}"
-echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+echo "$DOCKER_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Successfully logged into Docker Hub${NC}"
@@ -47,7 +47,7 @@ else
 fi
 
 # Check if the image exists locally
-if docker images | grep -q "${DOCKER_USERNAME}/${IMAGE_NAME}"; then
+if docker images | grep -q "${DOCKERHUB_USERNAME}/${IMAGE_NAME}"; then
     echo -e "${GREEN}✅ Found image: ${FULL_IMAGE_NAME}${NC}"
 else
     echo -e "${RED}❌ Image not found: ${FULL_IMAGE_NAME}${NC}"
@@ -61,7 +61,7 @@ docker push "${FULL_IMAGE_NAME}"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Successfully pushed ${FULL_IMAGE_NAME} to Docker Hub${NC}"
-    echo -e "${GREEN}🎉 Image is now available at: https://hub.docker.com/r/${DOCKER_USERNAME}/${IMAGE_NAME}${NC}"
+    echo -e "${GREEN}🎉 Image is now available at: https://hub.docker.com/r/${DOCKERHUB_USERNAME}/${IMAGE_NAME}${NC}"
 else
     echo -e "${RED}❌ Failed to push image to Docker Hub${NC}"
     exit 1

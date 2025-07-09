@@ -5,10 +5,9 @@ Centralized configuration with validation and environment support
 
 from __future__ import annotations
 
-import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from pydantic import BaseSettings, Field, validator
+from pydantic import BaseSettings, Field, field_validator, validator
 
 
 class AIMemoryConfig(BaseSettings):
@@ -32,7 +31,7 @@ class AIMemoryConfig(BaseSettings):
 
     # Redis Configuration
     redis_url: str = Field(..., env="REDIS_URL")
-    redis_password: Optional[str] = Field(default=None, env="REDIS_PASSWORD")
+    redis_password: str | None = Field(default=None, env="REDIS_PASSWORD")
     redis_db: int = Field(default=0, env="REDIS_DB", ge=0, le=15)
     redis_max_connections: int = Field(
         default=20, env="REDIS_MAX_CONNECTIONS", ge=1, le=100
@@ -47,8 +46,8 @@ class AIMemoryConfig(BaseSettings):
         default="sophia-ai-memory", env="PINECONE_INDEX_NAME"
     )
 
-    weaviate_url: Optional[str] = Field(default=None, env="WEAVIATE_URL")
-    weaviate_api_key: Optional[str] = Field(default=None, env="WEAVIATE_API_KEY")
+    weaviate_url: str | None = Field(default=None, env="WEAVIATE_URL")
+    weaviate_api_key: str | None = Field(default=None, env="WEAVIATE_API_KEY")
 
     # AI/ML Configuration
     openai_api_key: str = Field(..., env="OPENAI_API_KEY")
@@ -104,7 +103,8 @@ class AIMemoryConfig(BaseSettings):
         default=60, env="METRICS_EXPORT_INTERVAL", ge=10, le=300
     )
 
-    @validator("log_level")
+    @field_validator("log_level", mode="before")
+    @classmethod
     def validate_log_level(cls, v: str) -> str:
         """Validate log level"""
         valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
@@ -112,7 +112,8 @@ class AIMemoryConfig(BaseSettings):
             raise ValueError(f"Log level must be one of: {valid_levels}")
         return v.upper()
 
-    @validator("embedding_model")
+    @field_validator("embedding_model", mode="before")
+    @classmethod
     def validate_embedding_model(cls, v: str) -> str:
         """Validate embedding model"""
         valid_models = {
@@ -125,7 +126,7 @@ class AIMemoryConfig(BaseSettings):
         return v
 
     @validator("allowed_origins", pre=True)
-    def parse_allowed_origins(cls, v) -> list[str]:
+    def parse_allowed_origins(self, v) -> list[str]:
         """Parse allowed origins from string or list"""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]

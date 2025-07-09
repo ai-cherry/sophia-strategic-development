@@ -4,7 +4,7 @@
 
 ### 1. **Strategic Integration Plan**
 - Created `ESTUARY_FLOW_INTEGRATION_PLAN.md` with comprehensive architecture
-- Designed to replace Airbyte with superior real-time capabilities
+- Designed to replace Estuary Flow with superior real-time capabilities
 - Integrated with all V2 MCP servers for unified data pipeline
 
 ### 2. **Gong V2 MCP Server Enhancement**
@@ -106,7 +106,7 @@ MCP Servers → Estuary Collections → Derivations → Materializations
 
 3. **Test webhook integration**:
    ```bash
-   curl -X POST http://146.235.200.1:9009/estuary/webhook \
+   curl -X POST http://192.222.58.232:9009/estuary/webhook \
      -H "Authorization: Bearer ${ESTUARY_GONG_TOKEN}" \
      -d '{"type": "call_completed", "data": {...}}'
    ```
@@ -127,7 +127,7 @@ MCP Servers → Estuary Collections → Derivations → Materializations
 - Executive visibility
 
 ### Cost Savings
-- 30% reduction vs Airbyte
+- 30% reduction vs Estuary Flow
 - Reduced infrastructure complexity
 - Lower maintenance overhead
 
@@ -145,4 +145,4 @@ All components are:
 - ✅ Monitored with Grafana
 - ✅ Deployed via automation
 
-**Next Step**: Run `./scripts/deploy-estuary-flow.sh` to activate! 🌊 
+**Next Step**: Run `./scripts/deploy-estuary-flow.sh` to activate! 🌊

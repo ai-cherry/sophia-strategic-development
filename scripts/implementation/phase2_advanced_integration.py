@@ -717,7 +717,7 @@ alerting:
                 return False
 
         except Exception as e:
-            logger.error(f"Phase 2 setup failed: {e}")
+            logger.exception(f"Phase 2 setup failed: {e}")
             return False
 
 

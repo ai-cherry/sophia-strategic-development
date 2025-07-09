@@ -74,14 +74,14 @@ class MCPServerManager:
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Error starting {name}: {e}")
+            logger.exception(f"❌ Error starting {name}: {e}")
             return False
 
     def check_port_in_use(self, port: int) -> bool:
         """Check if a port is already in use"""
         try:
             result = subprocess.run(
-                ["lsof", "-i", f":{port}"], capture_output=True, text=True
+                ["lsof", "-i", f":{port}"], check=False, capture_output=True, text=True
             )
             return result.returncode == 0
         except:

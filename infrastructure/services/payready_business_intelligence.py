@@ -143,7 +143,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             return response
 
         except Exception as e:
-            logger.error(f"Error processing BI request: {e}")
+            logger.exception(f"Error processing BI request: {e}")
             return BusinessIntelligenceResponse(
                 request_id=request_id,
                 request_type=request.request_type,
@@ -515,7 +515,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
 
         # Competitive displacement
         competitive_data = market_data.get("competitive_landscape", {})
-        for _competitor, data in competitive_data.get("competitors", {}).items():
+        for data in competitive_data.get("competitors", {}).values():
             if data.get("vulnerability_score", 0) > 0.7:
                 opportunities.append(
                     {
@@ -633,7 +633,7 @@ class PayReadyBusinessIntelligenceOrchestrator(BaseAgent):
             await self.sophia_core.log_activity(sophia_context)
 
         except Exception as e:
-            logger.error(f"Failed to log to Sophia: {e}")
+            logger.exception(f"Failed to log to Sophia: {e}")
 
     # Sophia Chat Integration Methods
 

@@ -2,6 +2,7 @@
 Optimized Prompt Templates for Sophia AI
 Reduces LLM costs by 30% through intelligent prompt engineering
 """
+
 import logging
 from enum import Enum
 
@@ -218,7 +219,7 @@ class CostOptimizationTracker:
 
             # Keep first 2 and last 2 sentences
             if len(sentences) > 5:
-                key_parts = sentences[:2] + ["..."] + sentences[-2:]
+                key_parts = [*sentences[:2], "...", *sentences[-2:]]
                 optimized = ". ".join(key_parts)
 
                 return f"Summarize and analyze: {optimized}"

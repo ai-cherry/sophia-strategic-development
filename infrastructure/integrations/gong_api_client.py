@@ -331,7 +331,7 @@ class GongAPIClient:
                 )
                 results[name] = None
             except Exception as e:
-                self.logger.error(
+                self.logger.exception(
                     f"Unexpected error fetching {name} data",
                     call_id=call_id,
                     error=str(e),

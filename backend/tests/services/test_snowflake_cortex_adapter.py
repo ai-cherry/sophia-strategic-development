@@ -1,0 +1,440 @@
+"""
+Unit tests for Snowflake Cortex Adapter
+Tests dual-mode execution, fallback, and circuit breaker functionality.
+"""
+
+import time
+from unittest.mock import AsyncMock, patch
+
+import pytest
+
+from backend.core.services.snowflake_cortex_adapter import (
+    CortexAdapter,
+    CortexQuery,
+    CortexResult,
+    CortexTask,
+    ExecutionMode,
+    RetryConfig,
+)
+from backend.core.services.snowflake_pool import (
+    PoolExhaustedError,
+    SnowflakePoolManager,
+)
+from backend.integrations.snowflake_mcp_client import SnowflakeMCPClient
+
+
+@pytest.fixture
+def mock_mcp_client():
+    """Create mock MCP client"""
+    client = AsyncMock(spec=SnowflakeMCPClient)
+    client.health_check.return_value = {"status": "healthy"}
+    return client
+
+
+@pytest.fixture
+def mock_pool_manager():
+    """Create mock pool manager"""
+    manager = AsyncMock(spec=SnowflakePoolManager)
+    manager.get_health.return_value = {
+        "direct": {"size": 10, "in_use": 2},
+        "mcp": {"size": 20, "in_use": 5},
+    }
+    return manager
+
+
+@pytest.fixture
+def adapter(mock_mcp_client, mock_pool_manager):
+    """Create CortexAdapter with mocked dependencies"""
+    return CortexAdapter(
+        execution_mode=ExecutionMode.AUTO,
+        mcp_client=mock_mcp_client,
+        pool_manager=mock_pool_manager,
+        enable_fallback=True,
+    )
+
+
+@pytest.mark.asyncio
+class TestCortexAdapter:
+    """Test suite for CortexAdapter"""
+
+    @pytest.mark.parametrize(
+        "task_type,mode",
+        [
+            ("complete", ExecutionMode.DIRECT),
+            ("complete", ExecutionMode.MCP),
+            ("search", ExecutionMode.DIRECT),
+            ("search", ExecutionMode.MCP),
+            ("analyst", ExecutionMode.DIRECT),
+            ("analyst", ExecutionMode.MCP),
+        ],
+    )
+    async def test_execution_modes(self, adapter, task_type, mode):
+        """Test all task types in both execution modes"""
+        # Create query
+        query = CortexQuery(
+            text="Test query",
+            task=CortexTask(type=task_type, model="arctic"),
+            timeout_s=30,
+        )
+
+        # Configure adapter for specific mode
+        adapter.execution_mode = mode
+
+        # Mock responses based on mode
+        if mode == ExecutionMode.DIRECT:
+            mock_conn = AsyncMock()
+            mock_conn.execute_async.return_value = [
+                {
+                    "response": "Direct response",
+                    "usage": {"tokens": 100, "credits": 0.1},
+                }
+            ]
+            adapter.pool_manager.acquire.return_value = mock_conn
+        else:
+            adapter.mcp_client.execute_cortex.return_value = {
+                "response": "MCP response",
+                "usage": {"tokens": 150, "credits": 0.15},
+                "model": "arctic",
+                "server_id": "snowflake-cortex-primary",
+            }
+
+        # Execute
+        result = await adapter.run(query)
+
+        # Verify result
+        assert isinstance(result, CortexResult)
+        assert result.execution_mode == mode
+        assert result.trace_id.startswith("cortex-")
+        assert result.model_used == "arctic"
+        assert result.usage["tokens"] > 0
+
+        # Verify correct method was called
+        if mode == ExecutionMode.DIRECT:
+            adapter.pool_manager.acquire.assert_called_once_with(ExecutionMode.DIRECT)
+            adapter.pool_manager.release.assert_called_once()
+        else:
+            adapter.mcp_client.execute_cortex.assert_called_once()
+
+    async def test_automatic_mode_selection(self, adapter):
+        """Test AUTO mode selecting appropriate execution mode"""
+        # Small query should use MCP
+        small_query = CortexQuery(
+            text="Short query", task=CortexTask(type="complete", max_tokens=100)
+        )
+
+        adapter.mcp_client.execute_cortex.return_value = {
+            "response": "Small response",
+            "usage": {"tokens": 50},
+        }
+
+        result = await adapter.run(small_query)
+        assert result.execution_mode == ExecutionMode.MCP
+
+        # Large analyst query should use DIRECT
+        large_query = CortexQuery(
+            text="Complex analyst query",
+            task=CortexTask(type="analyst", max_tokens=8000),
+        )
+
+        mock_conn = AsyncMock()
+        mock_conn.execute_async.return_value = [
+            {"response": "Large response", "usage": {"tokens": 5000}}
+        ]
+        adapter.pool_manager.acquire.return_value = mock_conn
+
+        result = await adapter.run(large_query)
+        assert result.execution_mode == ExecutionMode.DIRECT
+
+    async def test_automatic_fallback(self, adapter):
+        """Test fallback from MCP to DIRECT mode"""
+        query = CortexQuery(text="Test query", task=CortexTask(type="complete"))
+
+        # Configure MCP to fail
+        adapter.mcp_client.execute_cortex.side_effect = ConnectionError(
+            "MCP unavailable"
+        )
+
+        # Configure direct mode to succeed
+        mock_conn = AsyncMock()
+        mock_conn.execute_async.return_value = [
+            {"response": "Fallback response", "usage": {"tokens": 100}}
+        ]
+        adapter.pool_manager.acquire.return_value = mock_conn
+
+        # Execute
+        result = await adapter.run(query)
+
+        # Verify fallback occurred
+        assert result.response == "Fallback response"
+        assert result.execution_mode == ExecutionMode.DIRECT
+        assert result.metadata.get("fallback") is True
+
+        # Verify both methods were attempted
+        adapter.mcp_client.execute_cortex.assert_called_once()
+        adapter.pool_manager.acquire.assert_called_once_with(ExecutionMode.DIRECT)
+
+    async def test_circuit_breaker(self, adapter):
+        """Test circuit breaker functionality"""
+        query = CortexQuery(text="Test query", task=CortexTask(type="complete"))
+
+        # Force MCP mode
+        adapter.execution_mode = ExecutionMode.MCP
+
+        # Configure MCP to fail multiple times
+        adapter.mcp_client.execute_cortex.side_effect = ConnectionError("MCP error")
+
+        # Configure direct mode for fallback
+        mock_conn = AsyncMock()
+        mock_conn.execute_async.return_value = [
+            {"response": "Fallback response", "usage": {"tokens": 100}}
+        ]
+        adapter.pool_manager.acquire.return_value = mock_conn
+
+        # Trigger failures to open circuit
+        for i in range(3):
+            result = await adapter.run(query)
+            assert result.execution_mode == ExecutionMode.DIRECT
+
+        # Circuit should now be open
+        assert adapter.mcp_circuit_open is True
+        assert adapter.mcp_failures == 3
+
+        # Even with MCP mode forced, should use DIRECT due to open circuit
+        adapter.mcp_client.reset_mock()
+        result = await adapter.run(query)
+
+        # Should not even try MCP
+        adapter.mcp_client.execute_cortex.assert_not_called()
+        assert result.execution_mode == ExecutionMode.DIRECT
+
+    async def test_retry_logic(self, adapter):
+        """Test retry logic with exponential backoff"""
+        query = CortexQuery(
+            text="Test query",
+            task=CortexTask(type="complete"),
+            retry=RetryConfig(max_attempts=3, initial_delay=0.1),
+        )
+
+        # Force direct mode
+        adapter.execution_mode = ExecutionMode.DIRECT
+
+        # Configure connection to fail twice then succeed
+        mock_conn = AsyncMock()
+        mock_conn.execute_async.side_effect = [
+            Exception("Temporary error"),
+            Exception("Another temporary error"),
+            [{"response": "Success after retries", "usage": {"tokens": 100}}],
+        ]
+        adapter.pool_manager.acquire.return_value = mock_conn
+
+        # Execute
+        start_time = time.time()
+        result = await adapter.run(query)
+        elapsed = time.time() - start_time
+
+        # Verify success after retries
+        assert result.response == "Success after retries"
+        assert mock_conn.execute_async.call_count == 3
+
+        # Verify exponential backoff (0.1 + 0.2 = 0.3 seconds minimum)
+        assert elapsed >= 0.3
+
+    async def test_sql_generation(self, adapter):
+        """Test SQL generation for different task types"""
+        # Test complete task
+        complete_query = CortexQuery(
+            text="Summarize this text",
+            task=CortexTask(type="complete", model="arctic", temperature=0.5),
+        )
+
+        sql = adapter._build_cortex_sql(complete_query)
+        assert "SNOWFLAKE.CORTEX.COMPLETE" in sql
+        assert "'arctic'" in sql
+        assert "'temperature': 0.5" in sql
+
+        # Test search task
+        search_query = CortexQuery(
+            text="Find relevant documents",
+            task=CortexTask(type="search", model="e5-base-v2"),
+        )
+
+        sql = adapter._build_cortex_sql(search_query)
+        assert "SNOWFLAKE.CORTEX.SEARCH" in sql
+        assert "relevance_score" in sql
+
+        # Test analyst task
+        analyst_query = CortexQuery(
+            text="Generate SQL for top customers",
+            task=CortexTask(type="analyst", model="arctic"),
+            metadata={"context_tables": ["customers", "orders"]},
+        )
+
+        sql = adapter._build_cortex_sql(analyst_query)
+        assert "SNOWFLAKE.CORTEX.ANALYST" in sql
+        assert "context_tables" in sql
+
+    async def test_streaming_response(self, adapter):
+        """Test handling of streaming responses from MCP"""
+        query = CortexQuery(
+            text="Generate long response", task=CortexTask(type="complete")
+        )
+
+        # Configure MCP for streaming
+        adapter.mcp_client.execute_cortex.return_value = {
+            "stream": True,
+            "stream_id": "stream-123",
+            "usage": {"tokens": 500},
+        }
+
+        # Mock streaming chunks
+        async def mock_stream(stream_id):
+            chunks = [
+                {"text": "This is "},
+                {"text": "a streaming "},
+                {"text": "response."},
+            ]
+            for chunk in chunks:
+                yield chunk
+
+        adapter.mcp_client.stream_response = mock_stream
+
+        # Add streaming callback
+        chunks_received = []
+
+        async def streaming_callback(chunk):
+            chunks_received.append(chunk)
+
+        adapter.streaming_callback = streaming_callback
+
+        # Execute
+        adapter.execution_mode = ExecutionMode.MCP
+        result = await adapter.run(query)
+
+        # Verify streaming worked
+        assert result.response == "This is a streaming response."
+        assert len(chunks_received) == 3
+
+    async def test_health_check(self, adapter):
+        """Test adapter health check"""
+        health = await adapter.health_check()
+
+        assert health["status"] in ["healthy", "degraded"]
+        assert health["execution_mode"] == "auto"
+        assert "pools" in health
+        assert "mcp_client" in health
+
+        # Test with circuit open
+        adapter.mcp_circuit_open = True
+        health = await adapter.health_check()
+        assert health["status"] == "degraded"
+        assert health["mcp_circuit_open"] is True
+
+    async def test_context_passing(self, adapter):
+        """Test passing context to Cortex"""
+        context_data = {
+            "user_profile": {"industry": "finance"},
+            "session_history": ["previous query 1", "previous query 2"],
+        }
+
+        query = CortexQuery(
+            text="Analyze financial data",
+            task=CortexTask(type="analyst"),
+            context=context_data,
+        )
+
+        # Mock MCP response
+        adapter.mcp_client.execute_cortex.return_value = {
+            "response": "Context-aware response",
+            "usage": {"tokens": 200},
+        }
+
+        # Execute
+        adapter.execution_mode = ExecutionMode.MCP
+        await adapter.run(query)
+
+        # Verify context was passed
+        call_args = adapter.mcp_client.execute_cortex.call_args[0][0]
+        assert call_args["parameters"]["context"] == context_data
+
+    async def test_pool_exhaustion_handling(self, adapter):
+        """Test handling of pool exhaustion"""
+        query = CortexQuery(text="Test query", task=CortexTask(type="complete"))
+
+        # Configure pool to be exhausted
+        adapter.pool_manager.acquire.side_effect = PoolExhaustedError(
+            "No connections available"
+        )
+
+        # Execute
+        adapter.execution_mode = ExecutionMode.DIRECT
+
+        with pytest.raises(PoolExhaustedError):
+            await adapter.run(query)
+
+    @patch("backend.monitoring.cortex_metrics.cortex_calls_total")
+    @patch("backend.monitoring.cortex_metrics.cortex_latency_seconds")
+    async def test_metrics_recording(self, mock_latency, mock_calls, adapter):
+        """Test that metrics are properly recorded"""
+        query = CortexQuery(
+            text="Test query", task=CortexTask(type="complete", model="arctic")
+        )
+
+        # Configure successful response
+        adapter.mcp_client.execute_cortex.return_value = {
+            "response": "Test response",
+            "usage": {"tokens": 100},
+        }
+
+        # Execute
+        adapter.execution_mode = ExecutionMode.MCP
+        await adapter.run(query)
+
+        # Verify metrics were recorded
+        mock_calls.labels.assert_called_with(
+            mode="mcp", task="complete", status="success", model="arctic"
+        )
+        mock_calls.labels().inc.assert_called_once()
+
+        mock_latency.labels.assert_called_with(
+            mode="mcp", task="complete", model="arctic"
+        )
+        mock_latency.labels().observe.assert_called_once()
+
+
+@pytest.mark.asyncio
+class TestCortexIntegration:
+    """Integration tests requiring actual connections"""
+
+    @pytest.mark.integration
+    async def test_real_snowflake_connection(self):
+        """Test with real Snowflake connection (requires credentials)"""
+        # Skip if no credentials
+        try:
+            from backend.core.auto_esc_config import get_snowflake_config
+
+            config = get_snowflake_config()
+            if not config.get("password"):
+                pytest.skip("No Snowflake credentials available")
+        except:
+            pytest.skip("Cannot load Snowflake configuration")
+
+        # Create real adapter
+        adapter = CortexAdapter(execution_mode=ExecutionMode.DIRECT)
+        await adapter.pool_manager.initialize()
+
+        try:
+            # Simple query
+            query = CortexQuery(
+                text="What is 2+2?",
+                task=CortexTask(type="complete", model="mistral-7b", max_tokens=10),
+            )
+
+            result = await adapter.run(query)
+
+            assert result.response
+            assert "4" in result.response or "four" in result.response.lower()
+            assert result.latency_ms > 0
+            assert result.usage["tokens"] > 0
+
+        finally:
+            await adapter.pool_manager.close()

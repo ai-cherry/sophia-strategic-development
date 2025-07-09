@@ -76,7 +76,7 @@ def analyze_file(file_path: Path) -> dict[str, Any]:
         return _calculate_file_stats(file_path, analyzer)
 
     except Exception as e:
-        logger.error(f"Error analyzing {file_path}: {e}")
+        logger.exception(f"Error analyzing {file_path}: {e}")
         return {"file": str(file_path), "error": str(e)}
 
 

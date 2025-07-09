@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from enum import Enum
-from typing import Optional, Union
 
 from core.auto_esc_config import get_config_value
 from core.optimized_cache import OptimizedCache
@@ -68,7 +67,7 @@ class DataSourceManager:
                 ),
             }
         except Exception as e:
-            logger.error(f"Failed to load feature flags from Pulumi ESC: {e}")
+            logger.exception(f"Failed to load feature flags from Pulumi ESC: {e}")
             # Return a default safe configuration
             return {
                 "enable_real_data": False,
@@ -98,7 +97,7 @@ class DataSourceManager:
                 return self._get_mock_data(source, query)
             raise DataError("Real data disabled and no mock data available")
 
-        cache_key = f"{source.value}:{query}:{str(params)}"
+        cache_key = f"{source.value}:{query}:{params!s}"
         if use_cache and self.feature_flags["enable_caching"]:
             cached_data = await self.cache.get(cache_key)
             if cached_data:
@@ -131,13 +130,13 @@ class DataSourceManager:
             return data
 
         except ConnectionError as e:
-            logger.error(f"Connection error for {source.value}: {e}")
+            logger.exception(f"Connection error for {source.value}: {e}")
             raise
         except EmptyResultError as e:
             logger.warning(f"Empty result for {source.value}: {e}")
             return []
         except DataValidationError as e:
-            logger.error(f"Data validation error for {source.value}: {e}")
+            logger.exception(f"Data validation error for {source.value}: {e}")
             raise
         except Exception as e:
             logger.exception(f"Unexpected error fetching from {source.value}")

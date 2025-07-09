@@ -22,7 +22,7 @@ Successfully resolved all critical deployment blockers identified in initial tes
 - **Status**: ✅ Both requirements.txt and requirements.docker.txt created
 
 ### **3. Environment Variables Setup** ✅ COMPLETED
-- **Issue**: Missing DOCKER_USER_NAME, DOCKER_PERSONAL_ACCESS_TOKEN, LAMBDA_LABS_API_KEY
+- **Issue**: Missing DOCKERHUB_USERNAME, DOCKER_TOKEN, LAMBDA_LABS_API_KEY
 - **Solution**: Created `.env.lambda-labs` template with clear instructions
 - **Status**: ✅ Environment template ready for credential configuration
 
@@ -53,10 +53,10 @@ python scripts/validate_deployment_env.py
 ### **Phase 2: Lambda Labs Connectivity Test (10 minutes)**
 ```bash
 # Test Lambda Labs instance connectivity
-ping 146.235.200.1
+ping 192.222.58.232
 
 # Test SSH access (if configured)
-ssh user@146.235.200.1
+ssh user@192.222.58.232
 
 # Test Docker registry push
 docker tag sophia-ai-working scoobyjava15/sophia-ai:july5-2025
@@ -81,8 +81,8 @@ kubectl get pods -n sophia-ai
 python scripts/deploy_and_test_lambda_labs.py
 
 # Test all endpoints
-curl http://146.235.200.1:30000/health
-curl http://146.235.200.1:30000/docs
+curl http://192.222.58.232:30000/health
+curl http://192.222.58.232:30000/docs
 ```
 
 ## 📊 **Performance Improvements Achieved**

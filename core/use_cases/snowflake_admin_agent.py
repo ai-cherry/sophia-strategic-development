@@ -1,4 +1,3 @@
-from core.unified_connection_manager import UnifiedConnectionManager
 import time
 
 """
@@ -234,6 +233,7 @@ class SnowflakeAdminAgent:
                     openai_api_key=openai_key,
                     max_tokens=1000,
                 )
+
                 logger.info("✅ Initialized ChatOpenAI for Snowflake Admin Agent")
             else:
                 raise ValueError("OpenAI API key not available")
@@ -289,12 +289,14 @@ class SnowflakeAdminAgent:
             connection_string = self._build_connection_string(
                 connection_params, environment
             )
+
             sql_db = SQLDatabase.from_uri(
                 connection_string,
                 include_tables=[],  # Don't include business tables for security
                 custom_table_info={},  # We'll use INFORMATION_SCHEMA
                 max_string_length=1000,
             )
+
             self.sql_databases[environment] = sql_db
 
             # Create LangChain agent for this environment
@@ -309,6 +311,7 @@ class SnowflakeAdminAgent:
                 max_execution_time=30,
                 early_stopping_method="generate",
             )
+
             self.agents[environment] = agent
 
             logger.info(f"✅ Initialized Snowflake connection for {environment.value}")
@@ -491,7 +494,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 logger.error(f"Agent execution error: {agent_error}")
                 return AdminTaskResponse(
                     success=False,
-                    message=f"Error executing admin task: {str(agent_error)}",
+                    message=f"Error executing admin task: {agent_error!s}",
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
                 )
@@ -500,7 +503,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
             logger.error(f"Snowflake admin task failed: {e}")
             return AdminTaskResponse(
                 success=False,
-                message=f"Admin task failed: {str(e)}",
+                message=f"Admin task failed: {e!s}",
                 environment=request.target_environment,
                 execution_time=asyncio.get_event_loop().time() - start_time,
             )
@@ -565,7 +568,10 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 if action_statements:
                     try:
                         # Use optimized connection manager for batch execution
-                        from core.optimized_connection_manager import OptimizedConnectionManager
+                        from core.optimized_connection_manager import (
+                            OptimizedConnectionManager,
+                        )
+
                         connection_manager = OptimizedConnectionManager()
 
                         batch_queries = [(stmt, None) for stmt in action_statements]
@@ -573,14 +579,15 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         logger.info(
                             f"Executed {len(action_statements)} action statements in batch"
                         )
+
                     except Exception as batch_error:
                         logger.error(
                             f"Batch execution failed, falling back to individual: {batch_error}"
                         )
+
                         # Fallback to individual execution for action statements
                         for statement in action_statements:
-                            await # TODO: Replace with repository method
-    # repository.execute_query(statement)
+                            await connection_manager.execute_query(statement)
                             logger.info(f"Executed confirmed SQL: {statement}")
 
                 # Execute query statements and collect results
@@ -597,10 +604,10 @@ Thought: I should understand what the user wants to do and determine if it's a s
                         logger.error(
                             f"Query batch failed, falling back to individual: {query_error}"
                         )
+
                         # Fallback to individual execution for queries
                         for statement in query_statements:
-                            await # TODO: Replace with repository method
-    # repository.execute_query(statement)
+                            await connection_manager.execute_query(statement)
                             rows = await cursor.fetchall()
                             results.extend(rows)
                             logger.info(f"Executed confirmed SQL: {statement}")
@@ -618,11 +625,12 @@ Thought: I should understand what the user wants to do and determine if it's a s
                 logger.error(f"SQL execution error: {sql_error}")
                 return AdminTaskResponse(
                     success=False,
-                    message=f"SQL execution failed: {str(sql_error)}",
+                    message=f"SQL execution failed: {sql_error!s}",
                     sql_executed=confirmed_sql,
                     environment=environment,
                     execution_time=asyncio.get_event_loop().time() - start_time,
                 )
+
             finally:
                 cursor.close()
 
@@ -630,7 +638,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
             logger.error(f"Confirmed execution failed: {e}")
             return AdminTaskResponse(
                 success=False,
-                message=f"Confirmed execution failed: {str(e)}",
+                message=f"Confirmed execution failed: {e!s}",
                 environment=request.target_environment,
                 execution_time=asyncio.get_event_loop().time() - start_time,
             )
@@ -658,11 +666,10 @@ Thought: I should understand what the user wants to do and determine if it's a s
             }
 
             # Get current session information
-            await # TODO: Replace with repository method
-    # repository.execute_query(
+            cursor.execute(
                 "SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_DATABASE(), CURRENT_SCHEMA()"
             )
-            session_info = await cursor.fetchone()
+            session_info = cursor.fetchone()
 
             if session_info:
                 info.update(
@@ -757,7 +764,6 @@ async def execute_snowflake_admin_task(
         target_environment=env,
         user_id=user_id,
     )
-
     return await snowflake_admin_agent.execute_admin_task(request)
 
 
@@ -793,7 +799,6 @@ async def confirm_snowflake_admin_task(
         user_id=user_id,
         requires_confirmation=True,
     )
-
     return await snowflake_admin_agent.confirm_and_execute(request, confirmed_sql)
 
 

@@ -2,14 +2,14 @@
 
 ## 🌊 Executive Summary
 
-Estuary Flow will replace Airbyte as our primary data ingestion layer, providing real-time CDC capabilities, better scalability, and unified data pipeline management. This integration enhances our V2 MCP server architecture with enterprise-grade data streaming.
+Estuary Flow will replace Estuary Flow as our primary data ingestion layer, providing real-time CDC capabilities, better scalability, and unified data pipeline management. This integration enhances our V2 MCP server architecture with enterprise-grade data streaming.
 
 ## 📊 Architecture Overview
 
 ```mermaid
 flowchart TB
     subgraph "Data Sources"
-        GV2[Gong V2 MCP<br/>Port 9009] 
+        GV2[Gong V2 MCP<br/>Port 9009]
         SV2[Slack V2 MCP<br/>Port 9007]
         HUB[HubSpot API]
         GH2[GitHub V2 MCP<br/>Port 9006]
@@ -39,15 +39,15 @@ flowchart TB
     HUB --> EC
     GH2 --> EC
     SNF --> EC
-    
+
     EC --> ED
     ED --> EM
-    
+
     EM --> PG
     EM --> REDIS
     EM --> SNOW
     EM --> VEC
-    
+
     PG --> AI2
     REDIS --> AI2
     VEC --> AI2
@@ -61,7 +61,7 @@ flowchart TB
 - Consistent data quality across all services
 
 ### 2. **Simplified Data Pipeline**
-- Replace complex Airbyte configurations
+- Replace complex Estuary Flow configurations
 - Single control plane for all data flows
 - GitOps-based configuration management
 
@@ -118,13 +118,13 @@ collections:
         sentiment: { type: number }
         topics: { type: array }
     key: [/call_id]
-    
+
     capture:
       endpoint:
         connector:
           image: estuary/source-http-ingest:latest
           config:
-            endpoint: "http://146.235.200.1:9009/estuary/webhook"
+            endpoint: "http://192.222.58.232:9009/estuary/webhook"
             auth:
               type: bearer
               token: ${ESTUARY_GONG_TOKEN}
@@ -140,7 +140,7 @@ SELECT
   sentiment,
   topics,
   -- Enrichments
-  CASE 
+  CASE
     WHEN sentiment < 0.3 THEN 'at_risk'
     WHEN sentiment > 0.7 THEN 'positive'
     ELSE 'neutral'
@@ -163,9 +163,9 @@ materializations:
       connector:
         image: estuary/materialize-redis:latest
         config:
-          address: "146.235.200.1:6379"
+          address: "192.222.58.232:6379"
           password: ${REDIS_PASSWORD}
-          
+
     bindings:
       - resource:
           stream: sophia-ai/gong-calls-enriched
@@ -189,24 +189,24 @@ Each V2 MCP server exposes an Estuary webhook endpoint:
 @router.post("/estuary/webhook")
 async def handle_estuary_event(event: EstuaryEvent):
     """Process real-time Estuary Flow events"""
-    
+
     # Validate event schema
     if not validate_schema(event, GONG_SCHEMA):
         raise HTTPException(400, "Invalid schema")
-    
+
     # Process based on event type
     if event.type == "call_completed":
         await process_call_transcript(event.data)
     elif event.type == "call_updated":
         await update_call_metadata(event.data)
-    
+
     # Update Redis cache
     await redis_client.setex(
         f"gong:call:{event.data['call_id']}",
         ttl=7200,
         value=json.dumps(event.data)
     )
-    
+
     return {"status": "processed", "event_id": event.id}
 ```
 
@@ -246,13 +246,13 @@ values:
 
 ### 2. **Network Security**
 - All webhooks use HTTPS with token auth
-- IP allowlisting for Lambda Labs (146.235.200.1)
+- IP allowlisting for Lambda Labs (192.222.58.232)
 - Encrypted data at rest and in transit
 
 ## 📝 Migration Strategy
 
 ### 1. **Parallel Running (Week 1)**
-- Keep Airbyte running
+- Keep Estuary Flow running
 - Deploy Estuary collections in shadow mode
 - Validate data consistency
 
@@ -261,8 +261,8 @@ values:
 - Monitor for issues
 - Maintain rollback capability
 
-### 3. **Airbyte Decommission (Week 3)**
-- Remove Airbyte configurations
+### 3. **Estuary Flow Decommission (Week 3)**
+- Remove Estuary Flow configurations
 - Clean up unused resources
 - Update documentation
 
@@ -274,7 +274,7 @@ values:
 | Data Quality | > 99.5% valid | Validation rules |
 | Throughput | 1M events/day | Flow metrics |
 | Uptime | 99.9% | Health checks |
-| Cost Reduction | 30% vs Airbyte | AWS billing |
+| Cost Reduction | 30% vs Estuary Flow | AWS billing |
 
 ## 🚧 Implementation Checklist
 
@@ -297,7 +297,7 @@ values:
 - [ ] Configure auto-recovery
 - [ ] Performance optimization
 - [ ] Complete documentation
-- [ ] Decommission Airbyte
+- [ ] Decommission Estuary Flow
 
 ## 📚 Documentation Updates
 
@@ -321,4 +321,4 @@ values:
 
 ---
 
-**Ready to implement Estuary Flow integration with our V2 MCP architecture!** 🌊 
+**Ready to implement Estuary Flow integration with our V2 MCP architecture!** 🌊

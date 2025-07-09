@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-backend
+  namespace: sophia-ai-prod
+  labels:
+    app: sophia-backend
+  annotations:
+    # Keel annotations for automatic updates
+    keel.sh/policy: all  # Update on any new tag
+    keel.sh/trigger: poll  # Poll registry for updates
+    keel.sh/approvals: "0"  # No manual approval needed
+    keel.sh/pollSchedule: "@every 1m"  # Check every minute
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sophia-backend
+  template:
+    metadata:
+      labels:
+        app: sophia-backend
+      annotations:
+        # Force pull on update
+        keel.sh/update: "true"
+    spec:
+      containers:
+      - name: sophia-backend
+        image: scoobyjava15/sophia-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENVIRONMENT
+          value: "prod"
+        - name: PULUMI_ORG
+          value: "scoobyjava-org"
+        envFrom:
+        - secretRef:
+            name: sophia-secrets
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 20
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-frontend
+  namespace: sophia-ai-prod
+  labels:
+    app: sophia-frontend
+  annotations:
+    # Keel annotations
+    keel.sh/policy: all
+    keel.sh/trigger: poll
+    keel.sh/approvals: "0"
+    keel.sh/pollSchedule: "@every 1m"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sophia-frontend
+  template:
+    metadata:
+      labels:
+        app: sophia-frontend
+    spec:
+      containers:
+      - name: sophia-frontend
+        image: scoobyjava15/sophia-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m" 

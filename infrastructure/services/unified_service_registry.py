@@ -142,7 +142,7 @@ class UnifiedServiceRegistry:
             return service_instance
 
         except Exception as e:
-            logger.error(f"Failed to create service {service_name}: {e}")
+            logger.exception(f"Failed to create service {service_name}: {e}")
             if config.get("critical", False):
                 raise
             return None
@@ -210,7 +210,7 @@ class UnifiedServiceRegistry:
                     await service.shutdown()
                 logger.info(f"Service {service_name} shut down")
             except Exception as e:
-                logger.error(f"Error shutting down {service_name}: {e}")
+                logger.exception(f"Error shutting down {service_name}: {e}")
 
         self.services.clear()
         logger.info("All services shut down")
@@ -236,7 +236,9 @@ async def get_mcp_orchestrator() -> MCPOrchestrationService | None:
     return await registry.get_service("mcp_orchestrator")
 
 
-async def get_business_intelligence() -> PayReadyBusinessIntelligenceOrchestrator | None:
+async def get_business_intelligence() -> (
+    PayReadyBusinessIntelligenceOrchestrator | None
+):
     """Get the business intelligence service"""
     return await registry.get_service("business_intelligence")
 

@@ -280,7 +280,7 @@ class MultiAgentWorkflow:
             except TimeoutError:
                 execution.status = WorkflowStatus.FAILED
                 execution.error_message = f"Workflow timeout after {self.workflow_def.timeout_seconds} seconds"
-                logger.error(f"❌ Workflow {execution_id} timed out")
+                logger.exception(f"❌ Workflow {execution_id} timed out")
 
             # Finalize execution
             execution.end_time = datetime.now(UTC)
@@ -307,7 +307,7 @@ class MultiAgentWorkflow:
             execution.end_time = datetime.now(UTC)
             execution.task_results = self.task_results.copy()
 
-            logger.error(f"❌ Workflow {execution_id} failed: {e}")
+            logger.exception(f"❌ Workflow {execution_id} failed: {e}")
             return execution
 
     async def _execute_workflow_tasks(self) -> None:
@@ -470,7 +470,7 @@ class MultiAgentWorkflow:
                     )
 
                     self.task_results[task.task_id] = result
-                    logger.error(
+                    logger.exception(
                         f"❌ Task {task.task_id} failed after {retry_count - 1} retries: {error_msg}"
                     )
                     return result
@@ -527,7 +527,7 @@ class MultiAgentWorkflow:
             return True
 
         except Exception as e:
-            logger.error(f"Validation error for task {task.task_id}: {e}")
+            logger.exception(f"Validation error for task {task.task_id}: {e}")
             return False
 
     def _calculate_execution_metrics(

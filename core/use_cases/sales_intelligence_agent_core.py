@@ -110,7 +110,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
             logger.info("✅ Sales Intelligence Agent initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Sales Intelligence Agent: {e}")
+            logger.exception(f"Failed to initialize Sales Intelligence Agent: {e}")
             raise
 
     async def assess_deal_risk(
@@ -213,9 +213,9 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
                     status=TaskStatus.COMPLETED,
                     result=talking_points.__dict__ if talking_points else {},
                     agent_id=self.name,
-                    confidence_score=talking_points.confidence_score
-                    if talking_points
-                    else 0.0,
+                    confidence_score=(
+                        talking_points.confidence_score if talking_points else 0.0
+                    ),
                 )
 
             elif task_type == "pipeline_analysis":
@@ -242,7 +242,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
                 )
 
         except Exception as e:
-            logger.error(f"Error executing workflow task {task.task_id}: {e}")
+            logger.exception(f"Error executing workflow task {task.task_id}: {e}")
             return WorkflowResult(
                 task_id=task.task_id,
                 status=TaskStatus.FAILED,

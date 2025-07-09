@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class CredentialScope(str, Enum):
@@ -96,11 +96,12 @@ class EphemeralCredential(BaseModel):
     revoked_by: str | None = None
     metadata: TokenMetadata = Field(default_factory=TokenMetadata)
 
-    @validator("expires_at")
-    def validate_expiration(self, v, values):
-        """Validate that expiration is in the future."""
-        if "created_at" in values and v <= values["created_at"]:
-            raise ValueError("Expiration time must be in the future")
+    @field_validator("expires_at", mode="before")
+    @classmethod
+    def validate_expires_at(cls, v):
+        """Validate expiration time"""
+        if isinstance(v, str):
+            return datetime.fromisoformat(v)
         return v
 
     def is_expired(self) -> bool:
@@ -141,8 +142,9 @@ class CredentialRequest(BaseModel):
     ttl_seconds: int = 3600  # Default to 1 hour
     metadata: TokenMetadata | None = None
 
-    @validator("ttl_seconds")
-    def validate_ttl(self, v):
+    @field_validator("ttl_seconds", mode="before")
+    @classmethod
+    def validate_ttl(cls, v):
         """Validate TTL is within allowed range."""
         min_ttl = 60  # 1 minute
         max_ttl = 86400 * 7  # 7 days

@@ -65,7 +65,7 @@ class MCPServerRegistry:
             logger.info(f"✅ Registered {config.name} MCP server")
 
         except Exception as e:
-            logger.error(f"❌ Failed to register {config.name}: {e}")
+            logger.exception(f"❌ Failed to register {config.name}: {e}")
             raise
 
     async def start_server(self, name: str):
@@ -98,7 +98,7 @@ class MCPServerRegistry:
                     else:
                         await self.start_server(name)
                 except Exception as e:
-                    logger.error(f"❌ Failed to start {name}: {e}")
+                    logger.exception(f"❌ Failed to start {name}: {e}")
 
     async def stop_all_servers(self):
         """Stop all MCP servers"""
@@ -108,7 +108,7 @@ class MCPServerRegistry:
             try:
                 await self.stop_server(name)
             except Exception as e:
-                logger.error(f"❌ Failed to stop {name}: {e}")
+                logger.exception(f"❌ Failed to stop {name}: {e}")
 
     async def health_check_all(self):
         """Perform health check on all servers"""
@@ -120,7 +120,7 @@ class MCPServerRegistry:
                 self.health_status[name] = health
                 logger.info(f"   {name}: {health.status}")
             except Exception as e:
-                logger.error(f"❌ Health check failed for {name}: {e}")
+                logger.exception(f"❌ Health check failed for {name}: {e}")
 
     def get_server_status(self) -> dict[str, dict]:
         """Get status of all servers"""
@@ -150,7 +150,7 @@ class MCPServerRegistry:
                     await self.health_check_all()
                     await asyncio.sleep(60)  # Check every minute
                 except Exception as e:
-                    logger.error(f"Health monitoring error: {e}")
+                    logger.exception(f"Health monitoring error: {e}")
                     await asyncio.sleep(60)
 
         # Start monitoring task

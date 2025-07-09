@@ -75,22 +75,22 @@ class SalesIntelligenceAgent(SalesIntelligenceAgentCore):
 
 # Export all classes and functions for backward compatibility
 __all__ = [
-    "SalesIntelligenceAgent",
-    "DealRiskLevel",
-    "SalesStage",
-    "EmailType",
-    "DealRiskAssessment",
-    "SalesEmailRequest",
-    "CompetitorTalkingPoints",
-    "PipelineAnalysis",
-    "SalesEmailResult",
-    "WorkflowTaskResult",
     "AgentCapabilities",
-    "SalesIntelligenceUtils",
-    "DealRiskHandler",
-    "EmailGenerationHandler",
     "CompetitorAnalysisHandler",
+    "CompetitorTalkingPoints",
+    "DealRiskAssessment",
+    "DealRiskHandler",
+    "DealRiskLevel",
+    "EmailGenerationHandler",
+    "EmailType",
+    "PipelineAnalysis",
     "PipelineAnalysisHandler",
+    "SalesEmailRequest",
+    "SalesEmailResult",
+    "SalesIntelligenceAgent",
+    "SalesIntelligenceUtils",
+    "SalesStage",
+    "WorkflowTaskResult",
 ]
 
 

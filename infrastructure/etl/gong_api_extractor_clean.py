@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+from backend.core.auto_esc_config import get_config_value
 Gong API Data Extractor
 Secure implementation for Sophia AI Platform
 """
@@ -40,8 +41,8 @@ class GongAPIExtractor:
 
     def _load_config(self) -> GongConfig:
         """Load configuration from environment variables"""
-        access_key = os.getenv("GONG_ACCESS_KEY")
-        access_key_secret = os.getenv("GONG_ACCESS_KEY_SECRET")
+        access_key = get_config_value("gong_access_key")
+        access_key_secret = get_config_value("gong_access_key_secret")
 
         if not access_key or not access_key_secret:
             raise ValueError("Gong API credentials not found in environment variables")
@@ -64,7 +65,7 @@ class GongAPIExtractor:
         encoded_credentials = base64.b64encode(credentials.encode()).decode()
         return f"Basic {encoded_credentials}"
 
-    async def _make_request(self, endpoint: str, params: dict = None) -> dict:
+    async def _make_request(self, endpoint: str, params: dict | None = None) -> dict:
         """Make authenticated request to Gong API with rate limiting"""
         url = f"{self.config.base_url}{endpoint}"
         headers = {
@@ -91,7 +92,7 @@ class GongAPIExtractor:
                     return await response.json()
 
             except Exception as e:
-                logger.error(f"Request failed (attempt {attempt + 1}): {e}")
+                logger.exception(f"Request failed (attempt {attempt + 1}): {e}")
                 if attempt == self.config.max_retries - 1:
                     raise
                 await asyncio.sleep(2**attempt)
@@ -295,7 +296,7 @@ class PostgreSQLStaging:
         pipeline_id: str,
         status: str,
         records_processed: int = 0,
-        error_message: str = None,
+        error_message: str | None = None,
     ):
         """Update pipeline execution status"""
         conn = await asyncpg.connect(self.connection_string)
@@ -360,7 +361,7 @@ async def main():
         logger.info(f"Pipeline completed successfully. Total records: {total_records}")
 
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.exception(f"Pipeline failed: {e}")
         await staging.update_pipeline_status(pipeline_id, "failed", 0, str(e))
         raise
 

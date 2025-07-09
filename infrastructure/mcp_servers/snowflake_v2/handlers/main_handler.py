@@ -2,14 +2,9 @@
 Snowflake V2 Main Handler - Core business logic for Snowflake operations
 """
 
-import asyncio
-import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
 
-import snowflake.connector
-from snowflake.connector import DictCursor
 from snowflake.connector.errors import Error as SnowflakeError
 
 from ..config import Config
@@ -43,7 +38,7 @@ class SnowflakeHandler:
             self._initialized = True
             logger.info("Snowflake handler initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize handler: {e}")
+            logger.exception(f"Failed to initialize handler: {e}")
             raise
 
     async def cleanup(self):
@@ -53,7 +48,7 @@ class SnowflakeHandler:
             self._initialized = False
             logger.info("Snowflake handler cleaned up")
         except Exception as e:
-            logger.error(f"Error during cleanup: {e}")
+            logger.exception(f"Error during cleanup: {e}")
 
     async def execute_query(self, request: dict) -> dict:
         """Execute a Snowflake query with enhanced features"""
@@ -79,10 +74,10 @@ class SnowflakeHandler:
             return response.dict()
 
         except SnowflakeError as e:
-            logger.error(f"Snowflake error: {e}")
+            logger.exception(f"Snowflake error: {e}")
             return {"success": False, "error": str(e)}
         except Exception as e:
-            logger.error(f"Query execution error: {e}")
+            logger.exception(f"Query execution error: {e}")
             return {"success": False, "error": str(e)}
 
     async def create_schema(self, request: dict) -> dict:
@@ -108,7 +103,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Schema creation error: {e}")
+            logger.exception(f"Schema creation error: {e}")
             return {"success": False, "error": str(e)}
 
     async def create_table(self, request: dict) -> dict:
@@ -156,13 +151,13 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Table creation error: {e}")
+            logger.exception(f"Table creation error: {e}")
             return {"success": False, "error": str(e)}
 
     async def load_data(self, request: dict) -> dict:
         """Load data with automatic AI enrichment"""
         try:
-            load_req = DataLoadRequest(**request)
+            DataLoadRequest(**request)
 
             # TODO: Implement data loading logic
             # This would handle various data sources and formats
@@ -174,7 +169,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Data loading error: {e}")
+            logger.exception(f"Data loading error: {e}")
             return {"success": False, "error": str(e)}
 
     async def generate_embeddings(self, request: dict) -> dict:
@@ -214,7 +209,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Embedding generation error: {e}")
+            logger.exception(f"Embedding generation error: {e}")
             return {"success": False, "error": str(e)}
 
     async def semantic_search(self, request: dict) -> dict:
@@ -257,7 +252,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Semantic search error: {e}")
+            logger.exception(f"Semantic search error: {e}")
             return {"success": False, "error": str(e)}
 
     async def get_system_status(self) -> dict:
@@ -300,7 +295,7 @@ class SnowflakeHandler:
             return status
 
         except Exception as e:
-            logger.error(f"Status check error: {e}")
+            logger.exception(f"Status check error: {e}")
             return {"error": str(e)}
 
     async def optimize_performance(self, request: dict) -> dict:
@@ -332,7 +327,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Optimization error: {e}")
+            logger.exception(f"Optimization error: {e}")
             return {"success": False, "error": str(e)}
 
     async def sync_schemas(self, request: dict) -> dict:
@@ -348,7 +343,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Schema sync error: {e}")
+            logger.exception(f"Schema sync error: {e}")
             return {"success": False, "error": str(e)}
 
     async def manage_warehouse(self, request: dict) -> dict:
@@ -377,7 +372,7 @@ class SnowflakeHandler:
             }
 
         except Exception as e:
-            logger.error(f"Warehouse management error: {e}")
+            logger.exception(f"Warehouse management error: {e}")
             return {"success": False, "error": str(e)}
 
     async def _create_ai_tables(self, database: str, schema: str):

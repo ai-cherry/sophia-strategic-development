@@ -562,7 +562,7 @@ class AuditLogger:
                     # Log error
                     self.error(
                         event_type,
-                        f"{message} failed: {str(e)}",
+                        f"{message} failed: {e!s}",
                         details,
                     )
 

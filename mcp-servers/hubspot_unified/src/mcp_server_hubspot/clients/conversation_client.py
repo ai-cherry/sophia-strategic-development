@@ -115,7 +115,7 @@ class ConversationClient:
                 formatted_batch = self._format_email_batch(batch_response)
                 formatted_emails.extend(formatted_batch)
             except ApiException as e:
-                logger.error(f"Batch API Exception: {str(e)}")
+                logger.exception(f"Batch API Exception: {e!s}")
 
         # Convert datetime fields
         return convert_datetime_fields(formatted_emails)
@@ -336,8 +336,8 @@ class ConversationClient:
                 formatted_threads.append(formatted_thread)
 
             except Exception as e:
-                logger.error(
-                    f"Error fetching messages for thread {thread_id}: {str(e)}"
+                logger.exception(
+                    f"Error fetching messages for thread {thread_id}: {e!s}"
                 )
 
         return formatted_threads

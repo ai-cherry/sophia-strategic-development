@@ -277,7 +277,7 @@ class SecurityMiddleware:
                 return request_count >= config["requests"]
 
             except Exception as e:
-                logger.error(f"Redis rate limiting error: {e}")
+                logger.exception(f"Redis rate limiting error: {e}")
                 # Fall back to in-memory storage
 
         # In-memory rate limiting fallback
@@ -379,7 +379,7 @@ def require_api_key(f: Callable) -> Callable:
             raise Unauthorized("API key required")
 
         # In a real implementation, validate the API key against a database
-        valid_api_keys = os.getenv("VALID_API_KEYS", "").split(",")
+        valid_api_keys = get_config_value("valid_api_keys", "").split(",")
 
         if api_key not in valid_api_keys:
             logger.warning(f"Invalid API key attempted: {api_key[:8]}...")

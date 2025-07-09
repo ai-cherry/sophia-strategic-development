@@ -3,13 +3,12 @@ Memory Mediator for AI Memory V2 MCP Server
 Provides unified interface for memory operations across Redis, Snowflake, and Vector DBs
 """
 
-import asyncio
 import hashlib
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import redis.asyncio as redis
 from pydantic import BaseModel, Field
@@ -40,7 +39,7 @@ class BaseMemory(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    ttl_seconds: Optional[int] = None
+    ttl_seconds: int | None = None
 
 
 class ChatMemory(BaseMemory):
@@ -51,7 +50,7 @@ class ChatMemory(BaseMemory):
     session_id: str
     message: str
     response: str
-    sentiment: Optional[float] = None
+    sentiment: float | None = None
     topics: list[str] = Field(default_factory=list)
 
 
@@ -83,7 +82,7 @@ class MemoryMediator:
     """
 
     def __init__(self):
-        self.redis_client: Optional[redis.Redis] = None
+        self.redis_client: redis.Redis | None = None
         self.cache_ttl = {
             MemoryType.CHAT: 3600,  # 1 hour
             MemoryType.EVENT: 7200,  # 2 hours
@@ -110,11 +109,11 @@ class MemoryMediator:
             # TODO: Initialize Vector DB connection
 
         except Exception as e:
-            logger.error(f"Failed to initialize Memory Mediator: {e}")
+            logger.exception(f"Failed to initialize Memory Mediator: {e}")
             raise
 
     async def store(
-        self, memory: BaseMemory, rbac_context: Optional[dict] = None
+        self, memory: BaseMemory, rbac_context: dict | None = None
     ) -> dict[str, Any]:
         """
         Store memory with multi-tier strategy
@@ -153,12 +152,12 @@ class MemoryMediator:
             return {"id": memory.id, "status": "stored", "cache_ttl": ttl}
 
         except Exception as e:
-            logger.error(f"Failed to store memory: {e}")
+            logger.exception(f"Failed to store memory: {e}")
             raise
 
     async def retrieve(
-        self, memory_id: str, memory_type: Optional[MemoryType] = None
-    ) -> Optional[BaseMemory]:
+        self, memory_id: str, memory_type: MemoryType | None = None
+    ) -> BaseMemory | None:
         """
         Retrieve memory with cache hierarchy
         """
@@ -195,14 +194,14 @@ class MemoryMediator:
             return None
 
         except Exception as e:
-            logger.error(f"Failed to retrieve memory: {e}")
+            logger.exception(f"Failed to retrieve memory: {e}")
             return None
 
     async def search(
         self,
         query: str,
-        memory_types: Optional[list[MemoryType]] = None,
-        time_range: Optional[tuple] = None,
+        memory_types: list[MemoryType] | None = None,
+        time_range: tuple | None = None,
         limit: int = 10,
     ) -> list[BaseMemory]:
         """
@@ -243,14 +242,14 @@ class MemoryMediator:
             return results[:limit]
 
         except Exception as e:
-            logger.error(f"Search failed: {e}")
+            logger.exception(f"Search failed: {e}")
             return []
 
     async def update(
         self,
         memory_id: str,
         updates: dict[str, Any],
-        rbac_context: Optional[dict] = None,
+        rbac_context: dict | None = None,
     ) -> bool:
         """
         Update existing memory
@@ -279,14 +278,14 @@ class MemoryMediator:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to update memory: {e}")
+            logger.exception(f"Failed to update memory: {e}")
             return False
 
     async def delete(
         self,
         memory_id: str,
-        memory_type: Optional[MemoryType] = None,
-        rbac_context: Optional[dict] = None,
+        memory_type: MemoryType | None = None,
+        rbac_context: dict | None = None,
     ) -> bool:
         """
         Delete memory (soft delete in Snowflake)
@@ -326,7 +325,7 @@ class MemoryMediator:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to delete memory: {e}")
+            logger.exception(f"Failed to delete memory: {e}")
             return False
 
     async def get_stats(self) -> dict[str, Any]:

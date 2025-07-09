@@ -120,7 +120,7 @@ You are Manu AI, an expert DevOps and Kubernetes architect tasked with conductin
 ```
 
 #### **Lambda Labs Integration**:
-- **Current Lambda Labs deployment (192.222.51.122)**
+- **Current Lambda Labs deployment (192.222.58.232)**
 - **GPU resource utilization**
 - **Network configuration**
 - **Storage requirements**

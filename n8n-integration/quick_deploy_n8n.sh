@@ -54,7 +54,7 @@ WORKFLOW
 echo "✅ N8N workflows created"
 
 # Start services
-docker-compose up -d
+docker stack deploy
 
 echo "🎉 N8N + Sophia AI Integration deployed!"
 echo "Access N8N at: http://localhost:5678"

@@ -21,7 +21,6 @@ TODO: Implement file decomposition
 
 import json
 import logging
-import os
 import subprocess
 from dataclasses import dataclass
 from enum import Enum
@@ -192,7 +191,7 @@ class EnhancedDeploymentTracker:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize deployment tracking schema: {e}")
+            logger.exception(f"❌ Failed to initialize deployment tracking schema: {e}")
             return False
 
     def generate_deployment_id(
@@ -347,7 +346,7 @@ class EnhancedDeploymentTracker:
             return health_status
 
         except Exception as e:
-            logger.error(f"❌ Failed to get deployment health: {e}")
+            logger.exception(f"❌ Failed to get deployment health: {e}")
             return []
 
     async def generate_rollback_plan(
@@ -403,7 +402,7 @@ class EnhancedDeploymentTracker:
             return rollback_plan
 
         except Exception as e:
-            logger.error(f"❌ Failed to generate rollback plan: {e}")
+            logger.exception(f"❌ Failed to generate rollback plan: {e}")
             return None
 
     async def execute_rollback(self, rollback_plan: RollbackPlan) -> bool:
@@ -459,17 +458,17 @@ class EnhancedDeploymentTracker:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Rollback execution failed: {e}")
+            logger.exception(f"❌ Rollback execution failed: {e}")
             return False
 
     def _get_github_context(self) -> dict[str, str]:
         """Get GitHub context from environment variables."""
         return {
-            "sha": os.getenv("GITHUB_SHA", ""),
-            "ref": os.getenv("GITHUB_REF", ""),
-            "actor": os.getenv("GITHUB_ACTOR", ""),
-            "workflow": os.getenv("GITHUB_WORKFLOW", ""),
-            "job": os.getenv("GITHUB_JOB", ""),
+            "sha": get_config_value("github_sha", ""),
+            "ref": get_config_value("github_ref", ""),
+            "actor": get_config_value("github_actor", ""),
+            "workflow": get_config_value("github_workflow", ""),
+            "job": get_config_value("github_job", ""),
         }
 
     async def _store_deployment_event(self, event: DeploymentEvent) -> bool:
@@ -536,7 +535,7 @@ class EnhancedDeploymentTracker:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to store deployment event: {e}")
+            logger.exception(f"❌ Failed to store deployment event: {e}")
             return False
 
     async def _send_deployment_notification(
@@ -579,7 +578,7 @@ class EnhancedDeploymentTracker:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Failed to send deployment notification: {e}")
+            logger.exception(f"❌ Failed to send deployment notification: {e}")
             return False
 
     async def _check_auto_rollback(self, event: DeploymentEvent) -> bool:
@@ -647,24 +646,44 @@ class EnhancedDeploymentTracker:
             # Parse step and execute
             if step.startswith("pulumi"):
                 result = subprocess.run(
-                    step.split(), capture_output=True, text=True, timeout=300
+                    step.split(),
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
                 )
             elif step.startswith("helm"):
                 result = subprocess.run(
-                    step.split(), capture_output=True, text=True, timeout=600
+                    step.split(),
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=600,
                 )
             elif step.startswith("kubectl"):
                 result = subprocess.run(
-                    step.split(), capture_output=True, text=True, timeout=300
+                    step.split(),
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=300,
                 )
             elif step.startswith("vercel"):
                 result = subprocess.run(
-                    step.split(), capture_output=True, text=True, timeout=180
+                    step.split(),
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=180,
                 )
             else:
                 # Generic shell command
                 result = subprocess.run(
-                    shlex.split(step), capture_output=True, text=True, timeout=120
+                    shlex.split(step),
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
                 )  # SECURITY FIX: Removed shell=True
 
             if result.returncode == 0:
@@ -675,10 +694,10 @@ class EnhancedDeploymentTracker:
                 return False
 
         except subprocess.TimeoutExpired:
-            logger.error(f"⏱️ Rollback step timed out: {step}")
+            logger.exception(f"⏱️ Rollback step timed out: {step}")
             return False
         except Exception as e:
-            logger.error(f"❌ Rollback step error: {step} - {e}")
+            logger.exception(f"❌ Rollback step error: {step} - {e}")
             return False
 
     async def _get_current_version(
@@ -703,7 +722,7 @@ class EnhancedDeploymentTracker:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Failed to get current version: {e}")
+            logger.exception(f"❌ Failed to get current version: {e}")
             return None
 
     async def _get_last_successful_version(
@@ -732,7 +751,7 @@ class EnhancedDeploymentTracker:
             return None
 
         except Exception as e:
-            logger.error(f"❌ Failed to get last successful version: {e}")
+            logger.exception(f"❌ Failed to get last successful version: {e}")
             return None
 
     async def _detect_deployment_issues(
@@ -777,8 +796,8 @@ class EnhancedDeploymentTracker:
                 pass
 
         except Exception as e:
-            logger.error(f"❌ Failed to detect deployment issues: {e}")
-            issues.append(f"Health check failed: {str(e)}")
+            logger.exception(f"❌ Failed to detect deployment issues: {e}")
+            issues.append(f"Health check failed: {e!s}")
 
         return issues
 

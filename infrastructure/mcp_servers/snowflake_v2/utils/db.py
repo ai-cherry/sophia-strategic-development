@@ -4,7 +4,7 @@ Database connection utilities for Snowflake V2 MCP Server
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import snowflake.connector
 from snowflake.connector import DictCursor
@@ -20,7 +20,7 @@ class SnowflakeConnection:
 
     def __init__(self, config: Config):
         self.config = config
-        self.connection: Optional[snowflake.connector.SnowflakeConnection] = None
+        self.connection: snowflake.connector.SnowflakeConnection | None = None
         self._lock = asyncio.Lock()
 
     async def connect(self) -> bool:
@@ -40,10 +40,10 @@ class SnowflakeConnection:
                 return True
 
             except SnowflakeError as e:
-                logger.error(f"Snowflake connection error: {e}")
+                logger.exception(f"Snowflake connection error: {e}")
                 return False
             except Exception as e:
-                logger.error(f"Unexpected connection error: {e}")
+                logger.exception(f"Unexpected connection error: {e}")
                 return False
 
     def _create_connection(self) -> snowflake.connector.SnowflakeConnection:
@@ -72,14 +72,14 @@ class SnowflakeConnection:
                     self.connection = None
                     logger.info("Disconnected from Snowflake")
                 except Exception as e:
-                    logger.error(f"Error closing connection: {e}")
+                    logger.exception(f"Error closing connection: {e}")
 
     async def execute_query(
         self,
         query: str,
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
         fetch_results: bool = True,
-    ) -> Optional[list[dict[str, Any]]]:
+    ) -> list[dict[str, Any]] | None:
         """Execute a query asynchronously"""
         if not self.connection:
             await self.connect()
@@ -98,15 +98,15 @@ class SnowflakeConnection:
             return result
 
         except SnowflakeError as e:
-            logger.error(f"Query execution error: {e}")
+            logger.exception(f"Query execution error: {e}")
             raise
         except Exception as e:
-            logger.error(f"Unexpected query error: {e}")
+            logger.exception(f"Unexpected query error: {e}")
             raise
 
     def _execute_sync(
-        self, query: str, parameters: Optional[dict[str, Any]], fetch_results: bool
-    ) -> Optional[list[dict[str, Any]]]:
+        self, query: str, parameters: dict[str, Any] | None, fetch_results: bool
+    ) -> list[dict[str, Any]] | None:
         """Execute query synchronously"""
         cursor = self.connection.cursor(DictCursor)
 
@@ -144,7 +144,7 @@ class SnowflakeConnection:
             return rows_affected
 
         except Exception as e:
-            logger.error(f"Batch execution error: {e}")
+            logger.exception(f"Batch execution error: {e}")
             raise
 
     def _execute_many_sync(self, query: str, data: list[tuple]) -> int:
@@ -157,7 +157,7 @@ class SnowflakeConnection:
         finally:
             cursor.close()
 
-    async def get_query_id(self) -> Optional[str]:
+    async def get_query_id(self) -> str | None:
         """Get the last query ID"""
         if not self.connection:
             return None
@@ -168,7 +168,7 @@ class SnowflakeConnection:
                 return result[0]["QUERY_ID"]
             return None
         except Exception as e:
-            logger.error(f"Failed to get query ID: {e}")
+            logger.exception(f"Failed to get query ID: {e}")
             return None
 
     async def test_connection(self) -> bool:

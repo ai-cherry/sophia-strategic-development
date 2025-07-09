@@ -48,8 +48,8 @@ class ContextManager:
             return True
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to update context for session {session_id}: {str(e)}"
+            self.logger.exception(
+                f"Failed to update context for session {session_id}: {e!s}"
             )
             return False
 
@@ -95,8 +95,8 @@ class ContextManager:
             return True
 
         except Exception as e:
-            self.logger.error(
-                f"Failed to enrich context for session {session_id}: {str(e)}"
+            self.logger.exception(
+                f"Failed to enrich context for session {session_id}: {e!s}"
             )
             return False
 

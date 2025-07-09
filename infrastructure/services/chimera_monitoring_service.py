@@ -4,13 +4,12 @@ Provides real-time monitoring, metrics collection, and performance tracking
 """
 
 import asyncio
-import json
 import logging
 import time
 from collections import defaultdict, deque
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +87,7 @@ class ChimeraMonitoringService:
                 await asyncio.sleep(10)  # Collect every 10 seconds
 
             except Exception as e:
-                logger.error(f"Performance monitoring error: {str(e)}")
+                logger.exception(f"Performance monitoring error: {e!s}")
                 await asyncio.sleep(30)
 
     async def monitor_system_health(self):
@@ -111,7 +110,7 @@ class ChimeraMonitoringService:
                 await asyncio.sleep(30)  # Check every 30 seconds
 
             except Exception as e:
-                logger.error(f"Health monitoring error: {str(e)}")
+                logger.exception(f"Health monitoring error: {e!s}")
                 await asyncio.sleep(60)
 
     async def monitor_business_metrics(self):
@@ -127,7 +126,7 @@ class ChimeraMonitoringService:
                 await asyncio.sleep(60)  # Collect every minute
 
             except Exception as e:
-                logger.error(f"Business monitoring error: {str(e)}")
+                logger.exception(f"Business monitoring error: {e!s}")
                 await asyncio.sleep(120)
 
     async def generate_alerts(self):
@@ -142,7 +141,7 @@ class ChimeraMonitoringService:
                 await asyncio.sleep(60)  # Check every minute
 
             except Exception as e:
-                logger.error(f"Alert generation error: {str(e)}")
+                logger.exception(f"Alert generation error: {e!s}")
                 await asyncio.sleep(120)
 
     async def collect_performance_metrics(self) -> list[PerformanceMetric]:
@@ -305,10 +304,9 @@ class ChimeraMonitoringService:
 
         # This would integrate with actual alerting systems
         # For now, just log the alert
-        alert_log = {"timestamp": datetime.utcnow().isoformat(), "alert": alert}
+        {"timestamp": datetime.utcnow().isoformat(), "alert": alert}
 
         # Could send to Slack, email, PagerDuty, etc.
-        print(f"Alert: {json.dumps(alert_log, indent=2)}")
 
     async def get_dashboard_data(self) -> dict[str, Any]:
         """Get data for monitoring dashboard"""
@@ -321,10 +319,11 @@ class ChimeraMonitoringService:
         dashboard_data = {
             "timestamp": current_time.isoformat(),
             "summary": {
-                "avg_response_time": sum(response_times[-10:])
-                / len(response_times[-10:])
-                if response_times
-                else 0,
+                "avg_response_time": (
+                    sum(response_times[-10:]) / len(response_times[-10:])
+                    if response_times
+                    else 0
+                ),
                 "current_success_rate": success_rates[-1].value if success_rates else 0,
                 "healthy_components": len(
                     [h for h in self.health_status.values() if h.status == "healthy"]

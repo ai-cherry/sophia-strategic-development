@@ -3,7 +3,7 @@ Data models for Gong V2 MCP server
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -12,9 +12,9 @@ from pydantic import BaseModel, Field
 class CallRequest(BaseModel):
     """Request for fetching calls"""
 
-    from_date: Optional[datetime] = Field(None, description="Start date for calls")
-    to_date: Optional[datetime] = Field(None, description="End date for calls")
-    user_id: Optional[str] = Field(None, description="Filter by specific user")
+    from_date: datetime | None = Field(None, description="Start date for calls")
+    to_date: datetime | None = Field(None, description="End date for calls")
+    user_id: str | None = Field(None, description="Filter by specific user")
     limit: int = Field(10, description="Number of calls to return", ge=1, le=100)
 
 
@@ -31,10 +31,8 @@ class InsightRequest(BaseModel):
 
     from_date: datetime = Field(..., description="Start date for analysis")
     to_date: datetime = Field(..., description="End date for analysis")
-    team_id: Optional[str] = Field(None, description="Filter by team")
-    insight_type: Optional[str] = Field(
-        "all", description="Type of insights to generate"
-    )
+    team_id: str | None = Field(None, description="Filter by team")
+    insight_type: str | None = Field("all", description="Type of insights to generate")
 
 
 class TeamAnalyticsRequest(BaseModel):
@@ -50,8 +48,8 @@ class CoachingRequest(BaseModel):
     """Request for coaching opportunities"""
 
     user_id: str = Field(..., description="User ID to analyze")
-    from_date: Optional[datetime] = Field(None, description="Start date")
-    to_date: Optional[datetime] = Field(None, description="End date")
+    from_date: datetime | None = Field(None, description="Start date")
+    to_date: datetime | None = Field(None, description="End date")
     focus_areas: list[str] = Field([], description="Specific areas to focus on")
 
 
@@ -59,8 +57,8 @@ class SearchRequest(BaseModel):
     """Request for searching conversations"""
 
     query: str = Field(..., description="Search query")
-    from_date: Optional[datetime] = Field(None, description="Start date")
-    to_date: Optional[datetime] = Field(None, description="End date")
+    from_date: datetime | None = Field(None, description="Start date")
+    to_date: datetime | None = Field(None, description="End date")
     limit: int = Field(20, description="Number of results", ge=1, le=100)
 
 
@@ -74,7 +72,7 @@ class CallInfo(BaseModel):
     duration: int
     participants: list[dict[str, Any]]
     url: str
-    score: Optional[float]
+    score: float | None
     topics: list[str]
     action_items: list[dict[str, Any]]
 
@@ -83,8 +81,8 @@ class CallResponse(BaseModel):
     """Response for call requests"""
 
     success: bool
-    data: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    data: dict[str, Any] | None = None
+    error: str | None = None
 
 
 class TranscriptSegment(BaseModel):
@@ -102,9 +100,9 @@ class TranscriptResponse(BaseModel):
     success: bool
     call_id: str
     segments: list[TranscriptSegment] = []
-    summary: Optional[str] = None
+    summary: str | None = None
     key_moments: list[dict[str, Any]] = []
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class InsightMetrics(BaseModel):
@@ -122,11 +120,11 @@ class InsightResponse(BaseModel):
 
     success: bool
     period: dict[str, str]
-    metrics: Optional[InsightMetrics] = None
+    metrics: InsightMetrics | None = None
     insights: list[str] = []
     recommendations: list[str] = []
     trends: dict[str, str] = {}
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class TeamMember(BaseModel):
@@ -150,7 +148,7 @@ class TeamAnalyticsResponse(BaseModel):
     members: list[TeamMember] = []
     team_metrics: dict[str, Any] = {}
     comparisons: dict[str, Any] = {}
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class CoachingOpportunity(BaseModel):
@@ -172,7 +170,7 @@ class CoachingResponse(BaseModel):
     opportunities: list[CoachingOpportunity] = []
     patterns: list[dict[str, Any]] = []
     action_plan: list[dict[str, Any]] = []
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class SearchResult(BaseModel):
@@ -193,7 +191,7 @@ class SearchResponse(BaseModel):
     query: str
     total_results: int
     results: list[SearchResult] = []
-    error: Optional[str] = None
+    error: str | None = None
 
 
 # Health Check Models
@@ -211,9 +209,7 @@ class ErrorResponse(BaseModel):
     """Standard error response"""
 
     error: str = Field(..., description="Error message")
-    details: Optional[dict[str, Any]] = Field(
-        None, description="Additional error details"
-    )
+    details: dict[str, Any] | None = Field(None, description="Additional error details")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -261,5 +257,5 @@ class GongConfig(BaseModel):
 
     api_key: str = Field(..., description="Gong API key")
     api_secret: str = Field(..., description="Gong API secret")
-    webhook_secret: Optional[str] = Field(None, description="Webhook secret")
+    webhook_secret: str | None = Field(None, description="Webhook secret")
     base_url: str = Field("https://api.gong.io/v2", description="API base URL")

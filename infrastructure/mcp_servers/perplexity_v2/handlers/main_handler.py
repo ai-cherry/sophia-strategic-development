@@ -1,7 +1,9 @@
 """Main handler for perplexity_v2 MCP server."""
+
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class Perplexity_V2Handler:
     """Handler for perplexity_v2 operations."""

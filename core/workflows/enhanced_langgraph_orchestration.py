@@ -40,7 +40,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, TypedDict
+from functools import wraps
+from typing import Any, Optional, TypedDict
 
 # LangGraph imports
 try:
@@ -54,6 +55,12 @@ except ImportError:
     LANGGRAPH_AVAILABLE = False
     StateGraph = None
     END = None
+
+from tenacity import (  # type: ignore[import-not-found]
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from core.enhanced_cache_manager import EnhancedCacheManager
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
@@ -140,58 +147,46 @@ class ParallelTask:
     retry_count: int = 3
 
 
-class EnhancedWorkflowState(TypedDict):
-    """Enhanced state for complex workflows"""
+class WorkflowState(TypedDict):
+    """State for Lambda Labs workflow orchestration."""
 
-    # Core workflow metadata
-    workflow_id: str
-    workflow_name: str
-    workflow_type: str
-    status: WorkflowStatus
-    created_at: datetime
-    updated_at: datetime
+    messages: list[dict[str, str]]
+    model: Optional[str]
+    cost_priority: str
+    backend: Optional[str]
+    result: Optional[dict[str, Any]]
+    error: Optional[str]
+    metadata: dict[str, Any]
 
-    # User and session context
-    user_id: str
-    session_id: str
-    user_request: str
-    natural_language_context: str
 
-    # Workflow execution state
-    current_node: str
-    previous_node: str | None
-    next_nodes: list[str]
-    completed_nodes: list[str]
-    failed_nodes: list[str]
+def async_retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=1, max=8),
+):
+    """Decorator for async functions with retry logic.
 
-    # Data and results
-    input_data: dict[str, Any]
-    node_results: dict[str, Any]
-    aggregated_results: dict[str, Any]
-    final_output: dict[str, Any] | None
+    Args:
+        stop: Stop strategy (default: 3 attempts)
+        wait: Wait strategy (default: exponential backoff)
 
-    # Parallel execution tracking
-    parallel_tasks: dict[str, ParallelTask]
-    parallel_results: dict[str, Any]
-    parallel_errors: dict[str, str]
+    Returns:
+        Decorated function with retry logic
+    """
 
-    # Human-in-the-loop state
-    pending_checkpoints: list[HumanCheckpoint]
-    checkpoint_responses: dict[str, Any]
-    human_feedback: list[dict[str, Any]]
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        async def wrapper(*args, **kwargs) -> dict[str, Any]:
+            try:
+                # Use tenacity retry
+                retry_func = retry(stop=stop, wait=wait, reraise=True)(func)
+                return await retry_func(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"Function {func.__name__} failed after retries: {e}")
+                return {"ok": False, "error": str(e)}
 
-    # Event handling
-    event_queue: list[WorkflowEvent]
-    event_handlers: dict[str, str]
+        return wrapper
 
-    # Error handling and recovery
-    error_messages: list[str]
-    retry_counts: dict[str, int]
-    recovery_actions: list[str]
-
-    # Performance metrics
-    execution_metrics: dict[str, Any]
-    node_timings: dict[str, float]
+    return decorator
 
 
 class EnhancedLangGraphOrchestrator:
@@ -215,7 +210,7 @@ class EnhancedLangGraphOrchestrator:
 
         # Workflow registry
         self.workflow_templates: dict[str, dict[str, Any]] = {}
-        self.active_workflows: dict[str, EnhancedWorkflowState] = {}
+        self.active_workflows: dict[str, WorkflowState] = {}
         self.event_handlers: dict[EventType, list[Callable]] = {}
 
         # Human-in-the-loop management
@@ -249,7 +244,9 @@ class EnhancedLangGraphOrchestrator:
             logger.info("✅ Enhanced LangGraph Orchestrator initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Enhanced LangGraph Orchestrator: {e}")
+            logger.exception(
+                f"Failed to initialize Enhanced LangGraph Orchestrator: {e}"
+            )
             raise
 
     def _register_default_event_handlers(self) -> None:
@@ -393,39 +390,18 @@ class EnhancedLangGraphOrchestrator:
                 workflow_spec = {"type": "custom", "description": user_request}
 
             # Create workflow state
-            workflow_state = EnhancedWorkflowState(
-                workflow_id=workflow_id,
-                workflow_name=f"Workflow_{workflow_id[:8]}",
-                workflow_type=workflow_spec.get("type", "custom"),
-                status=WorkflowStatus.PENDING,
-                created_at=datetime.now(),
-                updated_at=datetime.now(),
-                user_id=user_id,
-                session_id=session_id,
-                user_request=user_request,
-                natural_language_context=analysis_result,
-                current_node="start",
-                previous_node=None,
-                next_nodes=["requirements_analysis"],
-                completed_nodes=[],
-                failed_nodes=[],
-                input_data={"user_request": user_request, "analysis": workflow_spec},
-                node_results={},
-                aggregated_results={},
-                final_output=None,
-                parallel_tasks={},
-                parallel_results={},
-                parallel_errors={},
-                pending_checkpoints=[],
-                checkpoint_responses={},
-                human_feedback=[],
-                event_queue=[],
-                event_handlers={},
-                error_messages=[],
-                retry_counts={},
-                recovery_actions=[],
-                execution_metrics={},
-                node_timings={},
+            workflow_state = WorkflowState(
+                messages=[{"role": "user", "content": user_request}],
+                model=workflow_spec.get("model"),
+                cost_priority=workflow_spec.get("cost_priority", "balanced"),
+                backend=None,
+                result=None,
+                error=None,
+                metadata={
+                    "workflow_id": workflow_id,
+                    "workflow_type": workflow_spec.get("type", "custom"),
+                    "user_request": user_request,
+                },
             )
 
             # Store workflow
@@ -445,7 +421,7 @@ class EnhancedLangGraphOrchestrator:
             return workflow_id
 
         except Exception as e:
-            logger.error(f"Error creating workflow from natural language: {e}")
+            logger.exception(f"Error creating workflow from natural language: {e}")
             raise
 
     async def execute_parallel_tasks(
@@ -486,15 +462,15 @@ class EnhancedLangGraphOrchestrator:
                 results[task_id] = result
 
                 # Update workflow state
-                workflow_state["parallel_results"][task_id] = result
+                workflow_state["result"] = result
 
             except TimeoutError:
                 errors[task_id] = "Task timed out"
-                workflow_state["parallel_errors"][task_id] = "Task timed out"
+                workflow_state["error"] = "Task timed out"
 
             except Exception as e:
                 errors[task_id] = str(e)
-                workflow_state["parallel_errors"][task_id] = str(e)
+                workflow_state["error"] = str(e)
 
         # Aggregate results
         aggregated_result = await self._aggregate_parallel_results(
@@ -505,12 +481,14 @@ class EnhancedLangGraphOrchestrator:
         await self.audit_logger.log_workflow_event(
             workflow_id=workflow_id,
             event_type="parallel_execution_completed",
-            user_id=workflow_state["user_id"],
+            user_id=workflow_state["metadata"]["workflow_id"],
             details={
                 "tasks_executed": len(tasks),
                 "successful_tasks": len(results),
                 "failed_tasks": len(errors),
-                "execution_time": sum(workflow_state["node_timings"].values()),
+                "execution_time": sum(
+                    workflow_state["metadata"].get("execution_time", 0)
+                ),
             },
         )
 
@@ -532,12 +510,12 @@ class EnhancedLangGraphOrchestrator:
             # Record timing
             execution_time = (datetime.now() - start_time).total_seconds()
             workflow_state = self.active_workflows[workflow_id]
-            workflow_state["node_timings"][task.task_id] = execution_time
+            workflow_state["metadata"]["execution_time"] = execution_time
 
             return result
 
         except Exception as e:
-            logger.error(f"Error executing task {task.task_id}: {e}")
+            logger.exception(f"Error executing task {task.task_id}: {e}")
             raise
 
     async def create_human_checkpoint(
@@ -591,7 +569,7 @@ class EnhancedLangGraphOrchestrator:
         await self.audit_logger.log_workflow_event(
             workflow_id=workflow_id,
             event_type="human_checkpoint_created",
-            user_id=workflow_state["user_id"],
+            user_id=workflow_state["metadata"]["workflow_id"],
             details={
                 "checkpoint_id": checkpoint_config.checkpoint_id,
                 "title": checkpoint_config.title,
@@ -635,15 +613,13 @@ class EnhancedLangGraphOrchestrator:
         workflow_state = self.active_workflows[workflow_id]
 
         # Store response
-        workflow_state["checkpoint_responses"][checkpoint_id] = response
-        workflow_state["human_feedback"].append(
-            {
-                "checkpoint_id": checkpoint_id,
-                "user_id": user_id,
-                "response": response,
-                "timestamp": datetime.now(),
-            }
-        )
+        workflow_state["result"] = response
+        workflow_state["metadata"]["human_feedback"] = {
+            "checkpoint_id": checkpoint_id,
+            "user_id": user_id,
+            "response": response,
+            "timestamp": datetime.now(),
+        }
 
         # Remove from pending
         workflow_state["pending_checkpoints"] = [
@@ -689,7 +665,9 @@ class EnhancedLangGraphOrchestrator:
             return
 
         # Add event to queue
-        workflow_state["event_queue"].append(event)
+        workflow_state["messages"].append(
+            {"role": "user", "content": event.data.get("user_input", "")}
+        )
 
         # Get event handlers
         handlers = self.event_handlers.get(event.event_type, [])
@@ -699,8 +677,8 @@ class EnhancedLangGraphOrchestrator:
             try:
                 await handler(workflow_id, event)
             except Exception as e:
-                logger.error(f"Error in event handler: {e}")
-                workflow_state["error_messages"].append(f"Event handler error: {e}")
+                logger.exception(f"Error in event handler: {e}")
+                workflow_state["error"] = str(e)
 
     async def _handle_task_completion(
         self, workflow_id: str, event: WorkflowEvent
@@ -736,9 +714,7 @@ class EnhancedLangGraphOrchestrator:
         else:
             # Mark workflow as failed
             workflow_state["status"] = WorkflowStatus.FAILED
-            workflow_state["error_messages"].append(
-                f"Node {event.source_node} failed after 3 retries"
-            )
+            workflow_state["error"] = f"Node {event.source_node} failed after 3 retries"
 
     async def _handle_human_approval(
         self, workflow_id: str, event: WorkflowEvent
@@ -821,13 +797,11 @@ class EnhancedLangGraphOrchestrator:
 
         except json.JSONDecodeError:
             # Fallback to simple text processing
-            workflow_state["human_feedback"].append(
-                {
-                    "user_input": user_input,
-                    "timestamp": datetime.now(),
-                    "processed": False,
-                }
-            )
+            workflow_state["metadata"]["human_feedback"] = {
+                "user_input": user_input,
+                "timestamp": datetime.now(),
+                "processed": False,
+            }
 
     async def get_workflow_status(self, workflow_id: str) -> dict[str, Any]:
         """Get current status of a workflow"""
@@ -854,8 +828,12 @@ class EnhancedLangGraphOrchestrator:
                 }
                 for cp in workflow_state["pending_checkpoints"]
             ],
-            "execution_metrics": workflow_state["execution_metrics"],
-            "last_updated": workflow_state["updated_at"],
+            "execution_metrics": workflow_state["metadata"].get(
+                "execution_metrics", {}
+            ),
+            "last_updated": workflow_state["metadata"].get(
+                "updated_at", datetime.now()
+            ),
         }
 
     async def get_pending_approvals(self, user_id: str) -> list[dict[str, Any]]:

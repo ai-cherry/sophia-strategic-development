@@ -29,19 +29,19 @@ class OpenRouterIntegration:
         # Model catalog organized by capability
         self.model_catalog = {
             "general_purpose": [
-                "openai/gpt-4-turbo-preview",
-                "anthropic/claude-3-opus",
+                "openai/gpt-4o",
+                "anthropic/claude-3.5-sonnet",
                 "google/gemini-pro",
                 "meta-llama/llama-3-70b-instruct",
             ],
             "code_generation": [
-                "openai/gpt-4-turbo",
+                "openai/gpt-4o",
                 "anthropic/claude-3-sonnet",
                 "phind/phind-codellama-34b",
                 "wizardlm/wizardcoder-33b",
             ],
             "reasoning": [
-                "anthropic/claude-3-opus",
+                "anthropic/claude-3.5-sonnet",
                 "openai/gpt-4",
                 "google/gemini-ultra",
                 "mistralai/mixtral-8x22b",
@@ -53,14 +53,14 @@ class OpenRouterIntegration:
                 "meta-llama/llama-3-creative",
             ],
             "apartment_industry": [
-                "openai/gpt-4-turbo",  # Fine-tuned for business
-                "anthropic/claude-3-opus",  # Strong context understanding
+                "openai/gpt-4o",  # Fine-tuned for business
+                "anthropic/claude-3.5-sonnet",  # Strong context understanding
                 "mistralai/mistral-large",  # European property focus
                 "custom/pay-ready-assistant",  # Custom fine-tuned model
             ],
             "financial_analysis": [
-                "openai/gpt-4-turbo",
-                "anthropic/claude-3-opus",
+                "openai/gpt-4o",
+                "anthropic/claude-3.5-sonnet",
                 "bloomberg/bloomberggpt",
                 "custom/fintech-analyst",
             ],
@@ -74,14 +74,14 @@ class OpenRouterIntegration:
 
         # Model performance characteristics
         self.model_characteristics = {
-            "openai/gpt-4-turbo-preview": {
+            "openai/gpt-4o": {
                 "quality_score": 0.95,
                 "speed": "medium",
                 "cost_per_1k": 0.03,
                 "context_window": 128000,
                 "strengths": ["reasoning", "code", "analysis"],
             },
-            "anthropic/claude-3-opus": {
+            "anthropic/claude-3.5-sonnet": {
                 "quality_score": 0.96,
                 "speed": "medium",
                 "cost_per_1k": 0.015,
@@ -271,12 +271,12 @@ class OpenRouterIntegration:
             "temperature": settings.get("temperature", 0.7) if settings else 0.7,
             "max_tokens": settings.get("max_tokens", 4096) if settings else 4096,
             "top_p": settings.get("top_p", 0.9) if settings else 0.9,
-            "frequency_penalty": settings.get("frequency_penalty", 0.0)
-            if settings
-            else 0.0,
-            "presence_penalty": settings.get("presence_penalty", 0.0)
-            if settings
-            else 0.0,
+            "frequency_penalty": (
+                settings.get("frequency_penalty", 0.0) if settings else 0.0
+            ),
+            "presence_penalty": (
+                settings.get("presence_penalty", 0.0) if settings else 0.0
+            ),
             "stream": False,
         }
 
@@ -329,10 +329,10 @@ class OpenRouterIntegration:
                         raise Exception(f"API error: {response.status}")
 
             except TimeoutError:
-                logger.error("OpenRouter API timeout")
+                logger.exception("OpenRouter API timeout")
                 raise
             except Exception as e:
-                logger.error(f"OpenRouter execution error: {e}")
+                logger.exception(f"OpenRouter execution error: {e}")
                 raise
 
     async def get_available_models(self) -> dict[str, list[str]]:
@@ -364,7 +364,7 @@ class OpenRouterIntegration:
                         return self.model_catalog
 
             except Exception as e:
-                logger.error(f"Error fetching models: {e}")
+                logger.exception(f"Error fetching models: {e}")
                 return self.model_catalog
 
     async def benchmark_models(
@@ -382,9 +382,9 @@ class OpenRouterIntegration:
                 execution_time = time.time() - start_time
 
                 results[model] = {
-                    "response": response[:200] + "..."
-                    if len(response) > 200
-                    else response,
+                    "response": (
+                        response[:200] + "..." if len(response) > 200 else response
+                    ),
                     "execution_time": execution_time,
                     "response_length": len(response),
                     "quality_score": self._estimate_quality(response),

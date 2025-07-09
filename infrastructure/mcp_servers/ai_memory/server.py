@@ -6,13 +6,12 @@ Enterprise-grade implementation with performance optimization
 
 import asyncio
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from mcp.server import Server
 from mcp.types import Resource, Tool
 
 from .core.config import AIMemoryConfig
-from .core.models import MemoryEntry, SearchResult
 from .core.performance import PerformanceMonitor
 from .handlers.memory_handlers import MemoryHandler
 from .handlers.search_handlers import SearchHandler
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 class UnifiedAIMemoryServer:
     """Unified AI Memory MCP Server with enterprise features"""
 
-    def __init__(self, config: Optional[AIMemoryConfig] = None):
+    def __init__(self, config: AIMemoryConfig | None = None):
         self.config = config or AIMemoryConfig()
         self.server = Server("ai-memory")
         self.performance_monitor = PerformanceMonitor()

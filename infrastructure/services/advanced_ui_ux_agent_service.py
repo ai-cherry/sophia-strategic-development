@@ -160,8 +160,8 @@ class UnifiedLLMServiceService:
             # In production, this would call the actual Portkey API
             return f"AI-generated response for {task_type}: {messages[-1]['content'][:100]}..."
         except Exception as e:
-            logger.error(f"Portkey completion error: {e}")
-            return f"Error in AI completion: {str(e)}"
+            logger.exception(f"Portkey completion error: {e}")
+            return f"Error in AI completion: {e!s}"
 
 
 class AdvancedUIUXAgentService:
@@ -239,11 +239,11 @@ class AdvancedUIUXAgentService:
             )
 
         except Exception as e:
-            logger.error(f"Error processing design request: {e}")
+            logger.exception(f"Error processing design request: {e}")
             return DesignResponse(
                 options=[],
                 assets=[],
-                recommendations=[f"Error processing request: {str(e)}"],
+                recommendations=[f"Error processing request: {e!s}"],
                 next_steps=["Try rephrasing the request", "Check system status"],
             )
 

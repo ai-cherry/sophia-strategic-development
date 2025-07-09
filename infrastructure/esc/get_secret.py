@@ -28,7 +28,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 # Configure logging
 logging.basicConfig(
@@ -43,7 +43,7 @@ class SecureSecretRetriever:
     """
 
     def __init__(self, org: str | None = None, environment: str | None = None):
-        self.org = org or os.getenv("PULUMI_ORG", "default")
+        self.org = org or get_config_value("pulumi_org", "default")
         self.environment = environment or os.getenv(
             "PULUMI_ENV", "sophia-ai-production"
         )
@@ -62,7 +62,11 @@ class SecureSecretRetriever:
         """Validate Pulumi authentication before proceeding"""
         try:
             result = subprocess.run(
-                ["pulumi", "whoami"], capture_output=True, text=True, timeout=10
+                ["pulumi", "whoami"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=10,
             )
 
             if result.returncode == 0:
@@ -74,13 +78,13 @@ class SecureSecretRetriever:
                 return False
 
         except subprocess.TimeoutExpired:
-            self.logger.error("Pulumi authentication check timed out")
+            self.logger.exception("Pulumi authentication check timed out")
             return False
         except FileNotFoundError:
-            self.logger.error("Pulumi CLI not found - please install Pulumi")
+            self.logger.exception("Pulumi CLI not found - please install Pulumi")
             return False
         except Exception as e:
-            self.logger.error(f"Unexpected error during auth validation: {e}")
+            self.logger.exception(f"Unexpected error during auth validation: {e}")
             return False
 
     def _get_environment_data(self, force_refresh: bool = False) -> dict[str, Any]:
@@ -112,6 +116,7 @@ class SecureSecretRetriever:
 
             result = subprocess.run(
                 ["pulumi", "env", "get", env_path, "--show-secrets"],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -163,11 +168,11 @@ class SecureSecretRetriever:
 
         except subprocess.TimeoutExpired:
             error_msg = "Timeout while retrieving environment data from Pulumi ESC"
-            self.logger.error(error_msg)
+            self.logger.exception(error_msg)
             raise RuntimeError(error_msg)
         except Exception as e:
             error_msg = f"Unexpected error retrieving environment data: {e}"
-            self.logger.error(error_msg)
+            self.logger.exception(error_msg)
             raise RuntimeError(error_msg)
 
     def _parse_esc_output_manual(self, output: str) -> dict[str, Any]:
@@ -184,7 +189,6 @@ class SecureSecretRetriever:
 
         # Look for patterns in the output that indicate key-value pairs
         lines = output.split("\n")
-        current_key = None
 
         for line in lines:
             line = line.strip()
@@ -202,9 +206,7 @@ class SecureSecretRetriever:
                         value = parts[1].strip().strip('"')
 
                         # Handle special values
-                        if value == "[secret]":
-                            values[key] = "[secret]"
-                        elif value.startswith("fn::secret:"):
+                        if value == "[secret]" or value.startswith("fn::secret:"):
                             values[key] = "[secret]"
                         else:
                             values[key] = value
@@ -253,7 +255,7 @@ class SecureSecretRetriever:
                 return None
 
         except Exception as e:
-            self.logger.error(f"Error retrieving secret '{secret_key}': {e}")
+            self.logger.exception(f"Error retrieving secret '{secret_key}': {e}")
             raise
 
     def _get_nested_value(self, data: dict[str, Any], key: str) -> str | None:
@@ -326,7 +328,7 @@ class SecureSecretRetriever:
             return results
 
         except Exception as e:
-            self.logger.error(f"Error retrieving multiple secrets: {e}")
+            self.logger.exception(f"Error retrieving multiple secrets: {e}")
             raise
 
     def list_available_keys(self, filter_secrets_only: bool = True) -> list[str]:
@@ -357,7 +359,7 @@ class SecureSecretRetriever:
                 ]
 
                 secret_keys = []
-                for key in values.keys():
+                for key in values:
                     key_lower = key.lower()
                     if any(indicator in key_lower for indicator in secret_indicators):
                         secret_keys.append(key)
@@ -371,7 +373,7 @@ class SecureSecretRetriever:
                 return sorted(values.keys())
 
         except Exception as e:
-            self.logger.error(f"Error listing available keys: {e}")
+            self.logger.exception(f"Error listing available keys: {e}")
             raise
 
     def validate_secret_access(self, secret_keys: list[str]) -> dict[str, bool]:
@@ -399,7 +401,7 @@ class SecureSecretRetriever:
             return results
 
         except Exception as e:
-            self.logger.error(f"Error validating secret access: {e}")
+            self.logger.exception(f"Error validating secret access: {e}")
             raise
 
     def get_environment_info(self) -> dict[str, Any]:
@@ -416,7 +418,7 @@ class SecureSecretRetriever:
             secret_indicators = ["secret", "key", "token", "password", "credential"]
             secret_count = 0
 
-            for key in values.keys():
+            for key in values:
                 key_lower = key.lower()
                 if any(indicator in key_lower for indicator in secret_indicators):
                     secret_count += 1
@@ -426,16 +428,16 @@ class SecureSecretRetriever:
                 "environment": self.environment,
                 "total_values": len(values),
                 "estimated_secrets": secret_count,
-                "cache_timestamp": datetime.fromtimestamp(
-                    self._cache_timestamp
-                ).isoformat()
-                if self._cache_timestamp
-                else None,
+                "cache_timestamp": (
+                    datetime.fromtimestamp(self._cache_timestamp).isoformat()
+                    if self._cache_timestamp
+                    else None
+                ),
                 "cache_ttl_seconds": self._cache_ttl,
             }
 
         except Exception as e:
-            self.logger.error(f"Error getting environment info: {e}")
+            self.logger.exception(f"Error getting environment info: {e}")
             raise
 
 
@@ -513,67 +515,47 @@ Examples:
         # Handle different operation modes
         if args.env_info:
             info = retriever.get_environment_info()
-            if args.output == "json":
-                print(json.dumps(info, indent=2))
-            else:
-                print("ESC Environment Information:")
-                print(f"  Organization: {info['organization']}")
-                print(f"  Environment: {info['environment']}")
-                print(f"  Total Values: {info['total_values']}")
-                print(f"  Estimated Secrets: {info['estimated_secrets']}")
-                if info["cache_timestamp"]:
-                    print(f"  Cache Updated: {info['cache_timestamp']}")
+            if args.output == "json" or info["cache_timestamp"]:
+                pass
 
         elif args.list_keys:
             keys = retriever.list_available_keys()
             if args.output == "json":
-                print(
-                    json.dumps({"available_keys": keys, "count": len(keys)}, indent=2)
-                )
+                pass
             else:
-                print(f"Available Secret Keys ({len(keys)}):")
-                for key in keys:
-                    print(f"  {key}")
+                for _key in keys:
+                    pass
 
         elif args.validate_only:
             if not args.secret_keys:
-                print("Error: Must specify secret keys to validate", file=sys.stderr)
                 sys.exit(1)
 
             validation_results = retriever.validate_secret_access(args.secret_keys)
             if args.output == "json":
-                print(json.dumps(validation_results, indent=2))
+                pass
             else:
-                print("Secret Validation Results:")
-                for key, available in validation_results.items():
-                    status = "✅ Available" if available else "❌ Not Found"
-                    print(f"  {key}: {status}")
+                for _key, _available in validation_results.items():
+                    pass
 
         elif args.multiple:
             if not args.secret_keys:
-                print("Error: Must specify secret keys to retrieve", file=sys.stderr)
                 sys.exit(1)
 
             results = retriever.get_multiple_secrets(
                 args.secret_keys, mask_in_logs=args.mask_logs
             )
             if args.output == "json":
-                print(json.dumps(results, indent=2))
+                pass
             else:
-                print("Multiple Secret Retrieval Results:")
-                for key, value in results.items():
+                for value in results.values():
                     if value is not None:
-                        print(f"  {key}: {value}")
+                        pass
                     else:
-                        print(f"  {key}: NOT FOUND")
+                        pass
 
         else:
             # Single secret retrieval (default mode)
             if not args.secret_keys or len(args.secret_keys) != 1:
-                print(
-                    "Error: Must specify exactly one secret key for single retrieval",
-                    file=sys.stderr,
-                )
                 sys.exit(1)
 
             secret_key = args.secret_keys[0]
@@ -581,38 +563,35 @@ Examples:
 
             if secret_value is not None:
                 if args.output == "json":
-                    print(json.dumps({"key": secret_key, "value": secret_value}))
+                    pass
                 else:
-                    print(secret_value)
+                    pass
                 sys.exit(0)
             else:
-                print(f"Secret '{secret_key}' not found", file=sys.stderr)
                 sys.exit(1)
 
     except RuntimeError as e:
-        logger.error(f"Runtime error: {e}")
+        logger.exception(f"Runtime error: {e}")
         if args.output == "json":
-            error_result = {
+            {
                 "error": str(e),
                 "timestamp": datetime.now().isoformat(),
                 "success": False,
             }
-            print(json.dumps(error_result, indent=2))
         else:
-            print(f"Error: {e}", file=sys.stderr)
+            pass
         sys.exit(1)
 
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.exception(f"Unexpected error: {e}")
         if args.output == "json":
-            error_result = {
-                "error": f"Unexpected error: {str(e)}",
+            {
+                "error": f"Unexpected error: {e!s}",
                 "timestamp": datetime.now().isoformat(),
                 "success": False,
             }
-            print(json.dumps(error_result, indent=2))
         else:
-            print(f"Unexpected Error: {e}", file=sys.stderr)
+            pass
         sys.exit(2)
 
 

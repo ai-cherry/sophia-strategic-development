@@ -44,7 +44,7 @@ All required files and configurations created:
 From the deployment report:
 - ✅ Docker image built: `scoobyjava15/sophia-ai:latest`
 - ✅ Registry: `scoobyjava15`
-- ✅ Lambda Labs instance ready: `146.235.200.1`
+- ✅ Lambda Labs instance ready: `192.222.58.232`
 
 ---
 
@@ -53,14 +53,14 @@ From the deployment report:
 ### **1. Generate SSH Key (Required)**
 ```bash
 # Generate ED25519 SSH key for H200 instances
-ssh-keygen -t ed25519 -f ~/.ssh/lynn_sophia_h200_key -C "lynn-sophia-h200"
+ssh-keygen -t ed25519 -f ~/.ssh/sophia2025.pem -C "lynn-sophia-h200"
 
 # Set correct permissions
-chmod 600 ~/.ssh/lynn_sophia_h200_key
-chmod 644 ~/.ssh/lynn_sophia_h200_key.pub
+chmod 600 ~/.ssh/sophia2025.pem
+chmod 644 ~/.ssh/sophia2025.pem.pub
 
 # Display public key to upload to Lambda Labs
-cat ~/.ssh/lynn_sophia_h200_key.pub
+cat ~/.ssh/sophia2025.pem.pub
 ```
 
 ### **2. Create Pulumi H200 ESC Environment**
@@ -115,7 +115,7 @@ python scripts/ci/sync_from_gh_to_pulumi.py
 
 ```bash
 # 1. Generate SSH key
-ssh-keygen -t ed25519 -f ~/.ssh/lynn_sophia_h200_key -C "lynn-sophia-h200"
+ssh-keygen -t ed25519 -f ~/.ssh/sophia2025.pem -C "lynn-sophia-h200"
 
 # 2. Create Pulumi ESC environment
 pulumi env init scoobyjava-org/sophia-ai-h200-production
@@ -155,7 +155,7 @@ Latest validation run (January 7, 2025, 17:05:11):
 - ⚠️ Lambda Labs API key not in environment
 
 ### **Errors (1):**
-- ❌ SSH key not found at `~/.ssh/lynn_sophia_h200_key`
+- ❌ SSH key not found at `~/.ssh/sophia2025.pem`
 
 ---
 
@@ -173,7 +173,7 @@ Latest validation run (January 7, 2025, 17:05:11):
 
 - The Perfect Alignment Report shows SSH key `lynn-sophia-h200-key` is ready in Lambda Labs
 - All GitHub secrets are properly configured with exact values
-- Docker infrastructure is operational at `146.235.200.1`
+- Docker infrastructure is operational at `192.222.58.232`
 - The integration follows enterprise best practices for secret management
 
 ---

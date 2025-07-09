@@ -45,7 +45,7 @@ const sophiaEnhancedImage = new docker.Image("sophia-h200-optimized", {
     registry: {
         server: dockerRegistry,
         username: config.require("dockerUsername"),
-        password: config.requireSecret("dockerPassword"),
+        password: config.requireSecret("dockerToken"),
     },
 });
 

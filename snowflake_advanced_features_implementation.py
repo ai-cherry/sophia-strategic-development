@@ -37,7 +37,7 @@ class AdvancedSnowflakeImplementation:
             logger.info("✅ Connected to Snowflake successfully")
             return True
         except Exception as e:
-            logger.error(f"❌ Failed to connect to Snowflake: {e}")
+            logger.exception(f"❌ Failed to connect to Snowflake: {e}")
             return False
 
     def execute_query(self, query, description=""):
@@ -48,8 +48,8 @@ class AdvancedSnowflakeImplementation:
             logger.info("✅ Query executed successfully")
             return True
         except Exception as e:
-            logger.error(f"❌ Query failed: {e}")
-            logger.error(f"   Query: {query[:100]}...")
+            logger.exception(f"❌ Query failed: {e}")
+            logger.exception(f"   Query: {query[:100]}...")
             return False
 
     def implement_advanced_cortex_search(self):
@@ -471,7 +471,7 @@ class AdvancedSnowflakeImplementation:
                 success_count += 1
                 logger.info(f"✅ {name} implementation completed")
             except Exception as e:
-                logger.error(f"❌ {name} implementation failed: {e}")
+                logger.exception(f"❌ {name} implementation failed: {e}")
 
         logger.info(
             f"🎉 Advanced implementation completed: {success_count}/{len(implementations)} successful"

@@ -9,7 +9,6 @@ from pathlib import Path
 
 def main():
     """Simple health gate that checks basic requirements"""
-    print("✅ Deployment health gate: PASSED")
 
     # Create a simple health report
     health_report = {
@@ -17,8 +16,8 @@ def main():
         "checks": {
             "environment": "passed",
             "dependencies": "passed",
-            "configuration": "passed"
-        }
+            "configuration": "passed",
+        },
     }
 
     # Save report
@@ -27,6 +26,7 @@ def main():
         json.dump(health_report, f, indent=2)
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -502,7 +502,7 @@ class HierarchicalCache:
             logger.info("✅ Hierarchical Cache System initialized")
 
         except Exception as e:
-            logger.error(f"❌ Cache system initialization failed: {e}")
+            logger.exception(f"❌ Cache system initialization failed: {e}")
             raise
 
     @performance_monitor.monitor_performance("cache_get", 100)
@@ -568,7 +568,7 @@ class HierarchicalCache:
             return None
 
         except Exception as e:
-            logger.error(f"Cache get failed for key {key}: {e}")
+            logger.exception(f"Cache get failed for key {key}: {e}")
             self.metrics.misses += 1
             return None
 
@@ -605,16 +605,10 @@ class HierarchicalCache:
             # Store in appropriate cache level(s)
             success = True
 
-            if (
-                cache_level == CacheLevel.L1_MEMORY
-                or cache_level == CacheLevel.L1_MEMORY
-            ):
+            if cache_level in (CacheLevel.L1_MEMORY, CacheLevel.L1_MEMORY):
                 success &= await self._put_in_l1(key, entry)
 
-            if (
-                cache_level == CacheLevel.L2_REDIS
-                or cache_level == CacheLevel.L1_MEMORY
-            ):
+            if cache_level in (CacheLevel.L2_REDIS, CacheLevel.L1_MEMORY):
                 success &= await self._put_in_l2(key, entry)
 
             if cache_level == CacheLevel.L3_DATABASE:
@@ -626,7 +620,7 @@ class HierarchicalCache:
             return success
 
         except Exception as e:
-            logger.error(f"Cache put failed for key {key}: {e}")
+            logger.exception(f"Cache put failed for key {key}: {e}")
             return False
 
     @performance_monitor.monitor_performance("cache_delete", 30)
@@ -657,7 +651,7 @@ class HierarchicalCache:
             return success
 
         except Exception as e:
-            logger.error(f"Cache delete failed for key {key}: {e}")
+            logger.exception(f"Cache delete failed for key {key}: {e}")
             return False
 
     async def clear(self, cache_level: CacheLevel | None = None):
@@ -678,7 +672,7 @@ class HierarchicalCache:
             logger.info(f"Cache cleared: {cache_level or 'all levels'}")
 
         except Exception as e:
-            logger.error(f"Cache clear failed: {e}")
+            logger.exception(f"Cache clear failed: {e}")
 
     async def warm_cache(self, keys: list[str], values: list[Any]):
         """Warm cache with pre-loaded data"""
@@ -694,7 +688,7 @@ class HierarchicalCache:
             logger.info(f"✅ Cache warming completed: {len(keys)} entries")
 
         except Exception as e:
-            logger.error(f"Cache warming failed: {e}")
+            logger.exception(f"Cache warming failed: {e}")
 
     # L1 Cache operations (Memory)
     async def _put_in_l1(self, key: str, entry: CacheEntry) -> bool:
@@ -702,7 +696,7 @@ class HierarchicalCache:
         try:
             return self.l1_cache.put(key, entry)
         except Exception as e:
-            logger.error(f"L1 cache put failed: {e}")
+            logger.exception(f"L1 cache put failed: {e}")
             return False
 
     async def _promote_to_l1(self, key: str, value: Any) -> bool:
@@ -717,7 +711,7 @@ class HierarchicalCache:
             )
             return self.l1_cache.put(key, entry)
         except Exception as e:
-            logger.error(f"L1 promotion failed: {e}")
+            logger.exception(f"L1 promotion failed: {e}")
             return False
 
     # L2 Cache operations (Redis) - Placeholder implementations
@@ -875,7 +869,7 @@ class HierarchicalCache:
                 logger.debug("Cache warming cycle completed")
 
             except Exception as e:
-                logger.error(f"Cache warming worker error: {e}")
+                logger.exception(f"Cache warming worker error: {e}")
                 await asyncio.sleep(60)  # Wait before retrying
 
     async def _metrics_collection_worker(self):
@@ -895,7 +889,7 @@ class HierarchicalCache:
                     logger.warning(f"Low cache hit ratio: {hit_ratio:.2%}")
 
             except Exception as e:
-                logger.error(f"Metrics collection worker error: {e}")
+                logger.exception(f"Metrics collection worker error: {e}")
                 await asyncio.sleep(60)
 
     def get_hit_ratio(self) -> float:

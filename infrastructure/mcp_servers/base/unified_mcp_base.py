@@ -5,7 +5,6 @@ Provides standardized foundation for all Sophia AI MCP servers.
 """
 
 import logging
-import os
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable
@@ -21,6 +20,8 @@ from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from prometheus_client.core import CollectorRegistry
 
+from backend.core.auto_esc_config import get_config_value
+
 # Import custom logger when available, fallback to standard logging
 try:
     from shared.utils.custom_logger import setup_logger
@@ -35,7 +36,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 # Lambda Labs Configuration
-LAMBDA_LABS_HOST = os.getenv("LAMBDA_LABS_HOST", "165.1.69.44")
+LAMBDA_LABS_HOST = get_config_value("lambda_labs_host", "165.1.69.44")
 
 
 class ServerStatus(Enum):
@@ -297,7 +298,7 @@ class StandardizedMCPServer(ABC):
                 errors.append("Server-specific health check failed")
         except Exception as e:
             status = "unhealthy"
-            errors.append(f"Health check error: {str(e)}")
+            errors.append(f"Health check error: {e!s}")
 
         metrics = {
             "uptime_seconds": uptime,
@@ -346,7 +347,7 @@ class StandardizedMCPServer(ABC):
         """Run the MCP server."""
         uvicorn.run(
             self.app,
-            host="0.0.0.0",
+            host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
             port=self.config.port,
             log_level=self.config.log_level.lower(),
         )

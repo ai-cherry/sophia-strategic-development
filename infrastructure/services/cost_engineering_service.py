@@ -198,7 +198,7 @@ class CostEngineeringService:
             logger.info("✅ Cost Engineering Service initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Cost Engineering Service: {e}")
+            logger.exception(f"Failed to initialize Cost Engineering Service: {e}")
             raise
 
     async def _initialize_model_configs(self) -> None:
@@ -389,7 +389,7 @@ class CostEngineeringService:
             )
 
         except Exception as e:
-            logger.error(f"Error processing task: {e}")
+            logger.exception(f"Error processing task: {e}")
             raise
 
     async def _check_semantic_cache(
@@ -419,7 +419,7 @@ class CostEngineeringService:
             return None
 
         except Exception as e:
-            logger.error(f"Error checking semantic cache: {e}")
+            logger.exception(f"Error checking semantic cache: {e}")
             return None
 
     async def _analyze_task_complexity(
@@ -459,7 +459,7 @@ class CostEngineeringService:
             return self._heuristic_complexity_analysis(task_request)
 
         except Exception as e:
-            logger.error(f"Error analyzing task complexity: {e}")
+            logger.exception(f"Error analyzing task complexity: {e}")
             return self._heuristic_complexity_analysis(task_request)
 
     def _heuristic_complexity_analysis(
@@ -542,7 +542,7 @@ class CostEngineeringService:
             return best_model
 
         except Exception as e:
-            logger.error(f"Error selecting optimal model: {e}")
+            logger.exception(f"Error selecting optimal model: {e}")
             return "mixtral-8x7b"  # Fallback to medium model
 
     def _balanced_model_selection(
@@ -600,7 +600,7 @@ class CostEngineeringService:
             return self._balanced_model_selection(candidate_models, task_request)
 
         except Exception as e:
-            logger.error(f"Error in adaptive model selection: {e}")
+            logger.exception(f"Error in adaptive model selection: {e}")
             return self._balanced_model_selection(candidate_models, task_request)
 
     async def _optimize_prompt(self, prompt: str, model_id: str) -> str:
@@ -639,7 +639,7 @@ class CostEngineeringService:
             return prompt
 
         except Exception as e:
-            logger.error(f"Error optimizing prompt: {e}")
+            logger.exception(f"Error optimizing prompt: {e}")
             return prompt
 
     async def _execute_task(
@@ -665,7 +665,7 @@ class CostEngineeringService:
                 return response, tokens_used
 
         except Exception as e:
-            logger.error(f"Error executing task: {e}")
+            logger.exception(f"Error executing task: {e}")
             raise
 
     async def _assess_response_quality(
@@ -698,7 +698,7 @@ class CostEngineeringService:
             return min(1.0, quality_score)
 
         except Exception as e:
-            logger.error(f"Error assessing response quality: {e}")
+            logger.exception(f"Error assessing response quality: {e}")
             return 0.7  # Default quality score
 
     async def _cache_result(
@@ -740,7 +740,7 @@ class CostEngineeringService:
             )
 
         except Exception as e:
-            logger.error(f"Error caching result: {e}")
+            logger.exception(f"Error caching result: {e}")
 
     async def _update_metrics(
         self,
@@ -802,7 +802,7 @@ class CostEngineeringService:
             self.global_metrics.timestamp = datetime.now()
 
         except Exception as e:
-            logger.error(f"Error updating metrics: {e}")
+            logger.exception(f"Error updating metrics: {e}")
 
     async def get_cost_report(self, user_id: str | None = None) -> dict[str, Any]:
         """Generate cost report for user or global"""
@@ -874,7 +874,7 @@ class CostEngineeringService:
             }
 
         except Exception as e:
-            logger.error(f"Error generating cost report: {e}")
+            logger.exception(f"Error generating cost report: {e}")
             return {"error": str(e)}
 
     async def _generate_cost_recommendations(self, metrics: CostMetrics) -> list[str]:
@@ -925,7 +925,7 @@ class CostEngineeringService:
             return recommendations
 
         except Exception as e:
-            logger.error(f"Error generating recommendations: {e}")
+            logger.exception(f"Error generating recommendations: {e}")
             return ["Unable to generate recommendations due to error"]
 
     async def set_optimization_strategy(
@@ -969,7 +969,7 @@ class CostEngineeringService:
                 await asyncio.sleep(3600)
 
             except Exception as e:
-                logger.error(f"Error in cost monitoring: {e}")
+                logger.exception(f"Error in cost monitoring: {e}")
                 await asyncio.sleep(300)  # Sleep 5 minutes on error
 
     async def _optimization_analysis_task(self) -> None:
@@ -989,7 +989,7 @@ class CostEngineeringService:
                 await self._update_routing_rules()
 
             except Exception as e:
-                logger.error(f"Error in optimization analysis: {e}")
+                logger.exception(f"Error in optimization analysis: {e}")
                 await asyncio.sleep(1800)  # Sleep 30 minutes on error
 
     async def _calculate_daily_cost(self) -> float:

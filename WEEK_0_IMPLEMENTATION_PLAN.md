@@ -27,7 +27,7 @@ First week implementation plan to transition from successful cleanup to active d
 
   Infrastructure:
   - Docker Swarm configuration (docker-compose.cloud.yml)
-  - Lambda Labs instance (146.235.200.1)
+  - Lambda Labs instance (192.222.58.232)
   - Pulumi ESC with GitHub sync
   ```
 
@@ -112,7 +112,7 @@ pulumi config set kubernetes:kubeconfig ~/.kube/config-staging
 # Production stack (already exists)
 pulumi stack select sophia-ai-production
 pulumi config set lambdaLabs:instance sophia-ai-production
-pulumi config set lambdaLabs:ip 146.235.200.1
+pulumi config set lambdaLabs:ip 192.222.58.232
 ```
 
 ### Afternoon Session
@@ -163,7 +163,7 @@ export const stagingConfig = {
 **Lambda Labs Kubernetes Provisioning**
 ```bash
 # SSH into Lambda Labs instance
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Install k3s (lightweight Kubernetes)
 curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644

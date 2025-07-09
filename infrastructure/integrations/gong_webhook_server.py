@@ -251,8 +251,8 @@ class GongWebhookVerifier:
         except WebhookVerificationError:
             raise
         except Exception as e:
-            self.logger.error("Webhook verification failed", error=str(e))
-            raise WebhookVerificationError(f"Verification failed: {str(e)}")
+            self.logger.exception("Webhook verification failed", error=str(e))
+            raise WebhookVerificationError(f"Verification failed: {e!s}")
 
 
 # Rate Limiter
@@ -316,7 +316,7 @@ class RetryManager:
                 return await operation()
             except Exception as e:
                 if attempt == max_retries - 1:
-                    self.logger.error(
+                    self.logger.exception(
                         "Max retries exceeded", error=str(e), attempts=max_retries
                     )
                     raise
@@ -566,12 +566,12 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
 
         except WebhookVerificationError as e:
             webhook_requests_total.labels(endpoint="calls", status="unauthorized").inc()
-            logger.error("Webhook verification failed", error=str(e))
+            logger.exception("Webhook verification failed", error=str(e))
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
         except Exception as e:
             webhook_requests_total.labels(endpoint="calls", status="error").inc()
-            logger.error("Error processing webhook", error=str(e))
+            logger.exception("Error processing webhook", error=str(e))
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error",

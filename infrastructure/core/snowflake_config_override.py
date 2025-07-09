@@ -18,7 +18,7 @@ CORRECT_SNOWFLAKE_CONFIG = {
 }
 
 
-def get_snowflake_config(key: str, default: str = None) -> str:
+def get_snowflake_config(key: str, default: str | None = None) -> str:
     """
     Get Snowflake configuration with override for correct values
 

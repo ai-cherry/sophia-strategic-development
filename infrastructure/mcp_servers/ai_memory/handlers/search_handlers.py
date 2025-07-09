@@ -1,10 +1,10 @@
 """Search operation handlers"""
 
-from typing import Any, Dict, List
+from typing import Any
 
 from ..core.config import AIMemoryConfig
 from ..core.exceptions import MemorySearchException
-from ..core.models import MemoryEntry, SearchResult
+from ..core.models import SearchResult
 
 
 class SearchHandler:
@@ -36,7 +36,7 @@ class SearchHandler:
             ]
 
         except Exception as e:
-            raise MemorySearchException(f"Failed to search memories: {str(e)}")
+            raise MemorySearchException(f"Failed to search memories: {e!s}")
 
     async def _generate_query_embedding(self, query: str) -> list[float]:
         """Generate embedding for search query"""

@@ -6,10 +6,8 @@ Creates production-ready MCP servers with all best practices
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
-from typing import Any, Dict
 
 # Color codes for output
 RED = "\033[0;31m"
@@ -21,7 +19,6 @@ NC = "\033[0m"  # No Color
 
 def print_colored(message: str, color: str = NC):
     """Print colored message."""
-    print(f"{color}{message}{NC}")
 
 
 def get_next_port() -> int:
@@ -120,14 +117,6 @@ def create_mcp_server(server_name: str):
     # Print summary
     print_colored(f"\n✅ Successfully created {server_name} MCP server!", GREEN)
     print_colored("\n📋 Next steps:", YELLOW)
-    print("  1. Review and customize the generated files")
-    print("  2. Update API endpoints in handlers/main_handler.py")
-    print(f"  3. Add {server_name}-specific fields to models/data_models.py")
-    print("  4. Configure environment variables (see .env.example)")
-    print(f"  5. Run tests: pytest {base_path}/tests")
-    print(
-        f"  6. Start server: python -m infrastructure.mcp_servers.{server_name}.server"
-    )
     print_colored(f"\n📍 Server will run on port: {port}", BLUE)
     print_colored("\n🚀 Happy coding!", GREEN)
 
@@ -406,7 +395,7 @@ async def health():
     return {{"status": "healthy", "server": "{srv}"}}
 
 async def main():
-    config = uvicorn.Config(app, host="0.0.0.0", port=9000)
+    config = uvicorn.Config(app, host="127.0.0.1"  # Changed from 0.0.0.0 for security. Use environment variable for production, port=9000)
     server = uvicorn.Server(config)
     await server.serve()
 

@@ -6,14 +6,14 @@ Advanced async patterns, caching, and performance monitoring
 from __future__ import annotations
 
 import asyncio
+import builtins
 import logging
 import time
-import weakref
 from collections.abc import AsyncGenerator, Callable
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from typing import Any, TypeVar
 
 from .exceptions import MemoryCapacityError, MemoryTimeoutError, handle_async_exception
 
@@ -28,16 +28,14 @@ class PerformanceMetrics:
 
     operation_name: str
     start_time: float = field(default_factory=time.time)
-    end_time: Optional[float] = None
-    duration: Optional[float] = None
+    end_time: float | None = None
+    duration: float | None = None
     success: bool = True
-    error_message: Optional[str] = None
-    memory_usage: Optional[int] = None
+    error_message: str | None = None
+    memory_usage: int | None = None
     context: dict[str, Any] = field(default_factory=dict)
 
-    def complete(
-        self, success: bool = True, error_message: Optional[str] = None
-    ) -> None:
+    def complete(self, success: bool = True, error_message: str | None = None) -> None:
         """Mark operation as complete"""
         self.end_time = time.time()
         self.duration = self.end_time - self.start_time
@@ -106,7 +104,7 @@ class MemoryCache:
         self._access_times: dict[str, float] = {}
         self._lock = asyncio.Lock()
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache"""
         async with self._lock:
             if key not in self._cache:
@@ -124,7 +122,7 @@ class MemoryCache:
             self._access_times[key] = time.time()
             return entry["value"]
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in cache"""
         async with self._lock:
             # Evict if at capacity
@@ -235,11 +233,11 @@ class VectorOperationOptimizer:
                 return results
 
             except Exception as e:
-                logger.error(f"Vector similarity computation failed: {e}")
+                logger.exception(f"Vector similarity computation failed: {e}")
                 raise
             finally:
                 # Explicit cleanup for large arrays
-                try:
+                with suppress(builtins.BaseException):
                     del (
                         query_array,
                         candidate_arrays,
@@ -247,8 +245,6 @@ class VectorOperationOptimizer:
                         candidate_norms,
                         similarities,
                     )
-                except:
-                    pass
 
     @handle_async_exception
     async def generate_embedding_cached(
@@ -282,7 +278,7 @@ class VectorOperationOptimizer:
                 return embedding
 
             except Exception as e:
-                logger.error(f"Embedding generation failed: {e}")
+                logger.exception(f"Embedding generation failed: {e}")
                 raise
 
 
@@ -383,7 +379,7 @@ def performance_monitor(operation_name: str):
 
             except Exception as e:
                 metrics.complete(success=False, error_message=str(e))
-                logger.error(f"Performance: {metrics.to_dict()}")
+                logger.exception(f"Performance: {metrics.to_dict()}")
                 raise
 
         @wraps(func)
@@ -401,7 +397,7 @@ def performance_monitor(operation_name: str):
 
             except Exception as e:
                 metrics.complete(success=False, error_message=str(e))
-                logger.error(f"Performance: {metrics.to_dict()}")
+                logger.exception(f"Performance: {metrics.to_dict()}")
                 raise
 
         return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
@@ -414,7 +410,7 @@ async def with_timeout(coro, timeout_seconds: float, operation_name: str = "oper
 
     try:
         return await asyncio.wait_for(coro, timeout=timeout_seconds)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         raise MemoryTimeoutError(
             message=f"Operation timed out after {timeout_seconds} seconds",
             operation=operation_name,

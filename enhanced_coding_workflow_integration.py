@@ -325,7 +325,7 @@ Include:
                 return {"error": f"Unsupported platform: {platform}"}
 
         except Exception as e:
-            return {"error": f"Failed to gather context from {platform}: {str(e)}"}
+            return {"error": f"Failed to gather context from {platform}: {e!s}"}
 
     async def _gather_github_context(self, issue_id: str) -> dict[str, Any]:
         """Gather context from GitHub issue/PR"""
@@ -425,7 +425,7 @@ Include:
         except Exception as e:
             business_context[
                 "context_error"
-            ] = f"Failed to gather business context: {str(e)}"
+            ] = f"Failed to gather business context: {e!s}"
 
         return business_context
 
@@ -460,6 +460,7 @@ Include:
         try:
             result = subprocess.run(
                 ["python", "unified_ai_assistant.py", enhanced_prompt],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=60,
@@ -471,6 +472,7 @@ Include:
                 # Fallback to Claude CLI
                 result = subprocess.run(
                     ["./claude-cli-integration/claude", "chat", enhanced_prompt],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=60,
@@ -483,7 +485,7 @@ Include:
                 )
 
         except Exception as e:
-            return f"Code generation failed: {str(e)}"
+            return f"Code generation failed: {e!s}"
 
     async def workflow_automation(
         self, workflow_type: str, context: dict[str, Any]

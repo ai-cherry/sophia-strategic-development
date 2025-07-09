@@ -39,13 +39,13 @@
 ### 4. Lambda Labs API Integration ✅
 - **Problem**: Unknown Lambda Labs configuration
 - **Solution**: Verified API access, discovered active instances
-- **Result**: API working, target instance identified (146.235.200.1)
+- **Result**: API working, target instance identified (192.222.58.232)
 
 ## 🎯 CURRENT DEPLOYMENT STATUS
 
 ### ✅ READY FOR DEPLOYMENT
 - **Docker Image**: `scoobyjava15/sophia-ai:latest` - Available on Docker Hub
-- **Target Instance**: `sophia-platform-prod` (146.235.200.1) - Active and ready
+- **Target Instance**: `sophia-platform-prod` (192.222.58.232) - Active and ready
 - **Deployment Script**: `SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh` - Comprehensive automation
 - **API Access**: Lambda Labs API verified working
 - **Documentation**: Complete deployment instructions provided
@@ -82,9 +82,9 @@ The `SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh` includes:
 - **Total Deployment**: ~15-20 minutes
 
 ### VERIFICATION ENDPOINTS
-- **Health Check**: http://146.235.200.1/api/health
-- **API Documentation**: http://146.235.200.1/docs
-- **Main API**: http://146.235.200.1/
+- **Health Check**: http://192.222.58.232/api/health
+- **API Documentation**: http://192.222.58.232/docs
+- **Main API**: http://192.222.58.232/
 
 ## 🔍 VALIDATION TESTS RESULTS
 

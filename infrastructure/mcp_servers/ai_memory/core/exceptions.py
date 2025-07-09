@@ -5,7 +5,7 @@ Comprehensive error handling with specific exception types
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class MemoryError(Exception):
@@ -14,9 +14,9 @@ class MemoryError(Exception):
     def __init__(
         self,
         message: str,
-        error_code: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-        cause: Optional[Exception] = None,
+        error_code: str | None = None,
+        context: dict[str, Any] | None = None,
+        cause: Exception | None = None,
     ):
         super().__init__(message)
         self.message = message
@@ -51,8 +51,8 @@ class MemoryValidationError(MemoryError):
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
-        value: Optional[Any] = None,
+        field: str | None = None,
+        value: Any | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -70,7 +70,7 @@ class MemoryValidationError(MemoryError):
 class MemoryNotFoundError(MemoryError):
     """Raised when requested memory record is not found"""
 
-    def __init__(self, memory_id: str, message: Optional[str] = None, **kwargs):
+    def __init__(self, memory_id: str, message: str | None = None, **kwargs):
         message = message or f"Memory record not found: {memory_id}"
         context = kwargs.get("context", {})
         context["memory_id"] = memory_id
@@ -84,8 +84,8 @@ class MemoryStorageError(MemoryError):
     def __init__(
         self,
         message: str,
-        operation: Optional[str] = None,
-        storage_type: Optional[str] = None,
+        operation: str | None = None,
+        storage_type: str | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -104,8 +104,8 @@ class MemoryEmbeddingError(MemoryError):
     def __init__(
         self,
         message: str,
-        model: Optional[str] = None,
-        content_length: Optional[int] = None,
+        model: str | None = None,
+        content_length: int | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -126,8 +126,8 @@ class MemorySearchError(MemoryError):
     def __init__(
         self,
         message: str,
-        query: Optional[str] = None,
-        search_type: Optional[str] = None,
+        query: str | None = None,
+        search_type: str | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -143,7 +143,7 @@ class MemorySearchError(MemoryError):
 class MemoryConfigurationError(MemoryError):
     """Raised when configuration is invalid or missing"""
 
-    def __init__(self, message: str, config_key: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, config_key: str | None = None, **kwargs):
         context = kwargs.get("context", {})
         if config_key:
             context["config_key"] = config_key
@@ -157,8 +157,8 @@ class MemoryConnectionError(MemoryError):
     def __init__(
         self,
         message: str,
-        service: Optional[str] = None,
-        endpoint: Optional[str] = None,
+        service: str | None = None,
+        endpoint: str | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -179,8 +179,8 @@ class MemoryTimeoutError(MemoryError):
     def __init__(
         self,
         message: str,
-        operation: Optional[str] = None,
-        timeout_seconds: Optional[float] = None,
+        operation: str | None = None,
+        timeout_seconds: float | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -199,9 +199,9 @@ class MemoryCapacityError(MemoryError):
     def __init__(
         self,
         message: str,
-        limit_type: Optional[str] = None,
-        current_value: Optional[Any] = None,
-        limit_value: Optional[Any] = None,
+        limit_type: str | None = None,
+        current_value: Any | None = None,
+        limit_value: Any | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -225,8 +225,8 @@ class MemoryPermissionError(MemoryError):
     def __init__(
         self,
         message: str,
-        resource: Optional[str] = None,
-        required_permission: Optional[str] = None,
+        resource: str | None = None,
+        required_permission: str | None = None,
         **kwargs,
     ):
         context = kwargs.get("context", {})
@@ -252,14 +252,14 @@ EXTERNAL_ERROR_MAPPING = {
 
 
 def map_external_error(
-    error: Exception, service: str, operation: Optional[str] = None
+    error: Exception, service: str, operation: str | None = None
 ) -> MemoryError:
     """Map external service errors to AI Memory exceptions"""
 
     error_class = EXTERNAL_ERROR_MAPPING.get(service, MemoryError)
 
     # Extract relevant information from the original error
-    message = f"{service.title()} error: {str(error)}"
+    message = f"{service.title()} error: {error!s}"
     context = {
         "service": service,
         "original_error": error.__class__.__name__,
@@ -291,14 +291,13 @@ def map_external_error(
 
 def handle_async_exception(func):
     """Decorator to handle async exceptions consistently"""
-    import asyncio
     import functools
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except asyncio.TimeoutError as e:
+        except TimeoutError as e:
             raise MemoryTimeoutError(
                 message=f"Operation timed out: {func.__name__}",
                 operation=func.__name__,
@@ -309,7 +308,7 @@ def handle_async_exception(func):
                 raise
             else:
                 raise MemoryError(
-                    message=f"Unexpected error in {func.__name__}: {str(e)}",
+                    message=f"Unexpected error in {func.__name__}: {e!s}",
                     context={"function": func.__name__},
                     cause=e,
                 )

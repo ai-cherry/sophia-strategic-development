@@ -167,7 +167,7 @@ class LinearProjectHealthAgent(BaseAgent):
             logger.info("✅ Linear Project Health Agent initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize Linear Project Health Agent: {e}")
+            logger.exception(f"Failed to initialize Linear Project Health Agent: {e}")
             raise
 
     async def assess_project_health(
@@ -228,7 +228,7 @@ class LinearProjectHealthAgent(BaseAgent):
             return report
 
         except Exception as e:
-            logger.error(f"Error assessing project health: {e}")
+            logger.exception(f"Error assessing project health: {e}")
             raise
 
     async def monitor_project_trends(
@@ -272,7 +272,7 @@ class LinearProjectHealthAgent(BaseAgent):
             }
 
         except Exception as e:
-            logger.error(f"Error monitoring project trends: {e}")
+            logger.exception(f"Error monitoring project trends: {e}")
             raise
 
     async def detect_project_anomalies(
@@ -340,7 +340,7 @@ class LinearProjectHealthAgent(BaseAgent):
             return anomalies
 
         except Exception as e:
-            logger.error(f"Error detecting anomalies: {e}")
+            logger.exception(f"Error detecting anomalies: {e}")
             return []
 
     def _calculate_project_metrics(
@@ -626,7 +626,7 @@ class LinearProjectHealthAgent(BaseAgent):
                     return []
 
         except Exception as e:
-            logger.error(f"Error in AI risk assessment: {e}")
+            logger.exception(f"Error in AI risk assessment: {e}")
             return []
 
     def _calculate_health_score(
@@ -728,7 +728,7 @@ class LinearProjectHealthAgent(BaseAgent):
                 insights.extend(ai_insight_lines[:3])
 
         except Exception as e:
-            logger.error(f"Error generating AI insights: {e}")
+            logger.exception(f"Error generating AI insights: {e}")
 
         return insights[:5]  # Limit to top 5 insights
 
@@ -799,7 +799,7 @@ class LinearProjectHealthAgent(BaseAgent):
                 stats["overdue_issues"] += 1
 
         # Calculate completion rates
-        for _assignee, stats in assignee_stats.items():
+        for stats in assignee_stats.values():
             if stats["total_issues"] > 0:
                 stats["completion_rate"] = (
                     stats["completed_issues"] / stats["total_issues"]
@@ -919,4 +919,4 @@ class LinearProjectHealthAgent(BaseAgent):
             )
 
         except Exception as e:
-            logger.error(f"Error storing health report in AI Memory: {e}")
+            logger.exception(f"Error storing health report in AI Memory: {e}")

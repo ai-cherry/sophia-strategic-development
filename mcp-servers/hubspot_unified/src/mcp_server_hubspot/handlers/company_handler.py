@@ -5,7 +5,7 @@ Handler for company-related HubSpot operations.
 import json
 from typing import Any
 
-import mcp.types as types
+from mcp import types
 
 from ..hubspot_client import ApiException
 from .base_handler import BaseHandler
@@ -137,9 +137,9 @@ class CompanyHandler(BaseHandler):
             return self.create_text_response(str(api_response.to_dict()))
 
         except ApiException as e:
-            return self.create_text_response(f"HubSpot API error: {str(e)}")
+            return self.create_text_response(f"HubSpot API error: {e!s}")
         except Exception as e:
-            return self.create_text_response(f"Error: {str(e)}")
+            return self.create_text_response(f"Error: {e!s}")
 
     def get_company_activity(
         self, arguments: dict[str, Any] | None
@@ -162,7 +162,7 @@ class CompanyHandler(BaseHandler):
             metadata_extras = {"company_id": arguments["company_id"]}
             self.store_in_faiss_safely(data, "company_activity", metadata_extras)
         except Exception as e:
-            self.logger.error(f"Error parsing company activity data: {str(e)}")
+            self.logger.exception(f"Error parsing company activity data: {e!s}")
 
         return self.create_text_response(results)
 
@@ -190,6 +190,6 @@ class CompanyHandler(BaseHandler):
             metadata_extras = {"limit": limit}
             self.store_in_faiss_safely(data, "company", metadata_extras)
         except Exception as e:
-            self.logger.error(f"Error parsing company data: {str(e)}")
+            self.logger.exception(f"Error parsing company data: {e!s}")
 
         return self.create_text_response(results)

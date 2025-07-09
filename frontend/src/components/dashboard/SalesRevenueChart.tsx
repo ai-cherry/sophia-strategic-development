@@ -1,33 +1,149 @@
 import React from 'react';
-import { Line } from 'react-chartjs-2';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-const SalesRevenueChart = ({ salesData }) => {
-    if (!salesData) return null;
+interface SalesRevenueChartProps {
+    salesData: Array<{
+        month: string;
+        revenue: number;
+        deals: number;
+    }>;
+}
 
-    const data = {
-        labels: salesData.labels,
-        datasets: [
-            {
-                label: 'Revenue',
-                data: salesData.revenue,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-            },
-        ],
-    };
+const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
+    if (!salesData || salesData.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-[250px] text-gray-400">
+                No sales data available
+            </div>
+        );
+    }
+
+    const chartData = salesData.map(item => ({
+        name: item.month,
+        revenue: item.revenue,
+        deals: item.deals,
+    }));
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Sales Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="h-80">
-                    <Line data={data} options={{ maintainAspectRatio: false }} />
-                </div>
-            </CardContent>
-        </Card>
+        <ResponsiveContainer width="100%" height={250}>
+            <LineChart
+                data={chartData}
+                margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                }}
+            >
+                <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    vertical={false}
+                />
+
+                <XAxis
+                    dataKey="name"
+                    stroke="#888888"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: '#9ca3af' }}
+                />
+
+                <YAxis
+                    stroke="#888888"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: '#9ca3af' }}
+                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                />
+
+                <Tooltip
+                    contentStyle={{
+                        backgroundColor: "rgba(17, 24, 39, 0.95)",
+                        borderColor: "rgba(255, 255, 255, 0.2)",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                    }}
+                    labelStyle={{
+                        color: "#f3f4f6",
+                        fontWeight: 600,
+                        marginBottom: "4px"
+                    }}
+                    itemStyle={{
+                        color: "#e5e7eb"
+                    }}
+                    formatter={(value: number, name: string) => {
+                        if (name === 'revenue') {
+                            return [`$${value.toLocaleString()}`, 'Revenue'];
+                        }
+                        return [value.toString(), 'Deals'];
+                    }}
+                />
+
+                <defs>
+                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.2}/>
+                    </linearGradient>
+                    <linearGradient id="dealsGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.2}/>
+                    </linearGradient>
+                </defs>
+
+                <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#8b5cf6"
+                    strokeWidth={3}
+                    activeDot={{
+                        r: 6,
+                        fill: '#8b5cf6',
+                        stroke: '#1f2937',
+                        strokeWidth: 2
+                    }}
+                    dot={{
+                        r: 4,
+                        strokeWidth: 2,
+                        fill: "#8b5cf6",
+                        stroke: '#1f2937'
+                    }}
+                />
+
+                <Line
+                    type="monotone"
+                    dataKey="deals"
+                    stroke="#10b981"
+                    strokeWidth={3}
+                    strokeDasharray="5 5"
+                    activeDot={{
+                        r: 6,
+                        fill: '#10b981',
+                        stroke: '#1f2937',
+                        strokeWidth: 2
+                    }}
+                    dot={{
+                        r: 4,
+                        strokeWidth: 2,
+                        fill: "#10b981",
+                        stroke: '#1f2937'
+                    }}
+                    yAxisId="right"
+                />
+
+                <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    stroke="#888888"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: '#9ca3af' }}
+                />
+            </LineChart>
+        </ResponsiveContainer>
     );
 };
 

@@ -21,8 +21,7 @@ try:
         mcp_tool,
     )
     from backend.utils.custom_logger import setup_logger
-except ImportError as e:
-    print(f"Failed to import necessary modules: {e}")
+except ImportError:
     sys.exit(1)
 
 logger = setup_logger("mcp.hubspot")
@@ -80,7 +79,7 @@ class HubSpotMCPServer(SimpleMCPServer):
             self.logger.info(f"Listed {len(contacts)} contacts")
             return {"status": "success", "count": len(contacts), "contacts": contacts}
         except Exception as e:
-            self.logger.error(f"Error listing contacts: {e}")
+            self.logger.exception(f"Error listing contacts: {e}")
             return {"status": "error", "message": str(e)}
 
     @mcp_tool(
@@ -113,7 +112,7 @@ class HubSpotMCPServer(SimpleMCPServer):
             self.logger.info(f"Listed {len(deals)} deals")
             return {"status": "success", "count": len(deals), "deals": deals}
         except Exception as e:
-            self.logger.error(f"Error listing deals: {e}")
+            self.logger.exception(f"Error listing deals: {e}")
             return {"status": "error", "message": str(e)}
 
     @mcp_tool(
@@ -150,7 +149,7 @@ class HubSpotMCPServer(SimpleMCPServer):
                 "companies": companies,
             }
         except Exception as e:
-            self.logger.error(f"Error listing companies: {e}")
+            self.logger.exception(f"Error listing companies: {e}")
             return {"status": "error", "message": str(e)}
 
     @mcp_tool(
@@ -197,7 +196,7 @@ class HubSpotMCPServer(SimpleMCPServer):
             self.logger.info(f"Created contact: {email}")
             return {"status": "success", "contact": contact}
         except Exception as e:
-            self.logger.error(f"Error creating contact: {e}")
+            self.logger.exception(f"Error creating contact: {e}")
             return {"status": "error", "message": str(e)}
 
     async def check_server_health(self) -> bool:

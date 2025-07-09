@@ -3,7 +3,7 @@ Data models for Snowflake V2 MCP Server
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -12,23 +12,23 @@ class QueryRequest(BaseModel):
     """Request model for query execution"""
 
     query: str = Field(..., description="SQL query to execute")
-    parameters: Optional[dict[str, Any]] = Field(
+    parameters: dict[str, Any] | None = Field(
         default=None, description="Query parameters"
     )
     fetch_results: bool = Field(default=True, description="Whether to fetch results")
-    warehouse: Optional[str] = Field(default=None, description="Warehouse to use")
-    timeout: Optional[int] = Field(default=300, description="Query timeout in seconds")
+    warehouse: str | None = Field(default=None, description="Warehouse to use")
+    timeout: int | None = Field(default=300, description="Query timeout in seconds")
 
 
 class QueryResponse(BaseModel):
     """Response model for query execution"""
 
     success: bool
-    data: Optional[list[dict[str, Any]]] = None
+    data: list[dict[str, Any]] | None = None
     row_count: int = 0
     execution_time: float = 0.0
-    query_id: Optional[str] = None
-    error: Optional[str] = None
+    query_id: str | None = None
+    error: str | None = None
 
 
 class SchemaRequest(BaseModel):
@@ -36,7 +36,7 @@ class SchemaRequest(BaseModel):
 
     name: str = Field(..., description="Schema name")
     database: str = Field(default="SOPHIA_AI_CORE", description="Database name")
-    comment: Optional[str] = Field(default=None, description="Schema comment")
+    comment: str | None = Field(default=None, description="Schema comment")
     create_ai_tables: bool = Field(default=True, description="Create AI-ready tables")
 
 
@@ -46,8 +46,8 @@ class ColumnDefinition(BaseModel):
     name: str
     type: str
     not_null: bool = False
-    default: Optional[str] = None
-    comment: Optional[str] = None
+    default: str | None = None
+    comment: str | None = None
 
 
 class TableRequest(BaseModel):
@@ -57,9 +57,9 @@ class TableRequest(BaseModel):
     schema: str = Field(..., description="Schema name")
     database: str = Field(default="SOPHIA_AI_CORE", description="Database name")
     columns: list[dict[str, Any]] = Field(..., description="Column definitions")
-    cluster_by: Optional[list[str]] = Field(default=None, description="Clustering keys")
+    cluster_by: list[str] | None = Field(default=None, description="Clustering keys")
     add_ai_columns: bool = Field(default=True, description="Add AI-ready columns")
-    comment: Optional[str] = Field(default=None, description="Table comment")
+    comment: str | None = Field(default=None, description="Table comment")
 
 
 class DataLoadRequest(BaseModel):
@@ -68,9 +68,9 @@ class DataLoadRequest(BaseModel):
     target_table: str = Field(..., description="Target table for data load")
     source_type: str = Field(..., description="Source type (file, stage, table)")
     source_path: str = Field(..., description="Source path or location")
-    file_format: Optional[str] = Field(default="CSV", description="File format")
-    options: Optional[dict[str, Any]] = Field(default=None, description="Load options")
-    transform_sql: Optional[str] = Field(default=None, description="Transformation SQL")
+    file_format: str | None = Field(default="CSV", description="File format")
+    options: dict[str, Any] | None = Field(default=None, description="Load options")
+    transform_sql: str | None = Field(default=None, description="Transformation SQL")
 
 
 class EmbeddingRequest(BaseModel):
@@ -84,7 +84,7 @@ class EmbeddingRequest(BaseModel):
     model: str = Field(
         default="snowflake-arctic-embed-m-v2.0", description="Embedding model"
     )
-    where_clause: Optional[str] = Field(
+    where_clause: str | None = Field(
         default=None, description="WHERE clause to filter rows"
     )
     batch_size: int = Field(default=1000, description="Batch size for processing")
@@ -121,8 +121,8 @@ class WarehouseAction(BaseModel):
     """Warehouse management action"""
 
     action: str = Field(..., description="Action to perform (resume, suspend, resize)")
-    warehouse: Optional[str] = Field(default=None, description="Warehouse name")
-    size: Optional[str] = Field(default=None, description="New size for resize action")
+    warehouse: str | None = Field(default=None, description="Warehouse name")
+    size: str | None = Field(default=None, description="New size for resize action")
 
 
 class SystemStatus(BaseModel):
@@ -132,8 +132,8 @@ class SystemStatus(BaseModel):
     connection: str
     current_context: dict[str, str]
     statistics: dict[str, Any]
-    warehouses: Optional[list[dict[str, Any]]] = None
-    error: Optional[str] = None
+    warehouses: list[dict[str, Any]] | None = None
+    error: str | None = None
 
 
 class AIProcessingResult(BaseModel):
@@ -143,5 +143,5 @@ class AIProcessingResult(BaseModel):
     operation: str
     rows_processed: int = 0
     processing_time: float = 0.0
-    metadata: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    metadata: dict[str, Any] | None = None
+    error: str | None = None

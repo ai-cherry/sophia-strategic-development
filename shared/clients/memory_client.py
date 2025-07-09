@@ -7,7 +7,7 @@ import asyncio
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiohttp
 
@@ -28,9 +28,9 @@ class MemoryClient:
     Used by all MCP servers to store and retrieve memories
     """
 
-    def __init__(self, base_url: str = "http://146.235.200.1:9000"):
+    def __init__(self, base_url: str = "http://192.222.58.232:9000"):
         self.base_url = base_url
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
         self._retry_count = 3
         self._timeout = aiohttp.ClientTimeout(total=30)
 
@@ -59,9 +59,9 @@ class MemoryClient:
         self,
         memory_type: MemoryType,
         content: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None,
-        ttl_seconds: Optional[int] = None,
-        user_context: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
+        ttl_seconds: int | None = None,
+        user_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Store a memory in the system
@@ -107,13 +107,13 @@ class MemoryClient:
                         error = await response.text()
                         logger.error(f"Failed to store memory: {error}")
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.warning(f"Timeout on attempt {attempt + 1}")
                 if attempt == self._retry_count - 1:
                     raise
                 await asyncio.sleep(2**attempt)
             except Exception as e:
-                logger.error(f"Error storing memory: {e}")
+                logger.exception(f"Error storing memory: {e}")
                 if attempt == self._retry_count - 1:
                     raise
                 await asyncio.sleep(2**attempt)
@@ -121,8 +121,8 @@ class MemoryClient:
         return {"status": "failed", "error": "Max retries exceeded"}
 
     async def retrieve_memory(
-        self, memory_id: str, memory_type: Optional[MemoryType] = None
-    ) -> Optional[dict[str, Any]]:
+        self, memory_id: str, memory_type: MemoryType | None = None
+    ) -> dict[str, Any] | None:
         """
         Retrieve a specific memory by ID
 
@@ -154,15 +154,15 @@ class MemoryClient:
                     return None
 
         except Exception as e:
-            logger.error(f"Error retrieving memory: {e}")
+            logger.exception(f"Error retrieving memory: {e}")
             return None
 
     async def search_memories(
         self,
         query: str = "",
-        memory_types: Optional[list[MemoryType]] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
+        memory_types: list[MemoryType] | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
         limit: int = 10,
     ) -> list[dict[str, Any]]:
         """
@@ -204,14 +204,14 @@ class MemoryClient:
                     return []
 
         except Exception as e:
-            logger.error(f"Error searching memories: {e}")
+            logger.exception(f"Error searching memories: {e}")
             return []
 
     async def update_memory(
         self,
         memory_id: str,
         updates: dict[str, Any],
-        user_context: Optional[dict[str, Any]] = None,
+        user_context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Update an existing memory
@@ -240,11 +240,11 @@ class MemoryClient:
                 return response.status == 200
 
         except Exception as e:
-            logger.error(f"Error updating memory: {e}")
+            logger.exception(f"Error updating memory: {e}")
             return False
 
     async def delete_memory(
-        self, memory_id: str, user_context: Optional[dict[str, Any]] = None
+        self, memory_id: str, user_context: dict[str, Any] | None = None
     ) -> bool:
         """
         Delete a memory
@@ -270,7 +270,7 @@ class MemoryClient:
                 return response.status == 200
 
         except Exception as e:
-            logger.error(f"Error deleting memory: {e}")
+            logger.exception(f"Error deleting memory: {e}")
             return False
 
     async def get_stats(self) -> dict[str, Any]:
@@ -288,7 +288,7 @@ class MemoryClient:
                     return {}
 
         except Exception as e:
-            logger.error(f"Error getting stats: {e}")
+            logger.exception(f"Error getting stats: {e}")
             return {}
 
 
@@ -313,7 +313,7 @@ async def store_insight(
     category: str,
     insight: str,
     confidence: float = 0.8,
-    recommendations: list[str] = None,
+    recommendations: list[str] | None = None,
 ):
     """Quick function to store a business insight"""
     async with MemoryClient() as client:
@@ -329,7 +329,11 @@ async def store_insight(
 
 
 async def store_chat(
-    user_id: str, session_id: str, message: str, response: str, topics: list[str] = None
+    user_id: str,
+    session_id: str,
+    message: str,
+    response: str,
+    topics: list[str] | None = None,
 ):
     """Quick function to store a chat memory"""
     async with MemoryClient() as client:

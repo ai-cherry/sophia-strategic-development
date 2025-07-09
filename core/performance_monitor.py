@@ -414,7 +414,7 @@ class PerformanceMonitor:
                 await asyncio.sleep(300)
 
             except Exception as e:
-                logger.error(f"Background monitoring error: {e}")
+                logger.exception(f"Background monitoring error: {e}")
                 await asyncio.sleep(60)  # Shorter retry on error
 
     async def _collect_system_metrics(self):
@@ -468,7 +468,7 @@ class PerformanceMonitor:
                 )
 
         except Exception as e:
-            logger.error(f"System metrics collection failed: {e}")
+            logger.exception(f"System metrics collection failed: {e}")
 
     async def _check_performance_regressions(self):
         """Check for performance regressions"""

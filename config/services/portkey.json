@@ -9,11 +9,11 @@
     },
     {
       "temperature": "<=0.3",
-      "route_to": "claude-3-opus"
+      "route_to": "claude-3-5-sonnet-20241022"
     },
     {
       "task": "code_review",
-      "route_to": "claude-3-opus"
+      "route_to": "claude-3-5-sonnet-20241022"
     },
     {
       "task": "creative",
@@ -21,16 +21,25 @@
     },
     {
       "task": "code_generation",
-      "route_to": "claude-3-opus"
+      "route_to": "claude-3-5-sonnet-20241022"
     },
     {
       "task": "analysis",
-      "route_to": "claude-3-opus"
+      "route_to": "claude-3-5-sonnet-20241022"
     }
   ],
   "guardrails": {
-    "input_checks": ["length < 10000"],
-    "output_checks": ["no_pii", "professional_tone"]
+    "input_checks": [
+      "length < 10000"
+    ],
+    "output_checks": [
+      "no_pii",
+      "professional_tone"
+    ]
   },
-  "fallback_providers": ["claude-3-opus", "gpt-4", "openrouter/mixtral"]
+  "fallback_providers": [
+    "claude-3-5-sonnet-20241022",
+    "gpt-4",
+    "openrouter/mixtral"
+  ]
 }

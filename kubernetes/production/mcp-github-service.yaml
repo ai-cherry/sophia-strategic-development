@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-github
+  namespace: sophia-ai-prod
+  labels:
+    app: mcp-github
+    component: mcp-server
+    server: github
+spec:
+  selector:
+    app: mcp-github
+  ports:
+  - port: 9005
+    targetPort: 9005
+    name: http
+  type: ClusterIP

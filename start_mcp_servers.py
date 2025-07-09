@@ -32,6 +32,7 @@ class MCPServerManager:
 
         # Start PostgreSQL and Redis if not running
         try:
+            # TODO: Validate input before subprocess execution
             subprocess.run(
                 ["docker-compose", "up", "-d", "postgres", "redis"],
                 check=True,
@@ -80,7 +81,7 @@ async def init_app():
 
 if __name__ == '__main__':
     app = asyncio.run(init_app())
-    web.run_app(app, host='0.0.0.0', port={port})
+    web.run_app(app, host="127.0.0.1", port={port})  # Changed from 0.0.0.0 for security. Use environment variable for production
 """
 
             # Write the server script to a temporary file
@@ -91,6 +92,7 @@ if __name__ == '__main__':
                 f.write(server_script)
 
             # Start the server
+            # TODO: Validate input before subprocess execution
             proc = subprocess.Popen(
                 [sys.executable, str(script_path)],
                 stdout=subprocess.PIPE,

@@ -3,13 +3,11 @@ Dynamic LangGraph Orchestration Service for Project Chimera
 Provides adaptive workflow generation and execution capabilities
 """
 
-import asyncio
 import logging
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +62,7 @@ class DynamicOrchestrationService:
         self.execution_history = {}
 
     async def generate_workflow(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> DynamicWorkflow:
         """Generate dynamic workflow based on query characteristics"""
         try:
@@ -102,7 +100,7 @@ class DynamicOrchestrationService:
             return workflow
 
         except Exception as e:
-            logger.error(f"Workflow generation failed: {str(e)}")
+            logger.exception(f"Workflow generation failed: {e!s}")
             raise
 
     async def execute_workflow(self, workflow: DynamicWorkflow) -> dict[str, Any]:
@@ -133,7 +131,7 @@ class DynamicOrchestrationService:
             }
 
         except Exception as e:
-            logger.error(f"Workflow execution failed: {str(e)}")
+            logger.exception(f"Workflow execution failed: {e!s}")
             return {
                 "success": False,
                 "error": str(e),
@@ -141,7 +139,7 @@ class DynamicOrchestrationService:
             }
 
     async def analyze_query_requirements(
-        self, query: str, context: dict[str, Any] = None
+        self, query: str, context: dict[str, Any] | None = None
     ) -> list[str]:
         """Analyze query to determine required capabilities"""
         # This would implement sophisticated NLP analysis
@@ -236,7 +234,7 @@ class DynamicOrchestrationService:
 
         return {
             "synthesis": "Combined insights from all agents",
-            "key_findings": [f"Finding from {node_id}" for node_id in results.keys()],
+            "key_findings": [f"Finding from {node_id}" for node_id in results],
             "recommendations": "Synthesized recommendations based on all analysis",
             "confidence_score": 0.85,
         }

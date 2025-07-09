@@ -449,7 +449,7 @@ class PrometheusServer:
             )
 
         except Exception as e:
-            logger.error(f"Failed to start Prometheus server: {e}")
+            logger.exception(f"Failed to start Prometheus server: {e}")
             raise
 
     def stop(self):

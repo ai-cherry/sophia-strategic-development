@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Lambda Labs server
-LAMBDA_HOST="146.235.200.1"
+LAMBDA_HOST="192.222.58.232"
 
 # Check Frontend (Vercel)
 echo "📱 Frontend Services:"

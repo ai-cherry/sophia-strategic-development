@@ -24,7 +24,7 @@ class BiDirectionalSync:
     def get_github_secrets(self) -> set[str]:
         """Get list of GitHub organization secrets"""
         cmd = ["gh", "secret", "list", "--org", "ai-cherry", "--json", "name"]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         if result.returncode == 0:
             secrets = json.loads(result.stdout)
             return {s["name"] for s in secrets}
@@ -40,14 +40,13 @@ class BiDirectionalSync:
             "--format",
             "json",
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         if result.returncode == 0:
             return json.loads(result.stdout)
         return {}
 
     def sync_github_to_pulumi(self):
         """Sync GitHub secrets to Pulumi ESC"""
-        print("📥 Syncing GitHub → Pulumi ESC...")
         github_secrets = self.get_github_secrets()
 
         for gh_secret, pulumi_path in self.mappings["github_to_pulumi"].items():
@@ -65,12 +64,10 @@ class BiDirectionalSync:
                         value,
                         "--secret",
                     ]
-                    subprocess.run(cmd, capture_output=True)
-                    print(f"  ✅ {gh_secret} → {pulumi_path}")
+                    subprocess.run(cmd, check=False, capture_output=True)
 
     def sync_pulumi_to_github(self):
         """Sync Pulumi ESC secrets to GitHub"""
-        print("📤 Syncing Pulumi ESC → GitHub...")
         pulumi_secrets = self.get_pulumi_secrets()
 
         for gh_secret, pulumi_path in self.mappings["github_to_pulumi"].items():
@@ -95,24 +92,20 @@ class BiDirectionalSync:
                     "--body",
                     value,
                 ]
-                subprocess.run(cmd, capture_output=True)
-                print(f"  ✅ {pulumi_path} → {gh_secret}")
+                subprocess.run(cmd, check=False, capture_output=True)
 
     def validate_sync(self):
         """Validate that all required secrets are present"""
-        print("\n🔍 Validating secret synchronization...")
         pulumi_secrets = self.get_pulumi_secrets()
 
         all_valid = True
-        for service, config in self.mappings["services"].items():
-            print(f"\n  Service: {service}")
+        for config in self.mappings["services"].values():
             for secret in config["required_secrets"]:
                 # Check if secret exists and is not a placeholder
                 value = pulumi_secrets.get(secret, "")
                 if value and not value.startswith("PLACEHOLDER_"):
-                    print(f"    ✅ {secret}")
+                    pass
                 else:
-                    print(f"    ❌ {secret} (missing or placeholder)")
                     all_valid = False
 
         return all_valid
@@ -124,6 +117,6 @@ if __name__ == "__main__":
     sync.sync_pulumi_to_github()
 
     if sync.validate_sync():
-        print("\n✅ All secrets synchronized successfully!")
+        pass
     else:
-        print("\n⚠️  Some secrets are missing or need configuration")
+        pass

@@ -25,7 +25,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-import snowflake.connector
 from snowflake.connector import DictCursor
 
 logger = logging.getLogger(__name__)
@@ -112,16 +111,16 @@ class SnowflakeSchemaIntegration:
     async def connect(self):
         """Connect to Snowflake with comprehensive configuration"""
         try:
-            self.connection = # TODO: Replace with repository injection
-    # repository.get_connection(
-                account=self.credentials.account,
-                user=self.credentials.user,
-                password=self.credentials.password,
-                role=self.credentials.role,
-                database=self.credentials.database,
-                warehouse=self.credentials.warehouse,
-                schema=SchemaType.UNIVERSAL_CHAT.value,
-            )
+            self.connection = None  # TODO: Replace with repository injection
+            # repository.get_connection(
+            #     account=self.credentials.account,
+            #     user=self.credentials.user,
+            #     password=self.credentials.password,
+            #     role=self.credentials.role,
+            #     database=self.credentials.database,
+            #     warehouse=self.credentials.warehouse,
+            #     schema=SchemaType.UNIVERSAL_CHAT.value,
+            # )
             logger.info("✅ Connected to comprehensive Snowflake deployment")
             return True
         except Exception as e:
@@ -143,10 +142,10 @@ class SnowflakeSchemaIntegration:
                 # Use parameterized query for USE SCHEMA to prevent SQL injection
                 use_schema_query = "USE SCHEMA " + schema.value
                 # TODO: Replace with repository method
-    # repository.execute_query(use_schema_query)
+            # repository.execute_query(use_schema_query)
 
             # TODO: Replace with repository method
-    # repository.execute_query(query, params or ())
+            # repository.execute_query(query, params or ())
             results = cursor.fetchall()
             cursor.close()
             return results
@@ -600,7 +599,7 @@ class SnowflakeSchemaIntegration:
                         result = await self.execute_query(count_query, schema=schema)
                         table_info[table_key] = result[0]["ROW_COUNT"] if result else 0
                     except Exception as e:
-                        table_info[table_key] = f"Error: {str(e)}"
+                        table_info[table_key] = f"Error: {e!s}"
 
                 health_status[schema.value] = {
                     "status": "healthy",

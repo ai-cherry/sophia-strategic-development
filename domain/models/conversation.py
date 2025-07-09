@@ -14,7 +14,7 @@ from backend.agents.enhanced.data_models import (
 
 # Re-export for backward compatibility
 __all__ = [
-    "IntegratedConversationRecord",
     "GongCallData",
+    "IntegratedConversationRecord",
     "SlackMessageData",
 ]

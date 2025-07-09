@@ -11,7 +11,7 @@ values:
       api_key: ${LAMBDA_LABS_API_KEY}
       instance_id: 7e7b1e5f53c44a26bd574e4266e96194
       instance_name: sophia-ai-production
-      ip_address: 137.131.6.213
+      ip_address: 192.222.58.232
       ssh_key_id: cae55cb8d0f5443cbdf9129f7cec8770
       region: us-south-1
       instance_type: gpu_8x_v100

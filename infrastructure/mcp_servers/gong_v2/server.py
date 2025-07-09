@@ -1,4 +1,5 @@
 """Gong_V2 MCP Server implementation."""
+
 import asyncio
 
 import uvicorn
@@ -13,7 +14,12 @@ async def health():
 
 
 async def main():
-    config = uvicorn.Config(app, host="0.0.0.0", port=9000)
+    config = uvicorn.Config(
+        app,
+        host="127.0.0.1",  # Changed from 0.0.0.0 for security. Use environment variable for production
+        port=9000,
+        log_level="info",
+    )
     server = uvicorn.Server(config)
     await server.serve()
 

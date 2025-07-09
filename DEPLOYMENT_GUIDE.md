@@ -42,8 +42,8 @@ We have successfully created and deployed a **comprehensive deployment solution*
 ## 📊 Current Deployment Status
 
 ### ✅ Working Infrastructure Services
-- **Grafana**: ✅ Running (http://192.222.51.151:3000)
-- **Prometheus**: ✅ Running (http://192.222.51.151:9090)
+- **Grafana**: ✅ Running (http://192.222.58.232:3000)
+- **Prometheus**: ✅ Running (http://192.222.58.232:9090)
 - **PostgreSQL**: ✅ Running
 - **Docker Swarm**: ✅ Initialized and working
 - **Networks**: ✅ Created (sophia-overlay, traefik-public)
@@ -82,13 +82,13 @@ python scripts/build_all_mcp_images.py --registry scoobyjava15 --push
 
 # 2. Create Docker secrets
 python scripts/create_docker_swarm_secrets.py \
-  --host 192.222.51.151 \
-  --ssh-key ~/.ssh/lynn_sophia_h200_key
+  --host 192.222.58.232 \
+  --ssh-key ~/.ssh/sophia2025.pem
 
 # 3. Deploy complete platform
 python scripts/unified_lambda_labs_deployment.py \
-  --host 192.222.51.151 \
-  --ssh-key ~/.ssh/lynn_sophia_h200_key \
+  --host 192.222.58.232 \
+  --ssh-key ~/.ssh/sophia2025.pem \
   --registry scoobyjava15
 ```
 

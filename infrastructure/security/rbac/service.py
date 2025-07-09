@@ -91,7 +91,7 @@ class RBACService:
 
     def _load_system_roles(self):
         """Load system-defined roles"""
-        for _role_id, role in SYSTEM_ROLES.items():
+        for role in SYSTEM_ROLES.values():
             self.roles[role.id] = role
 
         logger.info(f"Loaded {len(SYSTEM_ROLES)} system roles")
@@ -133,7 +133,7 @@ class RBACService:
             )
 
         except Exception as e:
-            logger.error(f"Failed to load RBAC data from {self.storage_path}: {e}")
+            logger.exception(f"Failed to load RBAC data from {self.storage_path}: {e}")
             error(
                 AuditEventType.ERROR,
                 f"Failed to load RBAC data: {e}",
@@ -160,7 +160,7 @@ class RBACService:
             logger.info(f"Saved RBAC data to {self.storage_path}")
 
         except Exception as e:
-            logger.error(f"Failed to save RBAC data to {self.storage_path}: {e}")
+            logger.exception(f"Failed to save RBAC data to {self.storage_path}: {e}")
             error(
                 AuditEventType.ERROR,
                 f"Failed to save RBAC data: {e}",

@@ -22,13 +22,13 @@ else
   echo '⚠️  DOCKER_TOKEN not found'
 fi
 
-# Migrate DOCKER_USERNAME -> SOPHIA_DOCKER_TOKEN_PROD
-if gh secret list --org ai-cherry | grep -q 'DOCKER_USERNAME'; then
-  OLD_VALUE=$(gh secret list --org ai-cherry --json name,value | jq -r '.[] | select(.name=="DOCKER_USERNAME") | .value')
+# Migrate DOCKERHUB_USERNAME -> SOPHIA_DOCKER_TOKEN_PROD
+if gh secret list --org ai-cherry | grep -q 'DOCKERHUB_USERNAME'; then
+  OLD_VALUE=$(gh secret list --org ai-cherry --json name,value | jq -r '.[] | select(.name=="DOCKERHUB_USERNAME") | .value')
   gh secret set SOPHIA_DOCKER_TOKEN_PROD --body "$OLD_VALUE" --org ai-cherry
-  echo '✅ Migrated DOCKER_USERNAME -> SOPHIA_DOCKER_TOKEN_PROD'
+  echo '✅ Migrated DOCKERHUB_USERNAME -> SOPHIA_DOCKER_TOKEN_PROD'
 else
-  echo '⚠️  DOCKER_USERNAME not found'
+  echo '⚠️  DOCKERHUB_USERNAME not found'
 fi
 
 # Migrate GITHUB_ACTOR -> SOPHIA_GITHUB_TOKEN_PROD

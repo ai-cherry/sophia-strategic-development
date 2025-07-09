@@ -101,7 +101,7 @@ class DealRiskHandler:
             return assessment
 
         except Exception as e:
-            logger.error(f"Error assessing deal risk for {deal_id}: {e}")
+            logger.exception(f"Error assessing deal risk for {deal_id}: {e}")
             return None
 
     async def _get_recent_deal_activities(self, deal_id: str) -> list[dict[str, Any]]:
@@ -192,7 +192,7 @@ class EmailGenerationHandler:
             return result
 
         except Exception as e:
-            logger.error(f"Error generating sales email: {e}")
+            logger.exception(f"Error generating sales email: {e}")
             raise
 
     async def _get_deal_context(self, deal_id: str) -> str:
@@ -245,7 +245,7 @@ class CompetitorAnalysisHandler:
             )
 
         except Exception as e:
-            logger.error(f"Error getting competitor talking points: {e}")
+            logger.exception(f"Error getting competitor talking points: {e}")
             return None
 
 
@@ -291,5 +291,5 @@ class PipelineAnalysisHandler:
             )
 
         except Exception as e:
-            logger.error(f"Error analyzing pipeline health: {e}")
+            logger.exception(f"Error analyzing pipeline health: {e}")
             return None

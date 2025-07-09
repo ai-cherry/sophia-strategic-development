@@ -90,7 +90,7 @@ async def test_backend_secret_access():
         total_working = 0
         total_tested = 0
 
-        for _category, secrets in secret_categories.items():
+        for secrets in secret_categories.values():
             category_working = 0
 
             for secret in secrets:

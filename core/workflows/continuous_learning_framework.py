@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from core.workflows.unified_intent_engine import IntentAnalysis, IntentCategory
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
@@ -322,13 +322,15 @@ class ContinuousLearningFramework:
                 "duration": workflow_execution.duration,
                 "output_summary": str(workflow_execution.output)[:500],
             },
-            "feedback": {
-                "type": user_feedback.type.value,
-                "content": user_feedback.content,
-                "rating": user_feedback.rating,
-            }
-            if user_feedback
-            else None,
+            "feedback": (
+                {
+                    "type": user_feedback.type.value,
+                    "content": user_feedback.content,
+                    "rating": user_feedback.rating,
+                }
+                if user_feedback
+                else None
+            ),
             "timestamp": datetime.now().isoformat(),
         }
 
