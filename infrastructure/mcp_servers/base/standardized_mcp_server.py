@@ -31,8 +31,8 @@ from urllib.parse import urlparse
 
 import aiohttp
 import uvicorn
-from fastapi import APIRouter, FastAPI
-from prometheus_client import Counter, Gauge, Histogram, Info
+from fastapi import APIRouter, FastAPI, Response
+from prometheus_client import Counter, Gauge, Histogram, Info  # type: ignore
 
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -208,6 +208,22 @@ class StandardizedMCPServer(ABC):
                 summary="Get Available Features",
             )
 
+        # 👍 Metrics endpoint
+        if self.config.enable_metrics:
+            from prometheus_client import CONTENT_TYPE_LATEST, generate_latest  # type: ignore
+
+            async def metrics_endpoint():  # type: ignore[return-value]
+                return Response(
+                    generate_latest(), media_type=CONTENT_TYPE_LATEST
+                )
+
+            router.add_api_route(
+                "/metrics",
+                metrics_endpoint,
+                methods=["GET"],
+                summary="Prometheus Metrics",
+            )
+
         self.app.include_router(router)
 
     async def get_health_endpoint(self) -> dict[str, Any]:
@@ -331,6 +347,13 @@ class StandardizedMCPServer(ABC):
             self.diff_success_gauge = Gauge(
                 f"mcp_{self.server_name}_diff_success_rate",
                 "Success rate of diff operations",
+            )
+
+            # +++ Unknown-field telemetry metric +++
+            self.unknown_field_counter = Counter(
+                f"mcp_{self.server_name}_unknown_fields_total",
+                "Count of unknown / undocumented fields encountered in source API responses",
+                ["endpoint", "field"],
             )
 
             # Server info
@@ -1037,3 +1060,58 @@ class StandardizedMCPServer(ABC):
     ) -> Any:
         """Process data using AI capabilities."""
         pass
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Unknown-Field Telemetry
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    def capture_unknown_fields(
+        self,
+        payload: dict[str, Any] | list[Any],
+        known_fields: set[str],
+        *,
+        endpoint: str,
+        parent_key: str | None = None,
+    ) -> None:
+        """Recursively walk *payload* and increment Prometheus counters for
+        any keys that are **not** present in *known_fields*.
+
+        Args:
+            payload: Parsed JSON response (dict or list).
+            known_fields: Set of field names that are expected for objects at
+                the **current** level. If nested objects use different
+                schemas, callers should call this function separately per
+                object type.
+            endpoint: Logical endpoint name (e.g. "/v3/contacts") used as
+                Prometheus label.
+            parent_key: Used internally for nested fields to provide full path.
+        """
+        if not self.config.enable_metrics:
+            return  # Telemetry disabled
+
+        if isinstance(payload, dict):
+            for key, value in payload.items():
+                full_key = f"{parent_key}.{key}" if parent_key else key
+                if key not in known_fields:
+                    # Increment unknown-field counter with full path for clarity
+                    self.unknown_field_counter.labels(endpoint=endpoint, field=full_key).inc()
+                    logger.debug(
+                        "🔎 Unknown field detected | endpoint=%s field=%s", endpoint, full_key
+                    )
+                # Recurse into nested objects/lists
+                if isinstance(value, (dict, list)):
+                    self.capture_unknown_fields(
+                        value,
+                        known_fields=set(),  # No expectations for nested unknown structure
+                        endpoint=endpoint,
+                        parent_key=full_key,
+                    )
+        elif isinstance(payload, list):
+            for item in payload:
+                if isinstance(item, (dict, list)):
+                    self.capture_unknown_fields(
+                        item,
+                        known_fields=known_fields,
+                        endpoint=endpoint,
+                        parent_key=parent_key,
+                    )
