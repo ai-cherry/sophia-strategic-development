@@ -36,6 +36,7 @@ from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # Import Gemini CLI provider
 from typing import Any
+import types
 
 try:
     from gemini_cli_integration.gemini_cli_provider import (
@@ -578,6 +579,9 @@ class StandardizedMCPServer(ABC):
                 ssl_context.verify_mode = ssl.CERT_NONE
             except Exception:
                 ssl_context = False  # Disable SSL verification as fallback
+
+            if self.session is None:
+                raise RuntimeError("HTTP session not initialized")
 
             async with self.session.get(url, ssl=ssl_context) as response:
                 response.raise_for_status()
