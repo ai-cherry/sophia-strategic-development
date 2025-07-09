@@ -6,6 +6,7 @@ Natural language infrastructure control with unified AI service integration
 import asyncio
 import json
 import logging
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from typing import Any, Optional
 
 from mcp import McpServer, McpTool
@@ -19,14 +20,19 @@ from infrastructure.services.unified_ai_orchestrator import (
 logger = logging.getLogger(__name__)
 
 
-class UnifiedAIMCPServer(McpServer):
+class UnifiedAIMCPServer(AIEngineMCPServer):
     """
     MCP Server for unified AI operations
     Provides natural language control over Snowflake Cortex and Lambda Labs
     """
 
     def __init__(self):
-        super().__init__("unified-ai")
+        config = MCPServerConfig(
+            name="unified-ai",
+            port=9000,
+            version="2.0.0"
+        )
+        super().__init__(config)
         self.orchestrator = UnifiedAIOrchestrator()
         self.tools = self._register_tools()
 

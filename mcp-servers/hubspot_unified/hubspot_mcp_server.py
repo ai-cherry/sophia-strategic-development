@@ -6,6 +6,7 @@ Provides CRM integration for contacts, deals, and companies
 
 import os
 import sys
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -15,8 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 try:
     from backend.core.auto_esc_config import config as auto_esc_config
-    from backend.mcp_servers.base.unified_mcp_base import (
-        MCPServerConfig,
+            MCPServerConfig,
         SimpleMCPServer,
         mcp_tool,
     )
@@ -27,16 +27,15 @@ except ImportError:
 logger = setup_logger("mcp.hubspot")
 
 
-class HubSpotMCPServer(SimpleMCPServer):
+class HubSpotMCPServer(ServiceMCPServer):
     """HubSpot CRM integration MCP server"""
 
-    def __init__(self, config: MCPServerConfig | None = None):
-        if not config:
-            config = MCPServerConfig(
-                name="hubspot",
-                port=9006,
-                version="2.0.0",
-            )
+    def __init__(self):
+        config = MCPServerConfig(
+            name="hubspot-unified",
+            port=9006,
+            version="2.0.0"
+        )
         super().__init__(config)
         self.api_key: str | None = None
         self.base_url = "https://api.hubapi.com"

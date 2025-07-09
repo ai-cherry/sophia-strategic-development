@@ -6,6 +6,7 @@ Provides repository management and issue tracking capabilities
 
 import os
 import sys
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -15,8 +16,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 try:
     from backend.core.auto_esc_config import config as auto_esc_config
-    from backend.mcp_servers.base.unified_mcp_base import (
-        MCPServerConfig,
+            MCPServerConfig,
         SimpleMCPServer,
         mcp_tool,
     )
@@ -27,16 +27,15 @@ except ImportError:
 logger = setup_logger("mcp.github")
 
 
-class GitHubMCPServer(SimpleMCPServer):
+class GitHubMCPServer(ServiceMCPServer):
     """GitHub integration MCP server, refactored to use SimpleMCPServer."""
 
-    def __init__(self, config: MCPServerConfig | None = None):
-        if not config:
-            config = MCPServerConfig(
-                name="github",
-                port=9003,
-                version="2.0.0",
-            )
+    def __init__(self):
+        config = MCPServerConfig(
+            name="github",
+            port=9003,
+            version="2.0.0"
+        )
         super().__init__(config)
         self.github_token: str | None = None
         self.base_url = "https://api.github.com"

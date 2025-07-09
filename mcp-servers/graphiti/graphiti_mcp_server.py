@@ -13,9 +13,9 @@ TODO: Implement file decomposition
 """
 
 from __future__ import annotations
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 
 """
-from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
     EnhancedStandardizedMCPServer,
     MCPServerConfig,
     HealthCheckLevel
@@ -50,7 +50,7 @@ except ImportError:
 logger = structlog.get_logger(__name__)
 
 
-class BusinessEntity(BaseModel):
+class BusinessEntity(ServiceMCPServer):
     """Business entity model for Sophia AI"""
 
     entity_id: str = Field(default_factory=lambda: str(uuid.uuid4()))

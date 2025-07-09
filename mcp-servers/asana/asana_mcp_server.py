@@ -9,6 +9,7 @@ Provides tools to interact with Asana's REST API for project management.
 import logging
 import os
 import sys
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -31,7 +32,6 @@ logger = logging.getLogger(__name__)
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-from backend.mcp_servers.base.unified_mcp_base import (
     MCPServerConfig,
     StandardizedMCPServer,
 )
@@ -48,12 +48,15 @@ except ImportError:
     ApiException = Exception
 
 
-class AsanaMCPServer(StandardizedMCPServer):
+class AsanaMCPServer(ServiceMCPServer):
     """Asana integration MCP server."""
 
-    def __init__(self, config: MCPServerConfig | None = None):
-        if config is None:
-            config = MCPServerConfig(name="asana", port=9006, version="1.0.0")
+    def __init__(self):
+        config = MCPServerConfig(
+            name="asana",
+            port=9006,
+            version="2.0.0"
+        )
         super().__init__(config)
         self.asana_client = None
 
@@ -353,7 +356,7 @@ if __name__ == "__main__":
         import uvicorn
         from fastapi import APIRouter, FastAPI
 
-        app = FastAPI(title="Asana MCP Server")
+        # FastAPI app created by unified base
         router = APIRouter(prefix="/mcp/asana")
 
         @router.get("/health")
