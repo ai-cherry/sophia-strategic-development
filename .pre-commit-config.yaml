@@ -1,122 +1,139 @@
 # Pre-commit hooks for Sophia AI
-# See https://pre-commit.com for more information
+# Prevents committing secrets and ensures code quality
 
 repos:
-  # Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
     hooks:
-      - id: black
-        language_version: python3.12
-        args: [--line-length=88]
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            .*\.lock|
+            .*\.log|
+            .*\.min\.js|
+            .*\.min\.css|
+            package-lock\.json|
+            poetry\.lock|
+            Pipfile\.lock|
+            external/.*
+          )$
 
-  # Python linting
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.11
-    hooks:
-      - id: ruff
-        args: [
-          --fix,
-          # Ignore overly strict rules
-          --ignore=TRY200,  # Use raise from
-          --ignore=TRY300,  # Consider else block
-          --ignore=TRY301,  # Abstract raise
-          --ignore=ARG001,  # Unused function argument
-          --ignore=ARG002,  # Unused method argument
-          --ignore=PERF401, # Use list comprehension
-          --ignore=N815,    # Variable names in class scope
-          --ignore=E722,    # Bare except (sometimes needed)
-        ]
-
-  # Security scanning
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.6
-    hooks:
-      - id: bandit
-        args: [-ll, --skip=B101,B601,B602,B607]
-        files: ^backend/.*\.py$
-
-  # Check for large files
+  # GitHub push protection
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: check-added-large-files
-        args: [--maxkb=1000]
-      - id: check-json
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
       - id: check-merge-conflict
+      - id: check-symlinks
+      - id: destroyed-symlinks
       - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
 
-  # Local hooks - Commented out due to missing scripts
-  # Uncomment when scripts are created
+  # Python security and quality
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.8
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ['-r', 'backend/', 'scripts/', '-ll']
+        exclude: tests/
+
+  # Dockerfile security
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: ['--ignore', 'DL3008', '--ignore', 'DL3009']
+
+  # YAML validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+        args: ['--unsafe']
+        exclude: |
+          (?x)^(
+            .*helm/.*|
+            .*kubernetes/.*
+          )$
+
+  # JSON validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-json
+        exclude: |
+          (?x)^(
+            .*\.ipynb$|
+            .vscode/.*
+          )$
+
+  # Markdown
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+  # Custom secret scanning
   - repo: local
     hooks:
-      # - id: dead-code-prevention
-      #   name: Prevent dead code patterns
-      #   entry: python scripts/security/prevent_dead_code_patterns.py
-      #   language: python
-      #   types: [text]
-      #   exclude: .*/(test_.*|.*_test)\.py
-
-      # - id: remind-about-one-time-script-deletion
-      #   name: Remind about one-time script deletion
-      #   entry: python scripts/remind_about_one_time_script_deletion.py
-      #   language: python
-      #   pass_filenames: true
-      #   files: ^scripts/.*\.py$
-
-      - id: one-time-check
-        name: One-Time Artefact Guard
-        entry: .githooks/pre-commit-one-time-check
-        language: script
-        types: [python, text]
-
-      # Keep monorepo guard - it's important
-      - id: monorepo-transition-guard
-        name: Guard against monorepo transition violations
-        entry: python
-        args:
-          - -c
-          - |
-            import sys
-            violations = [f for f in sys.argv[1:] if f.startswith(('apps/', 'libs/')) and not f.endswith(('README.md', '.FUTURE_USE_ONLY'))]
-            if violations:
-              print('❌ MONOREPO TRANSITION VIOLATION:')
-              for v in violations: print(f'   {v}')
-              print('💡 Continue using backend/ and frontend/ until February 2025')
-              print('   See docs/monorepo/MONOREPO_TRANSITION_GUIDE.md'); sys.exit(1)
+      - id: scan-secrets
+        name: Scan for secrets
+        entry: python scripts/security/scan_for_secrets.py
         language: python
-        pass_filenames: true
-        files: ^(apps|libs)/
-
-      - id: duplication-scan
-        name: duplication-scan
-        entry: python scripts/duplication_scan.py
-        language: python
+        pass_filenames: false
+        always_run: true
+        
+      - id: check-env-files
+        name: Check .env files
+        entry: bash -c 'if ls .env* 2>/dev/null | grep -v ".env.example"; then echo "ERROR: .env files should not be committed!"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        
+      - id: check-ssh-keys
+        name: Check SSH keys
+        entry: bash -c 'if find . -name "*.pem" -o -name "*_key" -o -name "*_key.pub" | grep -v ".git"; then echo "ERROR: SSH keys found!"; exit 1; fi'
+        language: system
         pass_filenames: false
 
 # Configuration
 default_language_version:
-  python: python3.12
+  python: python3.11
 
 exclude: |
   (?x)^(
-    external/|
-    node_modules/|
-    venv/|
-    \.venv/|
-    __pycache__/|
-    \.pytest_cache/|
-    \.mypy_cache/|
-    \.ruff_cache/|
-    build/|
-    dist/|
-    \.git/|
-    .*\.min\.js$|
-    .*\.min\.css$|
-    archive/|
-    backups/|
-    docs_backup_.*
+    .*\.min\.(js|css)|
+    .*\.bundle\.(js|css)|
+    .*/migrations/.*|
+    .*/static/.*|
+    .*/vendor/.*|
+    external/.*|
+    node_modules/.*|
+    .git/.*|
+    .*\.egg-info/.*
   )$
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [scan-secrets, check-env-files, check-ssh-keys]

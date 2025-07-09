@@ -17,12 +17,12 @@ from api.ai_memory_health_routes import router as ai_memory_router
 from api.deployment_status_routes import router as deployment_router
 from api.lambda_labs_health_routes import router as lambda_labs_router
 from api.unified_health_routes import router as unified_health_router
-from infrastructure.services.unified_chat_service import (
+from backend.services.unified_chat_service import (
     AccessLevel,
     ChatContext,
     UnifiedChatService,
 )
-from infrastructure.services.unified_chat_service import (
+from backend.services.unified_chat_service import (
     ChatRequest as InternalChatRequest,
 )
 
