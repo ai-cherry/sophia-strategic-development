@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -448,7 +447,7 @@ class MigrationOrchestrator:
             raise RuntimeError(f"Tests failed for {server.v2_name}")
 
     def _log_migration(
-        self, server: ServerConfig, status: str, error: Optional[str] = None
+        self, server: ServerConfig, status: str, error: str | None = None
     ) -> None:
         """Log migration status"""
         entry = {
@@ -521,7 +520,7 @@ class MigrationOrchestrator:
 
         logger.info(f"\nMigration report saved to: {report_path}")
 
-    def run(self, phases: Optional[list[MigrationPhase]] = None) -> bool:
+    def run(self, phases: list[MigrationPhase] | None = None) -> bool:
         """Run the migration"""
         logger.info("Starting MCP V2+ Migration Orchestrator")
         logger.info(f"Mode: {'DRY RUN' if self.dry_run else 'LIVE'}")

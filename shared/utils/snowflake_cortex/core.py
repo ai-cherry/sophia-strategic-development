@@ -2,7 +2,7 @@
 
 import asyncio
 import json
-from typing import Any, Optional
+from typing import Any
 
 from .enums import CortexModel
 from .errors import CortexConnectionError, CortexModelError
@@ -12,7 +12,7 @@ from .pool import AsyncConnectionPool
 class DirectCortexCore:
     """Direct SQL execution for Cortex operations."""
 
-    def __init__(self, connection_pool: Optional[AsyncConnectionPool] = None):
+    def __init__(self, connection_pool: AsyncConnectionPool | None = None):
         """Initialize direct Cortex adapter.
 
         Args:
@@ -25,9 +25,9 @@ class DirectCortexCore:
 
     def set_context(
         self,
-        warehouse: Optional[str] = None,
-        database: Optional[str] = None,
-        schema: Optional[str] = None,
+        warehouse: str | None = None,
+        database: str | None = None,
+        schema: str | None = None,
     ) -> None:
         """Set execution context."""
         if warehouse:
@@ -38,7 +38,7 @@ class DirectCortexCore:
             self._schema = schema
 
     async def _execute_query(
-        self, query: str, params: Optional[dict[str, Any]] = None
+        self, query: str, params: dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
         """Execute a query and return results."""
         if not self._pool:

@@ -7,11 +7,10 @@ Validates the multi-agent orchestration design and integration points
 
 import asyncio
 import logging
-import json
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Dict, Any, List
-from dataclasses import dataclass, asdict
 from enum import Enum
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,27 +36,27 @@ class SearchRequest:
 @dataclass
 class AgentResponse:
     agent_type: AgentType
-    results: List[Dict[str, Any]]
+    results: list[dict[str, Any]]
     confidence_score: float
     processing_time: float
-    sources: List[str]
-    metadata: Dict[str, Any]
+    sources: list[str]
+    metadata: dict[str, Any]
 
 @dataclass
 class SearchPlan:
-    required_agents: List[AgentType]
+    required_agents: list[AgentType]
     strategy: str
     estimated_time: float = 0.0
 
 class MockAgent:
     """Mock agent for testing orchestration"""
-    
+
     def __init__(self, agent_type: AgentType):
         self.agent_type = agent_type
-        
-    async def process_request(self, request: SearchRequest) -> Dict[str, Any]:
+
+    async def process_request(self, request: SearchRequest) -> dict[str, Any]:
         """Mock processing with realistic delays"""
-        
+
         # Simulate processing time based on agent type
         processing_times = {
             AgentType.DATABASE_AGENT: 0.5,
@@ -66,9 +65,9 @@ class MockAgent:
             AgentType.PROJECT_INTELLIGENCE_AGENT: 0.8,
             AgentType.SYNTHESIS_AGENT: 0.3
         }
-        
+
         await asyncio.sleep(processing_times.get(self.agent_type, 1.0))
-        
+
         # Mock results based on agent type
         mock_results = {
             AgentType.DATABASE_AGENT: {
@@ -114,52 +113,52 @@ class MockAgent:
                 "metadata": {"synthesis_method": "RRF", "sources_combined": 4}
             }
         }
-        
+
         return mock_results.get(self.agent_type, {"results": [], "confidence": 0.0, "sources": [], "metadata": {}})
 
 class EnhancedMultiAgentOrchestrator:
     """Enhanced orchestrator for testing"""
-    
+
     def __init__(self):
         self.agents = {
-            agent_type: MockAgent(agent_type) 
+            agent_type: MockAgent(agent_type)
             for agent_type in AgentType
         }
-        
-    async def execute_search(self, request: SearchRequest) -> Dict[str, Any]:
+
+    async def execute_search(self, request: SearchRequest) -> dict[str, Any]:
         """Execute enhanced multi-agent search"""
         try:
             logger.info(f"🎯 Processing query: '{request.query}' (context: {request.context})")
-            
+
             # 1. Analyze query and determine required agents
             search_plan = await self._analyze_search_requirements(request)
             logger.info(f"📋 Search plan: {len(search_plan.required_agents)} agents required")
-            
+
             # 2. Execute agents in parallel
             start_time = asyncio.get_event_loop().time()
-            
+
             agent_tasks = []
             for agent_type in search_plan.required_agents:
                 if agent_type in self.agents:
                     logger.info(f"🚀 Starting {agent_type.value}")
                     task = self._execute_agent(agent_type, request)
                     agent_tasks.append(task)
-            
+
             # 3. Collect results from all agents
             agent_responses = await asyncio.gather(*agent_tasks, return_exceptions=True)
-            
+
             total_time = asyncio.get_event_loop().time() - start_time
-            
+
             # 4. Process responses
             successful_responses = [r for r in agent_responses if isinstance(r, AgentResponse)]
             failed_responses = [r for r in agent_responses if isinstance(r, Exception)]
-            
+
             logger.info(f"✅ Completed: {len(successful_responses)} successful, {len(failed_responses)} failed")
             logger.info(f"⏱️ Total processing time: {total_time:.2f}s")
-            
+
             # 5. Synthesize results
             synthesized_result = await self._synthesize_results(successful_responses, request)
-            
+
             return {
                 "response": synthesized_result,
                 "search_plan": asdict(search_plan),
@@ -172,7 +171,7 @@ class EnhancedMultiAgentOrchestrator:
                     "failed_agents": len(failed_responses)
                 }
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Multi-agent search failed: {e}")
             return await self._fallback_response(request, str(e))
@@ -181,30 +180,30 @@ class EnhancedMultiAgentOrchestrator:
         """Analyze query to determine required agents"""
         query_lower = request.query.lower()
         required_agents = []
-        
+
         # Database agent for internal data
         if any(keyword in query_lower for keyword in ["project", "team", "internal", "our", "company", "status"]):
             required_agents.append(AgentType.DATABASE_AGENT)
             required_agents.append(AgentType.PROJECT_INTELLIGENCE_AGENT)
-        
+
         # Web search for external information
         if any(keyword in query_lower for keyword in ["latest", "current", "news", "market", "competitor", "trend"]):
             required_agents.append(AgentType.WEB_SEARCH_AGENT)
-        
+
         # Browser automation for complex web tasks
         if any(keyword in query_lower for keyword in ["scrape", "extract", "automate", "login", "form", "data"]):
             required_agents.append(AgentType.BROWSER_AUTOMATION_AGENT)
-        
+
         # Always use synthesis agent for multi-source results
         if len(required_agents) > 1:
             required_agents.append(AgentType.SYNTHESIS_AGENT)
-        
+
         # If no specific agents identified, use database as default
         if not required_agents:
             required_agents = [AgentType.DATABASE_AGENT]
-        
+
         estimated_time = len(required_agents) * 1.5  # Rough estimate
-        
+
         return SearchPlan(
             required_agents=required_agents,
             strategy="parallel",
@@ -216,11 +215,11 @@ class EnhancedMultiAgentOrchestrator:
         try:
             agent = self.agents[agent_type]
             start_time = asyncio.get_event_loop().time()
-            
+
             results = await agent.process_request(request)
-            
+
             processing_time = asyncio.get_event_loop().time() - start_time
-            
+
             return AgentResponse(
                 agent_type=agent_type,
                 results=results.get("results", []),
@@ -229,7 +228,7 @@ class EnhancedMultiAgentOrchestrator:
                 sources=results.get("sources", []),
                 metadata=results.get("metadata", {})
             )
-            
+
         except Exception as e:
             logger.error(f"❌ Agent {agent_type.value} failed: {e}")
             return AgentResponse(
@@ -241,32 +240,32 @@ class EnhancedMultiAgentOrchestrator:
                 metadata={"error": str(e)}
             )
 
-    async def _synthesize_results(self, responses: List[AgentResponse], request: SearchRequest) -> Dict[str, Any]:
+    async def _synthesize_results(self, responses: list[AgentResponse], request: SearchRequest) -> dict[str, Any]:
         """Synthesize results from multiple agents"""
         if not responses:
             return {"response": "No results available", "confidence": 0.0}
-        
+
         # Calculate weighted confidence
         total_confidence = sum(r.confidence_score for r in responses) / len(responses)
-        
+
         # Combine all results
         all_results = []
         all_sources = []
-        
+
         for response in responses:
             all_results.extend(response.results)
             all_sources.extend(response.sources)
-        
+
         # Generate synthesized response
         response_parts = []
-        
+
         for response in responses:
             if response.results:
                 agent_name = response.agent_type.value.replace("_", " ").title()
                 response_parts.append(f"{agent_name}: Found {len(response.results)} results")
-        
+
         synthesized_response = f"Based on analysis from {len(responses)} specialized agents: " + "; ".join(response_parts)
-        
+
         return {
             "response": synthesized_response,
             "confidence": total_confidence,
@@ -275,7 +274,7 @@ class EnhancedMultiAgentOrchestrator:
             "agent_breakdown": {r.agent_type.value: len(r.results) for r in responses}
         }
 
-    async def _fallback_response(self, request: SearchRequest, error: str) -> Dict[str, Any]:
+    async def _fallback_response(self, request: SearchRequest, error: str) -> dict[str, Any]:
         """Fallback response for errors"""
         return {
             "response": f"I apologize, but I encountered an error processing your request: {error}",
@@ -292,12 +291,12 @@ class EnhancedMultiAgentOrchestrator:
 
 async def test_enhanced_architecture():
     """Test the enhanced chat architecture"""
-    
+
     print("🚀 Testing Enhanced Multi-Agent Chat Architecture")
     print("=" * 60)
-    
+
     orchestrator = EnhancedMultiAgentOrchestrator()
-    
+
     # Test cases covering different scenarios
     test_cases = [
         {
@@ -337,26 +336,26 @@ async def test_enhanced_architecture():
             )
         }
     ]
-    
+
     for i, test_case in enumerate(test_cases, 1):
         print(f"\n🧪 Test {i}: {test_case['name']}")
         print("-" * 40)
-        
+
         try:
             result = await orchestrator.execute_search(test_case["request"])
-            
+
             print(f"✅ Response: {result['response']['response']}")
             print(f"📊 Agents Used: {result['metadata']['total_agents_used']}")
             print(f"⏱️ Processing Time: {result['metadata']['processing_time']:.2f}s")
             print(f"🎯 Confidence: {result['metadata']['confidence_score']:.2f}")
             print(f"📚 Sources: {', '.join(result['metadata']['sources'])}")
-            
+
             if result['metadata'].get('failed_agents', 0) > 0:
                 print(f"⚠️ Failed Agents: {result['metadata']['failed_agents']}")
-            
+
         except Exception as e:
             print(f"❌ Test failed: {e}")
-    
+
     print("\n" + "=" * 60)
     print("🎉 Enhanced Architecture Test Complete!")
     print("\n📋 Architecture Validation Results:")
@@ -366,27 +365,27 @@ async def test_enhanced_architecture():
     print("✅ Result synthesis and confidence scoring")
     print("✅ Error handling and fallback responses")
     print("✅ Performance metrics and monitoring")
-    
+
     return True
 
 async def test_integration_points():
     """Test integration points with existing system"""
-    
+
     print("\n🔗 Testing Integration Points with Existing System")
     print("=" * 60)
-    
+
     # Test API endpoint availability
     import aiohttp
-    
+
     endpoints_to_test = [
         ("http://localhost:8000/health", "System Health"),
         ("http://localhost:8000/api/projects/summary", "Project Summary"),
         ("http://localhost:8000/api/system/health", "System Health API"),
         ("http://localhost:8000/api/okrs/summary", "OKRs Summary")
     ]
-    
+
     integration_results = []
-    
+
     async with aiohttp.ClientSession() as session:
         for url, name in endpoints_to_test:
             try:
@@ -404,27 +403,27 @@ async def test_integration_points():
             except Exception as e:
                 integration_results.append(f"❌ {name}: {str(e)[:50]}")
                 print(f"❌ {name}: Connection failed - {str(e)[:50]}")
-    
+
     print(f"\n📊 Integration Summary: {len([r for r in integration_results if r.startswith('✅')])}/{len(integration_results)} endpoints available")
-    
+
     return integration_results
 
 async def main():
     """Main test execution"""
-    
+
     print("🧪 ENHANCED UNIFIED CHAT ARCHITECTURE TEST SUITE")
     print("=" * 80)
     print(f"📅 Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"🎯 Testing enhanced multi-agent orchestration design")
+    print("🎯 Testing enhanced multi-agent orchestration design")
     print()
-    
+
     try:
         # Test enhanced architecture
         architecture_test = await test_enhanced_architecture()
-        
+
         # Test integration points
         integration_test = await test_integration_points()
-        
+
         print("\n" + "=" * 80)
         print("🎉 ALL TESTS COMPLETED!")
         print()
@@ -437,12 +436,12 @@ async def main():
         print("  2. Existing API endpoints confirmed functional")
         print("  3. Architecture design proven scalable")
         print("  4. Integration points identified and tested")
-        
+
     except Exception as e:
         print(f"❌ Test suite failed: {e}")
         return False
-    
+
     return True
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

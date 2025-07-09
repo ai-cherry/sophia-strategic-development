@@ -2,7 +2,7 @@
 
 import logging
 from collections.abc import Sequence
-from typing import Any, Optional
+from typing import Any
 
 from infrastructure.adapters.snowflake_adapter import SnowflakeConfigManager
 
@@ -62,7 +62,7 @@ class SnowflakeCortexService:
     async def complete(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 1000,
     ) -> dict[str, Any]:

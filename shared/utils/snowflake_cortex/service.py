@@ -2,7 +2,7 @@
 
 import os
 from contextlib import asynccontextmanager
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 from prometheus_client import Counter, Histogram
 
@@ -48,10 +48,10 @@ class SnowflakeCortexService:
         self._enable_cache = enable_cache
 
         # Initialize components
-        self._direct: Optional[DirectCortexCore] = None
-        self._mcp: Optional[SnowflakeMCPClient] = None
-        self._pool: Optional[AsyncConnectionPool] = None
-        self._cache: Optional[CortexCache] = None
+        self._direct: DirectCortexCore | None = None
+        self._mcp: SnowflakeMCPClient | None = None
+        self._pool: AsyncConnectionPool | None = None
+        self._cache: CortexCache | None = None
 
         # Load configuration
         self._load_config()
@@ -341,7 +341,7 @@ class SnowflakeCortexService:
         return await self._mcp.search(query, service, columns, limit, **kwargs)
 
     async def analyze(
-        self, query: str, context: Optional[dict[str, Any]] = None, **kwargs: Any
+        self, query: str, context: dict[str, Any] | None = None, **kwargs: Any
     ) -> dict[str, Any]:
         """Execute Cortex Analyst query (MCP mode only)."""
         if self.mode != MCPMode.MCP:

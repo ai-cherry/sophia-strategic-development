@@ -13,19 +13,24 @@ Provides complete ecosystem access through natural language queries including:
 Date: July 9, 2025
 """
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+import json
+import logging
+from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional
-import json
-import asyncio
-from datetime import datetime
 
-from backend.services.unified_chat_service_enhanced import EnhancedUnifiedChatService, ECOSYSTEM_QUERY_EXAMPLES
-from backend.services.enhanced_multi_agent_orchestrator import EnhancedMultiAgentOrchestrator
+from backend.services.enhanced_multi_agent_orchestrator import (
+    EnhancedMultiAgentOrchestrator,
+)
 from backend.services.project_management_service import ProjectManagementService
+from backend.services.unified_chat_service_enhanced import (
+    ECOSYSTEM_QUERY_EXAMPLES,
+    EnhancedUnifiedChatService,
+)
 
-import logging
 logger = logging.getLogger(__name__)
 
 # Initialize services
@@ -41,7 +46,7 @@ class EcosystemQueryRequest(BaseModel):
     query: str = Field(..., description="Natural language query for the complete ecosystem")
     user_id: str = Field(default="user", description="User identifier")
     session_id: str = Field(default="session", description="Session identifier")
-    context: Optional[Dict[str, Any]] = Field(default=None, description="Additional context")
+    context: dict[str, Any] | None = Field(default=None, description="Additional context")
     stream: bool = Field(default=False, description="Enable streaming response")
     include_ecosystem_analysis: bool = Field(default=True, description="Include ecosystem analysis")
     include_project_health: bool = Field(default=True, description="Include project health assessment")
@@ -52,23 +57,23 @@ class EcosystemQueryResponse(BaseModel):
     response: str
     confidence: float
     processing_time: float
-    
+
     # Ecosystem intelligence
-    ecosystem_sources_used: List[str]
-    ecosystem_patterns: List[str]
-    cross_system_correlations: Dict[str, Any]
-    
+    ecosystem_sources_used: list[str]
+    ecosystem_patterns: list[str]
+    cross_system_correlations: dict[str, Any]
+
     # Business intelligence
-    project_health_insights: Dict[str, Any]
-    risk_indicators: List[str]
-    opportunities: List[str]
-    
+    project_health_insights: dict[str, Any]
+    risk_indicators: list[str]
+    opportunities: list[str]
+
     # Metadata
-    citations: List[Dict[str, Any]]
-    metadata: Dict[str, Any]
+    citations: list[dict[str, Any]]
+    metadata: dict[str, Any]
     current_date: str
     date_validated: bool
-    
+
     # Query context
     query_intent: str
     complexity_level: str
@@ -77,7 +82,7 @@ class EcosystemQueryResponse(BaseModel):
 
 class ProjectHealthRequest(BaseModel):
     """Request model for project health assessment"""
-    project_context: Optional[str] = Field(default=None, description="Specific project context")
+    project_context: str | None = Field(default=None, description="Specific project context")
     include_gong_intelligence: bool = Field(default=True, description="Include Gong conversation intelligence")
     include_slack_discussions: bool = Field(default=True, description="Include Slack team discussions")
     include_linear_velocity: bool = Field(default=True, description="Include Linear engineering velocity")
@@ -96,10 +101,10 @@ async def process_ecosystem_query(request: EcosystemQueryRequest):
     - "Cross-reference Slack discussions with Asana project status"
     - "How is our engineering velocity compared to customer requests?"
     """
-    
+
     try:
         logger.info(f"Processing ecosystem query: {request.query}")
-        
+
         # Process through enhanced unified chat service
         result = await enhanced_chat_service.process_ecosystem_query(
             query=request.query,
@@ -107,12 +112,12 @@ async def process_ecosystem_query(request: EcosystemQueryRequest):
             session_id=request.session_id,
             context=request.context or {}
         )
-        
+
         return EcosystemQueryResponse(**result)
-        
+
     except Exception as e:
         logger.error(f"Ecosystem query error: {e}")
-        raise HTTPException(status_code=500, detail=f"Ecosystem query processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Ecosystem query processing failed: {e!s}")
 
 
 @router.post("/chat/ecosystem/stream")
@@ -123,7 +128,7 @@ async def stream_ecosystem_query(request: EcosystemQueryRequest):
     Provides real-time progress updates as the query is processed across
     multiple ecosystem services including Gong, Slack, Linear, Asana, etc.
     """
-    
+
     async def generate_stream():
         try:
             async for update in enhanced_chat_service.stream_ecosystem_query(
@@ -133,14 +138,14 @@ async def stream_ecosystem_query(request: EcosystemQueryRequest):
                 context=request.context or {}
             ):
                 yield f"data: {json.dumps(update)}\n\n"
-                
+
         except Exception as e:
             error_update = {
                 "type": "error",
                 "data": {"error": str(e)}
             }
             yield f"data: {json.dumps(error_update)}\n\n"
-    
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/plain",
@@ -166,14 +171,14 @@ async def get_ecosystem_status():
     - HubSpot CRM data
     - And all other ecosystem services
     """
-    
+
     try:
         status = await enhanced_chat_service.get_ecosystem_status()
         return status
-        
+
     except Exception as e:
         logger.error(f"Ecosystem status error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get ecosystem status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get ecosystem status: {e!s}")
 
 
 @router.post("/project/health/comprehensive")
@@ -189,7 +194,7 @@ async def get_comprehensive_project_health(request: ProjectHealthRequest):
     - Notion documentation updates
     - HubSpot deal progress and customer satisfaction
     """
-    
+
     try:
         # Build comprehensive project health query
         health_query = f"""
@@ -213,7 +218,7 @@ async def get_comprehensive_project_health(request: ProjectHealthRequest):
         - Cross-system patterns and correlations
         - Actionable recommendations
         """
-        
+
         # Process through ecosystem
         result = await enhanced_chat_service.process_ecosystem_query(
             query=health_query,
@@ -228,10 +233,10 @@ async def get_comprehensive_project_health(request: ProjectHealthRequest):
                 "include_asana": request.include_asana_progress
             }
         )
-        
+
         # Enhance with specific project metrics
         project_metrics = await project_service.get_project_summary()
-        
+
         # Combine ecosystem analysis with project metrics
         comprehensive_health = {
             "ecosystem_analysis": result,
@@ -246,12 +251,12 @@ async def get_comprehensive_project_health(request: ProjectHealthRequest):
                 "time_range_days": request.time_range_days
             }
         }
-        
+
         return comprehensive_health
-        
+
     except Exception as e:
         logger.error(f"Comprehensive project health error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to assess comprehensive project health: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to assess comprehensive project health: {e!s}")
 
 
 @router.get("/gong/intelligence")
@@ -263,7 +268,7 @@ async def get_gong_intelligence_integrated():
     not as a standalone service. Use /api/v3/chat/ecosystem for natural language
     queries that include Gong data along with other business systems.
     """
-    
+
     try:
         # Process Gong intelligence as part of ecosystem
         gong_query = """
@@ -276,7 +281,7 @@ async def get_gong_intelligence_integrated():
         
         Integrate this with other business intelligence sources for complete context.
         """
-        
+
         result = await enhanced_chat_service.process_ecosystem_query(
             query=gong_query,
             user_id="gong_intelligence",
@@ -286,17 +291,17 @@ async def get_gong_intelligence_integrated():
                 "integration_mode": "business_intelligence"
             }
         )
-        
+
         return {
             "gong_intelligence": result,
             "integration_note": "Gong data is integrated with complete business ecosystem",
             "recommended_usage": "Use /api/v3/chat/ecosystem for natural language queries",
             "current_date": "July 9, 2025"
         }
-        
+
     except Exception as e:
         logger.error(f"Gong intelligence error: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to get Gong intelligence: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get Gong intelligence: {e!s}")
 
 
 @router.get("/ecosystem/examples")
@@ -311,7 +316,7 @@ async def get_ecosystem_query_examples():
     - Asana project management
     - And all other ecosystem services
     """
-    
+
     return {
         "ecosystem_query_examples": ECOSYSTEM_QUERY_EXAMPLES,
         "usage_instructions": [
@@ -348,7 +353,7 @@ async def process_natural_language_query(
     query: str,
     user_id: str = "user",
     session_id: str = "session",
-    context: Optional[Dict[str, Any]] = None
+    context: dict[str, Any] | None = None
 ):
     """
     Simplified natural language query endpoint for complete ecosystem access
@@ -362,7 +367,7 @@ async def process_natural_language_query(
     - "Show me engineering velocity from Linear and customer feedback from Gong"
     - "What project risks appear in both Slack discussions and customer calls?"
     """
-    
+
     try:
         result = await enhanced_chat_service.process_ecosystem_query(
             query=query,
@@ -370,7 +375,7 @@ async def process_natural_language_query(
             session_id=session_id,
             context=context or {}
         )
-        
+
         # Simplified response for natural language interface
         return {
             "response": result["response"],
@@ -380,23 +385,23 @@ async def process_natural_language_query(
             "current_date": "July 9, 2025",
             "processing_time": result["processing_time"]
         }
-        
+
     except Exception as e:
         logger.error(f"Natural language query error: {e}")
-        raise HTTPException(status_code=500, detail=f"Query processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Query processing failed: {e!s}")
 
 
 @router.get("/health")
 async def health_check():
     """Health check endpoint with ecosystem status"""
-    
+
     try:
         # Quick health check of core services
         ecosystem_status = await enhanced_chat_service.get_ecosystem_status()
-        
+
         active_services = sum(1 for service in ecosystem_status["services"].values() if service["status"] == "active")
         total_services = len(ecosystem_status["services"])
-        
+
         return {
             "status": "healthy",
             "current_date": "July 9, 2025",
@@ -409,7 +414,7 @@ async def health_check():
             "capabilities": ecosystem_status["capabilities"],
             "timestamp": datetime.now().isoformat()
         }
-        
+
     except Exception as e:
         logger.error(f"Health check error: {e}")
         return {
@@ -429,11 +434,11 @@ async def refresh_ecosystem_data(background_tasks: BackgroundTasks):
     Triggers a background refresh of data from all ecosystem services
     including Gong, Slack, Linear, Asana, etc.
     """
-    
+
     async def refresh_task():
         try:
             logger.info("Starting ecosystem data refresh")
-            
+
             # Refresh query to trigger data updates
             refresh_query = """
             Refresh and validate data connections across all ecosystem services:
@@ -447,24 +452,24 @@ async def refresh_ecosystem_data(background_tasks: BackgroundTasks):
             
             Verify data freshness and connection health.
             """
-            
+
             await enhanced_chat_service.process_ecosystem_query(
                 query=refresh_query,
                 user_id="system_refresh",
                 session_id="ecosystem_refresh",
                 context={"refresh_mode": True}
             )
-            
+
             logger.info("Ecosystem data refresh completed")
-            
+
         except Exception as e:
             logger.error(f"Ecosystem refresh error: {e}")
-    
+
     background_tasks.add_task(refresh_task)
-    
+
     return {
         "status": "refresh_initiated",
         "message": "Ecosystem data refresh started in background",
         "current_date": "July 9, 2025",
         "timestamp": datetime.now().isoformat()
-    } 
+    }

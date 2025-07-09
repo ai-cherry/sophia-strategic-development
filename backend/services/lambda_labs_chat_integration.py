@@ -1,7 +1,7 @@
 """Integration of Lambda Labs with Sophia AI unified chat service."""
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from infrastructure.services.lambda_labs_hybrid_router import LambdaLabsHybridRouter
 
@@ -32,8 +32,8 @@ class LambdaLabsChatIntegration:
     async def process_chat_message(
         self,
         message: str,
-        conversation_history: Optional[list[dict[str, str]]] = None,
-        user_context: Optional[dict[str, Any]] = None,
+        conversation_history: list[dict[str, str]] | None = None,
+        user_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Process a chat message through Lambda Labs.
 

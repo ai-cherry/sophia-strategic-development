@@ -7,7 +7,7 @@ import hashlib
 import json
 import time
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import redis.asyncio as redis
 
@@ -27,7 +27,7 @@ class SemanticCache:
 
     def __init__(self, config: CacheConfig):
         self.config = config
-        self.redis_client: Optional[redis.Redis] = None
+        self.redis_client: redis.Redis | None = None
         self.enabled = config.enabled
         self.ttl = config.ttl
         self.similarity_threshold = config.semantic_similarity_threshold
@@ -63,7 +63,7 @@ class SemanticCache:
         prompt: str,
         task: TaskType,
         complexity: TaskComplexity,
-        model_override: Optional[str] = None,
+        model_override: str | None = None,
     ) -> str:
         """Generate cache key for exact matching"""
         key_parts = [prompt, task.value, complexity.value, model_override or "default"]
@@ -84,8 +84,8 @@ class SemanticCache:
         prompt: str,
         task: TaskType,
         complexity: TaskComplexity,
-        model_override: Optional[str] = None,
-    ) -> Optional[str]:
+        model_override: str | None = None,
+    ) -> str | None:
         """
         Get cached response if available
         First tries exact match, then semantic similarity
@@ -147,7 +147,7 @@ class SemanticCache:
         prompt: str,
         task: TaskType,
         complexity: TaskComplexity,
-        model_override: Optional[str],
+        model_override: str | None,
         response: str,
     ) -> bool:
         """Store response in cache"""
@@ -205,7 +205,7 @@ class SemanticCache:
 
     async def _semantic_search(
         self, prompt: str, task: TaskType, complexity: TaskComplexity
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Search for semantically similar cached responses
         Simplified implementation - in production use actual embeddings

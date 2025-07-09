@@ -1,7 +1,7 @@
 """MCP client wrapper for Snowflake Cortex operations."""
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -14,8 +14,8 @@ class SnowflakeMCPClient:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
-        pat_token: Optional[str] = None,
+        base_url: str | None = None,
+        pat_token: str | None = None,
         timeout: float = 30.0,
     ):
         """Initialize MCP client.
@@ -169,7 +169,7 @@ class SnowflakeMCPClient:
             )
 
     async def analyze(
-        self, query: str, context: Optional[dict[str, Any]] = None, **kwargs: Any
+        self, query: str, context: dict[str, Any] | None = None, **kwargs: Any
     ) -> dict[str, Any]:
         """Execute Cortex Analyst query.
 

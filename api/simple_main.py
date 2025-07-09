@@ -5,7 +5,7 @@ Sophia AI FastAPI - Simple Working Version
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,17 +37,17 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     message: str
     user_id: str = "user"
-    session_id: Optional[str] = None
+    session_id: str | None = None
     context: str = "general"
     stream: bool = False
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 class ChatResponse(BaseModel):
     response: str
-    sources: Optional[list[dict[str, Any]]] = None
-    suggestions: Optional[list[str]] = None
-    metadata: Optional[dict[str, Any]] = None
+    sources: list[dict[str, Any]] | None = None
+    suggestions: list[str] | None = None
+    metadata: dict[str, Any] | None = None
     timestamp: str = datetime.now().isoformat()
 
 

@@ -8,7 +8,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from domain.models.chat_models import ChatContext
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
@@ -36,7 +36,7 @@ class IntentCategory(Enum):
 @dataclass
 class CodeModificationIntent:
     action: str  # modify, create, delete, refactor, fix
-    target_file: Optional[str]
+    target_file: str | None
     description: str
     constraints: dict[str, Any]
     requires_approval: bool
@@ -177,7 +177,7 @@ class SophiaIntentEngine:
             confidence=confidence,
         )
 
-    def _extract_file_path(self, message: str) -> Optional[str]:
+    def _extract_file_path(self, message: str) -> str | None:
         """Extract file path from message"""
         # Look for quoted paths
         quoted_pattern = (
@@ -220,7 +220,7 @@ class SophiaIntentEngine:
 
         return "modify"  # Default action
 
-    def _requires_approval(self, action: str, file_path: Optional[str]) -> bool:
+    def _requires_approval(self, action: str, file_path: str | None) -> bool:
         """Determine if action requires approval"""
         # Always require approval for deletions
         if action == "delete":

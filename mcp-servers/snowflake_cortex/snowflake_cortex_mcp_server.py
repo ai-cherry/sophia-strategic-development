@@ -5,6 +5,7 @@ Integrates with Snowflake Cortex AI for native SQL + AI capabilities
 """
 
 import asyncio
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from typing import Any
 
@@ -17,8 +18,7 @@ except Exception:
 from backend.core.auto_esc_config import get_config_value
 
 try:
-    from backend.mcp_servers.base.unified_mcp_base import StandardizedMCPServer
-except ImportError:
+    except ImportError:
     # Fallback for testing
     import sys
     from pathlib import Path

@@ -3,11 +3,11 @@ Unified Project Management Service
 Connects to Linear, Asana, Notion, and Slack MCP servers
 """
 import asyncio
-import aiohttp
 import logging
-from datetime import datetime
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+from typing import Any
+
+import aiohttp
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class ProjectSummary:
     active_projects: int
     completed_projects: int
     at_risk_projects: int
-    platform_breakdown: Dict[str, int]
+    platform_breakdown: dict[str, int]
     health_score: float
 
 @dataclass
@@ -28,15 +28,15 @@ class Project:
     status: str
     progress: float
     health_score: float
-    team_members: List[str]
-    due_date: Optional[str]
+    team_members: list[str]
+    due_date: str | None
     risk_level: str
 
 class ProjectManagementService:
     def __init__(self):
         self.mcp_endpoints = {
             "linear": "http://localhost:9006",
-            "asana": "http://localhost:9004", 
+            "asana": "http://localhost:9004",
             "notion": "http://localhost:9005",
             "slack": "http://localhost:9008"
         }
@@ -51,40 +51,40 @@ class ProjectManagementService:
                 self._query_notion_projects(),
                 self._query_slack_project_threads()
             ]
-            
+
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            
+
             # Synthesize results
             total_projects = 0
             active_projects = 0
             completed_projects = 0
             at_risk_projects = 0
             platform_breakdown = {}
-            
+
             for i, result in enumerate(results):
                 platform = list(self.mcp_endpoints.keys())[i]
-                
+
                 if isinstance(result, Exception):
                     logger.warning(f"Failed to get data from {platform}: {result}")
                     platform_breakdown[platform] = 0
                     continue
-                
+
                 platform_data = result or {}
                 platform_projects = platform_data.get("projects", [])
                 platform_breakdown[platform] = len(platform_projects)
-                
+
                 total_projects += len(platform_projects)
                 active_projects += len([p for p in platform_projects if p.get("status") == "active"])
                 completed_projects += len([p for p in platform_projects if p.get("status") == "completed"])
                 at_risk_projects += len([p for p in platform_projects if p.get("risk_level") == "high"])
-            
+
             # Calculate overall health score
             health_score = 85.0  # Placeholder calculation
             if total_projects > 0:
                 completion_rate = completed_projects / total_projects
                 risk_rate = at_risk_projects / total_projects
                 health_score = (completion_rate * 50) + ((1 - risk_rate) * 50)
-            
+
             return ProjectSummary(
                 total_projects=total_projects,
                 active_projects=active_projects,
@@ -93,7 +93,7 @@ class ProjectManagementService:
                 platform_breakdown=platform_breakdown,
                 health_score=health_score
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to get project summary: {e}")
             # Return fallback data for demo
@@ -104,14 +104,14 @@ class ProjectManagementService:
                 at_risk_projects=8,
                 platform_breakdown={
                     "linear": 23,
-                    "asana": 17, 
+                    "asana": 17,
                     "notion": 8,
                     "slack": 142
                 },
                 health_score=78.5
             )
 
-    async def _query_linear_projects(self) -> Dict[str, Any]:
+    async def _query_linear_projects(self) -> dict[str, Any]:
         """Query Linear MCP server for projects"""
         try:
             async with aiohttp.ClientSession() as session:
@@ -135,7 +135,7 @@ class ProjectManagementService:
             logger.error(f"Linear query failed: {e}")
             return {}
 
-    async def _query_asana_projects(self) -> Dict[str, Any]:
+    async def _query_asana_projects(self) -> dict[str, Any]:
         """Query Asana MCP server for projects"""
         try:
             async with aiohttp.ClientSession() as session:
@@ -159,7 +159,7 @@ class ProjectManagementService:
             logger.error(f"Asana query failed: {e}")
             return {}
 
-    async def _query_notion_projects(self) -> Dict[str, Any]:
+    async def _query_notion_projects(self) -> dict[str, Any]:
         """Query Notion MCP server for project pages"""
         try:
             async with aiohttp.ClientSession() as session:
@@ -182,7 +182,7 @@ class ProjectManagementService:
             logger.error(f"Notion query failed: {e}")
             return {}
 
-    async def _query_slack_project_threads(self) -> Dict[str, Any]:
+    async def _query_slack_project_threads(self) -> dict[str, Any]:
         """Query Slack MCP server for project-related threads"""
         try:
             async with aiohttp.ClientSession() as session:
@@ -205,7 +205,7 @@ class ProjectManagementService:
             logger.error(f"Slack query failed: {e}")
             return {}
 
-    async def get_project_health_scores(self) -> List[Dict[str, Any]]:
+    async def get_project_health_scores(self) -> list[dict[str, Any]]:
         """Calculate real-time project health scores"""
         return [
             {
@@ -217,7 +217,7 @@ class ProjectManagementService:
                 "recommendations": ["Increase testing coverage", "Add more developers"]
             },
             {
-                "project_id": "proj_2", 
+                "project_id": "proj_2",
                 "name": "Q1 Sales Campaign",
                 "platform": "Asana",
                 "health_score": 65.0,
@@ -226,7 +226,7 @@ class ProjectManagementService:
             },
             {
                 "project_id": "proj_3",
-                "name": "Infrastructure Migration", 
+                "name": "Infrastructure Migration",
                 "platform": "Linear",
                 "health_score": 92.0,
                 "risk_factors": ["technical complexity"],
@@ -234,10 +234,10 @@ class ProjectManagementService:
             }
         ]
 
-    async def get_mcp_server_status(self) -> Dict[str, Any]:
+    async def get_mcp_server_status(self) -> dict[str, Any]:
         """Get status of all MCP servers"""
         status = {}
-        
+
         for platform, endpoint in self.mcp_endpoints.items():
             try:
                 async with aiohttp.ClientSession() as session:
@@ -262,5 +262,5 @@ class ProjectManagementService:
                     "endpoint": endpoint,
                     "error": str(e)[:50]
                 }
-        
-        return status 
+
+        return status

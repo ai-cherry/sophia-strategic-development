@@ -7,7 +7,7 @@ import asyncio
 import time
 import uuid
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import structlog
 from prometheus_client import Gauge
@@ -71,7 +71,7 @@ class ConnectionWrapper:
         self.last_used_at = time.time()
         self.use_count = 0
 
-    async def execute_async(self, sql: str, params: Optional[dict] = None):
+    async def execute_async(self, sql: str, params: dict | None = None):
         """Execute SQL asynchronously"""
         self.last_used_at = time.time()
         self.use_count += 1
@@ -111,7 +111,7 @@ class SnowflakePoolManager:
     Provides connection acquisition, release, and health monitoring.
     """
 
-    def __init__(self, config: Optional[PoolConfig] = None):
+    def __init__(self, config: PoolConfig | None = None):
         self.config = config or PoolConfig()
 
         # Get configuration from environment
@@ -135,10 +135,10 @@ class SnowflakePoolManager:
         self.mcp_metrics = PoolMetrics()
 
         # MCP client for creating sessions
-        self.mcp_client: Optional[SnowflakeMCPClient] = None
+        self.mcp_client: SnowflakeMCPClient | None = None
 
         # Background tasks
-        self._cleanup_task: Optional[asyncio.Task] = None
+        self._cleanup_task: asyncio.Task | None = None
 
         logger.info(
             "SnowflakePoolManager initialized",
@@ -214,7 +214,7 @@ class SnowflakePoolManager:
 
             return connection
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             metrics.total_timeouts += 1
 
             # Try to create a new connection if under limit

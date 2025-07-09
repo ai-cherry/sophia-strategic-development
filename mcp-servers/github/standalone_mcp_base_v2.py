@@ -5,15 +5,11 @@ Fixed version without inheritance issues
 """
 
 import asyncio
-import json
 import logging
 import os
 import time
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Callable
-from pathlib import Path
+from typing import Any
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
@@ -39,7 +35,7 @@ class SimpleMCPServer:
     Simple MCP server with tool support
     No complex inheritance or abstract methods
     """
-    
+
     def __init__(self, config: MCPServerConfig):
         self.config = config
         self.name = config.name
@@ -51,50 +47,50 @@ class SimpleMCPServer:
         self.request_count = 0
         self.error_count = 0
         self.tools = {}
-        
+
         # Load configuration from environment
         self.env_config = self._load_env_config()
-        
+
         # Setup routes
         self._setup_basic_routes()
         self._setup_tool_routes()
 
-    def _load_env_config(self) -> Dict[str, str]:
+    def _load_env_config(self) -> dict[str, str]:
         """Load configuration from environment variables"""
         config = {
             "environment": os.getenv("ENVIRONMENT", "prod"),
             "pulumi_org": os.getenv("PULUMI_ORG", "scoobyjava-org"),
         }
-        
+
         # Load service-specific API keys
         service_key = f"{self.name.upper()}_API_KEY"
         if os.getenv(service_key):
             config["api_key"] = os.getenv(service_key)
-            
+
         # Load alternative key patterns
         alt_patterns = [
             f"SOPHIA_{self.name.upper()}_API_KEY",
             f"{self.name.upper()}_ACCESS_TOKEN",
             f"{self.name.upper()}_TOKEN"
         ]
-        
+
         for pattern in alt_patterns:
             if os.getenv(pattern):
                 config["api_key"] = os.getenv(pattern)
                 break
-                
+
         return config
 
     def _setup_basic_routes(self):
         """Setup basic MCP server routes"""
-        
+
         @self.app.get("/health")
         async def health():
             """Health check endpoint"""
             try:
                 server_health = await self.check_server_health()
                 uptime = time.time() - self.start_time
-                
+
                 return {
                     "status": "healthy" if server_health else "degraded",
                     "service": f"{self.name}-mcp-server",
@@ -148,16 +144,16 @@ class SimpleMCPServer:
 
     def _setup_tool_routes(self):
         """Setup tool execution routes"""
-        
+
         @self.app.post("/tools/{tool_name}")
-        async def execute_tool(tool_name: str, params: Dict[str, Any] = None):
+        async def execute_tool(tool_name: str, params: dict[str, Any] = None):
             """Execute a specific tool"""
             self.request_count += 1
-            
+
             if tool_name not in self.tools:
                 self.error_count += 1
                 raise HTTPException(status_code=404, detail=f"Tool {tool_name} not found")
-            
+
             try:
                 tool = self.tools[tool_name]
                 result = await tool["function"](**(params or {}))
@@ -167,7 +163,7 @@ class SimpleMCPServer:
                 self.logger.exception(f"Tool {tool_name} execution failed: {e}")
                 raise HTTPException(status_code=500, detail=str(e))
 
-    def mcp_tool(self, name: str, description: str, parameters: Dict[str, Any] = None):
+    def mcp_tool(self, name: str, description: str, parameters: dict[str, Any] = None):
         """Decorator for registering MCP tools"""
         def decorator(func):
             self.tools[name] = {
@@ -183,7 +179,7 @@ class SimpleMCPServer:
         """Check server health - can be overridden by subclasses"""
         return True
 
-    async def get_capabilities(self) -> List[Dict[str, Any]]:
+    async def get_capabilities(self) -> list[dict[str, Any]]:
         """Get server capabilities - can be overridden by subclasses"""
         return [
             {
@@ -195,7 +191,7 @@ class SimpleMCPServer:
             }
         ]
 
-    async def get_tools(self) -> List[Dict[str, Any]]:
+    async def get_tools(self) -> list[dict[str, Any]]:
         """Get available tools"""
         return [
             {
@@ -217,11 +213,11 @@ class SimpleMCPServer:
     def run(self):
         """Run the MCP server"""
         self.logger.info(f"🚀 Starting {self.name} MCP Server on port {self.port}")
-        
+
         try:
             # Run server-specific initialization
             asyncio.run(self.server_specific_init())
-            
+
             # Start the server
             uvicorn.run(
                 self.app,
@@ -236,4 +232,4 @@ class SimpleMCPServer:
             raise
         finally:
             # Run cleanup
-            asyncio.run(self.server_specific_cleanup()) 
+            asyncio.run(self.server_specific_cleanup())

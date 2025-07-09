@@ -8,7 +8,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from prometheus_client import Counter, Histogram
@@ -75,7 +75,7 @@ class CortexQuery:
     timeout_s: int = 120
     retry: RetryConfig = field(default_factory=RetryConfig)
     metadata: dict[str, Any] = field(default_factory=dict)
-    context: Optional[dict[str, Any]] = None
+    context: dict[str, Any] | None = None
 
 
 @dataclass
@@ -101,8 +101,8 @@ class CortexAdapter:
         self,
         *,
         execution_mode: ExecutionMode = ExecutionMode.AUTO,
-        mcp_client: Optional[SnowflakeMCPClient] = None,
-        pool_manager: Optional[SnowflakePoolManager] = None,
+        mcp_client: SnowflakeMCPClient | None = None,
+        pool_manager: SnowflakePoolManager | None = None,
         enable_fallback: bool = True,
     ):
         self.execution_mode = execution_mode
@@ -268,8 +268,7 @@ class CortexAdapter:
             raise ValueError("MCP client not configured")
 
         # Reset circuit breaker on successful connection
-        if self.mcp_failures > 0:
-            self.mcp_failures = 0
+        self.mcp_failures = min(self.mcp_failures, 0)
 
         # Prepare MCP request
         mcp_request = {

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 from backend.core.auto_esc_config import get_config_value
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 Linear MCP Server
 
 A Model Context Protocol (MCP) server implementation for Linear.
@@ -33,7 +34,6 @@ logger = logging.getLogger(__name__)
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-from backend.mcp_servers.base.unified_mcp_base import (
     MCPServerConfig,
     StandardizedMCPServer,
 )
@@ -48,12 +48,15 @@ except ImportError:
     LinearClient = None
 
 
-class LinearMCPServer(StandardizedMCPServer):
+class LinearMCPServer(ServiceMCPServer):
     """Linear integration MCP server."""
 
-    def __init__(self, config: MCPServerConfig | None = None):
-        if config is None:
-            config = MCPServerConfig(name="linear", port=9004, version="1.0.0")
+    def __init__(self):
+        config = MCPServerConfig(
+            name="linear",
+            port=9004,
+            version="2.0.0"
+        )
         super().__init__(config)
         self.linear_client = None
 

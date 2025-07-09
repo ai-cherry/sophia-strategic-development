@@ -21,14 +21,14 @@ from .snowflake_cortex import (
 
 # Re-export for backward compatibility
 __all__ = [
-    "SnowflakeCortexService",
-    "CortexModel",
-    "TaskType",
-    "MCPMode",
-    "CortexError",
-    "CortexConnectionError",
     "CortexAuthenticationError",
+    "CortexConnectionError",
+    "CortexError",
+    "CortexModel",
     "CortexModelError",
     "CortexQuotaError",
+    "MCPMode",
     "MCPServerError",
+    "SnowflakeCortexService",
+    "TaskType",
 ]

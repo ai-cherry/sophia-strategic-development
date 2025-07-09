@@ -3,7 +3,7 @@
 import logging
 import random
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any
 
 from infrastructure.services.lambda_labs_serverless_service import (
     LambdaLabsServerlessService,
@@ -32,8 +32,8 @@ class LambdaLabsHybridRouter:
     def __init__(
         self,
         serverless_ratio: float = 0.8,
-        gpu_callback: Optional[Callable] = None,
-        complexity_analyzer: Optional[Callable] = None,
+        gpu_callback: Callable | None = None,
+        complexity_analyzer: Callable | None = None,
     ):
         """Initialize router with configurable split ratio.
 
@@ -50,9 +50,9 @@ class LambdaLabsHybridRouter:
     async def generate(
         self,
         messages: list[dict[str, str]],
-        model: Optional[str] = None,
+        model: str | None = None,
         cost_priority: str = "balanced",
-        force_backend: Optional[str] = None,
+        force_backend: str | None = None,
         **kwargs,
     ) -> dict[str, Any]:
         """Route to appropriate backend based on strategy.

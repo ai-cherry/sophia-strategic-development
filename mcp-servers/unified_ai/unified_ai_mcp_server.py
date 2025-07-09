@@ -6,9 +6,13 @@ Natural language infrastructure control with unified AI service integration
 import asyncio
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
-from mcp import McpServer, McpTool
+from mcp import McpTool
+from mcp_servers.base.unified_mcp_base import (
+    AIEngineMCPServer,
+    MCPServerConfig,
+)
 
 from infrastructure.services.unified_ai_orchestrator import (
     AIProvider,
@@ -19,14 +23,15 @@ from infrastructure.services.unified_ai_orchestrator import (
 logger = logging.getLogger(__name__)
 
 
-class UnifiedAIMCPServer(McpServer):
+class UnifiedAIMCPServer(AIEngineMCPServer):
     """
     MCP Server for unified AI operations
     Provides natural language control over Snowflake Cortex and Lambda Labs
     """
 
     def __init__(self):
-        super().__init__("unified-ai")
+        config = MCPServerConfig(name="unified-ai", port=9000, version="2.0.0")
+        super().__init__(config)
         self.orchestrator = UnifiedAIOrchestrator()
         self.tools = self._register_tools()
 
@@ -97,7 +102,7 @@ class UnifiedAIMCPServer(McpServer):
         self,
         prompt: str,
         provider: str = "auto",
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 1000,
         temperature: float = 0.7,
         cost_priority: str = "balanced",
@@ -182,7 +187,7 @@ class UnifiedAIMCPServer(McpServer):
             return {"success": False, "error": str(e)}
 
     async def sql_generation(
-        self, query: str, schema_context: Optional[str] = None
+        self, query: str, schema_context: str | None = None
     ) -> dict[str, Any]:
         """Generate SQL from natural language"""
 

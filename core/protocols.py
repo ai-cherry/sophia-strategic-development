@@ -1,6 +1,6 @@
 """Core protocols for Sophia AI platform."""
 
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 
 class AuditLoggerProtocol(Protocol):
@@ -14,8 +14,8 @@ class AuditLoggerProtocol(Protocol):
         self,
         event_type: str,
         event_data: dict[str, Any],
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
         severity: str = "info",
     ) -> None:
         """Log an audit event.
@@ -33,8 +33,8 @@ class AuditLoggerProtocol(Protocol):
         self,
         error: Exception,
         context: dict[str, Any],
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
     ) -> None:
         """Log an error with context.
 
@@ -51,8 +51,8 @@ class AuditLoggerProtocol(Protocol):
         action: str,
         resource: str,
         outcome: str,
-        user_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        user_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Log a security-relevant event.
 
@@ -70,7 +70,7 @@ class AuditLoggerProtocol(Protocol):
         workflow_id: str,
         event: str,
         state: dict[str, Any],
-        error: Optional[str] = None,
+        error: str | None = None,
     ) -> None:
         """Log a workflow execution event.
 

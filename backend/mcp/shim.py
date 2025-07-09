@@ -5,7 +5,7 @@ Replaces anthropic-mcp-python-sdk with a minimal FastAPI-based implementation
 
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, HTTPException
@@ -25,20 +25,20 @@ class MCPToolRequest(BaseModel):
 
     tool_name: str
     parameters: dict[str, Any] = Field(default_factory=dict)
-    context: Optional[dict[str, Any]] = Field(default_factory=dict)
+    context: dict[str, Any] | None = Field(default_factory=dict)
 
 
 class MCPToolResponse(BaseModel):
     """Standard MCP tool response format"""
 
     success: bool
-    result: Optional[Any] = None
-    error: Optional[str] = None
+    result: Any | None = None
+    error: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 def mcp_tool(
-    *, name: str, description: str, parameters: Optional[dict[str, Any]] = None
+    *, name: str, description: str, parameters: dict[str, Any] | None = None
 ):
     """
     Decorator to register a function as an MCP tool
@@ -144,13 +144,13 @@ class MCPServer:
         self.tools: dict[str, Callable] = {}
         self.logger = structlog.get_logger(name)
 
-    def register_tool(self, func: Callable, name: Optional[str] = None):
+    def register_tool(self, func: Callable, name: str | None = None):
         """Register a tool function"""
         tool_name = name or func.__name__
         self.tools[tool_name] = func
         self.logger.info(f"Registered tool: {tool_name}")
 
-    def get_tool(self, name: str) -> Optional[Callable]:
+    def get_tool(self, name: str) -> Callable | None:
         """Get a registered tool by name"""
         return self.tools.get(name)
 
@@ -201,11 +201,11 @@ class MCPServer:
 
 # Compatibility exports
 __all__ = [
-    "mcp_tool",
     "MCPServer",
     "MCPToolRequest",
     "MCPToolResponse",
-    "router",
-    "list_mcp_tools",
     "get_mcp_tool",
+    "list_mcp_tools",
+    "mcp_tool",
+    "router",
 ]

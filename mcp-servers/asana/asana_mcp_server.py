@@ -31,10 +31,18 @@ logger = logging.getLogger(__name__)
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-from backend.mcp_servers.base.unified_mcp_base import (
-    MCPServerConfig,
-    StandardizedMCPServer,
-)
+try:
+    from backend.core.auto_esc_config import get_config_value
+    # Add base directory to path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
+    from unified_mcp_base import (
+        ServiceMCPServer,
+        MCPServerConfig,
+    )
+except ImportError as e:
+    logger.error(f"Failed to import dependencies: {e}")
+    logger.error(f"Python path: {sys.path}")
+    sys.exit(1)
 
 # Try to import Asana
 try:
@@ -48,12 +56,15 @@ except ImportError:
     ApiException = Exception
 
 
-class AsanaMCPServer(StandardizedMCPServer):
+class AsanaMCPServer(ServiceMCPServer):
     """Asana integration MCP server."""
 
-    def __init__(self, config: MCPServerConfig | None = None):
-        if config is None:
-            config = MCPServerConfig(name="asana", port=9006, version="1.0.0")
+    def __init__(self):
+        config = MCPServerConfig(
+            name="asana",
+            port=9006,
+            version="2.0.0"
+        )
         super().__init__(config)
         self.asana_client = None
 
@@ -353,7 +364,7 @@ if __name__ == "__main__":
         import uvicorn
         from fastapi import APIRouter, FastAPI
 
-        app = FastAPI(title="Asana MCP Server")
+        # FastAPI app created by unified base
         router = APIRouter(prefix="/mcp/asana")
 
         @router.get("/health")

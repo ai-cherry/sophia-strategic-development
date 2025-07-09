@@ -13,7 +13,6 @@ import sys
 from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -31,7 +30,7 @@ class ValidationResult:
     passed: bool
     message: str
     severity: str  # "critical", "warning", "info"
-    details: Optional[dict] = None
+    details: dict | None = None
 
 
 class MigrationValidator:
@@ -69,7 +68,7 @@ class MigrationValidator:
         passed: bool,
         message: str,
         severity: str = "warning",
-        details: Optional[dict] = None,
+        details: dict | None = None,
     ):
         """Add validation result"""
         result = ValidationResult(category, check, passed, message, severity, details)

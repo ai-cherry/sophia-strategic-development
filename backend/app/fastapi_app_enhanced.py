@@ -5,27 +5,32 @@ Production-ready FastAPI application with Lambda Labs Serverless,
 cost monitoring, and intelligent AI orchestration.
 """
 
-import asyncio
 import logging
-from contextlib import asynccontextmanager
-from datetime import datetime
-from typing import Dict, Any
-import uvicorn
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import os
 import sys
+from contextlib import asynccontextmanager
+from datetime import datetime
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # Import Lambda Labs Serverless components
 from backend.api.lambda_labs_serverless_routes import router as lambda_serverless_router
+from backend.core.auto_esc_config import (
+    get_lambda_labs_serverless_config,
+    validate_lambda_labs_config,
+)
+from backend.services.lambda_labs_cost_monitor import (
+    get_cost_monitor,
+    start_cost_monitoring,
+)
 from backend.services.lambda_labs_serverless_service import get_lambda_service
-from backend.services.lambda_labs_cost_monitor import get_cost_monitor, start_cost_monitoring
 from backend.services.unified_chat_service_enhanced import get_enhanced_chat_service
-from backend.core.auto_esc_config import get_lambda_labs_serverless_config, validate_lambda_labs_config
 
 # Configure logging
 logging.basicConfig(
@@ -45,71 +50,71 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     logger.info("🚀 Starting Lambda Labs Serverless FastAPI application")
-    
+
     try:
         # Validate configuration
         if not validate_lambda_labs_config():
             raise ValueError("Lambda Labs configuration validation failed")
-        
+
         # Initialize services
         logger.info("Initializing Lambda Labs Serverless service...")
         lambda_service = await get_lambda_service()
-        
+
         # Test service health
         health_check = await lambda_service.health_check()
         if health_check["status"] != "healthy":
             logger.warning(f"Lambda Labs service health check warning: {health_check}")
-        
+
         # Initialize cost monitor
         logger.info("Initializing cost monitor...")
         cost_monitor = await get_cost_monitor()
-        
+
         # Start cost monitoring
         logger.info("Starting cost monitoring...")
         await start_cost_monitoring()
-        
+
         # Initialize enhanced chat service
         logger.info("Initializing enhanced chat service...")
         chat_service = await get_enhanced_chat_service()
-        
+
         # Test chat service
         chat_health = await chat_service.health_check()
         if chat_health["overall_status"] == "unhealthy":
             logger.warning(f"Chat service health check warning: {chat_health}")
-        
+
         # Store services in app state
         app.state.lambda_service = lambda_service
         app.state.cost_monitor = cost_monitor
         app.state.chat_service = chat_service
-        
+
         # Log startup summary
         config = get_lambda_labs_serverless_config()
-        logger.info(f"✅ Lambda Labs Serverless started successfully")
+        logger.info("✅ Lambda Labs Serverless started successfully")
         logger.info(f"   Models available: {len(lambda_service.models)}")
         logger.info(f"   Daily budget: ${config.get('daily_budget', 0)}")
         logger.info(f"   Routing strategy: {config.get('routing_strategy')}")
         logger.info(f"   Monitoring active: {cost_monitor.monitoring_task is not None}")
-        
+
         yield
-        
+
     except Exception as e:
         logger.error(f"❌ Startup failed: {e}")
         raise
-    
+
     # Shutdown
     logger.info("🛑 Shutting down Lambda Labs Serverless application")
-    
+
     try:
         # Stop cost monitoring
         if hasattr(app.state, 'cost_monitor'):
             await app.state.cost_monitor.stop_monitoring()
-        
+
         # Close Lambda Labs service
         if hasattr(app.state, 'lambda_service'):
             await app.state.lambda_service.close()
-        
+
         logger.info("✅ Shutdown completed successfully")
-        
+
     except Exception as e:
         logger.error(f"❌ Shutdown error: {e}")
 
@@ -148,7 +153,7 @@ async def health_check():
             "timestamp": datetime.now().isoformat(),
             "services": {}
         }
-        
+
         # Check Lambda Labs service
         try:
             lambda_service = await get_lambda_service()
@@ -159,7 +164,7 @@ async def health_check():
                 "status": "unhealthy",
                 "error": str(e)
             }
-        
+
         # Check cost monitor
         try:
             cost_monitor = await get_cost_monitor()
@@ -175,7 +180,7 @@ async def health_check():
                 "status": "unhealthy",
                 "error": str(e)
             }
-        
+
         # Check enhanced chat service
         try:
             chat_service = await get_enhanced_chat_service()
@@ -189,20 +194,20 @@ async def health_check():
                 "status": "unhealthy",
                 "error": str(e)
             }
-        
+
         # Determine overall status
         service_statuses = [
-            service.get("status", "unknown") 
+            service.get("status", "unknown")
             for service in health_status["services"].values()
         ]
-        
+
         if any(status == "unhealthy" for status in service_statuses):
             health_status["status"] = "degraded"
         elif any(status not in ["healthy", "degraded"] for status in service_statuses):
             health_status["status"] = "unknown"
-        
+
         return health_status
-        
+
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {
@@ -221,7 +226,7 @@ async def root():
     try:
         config = get_lambda_labs_serverless_config()
         lambda_service = await get_lambda_service()
-        
+
         return {
             "message": "Sophia AI - Lambda Labs Serverless",
             "version": "1.0.0",
@@ -246,7 +251,7 @@ async def root():
             },
             "timestamp": datetime.now().isoformat()
         }
-        
+
     except Exception as e:
         logger.error(f"Root endpoint error: {e}")
         return {
@@ -270,10 +275,10 @@ async def simple_chat(request: dict):
         message = request.get("message", "")
         if not message:
             raise HTTPException(status_code=400, detail="Message is required")
-        
+
         chat_service = await get_enhanced_chat_service()
         result = await chat_service.chat_completion(message)
-        
+
         return {
             "response": result["response"],
             "metadata": {
@@ -284,7 +289,7 @@ async def simple_chat(request: dict):
                 "cached": result["cached"]
             }
         }
-        
+
     except Exception as e:
         logger.error(f"Simple chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -302,20 +307,20 @@ async def simple_analyze(request: dict):
     try:
         data = request.get("data", "")
         analysis_type = request.get("type", "general")
-        
+
         if not data:
             raise HTTPException(status_code=400, detail="Data is required")
-        
+
         chat_service = await get_enhanced_chat_service()
-        
+
         # Create analysis prompt
         analysis_prompt = f"Analyze the following {analysis_type} data:\n\n{data}"
-        
+
         result = await chat_service.chat_completion(
             analysis_prompt,
             {"analysis_type": analysis_type}
         )
-        
+
         return {
             "analysis": result["response"],
             "metadata": {
@@ -326,7 +331,7 @@ async def simple_analyze(request: dict):
                 "analysis_type": analysis_type
             }
         }
-        
+
     except Exception as e:
         logger.error(f"Simple analyze error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -343,12 +348,12 @@ async def dashboard():
         lambda_service = await get_lambda_service()
         cost_monitor = await get_cost_monitor()
         chat_service = await get_enhanced_chat_service()
-        
+
         # Get statistics
         usage_stats = await lambda_service.get_usage_stats()
         cost_report = await cost_monitor.get_cost_report()
         performance_stats = await chat_service.get_performance_stats()
-        
+
         return {
             "title": "Lambda Labs Serverless Dashboard",
             "timestamp": datetime.now().isoformat(),
@@ -377,7 +382,7 @@ async def dashboard():
                 "fallback_chain": lambda_service.fallback_chain
             }
         }
-        
+
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -391,7 +396,7 @@ async def get_configuration():
     """
     try:
         config = get_lambda_labs_serverless_config()
-        
+
         # Remove sensitive data
         safe_config = {
             "inference_endpoint": config.get("inference_endpoint"),
@@ -405,12 +410,12 @@ async def get_configuration():
             "max_input_tokens": config.get("max_input_tokens"),
             "max_output_tokens": config.get("max_output_tokens")
         }
-        
+
         return {
             "configuration": safe_config,
             "timestamp": datetime.now().isoformat()
         }
-        
+
     except Exception as e:
         logger.error(f"Configuration endpoint error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -449,13 +454,13 @@ if __name__ == "__main__":
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8000"))
     reload = os.getenv("ENVIRONMENT", "prod") != "prod"
-    
+
     logger.info(f"Starting Lambda Labs Serverless FastAPI server on {host}:{port}")
-    
+
     uvicorn.run(
         "backend.app.fastapi_app_enhanced:app",
         host=host,
         port=port,
         reload=reload,
         log_level="info"
-    ) 
+    )

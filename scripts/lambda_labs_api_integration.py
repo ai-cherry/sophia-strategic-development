@@ -6,7 +6,7 @@ Handles both Inference API and Cloud API with proper authentication
 
 import logging
 import os
-from typing import Any, Optional
+from typing import Any
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -223,7 +223,7 @@ class LambdaLabsAPIClient:
             # For now, we'll use serverless as fallback
             return self.inference_completion(model, prompt, **kwargs)
 
-    def get_instance_by_name(self, name: str) -> Optional[dict[str, Any]]:
+    def get_instance_by_name(self, name: str) -> dict[str, Any] | None:
         """Find an instance by name"""
         instances = self.list_instances()
         for instance in instances:
@@ -275,7 +275,7 @@ def test_cloud_api():
         return False
 
 
-def get_instance_ssh_command(instance_name: str) -> Optional[str]:
+def get_instance_ssh_command(instance_name: str) -> str | None:
     """Get SSH command for connecting to an instance"""
     client = LambdaLabsAPIClient()
 

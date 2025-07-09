@@ -16,22 +16,22 @@ Date: July 9, 2025
 
 import asyncio
 import json
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
-from langgraph.graph import StateGraph, START, END
-from pydantic import BaseModel
+from langgraph.graph import END, START, StateGraph
+
+from backend.services.ai_memory_service import AIMemoryService
+from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
+from backend.services.web_search_service import WebSearchService
+from infrastructure.services.snowflake_cortex_service import SnowflakeCortexService
 
 # Import existing Sophia AI components
 from infrastructure.services.sophia_ai_orchestrator import SophiaAIOrchestrator
-from infrastructure.services.snowflake_cortex_service import SnowflakeCortexService
-from backend.services.ai_memory_service import AIMemoryService
-from backend.services.web_search_service import WebSearchService
-from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -49,71 +49,71 @@ class AgentType(Enum):
 @dataclass
 class EnhancedOrchestrationState:
     """Enhanced orchestration state with complete ecosystem awareness"""
-    
+
     # Core request data
     query: str = ""
-    context: Dict[str, Any] = field(default_factory=dict)
-    
+    context: dict[str, Any] = field(default_factory=dict)
+
     # Date/time system
     current_date: str = "July 9, 2025"
     current_timestamp: str = "2025-07-09T00:00:00Z"
     system_date_validated: bool = False
-    
+
     # Complete ecosystem data sources
-    ecosystem_data: Dict[str, Any] = field(default_factory=dict)
-    
+    ecosystem_data: dict[str, Any] = field(default_factory=dict)
+
     # Agent selection and execution
-    selected_agents: List[str] = field(default_factory=list)
-    agent_results: Dict[str, Any] = field(default_factory=dict)
+    selected_agents: list[str] = field(default_factory=list)
+    agent_results: dict[str, Any] = field(default_factory=dict)
     execution_strategy: str = "parallel"
-    
+
     # Results and synthesis
-    raw_results: List[Dict[str, Any]] = field(default_factory=list)
-    fused_results: List[Dict[str, Any]] = field(default_factory=list)
-    final_response: Dict[str, Any] = field(default_factory=dict)
-    
+    raw_results: list[dict[str, Any]] = field(default_factory=list)
+    fused_results: list[dict[str, Any]] = field(default_factory=list)
+    final_response: dict[str, Any] = field(default_factory=dict)
+
     # Metrics and monitoring
-    execution_metrics: Dict[str, Any] = field(default_factory=dict)
+    execution_metrics: dict[str, Any] = field(default_factory=dict)
     confidence_score: float = 0.0
     processing_time: float = 0.0
-    
+
     # Error handling
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
     fallback_triggered: bool = False
 
 
 class DatabaseSearchAgent:
     """Specialized agent for database and knowledge base search"""
-    
+
     def __init__(self):
         self.knowledge_service = FoundationalKnowledgeService()
         self.ai_memory_service = AIMemoryService()
         self.snowflake_cortex = SnowflakeCortexService()
-        
-    async def search(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def search(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute database search with enhanced context"""
         try:
             # Inject current date context
             enhanced_query = f"Current date: {context.get('current_date', 'July 9, 2025')}. {query}"
-            
+
             # Search knowledge base
             knowledge_results = await self.knowledge_service.search_knowledge(
                 query=enhanced_query,
                 context=context
             )
-            
+
             # Search AI memory
             memory_results = await self.ai_memory_service.search_memories(
                 query=enhanced_query,
                 limit=10
             )
-            
+
             # Search Snowflake with Cortex
             cortex_results = await self.snowflake_cortex.semantic_search(
                 query=enhanced_query,
                 limit=10
             )
-            
+
             return {
                 "agent_type": "database",
                 "success": True,
@@ -126,7 +126,7 @@ class DatabaseSearchAgent:
                 "processing_time": 0.5,
                 "current_date": context.get('current_date', 'July 9, 2025')
             }
-            
+
         except Exception as e:
             logger.error(f"Database search error: {e}")
             return {
@@ -143,15 +143,15 @@ class BusinessIntelligenceAgent:
     Specialized agent for complete business intelligence ecosystem
     Includes: Gong, HubSpot, Salesforce, financial data, customer intelligence
     """
-    
+
     def __init__(self):
         self.snowflake_cortex = SnowflakeCortexService()
-        
-    async def analyze_business_context(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def analyze_business_context(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Analyze complete business context across all systems"""
         try:
             current_date = context.get('current_date', 'July 9, 2025')
-            
+
             # Parallel data gathering from all business systems
             business_data = await asyncio.gather(
                 self._get_gong_intelligence(query, current_date),
@@ -161,10 +161,10 @@ class BusinessIntelligenceAgent:
                 self._get_customer_health_data(query, current_date),
                 return_exceptions=True
             )
-            
+
             # Process results
             gong_data, hubspot_data, salesforce_data, financial_data, customer_data = business_data
-            
+
             return {
                 "agent_type": "business_intelligence",
                 "success": True,
@@ -179,7 +179,7 @@ class BusinessIntelligenceAgent:
                 "processing_time": 2.0,
                 "current_date": current_date
             }
-            
+
         except Exception as e:
             logger.error(f"Business intelligence error: {e}")
             return {
@@ -189,10 +189,10 @@ class BusinessIntelligenceAgent:
                 "confidence": 0.0,
                 "processing_time": 0.0
             }
-    
-    async def _get_gong_intelligence(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_gong_intelligence(self, query: str, current_date: str) -> dict[str, Any]:
         """Get comprehensive Gong conversation intelligence"""
-        
+
         # Use Snowflake Cortex to analyze Gong data
         gong_analysis = await self.snowflake_cortex.execute_query(f"""
         SELECT 
@@ -220,7 +220,7 @@ class BusinessIntelligenceAgent:
         ORDER BY gc.call_date DESC
         LIMIT 20
         """)
-        
+
         return {
             "source": "gong",
             "data_type": "conversation_intelligence",
@@ -228,10 +228,10 @@ class BusinessIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_hubspot_insights(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_hubspot_insights(self, query: str, current_date: str) -> dict[str, Any]:
         """Get HubSpot CRM insights"""
-        
+
         hubspot_analysis = await self.snowflake_cortex.execute_query(f"""
         SELECT 
             h.deal_id,
@@ -256,7 +256,7 @@ class BusinessIntelligenceAgent:
         ORDER BY h.last_activity_date DESC
         LIMIT 20
         """)
-        
+
         return {
             "source": "hubspot",
             "data_type": "crm_intelligence",
@@ -264,8 +264,8 @@ class BusinessIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_salesforce_data(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_salesforce_data(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Salesforce data if available"""
         # Placeholder for Salesforce integration
         return {
@@ -275,11 +275,11 @@ class BusinessIntelligenceAgent:
             "analysis_date": current_date,
             "note": "Salesforce integration pending"
         }
-    
-    async def _get_financial_metrics(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_financial_metrics(self, query: str, current_date: str) -> dict[str, Any]:
         """Get financial metrics and KPIs"""
-        
-        financial_analysis = await self.snowflake_cortex.execute_query(f"""
+
+        financial_analysis = await self.snowflake_cortex.execute_query("""
         SELECT 
             'revenue' as metric_type,
             SUM(amount) as total_amount,
@@ -291,7 +291,7 @@ class BusinessIntelligenceAgent:
         GROUP BY DATE_TRUNC('month', transaction_date)
         ORDER BY period DESC
         """)
-        
+
         return {
             "source": "financial_systems",
             "data_type": "financial_metrics",
@@ -299,11 +299,11 @@ class BusinessIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_customer_health_data(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_customer_health_data(self, query: str, current_date: str) -> dict[str, Any]:
         """Get customer health and satisfaction data"""
-        
-        customer_health = await self.snowflake_cortex.execute_query(f"""
+
+        customer_health = await self.snowflake_cortex.execute_query("""
         SELECT 
             customer_id,
             customer_name,
@@ -318,7 +318,7 @@ class BusinessIntelligenceAgent:
         ORDER BY health_score ASC, churn_risk_score DESC
         LIMIT 20
         """)
-        
+
         return {
             "source": "customer_health",
             "data_type": "customer_intelligence",
@@ -333,15 +333,15 @@ class CommunicationIntelligenceAgent:
     Specialized agent for communication systems intelligence
     Includes: Slack, Teams, Intercom, support channels
     """
-    
+
     def __init__(self):
         self.snowflake_cortex = SnowflakeCortexService()
-        
-    async def analyze_communication_context(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def analyze_communication_context(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Analyze communication context across all channels"""
         try:
             current_date = context.get('current_date', 'July 9, 2025')
-            
+
             # Parallel communication data gathering
             comm_data = await asyncio.gather(
                 self._get_slack_intelligence(query, current_date),
@@ -350,9 +350,9 @@ class CommunicationIntelligenceAgent:
                 self._get_support_channel_data(query, current_date),
                 return_exceptions=True
             )
-            
+
             slack_data, teams_data, intercom_data, support_data = comm_data
-            
+
             return {
                 "agent_type": "communication_intelligence",
                 "success": True,
@@ -366,7 +366,7 @@ class CommunicationIntelligenceAgent:
                 "processing_time": 1.5,
                 "current_date": current_date
             }
-            
+
         except Exception as e:
             logger.error(f"Communication intelligence error: {e}")
             return {
@@ -376,10 +376,10 @@ class CommunicationIntelligenceAgent:
                 "confidence": 0.0,
                 "processing_time": 0.0
             }
-    
-    async def _get_slack_intelligence(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_slack_intelligence(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Slack conversation intelligence"""
-        
+
         slack_analysis = await self.snowflake_cortex.execute_query(f"""
         SELECT 
             s.channel_name,
@@ -402,7 +402,7 @@ class CommunicationIntelligenceAgent:
         ORDER BY s.message_timestamp DESC
         LIMIT 50
         """)
-        
+
         return {
             "source": "slack",
             "data_type": "team_communication",
@@ -410,8 +410,8 @@ class CommunicationIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_teams_data(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_teams_data(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Microsoft Teams data if available"""
         # Placeholder for Teams integration
         return {
@@ -421,8 +421,8 @@ class CommunicationIntelligenceAgent:
             "analysis_date": current_date,
             "note": "Teams integration pending"
         }
-    
-    async def _get_intercom_insights(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_intercom_insights(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Intercom customer communication insights"""
         # Placeholder for Intercom integration
         return {
@@ -432,8 +432,8 @@ class CommunicationIntelligenceAgent:
             "analysis_date": current_date,
             "note": "Intercom integration pending"
         }
-    
-    async def _get_support_channel_data(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_support_channel_data(self, query: str, current_date: str) -> dict[str, Any]:
         """Get support channel communication data"""
         # Placeholder for support channels
         return {
@@ -447,23 +447,23 @@ class CommunicationIntelligenceAgent:
 
 class WebSearchAgent:
     """Specialized agent for web search with date awareness"""
-    
+
     def __init__(self):
         self.web_search_service = WebSearchService()
-        
-    async def search(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def search(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute web search with current date context"""
         try:
             # Inject current date for temporal relevance
             current_date = context.get('current_date', 'July 9, 2025')
             enhanced_query = f"Current date: {current_date}. {query}"
-            
+
             # Execute web search
             search_results = await self.web_search_service.search(
                 query=enhanced_query,
                 num_results=10
             )
-            
+
             return {
                 "agent_type": "web_search",
                 "success": True,
@@ -472,7 +472,7 @@ class WebSearchAgent:
                 "processing_time": 1.2,
                 "current_date": current_date
             }
-            
+
         except Exception as e:
             logger.error(f"Web search error: {e}")
             return {
@@ -489,16 +489,16 @@ class ProjectIntelligenceAgent:
     Specialized agent for project and task management intelligence
     Includes: Linear, Asana, Notion, GitHub, project health assessment
     """
-    
+
     def __init__(self):
         self.sophia_orchestrator = SophiaAIOrchestrator()
         self.snowflake_cortex = SnowflakeCortexService()
-        
-    async def analyze_project_context(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def analyze_project_context(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Analyze project context across all project management systems"""
         try:
             current_date = context.get('current_date', 'July 9, 2025')
-            
+
             # Parallel project data gathering
             project_data = await asyncio.gather(
                 self._get_linear_intelligence(query, current_date),
@@ -508,9 +508,9 @@ class ProjectIntelligenceAgent:
                 self._assess_project_health(query, current_date),
                 return_exceptions=True
             )
-            
+
             linear_data, asana_data, notion_data, github_data, health_data = project_data
-            
+
             return {
                 "agent_type": "project_intelligence",
                 "success": True,
@@ -525,7 +525,7 @@ class ProjectIntelligenceAgent:
                 "processing_time": 2.0,
                 "current_date": current_date
             }
-            
+
         except Exception as e:
             logger.error(f"Project intelligence error: {e}")
             return {
@@ -535,10 +535,10 @@ class ProjectIntelligenceAgent:
                 "confidence": 0.0,
                 "processing_time": 0.0
             }
-    
-    async def _get_linear_intelligence(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_linear_intelligence(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Linear engineering task intelligence"""
-        
+
         linear_analysis = await self.snowflake_cortex.execute_query(f"""
         SELECT 
             l.issue_id,
@@ -565,7 +565,7 @@ class ProjectIntelligenceAgent:
         ORDER BY l.updated_date DESC
         LIMIT 30
         """)
-        
+
         return {
             "source": "linear",
             "data_type": "engineering_tasks",
@@ -573,10 +573,10 @@ class ProjectIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_asana_insights(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_asana_insights(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Asana project management insights"""
-        
+
         asana_analysis = await self.snowflake_cortex.execute_query(f"""
         SELECT 
             a.task_id,
@@ -601,7 +601,7 @@ class ProjectIntelligenceAgent:
         ORDER BY a.created_date DESC
         LIMIT 30
         """)
-        
+
         return {
             "source": "asana",
             "data_type": "project_tasks",
@@ -609,10 +609,10 @@ class ProjectIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_notion_data(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_notion_data(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Notion documentation and knowledge data"""
-        
+
         notion_analysis = await self.snowflake_cortex.execute_query(f"""
         SELECT 
             n.page_id,
@@ -634,7 +634,7 @@ class ProjectIntelligenceAgent:
         ORDER BY n.last_edited_date DESC
         LIMIT 20
         """)
-        
+
         return {
             "source": "notion",
             "data_type": "documentation",
@@ -642,8 +642,8 @@ class ProjectIntelligenceAgent:
             "analysis_date": current_date,
             "query_context": query
         }
-    
-    async def _get_github_activity(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _get_github_activity(self, query: str, current_date: str) -> dict[str, Any]:
         """Get GitHub development activity"""
         # Placeholder for GitHub integration
         return {
@@ -653,10 +653,10 @@ class ProjectIntelligenceAgent:
             "analysis_date": current_date,
             "note": "GitHub integration pending"
         }
-    
-    async def _assess_project_health(self, query: str, current_date: str) -> Dict[str, Any]:
+
+    async def _assess_project_health(self, query: str, current_date: str) -> dict[str, Any]:
         """Assess overall project health across all systems"""
-        
+
         # Cross-system project health analysis
         health_analysis = await self.snowflake_cortex.complete_text(f"""
         Analyze project health for query: {query} as of {current_date}
@@ -674,7 +674,7 @@ class ProjectIntelligenceAgent:
         - Recommendations for improvement
         - Key metrics and trends
         """)
-        
+
         return {
             "source": "cross_system_analysis",
             "data_type": "project_health_assessment",
@@ -686,23 +686,23 @@ class ProjectIntelligenceAgent:
 
 class SynthesisAgent:
     """Specialized agent for result synthesis and fusion across ALL ecosystem data"""
-    
+
     def __init__(self):
         self.snowflake_cortex = SnowflakeCortexService()
-        
-    async def synthesize_results(self, agent_results: List[Dict[str, Any]], query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def synthesize_results(self, agent_results: list[dict[str, Any]], query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Synthesize results from ALL agents across the complete ecosystem"""
         try:
             # Filter successful results
             successful_results = [r for r in agent_results if r.get("success", False)]
-            
+
             if not successful_results:
                 return {
                     "success": False,
                     "error": "No successful agent results to synthesize",
                     "confidence": 0.0
                 }
-            
+
             # Create comprehensive synthesis prompt with ecosystem context
             synthesis_prompt = f"""
             Current date: {context.get('current_date', 'July 9, 2025')}
@@ -738,17 +738,17 @@ class SynthesisAgent:
             
             Provide a comprehensive response that demonstrates the power of unified ecosystem intelligence.
             """
-            
+
             # Use Snowflake Cortex for synthesis
             synthesis_response = await self.snowflake_cortex.complete_text(
                 prompt=synthesis_prompt,
                 max_tokens=2000
             )
-            
+
             # Calculate overall confidence
             confidence_scores = [r.get("confidence", 0.0) for r in successful_results]
             overall_confidence = sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0.0
-            
+
             # Extract data sources used
             sources_used = []
             for result in successful_results:
@@ -761,7 +761,7 @@ class SynthesisAgent:
                     sources_used.extend(["linear", "asana", "notion", "github"])
                 else:
                     sources_used.append(agent_type)
-            
+
             return {
                 "success": True,
                 "synthesized_response": synthesis_response,
@@ -771,7 +771,7 @@ class SynthesisAgent:
                 "cross_system_patterns": self._identify_cross_system_patterns(successful_results),
                 "current_date": context.get('current_date', 'July 9, 2025')
             }
-            
+
         except Exception as e:
             logger.error(f"Synthesis error: {e}")
             return {
@@ -779,23 +779,23 @@ class SynthesisAgent:
                 "error": str(e),
                 "confidence": 0.0
             }
-    
-    def _identify_cross_system_patterns(self, results: List[Dict[str, Any]]) -> List[str]:
+
+    def _identify_cross_system_patterns(self, results: list[dict[str, Any]]) -> list[str]:
         """Identify patterns that appear across multiple systems"""
         patterns = []
-        
+
         # Look for common themes across different data sources
         all_text = ""
         for result in results:
             if isinstance(result.get("results"), dict):
                 all_text += json.dumps(result["results"]) + " "
-        
+
         # Simple pattern detection (could be enhanced with ML)
         common_keywords = ["project", "customer", "risk", "timeline", "completion", "feedback", "issue"]
         for keyword in common_keywords:
             if all_text.lower().count(keyword) >= 3:  # Appears in multiple sources
                 patterns.append(f"Cross-system pattern: {keyword} mentioned across multiple data sources")
-        
+
         return patterns
 
 
@@ -803,11 +803,11 @@ class EnhancedMultiAgentOrchestrator:
     """
     Enhanced multi-agent coordination with COMPLETE Pay Ready ecosystem access
     """
-    
+
     def __init__(self):
         # Leverage existing Sophia AI Orchestrator
         self.sophia_orchestrator = SophiaAIOrchestrator()
-        
+
         # Initialize specialized agents for complete ecosystem access
         self.database_agent = DatabaseSearchAgent()
         self.business_intelligence_agent = BusinessIntelligenceAgent()
@@ -815,34 +815,34 @@ class EnhancedMultiAgentOrchestrator:
         self.web_search_agent = WebSearchAgent()
         self.project_intelligence_agent = ProjectIntelligenceAgent()
         self.synthesis_agent = SynthesisAgent()
-        
+
         # Enhanced LangGraph workflow
         self.workflow = self._create_enhanced_workflow()
-        
+
         # Date/time system fix
         self.current_date = "July 9, 2025"
         self.current_timestamp = "2025-07-09T00:00:00Z"
-        
+
         # Progress streaming callbacks
         self.progress_callbacks = []
-        
+
     def _create_enhanced_workflow(self) -> StateGraph:
         """Create enhanced LangGraph workflow with parallel execution across complete ecosystem"""
         workflow = StateGraph(EnhancedOrchestrationState)
-        
+
         # Query analysis and routing
         workflow.add_node("date_validation", self._validate_current_date)
         workflow.add_node("ecosystem_analysis", self._analyze_ecosystem_requirements)
         workflow.add_node("agent_selection", self._select_optimal_agents)
-        
+
         # Parallel ecosystem agent execution
         workflow.add_node("parallel_ecosystem_execution", self._execute_parallel_ecosystem_agents)
         workflow.add_node("cross_system_correlation", self._correlate_cross_system_data)
-        
+
         # Response generation
         workflow.add_node("ecosystem_synthesis", self._synthesize_ecosystem_response)
         workflow.add_node("quality_validation", self._validate_response)
-        
+
         # Workflow edges
         workflow.add_edge(START, "date_validation")
         workflow.add_edge("date_validation", "ecosystem_analysis")
@@ -852,22 +852,22 @@ class EnhancedMultiAgentOrchestrator:
         workflow.add_edge("cross_system_correlation", "ecosystem_synthesis")
         workflow.add_edge("ecosystem_synthesis", "quality_validation")
         workflow.add_edge("quality_validation", END)
-        
+
         return workflow.compile()
-    
+
     async def _validate_current_date(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Ensure system understands current date is July 9, 2025"""
-        
+
         # Override with correct date
         state.current_date = self.current_date
         state.current_timestamp = self.current_timestamp
         state.system_date_validated = True
-        
+
         # Inject into context
         state.context["current_date"] = self.current_date
         state.context["current_timestamp"] = self.current_timestamp
         state.context["system_date_validated"] = True
-        
+
         # Stream progress update
         await self._stream_progress({
             "type": "date_validation",
@@ -875,15 +875,15 @@ class EnhancedMultiAgentOrchestrator:
             "current_date": self.current_date,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
+
     async def _analyze_ecosystem_requirements(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Analyze ecosystem requirements with complete ecosystem awareness"""
-        
+
         # Inject current date into ecosystem analysis
         enhanced_query = f"Current date: {state.current_date}. Query: {state.query}"
-        
+
         # Analyze ecosystem requirements
         ecosystem_analysis = {
             "requires_database": self._needs_database_search(state.query),
@@ -894,10 +894,10 @@ class EnhancedMultiAgentOrchestrator:
             "temporal_relevance": self._assess_temporal_relevance(state.query),
             "date_context": state.current_date
         }
-        
+
         # Store analysis in state
         state.context["ecosystem_analysis"] = ecosystem_analysis
-        
+
         # Stream progress update
         await self._stream_progress({
             "type": "ecosystem_analysis",
@@ -905,36 +905,36 @@ class EnhancedMultiAgentOrchestrator:
             "analysis": ecosystem_analysis,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
+
     async def _select_optimal_agents(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Select optimal agent combination based on ecosystem analysis"""
-        
+
         ecosystem_analysis = state.context.get("ecosystem_analysis", {})
         selected_agents = []
-        
+
         # Always include database search for knowledge base
         selected_agents.append(AgentType.DATABASE.value)
-        
+
         # Add web search for current information
         if ecosystem_analysis.get("requires_web_search") or ecosystem_analysis.get("temporal_relevance"):
             selected_agents.append(AgentType.WEB_SEARCH.value)
-        
+
         # Add project intelligence for business queries
         if ecosystem_analysis.get("requires_project_data"):
             selected_agents.append(AgentType.PROJECT_INTELLIGENCE.value)
-        
+
         # Add browser automation for complex tasks (Phase 2)
         if ecosystem_analysis.get("requires_automation"):
             selected_agents.append(AgentType.BROWSER_AUTOMATION.value)
-        
+
         # Always include synthesis
         selected_agents.append(AgentType.SYNTHESIS.value)
-        
+
         state.selected_agents = selected_agents
         state.execution_strategy = "parallel"
-        
+
         # Stream progress update
         await self._stream_progress({
             "type": "agent_selection",
@@ -943,15 +943,15 @@ class EnhancedMultiAgentOrchestrator:
             "execution_strategy": state.execution_strategy,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
+
     async def _execute_parallel_ecosystem_agents(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Execute multiple agents in parallel with real-time updates"""
-        
+
         start_time = datetime.now()
         tasks = []
-        
+
         # Create tasks for selected agents
         for agent_type in state.selected_agents:
             if agent_type == AgentType.DATABASE.value:
@@ -962,28 +962,27 @@ class EnhancedMultiAgentOrchestrator:
                 tasks.append(self._execute_browser_automation(state))
             elif agent_type == AgentType.PROJECT_INTELLIGENCE.value:
                 tasks.append(self._execute_project_intelligence(state))
-        
+
         # Execute in parallel with progress tracking
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Process results
         successful_results = []
         failed_results = []
-        
+
         for result in results:
             if isinstance(result, Exception):
                 failed_results.append({"error": str(result)})
+            elif result.get("success", False):
+                successful_results.append(result)
             else:
-                if result.get("success", False):
-                    successful_results.append(result)
-                else:
-                    failed_results.append(result)
-        
+                failed_results.append(result)
+
         # Calculate execution metrics
         end_time = datetime.now()
         execution_time = (end_time - start_time).total_seconds()
         success_rate = len(successful_results) / len(results) if results else 0
-        
+
         state.agent_results = {
             "successful": successful_results,
             "failed": failed_results
@@ -994,7 +993,7 @@ class EnhancedMultiAgentOrchestrator:
             "total_agents": len(state.selected_agents),
             "successful_agents": len(successful_results)
         }
-        
+
         # Stream progress update
         await self._stream_progress({
             "type": "parallel_ecosystem_execution",
@@ -1004,10 +1003,10 @@ class EnhancedMultiAgentOrchestrator:
             "results_count": len(successful_results),
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
-    async def _execute_database_search(self, state: EnhancedOrchestrationState) -> Dict[str, Any]:
+
+    async def _execute_database_search(self, state: EnhancedOrchestrationState) -> dict[str, Any]:
         """Execute database search agent"""
         await self._stream_progress({
             "type": "agent_progress",
@@ -1015,9 +1014,9 @@ class EnhancedMultiAgentOrchestrator:
             "status": "executing",
             "timestamp": datetime.now().isoformat()
         })
-        
+
         result = await self.database_agent.search(state.query, state.context)
-        
+
         await self._stream_progress({
             "type": "agent_progress",
             "agent": "database",
@@ -1025,10 +1024,10 @@ class EnhancedMultiAgentOrchestrator:
             "result": result,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return result
-    
-    async def _execute_web_search(self, state: EnhancedOrchestrationState) -> Dict[str, Any]:
+
+    async def _execute_web_search(self, state: EnhancedOrchestrationState) -> dict[str, Any]:
         """Execute web search agent"""
         await self._stream_progress({
             "type": "agent_progress",
@@ -1036,9 +1035,9 @@ class EnhancedMultiAgentOrchestrator:
             "status": "executing",
             "timestamp": datetime.now().isoformat()
         })
-        
+
         result = await self.web_search_agent.search(state.query, state.context)
-        
+
         await self._stream_progress({
             "type": "agent_progress",
             "agent": "web_search",
@@ -1046,10 +1045,10 @@ class EnhancedMultiAgentOrchestrator:
             "result": result,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return result
-    
-    async def _execute_browser_automation(self, state: EnhancedOrchestrationState) -> Dict[str, Any]:
+
+    async def _execute_browser_automation(self, state: EnhancedOrchestrationState) -> dict[str, Any]:
         """Execute browser automation agent"""
         await self._stream_progress({
             "type": "agent_progress",
@@ -1057,9 +1056,9 @@ class EnhancedMultiAgentOrchestrator:
             "status": "executing",
             "timestamp": datetime.now().isoformat()
         })
-        
+
         result = await self.synthesis_agent.execute_browser_automation(state.query, state.context)
-        
+
         await self._stream_progress({
             "type": "agent_progress",
             "agent": "browser_automation",
@@ -1067,10 +1066,10 @@ class EnhancedMultiAgentOrchestrator:
             "result": result,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return result
-    
-    async def _execute_project_intelligence(self, state: EnhancedOrchestrationState) -> Dict[str, Any]:
+
+    async def _execute_project_intelligence(self, state: EnhancedOrchestrationState) -> dict[str, Any]:
         """Execute project intelligence agent"""
         await self._stream_progress({
             "type": "agent_progress",
@@ -1078,9 +1077,9 @@ class EnhancedMultiAgentOrchestrator:
             "status": "executing",
             "timestamp": datetime.now().isoformat()
         })
-        
+
         result = await self.project_intelligence_agent.analyze_project_context(state.query, state.context)
-        
+
         await self._stream_progress({
             "type": "agent_progress",
             "agent": "project_intelligence",
@@ -1088,16 +1087,16 @@ class EnhancedMultiAgentOrchestrator:
             "result": result,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return result
-    
+
     async def _correlate_cross_system_data(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Correlate data across different systems"""
-        
+
         # Placeholder for cross-system data correlation
         state.raw_results = state.agent_results.get("successful", [])
         state.fused_results = state.raw_results  # Placeholder for cross-system fusion
-        
+
         await self._stream_progress({
             "type": "cross_system_correlation",
             "status": "completed",
@@ -1105,51 +1104,51 @@ class EnhancedMultiAgentOrchestrator:
             "results_count": len(state.fused_results),
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
+
     async def _synthesize_ecosystem_response(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Synthesize final response from ecosystem data"""
-        
+
         await self._stream_progress({
             "type": "ecosystem_synthesis",
             "status": "executing",
             "timestamp": datetime.now().isoformat()
         })
-        
+
         # Use synthesis agent to create final response
         synthesis_result = await self.synthesis_agent.synthesize_results(
             state.fused_results,
             state.query,
             state.context
         )
-        
+
         state.final_response = synthesis_result
         state.confidence_score = synthesis_result.get("confidence", 0.0)
-        
+
         await self._stream_progress({
             "type": "ecosystem_synthesis",
             "status": "completed",
             "confidence": state.confidence_score,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
+
     async def _validate_response(self, state: EnhancedOrchestrationState) -> EnhancedOrchestrationState:
         """Validate final response quality"""
-        
+
         # Basic validation
         response_valid = (
             state.final_response.get("success", False) and
             state.confidence_score > 0.3 and
             state.system_date_validated
         )
-        
+
         if not response_valid:
             state.fallback_triggered = True
             # Could trigger fallback to existing Sophia orchestrator
-        
+
         await self._stream_progress({
             "type": "quality_validation",
             "status": "completed",
@@ -1158,15 +1157,15 @@ class EnhancedMultiAgentOrchestrator:
             "date_validated": state.system_date_validated,
             "timestamp": datetime.now().isoformat()
         })
-        
+
         return state
-    
-    async def process_query(self, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+
+    async def process_query(self, query: str, context: dict[str, Any] = None) -> dict[str, Any]:
         """Process query through enhanced orchestration"""
-        
+
         if context is None:
             context = {}
-        
+
         # Initialize state
         state = EnhancedOrchestrationState(
             query=query,
@@ -1174,18 +1173,18 @@ class EnhancedMultiAgentOrchestrator:
             current_date=self.current_date,
             current_timestamp=self.current_timestamp
         )
-        
+
         start_time = datetime.now()
-        
+
         try:
             # Execute workflow
             final_state = await self.workflow.ainvoke(state)
-            
+
             # Calculate total processing time
             end_time = datetime.now()
             processing_time = (end_time - start_time).total_seconds()
             final_state.processing_time = processing_time
-            
+
             # Return comprehensive response
             return {
                 "success": final_state.final_response.get("success", False),
@@ -1199,23 +1198,26 @@ class EnhancedMultiAgentOrchestrator:
                 "sources": final_state.final_response.get("ecosystem_sources_used", []),
                 "fallback_triggered": final_state.fallback_triggered
             }
-            
+
         except Exception as e:
             logger.exception(f"Enhanced orchestration error: {e}")
-            
+
             # Fallback to existing Sophia orchestrator
             try:
-                from infrastructure.services.sophia_ai_orchestrator import OrchestrationRequest, RequestType
-                
+                from infrastructure.services.sophia_ai_orchestrator import (
+                    OrchestrationRequest,
+                    RequestType,
+                )
+
                 fallback_request = OrchestrationRequest(
                     request_type=RequestType.UNIFIED_INTELLIGENCE,
                     query=query,
                     context=context,
                     user_id="enhanced_orchestrator_fallback"
                 )
-                
+
                 fallback_response = await self.sophia_orchestrator.process_request(fallback_request)
-                
+
                 return {
                     "success": fallback_response.success,
                     "response": fallback_response.primary_response,
@@ -1227,13 +1229,13 @@ class EnhancedMultiAgentOrchestrator:
                     "fallback_triggered": True,
                     "fallback_reason": str(e)
                 }
-                
+
             except Exception as fallback_error:
                 logger.exception(f"Fallback orchestration error: {fallback_error}")
-                
+
                 return {
                     "success": False,
-                    "response": f"Orchestration failed: {str(e)}",
+                    "response": f"Orchestration failed: {e!s}",
                     "confidence": 0.0,
                     "processing_time": (datetime.now() - start_time).total_seconds(),
                     "agents_used": [],
@@ -1242,72 +1244,72 @@ class EnhancedMultiAgentOrchestrator:
                     "fallback_triggered": True,
                     "error": str(e)
                 }
-    
-    async def stream_process(self, query: str, context: Dict[str, Any] = None):
+
+    async def stream_process(self, query: str, context: dict[str, Any] = None):
         """Stream processing with real-time updates"""
-        
+
         # Store progress callback for streaming
         progress_updates = []
-        
+
         def capture_progress(update):
             progress_updates.append(update)
-        
+
         self.progress_callbacks.append(capture_progress)
-        
+
         try:
             # Process query
             result = await self.process_query(query, context)
-            
+
             # Yield all progress updates
             for update in progress_updates:
                 yield update
-            
+
             # Yield final result
             yield {
                 "type": "final_response",
                 "data": result,
                 "timestamp": datetime.now().isoformat()
             }
-            
+
         finally:
             # Clean up callback
             if capture_progress in self.progress_callbacks:
                 self.progress_callbacks.remove(capture_progress)
-    
-    async def _stream_progress(self, update: Dict[str, Any]):
+
+    async def _stream_progress(self, update: dict[str, Any]):
         """Stream progress update to all callbacks"""
         for callback in self.progress_callbacks:
             try:
                 callback(update)
             except Exception as e:
                 logger.error(f"Progress callback error: {e}")
-    
+
     # Helper methods for query analysis
     def _needs_database_search(self, query: str) -> bool:
         """Determine if query needs database search"""
         database_keywords = ["knowledge", "remember", "stored", "previous", "history", "data"]
         return any(keyword in query.lower() for keyword in database_keywords)
-    
+
     def _needs_web_search(self, query: str) -> bool:
         """Determine if query needs web search"""
         web_keywords = ["current", "latest", "recent", "news", "today", "now", "2025"]
         return any(keyword in query.lower() for keyword in web_keywords)
-    
+
     def _needs_browser_automation(self, query: str) -> bool:
         """Determine if query needs browser automation"""
         automation_keywords = ["automate", "click", "fill", "submit", "navigate", "browser"]
         return any(keyword in query.lower() for keyword in automation_keywords)
-    
+
     def _needs_project_intelligence(self, query: str) -> bool:
         """Determine if query needs project intelligence"""
         project_keywords = ["project", "business", "sales", "revenue", "customer", "team"]
-        
+
         # Enhanced: Check for Gong conversation intelligence keywords
         gong_keywords = ["conversation", "call", "meeting", "discussion", "feedback", "risk", "decision"]
-        
+
         return (any(keyword in query.lower() for keyword in project_keywords) or
                 any(keyword in query.lower() for keyword in gong_keywords))
-    
+
     def _assess_complexity(self, query: str) -> float:
         """Assess query complexity (0.0 to 1.0)"""
         complexity_factors = [
@@ -1317,8 +1319,8 @@ class EnhancedMultiAgentOrchestrator:
             any(word in query.lower() for word in ["analyze", "compare", "explain", "summarize"])  # Complex tasks
         ]
         return sum(complexity_factors) / len(complexity_factors)
-    
+
     def _assess_temporal_relevance(self, query: str) -> bool:
         """Assess if query has temporal relevance"""
         temporal_keywords = ["today", "current", "now", "recent", "latest", "2025", "july"]
-        return any(keyword in query.lower() for keyword in temporal_keywords) 
+        return any(keyword in query.lower() for keyword in temporal_keywords)

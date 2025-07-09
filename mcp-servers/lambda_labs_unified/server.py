@@ -1,7 +1,6 @@
 """Unified Lambda Labs MCP server with natural language control."""
 
 import asyncio
-from typing import Optional
 
 from mcp import Server  # type: ignore[import-not-found]
 from mcp.server import Server  # type: ignore[import-not-found]
@@ -38,7 +37,7 @@ class LambdaLabsUnifiedMCPServer:
         @self.server.tool()
         async def invoke_serverless(
             prompt: str,
-            model: Optional[str] = None,
+            model: str | None = None,
             cost_priority: str = "balanced",
             max_tokens: int = 1000,
         ) -> ToolResponse:

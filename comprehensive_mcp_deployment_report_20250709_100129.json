@@ -1,0 +1,208 @@
+{
+  "success": false,
+  "success_rate": 71.42857142857143,
+  "duration_minutes": 37.26639111666667,
+  "phases_completed": 5,
+  "total_phases": 7,
+  "deployment_results": {
+    "\ud83c\udfd7\ufe0f Phase 1: Infrastructure Setup": {
+      "success": false,
+      "error": "Command '['ssh', '-i', '/Users/lynnmusil/.ssh/sophia2025.pem', '-o', 'StrictHostKeyChecking=no', 'ubuntu@192.222.58.232', 'sudo apt-get install -y python3-pip python3-venv nginx redis-server postgresql-client curl']' timed out after 120 seconds"
+    },
+    "\ud83d\udce6 Phase 2: Install Dependencies": {
+      "success": true,
+      "message": "Dependencies installed successfully",
+      "python_deps": "installed",
+      "nodejs": "installed"
+    },
+    "\ud83d\udee0\ufe0f Phase 3: Deploy MCP Servers": {
+      "success": false,
+      "deployed_servers": {
+        "ai_memory": {
+          "success": false,
+          "port": 9000,
+          "service_status": "activating",
+          "message": "ai_memory deployed and inactive"
+        },
+        "snowflake": {
+          "success": false,
+          "port": 9200,
+          "service_status": "activating",
+          "message": "snowflake deployed and inactive"
+        },
+        "lambda_labs": {
+          "success": false,
+          "port": 9020,
+          "service_status": "activating",
+          "message": "lambda_labs deployed and inactive"
+        },
+        "asana": {
+          "success": false,
+          "port": 9100,
+          "service_status": "activating",
+          "message": "asana deployed and inactive"
+        },
+        "linear": {
+          "success": false,
+          "port": 9101,
+          "service_status": "activating",
+          "message": "linear deployed and inactive"
+        },
+        "notion": {
+          "success": false,
+          "port": 9102,
+          "service_status": "",
+          "message": "notion deployed and inactive"
+        },
+        "slack": {
+          "success": false,
+          "port": 9103,
+          "service_status": "inactive",
+          "message": "slack deployed and inactive"
+        },
+        "hubspot": {
+          "success": false,
+          "port": 9006,
+          "service_status": "activating",
+          "message": "hubspot deployed and inactive"
+        },
+        "github": {
+          "success": false,
+          "port": 9104,
+          "service_status": "activating",
+          "message": "github deployed and inactive"
+        },
+        "codacy": {
+          "success": false,
+          "port": 9300,
+          "service_status": "activating",
+          "message": "codacy deployed and inactive"
+        }
+      },
+      "successful_deployments": 0,
+      "total_servers": 10,
+      "deployment_rate": "0/10",
+      "message": "Deployed 0/10 MCP servers"
+    },
+    "\ud83c\udfa8 Phase 4: Deploy Frontend": {
+      "success": true,
+      "message": "Frontend deployed successfully",
+      "port": 3000,
+      "url": "http://192.222.58.232:3000"
+    },
+    "\ud83d\udd27 Phase 5: Deploy Backend Services": {
+      "success": true,
+      "message": "Backend API deployed successfully",
+      "port": 8000,
+      "url": "http://192.222.58.232:8000"
+    },
+    "\ud83e\uddea Phase 6: Health Validation": {
+      "success": true,
+      "validation_results": {
+        "ai_memory": {
+          "status": "unreachable",
+          "port": 9000,
+          "error": "Cannot connect to host 192.222.58.232:9000 ssl:default [Connect call failed ('192.222.58.232', 9000)]"
+        },
+        "asana": {
+          "status": "unreachable",
+          "port": 9100,
+          "error": "Cannot connect to host 192.222.58.232:9100 ssl:default [Connect call failed ('192.222.58.232', 9100)]"
+        },
+        "linear": {
+          "status": "unreachable",
+          "port": 9101,
+          "error": "Cannot connect to host 192.222.58.232:9101 ssl:default [Connect call failed ('192.222.58.232', 9101)]"
+        },
+        "notion": {
+          "status": "unreachable",
+          "port": 9102,
+          "error": ""
+        },
+        "slack": {
+          "status": "unreachable",
+          "port": 9103,
+          "error": ""
+        },
+        "github": {
+          "status": "unreachable",
+          "port": 9104,
+          "error": ""
+        },
+        "snowflake": {
+          "status": "unreachable",
+          "port": 9200,
+          "error": ""
+        },
+        "lambda_labs": {
+          "status": "unreachable",
+          "port": 9020,
+          "error": ""
+        },
+        "codacy": {
+          "status": "unreachable",
+          "port": 9300,
+          "error": ""
+        },
+        "hubspot": {
+          "status": "unreachable",
+          "port": 9006,
+          "error": ""
+        },
+        "frontend": {
+          "status": "unreachable",
+          "port": 3000,
+          "error": "Cannot connect to host 192.222.58.232:3000 ssl:default [Connect call failed ('192.222.58.232', 3000)]"
+        },
+        "backend": {
+          "status": "healthy",
+          "port": 8000,
+          "status_code": 200
+        }
+      },
+      "healthy_services": 1,
+      "total_services": 12,
+      "health_rate": "1/12",
+      "message": "Validated 1/12 services"
+    },
+    "\ud83d\udcca Phase 7: Generate Reports": {
+      "success": true,
+      "access_urls": {
+        "frontend": "http://192.222.58.232:3000",
+        "backend_api": "http://192.222.58.232:8000",
+        "api_docs": "http://192.222.58.232:8000/docs",
+        "health_check": "http://192.222.58.232:8000/health",
+        "mcp_ai_memory": "http://192.222.58.232:9000/health",
+        "mcp_asana": "http://192.222.58.232:9100/health",
+        "mcp_linear": "http://192.222.58.232:9101/health",
+        "mcp_notion": "http://192.222.58.232:9102/health",
+        "mcp_slack": "http://192.222.58.232:9103/health",
+        "mcp_github": "http://192.222.58.232:9104/health",
+        "mcp_snowflake": "http://192.222.58.232:9200/health",
+        "mcp_lambda_labs": "http://192.222.58.232:9020/health",
+        "mcp_codacy": "http://192.222.58.232:9300/health",
+        "mcp_hubspot": "http://192.222.58.232:9006/health"
+      },
+      "next_steps": [
+        "1. Test all MCP servers using their health endpoints",
+        "2. Verify real data integration with Asana, Notion, Linear, and Slack",
+        "3. Test the unified chat interface with dashboard",
+        "4. Run end-to-end integration tests",
+        "5. Monitor system performance and logs",
+        "6. Set up automated backups and monitoring"
+      ],
+      "deployment_summary": {
+        "total_servers": 10,
+        "real_data_integrations": [
+          "asana",
+          "notion",
+          "linear",
+          "slack"
+        ],
+        "infrastructure_target": "Lambda Labs (192.222.58.232)",
+        "deployment_time": "2025-07-09T10:01:27.976005"
+      }
+    }
+  },
+  "timestamp": "2025-07-09T10:01:29.986267"
+}

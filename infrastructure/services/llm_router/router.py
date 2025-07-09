@@ -5,7 +5,7 @@ Stateless, observable, and performance-optimized
 
 import time
 from collections.abc import AsyncGenerator
-from typing import Any, Optional
+from typing import Any
 
 from shared.utils.custom_logger import logger
 
@@ -31,11 +31,11 @@ class LLMRouter:
 
     def __init__(self):
         self._initialized = False
-        self._config: Optional[LLMRouterConfig] = None
-        self._gateway: Optional[PortkeyGateway] = None
-        self._cortex: Optional[CortexAdapter] = None
-        self._fallback: Optional[FallbackChain] = None
-        self._cache: Optional[SemanticCache] = None
+        self._config: LLMRouterConfig | None = None
+        self._gateway: PortkeyGateway | None = None
+        self._cortex: CortexAdapter | None = None
+        self._fallback: FallbackChain | None = None
+        self._cache: SemanticCache | None = None
 
         # Track router version for metrics
         llm_router_version.labels(version="v2").inc()
@@ -76,8 +76,8 @@ class LLMRouter:
         stream: bool = True,
         temperature: float = 0.7,
         max_tokens: int = 2000,
-        model_override: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        model_override: str | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """
@@ -204,7 +204,7 @@ class LLMRouter:
         prompt: str,
         task: TaskType,
         complexity: TaskComplexity = TaskComplexity.SIMPLE,
-        model_override: Optional[str] = None,
+        model_override: str | None = None,
     ) -> dict[str, Any]:
         """
         Estimate cost for a completion request

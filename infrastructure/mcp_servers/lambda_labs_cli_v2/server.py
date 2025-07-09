@@ -6,7 +6,7 @@ Golden template for all V2+ MCP servers
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,7 +44,7 @@ class ExampleRequest(BaseModel):
     """Example request model"""
 
     query: str = Field(..., description="Query string")
-    options: Optional[dict[str, Any]] = Field(default_factory=dict)
+    options: dict[str, Any] | None = Field(default_factory=dict)
 
 
 class ExampleResponse(BaseModel):

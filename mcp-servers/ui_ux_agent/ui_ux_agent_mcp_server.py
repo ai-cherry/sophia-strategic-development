@@ -27,11 +27,11 @@ import asyncio
 import hashlib
 import logging
 import sys
+from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
     EnhancedStandardizedMCPServer,
     MCPServerConfig,
 )
@@ -40,7 +40,6 @@ from backend.mcp_servers.base.enhanced_standardized_mcp_server import (
 backend_path = Path(__file__).parent.parent.parent / "backend"
 sys.path.append(str(backend_path))
 
-from backend.mcp_servers.base.standardized_mcp_server import (
     EnhancedStandardizedMCPServer,
     HealthCheckResult,
     HealthStatus,
@@ -56,69 +55,12 @@ logger = logging.getLogger(__name__)
 class UIComponent:
     """Represents a UI component with metadata and analysis"""
 
-    def __init__(self, name: str, component_type: str, framework: str):
-        self.component_id = hashlib.md5(
-            f"{name}_{component_type}".encode()
-        ).hexdigest()[:8]
-        self.name = name
-        self.component_type = component_type
-        self.framework = framework
-        self.accessibility_score = 0.0
-        self.performance_score = 0.0
-        self.design_consistency_score = 0.0
-        self.created_at = datetime.now(UTC)
-        self.last_updated = datetime.now(UTC)
-        self.usage_count = 0
-        self.feedback_score = 0.0
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "component_id": self.component_id,
-            "name": self.name,
-            "component_type": self.component_type,
-            "framework": self.framework,
-            "accessibility_score": self.accessibility_score,
-            "performance_score": self.performance_score,
-            "design_consistency_score": self.design_consistency_score,
-            "created_at": self.created_at.isoformat(),
-            "last_updated": self.last_updated.isoformat(),
-            "usage_count": self.usage_count,
-            "feedback_score": self.feedback_score,
-            "overall_quality": (
-                self.accessibility_score
-                + self.performance_score
-                + self.design_consistency_score
-            )
-            / 3,
-        }
-
-
-class DesignPattern:
-    """Represents a design pattern with automation rules"""
-
-    def __init__(self, pattern_name: str, category: str, automation_rules: list[str]):
-        self.pattern_name = pattern_name
-        self.category = category
-        self.automation_rules = automation_rules
-        self.usage_frequency = 0
-        self.success_rate = 0.0
-        self.last_used = None
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "pattern_name": self.pattern_name,
-            "category": self.category,
-            "automation_rules": self.automation_rules,
-            "usage_frequency": self.usage_frequency,
-            "success_rate": self.success_rate,
-            "last_used": self.last_used.isoformat() if self.last_used else None,
-        }
-
-
-class UIUXAgentMCPServer(EnhancedStandardizedMCPServer):
-    """MCP server for UI/UX design automation and optimization"""
-
-    def __init__(self, config: MCPServerConfig):
+    def __init__(self):
+        config = MCPServerConfig(
+            name="ui-ux-agent",
+            port=9002,
+            version="2.0.0"
+        )
         super().__init__(config)
         self.components: dict[str, UIComponent] = {}
         self.design_patterns: dict[str, DesignPattern] = {}

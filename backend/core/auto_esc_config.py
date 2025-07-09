@@ -6,9 +6,8 @@ This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 import logging
 import os
 import subprocess
-import json
-from typing import Any, Optional, Dict
 from functools import lru_cache
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,17 +21,17 @@ PULUMI_ORG = os.getenv("PULUMI_ORG", "scoobyjava-org")
 PULUMI_STACK = f"{PULUMI_ORG}/default/sophia-ai-production"
 
 @lru_cache(maxsize=1)
-def get_pulumi_config() -> Dict[str, Any]:
+def get_pulumi_config() -> dict[str, Any]:
     """Get all configuration from Pulumi ESC"""
     try:
         # Try to get the config using pulumi env get
         result = subprocess.run(
             ["pulumi", "env", "get", PULUMI_STACK],
-            capture_output=True,
+            check=False, capture_output=True,
             text=True,
             timeout=30
         )
-        
+
         if result.returncode == 0:
             # Parse the output - it might be YAML or key-value pairs
             config = {}
@@ -40,29 +39,29 @@ def get_pulumi_config() -> Dict[str, Any]:
                 if ':' in line and not line.startswith('#'):
                     key, value = line.split(':', 1)
                     config[key.strip()] = value.strip()
-            
+
             logger.info(f"✅ Loaded Pulumi ESC config from {PULUMI_STACK}")
             return config
         else:
             logger.error(f"❌ Failed to load Pulumi ESC config: {result.stderr}")
             return {}
-            
+
     except Exception as e:
         logger.error(f"❌ Error loading Pulumi ESC config: {e}")
         return {}
 
-def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
+def get_config_value(key: str, default: str | None = None) -> str | None:
     """Get a configuration value from Pulumi ESC or environment variables"""
     # Try environment variable first
     env_value = os.getenv(key.upper())
     if env_value:
         return env_value
-    
+
     # Try Pulumi ESC
     config = get_pulumi_config()
     if config and key in config:
         return config[key]
-    
+
     # Return default
     return default
 
@@ -294,7 +293,7 @@ def get_docker_hub_config() -> dict[str, Any]:
         get_config_value("docker_hub_username") or
         "scoobyjava15"  # fallback
     )
-    
+
     # Get token - DOCKER_TOKEN is the primary key in GitHub
     access_token = (
         get_config_value("DOCKER_TOKEN") or  # PRIMARY
@@ -302,13 +301,13 @@ def get_docker_hub_config() -> dict[str, Any]:
         get_config_value("docker_hub_access_token") or
         get_config_value("docker_token")
     )
-    
+
     # Log what we found for debugging
     if access_token:
         logger.info(f"Docker Hub config loaded: username={username}, token=***")
     else:
         logger.warning("No Docker Hub token found in configuration")
-    
+
     return {
         "username": username,
         "access_token": access_token,
@@ -376,7 +375,7 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     "warehouse_auto_resume": True,
 }
 
-def get_snowflake_pat(environment: Optional[str] = None) -> str:
+def get_snowflake_pat(environment: str | None = None) -> str:
     """
     Get Snowflake PAT (Programmatic Access Token) for MCP authentication
 
@@ -549,29 +548,29 @@ def get_lambda_labs_serverless_config() -> dict[str, Any]:
         "cloud_api_key": get_config_value("LAMBDA_CLOUD_API_KEY"),
         "inference_api_key": get_config_value("LAMBDA_API_KEY"),
         "inference_endpoint": get_config_value("LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"),
-        
+
         # Cost Management
         "daily_budget": float(get_config_value("LAMBDA_DAILY_BUDGET", "100.0")),
         "monthly_budget": float(get_config_value("LAMBDA_MONTHLY_BUDGET", "2500.0")),
-        
+
         # Performance Settings
         "response_time_target": int(get_config_value("LAMBDA_RESPONSE_TIME_TARGET", "2000")),
         "availability_target": float(get_config_value("LAMBDA_AVAILABILITY_TARGET", "99.9")),
-        
+
         # Security Settings
         "max_input_tokens": int(get_config_value("LAMBDA_MAX_INPUT_TOKENS", "1000000")),
         "max_output_tokens": int(get_config_value("LAMBDA_MAX_OUTPUT_TOKENS", "100000")),
-        
+
         # Routing Configuration
         "routing_strategy": get_config_value("LAMBDA_ROUTING_STRATEGY", "performance_first"),
         "enable_hybrid_ai": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
         "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
-        
+
         # Model Configuration
         "default_model": get_config_value("LAMBDA_DEFAULT_MODEL", "llama-4-scout-17b-16e-instruct"),
         "fallback_models": [
             "llama-4-scout-17b-16e-instruct",
-            "deepseek-v3-0324", 
+            "deepseek-v3-0324",
             "qwen-3-32b"
         ]
     }
@@ -588,7 +587,7 @@ def get_ai_orchestration_config() -> dict[str, Any]:
         "enable_hybrid_mode": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
         "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
         "enable_performance_tracking": get_config_value("ENABLE_PERFORMANCE_TRACKING", "true").lower() == "true",
-        
+
         # Provider priorities
         "provider_priorities": {
             "lambda_labs": 1,
@@ -596,7 +595,7 @@ def get_ai_orchestration_config() -> dict[str, Any]:
             "portkey": 3,
             "openrouter": 4
         },
-        
+
         # Routing thresholds
         "cost_threshold": float(get_config_value("AI_COST_THRESHOLD", "0.50")),
         "response_time_threshold": float(get_config_value("AI_RESPONSE_TIME_THRESHOLD", "5.0")),
@@ -611,27 +610,27 @@ def validate_lambda_labs_config() -> bool:
         True if configuration is valid
     """
     config = get_lambda_labs_serverless_config()
-    
+
     # Check required fields
     required_fields = ["inference_api_key", "inference_endpoint"]
     for field in required_fields:
         if not config.get(field):
             logger.error(f"Missing required Lambda Labs config: {field}")
             return False
-    
+
     # Validate API key format
     api_key = config.get("inference_api_key", "")
     if not api_key.startswith("secret_"):
         logger.warning("Lambda Labs API key format may be invalid")
-    
+
     # Validate budget values
     if config.get("daily_budget", 0) <= 0:
         logger.error("Daily budget must be positive")
         return False
-    
+
     if config.get("monthly_budget", 0) <= 0:
         logger.error("Monthly budget must be positive")
         return False
-    
+
     logger.info("Lambda Labs configuration validated successfully")
     return True

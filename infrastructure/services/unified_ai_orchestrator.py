@@ -7,7 +7,7 @@ import logging
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from backend.services.lambda_labs_service import LambdaLabsService
 from infrastructure.services.llm_router import TaskComplexity, TaskType
@@ -30,14 +30,14 @@ class AIRequest:
 
     prompt: str
     provider: AIProvider = AIProvider.AUTO
-    model: Optional[str] = None
-    max_tokens: Optional[int] = None
-    temperature: Optional[float] = None
-    task_type: Optional[TaskType] = None
-    complexity: Optional[TaskComplexity] = None
+    model: str | None = None
+    max_tokens: int | None = None
+    temperature: float | None = None
+    task_type: TaskType | None = None
+    complexity: TaskComplexity | None = None
     cost_priority: str = "balanced"  # "cost", "performance", "balanced"
     use_case: str = "general"  # "embedding", "completion", "analysis", "sql"
-    context: Optional[dict[str, Any]] = None
+    context: dict[str, Any] | None = None
 
 
 @dataclass
@@ -51,8 +51,8 @@ class AIResponse:
     cost_estimate: float
     usage: dict[str, Any]
     success: bool
-    error: Optional[str] = None
-    metadata: Optional[dict[str, Any]] = None
+    error: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class IntelligentRouter:

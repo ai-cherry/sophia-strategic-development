@@ -7,7 +7,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from prometheus_client import Gauge
@@ -42,7 +42,7 @@ class PATMetadata:
     environment: str
     created_at: datetime
     expires_at: datetime
-    last_rotated: Optional[datetime] = None
+    last_rotated: datetime | None = None
     rotation_count: int = 0
     created_by: str = "system"
 
@@ -54,8 +54,8 @@ class RotationAlert:
     environment: str
     days_remaining: int
     severity: AlertSeverity
-    pat_id: Optional[str] = None
-    message: Optional[str] = None
+    pat_id: str | None = None
+    message: str | None = None
 
 
 class SecurityError(Exception):
@@ -413,7 +413,7 @@ class SnowflakePATManager:
 
 
 # Singleton instance
-_pat_manager: Optional[SnowflakePATManager] = None
+_pat_manager: SnowflakePATManager | None = None
 
 
 def get_pat_manager() -> SnowflakePATManager:
