@@ -30,7 +30,7 @@ gh workflow run sync_secrets.yml
 ## 🏗️ Architecture
 
 ### Infrastructure
-- **Backend**: Docker Swarm on Lambda Labs (192.222.51.151)
+- **Backend**: Docker Swarm on Lambda Labs (192.222.58.232)
 - **Frontend**: Vercel (app.sophia-intel.ai)
 - **Orchestration**: Docker Swarm (NOT Kubernetes)
 - **Secrets**: GitHub → Pulumi ESC → Docker Secrets

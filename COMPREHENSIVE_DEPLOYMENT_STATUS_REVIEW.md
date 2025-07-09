@@ -61,12 +61,12 @@ repos:
 
 1. **Production Deployment** (`.github/workflows/production-deployment.yml`)
    - Main deployment workflow for Sophia AI platform
-   - Deploys to Lambda Labs (192.222.51.122)
+   - Deploys to Lambda Labs (192.222.58.232)
    - Includes quality gates, infrastructure, and validation phases
 
 2. **V2 MCP Servers** (`.github/workflows/deploy_v2_mcp_servers.yml`)
    - Deploys 10 V2 MCP servers
-   - Target: Lambda Labs (146.235.200.1)
+   - Target: Lambda Labs (192.222.58.232)
    - Matrix build strategy for parallel deployment
 
 3. **MCP Production** (`.github/workflows/deploy-mcp-production.yml`)
@@ -99,9 +99,9 @@ repos:
 ### Deployment Infrastructure
 - **Docker Registry**: scoobyjava15
 - **Lambda Labs Hosts**:
-  - 146.235.200.1 (V2 deployment)
+  - 192.222.58.232 (V2 deployment)
   - 165.1.69.44 (Current MCP)
-  - 192.222.51.122 (Main platform)
+  - 192.222.58.232 (Main platform)
 - **Orchestration**: Docker Swarm
 - **Monitoring**: Prometheus + Grafana
 
@@ -210,7 +210,7 @@ gh workflow run deploy-mcp-production.yml -f servers="codacy,linear"
 ### Manual Docker Deployment (Emergency Only)
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Deploy stack
 docker stack deploy -c docker-compose.cloud.yml sophia-ai

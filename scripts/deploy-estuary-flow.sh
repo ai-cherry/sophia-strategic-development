@@ -206,7 +206,7 @@ configure_webhook() {
 
     # Call MCP server to register Estuary webhook
     if curl -s -X POST \
-        "http://146.235.200.1:$port/admin/configure-webhook" \
+        "http://192.222.58.232:$port/admin/configure-webhook" \
         -H "Content-Type: application/json" \
         -d "{\"webhook_url\": \"$webhook_url\", \"events\": [\"all\"]}" \
         > /dev/null; then
@@ -229,7 +229,7 @@ echo "📈 Setting up Monitoring..."
 if [ -f "infrastructure/monitoring/estuary_flow_dashboard.json" ]; then
     echo "Importing Grafana dashboard..."
     curl -s -X POST \
-        "http://146.235.200.1:3000/api/dashboards/db" \
+        "http://192.222.58.232:3000/api/dashboards/db" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer ${GRAFANA_API_KEY}" \
         -d @infrastructure/monitoring/estuary_flow_dashboard.json \
@@ -247,8 +247,8 @@ flowctl flows list --prefix "$ESTUARY_ORG/" --status active | tail -n +2
 echo ""
 echo "🔍 Next Steps:"
 echo "  1. Monitor flows: flowctl flows logs --follow"
-echo "  2. Check metrics: http://146.235.200.1:3000/d/estuary-flow"
-echo "  3. Test webhooks: curl -X POST http://146.235.200.1:9009/test/webhook"
+echo "  2. Check metrics: http://192.222.58.232:3000/d/estuary-flow"
+echo "  3. Test webhooks: curl -X POST http://192.222.58.232:9009/test/webhook"
 echo ""
 echo "📚 Documentation: docs/05-integrations/ESTUARY_FLOW_GUIDE.md"
 echo ""

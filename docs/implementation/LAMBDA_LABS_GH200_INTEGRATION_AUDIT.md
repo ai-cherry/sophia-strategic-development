@@ -160,7 +160,7 @@ def run_checklist():
         checks.append(("Pulumi authenticated", False))
 
     # 3. Check SSH key
-    ssh_key = Path.home() / '.ssh' / 'lynn_sophia_h200_key'
+    ssh_key = Path.home() / '.ssh' / 'sophia2025.pem'
     checks.append(("SSH key exists", ssh_key.exists()))
 
     # 4. Check Lambda Labs API key

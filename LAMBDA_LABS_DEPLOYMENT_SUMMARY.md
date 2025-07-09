@@ -123,7 +123,7 @@ After deployment, services are available at:
 ### SSH Access
 ```bash
 # SSH to any instance
-ssh -i ~/.ssh/lambda_labs_sophia_key ubuntu@<instance-ip>
+ssh -i ~/.ssh/sophia2025.pem ubuntu@<instance-ip>
 ```
 
 ### API Authentication
@@ -169,10 +169,10 @@ curl http://<instance-ip>:3000/api/health
 1. **SSH Connection Failed**
    ```bash
    # Check SSH key permissions
-   chmod 600 ~/.ssh/lambda_labs_sophia_key
+   chmod 600 ~/.ssh/sophia2025.pem
 
    # Test SSH connection
-   ssh -i ~/.ssh/lambda_labs_sophia_key ubuntu@<ip> 'echo OK'
+   ssh -i ~/.ssh/sophia2025.pem ubuntu@<ip> 'echo OK'
    ```
 
 2. **Docker Build Failed**

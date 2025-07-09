@@ -23,7 +23,7 @@
 - ✅ **Environment**: Production (`prod`) with `scoobyjava-org`
 
 ### **3. Lambda Labs Connectivity**
-- ✅ **Network Access**: 0% packet loss to 146.235.200.1
+- ✅ **Network Access**: 0% packet loss to 192.222.58.232
 - ✅ **Latency**: ~152ms average (excellent for cross-country)
 - ✅ **Stability**: Consistent connection across multiple tests
 
@@ -82,8 +82,8 @@ docker push scoobyjava15/sophia-ai:latest
 ### **Phase 2: Lambda Labs Deployment (10 minutes)**
 ```bash
 # Deploy to Lambda Labs instance
-ssh 146.235.200.1 "docker pull scoobyjava15/sophia-ai:latest"
-ssh 146.235.200.1 "docker run -d --name sophia-production -p 80:8000 scoobyjava15/sophia-ai:latest"
+ssh 192.222.58.232 "docker pull scoobyjava15/sophia-ai:latest"
+ssh 192.222.58.232 "docker run -d --name sophia-production -p 80:8000 scoobyjava15/sophia-ai:latest"
 ```
 
 ### **Phase 3: MCP Servers Activation (15 minutes)**
@@ -143,7 +143,7 @@ ssh 146.235.200.1 "docker run -d --name sophia-production -p 80:8000 scoobyjava1
 ### **Network Configuration**
 - **Local Port**: 8003
 - **Target Port**: 8000
-- **Lambda Labs IP**: 146.235.200.1
+- **Lambda Labs IP**: 192.222.58.232
 - **Protocol**: HTTP/HTTPS ready
 
 ### **Performance Benchmarks**

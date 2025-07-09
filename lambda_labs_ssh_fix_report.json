@@ -4,7 +4,7 @@
   "details": {
     "instances_created_with": "lynn-sophia-h200-key",
     "instances_public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILTp3t8xBshdPge6O5DuJQKwCCW4pvpir6zb0Fty7c4P",
-    "local_key_name": "lynn_sophia_h200_key",
+    "local_key_name": "sophia2025.pem",
     "local_public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5Oz2Q3EZFGl0Zap+eZaCIn55FfVjpt5Y+lE+t8/pxI",
     "new_key_added": "lynn-sophia-key",
     "new_key_matches_local": true

@@ -2,7 +2,7 @@
 
 **Date:** January 14, 2025
 **Scope:** Deploy 10 v2 MCP servers + supporting infrastructure
-**Target:** Lambda Labs (146.235.200.1) via Docker Swarm
+**Target:** Lambda Labs (192.222.58.232) via Docker Swarm
 **Duration:** 3-4 hours (automated execution)
 
 ## 🎯 Executive Summary
@@ -251,10 +251,10 @@ async def validate_deployment():
     results = {}
     for server, port in servers:
         # Health check
-        health = await check_health(f"http://146.235.200.1:{port}/health")
+        health = await check_health(f"http://192.222.58.232:{port}/health")
 
         # Performance test
-        perf = await test_performance(f"http://146.235.200.1:{port}/tools")
+        perf = await test_performance(f"http://192.222.58.232:{port}/tools")
 
         # Integration test
         integration = await test_integration(server)
@@ -273,7 +273,7 @@ async def validate_deployment():
 ### Update Vercel Environment
 ```bash
 # Via GitHub Action only
-vercel env add MCP_GATEWAY_URL https://146.235.200.1:8080 production
+vercel env add MCP_GATEWAY_URL https://192.222.58.232:8080 production
 vercel env add MCP_V2_ENABLED true production
 ```
 

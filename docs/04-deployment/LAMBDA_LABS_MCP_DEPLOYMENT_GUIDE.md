@@ -7,7 +7,7 @@ This guide provides the complete, clean deployment process for all Sophia AI MCP
 
 ### **Three-Tier Lambda Labs Infrastructure**
 
-1. **sophia-platform-prod** (146.235.200.1) - `gpu_1x_a10`
+1. **sophia-platform-prod** (192.222.58.232) - `gpu_1x_a10`
    - Main FastAPI Backend
    - Frontend Services
    - Core Infrastructure (PostgreSQL, Redis, Grafana)
@@ -17,7 +17,7 @@ This guide provides the complete, clean deployment process for all Sophia AI MCP
    - MCP Gateway
    - Service Discovery
 
-3. **sophia-ai-prod** (137.131.6.213) - `gpu_1x_a100_sxm4`
+3. **sophia-ai-prod** (192.222.58.232) - `gpu_1x_a100_sxm4`
    - Snowflake Cortex AI Processing
    - AI/ML Workloads
    - GPU-intensive operations
@@ -256,9 +256,9 @@ python scripts/mcp_performance_monitor.py
 ### **Grafana Dashboard Integration**
 
 Access comprehensive metrics at:
-- **Main Dashboard**: http://146.235.200.1:3000
+- **Main Dashboard**: http://192.222.58.232:3000
 - **MCP Metrics**: http://165.1.69.44:9090 (Prometheus)
-- **AI Metrics**: http://137.131.6.213:8080 (Custom dashboard)
+- **AI Metrics**: http://192.222.58.232:8080 (Custom dashboard)
 
 ## 🚨 **TROUBLESHOOTING GUIDE**
 

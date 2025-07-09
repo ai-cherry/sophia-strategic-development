@@ -19,7 +19,7 @@ Sophia AI runs on Lambda Labs GPU infrastructure with a comprehensive stack incl
 ```
 ┌─────────────────────────────────────────────────┐
 │           Lambda Labs GH200 Instance            │
-│              192.222.51.151                     │
+│              192.222.58.232                     │
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────┐│
@@ -268,7 +268,7 @@ docker push scoobyjava15/sophia-backend:latest
 docker-compose up -d --no-deps backend
 
 # 4. Verify health
-curl http://192.222.51.151:8000/health
+curl http://192.222.58.232:8000/health
 ```
 
 ## Troubleshooting
@@ -308,16 +308,16 @@ curl http://192.222.51.151:8000/health
 ### Debug Commands
 ```bash
 # System overview
-ssh ubuntu@192.222.51.151 'docker-compose ps'
+ssh ubuntu@192.222.58.232 'docker-compose ps'
 
 # Service logs
-ssh ubuntu@192.222.51.151 'docker-compose logs -f --tail=100 backend'
+ssh ubuntu@192.222.58.232 'docker-compose logs -f --tail=100 backend'
 
 # Resource usage
-ssh ubuntu@192.222.51.151 'docker stats --no-stream'
+ssh ubuntu@192.222.58.232 'docker stats --no-stream'
 
 # Network inspection
-ssh ubuntu@192.222.51.151 'docker network ls'
+ssh ubuntu@192.222.58.232 'docker network ls'
 ```
 
 ## Cost Optimization

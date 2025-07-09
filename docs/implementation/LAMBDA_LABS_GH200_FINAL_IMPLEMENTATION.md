@@ -96,7 +96,7 @@ sophia-mcp-prod        170.9.52.134     Active    ❌ Blocked
 - ❌ Sync to Pulumi ESC failing
 
 ### SSH Configuration
-- ✅ Key generated: ~/.ssh/lynn_sophia_h200_key
+- ✅ Key generated: ~/.ssh/sophia2025.pem
 - ✅ Permissions set (600)
 - ❌ Not accepted by Lambda Labs instances
 
@@ -108,7 +108,7 @@ sophia-mcp-prod        170.9.52.134     Active    ❌ Blocked
 # 1. Go to https://cloud.lambdalabs.com
 # 2. Navigate to SSH Keys
 # 3. Add the public key from:
-cat ~/.ssh/lynn_sophia_h200_key.pub
+cat ~/.ssh/sophia2025.pem.pub
 
 # Option B: Use existing working key
 # Check if any existing keys work

@@ -282,7 +282,7 @@ def get_instance_ssh_command(instance_name: str) -> Optional[str]:
     instance = client.get_instance_by_name(instance_name)
     if instance and instance.get("status") == "running":
         ip = instance.get("ip_address")
-        return f"ssh -i ~/.ssh/lambda_labs_key ubuntu@{ip}"
+        return f"ssh -i ~/.ssh/sophia2025.pem ubuntu@{ip}"
     return None
 
 

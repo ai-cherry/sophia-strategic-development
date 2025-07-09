@@ -14,10 +14,10 @@ echo -e "${BLUE}🔍 Sophia AI Deployment Validation${NC}"
 echo -e "${BLUE}===================================${NC}\n"
 
 # Configuration - Updated with actual Lambda Labs IPs
-MAIN_HOST="192.222.51.151"  # lynn-sophia-gh200-master-01
-PLATFORM_HOST="146.235.200.1"  # sophia-platform-prod
+MAIN_HOST="192.222.58.232"  # lynn-sophia-gh200-master-01
+PLATFORM_HOST="192.222.58.232"  # sophia-platform-prod
 MCP_HOST="165.1.69.44"  # sophia-mcp-prod
-AI_HOST="137.131.6.213"  # sophia-ai-prod
+AI_HOST="192.222.58.232"  # sophia-ai-prod
 
 # Try different hosts
 API_URL="http://$MAIN_HOST"

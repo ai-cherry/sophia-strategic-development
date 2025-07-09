@@ -22,7 +22,7 @@ Successfully created all 10 Lambda Labs secrets in GitHub:
 - `LAMBDA_LABS_ASG_NAME` - lynn-sophia-h200-asg
 
 ### **2. SSH Key Configuration ✅**
-- Generated new ED25519 SSH key: `~/.ssh/lynn_sophia_h200_key`
+- Generated new ED25519 SSH key: `~/.ssh/sophia2025.pem`
 - Set correct permissions (600)
 - Uploaded private key to GitHub secrets
 - Lambda Labs already has the corresponding public key
@@ -95,9 +95,9 @@ https://github.com/ai-cherry/sophia-main/actions/workflows/sync_secrets.yml
 ### **2. Test GH200 Instance Connection**
 ```bash
 # Test SSH connection to GH200 instances
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.50.155  # Master
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.100  # Worker 1
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.49   # Worker 2
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.50.155  # Master
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.51.100  # Worker 1
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.51.49   # Worker 2
 ```
 
 ### **3. Deploy Sophia AI to GH200**

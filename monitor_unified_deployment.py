@@ -98,8 +98,8 @@ def main():
                     if run.get("conclusion") == "success":
                         print("✅ All systems deployed successfully!")
                         print("\n📌 Access your deployment:")
-                        print("   - API: http://192.222.51.122:8000")
-                        print("   - Grafana: http://192.222.51.122:3000")
+                        print("   - API: http://192.222.58.232:8000")
+                        print("   - Grafana: http://192.222.58.232:3000")
                         print("   - Frontend: https://app.sophia-intel.ai")
                     else:
                         print("❌ Deployment failed. Check the logs for details.")

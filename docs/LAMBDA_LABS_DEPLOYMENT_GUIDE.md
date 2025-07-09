@@ -224,7 +224,7 @@ curl http://<instance-ip>:3000/api/health
    python scripts/lambda_labs_manager.py list
 
    # Test SSH connection
-   ssh -i ~/.ssh/lambda_labs_sophia_key ubuntu@<ip>
+   ssh -i ~/.ssh/sophia2025.pem ubuntu@<ip>
    ```
 
 2. **Docker Issues**

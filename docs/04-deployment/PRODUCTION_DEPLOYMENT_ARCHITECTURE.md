@@ -51,7 +51,7 @@
 
 ### **2. Backend - Lambda Labs K3s Cluster**
 - **Nodes**: 3x NVIDIA GH200 (96GB GPU memory each)
-  - Master-01: 192.222.51.151
+  - Master-01: 192.222.58.232
   - Worker-01: TBD (auto-provisioned)
   - Worker-02: TBD (auto-provisioned)
 - **Orchestration**: K3s (Lightweight Kubernetes)
@@ -241,7 +241,7 @@ REDIS_URL=redis://...
 ### **SSH Access**
 ```bash
 # Master node
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
 
 # Kubernetes access
 export KUBECONFIG=~/.kube/sophia-production

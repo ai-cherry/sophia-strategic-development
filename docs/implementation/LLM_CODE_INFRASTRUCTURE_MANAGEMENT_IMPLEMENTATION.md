@@ -11,7 +11,7 @@ This document provides a concrete implementation plan for transforming Sophia AI
 - **MCP Server Architecture**: StandardizedMCPServer and SimpleMCPServer base classes
 - **Service Integration**: 10+ services already integrated (Gong, Slack, Linear, etc.)
 - **AI Memory System**: 6-tier memory for context preservation
-- **Deployment Infrastructure**: Docker Swarm on Lambda Labs (146.235.200.1)
+- **Deployment Infrastructure**: Docker Swarm on Lambda Labs (192.222.58.232)
 
 ### New Components to Add
 

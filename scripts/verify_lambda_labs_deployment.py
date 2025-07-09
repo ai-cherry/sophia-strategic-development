@@ -18,25 +18,25 @@ from datetime import datetime
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Configuration constants
-CORRECT_IP = "192.222.51.151"
-CORRECT_SSH_KEY = "lynn_sophia_h200_key"
-CORRECT_SSH_PATH = "~/.ssh/lynn_sophia_h200_key"
+CORRECT_IP = "192.222.58.232"
+CORRECT_SSH_KEY = "sophia2025.pem"
+CORRECT_SSH_PATH = "~/.ssh/sophia2025.pem"
 
 # Old values that should NOT exist
 FORBIDDEN_IPS = [
-    "146.235.200.1",
-    "137.131.6.213", 
+    "192.222.58.232",
+    "192.222.58.232", 
     "104.171.202.103",
     "192.222.58.232",
     "104.171.202.117",
     "104.171.202.134",
     "155.248.194.183",
-    "192.222.51.122"
+    "192.222.58.232"
 ]
 
 FORBIDDEN_KEYS = [
-    "lambda_labs_sophia_key",
-    "lambda_labs_key",
+    "sophia2025.pem",
+    "sophia2025.pem",
     "sophia-ai-key",
     "lambda_labs_ssh_key"
 ]

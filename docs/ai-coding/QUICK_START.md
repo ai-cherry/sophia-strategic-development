@@ -6,7 +6,7 @@
 
 ```bash
 # 1. Connect to Lambda Labs deployment
-# Services are already running on 137.131.6.213
+# Services are already running on 192.222.58.232
 
 # 2. Verify Sophia AI is accessible
 # Check with your team for the service endpoints

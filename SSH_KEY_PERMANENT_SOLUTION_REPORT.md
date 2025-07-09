@@ -13,7 +13,7 @@ The Lambda Labs GH200 instances were created with SSH keys that didn't match our
 **Key Mismatch Details:**
 - **Instance SSH Key**: `lynn-sophia-key` (in Lambda Labs)
 - **Instance Public Key**: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID5Oz2Q3EZFGl0Zap+eZaCIn55FfVjpt5Y+lE+t8/pxI`
-- **Local Private Key**: `~/.ssh/lynn_sophia_h200_key`
+- **Local Private Key**: `~/.ssh/sophia2025.pem`
 - **Local Public Key**: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJue+GO/esOkHhwd5CTWoQr1klJk+z6mexSmNbqiLaih`
 
 **Result**: Public keys didn't match → SSH authentication failed

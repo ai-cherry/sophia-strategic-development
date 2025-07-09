@@ -28,8 +28,8 @@
 ### 🔧 Current Blockers
 
 1. **Lambda Labs Connectivity**
-   - IP: 192.222.51.151 (confirmed correct)
-   - SSH Key: `~/.ssh/lynn_sophia_h200_key` (exists)
+   - IP: 192.222.58.232 (confirmed correct)
+   - SSH Key: `~/.ssh/sophia2025.pem` (exists)
    - Status: **Connection timeout** - instance appears offline
 
 2. **Docker Hub Access**
@@ -47,7 +47,7 @@
 
 1. **Verify Lambda Labs Instance**
    ```bash
-   ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151
+   ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
    ```
 
 2. **Push Docker Images**
@@ -64,8 +64,8 @@
 3. **Deploy to Lambda Labs**
    ```bash
    # Run deployment script
-   LAMBDA_LABS_HOST="192.222.51.151" \
-   LAMBDA_SSH_KEY_PATH="~/.ssh/lynn_sophia_h200_key" \
+   LAMBDA_LABS_HOST="192.222.58.232" \
+   LAMBDA_SSH_KEY_PATH="~/.ssh/sophia2025.pem" \
    python scripts/deploy_complete_sophia_platform.py
    ```
 
@@ -94,7 +94,7 @@ python scripts/start_mcp_servers.py
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Lambda Labs (192.222.51.151)          │
+│                   Lambda Labs (192.222.58.232)          │
 ├─────────────────────────────────────────────────────────┤
 │  Docker Swarm Cluster                                   │
 │  ┌─────────────────────────────────────────────────┐   │
@@ -111,10 +111,10 @@ python scripts/start_mcp_servers.py
 ### 🎯 Success Metrics
 
 Once deployed, validate:
-- [ ] Backend API: http://192.222.51.151:8000/health
-- [ ] Frontend: http://192.222.51.151:3000
-- [ ] API Docs: http://192.222.51.151:8000/docs
-- [ ] MCP Gateway: http://192.222.51.151:8080/health
+- [ ] Backend API: http://192.222.58.232:8000/health
+- [ ] Frontend: http://192.222.58.232:3000
+- [ ] API Docs: http://192.222.58.232:8000/docs
+- [ ] MCP Gateway: http://192.222.58.232:8080/health
 - [ ] All 10 MCP servers responding on their ports (9001-9010)
 
 ### 💰 Estimated Impact

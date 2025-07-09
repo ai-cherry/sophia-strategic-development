@@ -97,19 +97,19 @@ export PULUMI_ORG="scoobyjava-org"
 Host gh200-master
     HostName 192.222.50.155
     User ubuntu
-    IdentityFile ~/.ssh/lynn_sophia_h200_key
+    IdentityFile ~/.ssh/sophia2025.pem
     StrictHostKeyChecking no
 
 Host gh200-worker-1
     HostName 192.222.51.100
     User ubuntu
-    IdentityFile ~/.ssh/lynn_sophia_h200_key
+    IdentityFile ~/.ssh/sophia2025.pem
     StrictHostKeyChecking no
 
 Host gh200-worker-2
     HostName 192.222.51.49
     User ubuntu
-    IdentityFile ~/.ssh/lynn_sophia_h200_key
+    IdentityFile ~/.ssh/sophia2025.pem
     StrictHostKeyChecking no
 ```
 
@@ -185,10 +185,10 @@ ssh gh200-master "nvidia-smi --query-gpu=name,memory.total,memory.used --format=
 ### SSH Access Issues
 ```bash
 # Verify key permissions
-chmod 600 ~/.ssh/lynn_sophia_h200_key
+chmod 600 ~/.ssh/sophia2025.pem
 
 # Test connection with verbose output
-ssh -vvv -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.50.155
+ssh -vvv -i ~/.ssh/sophia2025.pem ubuntu@192.222.50.155
 
 # If still failing, may need to update key in Lambda Labs console
 ```

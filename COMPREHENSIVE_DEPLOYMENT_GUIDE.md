@@ -145,8 +145,8 @@ SNOWFLAKE_PASSWORD
 
    # Create secrets from Pulumi ESC
    python scripts/create_docker_swarm_secrets.py \
-     --host 192.222.51.151 \
-     --ssh-key ~/.ssh/lynn_sophia_h200_key \
+     --host 192.222.58.232 \
+     --ssh-key ~/.ssh/sophia2025.pem \
      --environment sophia-ai-production
    ```
 
@@ -154,8 +154,8 @@ SNOWFLAKE_PASSWORD
    ```bash
    # Deploy everything
    python scripts/unified_lambda_labs_deployment.py \
-     --host 192.222.51.151 \
-     --ssh-key ~/.ssh/lynn_sophia_h200_key \
+     --host 192.222.58.232 \
+     --ssh-key ~/.ssh/sophia2025.pem \
      --registry scoobyjava15 \
      --environment production \
      --deploy-mcp-servers true
@@ -166,23 +166,23 @@ SNOWFLAKE_PASSWORD
 ### Service Health Checks
 ```bash
 # Check all services
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 "sudo docker service ls"
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 "sudo docker service ls"
 
 # Check specific service
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 "sudo docker service ps sophia-ai_ai-memory-server"
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 "sudo docker service ps sophia-ai_ai-memory-server"
 
 # View service logs
-ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151 "sudo docker service logs sophia-ai_sophia-backend"
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 "sudo docker service logs sophia-ai_sophia-backend"
 ```
 
 ### Access URLs
 After successful deployment, services are available at:
 
-- **Main Backend**: http://192.222.51.151:8000
-- **API Documentation**: http://192.222.51.151:8000/docs
-- **Grafana Dashboard**: http://192.222.51.151:3000
-- **Prometheus Metrics**: http://192.222.51.151:9090
-- **Traefik Dashboard**: http://192.222.51.151:8090
+- **Main Backend**: http://192.222.58.232:8000
+- **API Documentation**: http://192.222.58.232:8000/docs
+- **Grafana Dashboard**: http://192.222.58.232:3000
+- **Prometheus Metrics**: http://192.222.58.232:9090
+- **Traefik Dashboard**: http://192.222.58.232:8090
 
 ### MCP Server Endpoints
 All MCP servers expose standard endpoints:
@@ -198,46 +198,46 @@ All MCP servers expose standard endpoints:
 #### Services Stuck in "New" State
 ```bash
 # Check if images are being pulled
-ssh ubuntu@192.222.51.151 "sudo docker service ps sophia-ai_service-name --no-trunc"
+ssh ubuntu@192.222.58.232 "sudo docker service ps sophia-ai_service-name --no-trunc"
 
 # Manual image pull test
-ssh ubuntu@192.222.51.151 "sudo docker pull scoobyjava15/sophia-ai:latest"
+ssh ubuntu@192.222.58.232 "sudo docker pull scoobyjava15/sophia-ai:latest"
 ```
 
 #### Secret Access Issues
 ```bash
 # List Docker secrets
-ssh ubuntu@192.222.51.151 "sudo docker secret ls"
+ssh ubuntu@192.222.58.232 "sudo docker secret ls"
 
 # Recreate specific secret
-ssh ubuntu@192.222.51.151 "sudo docker secret rm secret_name"
-python scripts/create_docker_swarm_secrets.py --host 192.222.51.151 --ssh-key ~/.ssh/lynn_sophia_h200_key
+ssh ubuntu@192.222.58.232 "sudo docker secret rm secret_name"
+python scripts/create_docker_swarm_secrets.py --host 192.222.58.232 --ssh-key ~/.ssh/sophia2025.pem
 ```
 
 #### Network Issues
 ```bash
 # Check networks
-ssh ubuntu@192.222.51.151 "sudo docker network ls"
+ssh ubuntu@192.222.58.232 "sudo docker network ls"
 
 # Recreate overlay networks
-ssh ubuntu@192.222.51.151 "sudo docker network rm sophia-overlay traefik-public"
-ssh ubuntu@192.222.51.151 "sudo docker network create --driver overlay --attachable sophia-overlay"
-ssh ubuntu@192.222.51.151 "sudo docker network create --driver overlay --attachable traefik-public"
+ssh ubuntu@192.222.58.232 "sudo docker network rm sophia-overlay traefik-public"
+ssh ubuntu@192.222.58.232 "sudo docker network create --driver overlay --attachable sophia-overlay"
+ssh ubuntu@192.222.58.232 "sudo docker network create --driver overlay --attachable traefik-public"
 ```
 
 ### Debug Commands
 ```bash
 # Complete system status
-ssh ubuntu@192.222.51.151 "sudo docker system df && sudo docker system info"
+ssh ubuntu@192.222.58.232 "sudo docker system df && sudo docker system info"
 
 # Service resource usage
-ssh ubuntu@192.222.51.151 "sudo docker stats --no-stream"
+ssh ubuntu@192.222.58.232 "sudo docker stats --no-stream"
 
 # Swarm node status
-ssh ubuntu@192.222.51.151 "sudo docker node ls"
+ssh ubuntu@192.222.58.232 "sudo docker node ls"
 
 # Stack status
-ssh ubuntu@192.222.51.151 "sudo docker stack ls && sudo docker stack services sophia-ai"
+ssh ubuntu@192.222.58.232 "sudo docker stack ls && sudo docker stack services sophia-ai"
 ```
 
 ## 🔄 Updates and Maintenance
@@ -245,7 +245,7 @@ ssh ubuntu@192.222.51.151 "sudo docker stack ls && sudo docker stack services so
 ### Rolling Updates
 ```bash
 # Update specific service
-ssh ubuntu@192.222.51.151 "sudo docker service update --image scoobyjava15/sophia-ai:new-tag sophia-ai_sophia-backend"
+ssh ubuntu@192.222.58.232 "sudo docker service update --image scoobyjava15/sophia-ai:new-tag sophia-ai_sophia-backend"
 
 # Update entire stack
 git push origin main  # Triggers GitHub Actions deployment
@@ -254,19 +254,19 @@ git push origin main  # Triggers GitHub Actions deployment
 ### Scaling Services
 ```bash
 # Scale specific service
-ssh ubuntu@192.222.51.151 "sudo docker service scale sophia-ai_ai-memory-server=3"
+ssh ubuntu@192.222.58.232 "sudo docker service scale sophia-ai_ai-memory-server=3"
 
 # Scale multiple services
-ssh ubuntu@192.222.51.151 "sudo docker service scale sophia-ai_sophia-backend=2 sophia-ai_ai-memory-server=3"
+ssh ubuntu@192.222.58.232 "sudo docker service scale sophia-ai_sophia-backend=2 sophia-ai_ai-memory-server=3"
 ```
 
 ### Backup and Recovery
 ```bash
 # Backup volumes
-ssh ubuntu@192.222.51.151 "sudo docker run --rm -v sophia-ai_postgres_data:/data -v /backup:/backup ubuntu tar czf /backup/postgres_backup.tar.gz -C /data ."
+ssh ubuntu@192.222.58.232 "sudo docker run --rm -v sophia-ai_postgres_data:/data -v /backup:/backup ubuntu tar czf /backup/postgres_backup.tar.gz -C /data ."
 
 # Restore volumes
-ssh ubuntu@192.222.51.151 "sudo docker run --rm -v sophia-ai_postgres_data:/data -v /backup:/backup ubuntu tar xzf /backup/postgres_backup.tar.gz -C /data"
+ssh ubuntu@192.222.58.232 "sudo docker run --rm -v sophia-ai_postgres_data:/data -v /backup:/backup ubuntu tar xzf /backup/postgres_backup.tar.gz -C /data"
 ```
 
 ## 🎯 Performance Optimization

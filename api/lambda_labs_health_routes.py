@@ -88,7 +88,7 @@ LAMBDA_LABS_INSTANCES = [
     {
         "id": "platform-prod",
         "name": "sophia-platform-prod",
-        "ip": "146.235.200.1",
+        "ip": "192.222.58.232",
         "gpu_type": "GPU 1x A10",
     },
     {
@@ -100,7 +100,7 @@ LAMBDA_LABS_INSTANCES = [
     {
         "id": "ai-prod",
         "name": "sophia-ai-prod",
-        "ip": "137.131.6.213",
+        "ip": "192.222.58.232",
         "gpu_type": "GPU 1x A100",
     },
 ]
@@ -776,7 +776,7 @@ class LambdaLabsHealthService:
                 LambdaLabsInstance(
                     id="platform-prod",
                     name="sophia-platform-prod",
-                    ip="146.235.200.1",
+                    ip="192.222.58.232",
                     gpu_type="GPU 1x A10",
                     status="healthy",
                     cpu_usage=45.0,

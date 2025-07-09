@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-LAMBDA_LABS_HOST="${LAMBDA_LABS_HOST:-146.235.200.1}"
+LAMBDA_LABS_HOST="${LAMBDA_LABS_HOST:-192.222.58.232}"
 LAMBDA_LABS_USER="${LAMBDA_LABS_USER:-ubuntu}"
 
 # Colors for output
@@ -296,7 +296,7 @@ echo ""
 echo "📚 Next steps:"
 echo "1. If not authenticated: flowctl auth login"
 echo "2. Deploy flows: cd ~/sophia-main && ./scripts/deploy-estuary-flow.sh"
-echo "3. Monitor: http://146.235.200.1:3000/d/estuary-flow"
+echo "3. Monitor: http://192.222.58.232:3000/d/estuary-flow"
 echo ""
 echo "All operations completed in the cloud! 🌩️"
 

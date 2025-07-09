@@ -26,7 +26,7 @@ You are analyzing whether Sophia AI should migrate from Docker to Kubernetes K3s
 ### **1. Current Production Environment**
 ```yaml
 Lambda_Labs_Deployment:
-  Host: 192.222.51.122
+  Host: 192.222.58.232
   Infrastructure: Single GH200 GPU instance
   Current_Stack: Docker Compose + Pulumi ESC
   Secret_Management: GitHub Org Secrets → Pulumi ESC → Runtime

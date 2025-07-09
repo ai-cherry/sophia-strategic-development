@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
-MASTER_IP="192.222.51.151"
-SSH_KEY="$HOME/.ssh/lynn_sophia_h200_key"
+MASTER_IP="192.222.58.232"
+SSH_KEY="$HOME/.ssh/sophia2025"
 STACK_NAME="sophia-ai"
 
 echo "🌐 Docker Swarm Network Troubleshooting"

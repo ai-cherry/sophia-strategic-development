@@ -5,8 +5,8 @@
 set -euo pipefail
 
 ESC_ENV="default/sophia-ai-production"
-MASTER_IP="192.222.51.151"
-SSH_KEY="$HOME/.ssh/lynn_sophia_h200_key"
+MASTER_IP="192.222.58.232"
+SSH_KEY="$HOME/.ssh/sophia2025"
 
 echo "🔐 Creating Docker Secrets from Pulumi ESC Environment: $ESC_ENV"
 echo "Target Docker Swarm Manager: $MASTER_IP"

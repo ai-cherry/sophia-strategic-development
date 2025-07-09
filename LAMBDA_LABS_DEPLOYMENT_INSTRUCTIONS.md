@@ -1,6 +1,6 @@
 # 🚀 SOPHIA AI LAMBDA LABS DEPLOYMENT INSTRUCTIONS
 **Date**: July 5, 2025
-**Target**: sophia-platform-prod (146.235.200.1)
+**Target**: sophia-platform-prod (192.222.58.232)
 **Status**: Ready for Manual Deployment
 
 ## 📋 DEPLOYMENT SUMMARY
@@ -14,10 +14,10 @@
 ### 🎯 DEPLOYMENT TARGET
 - **Instance**: sophia-platform-prod
 - **ID**: 959035912afe4b52b9c126b138a52ab5
-- **IP**: 146.235.200.1
+- **IP**: 192.222.58.232
 - **Private IP**: 10.19.50.155
 - **Status**: Active
-- **SSH Key**: lambda_labs_key (configured)
+- **SSH Key**: sophia2025 (configured)
 
 ## 🔧 MANUAL DEPLOYMENT METHODS
 
@@ -110,11 +110,11 @@ If you have the correct private key:
 
 1. **Save the private key** to `~/.ssh/lambda_labs_private_key`
 2. **Set permissions**: `chmod 600 ~/.ssh/lambda_labs_private_key`
-3. **Test connection**: `ssh -i ~/.ssh/lambda_labs_private_key ubuntu@146.235.200.1`
+3. **Test connection**: `ssh -i ~/.ssh/lambda_labs_private_key ubuntu@192.222.58.232`
 4. **Upload and run script**:
    ```bash
-   scp -i ~/.ssh/lambda_labs_private_key SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh ubuntu@146.235.200.1:/tmp/
-   ssh -i ~/.ssh/lambda_labs_private_key ubuntu@146.235.200.1 "chmod +x /tmp/SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh && sudo /tmp/SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh"
+   scp -i ~/.ssh/lambda_labs_private_key SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh ubuntu@192.222.58.232:/tmp/
+   ssh -i ~/.ssh/lambda_labs_private_key ubuntu@192.222.58.232 "chmod +x /tmp/SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh && sudo /tmp/SOPHIA_LAMBDA_DEPLOYMENT_SCRIPT.sh"
    ```
 
 ## 🔍 DEPLOYMENT VERIFICATION
@@ -123,14 +123,14 @@ After deployment, verify these endpoints:
 
 ### Health Checks
 - **Internal Health**: `curl http://localhost:8000/api/health`
-- **External Health**: `curl http://146.235.200.1/api/health`
+- **External Health**: `curl http://192.222.58.232/api/health`
 - **Container Status**: `sudo docker ps | grep sophia-ai-production`
 - **Container Health**: `sudo docker inspect --format='{{.State.Health.Status}}' sophia-ai-production`
 
 ### Access URLs
-- **Main API**: http://146.235.200.1/
-- **Health Check**: http://146.235.200.1/api/health
-- **API Documentation**: http://146.235.200.1/docs
+- **Main API**: http://192.222.58.232/
+- **Health Check**: http://192.222.58.232/api/health
+- **API Documentation**: http://192.222.58.232/docs
 
 ## 📊 MONITORING COMMANDS
 
@@ -243,9 +243,9 @@ When deployment is successful, you should see:
 ✅ External access configured
 
 🌐 ACCESS URLS:
-  - Main API: http://146.235.200.1/
-  - Health Check: http://146.235.200.1/api/health
-  - API Documentation: http://146.235.200.1/docs
+  - Main API: http://192.222.58.232/
+  - Health Check: http://192.222.58.232/api/health
+  - API Documentation: http://192.222.58.232/docs
 
 🚀 Sophia AI is now live on Lambda Labs!
 ```

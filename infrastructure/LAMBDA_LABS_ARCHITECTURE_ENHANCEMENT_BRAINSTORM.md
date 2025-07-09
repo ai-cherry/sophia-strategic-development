@@ -20,7 +20,7 @@
 **Lambda Labs Deployment**:
 - **Current GPU**: gpu_1x_a10 ($2.49/hour equivalent)
 - **Orchestration**: Docker Swarm + Kubernetes hybrid
-- **Compute**: 146.235.200.1 (Lambda Labs instance)
+- **Compute**: 192.222.58.232 (Lambda Labs instance)
 - **Scaling**: Manual instance management
 
 **5-Tiered Memory Architecture**:

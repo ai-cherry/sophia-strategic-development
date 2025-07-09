@@ -70,7 +70,7 @@ Environment: prod
 
 ## 🎯 Where Should MCP Servers Run?
 
-**Answer: On Lambda Labs Server (146.235.200.1), NOT locally**
+**Answer: On Lambda Labs Server (192.222.58.232), NOT locally**
 
 ### Why Lambda Labs?
 1. **Production Environment** - Closer to backend API and databases
@@ -146,7 +146,7 @@ networks:
 
 ```bash
 # SSH into Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Navigate to Sophia AI directory
 cd /opt/sophia-ai
@@ -225,7 +225,7 @@ curl -s https://api.sophia-intel.ai/health | jq '.' || echo "Failed"
 # MCP Servers on Lambda Labs (via SSH)
 echo ""
 echo "MCP Servers (on Lambda Labs):"
-ssh ubuntu@146.235.200.1 << 'EOF'
+ssh ubuntu@192.222.58.232 << 'EOF'
 for port in 9001 9002 9005 9103 9104; do
   echo -n "  Port $port: "
   curl -s localhost:$port/health | jq '.status' || echo "Not responding"
@@ -250,4 +250,4 @@ EOF
 
 ## 🎯 Summary
 
-MCP servers should run on **Lambda Labs (146.235.200.1)** alongside the backend API, not locally. This provides better security, performance, and easier management in production.
+MCP servers should run on **Lambda Labs (192.222.58.232)** alongside the backend API, not locally. This provides better security, performance, and easier management in production.

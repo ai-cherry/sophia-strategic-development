@@ -19,7 +19,7 @@ CLEANUP_PATTERNS = {
         "scripts/deploy_lambda_infrastructure.py",
         "scripts/lambda_labs_ssh_key_setup.py",
         "scripts/setup_lambda_labs.sh",
-        "scripts/deploy_to_146.235.200.1.sh"
+        "scripts/deploy_to_192.222.58.232.sh"
     ],
     
     "old_workflows": [
@@ -60,14 +60,14 @@ KEEP_FILES = {
 
 # Old IP addresses to search for
 OLD_IPS = [
-    "146.235.200.1",
-    "137.131.6.213",
+    "192.222.58.232",
+    "192.222.58.232",
     "104.171.202.103",
     "192.222.58.232",
     "104.171.202.117",
     "104.171.202.134",
     "155.248.194.183",
-    "192.222.51.122"
+    "192.222.58.232"
 ]
 
 class LambdaLabsCleanup:

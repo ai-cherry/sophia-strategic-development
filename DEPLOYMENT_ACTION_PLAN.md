@@ -29,7 +29,7 @@ gh workflow run production-deployment.yml
 
 # Option B: Manual deployment if needed
 # SSH to Lambda Labs
-ssh ubuntu@192.222.51.122
+ssh ubuntu@192.222.58.232
 
 # Pull latest code
 cd /home/ubuntu/sophia-ai
@@ -52,7 +52,7 @@ gh workflow run deploy_v2_mcp_servers.yml \
 # This will automatically:
 # - Build 10 V2 MCP server images
 # - Push to Docker Hub
-# - Deploy to Lambda Labs (146.235.200.1)
+# - Deploy to Lambda Labs (192.222.58.232)
 # - Set up monitoring
 # - Update frontend
 ```
@@ -65,9 +65,9 @@ curl https://api.sophia-ai.lambda.cloud/api/health
 curl https://api.sophia-ai.lambda.cloud/api/unified-chat/health
 
 # Check V2 MCP servers (after deployment)
-curl http://146.235.200.1:9010/health  # ai_memory_v2
-curl http://146.235.200.1:9011/health  # gong_v2
-curl http://146.235.200.1:9012/health  # snowflake_v2
+curl http://192.222.58.232:9010/health  # ai_memory_v2
+curl http://192.222.58.232:9011/health  # gong_v2
+curl http://192.222.58.232:9012/health  # snowflake_v2
 # ... etc for all 10 servers
 
 # Check frontend
@@ -76,14 +76,14 @@ open https://app.sophia-ai.lambda.cloud/
 
 ## 📊 Deployment Status Dashboard
 
-### Main Platform (192.222.51.122)
+### Main Platform (192.222.58.232)
 - [ ] Backend API deployed with unified chat
 - [ ] PostgreSQL running
 - [ ] Redis running
 - [ ] Traefik configured
 - [ ] Health checks passing
 
-### V2 MCP Servers (146.235.200.1)
+### V2 MCP Servers (192.222.58.232)
 - [ ] ai_memory_v2 (port 9010)
 - [ ] gong_v2 (port 9011)
 - [ ] snowflake_v2 (port 9012)
@@ -107,12 +107,12 @@ open https://app.sophia-ai.lambda.cloud/
 gh run watch
 
 # Check Docker services on Lambda Labs
-ssh ubuntu@192.222.51.122 docker service ls
-ssh ubuntu@146.235.200.1 docker service ls
+ssh ubuntu@192.222.58.232 docker service ls
+ssh ubuntu@192.222.58.232 docker service ls
 
 # View logs
-ssh ubuntu@192.222.51.122 docker service logs sophia-ai_sophia-backend
-ssh ubuntu@146.235.200.1 docker service logs sophia-v2-mcp_ai_memory_v2
+ssh ubuntu@192.222.58.232 docker service logs sophia-ai_sophia-backend
+ssh ubuntu@192.222.58.232 docker service logs sophia-v2-mcp_ai_memory_v2
 
 # Check Grafana dashboards
 open https://grafana.sophia-ai.lambda.cloud

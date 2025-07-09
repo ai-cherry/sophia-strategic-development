@@ -264,14 +264,14 @@ fi
 ```yaml
 instances:
   - name: sophia-ai-main
-    ip: 192.222.51.151
+    ip: 192.222.58.232
     type: GH200
     gpu: 96GB
     cost: $1.49/hour
     purpose: Main backend, MCP servers
     
   - name: sophia-ai-worker-1
-    ip: 192.222.51.122
+    ip: 192.222.58.232
     type: RTX6000
     gpu: 24GB
     cost: $0.50/hour
@@ -317,11 +317,11 @@ instances:
 ```yaml
 endpoints:
   - name: Backend API
-    url: http://192.222.51.151:8000/health
+    url: http://192.222.58.232:8000/health
     expected: 200
     
   - name: MCP Gateway
-    url: http://192.222.51.151:8080/health
+    url: http://192.222.58.232:8080/health
     expected: 200
     
   - name: Prometheus

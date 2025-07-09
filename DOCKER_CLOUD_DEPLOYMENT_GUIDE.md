@@ -82,10 +82,10 @@ deploy:
 ### **STEP 1: Initialize Docker Swarm (If Not Already Done)**
 ```bash
 # On manager node (Lambda Labs)
-docker swarm init --advertise-addr 146.235.200.1
+docker swarm init --advertise-addr 192.222.58.232
 
 # Join worker nodes (if multiple instances)
-docker swarm join --token <worker-token> 146.235.200.1:2377
+docker swarm join --token <worker-token> 192.222.58.232:2377
 ```
 
 ### **STEP 2: Create Docker Secrets**
@@ -256,7 +256,7 @@ networks:
 ### **📈 GRAFANA DASHBOARDS**
 ```bash
 # Access monitoring
-http://146.235.200.1:3000
+http://192.222.58.232:3000
 
 # Default dashboards:
 - Docker Swarm Overview

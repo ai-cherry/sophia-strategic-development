@@ -24,7 +24,7 @@ export GITHUB_TOKEN='ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 Confirm which instances to keep/remove:
 
 ### KEEP (Recommended):
-- **sophia-ai-production** (137.131.6.213) - 8x V100 GPUs
+- **sophia-ai-production** (192.222.58.232) - 8x V100 GPUs
   - Main production server for heavy AI workloads
 - **orchestra-sophia-prod** (150.230.47.71) - 1x A10 GPU
   - MCP server orchestration

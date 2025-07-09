@@ -56,11 +56,11 @@ class SecureLambdaLabsManager:
         
         # SSH configuration from Pulumi ESC
         self.ssh_key_path = os.path.expanduser(
-            get_config_value("lambda_ssh_key_path", "~/.ssh/lynn_sophia_h200_key")
+            get_config_value("lambda_ssh_key_path", "~/.ssh/sophia2025.pem")
         )
         
         # Load instance configuration
-        self.production_ip = get_config_value("lambda_labs_production_ip", "192.222.51.151")
+        self.production_ip = get_config_value("lambda_labs_production_ip", "192.222.58.232")
         
         # Validate credentials
         if not self.cloud_api_key or not self.regular_api_key:

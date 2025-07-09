@@ -557,7 +557,7 @@ echo "🎉 All V2 MCP servers built successfully!"
 
 set -e
 
-LAMBDA_HOST="${LAMBDA_LABS_HOST:-146.235.200.1}"
+LAMBDA_HOST="${LAMBDA_LABS_HOST:-192.222.58.232}"
 LAMBDA_USER="${LAMBDA_LABS_USER:-ubuntu}"
 REGISTRY="scoobyjava15"
 
@@ -854,7 +854,7 @@ async def test_chat_with_documentation():
 ## Rollback Plan 🔄
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Stop specific MCP server
 cd ~/sophia-mcp-v2

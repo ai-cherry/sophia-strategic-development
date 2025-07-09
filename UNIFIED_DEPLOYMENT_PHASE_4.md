@@ -419,7 +419,7 @@ checks=(
     "MCP servers online|curl -s https://api.sophia-intel.ai/api/v1/mcp/servers | jq -r 'keys | length'|9"
     "SSL valid|echo | openssl s_client -servername api.sophia-intel.ai -connect api.sophia-intel.ai:443 2>/dev/null | openssl x509 -noout -checkend 86400|"
     "Rate limiting active|python tests/security/test_rate_limit.py|"
-    "Monitoring active|curl -s http://146.235.200.1:9090/api/v1/query?query=up | jq '.data.result | length'|"
+    "Monitoring active|curl -s http://192.222.58.232:9090/api/v1/query?query=up | jq '.data.result | length'|"
 )
 
 all_passed=true
@@ -471,7 +471,7 @@ echo "✅ Backup created"
 echo ""
 echo "🌐 DNS Configuration:"
 echo "app.sophia-intel.ai → Vercel"
-echo "api.sophia-intel.ai → Lambda Labs (146.235.200.1)"
+echo "api.sophia-intel.ai → Lambda Labs (192.222.58.232)"
 echo ""
 echo "Current DNS status:"
 dig +short app.sophia-intel.ai
@@ -480,7 +480,7 @@ dig +short api.sophia-intel.ai
 # Step 3: Enable production monitoring
 echo ""
 echo "📊 Enabling production monitoring..."
-curl -X POST http://146.235.200.1:9093/api/v1/alerts/receivers \
+curl -X POST http://192.222.58.232:9093/api/v1/alerts/receivers \
   -H "Content-Type: application/json" \
   -d '{
     "name": "production-alerts",
@@ -516,8 +516,8 @@ echo "  - API Docs: https://api.sophia-intel.ai/docs"
 echo "  - Health: https://api.sophia-intel.ai/health"
 echo ""
 echo "📊 Monitoring:"
-echo "  - Grafana: http://146.235.200.1:3000"
-echo "  - Logs: ssh ubuntu@146.235.200.1 'docker logs -f sophia-backend'"
+echo "  - Grafana: http://192.222.58.232:3000"
+echo "  - Logs: ssh ubuntu@192.222.58.232 'docker logs -f sophia-backend'"
 ```
 
 ## 4.5 Post-Deployment Validation (30 minutes)
@@ -633,7 +633,7 @@ while [ $(date +%s) -lt $end_time ]; do
 
     # Check error rate
     echo -n "Error Rate: "
-    curl -s http://146.235.200.1:9090/api/v1/query?query=rate(http_requests_total{status=~"5.."}[5m]) | jq -r '.data.result[0].value[1]' || echo "0"
+    curl -s http://192.222.58.232:9090/api/v1/query?query=rate(http_requests_total{status=~"5.."}[5m]) | jq -r '.data.result[0].value[1]' || echo "0"
 
     # Check active connections
     echo -n "WebSocket Connections: "
@@ -672,7 +672,7 @@ echo "🚨 EMERGENCY ROLLBACK"
 vercel rollback --token $VERCEL_TOKEN
 
 # 2. Revert backend
-ssh ubuntu@146.235.200.1 << 'EOF'
+ssh ubuntu@192.222.58.232 << 'EOF'
     docker stop sophia-backend
     docker run -d --name sophia-backend-old sophia-ai-backend:previous
 EOF

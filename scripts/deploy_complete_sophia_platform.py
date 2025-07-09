@@ -62,12 +62,12 @@ class SophiaPlatformDeployer:
 
         # Lambda Labs configuration
         self.lambda_labs_host = os.getenv(
-            "LAMBDA_LABS_HOST", get_config_value("LAMBDA_LABS_HOST", "192.222.51.151")
+            "LAMBDA_LABS_HOST", get_config_value("LAMBDA_LABS_HOST", "192.222.58.232")
         )
         self.ssh_key = os.path.expanduser(
             os.getenv(
                 "LAMBDA_SSH_KEY_PATH",
-                get_config_value("LAMBDA_SSH_KEY_PATH", "~/.ssh/lynn_sophia_h200_key"),
+                get_config_value("LAMBDA_SSH_KEY_PATH", "~/.ssh/sophia2025.pem"),
             )
         )
 

@@ -17,7 +17,7 @@ This implementation plan transforms the Sophia AI platform from 0% functional to
 
 1. **Environment Stability**: Production-first configuration (never staging)
 2. **Secret Management**: GitHub Org → Pulumi ESC → Runtime flow
-3. **Docker Cloud**: All services deployed to Lambda Labs (146.235.200.1)
+3. **Docker Cloud**: All services deployed to Lambda Labs (192.222.58.232)
 4. **V2 Architecture**: Modern async FastAPI with enhanced features
 
 ## Phase-by-Phase Implementation

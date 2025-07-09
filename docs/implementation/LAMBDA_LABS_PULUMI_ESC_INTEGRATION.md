@@ -354,7 +354,7 @@ class IntegrationValidator:
 
     def validate_ssh_key(self):
         """Validate SSH key configuration"""
-        ssh_key_path = Path.home() / '.ssh' / 'lynn_sophia_h200_key'
+        ssh_key_path = Path.home() / '.ssh' / 'sophia2025.pem'
 
         if ssh_key_path.exists():
             # Check permissions
@@ -376,7 +376,7 @@ class IntegrationValidator:
 
             return True
         else:
-            self.errors.append("❌ SSH key not found at ~/.ssh/lynn_sophia_h200_key")
+            self.errors.append("❌ SSH key not found at ~/.ssh/sophia2025.pem")
             return False
 
     def validate_lambda_labs_api(self):
@@ -602,8 +602,8 @@ pulumi login --cloud-url https://api.pulumi.com
 **Issue: SSH key permissions**
 ```bash
 # Solution: Fix permissions
-chmod 600 ~/.ssh/lynn_sophia_h200_key
-chmod 644 ~/.ssh/lynn_sophia_h200_key.pub
+chmod 600 ~/.ssh/sophia2025.pem
+chmod 644 ~/.ssh/sophia2025.pem.pub
 ```
 
 ---

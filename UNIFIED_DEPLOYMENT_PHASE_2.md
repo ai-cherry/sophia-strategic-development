@@ -228,7 +228,7 @@ async def get_active_connections():
 set -e
 
 # Configuration
-LAMBDA_HOST="${LAMBDA_LABS_HOST:-146.235.200.1}"
+LAMBDA_HOST="${LAMBDA_LABS_HOST:-192.222.58.232}"
 LAMBDA_USER="${LAMBDA_LABS_USER:-ubuntu}"
 IMAGE_NAME="sophia-ai-backend"
 CONTAINER_NAME="sophia-backend"
@@ -582,7 +582,7 @@ jobs:
 ## Rollback Plan 🔄
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Rollback to previous container
 docker stop sophia-backend

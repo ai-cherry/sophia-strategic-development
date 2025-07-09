@@ -8,7 +8,7 @@
 docker login -u scoobyjava15
 
 # Test Lambda Labs SSH
-ssh ubuntu@146.235.200.1 "echo 'SSH OK'"
+ssh ubuntu@192.222.58.232 "echo 'SSH OK'"
 ```
 
 ### 2. Deploy All V2 MCP Servers
@@ -38,7 +38,7 @@ docker push scoobyjava15/sophia-gong-v2:latest
 #### Deploy on Lambda Labs
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Deploy stack
 docker stack deploy -c docker-compose.mcp-v2.yml sophia-mcp-v2

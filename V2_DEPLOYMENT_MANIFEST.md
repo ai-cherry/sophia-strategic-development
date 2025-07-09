@@ -1,7 +1,7 @@
 # V2 MCP Deployment Manifest
 
 **Deployment Date:** January 14, 2025
-**Target Infrastructure:** Lambda Labs (146.235.200.1)
+**Target Infrastructure:** Lambda Labs (192.222.58.232)
 **Deployment Method:** Docker Swarm via GitHub Actions
 
 ## 🚀 10 V2 MCP Servers Being Deployed

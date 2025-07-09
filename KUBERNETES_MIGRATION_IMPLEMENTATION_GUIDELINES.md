@@ -11,7 +11,7 @@
 ```yaml
 Required_Access:
   Repository: ai-cherry/sophia-main (full access)
-  Lambda_Labs: 192.222.51.122 (SSH access)
+  Lambda_Labs: 192.222.58.232 (SSH access)
   GitHub_Actions: Workflow execution logs
   Pulumi_ESC: scoobyjava-org/sophia-prod-on-lambda stack
 

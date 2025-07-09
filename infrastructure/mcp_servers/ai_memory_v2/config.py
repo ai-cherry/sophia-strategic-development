@@ -54,7 +54,7 @@ class AiMemoryV2Settings(BaseSettings):
     ENABLE_METRICS: bool = Field(default=True, description="Enable Prometheus metrics")
 
     # Redis Configuration
-    REDIS_HOST: str = get_config_value("redis_host", "146.235.200.1")
+    REDIS_HOST: str = get_config_value("redis_host", "192.222.58.232")
     REDIS_PORT: int = int(get_config_value("redis_port", "6379"))
     REDIS_PASSWORD: str | None = get_config_value("redis_password") or os.getenv(
         "REDIS_PASSWORD"

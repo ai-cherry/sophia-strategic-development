@@ -124,7 +124,7 @@ collections:
         connector:
           image: estuary/source-http-ingest:latest
           config:
-            endpoint: "http://146.235.200.1:9009/estuary/webhook"
+            endpoint: "http://192.222.58.232:9009/estuary/webhook"
             auth:
               type: bearer
               token: ${ESTUARY_GONG_TOKEN}
@@ -163,7 +163,7 @@ materializations:
       connector:
         image: estuary/materialize-redis:latest
         config:
-          address: "146.235.200.1:6379"
+          address: "192.222.58.232:6379"
           password: ${REDIS_PASSWORD}
 
     bindings:
@@ -246,7 +246,7 @@ values:
 
 ### 2. **Network Security**
 - All webhooks use HTTPS with token auth
-- IP allowlisting for Lambda Labs (146.235.200.1)
+- IP allowlisting for Lambda Labs (192.222.58.232)
 - Encrypted data at rest and in transit
 
 ## 📝 Migration Strategy

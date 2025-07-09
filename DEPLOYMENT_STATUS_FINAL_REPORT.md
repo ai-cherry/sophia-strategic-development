@@ -30,9 +30,9 @@
 
 ### 1. **Lambda Labs Instance Unreachable**
 ```
-IP: 192.222.51.151
+IP: 192.222.58.232
 Status: Connection timeout
-SSH Key: ~/.ssh/lynn_sophia_h200_key (exists)
+SSH Key: ~/.ssh/sophia2025.pem (exists)
 ```
 
 ### 2. **Backend Startup Issue**
@@ -53,7 +53,7 @@ SSH Key: ~/.ssh/lynn_sophia_h200_key (exists)
 # Add these to https://github.com/ai-cherry/sophia-main/settings/secrets/actions
 LAMBDA_API_KEY          # Your inference API key
 LAMBDA_CLOUD_API_KEY    # Your cloud management API key
-LAMBDA_SSH_PRIVATE_KEY  # Contents of ~/.ssh/lynn_sophia_h200_key
+LAMBDA_SSH_PRIVATE_KEY  # Contents of ~/.ssh/sophia2025.pem
 DOCKER_HUB_USERNAME     # scoobyjava15
 DOCKER_HUB_TOKEN        # Create at hub.docker.com
 ```

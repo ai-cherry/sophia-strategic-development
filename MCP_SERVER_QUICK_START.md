@@ -139,15 +139,15 @@ docker push scoobyjava15/slack-mcp:latest
 ### 2. Deploy to Lambda Labs
 ```bash
 # SSH to Lambda Labs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Deploy with Docker Swarm
 docker stack deploy -c docker-compose.production.yml slack-mcp
 ```
 
 ### 3. Monitor
-- Metrics: `http://146.235.200.1:9002/metrics`
-- Health: `http://146.235.200.1:9002/health`
+- Metrics: `http://192.222.58.232:9002/metrics`
+- Health: `http://192.222.58.232:9002/health`
 - Logs: `docker service logs slack-mcp_slack`
 
 ## 📊 Available Endpoints

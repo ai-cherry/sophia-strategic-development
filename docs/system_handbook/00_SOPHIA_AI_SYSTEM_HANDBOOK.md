@@ -394,10 +394,10 @@ const UnifiedDashboard = () => {
 - **Performance**: 10x faster inference, 50x faster vector operations
 
 **Enhanced SSH Key Management**:
-- **Active Instance**: lynn-sophia-gh200-master-01 (192.222.51.151)
+- **Active Instance**: lynn-sophia-gh200-master-01 (192.222.58.232)
 - **Lambda Labs Key**: lynn-sophia-key (ID: b6d556aad0f64c8eb22c9224b3dff66a)
-- **Local Private Key**: ~/.ssh/lynn_sophia_h200_key
-- **SSH Command**: `ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151`
+- **Local Private Key**: ~/.ssh/sophia2025.pem
+- **SSH Command**: `ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232`
 - **Documentation**: See `docs/04-deployment/LAMBDA_LABS_SSH_CONFIGURATION.md`
 - All SSH operations automated through Pulumi ESC pipeline
 

@@ -161,10 +161,10 @@ https://cloud.lambda.ai/api/v1/instances
 ### SSH Access
 ```bash
 # SSH to any instance
-ssh -i ~/.ssh/lambda_labs_sophia_key ubuntu@<instance-ip>
+ssh -i ~/.ssh/sophia2025.pem ubuntu@<instance-ip>
 
 # Example
-ssh -i ~/.ssh/lambda_labs_sophia_key ubuntu@104.171.202.103
+ssh -i ~/.ssh/sophia2025.pem ubuntu@104.171.202.103
 ```
 
 ## Docker Compose Configuration
@@ -236,7 +236,7 @@ services:
 
 1. **SSH Connection Failed**
    ```bash
-   chmod 600 ~/.ssh/lambda_labs_sophia_key
+   chmod 600 ~/.ssh/sophia2025.pem
    ssh-keyscan -H <ip> >> ~/.ssh/known_hosts
    ```
 

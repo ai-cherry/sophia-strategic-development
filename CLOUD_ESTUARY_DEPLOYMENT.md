@@ -27,12 +27,12 @@ This will:
 
 ### One Command Deployment
 ```bash
-ssh ubuntu@146.235.200.1 'bash -s' < scripts/cloud-deploy-estuary.sh
+ssh ubuntu@192.222.58.232 'bash -s' < scripts/cloud-deploy-estuary.sh
 ```
 
 Or if you're already SSH'd in:
 ```bash
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Then run:
 curl -sSL https://raw.githubusercontent.com/ai-cherry/sophia-main/main/scripts/cloud-deploy-estuary.sh | bash
@@ -65,7 +65,7 @@ Without these, you'll need to run `flowctl auth login` manually on Lambda Labs.
 
 ### Via SSH
 ```bash
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Check deployment status
 cd ~/sophia-main
@@ -98,7 +98,7 @@ done
 
 After deployment, test from Lambda Labs:
 ```bash
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 
 # Load environment
 cd ~/sophia-main
@@ -134,7 +134,7 @@ curl -X POST http://localhost:9009/estuary/webhook \
 
 ### If Estuary Auth Needed
 ```bash
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 cd ~/sophia-main
 flowctl auth login
 # Follow prompts
@@ -147,7 +147,7 @@ flowctl auth login
 gh run view
 
 # Lambda Labs logs
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 docker service logs sophia-mcp-v2_gong-v2 --tail 50
 ```
 

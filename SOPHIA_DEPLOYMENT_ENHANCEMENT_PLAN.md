@@ -11,7 +11,7 @@ We have a **working Docker Swarm deployment** on Lambda Labs that's already prod
 ## 📊 Current State Analysis
 
 ### ✅ What's Working Well
-- **Docker Swarm** on Lambda Labs (146.235.200.1)
+- **Docker Swarm** on Lambda Labs (192.222.58.232)
 - **Docker Hub Registry** (scoobyjava15)
 - **Pulumi ESC** for secrets management
 - **GitHub Actions** for CI/CD
@@ -230,7 +230,7 @@ class MetricsMiddleware:
 docker swarm join-token manager
 
 # On additional Lambda Labs instances:
-docker swarm join --token <manager-token> 146.235.200.1:2377
+docker swarm join --token <manager-token> 192.222.58.232:2377
 
 # Update placement constraints for critical services
 docker service update --constraint-add 'node.role==manager' sophia-backend

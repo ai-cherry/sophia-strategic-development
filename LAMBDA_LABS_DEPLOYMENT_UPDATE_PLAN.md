@@ -12,14 +12,14 @@ This plan provides a comprehensive update to all Lambda Labs deployment infrastr
 ## Current State Analysis
 
 ### Active Lambda Labs Instance
-- **Primary Instance**: GH200 at `192.222.51.151` (confirmed active)
-- **SSH Key**: `~/.ssh/lynn_sophia_h200_key` (exists locally)
+- **Primary Instance**: GH200 at `192.222.58.232` (confirmed active)
+- **SSH Key**: `~/.ssh/sophia2025.pem` (exists locally)
 - **API Keys**: Stored in GitHub Secrets and Pulumi ESC
 
 ### Problems Identified
 
 1. **Outdated IP References**:
-   - Old IPs still referenced: `146.235.200.1`, `137.131.6.213`, `104.171.202.103`, etc.
+   - Old IPs still referenced: `192.222.58.232`, `192.222.58.232`, `104.171.202.103`, etc.
    - Multiple conflicting instance mappings
 
 2. **Hardcoded Credentials**:
@@ -27,7 +27,7 @@ This plan provides a comprehensive update to all Lambda Labs deployment infrastr
    - SSH key paths inconsistent across scripts
 
 3. **Inconsistent Key Names**:
-   - Mix of `lynn_sophia_h200_key`, `lambda_labs_sophia_key`, `lambda_labs_key`
+   - Mix of `sophia2025`, `sophia2025`, `sophia2025`
    - GitHub secrets vs Pulumi ESC naming mismatches
 
 ## Implementation Plan
@@ -48,7 +48,7 @@ class LambdaLabsManager:
         
         # Standardize SSH key path
         self.ssh_key_path = os.path.expanduser(
-            get_config_value("lambda_ssh_key_path", "~/.ssh/lynn_sophia_h200_key")
+            get_config_value("lambda_ssh_key_path", "~/.ssh/sophia2025.pem")
         )
 ```
 
@@ -60,11 +60,11 @@ infrastructure:
     api_key: ${secrets.LAMBDA_API_KEY}
     cloud_api_key: ${secrets.LAMBDA_CLOUD_API_KEY}
     api_endpoint: "https://cloud.lambda.ai/api/v1"
-    ssh_key_path: "~/.ssh/lynn_sophia_h200_key"
+    ssh_key_path: "~/.ssh/sophia2025.pem"
     instances:
       production:
         name: "sophia-main"
-        ip: "192.222.51.151"
+        ip: "192.222.58.232"
         type: "GH200"
 ```
 
@@ -88,8 +88,8 @@ infrastructure:
 ```yaml
 # .github/workflows/main-deployment.yml
 env:
-  LAMBDA_LABS_IP: "192.222.51.151"
-  LAMBDA_SSH_KEY_NAME: "lynn_sophia_h200_key"
+  LAMBDA_LABS_IP: "192.222.58.232"
+  LAMBDA_SSH_KEY_NAME: "sophia2025.pem"
   
 jobs:
   deploy:
@@ -97,8 +97,8 @@ jobs:
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_SSH_KEY }}" > ~/.ssh/lynn_sophia_h200_key
-          chmod 600 ~/.ssh/lynn_sophia_h200_key
+          echo "${{ secrets.LAMBDA_SSH_KEY }}" > ~/.ssh/sophia2025.pem
+          chmod 600 ~/.ssh/sophia2025.pem
 ```
 
 ### Phase 4: Infrastructure as Code Updates
@@ -110,10 +110,10 @@ export const lambdaLabsConfig = {
   instances: {
     production: {
       name: "sophia-main",
-      ip: "192.222.51.151",
+      ip: "192.222.58.232",
       type: "GH200",
       region: "us-west",
-      sshKeyName: "lynn_sophia_h200_key"
+      sshKeyName: "sophia2025.pem"
     }
   },
   monitoring: {
@@ -164,7 +164,7 @@ pulumi env set scoobyjava-org/default/sophia-ai-production \
   --secret
 
 pulumi env set scoobyjava-org/default/sophia-ai-production \
-  lambda_labs.instances.production.ip "192.222.51.151"
+  lambda_labs.instances.production.ip "192.222.58.232"
 ```
 
 ### Step 3: Update GitHub Secrets
@@ -172,7 +172,7 @@ pulumi env set scoobyjava-org/default/sophia-ai-production \
 # Ensure GitHub secrets are correctly set
 gh secret set LAMBDA_API_KEY --body "$LAMBDA_API_KEY" --org ai-cherry
 gh secret set LAMBDA_CLOUD_API_KEY --body "$LAMBDA_CLOUD_API_KEY" --org ai-cherry
-gh secret set LAMBDA_SSH_KEY --body "$(cat ~/.ssh/lynn_sophia_h200_key)" --org ai-cherry
+gh secret set LAMBDA_SSH_KEY --body "$(cat ~/.ssh/sophia2025.pem)" --org ai-cherry
 ```
 
 ### Step 4: Run Security Scan
@@ -191,8 +191,8 @@ python scripts/lambda_labs_manager.py health --instance production
 
 - [ ] No hardcoded API keys in any scripts
 - [ ] All scripts use Pulumi ESC for credentials
-- [ ] Single IP address (192.222.51.151) used consistently
-- [ ] SSH key path standardized to `~/.ssh/lynn_sophia_h200_key`
+- [ ] Single IP address (192.222.58.232) used consistently
+- [ ] SSH key path standardized to `~/.ssh/sophia2025.pem`
 - [ ] GitHub Actions workflows updated
 - [ ] Documentation reflects current state
 - [ ] Security scan passes
@@ -215,12 +215,12 @@ python scripts/lambda_labs_manager.py health --instance production
 ```yaml
 production:
   name: sophia-main
-  ip: 192.222.51.151
+  ip: 192.222.58.232
   type: GH200
   gpu: 96GB
   memory: 480GB
   cost_per_hour: $1.49
-  ssh_key: ~/.ssh/lynn_sophia_h200_key
+  ssh_key: ~/.ssh/sophia2025.pem
   services:
     - backend: 8000
     - mcp_servers: 9000-9100
@@ -231,10 +231,10 @@ production:
 ```
 
 ### Access URLs
-- Backend API: http://192.222.51.151:8000
-- API Docs: http://192.222.51.151:8000/docs
-- Grafana: http://192.222.51.151:3000
-- Prometheus: http://192.222.51.151:9090
+- Backend API: http://192.222.58.232:8000
+- API Docs: http://192.222.58.232:8000/docs
+- Grafana: http://192.222.58.232:3000
+- Prometheus: http://192.222.58.232:9090
 
 ## Success Criteria
 

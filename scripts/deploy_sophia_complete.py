@@ -61,7 +61,7 @@ class SophiaDeploymentOrchestrator:
             },
         }
 
-        self.ssh_key_path = os.path.expanduser("~/.ssh/lambda_labs_sophia_key")
+        self.ssh_key_path = os.path.expanduser("~/.ssh/sophia2025.pem")
         self.deployment_report = {
             "deployment_id": self.deployment_id,
             "start_time": self.start_time.isoformat(),

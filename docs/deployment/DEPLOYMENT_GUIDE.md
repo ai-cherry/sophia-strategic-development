@@ -48,7 +48,7 @@ Sophia AI is deployed on Lambda Labs GPU infrastructure using Docker containeriz
 ┌─────────────────────────────────────────────────┐
 │           Lambda Labs Infrastructure             │
 ├─────────────────────────────────────────────────┤
-│  Main Instance (192.222.51.151)                 │
+│  Main Instance (192.222.58.232)                 │
 │  • Type: GH200 (96GB GPU)                      │
 │  • Services: Backend API, MCP Servers          │
 │  • Cost: $1.49/hour                            │
@@ -168,7 +168,7 @@ python scripts/deployment/deploy.py \
 
 ```bash
 # SSH to Lambda Labs
-ssh -i ~/.ssh/lambda_labs_sophia_key ubuntu@192.222.51.151
+ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
 
 # Pull latest images
 docker pull scoobyjava15/sophia-backend:latest
@@ -243,13 +243,13 @@ SLACK_BOT_TOKEN
 
 ```yaml
 Backend API:
-  URL: http://192.222.51.151:8000/health
+  URL: http://192.222.58.232:8000/health
   Expected: {"status": "healthy"}
   
 MCP Servers:
-  Linear: http://192.222.51.151:9004/health
-  GitHub: http://192.222.51.151:9103/health
-  Asana: http://192.222.51.151:9100/health
+  Linear: http://192.222.58.232:9004/health
+  GitHub: http://192.222.58.232:9103/health
+  Asana: http://192.222.58.232:9100/health
 ```
 
 ### Monitoring Commands
@@ -267,8 +267,8 @@ python scripts/deployment/monitor.py --interval 60
 
 ### Metrics & Dashboards
 
-- **Prometheus**: http://192.222.51.151:9090
-- **Grafana**: http://192.222.51.151:3000
+- **Prometheus**: http://192.222.58.232:9090
+- **Grafana**: http://192.222.58.232:3000
 - **Logs**: Via SSH and `docker logs`
 
 ## Troubleshooting
@@ -291,7 +291,7 @@ docker logs sophia-backend
 
 ```bash
 # Test connectivity
-curl http://192.222.51.151:8000/health
+curl http://192.222.58.232:8000/health
 
 # Check container status
 docker ps -a
@@ -342,7 +342,7 @@ docker run -d \
   scoobyjava15/sophia-backend:previous-tag
 
 # 4. Verify health
-curl http://192.222.51.151:8000/health
+curl http://192.222.58.232:8000/health
 ```
 
 ### Disaster Recovery

@@ -26,7 +26,7 @@ class UnifiedDeployer:
     def __init__(self, environment: str = "production"):
         self.environment = environment
         self.docker_registry = os.getenv("DOCKER_REGISTRY", "scoobyjava15")
-        self.lambda_labs_host = os.getenv("LAMBDA_LABS_HOST", "192.222.51.122")
+        self.lambda_labs_host = os.getenv("LAMBDA_LABS_HOST", "192.222.58.232")
         self.stack_name = "sophia-ai"
         self.compose_file = "docker-compose.unified.yml"
 
@@ -230,9 +230,9 @@ AI_MEMORY_REPLICAS=1
         self.log(f"🚀 Deploying to Swarm on {host}...", BLUE)
 
         # Check SSH key
-        ssh_key = os.path.expanduser("~/.ssh/lambda_labs_key")
+        ssh_key = os.path.expanduser("~/.ssh/sophia2025.pem")
         if not Path(ssh_key).exists():
-            ssh_key = os.path.expanduser("~/.ssh/lynn_sophia_h200_key")
+            ssh_key = os.path.expanduser("~/.ssh/sophia2025.pem")
             if not Path(ssh_key).exists():
                 self.log("❌ SSH key not found", RED)
                 return False

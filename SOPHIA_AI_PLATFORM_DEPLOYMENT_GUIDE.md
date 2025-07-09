@@ -13,8 +13,8 @@ This guide covers the complete deployment of the Sophia AI platform including:
 ## 📋 Prerequisites
 
 1. **Lambda Labs Access**
-   - SSH access to Lambda Labs instance (146.235.200.1)
-   - SSH key configured (`~/.ssh/lambda_labs_key`)
+   - SSH access to Lambda Labs instance (192.222.58.232)
+   - SSH key configured (`~/.ssh/sophia2025.pem`)
 
 2. **Docker Hub Account**
    - Username: `scoobyjava15`
@@ -22,7 +22,7 @@ This guide covers the complete deployment of the Sophia AI platform including:
 
 3. **Environment Variables**
    ```bash
-   export LAMBDA_LABS_IP="146.235.200.1"
+   export LAMBDA_LABS_IP="192.222.58.232"
    export DOCKER_REGISTRY="scoobyjava15"
    export IMAGE_TAG="latest"
    export PULUMI_ORG="scoobyjava-org"
@@ -131,10 +131,10 @@ done
 
 ```bash
 # Copy compose file to Lambda Labs
-scp docker-compose.cloud.yml root@146.235.200.1:/opt/sophia-ai/
+scp docker-compose.cloud.yml root@192.222.58.232:/opt/sophia-ai/
 
 # SSH to Lambda Labs
-ssh root@146.235.200.1
+ssh root@192.222.58.232
 
 # Initialize Docker Swarm (if needed)
 docker swarm init
@@ -171,57 +171,57 @@ cd ../linear && MCP_SERVER_PORT=9006 python linear_mcp_server.py &
 
 ```bash
 # Backend API
-curl http://146.235.200.1:8000/health
+curl http://192.222.58.232:8000/health
 
 # Frontend
-curl http://146.235.200.1:3000
+curl http://192.222.58.232:3000
 
 # MCP Servers
 for port in 9001 9002 9003 9004 9005 9006 9007 9008 9009 9010; do
     echo "Checking port $port..."
-    curl http://146.235.200.1:$port/health
+    curl http://192.222.58.232:$port/health
 done
 
 # Docker Stack Status
-ssh root@146.235.200.1 'docker stack services sophia-ai'
+ssh root@192.222.58.232 'docker stack services sophia-ai'
 ```
 
 ### Monitor Logs
 
 ```bash
 # Backend logs
-ssh root@146.235.200.1 'docker service logs -f sophia-ai_sophia-backend'
+ssh root@192.222.58.232 'docker service logs -f sophia-ai_sophia-backend'
 
 # Frontend logs
-ssh root@146.235.200.1 'docker service logs -f sophia-ai_sophia-frontend'
+ssh root@192.222.58.232 'docker service logs -f sophia-ai_sophia-frontend'
 
 # MCP server logs
-ssh root@146.235.200.1 'docker service logs -f sophia-ai_mcp-ai-memory-v2'
+ssh root@192.222.58.232 'docker service logs -f sophia-ai_mcp-ai-memory-v2'
 ```
 
 ## 🌐 Access URLs
 
 ### Main Applications
-- **Dashboard**: http://146.235.200.1:3000
-- **API**: http://146.235.200.1:8000
-- **API Documentation**: http://146.235.200.1:8000/docs
-- **WebSocket Chat**: ws://146.235.200.1:8000/ws
+- **Dashboard**: http://192.222.58.232:3000
+- **API**: http://192.222.58.232:8000
+- **API Documentation**: http://192.222.58.232:8000/docs
+- **WebSocket Chat**: ws://192.222.58.232:8000/ws
 
 ### MCP Servers
-- **AI Memory**: http://146.235.200.1:9001
-- **Gong Integration**: http://146.235.200.1:9002
-- **Snowflake**: http://146.235.200.1:9003
-- **Slack**: http://146.235.200.1:9004
-- **Notion**: http://146.235.200.1:9005
-- **Linear**: http://146.235.200.1:9006
-- **GitHub**: http://146.235.200.1:9007
-- **Codacy**: http://146.235.200.1:9008
-- **Asana**: http://146.235.200.1:9009
-- **Perplexity**: http://146.235.200.1:9010
+- **AI Memory**: http://192.222.58.232:9001
+- **Gong Integration**: http://192.222.58.232:9002
+- **Snowflake**: http://192.222.58.232:9003
+- **Slack**: http://192.222.58.232:9004
+- **Notion**: http://192.222.58.232:9005
+- **Linear**: http://192.222.58.232:9006
+- **GitHub**: http://192.222.58.232:9007
+- **Codacy**: http://192.222.58.232:9008
+- **Asana**: http://192.222.58.232:9009
+- **Perplexity**: http://192.222.58.232:9010
 
 ### Monitoring
-- **Grafana**: http://146.235.200.1:3001
-- **Prometheus**: http://146.235.200.1:9090
+- **Grafana**: http://192.222.58.232:3001
+- **Prometheus**: http://192.222.58.232:9090
 
 ## 🛠️ Management Commands
 
@@ -229,30 +229,30 @@ ssh root@146.235.200.1 'docker service logs -f sophia-ai_mcp-ai-memory-v2'
 
 ```bash
 # Scale backend to 3 replicas
-ssh root@146.235.200.1 'docker service scale sophia-ai_sophia-backend=3'
+ssh root@192.222.58.232 'docker service scale sophia-ai_sophia-backend=3'
 
 # Scale MCP gateway to 2 replicas
-ssh root@146.235.200.1 'docker service scale sophia-ai_mcp-gateway=2'
+ssh root@192.222.58.232 'docker service scale sophia-ai_mcp-gateway=2'
 ```
 
 ### Update Services
 
 ```bash
 # Force update a service
-ssh root@146.235.200.1 'docker service update --force sophia-ai_sophia-backend'
+ssh root@192.222.58.232 'docker service update --force sophia-ai_sophia-backend'
 
 # Update with new image
-ssh root@146.235.200.1 'docker service update --image scoobyjava15/sophia-backend:v2 sophia-ai_sophia-backend'
+ssh root@192.222.58.232 'docker service update --image scoobyjava15/sophia-backend:v2 sophia-ai_sophia-backend'
 ```
 
 ### Remove Deployment
 
 ```bash
 # Remove the entire stack
-ssh root@146.235.200.1 'docker stack rm sophia-ai'
+ssh root@192.222.58.232 'docker stack rm sophia-ai'
 
 # Clean up volumes (CAUTION: This removes data)
-ssh root@146.235.200.1 'docker volume prune -f'
+ssh root@192.222.58.232 'docker volume prune -f'
 ```
 
 ## 🔧 Configuration
@@ -269,8 +269,8 @@ DOCKER_REGISTRY=scoobyjava15
 IMAGE_TAG=latest
 
 # Lambda Labs
-LAMBDA_LABS_IP=146.235.200.1
-LAMBDA_SSH_KEY_PATH=~/.ssh/lambda_labs_key
+LAMBDA_LABS_IP=192.222.58.232
+LAMBDA_SSH_KEY_PATH=~/.ssh/sophia2025.pem
 
 # Database
 POSTGRES_PASSWORD=your-secure-password
@@ -312,16 +312,16 @@ echo "your-mem0-key" | docker secret create mem0_api_key -
 2. **Cannot connect to Lambda Labs**
    ```bash
    # Check SSH key permissions
-   chmod 600 ~/.ssh/lambda_labs_key
+   chmod 600 ~/.ssh/sophia2025.pem
 
    # Test connection
-   ssh -v root@146.235.200.1
+   ssh -v root@192.222.58.232
    ```
 
 3. **MCP servers not responding**
    ```bash
    # Check if ports are open
-   nc -zv 146.235.200.1 9001
+   nc -zv 192.222.58.232 9001
 
    # Check Docker network
    docker network ls
@@ -333,7 +333,7 @@ echo "your-mem0-key" | docker secret create mem0_api_key -
    docker service logs sophia-ai_postgres
 
    # Test connection
-   psql -h 146.235.200.1 -U sophia -d sophia
+   psql -h 192.222.58.232 -U sophia -d sophia
    ```
 
 ### Recovery Procedures

@@ -28,7 +28,7 @@ class MemoryClient:
     Used by all MCP servers to store and retrieve memories
     """
 
-    def __init__(self, base_url: str = "http://146.235.200.1:9000"):
+    def __init__(self, base_url: str = "http://192.222.58.232:9000"):
         self.base_url = base_url
         self.session: aiohttp.ClientSession | None = None
         self._retry_count = 3

@@ -1,7 +1,7 @@
 # Sophia AI Deployment Instructions
 
 ## Prerequisites
-1. SSH access to Lambda Labs (146.235.200.1)
+1. SSH access to Lambda Labs (192.222.58.232)
 2. Docker Swarm initialized
 3. Required secrets set as environment variables
 
@@ -10,12 +10,12 @@
 ### 1. Upload deployment package
 ```bash
 # From your local machine
-scp sophia-deployment-*.tar.gz ubuntu@146.235.200.1:~/
+scp sophia-deployment-*.tar.gz ubuntu@192.222.58.232:~/
 ```
 
 ### 2. Connect to Lambda Labs
 ```bash
-ssh ubuntu@146.235.200.1
+ssh ubuntu@192.222.58.232
 ```
 
 ### 3. Extract deployment package

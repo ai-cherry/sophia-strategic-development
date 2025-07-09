@@ -14,8 +14,8 @@ Sophia AI runs on Lambda Labs GPU infrastructure, providing high-performance com
 
 | Instance | Type | GPU | Memory | IP | Cost/hr | Purpose |
 |----------|------|-----|--------|----|---------|---------| 
-| sophia-main | GH200 | 96GB | 480GB | 192.222.51.151 | $1.49 | Primary backend, MCP |
-| sophia-rtx-1 | RTX 6000 | 24GB | 64GB | 192.222.51.122 | $0.50 | MCP orchestration |
+| sophia-main | GH200 | 96GB | 480GB | 192.222.58.232 | $1.49 | Primary backend, MCP |
+| sophia-rtx-1 | RTX 6000 | 24GB | 64GB | 192.222.58.232 | $0.50 | MCP orchestration |
 | sophia-a6000 | A6000 | 48GB | 128GB | 192.222.58.232 | $0.80 | AI workloads |
 | sophia-a100 | A100 | 40GB | 256GB | 104.171.202.103 | $1.29 | Data processing |
 | sophia-a10 | A10 | 24GB | 64GB | 155.248.194.183 | $0.75 | Development/monitoring |
@@ -28,15 +28,15 @@ Sophia AI runs on Lambda Labs GPU infrastructure, providing high-performance com
 # Configure SSH
 cat >> ~/.ssh/config << EOF
 Host sophia-main
-    HostName 192.222.51.151
+    HostName 192.222.58.232
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_sophia_key
+    IdentityFile ~/.ssh/sophia2025.pem
     StrictHostKeyChecking no
 
 Host sophia-rtx-1
-    HostName 192.222.51.122
+    HostName 192.222.58.232
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_sophia_key
+    IdentityFile ~/.ssh/sophia2025.pem
     StrictHostKeyChecking no
 
 # Add other instances...
@@ -127,7 +127,7 @@ EOF
 ```bash
 # Deploy all MCP servers
 python scripts/deployment/deploy_mcp_servers.py \
-  --host 192.222.51.151 \
+  --host 192.222.58.232 \
   --servers linear,github,asana,ui-ux,lambda-cli
 
 # Deploy specific server
@@ -146,8 +146,8 @@ EOF
 ```bash
 # Deploy across multiple instances
 python scripts/deployment/deploy_sophia_complete.py \
-  --backend-host 192.222.51.151 \
-  --mcp-host 192.222.51.122 \
+  --backend-host 192.222.58.232 \
+  --mcp-host 192.222.58.232 \
   --ai-host 192.222.58.232 \
   --parallel
 ```
@@ -203,7 +203,7 @@ python scripts/deployment/health_check.py --all-instances
 
 # Monitor specific instance
 python scripts/deployment/monitor.py \
-  --host 192.222.51.151 \
+  --host 192.222.58.232 \
   --interval 60 \
   --services backend,mcp-linear,mcp-github
 
@@ -281,7 +281,7 @@ python scripts/deployment/restore_instance.py \
 
 # 3. Update DNS/load balancer
 python scripts/deployment/update_endpoints.py \
-  --old-ip 192.222.51.151 \
+  --old-ip 192.222.58.232 \
   --new-ip <new-ip>
 ```
 
@@ -347,8 +347,8 @@ curl -H "Authorization: Bearer $LAMBDA_API_KEY" \
   https://cloud.lambdalabs.com/api/v1/instances/<id>
 
 # Test network
-ping 192.222.51.151
-traceroute 192.222.51.151
+ping 192.222.58.232
+traceroute 192.222.58.232
 ```
 
 #### GPU Not Available

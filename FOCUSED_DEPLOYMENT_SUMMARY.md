@@ -25,7 +25,7 @@
 
 ## 🏗️ Deployment Architecture
 
-**Important:** MCP servers run on Lambda Labs (146.235.200.1), NOT locally!
+**Important:** MCP servers run on Lambda Labs (192.222.58.232), NOT locally!
 
 - **Frontend**: Vercel (app.sophia-intel.ai)
 - **Backend API**: Lambda Labs (api.sophia-intel.ai)

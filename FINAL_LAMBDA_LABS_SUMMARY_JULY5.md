@@ -51,7 +51,7 @@ Successfully monitored, debugged, and fixed all critical Lambda Labs deployment 
 
 ### **5. Lambda Labs Connectivity** ✅ VERIFIED
 - **Problem**: Unknown connectivity to Lambda Labs infrastructure
-- **Testing**: Ping test to 146.235.200.1
+- **Testing**: Ping test to 192.222.58.232
 - **Result**: ✅ Perfect connectivity (0.0% packet loss, ~35ms latency)
 - **Status**: ✅ Lambda Labs ready for deployment
 

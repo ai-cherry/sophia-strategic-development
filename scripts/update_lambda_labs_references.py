@@ -15,29 +15,29 @@ from datetime import datetime
 # Current active Lambda Labs instance
 CURRENT_CONFIG = {
     "instance_name": "sophia-main",
-    "ip": "192.222.51.151",
+    "ip": "192.222.58.232",
     "type": "GH200",
-    "ssh_key_name": "lynn_sophia_h200_key",
-    "ssh_key_path": "~/.ssh/lynn_sophia_h200_key"
+    "ssh_key_name": "sophia2025.pem",
+    "ssh_key_path": "~/.ssh/sophia2025.pem"
 }
 
 # Old IPs to replace
 OLD_IPS = [
-    "146.235.200.1",
-    "137.131.6.213",
+    "192.222.58.232",
+    "192.222.58.232",
     "104.171.202.103",
     "192.222.58.232",
     "104.171.202.117",
     "104.171.202.134",
     "155.248.194.183",
-    "192.222.51.122",
+    "192.222.58.232",
     "192.222.50.155"
 ]
 
 # Old SSH key references
 OLD_SSH_KEYS = [
-    "lambda_labs_sophia_key",
-    "lambda_labs_key",
+    "sophia2025.pem",
+    "sophia2025.pem",
     "sophia-ai-key",
     "lambda_labs_ssh_key",
     "sophia-ai-h200-key"

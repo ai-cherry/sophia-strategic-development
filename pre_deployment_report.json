@@ -14,7 +14,7 @@
     {
       "name": "SSH key configuration",
       "passed": false,
-      "details": "SSH key not found. Run: ssh-keygen -t ed25519 -f /Users/lynnmusil/.ssh/lynn_sophia_h200_key -C 'lynn-sophia-h200'"
+      "details": "SSH key not found. Run: ssh-keygen -t ed25519 -f /Users/lynnmusil/.ssh/sophia2025 -C 'lynn-sophia-h200'"
     },
     {
       "name": "Lambda Labs API key",

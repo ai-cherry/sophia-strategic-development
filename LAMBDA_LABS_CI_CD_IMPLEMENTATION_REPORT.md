@@ -23,7 +23,7 @@ The following secrets need to be configured in the `ai-cherry/sophia-main` repos
 # Using GitHub CLI
 gh secret set LAMBDA_API_KEY --repo ai-cherry/sophia-main
 gh secret set LAMBDA_CLOUD_API_KEY --repo ai-cherry/sophia-main
-gh secret set LAMBDA_SSH_PRIVATE_KEY < ~/.ssh/lynn_sophia_h200_key
+gh secret set LAMBDA_SSH_PRIVATE_KEY < ~/.ssh/sophia2025.pem
 gh secret set DOCKER_HUB_USERNAME --repo ai-cherry/sophia-main
 gh secret set DOCKER_HUB_TOKEN --repo ai-cherry/sophia-main
 ```
@@ -126,7 +126,7 @@ Missing MCP server files that need to be created or located:
    # Add these secrets to GitHub repository settings:
    - LAMBDA_API_KEY (your existing inference key)
    - LAMBDA_CLOUD_API_KEY (your new cloud API key)
-   - LAMBDA_SSH_PRIVATE_KEY (contents of ~/.ssh/lynn_sophia_h200_key)
+   - LAMBDA_SSH_PRIVATE_KEY (contents of ~/.ssh/sophia2025.pem)
    - DOCKER_HUB_USERNAME (scoobyjava15)
    - DOCKER_HUB_TOKEN (create at hub.docker.com)
    ```
@@ -134,7 +134,7 @@ Missing MCP server files that need to be created or located:
 2. **Test Lambda Labs Connectivity**:
    ```bash
    # Test if instance is now accessible
-   ssh -i ~/.ssh/lynn_sophia_h200_key ubuntu@192.222.51.151
+   ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232
    ```
 
 3. **Push Docker Images**:
