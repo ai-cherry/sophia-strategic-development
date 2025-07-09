@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sophia-ai
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/ai-cherry/sophia-main
+    targetRevision: main
+    path: kubernetes/gitops
+    
+    # Kustomize configuration
+    kustomize:
+      images:
+        - scoobyjava15/sophia-backend:latest
+        - scoobyjava15/sophia-frontend:latest
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sophia-ai-prod
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Health checks
+  healthChecks:
+    - group: apps
+      kind: Deployment
+      name: sophia-backend
+      namespace: sophia-ai-prod
+    - group: apps
+      kind: Deployment
+      name: sophia-frontend
+      namespace: sophia-ai-prod
+  
+  # Notifications
+  notifications:
+    annotations:
+      notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sophia-deployments
+      notifications.argoproj.io/subscribe.on-sync-failed.slack: sophia-alerts 

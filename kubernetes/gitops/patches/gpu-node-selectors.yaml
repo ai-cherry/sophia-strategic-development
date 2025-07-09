@@ -1,0 +1,41 @@
+# GPU node selector patches for specific workloads
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-ai-core
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-ai-core
+        gpu-type: gh200
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-data-pipeline
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-data-pipeline
+        gpu-type: a100
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-ai-memory
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
+        gpu-type: a6000 

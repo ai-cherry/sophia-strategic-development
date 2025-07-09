@@ -1,0 +1,36 @@
+# Resource patches for production deployments
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-backend
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: sophia-backend
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sophia-frontend
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: sophia-frontend
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m" 

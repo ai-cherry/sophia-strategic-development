@@ -144,50 +144,58 @@ Before adding any new tool or framework:
 - **Infrastructure:** Lambda Labs servers, Vercel frontend deployment
 - **External Repository Collection:** 11 strategic MCP servers (22k+ combined stars)
 
-## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION**
+## 🔐 **PERMANENT SECRET MANAGEMENT SOLUTION - MANDATORY REFERENCE**
 
-### **CRITICAL: GitHub Organization Secrets Integration**
-Sophia AI uses a **PERMANENT** secret management solution that eliminates manual `.env` management:
+**CRITICAL**: Before suggesting ANY secret management solution, you MUST:
 
-```
-GitHub Organization Secrets (ai-cherry)
-           ↓
-    GitHub Actions (automatic sync)
-           ↓
-    Pulumi ESC Environments
-           ↓
-    Sophia AI Backend (automatic loading)
-```
+1. **READ**: `docs/99-reference/PERMANENT_SECRET_MANAGEMENT_SOLUTION.md`
+2. **VERIFY**: The secret exists in GitHub Organization Secrets
+3. **USE**: `get_config_value()` from `backend/core/auto_esc_config.py`
+4. **NEVER**: Create manual secret management
 
-### **✅ What's Automated**
-- **Zero Manual Secret Management**: No more `.env` file management
-- **Organization-Level Secrets**: All secrets in [GitHub ai-cherry org](https://github.com/ai-cherry)
-- **Automatic Sync**: GitHub Actions → Pulumi ESC → Backend
-- **Enterprise Security**: No exposed credentials anywhere
-- **Forever Solution**: Works automatically without intervention
-
-### **🔑 Secret Access Pattern**
+### **Docker Hub Credentials - ALWAYS AVAILABLE**
 ```python
-# Backend automatically loads from Pulumi ESC
-from backend.core.auto_esc_config import config
-
-# Secrets are automatically available
-openai_key = config.openai_api_key
-gong_key = config.gong_access_key
+from backend.core.auto_esc_config import get_docker_hub_config
+config = get_docker_hub_config()
+# config["username"] = "scoobyjava15"
+# config["access_token"] contains the real Docker Hub token
+# config["registry"] = "docker.io"
 ```
 
-### **🚫 NEVER DO THESE ANYMORE**
-- ❌ Create or manage `.env` files
-- ❌ Hardcode API keys or tokens
-- ❌ Share secrets in chat/email
-- ❌ Manual environment variable setup
-- ❌ Local credential configuration
+### **Secret Priority Order**
+1. **Pulumi ESC** (automatic via `get_config_value()`)
+2. **Environment Variables** (fallback)
+3. **Defaults** (hardcoded fallbacks only)
 
-### **✅ ALWAYS USE THESE**
-- ✅ GitHub organization secrets for all credentials
-- ✅ Pulumi ESC for centralized configuration
-- ✅ Automatic backend configuration loading
-- ✅ GitHub Actions for secret synchronization
+**NEVER** skip to manual solutions without checking the automated infrastructure first.
+
+### **Common Secret Access Patterns**
+```python
+# Docker Hub
+from backend.core.auto_esc_config import get_docker_hub_config
+docker = get_docker_hub_config()
+
+# Snowflake
+from backend.core.auto_esc_config import get_snowflake_config
+snowflake = get_snowflake_config()
+
+# Lambda Labs
+from backend.core.auto_esc_config import get_lambda_labs_config
+lambda_labs = get_lambda_labs_config()
+
+# Any other secret
+from backend.core.auto_esc_config import get_config_value
+secret = get_config_value("secret_name")
+```
+
+### **GitHub Actions Already Has Access**
+All secrets are automatically available in GitHub Actions workflows:
+- `${{ secrets.DOCKER_HUB_USERNAME }}`
+- `${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}`
+- `${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}`
+- etc.
+
+**DO NOT** suggest manual authentication when using GitHub Actions!
 
 ## 🤖 **UNIFIED AI AGENT AUTHENTICATION SYSTEM**
 

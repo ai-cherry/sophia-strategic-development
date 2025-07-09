@@ -121,8 +121,7 @@ def get_config_value(key: str, default: Any = None) -> Any:
     # Try to load from Pulumi ESC
     esc_data = _load_esc_environment()
 
-    # Enhanced key mappings for GitHub Organization Secrets compatibility
-    # Updated June 30, 2025 to match GitHub → Pulumi ESC sync patterns
+    # ESC key mappings for secret names
     esc_key_mappings = {
         # Core AI Services (working)
         "openai_api_key": "openai_api_key",
@@ -164,7 +163,18 @@ def get_config_value(key: str, default: Any = None) -> Any:
         "codacy_api_token": "codacy_api_token",
         "estuary_access_token": "estuary_access_token",
         "vercel_access_token": "vercel_access_token",
-        "docker_token": "docker_token",
+        # DOCKER HUB - FIXED MAPPING
+        "docker_token": "DOCKER_TOKEN",  # PRIMARY: This is what GitHub uses
+        "docker_hub_access_token": "DOCKER_TOKEN",  # Map to same token
+        "docker_hub_token": "DOCKER_TOKEN",  # Map to same token
+        "docker_password": "DOCKER_TOKEN",  # Map to same token
+        "DOCKER_PASSWORD": "DOCKER_TOKEN",  # Map to same token
+        "DOCKER_PERSONAL_ACCESS_TOKEN": "DOCKER_TOKEN",  # Map to same token
+        # Docker username mappings
+        "docker_hub_username": "DOCKER_USERNAME",  # PRIMARY: This is what GitHub uses
+        "docker_username": "DOCKER_USERNAME",  # Map to same username
+        "DOCKERHUB_USERNAME": "DOCKER_USERNAME",  # Map to same username
+        "DOCKER_USER_NAME": "DOCKER_USERNAME",  # Map to same username
         "npm_api_token": "npm_api_token",
         # AI Optimization Flags (NEW)
         "ai_optimization_enabled": "ai.optimization_enabled",
@@ -387,6 +397,45 @@ def get_lambda_labs_config() -> dict[str, Any]:
         or get_config_value("LAMBDA_IP_ADDRESS"),
         "ssh_private_key": get_config_value("lambda_ssh_private_key")
         or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
+    }
+
+
+def get_docker_hub_config() -> dict[str, Any]:
+    """
+    Get Docker Hub configuration from Pulumi ESC
+    
+    PERMANENT FIX: Use DOCKER_TOKEN and DOCKER_USERNAME as the primary keys
+    These are the actual secret names in GitHub
+    
+    Returns:
+        Docker Hub configuration dictionary with username and access token
+    """
+    # Get username - DOCKER_USERNAME is the primary key in GitHub
+    username = (
+        get_config_value("DOCKER_USERNAME") or  # PRIMARY
+        get_config_value("docker_username") or
+        get_config_value("docker_hub_username") or
+        "scoobyjava15"  # fallback
+    )
+    
+    # Get token - DOCKER_TOKEN is the primary key in GitHub
+    access_token = (
+        get_config_value("DOCKER_TOKEN") or  # PRIMARY
+        get_config_value("docker_token") or
+        get_config_value("docker_hub_access_token") or
+        get_config_value("docker_password")
+    )
+    
+    # Log what we found for debugging
+    if access_token:
+        logger.info(f"Docker Hub config loaded: username={username}, token=***")
+    else:
+        logger.warning("No Docker Hub token found in configuration")
+    
+    return {
+        "username": username,
+        "access_token": access_token,
+        "registry": "docker.io",
     }
 
 
