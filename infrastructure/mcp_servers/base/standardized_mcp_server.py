@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlparse
 
 from prometheus_client import Counter, Gauge, Histogram, Info  # type: ignore
@@ -36,7 +36,8 @@ from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # Import Gemini CLI provider
 from typing import Any
-import types
+# Reusable safe import helper
+from shared.safe_imports import safe_import
 
 try:
     from gemini_cli_integration.gemini_cli_provider import (
@@ -59,6 +60,26 @@ except ImportError:  # pragma: no cover – gemini CLI optional
 
 logger = logging.getLogger(__name__)
 
+# External libraries (may be absent in minimal envs)
+
+aiohttp = safe_import(
+    "aiohttp",
+    {
+        "ClientSession": object,
+        "ClientTimeout": object,
+        "ClientError": Exception,
+    },
+)
+
+fastapi_mod = safe_import(
+    "fastapi",
+    {"APIRouter": object, "FastAPI": object, "Response": object},
+)
+APIRouter = cast(Any, fastapi_mod.APIRouter)  # type: ignore[attr-defined]
+FastAPI = cast(Any, fastapi_mod.FastAPI)  # type: ignore[attr-defined]
+Response = cast(Any, fastapi_mod.Response)  # type: ignore[attr-defined]
+
+uvicorn = safe_import("uvicorn", {"Config": object, "Server": object})
 
 class SyncPriority(Enum):
     """Data synchronization priority levels."""
