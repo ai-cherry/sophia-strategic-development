@@ -7,38 +7,39 @@ Merges Lambda Labs cost monitoring, routing, and enhanced command handling.
 import shutil
 from pathlib import Path
 
+
 def consolidate_chat_services():
     """Merge enhanced features into main chat service"""
-    
+
     # Backup original file
     main_service = Path("backend/services/unified_chat_service.py")
     enhanced_service = Path("backend/services/enhanced_unified_chat_service.py")
-    
-    backup_path = main_service.with_suffix('.py.backup')
+
+    backup_path = main_service.with_suffix(".py.backup")
     shutil.copy2(main_service, backup_path)
     print(f"📋 Backed up original to {backup_path}")
-    
+
     # Read both files
-    with open(main_service, 'r') as f:
+    with open(main_service) as f:
         main_content = f.read()
-    
-    with open(enhanced_service, 'r') as f:
+
+    with open(enhanced_service) as f:
         enhanced_content = f.read()
-    
+
     # Extract enhanced features to merge
     enhanced_imports = """
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from infrastructure.monitoring.lambda_labs_cost_monitor import LambdaLabsCostMonitor
 from infrastructure.services.lambda_labs_hybrid_router import LambdaLabsHybridRouter
 from collections.abc import AsyncGenerator"""
-    
+
     # Enhanced __init__ additions
     enhanced_init_additions = """
         # Enhanced Lambda Labs integration
         self.lambda_integration = LambdaLabsChatIntegration()
         self.cost_monitor = LambdaLabsCostMonitor()
         self.router = LambdaLabsHybridRouter()"""
-    
+
     # Enhanced process_message method
     enhanced_process_message = '''
     async def process_message(
@@ -122,7 +123,7 @@ from collections.abc import AsyncGenerator"""
                 session_id=conversation_id or "default"
             )
             yield unified_result["response"]'''
-    
+
     # Enhanced Lambda command methods
     enhanced_lambda_methods = '''
     async def _is_lambda_command(self, message: str) -> bool:
@@ -229,41 +230,48 @@ from collections.abc import AsyncGenerator"""
         if conversation_id:
             return await self.ai_memory.get_session_history(conversation_id)
         return []'''
-    
+
     # Start building the consolidated content
     consolidated_content = main_content
-    
+
     # 1. Add enhanced imports after existing imports
-    import_insert_pos = consolidated_content.find("logger = logging.getLogger(__name__)")
+    import_insert_pos = consolidated_content.find(
+        "logger = logging.getLogger(__name__)"
+    )
     if import_insert_pos != -1:
         insert_pos = consolidated_content.rfind("\n", 0, import_insert_pos) + 1
         consolidated_content = (
-            consolidated_content[:insert_pos] + 
-            enhanced_imports + "\n\n" +
-            consolidated_content[insert_pos:]
+            consolidated_content[:insert_pos]
+            + enhanced_imports
+            + "\n\n"
+            + consolidated_content[insert_pos:]
         )
-    
+
     # 2. Add enhanced initialization to __init__ method
-    init_method_pos = consolidated_content.find("self.workflow = self._build_orchestration_workflow()")
+    init_method_pos = consolidated_content.find(
+        "self.workflow = self._build_orchestration_workflow()"
+    )
     if init_method_pos != -1:
         insert_pos = consolidated_content.find("\n", init_method_pos) + 1
         consolidated_content = (
-            consolidated_content[:insert_pos] +
-            enhanced_init_additions + "\n" +
-            consolidated_content[insert_pos:]
+            consolidated_content[:insert_pos]
+            + enhanced_init_additions
+            + "\n"
+            + consolidated_content[insert_pos:]
         )
-    
+
     # 3. Add the enhanced process_message method before process_unified_query
     unified_query_pos = consolidated_content.find("async def process_unified_query(")
     if unified_query_pos != -1:
         # Find the start of the method (beginning of line)
         insert_pos = consolidated_content.rfind("\n", 0, unified_query_pos) + 1
         consolidated_content = (
-            consolidated_content[:insert_pos] +
-            enhanced_process_message + "\n\n    " +
-            consolidated_content[insert_pos:]
+            consolidated_content[:insert_pos]
+            + enhanced_process_message
+            + "\n\n    "
+            + consolidated_content[insert_pos:]
         )
-    
+
     # 4. Add Lambda command methods at the end of the class
     last_method_pos = consolidated_content.rfind("async def natural_language_control(")
     if last_method_pos != -1:
@@ -271,54 +279,56 @@ from collections.abc import AsyncGenerator"""
         method_end = consolidated_content.find("\n        ", last_method_pos)
         if method_end == -1:
             method_end = len(consolidated_content)
-        
+
         # Find the end of the method by looking for the next method or class end
-        method_lines = consolidated_content[last_method_pos:].split('\n')
+        method_lines = consolidated_content[last_method_pos:].split("\n")
         end_line_idx = 1
         for i, line in enumerate(method_lines[1:], 1):
-            if line and not line.startswith(' ') and not line.startswith('\t'):
+            if line and not line.startswith(" ") and not line.startswith("\t"):
                 end_line_idx = i
                 break
-        
+
         # Insert at the end of the class
         consolidated_content = consolidated_content + "\n" + enhanced_lambda_methods
-    
+
     # Write the consolidated file
-    with open(main_service, 'w') as f:
+    with open(main_service, "w") as f:
         f.write(consolidated_content)
-    
+
     print(f"✅ Consolidated enhanced features into {main_service}")
-    print(f"📁 Enhanced service can now be safely removed")
-    
+    print("📁 Enhanced service can now be safely removed")
+
     return True
+
 
 def clean_up_enhanced_service():
     """Remove the enhanced service file after successful consolidation"""
     enhanced_service = Path("backend/services/enhanced_unified_chat_service.py")
-    
+
     if enhanced_service.exists():
         # Move to archive instead of deleting
         archive_dir = Path("archive/unified_chat_duplicates")
         archive_dir.mkdir(parents=True, exist_ok=True)
-        
+
         archive_path = archive_dir / "enhanced_unified_chat_service.py.archived"
         shutil.move(enhanced_service, archive_path)
         print(f"📦 Archived enhanced service to {archive_path}")
-    
+
+
 def main():
     """Main consolidation function"""
     print("🔄 Consolidating Enhanced Unified Chat Service...")
-    
+
     try:
         success = consolidate_chat_services()
-        
+
         if success:
             print("✅ Chat service consolidation successful!")
-            
+
             # Ask for cleanup
             print("\n🧹 Cleaning up duplicate files...")
             clean_up_enhanced_service()
-            
+
             print("\n📋 Consolidation Summary:")
             print("✅ Enhanced Lambda Labs integration merged")
             print("✅ Cost monitoring and routing added")
@@ -326,18 +336,19 @@ def main():
             print("✅ Lambda command handling integrated")
             print("✅ Conversation history integration added")
             print("✅ Duplicate file archived")
-            
+
             print("\n🧪 Next steps:")
             print("1. Test the consolidated chat service")
             print("2. Verify Lambda Labs integration works")
             print("3. Test streaming responses")
-            
+
         else:
             print("❌ Consolidation failed - manual review needed")
-            
+
     except Exception as e:
         print(f"❌ Error during consolidation: {e}")
         print("Manual consolidation may be required")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

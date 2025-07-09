@@ -6,10 +6,13 @@ Natural language infrastructure control with unified AI service integration
 import asyncio
 import json
 import logging
-from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from typing import Any, Optional
 
-from mcp import McpServer, McpTool
+from mcp import McpTool
+from mcp_servers.base.unified_mcp_base import (
+    AIEngineMCPServer,
+    MCPServerConfig,
+)
 
 from infrastructure.services.unified_ai_orchestrator import (
     AIProvider,
@@ -27,11 +30,7 @@ class UnifiedAIMCPServer(AIEngineMCPServer):
     """
 
     def __init__(self):
-        config = MCPServerConfig(
-            name="unified-ai",
-            port=9000,
-            version="2.0.0"
-        )
+        config = MCPServerConfig(name="unified-ai", port=9000, version="2.0.0")
         super().__init__(config)
         self.orchestrator = UnifiedAIOrchestrator()
         self.tools = self._register_tools()

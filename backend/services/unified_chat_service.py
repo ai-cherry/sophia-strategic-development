@@ -6,9 +6,10 @@ Provides dynamic, contextualized access to the entire ecosystem
 import asyncio
 import json
 import logging
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
@@ -17,9 +18,15 @@ from backend.core.context_analyzer import ContextAnalyzer
 from backend.core.llm_router import LLMRouter
 from backend.services.ai_memory_service import AIMemoryService
 from backend.services.asana_service import AsanaService
+from backend.services.enhanced_search_service import (
+    EnhancedSearchService,
+    SearchRequest,
+    SearchTier,
+)
 from backend.services.gong_service import GongService
 from backend.services.hubspot_service import HubSpotService
 from backend.services.knowledge_service import KnowledgeService
+from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 
 # Add Lambda Labs imports
 from backend.services.lambda_labs_service import LambdaLabsService
@@ -29,6 +36,8 @@ from backend.services.notion_service import NotionService
 from backend.services.slack_service import SlackService
 from backend.services.snowflake_cortex_service import SnowflakeCortexService
 from backend.services.web_search_service import WebSearchService
+from infrastructure.monitoring.lambda_labs_cost_monitor import LambdaLabsCostMonitor
+from infrastructure.services.lambda_labs_hybrid_router import LambdaLabsHybridRouter
 from infrastructure.services.llm_router import TaskComplexity
 
 # NEW: Unified AI Orchestrator
@@ -37,12 +46,6 @@ from infrastructure.services.unified_ai_orchestrator import (
     AIRequest,
     UnifiedAIOrchestrator,
 )
-
-
-from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
-from infrastructure.monitoring.lambda_labs_cost_monitor import LambdaLabsCostMonitor
-from infrastructure.services.lambda_labs_hybrid_router import LambdaLabsHybridRouter
-from collections.abc import AsyncGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +56,13 @@ class QueryContext:
 
     intent: str
     entities: list[dict[str, Any]]
-    time_range: Optional[tuple[datetime, datetime]]
+    time_range: tuple[datetime, datetime] | None
     sources_needed: list[str]
     confidence: float
     user_role: str
     session_history: list[dict[str, Any]]
     requires_orchestration: bool = False
-    orchestration_type: Optional[str] = None
+    orchestration_type: str | None = None
 
 
 @dataclass
@@ -70,8 +73,8 @@ class OrchestrationState:
     context: QueryContext
     source_data: dict[str, Any]
     memory_context: dict[str, Any]
-    web_context: Optional[dict[str, Any]]
-    synthesis_result: Optional[str] = None
+    web_context: dict[str, Any] | None
+    synthesis_result: str | None = None
     citations: list[dict[str, Any]] = None
     confidence: float = 0.0
 
@@ -110,6 +113,7 @@ class UnifiedChatService:
         self.notion = NotionService()
         self.hubspot = HubSpotService()
         self.web_search = WebSearchService()
+        self.enhanced_search = EnhancedSearchService()
 
         # Service mapping for dynamic routing
         self.service_map = {
@@ -121,6 +125,7 @@ class UnifiedChatService:
             "documentation": self.notion,
             "crm": self.hubspot,
             "web": self.web_search,
+            "enhanced_search": self.enhanced_search,
             "database": self.cortex,
             "memory": self.ai_memory,
             "lambda_labs": self.lambda_labs,  # Add Lambda Labs to service map
@@ -140,6 +145,91 @@ class UnifiedChatService:
         self.lambda_integration = LambdaLabsChatIntegration()
         self.cost_monitor = LambdaLabsCostMonitor()
         self.router = LambdaLabsHybridRouter()
+
+    async def enhanced_search(
+        self,
+        query: str,
+        search_tier: str = "tier_1",
+        user_id: str = "anonymous",
+        session_id: str = "default",
+        **kwargs,
+    ) -> AsyncGenerator[dict[str, Any], None]:
+        """Enhanced search with multi-tier capabilities"""
+
+        # Map string to SearchTier enum
+        tier_mapping = {
+            "tier_1": SearchTier.TIER_1,
+            "tier_2": SearchTier.TIER_2,
+            "tier_3": SearchTier.TIER_3,
+            "fast": SearchTier.TIER_1,
+            "deep": SearchTier.TIER_2,
+            "deepest": SearchTier.TIER_3,
+        }
+
+        tier = tier_mapping.get(search_tier.lower(), SearchTier.TIER_1)
+
+        # Create search request
+        search_request = SearchRequest(
+            query=query, tier=tier, user_id=user_id, session_id=session_id, **kwargs
+        )
+
+        # Stream results
+        async for result in self.enhanced_search.search(search_request):
+            yield result
+
+    async def intelligent_search_routing(
+        self, query: str, context: dict = None
+    ) -> SearchTier:
+        """Intelligently determine which search tier to use"""
+
+        # Simple heuristics for search tier selection
+        # In production, this would use ML-based classification
+
+        query_lower = query.lower()
+
+        # Tier 3 indicators (deep research needed)
+        tier_3_indicators = [
+            "analyze",
+            "research",
+            "comprehensive",
+            "detailed analysis",
+            "compare",
+            "evaluate",
+            "market research",
+            "competitive analysis",
+            "trends",
+            "forecast",
+            "strategic",
+            "investment",
+            "due diligence",
+        ]
+
+        # Tier 2 indicators (moderate depth)
+        tier_2_indicators = [
+            "explain",
+            "how does",
+            "why",
+            "what is",
+            "differences",
+            "pros and cons",
+            "benefits",
+            "advantages",
+            "disadvantages",
+            "examples",
+            "case studies",
+            "best practices",
+        ]
+
+        # Check for tier 3 indicators
+        if any(indicator in query_lower for indicator in tier_3_indicators):
+            return SearchTier.TIER_3
+
+        # Check for tier 2 indicators
+        if any(indicator in query_lower for indicator in tier_2_indicators):
+            return SearchTier.TIER_2
+
+        # Default to tier 1 for simple queries
+        return SearchTier.TIER_1
 
     def _build_orchestration_workflow(self) -> CompiledStateGraph:
         """Build LangGraph workflow for complex orchestration"""
@@ -164,12 +254,11 @@ class UnifiedChatService:
 
         return workflow.compile()
 
-
     async def process_message(
         self,
         message: str,
-        conversation_id: Optional[str] = None,
-        user_context: Optional[dict[str, Any]] = None,
+        conversation_id: str | None = None,
+        user_context: dict[str, Any] | None = None,
     ) -> AsyncGenerator[str, None]:
         """Process message with enhanced Lambda Labs integration and streaming.
 
@@ -193,8 +282,10 @@ class UnifiedChatService:
             # Process with unified query system
             result = await self.process_unified_query(
                 query=message,
-                user_id=user_context.get("user_id", "anonymous") if user_context else "anonymous",
-                session_id=conversation_id or "default"
+                user_id=user_context.get("user_id", "anonymous")
+                if user_context
+                else "anonymous",
+                session_id=conversation_id or "default",
             )
             yield result["response"]
             return
@@ -204,17 +295,21 @@ class UnifiedChatService:
 
         # Add routing metadata to context
         enhanced_context = user_context or {}
-        enhanced_context.update({
-            "intent": intent["intent"],
-            "recommended_backend": intent["recommended_backend"],
-            "recommended_model": intent["recommended_model"],
-        })
+        enhanced_context.update(
+            {
+                "intent": intent["intent"],
+                "recommended_backend": intent["recommended_backend"],
+                "recommended_model": intent["recommended_model"],
+            }
+        )
 
         # Process with Lambda Labs
         try:
             result = await self.lambda_integration.process_chat_message(
                 message=message,
-                conversation_history=await self._get_conversation_history(conversation_id),
+                conversation_history=await self._get_conversation_history(
+                    conversation_id
+                ),
                 user_context=enhanced_context,
             )
 
@@ -233,7 +328,7 @@ class UnifiedChatService:
                 unified_result = await self.process_unified_query(
                     query=message,
                     user_id=enhanced_context.get("user_id", "anonymous"),
-                    session_id=conversation_id or "default"
+                    session_id=conversation_id or "default",
                 )
                 yield unified_result["response"]
 
@@ -243,12 +338,12 @@ class UnifiedChatService:
             unified_result = await self.process_unified_query(
                 query=message,
                 user_id=enhanced_context.get("user_id", "anonymous"),
-                session_id=conversation_id or "default"
+                session_id=conversation_id or "default",
             )
             yield unified_result["response"]
 
     async def process_unified_query(
-        self, query: str, user_id: str, session_id: str, context: Optional[str] = None
+        self, query: str, user_id: str, session_id: str, context: str | None = None
     ) -> dict[str, Any]:
         """
         Process a query with full ecosystem access
@@ -400,7 +495,7 @@ class UnifiedChatService:
         return state
 
     async def _analyze_query_context(
-        self, query: str, user_id: str, session_id: str, context: Optional[str] = None
+        self, query: str, user_id: str, session_id: str, context: str | None = None
     ) -> QueryContext:
         """
         Use AI to understand the query intent and determine what sources are needed
@@ -755,7 +850,7 @@ class UnifiedChatService:
 
     def _extract_time_range(
         self, analysis: dict
-    ) -> Optional[tuple[datetime, datetime]]:
+    ) -> tuple[datetime, datetime] | None:
         """
         Extract time range from query analysis
         """
@@ -839,7 +934,7 @@ Synthesize the provided data into a clear, insightful response."""
         self,
         source_data: dict[str, Any],
         memory_context: dict[str, Any],
-        web_context: Optional[dict[str, Any]],
+        web_context: dict[str, Any] | None,
     ) -> list[dict[str, Any]]:
         """
         Extract and format citations from all data sources
@@ -920,7 +1015,7 @@ Synthesize the provided data into a clear, insightful response."""
         self,
         source_data: dict[str, Any],
         memory_context: dict[str, Any],
-        web_context: Optional[dict[str, Any]],
+        web_context: dict[str, Any] | None,
         query_context: QueryContext,
     ) -> float:
         """
@@ -1133,12 +1228,16 @@ Synthesize the provided data into a clear, insightful response."""
         # Regular query processing
         return await self.process_query(command, user_id)
 
-
     async def _is_lambda_command(self, message: str) -> bool:
         """Check if message is a Lambda-specific command."""
         lambda_keywords = [
-            "lambda cost", "lambda usage", "serverless cost", "estimate cost",
-            "optimize cost", "lambda budget", "lambda stats",
+            "lambda cost",
+            "lambda usage",
+            "serverless cost",
+            "estimate cost",
+            "optimize cost",
+            "lambda budget",
+            "lambda stats",
         ]
         message_lower = message.lower()
         return any(keyword in message_lower for keyword in lambda_keywords)
@@ -1146,7 +1245,7 @@ Synthesize the provided data into a clear, insightful response."""
     async def _handle_lambda_command(
         self,
         message: str,
-        user_context: Optional[dict[str, Any]] = None,
+        user_context: dict[str, Any] | None = None,
     ) -> AsyncGenerator[str, None]:
         """Handle Lambda-specific commands."""
         message_lower = message.lower()
@@ -1165,7 +1264,8 @@ Synthesize the provided data into a clear, insightful response."""
             costs = {
                 "llama3.1-8b-instruct": (estimated_tokens / 1_000_000) * 0.07,
                 "llama3.1-70b-instruct-fp8": (estimated_tokens / 1_000_000) * 0.35,
-                "llama-4-maverick-17b-128e-instruct-fp8": (estimated_tokens / 1_000_000) * 0.88,
+                "llama-4-maverick-17b-128e-instruct-fp8": (estimated_tokens / 1_000_000)
+                * 0.88,
             }
 
             yield "💰 **Cost Estimation**\n\n"
@@ -1202,8 +1302,12 @@ Synthesize the provided data into a clear, insightful response."""
                 yield "Please describe your workload for optimization recommendations."
                 return
 
-            is_simple = any(kw in remaining.lower() for kw in ["simple", "basic", "quick"])
-            is_complex = any(kw in remaining.lower() for kw in ["complex", "detailed", "analysis"])
+            is_simple = any(
+                kw in remaining.lower() for kw in ["simple", "basic", "quick"]
+            )
+            is_complex = any(
+                kw in remaining.lower() for kw in ["complex", "detailed", "analysis"]
+            )
 
             if is_simple:
                 yield "**Recommendation**: Use `llama3.1-8b-instruct`\n"
@@ -1232,7 +1336,7 @@ Synthesize the provided data into a clear, insightful response."""
 
     async def _get_conversation_history(
         self,
-        conversation_id: Optional[str],
+        conversation_id: str | None,
     ) -> list[dict[str, str]]:
         """Get conversation history."""
         if conversation_id:
