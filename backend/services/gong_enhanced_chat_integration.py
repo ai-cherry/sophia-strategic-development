@@ -11,6 +11,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
+from backend.core.date_time_manager import date_manager
 from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
@@ -28,7 +29,7 @@ class GongEnhancedChatIntegration:
 
     def __init__(self):
         self.gong_intelligence = GongMultiPurposeIntelligence()
-        self.current_date = "July 9, 2025"
+        self.current_date = date_manager.get_current_date_str()
 
         # Natural language query patterns for Gong intelligence
         self.gong_query_patterns = {
@@ -158,7 +159,7 @@ class GongEnhancedChatIntegration:
                 "suggested_follow_ups": self._generate_follow_up_questions(
                     query, result
                 ),
-                "processing_time": datetime.now().isoformat(),
+                "processing_time": date_manager.get_current_isoformat(),
             }
 
             return enhanced_result
@@ -365,7 +366,7 @@ class EnhancedChatWithGongIntegration:
     def __init__(self):
         self.base_orchestrator = EnhancedMultiAgentOrchestrator()
         self.gong_integration = GongEnhancedChatIntegration()
-        self.current_date = "July 9, 2025"
+        self.current_date = date_manager.get_current_date_str()
 
     async def process_query_with_gong_intelligence(
         self, query: str, context: dict[str, Any] = None
@@ -424,7 +425,7 @@ class EnhancedChatWithGongIntegration:
             yield {
                 "type": "gong_analysis_started",
                 "message": "Analyzing conversation intelligence...",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
 
             gong_result = await self.gong_integration.process_gong_query(query, context)
@@ -432,7 +433,7 @@ class EnhancedChatWithGongIntegration:
             yield {
                 "type": "gong_analysis_complete",
                 "data": gong_result,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
 
         # Then stream through base orchestrator

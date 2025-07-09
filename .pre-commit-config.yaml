@@ -22,10 +22,12 @@ repos:
 
   # Remove broken local hooks until scripts exist
   # Commented out to prevent deployment failures:
-  # - repo: local
-  #   hooks:
-  #     - id: dead-code-prevention
-  #       name: Prevent dead code patterns
-  #       entry: python scripts/security/prevent_dead_code_patterns.py
-  #       language: python
-  #       files: \.py$
+  - repo: local
+    hooks:
+      - id: check-one-time-scripts
+        name: Check for one-time scripts
+        entry: python scripts/check_one_time_scripts.py
+        language: system
+        files: '\.py$'
+        pass_filenames: true
+        description: "Check for one-time scripts that should be marked for deletion"

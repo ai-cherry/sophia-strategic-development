@@ -64,6 +64,7 @@ from typing import Any
 import aiohttp
 import snowflake.connector
 
+from backend.core.date_time_manager import date_manager
 from core.config_manager import get_config_value
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
@@ -358,7 +359,7 @@ class SnowflakeDataLoader:
             """
 
             correlation_id = str(uuid.uuid4())
-            current_time = datetime.now()
+            current_time = date_manager.now()
 
             for call in calls_data:
                 try:
@@ -421,7 +422,7 @@ class SnowflakeDataLoader:
             """
 
             correlation_id = str(uuid.uuid4())
-            current_time = datetime.now()
+            current_time = date_manager.now()
 
             for transcript in transcripts_data:
                 try:
@@ -558,7 +559,7 @@ class SnowflakeDataLoader:
                     "sophia_data_pipeline_ultimate",
                     status.value,
                     metrics.start_time,
-                    metrics.end_time or datetime.now(),
+                    metrics.end_time or date_manager.now(),
                     metrics.calls_processed,
                     metrics.transcripts_processed,
                     metrics.ai_enrichments,
@@ -591,7 +592,7 @@ class SophiaDataPipelineUltimate:
 
     def __init__(self, config: PipelineConfig):
         self.config = config
-        self.metrics = PipelineMetrics(start_time=datetime.now())
+        self.metrics = PipelineMetrics(start_time=date_manager.now())
         self.gong_client: GongAPIClient | None = None
         self.snowflake_loader: SnowflakeDataLoader | None = None
         self.cortex_service: SnowflakeCortexService | None = None
@@ -627,7 +628,7 @@ class SophiaDataPipelineUltimate:
             # Phase 4: Finalization
             await self._phase_4_finalization()
 
-            self.metrics.end_time = datetime.now()
+            self.metrics.end_time = date_manager.now()
             duration = (self.metrics.end_time - self.metrics.start_time).total_seconds()
 
             # Log successful completion
@@ -652,7 +653,7 @@ class SophiaDataPipelineUltimate:
             }
 
         except Exception as e:
-            self.metrics.end_time = datetime.now()
+            self.metrics.end_time = date_manager.now()
             self.metrics.errors += 1
 
             # Log failure
@@ -693,19 +694,19 @@ class SophiaDataPipelineUltimate:
 
         if self.config.mode == PipelineMode.FULL:
             # Full refresh - last 90 days
-            to_date = datetime.now()
+            to_date = date_manager.now()
             from_date = to_date - timedelta(days=90)
         elif self.config.mode == PipelineMode.INCREMENTAL:
             # Incremental - last 7 days (or since last successful run)
-            to_date = datetime.now()
+            to_date = date_manager.now()
             from_date = to_date - timedelta(days=7)
         elif self.config.mode == PipelineMode.TEST:
             # Test mode - last 24 hours
-            to_date = datetime.now()
+            to_date = date_manager.now()
             from_date = to_date - timedelta(hours=24)
         else:
             # Default to last 24 hours
-            to_date = datetime.now()
+            to_date = date_manager.now()
             from_date = to_date - timedelta(hours=24)
 
         return from_date, to_date
