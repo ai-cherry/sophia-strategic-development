@@ -24,6 +24,9 @@ from pydantic_settings import BaseSettings
 
 from infrastructure.integrations.gong_webhook_processor import WebhookProcessor
 
+# Import shared error classes
+from shared.utils.errors import RateLimitError
+
 # Configure structured logging
 structlog.configure(
     processors=[
@@ -162,14 +165,6 @@ class WebhookVerificationError(Exception):
     pass
 
 
-class RateLimitError(Exception):
-    """Exception raised when rate limit is exceeded."""
-
-    def __init__(self, retry_after: float):
-        self.retry_after = retry_after
-        super().__init__(f"Rate limit exceeded. Retry after {retry_after} seconds.")
-
-
 class ValidationResult(BaseModel):
     """Result of data validation."""
 
@@ -285,7 +280,11 @@ class AsyncRateLimiter:
                 wait_time = self.time_window - (now - oldest_call)
                 if wait_time > 0:
                     api_rate_limit_hits.inc()
-                    raise RateLimitError(wait_time)
+                    raise RateLimitError(
+                        message="Rate limit exceeded for Gong API",
+                        retry_after=int(wait_time),
+                        service="gong_webhook",
+                    )
 
             # Add current call
             self.calls.append(now)

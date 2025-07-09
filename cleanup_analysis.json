@@ -1,0 +1,117 @@
+{
+  "timestamp": "2025-07-09T17:42:51.686718",
+  "dry_run": true,
+  "total_files": 50,
+  "total_directories": 7,
+  "total_size_mb": 122.13,
+  "categories": {
+    "dated_reports": {
+      "description": "Dated reports and logs",
+      "files": 17,
+      "directories": 0,
+      "items": [
+        "docker_consolidation_report_20250704_234734.json",
+        "working_deployment_report_20250709_112246.json",
+        "cleanup_report_20250706_180718.json",
+        "sophia_ai_deployment_report_20250709_084608.json",
+        "docker_consolidation_report_20250705_093028.json",
+        "sophia_production_deployment_report_20250709_085605.json",
+        "modernization_report_20250623_115342.json",
+        "mcp_debug_report_20250705_095039.json",
+        "modernization_report_20250623_115318.json",
+        "docker_consolidation_report_20250705_093014.json"
+      ]
+    },
+    "backup_directories": {
+      "description": "Backup and temporary directories",
+      "files": 0,
+      "directories": 4,
+      "items": [
+        "backup_deployment_20250709_164922",
+        "deployment_cleanup_backup_20250709_072050",
+        "archive/unified_chat_duplicates",
+        "archive/.github"
+      ]
+    },
+    "backup_files": {
+      "description": "Backup and original files",
+      "files": 6,
+      "directories": 0,
+      "items": [
+        "pyproject.toml.backup",
+        "pyproject.toml.original",
+        "backend/services/unified_chat_service.py.backup",
+        "external/anthropic-mcp-python-sdk/examples/clients/simple-auth-client/mcp_simple_auth_client/main.py.backup",
+        "infrastructure/node_modules/@pulumi/awsx/node_modules/@pulumi/aws/package.json.bak",
+        "infrastructure/node_modules/@pulumi/eks/node_modules/@pulumi/kubernetes/package.json.bak"
+      ]
+    },
+    "one_time_scripts": {
+      "description": "One-time use scripts",
+      "files": 15,
+      "directories": 0,
+      "items": [
+        "create_pull_request.py",
+        "deploy_estuary_foundation_corrected.py",
+        "deploy_estuary_foundation.py",
+        "deploy_with_uv.py",
+        "scripts/cleanup_deployment_scripts.py",
+        "scripts/cleanup_deployment_technical_debt.py",
+        "scripts/comprehensive_secret_cleanup_and_fix.py",
+        "scripts/consolidate_chat_services.py",
+        "scripts/consolidate_mcp_servers.py",
+        "scripts/create_unified_mcp_base.py"
+      ]
+    },
+    "migration_scripts": {
+      "description": "Migration scripts that have been executed",
+      "files": 3,
+      "directories": 0,
+      "items": [
+        "migration_scripts/phase1_critical.sh",
+        "migration_scripts/phase2_production.sh",
+        "migration_scripts/phase3_environments.sh"
+      ]
+    },
+    "patches": {
+      "description": "Applied patches",
+      "files": 1,
+      "directories": 0,
+      "items": [
+        "patches/snowflake_test_util_fix.py"
+      ]
+    },
+    "empty_directories": {
+      "description": "Empty directories",
+      "files": 0,
+      "directories": 3,
+      "items": [
+        "logs",
+        "test_env",
+        "reports"
+      ]
+    },
+    "one_time_reports": {
+      "description": "One-time analysis and implementation reports",
+      "files": 4,
+      "directories": 0,
+      "items": [
+        "DEAD_CODE_AUDIT_SUMMARY.md",
+        "COMPREHENSIVE_ARCHIVE_CLEANUP_REPORT.md",
+        "deployment-error-analysis.md",
+        "AI_MEMORY_IMPLEMENTATION_FINAL_SUMMARY.md"
+      ]
+    },
+    "analysis_artifacts": {
+      "description": "Analysis and audit artifacts",
+      "files": 4,
+      "directories": 0,
+      "items": [
+        "codebase_audit_report.json",
+        "archive_cleanup_execution.json",
+        "github_alignment_report.json",
+        "archive_cleanup_analysis.json"
+      ]
+    }
+  }
+}
