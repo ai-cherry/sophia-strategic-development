@@ -14,14 +14,16 @@ Example
 from __future__ import annotations
 
 import sys
+from collections.abc import Mapping
 from types import ModuleType
-from typing import Any, Mapping
+from typing import Any
 
 __all__ = ["safe_import"]
 
+
 def safe_import(
     name: str, fallback_attrs: Mapping[str, Any] | None = None
-) -> ModuleType:  # noqa: D401
+) -> ModuleType:
     """Import *name* with graceful degradation.
 
     If the real package is installed we return it unmodified.  Otherwise we

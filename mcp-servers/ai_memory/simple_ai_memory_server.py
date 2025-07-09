@@ -223,9 +223,7 @@ async def list_memories_endpoint():
         )
     except Exception as e:
         logger.error(f"❌ Failed to list memories: {e}")
-        return MemoryResponse(
-            success=False, message=f"Failed to list memories: {e!s}"
-        )
+        return MemoryResponse(success=False, message=f"Failed to list memories: {e!s}")
 
 
 if __name__ == "__main__":

@@ -20,7 +20,6 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import List
 
 try:
     import yaml  # type: ignore
@@ -44,6 +43,7 @@ class ValidationError(Exception):
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
+
 
 def load_yaml(path: Path):
     with path.open("r", encoding="utf-8") as fh:
@@ -97,6 +97,7 @@ def validate_file(path: Path) -> float:
 # Main entry-point
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     scr_files = list(COVERAGE_DIR.glob("*_coverage.yml"))
 
@@ -104,8 +105,8 @@ def main() -> None:
         print("ERROR: No SCR files found in config/mcp/.", file=sys.stderr)
         sys.exit(1)
 
-    failures: List[str] = []
-    summaries: List[str] = []
+    failures: list[str] = []
+    summaries: list[str] = []
 
     for fp in scr_files:
         try:

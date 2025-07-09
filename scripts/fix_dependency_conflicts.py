@@ -255,7 +255,8 @@ class DependencyFixer:
                 ["uv", "sync", "--all-extras", "--dry-run"],
                 capture_output=True,
                 text=True,
-                timeout=60, check=False,
+                timeout=60,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -453,7 +454,8 @@ mcp_types = get_mcp_types()
                 ],
                 capture_output=True,
                 text=True,
-                timeout=120, check=False,
+                timeout=120,
+                check=False,
             )
 
             if result.returncode == 0:

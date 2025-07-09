@@ -15,11 +15,11 @@ class DedupBloomFilter:
     """Simple Redis-backed Bloom filter for high-volume deduplication."""
 
     def __init__(
-        self, 
-        redis_url: str, 
-        key: str = "dedup:bloom", 
-        error_rate: float = 0.001, 
-        capacity: int = 1_000_000
+        self,
+        redis_url: str,
+        key: str = "dedup:bloom",
+        error_rate: float = 0.001,
+        capacity: int = 1_000_000,
     ):
         if redis is None:
             raise ImportError("redis-py required for Bloom filter support")

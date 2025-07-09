@@ -50,14 +50,16 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
 try:
-    from mcp_servers.base.unified_mcp_base import (
+    # Add base directory to path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
+    from unified_mcp_base import (
         MCPServerConfig,
         ServiceMCPServer,
     )
 
     from backend.core.auto_esc_config import get_config_value
-except ImportError:
-    logger.error("Failed to import backend dependencies")
+except ImportError as e:
+    logger.error(f"Failed to import backend dependencies: {e}")
     sys.exit(1)
 
 # Try to import Slack SDK
@@ -77,7 +79,7 @@ class SlackMCPServer(ServiceMCPServer):
     """Slack integration MCP server with real data capabilities."""
 
     def __init__(self):
-        config = MCPServerConfig(name="slack", port=9103, version="2.0.0")
+        config = MCPServerConfig(name="slack", port=9101, version="2.0.0")
         super().__init__(config)
         self.slack_client = None
         self.bot_user_id = None

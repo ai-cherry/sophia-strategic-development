@@ -6,7 +6,6 @@ Provides CRM integration for contacts, deals, and companies
 
 import os
 import sys
-from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -15,13 +14,18 @@ from typing import Any
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 try:
-    from backend.core.auto_esc_config import config as auto_esc_config
-            MCPServerConfig,
-        SimpleMCPServer,
-        mcp_tool,
+    from backend.core.auto_esc_config import get_config_value
+    
+    # Add base directory to path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
+    from unified_mcp_base import (
+        MCPServerConfig,
+        ServiceMCPServer,
     )
-    from backend.utils.custom_logger import setup_logger
-except ImportError:
+    
+    from shared.utils.custom_logger import setup_logger
+except ImportError as e:
+    print(f"Failed to import dependencies: {e}")
     sys.exit(1)
 
 logger = setup_logger("mcp.hubspot")
@@ -33,32 +37,100 @@ class HubSpotMCPServer(ServiceMCPServer):
     def __init__(self):
         config = MCPServerConfig(
             name="hubspot-unified",
-            port=9006,
+            port=9105,
             version="2.0.0"
         )
         super().__init__(config)
         self.api_key: str | None = None
         self.base_url = "https://api.hubapi.com"
+        
+        # Initialize server tools during construction
+        self._setup_tools()
 
     async def server_specific_init(self) -> None:
         """Initialize HubSpot-specific configuration."""
-        self.api_key = os.getenv("HUBSPOT_API_KEY") or auto_esc_config.get(
-            "hubspot_api_key"
-        )
+        self.api_key = os.getenv("HUBSPOT_API_KEY") or get_config_value("hubspot_api_key")
         if not self.api_key:
             self.logger.warning("HubSpot API key not configured. Some tools may fail.")
 
-    @mcp_tool(
-        name="list_contacts",
-        description="List HubSpot contacts",
-        parameters={
-            "limit": {
-                "type": "integer",
-                "description": "Number of contacts to return",
-                "default": 10,
-            }
-        },
-    )
+    def initialize_server(self):
+        """Initialize server-specific components - synchronous method from base class."""
+        # Run async initialization in a sync context
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        loop.run_until_complete(self.server_specific_init())
+
+    def _setup_tools(self):
+        """Setup HubSpot-specific tools."""
+        # Register MCP tools
+        self.mcp_tool(
+            name="list_contacts",
+            description="List HubSpot contacts",
+            parameters={
+                "limit": {
+                    "type": "integer",
+                    "description": "Number of contacts to return",
+                    "default": 10,
+                }
+            },
+        )(self.list_contacts)
+
+        self.mcp_tool(
+            name="list_deals",
+            description="List HubSpot deals",
+            parameters={
+                "limit": {
+                    "type": "integer",
+                    "description": "Number of deals to return",
+                    "default": 10,
+                }
+            },
+        )(self.list_deals)
+
+        self.mcp_tool(
+            name="list_companies",
+            description="List HubSpot companies",
+            parameters={
+                "limit": {
+                    "type": "integer",
+                    "description": "Number of companies to return",
+                    "default": 10,
+                }
+            },
+        )(self.list_companies)
+
+        self.mcp_tool(
+            name="create_contact",
+            description="Create a new contact",
+            parameters={
+                "email": {
+                    "type": "string",
+                    "description": "Contact's email",
+                    "required": True,
+                },
+                "firstname": {
+                    "type": "string",
+                    "description": "Contact's first name",
+                    "required": True,
+                },
+                "lastname": {
+                    "type": "string",
+                    "description": "Contact's last name",
+                    "required": True,
+                },
+                "company": {
+                    "type": "string",
+                    "description": "Contact's company",
+                    "required": False,
+                },
+            },
+        )(self.create_contact)
+
     async def list_contacts(self, limit: int = 10) -> dict[str, Any]:
         """List HubSpot contacts"""
         try:

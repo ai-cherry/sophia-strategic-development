@@ -8,7 +8,8 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
+from urllib.parse import urlparse
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -23,7 +24,12 @@ try:
         ServiceMCPServer,
     )
 
-    from backend.utils.custom_logger import setup_logger
+    from dataclasses import dataclass
+    from github import Github
+
+    # Use shared utilities instead of backend
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+    from shared.utils.custom_logger import setup_logger
 except ImportError as e:
     print(f"Failed to import dependencies: {e}")
     sys.exit(1)
@@ -39,6 +45,9 @@ class GitHubMCPServer(ServiceMCPServer):
         super().__init__(config)
         self.github_token: str | None = None
         self.base_url = "https://api.github.com"
+        
+        # Initialize server tools during construction
+        self._setup_tools()
 
     async def server_specific_init(self) -> None:
         """Initialize GitHub-specific configuration."""
@@ -48,10 +57,8 @@ class GitHubMCPServer(ServiceMCPServer):
         if not self.github_token:
             self.logger.warning("GitHub token not configured. Some tools may fail.")
 
-    async def initialize_server(self):
-        """Initialize GitHub-specific tools and configuration."""
-        await self.server_specific_init()
-
+    def _setup_tools(self):
+        """Setup GitHub-specific tools and configuration."""
         # Register MCP tools
         self.mcp_tool(
             name="list_repos",
@@ -136,6 +143,18 @@ class GitHubMCPServer(ServiceMCPServer):
                 },
             },
         )(self.create_issue)
+
+    def initialize_server(self):
+        """Initialize server-specific components - synchronous method from base class."""
+        # Run async initialization in a sync context
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+        loop.run_until_complete(self.server_specific_init())
 
     async def execute_mcp_tool(self, tool_name: str, params: dict[str, Any]) -> Any:
         """Execute GitHub MCP tools."""
@@ -281,7 +300,9 @@ async def main():
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(main())
+    # Create and run the server directly
+    server = GitHubMCPServer()
+    server.run()
 
 
 # --- Auto-inserted health endpoint ---

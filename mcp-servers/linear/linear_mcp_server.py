@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 """
-from backend.core.auto_esc_config import get_config_value
-from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 Linear MCP Server
 
 A Model Context Protocol (MCP) server implementation for Linear.
@@ -34,9 +32,18 @@ logger = logging.getLogger(__name__)
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-    MCPServerConfig,
-    StandardizedMCPServer,
-)
+try:
+    from backend.core.auto_esc_config import get_config_value
+    
+    # Add base directory to path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
+    from unified_mcp_base import (
+        MCPServerConfig,
+        ServiceMCPServer,
+    )
+except ImportError as e:
+    logger.error(f"Failed to import backend dependencies: {e}")
+    sys.exit(1)
 
 # Try to import Linear SDK
 try:

@@ -78,7 +78,11 @@ class GracefulLambdaLabsDeployer:
 
         try:
             result = subprocess.run(
-                ssh_command, capture_output=True, text=True, timeout=timeout, check=False
+                ssh_command,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                check=False,
             )
             return result.returncode, result.stdout, result.stderr
         except subprocess.TimeoutExpired:
