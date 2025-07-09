@@ -1148,3 +1148,230 @@ TIMELINE_AND_BUDGET_GUIDELINES: |
     - Describe dependencies and prerequisites
     - Focus on "what" and "how", not "when"
     - Technical complexity over time estimates
+
+## 🧹 **MANDATORY FILE CLEANUP POLICY**
+
+### **🚨 CRITICAL: DELETE ONE-TIME FILES IMMEDIATELY AFTER USE**
+
+**ALWAYS DELETE after successful completion:**
+- [ ] Migration scripts (after migration verified)
+- [ ] Setup scripts (after setup completed)
+- [ ] Data analysis scripts (after analysis documented)
+- [ ] Test data generators (after test data created)
+- [ ] Temporary debugging files
+- [ ] One-time configuration scripts
+- [ ] Database seeding scripts (after seeding completed)
+- [ ] Performance testing scripts (after results captured)
+
+**NEVER DELETE:**
+- [ ] Reusable utilities in `scripts/utils/`
+- [ ] Documentation in `docs/`
+- [ ] Configuration templates
+- [ ] Automated test suites
+- [ ] Monitoring scripts
+- [ ] Deployment automation
+
+### **🔍 Pre-Creation File Assessment**
+Before creating ANY file, AI must ask:
+1. **"Will this be used more than once?"**
+   - If NO → Plan immediate deletion after use
+   - If YES → Place in permanent location with proper naming
+
+2. **"Is this for debugging/testing only?"**
+   - If YES → Add deletion reminder in file header
+   - If NO → Ensure proper documentation
+
+3. **"Does this duplicate existing functionality?"**
+   - If YES → Use existing file or consolidate
+   - If NO → Proceed with creation
+
+### **📋 Mandatory Cleanup Pattern**
+```python
+# REQUIRED: All one-time scripts must include this pattern
+"""
+🚨 ONE-TIME SCRIPT - DELETE AFTER USE
+Purpose: [specific purpose]
+Created: [date]
+Usage: python scripts/one_time_migration.py
+Status: PENDING_DELETION after successful execution
+
+🧹 CLEANUP REMINDER: This file should be deleted after successful execution
+"""
+
+def main():
+    try:
+        # Script logic here
+        print("✅ Operation completed successfully")
+        print("🧹 CLEANUP REQUIRED: Delete this file now")
+        print(f"   Command: rm {__file__}")
+        print("   Reason: One-time script no longer needed")
+    except Exception as e:
+        print(f"❌ Operation failed: {e}")
+        print("🔄 Fix issues and retry - DO NOT DELETE until successful")
+
+if __name__ == "__main__":
+    main()
+```
+
+## 🔐 **MANDATORY SECRET MANAGEMENT - PULUMI ESC ONLY**
+
+### **🚨 CRITICAL: NEVER HANDLE SECRETS MANUALLY**
+
+**FORBIDDEN - IMMEDIATE REJECTION:**
+```python
+# ❌ NEVER DO THIS - IMMEDIATE REJECTION
+API_KEY = "sk-1234567890abcdef"  # Hardcoded secret
+os.environ["SECRET_KEY"] = "hardcoded_value"  # Manual env var
+with open(".env", "w") as f:  # Manual .env creation
+    f.write("SECRET=value")
+```
+
+**REQUIRED - ALWAYS USE PULUMI ESC:**
+```python
+# ✅ CORRECT - Always use centralized config
+from backend.core.auto_esc_config import get_config_value, get_docker_hub_config
+
+# For any secret
+secret_value = get_config_value("secret_name")
+
+# For Docker Hub (always available)
+docker_config = get_docker_hub_config()
+# Returns: {"username": "scoobyjava15", "access_token": "real_token", "registry": "docker.io"}
+
+# For Snowflake
+snowflake_config = get_snowflake_config()
+
+# For Lambda Labs
+lambda_config = get_lambda_labs_config()
+```
+
+### **🔒 Secret Management Hierarchy (MANDATORY)**
+1. **Pulumi ESC** (primary - automatic via `get_config_value()`)
+2. **GitHub Organization Secrets** (automatic sync)
+3. **Environment Variables** (fallback only)
+4. **Hardcoded Defaults** (non-sensitive fallbacks only)
+
+### **🚫 NEVER CREATE THESE FILES:**
+- `.env` files (use Pulumi ESC)
+- `secrets.json` (use Pulumi ESC)
+- `config.local.py` (use Pulumi ESC)
+- Any file containing credentials
+
+### **✅ GitHub Actions Secret Access (AUTOMATIC)**
+```yaml
+# GitHub Actions automatically has access to all secrets
+- name: Deploy to Production
+  env:
+    DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+    DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    LAMBDA_PRIVATE_SSH_KEY: ${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}
+  run: |
+    # Secrets are automatically available
+    echo "Deploying with authenticated access"
+```
+
+## 🚫 **ZERO-TOLERANCE TECHNICAL DEBT POLICY**
+
+### **IMMEDIATE REJECTION CRITERIA - NEVER ACCEPT CODE THAT:**
+1. **Introduces syntax errors** or prevents compilation
+2. **Creates circular dependencies** or import chains
+3. **Lacks comprehensive type hints** for all functions/classes
+4. **Missing error handling** for external API calls or file operations
+5. **Hardcodes secrets, URLs, or configuration** values
+6. **Duplicates existing functionality** without deprecating the old
+7. **Violates single responsibility principle** (functions >50 lines)
+8. **Lacks corresponding tests** for new business logic
+9. **Introduces security vulnerabilities** (SQL injection, XSS, etc.)
+10. **Degrades performance** without measurement and justification
+11. **Creates one-time files** without deletion plan
+12. **Bypasses Pulumi ESC** for secret management
+
+### **MANDATORY QUALITY GATES**
+Before any code change, AI must:
+1. **Architecture Alignment Check**: Verify code follows Phoenix architecture patterns
+2. **Dependency Impact Assessment**: Analyze potential circular dependencies
+3. **Performance Impact Analysis**: Measure memory/CPU impact for critical paths
+4. **Security Validation**: Scan for common vulnerabilities
+5. **Test Coverage Verification**: Ensure new code has corresponding tests
+6. **Documentation Update**: Update relevant docs for architectural changes
+7. **File Cleanup Plan**: Identify one-time files for deletion
+8. **Secret Management Compliance**: Verify Pulumi ESC usage
+
+## 🚀 **DEPLOYMENT EXCELLENCE STANDARDS**
+
+### **Production Deployment Requirements**
+1. **GitHub Actions ONLY** - Never deploy from local machine
+2. **Pulumi ESC Integration** - All secrets via ESC
+3. **Docker Hub Registry** - scoobyjava15 registry
+4. **Lambda Labs Target** - 192.222.58.232 deployment
+5. **Comprehensive Testing** - All quality gates passed
+6. **Zero Temporary Files** - All one-time files deleted
+7. **Security Validation** - No hardcoded secrets
+8. **Performance Verification** - All SLAs met
+
+### **Quality Gate Checklist**
+- [ ] Syntax validation passed
+- [ ] Type hints complete (100%)
+- [ ] Security scan passed (0 vulnerabilities)
+- [ ] Performance requirements met
+- [ ] Test coverage >80%
+- [ ] Documentation updated
+- [ ] Architecture compliance verified
+- [ ] Business logic validated
+- [ ] **No hardcoded secrets** (Pulumi ESC only)
+- [ ] **No temporary files** (all one-time files deleted)
+- [ ] **Secret management compliant** (ESC integration verified)
+
+## 📊 **CONTINUOUS IMPROVEMENT TARGETS**
+
+### **Weekly Cleanup**
+- [ ] Scan for orphaned files
+- [ ] Review secret management compliance
+- [ ] Validate performance metrics
+- [ ] Update improvement targets
+- [ ] **🧹 Repository cleanup audit (orphaned files)**
+- [ ] **🔐 Secret management compliance review**
+- [ ] **📊 File lifecycle management assessment**
+
+### **Monthly Excellence Review**
+- **Technical Excellence Score**: >90
+- **Business Impact Score**: >90
+- **CEO Productivity Increase**: >10%
+- **System Reliability**: >99.9%
+- **Security Posture**: 100% compliant
+- **Operational Excellence**: Zero manual interventions
+- [ ] **🧹 Complete repository hygiene audit**
+- [ ] **🔐 Comprehensive secret management review**
+- [ ] **📋 Best practices compliance assessment**
+
+---
+
+## 🎯 **FINAL DEVELOPMENT CHECKLIST**
+
+### **Before Every Commit**
+- [ ] All one-time files identified for deletion
+- [ ] Pulumi ESC used for all secrets
+- [ ] No hardcoded configuration values
+- [ ] All quality gates passed
+- [ ] Performance requirements met
+- [ ] Security validation complete
+- [ ] Documentation updated
+- [ ] Tests written and passing
+
+### **After Every Successful Operation**
+- [ ] Delete all one-time scripts
+- [ ] Remove temporary files
+- [ ] Clean up debug files
+- [ ] Update documentation
+- [ ] Verify deployment readiness
+- [ ] **🧹 Delete all one-time files after use**
+- [ ] **🔐 Verify all secrets use Pulumi ESC**
+- [ ] **🚫 Scan for hardcoded secrets**
+
+---
+
+**Excellence Mantra**: "Perfect code, clean repository, secure secrets, continuous improvement."
+
+**Success Formula**: Technical Excellence + Clean Codebase + Secure Secrets + Zero Waste = Executive-Grade AI Platform
+
+**Remember**: Every file matters, every secret matters, every line of code matters. Keep it clean, keep it secure, keep it excellent.

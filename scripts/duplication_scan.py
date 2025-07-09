@@ -17,7 +17,7 @@ reports.mkdir(exist_ok=True)
 
 def run(cmd: str, outfile: Path, env: dict[str, str] | None = None) -> None:
     print(">>", cmd)
-    
+
     # JSCPD temporarily disabled due to memory issues and empty output
     # Will be re-enabled after upgrading to a more efficient duplication detector
     if "jscpd" in cmd:
@@ -26,17 +26,17 @@ def run(cmd: str, outfile: Path, env: dict[str, str] | None = None) -> None:
         with outfile.open("w") as f:
             json.dump({"duplications": [], "total": {"percentage": 0}}, f)
         return
-    
+
     with outfile.open("w") as f:
         try:
             # Merge environment variables
             run_env = os.environ.copy()
             if env:
                 run_env.update(env)
-            
+
             subprocess.run(
                 cmd,
-                shell=True,  # noqa: S602 - intentional shell usage for piping
+                shell=True,
                 check=True,
                 stdout=f,
                 stderr=subprocess.STDOUT,

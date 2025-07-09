@@ -3,7 +3,7 @@
 import json
 import logging
 import time
-from typing import Any, Optional
+from typing import Any
 
 from core.protocols import AuditLoggerProtocol
 
@@ -30,8 +30,8 @@ class AuditLogger(AuditLoggerProtocol):
         self,
         event_type: str,
         event_data: dict[str, Any],
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
         severity: str = "info",
     ) -> None:
         """Log an audit event.
@@ -60,8 +60,8 @@ class AuditLogger(AuditLoggerProtocol):
         self,
         error: Exception,
         context: dict[str, Any],
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
     ) -> None:
         """Log an error with context.
 
@@ -88,8 +88,8 @@ class AuditLogger(AuditLoggerProtocol):
         action: str,
         resource: str,
         outcome: str,
-        user_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        user_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Log a security-relevant event.
 
@@ -119,7 +119,7 @@ class AuditLogger(AuditLoggerProtocol):
         workflow_id: str,
         event: str,
         state: dict[str, Any],
-        error: Optional[str] = None,
+        error: str | None = None,
     ) -> None:
         """Log a workflow execution event.
 

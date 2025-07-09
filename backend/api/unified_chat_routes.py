@@ -1,6 +1,6 @@
 """Unified Chat API Routes for Sophia AI"""
 
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -26,13 +26,13 @@ class ChatRequest(BaseModel):
     message: str
     context: str = "chat"
     sessionId: str
-    metadata: Optional[dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 class ChatResponse(BaseModel):
     response: str
-    citations: Optional[list[dict[str, Any]]] = None
-    metadata: Optional[dict[str, Any]] = None
+    citations: list[dict[str, Any]] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @router.post("/chat/unified", response_model=ChatResponse)

@@ -72,9 +72,7 @@ def main():
         # Start monitoring service
         logger.info(f"🚀 Starting Snowflake monitoring service on port {args.port}")
         logger.info(
-            "📊 Prometheus metrics will be available at http://localhost:{}/metrics".format(
-                args.port
-            )
+            f"📊 Prometheus metrics will be available at http://localhost:{args.port}/metrics"
         )
         logger.info(
             "📈 Monitoring dashboard data will be saved to reports/snowflake_monitoring_latest.json"

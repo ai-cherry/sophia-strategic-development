@@ -4,7 +4,7 @@ import asyncio
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import yaml
 from prometheus_client import Counter, Gauge
@@ -53,7 +53,7 @@ class MCPServerConfig(BaseModel):
     port: int
     capabilities: list[str]
     health_endpoint: str = "/health"
-    pat_secret: Optional[str] = None
+    pat_secret: str | None = None
     config: dict[str, Any] = Field(default_factory=dict)
 
     @validator("tier", pre=True)
@@ -96,9 +96,9 @@ class MCPServer:
     health_endpoint: str
     config: dict[str, Any]
     status: ServerStatus = ServerStatus.UNKNOWN
-    last_health_check: Optional[float] = None
+    last_health_check: float | None = None
     error_count: int = 0
-    pat_token: Optional[str] = None
+    pat_token: str | None = None
 
     @property
     def url(self) -> str:
@@ -119,7 +119,7 @@ class MCPServer:
 class RegistryV2:
     """Enhanced MCP registry with YAML configuration and tiering."""
 
-    def __init__(self, config_path: Optional[Path] = None, auto_load: bool = True):
+    def __init__(self, config_path: Path | None = None, auto_load: bool = True):
         """Initialize registry.
 
         Args:
@@ -201,7 +201,7 @@ class RegistryV2:
         # Update metrics
         MCP_REGISTRY_SERVERS.labels(tier=server.tier.value, type=server.type).inc()
 
-    def get_server(self, name: str) -> Optional[MCPServer]:
+    def get_server(self, name: str) -> MCPServer | None:
         """Get server by name."""
         return self._servers.get(name)
 
@@ -211,7 +211,7 @@ class RegistryV2:
         return [self._servers[name] for name in server_names if name in self._servers]
 
     def get_servers_by_capability(
-        self, capability: str, tier: Optional[Tier] = None
+        self, capability: str, tier: Tier | None = None
     ) -> list[MCPServer]:
         """Get servers with a specific capability.
 
@@ -237,7 +237,7 @@ class RegistryV2:
         # Sort by tier priority
         return sorted(servers, key=lambda s: list(Tier).index(s.tier))
 
-    def get_primary_server_for_capability(self, capability: str) -> Optional[MCPServer]:
+    def get_primary_server_for_capability(self, capability: str) -> MCPServer | None:
         """Get the primary server for a capability."""
         servers = self.get_servers_by_capability(capability, Tier.PRIMARY)
         if servers:
@@ -364,7 +364,7 @@ class RegistryV2:
 
 
 # Singleton instance
-_registry: Optional[RegistryV2] = None
+_registry: RegistryV2 | None = None
 
 
 def get_registry() -> RegistryV2:

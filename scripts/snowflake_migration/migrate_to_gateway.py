@@ -8,7 +8,6 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 # Migration patterns
 MIGRATION_PATTERNS = [
@@ -206,7 +205,7 @@ class SnowflakeMigrator:
 
         return content
 
-    def migrate_file(self, file_path: Path) -> Optional[dict[str, any]]:
+    def migrate_file(self, file_path: Path) -> dict[str, any] | None:
         """Migrate a single Python file."""
         try:
             with open(file_path, encoding="utf-8") as f:

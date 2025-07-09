@@ -12,14 +12,14 @@ from .errors import (
 from .service import SnowflakeCortexService
 
 __all__ = [
-    "SnowflakeCortexService",
-    "CortexModel",
-    "TaskType",
-    "MCPMode",
-    "CortexError",
-    "CortexConnectionError",
     "CortexAuthenticationError",
+    "CortexConnectionError",
+    "CortexError",
+    "CortexModel",
     "CortexModelError",
     "CortexQuotaError",
+    "MCPMode",
     "MCPServerError",
+    "SnowflakeCortexService",
+    "TaskType",
 ]

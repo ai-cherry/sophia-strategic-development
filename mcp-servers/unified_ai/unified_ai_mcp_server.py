@@ -6,7 +6,7 @@ Natural language infrastructure control with unified AI service integration
 import asyncio
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from mcp import McpTool
 from mcp_servers.base.unified_mcp_base import (
@@ -102,7 +102,7 @@ class UnifiedAIMCPServer(AIEngineMCPServer):
         self,
         prompt: str,
         provider: str = "auto",
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 1000,
         temperature: float = 0.7,
         cost_priority: str = "balanced",
@@ -187,7 +187,7 @@ class UnifiedAIMCPServer(AIEngineMCPServer):
             return {"success": False, "error": str(e)}
 
     async def sql_generation(
-        self, query: str, schema_context: Optional[str] = None
+        self, query: str, schema_context: str | None = None
     ) -> dict[str, Any]:
         """Generate SQL from natural language"""
 

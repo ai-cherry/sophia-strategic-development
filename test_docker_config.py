@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from backend.core.auto_esc_config import get_docker_hub_config
@@ -15,7 +16,7 @@ print(f"Token Length: {len(config['access_token']) if config['access_token'] els
 if config['access_token']:
     print("\nAttempting Docker login...")
     import subprocess
-    
+
     # Use the token with docker login
     process = subprocess.Popen(
         ['docker', 'login', '-u', config['username'], '--password-stdin'],
@@ -24,13 +25,13 @@ if config['access_token']:
         stderr=subprocess.PIPE,
         text=True
     )
-    
+
     stdout, stderr = process.communicate(input=config['access_token'])
-    
+
     if process.returncode == 0:
         print("✅ Docker login successful!")
     else:
         print("❌ Docker login failed!")
         print(f"Error: {stderr}")
 else:
-    print("\n⚠️  No Docker Hub access token found in configuration") 
+    print("\n⚠️  No Docker Hub access token found in configuration")

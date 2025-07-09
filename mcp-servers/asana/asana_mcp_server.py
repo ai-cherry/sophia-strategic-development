@@ -9,7 +9,6 @@ Provides tools to interact with Asana's REST API for project management.
 import logging
 import os
 import sys
-from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -32,9 +31,18 @@ logger = logging.getLogger(__name__)
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-    MCPServerConfig,
-    StandardizedMCPServer,
-)
+try:
+    from backend.core.auto_esc_config import get_config_value
+    # Add base directory to path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
+    from unified_mcp_base import (
+        ServiceMCPServer,
+        MCPServerConfig,
+    )
+except ImportError as e:
+    logger.error(f"Failed to import dependencies: {e}")
+    logger.error(f"Python path: {sys.path}")
+    sys.exit(1)
 
 # Try to import Asana
 try:

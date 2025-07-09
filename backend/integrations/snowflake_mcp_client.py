@@ -8,7 +8,7 @@ import json
 import time
 import uuid
 from collections.abc import AsyncIterator
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -32,14 +32,14 @@ class MCPResponse(BaseModel):
     """MCP response model"""
 
     status: str
-    operation_id: Optional[str] = None
-    response: Optional[str] = None
-    usage: Optional[dict[str, Any]] = None
+    operation_id: str | None = None
+    response: str | None = None
+    usage: dict[str, Any] | None = None
     stream: bool = False
-    stream_id: Optional[str] = None
-    server_id: Optional[str] = None
-    model: Optional[str] = None
-    error: Optional[str] = None
+    stream_id: str | None = None
+    server_id: str | None = None
+    model: str | None = None
+    error: str | None = None
 
 
 class RetryConfig(BaseModel):
@@ -59,10 +59,10 @@ class SnowflakeMCPClient:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
-        pat: Optional[str] = None,
+        base_url: str | None = None,
+        pat: str | None = None,
         timeout: int = 120,
-        retry_config: Optional[RetryConfig] = None,
+        retry_config: RetryConfig | None = None,
     ):
         self.base_url = base_url or get_config_value(
             "snowflake_mcp_url", "https://mcp-snowflake.sophia-ai.com"

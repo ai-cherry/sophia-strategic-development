@@ -1,0 +1,32 @@
+{
+  "phases": {
+    "infrastructure": {
+      "success": true,
+      "message": "Infrastructure deployed successfully"
+    },
+    "core_services": {
+      "success": true,
+      "message": "Core services ready"
+    },
+    "mcp_servers": {
+      "success": true,
+      "deployed_count": 3,
+      "total_servers": 3,
+      "success_rate": 1.0
+    },
+    "backend_api": {
+      "success": false,
+      "error": "bash: -c: option requires an argument\nmkdir: cannot create directory \u2018/opt/sophia-ai/backend\u2019: Permission denied\n"
+    },
+    "validation": {
+      "success": true,
+      "results": {
+        "backend_healthy": true,
+        "postgres_healthy": true,
+        "overall_healthy": true
+      }
+    }
+  },
+  "overall_success": true,
+  "deployment_time_minutes": 0.442205019791921
+}

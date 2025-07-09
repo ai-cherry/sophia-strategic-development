@@ -259,9 +259,8 @@ class FallbackChain:
             async for chunk in response:
                 if chunk.choices and chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
-        else:
-            if response.choices and response.choices[0].message.content:
-                yield response.choices[0].message.content
+        elif response.choices and response.choices[0].message.content:
+            yield response.choices[0].message.content
 
     async def _complete_openrouter(
         self, client, prompt: str, task: TaskType, complexity: TaskComplexity, **kwargs
@@ -281,9 +280,8 @@ class FallbackChain:
             async for chunk in response:
                 if chunk.choices and chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
-        else:
-            if response.choices and response.choices[0].message.content:
-                yield response.choices[0].message.content
+        elif response.choices and response.choices[0].message.content:
+            yield response.choices[0].message.content
 
     async def _complete_openai(
         self, client, prompt: str, task: TaskType, complexity: TaskComplexity, **kwargs
@@ -303,9 +301,8 @@ class FallbackChain:
             async for chunk in response:
                 if chunk.choices and chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
-        else:
-            if response.choices and response.choices[0].message.content:
-                yield response.choices[0].message.content
+        elif response.choices and response.choices[0].message.content:
+            yield response.choices[0].message.content
 
     async def _complete_anthropic(
         self, client, prompt: str, task: TaskType, complexity: TaskComplexity, **kwargs

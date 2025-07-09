@@ -3,7 +3,6 @@ Snowflake Cortex Metrics
 Comprehensive Prometheus metrics for monitoring Cortex operations.
 """
 
-from typing import Optional
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Info
 
@@ -243,7 +242,7 @@ def record_cortex_call(
     model: str,
     status: str,
     latency_seconds: float,
-    tokens: Optional[int] = None,
+    tokens: int | None = None,
 ):
     """Record metrics for a Cortex call"""
     cortex_calls_total.labels(mode=mode, task=task, status=status, model=model).inc()
@@ -293,36 +292,36 @@ def record_cache_access(cache_type: str, task: str, hit: bool):
 # ===================================================================
 
 __all__ = [
-    "cortex_calls_total",
-    "cortex_latency_seconds",
-    "cortex_tokens_used",
-    "cortex_credits_used",
-    "snowflake_pool_size",
-    "snowflake_pool_in_use",
-    "snowflake_pool_wait_time_ms",
-    "snowflake_pool_timeouts",
-    "mcp_server_health_score",
-    "mcp_server_latency_ms",
-    "mcp_server_error_rate",
-    "cortex_circuit_breaker_state",
-    "cortex_circuit_breaker_failures",
-    "cortex_fallback_total",
-    "cortex_fallback_success",
     "cortex_cache_hits",
     "cortex_cache_misses",
     "cortex_cache_size",
-    "cortex_daily_credits",
-    "cortex_monthly_credits",
+    "cortex_calls_total",
+    "cortex_circuit_breaker_failures",
+    "cortex_circuit_breaker_state",
     "cortex_credit_limit_percentage",
-    "cortex_model_performance",
+    "cortex_credits_used",
+    "cortex_daily_credits",
+    "cortex_fallback_success",
+    "cortex_fallback_total",
+    "cortex_info",
+    "cortex_latency_seconds",
     "cortex_model_errors",
+    "cortex_model_performance",
+    "cortex_monthly_credits",
+    "cortex_registry",
+    "cortex_tokens_used",
+    "mcp_server_error_rate",
+    "mcp_server_health_score",
+    "mcp_server_latency_ms",
+    "record_cache_access",
+    "record_cortex_call",
+    "record_mcp_health",
+    "record_pool_metrics",
+    "set_circuit_breaker_state",
     "snowflake_pat_days_until_expiry",
     "snowflake_pat_rotation_alerts",
-    "cortex_info",
-    "cortex_registry",
-    "record_cortex_call",
-    "record_pool_metrics",
-    "record_mcp_health",
-    "set_circuit_breaker_state",
-    "record_cache_access",
+    "snowflake_pool_in_use",
+    "snowflake_pool_size",
+    "snowflake_pool_timeouts",
+    "snowflake_pool_wait_time_ms",
 ]

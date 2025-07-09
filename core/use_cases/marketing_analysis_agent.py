@@ -33,10 +33,12 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
     MemoryCategory,
 )
-from infrastructure.services.foundational_knowledge_service import FoundationalKnowledgeService
+from infrastructure.services.foundational_knowledge_service import (
+    FoundationalKnowledgeService,
+)
 from infrastructure.services.unified_llm_service import (
-    get_unified_llm_service,
     TaskType,
+    get_unified_llm_service,
 )
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector

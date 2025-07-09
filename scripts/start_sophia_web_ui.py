@@ -5,20 +5,19 @@ Sophia AI Web UI Service
 Beautiful web interface for the Sophia AI Hybrid Serverless + Dedicated GPU system.
 """
 
-import asyncio
 import logging
 import os
 import sys
-import json
+from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Any
+
 import aiohttp
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 class SophiaWebService:
     """Sophia AI Web Service with beautiful UI"""
-    
+
     def __init__(self):
         self.serverless_endpoint = "https://api.lambdalabs.com/v1"
         self.serverless_api_key = os.getenv("LAMBDA_API_KEY")
@@ -43,21 +42,21 @@ class SophiaWebService:
             "dedicated_requests": 0,
             "cost_savings": 0.0
         }
-        
+
         logger.info("🚀 Sophia AI Web Service initialized")
 
-    async def process_chat(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_chat(self, request_data: dict[str, Any]) -> dict[str, Any]:
         """Process chat request through Lambda Labs Serverless"""
         try:
             self.stats["total_requests"] += 1
             self.stats["serverless_requests"] += 1
-            
+
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.serverless_api_key}",
                     "Content-Type": "application/json"
                 }
-                
+
                 # Use cost-optimized model
                 payload = {
                     "model": "llama-4-scout-17b-16e-instruct",
@@ -65,7 +64,7 @@ class SophiaWebService:
                     "max_tokens": request_data.get("max_tokens", 500),
                     "temperature": request_data.get("temperature", 0.7)
                 }
-                
+
                 async with session.post(
                     f"{self.serverless_endpoint}/chat/completions",
                     headers=headers,
@@ -74,12 +73,12 @@ class SophiaWebService:
                 ) as response:
                     if response.status == 200:
                         response_data = await response.json()
-                        
+
                         # Calculate cost
                         usage = response_data.get("usage", {})
                         cost = self._calculate_cost(usage)
                         self.stats["cost_savings"] += 0.02  # Estimated savings vs dedicated
-                        
+
                         return {
                             "response": response_data,
                             "routing": {
@@ -92,14 +91,14 @@ class SophiaWebService:
                     else:
                         error_text = await response.text()
                         raise Exception(f"API error: {response.status} - {error_text}")
-                        
+
         except Exception as e:
             logger.error(f"Chat processing failed: {e}")
             return {
                 "response": {
                     "choices": [{
                         "message": {
-                            "content": f"I'm sorry, I encountered an error: {str(e)}"
+                            "content": f"I'm sorry, I encountered an error: {e!s}"
                         }
                     }]
                 },
@@ -109,21 +108,21 @@ class SophiaWebService:
                 }
             }
 
-    def _calculate_cost(self, usage: Dict[str, Any]) -> float:
+    def _calculate_cost(self, usage: dict[str, Any]) -> float:
         """Calculate cost based on usage"""
         input_tokens = usage.get("prompt_tokens", 0)
         output_tokens = usage.get("completion_tokens", 0)
-        
+
         # Llama-4-Scout pricing
         input_cost = (input_tokens / 1_000_000) * 0.08
         output_cost = (output_tokens / 1_000_000) * 0.30
-        
+
         return input_cost + output_cost
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get routing statistics"""
         total = self.stats["total_requests"]
-        
+
         return {
             **self.stats,
             "serverless_percentage": (self.stats["serverless_requests"] / total * 100) if total > 0 else 0,
@@ -131,7 +130,7 @@ class SophiaWebService:
             "average_cost_per_request": self.stats["cost_savings"] / total if total > 0 else 0
         }
 
-    async def get_health(self) -> Dict[str, Any]:
+    async def get_health(self) -> dict[str, Any]:
         """Get system health status"""
         health = {
             "status": "running",
@@ -145,7 +144,7 @@ class SophiaWebService:
             "routing_stats": self.get_stats(),
             "timestamp": datetime.now().isoformat()
         }
-        
+
         # Test serverless endpoint
         try:
             async with aiohttp.ClientSession() as session:
@@ -153,7 +152,7 @@ class SophiaWebService:
                     "Authorization": f"Bearer {self.serverless_api_key}",
                     "Content-Type": "application/json"
                 }
-                
+
                 async with session.get(
                     f"{self.serverless_endpoint}/models",
                     headers=headers,
@@ -162,10 +161,10 @@ class SophiaWebService:
                 ) as response:
                     if response.status != 200:
                         health["health"]["serverless"] = "unhealthy"
-                        
+
         except Exception as e:
-            health["health"]["serverless"] = f"error: {str(e)}"
-            
+            health["health"]["serverless"] = f"error: {e!s}"
+
         return health
 
 
@@ -236,7 +235,7 @@ async def dashboard():
     """Dashboard data endpoint"""
     health = await web_service.get_health()
     stats = web_service.get_stats()
-    
+
     return {
         "title": "Sophia AI Hybrid Dashboard",
         "architecture": "serverless + dedicated",
@@ -293,16 +292,16 @@ def main():
         if not os.getenv("LAMBDA_API_KEY"):
             logger.error("❌ LAMBDA_API_KEY environment variable required")
             sys.exit(1)
-        
+
         # Configuration
         host = os.getenv("HOST", "0.0.0.0")
         port = int(os.getenv("PORT", "8000"))
-        
+
         logger.info(f"🚀 Starting Sophia AI Web UI on {host}:{port}")
         logger.info("🌐 Beautiful web interface with hybrid AI architecture")
         logger.info("💰 46% cost reduction, 70% faster responses")
         logger.info("🎯 Open http://localhost:8000 to access the UI")
-        
+
         # Start server
         uvicorn.run(
             app,
@@ -310,11 +309,11 @@ def main():
             port=port,
             log_level="info"
         )
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to start web service: {e}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main() 
+    main()

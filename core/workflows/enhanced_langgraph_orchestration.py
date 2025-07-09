@@ -41,7 +41,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 # LangGraph imports
 try:
@@ -151,11 +151,11 @@ class WorkflowState(TypedDict):
     """State for Lambda Labs workflow orchestration."""
 
     messages: list[dict[str, str]]
-    model: Optional[str]
+    model: str | None
     cost_priority: str
-    backend: Optional[str]
-    result: Optional[dict[str, Any]]
-    error: Optional[str]
+    backend: str | None
+    result: dict[str, Any] | None
+    error: str | None
     metadata: dict[str, Any]
 
 

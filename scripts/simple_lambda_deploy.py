@@ -9,7 +9,7 @@ import time
 
 INSTANCES = {
     "production": "104.171.202.103",
-    "ai-core": "192.222.58.232", 
+    "ai-core": "192.222.58.232",
     "mcp-servers": "104.171.202.117",
     "data-pipeline": "104.171.202.134",
     "development": "155.248.194.183"
@@ -18,7 +18,7 @@ INSTANCES = {
 def deploy_simple_service(name, ip):
     """Deploy a simple working service"""
     print(f"🚀 Deploying to {name} ({ip})")
-    
+
     # Create a self-contained Python service
     service_code = '''
 import http.server
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         print(f"Sophia AI serving on port {PORT}")
         httpd.serve_forever()
 '''
-    
+
     try:
         # Deploy the service
         deploy_cmd = f"""
@@ -84,17 +84,17 @@ EOF
         curl -s http://localhost:8000/health || echo "Starting..."
         '
         """
-        
-        result = subprocess.run(deploy_cmd, shell=True, capture_output=True, text=True, timeout=30)
-        
+
+        result = subprocess.run(deploy_cmd, check=False, shell=True, capture_output=True, text=True, timeout=30)
+
         if result.returncode == 0:
             print(f"  ✅ Service deployed to {name}")
-            
+
             # Verify it's working
             time.sleep(3)
             verify_cmd = f"ssh ubuntu@{ip} 'curl -s http://localhost:8000/health'"
-            verify_result = subprocess.run(verify_cmd, shell=True, capture_output=True, text=True, timeout=10)
-            
+            verify_result = subprocess.run(verify_cmd, check=False, shell=True, capture_output=True, text=True, timeout=10)
+
             if "healthy" in verify_result.stdout:
                 print(f"  ✅ Service verified on {name}")
                 return True
@@ -104,7 +104,7 @@ EOF
         else:
             print(f"  ❌ Deployment failed on {name}")
             return False
-            
+
     except Exception as e:
         print(f"  ❌ Error deploying to {name}: {e}")
         return False
@@ -113,16 +113,16 @@ def main():
     """Deploy to all instances"""
     print("🚀 SIMPLE LAMBDA LABS DEPLOYMENT")
     print("=" * 50)
-    
+
     successful = 0
     for name, ip in INSTANCES.items():
         if deploy_simple_service(name, ip):
             successful += 1
         time.sleep(2)
-    
+
     print("=" * 50)
     print(f"📊 Deployed: {successful}/{len(INSTANCES)} instances")
-    
+
     if successful >= 3:
         print("🎉 DEPLOYMENT SUCCESSFUL!")
         print("\n🌐 Access your services:")
@@ -132,4 +132,4 @@ def main():
         print("⚠️ PARTIAL DEPLOYMENT")
 
 if __name__ == "__main__":
-    main() 
+    main()

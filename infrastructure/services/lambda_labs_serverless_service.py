@@ -4,7 +4,7 @@ import logging
 import sqlite3
 import time
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp  # type: ignore[import-not-found]
 from tenacity import (  # type: ignore[import-not-found]
@@ -38,8 +38,8 @@ class UsageRecord:
     tokens: int
     cost: float
     latency_ms: int
-    user_id: Optional[str] = None
-    session_id: Optional[str] = None
+    user_id: str | None = None
+    session_id: str | None = None
 
 
 class LambdaLabsServerlessService:
@@ -99,8 +99,8 @@ class LambdaLabsServerlessService:
         model: str = "llama3.1-70b-instruct-fp8",
         temperature: float = 0.7,
         max_tokens: int = 1000,
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
     ) -> dict[str, Any]:
         """Generate completion with retry logic and cost tracking.
 
@@ -170,8 +170,8 @@ class LambdaLabsServerlessService:
         tokens: int,
         cost: float,
         latency_ms: int,
-        user_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        session_id: str | None = None,
     ) -> None:
         """Track usage in database.
 

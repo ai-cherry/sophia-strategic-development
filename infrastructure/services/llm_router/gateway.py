@@ -6,7 +6,7 @@ Handles routing through Portkey with OpenRouter fallback
 import json
 import time
 from collections.abc import AsyncGenerator
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 
@@ -56,8 +56,8 @@ class PortkeyGateway:
         stream: bool = True,
         temperature: float = 0.7,
         max_tokens: int = 2000,
-        model_override: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        model_override: str | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """
@@ -103,7 +103,7 @@ class PortkeyGateway:
         self,
         task: TaskType,
         complexity: TaskComplexity,
-        model_override: Optional[str],
+        model_override: str | None,
         context_size: int,
     ) -> ModelConfig:
         """Select optimal model based on task and complexity"""
@@ -203,7 +203,7 @@ class PortkeyGateway:
         stream: bool,
         temperature: float,
         max_tokens: int,
-        metadata: Optional[dict[str, Any]],
+        metadata: dict[str, Any] | None,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """Complete request via Portkey"""
@@ -288,7 +288,7 @@ class PortkeyGateway:
         stream: bool,
         temperature: float,
         max_tokens: int,
-        metadata: Optional[dict[str, Any]],
+        metadata: dict[str, Any] | None,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """Complete request via OpenRouter"""
@@ -412,7 +412,7 @@ class PortkeyGateway:
         prompt: str,
         task: TaskType,
         complexity: TaskComplexity,
-        model_override: Optional[str] = None,
+        model_override: str | None = None,
     ) -> dict[str, Any]:
         """Estimate cost for completion"""
         model = await self._select_model(task, complexity, model_override, len(prompt))

@@ -8,7 +8,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import redis.asyncio as redis
 from pydantic import BaseSettings, Field
@@ -160,7 +160,7 @@ class EnhancedSnowflakeAdapter:
     Designed to work behind CortexGateway for production use.
     """
 
-    def __init__(self, config: Optional[SnowflakeConfig] = None):
+    def __init__(self, config: SnowflakeConfig | None = None):
         self.config = config or SnowflakeConfig()
         self.warehouse_optimizer = WarehouseOptimizer(self.config)
         self.credit_tracker = CreditTracker(self.config.daily_credit_limit)
@@ -198,7 +198,7 @@ class EnhancedSnowflakeAdapter:
         workload_type: str = "general",
         use_cache: bool = True,
         cache_ttl: int = 300,
-        params: Optional[tuple] = None,
+        params: tuple | None = None,
     ) -> list[dict[str, Any]]:
         """Execute query with intelligent warehouse routing and caching"""
 
@@ -488,7 +488,7 @@ class EnhancedSnowflakeAdapter:
 
 
 # Singleton instance for use by CortexGateway
-_adapter_instance: Optional[EnhancedSnowflakeAdapter] = None
+_adapter_instance: EnhancedSnowflakeAdapter | None = None
 
 
 def get_adapter() -> EnhancedSnowflakeAdapter:

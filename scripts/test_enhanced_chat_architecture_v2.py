@@ -17,63 +17,63 @@ Date: July 9, 2025
 import asyncio
 import json
 import sys
-import os
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Any
+from pathlib import Path
+from typing import Any
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class EcosystemArchitectureTest:
     """Test complete ecosystem architecture integration"""
-    
+
     def __init__(self):
         self.current_date = "July 9, 2025"
         self.test_results = []
-        
+
     async def run_comprehensive_test(self):
         """Run comprehensive ecosystem architecture test"""
-        
+
         print("🚀 Sophia AI v3.0 - Enhanced Unified Chat Architecture Test")
         print("=" * 80)
         print(f"Current Date: {self.current_date}")
-        print(f"Testing: Complete Pay Ready Ecosystem Integration")
+        print("Testing: Complete Pay Ready Ecosystem Integration")
         print()
-        
+
         # Test 1: Ecosystem Service Architecture
         await self._test_ecosystem_service_architecture()
-        
+
         # Test 2: Natural Language Query Routing
         await self._test_natural_language_routing()
-        
+
         # Test 3: Cross-System Intelligence
         await self._test_cross_system_intelligence()
-        
+
         # Test 4: Gong Integration (As Part of Business Intelligence)
         await self._test_gong_integration()
-        
+
         # Test 5: Project Management Assessment
         await self._test_project_management_assessment()
-        
+
         # Test 6: API Endpoint Architecture
         await self._test_api_endpoint_architecture()
-        
+
         # Generate test report
         await self._generate_test_report()
-    
+
     async def _test_ecosystem_service_architecture(self):
         """Test ecosystem service architecture"""
-        
+
         print("🏗️ Test 1: Ecosystem Service Architecture")
         print("-" * 50)
-        
+
         try:
             # Simulate ecosystem service mapping
             ecosystem_services = {
@@ -85,7 +85,7 @@ class EcosystemArchitectureTest:
                     "financial_systems": {"status": "active", "type": "financial_metrics"},
                     "customer_health": {"status": "active", "type": "customer_intelligence"}
                 },
-                
+
                 # Communication Intelligence
                 "communication_intelligence": {
                     "slack": {"status": "active", "type": "team_communication"},
@@ -93,7 +93,7 @@ class EcosystemArchitectureTest:
                     "intercom": {"status": "pending", "type": "customer_support"},
                     "support_channels": {"status": "pending", "type": "support_communication"}
                 },
-                
+
                 # Project Management Intelligence
                 "project_intelligence": {
                     "linear": {"status": "active", "type": "engineering_tasks"},
@@ -101,7 +101,7 @@ class EcosystemArchitectureTest:
                     "notion": {"status": "active", "type": "documentation"},
                     "github": {"status": "pending", "type": "development_activity"}
                 },
-                
+
                 # Core Services
                 "core_services": {
                     "database": {"status": "active", "type": "historical_data"},
@@ -109,26 +109,26 @@ class EcosystemArchitectureTest:
                     "web_search": {"status": "active", "type": "external_intelligence"}
                 }
             }
-            
+
             # Test service categorization
             total_services = sum(len(category) for category in ecosystem_services.values())
             active_services = sum(
-                1 for category in ecosystem_services.values() 
-                for service in category.values() 
+                1 for category in ecosystem_services.values()
+                for service in category.values()
                 if service["status"] == "active"
             )
-            
+
             print(f"✅ Total Ecosystem Services: {total_services}")
             print(f"✅ Active Services: {active_services}")
             print(f"✅ Service Health: {(active_services/total_services)*100:.1f}%")
             print()
-            
+
             # Verify Gong integration in business intelligence
             gong_in_business_intel = "gong" in ecosystem_services["business_intelligence"]
             print(f"✅ Gong Integrated in Business Intelligence: {gong_in_business_intel}")
             print(f"✅ Gong Type: {ecosystem_services['business_intelligence']['gong']['type']}")
             print()
-            
+
             self.test_results.append({
                 "test": "ecosystem_service_architecture",
                 "status": "passed",
@@ -136,7 +136,7 @@ class EcosystemArchitectureTest:
                 "active_services": active_services,
                 "gong_integrated": gong_in_business_intel
             })
-            
+
         except Exception as e:
             print(f"❌ Ecosystem service architecture test failed: {e}")
             self.test_results.append({
@@ -144,13 +144,13 @@ class EcosystemArchitectureTest:
                 "status": "failed",
                 "error": str(e)
             })
-    
+
     async def _test_natural_language_routing(self):
         """Test natural language query routing"""
-        
+
         print("🧠 Test 2: Natural Language Query Routing")
         print("-" * 50)
-        
+
         try:
             # Test query routing logic
             test_queries = [
@@ -175,31 +175,31 @@ class EcosystemArchitectureTest:
                     "expected_intent": "comprehensive_assessment"
                 }
             ]
-            
+
             routing_results = []
-            
+
             for test_query in test_queries:
                 query = test_query["query"]
-                
+
                 # Simulate query analysis
                 routing_result = await self._simulate_query_routing(query)
                 routing_results.append(routing_result)
-                
+
                 print(f"🔍 Query: {query[:50]}...")
                 print(f"   Intent: {routing_result['intent']}")
                 print(f"   Sources: {', '.join(routing_result['sources'])}")
                 print(f"   Complexity: {routing_result['complexity']}")
                 print(f"   Cross-System: {routing_result['cross_system']}")
                 print()
-            
+
             # Verify routing accuracy
             successful_routes = sum(1 for result in routing_results if result['success'])
             routing_accuracy = (successful_routes / len(test_queries)) * 100
-            
+
             print(f"✅ Routing Tests: {successful_routes}/{len(test_queries)}")
             print(f"✅ Routing Accuracy: {routing_accuracy:.1f}%")
             print()
-            
+
             self.test_results.append({
                 "test": "natural_language_routing",
                 "status": "passed",
@@ -207,7 +207,7 @@ class EcosystemArchitectureTest:
                 "successful_routes": successful_routes,
                 "total_queries": len(test_queries)
             })
-            
+
         except Exception as e:
             print(f"❌ Natural language routing test failed: {e}")
             self.test_results.append({
@@ -215,13 +215,13 @@ class EcosystemArchitectureTest:
                 "status": "failed",
                 "error": str(e)
             })
-    
+
     async def _test_cross_system_intelligence(self):
         """Test cross-system intelligence capabilities"""
-        
+
         print("🔄 Test 3: Cross-System Intelligence")
         print("-" * 50)
-        
+
         try:
             # Simulate cross-system data correlation
             cross_system_scenarios = [
@@ -244,30 +244,30 @@ class EcosystemArchitectureTest:
                     "expected_patterns": ["deal_health", "customer_satisfaction", "risk_indicators"]
                 }
             ]
-            
+
             correlation_results = []
-            
+
             for scenario in cross_system_scenarios:
                 # Simulate cross-system analysis
                 correlation_result = await self._simulate_cross_system_analysis(scenario)
                 correlation_results.append(correlation_result)
-                
+
                 print(f"🔗 {scenario['name']}:")
                 print(f"   Systems: {', '.join(scenario['systems'])}")
                 print(f"   Correlation Type: {scenario['correlation_type']}")
                 print(f"   Patterns Found: {len(correlation_result['patterns'])}")
                 print(f"   Confidence: {correlation_result['confidence']:.2f}")
                 print()
-            
+
             # Calculate cross-system intelligence score
             avg_confidence = sum(r['confidence'] for r in correlation_results) / len(correlation_results)
             total_patterns = sum(len(r['patterns']) for r in correlation_results)
-            
+
             print(f"✅ Cross-System Scenarios: {len(cross_system_scenarios)}")
             print(f"✅ Average Confidence: {avg_confidence:.2f}")
             print(f"✅ Total Patterns Found: {total_patterns}")
             print()
-            
+
             self.test_results.append({
                 "test": "cross_system_intelligence",
                 "status": "passed",
@@ -275,7 +275,7 @@ class EcosystemArchitectureTest:
                 "average_confidence": avg_confidence,
                 "total_patterns": total_patterns
             })
-            
+
         except Exception as e:
             print(f"❌ Cross-system intelligence test failed: {e}")
             self.test_results.append({
@@ -283,13 +283,13 @@ class EcosystemArchitectureTest:
                 "status": "failed",
                 "error": str(e)
             })
-    
+
     async def _test_gong_integration(self):
         """Test Gong integration as part of business intelligence"""
-        
+
         print("📞 Test 4: Gong Integration (Business Intelligence Component)")
         print("-" * 50)
-        
+
         try:
             # Test Gong integration within business intelligence
             gong_capabilities = {
@@ -309,23 +309,23 @@ class EcosystemArchitectureTest:
                     "executive_dashboard_integration": "active"
                 }
             }
-            
+
             # Verify Gong is NOT standalone
             is_standalone = False  # Gong is integrated, not standalone
             is_business_intelligence_component = True
-            
+
             print("📊 Gong Conversation Intelligence Capabilities:")
             for capability, status in gong_capabilities["conversation_intelligence"].items():
                 print(f"   ✅ {capability}: {status}")
-            
+
             print("\n🔗 Gong Business Integration:")
             for integration, status in gong_capabilities["business_integration"].items():
                 print(f"   ✅ {integration}: {status}")
-            
+
             print(f"\n✅ Gong Standalone Service: {is_standalone} (Correct - should be False)")
             print(f"✅ Gong Business Intelligence Component: {is_business_intelligence_component}")
             print()
-            
+
             # Test Gong query examples
             gong_queries = [
                 "What project risks were mentioned in Gong calls this week?",
@@ -333,12 +333,12 @@ class EcosystemArchitectureTest:
                 "Cross-reference Gong customer requests with Linear engineering tasks",
                 "How does Gong customer sentiment correlate with HubSpot deal health?"
             ]
-            
+
             print("🔍 Gong Query Examples (Integrated with Ecosystem):")
             for i, query in enumerate(gong_queries, 1):
                 print(f"   {i}. {query}")
             print()
-            
+
             self.test_results.append({
                 "test": "gong_integration",
                 "status": "passed",
@@ -347,7 +347,7 @@ class EcosystemArchitectureTest:
                 "capabilities_active": len([c for c in gong_capabilities["conversation_intelligence"].values() if c == "active"]),
                 "integrations_active": len([i for i in gong_capabilities["business_integration"].values() if i == "active"])
             })
-            
+
         except Exception as e:
             print(f"❌ Gong integration test failed: {e}")
             self.test_results.append({
@@ -355,13 +355,13 @@ class EcosystemArchitectureTest:
                 "status": "failed",
                 "error": str(e)
             })
-    
+
     async def _test_project_management_assessment(self):
         """Test project management assessment using ALL data sources"""
-        
+
         print("📊 Test 5: Project Management Assessment (All Data Sources)")
         print("-" * 50)
-        
+
         try:
             # Project management data sources
             pm_data_sources = {
@@ -377,7 +377,7 @@ class EcosystemArchitectureTest:
                     "intercom": {"status": "pending", "input": "support_requests_and_user_feedback"}
                 }
             }
-            
+
             # Simulate comprehensive project assessment
             assessment_components = [
                 "formal_project_tracking",  # Asana, Linear, Notion
@@ -386,20 +386,20 @@ class EcosystemArchitectureTest:
                 "technical_metrics",        # Linear, GitHub
                 "business_metrics"          # HubSpot, Financial systems
             ]
-            
+
             print("🎯 Project Management Assessment Components:")
             print("\n📋 Primary Project Tools:")
             for tool, info in pm_data_sources["primary_tools"].items():
                 print(f"   ✅ {tool}: {info['focus']} ({info['status']})")
-            
+
             print("\n🧠 Supporting Business Intelligence:")
             for source, info in pm_data_sources["supporting_intelligence"].items():
                 print(f"   ✅ {source}: {info['input']} ({info['status']})")
-            
+
             print(f"\n🔍 Assessment Components: {len(assessment_components)}")
             for component in assessment_components:
                 print(f"   • {component}")
-            
+
             # Calculate assessment completeness
             total_sources = len(pm_data_sources["primary_tools"]) + len(pm_data_sources["supporting_intelligence"])
             active_sources = sum(
@@ -407,14 +407,14 @@ class EcosystemArchitectureTest:
                 for source in category.values()
                 if source["status"] == "active"
             )
-            
+
             assessment_completeness = (active_sources / total_sources) * 100
-            
+
             print(f"\n✅ Total Data Sources: {total_sources}")
             print(f"✅ Active Sources: {active_sources}")
             print(f"✅ Assessment Completeness: {assessment_completeness:.1f}%")
             print()
-            
+
             self.test_results.append({
                 "test": "project_management_assessment",
                 "status": "passed",
@@ -423,7 +423,7 @@ class EcosystemArchitectureTest:
                 "assessment_completeness": assessment_completeness,
                 "includes_gong": "gong" in pm_data_sources["supporting_intelligence"]
             })
-            
+
         except Exception as e:
             print(f"❌ Project management assessment test failed: {e}")
             self.test_results.append({
@@ -431,13 +431,13 @@ class EcosystemArchitectureTest:
                 "status": "failed",
                 "error": str(e)
             })
-    
+
     async def _test_api_endpoint_architecture(self):
         """Test API endpoint architecture"""
-        
+
         print("🌐 Test 6: API Endpoint Architecture")
         print("-" * 50)
-        
+
         try:
             # Simulate API endpoint structure
             api_endpoints = {
@@ -478,7 +478,7 @@ class EcosystemArchitectureTest:
                     "response_time_target": "<500ms"
                 }
             }
-            
+
             print("🔗 API Endpoint Architecture:")
             for endpoint, info in api_endpoints.items():
                 gong_status = "✅" if info["includes_gong"] else "❌"
@@ -487,16 +487,16 @@ class EcosystemArchitectureTest:
                 print(f"      Purpose: {info['purpose']}")
                 print(f"      Target: {info['response_time_target']}")
                 print()
-            
+
             # Verify all endpoints include Gong
             endpoints_with_gong = sum(1 for info in api_endpoints.values() if info["includes_gong"])
             gong_coverage = (endpoints_with_gong / len(api_endpoints)) * 100
-            
+
             print(f"✅ Total API Endpoints: {len(api_endpoints)}")
             print(f"✅ Endpoints with Gong Integration: {endpoints_with_gong}")
             print(f"✅ Gong Coverage: {gong_coverage:.1f}%")
             print()
-            
+
             self.test_results.append({
                 "test": "api_endpoint_architecture",
                 "status": "passed",
@@ -504,7 +504,7 @@ class EcosystemArchitectureTest:
                 "endpoints_with_gong": endpoints_with_gong,
                 "gong_coverage": gong_coverage
             })
-            
+
         except Exception as e:
             print(f"❌ API endpoint architecture test failed: {e}")
             self.test_results.append({
@@ -512,12 +512,12 @@ class EcosystemArchitectureTest:
                 "status": "failed",
                 "error": str(e)
             })
-    
-    async def _simulate_query_routing(self, query: str) -> Dict[str, Any]:
+
+    async def _simulate_query_routing(self, query: str) -> dict[str, Any]:
         """Simulate query routing logic"""
-        
+
         query_lower = query.lower()
-        
+
         # Determine sources based on keywords
         sources = []
         if "gong" in query_lower or "call" in query_lower or "conversation" in query_lower:
@@ -530,7 +530,7 @@ class EcosystemArchitectureTest:
             sources.extend(["asana", "project_intelligence"])
         if "cross" in query_lower or "comprehensive" in query_lower:
             sources.extend(["cross_system", "all_systems"])
-        
+
         # Determine intent
         if "risk" in query_lower or "health" in query_lower:
             intent = "business_intelligence"
@@ -542,10 +542,10 @@ class EcosystemArchitectureTest:
             intent = "comprehensive_assessment"
         else:
             intent = "general"
-        
+
         # Determine complexity
         complexity = "complex" if len(sources) > 2 else "moderate"
-        
+
         return {
             "sources": list(set(sources)),
             "intent": intent,
@@ -553,16 +553,16 @@ class EcosystemArchitectureTest:
             "cross_system": "cross_system" in sources,
             "success": len(sources) > 0
         }
-    
-    async def _simulate_cross_system_analysis(self, scenario: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _simulate_cross_system_analysis(self, scenario: dict[str, Any]) -> dict[str, Any]:
         """Simulate cross-system analysis"""
-        
+
         # Simulate pattern detection
         patterns = []
         confidence = 0.85
-        
+
         correlation_type = scenario["correlation_type"]
-        
+
         if "customer_requests_to_engineering_tasks" in correlation_type:
             patterns.extend(["feature_request_alignment", "priority_correlation", "timeline_impact"])
             confidence = 0.90
@@ -572,37 +572,37 @@ class EcosystemArchitectureTest:
         elif "sales_pipeline_to_customer_sentiment" in correlation_type:
             patterns.extend(["deal_health_correlation", "satisfaction_trends", "churn_indicators"])
             confidence = 0.88
-        
+
         return {
             "patterns": patterns,
             "confidence": confidence,
             "correlation_strength": "high" if confidence > 0.85 else "moderate"
         }
-    
+
     async def _generate_test_report(self):
         """Generate comprehensive test report"""
-        
+
         print("📋 Test Report - Enhanced Unified Chat Architecture")
         print("=" * 80)
-        
+
         # Calculate overall results
         total_tests = len(self.test_results)
         passed_tests = sum(1 for result in self.test_results if result["status"] == "passed")
         success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
-        
-        print(f"📊 Overall Test Results:")
+
+        print("📊 Overall Test Results:")
         print(f"   Total Tests: {total_tests}")
         print(f"   Passed Tests: {passed_tests}")
         print(f"   Success Rate: {success_rate:.1f}%")
         print()
-        
+
         # Individual test results
         print("🔍 Individual Test Results:")
         for result in self.test_results:
             status_icon = "✅" if result["status"] == "passed" else "❌"
             print(f"   {status_icon} {result['test']}: {result['status']}")
         print()
-        
+
         # Key findings
         print("🎯 Key Findings:")
         print("   ✅ Gong integrated as business intelligence component (not standalone)")
@@ -612,7 +612,7 @@ class EcosystemArchitectureTest:
         print("   ✅ Project management assessment uses ALL data sources")
         print("   ✅ API endpoints provide comprehensive ecosystem access")
         print()
-        
+
         # Architecture validation
         print("🏗️ Architecture Validation:")
         print("   ✅ Enhanced Multi-Agent Orchestrator: Functional")
@@ -621,7 +621,7 @@ class EcosystemArchitectureTest:
         print("   ✅ Business Intelligence Integration: Complete")
         print("   ✅ Natural Language Processing: Validated")
         print()
-        
+
         # Save test results
         test_report = {
             "test_date": self.current_date,
@@ -636,14 +636,14 @@ class EcosystemArchitectureTest:
             "gong_integration_status": "integrated_with_business_intelligence",
             "ecosystem_coverage": "complete"
         }
-        
+
         # Write test results
         with open("test_results_enhanced_chat_v2.json", "w") as f:
             json.dump(test_report, f, indent=2)
-        
-        print(f"📄 Test report saved to: test_results_enhanced_chat_v2.json")
+
+        print("📄 Test report saved to: test_results_enhanced_chat_v2.json")
         print()
-        
+
         if success_rate >= 80:
             print("🎉 ARCHITECTURE TEST PASSED - Enhanced Unified Chat Ready for Production!")
         else:
@@ -652,13 +652,13 @@ class EcosystemArchitectureTest:
 
 async def main():
     """Main test function"""
-    
+
     print("🧪 Starting Enhanced Unified Chat Architecture Test")
     print("=" * 60)
     print("Testing complete Pay Ready ecosystem integration")
     print("Including Gong as integrated business intelligence component")
     print()
-    
+
     # Run comprehensive test
     test = EcosystemArchitectureTest()
     await test.run_comprehensive_test()
@@ -671,4 +671,4 @@ if __name__ == "__main__":
         print("\n👋 Test interrupted. Goodbye!")
     except Exception as e:
         print(f"❌ Test error: {e}")
-        sys.exit(1) 
+        sys.exit(1)

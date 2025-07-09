@@ -6,7 +6,7 @@ Enhances existing Snowflake services with PAT (Programmatic Access Token) suppor
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import snowflake.connector
 from snowflake.connector import DictCursor
@@ -173,7 +173,7 @@ class SnowflakePATService:
             raise
 
     async def natural_language_to_sql(
-        self, query: str, schema_context: Optional[str] = None
+        self, query: str, schema_context: str | None = None
     ) -> dict[str, Any]:
         """Convert natural language to SQL using Cortex"""
         try:
@@ -237,9 +237,7 @@ SQL Query:"""
             line = line.strip()
             if line.upper().startswith(
                 ("SELECT", "WITH", "INSERT", "UPDATE", "DELETE")
-            ):
-                sql_lines.append(line)
-            elif sql_lines and line and not line.startswith(("Note:", "Explanation:")):
+            ) or (sql_lines and line and not line.startswith(("Note:", "Explanation:"))):
                 sql_lines.append(line)
 
         return "\n".join(sql_lines).strip()

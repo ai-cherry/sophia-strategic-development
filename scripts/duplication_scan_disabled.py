@@ -20,7 +20,7 @@ def run(cmd: str, outfile: Path) -> None:
         try:
             subprocess.run(
                 cmd,
-                shell=True,  # noqa: S602
+                shell=True,
                 check=True,
                 stdout=f,
                 stderr=subprocess.STDOUT,
@@ -70,4 +70,4 @@ if cycles > THRESHOLDS["cyclic_imports"]:
 if fails:
     print("FAIL:", ", ".join(fails))
     sys.exit(1)
-print("Duplication & import checks passed.") 
+print("Duplication & import checks passed.")

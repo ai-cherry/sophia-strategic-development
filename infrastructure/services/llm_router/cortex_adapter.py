@@ -7,7 +7,7 @@ import asyncio
 import json
 from collections.abc import AsyncGenerator
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Optional
+from typing import Any
 
 import snowflake.connector
 from snowflake.connector import DictCursor
@@ -166,7 +166,7 @@ class CortexAdapter:
         else:
             return []
 
-    def _execute_query(self, query: str, params: tuple) -> Optional[dict[str, Any]]:
+    def _execute_query(self, query: str, params: tuple) -> dict[str, Any] | None:
         """Execute Snowflake query (sync)"""
         cursor = None
         try:

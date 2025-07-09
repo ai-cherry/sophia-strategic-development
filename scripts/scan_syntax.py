@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Compile all Python files and record syntax errors."""
-import subprocess
 import json
 import re
-from pathlib import Path
+import subprocess
 import sys
+from pathlib import Path
 
 LOG = Path("compile.log")
 
 with LOG.open("w") as log:
-    subprocess.run([sys.executable, "-m", "compileall", "."], stdout=log, stderr=subprocess.STDOUT)
+    subprocess.run([sys.executable, "-m", "compileall", "."], check=False, stdout=log, stderr=subprocess.STDOUT)
 
 errors = []
 pattern = re.compile(r"\.\/(.+?): line (\d+)")

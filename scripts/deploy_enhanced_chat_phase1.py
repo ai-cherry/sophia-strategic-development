@@ -13,20 +13,20 @@ import json
 import os
 import sys
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 print("🚀 Enhanced Chat Phase 1 Deployment")
 print("=" * 60)
-print(f"📅 Deployment Date: July 9, 2025")
+print("📅 Deployment Date: July 9, 2025")
 print(f"⏰ Deployment Time: {datetime.now().strftime('%H:%M:%S')}")
 print("=" * 60)
 
 class EnhancedChatDeployment:
     """Enhanced chat deployment manager"""
-    
+
     def __init__(self):
         self.current_date = "July 9, 2025"
         self.deployment_status = {
@@ -36,37 +36,37 @@ class EnhancedChatDeployment:
             "api_endpoints_ready": False,
             "integration_tested": False
         }
-        
+
     async def validate_system_date(self) -> bool:
         """Validate system understands current date"""
         print("\n📅 Validating System Date...")
-        
+
         try:
             # Check if system components understand current date
             expected_date = "July 9, 2025"
-            
+
             # Create date validation test
             test_context = {
                 "current_date": expected_date,
                 "system_date_validated": True,
                 "timestamp": "2025-07-09T00:00:00Z"
             }
-            
+
             # Validate date consistency
             assert test_context["current_date"] == expected_date
-            
+
             print(f"✅ System date validated: {expected_date}")
             self.deployment_status["date_validated"] = True
             return True
-            
+
         except Exception as e:
             print(f"❌ Date validation failed: {e}")
             return False
-    
+
     async def deploy_enhanced_orchestrator(self) -> bool:
         """Deploy enhanced multi-agent orchestrator"""
         print("\n🤖 Deploying Enhanced Multi-Agent Orchestrator...")
-        
+
         try:
             # Create orchestrator configuration
             orchestrator_config = {
@@ -103,24 +103,24 @@ class EnhancedChatDeployment:
                     "use_existing_orchestrator": True
                 }
             }
-            
+
             # Write configuration
             os.makedirs("config/enhanced_chat", exist_ok=True)
             with open("config/enhanced_chat/orchestrator_config.json", "w") as f:
                 json.dump(orchestrator_config, f, indent=2)
-            
+
             print("✅ Enhanced orchestrator configuration deployed")
             self.deployment_status["orchestrator_deployed"] = True
             return True
-            
+
         except Exception as e:
             print(f"❌ Orchestrator deployment failed: {e}")
             return False
-    
+
     async def configure_websocket_infrastructure(self) -> bool:
         """Configure WebSocket infrastructure"""
         print("\n🔌 Configuring WebSocket Infrastructure...")
-        
+
         try:
             # Create WebSocket configuration
             websocket_config = {
@@ -149,23 +149,23 @@ class EnhancedChatDeployment:
                     "current_date": self.current_date
                 }
             }
-            
+
             # Write WebSocket configuration
             with open("config/enhanced_chat/websocket_config.json", "w") as f:
                 json.dump(websocket_config, f, indent=2)
-            
+
             print("✅ WebSocket infrastructure configured")
             self.deployment_status["websocket_configured"] = True
             return True
-            
+
         except Exception as e:
             print(f"❌ WebSocket configuration failed: {e}")
             return False
-    
+
     async def setup_api_endpoints(self) -> bool:
         """Setup API endpoints for enhanced chat"""
         print("\n🌐 Setting up API Endpoints...")
-        
+
         try:
             # Create API endpoint configuration
             api_config = {
@@ -200,23 +200,23 @@ class EnhancedChatDeployment:
                 },
                 "current_date": self.current_date
             }
-            
+
             # Write API configuration
             with open("config/enhanced_chat/api_config.json", "w") as f:
                 json.dump(api_config, f, indent=2)
-            
+
             print("✅ API endpoints configured")
             self.deployment_status["api_endpoints_ready"] = True
             return True
-            
+
         except Exception as e:
             print(f"❌ API endpoint setup failed: {e}")
             return False
-    
+
     async def test_integration(self) -> bool:
         """Test integration with existing Sophia AI"""
         print("\n🔗 Testing Integration with Existing Sophia AI...")
-        
+
         try:
             # Test basic integration
             integration_tests = [
@@ -243,7 +243,7 @@ class EnhancedChatDeployment:
                     "expected": True
                 }
             ]
-            
+
             passed_tests = 0
             for test in integration_tests:
                 try:
@@ -255,25 +255,25 @@ class EnhancedChatDeployment:
                         print(f"  ❌ {test['name']} - Expected: {test['expected']}, Got: {result}")
                 except Exception as e:
                     print(f"  ❌ {test['name']} - Error: {e}")
-            
+
             success = passed_tests == len(integration_tests)
-            
+
             if success:
                 print("✅ Integration tests passed")
                 self.deployment_status["integration_tested"] = True
             else:
                 print(f"❌ Integration tests failed: {passed_tests}/{len(integration_tests)} passed")
-            
+
             return success
-            
+
         except Exception as e:
             print(f"❌ Integration testing failed: {e}")
             return False
-    
+
     async def create_startup_script(self) -> bool:
         """Create startup script for enhanced chat"""
         print("\n📜 Creating Startup Script...")
-        
+
         try:
             startup_script = '''#!/usr/bin/env python3
 """
@@ -350,24 +350,24 @@ if __name__ == "__main__":
     
     uvicorn.run(app, host="0.0.0.0", port=8001)
 '''
-            
+
             with open("scripts/start_enhanced_chat.py", "w") as f:
                 f.write(startup_script)
-            
+
             # Make executable
             os.chmod("scripts/start_enhanced_chat.py", 0o755)
-            
+
             print("✅ Startup script created: scripts/start_enhanced_chat.py")
             return True
-            
+
         except Exception as e:
             print(f"❌ Startup script creation failed: {e}")
             return False
-    
-    async def deploy_phase1(self) -> Dict[str, Any]:
+
+    async def deploy_phase1(self) -> dict[str, Any]:
         """Deploy Phase 1 of enhanced chat"""
         print("\n🚀 Starting Phase 1 Deployment...")
-        
+
         deployment_steps = [
             ("Date Validation", self.validate_system_date),
             ("Enhanced Orchestrator", self.deploy_enhanced_orchestrator),
@@ -376,10 +376,10 @@ if __name__ == "__main__":
             ("Integration Testing", self.test_integration),
             ("Startup Script", self.create_startup_script)
         ]
-        
+
         successful_steps = 0
         failed_steps = []
-        
+
         for step_name, step_func in deployment_steps:
             try:
                 success = await step_func()
@@ -390,22 +390,22 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"❌ {step_name} failed with exception: {e}")
                 failed_steps.append(step_name)
-        
+
         # Deployment summary
         print("\n" + "=" * 60)
         print("📊 PHASE 1 DEPLOYMENT SUMMARY")
         print("=" * 60)
         print(f"✅ Successful Steps: {successful_steps}/{len(deployment_steps)}")
         print(f"❌ Failed Steps: {len(failed_steps)}")
-        
+
         if failed_steps:
             print(f"Failed: {', '.join(failed_steps)}")
-        
+
         print(f"📅 Current Date: {self.current_date}")
         print(f"⏰ Deployment Completed: {datetime.now().strftime('%H:%M:%S')}")
-        
+
         success = len(failed_steps) == 0
-        
+
         if success:
             print("\n🎉 PHASE 1 DEPLOYMENT SUCCESSFUL!")
             print("🚀 Enhanced chat is ready for use")
@@ -414,9 +414,9 @@ if __name__ == "__main__":
             print("   2. Test WebSocket: ws://localhost:8001/ws/enhanced-chat")
             print("   3. Test API: http://localhost:8001/api/enhanced-chat/query")
         else:
-            print(f"\n⚠️  PHASE 1 DEPLOYMENT PARTIAL SUCCESS")
+            print("\n⚠️  PHASE 1 DEPLOYMENT PARTIAL SUCCESS")
             print(f"Please review and fix failed steps: {', '.join(failed_steps)}")
-        
+
         return {
             "success": success,
             "deployment_status": self.deployment_status,
@@ -428,17 +428,17 @@ if __name__ == "__main__":
 
 async def main():
     """Main deployment function"""
-    
+
     deployment = EnhancedChatDeployment()
     result = await deployment.deploy_phase1()
-    
+
     # Save deployment results
     with open("deployment_results_phase1.json", "w") as f:
         json.dump(result, f, indent=2)
-    
-    print(f"\n📄 Deployment results saved to: deployment_results_phase1.json")
-    
+
+    print("\n📄 Deployment results saved to: deployment_results_phase1.json")
+
     return 0 if result["success"] else 1
 
 if __name__ == "__main__":
-    exit_code = asyncio.run(main()) 
+    exit_code = asyncio.run(main())

@@ -3,7 +3,7 @@
 import hashlib
 import json
 import os
-from typing import Any, Optional
+from typing import Any
 
 import redis.asyncio as aioredis
 
@@ -12,7 +12,7 @@ class CortexCache:
     """Redis-based cache for Cortex results."""
 
     def __init__(
-        self, redis_url: Optional[str] = None, ttl: int = 3600, prefix: str = "cortex:"
+        self, redis_url: str | None = None, ttl: int = 3600, prefix: str = "cortex:"
     ):
         """Initialize cache.
 
@@ -26,7 +26,7 @@ class CortexCache:
         )
         self._ttl = ttl
         self._prefix = prefix
-        self._redis: Optional[aioredis.Redis] = None
+        self._redis: aioredis.Redis | None = None
 
     async def connect(self) -> None:
         """Connect to Redis."""
@@ -42,7 +42,7 @@ class CortexCache:
             self._redis = None
 
     def _generate_key(
-        self, task_type: str, prompt: str, model: Optional[str] = None, **kwargs: Any
+        self, task_type: str, prompt: str, model: str | None = None, **kwargs: Any
     ) -> str:
         """Generate cache key from parameters."""
         # Create a normalized representation
@@ -61,7 +61,7 @@ class CortexCache:
 
         return f"{self._prefix}{task_type}:{key_hash}"
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache."""
         if not self._redis:
             await self.connect()
@@ -76,7 +76,7 @@ class CortexCache:
 
         return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in cache."""
         if not self._redis:
             await self.connect()

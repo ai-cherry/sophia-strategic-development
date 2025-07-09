@@ -19,7 +19,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import git
 import psutil
@@ -123,7 +123,7 @@ class SafeRefactoringExecutor:
         return results
 
     async def execute_phase_2_performance(
-        self, target_file: Optional[str] = None
+        self, target_file: str | None = None
     ) -> dict[str, Any]:
         """Execute Phase 2: Performance Optimization"""
         logger.info("🚀 Starting Phase 2: Performance Optimization")
@@ -310,7 +310,7 @@ class SafeRefactoringExecutor:
 
     async def measure_endpoint_performance(
         self, endpoint: str
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Measure endpoint performance"""
         try:
 
@@ -354,7 +354,7 @@ class SafeRefactoringExecutor:
 
         return None
 
-    async def measure_database_performance(self) -> Optional[dict[str, Any]]:
+    async def measure_database_performance(self) -> dict[str, Any] | None:
         """Measure database performance"""
         try:
             # Simple database health check
@@ -665,7 +665,7 @@ class BatchQueryOptimizer:
             return False
 
     async def execute_service_decomposition(
-        self, target_file: Optional[str] = None
+        self, target_file: str | None = None
     ) -> bool:
         """Execute service decomposition"""
         logger.info("🔧 Executing service decomposition")

@@ -11,7 +11,6 @@ import subprocess
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 import requests
 
@@ -57,7 +56,7 @@ class LambdaLabsManager:
         }
 
     def _make_api_request(
-        self, endpoint: str, method: str = "GET", data: Optional[dict] = None
+        self, endpoint: str, method: str = "GET", data: dict | None = None
     ) -> dict:
         """Make authenticated API request to Lambda Labs"""
         url = f"{self.api_endpoint}/{endpoint}"
@@ -99,7 +98,7 @@ class LambdaLabsManager:
 
         return instances
 
-    def get_instance_status(self, instance_name: str) -> Optional[str]:
+    def get_instance_status(self, instance_name: str) -> str | None:
         """Get status of a specific instance"""
         instances = self.list_instances()
         for instance in instances:

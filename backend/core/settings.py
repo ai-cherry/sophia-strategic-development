@@ -4,7 +4,7 @@ Uses Pydantic for validation and environment variable loading
 """
 
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import Field, validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -99,7 +99,7 @@ class Settings(BaseSettings):
     pulumi_project: str = Field(default="lambda-labs-production", env="PULUMI_PROJECT")
 
     # Lambda Labs - using API key only
-    lambda_labs_api_key: Optional[str] = Field(None, env="LAMBDA_LABS_API_KEY")
+    lambda_labs_api_key: str | None = Field(None, env="LAMBDA_LABS_API_KEY")
 
     # Model configuration
     model_config = SettingsConfigDict(

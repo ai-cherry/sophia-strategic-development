@@ -5,7 +5,6 @@ Live-reloadable configuration with validation
 
 import json
 from pathlib import Path
-from typing import Optional
 
 from pydantic import BaseSettings, Field, validator
 
@@ -47,7 +46,7 @@ class CacheConfig(BaseSettings):
     ttl: int = 3600  # seconds
     semantic_similarity_threshold: float = 0.95
     max_size: int = 1000
-    redis_url: Optional[str] = None
+    redis_url: str | None = None
 
 
 class LLMRouterConfig(BaseSettings):
@@ -71,8 +70,8 @@ class LLMRouterConfig(BaseSettings):
     retry_delay: float = 1.0  # seconds
 
     # Cost optimization
-    budget_per_request: Optional[float] = None
-    budget_per_day: Optional[float] = None
+    budget_per_request: float | None = None
+    budget_per_day: float | None = None
 
     # Feature flags
     enable_ml_routing: bool = False

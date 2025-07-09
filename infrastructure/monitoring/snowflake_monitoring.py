@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import schedule
 from prometheus_client import Counter, Gauge, Histogram, start_http_server
@@ -67,9 +67,9 @@ class Alert:
     title: str
     description: str
     timestamp: datetime
-    warehouse: Optional[str] = None
-    recommended_action: Optional[str] = None
-    metric_value: Optional[float] = None
+    warehouse: str | None = None
+    recommended_action: str | None = None
+    metric_value: float | None = None
 
 
 class SnowflakeMonitor:

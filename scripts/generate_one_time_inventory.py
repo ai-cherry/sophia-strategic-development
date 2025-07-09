@@ -30,7 +30,7 @@ def flagged(path: Path) -> bool:
 
 
 def referenced(path: Path) -> bool:
-    result = subprocess.run(["rg", "-q", path.name], capture_output=True)
+    result = subprocess.run(["rg", "-q", path.name], check=False, capture_output=True)
     return result.returncode == 0
 
 

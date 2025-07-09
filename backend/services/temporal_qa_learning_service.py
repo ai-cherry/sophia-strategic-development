@@ -102,6 +102,7 @@ class TemporalQALearningService:
         self.temporal_patterns = {
             "date_formats": [],
             "time_references": [],
+            "temporal_references": [],
             "contextual_clues": [],
             "correction_patterns": [],
         }

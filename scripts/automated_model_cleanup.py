@@ -4,12 +4,9 @@ Automated Model Cleanup Script
 Updates outdated model references to modern equivalents
 """
 
-import json
-import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 # Define model replacements
 MODEL_REPLACEMENTS = {
@@ -85,7 +82,7 @@ def create_backup(file_path: Path) -> Path:
     return backup_path
 
 
-def update_files(files_to_update: List[Path], dry_run: bool = False) -> int:
+def update_files(files_to_update: list[Path], dry_run: bool = False) -> int:
     """Update files with new model names"""
     changes = []
     total_replacements = 0

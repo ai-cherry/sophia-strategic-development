@@ -1,6 +1,6 @@
 """API routes for Lambda Labs integration."""
 
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -21,11 +21,11 @@ class GenerateRequest(BaseModel):
     """Request for text generation."""
 
     prompt: str = Field(..., description="Input prompt")
-    model: Optional[str] = Field(None, description="Model to use")
+    model: str | None = Field(None, description="Model to use")
     cost_priority: str = Field("balanced", description="Cost priority")
     max_tokens: int = Field(1000, description="Maximum tokens")
     temperature: float = Field(0.7, description="Sampling temperature")
-    force_backend: Optional[str] = Field(None, description="Force specific backend")
+    force_backend: str | None = Field(None, description="Force specific backend")
 
 
 class GenerateResponse(BaseModel):
@@ -36,7 +36,7 @@ class GenerateResponse(BaseModel):
     backend: str
     tokens_used: int
     cost_usd: float
-    latency_ms: Optional[int] = None
+    latency_ms: int | None = None
 
 
 class UsageStatsResponse(BaseModel):

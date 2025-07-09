@@ -21,7 +21,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Setup logging
 logging.basicConfig(
@@ -37,7 +37,7 @@ class RefactoringResult:
     success: bool
     phase: str
     operation: str
-    target: Optional[str] = None
+    target: str | None = None
     message: str = ""
     backup_created: bool = False
     rollback_available: bool = False
@@ -91,7 +91,7 @@ class SafeRefactoringExecutor:
         except Exception:
             return "unknown"
 
-    def create_safety_backup(self, target_files: Optional[list[str]] = None) -> bool:
+    def create_safety_backup(self, target_files: list[str] | None = None) -> bool:
         """Create comprehensive backup before refactoring"""
         try:
             self.backup_dir.mkdir(parents=True, exist_ok=True)
@@ -460,7 +460,7 @@ jobs:
     # ========== PHASE 2: ARCHITECTURAL REFACTORING ==========
 
     def execute_phase_2_architectural_refactoring(
-        self, target_file: Optional[str] = None
+        self, target_file: str | None = None
     ) -> list[RefactoringResult]:
         """Phase 2: Architectural refactoring of monolithic files"""
         logger.info("🏗️ Starting Phase 2: Architectural Refactoring")

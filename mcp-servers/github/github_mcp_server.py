@@ -6,7 +6,6 @@ Provides repository management and issue tracking capabilities
 
 import os
 import sys
-from mcp_servers.base.unified_mcp_base import UnifiedMCPServer, MCPServerConfig, ServiceMCPServer, AIEngineMCPServer, InfrastructureMCPServer
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -15,13 +14,16 @@ from typing import Any
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 try:
-    from backend.core.auto_esc_config import config as auto_esc_config
-            MCPServerConfig,
-        SimpleMCPServer,
-        mcp_tool,
+    from backend.core.auto_esc_config import get_config_value
+    # Add base directory to path
+    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
+    from unified_mcp_base import (
+        ServiceMCPServer,
+        MCPServerConfig,
     )
     from backend.utils.custom_logger import setup_logger
-except ImportError:
+except ImportError as e:
+    print(f"Failed to import dependencies: {e}")
     sys.exit(1)
 
 logger = setup_logger("mcp.github")
@@ -42,23 +44,114 @@ class GitHubMCPServer(ServiceMCPServer):
 
     async def server_specific_init(self) -> None:
         """Initialize GitHub-specific configuration."""
-        self.github_token = os.getenv("GITHUB_TOKEN") or auto_esc_config.get(
-            "github_token"
-        )
+        self.github_token = os.getenv("GITHUB_TOKEN") or get_config_value("github_token")
         if not self.github_token:
             self.logger.warning("GitHub token not configured. Some tools may fail.")
 
-    @mcp_tool(
-        name="list_repos",
-        description="List repositories for a GitHub user or organization",
-        parameters={
-            "owner": {
-                "type": "string",
-                "description": "GitHub owner name",
-                "required": True,
-            }
-        },
-    )
+    async def initialize_server(self):
+        """Initialize GitHub-specific tools and configuration."""
+        await self.server_specific_init()
+        
+        # Register MCP tools
+        self.mcp_tool(
+            name="list_repos",
+            description="List repositories for a GitHub user or organization",
+            parameters={
+                "owner": {
+                    "type": "string",
+                    "description": "GitHub owner name",
+                    "required": True,
+                }
+            },
+        )(self.list_repos)
+        
+        self.mcp_tool(
+            name="get_repo", 
+            description="Get detailed information about a repository",
+            parameters={
+                "owner": {
+                    "type": "string",
+                    "description": "GitHub owner name",
+                    "required": True,
+                },
+                "repo": {
+                    "type": "string", 
+                    "description": "Repository name",
+                    "required": True,
+                },
+            },
+        )(self.get_repo)
+        
+        self.mcp_tool(
+            name="list_issues",
+            description="List issues for a repository", 
+            parameters={
+                "owner": {
+                    "type": "string",
+                    "description": "GitHub owner name",
+                    "required": True,
+                },
+                "repo": {
+                    "type": "string",
+                    "description": "Repository name", 
+                    "required": True,
+                },
+                "state": {
+                    "type": "string",
+                    "description": "Issue state (open, closed, all)",
+                    "required": False,
+                    "default": "open",
+                },
+            },
+        )(self.list_issues)
+        
+        self.mcp_tool(
+            name="create_issue",
+            description="Create a new issue",
+            parameters={
+                "owner": {
+                    "type": "string",
+                    "description": "GitHub owner name",
+                    "required": True,
+                },
+                "repo": {
+                    "type": "string",
+                    "description": "Repository name",
+                    "required": True,
+                },
+                "title": {"type": "string", "description": "Issue title", "required": True},
+                "body": {"type": "string", "description": "Issue body", "required": True},
+                "labels": {
+                    "type": "array",
+                    "description": "Issue labels",
+                    "required": False,
+                },
+            },
+        )(self.create_issue)
+
+    async def execute_mcp_tool(self, tool_name: str, params: dict[str, Any]) -> Any:
+        """Execute GitHub MCP tools."""
+        if tool_name == "list_repos":
+            return await self.list_repos(params["owner"])
+        elif tool_name == "get_repo":
+            return await self.get_repo(params["owner"], params["repo"])
+        elif tool_name == "list_issues":
+            return await self.list_issues(
+                params["owner"], 
+                params["repo"], 
+                params.get("state", "open")
+            )
+        elif tool_name == "create_issue":
+            return await self.create_issue(
+                params["owner"],
+                params["repo"], 
+                params["title"],
+                params["body"],
+                params.get("labels")
+            )
+        else:
+            raise ValueError(f"Unknown tool: {tool_name}")
+
     async def list_repos(self, owner: str) -> dict[str, Any]:
         """List repositories for a GitHub user or organization"""
         try:
@@ -84,22 +177,6 @@ class GitHubMCPServer(ServiceMCPServer):
             self.logger.exception(f"Error listing repos: {e}")
             return {"status": "error", "message": str(e)}
 
-    @mcp_tool(
-        name="get_repo",
-        description="Get detailed information about a repository",
-        parameters={
-            "owner": {
-                "type": "string",
-                "description": "GitHub owner name",
-                "required": True,
-            },
-            "repo": {
-                "type": "string",
-                "description": "Repository name",
-                "required": True,
-            },
-        },
-    )
     async def get_repo(self, owner: str, repo: str) -> dict[str, Any]:
         """Get detailed information about a repository"""
         try:
@@ -121,28 +198,6 @@ class GitHubMCPServer(ServiceMCPServer):
             self.logger.exception(f"Error getting repo: {e}")
             return {"status": "error", "message": str(e)}
 
-    @mcp_tool(
-        name="list_issues",
-        description="List issues for a repository",
-        parameters={
-            "owner": {
-                "type": "string",
-                "description": "GitHub owner name",
-                "required": True,
-            },
-            "repo": {
-                "type": "string",
-                "description": "Repository name",
-                "required": True,
-            },
-            "state": {
-                "type": "string",
-                "description": "Issue state (open, closed, all)",
-                "required": False,
-                "default": "open",
-            },
-        },
-    )
     async def list_issues(
         self, owner: str, repo: str, state: str = "open"
     ) -> dict[str, Any]:
@@ -171,29 +226,6 @@ class GitHubMCPServer(ServiceMCPServer):
             self.logger.exception(f"Error listing issues: {e}")
             return {"status": "error", "message": str(e)}
 
-    @mcp_tool(
-        name="create_issue",
-        description="Create a new issue",
-        parameters={
-            "owner": {
-                "type": "string",
-                "description": "GitHub owner name",
-                "required": True,
-            },
-            "repo": {
-                "type": "string",
-                "description": "Repository name",
-                "required": True,
-            },
-            "title": {"type": "string", "description": "Issue title", "required": True},
-            "body": {"type": "string", "description": "Issue body", "required": True},
-            "labels": {
-                "type": "array",
-                "description": "Issue labels",
-                "required": False,
-            },
-        },
-    )
     async def create_issue(
         self,
         owner: str,

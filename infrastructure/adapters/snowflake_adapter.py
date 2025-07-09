@@ -9,7 +9,7 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
@@ -540,7 +540,7 @@ class SnowflakeConfigManager:
         self.database = database
         self.schema = schema
         self.role = role
-        self.connection: Optional[SnowflakeConnection] = None
+        self.connection: SnowflakeConnection | None = None
 
     @retry(
         stop=stop_after_attempt(3),
@@ -620,7 +620,7 @@ class SnowflakeConfigManager:
     async def execute_query(
         self,
         query: str,
-        params: Optional[dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """Execute a query and return results.
 
@@ -674,8 +674,8 @@ class SnowflakeConfigManager:
         cost_usd: float,
         latency_ms: int,
         cost_priority: str,
-        error_message: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        error_message: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """Record Lambda Labs usage to Snowflake.
 

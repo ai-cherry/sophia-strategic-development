@@ -4,16 +4,15 @@ Secure Lambda Labs Manager - Uses Pulumi ESC for all credentials
 No hardcoded API keys or secrets
 """
 
-import os
-import sys
-import time
 import json
 import logging
+import os
 import subprocess
-from pathlib import Path
-from typing import Optional, List, Dict, Tuple
-from datetime import datetime
+import sys
+import time
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 
 # Add backend to path for auto_esc_config
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -53,27 +52,27 @@ class SecureLambdaLabsManager:
         self.cloud_api_key = get_config_value("lambda_cloud_api_key")
         self.regular_api_key = get_config_value("lambda_api_key")
         self.api_endpoint = get_config_value("lambda_api_endpoint", "https://cloud.lambda.ai/api/v1")
-        
+
         # SSH configuration from Pulumi ESC
         self.ssh_key_path = os.path.expanduser(
             get_config_value("lambda_ssh_key_path", "~/.ssh/sophia2025.pem")
         )
-        
+
         # Load instance configuration
         self.production_ip = get_config_value("lambda_labs_production_ip", "192.222.58.232")
-        
+
         # Validate credentials
         if not self.cloud_api_key or not self.regular_api_key:
             logger.error("Lambda Labs API keys not found in Pulumi ESC")
             raise ValueError("Missing Lambda Labs credentials. Run: pulumi env get scoobyjava-org/default/sophia-ai-production")
-            
+
         # Check SSH key exists
         if not Path(self.ssh_key_path).exists():
             logger.error(f"SSH key not found at {self.ssh_key_path}")
             raise ValueError(f"SSH key missing. Expected at: {self.ssh_key_path}")
 
     def _make_api_request(
-        self, endpoint: str, method: str = "GET", data: Optional[dict] = None
+        self, endpoint: str, method: str = "GET", data: dict | None = None
     ) -> dict:
         """Make authenticated API request to Lambda Labs"""
         url = f"{self.api_endpoint}/{endpoint}"
@@ -115,7 +114,7 @@ class SecureLambdaLabsManager:
 
         return instances
 
-    def get_production_instance(self) -> Optional[LambdaInstance]:
+    def get_production_instance(self) -> LambdaInstance | None:
         """Get the production instance"""
         instances = self.list_instances()
         for instance in instances:
@@ -139,7 +138,7 @@ class SecureLambdaLabsManager:
         process = subprocess.Popen(
             ssh_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        
+
         try:
             stdout, stderr = process.communicate(timeout=timeout)
             return process.returncode, stdout.decode(), stderr.decode()
@@ -156,19 +155,19 @@ class SecureLambdaLabsManager:
         if not instance:
             logger.error(f"Production instance not found at {self.production_ip}")
             return False
-            
+
         if instance.status != "active":
             logger.error(f"Instance is not active (status: {instance.status})")
             return False
 
         # Generate deployment script
         deployment_script = self._generate_deployment_script(deployment_type)
-        
+
         # Create temporary script file
         script_path = Path("/tmp/deploy_sophia_secure.sh")
         with open(script_path, 'w') as f:
             f.write(deployment_script)
-            
+
         # Copy deployment script
         scp_cmd = [
             "scp",
@@ -178,8 +177,8 @@ class SecureLambdaLabsManager:
             f"ubuntu@{self.production_ip}:/tmp/deploy_sophia.sh"
         ]
 
-        process = subprocess.run(scp_cmd, capture_output=True)
-        
+        process = subprocess.run(scp_cmd, check=False, capture_output=True)
+
         # Clean up local script
         script_path.unlink()
 
@@ -203,7 +202,7 @@ class SecureLambdaLabsManager:
         """Generate secure deployment script"""
         # Get Docker registry from Pulumi ESC
         docker_registry = get_config_value("docker_registry", "scoobyjava15")
-        
+
         base_script = f"""#!/bin/bash
 set -e
 
@@ -441,7 +440,7 @@ echo "✅ Configuration update complete!"
             "github": 9103,
             "asana": 9100
         }
-        
+
         for name, port in mcp_ports.items():
             try:
                 response = requests.get(f"http://{self.production_ip}:{port}/health", timeout=5)
@@ -483,7 +482,7 @@ echo "✅ Configuration update complete!"
             # Check if critical services are up
             critical_services = ["backend", "prometheus"]
             critical_healthy = all(health.get(s, False) for s in critical_services)
-            
+
             if not critical_healthy:
                 logger.error("Critical services are down!")
 
@@ -494,7 +493,7 @@ echo "✅ Configuration update complete!"
         logger.info("Generating deployment report...")
 
         instance = self.get_production_instance()
-        
+
         report = {
             "timestamp": datetime.utcnow().isoformat(),
             "environment": "production",
@@ -526,11 +525,11 @@ echo "✅ Configuration update complete!"
     def show_logs(self, service: str, lines: int = 100):
         """Show logs for a specific service"""
         logger.info(f"Fetching logs for {service}...")
-        
+
         returncode, stdout, stderr = self.ssh_command(
             f"cd /home/ubuntu/sophia-ai && docker-compose logs --tail={lines} {service}"
         )
-        
+
         if returncode == 0:
             print(stdout)
         else:
@@ -543,7 +542,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Secure Lambda Labs Manager")
     parser.add_argument(
-        "command", 
+        "command",
         choices=["list", "deploy", "health", "monitor", "report", "logs"],
         help="Command to execute"
     )
@@ -554,9 +553,9 @@ def main():
         help="Deployment type"
     )
     parser.add_argument(
-        "--duration", 
-        type=int, 
-        default=300, 
+        "--duration",
+        type=int,
+        default=300,
         help="Monitoring duration in seconds"
     )
     parser.add_argument(
@@ -585,7 +584,7 @@ def main():
         for instance in instances:
             status_icon = "✅" if instance.status == "active" else "❌"
             print(f"{status_icon} {instance.name}: {instance.ip} ({instance.instance_type}) - {instance.status}")
-            
+
         # Highlight production
         prod = manager.get_production_instance()
         if prod:
@@ -595,7 +594,7 @@ def main():
         success = manager.deploy_sophia(args.type)
         if success:
             print("\n✅ Deployment successful!")
-            
+
             # Show health status
             print("\n🏥 Health Check:")
             health = manager.health_check()
@@ -609,16 +608,16 @@ def main():
         health = manager.health_check()
         print("\n🏥 Service Health Status:")
         print("-" * 40)
-        
+
         for service, status in sorted(health.items()):
             status_icon = "✅" if status else "❌"
             print(f"{status_icon} {service:20} {'Running' if status else 'Down'}")
-            
+
         # Summary
         healthy_count = sum(1 for v in health.values() if v)
         total_count = len(health)
         health_percentage = round(healthy_count / total_count * 100, 2)
-        
+
         print("-" * 40)
         print(f"Overall Health: {healthy_count}/{total_count} ({health_percentage}%)")
 
@@ -627,28 +626,28 @@ def main():
 
     elif args.command == "report":
         report = manager.generate_deployment_report()
-        
+
         # Save report
         report_file = f"deployment_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2)
-            
-        print(f"\n📊 Deployment Report")
+
+        print("\n📊 Deployment Report")
         print("=" * 50)
         print(f"Instance: {report['instance']['name']} ({report['instance']['ip']})")
         print(f"Status: {report['instance']['status']}")
         print(f"Type: {report['instance']['type']}")
         print(f"Health Score: {report['health_score']['percentage']}%")
         print(f"\nReport saved to: {report_file}")
-        
+
     elif args.command == "logs":
         if not args.service:
             print("Error: --service required for logs command")
             print("Available services: backend, mcp-servers, postgres, redis, prometheus, grafana")
             sys.exit(1)
-            
+
         manager.show_logs(args.service, args.lines)
 
 
 if __name__ == "__main__":
-    main() 
+    main()
