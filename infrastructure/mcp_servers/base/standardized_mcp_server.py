@@ -30,9 +30,6 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-import aiohttp
-import uvicorn
-from fastapi import APIRouter, FastAPI, Response
 from prometheus_client import Counter, Gauge, Histogram, Info  # type: ignore
 
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
