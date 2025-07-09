@@ -7,8 +7,14 @@ Contains the main service class with connection management and basic operations
 from __future__ import annotations
 
 import logging
+from typing import Any
 
-from core.config_manager import get_config_value
+try:
+    from core.config_manager import get_config_value  # type: ignore
+except ImportError:  # pragma: no cover – allows type checking outside full repo
+    # Fallback stub for static analysis or limited environments
+    def get_config_value(key: str, default: str | None = None) -> str:  # type: ignore[override]
+        return default or ""
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +29,24 @@ class SnowflakeCortexService:
     """
 
     def __init__(self):
-        # Remove individual connection - use optimized connection manager
-        from core.optimized_connection_manager import connection_manager
+        # Import lazily to avoid heavy dependencies during module import
+        try:
+            from core.optimized_connection_manager import (
+                connection_manager as shared_connection_manager,  # type: ignore
+            )
+        except ImportError:  # pragma: no cover
+            # Fallback dummy connection manager for environments where full infra is absent
+            class _DummyConnectionManager:  # noqa: D401 – simple stub
+                async def initialize(self) -> None:  # type: ignore
+                    pass
 
-        self.connection_manager = connection_manager
+                async def execute_query(self, *_args: Any, **_kwargs: Any) -> Any:  # type: ignore
+                    return None
+
+            shared_connection_manager = _DummyConnectionManager()  # type: ignore
+
+        # Shared async connection manager instance
+        self.connection_manager: Any = shared_connection_manager  # type: ignore[attr-defined]
 
         self.database = get_config_value("snowflake_database", "SOPHIA_AI")
         self.schema = get_config_value("snowflake_schema", "AI_PROCESSING")
@@ -115,8 +135,13 @@ class SnowflakeCortexService:
             await self.initialize()
         return self.connection_manager
 
-    async def execute_query(self, query: str, params: tuple | None = None):
-        """Execute a query using the connection manager"""
+    async def execute_query(self, query: str, params: tuple | None = None) -> Any:
+        """Execute a query using the connection manager.
+
+        Returns whatever the underlying connection manager returns (often
+        `AsyncCursor` or iterable of rows).  We use `Any` for broader
+        compatibility across different DB back-ends.
+        """
         if not self.initialized:
             await self.initialize()
         return await self.connection_manager.execute_query(query, params)

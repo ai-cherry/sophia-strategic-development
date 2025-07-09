@@ -20,37 +20,73 @@ TODO: Implement file decomposition
 import hashlib
 import json
 import logging
+import os
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlparse
 
-import aiohttp
-import uvicorn
-from fastapi import APIRouter, FastAPI
-from prometheus_client import Counter, Gauge, Histogram, Info
+from prometheus_client import Counter, Gauge, Histogram, Info  # type: ignore
 
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # Import Gemini CLI provider
-try:
-    from gemini_cli_integration.gemini_cli_provider import (
-        GeminiCLIModelRouter,
-        GeminiCLIProvider,
-    )
+from typing import Any
+# Reusable safe import helper
+from shared.safe_imports import safe_import
 
-    GEMINI_CLI_AVAILABLE = True
-except ImportError:
-    GEMINI_CLI_AVAILABLE = False
-    GeminiCLIProvider = None
-    GeminiCLIModelRouter = None
+_gemini_mod = safe_import(
+    "gemini_cli_integration.gemini_cli_provider",
+    {"GeminiCLIModelRouter": object, "GeminiCLIProvider": object},
+)
+
+# Re-export for convenience; use Any to appease static analyzers when stubbed
+GeminiCLIModelRouter = cast(Any, getattr(_gemini_mod, "GeminiCLIModelRouter", None))
+GeminiCLIProvider = cast(Any, getattr(_gemini_mod, "GeminiCLIProvider", None))
+GEMINI_CLI_AVAILABLE = GeminiCLIProvider is not object
 
 logger = logging.getLogger(__name__)
 
+# External libraries (may be absent in minimal envs)
+
+aiohttp = safe_import(
+    "aiohttp",
+    {
+        "ClientSession": object,
+        "ClientTimeout": object,
+        "ClientError": Exception,
+    },
+)
+
+fastapi_mod = safe_import(
+    "fastapi",
+    {"APIRouter": object, "FastAPI": object, "Response": object},
+)
+APIRouter = cast(Any, fastapi_mod.APIRouter)  # type: ignore[attr-defined]
+FastAPI = cast(Any, fastapi_mod.FastAPI)  # type: ignore[attr-defined]
+Response = cast(Any, fastapi_mod.Response)  # type: ignore[attr-defined]
+
+uvicorn = safe_import("uvicorn", {"Config": object, "Server": object})
+
+# Prometheus client (optional)
+prom_mod = safe_import(
+    "prometheus_client",
+    {
+        "Counter": lambda *_, **__: None,
+        "Gauge": lambda *_, **__: None,
+        "Histogram": lambda *_, **__: None,
+        "Info": lambda *_, **__: None,
+    },
+)
+
+Counter = cast(Any, prom_mod.Counter)
+Gauge = cast(Any, prom_mod.Gauge)
+Histogram = cast(Any, prom_mod.Histogram)
+Info = cast(Any, prom_mod.Info)
 
 class SyncPriority(Enum):
     """Data synchronization priority levels."""
@@ -98,6 +134,9 @@ class MCPServerConfig:
     enable_self_knowledge: bool = True
     enable_improved_diff: bool = True
     preferred_model: ModelProvider = ModelProvider.CLAUDE_4
+    # Deployment environment detection (prod/staging/dev) – follows
+    # ENVIRONMENT stabilization rules (always default to prod).
+    environment: str = os.getenv("ENVIRONMENT", "prod")
 
 
 @dataclass
@@ -175,6 +214,9 @@ class StandardizedMCPServer(ABC):
         self.server_capabilities: list[ServerCapability] = []
         self.diff_success_rate = 1.0
 
+        # Source-Coverage Registry pinned API version (if available)
+        self.pinned_api_version: str | None = self._load_pinned_api_version()
+
         # Initialize metrics if enabled
         if config.enable_metrics:
             self._initialize_metrics()
@@ -206,6 +248,22 @@ class StandardizedMCPServer(ABC):
                 self.get_features_endpoint,
                 methods=["GET"],
                 summary="Get Available Features",
+            )
+
+        # 👍 Metrics endpoint
+        if self.config.enable_metrics:
+            from prometheus_client import CONTENT_TYPE_LATEST, generate_latest  # type: ignore
+
+            async def metrics_endpoint():  # type: ignore[return-value]
+                return Response(
+                    generate_latest(), media_type=CONTENT_TYPE_LATEST
+                )
+
+            router.add_api_route(
+                "/metrics",
+                metrics_endpoint,
+                methods=["GET"],
+                summary="Prometheus Metrics",
             )
 
         self.app.include_router(router)
@@ -333,6 +391,13 @@ class StandardizedMCPServer(ABC):
                 "Success rate of diff operations",
             )
 
+            # +++ Unknown-field telemetry metric +++
+            self.unknown_field_counter = Counter(
+                f"mcp_{self.server_name}_unknown_fields_total",
+                "Count of unknown / undocumented fields encountered in source API responses",
+                ["endpoint", "field"],
+            )
+
             # Server info
             self.server_info = Info(
                 f"mcp_{self.server_name}_info", "MCP server information"
@@ -405,6 +470,16 @@ class StandardizedMCPServer(ABC):
 
             # Server-specific initialization
             await self.server_specific_init()
+
+            # ---------------- Version-bump Guardrail ----------------
+            try:
+                current_version = await self.fetch_current_api_version()
+                await self._verify_api_version_guardrail(current_version)
+            except NotImplementedError:
+                logger.warning(
+                    "⚠️ fetch_current_api_version not implemented for %s → version guardrail skipped",
+                    self.server_name,
+                )
 
             # Perform initial health check
             await self.comprehensive_health_check()
@@ -532,6 +607,9 @@ class StandardizedMCPServer(ABC):
                 ssl_context.verify_mode = ssl.CERT_NONE
             except Exception:
                 ssl_context = False  # Disable SSL verification as fallback
+
+            if self.session is None:
+                raise RuntimeError("HTTP session not initialized")
 
             async with self.session.get(url, ssl=ssl_context) as response:
                 response.raise_for_status()
@@ -921,7 +999,7 @@ class StandardizedMCPServer(ABC):
         try:
             # Test basic Cortex functionality
             test_query = "SELECT CURRENT_TIMESTAMP() as health_check"
-            result = await self.cortex_service.execute_query(test_query)
+            result = await self.cortex_service.execute_query(test_query)  # type: ignore[attr-defined]
             response_time = (time.time() - start_time) * 1000
 
             return HealthCheckResult(
@@ -1037,3 +1115,119 @@ class StandardizedMCPServer(ABC):
     ) -> Any:
         """Process data using AI capabilities."""
         pass
+
+    # ------------------------------------------------------------------
+    # Version-bump Guardrail helpers
+    # ------------------------------------------------------------------
+
+    def _load_pinned_api_version(self) -> str | None:
+        """Load the pinned API version from the SCR YAML file if present."""
+        scr_path = Path("config/mcp") / f"{self.server_name}_coverage.yml"
+        if not scr_path.exists():
+            logger.debug("No SCR file found for %s – skipping pinned version load", self.server_name)
+            return None
+
+        try:
+            import yaml  # type: ignore
+
+            with scr_path.open("r", encoding="utf-8") as fh:
+                data = yaml.safe_load(fh)
+            return data.get("api_version")  # type: ignore[index]
+        except Exception as exc:  # pragma: no cover
+            logger.warning("Failed to load pinned API version from %s: %s", scr_path, exc)
+            return None
+
+    async def _verify_api_version_guardrail(self, current_version: str | None) -> None:
+        """Fail startup in production if vendor bumps API version beyond what is in SCR."""
+        if self.config.environment != "prod":
+            # Guardrail only enforced in prod; log in other envs.
+            if self.pinned_api_version and current_version and current_version != self.pinned_api_version:
+                logger.warning(
+                    "⚠️ API version mismatch for %s (env=%s) – pinned=%s, detected=%s",
+                    self.server_name,
+                    self.config.environment,
+                    self.pinned_api_version,
+                    current_version,
+                )
+            return
+
+        # Production enforcement
+        if self.pinned_api_version is None:
+            logger.error("❌ No pinned api_version in SCR for %s – refuse to start in prod", self.server_name)
+            raise RuntimeError("Pinned API version missing")
+
+        if current_version is None:
+            logger.error("❌ Could not detect current API version for %s – refuse to start in prod", self.server_name)
+            raise RuntimeError("Unable to detect API version")
+
+        if current_version != self.pinned_api_version:
+            logger.error(
+                "❌ API version mismatch for %s – pinned=%s, detected=%s. Update SCR before deploying to prod.",
+                self.server_name,
+                self.pinned_api_version,
+                current_version,
+            )
+            raise RuntimeError("API version mismatch – deployment blocked")
+
+        logger.info("✅ API version verified for %s (version=%s)", self.server_name, current_version)
+
+    # Servers must implement this so guardrail can compare.
+    @abstractmethod
+    async def fetch_current_api_version(self) -> str | None:
+        """Return current vendor API version (e.g. from response header or version endpoint)."""
+        raise NotImplementedError
+
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Unknown-Field Telemetry
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    def capture_unknown_fields(
+        self,
+        payload: dict[str, Any] | list[Any],
+        known_fields: set[str],
+        *,
+        endpoint: str,
+        parent_key: str | None = None,
+    ) -> None:
+        """Recursively walk *payload* and increment Prometheus counters for
+        any keys that are **not** present in *known_fields*.
+
+        Args:
+            payload: Parsed JSON response (dict or list).
+            known_fields: Set of field names that are expected for objects at
+                the **current** level. If nested objects use different
+                schemas, callers should call this function separately per
+                object type.
+            endpoint: Logical endpoint name (e.g. "/v3/contacts") used as
+                Prometheus label.
+            parent_key: Used internally for nested fields to provide full path.
+        """
+        if not self.config.enable_metrics:
+            return  # Telemetry disabled
+
+        if isinstance(payload, dict):
+            for key, value in payload.items():
+                full_key = f"{parent_key}.{key}" if parent_key else key
+                if key not in known_fields:
+                    # Increment unknown-field counter with full path for clarity
+                    self.unknown_field_counter.labels(endpoint=endpoint, field=full_key).inc()
+                    logger.debug(
+                        "🔎 Unknown field detected | endpoint=%s field=%s", endpoint, full_key
+                    )
+                # Recurse into nested objects/lists
+                if isinstance(value, (dict, list)):
+                    self.capture_unknown_fields(
+                        value,
+                        known_fields=set(),  # No expectations for nested unknown structure
+                        endpoint=endpoint,
+                        parent_key=full_key,
+                    )
+        elif isinstance(payload, list):
+            for item in payload:
+                if isinstance(item, (dict, list)):
+                    self.capture_unknown_fields(
+                        item,
+                        known_fields=known_fields,
+                        endpoint=endpoint,
+                        parent_key=parent_key,
+                    )
