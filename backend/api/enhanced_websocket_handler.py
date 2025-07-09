@@ -15,6 +15,7 @@ from typing import Any
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
+from backend.core.date_time_manager import date_manager
 from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
@@ -53,8 +54,8 @@ class WebSocketSession:
         self.session_id = session_id
         self.subscribed_channels: set[str] = set()
         self.active = True
-        self.connected_at = datetime.now()
-        self.last_activity = datetime.now()
+        self.connected_at = date_manager.now()
+        self.last_activity = date_manager.now()
 
     async def send_message(self, message: EnhancedWebSocketMessage):
         """Send message to WebSocket client"""
@@ -63,7 +64,7 @@ class WebSocketSession:
 
         try:
             await self.websocket.send_text(message.json())
-            self.last_activity = datetime.now()
+            self.last_activity = date_manager.now()
         except Exception as e:
             logger.error(f"Failed to send WebSocket message: {e}")
             self.active = False
@@ -117,7 +118,7 @@ class EnhancedWebSocketHandler:
         self.unified_chat_service = UnifiedChatService()
 
         # System state
-        self.current_date = "July 9, 2025"
+        self.current_date = date_manager.get_current_date_str()
         self.system_status = {
             "date_validated": True,
             "orchestrator_active": True,
@@ -127,7 +128,7 @@ class EnhancedWebSocketHandler:
                 "project_intelligence",
                 "synthesis",
             ],
-            "last_health_check": datetime.now().isoformat(),
+            "last_health_check": date_manager.get_current_isoformat(),
         }
 
     async def handle_connection(
@@ -159,7 +160,7 @@ class EnhancedWebSocketHandler:
                         "available_channels": list(self.channels.keys()),
                         "system_status": self.system_status,
                     },
-                    timestamp=datetime.now().isoformat(),
+                    timestamp=date_manager.get_current_isoformat(),
                     session_id=session_id,
                     user_id=user_id,
                 )
@@ -189,7 +190,7 @@ class EnhancedWebSocketHandler:
                 message = json.loads(message_data)
 
                 # Update last activity
-                session.last_activity = datetime.now()
+                session.last_activity = date_manager.now()
 
                 # Route message based on type
                 message_type = message.get("type", "unknown")
@@ -220,7 +221,7 @@ class EnhancedWebSocketHandler:
 
         try:
             query = message.get("content", "")
-            message_id = message.get("id", f"msg_{datetime.now().timestamp()}")
+            message_id = message.get("id", f"msg_{date_manager.now().timestamp()}")
 
             # Send initial acknowledgment with correct date
             await session.send_message(
@@ -234,7 +235,7 @@ class EnhancedWebSocketHandler:
                         "system_date_validated": True,
                         "orchestration_type": "enhanced_multi_agent",
                     },
-                    timestamp=datetime.now().isoformat(),
+                    timestamp=date_manager.get_current_isoformat(),
                     message_id=message_id,
                     session_id=session.session_id,
                     user_id=session.user_id,
@@ -266,7 +267,7 @@ class EnhancedWebSocketHandler:
                         "current_date": self.current_date,
                         "fallback_available": True,
                     },
-                    timestamp=datetime.now().isoformat(),
+                    timestamp=date_manager.get_current_isoformat(),
                     session_id=session.session_id,
                     user_id=session.user_id,
                 )
@@ -294,7 +295,7 @@ class EnhancedWebSocketHandler:
                             "status": update.get("status", "unknown"),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -312,7 +313,7 @@ class EnhancedWebSocketHandler:
                             "status": update.get("status", "unknown"),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -333,7 +334,7 @@ class EnhancedWebSocketHandler:
                             "status": update.get("status", "unknown"),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -352,7 +353,7 @@ class EnhancedWebSocketHandler:
                             "result": update.get("result", {}),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -372,7 +373,7 @@ class EnhancedWebSocketHandler:
                             "status": update.get("status", "unknown"),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -392,7 +393,7 @@ class EnhancedWebSocketHandler:
                             "error": update.get("error"),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -410,7 +411,7 @@ class EnhancedWebSocketHandler:
                             "status": update.get("status", "unknown"),
                             "timestamp": update.get("timestamp"),
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -441,7 +442,7 @@ class EnhancedWebSocketHandler:
                             ),
                             "message_id": message_id,
                         },
-                        timestamp=datetime.now().isoformat(),
+                        timestamp=date_manager.get_current_isoformat(),
                         message_id=message_id,
                         session_id=session.session_id,
                         user_id=session.user_id,
@@ -461,9 +462,9 @@ class EnhancedWebSocketHandler:
                         "agents_used": len(response_data.get("agents_used", [])),
                         "success": response_data.get("success", False),
                         "current_date": self.current_date,
-                        "timestamp": datetime.now().isoformat(),
+                        "timestamp": date_manager.get_current_isoformat(),
                     },
-                    timestamp=datetime.now().isoformat(),
+                    timestamp=date_manager.get_current_isoformat(),
                     message_id=message_id,
                     session_id=session.session_id,
                     user_id=session.user_id,
@@ -488,7 +489,7 @@ class EnhancedWebSocketHandler:
                         "subscribed": True,
                         "current_subscriptions": list(session.subscribed_channels),
                     },
-                    timestamp=datetime.now().isoformat(),
+                    timestamp=date_manager.get_current_isoformat(),
                     session_id=session.session_id,
                     user_id=session.user_id,
                 )
@@ -512,7 +513,7 @@ class EnhancedWebSocketHandler:
                         "subscribed": False,
                         "current_subscriptions": list(session.subscribed_channels),
                     },
-                    timestamp=datetime.now().isoformat(),
+                    timestamp=date_manager.get_current_isoformat(),
                     session_id=session.session_id,
                     user_id=session.user_id,
                 )
@@ -530,16 +531,21 @@ class EnhancedWebSocketHandler:
                 "date_validated": True,
                 "active_sessions": len(self.active_sessions),
                 "orchestrator_active": True,
-                "last_health_check": datetime.now().isoformat(),
+                "last_health_check": date_manager.get_current_isoformat(),
             }
         )
 
         await session.send_message(
             EnhancedWebSocketMessage(
-                type="system_status",
+                type="system_status_response",
                 channel="system",
-                data=self.system_status,
-                timestamp=datetime.now().isoformat(),
+                data={
+                    "status": "ok",
+                    "system_status": self.system_status,
+                    "current_date": self.current_date,
+                    "active_sessions": len(self.active_sessions),
+                },
+                timestamp=date_manager.get_current_isoformat(),
                 session_id=session.session_id,
                 user_id=session.user_id,
             )
@@ -550,26 +556,20 @@ class EnhancedWebSocketHandler:
     ):
         """Handle agent status request"""
 
+        # In a real implementation, this would query the orchestrator
         agent_status = {
-            "available_agents": [
-                "database",
-                "web_search",
-                "project_intelligence",
-                "synthesis",
-            ],
-            "browser_automation_status": "Phase 2 implementation pending",
-            "orchestrator_type": "enhanced_multi_agent",
-            "parallel_execution": True,
-            "current_date": self.current_date,
-            "last_updated": datetime.now().isoformat(),
+            "database": {"status": "active", "load": 0.1},
+            "web_search": {"status": "active", "load": 0.2},
+            "project_intelligence": {"status": "active", "load": 0.3},
+            "synthesis": {"status": "active", "load": 0.1},
         }
 
         await session.send_message(
             EnhancedWebSocketMessage(
-                type="agent_status",
+                type="agent_status_response",
                 channel="agents",
-                data=agent_status,
-                timestamp=datetime.now().isoformat(),
+                data={"agent_status": agent_status, "timestamp": date_manager.get_current_isoformat()},
+                timestamp=date_manager.get_current_isoformat(),
                 session_id=session.session_id,
                 user_id=session.user_id,
             )
@@ -582,14 +582,13 @@ class EnhancedWebSocketHandler:
 
         await session.send_message(
             EnhancedWebSocketMessage(
-                type="unknown_message",
+                type="error",
                 channel="system",
                 data={
                     "error": "Unknown message type",
-                    "received_message": message,
-                    "current_date": self.current_date,
+                    "original_message": message,
                 },
-                timestamp=datetime.now().isoformat(),
+                timestamp=date_manager.get_current_isoformat(),
                 session_id=session.session_id,
                 user_id=session.user_id,
             )
@@ -603,6 +602,7 @@ class EnhancedWebSocketHandler:
         if channel not in self.channels:
             return
 
+        message.timestamp = date_manager.get_current_isoformat()
         for session in self.active_sessions.values():
             if session.is_subscribed_to(channel) and session.active:
                 try:
@@ -614,62 +614,46 @@ class EnhancedWebSocketHandler:
                     session.active = False
 
     async def get_session_metrics(self) -> dict[str, Any]:
-        """Get WebSocket session metrics"""
-
-        active_sessions = len(self.active_sessions)
-        channel_subscriptions = {}
-
-        for channel_name in self.channels.keys():
-            channel_subscriptions[channel_name] = sum(
-                1
-                for session in self.active_sessions.values()
-                if session.is_subscribed_to(channel_name)
-            )
-
+        """Get metrics for all active sessions"""
+        now = date_manager.now()
         return {
-            "active_sessions": active_sessions,
-            "channel_subscriptions": channel_subscriptions,
-            "system_status": self.system_status,
-            "current_date": self.current_date,
-            "last_updated": datetime.now().isoformat(),
+            "active_sessions": len(self.active_sessions),
+            "channel_subscriptions": {
+                channel: len(config.subscribers)
+                for channel, config in self.channels.items()
+            },
+            "session_durations": [
+                (now - session.connected_at).total_seconds()
+                for session in self.active_sessions.values()
+            ],
+            "last_activity": [
+                (now - session.last_activity).total_seconds()
+                for session in self.active_sessions.values()
+            ],
         }
 
     async def cleanup_inactive_sessions(self):
-        """Clean up inactive sessions"""
+        """Cleanup inactive WebSocket sessions"""
+        now = date_manager.now()
+        inactive_sessions = [
+            sid
+            for sid, session in self.active_sessions.items()
+            if (now - session.last_activity).total_seconds() > 3600  # 1 hour
+        ]
 
-        inactive_sessions = []
-        current_time = datetime.now()
-
-        for session_id, session in self.active_sessions.items():
-            # Mark as inactive if no activity for 30 minutes
-            if (current_time - session.last_activity).total_seconds() > 1800:
-                session.active = False
-                inactive_sessions.append(session_id)
-
-        # Remove inactive sessions
-        for session_id in inactive_sessions:
-            del self.active_sessions[session_id]
-            logger.info(f"Cleaned up inactive session: {session_id}")
+        for sid in inactive_sessions:
+            logger.info(f"Cleaning up inactive session: {sid}")
+            del self.active_sessions[sid]
 
     async def health_check(self) -> dict[str, Any]:
-        """Perform health check"""
-
-        # Clean up inactive sessions
-        await self.cleanup_inactive_sessions()
-
-        # Update system status
-        self.system_status.update(
-            {
-                "current_date": self.current_date,
-                "date_validated": True,
-                "active_sessions": len(self.active_sessions),
-                "orchestrator_active": True,
-                "last_health_check": datetime.now().isoformat(),
-            }
-        )
-
+        """Perform a health check of the WebSocket handler"""
+        self.system_status["last_health_check"] = date_manager.get_current_isoformat()
         return {
-            "healthy": True,
+            "status": "healthy",
+            "active_sessions": len(self.active_sessions),
+            "channel_subscriptions": {
+                channel: len(config.subscribers)
+                for channel, config in self.channels.items()
+            },
             "system_status": self.system_status,
-            "session_metrics": await self.get_session_metrics(),
         }

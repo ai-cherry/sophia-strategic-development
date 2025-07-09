@@ -24,6 +24,7 @@ from typing import Any
 
 from langgraph.graph import END, START, StateGraph
 
+from backend.core.date_time_manager import date_manager
 from backend.services.ai_memory_service import AIMemoryService
 from backend.services.foundational_knowledge_service import FoundationalKnowledgeService
 from backend.services.web_search_service import WebSearchService
@@ -60,8 +61,8 @@ class EnhancedOrchestrationState:
     context: dict[str, Any] = field(default_factory=dict)
 
     # Date/time system
-    current_date: str = "July 9, 2025"
-    current_timestamp: str = "2025-07-09T00:00:00Z"
+    current_date: datetime = field(default_factory=date_manager.now)
+    current_timestamp: str = field(default_factory=date_manager.get_current_isoformat)
     system_date_validated: bool = False
 
     # Complete ecosystem data sources
@@ -99,9 +100,7 @@ class DatabaseSearchAgent:
         """Execute database search with enhanced context"""
         try:
             # Inject current date context
-            enhanced_query = (
-                f"Current date: {context.get('current_date', 'July 9, 2025')}. {query}"
-            )
+            enhanced_query = date_manager.inject_date_context(query)
 
             # Search knowledge base
             knowledge_results = await self.knowledge_service.search_knowledge(
@@ -128,7 +127,7 @@ class DatabaseSearchAgent:
                 },
                 "confidence": 0.85,
                 "processing_time": 0.5,
-                "current_date": context.get("current_date", "July 9, 2025"),
+                "current_date": date_manager.get_current_date_str(),
             }
 
         except Exception as e:
@@ -156,15 +155,15 @@ class BusinessIntelligenceAgent:
     ) -> dict[str, Any]:
         """Analyze complete business context across all systems"""
         try:
-            current_date = context.get("current_date", "July 9, 2025")
+            current_date_str = date_manager.get_current_date_str()
 
             # Parallel data gathering from all business systems
             business_data = await asyncio.gather(
-                self._get_gong_intelligence(query, current_date),
-                self._get_hubspot_insights(query, current_date),
-                self._get_salesforce_data(query, current_date),
-                self._get_financial_metrics(query, current_date),
-                self._get_customer_health_data(query, current_date),
+                self._get_gong_intelligence(query, current_date_str),
+                self._get_hubspot_insights(query, current_date_str),
+                self._get_salesforce_data(query, current_date_str),
+                self._get_financial_metrics(query, current_date_str),
+                self._get_customer_health_data(query, current_date_str),
                 return_exceptions=True,
             )
 
@@ -199,7 +198,7 @@ class BusinessIntelligenceAgent:
                 },
                 "confidence": 0.90,
                 "processing_time": 2.0,
-                "current_date": current_date,
+                "current_date": current_date_str,
             }
 
         except Exception as e:
@@ -382,14 +381,14 @@ class CommunicationIntelligenceAgent:
     ) -> dict[str, Any]:
         """Analyze communication context across all channels"""
         try:
-            current_date = context.get("current_date", "July 9, 2025")
+            current_date_str = date_manager.get_current_date_str()
 
             # Parallel communication data gathering
             comm_data = await asyncio.gather(
-                self._get_slack_intelligence(query, current_date),
-                self._get_teams_data(query, current_date),
-                self._get_intercom_insights(query, current_date),
-                self._get_support_channel_data(query, current_date),
+                self._get_slack_intelligence(query, current_date_str),
+                self._get_teams_data(query, current_date_str),
+                self._get_intercom_insights(query, current_date_str),
+                self._get_support_channel_data(query, current_date_str),
                 return_exceptions=True,
             )
 
@@ -414,7 +413,7 @@ class CommunicationIntelligenceAgent:
                 },
                 "confidence": 0.85,
                 "processing_time": 1.5,
-                "current_date": current_date,
+                "current_date": current_date_str,
             }
 
         except Exception as e:
@@ -513,8 +512,7 @@ class WebSearchAgent:
         """Execute web search with current date context"""
         try:
             # Inject current date for temporal relevance
-            current_date = context.get("current_date", "July 9, 2025")
-            enhanced_query = f"Current date: {current_date}. {query}"
+            enhanced_query = date_manager.inject_date_context(query)
 
             # Execute web search
             search_results = await self.web_search_service.search(
@@ -527,7 +525,7 @@ class WebSearchAgent:
                 "results": search_results,
                 "confidence": 0.75,
                 "processing_time": 1.2,
-                "current_date": current_date,
+                "current_date": date_manager.get_current_date_str(),
             }
 
         except Exception as e:
@@ -556,15 +554,15 @@ class ProjectIntelligenceAgent:
     ) -> dict[str, Any]:
         """Analyze project context across all project management systems"""
         try:
-            current_date = context.get("current_date", "July 9, 2025")
+            current_date_str = date_manager.get_current_date_str()
 
             # Parallel project data gathering
             project_data = await asyncio.gather(
-                self._get_linear_intelligence(query, current_date),
-                self._get_asana_insights(query, current_date),
-                self._get_notion_data(query, current_date),
-                self._get_github_activity(query, current_date),
-                self._assess_project_health(query, current_date),
+                self._get_linear_intelligence(query, current_date_str),
+                self._get_asana_insights(query, current_date_str),
+                self._get_notion_data(query, current_date_str),
+                self._get_github_activity(query, current_date_str),
+                self._assess_project_health(query, current_date_str),
                 return_exceptions=True,
             )
 
@@ -598,7 +596,7 @@ class ProjectIntelligenceAgent:
                 },
                 "confidence": 0.90,
                 "processing_time": 2.0,
-                "current_date": current_date,
+                "current_date": current_date_str,
             }
 
         except Exception as e:
@@ -798,7 +796,7 @@ class SynthesisAgent:
 
             # Create comprehensive synthesis prompt with ecosystem context
             synthesis_prompt = f"""
-            Current date: {context.get('current_date', 'July 9, 2025')}
+            Current date: {date_manager.get_current_date_str(fmt="%B %d, %Y")}
 
             COMPREHENSIVE ECOSYSTEM SYNTHESIS
 
@@ -814,7 +812,7 @@ class SynthesisAgent:
             3. Provide actionable business intelligence
             4. Include project management assessment using ALL relevant data
             5. Highlight any risks or opportunities discovered
-            6. Consider the current date context: July 9, 2025
+            6. Consider the current date context: {date_manager.get_current_date_str(fmt="%B %d, %Y")}
             7. Prioritize information by business impact and relevance
 
             ECOSYSTEM CONTEXT:
@@ -877,7 +875,7 @@ class SynthesisAgent:
                 "cross_system_patterns": self._identify_cross_system_patterns(
                     successful_results
                 ),
-                "current_date": context.get("current_date", "July 9, 2025"),
+                "current_date": date_manager.get_current_date_str(),
             }
 
         except Exception as e:
@@ -935,9 +933,9 @@ class EnhancedMultiAgentOrchestrator:
         # Enhanced LangGraph workflow
         self.workflow = self._create_enhanced_workflow()
 
-        # Date/time system fix
-        self.current_date = "July 9, 2025"
-        self.current_timestamp = "2025-07-09T00:00:00Z"
+        # Date/time system fix - now managed by DateTimeManager
+        self.current_date = date_manager.now()
+        self.current_timestamp = date_manager.get_current_isoformat()
 
         # Progress streaming callbacks
         self.progress_callbacks = []
@@ -978,13 +976,13 @@ class EnhancedMultiAgentOrchestrator:
     ) -> EnhancedOrchestrationState:
         """Ensure system understands current date is July 9, 2025"""
 
-        # Override with correct date
+        # Override with correct date from the date manager
         state.current_date = self.current_date
         state.current_timestamp = self.current_timestamp
         state.system_date_validated = True
 
         # Inject into context
-        state.context["current_date"] = self.current_date
+        state.context["current_date"] = self.current_date.strftime("%Y-%m-%d")
         state.context["current_timestamp"] = self.current_timestamp
         state.context["system_date_validated"] = True
 
@@ -993,8 +991,8 @@ class EnhancedMultiAgentOrchestrator:
             {
                 "type": "date_validation",
                 "status": "completed",
-                "current_date": self.current_date,
-                "timestamp": datetime.now().isoformat(),
+                "current_date": self.current_date.strftime("%Y-%m-%d"),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1006,7 +1004,7 @@ class EnhancedMultiAgentOrchestrator:
         """Analyze ecosystem requirements with complete ecosystem awareness"""
 
         # Inject current date into ecosystem analysis
-        enhanced_query = f"Current date: {state.current_date}. Query: {state.query}"
+        enhanced_query = date_manager.inject_date_context(state.query)
 
         # Analyze ecosystem requirements
         ecosystem_analysis = {
@@ -1016,7 +1014,7 @@ class EnhancedMultiAgentOrchestrator:
             "requires_project_data": self._needs_project_intelligence(state.query),
             "complexity_level": self._assess_complexity(state.query),
             "temporal_relevance": self._assess_temporal_relevance(state.query),
-            "date_context": state.current_date,
+            "date_context": date_manager.get_current_date_str(),
         }
 
         # Store analysis in state
@@ -1028,7 +1026,7 @@ class EnhancedMultiAgentOrchestrator:
                 "type": "ecosystem_analysis",
                 "status": "completed",
                 "analysis": ecosystem_analysis,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1072,7 +1070,7 @@ class EnhancedMultiAgentOrchestrator:
                 "status": "completed",
                 "selected_agents": selected_agents,
                 "execution_strategy": state.execution_strategy,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1083,7 +1081,7 @@ class EnhancedMultiAgentOrchestrator:
     ) -> EnhancedOrchestrationState:
         """Execute multiple agents in parallel with real-time updates"""
 
-        start_time = datetime.now()
+        start_time = date_manager.now()
         tasks = []
 
         # Create tasks for selected agents
@@ -1113,7 +1111,7 @@ class EnhancedMultiAgentOrchestrator:
                 failed_results.append(result)
 
         # Calculate execution metrics
-        end_time = datetime.now()
+        end_time = date_manager.now()
         execution_time = (end_time - start_time).total_seconds()
         success_rate = len(successful_results) / len(results) if results else 0
 
@@ -1136,7 +1134,7 @@ class EnhancedMultiAgentOrchestrator:
                 "execution_time": execution_time,
                 "success_rate": success_rate,
                 "results_count": len(successful_results),
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1151,7 +1149,7 @@ class EnhancedMultiAgentOrchestrator:
                 "type": "agent_progress",
                 "agent": "database",
                 "status": "executing",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1163,7 +1161,7 @@ class EnhancedMultiAgentOrchestrator:
                 "agent": "database",
                 "status": "completed",
                 "result": result,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1178,7 +1176,7 @@ class EnhancedMultiAgentOrchestrator:
                 "type": "agent_progress",
                 "agent": "web_search",
                 "status": "executing",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1190,7 +1188,7 @@ class EnhancedMultiAgentOrchestrator:
                 "agent": "web_search",
                 "status": "completed",
                 "result": result,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1205,7 +1203,7 @@ class EnhancedMultiAgentOrchestrator:
                 "type": "agent_progress",
                 "agent": "browser_automation",
                 "status": "executing",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1219,7 +1217,7 @@ class EnhancedMultiAgentOrchestrator:
                 "agent": "browser_automation",
                 "status": "completed",
                 "result": result,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1234,7 +1232,7 @@ class EnhancedMultiAgentOrchestrator:
                 "type": "agent_progress",
                 "agent": "project_intelligence",
                 "status": "executing",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1248,7 +1246,7 @@ class EnhancedMultiAgentOrchestrator:
                 "agent": "project_intelligence",
                 "status": "completed",
                 "result": result,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1269,7 +1267,7 @@ class EnhancedMultiAgentOrchestrator:
                 "status": "completed",
                 "fusion_method": "simple_combination",  # Placeholder for cross-system fusion
                 "results_count": len(state.fused_results),
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1284,7 +1282,7 @@ class EnhancedMultiAgentOrchestrator:
             {
                 "type": "ecosystem_synthesis",
                 "status": "executing",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1301,7 +1299,7 @@ class EnhancedMultiAgentOrchestrator:
                 "type": "ecosystem_synthesis",
                 "status": "completed",
                 "confidence": state.confidence_score,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1330,7 +1328,7 @@ class EnhancedMultiAgentOrchestrator:
                 "response_valid": response_valid,
                 "confidence": state.confidence_score,
                 "date_validated": state.system_date_validated,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
         )
 
@@ -1352,14 +1350,14 @@ class EnhancedMultiAgentOrchestrator:
             current_timestamp=self.current_timestamp,
         )
 
-        start_time = datetime.now()
+        start_time = date_manager.now()
 
         try:
             # Execute workflow
             final_state = await self.workflow.ainvoke(state)
 
             # Calculate total processing time
-            end_time = datetime.now()
+            end_time = date_manager.now()
             processing_time = (end_time - start_time).total_seconds()
             final_state.processing_time = processing_time
 
@@ -1371,7 +1369,7 @@ class EnhancedMultiAgentOrchestrator:
                 "processing_time": processing_time,
                 "agents_used": final_state.selected_agents,
                 "execution_metrics": final_state.execution_metrics,
-                "current_date": final_state.current_date,
+                "current_date": final_state.current_date.strftime("%Y-%m-%d"),
                 "system_date_validated": final_state.system_date_validated,
                 "sources": final_state.final_response.get("ecosystem_sources_used", []),
                 "fallback_triggered": final_state.fallback_triggered,
@@ -1404,7 +1402,7 @@ class EnhancedMultiAgentOrchestrator:
                     "confidence": fallback_response.confidence_score,
                     "processing_time": fallback_response.processing_time_ms / 1000,
                     "agents_used": ["fallback_orchestrator"],
-                    "current_date": self.current_date,
+                    "current_date": self.current_date.strftime("%Y-%m-%d"),
                     "system_date_validated": True,
                     "fallback_triggered": True,
                     "fallback_reason": str(e),
@@ -1417,9 +1415,9 @@ class EnhancedMultiAgentOrchestrator:
                     "success": False,
                     "response": f"Orchestration failed: {e!s}",
                     "confidence": 0.0,
-                    "processing_time": (datetime.now() - start_time).total_seconds(),
+                    "processing_time": (date_manager.now() - start_time).total_seconds(),
                     "agents_used": [],
-                    "current_date": self.current_date,
+                    "current_date": self.current_date.strftime("%Y-%m-%d"),
                     "system_date_validated": True,
                     "fallback_triggered": True,
                     "error": str(e),
@@ -1448,7 +1446,7 @@ class EnhancedMultiAgentOrchestrator:
             yield {
                 "type": "final_response",
                 "data": result,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": date_manager.get_current_isoformat(),
             }
 
         finally:

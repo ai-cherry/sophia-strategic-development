@@ -11,6 +11,8 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Optional
 
+from backend.core.date_time_manager import date_manager
+
 logger = logging.getLogger(__name__)
 
 # Try to import Snowflake Cortex service, fallback if not available
@@ -91,7 +93,7 @@ class TemporalQALearningService:
             self.cortex_service = None
 
         # Current system temporal baseline
-        self.system_date = "July 9, 2025"
+        self.system_date = date_manager.get_current_date_str()
         self.system_timezone = "UTC"
 
         # Learning storage
@@ -136,13 +138,13 @@ class TemporalQALearningService:
 
             # Create learning interaction record
             interaction = TemporalLearningInteraction(
-                id=f"temporal_qa_{int(datetime.now().timestamp())}",
+                id=f"temporal_qa_{int(date_manager.now().timestamp())}",
                 user_question=user_message,
                 user_correction="",  # Will be filled if user provides correction
                 system_response=response_data["response"],
                 learning_type=learning_type,
                 confidence=LearningConfidence.MEDIUM,
-                timestamp=datetime.now(UTC),
+                timestamp=date_manager.now(UTC),
                 context=context,
             )
 
@@ -425,7 +427,7 @@ class TemporalQALearningService:
             # Update existing knowledge
             knowledge = self.temporal_knowledge[concept_key]
             knowledge.usage_count += 1
-            knowledge.last_updated = datetime.now(UTC)
+            knowledge.last_updated = date_manager.now(UTC)
             knowledge.source_interactions.append(interaction.id)
 
             # Update confidence based on reinforcement
@@ -442,7 +444,7 @@ class TemporalQALearningService:
                 examples=[interaction.user_question],
                 confidence=LearningConfidence.LOW,
                 source_interactions=[interaction.id],
-                last_updated=datetime.now(UTC),
+                last_updated=date_manager.now(UTC),
                 usage_count=1,
             )
 
@@ -571,7 +573,7 @@ class TemporalQALearningService:
         recent_knowledge = {
             concept: knowledge
             for concept, knowledge in self.temporal_knowledge.items()
-            if (datetime.now(UTC) - knowledge.last_updated).total_seconds()
+            if (date_manager.now(UTC) - knowledge.last_updated).total_seconds()
             < 300  # Last 5 minutes
         }
 
