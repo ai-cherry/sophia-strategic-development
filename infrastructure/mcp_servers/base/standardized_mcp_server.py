@@ -35,17 +35,26 @@ from prometheus_client import Counter, Gauge, Histogram, Info  # type: ignore
 from shared.utils.snowflake_cortex_service import SnowflakeCortexService
 
 # Import Gemini CLI provider
+from typing import Any
+
 try:
     from gemini_cli_integration.gemini_cli_provider import (
-        GeminiCLIModelRouter,
-        GeminiCLIProvider,
+        GeminiCLIModelRouter as _GeminiCLIModelRouter,
+        GeminiCLIProvider as _GeminiCLIProvider,
     )
 
+    GeminiCLIModelRouter = _GeminiCLIModelRouter  # type: ignore[valid-type]
+    GeminiCLIProvider = _GeminiCLIProvider  # type: ignore[valid-type]
     GEMINI_CLI_AVAILABLE = True
-except ImportError:
-    GEMINI_CLI_AVAILABLE = False
+except ImportError:  # pragma: no cover – gemini CLI optional
+    from typing import Any as _Any
+
+    GeminiCLIProvider: type[_Any] | None  # noqa: N816 – preserve camel case
+    GeminiCLIModelRouter: type[_Any] | None  # noqa: N816
+
     GeminiCLIProvider = None
     GeminiCLIModelRouter = None
+    GEMINI_CLI_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 

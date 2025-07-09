@@ -156,6 +156,8 @@ dev = [
     "types-PyYAML>=6.0.12",
     "types-requests>=2.31.0.20240218",
     "types-aiohttp>=3.9.0.20240406",
+    "types-fastapi>=0.115.0.20240406",
+    "types-uvicorn>=0.32.0.20240406",
 ]
 
 performance = [
