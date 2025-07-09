@@ -1,0 +1,135 @@
+version: '3.8'
+
+# Optimized Lambda Labs Production Configuration
+# Part of the Lambda Labs Infrastructure Migration Plan
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-deploy: &default-deploy
+  restart_policy:
+    condition: on-failure
+    delay: 5s
+    max_attempts: 3
+  update_config:
+    parallelism: 1
+    delay: 30s
+    failure_action: rollback
+
+services:
+  # Optimized Sophia Backend
+  sophia-backend:
+    image: scoobyjava15/sophia-ai:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=prod
+      - PULUMI_ORG=scoobyjava-org
+    deploy:
+      <<: *default-deploy
+      replicas: 2
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sophia-network
+
+  # Essential MCP Servers (Optimized)
+  mcp-ai-memory:
+    image: scoobyjava15/sophia-ai-memory:latest
+    ports:
+      - "9000:9000"
+    environment:
+      - PORT=9000
+      - ENVIRONMENT=prod
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    logging: *default-logging
+    networks:
+      - sophia-network
+
+  mcp-snowflake:
+    image: scoobyjava15/sophia-snowflake:latest
+    ports:
+      - "9001:9001"
+    environment:
+      - PORT=9001
+      - ENVIRONMENT=prod
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    logging: *default-logging
+    networks:
+      - sophia-network
+
+  # Optimized PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=sophia
+      - POSTGRES_USER=sophia
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    secrets:
+      - postgres_password
+    logging: *default-logging
+    networks:
+      - sophia-network
+
+  # Optimized Redis
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    deploy:
+      <<: *default-deploy
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+    logging: *default-logging
+    networks:
+      - sophia-network
+
+networks:
+  sophia-network:
+    driver: overlay
+    attachable: true
+
+volumes:
+  postgres_data:
+  redis_data:
+
+secrets:
+  postgres_password:
+    external: true 

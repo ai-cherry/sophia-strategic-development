@@ -31,9 +31,9 @@ GITHUB_TO_PULUMI_MAPPING = {
     
     # Docker
     "DOCKER_TOKEN": "docker_token",
-    "DOCKER_PERSONAL_ACCESS_TOKEN": "docker_token",  # Map to same
+    "DOCKER_TOKEN": "docker_token",  # Map to same
     "DOCKERHUB_USERNAME": "docker_username",
-    "DOCKER_USER_NAME": "docker_username",  # Map to same
+    "DOCKERHUB_USERNAME": "docker_username",  # Map to same
     
     # Snowflake
     "SNOWFLAKE_ACCOUNT": "snowflake_account",

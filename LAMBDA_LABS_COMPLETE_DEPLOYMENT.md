@@ -110,7 +110,7 @@ TypeScript-based infrastructure definition with:
 ### 1. Build and Push Docker Images
 ```bash
 # Backend image
-docker build -f Dockerfile.production -t scoobyjava15/sophia-backend:latest .
+docker build -f docker/Dockerfile.optimized -t scoobyjava15/sophia-backend:latest .
 docker push scoobyjava15/sophia-backend:latest
 
 # MCP servers image

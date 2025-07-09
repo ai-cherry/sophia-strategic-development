@@ -28,11 +28,11 @@ This script will:
 #### Build & Push Individual Server
 ```bash
 # Example: Gong V2
-docker build -t scoobyjava15/sophia-gong-v2:latest \
+docker build -t scoobyjava15/sophia-gong:latest \
   -f infrastructure/mcp_servers/gong_v2/Dockerfile \
   infrastructure/mcp_servers/gong_v2/
 
-docker push scoobyjava15/sophia-gong-v2:latest
+docker push scoobyjava15/sophia-gong:latest
 ```
 
 #### Deploy on Lambda Labs

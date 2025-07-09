@@ -33,7 +33,7 @@ cd ~/sophia-deployment
 
 # Build backend
 echo "Building backend image..."
-docker build -f Dockerfile.production -t sophia-backend:latest . || {
+docker build -f docker/Dockerfile.optimized -t sophia-backend:latest . || {
     echo "Backend build failed, trying with simpler Dockerfile..."
     cat > Dockerfile.backend.simple << 'DOCKERFILE'
 FROM python:3.12-slim
@@ -45,7 +45,7 @@ COPY config/ ./config/
 ENV PYTHONPATH=/app
 CMD ["python", "-m", "uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 DOCKERFILE
-    docker build -f Dockerfile.backend.simple -t sophia-backend:latest .
+    docker build -f docker/Dockerfile.optimized.simple -t sophia-backend:latest .
 }
 
 # Build frontend

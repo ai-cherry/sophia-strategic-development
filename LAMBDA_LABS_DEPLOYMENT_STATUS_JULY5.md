@@ -22,7 +22,7 @@ Successfully resolved all critical deployment blockers identified in initial tes
 - **Status**: ✅ Both requirements.txt and requirements.docker.txt created
 
 ### **3. Environment Variables Setup** ✅ COMPLETED
-- **Issue**: Missing DOCKER_USER_NAME, DOCKER_PERSONAL_ACCESS_TOKEN, LAMBDA_LABS_API_KEY
+- **Issue**: Missing DOCKERHUB_USERNAME, DOCKER_TOKEN, LAMBDA_LABS_API_KEY
 - **Solution**: Created `.env.lambda-labs` template with clear instructions
 - **Status**: ✅ Environment template ready for credential configuration
 

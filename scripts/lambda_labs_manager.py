@@ -330,7 +330,7 @@ EOF
 docker-compose down || true
 
 # Start services
-docker-compose up -d
+docker stack deploy
 
 # Wait for services
 echo "⏳ Waiting for services to start..."
@@ -348,7 +348,7 @@ echo "✅ Full deployment complete!"
                 + """
 # Update backend only
 docker pull scoobyjava15/sophia-backend:latest
-docker-compose up -d backend
+docker stack deploy backend
 echo "✅ Backend deployment complete!"
 """
             )
@@ -358,7 +358,7 @@ echo "✅ Backend deployment complete!"
                 + """
 # Update MCP servers only
 docker pull scoobyjava15/sophia-mcp-servers:latest
-docker-compose up -d mcp-servers
+docker stack deploy mcp-servers
 echo "✅ MCP servers deployment complete!"
 """
             )

@@ -22,7 +22,7 @@
         },
         "environment": {
           "status": "\u26a0\ufe0f",
-          "warning": "ERROR:__main__:\u274c Environment validation failed:\nERROR:__main__:  - Missing required variable: DOCKER_USER_NAME (Docker Hub username)\nERROR:__main__:  - Missing required variable: DOCKER_PERSONAL_ACCESS_TOKEN (Docker Hub access token)\nERROR:__main__:  - Missing required variable: LAMBDA_LABS_API_KEY (Lambda Labs API key)\n"
+          "warning": "ERROR:__main__:\u274c Environment validation failed:\nERROR:__main__:  - Missing required variable: DOCKERHUB_USERNAME (Docker Hub username)\nERROR:__main__:  - Missing required variable: DOCKER_TOKEN (Docker Hub access token)\nERROR:__main__:  - Missing required variable: LAMBDA_LABS_API_KEY (Lambda Labs API key)\n"
         }
       },
       "success_rate": 0.8

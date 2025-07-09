@@ -18,7 +18,7 @@ echo -e "${BLUE}Tag: ${IMAGE_TAG}${NC}"
 
 # Build backend image
 echo -e "${YELLOW}Building backend image...${NC}"
-docker build -f Dockerfile.production -t ${DOCKER_REGISTRY}/sophia-backend:${IMAGE_TAG} .
+docker build -f docker/Dockerfile.optimized -t ${DOCKER_REGISTRY}/sophia-backend:${IMAGE_TAG} .
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Backend image built successfully${NC}"
     docker push ${DOCKER_REGISTRY}/sophia-backend:${IMAGE_TAG}

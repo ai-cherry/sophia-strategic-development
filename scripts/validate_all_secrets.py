@@ -93,11 +93,11 @@ def validate_critical_path() -> None:
     print("\n🔐 Validating critical Docker Hub credential path...")
     
     # GitHub secret names
-    github_username = os.environ.get("DOCKER_USERNAME")
+    github_username = os.environ.get("DOCKERHUB_USERNAME")
     github_token = os.environ.get("DOCKER_TOKEN")
     
     print(f"1️⃣ GitHub Secrets:")
-    print(f"   DOCKER_USERNAME: {'✅ Set' if github_username else '❌ Missing'}")
+    print(f"   DOCKERHUB_USERNAME: {'✅ Set' if github_username else '❌ Missing'}")
     print(f"   DOCKER_TOKEN: {'✅ Set' if github_token else '❌ Missing'}")
     
     # Check Pulumi ESC

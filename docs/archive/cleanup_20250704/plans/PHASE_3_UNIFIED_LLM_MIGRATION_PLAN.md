@@ -179,7 +179,7 @@ pytest tests/test_unified_llm_migration.py
 #### SonarQube Setup
 ```bash
 # Deploy SonarQube
-docker-compose up -d sonarqube
+docker stack deploy sonarqube
 
 # Configure for Python/TypeScript
 # Add to CI/CD pipeline

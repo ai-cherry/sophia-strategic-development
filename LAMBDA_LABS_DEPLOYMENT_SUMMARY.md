@@ -181,7 +181,7 @@ curl http://<instance-ip>:3000/api/health
    docker login
 
    # Build locally
-   docker build -f Dockerfile.production -t test .
+   docker build -f docker/Dockerfile.optimized -t test .
    ```
 
 3. **Service Not Responding**

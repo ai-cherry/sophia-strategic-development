@@ -378,7 +378,7 @@ EOF
 docker-compose down || true
 
 # Start services
-docker-compose up -d
+docker stack deploy
 
 # Wait for services
 echo "⏳ Waiting for services to start..."
@@ -404,14 +404,14 @@ echo "   - Prometheus: http://{self.production_ip}:9090"
             return base_script + f"""
 # Update backend only
 docker pull {docker_registry}/sophia-backend:latest
-docker-compose up -d backend
+docker stack deploy backend
 echo "✅ Backend deployment complete!"
 """
         elif deployment_type == "mcp-servers-only":
             return base_script + f"""
 # Update MCP servers only
 docker pull {docker_registry}/sophia-mcp-servers:latest
-docker-compose up -d mcp-servers
+docker stack deploy mcp-servers
 echo "✅ MCP servers deployment complete!"
 """
         else:

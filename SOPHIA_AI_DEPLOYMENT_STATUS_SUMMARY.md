@@ -75,7 +75,7 @@ While waiting for Lambda Labs access, you can run locally:
 
 ```bash
 # 1. Start core services
-docker-compose -f docker-compose.cloud.yml up -d postgres redis
+docker stack deploy -c docker-compose.production.yml up -d postgres redis
 
 # 2. Start backend
 cd backend

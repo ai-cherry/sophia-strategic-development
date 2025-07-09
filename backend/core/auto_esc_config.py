@@ -281,15 +281,15 @@ def get_docker_hub_config() -> dict[str, Any]:
     """
     Get Docker Hub configuration from Pulumi ESC
     
-    PERMANENT FIX: Use DOCKER_TOKEN and DOCKER_USERNAME as the primary keys
+    PERMANENT FIX: Use DOCKER_TOKEN and DOCKERHUB_USERNAME as the primary keys
     These are the actual secret names in GitHub
     
     Returns:
         Docker Hub configuration dictionary with username and access token
     """
-    # Get username - DOCKER_USERNAME is the primary key in GitHub
+    # Get username - DOCKERHUB_USERNAME is the primary key in GitHub
     username = (
-        get_config_value("DOCKER_USERNAME") or  # PRIMARY
+        get_config_value("DOCKERHUB_USERNAME") or  # PRIMARY
         get_config_value("docker_username") or
         get_config_value("docker_hub_username") or
         "scoobyjava15"  # fallback
@@ -300,7 +300,7 @@ def get_docker_hub_config() -> dict[str, Any]:
         get_config_value("DOCKER_TOKEN") or  # PRIMARY
         get_config_value("docker_token") or
         get_config_value("docker_hub_access_token") or
-        get_config_value("docker_password")
+        get_config_value("docker_token")
     )
     
     # Log what we found for debugging

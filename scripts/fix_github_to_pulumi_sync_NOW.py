@@ -12,7 +12,7 @@ import sys
 # ALL THE FUCKING SECRETS THAT SHOULD BE IN GITHUB
 GITHUB_SECRETS = {
     # Docker Hub - THE MAIN PROBLEM
-    "DOCKER_USERNAME": "docker_username",
+    "DOCKERHUB_USERNAME": "docker_username",
     "DOCKER_TOKEN": "docker_token",
     
     # Snowflake

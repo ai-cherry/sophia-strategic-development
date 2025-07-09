@@ -63,7 +63,7 @@ scp -i ~/.ssh/sophia2025.pem -r ./backend ubuntu@192.222.58.232:~/sophia-deploym
 
 # Run deployment
 ssh -i ~/.ssh/sophia2025.pem ubuntu@192.222.58.232 \
-    "cd ~/sophia-deployment && docker-compose up -d"
+    "cd ~/sophia-deployment && docker stack deploy"
 ```
 
 ## 🔄 GitHub Secrets Integration

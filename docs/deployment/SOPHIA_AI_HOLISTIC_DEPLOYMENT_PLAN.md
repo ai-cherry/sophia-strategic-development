@@ -102,9 +102,9 @@ CURRENT CHAOS:
 **Docker Services (12 containers)**:
 ```yaml
 # Enhanced AI Processing
-- scoobyjava15/sophia-ai-memory-v2:latest          # Port 9000 - AI Memory L1 Cache
-- scoobyjava15/sophia-ai-cortex:latest             # Port 8081 - Snowflake Cortex
-- scoobyjava15/sophia-ai-mem0:latest               # Port 8080 - Mem0 OpenMemory
+- scoobyjava15/sophia-ai-memory:latest          # Port 9000 - AI Memory L1 Cache
+- scoobyjava15/sophia-ai-snowflake:latest             # Port 8081 - Snowflake Cortex
+- scoobyjava15/sophia-ai-memory:latest               # Port 8080 - Mem0 OpenMemory
 - scoobyjava15/sophia-snowflake-cortex:latest      # Port 8082 - Enhanced Cortex
 
 # AI Model Management
@@ -113,8 +113,8 @@ CURRENT CHAOS:
 - scoobyjava15/sophia-prompt-optimizer:latest      # Port 9014 - Prompt Enhancement
 
 # Business Intelligence AI
-- scoobyjava15/sophia-gong-v2:latest               # Port 9009 - Sales AI Analysis
-- scoobyjava15/sophia-perplexity-v2:latest         # Port 9008 - AI Research
+- scoobyjava15/sophia-gong:latest               # Port 9009 - Sales AI Analysis
+- scoobyjava15/sophia-perplexity:latest         # Port 9008 - AI Research
 - scoobyjava15/sophia-apollo:latest                # Port 9015 - Sales Intelligence
 - scoobyjava15/sophia-bright-data:latest           # Port 9105 - Data Intelligence
 - scoobyjava15/sophia-apify-intelligence:latest    # Port 9016 - Automation Intelligence
@@ -132,14 +132,14 @@ CURRENT CHAOS:
 **Docker Services (18 containers)**:
 ```yaml
 # Core MCP Services
-- scoobyjava15/sophia-github-v2:latest             # Port 9006 - Development Integration
-- scoobyjava15/sophia-slack-v2:latest              # Port 9007 - Team Communication
-- scoobyjava15/sophia-linear-v2:latest             # Port 9002 - Project Management
-- scoobyjava15/sophia-notion-v2:latest             # Port 9003 - Knowledge Management
-- scoobyjava15/sophia-codacy-v2:latest             # Port 9005 - Code Quality
+- scoobyjava15/sophia-github:latest             # Port 9006 - Development Integration
+- scoobyjava15/sophia-slack:latest              # Port 9007 - Team Communication
+- scoobyjava15/sophia-linear:latest             # Port 9002 - Project Management
+- scoobyjava15/sophia-notion:latest             # Port 9003 - Knowledge Management
+- scoobyjava15/sophia-codacy:latest             # Port 9005 - Code Quality
 
 # Business Integration MCP
-- scoobyjava15/sophia-asana-v2:latest              # Port 9004 - Task Management
+- scoobyjava15/sophia-asana:latest              # Port 9004 - Task Management
 - scoobyjava15/sophia-hubspot:latest               # Port 9017 - CRM Integration
 - scoobyjava15/sophia-salesforce:latest            # Port 9018 - Enterprise CRM
 - scoobyjava15/sophia-intercom:latest              # Port 9019 - Customer Support
@@ -170,7 +170,7 @@ CURRENT CHAOS:
 **Docker Services (12 containers)**:
 ```yaml
 # Enhanced Data Processing
-- scoobyjava15/sophia-snowflake-v2:latest          # Port 9001 - Primary Data Hub
+- scoobyjava15/sophia-snowflake:latest          # Port 9001 - Primary Data Hub
 - scoobyjava15/sophia-snowflake-unified:latest     # Port 9028 - Unified Data Processing
 - scoobyjava15/sophia-gong-webhook:latest          # Port 8080 - Real-time Webhooks
 - scoobyjava15/sophia-snowflake-cortex:latest      # Port 9029 - Cortex Data Processing
@@ -372,14 +372,14 @@ esac
     "ai-memory-v2": {
       "instance": "sophia-ai-core",
       "port": 9000,
-      "image": "scoobyjava15/sophia-ai-memory-v2:latest",
+      "image": "scoobyjava15/sophia-ai-memory:latest",
       "resources": {"cpu": "2", "memory": "4G"},
       "critical": true
     },
     "github-v2": {
       "instance": "sophia-mcp-orchestrator",
       "port": 9006,
-      "image": "scoobyjava15/sophia-github-v2:latest",
+      "image": "scoobyjava15/sophia-github:latest",
       "resources": {"cpu": "1", "memory": "2G"},
       "critical": true
     }

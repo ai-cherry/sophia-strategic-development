@@ -581,7 +581,7 @@ ssh ${LAMBDA_USER}@${LAMBDA_HOST} << 'EOF'
     docker-compose pull
 
     # Deploy with Docker Compose
-    docker-compose up -d
+    docker stack deploy
 
     # Wait for services
     echo "⏳ Waiting for services to start..."
@@ -862,7 +862,7 @@ docker-compose stop <service-name>
 
 # Rollback all MCP servers
 docker-compose down
-docker-compose up -d --scale github=0 --scale slack=0 --scale perplexity=0
+docker stack deploy --scale github=0 --scale slack=0 --scale perplexity=0
 
 # Remove problematic server
 docker-compose rm -f <service-name>

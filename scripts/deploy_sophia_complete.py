@@ -311,7 +311,7 @@ docker-compose down || true
 docker-compose pull
 
 # Start services
-docker-compose up -d
+docker stack deploy
 
 # Wait for services
 echo "⏳ Waiting for services to start..."

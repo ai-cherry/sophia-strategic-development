@@ -124,7 +124,7 @@ docker-compose down || true
 
 # Start services
 echo "Starting services..."
-docker-compose up -d
+docker stack deploy
 
 # Wait for services to be ready
 echo "Waiting for services to start..."

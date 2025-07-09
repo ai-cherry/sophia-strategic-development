@@ -105,7 +105,7 @@ docker build -t scoobyjava15/sophia-frontend:latest -f frontend/Dockerfile front
 for server in ai-memory gong snowflake slack notion linear github codacy asana perplexity; do
     server_dir="infrastructure/mcp_servers/${server//-/_}_v2"
     if [ -d "$server_dir" ]; then
-        docker build -t scoobyjava15/sophia-${server}-v2:latest \
+        docker build -t scoobyjava15/sophia-${server}:latest \
             -f ${server_dir}/Dockerfile ${server_dir}
     fi
 done
@@ -123,7 +123,7 @@ docker push scoobyjava15/sophia-frontend:latest
 
 # Push MCP server images
 for server in ai-memory gong snowflake slack notion linear github codacy asana perplexity; do
-    docker push scoobyjava15/sophia-${server}-v2:latest
+    docker push scoobyjava15/sophia-${server}:latest
 done
 ```
 

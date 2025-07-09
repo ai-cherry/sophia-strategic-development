@@ -32,9 +32,9 @@
 
 ### Docker & Containerization
 - `DOCKERHUB_USERNAME` - 2 months ago
-- `DOCKER_PERSONAL_ACCESS_TOKEN` - last week
+- `DOCKER_TOKEN` - last week
 - `DOCKER_TOKEN` - 4 months ago
-- `DOCKER_USER_NAME` - last week
+- `DOCKERHUB_USERNAME` - last week
 
 ### AI & ML Services
 - `CODESTRAL_API_KEY` - 3 months ago

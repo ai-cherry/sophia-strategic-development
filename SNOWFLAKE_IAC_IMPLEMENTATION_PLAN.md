@@ -266,7 +266,7 @@ cd infrastructure/snowflake_iac
 pulumi up
 
 # 3. Start MCP servers
-docker-compose up -d notion-mcp-v2 snowflake-mcp-v2
+docker stack deploy notion-mcp-v2 snowflake-mcp-v2
 
 # 4. Test integration
 python scripts/test_foundational_knowledge.py

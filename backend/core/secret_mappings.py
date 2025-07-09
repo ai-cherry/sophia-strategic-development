@@ -29,7 +29,7 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     # Infrastructure
     "DOCKER_TOKEN": "docker_token",
-    "DOCKER_HUB_ACCESS_TOKEN": "docker_hub_access_token",
+    "DOCKER_TOKEN": "docker_hub_access_token",
     "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
     # Communications
     "SLACK_BOT_TOKEN": "slack_bot_token",

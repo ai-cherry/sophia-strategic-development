@@ -142,7 +142,7 @@ EOF
 # Deploy
 docker-compose down || true
 docker-compose pull
-docker-compose up -d
+docker stack deploy
 
 # Wait
 sleep 30

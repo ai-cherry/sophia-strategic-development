@@ -86,8 +86,8 @@ class Settings(BaseSettings):
     vercel_org_id: str | None = Field(None, env="VERCEL_ORG_ID")
     vercel_project_id: str | None = Field(None, env="VERCEL_PROJECT_ID")
 
-    docker_hub_username: str | None = Field(None, env="DOCKER_HUB_USERNAME")
-    docker_hub_access_token: str | None = Field(None, env="DOCKER_HUB_ACCESS_TOKEN")
+    docker_hub_username: str | None = Field(None, env="DOCKERHUB_USERNAME")
+    docker_hub_access_token: str | None = Field(None, env="DOCKER_TOKEN")
 
     # Monitoring
     grafana_api_key: str | None = Field(None, env="GRAFANA_API_KEY")

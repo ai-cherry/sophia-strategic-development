@@ -9,7 +9,7 @@
 ## Deployment Steps
 1. Build Docker image: `docker build -t sophia-ai .`
 2. Run health checks: `python scripts/health_check.py`
-3. Deploy: `docker-compose up -d`
+3. Deploy: `docker stack deploy`
 4. Verify: `curl http://localhost:8000/health`
 
 ## Post-Deployment
