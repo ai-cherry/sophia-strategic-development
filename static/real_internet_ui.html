@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sophia AI - Real Internet v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div x-data="sophiaApp()" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                🌐 Sophia AI - Real Internet v2.0
+            </h1>
+            <p class="text-gray-600 mb-4">
+                AI with REAL internet connectivity, multiple search types, and current information access
+            </p>
+            <div class="flex justify-center space-x-4 text-sm">
+                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                    <i class="fas fa-wifi mr-1"></i>
+                    <span x-text="systemStatus.internet_connectivity || 'REAL'"></span>
+                </div>
+                <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span x-text="currentTime"></span>
+                </div>
+                <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+                    <i class="fas fa-search mr-1"></i>
+                    <span x-text="(systemStats.total_searches || 0) + ' searches'"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white rounded-lg shadow-md p-1">
+                <button @click="activeTab = 'chat'" 
+                        :class="activeTab === 'chat' ? 'bg-blue-500 text-white' : 'text-gray-600'"
+                        class="px-6 py-2 rounded-md font-medium transition-colors">
+                    💬 AI Chat
+                </button>
+                <button @click="activeTab = 'search'" 
+                        :class="activeTab === 'search' ? 'bg-blue-500 text-white' : 'text-gray-600'"
+                        class="px-6 py-2 rounded-md font-medium transition-colors">
+                    🔍 Search
+                </button>
+                <button @click="activeTab = 'dashboard'" 
+                        :class="activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'text-gray-600'"
+                        class="px-6 py-2 rounded-md font-medium transition-colors">
+                    📊 Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div x-show="activeTab === 'chat'" class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg">
+                <!-- Chat Header -->
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 rounded-t-lg">
+                    <h2 class="text-xl font-semibold">🤖 Sophia AI Chat - Real Internet Access</h2>
+                    <p class="text-blue-100 text-sm">Ask me anything! I have real internet access and current information.</p>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="h-96 overflow-y-auto p-4 space-y-4" x-ref="chatContainer">
+                    <template x-for="message in messages" :key="message.id">
+                        <div :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                            <div :class="message.role === 'user' ? 
+                                'bg-blue-500 text-white rounded-l-lg rounded-tr-lg max-w-xs lg:max-w-md px-4 py-2' : 
+                                'bg-gray-100 text-gray-800 rounded-r-lg rounded-tl-lg max-w-xs lg:max-w-md px-4 py-2'">
+                                
+                                <!-- User message -->
+                                <template x-if="message.role === 'user'">
+                                    <div>
+                                        <p x-text="message.content"></p>
+                                        <p class="text-xs text-blue-200 mt-1" x-text="message.timestamp"></p>
+                                    </div>
+                                </template>
+
+                                <!-- Assistant message -->
+                                <template x-if="message.role === 'assistant'">
+                                    <div>
+                                        <div x-html="formatMessage(message.content)"></div>
+                                        <div class="mt-2 text-xs text-gray-500">
+                                            <div x-show="message.routing">
+                                                <span class="inline-block bg-green-200 text-green-800 px-2 py-1 rounded text-xs mr-1">
+                                                    <i class="fas fa-wifi mr-1"></i>
+                                                    <span x-text="message.routing.internet_connectivity"></span>
+                                                </span>
+                                                <span x-show="message.routing.search_type" 
+                                                      class="inline-block bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs mr-1">
+                                                    <i class="fas fa-search mr-1"></i>
+                                                    <span x-text="message.routing.search_type"></span>
+                                                </span>
+                                                <span x-show="message.routing.current_time" 
+                                                      class="inline-block bg-purple-200 text-purple-800 px-2 py-1 rounded text-xs">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    <span x-text="message.routing.current_time"></span>
+                                                </span>
+                                            </div>
+                                            <p class="mt-1" x-text="message.timestamp"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Loading indicator -->
+                    <div x-show="isLoading" class="flex justify-start">
+                        <div class="bg-gray-100 rounded-r-lg rounded-tl-lg px-4 py-2">
+                            <div class="flex items-center space-x-2">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                                <span class="text-gray-600">Searching the internet...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="border-t p-4">
+                    <div class="flex space-x-2">
+                        <input x-model="currentMessage" 
+                               @keyup.enter="sendMessage()"
+                               type="text" 
+                               placeholder="Ask me anything! Try: 'Who is the current president?' or 'What's the latest news?'"
+                               class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button @click="sendMessage()" 
+                                :disabled="isLoading || !currentMessage.trim()"
+                                class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button @click="currentMessage = 'Who is the current president of the United States?'; sendMessage()" 
+                                class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full">
+                            Current President
+                        </button>
+                        <button @click="currentMessage = 'What are the latest news headlines today?'; sendMessage()" 
+                                class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full">
+                            Latest News
+                        </button>
+                        <button @click="currentMessage = 'What time is it right now?'; sendMessage()" 
+                                class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full">
+                            Current Time
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div x-show="activeTab === 'search'" class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4">🔍 Real Internet Search</h2>
+                
+                <!-- Search Form -->
+                <div class="mb-6">
+                    <div class="flex space-x-2 mb-4">
+                        <input x-model="searchQuery" 
+                               @keyup.enter="performSearch()"
+                               type="text" 
+                               placeholder="Search the internet..."
+                               class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select x-model="searchType" class="border rounded-lg px-4 py-2">
+                            <option value="auto">Auto-detect</option>
+                            <option value="web">🌐 Web</option>
+                            <option value="news">📰 News</option>
+                            <option value="images">🖼️ Images</option>
+                            <option value="videos">🎥 Videos</option>
+                            <option value="maps">🗺️ Maps</option>
+                        </select>
+                        <button @click="performSearch()" 
+                                :disabled="isSearching || !searchQuery.trim()"
+                                class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50">
+                            Search
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div x-show="searchResults.length > 0" class="space-y-4">
+                    <h3 class="text-lg font-semibold">Search Results</h3>
+                    <template x-for="result in searchResults" :key="result.url || result.title">
+                        <div class="border rounded-lg p-4 hover:bg-gray-50">
+                            <h4 class="font-medium text-blue-600 mb-2" x-text="result.title"></h4>
+                            <p class="text-gray-600 text-sm mb-2" x-text="result.snippet || result.description"></p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span x-text="result.url || result.source"></span>
+                                <span x-show="result.date" x-text="result.date"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Loading -->
+                <div x-show="isSearching" class="text-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Searching the internet...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div x-show="activeTab === 'dashboard'" class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- System Status -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">🌐 System Status</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span>Internet:</span>
+                            <span class="text-green-600 font-medium" x-text="systemStatus.internet_connectivity || 'REAL'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Version:</span>
+                            <span x-text="systemStatus.version || '2.0'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Status:</span>
+                            <span class="text-green-600 font-medium" x-text="systemStatus.status || 'running'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Time:</span>
+                            <span x-text="systemStatus.current_time || currentTime"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Statistics -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">📊 Search Stats</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span>Total Searches:</span>
+                            <span class="font-medium" x-text="systemStats.total_searches || 0"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Web Searches:</span>
+                            <span x-text="systemStats.web_searches || 0"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>News Searches:</span>
+                            <span x-text="systemStats.news_searches || 0"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Image Searches:</span>
+                            <span x-text="systemStats.image_searches || 0"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capabilities -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">🚀 Capabilities</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Real-time web search
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Current news access
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Image & video search
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Location/maps search
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-2"></i>
+                            Proper datetime handling
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Engines -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">🔍 Available Search Engines</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl mb-2">🌐</div>
+                        <div class="font-medium">Web Search</div>
+                        <div class="text-sm text-gray-600">General web results</div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl mb-2">📰</div>
+                        <div class="font-medium">News Search</div>
+                        <div class="text-sm text-gray-600">Latest news & events</div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl mb-2">🖼️</div>
+                        <div class="font-medium">Image Search</div>
+                        <div class="text-sm text-gray-600">Photos & images</div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl mb-2">🎥</div>
+                        <div class="font-medium">Video Search</div>
+                        <div class="text-sm text-gray-600">Videos & tutorials</div>
+                    </div>
+                    <div class="text-center p-4 border rounded-lg">
+                        <div class="text-2xl mb-2">🗺️</div>
+                        <div class="font-medium">Maps Search</div>
+                        <div class="text-sm text-gray-600">Locations & directions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sophiaApp() {
+            return {
+                activeTab: 'chat',
+                messages: [],
+                currentMessage: '',
+                isLoading: false,
+                searchQuery: '',
+                searchType: 'auto',
+                searchResults: [],
+                isSearching: false,
+                systemStatus: {},
+                systemStats: {},
+                currentTime: '',
+
+                init() {
+                    this.loadSystemStatus();
+                    this.updateTime();
+                    setInterval(() => this.updateTime(), 1000);
+                    
+                    // Add welcome message
+                    this.messages.push({
+                        id: Date.now(),
+                        role: 'assistant',
+                        content: 'Hello! I\'m Sophia AI with REAL internet connectivity. I can search the web, get current news, find images/videos, and provide up-to-date information. What would you like to know?',
+                        timestamp: new Date().toLocaleTimeString(),
+                        routing: {
+                            internet_connectivity: 'REAL',
+                            current_time: new Date().toLocaleString()
+                        }
+                    });
+                },
+
+                async loadSystemStatus() {
+                    try {
+                        const response = await fetch('/health');
+                        this.systemStatus = await response.json();
+                        
+                        const statsResponse = await fetch('/stats');
+                        this.systemStats = await statsResponse.json();
+                    } catch (error) {
+                        console.error('Failed to load system status:', error);
+                    }
+                },
+
+                updateTime() {
+                    this.currentTime = new Date().toLocaleString();
+                },
+
+                async sendMessage() {
+                    if (!this.currentMessage.trim() || this.isLoading) return;
+
+                    const userMessage = {
+                        id: Date.now(),
+                        role: 'user',
+                        content: this.currentMessage,
+                        timestamp: new Date().toLocaleTimeString()
+                    };
+
+                    this.messages.push(userMessage);
+                    this.isLoading = true;
+
+                    const messageToSend = this.currentMessage;
+                    this.currentMessage = '';
+
+                    try {
+                        const response = await fetch('/chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                messages: [{ role: 'user', content: messageToSend }],
+                                max_tokens: 1000,
+                                temperature: 0.7
+                            })
+                        });
+
+                        const data = await response.json();
+                        
+                        this.messages.push({
+                            id: Date.now() + 1,
+                            role: 'assistant',
+                            content: data.response?.choices?.[0]?.message?.content || 'Sorry, I encountered an error.',
+                            timestamp: new Date().toLocaleTimeString(),
+                            routing: data.routing,
+                            internet_data: data.internet_data,
+                            system_time: data.system_time
+                        });
+
+                        // Update stats
+                        await this.loadSystemStatus();
+
+                    } catch (error) {
+                        console.error('Chat error:', error);
+                        this.messages.push({
+                            id: Date.now() + 1,
+                            role: 'assistant',
+                            content: 'Sorry, I encountered an error while processing your request.',
+                            timestamp: new Date().toLocaleTimeString()
+                        });
+                    } finally {
+                        this.isLoading = false;
+                        this.$nextTick(() => {
+                            this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+                        });
+                    }
+                },
+
+                async performSearch() {
+                    if (!this.searchQuery.trim() || this.isSearching) return;
+
+                    this.isSearching = true;
+                    this.searchResults = [];
+
+                    try {
+                        const response = await fetch('/search', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                query: this.searchQuery,
+                                type: this.searchType
+                            })
+                        });
+
+                        const data = await response.json();
+                        this.searchResults = data.results || [];
+
+                    } catch (error) {
+                        console.error('Search error:', error);
+                    } finally {
+                        this.isSearching = false;
+                    }
+                },
+
+                formatMessage(content) {
+                    // Basic markdown-like formatting
+                    return content
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/\n/g, '<br>');
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

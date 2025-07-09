@@ -1,0 +1,26 @@
+{
+  "channels": {
+    "chat": {
+      "enabled": true,
+      "description": "Main chat responses"
+    },
+    "agents": {
+      "enabled": true,
+      "description": "Agent status updates"
+    },
+    "progress": {
+      "enabled": true,
+      "description": "Progress tracking"
+    },
+    "system": {
+      "enabled": true,
+      "description": "System status"
+    }
+  },
+  "settings": {
+    "max_connections": 100,
+    "message_timeout": 30,
+    "heartbeat_interval": 30,
+    "current_date": "July 9, 2025"
+  }
+}

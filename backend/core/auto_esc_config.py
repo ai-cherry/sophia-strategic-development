@@ -536,3 +536,102 @@ AI_OPTIMIZATION_CONFIG = {
     "serverless_first": True,
     "data_local_preference": True,
 }
+
+def get_lambda_labs_serverless_config() -> dict[str, Any]:
+    """
+    Get Lambda Labs Serverless configuration from Pulumi ESC
+    
+    Returns:
+        Lambda Labs Serverless configuration dictionary
+    """
+    return {
+        # API Configuration
+        "cloud_api_key": get_config_value("LAMBDA_CLOUD_API_KEY"),
+        "inference_api_key": get_config_value("LAMBDA_API_KEY"),
+        "inference_endpoint": get_config_value("LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"),
+        
+        # Cost Management
+        "daily_budget": float(get_config_value("LAMBDA_DAILY_BUDGET", "100.0")),
+        "monthly_budget": float(get_config_value("LAMBDA_MONTHLY_BUDGET", "2500.0")),
+        
+        # Performance Settings
+        "response_time_target": int(get_config_value("LAMBDA_RESPONSE_TIME_TARGET", "2000")),
+        "availability_target": float(get_config_value("LAMBDA_AVAILABILITY_TARGET", "99.9")),
+        
+        # Security Settings
+        "max_input_tokens": int(get_config_value("LAMBDA_MAX_INPUT_TOKENS", "1000000")),
+        "max_output_tokens": int(get_config_value("LAMBDA_MAX_OUTPUT_TOKENS", "100000")),
+        
+        # Routing Configuration
+        "routing_strategy": get_config_value("LAMBDA_ROUTING_STRATEGY", "performance_first"),
+        "enable_hybrid_ai": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
+        "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
+        
+        # Model Configuration
+        "default_model": get_config_value("LAMBDA_DEFAULT_MODEL", "llama-4-scout-17b-16e-instruct"),
+        "fallback_models": [
+            "llama-4-scout-17b-16e-instruct",
+            "deepseek-v3-0324", 
+            "qwen-3-32b"
+        ]
+    }
+
+def get_ai_orchestration_config() -> dict[str, Any]:
+    """
+    Get AI orchestration configuration for unified chat service
+    
+    Returns:
+        AI orchestration configuration dictionary
+    """
+    return {
+        "default_provider": get_config_value("DEFAULT_AI_PROVIDER", "lambda_labs"),
+        "enable_hybrid_mode": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
+        "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
+        "enable_performance_tracking": get_config_value("ENABLE_PERFORMANCE_TRACKING", "true").lower() == "true",
+        
+        # Provider priorities
+        "provider_priorities": {
+            "lambda_labs": 1,
+            "snowflake_cortex": 2,
+            "portkey": 3,
+            "openrouter": 4
+        },
+        
+        # Routing thresholds
+        "cost_threshold": float(get_config_value("AI_COST_THRESHOLD", "0.50")),
+        "response_time_threshold": float(get_config_value("AI_RESPONSE_TIME_THRESHOLD", "5.0")),
+        "quality_threshold": float(get_config_value("AI_QUALITY_THRESHOLD", "0.8"))
+    }
+
+def validate_lambda_labs_config() -> bool:
+    """
+    Validate Lambda Labs configuration
+    
+    Returns:
+        True if configuration is valid
+    """
+    config = get_lambda_labs_serverless_config()
+    
+    # Check required fields
+    required_fields = ["inference_api_key", "inference_endpoint"]
+    for field in required_fields:
+        if not config.get(field):
+            logger.error(f"Missing required Lambda Labs config: {field}")
+            return False
+    
+    # Validate API key format
+    api_key = config.get("inference_api_key", "")
+    if not api_key.startswith("secret_"):
+        logger.warning("Lambda Labs API key format may be invalid")
+    
+    # Validate budget values
+    if config.get("daily_budget", 0) <= 0:
+        logger.error("Daily budget must be positive")
+        return False
+    
+    if config.get("monthly_budget", 0) <= 0:
+        logger.error("Monthly budget must be positive")
+        return False
+    
+    logger.info("Lambda Labs configuration validated successfully")
+    return True
