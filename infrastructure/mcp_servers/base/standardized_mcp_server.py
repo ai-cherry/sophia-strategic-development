@@ -39,24 +39,15 @@ from typing import Any
 # Reusable safe import helper
 from shared.safe_imports import safe_import
 
-try:
-    from gemini_cli_integration.gemini_cli_provider import (
-        GeminiCLIModelRouter as _GeminiCLIModelRouter,
-        GeminiCLIProvider as _GeminiCLIProvider,
-    )
+_gemini_mod = safe_import(
+    "gemini_cli_integration.gemini_cli_provider",
+    {"GeminiCLIModelRouter": object, "GeminiCLIProvider": object},
+)
 
-    GeminiCLIModelRouter = _GeminiCLIModelRouter  # type: ignore[valid-type]
-    GeminiCLIProvider = _GeminiCLIProvider  # type: ignore[valid-type]
-    GEMINI_CLI_AVAILABLE = True
-except ImportError:  # pragma: no cover – gemini CLI optional
-    from typing import Any as _Any
-
-    GeminiCLIProvider: type[_Any] | None  # noqa: N816 – preserve camel case
-    GeminiCLIModelRouter: type[_Any] | None  # noqa: N816
-
-    GeminiCLIProvider = None
-    GeminiCLIModelRouter = None
-    GEMINI_CLI_AVAILABLE = False
+# Re-export for convenience; use Any to appease static analyzers when stubbed
+GeminiCLIModelRouter = cast(Any, getattr(_gemini_mod, "GeminiCLIModelRouter", None))
+GeminiCLIProvider = cast(Any, getattr(_gemini_mod, "GeminiCLIProvider", None))
+GEMINI_CLI_AVAILABLE = GeminiCLIProvider is not object
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +71,22 @@ FastAPI = cast(Any, fastapi_mod.FastAPI)  # type: ignore[attr-defined]
 Response = cast(Any, fastapi_mod.Response)  # type: ignore[attr-defined]
 
 uvicorn = safe_import("uvicorn", {"Config": object, "Server": object})
+
+# Prometheus client (optional)
+prom_mod = safe_import(
+    "prometheus_client",
+    {
+        "Counter": lambda *_, **__: None,
+        "Gauge": lambda *_, **__: None,
+        "Histogram": lambda *_, **__: None,
+        "Info": lambda *_, **__: None,
+    },
+)
+
+Counter = cast(Any, prom_mod.Counter)
+Gauge = cast(Any, prom_mod.Gauge)
+Histogram = cast(Any, prom_mod.Histogram)
+Info = cast(Any, prom_mod.Info)
 
 class SyncPriority(Enum):
     """Data synchronization priority levels."""
