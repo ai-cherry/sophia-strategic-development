@@ -18,7 +18,7 @@ CURRENT_CONFIG = {
     "ip": "192.222.58.232",
     "type": "GH200",
     "ssh_key_name": "sophia2025.pem",
-    "ssh_key_path": "~/.ssh/sophia2025.pem"
+    "ssh_key_path": "~/.ssh/sophia2025.pem",
 }
 
 # Old IPs to replace
@@ -31,7 +31,7 @@ OLD_IPS = [
     "104.171.202.134",
     "155.248.194.183",
     "192.222.58.232",
-    "192.222.50.155"
+    "192.222.50.155",
 ]
 
 # Old SSH key references
@@ -40,7 +40,7 @@ OLD_SSH_KEYS = [
     "sophia2025.pem",
     "sophia-ai-key",
     "lambda_labs_ssh_key",
-    "sophia-ai-h200-key"
+    "sophia-ai-h200-key",
 ]
 
 # Files to skip
@@ -52,8 +52,9 @@ SKIP_PATTERNS = [
     "*.pyc",
     "*.log",
     "backups/",
-    "archive/"
+    "archive/",
 ]
+
 
 class LambdaLabsUpdater:
     def __init__(self):
@@ -92,31 +93,35 @@ class LambdaLabsUpdater:
                 f"/home/ubuntu/.ssh/{old_key}",
                 f"$HOME/.ssh/{old_key}",
                 f'"{old_key}"',
-                f"'{old_key}'"
+                f"'{old_key}'",
             ]
 
             for pattern in patterns:
                 if pattern in content:
-                    new_pattern = pattern.replace(old_key, CURRENT_CONFIG["ssh_key_name"])
+                    new_pattern = pattern.replace(
+                        old_key, CURRENT_CONFIG["ssh_key_name"]
+                    )
                     content = content.replace(pattern, new_pattern)
                     updates.append(f"Updated SSH key: {pattern} -> {new_pattern}")
 
         return content, updates
 
-    def update_instance_mappings(self, content: str, filepath: str) -> tuple[str, list[str]]:
+    def update_instance_mappings(
+        self, content: str, filepath: str
+    ) -> tuple[str, list[str]]:
         """Update instance mapping dictionaries"""
         updates = []
 
         # Pattern for instance mappings
-        mapping_pattern = r'instance_mapping\s*=\s*{[^}]+}'
+        mapping_pattern = r"instance_mapping\s*=\s*{[^}]+}"
         matches = re.findall(mapping_pattern, content, re.DOTALL)
 
         if matches:
             # Create new mapping
-            new_mapping = f'''instance_mapping = {{
+            new_mapping = f"""instance_mapping = {{
             "production": "{CURRENT_CONFIG['ip']}",
             "{CURRENT_CONFIG['instance_name']}": "{CURRENT_CONFIG['ip']}"
-        }}'''
+        }}"""
 
             for match in matches:
                 content = content.replace(match, new_mapping)
@@ -124,14 +129,22 @@ class LambdaLabsUpdater:
 
         return content, updates
 
-    def remove_hardcoded_credentials(self, content: str, filepath: str) -> tuple[str, list[str]]:
+    def remove_hardcoded_credentials(
+        self, content: str, filepath: str
+    ) -> tuple[str, list[str]]:
         """Remove hardcoded API keys and replace with Pulumi ESC calls"""
         updates = []
 
         # Pattern for hardcoded Lambda API keys
         api_key_patterns = [
-            (r'secret_sophia5apikey_[a-zA-Z0-9]+\.[a-zA-Z0-9]+', 'get_config_value("lambda_api_key")'),
-            (r'secret_sophiacloudapi_[a-zA-Z0-9]+\.[a-zA-Z0-9]+', 'get_config_value("lambda_cloud_api_key")')
+            (
+                r"secret_sophia5apikey_[a-zA-Z0-9]+\.[a-zA-Z0-9]+",
+                'get_config_value("lambda_api_key")',
+            ),
+            (
+                r"secret_sophiacloudapi_[a-zA-Z0-9]+\.[a-zA-Z0-9]+",
+                'get_config_value("lambda_cloud_api_key")',
+            ),
         ]
 
         for pattern, replacement in api_key_patterns:
@@ -143,13 +156,20 @@ class LambdaLabsUpdater:
                     updates.append(f"Replaced hardcoded API key with {replacement}")
 
                 # Add import if needed
-                if "get_config_value" in content and "from backend.core.auto_esc_config import get_config_value" not in content:
+                if (
+                    "get_config_value" in content
+                    and "from backend.core.auto_esc_config import get_config_value"
+                    not in content
+                ):
                     if content.startswith("#!/usr/bin/env python"):
                         lines = content.split("\n")
                         # Find where to insert import
                         for i, line in enumerate(lines):
                             if line.startswith("import ") or line.startswith("from "):
-                                lines.insert(i, "from backend.core.auto_esc_config import get_config_value")
+                                lines.insert(
+                                    i,
+                                    "from backend.core.auto_esc_config import get_config_value",
+                                )
                                 content = "\n".join(lines)
                                 updates.append("Added get_config_value import")
                                 break
@@ -169,21 +189,21 @@ class LambdaLabsUpdater:
 
                 # Update Lambda Labs configuration
                 if isinstance(data, dict):
-                    if 'lambda_labs' in data:
-                        if 'ip' in data['lambda_labs']:
-                            data['lambda_labs']['ip'] = CURRENT_CONFIG['ip']
+                    if "lambda_labs" in data:
+                        if "ip" in data["lambda_labs"]:
+                            data["lambda_labs"]["ip"] = CURRENT_CONFIG["ip"]
                             modified = True
                             updates.append("Updated lambda_labs.ip in YAML")
 
                     # Update environment variables
-                    if 'env' in data:
-                        if 'LAMBDA_LABS_IP' in data['env']:
-                            data['env']['LAMBDA_LABS_IP'] = CURRENT_CONFIG['ip']
+                    if "env" in data:
+                        if "LAMBDA_LABS_IP" in data["env"]:
+                            data["env"]["LAMBDA_LABS_IP"] = CURRENT_CONFIG["ip"]
                             modified = True
                             updates.append("Updated LAMBDA_LABS_IP in env")
 
                 if modified:
-                    with open(filepath, 'w') as f:
+                    with open(filepath, "w") as f:
                         yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
         except Exception as e:
@@ -208,9 +228,11 @@ class LambdaLabsUpdater:
                     if isinstance(value, str):
                         for old_ip in OLD_IPS:
                             if old_ip in value:
-                                d[key] = value.replace(old_ip, CURRENT_CONFIG['ip'])
+                                d[key] = value.replace(old_ip, CURRENT_CONFIG["ip"])
                                 modified = True
-                                updates.append(f"Updated {key}: {old_ip} -> {CURRENT_CONFIG['ip']}")
+                                updates.append(
+                                    f"Updated {key}: {old_ip} -> {CURRENT_CONFIG['ip']}"
+                                )
                     elif isinstance(value, dict):
                         update_dict(value)
                     elif isinstance(value, list):
@@ -221,7 +243,7 @@ class LambdaLabsUpdater:
             update_dict(data)
 
             if modified:
-                with open(filepath, 'w') as f:
+                with open(filepath, "w") as f:
                     json.dump(data, f, indent=2)
 
         except Exception as e:
@@ -236,13 +258,13 @@ class LambdaLabsUpdater:
 
         try:
             # Handle different file types
-            if filepath.suffix in ['.yml', '.yaml']:
+            if filepath.suffix in [".yml", ".yaml"]:
                 updates = self.update_yaml_files(filepath)
                 if updates:
                     self.files_updated.add(str(filepath))
                     self.updates_made.extend([(str(filepath), u) for u in updates])
 
-            elif filepath.suffix == '.json':
+            elif filepath.suffix == ".json":
                 updates = self.update_json_files(filepath)
                 if updates:
                     self.files_updated.add(str(filepath))
@@ -250,7 +272,7 @@ class LambdaLabsUpdater:
 
             else:
                 # Text files
-                with open(filepath, encoding='utf-8') as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
 
                 original_content = content
@@ -267,13 +289,15 @@ class LambdaLabsUpdater:
                 all_updates.extend(updates)
 
                 # Only remove hardcoded credentials from Python files
-                if filepath.suffix == '.py':
-                    content, updates = self.remove_hardcoded_credentials(content, str(filepath))
+                if filepath.suffix == ".py":
+                    content, updates = self.remove_hardcoded_credentials(
+                        content, str(filepath)
+                    )
                     all_updates.extend(updates)
 
                 # Write back if changed
                 if content != original_content:
-                    with open(filepath, 'w', encoding='utf-8') as f:
+                    with open(filepath, "w", encoding="utf-8") as f:
                         f.write(content)
                     self.files_updated.add(str(filepath))
                     self.updates_made.extend([(str(filepath), u) for u in all_updates])
@@ -286,13 +310,22 @@ class LambdaLabsUpdater:
         print("🔍 Scanning for Lambda Labs references...")
 
         # Get all files
-        for root, dirs, files in os.walk('.'):
+        for root, dirs, files in os.walk("."):
             # Skip directories
             dirs[:] = [d for d in dirs if not any(skip in d for skip in SKIP_PATTERNS)]
 
             for file in files:
                 filepath = Path(root) / file
-                if filepath.suffix in ['.py', '.sh', '.yml', '.yaml', '.json', '.md', '.ts', '.js']:
+                if filepath.suffix in [
+                    ".py",
+                    ".sh",
+                    ".yml",
+                    ".yaml",
+                    ".json",
+                    ".md",
+                    ".ts",
+                    ".js",
+                ]:
                     self.process_file(filepath)
 
         # Generate report
@@ -303,7 +336,7 @@ class LambdaLabsUpdater:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_file = f"lambda_labs_update_report_{timestamp}.md"
 
-        with open(report_file, 'w') as f:
+        with open(report_file, "w") as f:
             f.write("# Lambda Labs Reference Update Report\n\n")
             f.write(f"**Timestamp**: {datetime.now().isoformat()}\n")
             f.write(f"**Mode**: {'DRY RUN' if dry_run else 'EXECUTED'}\n\n")
@@ -344,7 +377,11 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Update Lambda Labs references")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be updated without making changes")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be updated without making changes",
+    )
 
     args = parser.parse_args()
 

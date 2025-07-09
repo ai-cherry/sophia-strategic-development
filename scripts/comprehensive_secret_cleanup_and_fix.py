@@ -15,7 +15,6 @@ CORRECT_SECRET_NAMES = {
     # Docker Hub - FINAL AUTHORITY
     "DOCKER_TOKEN": "DOCKER_TOKEN",  # PRIMARY
     "DOCKERHUB_USERNAME": "DOCKERHUB_USERNAME",  # PRIMARY
-
     # All these are WRONG and must be fixed
     "DOCKER_TOKEN": "DOCKER_TOKEN",
     "DOCKER_TOKEN": "DOCKER_TOKEN",
@@ -44,7 +43,6 @@ FILES_TO_DELETE = [
     "PR_179_IMPLEMENTATION_GUIDE.md",
     "SOPHIA_AI_DOCKER_DEPLOYMENT_PLAN.md",
     "SECRET_MANAGEMENT_FIX_SUMMARY.md",
-
     # Legacy scripts
     "scripts/setup_github_secrets.sh",
     "scripts/deploy_sophia_unified.py",
@@ -61,11 +59,9 @@ FILES_TO_DELETE = [
     "scripts/security/secret_mapping.py",
     "scripts/fix_github_workflows_secrets.py",
     "scripts/ci/sync_secrets_to_esc_enhanced.py",
-
     # Legacy configs
     "pulumi-esc-production-config.yaml",
     "infrastructure/esc/sophia-ai-production-template.yaml",
-
     # Legacy docs
     "docs/deployment/SECRET_MANAGEMENT.md",
     "docs/deployment/DEPLOYMENT_GUIDE.md",
@@ -86,15 +82,15 @@ FILES_TO_DELETE = [
     "docs/04-deployment/KUBERNETES_LAMBDA_LABS_2025_GUIDE.md",
     "docs/04-deployment/HOLISTIC_DEPLOYMENT_STRATEGY.md",
     "docs/04-deployment/README.md",
-
     # Legacy compose files
     "docker-compose.cloud.v2.yml",
 ]
 
+
 def fix_secret_names_in_file(file_path: str) -> tuple[bool, list[str]]:
     """Fix secret names in a single file"""
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         original_content = content
@@ -107,18 +103,19 @@ def fix_secret_names_in_file(file_path: str) -> tuple[bool, list[str]]:
 
             # Pattern to match various secret reference formats
             patterns = [
-                rf'\$\{{\s*secrets\.{wrong_name}\s*\}}',  # ${{ secrets.WRONG_NAME }}
-                rf'secrets\.{wrong_name}',                # secrets.WRONG_NAME
-                rf'env:\s*\n\s*{wrong_name}:',           # env: WRONG_NAME:
-                rf'{wrong_name}:\s*\$\{{\s*secrets\.',   # WRONG_NAME: ${{ secrets.
-                rf'export\s+{wrong_name}=',              # export WRONG_NAME=
-                rf'{wrong_name}=\$\{{\s*secrets\.',      # WRONG_NAME=${{ secrets.
-                rf'--secret\s+{wrong_name.lower()}',      # --secret wrong_name
-                rf'"{wrong_name}"',                       # "WRONG_NAME"
-                rf"'{wrong_name}'",                       # 'WRONG_NAME'
-                rf'\|{wrong_name}\|',                     # |WRONG_NAME|
-                rf'`{wrong_name}`',                       # `WRONG_NAME`
-                wrong_name + r'(?=\s|$|,|\.|\)|\]|\})',  # WRONG_NAME followed by delimiter
+                rf"\$\{{\s*secrets\.{wrong_name}\s*\}}",  # ${{ secrets.WRONG_NAME }}
+                rf"secrets\.{wrong_name}",  # secrets.WRONG_NAME
+                rf"env:\s*\n\s*{wrong_name}:",  # env: WRONG_NAME:
+                rf"{wrong_name}:\s*\$\{{\s*secrets\.",  # WRONG_NAME: ${{ secrets.
+                rf"export\s+{wrong_name}=",  # export WRONG_NAME=
+                rf"{wrong_name}=\$\{{\s*secrets\.",  # WRONG_NAME=${{ secrets.
+                rf"--secret\s+{wrong_name.lower()}",  # --secret wrong_name
+                rf'"{wrong_name}"',  # "WRONG_NAME"
+                rf"'{wrong_name}'",  # 'WRONG_NAME'
+                rf"\|{wrong_name}\|",  # |WRONG_NAME|
+                rf"`{wrong_name}`",  # `WRONG_NAME`
+                wrong_name
+                + r"(?=\s|$|,|\.|\)|\]|\})",  # WRONG_NAME followed by delimiter
             ]
 
             for pattern in patterns:
@@ -127,13 +124,13 @@ def fix_secret_names_in_file(file_path: str) -> tuple[bool, list[str]]:
                         pattern,
                         lambda m: m.group(0).replace(wrong_name, correct_name),
                         content,
-                        flags=re.IGNORECASE | re.MULTILINE
+                        flags=re.IGNORECASE | re.MULTILINE,
                     )
                     changes.append(f"{wrong_name} → {correct_name}")
 
         # Write back if changes were made
         if content != original_content:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return True, changes
 
@@ -142,6 +139,7 @@ def fix_secret_names_in_file(file_path: str) -> tuple[bool, list[str]]:
     except Exception as e:
         print(f"❌ Error processing {file_path}: {e}")
         return False, []
+
 
 def delete_legacy_files():
     """Delete all legacy and archived files"""
@@ -184,6 +182,7 @@ def delete_legacy_files():
 
     return deleted_count
 
+
 def scan_all_files():
     """Scan all files for secret name fixes"""
     file_patterns = [
@@ -208,9 +207,19 @@ def scan_all_files():
 
     # Exclude certain directories
     exclude_dirs = {
-        ".git", "node_modules", "__pycache__", ".pytest_cache",
-        ".venv", "venv", ".env", "external", "docs_backup",
-        "archive", "backup", ".idea", ".vscode"
+        ".git",
+        "node_modules",
+        "__pycache__",
+        ".pytest_cache",
+        ".venv",
+        "venv",
+        ".env",
+        "external",
+        "docs_backup",
+        "archive",
+        "backup",
+        ".idea",
+        ".vscode",
     }
 
     filtered_files = []
@@ -221,6 +230,7 @@ def scan_all_files():
             filtered_files.append(file_path)
 
     return filtered_files
+
 
 def create_permanent_documentation():
     """Create permanent documentation that will be maintained"""
@@ -308,7 +318,10 @@ The secret management nightmare is OVER. Every single secret has been mapped cor
     with open("docs/99-reference/SECRET_MANAGEMENT_PERMANENT_AUTHORITY.md", "w") as f:
         f.write(doc_content)
 
-    print("✅ Created permanent documentation: docs/99-reference/SECRET_MANAGEMENT_PERMANENT_AUTHORITY.md")
+    print(
+        "✅ Created permanent documentation: docs/99-reference/SECRET_MANAGEMENT_PERMANENT_AUTHORITY.md"
+    )
+
 
 def main():
     print("🔥 COMPREHENSIVE SECRET CLEANUP AND FIX")
@@ -352,7 +365,7 @@ def main():
     remaining_issues = []
     for file_path in all_files:
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             for wrong_name in CORRECT_SECRET_NAMES:
@@ -390,9 +403,12 @@ def main():
     print()
     print("Next steps:")
     print("1. git add -A")
-    print("2. git commit -m 'COMPREHENSIVE SECRET CLEANUP: Fix all inconsistencies and delete legacy files'")
+    print(
+        "2. git commit -m 'COMPREHENSIVE SECRET CLEANUP: Fix all inconsistencies and delete legacy files'"
+    )
     print("3. git push origin main")
     print("4. gh workflow run sync_secrets_comprehensive.yml")
+
 
 if __name__ == "__main__":
     main()

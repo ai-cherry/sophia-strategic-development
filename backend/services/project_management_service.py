@@ -11,6 +11,7 @@ import aiohttp
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ProjectSummary:
     total_projects: int
@@ -19,6 +20,7 @@ class ProjectSummary:
     at_risk_projects: int
     platform_breakdown: dict[str, int]
     health_score: float
+
 
 @dataclass
 class Project:
@@ -32,13 +34,14 @@ class Project:
     due_date: str | None
     risk_level: str
 
+
 class ProjectManagementService:
     def __init__(self):
         self.mcp_endpoints = {
             "linear": "http://localhost:9006",
             "asana": "http://localhost:9004",
             "notion": "http://localhost:9005",
-            "slack": "http://localhost:9008"
+            "slack": "http://localhost:9008",
         }
 
     async def get_unified_project_summary(self) -> ProjectSummary:
@@ -49,7 +52,7 @@ class ProjectManagementService:
                 self._query_linear_projects(),
                 self._query_asana_projects(),
                 self._query_notion_projects(),
-                self._query_slack_project_threads()
+                self._query_slack_project_threads(),
             ]
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -74,9 +77,15 @@ class ProjectManagementService:
                 platform_breakdown[platform] = len(platform_projects)
 
                 total_projects += len(platform_projects)
-                active_projects += len([p for p in platform_projects if p.get("status") == "active"])
-                completed_projects += len([p for p in platform_projects if p.get("status") == "completed"])
-                at_risk_projects += len([p for p in platform_projects if p.get("risk_level") == "high"])
+                active_projects += len(
+                    [p for p in platform_projects if p.get("status") == "active"]
+                )
+                completed_projects += len(
+                    [p for p in platform_projects if p.get("status") == "completed"]
+                )
+                at_risk_projects += len(
+                    [p for p in platform_projects if p.get("risk_level") == "high"]
+                )
 
             # Calculate overall health score
             health_score = 85.0  # Placeholder calculation
@@ -91,7 +100,7 @@ class ProjectManagementService:
                 completed_projects=completed_projects,
                 at_risk_projects=at_risk_projects,
                 platform_breakdown=platform_breakdown,
-                health_score=health_score
+                health_score=health_score,
             )
 
         except Exception as e:
@@ -106,9 +115,9 @@ class ProjectManagementService:
                     "linear": 23,
                     "asana": 17,
                     "notion": 8,
-                    "slack": 142
+                    "slack": 142,
                 },
-                health_score=78.5
+                health_score=78.5,
             )
 
     async def _query_linear_projects(self) -> dict[str, Any]:
@@ -116,16 +125,30 @@ class ProjectManagementService:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"{self.mcp_endpoints['linear']}/health",
-                    timeout=5
+                    f"{self.mcp_endpoints['linear']}/health", timeout=5
                 ) as response:
                     if response.status == 200:
                         # Return mock Linear data for now
                         return {
                             "projects": [
-                                {"id": "lin_1", "name": "AI Platform Enhancement", "status": "active", "risk_level": "low"},
-                                {"id": "lin_2", "name": "Infrastructure Migration", "status": "active", "risk_level": "medium"},
-                                {"id": "lin_3", "name": "API Optimization", "status": "completed", "risk_level": "low"}
+                                {
+                                    "id": "lin_1",
+                                    "name": "AI Platform Enhancement",
+                                    "status": "active",
+                                    "risk_level": "low",
+                                },
+                                {
+                                    "id": "lin_2",
+                                    "name": "Infrastructure Migration",
+                                    "status": "active",
+                                    "risk_level": "medium",
+                                },
+                                {
+                                    "id": "lin_3",
+                                    "name": "API Optimization",
+                                    "status": "completed",
+                                    "risk_level": "low",
+                                },
                             ]
                         }
                     else:
@@ -140,16 +163,30 @@ class ProjectManagementService:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"{self.mcp_endpoints['asana']}/health",
-                    timeout=5
+                    f"{self.mcp_endpoints['asana']}/health", timeout=5
                 ) as response:
                     if response.status == 200:
                         # Return mock Asana data for now
                         return {
                             "projects": [
-                                {"id": "asn_1", "name": "Q1 Sales Campaign", "status": "active", "risk_level": "high"},
-                                {"id": "asn_2", "name": "Customer Onboarding", "status": "completed", "risk_level": "low"},
-                                {"id": "asn_3", "name": "Product Roadmap", "status": "active", "risk_level": "medium"}
+                                {
+                                    "id": "asn_1",
+                                    "name": "Q1 Sales Campaign",
+                                    "status": "active",
+                                    "risk_level": "high",
+                                },
+                                {
+                                    "id": "asn_2",
+                                    "name": "Customer Onboarding",
+                                    "status": "completed",
+                                    "risk_level": "low",
+                                },
+                                {
+                                    "id": "asn_3",
+                                    "name": "Product Roadmap",
+                                    "status": "active",
+                                    "risk_level": "medium",
+                                },
                             ]
                         }
                     else:
@@ -164,15 +201,24 @@ class ProjectManagementService:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"{self.mcp_endpoints['notion']}/health",
-                    timeout=5
+                    f"{self.mcp_endpoints['notion']}/health", timeout=5
                 ) as response:
                     if response.status == 200:
                         # Return mock Notion data for now
                         return {
                             "projects": [
-                                {"id": "not_1", "name": "Strategic Planning", "status": "active", "risk_level": "low"},
-                                {"id": "not_2", "name": "Team Documentation", "status": "active", "risk_level": "low"}
+                                {
+                                    "id": "not_1",
+                                    "name": "Strategic Planning",
+                                    "status": "active",
+                                    "risk_level": "low",
+                                },
+                                {
+                                    "id": "not_2",
+                                    "name": "Team Documentation",
+                                    "status": "active",
+                                    "risk_level": "low",
+                                },
                             ]
                         }
                     else:
@@ -187,15 +233,24 @@ class ProjectManagementService:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"{self.mcp_endpoints['slack']}/health",
-                    timeout=5
+                    f"{self.mcp_endpoints['slack']}/health", timeout=5
                 ) as response:
                     if response.status == 200:
                         # Return mock Slack data for now
                         return {
                             "projects": [
-                                {"id": "slk_1", "name": "Development Discussions", "status": "active", "risk_level": "low"},
-                                {"id": "slk_2", "name": "Product Planning", "status": "active", "risk_level": "medium"}
+                                {
+                                    "id": "slk_1",
+                                    "name": "Development Discussions",
+                                    "status": "active",
+                                    "risk_level": "low",
+                                },
+                                {
+                                    "id": "slk_2",
+                                    "name": "Product Planning",
+                                    "status": "active",
+                                    "risk_level": "medium",
+                                },
                             ]
                         }
                     else:
@@ -214,7 +269,7 @@ class ProjectManagementService:
                 "platform": "Linear",
                 "health_score": 85.0,
                 "risk_factors": ["timeline", "resources"],
-                "recommendations": ["Increase testing coverage", "Add more developers"]
+                "recommendations": ["Increase testing coverage", "Add more developers"],
             },
             {
                 "project_id": "proj_2",
@@ -222,7 +277,11 @@ class ProjectManagementService:
                 "platform": "Asana",
                 "health_score": 65.0,
                 "risk_factors": ["budget", "timeline", "stakeholder alignment"],
-                "recommendations": ["Review budget allocation", "Schedule stakeholder meeting", "Adjust timeline"]
+                "recommendations": [
+                    "Review budget allocation",
+                    "Schedule stakeholder meeting",
+                    "Adjust timeline",
+                ],
             },
             {
                 "project_id": "proj_3",
@@ -230,8 +289,11 @@ class ProjectManagementService:
                 "platform": "Linear",
                 "health_score": 92.0,
                 "risk_factors": ["technical complexity"],
-                "recommendations": ["Continue current approach", "Monitor performance metrics"]
-            }
+                "recommendations": [
+                    "Continue current approach",
+                    "Monitor performance metrics",
+                ],
+            },
         ]
 
     async def get_mcp_server_status(self) -> dict[str, Any]:
@@ -248,19 +310,19 @@ class ProjectManagementService:
                                 "status": "healthy",
                                 "endpoint": endpoint,
                                 "response_time": "< 50ms",
-                                "data": data
+                                "data": data,
                             }
                         else:
                             status[platform] = {
                                 "status": "degraded",
                                 "endpoint": endpoint,
-                                "error": f"HTTP {response.status}"
+                                "error": f"HTTP {response.status}",
                             }
             except Exception as e:
                 status[platform] = {
                     "status": "offline",
                     "endpoint": endpoint,
-                    "error": str(e)[:50]
+                    "error": str(e)[:50],
                 }
 
         return status

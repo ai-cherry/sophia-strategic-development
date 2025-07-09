@@ -24,8 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,7 @@ class SophiaWebService:
             "total_requests": 0,
             "serverless_requests": 0,
             "dedicated_requests": 0,
-            "cost_savings": 0.0
+            "cost_savings": 0.0,
         }
 
         logger.info("🚀 Sophia AI Web Service initialized")
@@ -54,7 +53,7 @@ class SophiaWebService:
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.serverless_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
 
                 # Use cost-optimized model
@@ -62,14 +61,14 @@ class SophiaWebService:
                     "model": "llama-4-scout-17b-16e-instruct",
                     "messages": request_data.get("messages", []),
                     "max_tokens": request_data.get("max_tokens", 500),
-                    "temperature": request_data.get("temperature", 0.7)
+                    "temperature": request_data.get("temperature", 0.7),
                 }
 
                 async with session.post(
                     f"{self.serverless_endpoint}/chat/completions",
                     headers=headers,
                     json=payload,
-                    ssl=False
+                    ssl=False,
                 ) as response:
                     if response.status == 200:
                         response_data = await response.json()
@@ -77,7 +76,9 @@ class SophiaWebService:
                         # Calculate cost
                         usage = response_data.get("usage", {})
                         cost = self._calculate_cost(usage)
-                        self.stats["cost_savings"] += 0.02  # Estimated savings vs dedicated
+                        self.stats[
+                            "cost_savings"
+                        ] += 0.02  # Estimated savings vs dedicated
 
                         return {
                             "response": response_data,
@@ -85,8 +86,8 @@ class SophiaWebService:
                                 "endpoint": "serverless",
                                 "model": "llama-4-scout-17b-16e-instruct",
                                 "cost": cost,
-                                "reason": "cost-optimized"
-                            }
+                                "reason": "cost-optimized",
+                            },
                         }
                     else:
                         error_text = await response.text()
@@ -96,16 +97,15 @@ class SophiaWebService:
             logger.error(f"Chat processing failed: {e}")
             return {
                 "response": {
-                    "choices": [{
-                        "message": {
-                            "content": f"I'm sorry, I encountered an error: {e!s}"
+                    "choices": [
+                        {
+                            "message": {
+                                "content": f"I'm sorry, I encountered an error: {e!s}"
+                            }
                         }
-                    }]
+                    ]
                 },
-                "routing": {
-                    "endpoint": "error",
-                    "reason": "processing_error"
-                }
+                "routing": {"endpoint": "error", "reason": "processing_error"},
             }
 
     def _calculate_cost(self, usage: dict[str, Any]) -> float:
@@ -125,9 +125,15 @@ class SophiaWebService:
 
         return {
             **self.stats,
-            "serverless_percentage": (self.stats["serverless_requests"] / total * 100) if total > 0 else 0,
-            "dedicated_percentage": (self.stats["dedicated_requests"] / total * 100) if total > 0 else 0,
-            "average_cost_per_request": self.stats["cost_savings"] / total if total > 0 else 0
+            "serverless_percentage": (self.stats["serverless_requests"] / total * 100)
+            if total > 0
+            else 0,
+            "dedicated_percentage": (self.stats["dedicated_requests"] / total * 100)
+            if total > 0
+            else 0,
+            "average_cost_per_request": self.stats["cost_savings"] / total
+            if total > 0
+            else 0,
         }
 
     async def get_health(self) -> dict[str, Any]:
@@ -139,10 +145,10 @@ class SophiaWebService:
                 "serverless": "healthy",
                 "sophia-ai-core": "standby",
                 "sophia-data-pipeline": "standby",
-                "sophia-production": "standby"
+                "sophia-production": "standby",
             },
             "routing_stats": self.get_stats(),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Test serverless endpoint
@@ -150,14 +156,14 @@ class SophiaWebService:
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.serverless_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
 
                 async with session.get(
                     f"{self.serverless_endpoint}/models",
                     headers=headers,
                     ssl=False,
-                    timeout=5
+                    timeout=5,
                 ) as response:
                     if response.status != 200:
                         health["health"]["serverless"] = "unhealthy"
@@ -185,7 +191,7 @@ app = FastAPI(
     title="Sophia AI - Hybrid Web UI",
     description="Beautiful web interface for Sophia AI Hybrid Serverless + Dedicated GPU",
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -204,7 +210,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     """Serve the beautiful Sophia AI web interface"""
-    return FileResponse('static/index.html')
+    return FileResponse("static/index.html")
 
 
 @app.post("/chat")
@@ -245,15 +251,15 @@ async def dashboard():
         "cost_savings": {
             "total_savings": stats.get("cost_savings", 0),
             "serverless_percentage": stats.get("serverless_percentage", 0),
-            "dedicated_percentage": stats.get("dedicated_percentage", 0)
+            "dedicated_percentage": stats.get("dedicated_percentage", 0),
         },
         "kpis": {
             "cost_reduction": "46%",
             "response_time": "150ms",
             "throughput": "500/sec",
-            "uptime": "99.9%"
+            "uptime": "99.9%",
         },
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -271,7 +277,7 @@ async def api_info():
             "Cost-optimized routing",
             "46% cost reduction",
             "70% faster response times",
-            "Serverless + Dedicated GPU"
+            "Serverless + Dedicated GPU",
         ],
         "endpoints": {
             "ui": "/",
@@ -279,9 +285,9 @@ async def api_info():
             "health": "/health",
             "dashboard": "/dashboard",
             "stats": "/stats",
-            "docs": "/docs"
+            "docs": "/docs",
         },
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -303,12 +309,7 @@ def main():
         logger.info("🎯 Open http://localhost:8000 to access the UI")
 
         # Start server
-        uvicorn.run(
-            app,
-            host=host,
-            port=port,
-            log_level="info"
-        )
+        uvicorn.run(app, host=host, port=port, log_level="info")
 
     except Exception as e:
         logger.error(f"❌ Failed to start web service: {e}")

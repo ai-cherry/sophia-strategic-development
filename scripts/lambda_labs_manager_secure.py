@@ -15,12 +15,14 @@ from datetime import datetime
 from pathlib import Path
 
 # Add backend to path for auto_esc_config
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 try:
     from backend.core.auto_esc_config import get_config_value
 except ImportError:
-    print("Error: Cannot import auto_esc_config. Make sure you're in the Sophia AI environment.")
+    print(
+        "Error: Cannot import auto_esc_config. Make sure you're in the Sophia AI environment."
+    )
     sys.exit(1)
 
 import requests
@@ -35,6 +37,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LambdaInstance:
     """Lambda Labs instance information"""
+
     id: str
     name: str
     ip: str
@@ -51,7 +54,9 @@ class SecureLambdaLabsManager:
         # Load credentials from Pulumi ESC
         self.cloud_api_key = get_config_value("lambda_cloud_api_key")
         self.regular_api_key = get_config_value("lambda_api_key")
-        self.api_endpoint = get_config_value("lambda_api_endpoint", "https://cloud.lambda.ai/api/v1")
+        self.api_endpoint = get_config_value(
+            "lambda_api_endpoint", "https://cloud.lambda.ai/api/v1"
+        )
 
         # SSH configuration from Pulumi ESC
         self.ssh_key_path = os.path.expanduser(
@@ -59,12 +64,16 @@ class SecureLambdaLabsManager:
         )
 
         # Load instance configuration
-        self.production_ip = get_config_value("lambda_labs_production_ip", "192.222.58.232")
+        self.production_ip = get_config_value(
+            "lambda_labs_production_ip", "192.222.58.232"
+        )
 
         # Validate credentials
         if not self.cloud_api_key or not self.regular_api_key:
             logger.error("Lambda Labs API keys not found in Pulumi ESC")
-            raise ValueError("Missing Lambda Labs credentials. Run: pulumi env get scoobyjava-org/default/sophia-ai-production")
+            raise ValueError(
+                "Missing Lambda Labs credentials. Run: pulumi env get scoobyjava-org/default/sophia-ai-production"
+            )
 
         # Check SSH key exists
         if not Path(self.ssh_key_path).exists():
@@ -126,10 +135,14 @@ class SecureLambdaLabsManager:
         """Execute SSH command on production instance"""
         ssh_cmd = [
             "ssh",
-            "-i", self.ssh_key_path,
-            "-o", "StrictHostKeyChecking=no",
-            "-o", "UserKnownHostsFile=/dev/null",
-            "-o", "ConnectTimeout=10",
+            "-i",
+            self.ssh_key_path,
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            "-o",
+            "ConnectTimeout=10",
             f"ubuntu@{self.production_ip}",
             command,
         ]
@@ -165,16 +178,18 @@ class SecureLambdaLabsManager:
 
         # Create temporary script file
         script_path = Path("/tmp/deploy_sophia_secure.sh")
-        with open(script_path, 'w') as f:
+        with open(script_path, "w") as f:
             f.write(deployment_script)
 
         # Copy deployment script
         scp_cmd = [
             "scp",
-            "-i", self.ssh_key_path,
-            "-o", "StrictHostKeyChecking=no",
+            "-i",
+            self.ssh_key_path,
+            "-o",
+            "StrictHostKeyChecking=no",
             str(script_path),
-            f"ubuntu@{self.production_ip}:/tmp/deploy_sophia.sh"
+            f"ubuntu@{self.production_ip}:/tmp/deploy_sophia.sh",
         ]
 
         process = subprocess.run(scp_cmd, check=False, capture_output=True)
@@ -228,7 +243,9 @@ export PULUMI_ORG=scoobyjava-org
 """
 
         if deployment_type == "full":
-            return base_script + f"""
+            return (
+                base_script
+                + f"""
 # Pull latest images
 docker pull {docker_registry}/sophia-backend:latest
 docker pull {docker_registry}/sophia-mcp-servers:latest
@@ -362,7 +379,7 @@ scrape_configs:
 
   - job_name: 'mcp-servers'
     static_configs:
-      - targets: 
+      - targets:
         - 'mcp-servers:9001'
         - 'mcp-servers:9002'
         - 'mcp-servers:9003'
@@ -399,24 +416,34 @@ echo "   - API Docs: http://{self.production_ip}:8000/docs"
 echo "   - Grafana: http://{self.production_ip}:3000"
 echo "   - Prometheus: http://{self.production_ip}:9090"
 """
+            )
         elif deployment_type == "backend-only":
-            return base_script + f"""
+            return (
+                base_script
+                + f"""
 # Update backend only
 docker pull {docker_registry}/sophia-backend:latest
 docker stack deploy backend
 echo "✅ Backend deployment complete!"
 """
+            )
         elif deployment_type == "mcp-servers-only":
-            return base_script + f"""
+            return (
+                base_script
+                + f"""
 # Update MCP servers only
 docker pull {docker_registry}/sophia-mcp-servers:latest
 docker stack deploy mcp-servers
 echo "✅ MCP servers deployment complete!"
 """
+            )
         else:
-            return base_script + """
+            return (
+                base_script
+                + """
 echo "✅ Configuration update complete!"
 """
+            )
 
     def health_check(self) -> dict[str, bool]:
         """Perform health check on deployed services"""
@@ -426,7 +453,9 @@ echo "✅ Configuration update complete!"
 
         # Check backend
         try:
-            response = requests.get(f"http://{self.production_ip}:8000/health", timeout=10)
+            response = requests.get(
+                f"http://{self.production_ip}:8000/health", timeout=10
+            )
             health_status["backend"] = response.status_code == 200
         except:
             health_status["backend"] = False
@@ -438,25 +467,31 @@ echo "✅ Configuration update complete!"
             "codacy": 3008,
             "linear": 9004,
             "github": 9103,
-            "asana": 9100
+            "asana": 9100,
         }
 
         for name, port in mcp_ports.items():
             try:
-                response = requests.get(f"http://{self.production_ip}:{port}/health", timeout=5)
+                response = requests.get(
+                    f"http://{self.production_ip}:{port}/health", timeout=5
+                )
                 health_status[name] = response.status_code == 200
             except:
                 health_status[name] = False
 
         # Check infrastructure services
         try:
-            response = requests.get(f"http://{self.production_ip}:9090/-/healthy", timeout=5)
+            response = requests.get(
+                f"http://{self.production_ip}:9090/-/healthy", timeout=5
+            )
             health_status["prometheus"] = response.status_code == 200
         except:
             health_status["prometheus"] = False
 
         try:
-            response = requests.get(f"http://{self.production_ip}:3000/api/health", timeout=5)
+            response = requests.get(
+                f"http://{self.production_ip}:3000/api/health", timeout=5
+            )
             health_status["grafana"] = response.status_code == 200
         except:
             health_status["grafana"] = False
@@ -475,9 +510,13 @@ echo "✅ Configuration update complete!"
             healthy_services = [k for k, v in health.items() if v]
             unhealthy_services = [k for k, v in health.items() if not v]
 
-            logger.info(f"✅ Healthy ({len(healthy_services)}): {', '.join(healthy_services)}")
+            logger.info(
+                f"✅ Healthy ({len(healthy_services)}): {', '.join(healthy_services)}"
+            )
             if unhealthy_services:
-                logger.warning(f"❌ Unhealthy ({len(unhealthy_services)}): {', '.join(unhealthy_services)}")
+                logger.warning(
+                    f"❌ Unhealthy ({len(unhealthy_services)}): {', '.join(unhealthy_services)}"
+                )
 
             # Check if critical services are up
             critical_services = ["backend", "prometheus"]
@@ -502,14 +541,14 @@ echo "✅ Configuration update complete!"
                 "ip": self.production_ip,
                 "status": instance.status if instance else "Unknown",
                 "type": instance.instance_type if instance else "Unknown",
-                "region": instance.region if instance else "Unknown"
+                "region": instance.region if instance else "Unknown",
             },
             "health": self.health_check(),
             "configuration": {
                 "docker_registry": get_config_value("docker_registry", "scoobyjava15"),
                 "pulumi_org": "scoobyjava-org",
-                "pulumi_stack": "sophia-ai-production"
-            }
+                "pulumi_stack": "sophia-ai-production",
+            },
         }
 
         # Calculate health score
@@ -517,7 +556,9 @@ echo "✅ Configuration update complete!"
         report["health_score"] = {
             "healthy": sum(1 for v in health_values if v),
             "total": len(health_values),
-            "percentage": round(sum(1 for v in health_values if v) / len(health_values) * 100, 2)
+            "percentage": round(
+                sum(1 for v in health_values if v) / len(health_values) * 100, 2
+            ),
         }
 
         return report
@@ -544,29 +585,20 @@ def main():
     parser.add_argument(
         "command",
         choices=["list", "deploy", "health", "monitor", "report", "logs"],
-        help="Command to execute"
+        help="Command to execute",
     )
     parser.add_argument(
         "--type",
         default="full",
         choices=["full", "backend-only", "mcp-servers-only", "update-config"],
-        help="Deployment type"
+        help="Deployment type",
     )
     parser.add_argument(
-        "--duration",
-        type=int,
-        default=300,
-        help="Monitoring duration in seconds"
+        "--duration", type=int, default=300, help="Monitoring duration in seconds"
     )
+    parser.add_argument("--service", help="Service name for logs command")
     parser.add_argument(
-        "--service",
-        help="Service name for logs command"
-    )
-    parser.add_argument(
-        "--lines",
-        type=int,
-        default=100,
-        help="Number of log lines to show"
+        "--lines", type=int, default=100, help="Number of log lines to show"
     )
 
     args = parser.parse_args()
@@ -583,7 +615,9 @@ def main():
         print("-" * 80)
         for instance in instances:
             status_icon = "✅" if instance.status == "active" else "❌"
-            print(f"{status_icon} {instance.name}: {instance.ip} ({instance.instance_type}) - {instance.status}")
+            print(
+                f"{status_icon} {instance.name}: {instance.ip} ({instance.instance_type}) - {instance.status}"
+            )
 
         # Highlight production
         prod = manager.get_production_instance()
@@ -628,8 +662,10 @@ def main():
         report = manager.generate_deployment_report()
 
         # Save report
-        report_file = f"deployment_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(report_file, 'w') as f:
+        report_file = (
+            f"deployment_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
         print("\n📊 Deployment Report")
@@ -643,7 +679,9 @@ def main():
     elif args.command == "logs":
         if not args.service:
             print("Error: --service required for logs command")
-            print("Available services: backend, mcp-servers, postgres, redis, prometheus, grafana")
+            print(
+                "Available services: backend, mcp-servers, postgres, redis, prometheus, grafana"
+            )
             sys.exit(1)
 
         manager.show_logs(args.service, args.lines)

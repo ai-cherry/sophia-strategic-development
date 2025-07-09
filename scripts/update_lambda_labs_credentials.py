@@ -14,16 +14,15 @@ LAMBDA_CREDENTIALS = {
     # Cloud API (Primary)
     "LAMBDA_CLOUD_API_KEY": "secret_sophiacloudapi_17cf7f3cedca48f18b4b8ea46cbb258f.EsLXt0lkGlhZ1Nd369Ld5DMSuhJg9O9y",
     "LAMBDA_API_CLOUD_ENDPOINT": "https://cloud.lambda.ai/api/v1/instances",
-
     # Standard API (Secondary)
     "LAMBDA_API_KEY": "secret_sophia5apikey_a404a99d985d41828d7020f0b9a122a2.PjbWZb0lLubKu1nmyWYLy9Ycl3vyL18o",
     "LAMBDA_API_ENDPOINT": "https://cloud.lambda.ai/api/v1/instances",
-
     # SSH Configuration (Existing)
     "LAMBDA_SSH_HOST": "104.171.202.103",  # Production GH200
     "LAMBDA_SSH_USER": "ubuntu",
     "LAMBDA_SSH_PORT": "22",
 }
+
 
 def update_github_organization_secrets():
     """Update GitHub Organization Secrets with new Lambda Labs credentials"""
@@ -34,11 +33,15 @@ def update_github_organization_secrets():
         if secret_name.endswith("_ENDPOINT"):
             # Endpoints are not secrets, skip
             continue
-        commands.append(f'gh secret set {secret_name} --org ai-cherry --body "{secret_value}"')
+        commands.append(
+            f'gh secret set {secret_name} --org ai-cherry --body "{secret_value}"'
+        )
 
     for cmd in commands:
         try:
-            result = subprocess.run(cmd, check=False, shell=True, capture_output=True, text=True)
+            result = subprocess.run(
+                cmd, check=False, shell=True, capture_output=True, text=True
+            )
             if result.returncode == 0:
                 secret_name = cmd.split()[2]
                 print(f"  ✅ Updated {secret_name}")
@@ -46,6 +49,7 @@ def update_github_organization_secrets():
                 print(f"  ❌ Failed to update {cmd.split()[2]}: {result.stderr}")
         except Exception as e:
             print(f"  ❌ Error updating secret: {e}")
+
 
 def update_pulumi_esc_config():
     """Update Pulumi ESC configuration with new credentials"""
@@ -74,7 +78,7 @@ def update_pulumi_esc_config():
         # Replace or add Lambda Labs section
         if "lambda_labs:" in content:
             # Find and replace existing section
-            lines = content.split('\n')
+            lines = content.split("\n")
             new_lines = []
             in_lambda_section = False
             indent_level = 0
@@ -84,26 +88,33 @@ def update_pulumi_esc_config():
                     in_lambda_section = True
                     indent_level = len(line) - len(line.lstrip())
                     new_lines.append(line)
-                    new_lines.extend(lambda_section.strip().split('\n')[1:])  # Skip first empty line
-                elif in_lambda_section and line.strip() and len(line) - len(line.lstrip()) <= indent_level:
+                    new_lines.extend(
+                        lambda_section.strip().split("\n")[1:]
+                    )  # Skip first empty line
+                elif (
+                    in_lambda_section
+                    and line.strip()
+                    and len(line) - len(line.lstrip()) <= indent_level
+                ):
                     in_lambda_section = False
                     new_lines.append(line)
                 elif not in_lambda_section:
                     new_lines.append(line)
 
-            content = '\n'.join(new_lines)
+            content = "\n".join(new_lines)
         else:
             # Add new section
             content += lambda_section
 
         # Write updated config
-        with open(esc_config_path, 'w') as f:
+        with open(esc_config_path, "w") as f:
             f.write(content)
 
         print(f"  ✅ Updated {esc_config_path}")
 
     except Exception as e:
         print(f"  ❌ Error updating Pulumi ESC config: {e}")
+
 
 def update_backend_config():
     """Update backend configuration with new Lambda Labs credentials"""
@@ -126,11 +137,11 @@ def get_lambda_labs_config() -> Dict[str, str]:
             # Primary Cloud API
             "cloud_api_key": get_config_value("lambda_labs.cloud_api_key"),
             "cloud_endpoint": get_config_value("lambda_labs.cloud_endpoint", "https://cloud.lambda.ai/api/v1/instances"),
-            
-            # Secondary Standard API  
+
+            # Secondary Standard API
             "api_key": get_config_value("lambda_labs.api_key"),
             "api_endpoint": get_config_value("lambda_labs.api_endpoint", "https://cloud.lambda.ai/api/v1/instances"),
-            
+
             # SSH Configuration
             "ssh_host": get_config_value("lambda_labs.ssh_host", "104.171.202.103"),
             "ssh_user": get_config_value("lambda_labs.ssh_user", "ubuntu"),
@@ -144,23 +155,23 @@ def get_lambda_labs_config() -> Dict[str, str]:
             "api_key": os.getenv("LAMBDA_API_KEY", ""),
             "api_endpoint": "https://cloud.lambda.ai/api/v1/instances",
             "ssh_host": "104.171.202.103",
-            "ssh_user": "ubuntu", 
+            "ssh_user": "ubuntu",
             "ssh_port": "22",
         }
 '''
 
             # Insert before the last line (usually if __name__ == "__main__")
-            lines = content.split('\n')
+            lines = content.split("\n")
             insert_index = len(lines) - 1
             for i, line in enumerate(reversed(lines)):
-                if line.strip() and not line.startswith('#'):
+                if line.strip() and not line.startswith("#"):
                     insert_index = len(lines) - i
                     break
 
             lines.insert(insert_index, lambda_config_function)
-            content = '\n'.join(lines)
+            content = "\n".join(lines)
 
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 f.write(content)
 
             print(f"  ✅ Added Lambda Labs config function to {config_path}")
@@ -169,6 +180,7 @@ def get_lambda_labs_config() -> Dict[str, str]:
 
     except Exception as e:
         print(f"  ❌ Error updating backend config: {e}")
+
 
 def update_deployment_scripts():
     """Update deployment scripts with new credentials"""
@@ -184,13 +196,13 @@ def update_deployment_scripts():
         # Update API endpoints and configuration
         content = content.replace(
             'LAMBDA_API_ENDPOINT="https://cloud.lambda.ai/api/v1/instances"',
-            f'LAMBDA_API_ENDPOINT="{LAMBDA_CREDENTIALS["LAMBDA_API_ENDPOINT"]}"'
+            f'LAMBDA_API_ENDPOINT="{LAMBDA_CREDENTIALS["LAMBDA_API_ENDPOINT"]}"',
         )
 
         # Add cloud API support
         if "LAMBDA_CLOUD_API_KEY" not in content:
             # Add cloud API configuration
-            cloud_config = '''
+            cloud_config = """
 # Lambda Labs Cloud API Configuration (Primary)
 LAMBDA_CLOUD_API_KEY="${LAMBDA_CLOUD_API_KEY}"
 LAMBDA_CLOUD_ENDPOINT="https://cloud.lambda.ai/api/v1/instances"
@@ -198,28 +210,29 @@ LAMBDA_CLOUD_ENDPOINT="https://cloud.lambda.ai/api/v1/instances"
 # Lambda Labs Standard API Configuration (Secondary)
 LAMBDA_API_KEY="${LAMBDA_API_KEY}"
 LAMBDA_API_ENDPOINT="https://cloud.lambda.ai/api/v1/instances"
-'''
+"""
 
-            lines = content.split('\n')
+            lines = content.split("\n")
             # Insert after shebang and comments
             insert_index = 0
             for i, line in enumerate(lines):
-                if line.startswith('#!') or line.startswith('#'):
+                if line.startswith("#!") or line.startswith("#"):
                     continue
                 else:
                     insert_index = i
                     break
 
             lines.insert(insert_index, cloud_config)
-            content = '\n'.join(lines)
+            content = "\n".join(lines)
 
-        with open(deploy_script_path, 'w') as f:
+        with open(deploy_script_path, "w") as f:
             f.write(content)
 
         print(f"  ✅ Updated {deploy_script_path}")
 
     except Exception as e:
         print(f"  ❌ Error updating deployment script: {e}")
+
 
 def validate_credentials():
     """Validate the new Lambda Labs credentials"""
@@ -229,15 +242,22 @@ def validate_credentials():
     cloud_api_key = LAMBDA_CREDENTIALS["LAMBDA_CLOUD_API_KEY"]
     cloud_endpoint = LAMBDA_CREDENTIALS["LAMBDA_API_CLOUD_ENDPOINT"]
 
-    test_cmd = f'curl -u {cloud_api_key}: {cloud_endpoint}'
+    test_cmd = f"curl -u {cloud_api_key}: {cloud_endpoint}"
 
     try:
-        result = subprocess.run(test_cmd, check=False, shell=True, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            test_cmd,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
         if result.returncode == 0:
             print("  ✅ Cloud API credentials validated")
             try:
                 response = json.loads(result.stdout)
-                if 'data' in response:
+                if "data" in response:
                     print(f"  📊 Found {len(response['data'])} instances")
             except:
                 print("  📊 API response received (not JSON)")
@@ -253,10 +273,17 @@ def validate_credentials():
     api_key = LAMBDA_CREDENTIALS["LAMBDA_API_KEY"]
     api_endpoint = LAMBDA_CREDENTIALS["LAMBDA_API_ENDPOINT"]
 
-    test_cmd = f'curl -u {api_key}: {api_endpoint}'
+    test_cmd = f"curl -u {api_key}: {api_endpoint}"
 
     try:
-        result = subprocess.run(test_cmd, check=False, shell=True, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            test_cmd,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
         if result.returncode == 0:
             print("  ✅ Standard API credentials validated")
         else:
@@ -266,6 +293,7 @@ def validate_credentials():
     except Exception as e:
         print(f"  ❌ Error testing Standard API: {e}")
 
+
 def create_summary_report():
     """Create a summary report of the credential integration"""
     print("📝 Creating summary report...")
@@ -274,8 +302,8 @@ def create_summary_report():
 
 ## 🎯 MISSION ACCOMPLISHED: API Credentials Updated
 
-**Status**: ✅ **SUCCESSFULLY INTEGRATED**  
-**Date**: {os.popen('date').read().strip()}  
+**Status**: ✅ **SUCCESSFULLY INTEGRATED**
+**Date**: {os.popen('date').read().strip()}
 **Integration Scope**: Complete system update
 
 ---
@@ -286,7 +314,7 @@ def create_summary_report():
 - **LAMBDA_CLOUD_API_KEY**: `secret_sophiacloudapi_17cf7f3cedca48f18b4b8ea46cbb258f.EsLXt0lkGlhZ1Nd369Ld5DMSuhJg9O9y`
 - **LAMBDA_API_CLOUD_ENDPOINT**: `{LAMBDA_CREDENTIALS['LAMBDA_API_CLOUD_ENDPOINT']}`
 
-### Secondary Standard API  
+### Secondary Standard API
 - **LAMBDA_API_KEY**: `secret_sophia5apikey_a404a99d985d41828d7020f0b9a122a2.PjbWZb0lLubKu1nmyWYLy9Ycl3vyL18o`
 - **LAMBDA_API_ENDPOINT**: `{LAMBDA_CREDENTIALS['LAMBDA_API_ENDPOINT']}`
 
@@ -364,10 +392,11 @@ The complete integration chain is now operational with your new credentials!
 🎯 **NEXT STEPS**: Run deployment validation and begin production operations.
 """
 
-    with open("LAMBDA_LABS_CREDENTIALS_INTEGRATION_COMPLETE.md", 'w') as f:
+    with open("LAMBDA_LABS_CREDENTIALS_INTEGRATION_COMPLETE.md", "w") as f:
         f.write(report_content)
 
     print("  ✅ Created LAMBDA_LABS_CREDENTIALS_INTEGRATION_COMPLETE.md")
+
 
 def main():
     """Main execution function"""
@@ -386,6 +415,7 @@ def main():
     print("🎉 LAMBDA LABS CREDENTIALS INTEGRATION COMPLETE!")
     print("✅ All systems updated with new API credentials")
     print("🚀 Ready for production deployment!")
+
 
 if __name__ == "__main__":
     main()

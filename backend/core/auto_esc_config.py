@@ -20,6 +20,7 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
 PULUMI_ORG = os.getenv("PULUMI_ORG", "scoobyjava-org")
 PULUMI_STACK = f"{PULUMI_ORG}/default/sophia-ai-production"
 
+
 @lru_cache(maxsize=1)
 def get_pulumi_config() -> dict[str, Any]:
     """Get all configuration from Pulumi ESC"""
@@ -27,17 +28,18 @@ def get_pulumi_config() -> dict[str, Any]:
         # Try to get the config using pulumi env get
         result = subprocess.run(
             ["pulumi", "env", "get", PULUMI_STACK],
-            check=False, capture_output=True,
+            check=False,
+            capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if result.returncode == 0:
             # Parse the output - it might be YAML or key-value pairs
             config = {}
-            for line in result.stdout.strip().split('\n'):
-                if ':' in line and not line.startswith('#'):
-                    key, value = line.split(':', 1)
+            for line in result.stdout.strip().split("\n"):
+                if ":" in line and not line.startswith("#"):
+                    key, value = line.split(":", 1)
                     config[key.strip()] = value.strip()
 
             logger.info(f"✅ Loaded Pulumi ESC config from {PULUMI_STACK}")
@@ -49,6 +51,7 @@ def get_pulumi_config() -> dict[str, Any]:
     except Exception as e:
         logger.error(f"❌ Error loading Pulumi ESC config: {e}")
         return {}
+
 
 def get_config_value(key: str, default: str | None = None) -> str | None:
     """Get a configuration value from Pulumi ESC or environment variables"""
@@ -65,6 +68,7 @@ def get_config_value(key: str, default: str | None = None) -> str | None:
     # Return default
     return default
 
+
 def _get_security_config():
     """Get SecurityConfig class (imported lazily to avoid circular imports)"""
     try:
@@ -75,6 +79,7 @@ def _get_security_config():
     except ImportError:
         logger.warning("SecurityConfig not available, using fallback mappings")
         return None
+
 
 def _load_esc_environment() -> dict[str, Any]:
     """
@@ -138,6 +143,7 @@ def _load_esc_environment() -> dict[str, Any]:
     _esc_cache = {}
     return _esc_cache
 
+
 def set_config_value(key: str, value: Any) -> None:
     """
     Set configuration value in cache
@@ -147,6 +153,7 @@ def set_config_value(key: str, value: Any) -> None:
         value: Configuration value
     """
     _config_cache[key] = value
+
 
 def get_snowflake_config() -> dict[str, Any]:
     """
@@ -171,6 +178,7 @@ def get_snowflake_config() -> dict[str, Any]:
         "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
     }
 
+
 def get_estuary_config() -> dict[str, Any]:
     """
     Get Estuary configuration
@@ -183,6 +191,7 @@ def get_estuary_config() -> dict[str, Any]:
         "tenant": get_config_value("estuary_tenant", "Pay_Ready"),
         "endpoint": get_config_value("estuary_endpoint", "https://api.estuary.dev"),
     }
+
 
 def get_integration_config() -> dict[str, Any]:
     """
@@ -215,6 +224,7 @@ def get_integration_config() -> dict[str, Any]:
             ),
         },
     }
+
 
 def initialize_default_config():
     """Initialize default configuration values"""
@@ -257,8 +267,10 @@ def initialize_default_config():
 
     logger.info("Configuration initialized with Pulumi ESC integration")
 
+
 # Initialize defaults on import
 initialize_default_config()
+
 
 def get_lambda_labs_config() -> dict[str, Any]:
     """
@@ -276,30 +288,31 @@ def get_lambda_labs_config() -> dict[str, Any]:
         or get_config_value("LAMBDA_SSH_PRIVATE_KEY"),
     }
 
+
 def get_docker_hub_config() -> dict[str, Any]:
     """
     Get Docker Hub configuration from Pulumi ESC
-    
+
     PERMANENT FIX: Use DOCKER_TOKEN and DOCKERHUB_USERNAME as the primary keys
     These are the actual secret names in GitHub
-    
+
     Returns:
         Docker Hub configuration dictionary with username and access token
     """
     # Get username - DOCKERHUB_USERNAME is the primary key in GitHub
     username = (
-        get_config_value("DOCKERHUB_USERNAME") or  # PRIMARY
-        get_config_value("docker_username") or
-        get_config_value("docker_hub_username") or
-        "scoobyjava15"  # fallback
+        get_config_value("DOCKERHUB_USERNAME")
+        or get_config_value("docker_username")  # PRIMARY
+        or get_config_value("docker_hub_username")
+        or "scoobyjava15"  # fallback
     )
 
     # Get token - DOCKER_TOKEN is the primary key in GitHub
     access_token = (
-        get_config_value("DOCKER_TOKEN") or  # PRIMARY
-        get_config_value("docker_token") or
-        get_config_value("docker_hub_access_token") or
-        get_config_value("docker_token")
+        get_config_value("DOCKER_TOKEN")
+        or get_config_value("docker_token")  # PRIMARY
+        or get_config_value("docker_hub_access_token")
+        or get_config_value("docker_token")
     )
 
     # Log what we found for debugging
@@ -313,6 +326,7 @@ def get_docker_hub_config() -> dict[str, Any]:
         "access_token": access_token,
         "registry": "docker.io",
     }
+
 
 # Backward compatibility - create a config object that mimics the old interface
 class ConfigObject:
@@ -361,6 +375,7 @@ class ConfigObject:
     def apollo_api_base_url(self):
         return get_config_value("apollo_api_base_url", "https://api.apollo.io")
 
+
 # Create backward compatibility config object
 config = ConfigObject()
 
@@ -374,6 +389,7 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
     "warehouse_auto_suspend": 60,
     "warehouse_auto_resume": True,
 }
+
 
 def get_snowflake_pat(environment: str | None = None) -> str:
     """
@@ -417,6 +433,7 @@ def get_snowflake_pat(environment: str | None = None) -> str:
 
     return pat
 
+
 def get_snowflake_mcp_config() -> dict[str, Any]:
     """
     Get Snowflake MCP server configuration
@@ -435,6 +452,7 @@ def get_snowflake_mcp_config() -> dict[str, Any]:
         "max_retries": int(get_config_value("snowflake_mcp_max_retries", "3")),
         "pool_size": int(get_config_value("snowflake_mcp_pool_size", "20")),
     }
+
 
 # Add PAT rotation check function
 def check_pat_rotation_needed() -> bool:
@@ -465,8 +483,10 @@ def check_pat_rotation_needed() -> bool:
         logger.error(f"Error checking PAT rotation: {e}")
         return False
 
+
 # Update the esc_key_mappings in get_config_value to include PAT mappings
 # (This is already included in the existing mappings)
+
 
 def validate_snowflake_pat() -> bool:
     """
@@ -487,6 +507,7 @@ def validate_snowflake_pat() -> bool:
 
     logger.warning("Snowflake password may not be a valid PAT token")
     return False
+
 
 def get_snowflake_config_enhanced() -> dict[str, Any]:
     """
@@ -512,6 +533,7 @@ def get_snowflake_config_enhanced() -> dict[str, Any]:
 
     return enhanced_config
 
+
 # Enhanced configuration constants
 SNOWFLAKE_PAT_CONFIG = {
     "account": "UHDECNO-CVB64222",
@@ -536,10 +558,11 @@ AI_OPTIMIZATION_CONFIG = {
     "data_local_preference": True,
 }
 
+
 def get_lambda_labs_serverless_config() -> dict[str, Any]:
     """
     Get Lambda Labs Serverless configuration from Pulumi ESC
-    
+
     Returns:
         Lambda Labs Serverless configuration dictionary
     """
@@ -547,65 +570,85 @@ def get_lambda_labs_serverless_config() -> dict[str, Any]:
         # API Configuration
         "cloud_api_key": get_config_value("LAMBDA_CLOUD_API_KEY"),
         "inference_api_key": get_config_value("LAMBDA_API_KEY"),
-        "inference_endpoint": get_config_value("LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"),
-
+        "inference_endpoint": get_config_value(
+            "LAMBDA_INFERENCE_ENDPOINT", "https://api.lambdalabs.com/v1"
+        ),
         # Cost Management
         "daily_budget": float(get_config_value("LAMBDA_DAILY_BUDGET", "100.0")),
         "monthly_budget": float(get_config_value("LAMBDA_MONTHLY_BUDGET", "2500.0")),
-
         # Performance Settings
-        "response_time_target": int(get_config_value("LAMBDA_RESPONSE_TIME_TARGET", "2000")),
-        "availability_target": float(get_config_value("LAMBDA_AVAILABILITY_TARGET", "99.9")),
-
+        "response_time_target": int(
+            get_config_value("LAMBDA_RESPONSE_TIME_TARGET", "2000")
+        ),
+        "availability_target": float(
+            get_config_value("LAMBDA_AVAILABILITY_TARGET", "99.9")
+        ),
         # Security Settings
         "max_input_tokens": int(get_config_value("LAMBDA_MAX_INPUT_TOKENS", "1000000")),
-        "max_output_tokens": int(get_config_value("LAMBDA_MAX_OUTPUT_TOKENS", "100000")),
-
+        "max_output_tokens": int(
+            get_config_value("LAMBDA_MAX_OUTPUT_TOKENS", "100000")
+        ),
         # Routing Configuration
-        "routing_strategy": get_config_value("LAMBDA_ROUTING_STRATEGY", "performance_first"),
-        "enable_hybrid_ai": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
-        "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
-
+        "routing_strategy": get_config_value(
+            "LAMBDA_ROUTING_STRATEGY", "performance_first"
+        ),
+        "enable_hybrid_ai": get_config_value("ENABLE_HYBRID_AI", "true").lower()
+        == "true",
+        "enable_cost_optimization": get_config_value(
+            "ENABLE_COST_OPTIMIZATION", "true"
+        ).lower()
+        == "true",
         # Model Configuration
-        "default_model": get_config_value("LAMBDA_DEFAULT_MODEL", "llama-4-scout-17b-16e-instruct"),
+        "default_model": get_config_value(
+            "LAMBDA_DEFAULT_MODEL", "llama-4-scout-17b-16e-instruct"
+        ),
         "fallback_models": [
             "llama-4-scout-17b-16e-instruct",
             "deepseek-v3-0324",
-            "qwen-3-32b"
-        ]
+            "qwen-3-32b",
+        ],
     }
+
 
 def get_ai_orchestration_config() -> dict[str, Any]:
     """
     Get AI orchestration configuration for unified chat service
-    
+
     Returns:
         AI orchestration configuration dictionary
     """
     return {
         "default_provider": get_config_value("DEFAULT_AI_PROVIDER", "lambda_labs"),
-        "enable_hybrid_mode": get_config_value("ENABLE_HYBRID_AI", "true").lower() == "true",
-        "enable_cost_optimization": get_config_value("ENABLE_COST_OPTIMIZATION", "true").lower() == "true",
-        "enable_performance_tracking": get_config_value("ENABLE_PERFORMANCE_TRACKING", "true").lower() == "true",
-
+        "enable_hybrid_mode": get_config_value("ENABLE_HYBRID_AI", "true").lower()
+        == "true",
+        "enable_cost_optimization": get_config_value(
+            "ENABLE_COST_OPTIMIZATION", "true"
+        ).lower()
+        == "true",
+        "enable_performance_tracking": get_config_value(
+            "ENABLE_PERFORMANCE_TRACKING", "true"
+        ).lower()
+        == "true",
         # Provider priorities
         "provider_priorities": {
             "lambda_labs": 1,
             "snowflake_cortex": 2,
             "portkey": 3,
-            "openrouter": 4
+            "openrouter": 4,
         },
-
         # Routing thresholds
         "cost_threshold": float(get_config_value("AI_COST_THRESHOLD", "0.50")),
-        "response_time_threshold": float(get_config_value("AI_RESPONSE_TIME_THRESHOLD", "5.0")),
-        "quality_threshold": float(get_config_value("AI_QUALITY_THRESHOLD", "0.8"))
+        "response_time_threshold": float(
+            get_config_value("AI_RESPONSE_TIME_THRESHOLD", "5.0")
+        ),
+        "quality_threshold": float(get_config_value("AI_QUALITY_THRESHOLD", "0.8")),
     }
+
 
 def validate_lambda_labs_config() -> bool:
     """
     Validate Lambda Labs configuration
-    
+
     Returns:
         True if configuration is valid
     """

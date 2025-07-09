@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MCPServerConfig:
     """Configuration for MCP servers"""
+
     name: str
     port: int
     version: str = "1.0.0"
@@ -71,7 +72,7 @@ class SimpleMCPServer:
         alt_patterns = [
             f"SOPHIA_{self.name.upper()}_API_KEY",
             f"{self.name.upper()}_ACCESS_TOKEN",
-            f"{self.name.upper()}_TOKEN"
+            f"{self.name.upper()}_TOKEN",
         ]
 
         for pattern in alt_patterns:
@@ -99,7 +100,7 @@ class SimpleMCPServer:
                     "request_count": self.request_count,
                     "error_count": self.error_count,
                     "error_rate": self.error_count / max(self.request_count, 1),
-                    "capabilities": await self.get_capabilities()
+                    "capabilities": await self.get_capabilities(),
                 }
             except Exception as e:
                 self.logger.exception(f"Health check failed: {e}")
@@ -108,8 +109,8 @@ class SimpleMCPServer:
                     content={
                         "status": "unhealthy",
                         "service": f"{self.name}-mcp-server",
-                        "error": str(e)
-                    }
+                        "error": str(e),
+                    },
                 )
 
         @self.app.get("/")
@@ -119,7 +120,7 @@ class SimpleMCPServer:
                 "service": f"{self.name} MCP Server",
                 "version": self.version,
                 "status": "operational",
-                "endpoints": ["/health", "/capabilities", "/tools"]
+                "endpoints": ["/health", "/capabilities", "/tools"],
             }
 
         @self.app.get("/capabilities")
@@ -152,7 +153,9 @@ class SimpleMCPServer:
 
             if tool_name not in self.tools:
                 self.error_count += 1
-                raise HTTPException(status_code=404, detail=f"Tool {tool_name} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Tool {tool_name} not found"
+                )
 
             try:
                 tool = self.tools[tool_name]
@@ -165,14 +168,16 @@ class SimpleMCPServer:
 
     def mcp_tool(self, name: str, description: str, parameters: dict[str, Any] = None):
         """Decorator for registering MCP tools"""
+
         def decorator(func):
             self.tools[name] = {
                 "name": name,
                 "description": description,
                 "parameters": parameters or {},
-                "function": func
+                "function": func,
             }
             return func
+
         return decorator
 
     async def check_server_health(self) -> bool:
@@ -187,7 +192,7 @@ class SimpleMCPServer:
                 "description": "Server health monitoring and status reporting",
                 "category": "monitoring",
                 "available": True,
-                "version": "1.0.0"
+                "version": "1.0.0",
             }
         ]
 
@@ -197,7 +202,7 @@ class SimpleMCPServer:
             {
                 "name": tool["name"],
                 "description": tool["description"],
-                "parameters": tool["parameters"]
+                "parameters": tool["parameters"],
             }
             for tool in self.tools.values()
         ]
@@ -223,7 +228,7 @@ class SimpleMCPServer:
                 self.app,
                 host=self.config.host,
                 port=self.config.port,
-                log_level=self.config.log_level
+                log_level=self.config.log_level,
             )
         except KeyboardInterrupt:
             self.logger.info(f"🛑 {self.name} MCP Server stopped by user")

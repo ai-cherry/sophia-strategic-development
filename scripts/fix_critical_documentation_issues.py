@@ -2,10 +2,10 @@
 """
 Sophia AI Critical Documentation Issues Fixer
 
-This script automatically fixes the most critical issues identified in the 
+This script automatically fixes the most critical issues identified in the
 comprehensive codebase review:
 1. Creates missing frontend components (UnifiedDashboard.tsx, EnhancedUnifiedChat.tsx)
-2. Fixes MCP server port conflicts 
+2. Fixes MCP server port conflicts
 3. Creates missing MCP server directories
 4. Implements unified configuration manager
 5. Cleans deprecated documentation references
@@ -13,62 +13,61 @@ comprehensive codebase review:
 Usage: python scripts/fix_critical_documentation_issues.py
 """
 
-import os
 import json
-import shutil
-from pathlib import Path
-from typing import Dict, List, Tuple
 import logging
 from datetime import datetime
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 class SophiaDocumentationFixer:
     """Fixes critical documentation-implementation gaps in Sophia AI"""
-    
+
     def __init__(self):
         self.project_root = Path.cwd()
         self.fixes_applied = []
         self.issues_found = []
-        
-    def run_all_fixes(self) -> Dict:
+
+    def run_all_fixes(self) -> dict:
         """Execute all critical fixes and return summary"""
         logger.info("🚀 Starting Sophia AI Critical Documentation Fixes")
-        
+
         try:
             # Phase 1: Frontend Components
             self.create_missing_frontend_components()
-            
+
             # Phase 2: MCP Configuration Fixes
             self.fix_mcp_port_conflicts()
             self.create_missing_mcp_servers()
-            
+
             # Phase 3: Configuration Consolidation
             self.create_unified_config_manager()
-            
+
             # Phase 4: Documentation Cleanup
             self.clean_deprecated_references()
-            
+
             # Generate comprehensive report
             return self.generate_fix_report()
-            
+
         except Exception as e:
             logger.error(f"❌ Fix process failed: {e}")
             return {"success": False, "error": str(e)}
-    
+
     def create_missing_frontend_components(self):
         """Create missing frontend components that are extensively documented"""
         logger.info("📱 Creating missing frontend components...")
-        
+
         # 1. Create UnifiedDashboard.tsx
-        dashboard_path = self.project_root / "frontend/src/components/dashboard/UnifiedDashboard.tsx"
+        dashboard_path = (
+            self.project_root / "frontend/src/components/dashboard/UnifiedDashboard.tsx"
+        )
         if not dashboard_path.exists():
-            dashboard_content = '''import React, { useState, useEffect } from 'react';
+            dashboard_content = """import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -77,10 +76,10 @@ import { Activity, BarChart3, Brain, MessageSquare, Target } from 'lucide-react'
 
 /**
  * UnifiedDashboard - THE ONLY DASHBOARD for Sophia AI
- * 
+ *
  * This component serves as the single source of truth for all dashboard functionality.
  * All new dashboard features MUST be added as tabs or components within this interface.
- * 
+ *
  * CRITICAL RULE: Do not create separate dashboard components.
  */
 
@@ -106,7 +105,7 @@ const UnifiedDashboard: React.FC = () => {
         setSystemHealth('degraded');
       }
     };
-    
+
     checkSystemHealth();
   }, []);
 
@@ -152,7 +151,7 @@ const UnifiedDashboard: React.FC = () => {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Sophia AI
             </h1>
-            <Badge 
+            <Badge
               variant={systemHealth === 'healthy' ? 'default' : 'destructive'}
               className="ml-2"
             >
@@ -213,7 +212,7 @@ const ExecutiveOverview: React.FC = () => (
         </p>
       </CardContent>
     </Card>
-    
+
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -227,7 +226,7 @@ const ExecutiveOverview: React.FC = () => (
         </p>
       </CardContent>
     </Card>
-    
+
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -301,16 +300,20 @@ const UnifiedChatTab: React.FC = () => (
 );
 
 export default UnifiedDashboard;
-'''
-            
+"""
+
             dashboard_path.parent.mkdir(parents=True, exist_ok=True)
             dashboard_path.write_text(dashboard_content)
-            self.fixes_applied.append(f"✅ Created UnifiedDashboard.tsx ({len(dashboard_content)} characters)")
-        
+            self.fixes_applied.append(
+                f"✅ Created UnifiedDashboard.tsx ({len(dashboard_content)} characters)"
+            )
+
         # 2. Create EnhancedUnifiedChat.tsx
-        chat_path = self.project_root / "frontend/src/components/shared/EnhancedUnifiedChat.tsx"
+        chat_path = (
+            self.project_root / "frontend/src/components/shared/EnhancedUnifiedChat.tsx"
+        )
         if not chat_path.exists():
-            chat_content = '''import React, { useState, useEffect, useRef } from 'react';
+            chat_content = """import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -320,7 +323,7 @@ import { Send, Brain, Search, User, Bot, Loader2 } from 'lucide-react';
 
 /**
  * EnhancedUnifiedChat - THE ONLY CHAT INTERFACE for Sophia AI
- * 
+ *
  * This component provides the unified chat experience across all contexts.
  * Supports multiple chat modes and integrates with all business intelligence sources.
  */
@@ -418,7 +421,7 @@ const EnhancedUnifiedChat: React.FC = () => {
       }
 
       const data = await response.json();
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response || 'TODO: Implement actual chat response',
@@ -431,7 +434,7 @@ const EnhancedUnifiedChat: React.FC = () => {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      
+
       // Fallback response
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -468,7 +471,7 @@ const EnhancedUnifiedChat: React.FC = () => {
               {currentContext?.label}
             </Badge>
           </div>
-          
+
           {/* Context Selector */}
           <Select value={activeContext} onValueChange={setActiveContext}>
             <SelectTrigger className="w-64">
@@ -534,7 +537,7 @@ const EnhancedUnifiedChat: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </CardContent>
 
@@ -557,7 +560,7 @@ const EnhancedUnifiedChat: React.FC = () => {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
           Press Enter to send, Shift+Enter for new line
         </p>
@@ -567,71 +570,77 @@ const EnhancedUnifiedChat: React.FC = () => {
 };
 
 export default EnhancedUnifiedChat;
-'''
-            
+"""
+
             chat_path.parent.mkdir(parents=True, exist_ok=True)
             chat_path.write_text(chat_content)
-            self.fixes_applied.append(f"✅ Created EnhancedUnifiedChat.tsx ({len(chat_content)} characters)")
-    
+            self.fixes_applied.append(
+                f"✅ Created EnhancedUnifiedChat.tsx ({len(chat_content)} characters)"
+            )
+
     def fix_mcp_port_conflicts(self):
         """Fix MCP server port conflicts in configuration"""
         logger.info("🔧 Fixing MCP server port conflicts...")
-        
+
         config_path = self.project_root / "config/cursor_enhanced_mcp_config.json"
         if config_path.exists():
-            with open(config_path, 'r') as f:
+            with open(config_path) as f:
                 config = json.load(f)
-            
+
             # Fix port assignments
             port_assignments = {
                 "ai_memory": 9000,
-                "snowflake_unified": 9001, 
+                "snowflake_unified": 9001,
                 "codacy": 3008,
                 "ui_ux_agent": 9002,
                 "portkey_admin": 9013,
-                "lambda_labs_cli": 9020
+                "lambda_labs_cli": 9020,
             }
-            
+
             ports_fixed = 0
             for server_name, correct_port in port_assignments.items():
-                if server_name in config['mcpServers']:
-                    old_port = config['mcpServers'][server_name].get('port')
+                if server_name in config["mcpServers"]:
+                    old_port = config["mcpServers"][server_name].get("port")
                     if old_port != correct_port:
-                        config['mcpServers'][server_name]['port'] = correct_port
+                        config["mcpServers"][server_name]["port"] = correct_port
                         ports_fixed += 1
-            
+
             # Add health endpoints to all servers
             health_endpoints_added = 0
-            for server_name, server_config in config['mcpServers'].items():
-                if 'health_endpoint' not in server_config:
-                    server_config['health_endpoint'] = '/health'
+            for server_name, server_config in config["mcpServers"].items():
+                if "health_endpoint" not in server_config:
+                    server_config["health_endpoint"] = "/health"
                     health_endpoints_added += 1
-            
+
             # Save updated configuration
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 json.dump(config, f, indent=2)
-            
-            self.fixes_applied.append(f"✅ Fixed {ports_fixed} port conflicts in MCP config")
-            self.fixes_applied.append(f"✅ Added {health_endpoints_added} health endpoints")
-    
+
+            self.fixes_applied.append(
+                f"✅ Fixed {ports_fixed} port conflicts in MCP config"
+            )
+            self.fixes_applied.append(
+                f"✅ Added {health_endpoints_added} health endpoints"
+            )
+
     def create_missing_mcp_servers(self):
         """Create directory structure for missing MCP servers"""
         logger.info("📁 Creating missing MCP server directories...")
-        
+
         missing_servers = [
             "ai_memory",
-            "snowflake_unified", 
+            "snowflake_unified",
             "portkey_admin",
-            "lambda_labs_cli"
+            "lambda_labs_cli",
         ]
-        
+
         mcp_servers_dir = self.project_root / "mcp-servers"
-        
+
         for server_name in missing_servers:
             server_dir = mcp_servers_dir / server_name
             if not server_dir.exists():
                 server_dir.mkdir(parents=True, exist_ok=True)
-                
+
                 # Create README with implementation TODO
                 readme_content = f"""# {server_name.title().replace('_', ' ')} MCP Server
 
@@ -666,10 +675,10 @@ Based on configuration, this server should provide:
 - FastAPI (for health endpoints)
 - Pulumi ESC (for configuration)
 """
-                
+
                 readme_path = server_dir / "README.md"
                 readme_path.write_text(readme_content)
-                
+
                 # Create placeholder server file
                 server_file = server_dir / f"{server_name}_mcp_server.py"
                 server_content = f'''#!/usr/bin/env python3
@@ -692,25 +701,25 @@ logger = logging.getLogger(__name__)
 class {server_name.title().replace('_', '')}MCPServer:
     """
     TODO: Implement {server_name} MCP Server
-    
+
     This server should provide the capabilities listed in the MCP configuration:
     {server_name}_capabilities_here
     """
-    
+
     def __init__(self, port: int = 9000):
         self.port = port
         self.name = "{server_name}"
-        
+
     async def start(self):
         """TODO: Implement server startup"""
         logger.info(f"Starting {{self.name}} MCP Server on port {{self.port}}")
         # TODO: Implement actual startup logic
-        
+
     async def stop(self):
         """TODO: Implement graceful shutdown"""
         logger.info(f"Stopping {{self.name}} MCP Server")
         # TODO: Implement shutdown logic
-        
+
     async def health_check(self) -> Dict[str, Any]:
         """Health check endpoint"""
         return {{
@@ -725,16 +734,20 @@ if __name__ == "__main__":
     server = {server_name.title().replace('_', '')}MCPServer()
     print(f"{{server.name}} MCP Server - TODO: Implement")
 '''
-                
+
                 server_file.write_text(server_content)
-                
-                self.fixes_applied.append(f"✅ Created {server_name} MCP server directory and stubs")
-    
+
+                self.fixes_applied.append(
+                    f"✅ Created {server_name} MCP server directory and stubs"
+                )
+
     def create_unified_config_manager(self):
         """Create unified configuration manager to replace competing systems"""
         logger.info("⚙️ Creating unified configuration manager...")
-        
-        config_manager_path = self.project_root / "backend/core/unified_config_manager.py"
+
+        config_manager_path = (
+            self.project_root / "backend/core/unified_config_manager.py"
+        )
         config_content = '''"""
 Unified Configuration Manager for Sophia AI
 
@@ -746,13 +759,13 @@ coherent approach that follows the priority order:
 
 Usage:
     from backend.core.unified_config_manager import config
-    
+
     # Get any configuration value
     api_key = config.get("OPENAI_API_KEY")
-    
+
     # Get with default
     port = config.get("PORT", 8000)
-    
+
     # Get typed configuration
     snowflake_config = config.get_snowflake_config()
 """
@@ -776,16 +789,16 @@ class ServiceConfig:
 class UnifiedConfigManager:
     """
     Single source of truth for all Sophia AI configuration.
-    
+
     Eliminates the chaos of multiple configuration systems by providing
     a unified interface with clear priority order.
     """
-    
+
     def __init__(self):
         self._config_cache = {}
         self._pulumi_esc = None
         self._initialize_providers()
-    
+
     def _initialize_providers(self):
         """Initialize configuration providers in priority order"""
         try:
@@ -795,20 +808,20 @@ class UnifiedConfigManager:
             logger.info("Pulumi ESC provider initialized")
         except ImportError:
             logger.warning("Pulumi ESC provider not available, using environment variables only")
-    
+
     def get(self, key: str, default: Any = None) -> Any:
         """
         Get configuration value with priority order:
         1. Pulumi ESC
-        2. Environment Variables  
+        2. Environment Variables
         3. Default Values
         """
         # Check cache first
         if key in self._config_cache:
             return self._config_cache[key]
-        
+
         value = None
-        
+
         # 1. Try Pulumi ESC
         if self._pulumi_esc:
             try:
@@ -817,25 +830,25 @@ class UnifiedConfigManager:
                     logger.debug(f"Config '{key}' loaded from Pulumi ESC")
             except Exception as e:
                 logger.debug(f"Pulumi ESC lookup failed for '{key}': {e}")
-        
+
         # 2. Try Environment Variables
         if not value:
             value = os.getenv(key)
             if value:
                 logger.debug(f"Config '{key}' loaded from environment")
-        
+
         # 3. Use default
         if not value:
             value = default
             if value:
                 logger.debug(f"Config '{key}' using default value")
-        
+
         # Cache the result
         if value is not None:
             self._config_cache[key] = value
-        
+
         return value
-    
+
     def get_snowflake_config(self) -> ServiceConfig:
         """Get Snowflake configuration"""
         return ServiceConfig(
@@ -844,7 +857,7 @@ class UnifiedConfigManager:
             api_key=self.get("SNOWFLAKE_PASSWORD", ""),
             enabled=self.get("SNOWFLAKE_ENABLED", "true").lower() == "true"
         )
-    
+
     def get_openai_config(self) -> ServiceConfig:
         """Get OpenAI configuration"""
         return ServiceConfig(
@@ -853,7 +866,7 @@ class UnifiedConfigManager:
             api_key=self.get("OPENAI_API_KEY", ""),
             enabled=self.get("OPENAI_ENABLED", "true").lower() == "true"
         )
-    
+
     def get_mcp_server_config(self, server_name: str) -> Dict[str, Any]:
         """Get MCP server configuration"""
         return {
@@ -862,34 +875,34 @@ class UnifiedConfigManager:
             "host": self.get(f"MCP_{server_name.upper()}_HOST", "localhost"),
             "health_endpoint": "/health"
         }
-    
+
     def validate_configuration(self) -> Dict[str, Any]:
         """Validate critical configuration values"""
         issues = []
         warnings = []
-        
+
         # Check critical API keys
         critical_keys = [
             "OPENAI_API_KEY",
-            "ANTHROPIC_API_KEY", 
+            "ANTHROPIC_API_KEY",
             "SNOWFLAKE_PASSWORD",
             "GONG_ACCESS_TOKEN"
         ]
-        
+
         for key in critical_keys:
             if not self.get(key):
                 issues.append(f"Missing critical configuration: {key}")
-        
+
         # Check MCP server ports for conflicts
         mcp_servers = ["ai_memory", "snowflake_unified", "codacy", "ui_ux_agent", "portkey_admin", "lambda_labs_cli"]
         ports_used = []
-        
+
         for server in mcp_servers:
             port = self.get_mcp_server_config(server)["port"]
             if port in ports_used:
                 warnings.append(f"Port conflict: {port} used by multiple MCP servers")
             ports_used.append(port)
-        
+
         return {
             "status": "healthy" if not issues else "error",
             "issues": issues,
@@ -900,7 +913,7 @@ class UnifiedConfigManager:
                 "cached_values": len(self._config_cache)
             }
         }
-    
+
     def reload_config(self):
         """Clear cache and reload configuration"""
         self._config_cache.clear()
@@ -927,64 +940,66 @@ def get_snowflake_config() -> Dict[str, Any]:
         "schema": config.get("SNOWFLAKE_SCHEMA", "SOPHIA_CORE")
     }
 '''
-        
+
         config_manager_path.parent.mkdir(parents=True, exist_ok=True)
         config_manager_path.write_text(config_content)
-        self.fixes_applied.append(f"✅ Created unified configuration manager ({len(config_content)} characters)")
-    
+        self.fixes_applied.append(
+            f"✅ Created unified configuration manager ({len(config_content)} characters)"
+        )
+
     def clean_deprecated_references(self):
         """Clean up deprecated documentation references"""
         logger.info("🧹 Cleaning deprecated documentation references...")
-        
+
         # TODO: Implement selective cleanup of outdated documentation
         # This would scan docs for references to deleted components and update them
-        
+
         # For now, just log what should be cleaned
         deprecated_items = [
             "References to deleted authentication systems",
-            "Outdated Docker compose file references", 
+            "Outdated Docker compose file references",
             "Multiple competing MCP server counts",
-            "Architecture descriptions that don't match implementation"
+            "Architecture descriptions that don't match implementation",
         ]
-        
+
         for item in deprecated_items:
             self.issues_found.append(f"📝 TODO: Clean up - {item}")
-    
-    def generate_fix_report(self) -> Dict:
+
+    def generate_fix_report(self) -> dict:
         """Generate comprehensive report of all fixes applied"""
         logger.info("📊 Generating comprehensive fix report...")
-        
+
         report = {
             "timestamp": datetime.now().isoformat(),
             "summary": {
                 "fixes_applied": len(self.fixes_applied),
                 "issues_found": len(self.issues_found),
-                "success": True
+                "success": True,
             },
             "fixes_applied": self.fixes_applied,
             "issues_found": self.issues_found,
             "next_steps": [
                 "Review created components and implement proper functionality",
                 "Test MCP server configurations to ensure they work",
-                "Update documentation to reflect new structure", 
+                "Update documentation to reflect new structure",
                 "Run comprehensive testing suite",
-                "Begin Phase 1 of the architecture alignment plan"
+                "Begin Phase 1 of the architecture alignment plan",
             ],
             "files_created": [
                 "frontend/src/components/dashboard/UnifiedDashboard.tsx",
                 "frontend/src/components/shared/EnhancedUnifiedChat.tsx",
                 "backend/core/unified_config_manager.py",
                 "mcp-servers/*/README.md (for missing servers)",
-                "mcp-servers/*/*_mcp_server.py (stubs)"
+                "mcp-servers/*/*_mcp_server.py (stubs)",
             ],
             "configurations_updated": [
                 "config/cursor_enhanced_mcp_config.json (port conflicts fixed)"
-            ]
+            ],
         }
-        
+
         # Save report to file
         report_path = self.project_root / "CRITICAL_DOCUMENTATION_FIXES_REPORT.md"
-        
+
         report_content = f"""# Sophia AI Critical Documentation Fixes Report
 
 **Generated**: {report['timestamp']}
@@ -1039,7 +1054,7 @@ done
 
 ### ✅ Completed (Automated Fixes)
 - Missing frontend components created
-- MCP port conflicts resolved  
+- MCP port conflicts resolved
 - Missing MCP server directories created
 - Unified configuration manager implemented
 
@@ -1059,23 +1074,26 @@ done
 
 **Report generated by Sophia AI Documentation Fixer v1.0**
 """
-        
+
         report_path.write_text(report_content)
-        
-        logger.info(f"✅ Fix process completed successfully!")
+
+        logger.info("✅ Fix process completed successfully!")
         logger.info(f"📊 Report saved to: {report_path}")
-        logger.info(f"📁 {len(self.fixes_applied)} fixes applied, {len(self.issues_found)} issues found")
-        
+        logger.info(
+            f"📁 {len(self.fixes_applied)} fixes applied, {len(self.issues_found)} issues found"
+        )
+
         return report
+
 
 if __name__ == "__main__":
     fixer = SophiaDocumentationFixer()
     result = fixer.run_all_fixes()
-    
+
     if result.get("success", False):
         print("🎉 Critical documentation fixes completed successfully!")
         print(f"📊 {result['summary']['fixes_applied']} fixes applied")
         print(f"📋 {result['summary']['issues_found']} issues found for manual action")
         print("📄 Check CRITICAL_DOCUMENTATION_FIXES_REPORT.md for details")
     else:
-        print(f"❌ Fix process failed: {result.get('error', 'Unknown error')}") 
+        print(f"❌ Fix process failed: {result.get('error', 'Unknown error')}")

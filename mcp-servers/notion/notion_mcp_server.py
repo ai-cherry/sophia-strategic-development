@@ -23,14 +23,12 @@ Features:
 - Executive dashboard integration
 """
 
-import asyncio
-import json
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -52,11 +50,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
 try:
     from backend.core.auto_esc_config import get_config_value
+
     # Add base directory to path
     sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
     from unified_mcp_base import (
-        ServiceMCPServer,
         MCPServerConfig,
+        ServiceMCPServer,
     )
 except ImportError as e:
     logger.error(f"Failed to import dependencies: {e}")
@@ -67,6 +66,7 @@ except ImportError as e:
 try:
     from notion_client import Client as NotionClient
     from notion_client.errors import APIResponseError
+
     NOTION_AVAILABLE = True
 except ImportError:
     NOTION_AVAILABLE = False
@@ -79,11 +79,7 @@ class NotionMCPServer(ServiceMCPServer):
     """Notion integration MCP server with real data capabilities."""
 
     def __init__(self):
-        config = MCPServerConfig(
-            name="notion",
-            port=9102,
-            version="2.0.0"
-        )
+        config = MCPServerConfig(name="notion", port=9102, version="2.0.0")
         super().__init__(config)
         self.notion_client = None
         self.workspace_id = None
@@ -94,9 +90,11 @@ class NotionMCPServer(ServiceMCPServer):
             # Use Pulumi ESC configuration
             api_key = get_config_value("notion_api_key")
             self.workspace_id = get_config_value("notion_workspace_id")
-            
+
             if not api_key:
-                self.logger.warning("NOTION_API_KEY not set in Pulumi ESC, running in demo mode")
+                self.logger.warning(
+                    "NOTION_API_KEY not set in Pulumi ESC, running in demo mode"
+                )
                 return
 
             if not NOTION_AVAILABLE:
@@ -105,12 +103,12 @@ class NotionMCPServer(ServiceMCPServer):
 
             # Initialize Notion client
             self.notion_client = NotionClient(auth=api_key)
-            
+
             # Test connection
             await self._test_connection()
-            
+
             self.logger.info("Notion client initialized successfully")
-            
+
         except Exception as e:
             self.logger.error(f"Failed to initialize Notion client: {e}")
             self.notion_client = None
@@ -120,12 +118,14 @@ class NotionMCPServer(ServiceMCPServer):
         try:
             if not self.notion_client:
                 return False
-                
+
             # Test with a simple API call
             response = self.notion_client.users.me()
-            self.logger.info(f"Connected to Notion as: {response.get('name', 'Unknown')}")
+            self.logger.info(
+                f"Connected to Notion as: {response.get('name', 'Unknown')}"
+            )
             return True
-            
+
         except Exception as e:
             self.logger.error(f"Notion connection test failed: {e}")
             return False
@@ -148,7 +148,7 @@ class NotionMCPServer(ServiceMCPServer):
             self.logger.error(f"Notion health check failed: {e}")
             return False
 
-    async def get_tools(self) -> List[Dict[str, Any]]:
+    async def get_tools(self) -> list[dict[str, Any]]:
         """Get Notion tools for MCP protocol."""
         return [
             {
@@ -157,24 +157,21 @@ class NotionMCPServer(ServiceMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "Search query"
-                        },
+                        "query": {"type": "string", "description": "Search query"},
                         "filter": {
                             "type": "string",
                             "enum": ["page", "database", "all"],
-                            "default": "all"
+                            "default": "all",
                         },
                         "limit": {
-                            "type": "integer", 
+                            "type": "integer",
                             "default": 10,
                             "minimum": 1,
-                            "maximum": 100
-                        }
+                            "maximum": 100,
+                        },
                     },
-                    "required": ["query"]
-                }
+                    "required": ["query"],
+                },
             },
             {
                 "name": "get_page_content",
@@ -182,18 +179,15 @@ class NotionMCPServer(ServiceMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "page_id": {
-                            "type": "string",
-                            "description": "Notion page ID"
-                        },
+                        "page_id": {"type": "string", "description": "Notion page ID"},
                         "include_blocks": {
                             "type": "boolean",
                             "default": True,
-                            "description": "Include page blocks in response"
-                        }
+                            "description": "Include page blocks in response",
+                        },
                     },
-                    "required": ["page_id"]
-                }
+                    "required": ["page_id"],
+                },
             },
             {
                 "name": "create_page",
@@ -201,25 +195,22 @@ class NotionMCPServer(ServiceMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "title": {
-                            "type": "string",
-                            "description": "Page title"
-                        },
+                        "title": {"type": "string", "description": "Page title"},
                         "content": {
                             "type": "string",
-                            "description": "Page content (markdown supported)"
+                            "description": "Page content (markdown supported)",
                         },
                         "parent_id": {
                             "type": "string",
-                            "description": "Parent page or database ID"
+                            "description": "Parent page or database ID",
                         },
                         "properties": {
                             "type": "object",
-                            "description": "Additional properties for database pages"
-                        }
+                            "description": "Additional properties for database pages",
+                        },
                     },
-                    "required": ["title"]
-                }
+                    "required": ["title"],
+                },
             },
             {
                 "name": "update_page",
@@ -229,23 +220,23 @@ class NotionMCPServer(ServiceMCPServer):
                     "properties": {
                         "page_id": {
                             "type": "string",
-                            "description": "Page ID to update"
+                            "description": "Page ID to update",
                         },
                         "title": {
                             "type": "string",
-                            "description": "New title (optional)"
+                            "description": "New title (optional)",
                         },
                         "content": {
                             "type": "string",
-                            "description": "New content (optional)"
+                            "description": "New content (optional)",
                         },
                         "properties": {
                             "type": "object",
-                            "description": "Properties to update"
-                        }
+                            "description": "Properties to update",
+                        },
                     },
-                    "required": ["page_id"]
-                }
+                    "required": ["page_id"],
+                },
             },
             {
                 "name": "list_databases",
@@ -257,10 +248,10 @@ class NotionMCPServer(ServiceMCPServer):
                             "type": "integer",
                             "default": 20,
                             "minimum": 1,
-                            "maximum": 100
+                            "maximum": 100,
                         }
-                    }
-                }
+                    },
+                },
             },
             {
                 "name": "query_database",
@@ -270,25 +261,19 @@ class NotionMCPServer(ServiceMCPServer):
                     "properties": {
                         "database_id": {
                             "type": "string",
-                            "description": "Database ID to query"
+                            "description": "Database ID to query",
                         },
-                        "filter": {
-                            "type": "object",
-                            "description": "Filter criteria"
-                        },
-                        "sorts": {
-                            "type": "array",
-                            "description": "Sort criteria"
-                        },
+                        "filter": {"type": "object", "description": "Filter criteria"},
+                        "sorts": {"type": "array", "description": "Sort criteria"},
                         "limit": {
                             "type": "integer",
                             "default": 50,
                             "minimum": 1,
-                            "maximum": 100
-                        }
+                            "maximum": 100,
+                        },
                     },
-                    "required": ["database_id"]
-                }
+                    "required": ["database_id"],
+                },
             },
             {
                 "name": "get_workspace_analytics",
@@ -299,14 +284,14 @@ class NotionMCPServer(ServiceMCPServer):
                         "time_range": {
                             "type": "string",
                             "enum": ["week", "month", "quarter"],
-                            "default": "month"
+                            "default": "month",
                         }
-                    }
-                }
-            }
+                    },
+                },
+            },
         ]
 
-    async def execute_tool(self, name: str, arguments: Dict[str, Any]) -> Any:
+    async def execute_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         """Execute Notion tool."""
         try:
             if name == "search_notion":
@@ -329,7 +314,7 @@ class NotionMCPServer(ServiceMCPServer):
             self.logger.error(f"Tool execution failed for {name}: {e}")
             return {"error": str(e), "success": False}
 
-    async def _search_notion(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _search_notion(self, args: dict[str, Any]) -> dict[str, Any]:
         """Search across all Notion content."""
         try:
             query = args["query"]
@@ -346,7 +331,7 @@ class NotionMCPServer(ServiceMCPServer):
                             "type": "page",
                             "url": "https://notion.so/page_1",
                             "last_edited": "2025-01-08T10:30:00.000Z",
-                            "snippet": "Strategic initiatives for Q1 2025 including..."
+                            "snippet": "Strategic initiatives for Q1 2025 including...",
                         },
                         {
                             "id": "db_1",
@@ -354,47 +339,46 @@ class NotionMCPServer(ServiceMCPServer):
                             "type": "database",
                             "url": "https://notion.so/db_1",
                             "last_edited": "2025-01-07T15:45:00.000Z",
-                            "snippet": "Key metrics and KPIs for Pay Ready..."
-                        }
+                            "snippet": "Key metrics and KPIs for Pay Ready...",
+                        },
                     ],
                     "total": 2,
-                    "has_more": False
+                    "has_more": False,
                 }
 
             # Real Notion API search
-            search_params = {
-                "query": query,
-                "page_size": limit
-            }
+            search_params = {"query": query, "page_size": limit}
 
             if filter_type != "all":
                 search_params["filter"] = {"object": filter_type}
 
             response = self.notion_client.search(**search_params)
-            
+
             results = []
             for item in response.get("results", []):
-                results.append({
-                    "id": item["id"],
-                    "title": self._extract_title(item),
-                    "type": item["object"],
-                    "url": item.get("url", ""),
-                    "last_edited": item.get("last_edited_time", ""),
-                    "snippet": self._extract_snippet(item)
-                })
+                results.append(
+                    {
+                        "id": item["id"],
+                        "title": self._extract_title(item),
+                        "type": item["object"],
+                        "url": item.get("url", ""),
+                        "last_edited": item.get("last_edited_time", ""),
+                        "snippet": self._extract_snippet(item),
+                    }
+                )
 
             return {
                 "results": results,
                 "total": len(results),
                 "has_more": response.get("has_more", False),
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             self.logger.error(f"Search failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _get_page_content(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_page_content(self, args: dict[str, Any]) -> dict[str, Any]:
         """Get full content of a Notion page."""
         try:
             page_id = args["page_id"]
@@ -411,33 +395,32 @@ class NotionMCPServer(ServiceMCPServer):
                         "url": f"https://notion.so/{page_id}",
                         "properties": {
                             "Status": {"select": {"name": "In Progress"}},
-                            "Priority": {"select": {"name": "High"}}
-                        }
+                            "Priority": {"select": {"name": "High"}},
+                        },
                     },
                     "blocks": [
                         {
                             "type": "paragraph",
-                            "text": "Executive Summary: Q1 2025 strategic initiatives focus on..."
+                            "text": "Executive Summary: Q1 2025 strategic initiatives focus on...",
                         },
-                        {
-                            "type": "heading_1",
-                            "text": "Key Objectives"
-                        },
+                        {"type": "heading_1", "text": "Key Objectives"},
                         {
                             "type": "bullet_list",
                             "items": [
                                 "Increase revenue by 25%",
                                 "Expand team by 5 key hires",
-                                "Launch new product features"
-                            ]
-                        }
-                    ] if include_blocks else [],
-                    "success": True
+                                "Launch new product features",
+                            ],
+                        },
+                    ]
+                    if include_blocks
+                    else [],
+                    "success": True,
                 }
 
             # Real Notion API call
             page = self.notion_client.pages.retrieve(page_id)
-            
+
             result = {
                 "page": {
                     "id": page["id"],
@@ -445,14 +428,16 @@ class NotionMCPServer(ServiceMCPServer):
                     "created_time": page.get("created_time", ""),
                     "last_edited_time": page.get("last_edited_time", ""),
                     "url": page.get("url", ""),
-                    "properties": page.get("properties", {})
+                    "properties": page.get("properties", {}),
                 },
-                "success": True
+                "success": True,
             }
 
             if include_blocks:
                 blocks_response = self.notion_client.blocks.children.list(page_id)
-                result["blocks"] = self._process_blocks(blocks_response.get("results", []))
+                result["blocks"] = self._process_blocks(
+                    blocks_response.get("results", [])
+                )
 
             return result
 
@@ -460,7 +445,7 @@ class NotionMCPServer(ServiceMCPServer):
             self.logger.error(f"Get page content failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _create_page(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_page(self, args: dict[str, Any]) -> dict[str, Any]:
         """Create a new Notion page."""
         try:
             title = args["title"]
@@ -477,19 +462,15 @@ class NotionMCPServer(ServiceMCPServer):
                         "title": title,
                         "url": f"https://notion.so/{page_id}",
                         "created_time": datetime.now().isoformat(),
-                        "success": True
+                        "success": True,
                     },
-                    "success": True
+                    "success": True,
                 }
 
             # Build page creation parameters
             page_params = {
                 "parent": {"type": "workspace", "workspace": True},
-                "properties": {
-                    "title": {
-                        "title": [{"text": {"content": title}}]
-                    }
-                }
+                "properties": {"title": {"title": [{"text": {"content": title}}]}},
             }
 
             if parent_id:
@@ -511,16 +492,16 @@ class NotionMCPServer(ServiceMCPServer):
                     "id": page["id"],
                     "title": title,
                     "url": page.get("url", ""),
-                    "created_time": page.get("created_time", "")
+                    "created_time": page.get("created_time", ""),
                 },
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             self.logger.error(f"Create page failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _update_page(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _update_page(self, args: dict[str, Any]) -> dict[str, Any]:
         """Update an existing Notion page."""
         try:
             page_id = args["page_id"]
@@ -534,9 +515,9 @@ class NotionMCPServer(ServiceMCPServer):
                     "page": {
                         "id": page_id,
                         "updated": True,
-                        "last_edited_time": datetime.now().isoformat()
+                        "last_edited_time": datetime.now().isoformat(),
                     },
-                    "success": True
+                    "success": True,
                 }
 
             # Build update parameters
@@ -544,9 +525,7 @@ class NotionMCPServer(ServiceMCPServer):
 
             if title:
                 update_params["properties"] = {
-                    "title": {
-                        "title": [{"text": {"content": title}}]
-                    }
+                    "title": {"title": [{"text": {"content": title}}]}
                 }
 
             if properties:
@@ -567,22 +546,24 @@ class NotionMCPServer(ServiceMCPServer):
                 # Add new content blocks
                 new_blocks = self._text_to_blocks(content)
                 if new_blocks:
-                    self.notion_client.blocks.children.append(page_id, children=new_blocks)
+                    self.notion_client.blocks.children.append(
+                        page_id, children=new_blocks
+                    )
 
             return {
                 "page": {
                     "id": page["id"],
                     "updated": True,
-                    "last_edited_time": page.get("last_edited_time", "")
+                    "last_edited_time": page.get("last_edited_time", ""),
                 },
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             self.logger.error(f"Update page failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _list_databases(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _list_databases(self, args: dict[str, Any]) -> dict[str, Any]:
         """List all databases in the workspace."""
         try:
             limit = args.get("limit", 20)
@@ -601,8 +582,8 @@ class NotionMCPServer(ServiceMCPServer):
                                 "Name": {"type": "title"},
                                 "Status": {"type": "select"},
                                 "Priority": {"type": "select"},
-                                "Due Date": {"type": "date"}
-                            }
+                                "Due Date": {"type": "date"},
+                            },
                         },
                         {
                             "id": "db_2",
@@ -614,42 +595,39 @@ class NotionMCPServer(ServiceMCPServer):
                                 "Initiative": {"type": "title"},
                                 "Owner": {"type": "person"},
                                 "Status": {"type": "select"},
-                                "Budget": {"type": "number"}
-                            }
-                        }
+                                "Budget": {"type": "number"},
+                            },
+                        },
                     ],
                     "total": 2,
-                    "success": True
+                    "success": True,
                 }
 
             # Real Notion API call
             response = self.notion_client.search(
-                filter={"object": "database"},
-                page_size=limit
+                filter={"object": "database"}, page_size=limit
             )
 
             databases = []
             for db in response.get("results", []):
-                databases.append({
-                    "id": db["id"],
-                    "title": self._extract_title(db),
-                    "created_time": db.get("created_time", ""),
-                    "last_edited_time": db.get("last_edited_time", ""),
-                    "url": db.get("url", ""),
-                    "properties": db.get("properties", {})
-                })
+                databases.append(
+                    {
+                        "id": db["id"],
+                        "title": self._extract_title(db),
+                        "created_time": db.get("created_time", ""),
+                        "last_edited_time": db.get("last_edited_time", ""),
+                        "url": db.get("url", ""),
+                        "properties": db.get("properties", {}),
+                    }
+                )
 
-            return {
-                "databases": databases,
-                "total": len(databases),
-                "success": True
-            }
+            return {"databases": databases, "total": len(databases), "success": True}
 
         except Exception as e:
             self.logger.error(f"List databases failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _query_database(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _query_database(self, args: dict[str, Any]) -> dict[str, Any]:
         """Query a Notion database."""
         try:
             database_id = args["database_id"]
@@ -664,26 +642,27 @@ class NotionMCPServer(ServiceMCPServer):
                         {
                             "id": "row_1",
                             "properties": {
-                                "Name": {"title": [{"text": {"content": "Q1 Revenue Growth"}}]},
+                                "Name": {
+                                    "title": [
+                                        {"text": {"content": "Q1 Revenue Growth"}}
+                                    ]
+                                },
                                 "Status": {"select": {"name": "In Progress"}},
                                 "Priority": {"select": {"name": "High"}},
-                                "Due Date": {"date": {"start": "2025-01-31"}}
+                                "Due Date": {"date": {"start": "2025-01-31"}},
                             },
                             "created_time": "2025-01-01T00:00:00.000Z",
                             "last_edited_time": "2025-01-08T10:30:00.000Z",
-                            "url": "https://notion.so/row_1"
+                            "url": "https://notion.so/row_1",
                         }
                     ],
                     "total": 1,
                     "has_more": False,
-                    "success": True
+                    "success": True,
                 }
 
             # Real Notion API call
-            query_params = {
-                "database_id": database_id,
-                "page_size": limit
-            }
+            query_params = {"database_id": database_id, "page_size": limit}
 
             if filter_criteria:
                 query_params["filter"] = filter_criteria
@@ -695,26 +674,28 @@ class NotionMCPServer(ServiceMCPServer):
 
             results = []
             for item in response.get("results", []):
-                results.append({
-                    "id": item["id"],
-                    "properties": item.get("properties", {}),
-                    "created_time": item.get("created_time", ""),
-                    "last_edited_time": item.get("last_edited_time", ""),
-                    "url": item.get("url", "")
-                })
+                results.append(
+                    {
+                        "id": item["id"],
+                        "properties": item.get("properties", {}),
+                        "created_time": item.get("created_time", ""),
+                        "last_edited_time": item.get("last_edited_time", ""),
+                        "url": item.get("url", ""),
+                    }
+                )
 
             return {
                 "results": results,
                 "total": len(results),
                 "has_more": response.get("has_more", False),
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             self.logger.error(f"Query database failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _get_workspace_analytics(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_workspace_analytics(self, args: dict[str, Any]) -> dict[str, Any]:
         """Get workspace analytics and insights."""
         try:
             time_range = args.get("time_range", "month")
@@ -730,43 +711,49 @@ class NotionMCPServer(ServiceMCPServer):
                     "most_active_databases": [
                         {"name": "Executive Dashboard", "updates": 45},
                         {"name": "Strategic Initiatives", "updates": 32},
-                        {"name": "Team Tasks", "updates": 28}
+                        {"name": "Team Tasks", "updates": 28},
                     ],
                     "top_contributors": [
                         {"name": "CEO", "edits": 89},
                         {"name": "Team Lead", "edits": 56},
-                        {"name": "Assistant", "edits": 34}
+                        {"name": "Assistant", "edits": 34},
                     ],
                     "content_insights": {
                         "total_words": 125000,
                         "avg_page_length": 506,
-                        "most_used_tags": ["Strategy", "Q1", "Revenue", "Team", "Product"]
-                    }
+                        "most_used_tags": [
+                            "Strategy",
+                            "Q1",
+                            "Revenue",
+                            "Team",
+                            "Product",
+                        ],
+                    },
                 },
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             self.logger.error(f"Get workspace analytics failed: {e}")
             return {"error": str(e), "success": False}
 
-    def _extract_title(self, item: Dict[str, Any]) -> str:
+    def _extract_title(self, item: dict[str, Any]) -> str:
         """Extract title from Notion item."""
         try:
             properties = item.get("properties", {})
-            
+
             # Look for title property
             for prop_name, prop_value in properties.items():
                 if prop_value.get("type") == "title":
                     title_list = prop_value.get("title", [])
                     if title_list:
                         return title_list[0].get("text", {}).get("content", "Untitled")
-            
+
             return "Untitled"
         except:
             return "Untitled"
 
-    def _extract_snippet(self, item: Dict[str, Any]) -> str:
+    def _extract_snippet(self, item: dict[str, Any]) -> str:
         """Extract snippet from Notion item."""
         try:
             # This is a simplified implementation
@@ -775,55 +762,56 @@ class NotionMCPServer(ServiceMCPServer):
         except:
             return "No snippet available"
 
-    def _process_blocks(self, blocks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _process_blocks(self, blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Process Notion blocks into simplified format."""
         processed = []
         for block in blocks:
             block_type = block.get("type", "unknown")
-            processed.append({
-                "type": block_type,
-                "text": self._extract_block_text(block),
-                "id": block.get("id", "")
-            })
+            processed.append(
+                {
+                    "type": block_type,
+                    "text": self._extract_block_text(block),
+                    "id": block.get("id", ""),
+                }
+            )
         return processed
 
-    def _extract_block_text(self, block: Dict[str, Any]) -> str:
+    def _extract_block_text(self, block: dict[str, Any]) -> str:
         """Extract text from a Notion block."""
         try:
             block_type = block.get("type", "")
             block_content = block.get(block_type, {})
-            
+
             if "rich_text" in block_content:
                 texts = []
                 for text_obj in block_content["rich_text"]:
                     texts.append(text_obj.get("text", {}).get("content", ""))
                 return " ".join(texts)
-            
+
             return ""
         except:
             return ""
 
-    def _text_to_blocks(self, text: str) -> List[Dict[str, Any]]:
+    def _text_to_blocks(self, text: str) -> list[dict[str, Any]]:
         """Convert text to Notion blocks."""
         # Simple implementation - converts lines to paragraph blocks
         blocks = []
-        lines = text.strip().split('\n')
-        
+        lines = text.strip().split("\n")
+
         for line in lines:
             if line.strip():
-                blocks.append({
-                    "object": "block",
-                    "type": "paragraph",
-                    "paragraph": {
-                        "rich_text": [
-                            {
-                                "type": "text",
-                                "text": {"content": line.strip()}
-                            }
-                        ]
+                blocks.append(
+                    {
+                        "object": "block",
+                        "type": "paragraph",
+                        "paragraph": {
+                            "rich_text": [
+                                {"type": "text", "text": {"content": line.strip()}}
+                            ]
+                        },
                     }
-                })
-        
+                )
+
         return blocks
 
 
@@ -854,4 +842,4 @@ if __name__ == "__main__":
     else:
         # Run as MCP server
         server = NotionMCPServer()
-        server.run() 
+        server.run()

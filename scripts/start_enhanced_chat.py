@@ -87,13 +87,13 @@ class EcosystemChatDemo:
             print()
 
             print("📊 Ecosystem Services Status:")
-            for service, info in status['services'].items():
-                status_icon = "✅" if info['status'] == 'active' else "⏳"
+            for service, info in status["services"].items():
+                status_icon = "✅" if info["status"] == "active" else "⏳"
                 print(f"  {status_icon} {service}: {info['status']} ({info['type']})")
 
             print()
             print("🎯 Ecosystem Capabilities:")
-            for capability in status['capabilities']:
+            for capability in status["capabilities"]:
                 print(f"  • {capability}")
 
             print()
@@ -113,7 +113,7 @@ class EcosystemChatDemo:
             "What project risks were mentioned in Gong calls this week?",
             "Show me Linear engineering velocity and customer feedback patterns",
             "Cross-reference Slack team discussions with Asana project status",
-            "What customer concerns came up in recent Gong conversations?"
+            "What customer concerns came up in recent Gong conversations?",
         ]
 
         for i, query in enumerate(demo_queries, 1):
@@ -124,7 +124,7 @@ class EcosystemChatDemo:
                     query=query,
                     user_id="demo_user",
                     session_id="ecosystem_demo",
-                    context={"demo_mode": True}
+                    context={"demo_mode": True},
                 )
 
                 print(f"✅ Confidence: {result['confidence']:.2f}")
@@ -132,9 +132,9 @@ class EcosystemChatDemo:
                 print(f"📊 Sources Used: {', '.join(result['ecosystem_sources_used'])}")
                 print(f"🔗 Patterns Found: {len(result['ecosystem_patterns'])}")
 
-                if result['ecosystem_patterns']:
+                if result["ecosystem_patterns"]:
                     print("   Patterns:")
-                    for pattern in result['ecosystem_patterns'][:2]:  # Show first 2
+                    for pattern in result["ecosystem_patterns"][:2]:  # Show first 2
                         print(f"   • {pattern}")
 
                 print(f"💡 Response: {result['response'][:200]}...")
@@ -157,7 +157,7 @@ class EcosystemChatDemo:
         3. Linear task completion rates and engineering velocity
         4. Asana project timelines and milestone progress
         5. HubSpot customer satisfaction and deal progression
-        
+
         Show me how these systems correlate and what patterns emerge.
         """
 
@@ -170,7 +170,7 @@ class EcosystemChatDemo:
                 query=cross_system_query,
                 user_id="cross_system_demo",
                 session_id="intelligence_demo",
-                context={"analysis_type": "cross_system_intelligence"}
+                context={"analysis_type": "cross_system_intelligence"},
             )
 
             print("✅ Cross-System Analysis Results:")
@@ -179,9 +179,9 @@ class EcosystemChatDemo:
             print(f"   Ecosystem Sources: {len(result['ecosystem_sources_used'])}")
             print(f"   Cross-System Patterns: {len(result['ecosystem_patterns'])}")
 
-            if result['cross_system_correlations']:
+            if result["cross_system_correlations"]:
                 print("   Correlations Found:")
-                for key, value in list(result['cross_system_correlations'].items())[:3]:
+                for key, value in list(result["cross_system_correlations"].items())[:3]:
                     print(f"   • {key}: {value}")
 
             print(f"   Analysis: {result['response'][:300]}...")
@@ -204,7 +204,7 @@ class EcosystemChatDemo:
         - Linear engineering velocity and task completion
         - Asana project progress and timeline adherence
         - HubSpot customer satisfaction and deal health
-        
+
         Include overall health score, risk indicators, and opportunities.
         """
 
@@ -217,7 +217,7 @@ class EcosystemChatDemo:
                 query=health_query,
                 user_id="health_assessment",
                 session_id="project_health",
-                context={"assessment_type": "comprehensive_project_health"}
+                context={"assessment_type": "comprehensive_project_health"},
             )
 
             print("✅ Project Health Assessment:")
@@ -225,19 +225,19 @@ class EcosystemChatDemo:
             print(f"   Processing Time: {result['processing_time']:.2f}s")
             print(f"   Data Sources: {len(result['ecosystem_sources_used'])}")
 
-            if result['project_health_insights']:
+            if result["project_health_insights"]:
                 print("   Health Insights:")
-                for key, value in result['project_health_insights'].items():
+                for key, value in result["project_health_insights"].items():
                     print(f"   • {key}: {value}")
 
-            if result['risk_indicators']:
+            if result["risk_indicators"]:
                 print("   Risk Indicators:")
-                for risk in result['risk_indicators'][:3]:
+                for risk in result["risk_indicators"][:3]:
                     print(f"   ⚠️ {risk}")
 
-            if result['opportunities']:
+            if result["opportunities"]:
                 print("   Opportunities:")
-                for opportunity in result['opportunities'][:3]:
+                for opportunity in result["opportunities"][:3]:
                     print(f"   💡 {opportunity}")
 
             print(f"   Assessment: {result['response'][:300]}...")
@@ -252,7 +252,9 @@ class EcosystemChatDemo:
 
         print("💬 Interactive Ecosystem Chat Session")
         print("-" * 40)
-        print("Enter natural language queries to access the complete Pay Ready ecosystem.")
+        print(
+            "Enter natural language queries to access the complete Pay Ready ecosystem."
+        )
         print("Examples:")
         for example in ECOSYSTEM_QUERY_EXAMPLES[:5]:
             print(f"  • {example}")
@@ -267,11 +269,11 @@ class EcosystemChatDemo:
             try:
                 query = input("🤖 Sophia AI > ").strip()
 
-                if query.lower() in ['quit', 'exit', 'q']:
+                if query.lower() in ["quit", "exit", "q"]:
                     print("👋 Goodbye! Ecosystem chat session ended.")
                     break
 
-                if query.lower() in ['examples', 'help']:
+                if query.lower() in ["examples", "help"]:
                     print("\n📝 Ecosystem Query Examples:")
                     for i, example in enumerate(ECOSYSTEM_QUERY_EXAMPLES[:10], 1):
                         print(f"  {i}. {example}")
@@ -288,17 +290,19 @@ class EcosystemChatDemo:
                     query=query,
                     user_id=user_id,
                     session_id=session_id,
-                    context={"interactive_mode": True}
+                    context={"interactive_mode": True},
                 )
 
                 print(f"\n✅ Response (Confidence: {result['confidence']:.2f}):")
                 print(f"{result['response']}")
 
-                if result['ecosystem_sources_used']:
+                if result["ecosystem_sources_used"]:
                     print(f"\n📊 Sources: {', '.join(result['ecosystem_sources_used'])}")
 
-                if result['ecosystem_patterns']:
-                    print(f"🔗 Patterns: {len(result['ecosystem_patterns'])} cross-system patterns found")
+                if result["ecosystem_patterns"]:
+                    print(
+                        f"🔗 Patterns: {len(result['ecosystem_patterns'])} cross-system patterns found"
+                    )
 
                 print(f"⚡ Processing Time: {result['processing_time']:.2f}s")
                 print()

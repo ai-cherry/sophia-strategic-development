@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 # Add backend to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 # Configuration constants
 CORRECT_IP = "192.222.58.232"
@@ -30,22 +30,24 @@ FORBIDDEN_IPS = [
     "104.171.202.117",
     "104.171.202.134",
     "155.248.194.183",
-    "192.222.58.232"
+    "192.222.58.232",
 ]
 
 FORBIDDEN_KEYS = [
     "sophia2025.pem",
     "sophia2025.pem",
     "sophia-ai-key",
-    "lambda_labs_ssh_key"
+    "lambda_labs_ssh_key",
 ]
 
 # Patterns for exposed credentials
 CREDENTIAL_PATTERNS = {
-    'lambda_api_key': re.compile(r'secret_sophia5apikey_[a-zA-Z0-9]+\.[a-zA-Z0-9]+'),
-    'lambda_cloud_api_key': re.compile(r'secret_sophiacloudapi_[a-zA-Z0-9]+\.[a-zA-Z0-9]+'),
-    'github_pat': re.compile(r'github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}'),
-    'private_key': re.compile(r'-----BEGIN (?:RSA |EC |DSA )?PRIVATE KEY-----')
+    "lambda_api_key": re.compile(r"secret_sophia5apikey_[a-zA-Z0-9]+\.[a-zA-Z0-9]+"),
+    "lambda_cloud_api_key": re.compile(
+        r"secret_sophiacloudapi_[a-zA-Z0-9]+\.[a-zA-Z0-9]+"
+    ),
+    "github_pat": re.compile(r"github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}"),
+    "private_key": re.compile(r"-----BEGIN (?:RSA |EC |DSA )?PRIVATE KEY-----"),
 }
 
 
@@ -71,7 +73,9 @@ class DeploymentVerifier:
             if lambda_ip == CORRECT_IP:
                 self.successes.append("✅ Pulumi ESC has correct Lambda Labs IP")
             else:
-                self.issues.append(f"❌ Pulumi ESC has wrong IP: {lambda_ip} (should be {CORRECT_IP})")
+                self.issues.append(
+                    f"❌ Pulumi ESC has wrong IP: {lambda_ip} (should be {CORRECT_IP})"
+                )
 
             if lambda_api_key and len(lambda_api_key) > 20:
                 self.successes.append("✅ Lambda API key present in Pulumi ESC")
@@ -81,7 +85,9 @@ class DeploymentVerifier:
             if lambda_cloud_api_key and len(lambda_cloud_api_key) > 20:
                 self.successes.append("✅ Lambda Cloud API key present in Pulumi ESC")
             else:
-                self.issues.append("❌ Lambda Cloud API key missing or invalid in Pulumi ESC")
+                self.issues.append(
+                    "❌ Lambda Cloud API key missing or invalid in Pulumi ESC"
+                )
 
             return True
 
@@ -105,13 +111,25 @@ class DeploymentVerifier:
             if mode == "600":
                 self.successes.append("✅ SSH key has correct permissions (600)")
             else:
-                self.warnings.append(f"⚠️  SSH key has permissions {mode} (should be 600)")
+                self.warnings.append(
+                    f"⚠️  SSH key has permissions {mode} (should be 600)"
+                )
 
             # Test SSH connection
             result = subprocess.run(
-                ["ssh", "-i", str(ssh_key_path), "-o", "ConnectTimeout=5",
-                 "-o", "StrictHostKeyChecking=no", f"ubuntu@{CORRECT_IP}", "echo OK"],
-                check=False, capture_output=True
+                [
+                    "ssh",
+                    "-i",
+                    str(ssh_key_path),
+                    "-o",
+                    "ConnectTimeout=5",
+                    "-o",
+                    "StrictHostKeyChecking=no",
+                    f"ubuntu@{CORRECT_IP}",
+                    "echo OK",
+                ],
+                check=False,
+                capture_output=True,
             )
 
             if result.returncode == 0:
@@ -130,39 +148,50 @@ class DeploymentVerifier:
 
         files_with_issues = []
 
-        for root, dirs, files in os.walk('.'):
+        for root, dirs, files in os.walk("."):
             # Skip certain directories
-            if any(skip in root for skip in ['.git', 'node_modules', '__pycache__', 'archive', '.venv']):
+            if any(
+                skip in root
+                for skip in [".git", "node_modules", "__pycache__", "archive", ".venv"]
+            ):
                 continue
 
             for file in files:
-                if file.endswith(('.py', '.sh', '.yml', '.yaml', '.json', '.md')):
+                if file.endswith((".py", ".sh", ".yml", ".yaml", ".json", ".md")):
                     filepath = Path(root) / file
 
                     try:
-                        with open(filepath, encoding='utf-8') as f:
+                        with open(filepath, encoding="utf-8") as f:
                             content = f.read()
 
                         # Check for old IPs
                         for old_ip in FORBIDDEN_IPS:
                             if old_ip in content:
-                                files_with_issues.append((str(filepath), f"Contains old IP: {old_ip}"))
+                                files_with_issues.append(
+                                    (str(filepath), f"Contains old IP: {old_ip}")
+                                )
 
                         # Check for old SSH keys
                         for old_key in FORBIDDEN_KEYS:
                             if old_key in content:
-                                files_with_issues.append((str(filepath), f"Contains old SSH key: {old_key}"))
+                                files_with_issues.append(
+                                    (str(filepath), f"Contains old SSH key: {old_key}")
+                                )
 
                     except Exception:
                         pass
 
         if files_with_issues:
-            self.issues.append(f"❌ Found {len(files_with_issues)} files with outdated references")
+            self.issues.append(
+                f"❌ Found {len(files_with_issues)} files with outdated references"
+            )
             for filepath, issue in files_with_issues[:10]:  # Show first 10
                 self.issues.append(f"   - {filepath}: {issue}")
 
             if len(files_with_issues) > 10:
-                self.issues.append(f"   ... and {len(files_with_issues) - 10} more files")
+                self.issues.append(
+                    f"   ... and {len(files_with_issues) - 10} more files"
+                )
         else:
             self.successes.append("✅ No outdated IP addresses or SSH keys found")
 
@@ -172,30 +201,37 @@ class DeploymentVerifier:
 
         exposed_credentials = []
 
-        for root, dirs, files in os.walk('.'):
+        for root, dirs, files in os.walk("."):
             # Skip certain directories
-            if any(skip in root for skip in ['.git', 'node_modules', '__pycache__', 'archive', '.venv']):
+            if any(
+                skip in root
+                for skip in [".git", "node_modules", "__pycache__", "archive", ".venv"]
+            ):
                 continue
 
             for file in files:
-                if file.endswith(('.py', '.sh', '.yml', '.yaml', '.json')):
+                if file.endswith((".py", ".sh", ".yml", ".yaml", ".json")):
                     filepath = Path(root) / file
 
                     try:
-                        with open(filepath, encoding='utf-8') as f:
+                        with open(filepath, encoding="utf-8") as f:
                             content = f.read()
 
                         # Check for credential patterns
                         for cred_type, pattern in CREDENTIAL_PATTERNS.items():
                             matches = pattern.findall(content)
                             if matches:
-                                exposed_credentials.append((str(filepath), cred_type, len(matches)))
+                                exposed_credentials.append(
+                                    (str(filepath), cred_type, len(matches))
+                                )
 
                     except Exception:
                         pass
 
         if exposed_credentials:
-            self.issues.append(f"❌ Found exposed credentials in {len(exposed_credentials)} files")
+            self.issues.append(
+                f"❌ Found exposed credentials in {len(exposed_credentials)} files"
+            )
             for filepath, cred_type, count in exposed_credentials:
                 self.issues.append(f"   - {filepath}: {count} {cred_type} exposed")
         else:
@@ -205,12 +241,14 @@ class DeploymentVerifier:
         """Check GitHub Actions workflows are configured correctly"""
         print("🔧 Checking GitHub Actions workflows...")
 
-        workflows_dir = Path('.github/workflows')
+        workflows_dir = Path(".github/workflows")
         if not workflows_dir.exists():
             self.warnings.append("⚠️  No GitHub Actions workflows found")
             return
 
-        workflow_files = list(workflows_dir.glob('*.yml')) + list(workflows_dir.glob('*.yaml'))
+        workflow_files = list(workflows_dir.glob("*.yml")) + list(
+            workflows_dir.glob("*.yaml")
+        )
 
         for workflow_file in workflow_files:
             try:
@@ -219,18 +257,24 @@ class DeploymentVerifier:
 
                 if content and isinstance(content, dict):
                     # Check environment variables
-                    if 'env' in content:
-                        if 'LAMBDA_LABS_IP' in content['env']:
-                            if content['env']['LAMBDA_LABS_IP'] == CORRECT_IP:
-                                self.successes.append(f"✅ {workflow_file.name} has correct Lambda Labs IP")
+                    if "env" in content:
+                        if "LAMBDA_LABS_IP" in content["env"]:
+                            if content["env"]["LAMBDA_LABS_IP"] == CORRECT_IP:
+                                self.successes.append(
+                                    f"✅ {workflow_file.name} has correct Lambda Labs IP"
+                                )
                             else:
-                                self.issues.append(f"❌ {workflow_file.name} has wrong IP: {content['env']['LAMBDA_LABS_IP']}")
+                                self.issues.append(
+                                    f"❌ {workflow_file.name} has wrong IP: {content['env']['LAMBDA_LABS_IP']}"
+                                )
 
                     # Check for hardcoded credentials
                     yaml_str = str(content)
                     for pattern in CREDENTIAL_PATTERNS.values():
                         if pattern.search(yaml_str):
-                            self.issues.append(f"❌ {workflow_file.name} contains exposed credentials")
+                            self.issues.append(
+                                f"❌ {workflow_file.name} contains exposed credentials"
+                            )
                             break
 
             except Exception as e:
@@ -241,24 +285,28 @@ class DeploymentVerifier:
         print("🐳 Checking Docker configuration...")
 
         # Check docker-compose files
-        compose_files = list(Path('.').glob('docker-compose*.yml')) + list(Path('.').glob('docker-compose*.yaml'))
+        compose_files = list(Path(".").glob("docker-compose*.yml")) + list(
+            Path(".").glob("docker-compose*.yaml")
+        )
 
         for compose_file in compose_files:
             try:
                 with open(compose_file) as f:
                     content = yaml.safe_load(f)
 
-                if content and 'services' in content:
+                if content and "services" in content:
                     # Check for hardcoded passwords
                     yaml_str = yaml.dump(content)
-                    if 'password:' in yaml_str.lower() and '${' not in yaml_str:
-                        self.warnings.append(f"⚠️  {compose_file.name} may contain hardcoded passwords")
+                    if "password:" in yaml_str.lower() and "${" not in yaml_str:
+                        self.warnings.append(
+                            f"⚠️  {compose_file.name} may contain hardcoded passwords"
+                        )
 
             except Exception:
                 pass
 
         # Check Dockerfiles
-        dockerfiles = list(Path('.').glob('Dockerfile*'))
+        dockerfiles = list(Path(".").glob("Dockerfile*"))
 
         for dockerfile in dockerfiles:
             try:
@@ -266,10 +314,12 @@ class DeploymentVerifier:
                     content = f.read()
 
                 # Check for exposed secrets
-                if 'ENV ' in content:
+                if "ENV " in content:
                     for pattern in CREDENTIAL_PATTERNS.values():
                         if pattern.search(content):
-                            self.issues.append(f"❌ {dockerfile.name} contains exposed credentials")
+                            self.issues.append(
+                                f"❌ {dockerfile.name} contains exposed credentials"
+                            )
                             break
 
             except Exception:
@@ -280,7 +330,7 @@ class DeploymentVerifier:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_file = f"lambda_labs_verification_report_{timestamp}.md"
 
-        with open(report_file, 'w') as f:
+        with open(report_file, "w") as f:
             f.write("# Lambda Labs Deployment Verification Report\n\n")
             f.write(f"**Generated**: {datetime.now().isoformat()}\n")
             f.write(f"**Target IP**: {CORRECT_IP}\n")

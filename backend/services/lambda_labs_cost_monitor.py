@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class AlertLevel(Enum):
     """Alert severity levels"""
+
     INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -31,6 +32,7 @@ class AlertLevel(Enum):
 
 class CostCategory(Enum):
     """Cost categorization"""
+
     INFERENCE = "inference"
     COMPUTE = "compute"
     STORAGE = "storage"
@@ -41,6 +43,7 @@ class CostCategory(Enum):
 @dataclass
 class CostAlert:
     """Cost alert data structure"""
+
     id: str
     level: AlertLevel
     category: CostCategory
@@ -55,6 +58,7 @@ class CostAlert:
 @dataclass
 class CostPrediction:
     """Cost prediction data structure"""
+
     predicted_daily_cost: float
     predicted_monthly_cost: float
     confidence: float
@@ -66,6 +70,7 @@ class CostPrediction:
 @dataclass
 class ModelCostAnalysis:
     """Cost analysis per model"""
+
     model_name: str
     total_cost: float
     request_count: int
@@ -79,7 +84,7 @@ class ModelCostAnalysis:
 class LambdaLabsCostMonitor:
     """
     Comprehensive cost monitoring system for Lambda Labs Serverless
-    
+
     Features:
     - Real-time cost tracking and alerting
     - Predictive cost analysis
@@ -106,7 +111,7 @@ class LambdaLabsCostMonitor:
             "cost_per_request_warning": 0.50,  # $0.50 per request
             "cost_per_request_critical": 1.00,  # $1.00 per request
             "efficiency_warning": 0.3,  # 30% efficiency score
-            "efficiency_critical": 0.1   # 10% efficiency score
+            "efficiency_critical": 0.1,  # 10% efficiency score
         }
 
         # Monitoring state
@@ -198,7 +203,7 @@ class LambdaLabsCostMonitor:
                 "model_usage": stats["model_usage"],
                 "average_response_time": stats["average_response_time"],
                 "budget_remaining": stats["budget_remaining"],
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(),
             }
         except Exception as e:
             logger.error(f"Failed to get current costs: {e}")
@@ -223,7 +228,7 @@ class LambdaLabsCostMonitor:
                 CostCategory.INFERENCE,
                 f"Daily budget critical: ${daily_cost:.2f} >= ${self.thresholds['daily_critical']:.2f}",
                 daily_cost,
-                self.thresholds["daily_critical"]
+                self.thresholds["daily_critical"],
             )
         elif daily_cost >= self.thresholds["daily_warning"]:
             await self._create_alert(
@@ -231,7 +236,7 @@ class LambdaLabsCostMonitor:
                 CostCategory.INFERENCE,
                 f"Daily budget warning: ${daily_cost:.2f} >= ${self.thresholds['daily_warning']:.2f}",
                 daily_cost,
-                self.thresholds["daily_warning"]
+                self.thresholds["daily_warning"],
             )
 
         # Check hourly costs
@@ -241,7 +246,7 @@ class LambdaLabsCostMonitor:
                 CostCategory.INFERENCE,
                 f"Hourly cost critical: ${hourly_cost:.2f} >= ${self.thresholds['hourly_critical']:.2f}",
                 hourly_cost,
-                self.thresholds["hourly_critical"]
+                self.thresholds["hourly_critical"],
             )
         elif hourly_cost >= self.thresholds["hourly_warning"]:
             await self._create_alert(
@@ -249,7 +254,7 @@ class LambdaLabsCostMonitor:
                 CostCategory.INFERENCE,
                 f"Hourly cost warning: ${hourly_cost:.2f} >= ${self.thresholds['hourly_warning']:.2f}",
                 hourly_cost,
-                self.thresholds["hourly_warning"]
+                self.thresholds["hourly_warning"],
             )
 
         # Check cost per request
@@ -259,7 +264,7 @@ class LambdaLabsCostMonitor:
                 CostCategory.INFERENCE,
                 f"Cost per request critical: ${cost_per_request:.3f} >= ${self.thresholds['cost_per_request_critical']:.3f}",
                 cost_per_request,
-                self.thresholds["cost_per_request_critical"]
+                self.thresholds["cost_per_request_critical"],
             )
         elif cost_per_request >= self.thresholds["cost_per_request_warning"]:
             await self._create_alert(
@@ -267,15 +272,17 @@ class LambdaLabsCostMonitor:
                 CostCategory.INFERENCE,
                 f"Cost per request warning: ${cost_per_request:.3f} >= ${self.thresholds['cost_per_request_warning']:.3f}",
                 cost_per_request,
-                self.thresholds["cost_per_request_warning"]
+                self.thresholds["cost_per_request_warning"],
             )
 
-    async def _create_alert(self,
-                           level: AlertLevel,
-                           category: CostCategory,
-                           message: str,
-                           current_value: float,
-                           threshold: float) -> None:
+    async def _create_alert(
+        self,
+        level: AlertLevel,
+        category: CostCategory,
+        message: str,
+        current_value: float,
+        threshold: float,
+    ) -> None:
         """Create and process a cost alert"""
         alert = CostAlert(
             id=f"{category.value}_{level.value}_{datetime.now().timestamp()}",
@@ -284,14 +291,17 @@ class LambdaLabsCostMonitor:
             message=message,
             current_value=current_value,
             threshold=threshold,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
 
         # Check if similar alert already exists
         existing_alert = next(
-            (a for a in self.active_alerts
-             if a.category == category and a.level == level and not a.resolved),
-            None
+            (
+                a
+                for a in self.active_alerts
+                if a.category == category and a.level == level and not a.resolved
+            ),
+            None,
         )
 
         if existing_alert:
@@ -346,7 +356,7 @@ class LambdaLabsCostMonitor:
                 AlertLevel.INFO: "#36a64f",
                 AlertLevel.WARNING: "#ff9500",
                 AlertLevel.CRITICAL: "#ff0000",
-                AlertLevel.EMERGENCY: "#8B0000"
+                AlertLevel.EMERGENCY: "#8B0000",
             }
 
             payload = {
@@ -355,9 +365,9 @@ class LambdaLabsCostMonitor:
                     {
                         "color": color_map.get(level, "#36a64f"),
                         "text": message,
-                        "ts": datetime.now().timestamp()
+                        "ts": datetime.now().timestamp(),
                     }
-                ]
+                ],
             }
 
             async with aiohttp.ClientSession() as session:
@@ -382,7 +392,8 @@ class LambdaLabsCostMonitor:
             # Analyze each model
             for model_name in service.models.keys():
                 model_requests = [
-                    r for r in service.request_history
+                    r
+                    for r in service.request_history
                     if r.model_used == model_name and r.success
                 ]
 
@@ -393,16 +404,34 @@ class LambdaLabsCostMonitor:
                 total_cost = sum(r.cost for r in model_requests)
                 request_count = len(model_requests)
                 avg_cost_per_request = total_cost / request_count
-                avg_input_tokens = sum(r.input_tokens for r in model_requests) / request_count
-                avg_output_tokens = sum(r.output_tokens for r in model_requests) / request_count
-                avg_response_time = sum(r.response_time for r in model_requests) / request_count
+                avg_input_tokens = (
+                    sum(r.input_tokens for r in model_requests) / request_count
+                )
+                avg_output_tokens = (
+                    sum(r.output_tokens for r in model_requests) / request_count
+                )
+                avg_response_time = (
+                    sum(r.response_time for r in model_requests) / request_count
+                )
 
                 # Calculate efficiency score (lower is better)
-                cost_efficiency_score = avg_response_time / avg_cost_per_request if avg_cost_per_request > 0 else 0
+                cost_efficiency_score = (
+                    avg_response_time / avg_cost_per_request
+                    if avg_cost_per_request > 0
+                    else 0
+                )
 
                 # Determine usage trend
-                recent_requests = [r for r in model_requests if r.timestamp > datetime.now() - timedelta(hours=24)]
-                older_requests = [r for r in model_requests if r.timestamp <= datetime.now() - timedelta(hours=24)]
+                recent_requests = [
+                    r
+                    for r in model_requests
+                    if r.timestamp > datetime.now() - timedelta(hours=24)
+                ]
+                older_requests = [
+                    r
+                    for r in model_requests
+                    if r.timestamp <= datetime.now() - timedelta(hours=24)
+                ]
 
                 if len(recent_requests) > len(older_requests):
                     usage_trend = "increasing"
@@ -420,7 +449,7 @@ class LambdaLabsCostMonitor:
                     avg_input_tokens=int(avg_input_tokens),
                     avg_output_tokens=int(avg_output_tokens),
                     cost_efficiency_score=cost_efficiency_score,
-                    usage_trend=usage_trend
+                    usage_trend=usage_trend,
                 )
 
         except Exception as e:
@@ -439,7 +468,8 @@ class LambdaLabsCostMonitor:
             recent_hours = 24
             cutoff_time = datetime.now() - timedelta(hours=recent_hours)
             recent_requests = [
-                r for r in service.request_history
+                r
+                for r in service.request_history
                 if r.timestamp > cutoff_time and r.success
             ]
 
@@ -450,7 +480,7 @@ class LambdaLabsCostMonitor:
                     confidence=0.0,
                     factors=["No recent data"],
                     timestamp=datetime.now(),
-                    trend_direction="stable"
+                    trend_direction="stable",
                 )
 
             # Calculate hourly average
@@ -470,13 +500,23 @@ class LambdaLabsCostMonitor:
             predicted_monthly_cost = predicted_daily_cost * 30
 
             # Calculate confidence based on data consistency
-            cost_variance = sum((cost - avg_hourly_cost) ** 2 for cost in hourly_costs.values()) / len(hourly_costs)
-            confidence = max(0.0, min(1.0, 1.0 - (cost_variance / avg_hourly_cost) if avg_hourly_cost > 0 else 0.0))
+            cost_variance = sum(
+                (cost - avg_hourly_cost) ** 2 for cost in hourly_costs.values()
+            ) / len(hourly_costs)
+            confidence = max(
+                0.0,
+                min(
+                    1.0,
+                    1.0 - (cost_variance / avg_hourly_cost)
+                    if avg_hourly_cost > 0
+                    else 0.0,
+                ),
+            )
 
             # Determine trend
             if len(hourly_costs) >= 2:
-                recent_half = list(hourly_costs.values())[len(hourly_costs)//2:]
-                older_half = list(hourly_costs.values())[:len(hourly_costs)//2]
+                recent_half = list(hourly_costs.values())[len(hourly_costs) // 2 :]
+                older_half = list(hourly_costs.values())[: len(hourly_costs) // 2]
 
                 recent_avg = sum(recent_half) / len(recent_half)
                 older_avg = sum(older_half) / len(older_half)
@@ -505,7 +545,7 @@ class LambdaLabsCostMonitor:
                 confidence=confidence,
                 factors=factors,
                 timestamp=datetime.now(),
-                trend_direction=trend_direction
+                trend_direction=trend_direction,
             )
 
         except Exception as e:
@@ -516,10 +556,12 @@ class LambdaLabsCostMonitor:
                 confidence=0.0,
                 factors=[f"Prediction error: {e!s}"],
                 timestamp=datetime.now(),
-                trend_direction="stable"
+                trend_direction="stable",
             )
 
-    async def _store_cost_data(self, costs: dict[str, Any], prediction: CostPrediction) -> None:
+    async def _store_cost_data(
+        self, costs: dict[str, Any], prediction: CostPrediction
+    ) -> None:
         """Store cost data in Snowflake for historical analysis"""
         try:
             # Prepare cost record
@@ -537,20 +579,20 @@ class LambdaLabsCostMonitor:
                 "predicted_monthly_cost": prediction.predicted_monthly_cost,
                 "prediction_confidence": prediction.confidence,
                 "trend_direction": prediction.trend_direction,
-                "model_usage": json.dumps(costs.get("model_usage", {}))
+                "model_usage": json.dumps(costs.get("model_usage", {})),
             }
 
             # Insert into Snowflake
             insert_query = """
-            INSERT INTO SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING 
-            (timestamp, daily_cost, hourly_cost, total_cost, total_requests, 
-             successful_requests, failed_requests, average_response_time, 
-             budget_remaining, predicted_daily_cost, predicted_monthly_cost, 
+            INSERT INTO SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
+            (timestamp, daily_cost, hourly_cost, total_cost, total_requests,
+             successful_requests, failed_requests, average_response_time,
+             budget_remaining, predicted_daily_cost, predicted_monthly_cost,
              prediction_confidence, trend_direction, model_usage)
-            VALUES (%(timestamp)s, %(daily_cost)s, %(hourly_cost)s, %(total_cost)s, 
-                    %(total_requests)s, %(successful_requests)s, %(failed_requests)s, 
-                    %(average_response_time)s, %(budget_remaining)s, %(predicted_daily_cost)s, 
-                    %(predicted_monthly_cost)s, %(prediction_confidence)s, %(trend_direction)s, 
+            VALUES (%(timestamp)s, %(daily_cost)s, %(hourly_cost)s, %(total_cost)s,
+                    %(total_requests)s, %(successful_requests)s, %(failed_requests)s,
+                    %(average_response_time)s, %(budget_remaining)s, %(predicted_daily_cost)s,
+                    %(predicted_monthly_cost)s, %(prediction_confidence)s, %(trend_direction)s,
                     %(model_usage)s)
             """
 
@@ -580,10 +622,14 @@ class LambdaLabsCostMonitor:
             hourly_costs = [row[1] for row in historical_data]
 
             daily_avg = sum(daily_costs) / len(daily_costs)
-            daily_std = (sum((x - daily_avg) ** 2 for x in daily_costs) / len(daily_costs)) ** 0.5
+            daily_std = (
+                sum((x - daily_avg) ** 2 for x in daily_costs) / len(daily_costs)
+            ) ** 0.5
 
             hourly_avg = sum(hourly_costs) / len(hourly_costs)
-            hourly_std = (sum((x - hourly_avg) ** 2 for x in hourly_costs) / len(hourly_costs)) ** 0.5
+            hourly_std = (
+                sum((x - hourly_avg) ** 2 for x in hourly_costs) / len(hourly_costs)
+            ) ** 0.5
 
             # Check for anomalies (2 standard deviations)
             current_daily = costs.get("daily_cost", 0.0)
@@ -595,7 +641,7 @@ class LambdaLabsCostMonitor:
                     CostCategory.INFERENCE,
                     f"Daily cost anomaly detected: ${current_daily:.2f} vs avg ${daily_avg:.2f}",
                     current_daily,
-                    daily_avg + 2 * daily_std
+                    daily_avg + 2 * daily_std,
                 )
 
             if abs(current_hourly - hourly_avg) > 2 * hourly_std:
@@ -604,7 +650,7 @@ class LambdaLabsCostMonitor:
                     CostCategory.INFERENCE,
                     f"Hourly cost anomaly detected: ${current_hourly:.2f} vs avg ${hourly_avg:.2f}",
                     current_hourly,
-                    hourly_avg + 2 * hourly_std
+                    hourly_avg + 2 * hourly_std,
                 )
 
         except Exception as e:
@@ -628,7 +674,7 @@ class LambdaLabsCostMonitor:
                     "avg_input_tokens": analytics.avg_input_tokens,
                     "avg_output_tokens": analytics.avg_output_tokens,
                     "cost_efficiency_score": analytics.cost_efficiency_score,
-                    "usage_trend": analytics.usage_trend
+                    "usage_trend": analytics.usage_trend,
                 }
                 for name, analytics in self.model_analytics.items()
             }
@@ -643,7 +689,7 @@ class LambdaLabsCostMonitor:
                     "current_value": alert.current_value,
                     "threshold": alert.threshold,
                     "timestamp": alert.timestamp.isoformat(),
-                    "resolved": alert.resolved
+                    "resolved": alert.resolved,
                 }
                 for alert in self.active_alerts
                 if not alert.resolved
@@ -656,22 +702,26 @@ class LambdaLabsCostMonitor:
                     "predicted_monthly_cost": prediction.predicted_monthly_cost,
                     "confidence": prediction.confidence,
                     "factors": prediction.factors,
-                    "trend_direction": prediction.trend_direction
+                    "trend_direction": prediction.trend_direction,
                 },
                 "model_analytics": model_analytics,
                 "active_alerts": active_alerts,
                 "budget_status": {
                     "daily_budget": self.daily_budget,
                     "monthly_budget": self.monthly_budget,
-                    "daily_utilization": (current_costs.get("daily_cost", 0.0) / self.daily_budget) * 100,
-                    "budget_remaining": current_costs.get("budget_remaining", 0.0)
+                    "daily_utilization": (
+                        current_costs.get("daily_cost", 0.0) / self.daily_budget
+                    )
+                    * 100,
+                    "budget_remaining": current_costs.get("budget_remaining", 0.0),
                 },
                 "thresholds": self.thresholds,
                 "monitoring_status": {
-                    "active": self.monitoring_task is not None and not self.monitoring_task.done(),
+                    "active": self.monitoring_task is not None
+                    and not self.monitoring_task.done(),
                     "interval": self.monitoring_interval,
-                    "last_check": datetime.now().isoformat()
-                }
+                    "last_check": datetime.now().isoformat(),
+                },
             }
 
         except Exception as e:
@@ -705,15 +755,17 @@ class LambdaLabsCostMonitor:
             # Remove old alerts
             cutoff_time = datetime.now() - timedelta(days=days_to_keep)
             self.active_alerts = [
-                alert for alert in self.active_alerts
-                if alert.timestamp > cutoff_time
+                alert for alert in self.active_alerts if alert.timestamp > cutoff_time
             ]
 
             # Clean up Snowflake data
-            cleanup_query = """
+            cleanup_query = (
+                """
             DELETE FROM SOPHIA_AI.AI_INSIGHTS.LAMBDA_LABS_COST_MONITORING
             WHERE timestamp < CURRENT_TIMESTAMP - INTERVAL '%s days'
-            """ % days_to_keep
+            """
+                % days_to_keep
+            )
 
             await self.snowflake.execute_query(cleanup_query)
 

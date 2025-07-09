@@ -24,6 +24,7 @@ print("📅 Deployment Date: July 9, 2025")
 print(f"⏰ Deployment Time: {datetime.now().strftime('%H:%M:%S')}")
 print("=" * 60)
 
+
 class EnhancedChatDeployment:
     """Enhanced chat deployment manager"""
 
@@ -34,7 +35,7 @@ class EnhancedChatDeployment:
             "orchestrator_deployed": False,
             "websocket_configured": False,
             "api_endpoints_ready": False,
-            "integration_tested": False
+            "integration_tested": False,
         }
 
     async def validate_system_date(self) -> bool:
@@ -49,7 +50,7 @@ class EnhancedChatDeployment:
             test_context = {
                 "current_date": expected_date,
                 "system_date_validated": True,
-                "timestamp": "2025-07-09T00:00:00Z"
+                "timestamp": "2025-07-09T00:00:00Z",
             }
 
             # Validate date consistency
@@ -72,36 +73,21 @@ class EnhancedChatDeployment:
             orchestrator_config = {
                 "current_date": self.current_date,
                 "agents": {
-                    "database": {
-                        "enabled": True,
-                        "priority": 1,
-                        "timeout": 30
-                    },
-                    "web_search": {
-                        "enabled": True,
-                        "priority": 2,
-                        "timeout": 45
-                    },
+                    "database": {"enabled": True, "priority": 1, "timeout": 30},
+                    "web_search": {"enabled": True, "priority": 2, "timeout": 45},
                     "project_intelligence": {
                         "enabled": True,
                         "priority": 3,
-                        "timeout": 60
+                        "timeout": 60,
                     },
-                    "synthesis": {
-                        "enabled": True,
-                        "priority": 4,
-                        "timeout": 30
-                    }
+                    "synthesis": {"enabled": True, "priority": 4, "timeout": 30},
                 },
                 "execution": {
                     "strategy": "parallel",
                     "max_concurrent": 4,
-                    "timeout": 120
+                    "timeout": 120,
                 },
-                "fallback": {
-                    "enabled": True,
-                    "use_existing_orchestrator": True
-                }
+                "fallback": {"enabled": True, "use_existing_orchestrator": True},
             }
 
             # Write configuration
@@ -125,29 +111,17 @@ class EnhancedChatDeployment:
             # Create WebSocket configuration
             websocket_config = {
                 "channels": {
-                    "chat": {
-                        "enabled": True,
-                        "description": "Main chat responses"
-                    },
-                    "agents": {
-                        "enabled": True,
-                        "description": "Agent status updates"
-                    },
-                    "progress": {
-                        "enabled": True,
-                        "description": "Progress tracking"
-                    },
-                    "system": {
-                        "enabled": True,
-                        "description": "System status"
-                    }
+                    "chat": {"enabled": True, "description": "Main chat responses"},
+                    "agents": {"enabled": True, "description": "Agent status updates"},
+                    "progress": {"enabled": True, "description": "Progress tracking"},
+                    "system": {"enabled": True, "description": "System status"},
                 },
                 "settings": {
                     "max_connections": 100,
                     "message_timeout": 30,
                     "heartbeat_interval": 30,
-                    "current_date": self.current_date
-                }
+                    "current_date": self.current_date,
+                },
             }
 
             # Write WebSocket configuration
@@ -174,31 +148,31 @@ class EnhancedChatDeployment:
                         "method": "POST",
                         "handler": "enhanced_multi_agent_orchestrator.process_query",
                         "timeout": 120,
-                        "date_validation": True
+                        "date_validation": True,
                     },
                     "/api/enhanced-chat/stream": {
                         "method": "POST",
                         "handler": "enhanced_multi_agent_orchestrator.stream_process",
                         "timeout": 300,
-                        "streaming": True
+                        "streaming": True,
                     },
                     "/api/enhanced-chat/status": {
                         "method": "GET",
                         "handler": "enhanced_websocket_handler.get_session_metrics",
-                        "timeout": 10
+                        "timeout": 10,
                     },
                     "/api/enhanced-chat/health": {
                         "method": "GET",
                         "handler": "enhanced_websocket_handler.health_check",
-                        "timeout": 5
-                    }
+                        "timeout": 5,
+                    },
                 },
                 "middleware": {
                     "date_injection": True,
                     "error_handling": True,
-                    "rate_limiting": True
+                    "rate_limiting": True,
                 },
-                "current_date": self.current_date
+                "current_date": self.current_date,
             }
 
             # Write API configuration
@@ -223,25 +197,35 @@ class EnhancedChatDeployment:
                 {
                     "name": "Date Validation",
                     "test": lambda: self.current_date == "July 9, 2025",
-                    "expected": True
+                    "expected": True,
                 },
                 {
                     "name": "Configuration Files",
-                    "test": lambda: all([
-                        os.path.exists("config/enhanced_chat/orchestrator_config.json"),
-                        os.path.exists("config/enhanced_chat/websocket_config.json"),
-                        os.path.exists("config/enhanced_chat/api_config.json")
-                    ]),
-                    "expected": True
+                    "test": lambda: all(
+                        [
+                            os.path.exists(
+                                "config/enhanced_chat/orchestrator_config.json"
+                            ),
+                            os.path.exists(
+                                "config/enhanced_chat/websocket_config.json"
+                            ),
+                            os.path.exists("config/enhanced_chat/api_config.json"),
+                        ]
+                    ),
+                    "expected": True,
                 },
                 {
                     "name": "Service Files",
-                    "test": lambda: all([
-                        os.path.exists("backend/services/enhanced_multi_agent_orchestrator.py"),
-                        os.path.exists("backend/api/enhanced_websocket_handler.py")
-                    ]),
-                    "expected": True
-                }
+                    "test": lambda: all(
+                        [
+                            os.path.exists(
+                                "backend/services/enhanced_multi_agent_orchestrator.py"
+                            ),
+                            os.path.exists("backend/api/enhanced_websocket_handler.py"),
+                        ]
+                    ),
+                    "expected": True,
+                },
             ]
 
             passed_tests = 0
@@ -252,7 +236,9 @@ class EnhancedChatDeployment:
                         print(f"  ✅ {test['name']}")
                         passed_tests += 1
                     else:
-                        print(f"  ❌ {test['name']} - Expected: {test['expected']}, Got: {result}")
+                        print(
+                            f"  ❌ {test['name']} - Expected: {test['expected']}, Got: {result}"
+                        )
                 except Exception as e:
                     print(f"  ❌ {test['name']} - Error: {e}")
 
@@ -262,7 +248,9 @@ class EnhancedChatDeployment:
                 print("✅ Integration tests passed")
                 self.deployment_status["integration_tested"] = True
             else:
-                print(f"❌ Integration tests failed: {passed_tests}/{len(integration_tests)} passed")
+                print(
+                    f"❌ Integration tests failed: {passed_tests}/{len(integration_tests)} passed"
+                )
 
             return success
 
@@ -310,11 +298,11 @@ async def enhanced_chat_query(request: dict):
     """Enhanced chat query endpoint"""
     query = request.get("query", "")
     context = request.get("context", {})
-    
+
     # Ensure current date is injected
     context["current_date"] = "July 9, 2025"
     context["system_date_validated"] = True
-    
+
     result = await orchestrator.process_query(query, context)
     return result
 
@@ -323,7 +311,7 @@ async def enhanced_chat_websocket(websocket: WebSocket):
     """Enhanced chat WebSocket endpoint"""
     user_id = "default_user"
     session_id = f"session_{int(time.time())}"
-    
+
     await websocket_handler.handle_connection(websocket, user_id, session_id)
 
 @app.get("/api/enhanced-chat/health")
@@ -347,7 +335,7 @@ if __name__ == "__main__":
     print("📅 Current Date: July 9, 2025")
     print("🔗 WebSocket: ws://localhost:8001/ws/enhanced-chat")
     print("🌐 API: http://localhost:8001/api/enhanced-chat/")
-    
+
     uvicorn.run(app, host="0.0.0.0", port=8001)
 '''
 
@@ -374,7 +362,7 @@ if __name__ == "__main__":
             ("WebSocket Infrastructure", self.configure_websocket_infrastructure),
             ("API Endpoints", self.setup_api_endpoints),
             ("Integration Testing", self.test_integration),
-            ("Startup Script", self.create_startup_script)
+            ("Startup Script", self.create_startup_script),
         ]
 
         successful_steps = 0
@@ -423,8 +411,9 @@ if __name__ == "__main__":
             "successful_steps": successful_steps,
             "failed_steps": failed_steps,
             "current_date": self.current_date,
-            "deployment_time": datetime.now().isoformat()
+            "deployment_time": datetime.now().isoformat(),
         }
+
 
 async def main():
     """Main deployment function"""
@@ -439,6 +428,7 @@ async def main():
     print("\n📄 Deployment results saved to: deployment_results_phase1.json")
 
     return 0 if result["success"] else 1
+
 
 if __name__ == "__main__":
     exit_code = asyncio.run(main())

@@ -19,7 +19,9 @@ from typing import Any, Mapping
 
 __all__ = ["safe_import"]
 
-def safe_import(name: str, fallback_attrs: Mapping[str, Any] | None = None) -> ModuleType:  # noqa: D401
+def safe_import(
+    name: str, fallback_attrs: Mapping[str, Any] | None = None
+) -> ModuleType:  # noqa: D401
     """Import *name* with graceful degradation.
 
     If the real package is installed we return it unmodified.  Otherwise we

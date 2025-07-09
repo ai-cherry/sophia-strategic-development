@@ -15,12 +15,14 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 try:
     from backend.core.auto_esc_config import get_config_value
+
     # Add base directory to path
     sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
     from unified_mcp_base import (
-        ServiceMCPServer,
         MCPServerConfig,
+        ServiceMCPServer,
     )
+
     from backend.utils.custom_logger import setup_logger
 except ImportError as e:
     print(f"Failed to import dependencies: {e}")
@@ -33,25 +35,23 @@ class GitHubMCPServer(ServiceMCPServer):
     """GitHub integration MCP server, refactored to use SimpleMCPServer."""
 
     def __init__(self):
-        config = MCPServerConfig(
-            name="github",
-            port=9003,
-            version="2.0.0"
-        )
+        config = MCPServerConfig(name="github", port=9003, version="2.0.0")
         super().__init__(config)
         self.github_token: str | None = None
         self.base_url = "https://api.github.com"
 
     async def server_specific_init(self) -> None:
         """Initialize GitHub-specific configuration."""
-        self.github_token = os.getenv("GITHUB_TOKEN") or get_config_value("github_token")
+        self.github_token = os.getenv("GITHUB_TOKEN") or get_config_value(
+            "github_token"
+        )
         if not self.github_token:
             self.logger.warning("GitHub token not configured. Some tools may fail.")
 
     async def initialize_server(self):
         """Initialize GitHub-specific tools and configuration."""
         await self.server_specific_init()
-        
+
         # Register MCP tools
         self.mcp_tool(
             name="list_repos",
@@ -64,9 +64,9 @@ class GitHubMCPServer(ServiceMCPServer):
                 }
             },
         )(self.list_repos)
-        
+
         self.mcp_tool(
-            name="get_repo", 
+            name="get_repo",
             description="Get detailed information about a repository",
             parameters={
                 "owner": {
@@ -75,16 +75,16 @@ class GitHubMCPServer(ServiceMCPServer):
                     "required": True,
                 },
                 "repo": {
-                    "type": "string", 
+                    "type": "string",
                     "description": "Repository name",
                     "required": True,
                 },
             },
         )(self.get_repo)
-        
+
         self.mcp_tool(
             name="list_issues",
-            description="List issues for a repository", 
+            description="List issues for a repository",
             parameters={
                 "owner": {
                     "type": "string",
@@ -93,7 +93,7 @@ class GitHubMCPServer(ServiceMCPServer):
                 },
                 "repo": {
                     "type": "string",
-                    "description": "Repository name", 
+                    "description": "Repository name",
                     "required": True,
                 },
                 "state": {
@@ -104,7 +104,7 @@ class GitHubMCPServer(ServiceMCPServer):
                 },
             },
         )(self.list_issues)
-        
+
         self.mcp_tool(
             name="create_issue",
             description="Create a new issue",
@@ -119,8 +119,16 @@ class GitHubMCPServer(ServiceMCPServer):
                     "description": "Repository name",
                     "required": True,
                 },
-                "title": {"type": "string", "description": "Issue title", "required": True},
-                "body": {"type": "string", "description": "Issue body", "required": True},
+                "title": {
+                    "type": "string",
+                    "description": "Issue title",
+                    "required": True,
+                },
+                "body": {
+                    "type": "string",
+                    "description": "Issue body",
+                    "required": True,
+                },
                 "labels": {
                     "type": "array",
                     "description": "Issue labels",
@@ -137,17 +145,15 @@ class GitHubMCPServer(ServiceMCPServer):
             return await self.get_repo(params["owner"], params["repo"])
         elif tool_name == "list_issues":
             return await self.list_issues(
-                params["owner"], 
-                params["repo"], 
-                params.get("state", "open")
+                params["owner"], params["repo"], params.get("state", "open")
             )
         elif tool_name == "create_issue":
             return await self.create_issue(
                 params["owner"],
-                params["repo"], 
+                params["repo"],
                 params["title"],
                 params["body"],
-                params.get("labels")
+                params.get("labels"),
             )
         else:
             raise ValueError(f"Unknown tool: {tool_name}")

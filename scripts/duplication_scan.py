@@ -78,7 +78,9 @@ with (reports / "cyclic_imports.txt").open() as f:
             cyclic_count += 1
 
 if cyclic_count > THRESHOLDS["cyclic_imports"]:
-    errors.append(f"Found {cyclic_count} cyclic imports (max: {THRESHOLDS['cyclic_imports']})")
+    errors.append(
+        f"Found {cyclic_count} cyclic imports (max: {THRESHOLDS['cyclic_imports']})"
+    )
 
 # Exit with error if thresholds exceeded
 if errors:

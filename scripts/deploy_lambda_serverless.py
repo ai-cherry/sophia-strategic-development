@@ -32,8 +32,7 @@ from backend.services.unified_chat_service_enhanced import get_enhanced_chat_ser
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,7 @@ logger = logging.getLogger(__name__)
 class LambdaServerlessDeployer:
     """
     Lambda Labs Serverless Deployment Manager
-    
+
     Handles complete deployment of Lambda Labs Serverless infrastructure
     including configuration validation, service initialization, monitoring
     setup, and integration testing.
@@ -49,22 +48,26 @@ class LambdaServerlessDeployer:
 
     def __init__(self):
         """Initialize the deployer"""
-        self.deployment_id = f"lambda-serverless-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        self.deployment_id = (
+            f"lambda-serverless-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+        )
         self.deployment_status = {
             "id": self.deployment_id,
             "started_at": datetime.now().isoformat(),
             "status": "initializing",
             "steps": {},
             "errors": [],
-            "warnings": []
+            "warnings": [],
         }
 
-        logger.info(f"🚀 Lambda Labs Serverless Deployment [{self.deployment_id}] initialized")
+        logger.info(
+            f"🚀 Lambda Labs Serverless Deployment [{self.deployment_id}] initialized"
+        )
 
     async def deploy(self) -> dict[str, Any]:
         """
         Execute complete deployment process
-        
+
         Returns:
             Deployment results
         """
@@ -112,15 +115,14 @@ class LambdaServerlessDeployer:
     async def _validate_prerequisites(self) -> None:
         """Validate deployment prerequisites"""
         step_name = "validate_prerequisites"
-        self.deployment_status["steps"][step_name] = {"status": "running", "started_at": datetime.now().isoformat()}
+        self.deployment_status["steps"][step_name] = {
+            "status": "running",
+            "started_at": datetime.now().isoformat(),
+        }
 
         try:
             # Check environment variables
-            required_env_vars = [
-                "LAMBDA_API_KEY",
-                "PULUMI_ORG",
-                "ENVIRONMENT"
-            ]
+            required_env_vars = ["LAMBDA_API_KEY", "PULUMI_ORG", "ENVIRONMENT"]
 
             missing_vars = []
             for var in required_env_vars:
@@ -128,7 +130,9 @@ class LambdaServerlessDeployer:
                     missing_vars.append(var)
 
             if missing_vars:
-                raise ValueError(f"Missing required environment variables: {missing_vars}")
+                raise ValueError(
+                    f"Missing required environment variables: {missing_vars}"
+                )
 
             # Validate Lambda Labs configuration
             if not validate_lambda_labs_config():
@@ -137,10 +141,17 @@ class LambdaServerlessDeployer:
             # Check Pulumi ESC connectivity
             try:
                 result = subprocess.run(
-                    ["pulumi", "env", "get", "scoobyjava-org/default/sophia-ai-production", "lambda_api_key"],
-                    check=False, capture_output=True,
+                    [
+                        "pulumi",
+                        "env",
+                        "get",
+                        "scoobyjava-org/default/sophia-ai-production",
+                        "lambda_api_key",
+                    ],
+                    check=False,
+                    capture_output=True,
                     text=True,
-                    timeout=30
+                    timeout=30,
                 )
 
                 if result.returncode != 0:
@@ -150,13 +161,7 @@ class LambdaServerlessDeployer:
                 raise ValueError("Pulumi ESC connectivity check timed out")
 
             # Check Python dependencies
-            required_packages = [
-                "aiohttp",
-                "openai",
-                "backoff",
-                "fastapi",
-                "pydantic"
-            ]
+            required_packages = ["aiohttp", "openai", "backoff", "fastapi", "pydantic"]
 
             for package in required_packages:
                 try:
@@ -165,7 +170,9 @@ class LambdaServerlessDeployer:
                     raise ValueError(f"Missing required package: {package}")
 
             self.deployment_status["steps"][step_name]["status"] = "completed"
-            self.deployment_status["steps"][step_name]["completed_at"] = datetime.now().isoformat()
+            self.deployment_status["steps"][step_name][
+                "completed_at"
+            ] = datetime.now().isoformat()
 
             logger.info("✅ Prerequisites validation completed")
 
@@ -177,7 +184,10 @@ class LambdaServerlessDeployer:
     async def _setup_configuration(self) -> None:
         """Setup configuration for Lambda Labs Serverless"""
         step_name = "setup_configuration"
-        self.deployment_status["steps"][step_name] = {"status": "running", "started_at": datetime.now().isoformat()}
+        self.deployment_status["steps"][step_name] = {
+            "status": "running",
+            "started_at": datetime.now().isoformat(),
+        }
 
         try:
             # Load configurations
@@ -199,7 +209,7 @@ class LambdaServerlessDeployer:
                 "routing_strategy": lambda_config.get("routing_strategy"),
                 "default_provider": ai_config.get("default_provider"),
                 "hybrid_mode": ai_config.get("enable_hybrid_mode"),
-                "cost_optimization": ai_config.get("enable_cost_optimization")
+                "cost_optimization": ai_config.get("enable_cost_optimization"),
             }
 
             logger.info(f"Configuration loaded: {json.dumps(config_summary, indent=2)}")
@@ -208,7 +218,9 @@ class LambdaServerlessDeployer:
             self.deployment_status["configuration"] = config_summary
 
             self.deployment_status["steps"][step_name]["status"] = "completed"
-            self.deployment_status["steps"][step_name]["completed_at"] = datetime.now().isoformat()
+            self.deployment_status["steps"][step_name][
+                "completed_at"
+            ] = datetime.now().isoformat()
 
             logger.info("✅ Configuration setup completed")
 
@@ -220,7 +232,10 @@ class LambdaServerlessDeployer:
     async def _initialize_services(self) -> None:
         """Initialize Lambda Labs Serverless services"""
         step_name = "initialize_services"
-        self.deployment_status["steps"][step_name] = {"status": "running", "started_at": datetime.now().isoformat()}
+        self.deployment_status["steps"][step_name] = {
+            "status": "running",
+            "started_at": datetime.now().isoformat(),
+        }
 
         try:
             # Initialize Lambda Labs service
@@ -230,7 +245,9 @@ class LambdaServerlessDeployer:
             # Test basic functionality
             health_check = await lambda_service.health_check()
             if health_check["status"] != "healthy":
-                raise ValueError(f"Lambda Labs service health check failed: {health_check}")
+                raise ValueError(
+                    f"Lambda Labs service health check failed: {health_check}"
+                )
 
             # Initialize cost monitor
             logger.info("Initializing cost monitor...")
@@ -250,20 +267,19 @@ class LambdaServerlessDeployer:
                 "lambda_service": {
                     "status": "initialized",
                     "health": health_check,
-                    "models_available": len(lambda_service.models)
+                    "models_available": len(lambda_service.models),
                 },
                 "cost_monitor": {
                     "status": "initialized",
-                    "monitoring_interval": cost_monitor.monitoring_interval
+                    "monitoring_interval": cost_monitor.monitoring_interval,
                 },
-                "chat_service": {
-                    "status": "initialized",
-                    "health": chat_health
-                }
+                "chat_service": {"status": "initialized", "health": chat_health},
             }
 
             self.deployment_status["steps"][step_name]["status"] = "completed"
-            self.deployment_status["steps"][step_name]["completed_at"] = datetime.now().isoformat()
+            self.deployment_status["steps"][step_name][
+                "completed_at"
+            ] = datetime.now().isoformat()
 
             logger.info("✅ Services initialization completed")
 
@@ -275,7 +291,10 @@ class LambdaServerlessDeployer:
     async def _setup_monitoring(self) -> None:
         """Setup monitoring and alerting"""
         step_name = "setup_monitoring"
-        self.deployment_status["steps"][step_name] = {"status": "running", "started_at": datetime.now().isoformat()}
+        self.deployment_status["steps"][step_name] = {
+            "status": "running",
+            "started_at": datetime.now().isoformat(),
+        }
 
         try:
             # Start cost monitoring
@@ -295,11 +314,13 @@ class LambdaServerlessDeployer:
                 "cost_monitoring": "active",
                 "monitoring_interval": cost_monitor.monitoring_interval,
                 "thresholds": cost_monitor.thresholds,
-                "snowflake_integration": "configured"
+                "snowflake_integration": "configured",
             }
 
             self.deployment_status["steps"][step_name]["status"] = "completed"
-            self.deployment_status["steps"][step_name]["completed_at"] = datetime.now().isoformat()
+            self.deployment_status["steps"][step_name][
+                "completed_at"
+            ] = datetime.now().isoformat()
 
             logger.info("✅ Monitoring setup completed")
 
@@ -360,7 +381,10 @@ class LambdaServerlessDeployer:
     async def _run_integration_tests(self) -> None:
         """Run comprehensive integration tests"""
         step_name = "integration_tests"
-        self.deployment_status["steps"][step_name] = {"status": "running", "started_at": datetime.now().isoformat()}
+        self.deployment_status["steps"][step_name] = {
+            "status": "running",
+            "started_at": datetime.now().isoformat(),
+        }
 
         try:
             test_results = {}
@@ -371,7 +395,7 @@ class LambdaServerlessDeployer:
 
             chat_result = await chat_service.chat_completion(
                 "Hello, this is a test message for Lambda Labs Serverless deployment.",
-                {"test": True}
+                {"test": True},
             )
 
             test_results["basic_chat"] = {
@@ -379,14 +403,14 @@ class LambdaServerlessDeployer:
                 "response_time": chat_result.get("response_time", 0),
                 "cost": chat_result.get("cost", 0),
                 "provider": chat_result.get("provider"),
-                "model_used": chat_result.get("model_used")
+                "model_used": chat_result.get("model_used"),
             }
 
             # Test 2: Code analysis
             logger.info("Running code analysis test...")
             code_result = await chat_service.chat_completion(
                 "def fibonacci(n): return n if n <= 1 else fibonacci(n-1) + fibonacci(n-2)\n\nAnalyze this code for performance issues.",
-                {"analysis_type": "code"}
+                {"analysis_type": "code"},
             )
 
             test_results["code_analysis"] = {
@@ -394,14 +418,14 @@ class LambdaServerlessDeployer:
                 "response_time": code_result.get("response_time", 0),
                 "cost": code_result.get("cost", 0),
                 "provider": code_result.get("provider"),
-                "query_type": code_result.get("routing", {}).get("query_type")
+                "query_type": code_result.get("routing", {}).get("query_type"),
             }
 
             # Test 3: Business intelligence query
             logger.info("Running business intelligence test...")
             bi_result = await chat_service.chat_completion(
                 "Generate a summary of key performance indicators for a SaaS business dashboard.",
-                {"analysis_type": "business"}
+                {"analysis_type": "business"},
             )
 
             test_results["business_intelligence"] = {
@@ -409,7 +433,7 @@ class LambdaServerlessDeployer:
                 "response_time": bi_result.get("response_time", 0),
                 "cost": bi_result.get("cost", 0),
                 "provider": bi_result.get("provider"),
-                "hybrid_used": bi_result.get("provider") == "hybrid"
+                "hybrid_used": bi_result.get("provider") == "hybrid",
             }
 
             # Test 4: Cost monitoring
@@ -419,9 +443,13 @@ class LambdaServerlessDeployer:
 
             test_results["cost_monitoring"] = {
                 "status": "passed",
-                "monitoring_active": cost_report.get("monitoring_status", {}).get("active", False),
-                "current_cost": cost_report.get("current_costs", {}).get("daily_cost", 0),
-                "alerts_count": len(cost_report.get("active_alerts", []))
+                "monitoring_active": cost_report.get("monitoring_status", {}).get(
+                    "active", False
+                ),
+                "current_cost": cost_report.get("current_costs", {}).get(
+                    "daily_cost", 0
+                ),
+                "alerts_count": len(cost_report.get("active_alerts", [])),
             }
 
             # Test 5: Performance stats
@@ -432,28 +460,36 @@ class LambdaServerlessDeployer:
                 "status": "passed",
                 "total_requests": perf_stats.get("total_requests", 0),
                 "average_response_time": perf_stats.get("average_response_time", 0),
-                "cache_hit_rate": perf_stats.get("cache_hit_rate", 0)
+                "cache_hit_rate": perf_stats.get("cache_hit_rate", 0),
             }
 
             # Calculate overall test results
             total_tests = len(test_results)
-            passed_tests = sum(1 for result in test_results.values() if result["status"] == "passed")
+            passed_tests = sum(
+                1 for result in test_results.values() if result["status"] == "passed"
+            )
 
             self.deployment_status["tests"] = {
                 "total": total_tests,
                 "passed": passed_tests,
                 "failed": total_tests - passed_tests,
                 "success_rate": (passed_tests / total_tests) * 100,
-                "results": test_results
+                "results": test_results,
             }
 
             if passed_tests < total_tests:
-                raise ValueError(f"Integration tests failed: {passed_tests}/{total_tests} passed")
+                raise ValueError(
+                    f"Integration tests failed: {passed_tests}/{total_tests} passed"
+                )
 
             self.deployment_status["steps"][step_name]["status"] = "completed"
-            self.deployment_status["steps"][step_name]["completed_at"] = datetime.now().isoformat()
+            self.deployment_status["steps"][step_name][
+                "completed_at"
+            ] = datetime.now().isoformat()
 
-            logger.info(f"✅ Integration tests completed: {passed_tests}/{total_tests} passed")
+            logger.info(
+                f"✅ Integration tests completed: {passed_tests}/{total_tests} passed"
+            )
 
         except Exception as e:
             self.deployment_status["steps"][step_name]["status"] = "failed"
@@ -463,7 +499,10 @@ class LambdaServerlessDeployer:
     async def _final_validation(self) -> None:
         """Perform final validation"""
         step_name = "final_validation"
-        self.deployment_status["steps"][step_name] = {"status": "running", "started_at": datetime.now().isoformat()}
+        self.deployment_status["steps"][step_name] = {
+            "status": "running",
+            "started_at": datetime.now().isoformat(),
+        }
 
         try:
             validation_results = {}
@@ -474,18 +513,26 @@ class LambdaServerlessDeployer:
 
             validation_results["service_health"] = {
                 "overall_status": health_check["overall_status"],
-                "lambda_labs": health_check["services"].get("lambda_labs", {}).get("status"),
-                "snowflake_cortex": health_check["services"].get("snowflake_cortex", {}).get("status"),
-                "cost_monitor": health_check["services"].get("cost_monitor", {}).get("status")
+                "lambda_labs": health_check["services"]
+                .get("lambda_labs", {})
+                .get("status"),
+                "snowflake_cortex": health_check["services"]
+                .get("snowflake_cortex", {})
+                .get("status"),
+                "cost_monitor": health_check["services"]
+                .get("cost_monitor", {})
+                .get("status"),
             }
 
             # Validate monitoring is active
             cost_monitor = await get_cost_monitor()
-            monitoring_active = cost_monitor.monitoring_task and not cost_monitor.monitoring_task.done()
+            monitoring_active = (
+                cost_monitor.monitoring_task and not cost_monitor.monitoring_task.done()
+            )
 
             validation_results["monitoring"] = {
                 "cost_monitoring_active": monitoring_active,
-                "monitoring_interval": cost_monitor.monitoring_interval
+                "monitoring_interval": cost_monitor.monitoring_interval,
             }
 
             # Validate configuration
@@ -493,7 +540,7 @@ class LambdaServerlessDeployer:
             validation_results["configuration"] = {
                 "api_key_configured": bool(lambda_config.get("inference_api_key")),
                 "budget_configured": lambda_config.get("daily_budget", 0) > 0,
-                "routing_strategy": lambda_config.get("routing_strategy")
+                "routing_strategy": lambda_config.get("routing_strategy"),
             }
 
             # Check for any critical issues
@@ -514,7 +561,9 @@ class LambdaServerlessDeployer:
             self.deployment_status["validation"] = validation_results
 
             self.deployment_status["steps"][step_name]["status"] = "completed"
-            self.deployment_status["steps"][step_name]["completed_at"] = datetime.now().isoformat()
+            self.deployment_status["steps"][step_name][
+                "completed_at"
+            ] = datetime.now().isoformat()
 
             logger.info("✅ Final validation completed")
 
@@ -541,26 +590,26 @@ class LambdaServerlessDeployer:
 ## Services Status
 """
 
-        services = self.deployment_status.get('services', {})
+        services = self.deployment_status.get("services", {})
         for service_name, service_info in services.items():
             report += f"- **{service_name}:** {service_info.get('status', 'unknown')}\n"
 
         report += "\n## Integration Tests\n"
-        tests = self.deployment_status.get('tests', {})
+        tests = self.deployment_status.get("tests", {})
         if tests:
             report += f"- **Total Tests:** {tests.get('total', 0)}\n"
             report += f"- **Passed:** {tests.get('passed', 0)}\n"
             report += f"- **Success Rate:** {tests.get('success_rate', 0):.1f}%\n"
 
         report += "\n## Monitoring Setup\n"
-        monitoring = self.deployment_status.get('monitoring', {})
+        monitoring = self.deployment_status.get("monitoring", {})
         if monitoring:
             report += f"- **Cost Monitoring:** {monitoring.get('cost_monitoring', 'unknown')}\n"
             report += f"- **Monitoring Interval:** {monitoring.get('monitoring_interval', 0)} seconds\n"
 
-        if self.deployment_status.get('errors'):
+        if self.deployment_status.get("errors"):
             report += "\n## Errors\n"
-            for error in self.deployment_status['errors']:
+            for error in self.deployment_status["errors"]:
                 report += f"- {error}\n"
 
         return report
@@ -579,10 +628,12 @@ async def main():
         report = deployer.generate_deployment_report()
 
         # Save report
-        report_file = f"deployment_reports/lambda_serverless_{deployer.deployment_id}.md"
+        report_file = (
+            f"deployment_reports/lambda_serverless_{deployer.deployment_id}.md"
+        )
         os.makedirs("deployment_reports", exist_ok=True)
 
-        with open(report_file, 'w') as f:
+        with open(report_file, "w") as f:
             f.write(report)
 
         print("\n🎉 Deployment completed successfully!")
@@ -593,7 +644,9 @@ async def main():
         print("\n📋 Deployment Summary:")
         print(f"   Status: {result['status']}")
         print(f"   Services: {len(result.get('services', {}))}")
-        print(f"   Tests: {result.get('tests', {}).get('passed', 0)}/{result.get('tests', {}).get('total', 0)}")
+        print(
+            f"   Tests: {result.get('tests', {}).get('passed', 0)}/{result.get('tests', {}).get('total', 0)}"
+        )
 
         return result
 

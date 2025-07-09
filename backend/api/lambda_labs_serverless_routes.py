@@ -25,19 +25,26 @@ from backend.services.lambda_labs_serverless_service import (
 logger = logging.getLogger(__name__)
 
 # Create router
-router = APIRouter(prefix="/api/v1/lambda-labs-serverless", tags=["Lambda Labs Serverless"])
+router = APIRouter(
+    prefix="/api/v1/lambda-labs-serverless", tags=["Lambda Labs Serverless"]
+)
+
 
 # Pydantic models
 class ChatMessage(BaseModel):
     """Chat message model"""
+
     role: str = Field(..., description="Message role (user, assistant, system)")
     content: str = Field(..., description="Message content")
 
 
 class ChatCompletionRequest(BaseModel):
     """Chat completion request model"""
+
     messages: list[ChatMessage] = Field(..., description="List of chat messages")
-    context_hints: list[str] | None = Field(None, description="Context hints for model selection")
+    context_hints: list[str] | None = Field(
+        None, description="Context hints for model selection"
+    )
     max_tokens: int | None = Field(None, description="Maximum tokens to generate")
     temperature: float | None = Field(None, description="Temperature for generation")
     stream: bool | None = Field(False, description="Enable streaming response")
@@ -45,6 +52,7 @@ class ChatCompletionRequest(BaseModel):
 
 class ChatCompletionResponse(BaseModel):
     """Chat completion response model"""
+
     response: str = Field(..., description="AI response")
     model_used: str = Field(..., description="Model used for generation")
     cached: bool = Field(..., description="Whether response was cached")
@@ -56,6 +64,7 @@ class ChatCompletionResponse(BaseModel):
 
 class AnalysisRequest(BaseModel):
     """Analysis request model"""
+
     data: str = Field(..., description="Data to analyze")
     analysis_type: str = Field("general", description="Type of analysis")
     context_hints: list[str] | None = Field(None, description="Context hints")
@@ -63,6 +72,7 @@ class AnalysisRequest(BaseModel):
 
 class AnalysisResponse(BaseModel):
     """Analysis response model"""
+
     analysis: str = Field(..., description="Analysis results")
     model_used: str = Field(..., description="Model used")
     cost: float = Field(..., description="Cost of analysis")
@@ -72,12 +82,14 @@ class AnalysisResponse(BaseModel):
 
 class ModelRecommendationRequest(BaseModel):
     """Model recommendation request"""
+
     task_type: str = Field(..., description="Type of task")
     context_size: int = Field(0, description="Estimated context size")
 
 
 class UsageStatsResponse(BaseModel):
     """Usage statistics response"""
+
     total_requests: int
     successful_requests: int
     failed_requests: int
@@ -98,6 +110,7 @@ class UsageStatsResponse(BaseModel):
 
 class HealthCheckResponse(BaseModel):
     """Health check response"""
+
     status: str
     response_time: float | None = None
     api_accessible: bool
@@ -111,6 +124,7 @@ class HealthCheckResponse(BaseModel):
 
 class CostOptimizationResponse(BaseModel):
     """Cost optimization response"""
+
     current_daily_cost: float
     budget_utilization: float
     model_stats: dict[str, Any]
@@ -129,11 +143,11 @@ async def get_service() -> LambdaLabsServerlessService:
 @router.post("/chat/completions", response_model=ChatCompletionResponse)
 async def chat_completion(
     request: ChatCompletionRequest,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    service: LambdaLabsServerlessService = Depends(get_service),
 ):
     """
     Generate chat completion using Lambda Labs Serverless API
-    
+
     This endpoint provides access to Lambda Labs' top 5 serverless models
     with intelligent routing based on context and cost optimization.
     """
@@ -156,9 +170,7 @@ async def chat_completion(
 
         # Make request
         result = await service.chat_completion(
-            messages=messages,
-            context_hints=request.context_hints,
-            **kwargs
+            messages=messages, context_hints=request.context_hints, **kwargs
         )
 
         # Extract response content
@@ -171,7 +183,7 @@ async def chat_completion(
             cost=result["cost"],
             response_time=result["response_time"],
             input_tokens=result["input_tokens"],
-            output_tokens=result["output_tokens"]
+            output_tokens=result["output_tokens"],
         )
 
     except Exception as e:
@@ -182,14 +194,15 @@ async def chat_completion(
 @router.post("/chat/stream")
 async def chat_completion_stream(
     request: ChatCompletionRequest,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    service: LambdaLabsServerlessService = Depends(get_service),
 ):
     """
     Stream chat completion response
-    
+
     Returns a streaming response with server-sent events for real-time
     chat completion generation.
     """
+
     async def generate():
         try:
             # Convert messages
@@ -200,7 +213,7 @@ async def chat_completion_stream(
             result = await service.chat_completion(
                 messages=messages,
                 context_hints=request.context_hints,
-                stream=True  # This would need to be implemented in the service
+                stream=True,  # This would need to be implemented in the service
             )
 
             # Yield the response
@@ -216,26 +229,25 @@ async def chat_completion_stream(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*"
-        }
+            "Access-Control-Allow-Origin": "*",
+        },
     )
 
 
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_data(
     request: AnalysisRequest,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    service: LambdaLabsServerlessService = Depends(get_service),
 ):
     """
     Analyze data using Lambda Labs with optimal model selection
-    
+
     Automatically selects the best model based on the analysis type
     and data characteristics.
     """
     try:
         result = await analyze_with_lambda(
-            data=request.data,
-            analysis_type=request.analysis_type
+            data=request.data, analysis_type=request.analysis_type
         )
 
         return AnalysisResponse(**result)
@@ -249,24 +261,23 @@ async def analyze_data(
 async def get_model_recommendations(
     task_type: str,
     context_size: int = 0,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    service: LambdaLabsServerlessService = Depends(get_service),
 ):
     """
     Get model recommendations for a specific task type
-    
+
     Returns recommended models based on task type and context size.
     """
     try:
         recommendations = await service.get_model_recommendations(
-            task_type=task_type,
-            context_size=context_size
+            task_type=task_type, context_size=context_size
         )
 
         return {
             "task_type": task_type,
             "context_size": context_size,
             "recommended_models": recommendations,
-            "available_models": list(service.models.keys())
+            "available_models": list(service.models.keys()),
         }
 
     except Exception as e:
@@ -278,7 +289,7 @@ async def get_model_recommendations(
 async def list_models(service: LambdaLabsServerlessService = Depends(get_service)):
     """
     List all available Lambda Labs models with their specifications
-    
+
     Returns detailed information about each model including pricing,
     context windows, and use cases.
     """
@@ -286,15 +297,17 @@ async def list_models(service: LambdaLabsServerlessService = Depends(get_service
         models_info = []
 
         for model_name, model_config in service.models.items():
-            models_info.append({
-                "name": model_config.name,
-                "context_window": model_config.context_window,
-                "price_input": model_config.price_input,
-                "price_output": model_config.price_output,
-                "use_cases": model_config.use_cases,
-                "priority": model_config.priority,
-                "tier": model_config.tier.value
-            })
+            models_info.append(
+                {
+                    "name": model_config.name,
+                    "context_window": model_config.context_window,
+                    "price_input": model_config.price_input,
+                    "price_output": model_config.price_output,
+                    "use_cases": model_config.use_cases,
+                    "priority": model_config.priority,
+                    "tier": model_config.tier.value,
+                }
+            )
 
         # Sort by priority
         models_info.sort(key=lambda x: x["priority"])
@@ -303,7 +316,7 @@ async def list_models(service: LambdaLabsServerlessService = Depends(get_service
             "models": models_info,
             "total_models": len(models_info),
             "routing_strategy": service.routing_strategy.value,
-            "fallback_chain": service.fallback_chain
+            "fallback_chain": service.fallback_chain,
         }
 
     except Exception as e:
@@ -315,7 +328,7 @@ async def list_models(service: LambdaLabsServerlessService = Depends(get_service
 async def get_usage_stats(service: LambdaLabsServerlessService = Depends(get_service)):
     """
     Get comprehensive usage statistics
-    
+
     Returns detailed statistics about requests, costs, performance,
     and model usage patterns.
     """
@@ -329,7 +342,9 @@ async def get_usage_stats(service: LambdaLabsServerlessService = Depends(get_ser
 
 
 @router.get("/usage/cost-breakdown")
-async def get_cost_breakdown(service: LambdaLabsServerlessService = Depends(get_service)):
+async def get_cost_breakdown(
+    service: LambdaLabsServerlessService = Depends(get_service),
+):
     """
     Get detailed cost breakdown by model, time period, and usage patterns
     """
@@ -360,11 +375,17 @@ async def get_cost_breakdown(service: LambdaLabsServerlessService = Depends(get_
             "budget_utilization": (stats["daily_cost"] / service.daily_budget) * 100,
             "cost_per_model": model_costs,
             "hourly_trends": hourly_trends,
-            "cost_per_request": stats["total_cost"] / stats["total_requests"] if stats["total_requests"] > 0 else 0,
+            "cost_per_request": stats["total_cost"] / stats["total_requests"]
+            if stats["total_requests"] > 0
+            else 0,
             "cost_per_token": {
-                "input": stats["total_cost"] / stats["total_input_tokens"] if stats["total_input_tokens"] > 0 else 0,
-                "output": stats["total_cost"] / stats["total_output_tokens"] if stats["total_output_tokens"] > 0 else 0
-            }
+                "input": stats["total_cost"] / stats["total_input_tokens"]
+                if stats["total_input_tokens"] > 0
+                else 0,
+                "output": stats["total_cost"] / stats["total_output_tokens"]
+                if stats["total_output_tokens"] > 0
+                else 0,
+            },
         }
 
     except Exception as e:
@@ -376,7 +397,7 @@ async def get_cost_breakdown(service: LambdaLabsServerlessService = Depends(get_
 async def health_check(service: LambdaLabsServerlessService = Depends(get_service)):
     """
     Perform health check of Lambda Labs Serverless service
-    
+
     Tests API connectivity, model availability, and budget status.
     """
     try:
@@ -392,7 +413,7 @@ async def health_check(service: LambdaLabsServerlessService = Depends(get_servic
             budget_status="unknown",
             daily_cost=0.0,
             cache_size=0,
-            error=str(e)
+            error=str(e),
         )
 
 
@@ -400,7 +421,7 @@ async def health_check(service: LambdaLabsServerlessService = Depends(get_servic
 async def optimize_costs(service: LambdaLabsServerlessService = Depends(get_service)):
     """
     Analyze and optimize costs
-    
+
     Provides recommendations for cost optimization based on usage patterns
     and model performance analysis.
     """
@@ -417,7 +438,7 @@ async def optimize_costs(service: LambdaLabsServerlessService = Depends(get_serv
 async def clear_cache(service: LambdaLabsServerlessService = Depends(get_service)):
     """
     Clear response cache
-    
+
     Clears all cached responses to force fresh API calls.
     """
     try:
@@ -427,7 +448,7 @@ async def clear_cache(service: LambdaLabsServerlessService = Depends(get_service
         return {
             "message": "Cache cleared successfully",
             "cleared_entries": cache_size,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -437,12 +458,11 @@ async def clear_cache(service: LambdaLabsServerlessService = Depends(get_service
 
 @router.post("/config/routing-strategy")
 async def set_routing_strategy(
-    strategy: str,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    strategy: str, service: LambdaLabsServerlessService = Depends(get_service)
 ):
     """
     Set routing strategy for model selection
-    
+
     Available strategies: performance_first, cost_first, balanced
     """
     try:
@@ -454,7 +474,7 @@ async def set_routing_strategy(
         except ValueError:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid strategy. Must be one of: {[s.value for s in RoutingStrategy]}"
+                detail=f"Invalid strategy. Must be one of: {[s.value for s in RoutingStrategy]}",
             )
 
         old_strategy = service.routing_strategy
@@ -464,7 +484,7 @@ async def set_routing_strategy(
             "message": "Routing strategy updated successfully",
             "old_strategy": old_strategy.value,
             "new_strategy": new_strategy.value,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -476,11 +496,11 @@ async def set_routing_strategy(
 async def set_budget(
     daily_budget: float,
     monthly_budget: float | None = None,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    service: LambdaLabsServerlessService = Depends(get_service),
 ):
     """
     Set budget limits for Lambda Labs usage
-    
+
     Updates daily and optionally monthly budget limits.
     """
     try:
@@ -492,7 +512,9 @@ async def set_budget(
 
         if monthly_budget:
             if monthly_budget <= 0:
-                raise HTTPException(status_code=400, detail="Monthly budget must be positive")
+                raise HTTPException(
+                    status_code=400, detail="Monthly budget must be positive"
+                )
             old_monthly = service.monthly_budget
             service.monthly_budget = monthly_budget
 
@@ -504,7 +526,7 @@ async def set_budget(
             "new_monthly_budget": monthly_budget,
             "current_daily_cost": service._get_daily_cost(),
             "budget_remaining": daily_budget - service._get_daily_cost(),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -516,7 +538,7 @@ async def set_budget(
 async def reset_stats(service: LambdaLabsServerlessService = Depends(get_service)):
     """
     Reset usage statistics (admin only)
-    
+
     Clears all usage statistics and request history.
     """
     try:
@@ -533,9 +555,9 @@ async def reset_stats(service: LambdaLabsServerlessService = Depends(get_service
             "old_stats": {
                 "total_requests": old_stats["total_requests"],
                 "total_cost": old_stats["total_cost"],
-                "successful_requests": old_stats["successful_requests"]
+                "successful_requests": old_stats["successful_requests"],
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -545,13 +567,10 @@ async def reset_stats(service: LambdaLabsServerlessService = Depends(get_service
 
 # Natural language endpoints
 @router.post("/ask")
-async def ask_question(
-    question: str,
-    context_hints: list[str] | None = None
-):
+async def ask_question(question: str, context_hints: list[str] | None = None):
     """
     Ask a question using natural language interface
-    
+
     Simple endpoint for asking questions with automatic model selection.
     """
     try:
@@ -560,7 +579,7 @@ async def ask_question(
         return {
             "question": question,
             "response": response,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
@@ -572,13 +591,14 @@ async def ask_question(
 @router.post("/tasks/cost-monitoring")
 async def start_cost_monitoring(
     background_tasks: BackgroundTasks,
-    service: LambdaLabsServerlessService = Depends(get_service)
+    service: LambdaLabsServerlessService = Depends(get_service),
 ):
     """
     Start background cost monitoring task
-    
+
     Monitors costs and sends alerts when thresholds are exceeded.
     """
+
     async def monitor_costs():
         """Background task to monitor costs"""
         while True:
@@ -605,7 +625,7 @@ async def start_cost_monitoring(
     return {
         "message": "Cost monitoring started",
         "monitoring_interval": "5 minutes",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 

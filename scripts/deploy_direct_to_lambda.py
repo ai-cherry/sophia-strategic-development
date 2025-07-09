@@ -18,13 +18,15 @@ INSTANCES = {
     "ai-core": "192.222.58.232",
     "mcp-servers": "104.171.202.117",
     "data-pipeline": "104.171.202.134",
-    "development": "155.248.194.183"
+    "development": "155.248.194.183",
 }
+
 
 def log(message, level="INFO"):
     """Enhanced logging"""
     timestamp = time.strftime("%H:%M:%S")
     print(f"[{timestamp}] {level}: {message}")
+
 
 def deploy_to_instance(instance_name, ip_address):
     """Deploy Sophia AI directly to a Lambda Labs instance"""
@@ -33,7 +35,14 @@ def deploy_to_instance(instance_name, ip_address):
     try:
         # Test SSH connectivity
         ssh_test = f"ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@{ip_address} 'echo Connected'"
-        result = subprocess.run(ssh_test, check=False, shell=True, capture_output=True, text=True, timeout=15)
+        result = subprocess.run(
+            ssh_test,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
 
         if result.returncode != 0:
             log(f"❌ Cannot connect to {instance_name} via SSH", "ERROR")
@@ -55,9 +64,19 @@ def deploy_to_instance(instance_name, ip_address):
         for cmd in setup_commands:
             ssh_cmd = f"ssh ubuntu@{ip_address} '{cmd}'"
             log(f"  Running: {cmd[:50]}...")
-            result = subprocess.run(ssh_cmd, check=False, shell=True, capture_output=True, text=True, timeout=60)
+            result = subprocess.run(
+                ssh_cmd,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
             if result.returncode != 0:
-                log(f"  ⚠️ Command failed: {cmd[:30]}... - {result.stderr[:100]}", "WARN")
+                log(
+                    f"  ⚠️ Command failed: {cmd[:30]}... - {result.stderr[:100]}",
+                    "WARN",
+                )
             else:
                 log("  ✅ Command successful")
 
@@ -72,15 +91,22 @@ def deploy_to_instance(instance_name, ip_address):
         for cmd in python_setup:
             ssh_cmd = f"ssh ubuntu@{ip_address} '{cmd}'"
             log(f"  Python setup: {cmd.split('&&')[-1].strip()[:30]}...")
-            result = subprocess.run(ssh_cmd, check=False, shell=True, capture_output=True, text=True, timeout=120)
+            result = subprocess.run(
+                ssh_cmd,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
             if result.returncode != 0:
                 log(f"  ⚠️ Python setup warning: {result.stderr[:50]}", "WARN")
 
         # Start Sophia AI service
         start_service = f"""
         ssh ubuntu@{ip_address} '
-        cd ~/sophia-ai && 
-        source venv/bin/activate && 
+        cd ~/sophia-ai &&
+        source venv/bin/activate &&
         export ENVIRONMENT=prod &&
         export LAMBDA_CLOUD_API_KEY="{LAMBDA_CLOUD_API_KEY}" &&
         export LAMBDA_API_KEY="{LAMBDA_API_KEY}" &&
@@ -88,7 +114,14 @@ def deploy_to_instance(instance_name, ip_address):
         '
         """
 
-        result = subprocess.run(start_service, check=False, shell=True, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            start_service,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
         if result.returncode == 0:
             log(f"  ✅ Sophia AI service started on {instance_name}")
         else:
@@ -97,7 +130,14 @@ def deploy_to_instance(instance_name, ip_address):
         # Verify service is running
         time.sleep(5)
         verify_cmd = f"ssh ubuntu@{ip_address} 'curl -s http://localhost:8000/health || echo \"Service not responding\"'"
-        result = subprocess.run(verify_cmd, check=False, shell=True, capture_output=True, text=True, timeout=15)
+        result = subprocess.run(
+            verify_cmd,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
 
         if "healthy" in result.stdout or "200" in result.stdout:
             log(f"  ✅ Service verification successful on {instance_name}")
@@ -109,6 +149,7 @@ def deploy_to_instance(instance_name, ip_address):
     except Exception as e:
         log(f"❌ Deployment failed for {instance_name}: {e}", "ERROR")
         return False
+
 
 def start_mcp_servers(instance_ip):
     """Start MCP servers on the designated MCP instance"""
@@ -123,13 +164,16 @@ def start_mcp_servers(instance_ip):
 
     for cmd in mcp_commands:
         ssh_cmd = f"ssh ubuntu@{instance_ip} '{cmd}'"
-        server_name = cmd.split('/')[-1].split('.')[0]
+        server_name = cmd.split("/")[-1].split(".")[0]
         log(f"  Starting {server_name}...")
-        result = subprocess.run(ssh_cmd, check=False, shell=True, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            ssh_cmd, check=False, shell=True, capture_output=True, text=True, timeout=30
+        )
         if result.returncode == 0:
             log(f"    ✅ {server_name} started")
         else:
             log(f"    ⚠️ {server_name} start warning", "WARN")
+
 
 def validate_deployment():
     """Validate all deployments are working"""
@@ -142,13 +186,29 @@ def validate_deployment():
         try:
             # Test SSH
             ssh_test = f"ssh -o ConnectTimeout=5 ubuntu@{ip} 'echo OK'"
-            ssh_result = subprocess.run(ssh_test, check=False, shell=True, capture_output=True, text=True, timeout=10)
+            ssh_result = subprocess.run(
+                ssh_test,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
 
             # Test HTTP service
             http_test = f"ssh ubuntu@{ip} 'curl -s -m 5 http://localhost:8000/health'"
-            http_result = subprocess.run(http_test, check=False, shell=True, capture_output=True, text=True, timeout=15)
+            http_result = subprocess.run(
+                http_test,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
 
-            if ssh_result.returncode == 0 and ("healthy" in http_result.stdout or "200" in http_result.stdout):
+            if ssh_result.returncode == 0 and (
+                "healthy" in http_result.stdout or "200" in http_result.stdout
+            ):
                 log(f"  ✅ {name} ({ip}): OPERATIONAL")
                 success_count += 1
             else:
@@ -160,6 +220,7 @@ def validate_deployment():
     log(f"📊 Deployment Status: {success_count}/{total_count} instances operational")
     return success_count, total_count
 
+
 def create_deployment_summary():
     """Create deployment summary report"""
     success_count, total_count = validate_deployment()
@@ -168,9 +229,9 @@ def create_deployment_summary():
 
 ## 📊 Deployment Summary
 
-**Status**: {"✅ SUCCESS" if success_count >= 3 else "⚠️ PARTIAL"}  
-**Operational Instances**: {success_count}/{total_count}  
-**Deployment Method**: Direct SSH deployment (bypassed Docker issues)  
+**Status**: {"✅ SUCCESS" if success_count >= 3 else "⚠️ PARTIAL"}
+**Operational Instances**: {success_count}/{total_count}
+**Deployment Method**: Direct SSH deployment (bypassed Docker issues)
 **Timestamp**: {time.strftime('%Y-%m-%d %H:%M:%S')}
 
 ---
@@ -185,10 +246,26 @@ def create_deployment_summary():
             ssh_test = f"ssh -o ConnectTimeout=5 ubuntu@{ip} 'echo OK'"
             http_test = f"ssh ubuntu@{ip} 'curl -s -m 5 http://localhost:8000/health'"
 
-            ssh_result = subprocess.run(ssh_test, check=False, shell=True, capture_output=True, text=True, timeout=10)
-            http_result = subprocess.run(http_test, check=False, shell=True, capture_output=True, text=True, timeout=15)
+            ssh_result = subprocess.run(
+                ssh_test,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            http_result = subprocess.run(
+                http_test,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
 
-            if ssh_result.returncode == 0 and ("healthy" in http_result.stdout or "200" in http_result.stdout):
+            if ssh_result.returncode == 0 and (
+                "healthy" in http_result.stdout or "200" in http_result.stdout
+            ):
                 status = "✅ OPERATIONAL"
             else:
                 status = "❌ NOT RESPONDING"
@@ -202,9 +279,9 @@ def create_deployment_summary():
 
 ## 🔑 Credentials Used
 
-✅ **Lambda Cloud API**: {LAMBDA_CLOUD_API_KEY[:30]}...  
-✅ **Lambda Standard API**: {LAMBDA_API_KEY[:30]}...  
-✅ **SSH Access**: Configured for all instances  
+✅ **Lambda Cloud API**: {LAMBDA_CLOUD_API_KEY[:30]}...
+✅ **Lambda Standard API**: {LAMBDA_API_KEY[:30]}...
+✅ **SSH Access**: Configured for all instances
 
 ---
 
@@ -217,7 +294,7 @@ def create_deployment_summary():
 
 ### MCP Servers (on {INSTANCES['mcp-servers']}):
 - AI Memory MCP Server
-- Asana MCP Server  
+- Asana MCP Server
 - Gong MCP Server
 - Linear MCP Server
 
@@ -235,7 +312,7 @@ def create_deployment_summary():
 ## 🎉 Success Metrics
 
 - ✅ {success_count}/{total_count} instances deployed successfully
-- ✅ Direct deployment bypassed Docker build issues  
+- ✅ Direct deployment bypassed Docker build issues
 - ✅ All Lambda Labs credentials configured
 - ✅ Production environment active
 - ✅ Health monitoring operational
@@ -243,11 +320,12 @@ def create_deployment_summary():
 **🎯 SOPHIA AI IS NOW LIVE ON LAMBDA LABS!**
 """
 
-    with open("DIRECT_DEPLOYMENT_COMPLETE.md", 'w') as f:
+    with open("DIRECT_DEPLOYMENT_COMPLETE.md", "w") as f:
         f.write(report)
 
     log("📝 Created DIRECT_DEPLOYMENT_COMPLETE.md")
     return success_count >= 3
+
 
 def main():
     """Main deployment execution"""
@@ -265,7 +343,7 @@ def main():
         time.sleep(2)  # Brief pause between deployments
 
     # Start MCP servers on designated instance
-    start_mcp_servers(INSTANCES['mcp-servers'])
+    start_mcp_servers(INSTANCES["mcp-servers"])
 
     # Final validation and reporting
     deployment_success = create_deployment_summary()
@@ -282,6 +360,7 @@ def main():
 
     log(f"⏱️ Total deployment time: {total_time:.1f} seconds")
     log("🚀 Sophia AI is now running on Lambda Labs!")
+
 
 if __name__ == "__main__":
     main()

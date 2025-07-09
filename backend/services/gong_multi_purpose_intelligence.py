@@ -3,7 +3,7 @@ Enhanced Gong Multi-Purpose Intelligence Service
 
 Builds on existing Gong integration to extract insights for multiple business functions:
 - Project management intelligence from internal calls
-- Sales pipeline insights from prospect calls  
+- Sales pipeline insights from prospect calls
 - Customer health monitoring from support calls
 - Team performance analytics from internal meetings
 - Competitive intelligence from all conversations
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 class GongIntelligenceCategory(Enum):
     """Categories of intelligence extracted from Gong conversations"""
+
     PROJECT_MANAGEMENT = "project_management"
     SALES_INTELLIGENCE = "sales_intelligence"
     CUSTOMER_SUCCESS = "customer_success"
@@ -41,6 +42,7 @@ class GongIntelligenceCategory(Enum):
 @dataclass
 class GongInsight:
     """Structured insight from Gong conversation"""
+
     category: str
     subcategory: str
     insight: str
@@ -58,6 +60,7 @@ class GongInsight:
 @dataclass
 class ProjectIntelligence:
     """Project-specific intelligence from conversations"""
+
     project_references: list[str]
     timeline_discussions: list[dict[str, Any]]
     risk_indicators: list[dict[str, Any]]
@@ -82,70 +85,106 @@ class GongMultiPurposeIntelligence:
         self.intelligence_categories = {
             GongIntelligenceCategory.PROJECT_MANAGEMENT: {
                 "description": "Internal project discussions, sprint planning, technical reviews",
-                "keywords": ["sprint", "project", "deadline", "feature", "development", "milestone", "release"],
+                "keywords": [
+                    "sprint",
+                    "project",
+                    "deadline",
+                    "feature",
+                    "development",
+                    "milestone",
+                    "release",
+                ],
                 "prompt": """Extract project management insights including:
                 - Specific projects, features, or development tasks discussed
                 - Timeline discussions, deadlines, or sprint updates
                 - Blockers, risks, or dependencies mentioned
                 - Resource allocation or capacity planning
                 - Technical decisions or architecture discussions
-                - Quality concerns or testing strategies"""
+                - Quality concerns or testing strategies""",
             },
-
             GongIntelligenceCategory.SALES_INTELLIGENCE: {
                 "description": "Prospect calls, demos, negotiations, objection handling",
-                "keywords": ["prospect", "demo", "pricing", "contract", "budget", "decision", "timeline"],
+                "keywords": [
+                    "prospect",
+                    "demo",
+                    "pricing",
+                    "contract",
+                    "budget",
+                    "decision",
+                    "timeline",
+                ],
                 "prompt": """Extract sales intelligence including:
                 - Deal status, budget discussions, decision timeline
                 - Objections raised and how they were addressed
                 - Decision makers involved and their influence levels
                 - Competitive mentions and positioning
                 - Pain points and needs expressed
-                - Proposal feedback and contract terms"""
+                - Proposal feedback and contract terms""",
             },
-
             GongIntelligenceCategory.CUSTOMER_SUCCESS: {
                 "description": "Onboarding, support, health checks, renewals",
-                "keywords": ["support", "issue", "satisfaction", "renewal", "onboarding", "adoption"],
+                "keywords": [
+                    "support",
+                    "issue",
+                    "satisfaction",
+                    "renewal",
+                    "onboarding",
+                    "adoption",
+                ],
                 "prompt": """Extract customer success insights including:
                 - Satisfaction indicators and feedback
                 - Issues, frustrations, or problems raised
                 - Feature adoption and usage patterns
                 - Expansion or upsell opportunities
                 - Churn risk indicators
-                - Success metrics and value realization"""
+                - Success metrics and value realization""",
             },
-
             GongIntelligenceCategory.TEAM_PERFORMANCE: {
                 "description": "Standups, retrospectives, coaching, feedback",
-                "keywords": ["standup", "retrospective", "coaching", "feedback", "performance", "team"],
+                "keywords": [
+                    "standup",
+                    "retrospective",
+                    "coaching",
+                    "feedback",
+                    "performance",
+                    "team",
+                ],
                 "prompt": """Extract team performance insights including:
                 - Team productivity indicators
                 - Communication effectiveness
                 - Coaching needs and opportunities
                 - Process improvements discussed
                 - Meeting effectiveness
-                - Team collaboration patterns"""
+                - Team collaboration patterns""",
             },
-
             GongIntelligenceCategory.COMPETITIVE_INTEL: {
                 "description": "Competitor mentions, market positioning, alternatives",
-                "keywords": ["competitor", "alternative", "comparison", "market", "positioning"],
+                "keywords": [
+                    "competitor",
+                    "alternative",
+                    "comparison",
+                    "market",
+                    "positioning",
+                ],
                 "prompt": """Extract competitive intelligence including:
                 - Competitors mentioned by name
                 - Feature comparisons or positioning
                 - Pricing comparisons
                 - Customer preference indicators
                 - Market trends discussed
-                - Competitive advantages or weaknesses"""
-            }
+                - Competitive advantages or weaknesses""",
+            },
         }
 
-    async def extract_multi_purpose_insights(self, timeframe_days: int = 7) -> dict[str, list[GongInsight]]:
+    async def extract_multi_purpose_insights(
+        self, timeframe_days: int = 7
+    ) -> dict[str, list[GongInsight]]:
         """Extract insights across all business functions from Gong data"""
 
         try:
-            logger.info(f"Extracting multi-purpose insights for last {timeframe_days} days")
+            logger.info(
+                f"Extracting multi-purpose insights for last {timeframe_days} days"
+            )
 
             # Query Gong data using existing Snowflake integration
             gong_data = await self._fetch_gong_conversations(timeframe_days)
@@ -162,8 +201,12 @@ class GongMultiPurposeIntelligence:
                     categorized_insights[insight.category].append(insight)
 
             # Generate summary statistics
-            total_insights = sum(len(insights) for insights in categorized_insights.values())
-            logger.info(f"Extracted {total_insights} insights across {len(categorized_insights)} categories")
+            total_insights = sum(
+                len(insights) for insights in categorized_insights.values()
+            )
+            logger.info(
+                f"Extracted {total_insights} insights across {len(categorized_insights)} categories"
+            )
 
             return categorized_insights
 
@@ -171,69 +214,71 @@ class GongMultiPurposeIntelligence:
             logger.error(f"Error extracting multi-purpose insights: {e}")
             return {}
 
-    async def get_project_management_intelligence(self, timeframe_days: int = 14) -> ProjectIntelligence:
+    async def get_project_management_intelligence(
+        self, timeframe_days: int = 14
+    ) -> ProjectIntelligence:
         """Extract comprehensive project intelligence from conversations"""
 
         try:
             # Enhanced query for project-related conversations
             query = f"""
             WITH project_conversations AS (
-                SELECT 
+                SELECT
                     call_id,
                     participants,
                     call_date,
                     transcript_text,
                     call_type,
-                    
+
                     -- Enhanced project identification using Snowflake Cortex
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'What specific projects, repositories, features, or development tasks are discussed? 
+                        'What specific projects, repositories, features, or development tasks are discussed?
                          Include project names, current status, and any progress updates mentioned.'
                     ) as project_references,
-                    
+
                     -- Timeline and deadline analysis
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'Are there any sprint updates, deadline discussions, timeline changes, or milestone planning mentioned? 
+                        'Are there any sprint updates, deadline discussions, timeline changes, or milestone planning mentioned?
                          Include specific dates and urgency indicators.'
                     ) as timeline_intelligence,
-                    
+
                     -- Enhanced risk and blocker detection
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'What blockers, risks, dependencies, challenges, or impediments are discussed? 
+                        'What blockers, risks, dependencies, challenges, or impediments are discussed?
                          Include severity level and any mitigation strategies mentioned.'
                     ) as risk_intelligence,
-                    
+
                     -- Resource and capacity planning
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'Are there discussions about team capacity, resource allocation, staffing needs, 
+                        'Are there discussions about team capacity, resource allocation, staffing needs,
                          or workload distribution? Include specific team members or skills mentioned.'
                     ) as resource_intelligence,
-                    
+
                     -- Technical decisions and architecture
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'What technical decisions, architecture discussions, technology choices, 
+                        'What technical decisions, architecture discussions, technology choices,
                          or implementation approaches are mentioned? Include reasoning if available.'
                     ) as technical_intelligence,
-                    
+
                     -- Quality and testing discussions
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'Are there discussions about code quality, testing strategies, bug reports, 
+                        'Are there discussions about code quality, testing strategies, bug reports,
                          performance issues, or quality assurance processes?'
                     ) as quality_intelligence,
-                    
+
                     -- Enhanced sentiment and urgency
                     SNOWFLAKE.CORTEX.SENTIMENT(transcript_text) as sentiment_score,
                     SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
                         transcript_text,
                         ['urgent', 'high_priority', 'normal', 'low_priority']
                     ) as urgency_level
-                    
+
                 FROM GONG_CALLS_ENHANCED
                 WHERE call_date >= DATEADD(day, -{timeframe_days}, CURRENT_TIMESTAMP())
                 AND (
@@ -258,52 +303,66 @@ class GongMultiPurposeIntelligence:
                 resource_discussions=[],
                 technical_decisions=[],
                 quality_concerns=[],
-                blockers_identified=[]
+                blockers_identified=[],
             )
 
             for result in results:
                 # Process project references
-                if result.get('project_references'):
-                    project_intelligence.project_references.append({
-                        'content': result['project_references'],
-                        'call_id': result['call_id'],
-                        'call_date': result['call_date'],
-                        'participants': result.get('participants', []),
-                        'urgency': result.get('urgency_level', 'normal')
-                    })
+                if result.get("project_references"):
+                    project_intelligence.project_references.append(
+                        {
+                            "content": result["project_references"],
+                            "call_id": result["call_id"],
+                            "call_date": result["call_date"],
+                            "participants": result.get("participants", []),
+                            "urgency": result.get("urgency_level", "normal"),
+                        }
+                    )
 
                 # Process timeline discussions
-                if result.get('timeline_intelligence'):
-                    project_intelligence.timeline_discussions.append({
-                        'content': result['timeline_intelligence'],
-                        'call_id': result['call_id'],
-                        'call_date': result['call_date'],
-                        'urgency': result.get('urgency_level', 'normal'),
-                        'sentiment': result.get('sentiment_score', 0)
-                    })
+                if result.get("timeline_intelligence"):
+                    project_intelligence.timeline_discussions.append(
+                        {
+                            "content": result["timeline_intelligence"],
+                            "call_id": result["call_id"],
+                            "call_date": result["call_date"],
+                            "urgency": result.get("urgency_level", "normal"),
+                            "sentiment": result.get("sentiment_score", 0),
+                        }
+                    )
 
                 # Process risk indicators
-                if result.get('risk_intelligence'):
-                    project_intelligence.risk_indicators.append({
-                        'content': result['risk_intelligence'],
-                        'call_id': result['call_id'],
-                        'call_date': result['call_date'],
-                        'severity': self._assess_risk_severity(result['risk_intelligence']),
-                        'urgency': result.get('urgency_level', 'normal')
-                    })
+                if result.get("risk_intelligence"):
+                    project_intelligence.risk_indicators.append(
+                        {
+                            "content": result["risk_intelligence"],
+                            "call_id": result["call_id"],
+                            "call_date": result["call_date"],
+                            "severity": self._assess_risk_severity(
+                                result["risk_intelligence"]
+                            ),
+                            "urgency": result.get("urgency_level", "normal"),
+                        }
+                    )
 
                 # Process other intelligence types...
-                if result.get('technical_intelligence'):
-                    project_intelligence.technical_decisions.append({
-                        'content': result['technical_intelligence'],
-                        'call_id': result['call_id'],
-                        'call_date': result['call_date'],
-                        'impact_level': self._assess_technical_impact(result['technical_intelligence'])
-                    })
+                if result.get("technical_intelligence"):
+                    project_intelligence.technical_decisions.append(
+                        {
+                            "content": result["technical_intelligence"],
+                            "call_id": result["call_id"],
+                            "call_date": result["call_date"],
+                            "impact_level": self._assess_technical_impact(
+                                result["technical_intelligence"]
+                            ),
+                        }
+                    )
 
-            logger.info(f"Extracted project intelligence: {len(project_intelligence.project_references)} project refs, "
-                       f"{len(project_intelligence.risk_indicators)} risks, "
-                       f"{len(project_intelligence.technical_decisions)} technical decisions")
+            logger.info(
+                f"Extracted project intelligence: {len(project_intelligence.project_references)} project refs, "
+                f"{len(project_intelligence.risk_indicators)} risks, "
+                f"{len(project_intelligence.technical_decisions)} technical decisions"
+            )
 
             return project_intelligence
 
@@ -321,7 +380,7 @@ class GongMultiPurposeIntelligence:
                 "customer feedback": GongIntelligenceCategory.CUSTOMER_SUCCESS,
                 "competitive intelligence": GongIntelligenceCategory.COMPETITIVE_INTEL,
                 "team performance": GongIntelligenceCategory.TEAM_PERFORMANCE,
-                "sales pipeline": GongIntelligenceCategory.SALES_INTELLIGENCE
+                "sales pipeline": GongIntelligenceCategory.SALES_INTELLIGENCE,
             }
 
             # Determine query category
@@ -337,7 +396,7 @@ class GongMultiPurposeIntelligence:
             # Generate contextual Snowflake query based on natural language
             contextual_query = f"""
             WITH relevant_conversations AS (
-                SELECT 
+                SELECT
                     call_id,
                     call_date,
                     participants,
@@ -345,7 +404,7 @@ class GongMultiPurposeIntelligence:
                     call_type,
                     SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
-                        'Based on this conversation, answer the following question: {query}. 
+                        'Based on this conversation, answer the following question: {query}.
                          Provide specific details and context from the conversation.'
                     ) as extracted_answer,
                     SNOWFLAKE.CORTEX.SENTIMENT(transcript_text) as sentiment_score
@@ -364,12 +423,12 @@ class GongMultiPurposeIntelligence:
             # Synthesize results into comprehensive answer
             synthesis_prompt = f"""
             Current date: {self.current_date}
-            
+
             Question: {query}
-            
+
             Relevant conversation insights:
             {json.dumps([r for r in results], indent=2)}
-            
+
             Provide a comprehensive answer that:
             1. Directly addresses the question
             2. Includes specific examples from conversations
@@ -379,8 +438,7 @@ class GongMultiPurposeIntelligence:
             """
 
             synthesized_answer = await self.cortex_service.complete_text(
-                prompt=synthesis_prompt,
-                max_tokens=1000
+                prompt=synthesis_prompt, max_tokens=1000
             )
 
             return {
@@ -395,9 +453,10 @@ class GongMultiPurposeIntelligence:
                         "call_id": r["call_id"],
                         "call_date": r["call_date"],
                         "participants": r.get("participants", []),
-                        "relevance": r["extracted_answer"]
-                    } for r in results[:5]
-                ]
+                        "relevance": r["extracted_answer"],
+                    }
+                    for r in results[:5]
+                ],
             }
 
         except Exception as e:
@@ -407,14 +466,16 @@ class GongMultiPurposeIntelligence:
                 "answer": f"Unable to process query: {e!s}",
                 "sources": 0,
                 "confidence": 0.0,
-                "current_date": self.current_date
+                "current_date": self.current_date,
             }
 
-    async def _fetch_gong_conversations(self, timeframe_days: int) -> list[dict[str, Any]]:
+    async def _fetch_gong_conversations(
+        self, timeframe_days: int
+    ) -> list[dict[str, Any]]:
         """Fetch Gong conversations from existing data store"""
 
         query = f"""
-        SELECT 
+        SELECT
             call_id,
             call_date,
             participants,
@@ -431,7 +492,9 @@ class GongMultiPurposeIntelligence:
 
         return await self.cortex_service.execute_query(query)
 
-    async def _analyze_conversation_multi_purpose(self, conversation: dict[str, Any]) -> list[GongInsight]:
+    async def _analyze_conversation_multi_purpose(
+        self, conversation: dict[str, Any]
+    ) -> list[GongInsight]:
         """Analyze single conversation for multi-purpose insights"""
 
         insights = []
@@ -439,27 +502,31 @@ class GongMultiPurposeIntelligence:
 
         for category, config in self.intelligence_categories.items():
             # Check if conversation is relevant to this category
-            relevance_score = await self._calculate_category_relevance(transcript, config["keywords"])
+            relevance_score = await self._calculate_category_relevance(
+                transcript, config["keywords"]
+            )
 
             if relevance_score > 0.3:  # Threshold for relevance
                 # Extract insights for this category
                 insight_content = await self.cortex_service.complete_text(
                     prompt=f"""
                     Current date: {self.current_date}
-                    
+
                     Conversation transcript: {transcript}
-                    
+
                     {config['prompt']}
-                    
+
                     Provide specific, actionable insights relevant to {category.value}.
                     """,
-                    max_tokens=500
+                    max_tokens=500,
                 )
 
                 if insight_content and len(insight_content.strip()) > 10:
                     insight = GongInsight(
                         category=category.value,
-                        subcategory=self._determine_subcategory(category, insight_content),
+                        subcategory=self._determine_subcategory(
+                            category, insight_content
+                        ),
                         insight=insight_content,
                         confidence=relevance_score,
                         call_id=conversation["call_id"],
@@ -469,38 +536,68 @@ class GongMultiPurposeIntelligence:
                         action_items=conversation.get("action_items", []),
                         urgency_level=self._assess_urgency(insight_content),
                         sentiment_score=conversation.get("sentiment_score", 0),
-                        source_context=f"Call on {conversation['call_date']}"
+                        source_context=f"Call on {conversation['call_date']}",
                     )
                     insights.append(insight)
 
         return insights
 
-    async def _calculate_category_relevance(self, transcript: str, keywords: list[str]) -> float:
+    async def _calculate_category_relevance(
+        self, transcript: str, keywords: list[str]
+    ) -> float:
         """Calculate relevance score for a category"""
 
-        keyword_matches = sum(1 for keyword in keywords if keyword.lower() in transcript.lower())
+        keyword_matches = sum(
+            1 for keyword in keywords if keyword.lower() in transcript.lower()
+        )
         relevance_score = min(keyword_matches / len(keywords), 1.0)
 
         # Use Cortex for semantic relevance if keyword matching is low
         if relevance_score < 0.3:
             semantic_relevance = await self.cortex_service.classify_text(
-                text=transcript,
-                categories=["relevant", "not_relevant"]
+                text=transcript, categories=["relevant", "not_relevant"]
             )
             if semantic_relevance == "relevant":
                 relevance_score = 0.4
 
         return relevance_score
 
-    def _determine_subcategory(self, category: GongIntelligenceCategory, content: str) -> str:
+    def _determine_subcategory(
+        self, category: GongIntelligenceCategory, content: str
+    ) -> str:
         """Determine subcategory based on content"""
 
         subcategories = {
-            GongIntelligenceCategory.PROJECT_MANAGEMENT: ["sprint_planning", "risk_management", "technical_decisions", "resource_planning"],
-            GongIntelligenceCategory.SALES_INTELLIGENCE: ["deal_progression", "objection_handling", "competitive_positioning", "pricing_discussions"],
-            GongIntelligenceCategory.CUSTOMER_SUCCESS: ["satisfaction_monitoring", "issue_resolution", "feature_adoption", "churn_prevention"],
-            GongIntelligenceCategory.TEAM_PERFORMANCE: ["productivity_analysis", "communication_effectiveness", "coaching_opportunities", "process_improvement"],
-            GongIntelligenceCategory.COMPETITIVE_INTEL: ["competitor_analysis", "market_positioning", "feature_comparison", "pricing_intelligence"]
+            GongIntelligenceCategory.PROJECT_MANAGEMENT: [
+                "sprint_planning",
+                "risk_management",
+                "technical_decisions",
+                "resource_planning",
+            ],
+            GongIntelligenceCategory.SALES_INTELLIGENCE: [
+                "deal_progression",
+                "objection_handling",
+                "competitive_positioning",
+                "pricing_discussions",
+            ],
+            GongIntelligenceCategory.CUSTOMER_SUCCESS: [
+                "satisfaction_monitoring",
+                "issue_resolution",
+                "feature_adoption",
+                "churn_prevention",
+            ],
+            GongIntelligenceCategory.TEAM_PERFORMANCE: [
+                "productivity_analysis",
+                "communication_effectiveness",
+                "coaching_opportunities",
+                "process_improvement",
+            ],
+            GongIntelligenceCategory.COMPETITIVE_INTEL: [
+                "competitor_analysis",
+                "market_positioning",
+                "feature_comparison",
+                "pricing_intelligence",
+            ],
         }
 
         category_subs = subcategories.get(category, ["general"])
@@ -545,7 +642,13 @@ class GongMultiPurposeIntelligence:
     def _assess_technical_impact(self, technical_content: str) -> str:
         """Assess technical decision impact level"""
 
-        high_impact = ["architecture", "framework", "database", "infrastructure", "security"]
+        high_impact = [
+            "architecture",
+            "framework",
+            "database",
+            "infrastructure",
+            "security",
+        ]
         medium_impact = ["feature", "component", "library", "tool", "process"]
 
         content_lower = technical_content.lower()

@@ -190,7 +190,9 @@ SQL Query:"""
             line = line.strip()
             if line.upper().startswith(
                 ("SELECT", "WITH", "INSERT", "UPDATE", "DELETE")
-            ) or (sql_lines and line and not line.startswith(("Note:", "Explanation:"))):
+            ) or (
+                sql_lines and line and not line.startswith(("Note:", "Explanation:"))
+            ):
                 sql_lines.append(line)
 
         return "\n".join(sql_lines).strip()

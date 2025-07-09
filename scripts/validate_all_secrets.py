@@ -34,6 +34,7 @@ def check_github_secrets() -> set[str]:
 
     return available
 
+
 def check_pulumi_esc() -> dict[str, str]:
     """Check what's in Pulumi ESC"""
     print("\n🔍 Checking Pulumi ESC...")
@@ -43,8 +44,9 @@ def check_pulumi_esc() -> dict[str, str]:
 
     result = subprocess.run(
         ["pulumi", "env", "get", env_name, "--show-secrets"],
-        check=False, capture_output=True,
-        text=True
+        check=False,
+        capture_output=True,
+        text=True,
     )
 
     if result.returncode != 0:
@@ -72,6 +74,7 @@ def check_pulumi_esc() -> dict[str, str]:
         print("❌ Could not parse ESC config")
         return {}
 
+
 def check_application_access() -> None:
     """Check if the application can access secrets"""
     print("\n🔍 Testing application access...")
@@ -79,13 +82,15 @@ def check_application_access() -> None:
     # Test by running our test script
     result = subprocess.run(
         ["python3", "test_docker_config.py"],
-        check=False, capture_output=True,
-        text=True
+        check=False,
+        capture_output=True,
+        text=True,
     )
 
     print(result.stdout)
     if result.returncode != 0:
         print(f"❌ Application test failed: {result.stderr}")
+
 
 def validate_critical_path() -> None:
     """Validate the critical path for Docker Hub credentials"""
@@ -105,9 +110,10 @@ def validate_critical_path() -> None:
 
     result = subprocess.run(
         ["pulumi", "env", "get", env_name, "--show-secrets"],
-        check=False, capture_output=True,
+        check=False,
+        capture_output=True,
         text=True,
-        stderr=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
     )
 
     if result.returncode == 0:
@@ -115,15 +121,19 @@ def validate_critical_path() -> None:
             config = json.loads(result.stdout)
 
             print("\n2️⃣ Pulumi ESC:")
-            print(f"   docker_username: {'✅ Set' if 'docker_username' in config else '❌ Missing'}")
-            print(f"   docker_token: {'✅ Set' if 'docker_token' in config else '❌ Missing'}")
+            print(
+                f"   docker_username: {'✅ Set' if 'docker_username' in config else '❌ Missing'}"
+            )
+            print(
+                f"   docker_token: {'✅ Set' if 'docker_token' in config else '❌ Missing'}"
+            )
 
             # Check if they're real values or placeholders
-            if 'docker_username' in config:
-                if str(config['docker_username']).startswith("PLACEHOLDER"):
+            if "docker_username" in config:
+                if str(config["docker_username"]).startswith("PLACEHOLDER"):
                     print("   ⚠️  docker_username is still a placeholder!")
-            if 'docker_token' in config:
-                if str(config['docker_token']).startswith("PLACEHOLDER"):
+            if "docker_token" in config:
+                if str(config["docker_token"]).startswith("PLACEHOLDER"):
                     print("   ⚠️  docker_token is still a placeholder!")
 
         except json.JSONDecodeError:
@@ -131,6 +141,7 @@ def validate_critical_path() -> None:
 
     print("\n3️⃣ Application Mapping (auto_esc_config.py):")
     print("   All variations map to docker_token and docker_username ✅")
+
 
 def generate_fix_commands() -> None:
     """Generate commands to fix missing secrets"""
@@ -143,6 +154,7 @@ def generate_fix_commands() -> None:
     print("python3 scripts/comprehensive_secret_mapping.py")
     print("\nOr trigger the GitHub Action:")
     print("gh workflow run sync_secrets_comprehensive.yml")
+
 
 def main():
     print("🔍 Comprehensive Secret Validation")
@@ -160,12 +172,15 @@ def main():
 
     # Summary
     print("\n📊 Summary:")
-    print(f"GitHub secrets available: {len(github_secrets)}/{len(COMPLETE_SECRET_MAPPING)}")
+    print(
+        f"GitHub secrets available: {len(github_secrets)}/{len(COMPLETE_SECRET_MAPPING)}"
+    )
     print(f"Pulumi ESC entries: {len(esc_config)}")
     print(f"Application mappings: {len(APP_KEY_MAPPINGS)}")
 
     # Generate fixes
     generate_fix_commands()
+
 
 if __name__ == "__main__":
     main()

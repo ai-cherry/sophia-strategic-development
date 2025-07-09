@@ -40,7 +40,7 @@ dummy_report = {
             "lines": 0,
             "sources": 0,
             "clones": 0,
-            "duplicatedLines": 0
+            "duplicatedLines": 0,
         }
     }
 }

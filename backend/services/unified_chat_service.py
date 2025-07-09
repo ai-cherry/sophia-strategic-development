@@ -4,11 +4,10 @@ Handles multi-source chat processing with temporal learning integration and enti
 """
 
 import asyncio
-import json
 import logging
-from datetime import datetime
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any, Optional
 
 import aiohttp
 
@@ -19,29 +18,33 @@ try:
     from backend.services.temporal_qa_learning_service import (
         get_temporal_qa_learning_service,
     )
+
     TEMPORAL_LEARNING_AVAILABLE = True
 except ImportError:
     TEMPORAL_LEARNING_AVAILABLE = False
     logger.warning("Temporal learning service not available")
-    
+
     # Create a dummy function for when temporal learning is not available
     def get_temporal_qa_learning_service():
         return None
+
 
 # Check if entity resolution is available
 try:
     from infrastructure.services.enhanced_semantic_layer_service import (
         EnhancedSemanticLayerService,
     )
+
     ENTITY_RESOLUTION_AVAILABLE = True
 except ImportError:
     ENTITY_RESOLUTION_AVAILABLE = False
     logger.warning("Entity resolution service not available")
-    
+
     # Create dummy class for when entity resolution is not available
     class EnhancedSemanticLayerService:
         def __init__(self):
             pass
+
 
 # MCP Server configuration
 MCP_SERVERS = {
@@ -79,11 +82,12 @@ MCP_SERVERS = {
 @dataclass
 class QueryContext:
     """Context for query processing with entity resolution"""
+
     intent: str
-    sources_needed: List[str]
+    sources_needed: list[str]
     confidence: float
-    temporal_context: Optional[Dict[str, Any]] = None
-    entity_context: Optional[Dict[str, Any]] = None
+    temporal_context: Optional[dict[str, Any]] = None
+    entity_context: Optional[dict[str, Any]] = None
     needs_clarification: bool = False
     clarification_message: Optional[str] = None
 
@@ -97,7 +101,7 @@ class QueryContext:
 class MCPHttpClient:
     """HTTP client for communicating with MCP servers"""
 
-    def __init__(self, server_name: str, server_config: Dict[str, str]):
+    def __init__(self, server_name: str, server_config: dict[str, str]):
         self.name = server_name
         self.url = server_config["url"]
         self.description = server_config["description"]
@@ -107,9 +111,7 @@ class MCPHttpClient:
 
     async def initialize(self):
         """Initialize HTTP session."""
-        self.session = aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=10)
-        )
+        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10))
         await self.health_check()
 
     async def cleanup(self):
@@ -136,8 +138,8 @@ class MCPHttpClient:
             return False
 
     async def query(
-        self, endpoint: str, method: str = "GET", data: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, endpoint: str, method: str = "GET", data: Optional[dict] = None
+    ) -> dict[str, Any]:
         """Execute query against MCP server."""
         try:
             if not self.session or not self.healthy:
@@ -219,7 +221,7 @@ class UnifiedChatService:
 
     async def process_query(
         self, query: str, user_id: str, session_id: str, context: str = "chat"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process user query with temporal learning integration"""
         start_time = datetime.now()
 
@@ -245,20 +247,26 @@ class UnifiedChatService:
             temporal_result = None
             if self.temporal_learning_service:
                 try:
-                    temporal_result = await self.temporal_learning_service.process_qa_interaction(
-                        user_message=query,
-                        context={
-                            "user_id": user_id,
-                            "session_id": session_id,
-                            "chat_context": context,
-                            "timestamp": start_time.isoformat(),
-                        },
+                    temporal_result = (
+                        await self.temporal_learning_service.process_qa_interaction(
+                            user_message=query,
+                            context={
+                                "user_id": user_id,
+                                "session_id": session_id,
+                                "chat_context": context,
+                                "timestamp": start_time.isoformat(),
+                            },
+                        )
                     )
 
                     if temporal_result.get("learning_applied", False):
                         response["metadata"]["temporal_learning_applied"] = True
-                        response["metadata"]["temporal_interaction_id"] = temporal_result.get("interaction_id")
-                        response["metadata"]["temporal_confidence"] = temporal_result.get("confidence", 0.0)
+                        response["metadata"][
+                            "temporal_interaction_id"
+                        ] = temporal_result.get("interaction_id")
+                        response["metadata"][
+                            "temporal_confidence"
+                        ] = temporal_result.get("confidence", 0.0)
 
                         # If temporal learning provided a complete response, use it
                         if temporal_result.get("response"):
@@ -267,7 +275,9 @@ class UnifiedChatService:
 
                             # Add temporal citations if available
                             if temporal_result.get("citations"):
-                                response["citations"].extend(temporal_result["citations"])
+                                response["citations"].extend(
+                                    temporal_result["citations"]
+                                )
 
                             # Calculate processing time and return early if complete
                             end_time = datetime.now()
@@ -321,7 +331,9 @@ class UnifiedChatService:
 
         except Exception as e:
             logger.error(f"Query processing error: {e}")
-            response["response"] = f"I encountered an error processing your query: {str(e)}"
+            response[
+                "response"
+            ] = f"I encountered an error processing your query: {e!s}"
             response["metadata"]["error"] = str(e)
 
             # Calculate processing time even for errors
@@ -334,7 +346,7 @@ class UnifiedChatService:
 
     async def process_temporal_correction(
         self, interaction_id: str, correction: str, user_id: str, session_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process user correction for temporal learning"""
         if not self.temporal_learning_service:
             return {"error": "Temporal learning not available"}
@@ -356,13 +368,15 @@ class UnifiedChatService:
             logger.error(f"Temporal correction processing error: {e}")
             return {"error": str(e)}
 
-    async def get_temporal_learning_insights(self, user_id: str) -> Dict[str, Any]:
+    async def get_temporal_learning_insights(self, user_id: str) -> dict[str, Any]:
         """Get temporal learning insights for the user"""
         if not self.temporal_learning_service:
             return {"error": "Temporal learning not available"}
 
         try:
-            insights = await self.temporal_learning_service.get_learning_dashboard_data()
+            insights = (
+                await self.temporal_learning_service.get_learning_dashboard_data()
+            )
             return insights
 
         except Exception as e:
@@ -421,33 +435,33 @@ class UnifiedChatService:
         entity_context = {}
         needs_clarification = False
         clarification_message = None
-        
+
         if self.entity_resolution_service:
             try:
                 entity_result = await self.entity_resolution_service.execute_entity_resolution_query(
                     query, None, user_id
                 )
-                
+
                 if entity_result.get("type") == "clarification_needed":
                     needs_clarification = True
                     clarification_message = entity_result.get("clarification_message")
                     entity_context = entity_result.get("entity_matches", {})
                 elif entity_result.get("type") == "query_result":
                     entity_context = entity_result.get("entity_resolutions", {})
-                    
+
             except Exception as e:
                 logger.warning(f"Entity resolution failed: {e}")
 
         return QueryContext(
-            intent=intent, 
-            sources_needed=sources_needed, 
+            intent=intent,
+            sources_needed=sources_needed,
             confidence=0.8,
             entity_context=entity_context,
             needs_clarification=needs_clarification,
-            clarification_message=clarification_message
+            clarification_message=clarification_message,
         )
 
-    async def _fetch_multi_source_data(self, context: QueryContext) -> Dict[str, Any]:
+    async def _fetch_multi_source_data(self, context: QueryContext) -> dict[str, Any]:
         """Fetch data from multiple MCP servers in parallel"""
         source_data = {}
 
@@ -461,7 +475,9 @@ class UnifiedChatService:
 
             elif source == "notion" and source in self.servers:
                 tasks["notion_pages"] = self.servers["notion"].query("/pages/search")
-                tasks["notion_insights"] = self.servers["notion"].query("/knowledge/insights")
+                tasks["notion_insights"] = self.servers["notion"].query(
+                    "/knowledge/insights"
+                )
 
             elif source == "slack" and source in self.servers:
                 tasks["slack_insights"] = self.servers["slack"].query("/insights")
@@ -479,7 +495,7 @@ class UnifiedChatService:
 
     async def _process_with_sources(
         self, query: str, context: QueryContext, user_id: str, session_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Process query with multiple sources"""
         results = []
 
@@ -499,7 +515,7 @@ class UnifiedChatService:
         return results
 
     async def _generate_unified_response(
-        self, query: str, results: List[Dict[str, Any]], context: QueryContext
+        self, query: str, results: list[dict[str, Any]], context: QueryContext
     ) -> str:
         """Generate a unified response from multiple results"""
         if not results:
@@ -523,24 +539,26 @@ class UnifiedChatService:
     # ========================================================================================
 
     async def resolve_entity_clarification(
-        self, 
+        self,
         event_id: str,
         selected_entity_id: str,
         user_query: str,
         user_id: str,
-        session_id: str
-    ) -> Dict[str, Any]:
+        session_id: str,
+    ) -> dict[str, Any]:
         """Handle user's entity clarification response and learn from it"""
-        
+
         if not self.entity_resolution_service:
             return {"error": "Entity resolution not available"}
 
         try:
             # Learn from user selection
-            learning_result = await self.entity_resolution_service.learn_from_user_selection(
-                event_id, selected_entity_id, user_query, user_id
+            learning_result = (
+                await self.entity_resolution_service.learn_from_user_selection(
+                    event_id, selected_entity_id, user_query, user_id
+                )
             )
-            
+
             if learning_result.get("status") == "success":
                 # Re-process the original query with the resolved entity
                 return await self.process_query_with_resolved_entity(
@@ -556,36 +574,34 @@ class UnifiedChatService:
             return {"error": str(e)}
 
     async def process_query_with_resolved_entity(
-        self,
-        query: str,
-        resolved_entity_id: str,
-        user_id: str,
-        session_id: str
-    ) -> Dict[str, Any]:
+        self, query: str, resolved_entity_id: str, user_id: str, session_id: str
+    ) -> dict[str, Any]:
         """Process query using the resolved entity ID"""
-        
+
         try:
             # Get entity details
             if self.entity_resolution_service:
                 # This would get the canonical name and context for the entity
                 # For now, we'll continue with normal processing
                 pass
-            
+
             # Continue with regular query processing
             return await self.process_query(query, user_id, session_id)
-            
+
         except Exception as e:
             logger.error(f"Failed to process query with resolved entity: {e}")
             return {"error": str(e)}
 
-    async def get_entity_resolution_analytics(self, user_id: str) -> Dict[str, Any]:
+    async def get_entity_resolution_analytics(self, user_id: str) -> dict[str, Any]:
         """Get entity resolution analytics for monitoring and improvement"""
-        
+
         if not self.entity_resolution_service:
             return {"error": "Entity resolution not available"}
 
         try:
-            return await self.entity_resolution_service.get_entity_resolution_analytics()
+            return (
+                await self.entity_resolution_service.get_entity_resolution_analytics()
+            )
         except Exception as e:
             logger.error(f"Failed to get entity resolution analytics: {e}")
             return {"error": str(e)}
@@ -596,32 +612,35 @@ class UnifiedChatService:
         entity_name: str,
         source_id: Optional[str] = None,
         source_system: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        metadata: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
         """Register a new entity that wasn't found in the system"""
-        
+
         if not self.entity_resolution_service:
             return {"error": "Entity resolution not available"}
 
         try:
             conn = await self.entity_resolution_service._get_connection()
             cursor = conn.cursor()
-            
+
             # Call the registration procedure
-            cursor.execute("""
+            cursor.execute(
+                """
                 CALL SOPHIA_ENTITY_RESOLUTION.REGISTER_ENTITY(?, ?, ?, ?, ?)
-            """, [entity_type, entity_name, source_id, source_system, metadata])
-            
+            """,
+                [entity_type, entity_name, source_id, source_system, metadata],
+            )
+
             result = cursor.fetchone()
             conn.commit()
             cursor.close()
-            
+
             return {
                 "status": "success",
                 "entity_id": result[0] if result else None,
-                "message": f"Registered new {entity_type}: {entity_name}"
+                "message": f"Registered new {entity_type}: {entity_name}",
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to register new entity: {e}")
             return {"error": str(e)}

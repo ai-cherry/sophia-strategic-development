@@ -14,13 +14,21 @@ __all__ = ["DedupBloomFilter"]
 class DedupBloomFilter:
     """Simple Redis-backed Bloom filter for high-volume deduplication."""
 
-    def __init__(self, redis_url: str, key: str = "dedup:bloom", error_rate: float = 0.001, capacity: int = 1_000_000):
+    def __init__(
+        self, 
+        redis_url: str, 
+        key: str = "dedup:bloom", 
+        error_rate: float = 0.001, 
+        capacity: int = 1_000_000
+    ):
         if redis is None:
             raise ImportError("redis-py required for Bloom filter support")
         self._r = redis.Redis.from_url(redis_url)
         self.key = key
         # Create filter if not exists
-        self._r.execute_command("BF.RESERVE", key, error_rate, capacity, "NONSCALABLE", "Expansion", 2, "NoCreateYet")
+        self._r.execute_command(
+            "BF.RESERVE", key, error_rate, capacity, "NONSCALING", "EXPANSION", 2
+        )
 
     @staticmethod
     def _hash(value: Any) -> str:

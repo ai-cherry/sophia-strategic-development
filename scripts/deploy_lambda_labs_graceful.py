@@ -4,31 +4,29 @@ SOPHIA AI LAMBDA LABS GRACEFUL DEPLOYMENT SCRIPT
 More robust deployment that handles errors gracefully and provides recovery options
 """
 
-import os
-import sys
 import json
-import time
-import subprocess
 import logging
-from typing import Dict, List, Optional, Tuple
-from datetime import datetime
-from pathlib import Path
+import os
+import subprocess
+import sys
+import time
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('deployment_graceful.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("deployment_graceful.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class DeploymentConfig:
     """Deployment configuration"""
+
     lambda_labs_ip: str = "192.222.58.232"
     mcp_instance_ip: str = "165.1.69.44"
     ssh_key_path: str = "~/.ssh/sophia2025.pem"
@@ -36,14 +34,15 @@ class DeploymentConfig:
     environment: str = "prod"
     pulumi_org: str = "scoobyjava-org"
 
+
 class GracefulLambdaLabsDeployer:
     """Graceful Lambda Labs deployment orchestrator"""
-    
+
     def __init__(self, config: DeploymentConfig):
         self.config = config
         self.deployment_start_time = datetime.now()
         self.results = {}
-        
+
         # MCP Servers configuration - simplified for testing
         self.mcp_servers = [
             {"name": "ai-memory", "port": 9000, "tier": 1},
@@ -57,26 +56,29 @@ class GracefulLambdaLabsDeployer:
             {"name": "github", "port": 9104, "tier": 3},
             {"name": "ui-ux-agent", "port": 9002, "tier": 3},
         ]
-    
-    def run_ssh_command(self, command: str, host: Optional[str] = None, timeout: int = 60) -> Tuple[int, str, str]:
+
+    def run_ssh_command(
+        self, command: str, host: Optional[str] = None, timeout: int = 60
+    ) -> tuple[int, str, str]:
         """Execute SSH command on Lambda Labs instance with better error handling"""
         if host is None:
             host = self.config.lambda_labs_ip
-        
+
         ssh_command = [
-            'ssh', '-i', os.path.expanduser(self.config.ssh_key_path),
-            '-o', 'StrictHostKeyChecking=no',
-            '-o', 'ConnectTimeout=10',
-            f'ubuntu@{host}',
-            command
+            "ssh",
+            "-i",
+            os.path.expanduser(self.config.ssh_key_path),
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "ConnectTimeout=10",
+            f"ubuntu@{host}",
+            command,
         ]
-        
+
         try:
             result = subprocess.run(
-                ssh_command,
-                capture_output=True,
-                text=True,
-                timeout=timeout
+                ssh_command, capture_output=True, text=True, timeout=timeout, check=False
             )
             return result.returncode, result.stdout, result.stderr
         except subprocess.TimeoutExpired:
@@ -85,86 +87,88 @@ class GracefulLambdaLabsDeployer:
         except Exception as e:
             logger.error(f"SSH command failed: {e}")
             return -1, "", str(e)
-    
+
     def check_connectivity(self) -> bool:
         """Check Lambda Labs connectivity"""
         logger.info("🔌 Checking Lambda Labs connectivity...")
-        
-        returncode, stdout, stderr = self.run_ssh_command('echo "Connection test successful"')
-        
+
+        returncode, stdout, stderr = self.run_ssh_command(
+            'echo "Connection test successful"'
+        )
+
         if returncode == 0:
             logger.info("✅ Lambda Labs connectivity confirmed")
             return True
         else:
             logger.error(f"❌ Lambda Labs connectivity failed: {stderr}")
             return False
-    
+
     def phase1_graceful_infrastructure_setup(self) -> bool:
         """Phase 1: Graceful Infrastructure Setup with error recovery"""
         logger.info("🏗️ Phase 1: Graceful Infrastructure Setup")
-        
+
         try:
             # 1. Check current system state
             logger.info("🔍 Checking current system state...")
-            returncode, stdout, stderr = self.run_ssh_command('docker --version')
-            
+            returncode, stdout, stderr = self.run_ssh_command("docker --version")
+
             if returncode == 0:
                 logger.info("✅ Docker already installed, skipping installation")
             else:
                 logger.info("📦 Installing Docker (minimal approach)...")
-                
+
                 # Try minimal installation approach
                 install_commands = [
-                    'sudo apt-get update',
-                    'curl -fsSL https://get.docker.com -o get-docker.sh',
-                    'sudo sh get-docker.sh',
-                    'sudo usermod -aG docker ubuntu'
+                    "sudo apt-get update",
+                    "curl -fsSL https://get.docker.com -o get-docker.sh",
+                    "sudo sh get-docker.sh",
+                    "sudo usermod -aG docker ubuntu",
                 ]
-                
+
                 for cmd in install_commands:
                     returncode, stdout, stderr = self.run_ssh_command(cmd, timeout=180)
                     if returncode != 0:
                         logger.warning(f"⚠️ Command warning: {cmd} - {stderr}")
                         # Continue anyway
-            
+
             # 2. Check/Start Docker
             logger.info("🐳 Starting Docker service...")
             docker_commands = [
-                'sudo systemctl start docker || true',
-                'sudo systemctl enable docker || true',
-                'sudo docker --version'
+                "sudo systemctl start docker || true",
+                "sudo systemctl enable docker || true",
+                "sudo docker --version",
             ]
-            
+
             for cmd in docker_commands:
                 returncode, stdout, stderr = self.run_ssh_command(cmd)
                 if returncode != 0:
                     logger.warning(f"⚠️ Docker command warning: {cmd} - {stderr}")
-            
+
             # 3. Create networks (ignore errors)
             logger.info("🌐 Creating Docker networks...")
             network_commands = [
-                'sudo docker network create --driver bridge sophia-network || true',
-                'sudo docker network ls | grep sophia || echo "Network creation attempted"'
+                "sudo docker network create --driver bridge sophia-network || true",
+                'sudo docker network ls | grep sophia || echo "Network creation attempted"',
             ]
-            
+
             for cmd in network_commands:
                 returncode, stdout, stderr = self.run_ssh_command(cmd)
                 # Ignore errors for network creation
-            
+
             # 4. Deploy core services with error handling
             logger.info("📊 Deploying core services...")
             self.deploy_core_services_graceful()
-            
+
             logger.info("✅ Phase 1 completed (with graceful error handling)")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Phase 1 failed: {e}")
             return False
-    
+
     def deploy_core_services_graceful(self) -> bool:
         """Deploy core services with graceful error handling"""
-        
+
         # PostgreSQL deployment (minimal)
         logger.info("🗄️ Deploying PostgreSQL...")
         postgres_cmd = """
@@ -178,13 +182,13 @@ sudo docker run -d \\
   -e POSTGRES_PASSWORD=sophia2024 \\
   postgres:15-alpine || echo 'PostgreSQL deployment attempted'
 """
-        
+
         returncode, stdout, stderr = self.run_ssh_command(postgres_cmd)
         if returncode == 0:
             logger.info("✅ PostgreSQL deployed successfully")
         else:
             logger.warning(f"⚠️ PostgreSQL deployment warning: {stderr}")
-        
+
         # Redis deployment (minimal)
         logger.info("📦 Deploying Redis...")
         redis_cmd = """
@@ -195,58 +199,66 @@ sudo docker run -d \\
   -p 6379:6379 \\
   redis:7-alpine || echo 'Redis deployment attempted'
 """
-        
+
         returncode, stdout, stderr = self.run_ssh_command(redis_cmd)
         if returncode == 0:
             logger.info("✅ Redis deployed successfully")
         else:
             logger.warning(f"⚠️ Redis deployment warning: {stderr}")
-        
+
         # Wait for services
         time.sleep(10)
         return True
-    
+
     def phase2_graceful_mcp_deployment(self) -> bool:
         """Phase 2: Graceful MCP Servers Deployment"""
         logger.info("🤖 Phase 2: Graceful MCP Servers Deployment")
-        
+
         successful_deployments = 0
-        
+
         try:
             # Deploy by tier with error tolerance
             for tier in [1, 2, 3]:
-                tier_servers = [server for server in self.mcp_servers if server["tier"] == tier]
-                logger.info(f"🚀 Deploying Tier {tier} servers ({len(tier_servers)} servers)...")
-                
+                tier_servers = [
+                    server for server in self.mcp_servers if server["tier"] == tier
+                ]
+                logger.info(
+                    f"🚀 Deploying Tier {tier} servers ({len(tier_servers)} servers)..."
+                )
+
                 for server in tier_servers:
                     if self.deploy_mcp_server_graceful(server):
                         successful_deployments += 1
                         logger.info(f"✅ {server['name']} deployed successfully")
                     else:
-                        logger.warning(f"⚠️ {server['name']} deployment failed, continuing...")
-                
+                        logger.warning(
+                            f"⚠️ {server['name']} deployment failed, continuing..."
+                        )
+
                 # Brief wait between tiers
                 time.sleep(5)
-                
+
                 logger.info(f"✅ Tier {tier} deployment attempted")
-            
+
             # Create health check script
             self.create_health_check_script_graceful()
-            
+
             success_rate = (successful_deployments / len(self.mcp_servers)) * 100
-            logger.info(f"📊 MCP Deployment Success Rate: {success_rate:.1f}% ({successful_deployments}/{len(self.mcp_servers)})")
-            
+            logger.info(
+                f"📊 MCP Deployment Success Rate: {success_rate:.1f}% ({successful_deployments}/{len(self.mcp_servers)})"
+            )
+
             logger.info("✅ Phase 2 completed")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Phase 2 failed: {e}")
             return False
-    
-    def deploy_mcp_server_graceful(self, server: Dict) -> bool:
+
+    def deploy_mcp_server_graceful(self, server: dict) -> bool:
         """Deploy individual MCP server with graceful error handling"""
         logger.info(f"🛠️ Deploying {server['name']} on port {server['port']}...")
-        
+
         # Simplified deployment with basic health endpoint
         cmd = f"""
 sudo docker run -d \\
@@ -257,7 +269,7 @@ sudo docker run -d \\
   -e ENVIRONMENT=prod \\
   -e PORT={server['port']} \\
   python:3.11-slim sh -c "
-pip install fastapi uvicorn > /dev/null 2>&1 && 
+pip install fastapi uvicorn > /dev/null 2>&1 &&
 python -c '
 import uvicorn
 from fastapi import FastAPI
@@ -268,30 +280,32 @@ app = FastAPI()
 def health():
     return {{\"status\": \"healthy\", \"server\": \"{server['name']}\", \"port\": {server['port']}}}
 
-@app.get(\"/capabilities\")  
+@app.get(\"/capabilities\")
 def capabilities():
     return {{\"capabilities\": [\"{server['name']}_capability\"], \"server\": \"{server['name']}\"}}
 
 if __name__ == \"__main__\":
     uvicorn.run(app, host=\"0.0.0.0\", port={server['port']})
-' 
+'
 " || echo 'Server {server['name']} failed to start'
 """
-        
+
         returncode, stdout, stderr = self.run_ssh_command(cmd, timeout=120)
-        
+
         if returncode == 0:
             # Quick health check
             time.sleep(2)
             health_cmd = f'curl -s -m 5 http://localhost:{server["port"]}/health || echo "Health check failed"'
-            health_returncode, health_stdout, health_stderr = self.run_ssh_command(health_cmd)
-            
+            health_returncode, health_stdout, health_stderr = self.run_ssh_command(
+                health_cmd
+            )
+
             if "healthy" in health_stdout:
                 return True
-        
+
         logger.warning(f"⚠️ {server['name']} deployment had issues: {stderr}")
         return False
-    
+
     def create_health_check_script_graceful(self) -> bool:
         """Create health check script with graceful error handling"""
         script_content = """#!/bin/bash
@@ -300,7 +314,7 @@ echo "=================================="
 
 SERVERS=(
   "ai-memory:9000"
-  "snowflake-admin:9200" 
+  "snowflake-admin:9200"
   "lambda-labs-cli:9020"
   "hubspot:9006"
   "linear:9101"
@@ -318,7 +332,7 @@ for server in "${SERVERS[@]}"; do
   name=$(echo $server | cut -d: -f1)
   port=$(echo $server | cut -d: -f2)
   TOTAL=$((TOTAL + 1))
-  
+
   if timeout 5 curl -s "http://localhost:$port/health" | grep -q "healthy"; then
     echo "✅ $name ($port) - HEALTHY"
     HEALTHY=$((HEALTHY + 1))
@@ -332,7 +346,7 @@ echo "📊 Health Summary: $HEALTHY/$TOTAL servers healthy"
 PERCENTAGE=$((HEALTHY * 100 / TOTAL))
 echo "📈 Success Rate: $PERCENTAGE%"
 """
-        
+
         create_script_cmd = f"""
 sudo mkdir -p /opt/sophia-ai
 cat > /tmp/health-check.sh << 'EOF'
@@ -342,14 +356,14 @@ sudo mv /tmp/health-check.sh /opt/sophia-ai/health-check.sh
 sudo chmod +x /opt/sophia-ai/health-check.sh
 echo "Health check script created"
 """
-        
+
         returncode, stdout, stderr = self.run_ssh_command(create_script_cmd)
         return returncode == 0
-    
+
     def phase3_graceful_chat_deployment(self) -> bool:
         """Phase 3: Graceful Unified Chat Interface Deployment"""
         logger.info("🎯 Phase 3: Graceful Unified Chat Interface Deployment")
-        
+
         try:
             # 1. Deploy backend with comprehensive API
             logger.info("🔧 Deploying Sophia AI Backend...")
@@ -361,7 +375,7 @@ sudo docker run -d \\
   -p 8000:8000 \\
   -e ENVIRONMENT=prod \\
   python:3.11-slim sh -c "
-pip install fastapi uvicorn requests websockets > /dev/null 2>&1 && 
+pip install fastapi uvicorn requests websockets > /dev/null 2>&1 &&
 python -c '
 import uvicorn
 import json
@@ -392,10 +406,10 @@ def health():
 async def unified_chat(request: dict):
     message = request.get(\"message\", \"\")
     context = request.get(\"context\", \"chat\")
-    
+
     # Simulate MCP server communication
     response = f\"Sophia AI Response: I received your message: {message} (context: {context}). All {len([9000,9200,9020,9006,9101,9100,9103,3008,9104,9002])} MCP servers are operational.\"
-    
+
     return {
         \"response\": response,
         \"status\": \"success\",
@@ -420,18 +434,18 @@ def chat_status():
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     await websocket.send_text(json.dumps({\"type\": \"connection\", \"message\": \"Connected to Sophia AI WebSocket\"}))
-    
+
     try:
         while True:
             data = await websocket.receive_text()
             message_data = json.loads(data) if data.startswith(\"{\") else {\"message\": data}
-            
+
             response = {
                 \"type\": \"response\",
                 \"message\": f\"Echo from Sophia AI: {message_data.get('message', data)}\",
                 \"timestamp\": \"2025-01-09T08:00:00Z\"
             }
-            
+
             await websocket.send_text(json.dumps(response))
     except Exception as e:
         print(f\"WebSocket error: {e}\")
@@ -441,12 +455,12 @@ if __name__ == \"__main__\":
 '
 " || echo 'Backend deployment failed'
 """
-            
+
             returncode, stdout, stderr = self.run_ssh_command(backend_cmd, timeout=180)
             if returncode != 0:
                 logger.error(f"❌ Backend deployment failed: {stderr}")
                 return False
-            
+
             # 2. Deploy enhanced frontend
             logger.info("🌐 Deploying Sophia AI Frontend Dashboard...")
             frontend_cmd = """
@@ -489,7 +503,7 @@ cat > /usr/share/nginx/html/index.html << 'HTML'
             <h1>🤖 Sophia AI</h1>
             <p>Unified Business Intelligence Platform</p>
         </div>
-        
+
         <div class='dashboard'>
             <div class='card'>
                 <h3>🏥 System Health</h3>
@@ -498,7 +512,7 @@ cat > /usr/share/nginx/html/index.html << 'HTML'
                 <p>Database: <span class='status healthy'>Connected</span></p>
                 <p>Last Check: <span id='lastCheck'>Just now</span></p>
             </div>
-            
+
             <div class='card'>
                 <h3>🤖 MCP Services</h3>
                 <p>• AI Memory (Port 9000)</p>
@@ -507,7 +521,7 @@ cat > /usr/share/nginx/html/index.html << 'HTML'
                 <p>• Business Intelligence Servers</p>
                 <p><a href='http://192.222.58.232:8000/api/v3/chat/status' target='_blank'>View API Status</a></p>
             </div>
-            
+
             <div class='card'>
                 <h3>📊 Performance</h3>
                 <p>API Response Time: <strong>< 200ms</strong></p>
@@ -516,36 +530,36 @@ cat > /usr/share/nginx/html/index.html << 'HTML'
                 <p>Uptime: <strong>99.9%</strong></p>
             </div>
         </div>
-        
+
         <div class='chat-section'>
             <h3>💬 Unified Chat Interface</h3>
             <p style='margin-bottom: 20px;'>Test the unified chat API that communicates with all MCP servers:</p>
-            
+
             <input type='text' id='chatInput' class='chat-input' placeholder='Type your message here...' />
             <button onclick='sendMessage()' class='chat-button'>Send Message</button>
-            
+
             <div id='chatResponse' class='chat-response' style='display: none;'></div>
         </div>
     </div>
-    
+
     <script>
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const responseDiv = document.getElementById('chatResponse');
             const message = input.value.trim();
-            
+
             if (!message) return;
-            
+
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = 'Sending message to Sophia AI...';
-            
+
             try {
                 const response = await fetch('http://192.222.58.232:8000/api/v3/chat/unified', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: message, context: 'dashboard' })
                 });
-                
+
                 const data = await response.json();
                 responseDiv.innerHTML = '<strong>Sophia AI:</strong> ' + data.response;
                 input.value = '';
@@ -553,11 +567,11 @@ cat > /usr/share/nginx/html/index.html << 'HTML'
                 responseDiv.innerHTML = '<strong>Error:</strong> Unable to connect to Sophia AI backend. Please check if the backend is running on port 8000.';
             }
         }
-        
+
         document.getElementById('chatInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
         });
-        
+
         // Update timestamp
         setInterval(() => {
             document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString();
@@ -570,43 +584,43 @@ HTML
 nginx -g 'daemon off;'
 " || echo 'Frontend deployment failed'
 """
-            
+
             returncode, stdout, stderr = self.run_ssh_command(frontend_cmd, timeout=120)
             if returncode != 0:
                 logger.error(f"❌ Frontend deployment failed: {stderr}")
                 return False
-            
+
             # Wait for services to start
             time.sleep(15)
-            
+
             logger.info("✅ Phase 3 completed successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Phase 3 failed: {e}")
             return False
-    
+
     def phase4_graceful_validation(self) -> bool:
         """Phase 4: Graceful Testing & Validation"""
         logger.info("🧪 Phase 4: Graceful Testing & Validation")
-        
+
         try:
             # Create comprehensive test script
             self.create_test_script_graceful()
-            
+
             # Run tests with detailed reporting
             test_results = self.run_comprehensive_tests()
-            
+
             # Generate deployment report
             self.generate_deployment_report_graceful(test_results)
-            
+
             logger.info("✅ Phase 4 completed successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Phase 4 failed: {e}")
             return False
-    
+
     def create_test_script_graceful(self) -> bool:
         """Create comprehensive test script"""
         test_script = """#!/bin/bash
@@ -667,7 +681,7 @@ if sudo docker exec redis redis-cli ping 2>/dev/null | grep -q "PONG"; then
   echo "   ✅ Redis - READY"
   REDIS_STATUS="✅"
 else
-  echo "   ⚠️ Redis - CHECK NEEDED"  
+  echo "   ⚠️ Redis - CHECK NEEDED"
   REDIS_STATUS="⚠️"
 fi
 
@@ -685,7 +699,7 @@ echo "=============================================="
 echo "📊 DEPLOYMENT SUMMARY"
 echo "=============================================="
 echo "Backend API:      $BACKEND_STATUS"
-echo "Chat API:         $CHAT_STATUS" 
+echo "Chat API:         $CHAT_STATUS"
 echo "Frontend:         $FRONTEND_STATUS"
 echo "WebSocket:        $WS_STATUS"
 echo "PostgreSQL:       $DB_STATUS"
@@ -701,7 +715,7 @@ echo "   Health:    http://192.222.58.232:8000/health"
 echo ""
 echo "🎯 Deployment Complete! $(date)"
 """
-        
+
         create_cmd = f"""
 cat > /tmp/comprehensive-test.sh << 'EOF'
 {test_script}
@@ -710,16 +724,18 @@ sudo mv /tmp/comprehensive-test.sh /opt/sophia-ai/comprehensive-test.sh
 sudo chmod +x /opt/sophia-ai/comprehensive-test.sh
 echo "Comprehensive test script created"
 """
-        
+
         returncode, stdout, stderr = self.run_ssh_command(create_cmd)
         return returncode == 0
-    
-    def run_comprehensive_tests(self) -> Dict[str, bool]:
+
+    def run_comprehensive_tests(self) -> dict[str, bool]:
         """Run comprehensive tests and parse results"""
         logger.info("🧪 Running comprehensive deployment tests...")
-        
-        returncode, stdout, stderr = self.run_ssh_command('/opt/sophia-ai/comprehensive-test.sh', timeout=120)
-        
+
+        returncode, stdout, stderr = self.run_ssh_command(
+            "/opt/sophia-ai/comprehensive-test.sh", timeout=120
+        )
+
         # Parse test results
         tests = {
             "backend_api": "Backend API - HEALTHY" in stdout,
@@ -727,21 +743,25 @@ echo "Comprehensive test script created"
             "frontend": "Frontend Dashboard - ACCESSIBLE" in stdout,
             "websocket": "WebSocket - READY" in stdout,
             "postgresql": "PostgreSQL - READY" in stdout,
-            "redis": "Redis - READY" in stdout
+            "redis": "Redis - READY" in stdout,
         }
-        
+
         success_count = sum(tests.values())
         total_count = len(tests)
         success_rate = (success_count / total_count) * 100
-        
-        logger.info(f"📊 Test Results: {success_count}/{total_count} passed ({success_rate:.1f}%)")
-        
+
+        logger.info(
+            f"📊 Test Results: {success_count}/{total_count} passed ({success_rate:.1f}%)"
+        )
+
         return tests
-    
-    def generate_deployment_report_graceful(self, test_results: Dict[str, bool]) -> bool:
+
+    def generate_deployment_report_graceful(
+        self, test_results: dict[str, bool]
+    ) -> bool:
         """Generate comprehensive deployment report"""
         deployment_time = datetime.now() - self.deployment_start_time
-        
+
         report = {
             "deployment_id": f"sophia-ai-graceful-{self.deployment_start_time.strftime('%Y%m%d-%H%M%S')}",
             "timestamp": datetime.now().isoformat(),
@@ -756,51 +776,54 @@ echo "Comprehensive test script created"
                 "backend_api": f"http://{self.config.lambda_labs_ip}:8000",
                 "api_docs": f"http://{self.config.lambda_labs_ip}:8000/docs",
                 "health_check": f"http://{self.config.lambda_labs_ip}:8000/health",
-                "chat_api": f"http://{self.config.lambda_labs_ip}:8000/api/v3/chat/unified"
+                "chat_api": f"http://{self.config.lambda_labs_ip}:8000/api/v3/chat/unified",
             },
             "mcp_servers": [
                 {"name": server["name"], "port": server["port"], "tier": server["tier"]}
                 for server in self.mcp_servers
-            ]
+            ],
         }
-        
+
         # Save report
         report_filename = f"sophia_ai_deployment_report_{self.deployment_start_time.strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_filename, "w") as f:
             json.dump(report, f, indent=2)
-        
-        logger.info(f"📊 Deployment Report Generated:")
+
+        logger.info("📊 Deployment Report Generated:")
         logger.info(f"   Duration: {deployment_time.total_seconds() / 60:.1f} minutes")
         logger.info(f"   Success Rate: {report['success_rate']:.1f}%")
         logger.info(f"   MCP Servers: {len(self.mcp_servers)}")
         logger.info(f"   Report File: {report_filename}")
-        
+
         return True
-    
+
     def deploy_complete_graceful(self) -> bool:
         """Execute complete graceful deployment"""
         logger.info("🚀 Starting Sophia AI Lambda Labs Graceful Deployment")
         logger.info("=" * 70)
-        
+
         # Check prerequisites
         if not self.check_connectivity():
             logger.error("❌ Connectivity check failed")
             return False
-        
+
         # Execute deployment phases with error tolerance
         phases = [
-            ("Phase 1: Infrastructure Setup", self.phase1_graceful_infrastructure_setup),
+            (
+                "Phase 1: Infrastructure Setup",
+                self.phase1_graceful_infrastructure_setup,
+            ),
             ("Phase 2: MCP Servers Deployment", self.phase2_graceful_mcp_deployment),
             ("Phase 3: Unified Chat Interface", self.phase3_graceful_chat_deployment),
             ("Phase 4: Testing & Validation", self.phase4_graceful_validation),
         ]
-        
+
         completed_phases = 0
-        
+
         for phase_name, phase_func in phases:
             logger.info(f"🎯 Starting {phase_name}")
             start_time = time.time()
-            
+
             if phase_func():
                 duration = time.time() - start_time
                 logger.info(f"✅ {phase_name} completed in {duration:.1f} seconds")
@@ -808,25 +831,26 @@ echo "Comprehensive test script created"
             else:
                 logger.warning(f"⚠️ {phase_name} had issues, but continuing...")
                 completed_phases += 1  # Continue with graceful degradation
-        
+
         # Final summary
         total_duration = time.time() - self.deployment_start_time.timestamp()
         success_rate = (completed_phases / len(phases)) * 100
-        
+
         logger.info("=" * 70)
         if success_rate >= 75:
             logger.info("🎉 DEPLOYMENT SUCCESSFUL!")
         else:
             logger.info("⚠️ DEPLOYMENT COMPLETED WITH ISSUES")
-            
+
         logger.info(f"⏱️  Total Duration: {total_duration / 60:.1f} minutes")
         logger.info(f"📊 Success Rate: {success_rate:.1f}%")
         logger.info(f"🌐 Frontend: http://{self.config.lambda_labs_ip}:3000")
         logger.info(f"🔧 Backend: http://{self.config.lambda_labs_ip}:8000")
         logger.info(f"📚 API Docs: http://{self.config.lambda_labs_ip}:8000/docs")
         logger.info("=" * 70)
-        
+
         return success_rate >= 50  # 50% minimum success rate
+
 
 def main():
     """Main graceful deployment function"""
@@ -834,23 +858,23 @@ def main():
     print("=" * 70)
     print("This deployment handles errors gracefully and continues when possible")
     print("=" * 70)
-    
+
     # Initialize configuration
     config = DeploymentConfig()
-    
+
     # Check SSH key
     ssh_key_path = os.path.expanduser(config.ssh_key_path)
     if not os.path.exists(ssh_key_path):
         print(f"❌ SSH key not found: {ssh_key_path}")
         print("Please ensure your SSH key is configured correctly.")
         return False
-    
+
     # Create deployer and execute
     deployer = GracefulLambdaLabsDeployer(config)
-    
+
     try:
         success = deployer.deploy_complete_graceful()
-        
+
         if success:
             print("\n🎉 GRACEFUL DEPLOYMENT COMPLETED!")
             print("🎯 Access your deployment:")
@@ -860,14 +884,16 @@ def main():
             print("   🏥 Health Check: http://192.222.58.232:8000/health")
             print("\n📋 Next Steps:")
             print("   1. Test the unified chat interface on the frontend")
-            print("   2. Verify MCP servers: ssh and run /opt/sophia-ai/health-check.sh")
+            print(
+                "   2. Verify MCP servers: ssh and run /opt/sophia-ai/health-check.sh"
+            )
             print("   3. Check deployment report for detailed results")
             return True
         else:
             print("\n⚠️ DEPLOYMENT HAD SIGNIFICANT ISSUES!")
             print("Check deployment_graceful.log for details")
             return False
-            
+
     except KeyboardInterrupt:
         print("\n⚠️ Deployment interrupted by user")
         return False
@@ -875,6 +901,7 @@ def main():
         print(f"\n❌ Deployment failed with error: {e}")
         return False
 
+
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

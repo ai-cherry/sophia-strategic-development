@@ -85,7 +85,10 @@ class SafeRefactoringExecutor:
         """Get current git branch"""
         try:
             result = subprocess.run(
-                ["git", "branch", "--show-current"], capture_output=True, text=True, check=False
+                ["git", "branch", "--show-current"],
+                capture_output=True,
+                text=True,
+                check=False,
             )
             return result.stdout.strip()
         except Exception:
@@ -873,7 +876,8 @@ jobs:
                     ],
                     capture_output=True,
                     text=True,
-                    timeout=30, check=False,
+                    timeout=30,
+                    check=False,
                 )
 
                 if result.returncode != 0:
@@ -917,7 +921,8 @@ jobs:
                     ],
                     capture_output=True,
                     text=True,
-                    timeout=15, check=False,
+                    timeout=15,
+                    check=False,
                 )
 
                 if result.returncode == 0:

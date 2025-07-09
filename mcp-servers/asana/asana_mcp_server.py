@@ -33,11 +33,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
 try:
     from backend.core.auto_esc_config import get_config_value
+
     # Add base directory to path
     sys.path.append(os.path.join(os.path.dirname(__file__), "..", "base"))
     from unified_mcp_base import (
-        ServiceMCPServer,
         MCPServerConfig,
+        ServiceMCPServer,
     )
 except ImportError as e:
     logger.error(f"Failed to import dependencies: {e}")
@@ -60,11 +61,7 @@ class AsanaMCPServer(ServiceMCPServer):
     """Asana integration MCP server."""
 
     def __init__(self):
-        config = MCPServerConfig(
-            name="asana",
-            port=9006,
-            version="2.0.0"
-        )
+        config = MCPServerConfig(name="asana", port=9006, version="2.0.0")
         super().__init__(config)
         self.asana_client = None
 
@@ -362,7 +359,7 @@ if __name__ == "__main__":
     # If running as FastAPI app
     if get_config_value("run_as_fastapi", "false").lower() == "true":
         import uvicorn
-        from fastapi import APIRouter, FastAPI
+        from fastapi import APIRouter
 
         # FastAPI app created by unified base
         router = APIRouter(prefix="/mcp/asana")

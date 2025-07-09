@@ -37,9 +37,7 @@ class MCPToolResponse(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-def mcp_tool(
-    *, name: str, description: str, parameters: dict[str, Any] | None = None
-):
+def mcp_tool(*, name: str, description: str, parameters: dict[str, Any] | None = None):
     """
     Decorator to register a function as an MCP tool
 

@@ -24,14 +24,12 @@ Features:
 - Real-time team activity monitoring
 """
 
-import asyncio
-import json
 import logging
 import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -52,11 +50,12 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
 try:
-    from backend.core.auto_esc_config import get_config_value
     from mcp_servers.base.unified_mcp_base import (
-        ServiceMCPServer,
         MCPServerConfig,
+        ServiceMCPServer,
     )
+
+    from backend.core.auto_esc_config import get_config_value
 except ImportError:
     logger.error("Failed to import backend dependencies")
     sys.exit(1)
@@ -65,6 +64,7 @@ except ImportError:
 try:
     from slack_sdk import WebClient
     from slack_sdk.errors import SlackApiError
+
     SLACK_AVAILABLE = True
 except ImportError:
     SLACK_AVAILABLE = False
@@ -77,11 +77,7 @@ class SlackMCPServer(ServiceMCPServer):
     """Slack integration MCP server with real data capabilities."""
 
     def __init__(self):
-        config = MCPServerConfig(
-            name="slack",
-            port=9103,
-            version="2.0.0"
-        )
+        config = MCPServerConfig(name="slack", port=9103, version="2.0.0")
         super().__init__(config)
         self.slack_client = None
         self.bot_user_id = None
@@ -93,9 +89,11 @@ class SlackMCPServer(ServiceMCPServer):
             # Use Pulumi ESC configuration
             bot_token = get_config_value("slack_bot_token")
             user_token = get_config_value("slack_user_token")
-            
+
             if not bot_token:
-                self.logger.warning("SLACK_BOT_TOKEN not set in Pulumi ESC, running in demo mode")
+                self.logger.warning(
+                    "SLACK_BOT_TOKEN not set in Pulumi ESC, running in demo mode"
+                )
                 return
 
             if not SLACK_AVAILABLE:
@@ -104,35 +102,37 @@ class SlackMCPServer(ServiceMCPServer):
 
             # Initialize Slack client with bot token
             self.slack_client = WebClient(token=bot_token)
-            
+
             # Test connection and get bot info
             response = await self._test_connection()
             if response:
                 self.bot_user_id = response.get("user_id")
                 self.team_id = response.get("team_id")
-            
-            self.logger.info(f"Slack client initialized successfully for team: {self.team_id}")
-            
+
+            self.logger.info(
+                f"Slack client initialized successfully for team: {self.team_id}"
+            )
+
         except Exception as e:
             self.logger.error(f"Failed to initialize Slack client: {e}")
             self.slack_client = None
 
-    async def _test_connection(self) -> Optional[Dict[str, Any]]:
+    async def _test_connection(self) -> Optional[dict[str, Any]]:
         """Test Slack API connection."""
         try:
             if not self.slack_client:
                 return None
-                
+
             # Test with auth.test
             response = self.slack_client.auth_test()
-            
+
             if response["ok"]:
                 self.logger.info(f"Connected to Slack team: {response['team']}")
                 return response
             else:
                 self.logger.error(f"Slack auth test failed: {response['error']}")
                 return None
-                
+
         except Exception as e:
             self.logger.error(f"Slack connection test failed: {e}")
             return None
@@ -156,7 +156,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Slack health check failed: {e}")
             return False
 
-    async def get_tools(self) -> List[Dict[str, Any]]:
+    async def get_tools(self) -> list[dict[str, Any]]:
         """Get Slack tools for MCP protocol."""
         return [
             {
@@ -167,23 +167,20 @@ class SlackMCPServer(ServiceMCPServer):
                     "properties": {
                         "channel": {
                             "type": "string",
-                            "description": "Channel ID or name (e.g., '#general', '@user')"
+                            "description": "Channel ID or name (e.g., '#general', '@user')",
                         },
-                        "text": {
-                            "type": "string",
-                            "description": "Message text"
-                        },
+                        "text": {"type": "string", "description": "Message text"},
                         "blocks": {
                             "type": "array",
-                            "description": "Rich message blocks (optional)"
+                            "description": "Rich message blocks (optional)",
                         },
                         "thread_ts": {
                             "type": "string",
-                            "description": "Thread timestamp for replies"
-                        }
+                            "description": "Thread timestamp for replies",
+                        },
                     },
-                    "required": ["channel", "text"]
-                }
+                    "required": ["channel", "text"],
+                },
             },
             {
                 "name": "search_messages",
@@ -191,32 +188,29 @@ class SlackMCPServer(ServiceMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "Search query"
-                        },
+                        "query": {"type": "string", "description": "Search query"},
                         "channel": {
                             "type": "string",
-                            "description": "Specific channel to search (optional)"
+                            "description": "Specific channel to search (optional)",
                         },
                         "from_user": {
                             "type": "string",
-                            "description": "Filter by user (optional)"
+                            "description": "Filter by user (optional)",
                         },
                         "date_range": {
                             "type": "string",
                             "enum": ["today", "week", "month", "all"],
-                            "default": "month"
+                            "default": "month",
                         },
                         "limit": {
                             "type": "integer",
                             "default": 20,
                             "minimum": 1,
-                            "maximum": 100
-                        }
+                            "maximum": 100,
+                        },
                     },
-                    "required": ["query"]
-                }
+                    "required": ["query"],
+                },
             },
             {
                 "name": "get_channel_history",
@@ -226,25 +220,25 @@ class SlackMCPServer(ServiceMCPServer):
                     "properties": {
                         "channel": {
                             "type": "string",
-                            "description": "Channel ID or name"
+                            "description": "Channel ID or name",
                         },
                         "limit": {
                             "type": "integer",
                             "default": 50,
                             "minimum": 1,
-                            "maximum": 200
+                            "maximum": 200,
                         },
                         "oldest": {
                             "type": "string",
-                            "description": "Oldest message timestamp"
+                            "description": "Oldest message timestamp",
                         },
                         "latest": {
                             "type": "string",
-                            "description": "Latest message timestamp"
-                        }
+                            "description": "Latest message timestamp",
+                        },
                     },
-                    "required": ["channel"]
-                }
+                    "required": ["channel"],
+                },
             },
             {
                 "name": "list_channels",
@@ -255,16 +249,16 @@ class SlackMCPServer(ServiceMCPServer):
                         "types": {
                             "type": "string",
                             "enum": ["public", "private", "mpim", "im", "all"],
-                            "default": "public"
+                            "default": "public",
                         },
                         "limit": {
                             "type": "integer",
                             "default": 50,
                             "minimum": 1,
-                            "maximum": 200
-                        }
-                    }
-                }
+                            "maximum": 200,
+                        },
+                    },
+                },
             },
             {
                 "name": "get_user_info",
@@ -272,13 +266,10 @@ class SlackMCPServer(ServiceMCPServer):
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "user": {
-                            "type": "string",
-                            "description": "User ID or email"
-                        }
+                        "user": {"type": "string", "description": "User ID or email"}
                     },
-                    "required": ["user"]
-                }
+                    "required": ["user"],
+                },
             },
             {
                 "name": "list_team_members",
@@ -289,16 +280,16 @@ class SlackMCPServer(ServiceMCPServer):
                         "presence": {
                             "type": "boolean",
                             "default": True,
-                            "description": "Include presence information"
+                            "description": "Include presence information",
                         },
                         "limit": {
                             "type": "integer",
                             "default": 50,
                             "minimum": 1,
-                            "maximum": 200
-                        }
-                    }
-                }
+                            "maximum": 200,
+                        },
+                    },
+                },
             },
             {
                 "name": "create_channel",
@@ -308,20 +299,20 @@ class SlackMCPServer(ServiceMCPServer):
                     "properties": {
                         "name": {
                             "type": "string",
-                            "description": "Channel name (without #)"
+                            "description": "Channel name (without #)",
                         },
                         "is_private": {
                             "type": "boolean",
                             "default": False,
-                            "description": "Create private channel"
+                            "description": "Create private channel",
                         },
                         "purpose": {
                             "type": "string",
-                            "description": "Channel purpose/description"
-                        }
+                            "description": "Channel purpose/description",
+                        },
                     },
-                    "required": ["name"]
-                }
+                    "required": ["name"],
+                },
             },
             {
                 "name": "get_team_analytics",
@@ -332,15 +323,15 @@ class SlackMCPServer(ServiceMCPServer):
                         "time_range": {
                             "type": "string",
                             "enum": ["today", "week", "month", "quarter"],
-                            "default": "month"
+                            "default": "month",
                         },
                         "include_channels": {
                             "type": "boolean",
                             "default": True,
-                            "description": "Include channel-specific analytics"
-                        }
-                    }
-                }
+                            "description": "Include channel-specific analytics",
+                        },
+                    },
+                },
             },
             {
                 "name": "set_status",
@@ -350,23 +341,23 @@ class SlackMCPServer(ServiceMCPServer):
                     "properties": {
                         "status_text": {
                             "type": "string",
-                            "description": "Status message"
+                            "description": "Status message",
                         },
                         "status_emoji": {
                             "type": "string",
-                            "description": "Status emoji (e.g., ':house:')"
+                            "description": "Status emoji (e.g., ':house:')",
                         },
                         "status_expiration": {
                             "type": "integer",
-                            "description": "Expiration timestamp (0 for never)"
-                        }
+                            "description": "Expiration timestamp (0 for never)",
+                        },
                     },
-                    "required": ["status_text"]
-                }
-            }
+                    "required": ["status_text"],
+                },
+            },
         ]
 
-    async def execute_tool(self, name: str, arguments: Dict[str, Any]) -> Any:
+    async def execute_tool(self, name: str, arguments: dict[str, Any]) -> Any:
         """Execute Slack tool."""
         try:
             if name == "send_message":
@@ -393,7 +384,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Tool execution failed for {name}: {e}")
             return {"error": str(e), "success": False}
 
-    async def _send_message(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _send_message(self, args: dict[str, Any]) -> dict[str, Any]:
         """Send a message to a Slack channel or user."""
         try:
             channel = args["channel"]
@@ -409,9 +400,9 @@ class SlackMCPServer(ServiceMCPServer):
                         "text": text,
                         "ts": f"{datetime.now().timestamp()}",
                         "user": "bot_user_id",
-                        "bot_id": "demo_bot"
+                        "bot_id": "demo_bot",
                     },
-                    "success": True
+                    "success": True,
                 }
 
             # Clean channel name
@@ -426,10 +417,7 @@ class SlackMCPServer(ServiceMCPServer):
 
             # Send message
             response = self.slack_client.chat_postMessage(
-                channel=channel,
-                text=text,
-                blocks=blocks,
-                thread_ts=thread_ts
+                channel=channel, text=text, blocks=blocks, thread_ts=thread_ts
             )
 
             if response["ok"]:
@@ -438,9 +426,11 @@ class SlackMCPServer(ServiceMCPServer):
                         "channel": response["channel"],
                         "text": text,
                         "ts": response["ts"],
-                        "permalink": await self._get_permalink(response["channel"], response["ts"])
+                        "permalink": await self._get_permalink(
+                            response["channel"], response["ts"]
+                        ),
                     },
-                    "success": True
+                    "success": True,
                 }
             else:
                 return {"error": response["error"], "success": False}
@@ -449,7 +439,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Send message failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _search_messages(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _search_messages(self, args: dict[str, Any]) -> dict[str, Any]:
         """Search messages across all Slack channels."""
         try:
             query = args["query"]
@@ -469,7 +459,7 @@ class SlackMCPServer(ServiceMCPServer):
                             "channel": "C1234567890",
                             "channel_name": "general",
                             "ts": f"{datetime.now().timestamp()}",
-                            "permalink": "https://payready.slack.com/archives/C1234567890/p1234567890"
+                            "permalink": "https://payready.slack.com/archives/C1234567890/p1234567890",
                         },
                         {
                             "text": f"Another demo message with '{query}' from random channel",
@@ -478,12 +468,12 @@ class SlackMCPServer(ServiceMCPServer):
                             "channel": "C0987654321",
                             "channel_name": "random",
                             "ts": f"{(datetime.now() - timedelta(hours=2)).timestamp()}",
-                            "permalink": "https://payready.slack.com/archives/C0987654321/p0987654321"
-                        }
+                            "permalink": "https://payready.slack.com/archives/C0987654321/p0987654321",
+                        },
                     ],
                     "total": 2,
                     "query": query,
-                    "success": True
+                    "success": True,
                 }
 
             # Build search query
@@ -492,7 +482,7 @@ class SlackMCPServer(ServiceMCPServer):
                 search_query += f" in:{channel}"
             if from_user:
                 search_query += f" from:{from_user}"
-            
+
             # Add date range
             if date_range == "today":
                 search_query += " after:today"
@@ -503,28 +493,29 @@ class SlackMCPServer(ServiceMCPServer):
 
             # Search messages
             response = self.slack_client.search_messages(
-                query=search_query,
-                count=limit
+                query=search_query, count=limit
             )
 
             if response["ok"]:
                 messages = []
                 for match in response["messages"]["matches"]:
-                    messages.append({
-                        "text": match["text"],
-                        "user": match["user"],
-                        "username": match.get("username", "Unknown"),
-                        "channel": match["channel"]["id"],
-                        "channel_name": match["channel"]["name"],
-                        "ts": match["ts"],
-                        "permalink": match["permalink"]
-                    })
+                    messages.append(
+                        {
+                            "text": match["text"],
+                            "user": match["user"],
+                            "username": match.get("username", "Unknown"),
+                            "channel": match["channel"]["id"],
+                            "channel_name": match["channel"]["name"],
+                            "ts": match["ts"],
+                            "permalink": match["permalink"],
+                        }
+                    )
 
                 return {
                     "messages": messages,
                     "total": response["messages"]["total"],
                     "query": query,
-                    "success": True
+                    "success": True,
                 }
             else:
                 return {"error": response["error"], "success": False}
@@ -533,7 +524,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Search messages failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _get_channel_history(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_channel_history(self, args: dict[str, Any]) -> dict[str, Any]:
         """Get message history from a specific channel."""
         try:
             channel = args["channel"]
@@ -550,19 +541,19 @@ class SlackMCPServer(ServiceMCPServer):
                             "user": "U1234567890",
                             "username": "CEO",
                             "ts": f"{datetime.now().timestamp()}",
-                            "reactions": [{"name": "thumbsup", "count": 3}]
+                            "reactions": [{"name": "thumbsup", "count": 3}],
                         },
                         {
                             "text": "Great! Just finished the quarterly report.",
                             "user": "U0987654321",
                             "username": "Team Lead",
                             "ts": f"{(datetime.now() - timedelta(minutes=30)).timestamp()}",
-                            "reactions": [{"name": "star", "count": 1}]
-                        }
+                            "reactions": [{"name": "star", "count": 1}],
+                        },
                     ],
                     "channel": channel,
                     "total": 2,
-                    "success": True
+                    "success": True,
                 }
 
             # Clean channel name
@@ -571,31 +562,32 @@ class SlackMCPServer(ServiceMCPServer):
 
             # Get channel history
             response = self.slack_client.conversations_history(
-                channel=channel,
-                limit=limit,
-                oldest=oldest,
-                latest=latest
+                channel=channel, limit=limit, oldest=oldest, latest=latest
             )
 
             if response["ok"]:
                 messages = []
                 for message in response["messages"]:
-                    messages.append({
-                        "text": message.get("text", ""),
-                        "user": message.get("user", ""),
-                        "username": await self._get_username(message.get("user", "")),
-                        "ts": message.get("ts", ""),
-                        "reactions": message.get("reactions", []),
-                        "thread_ts": message.get("thread_ts"),
-                        "reply_count": message.get("reply_count", 0)
-                    })
+                    messages.append(
+                        {
+                            "text": message.get("text", ""),
+                            "user": message.get("user", ""),
+                            "username": await self._get_username(
+                                message.get("user", "")
+                            ),
+                            "ts": message.get("ts", ""),
+                            "reactions": message.get("reactions", []),
+                            "thread_ts": message.get("thread_ts"),
+                            "reply_count": message.get("reply_count", 0),
+                        }
+                    )
 
                 return {
                     "messages": messages,
                     "channel": channel,
                     "total": len(messages),
                     "has_more": response.get("has_more", False),
-                    "success": True
+                    "success": True,
                 }
             else:
                 return {"error": response["error"], "success": False}
@@ -604,7 +596,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Get channel history failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _list_channels(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _list_channels(self, args: dict[str, Any]) -> dict[str, Any]:
         """List all channels accessible to the bot."""
         try:
             types = args.get("types", "public")
@@ -620,7 +612,7 @@ class SlackMCPServer(ServiceMCPServer):
                             "is_private": False,
                             "num_members": 25,
                             "purpose": "Company-wide announcements",
-                            "created": int(datetime.now().timestamp())
+                            "created": int(datetime.now().timestamp()),
                         },
                         {
                             "id": "C0987654321",
@@ -628,7 +620,7 @@ class SlackMCPServer(ServiceMCPServer):
                             "is_private": False,
                             "num_members": 23,
                             "purpose": "Non-work related discussions",
-                            "created": int(datetime.now().timestamp())
+                            "created": int(datetime.now().timestamp()),
                         },
                         {
                             "id": "C1122334455",
@@ -636,11 +628,11 @@ class SlackMCPServer(ServiceMCPServer):
                             "is_private": True,
                             "num_members": 5,
                             "purpose": "Executive team discussions",
-                            "created": int(datetime.now().timestamp())
-                        }
+                            "created": int(datetime.now().timestamp()),
+                        },
                     ],
                     "total": 3,
-                    "success": True
+                    "success": True,
                 }
 
             # Map types to Slack API types
@@ -649,32 +641,29 @@ class SlackMCPServer(ServiceMCPServer):
                 "private": "private_channel",
                 "mpim": "mpim",
                 "im": "im",
-                "all": "public_channel,private_channel,mpim,im"
+                "all": "public_channel,private_channel,mpim,im",
             }
 
             # List channels
             response = self.slack_client.conversations_list(
-                types=channel_types.get(types, "public_channel"),
-                limit=limit
+                types=channel_types.get(types, "public_channel"), limit=limit
             )
 
             if response["ok"]:
                 channels = []
                 for channel in response["channels"]:
-                    channels.append({
-                        "id": channel["id"],
-                        "name": channel["name"],
-                        "is_private": channel["is_private"],
-                        "num_members": channel.get("num_members", 0),
-                        "purpose": channel.get("purpose", {}).get("value", ""),
-                        "created": channel.get("created", 0)
-                    })
+                    channels.append(
+                        {
+                            "id": channel["id"],
+                            "name": channel["name"],
+                            "is_private": channel["is_private"],
+                            "num_members": channel.get("num_members", 0),
+                            "purpose": channel.get("purpose", {}).get("value", ""),
+                            "created": channel.get("created", 0),
+                        }
+                    )
 
-                return {
-                    "channels": channels,
-                    "total": len(channels),
-                    "success": True
-                }
+                return {"channels": channels, "total": len(channels), "success": True}
             else:
                 return {"error": response["error"], "success": False}
 
@@ -682,7 +671,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"List channels failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _get_user_info(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_user_info(self, args: dict[str, Any]) -> dict[str, Any]:
         """Get information about a Slack user."""
         try:
             user = args["user"]
@@ -699,14 +688,14 @@ class SlackMCPServer(ServiceMCPServer):
                         "phone": "+1-555-123-4567",
                         "status": {
                             "status_text": "In a meeting",
-                            "status_emoji": ":calendar:"
+                            "status_emoji": ":calendar:",
                         },
                         "presence": "active",
                         "tz": "America/New_York",
                         "is_admin": True,
-                        "is_owner": True
+                        "is_owner": True,
                     },
-                    "success": True
+                    "success": True,
                 }
 
             # Get user info
@@ -715,7 +704,7 @@ class SlackMCPServer(ServiceMCPServer):
             if response["ok"]:
                 user_data = response["user"]
                 profile = user_data.get("profile", {})
-                
+
                 return {
                     "user": {
                         "id": user_data["id"],
@@ -726,14 +715,14 @@ class SlackMCPServer(ServiceMCPServer):
                         "phone": profile.get("phone", ""),
                         "status": {
                             "status_text": profile.get("status_text", ""),
-                            "status_emoji": profile.get("status_emoji", "")
+                            "status_emoji": profile.get("status_emoji", ""),
                         },
                         "presence": await self._get_user_presence(user_data["id"]),
                         "tz": user_data.get("tz", ""),
                         "is_admin": user_data.get("is_admin", False),
-                        "is_owner": user_data.get("is_owner", False)
+                        "is_owner": user_data.get("is_owner", False),
                     },
-                    "success": True
+                    "success": True,
                 }
             else:
                 return {"error": response["error"], "success": False}
@@ -742,7 +731,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Get user info failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _list_team_members(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _list_team_members(self, args: dict[str, Any]) -> dict[str, Any]:
         """List all team members."""
         try:
             include_presence = args.get("presence", True)
@@ -759,7 +748,7 @@ class SlackMCPServer(ServiceMCPServer):
                             "email": "ceo@payready.com",
                             "title": "Chief Executive Officer",
                             "presence": "active" if include_presence else None,
-                            "is_admin": True
+                            "is_admin": True,
                         },
                         {
                             "id": "U0987654321",
@@ -768,11 +757,11 @@ class SlackMCPServer(ServiceMCPServer):
                             "email": "jane@payready.com",
                             "title": "Team Lead",
                             "presence": "away" if include_presence else None,
-                            "is_admin": False
-                        }
+                            "is_admin": False,
+                        },
                     ],
                     "total": 2,
-                    "success": True
+                    "success": True,
                 }
 
             # List team members
@@ -783,7 +772,7 @@ class SlackMCPServer(ServiceMCPServer):
                 for member in response["members"]:
                     if member.get("deleted", False) or member.get("is_bot", False):
                         continue
-                    
+
                     profile = member.get("profile", {})
                     member_data = {
                         "id": member["id"],
@@ -791,19 +780,17 @@ class SlackMCPServer(ServiceMCPServer):
                         "real_name": member.get("real_name", ""),
                         "email": profile.get("email", ""),
                         "title": profile.get("title", ""),
-                        "is_admin": member.get("is_admin", False)
+                        "is_admin": member.get("is_admin", False),
                     }
-                    
+
                     if include_presence:
-                        member_data["presence"] = await self._get_user_presence(member["id"])
-                    
+                        member_data["presence"] = await self._get_user_presence(
+                            member["id"]
+                        )
+
                     members.append(member_data)
 
-                return {
-                    "members": members,
-                    "total": len(members),
-                    "success": True
-                }
+                return {"members": members, "total": len(members), "success": True}
             else:
                 return {"error": response["error"], "success": False}
 
@@ -811,7 +798,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"List team members failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _create_channel(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _create_channel(self, args: dict[str, Any]) -> dict[str, Any]:
         """Create a new Slack channel."""
         try:
             name = args["name"]
@@ -828,25 +815,23 @@ class SlackMCPServer(ServiceMCPServer):
                         "is_private": is_private,
                         "purpose": purpose,
                         "created": int(datetime.now().timestamp()),
-                        "creator": self.bot_user_id or "U1234567890"
+                        "creator": self.bot_user_id or "U1234567890",
                     },
-                    "success": True
+                    "success": True,
                 }
 
             # Create channel
             response = self.slack_client.conversations_create(
-                name=name,
-                is_private=is_private
+                name=name, is_private=is_private
             )
 
             if response["ok"]:
                 channel = response["channel"]
-                
+
                 # Set purpose if provided
                 if purpose:
                     self.slack_client.conversations_setPurpose(
-                        channel=channel["id"],
-                        purpose=purpose
+                        channel=channel["id"], purpose=purpose
                     )
 
                 return {
@@ -856,9 +841,9 @@ class SlackMCPServer(ServiceMCPServer):
                         "is_private": channel["is_private"],
                         "purpose": purpose,
                         "created": channel.get("created", 0),
-                        "creator": channel.get("creator", "")
+                        "creator": channel.get("creator", ""),
                     },
-                    "success": True
+                    "success": True,
                 }
             else:
                 return {"error": response["error"], "success": False}
@@ -867,7 +852,7 @@ class SlackMCPServer(ServiceMCPServer):
             self.logger.error(f"Create channel failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _get_team_analytics(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _get_team_analytics(self, args: dict[str, Any]) -> dict[str, Any]:
         """Get team communication analytics and insights."""
         try:
             time_range = args.get("time_range", "month")
@@ -882,39 +867,41 @@ class SlackMCPServer(ServiceMCPServer):
                         "total_reactions": 456,
                         "active_users": 23,
                         "avg_response_time": "4.2 minutes",
-                        "peak_activity_hour": "2PM EST"
+                        "peak_activity_hour": "2PM EST",
                     },
                     "top_channels": [
                         {"name": "general", "messages": 345, "active_users": 23},
                         {"name": "random", "messages": 234, "active_users": 18},
-                        {"name": "dev-team", "messages": 189, "active_users": 8}
-                    ] if include_channels else [],
+                        {"name": "dev-team", "messages": 189, "active_users": 8},
+                    ]
+                    if include_channels
+                    else [],
                     "most_active_users": [
                         {"name": "CEO", "messages": 89, "reactions_given": 45},
                         {"name": "Team Lead", "messages": 76, "reactions_given": 32},
-                        {"name": "Developer", "messages": 67, "reactions_given": 28}
+                        {"name": "Developer", "messages": 67, "reactions_given": 28},
                     ],
                     "communication_patterns": {
                         "busiest_day": "Wednesday",
                         "quiet_hours": "12AM-6AM EST",
                         "most_used_emoji": "👍",
-                        "avg_message_length": 47
+                        "avg_message_length": 47,
                     },
                     "insights": [
                         "Team communication increased 15% this month",
                         "Most active discussions happen on Wednesdays",
                         "CEO is highly engaged with 89 messages",
-                        "Response times improved by 12%"
-                    ]
+                        "Response times improved by 12%",
+                    ],
                 },
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
             self.logger.error(f"Get team analytics failed: {e}")
             return {"error": str(e), "success": False}
 
-    async def _set_status(self, args: Dict[str, Any]) -> Dict[str, Any]:
+    async def _set_status(self, args: dict[str, Any]) -> dict[str, Any]:
         """Set bot or user status."""
         try:
             status_text = args["status_text"]
@@ -927,9 +914,9 @@ class SlackMCPServer(ServiceMCPServer):
                     "status": {
                         "status_text": status_text,
                         "status_emoji": status_emoji,
-                        "status_expiration": status_expiration
+                        "status_expiration": status_expiration,
                     },
-                    "success": True
+                    "success": True,
                 }
 
             # Set status
@@ -937,7 +924,7 @@ class SlackMCPServer(ServiceMCPServer):
                 profile={
                     "status_text": status_text,
                     "status_emoji": status_emoji,
-                    "status_expiration": status_expiration
+                    "status_expiration": status_expiration,
                 }
             )
 
@@ -946,9 +933,9 @@ class SlackMCPServer(ServiceMCPServer):
                     "status": {
                         "status_text": status_text,
                         "status_emoji": status_emoji,
-                        "status_expiration": status_expiration
+                        "status_expiration": status_expiration,
                     },
-                    "success": True
+                    "success": True,
                 }
             else:
                 return {"error": response["error"], "success": False}
@@ -962,7 +949,7 @@ class SlackMCPServer(ServiceMCPServer):
         try:
             if not self.slack_client or not user_id:
                 return "Unknown"
-            
+
             response = self.slack_client.users_info(user=user_id)
             if response["ok"]:
                 return response["user"]["name"]
@@ -975,7 +962,7 @@ class SlackMCPServer(ServiceMCPServer):
         try:
             if not self.slack_client or not user_id:
                 return "unknown"
-            
+
             response = self.slack_client.users_getPresence(user=user_id)
             if response["ok"]:
                 return response["presence"]
@@ -988,10 +975,9 @@ class SlackMCPServer(ServiceMCPServer):
         try:
             if not self.slack_client:
                 return f"https://slack.com/archives/{channel}/p{message_ts.replace('.', '')}"
-            
+
             response = self.slack_client.chat_getPermalink(
-                channel=channel,
-                message_ts=message_ts
+                channel=channel, message_ts=message_ts
             )
             if response["ok"]:
                 return response["permalink"]
@@ -1027,4 +1013,4 @@ if __name__ == "__main__":
     else:
         # Run as MCP server
         server = SlackMCPServer()
-        server.run() 
+        server.run()

@@ -30,8 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ class RealInternetSearchEngine:
             "academic_searches": 0,
             "image_searches": 0,
             "video_searches": 0,
-            "map_searches": 0
+            "map_searches": 0,
         }
 
     async def web_search(self, query: str, max_results: int = 5) -> dict[str, Any]:
@@ -62,12 +61,14 @@ class RealInternetSearchEngine:
 
             search_results = []
             for result in results:
-                search_results.append({
-                    "title": result.get("title", ""),
-                    "snippet": result.get("body", ""),
-                    "url": result.get("href", ""),
-                    "type": "web"
-                })
+                search_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "snippet": result.get("body", ""),
+                        "url": result.get("href", ""),
+                        "type": "web",
+                    }
+                )
 
             return {
                 "results": search_results,
@@ -75,7 +76,7 @@ class RealInternetSearchEngine:
                 "search_type": "web",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "source": "duckduckgo_web",
-                "total_results": len(search_results)
+                "total_results": len(search_results),
             }
 
         except Exception as e:
@@ -93,14 +94,16 @@ class RealInternetSearchEngine:
 
             news_results = []
             for result in results:
-                news_results.append({
-                    "title": result.get("title", ""),
-                    "snippet": result.get("body", ""),
-                    "url": result.get("url", ""),
-                    "date": result.get("date", ""),
-                    "source": result.get("source", ""),
-                    "type": "news"
-                })
+                news_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "snippet": result.get("body", ""),
+                        "url": result.get("url", ""),
+                        "date": result.get("date", ""),
+                        "source": result.get("source", ""),
+                        "type": "news",
+                    }
+                )
 
             return {
                 "results": news_results,
@@ -108,7 +111,7 @@ class RealInternetSearchEngine:
                 "search_type": "news",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "source": "duckduckgo_news",
-                "total_results": len(news_results)
+                "total_results": len(news_results),
             }
 
         except Exception as e:
@@ -126,13 +129,15 @@ class RealInternetSearchEngine:
 
             image_results = []
             for result in results:
-                image_results.append({
-                    "title": result.get("title", ""),
-                    "image_url": result.get("image", ""),
-                    "thumbnail": result.get("thumbnail", ""),
-                    "source": result.get("source", ""),
-                    "type": "image"
-                })
+                image_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "image_url": result.get("image", ""),
+                        "thumbnail": result.get("thumbnail", ""),
+                        "source": result.get("source", ""),
+                        "type": "image",
+                    }
+                )
 
             return {
                 "results": image_results,
@@ -140,7 +145,7 @@ class RealInternetSearchEngine:
                 "search_type": "image",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "source": "duckduckgo_images",
-                "total_results": len(image_results)
+                "total_results": len(image_results),
             }
 
         except Exception as e:
@@ -158,15 +163,17 @@ class RealInternetSearchEngine:
 
             video_results = []
             for result in results:
-                video_results.append({
-                    "title": result.get("title", ""),
-                    "description": result.get("description", ""),
-                    "url": result.get("content", ""),
-                    "thumbnail": result.get("thumbnail", ""),
-                    "duration": result.get("duration", ""),
-                    "publisher": result.get("publisher", ""),
-                    "type": "video"
-                })
+                video_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "description": result.get("description", ""),
+                        "url": result.get("content", ""),
+                        "thumbnail": result.get("thumbnail", ""),
+                        "duration": result.get("duration", ""),
+                        "publisher": result.get("publisher", ""),
+                        "type": "video",
+                    }
+                )
 
             return {
                 "results": video_results,
@@ -174,7 +181,7 @@ class RealInternetSearchEngine:
                 "search_type": "video",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "source": "duckduckgo_videos",
-                "total_results": len(video_results)
+                "total_results": len(video_results),
             }
 
         except Exception as e:
@@ -192,15 +199,17 @@ class RealInternetSearchEngine:
 
             map_results = []
             for result in results:
-                map_results.append({
-                    "title": result.get("title", ""),
-                    "address": result.get("address", ""),
-                    "phone": result.get("phone", ""),
-                    "website": result.get("website", ""),
-                    "latitude": result.get("latitude", ""),
-                    "longitude": result.get("longitude", ""),
-                    "type": "location"
-                })
+                map_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "address": result.get("address", ""),
+                        "phone": result.get("phone", ""),
+                        "website": result.get("website", ""),
+                        "latitude": result.get("latitude", ""),
+                        "longitude": result.get("longitude", ""),
+                        "type": "location",
+                    }
+                )
 
             return {
                 "results": map_results,
@@ -208,7 +217,7 @@ class RealInternetSearchEngine:
                 "search_type": "maps",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "source": "duckduckgo_maps",
-                "total_results": len(map_results)
+                "total_results": len(map_results),
             }
 
         except Exception as e:
@@ -221,9 +230,11 @@ class WebPageScraper:
 
     def __init__(self):
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            }
+        )
 
     async def scrape_url(self, url: str) -> dict[str, Any]:
         """Scrape content from a URL with enhanced extraction"""
@@ -233,40 +244,48 @@ class WebPageScraper:
             response = self.session.get(url, timeout=10)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(response.content, "html.parser")
 
             # Remove unwanted elements
-            for element in soup(["script", "style", "nav", "footer", "aside", "header"]):
+            for element in soup(
+                ["script", "style", "nav", "footer", "aside", "header"]
+            ):
                 element.decompose()
 
             # Extract title
             title = ""
             if soup.title:
                 title = soup.title.string.strip()
-            elif soup.find('h1'):
-                title = soup.find('h1').get_text().strip()
+            elif soup.find("h1"):
+                title = soup.find("h1").get_text().strip()
 
             # Extract main content
             content_selectors = [
-                'article', 'main', '[role="main"]', '.content', '.post-content',
-                '.entry-content', '.article-content', '.story-body'
+                "article",
+                "main",
+                '[role="main"]',
+                ".content",
+                ".post-content",
+                ".entry-content",
+                ".article-content",
+                ".story-body",
             ]
 
             main_content = ""
             for selector in content_selectors:
                 content_elem = soup.select_one(selector)
                 if content_elem:
-                    main_content = content_elem.get_text(separator=' ', strip=True)
+                    main_content = content_elem.get_text(separator=" ", strip=True)
                     break
 
             # Fallback to body content
             if not main_content:
-                main_content = soup.get_text(separator=' ', strip=True)
+                main_content = soup.get_text(separator=" ", strip=True)
 
             # Clean and limit content
             lines = (line.strip() for line in main_content.splitlines())
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            clean_content = ' '.join(chunk for chunk in chunks if chunk)
+            clean_content = " ".join(chunk for chunk in chunks if chunk)
 
             # Limit length
             if len(clean_content) > 3000:
@@ -274,9 +293,9 @@ class WebPageScraper:
 
             # Extract metadata
             meta_description = ""
-            meta_tag = soup.find('meta', attrs={'name': 'description'})
+            meta_tag = soup.find("meta", attrs={"name": "description"})
             if meta_tag:
-                meta_description = meta_tag.get('content', '')
+                meta_description = meta_tag.get("content", "")
 
             return {
                 "url": url,
@@ -285,7 +304,7 @@ class WebPageScraper:
                 "description": meta_description,
                 "word_count": len(clean_content.split()),
                 "timestamp": datetime.now(UTC).isoformat(),
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
@@ -294,7 +313,7 @@ class WebPageScraper:
                 "url": url,
                 "error": str(e),
                 "timestamp": datetime.now(UTC).isoformat(),
-                "success": False
+                "success": False,
             }
 
 
@@ -320,7 +339,7 @@ class RealInternetSophiaAI:
             "internet_enhanced_requests": 0,
             "web_pages_scraped": 0,
             "cost_savings": 0.0,
-            "uptime_start": datetime.now(UTC).isoformat()
+            "uptime_start": datetime.now(UTC).isoformat(),
         }
 
         logger.info("🌐 Real Internet Sophia AI v2.0 initialized")
@@ -336,7 +355,9 @@ class RealInternetSophiaAI:
         """Get current date"""
         return datetime.now(UTC).strftime("%Y-%m-%d")
 
-    async def intelligent_search(self, query: str, search_type: str = "auto") -> dict[str, Any]:
+    async def intelligent_search(
+        self, query: str, search_type: str = "auto"
+    ) -> dict[str, Any]:
         """Intelligent search that determines the best search type"""
         try:
             # Auto-detect search type if not specified
@@ -366,7 +387,15 @@ class RealInternetSophiaAI:
         query_lower = query.lower()
 
         # News indicators
-        news_keywords = ["news", "latest", "breaking", "current", "today", "recent", "update"]
+        news_keywords = [
+            "news",
+            "latest",
+            "breaking",
+            "current",
+            "today",
+            "recent",
+            "update",
+        ]
         if any(keyword in query_lower for keyword in news_keywords):
             return "news"
 
@@ -381,14 +410,24 @@ class RealInternetSophiaAI:
             return "videos"
 
         # Location indicators
-        location_keywords = ["near me", "location", "address", "directions", "map", "restaurant", "hotel"]
+        location_keywords = [
+            "near me",
+            "location",
+            "address",
+            "directions",
+            "map",
+            "restaurant",
+            "hotel",
+        ]
         if any(keyword in query_lower for keyword in location_keywords):
             return "maps"
 
         # Default to web search
         return "web"
 
-    async def enhanced_chat_with_real_internet(self, request_data: dict[str, Any]) -> dict[str, Any]:
+    async def enhanced_chat_with_real_internet(
+        self, request_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Enhanced chat with REAL internet connectivity and proper datetime"""
         try:
             self.stats["total_requests"] += 1
@@ -400,11 +439,27 @@ class RealInternetSophiaAI:
             logger.info(f"💬 Processing message: {user_message}")
 
             # Determine if we need real-time information
-            needs_current_info = any(keyword in user_message.lower() for keyword in [
-                "current", "latest", "today", "now", "recent", "news", "weather",
-                "president", "who is", "what is happening", "breaking", "2025",
-                "trump", "time", "date", "when"
-            ])
+            needs_current_info = any(
+                keyword in user_message.lower()
+                for keyword in [
+                    "current",
+                    "latest",
+                    "today",
+                    "now",
+                    "recent",
+                    "news",
+                    "weather",
+                    "president",
+                    "who is",
+                    "what is happening",
+                    "breaking",
+                    "2025",
+                    "trump",
+                    "time",
+                    "date",
+                    "when",
+                ]
+            )
 
             # Collect real internet context
             context_data = []
@@ -412,7 +467,9 @@ class RealInternetSophiaAI:
 
             if needs_current_info:
                 self.stats["internet_enhanced_requests"] += 1
-                logger.info("🔍 Query requires current information - searching real internet")
+                logger.info(
+                    "🔍 Query requires current information - searching real internet"
+                )
 
                 # Perform intelligent search
                 search_results = await self.intelligent_search(user_message)
@@ -420,28 +477,44 @@ class RealInternetSophiaAI:
                 internet_data["searches"].append(search_results)
 
                 if search_results.get("results"):
-                    context_data.append(f"REAL INTERNET SEARCH RESULTS for '{user_message}':")
-                    context_data.append(f"Search Type: {search_results.get('search_type', 'web')}")
-                    context_data.append(f"Search Time: {search_results.get('timestamp', 'unknown')}")
+                    context_data.append(
+                        f"REAL INTERNET SEARCH RESULTS for '{user_message}':"
+                    )
+                    context_data.append(
+                        f"Search Type: {search_results.get('search_type', 'web')}"
+                    )
+                    context_data.append(
+                        f"Search Time: {search_results.get('timestamp', 'unknown')}"
+                    )
 
                     for i, result in enumerate(search_results["results"][:3]):
                         context_data.append(f"\nResult {i+1}:")
                         context_data.append(f"Title: {result.get('title', 'No title')}")
-                        context_data.append(f"Content: {result.get('snippet', result.get('description', 'No content'))}")
-                        context_data.append(f"Source: {result.get('url', result.get('source', 'No source'))}")
+                        context_data.append(
+                            f"Content: {result.get('snippet', result.get('description', 'No content'))}"
+                        )
+                        context_data.append(
+                            f"Source: {result.get('url', result.get('source', 'No source'))}"
+                        )
 
                         # If it's a news result, include date
-                        if result.get('date'):
+                        if result.get("date"):
                             context_data.append(f"Date: {result['date']}")
 
                     # For president queries, get additional verification
                     if "president" in user_message.lower():
-                        verification_search = await self.search_engine.news_search("Donald Trump president 2025", max_results=2)
+                        verification_search = await self.search_engine.news_search(
+                            "Donald Trump president 2025", max_results=2
+                        )
                         if verification_search.get("results"):
                             context_data.append("\nADDITIONAL VERIFICATION:")
                             for result in verification_search["results"][:2]:
-                                context_data.append(f"• {result.get('title', 'No title')}")
-                                context_data.append(f"  {result.get('snippet', 'No content')}")
+                                context_data.append(
+                                    f"• {result.get('title', 'No title')}"
+                                )
+                                context_data.append(
+                                    f"  {result.get('snippet', 'No content')}"
+                                )
 
             # Always include current date/time context
             current_time = self.get_current_time()
@@ -482,21 +555,21 @@ Use the current date and time shown above in your response.
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.serverless_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
 
                 payload = {
                     "model": "llama-4-scout-17b-16e-instruct",
                     "messages": enhanced_messages,
                     "max_tokens": request_data.get("max_tokens", 1000),
-                    "temperature": request_data.get("temperature", 0.7)
+                    "temperature": request_data.get("temperature", 0.7),
                 }
 
                 async with session.post(
                     f"{self.serverless_endpoint}/chat/completions",
                     headers=headers,
                     json=payload,
-                    ssl=False
+                    ssl=False,
                 ) as response:
                     if response.status == 200:
                         response_data = await response.json()
@@ -516,15 +589,17 @@ Use the current date and time shown above in your response.
                                 "real_internet_search_used": needs_current_info,
                                 "context_sources": len(context_data),
                                 "internet_connectivity": "REAL",
-                                "search_type": search_results.get("search_type") if needs_current_info else None,
-                                "current_time": current_time
+                                "search_type": search_results.get("search_type")
+                                if needs_current_info
+                                else None,
+                                "current_time": current_time,
                             },
                             "internet_data": internet_data,
                             "system_time": {
                                 "current_time": current_time,
                                 "current_date": current_date,
-                                "timezone": "UTC"
-                            }
+                                "timezone": "UTC",
+                            },
                         }
                     else:
                         error_text = await response.text()
@@ -534,21 +609,20 @@ Use the current date and time shown above in your response.
             logger.error(f"Enhanced chat with real internet failed: {e}")
             return {
                 "response": {
-                    "choices": [{
-                        "message": {
-                            "content": f"I apologize, but I encountered an error while accessing the real internet: {e!s}"
+                    "choices": [
+                        {
+                            "message": {
+                                "content": f"I apologize, but I encountered an error while accessing the real internet: {e!s}"
+                            }
                         }
-                    }]
+                    ]
                 },
-                "routing": {
-                    "endpoint": "error",
-                    "reason": "real_internet_error"
-                },
+                "routing": {"endpoint": "error", "reason": "real_internet_error"},
                 "system_time": {
                     "current_time": self.get_current_time(),
                     "current_date": self.get_current_date(),
-                    "timezone": "UTC"
-                }
+                    "timezone": "UTC",
+                },
             }
 
     def _calculate_cost(self, usage: dict[str, Any]) -> float:
@@ -576,7 +650,7 @@ Use the current date and time shown above in your response.
                 "news": "DuckDuckGo News",
                 "images": "DuckDuckGo Images",
                 "videos": "DuckDuckGo Videos",
-                "maps": "DuckDuckGo Maps"
+                "maps": "DuckDuckGo Maps",
             },
             "capabilities": [
                 "Real-time web search",
@@ -589,21 +663,25 @@ Use the current date and time shown above in your response.
                 "Current president information",
                 "Breaking news access",
                 "Real-time fact checking",
-                "Proper datetime handling"
+                "Proper datetime handling",
             ],
             "health": {
                 "serverless": "healthy",
                 "internet_search": "healthy",
                 "web_scraping": "healthy",
                 "duckduckgo": "connected",
-                "datetime": "synchronized"
+                "datetime": "synchronized",
             },
             "stats": {
                 **self.stats,
                 **self.search_engine.search_stats,
-                "internet_usage_percentage": (self.stats["internet_enhanced_requests"] / max(self.stats["total_requests"], 1)) * 100
+                "internet_usage_percentage": (
+                    self.stats["internet_enhanced_requests"]
+                    / max(self.stats["total_requests"], 1)
+                )
+                * 100,
             },
-            "timestamp": datetime.now(UTC).isoformat()
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 
@@ -628,7 +706,7 @@ app = FastAPI(
     title="Sophia AI - Real Internet v2.0",
     description="AI system with REAL internet connectivity, multiple search types, and proper datetime handling",
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -647,7 +725,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     """Serve the enhanced Sophia AI web interface"""
-    return FileResponse('static/index.html')
+    return FileResponse("static/index.html")
 
 
 @app.post("/chat")
@@ -705,22 +783,26 @@ async def current_time():
         "current_time": real_internet_system.get_current_time(),
         "current_date": real_internet_system.get_current_date(),
         "timezone": "UTC",
-        "timestamp": datetime.now(UTC).isoformat()
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
 @app.get("/president")
 async def current_president():
     """Get current president information from real web sources"""
-    search_results = await real_internet_system.intelligent_search("current US president 2025 Donald Trump", "news")
-    verification = await real_internet_system.search_engine.web_search("Donald Trump 47th president 2025")
+    search_results = await real_internet_system.intelligent_search(
+        "current US president 2025 Donald Trump", "news"
+    )
+    verification = await real_internet_system.search_engine.web_search(
+        "Donald Trump 47th president 2025"
+    )
 
     return {
         "query": "current US president 2025",
         "search_results": search_results,
         "verification": verification,
         "search_time": real_internet_system.get_current_time(),
-        "internet_connectivity": "REAL"
+        "internet_connectivity": "REAL",
     }
 
 
@@ -733,9 +815,7 @@ async def api_info():
         "status": "operational",
         "current_time": real_internet_system.get_current_time(),
         "internet_connectivity": "REAL",
-        "search_types": [
-            "web", "news", "images", "videos", "maps", "auto"
-        ],
+        "search_types": ["web", "news", "images", "videos", "maps", "auto"],
         "features": [
             "REAL Internet Search (Multiple Types)",
             "Current Information Access",
@@ -747,7 +827,7 @@ async def api_info():
             "Real-time Fact Checking",
             "Proper Datetime Handling",
             "Current President Information",
-            "Breaking News Access"
+            "Breaking News Access",
         ],
         "endpoints": {
             "ui": "/",
@@ -758,13 +838,14 @@ async def api_info():
             "time": "/time",
             "health": "/health",
             "stats": "/stats",
-            "docs": "/docs"
+            "docs": "/docs",
         },
-        "timestamp": datetime.now(UTC).isoformat()
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
 # === PROJECT MANAGEMENT API ENDPOINTS ===
+
 
 @app.get("/api/projects/summary")
 async def get_project_summary():
@@ -782,11 +863,11 @@ async def get_project_summary():
                     "linear": 23,
                     "asana": 17,
                     "notion": 8,
-                    "slack": 142
+                    "slack": 142,
                 },
                 "health_score": 78.5,
-                "last_updated": real_internet_system.get_current_time()
-            }
+                "last_updated": real_internet_system.get_current_time(),
+            },
         }
     except Exception as e:
         logger.error(f"Failed to get project summary: {e}")
@@ -804,7 +885,7 @@ async def get_project_health():
                 "platform": "Linear",
                 "health_score": 85.0,
                 "risk_factors": ["timeline", "resources"],
-                "recommendations": ["Increase testing coverage", "Add more developers"]
+                "recommendations": ["Increase testing coverage", "Add more developers"],
             },
             {
                 "project_id": "proj_2",
@@ -812,7 +893,10 @@ async def get_project_health():
                 "platform": "Asana",
                 "health_score": 65.0,
                 "risk_factors": ["budget", "timeline", "stakeholder alignment"],
-                "recommendations": ["Review budget allocation", "Schedule stakeholder meeting"]
+                "recommendations": [
+                    "Review budget allocation",
+                    "Schedule stakeholder meeting",
+                ],
             },
             {
                 "project_id": "proj_3",
@@ -820,14 +904,14 @@ async def get_project_health():
                 "platform": "Linear",
                 "health_score": 92.0,
                 "risk_factors": ["technical complexity"],
-                "recommendations": ["Continue current approach", "Monitor performance metrics"]
-            }
+                "recommendations": [
+                    "Continue current approach",
+                    "Monitor performance metrics",
+                ],
+            },
         ]
 
-        return {
-            "success": True,
-            "data": health_data
-        }
+        return {"success": True, "data": health_data}
     except Exception as e:
         logger.error(f"Failed to get project health: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -843,8 +927,8 @@ async def get_knowledge_stats():
             "searches_this_month": 3892,
             "ai_insights_today": 156,
             "processing_status": "healthy",
-            "last_updated": real_internet_system.get_current_time()
-        }
+            "last_updated": real_internet_system.get_current_time(),
+        },
     }
 
 
@@ -859,37 +943,42 @@ async def get_system_health():
             ("asana", 9004),
             ("notion", 9005),
             ("slack", 9008),
-            ("ai_memory", 9000)
+            ("ai_memory", 9000),
         ]
 
         import aiohttp
+
         async with aiohttp.ClientSession() as session:
             for name, port in mcp_servers:
                 try:
-                    async with session.get(f"http://localhost:{port}/health", timeout=2) as response:
+                    async with session.get(
+                        f"http://localhost:{port}/health", timeout=2
+                    ) as response:
                         if response.status == 200:
                             data = await response.json()
                             mcp_status[name] = {
                                 "status": "healthy",
                                 "port": port,
                                 "uptime": data.get("uptime", "unknown"),
-                                "response_time": "< 50ms"
+                                "response_time": "< 50ms",
                             }
                         else:
                             mcp_status[name] = {
                                 "status": "degraded",
                                 "port": port,
-                                "error": f"HTTP {response.status}"
+                                "error": f"HTTP {response.status}",
                             }
                 except Exception as e:
                     mcp_status[name] = {
                         "status": "offline",
                         "port": port,
-                        "error": str(e)[:50]
+                        "error": str(e)[:50],
                     }
 
         # Calculate overall health
-        healthy_count = sum(1 for h in mcp_status.values() if h.get("status") == "healthy")
+        healthy_count = sum(
+            1 for h in mcp_status.values() if h.get("status") == "healthy"
+        )
         total_count = len(mcp_status)
         overall_health = (healthy_count / total_count) * 100 if total_count > 0 else 0
 
@@ -902,8 +991,8 @@ async def get_system_health():
                 "servers": mcp_status,
                 "memory_usage": "42.3 GB",
                 "api_calls_24h": "127K",
-                "last_updated": real_internet_system.get_current_time()
-            }
+                "last_updated": real_internet_system.get_current_time(),
+            },
         }
 
     except Exception as e:
@@ -929,10 +1018,22 @@ async def get_okrs_summary():
                     "progress": 87.0,
                     "status": "on_track",
                     "key_results": [
-                        {"name": "Reach 100 active users", "current": 87, "target": 100},
-                        {"name": "Achieve 95% user satisfaction", "current": 92, "target": 95},
-                        {"name": "Generate $1M ARR", "current": 750000, "target": 1000000}
-                    ]
+                        {
+                            "name": "Reach 100 active users",
+                            "current": 87,
+                            "target": 100,
+                        },
+                        {
+                            "name": "Achieve 95% user satisfaction",
+                            "current": 92,
+                            "target": 95,
+                        },
+                        {
+                            "name": "Generate $1M ARR",
+                            "current": 750000,
+                            "target": 1000000,
+                        },
+                    ],
                 },
                 {
                     "title": "Build World-Class Engineering Team",
@@ -940,9 +1041,17 @@ async def get_okrs_summary():
                     "status": "on_track",
                     "key_results": [
                         {"name": "Hire 5 senior engineers", "current": 3, "target": 5},
-                        {"name": "Implement CI/CD pipeline", "current": 100, "target": 100},
-                        {"name": "Achieve 90% code coverage", "current": 82, "target": 90}
-                    ]
+                        {
+                            "name": "Implement CI/CD pipeline",
+                            "current": 100,
+                            "target": 100,
+                        },
+                        {
+                            "name": "Achieve 90% code coverage",
+                            "current": 82,
+                            "target": 90,
+                        },
+                    ],
                 },
                 {
                     "title": "Establish Market Leadership",
@@ -950,13 +1059,21 @@ async def get_okrs_summary():
                     "status": "at_risk",
                     "key_results": [
                         {"name": "Launch in 3 new markets", "current": 2, "target": 3},
-                        {"name": "Secure 10 enterprise clients", "current": 7, "target": 10},
-                        {"name": "Achieve 50% market share", "current": 35, "target": 50}
-                    ]
-                }
+                        {
+                            "name": "Secure 10 enterprise clients",
+                            "current": 7,
+                            "target": 10,
+                        },
+                        {
+                            "name": "Achieve 50% market share",
+                            "current": 35,
+                            "target": 50,
+                        },
+                    ],
+                },
             ],
-            "last_updated": real_internet_system.get_current_time()
-        }
+            "last_updated": real_internet_system.get_current_time(),
+        },
     }
 
 
@@ -987,13 +1104,13 @@ async def unified_chat(request: dict):
                 "Show me at-risk projects",
                 "What's our current system health?",
                 "How are we tracking on Q3 OKRs?",
-                "Search for recent documentation"
+                "Search for recent documentation",
             ],
             "metadata": {
                 "confidence": 0.95,
                 "data_sources_used": [context, "real_time_data"],
-                "processing_time": "150ms"
-            }
+                "processing_time": "150ms",
+            },
         }
 
     except Exception as e:
@@ -1020,12 +1137,7 @@ def main():
         logger.info("🎯 Open http://localhost:8000 for real internet AI v2.0")
 
         # Start server
-        uvicorn.run(
-            app,
-            host=host,
-            port=port,
-            log_level="info"
-        )
+        uvicorn.run(app, host=host, port=port, log_level="info")
 
     except Exception as e:
         logger.error(f"❌ Failed to start real internet system v2.0: {e}")

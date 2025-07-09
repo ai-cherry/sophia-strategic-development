@@ -12,15 +12,17 @@ INSTANCES = {
     "ai-core": "192.222.58.232",
     "mcp-servers": "104.171.202.117",
     "data-pipeline": "104.171.202.134",
-    "development": "155.248.194.183"
+    "development": "155.248.194.183",
 }
+
 
 def deploy_simple_service(name, ip):
     """Deploy a simple working service"""
     print(f"🚀 Deploying to {name} ({ip})")
 
     # Create a self-contained Python service
-    service_code = '''
+    service_code = (
+        '''
 import http.server
 import socketserver
 import json
@@ -32,13 +34,19 @@ class SophiaHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            response = {"status": "healthy", "instance": "''' + name + '''", "ip": "''' + ip + '''"}
+            response = {"status": "healthy", "instance": "'''
+        + name
+        + '''", "ip": "'''
+        + ip
+        + '''"}
             self.wfile.write(json.dumps(response).encode())
         elif self.path == '/':
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            response = {"message": "Sophia AI is running!", "instance": "''' + name + '''", "status": "operational"}
+            response = {"message": "Sophia AI is running!", "instance": "'''
+        + name
+        + '''", "status": "operational"}
             self.wfile.write(json.dumps(response).encode())
         elif self.path == '/status':
             self.send_response(200)
@@ -46,8 +54,12 @@ class SophiaHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             response = {
                 "status": "operational",
-                "instance": "''' + name + '''",
-                "ip": "''' + ip + '''",
+                "instance": "'''
+        + name
+        + '''",
+                "ip": "'''
+        + ip
+        + """",
                 "services": ["sophia-ai", "health-monitor"],
                 "environment": "production"
             }
@@ -61,7 +73,8 @@ if __name__ == "__main__":
     with socketserver.TCPServer(("", PORT), SophiaHandler) as httpd:
         print(f"Sophia AI serving on port {PORT}")
         httpd.serve_forever()
-'''
+"""
+    )
 
     try:
         # Deploy the service
@@ -70,22 +83,29 @@ if __name__ == "__main__":
         # Kill any existing services
         pkill -f "python.*sophia" || true
         pkill -f "port 8000" || true
-        
+
         # Create the service file
         cat > sophia_service.py << "EOF"
 {service_code}
 EOF
-        
+
         # Start the service in background
         nohup python3 sophia_service.py > sophia.log 2>&1 &
-        
+
         # Wait and test
         sleep 3
         curl -s http://localhost:8000/health || echo "Starting..."
         '
         """
 
-        result = subprocess.run(deploy_cmd, check=False, shell=True, capture_output=True, text=True, timeout=30)
+        result = subprocess.run(
+            deploy_cmd,
+            check=False,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
 
         if result.returncode == 0:
             print(f"  ✅ Service deployed to {name}")
@@ -93,7 +113,14 @@ EOF
             # Verify it's working
             time.sleep(3)
             verify_cmd = f"ssh ubuntu@{ip} 'curl -s http://localhost:8000/health'"
-            verify_result = subprocess.run(verify_cmd, check=False, shell=True, capture_output=True, text=True, timeout=10)
+            verify_result = subprocess.run(
+                verify_cmd,
+                check=False,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
 
             if "healthy" in verify_result.stdout:
                 print(f"  ✅ Service verified on {name}")
@@ -108,6 +135,7 @@ EOF
     except Exception as e:
         print(f"  ❌ Error deploying to {name}: {e}")
         return False
+
 
 def main():
     """Deploy to all instances"""
@@ -130,6 +158,7 @@ def main():
             print(f"  {name}: http://{ip}:8000/health")
     else:
         print("⚠️ PARTIAL DEPLOYMENT")
+
 
 if __name__ == "__main__":
     main()

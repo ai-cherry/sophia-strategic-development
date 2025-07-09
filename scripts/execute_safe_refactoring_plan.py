@@ -313,7 +313,6 @@ class SafeRefactoringExecutor:
     ) -> dict[str, Any] | None:
         """Measure endpoint performance"""
         try:
-
             import aiohttp
 
             async with aiohttp.ClientSession() as session:
@@ -759,7 +758,8 @@ class BatchQueryOptimizer:
             result = subprocess.run(
                 ["python", "-m", "black", "backend/", "--line-length", "88"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -772,7 +772,8 @@ class BatchQueryOptimizer:
             result = subprocess.run(
                 ["python", "-m", "isort", "backend/", "--profile", "black"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -785,7 +786,8 @@ class BatchQueryOptimizer:
             result = subprocess.run(
                 ["python", "-m", "ruff", "check", "backend/", "--fix"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                check=False,
             )
 
             logger.info("✅ Automated code quality fixes completed")
@@ -863,7 +865,8 @@ class Test{component_name.title().replace("_", "")}Enhanced:
             result = subprocess.run(
                 ["python", "-m", "ruff", "check", "backend/", "--statistics"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                check=False,
             )
 
             if result.stdout:
@@ -874,7 +877,8 @@ class Test{component_name.title().replace("_", "")}Enhanced:
                 result = subprocess.run(
                     ["python", "-m", "radon", "cc", "backend/", "--average"],
                     capture_output=True,
-                    text=True, check=False,
+                    text=True,
+                    check=False,
                 )
 
                 if result.stdout:

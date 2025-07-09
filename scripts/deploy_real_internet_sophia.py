@@ -30,8 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,7 @@ class RealInternetSophiaAI:
             "real_web_searches": 0,
             "web_pages_scraped": 0,
             "current_info_queries": 0,
-            "cost_savings": 0.0
+            "cost_savings": 0.0,
         }
 
         logger.info("🌐 Real Internet Sophia AI initialized")
@@ -76,12 +75,14 @@ class RealInternetSophiaAI:
             results = self.ddgs.text(query, max_results=max_results)
 
             for result in results:
-                search_results.append({
-                    "title": result.get("title", ""),
-                    "snippet": result.get("body", ""),
-                    "url": result.get("href", ""),
-                    "date": datetime.now().strftime("%Y-%m-%d")
-                })
+                search_results.append(
+                    {
+                        "title": result.get("title", ""),
+                        "snippet": result.get("body", ""),
+                        "url": result.get("href", ""),
+                        "date": datetime.now().strftime("%Y-%m-%d"),
+                    }
+                )
 
             self.stats["real_web_searches"] += 1
 
@@ -90,7 +91,7 @@ class RealInternetSophiaAI:
                 "query": query,
                 "timestamp": datetime.now().isoformat(),
                 "source": "real_duckduckgo_search",
-                "total_results": len(search_results)
+                "total_results": len(search_results),
             }
 
         except Exception as e:
@@ -99,7 +100,7 @@ class RealInternetSophiaAI:
                 "error": f"Web search failed: {e!s}",
                 "query": query,
                 "timestamp": datetime.now().isoformat(),
-                "source": "real_duckduckgo_search"
+                "source": "real_duckduckgo_search",
             }
 
     async def scrape_web_page(self, url: str) -> dict[str, Any]:
@@ -108,13 +109,13 @@ class RealInternetSophiaAI:
             logger.info(f"📰 Scraping web page: {url}")
 
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
             }
 
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
-            soup = BeautifulSoup(response.content, 'html.parser')
+            soup = BeautifulSoup(response.content, "html.parser")
 
             # Extract text content
             for script in soup(["script", "style"]):
@@ -123,7 +124,7 @@ class RealInternetSophiaAI:
             text = soup.get_text()
             lines = (line.strip() for line in text.splitlines())
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            text = ' '.join(chunk for chunk in chunks if chunk)
+            text = " ".join(chunk for chunk in chunks if chunk)
 
             # Limit text length
             if len(text) > 2000:
@@ -136,7 +137,7 @@ class RealInternetSophiaAI:
                 "title": soup.title.string if soup.title else "No title",
                 "content": text,
                 "timestamp": datetime.now().isoformat(),
-                "success": True
+                "success": True,
             }
 
         except Exception as e:
@@ -145,14 +146,16 @@ class RealInternetSophiaAI:
                 "url": url,
                 "error": str(e),
                 "timestamp": datetime.now().isoformat(),
-                "success": False
+                "success": False,
             }
 
     async def get_current_president(self) -> dict[str, Any]:
         """Get current US President information from real web sources"""
         try:
             # Search for current president
-            search_results = await self.real_web_search("current US president 2025 Donald Trump")
+            search_results = await self.real_web_search(
+                "current US president 2025 Donald Trump"
+            )
 
             if search_results.get("results"):
                 # Get the first result and scrape it
@@ -163,19 +166,18 @@ class RealInternetSophiaAI:
                     "search_results": search_results,
                     "scraped_content": scraped_content,
                     "query": "current US president 2025",
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 }
             else:
                 return search_results
 
         except Exception as e:
             logger.error(f"Failed to get current president info: {e}")
-            return {
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
-            }
+            return {"error": str(e), "timestamp": datetime.now().isoformat()}
 
-    async def enhanced_chat_with_real_internet(self, request_data: dict[str, Any]) -> dict[str, Any]:
+    async def enhanced_chat_with_real_internet(
+        self, request_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Enhanced chat with REAL internet connectivity"""
         try:
             self.stats["total_requests"] += 1
@@ -187,23 +189,41 @@ class RealInternetSophiaAI:
             logger.info(f"💬 Processing message: {user_message}")
 
             # Determine if we need real-time web search
-            needs_current_info = any(keyword in user_message.lower() for keyword in [
-                "current", "latest", "today", "now", "recent", "news", "weather",
-                "president", "who is", "what is happening", "breaking", "2025", "trump"
-            ])
+            needs_current_info = any(
+                keyword in user_message.lower()
+                for keyword in [
+                    "current",
+                    "latest",
+                    "today",
+                    "now",
+                    "recent",
+                    "news",
+                    "weather",
+                    "president",
+                    "who is",
+                    "what is happening",
+                    "breaking",
+                    "2025",
+                    "trump",
+                ]
+            )
 
             # Collect real internet context
             context_data = []
 
             if needs_current_info:
                 self.stats["current_info_queries"] += 1
-                logger.info("🔍 Query requires current information - searching real internet")
+                logger.info(
+                    "🔍 Query requires current information - searching real internet"
+                )
 
                 # Perform real web search
                 web_results = await self.real_web_search(user_message, max_results=3)
 
                 if web_results.get("results"):
-                    context_data.append(f"REAL WEB SEARCH RESULTS for '{user_message}':")
+                    context_data.append(
+                        f"REAL WEB SEARCH RESULTS for '{user_message}':"
+                    )
                     for i, result in enumerate(web_results["results"][:2]):
                         context_data.append(f"Result {i+1}: {result['title']}")
                         context_data.append(f"Content: {result['snippet']}")
@@ -215,7 +235,9 @@ class RealInternetSophiaAI:
                         president_info = await self.get_current_president()
                         if president_info.get("scraped_content", {}).get("content"):
                             context_data.append("DETAILED CURRENT INFORMATION:")
-                            context_data.append(president_info["scraped_content"]["content"])
+                            context_data.append(
+                                president_info["scraped_content"]["content"]
+                            )
 
             # Enhance the prompt with real internet context
             enhanced_messages = messages.copy()
@@ -234,27 +256,29 @@ Based on this REAL, CURRENT information from the internet, please provide an acc
 If the search results show Donald Trump is president in 2025, use that information.
 Always cite your sources and mention that you have real internet access.
 """
-                enhanced_messages.insert(0, {"role": "system", "content": context_prompt})
+                enhanced_messages.insert(
+                    0, {"role": "system", "content": context_prompt}
+                )
 
             # Call Lambda Labs API with real internet context
             async with aiohttp.ClientSession() as session:
                 headers = {
                     "Authorization": f"Bearer {self.serverless_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 }
 
                 payload = {
                     "model": "llama-4-scout-17b-16e-instruct",
                     "messages": enhanced_messages,
                     "max_tokens": request_data.get("max_tokens", 1000),
-                    "temperature": request_data.get("temperature", 0.7)
+                    "temperature": request_data.get("temperature", 0.7),
                 }
 
                 async with session.post(
                     f"{self.serverless_endpoint}/chat/completions",
                     headers=headers,
                     json=payload,
-                    ssl=False
+                    ssl=False,
                 ) as response:
                     if response.status == 200:
                         response_data = await response.json()
@@ -273,13 +297,15 @@ Always cite your sources and mention that you have real internet access.
                                 "reason": "real_internet_enhanced",
                                 "real_web_search_used": needs_current_info,
                                 "context_sources": len(context_data),
-                                "internet_connectivity": "REAL"
+                                "internet_connectivity": "REAL",
                             },
                             "internet_data": {
                                 "search_performed": needs_current_info,
-                                "web_results_found": len(web_results.get("results", [])) if needs_current_info else 0,
-                                "real_time_data": True if needs_current_info else False
-                            }
+                                "web_results_found": len(web_results.get("results", []))
+                                if needs_current_info
+                                else 0,
+                                "real_time_data": True if needs_current_info else False,
+                            },
                         }
                     else:
                         error_text = await response.text()
@@ -289,16 +315,15 @@ Always cite your sources and mention that you have real internet access.
             logger.error(f"Enhanced chat with real internet failed: {e}")
             return {
                 "response": {
-                    "choices": [{
-                        "message": {
-                            "content": f"I apologize, but I encountered an error while searching the real internet: {e!s}"
+                    "choices": [
+                        {
+                            "message": {
+                                "content": f"I apologize, but I encountered an error while searching the real internet: {e!s}"
+                            }
                         }
-                    }]
+                    ]
                 },
-                "routing": {
-                    "endpoint": "error",
-                    "reason": "real_internet_error"
-                }
+                "routing": {"endpoint": "error", "reason": "real_internet_error"},
             }
 
     def _calculate_cost(self, usage: dict[str, Any]) -> float:
@@ -327,20 +352,28 @@ Always cite your sources and mention that you have real internet access.
                 "Live information retrieval",
                 "Current president information",
                 "Breaking news access",
-                "Real-time fact checking"
+                "Real-time fact checking",
             ],
             "health": {
                 "serverless": "healthy",
                 "internet_search": "healthy",
                 "web_scraping": "healthy",
-                "duckduckgo": "connected"
+                "duckduckgo": "connected",
             },
             "stats": {
                 **self.stats,
-                "web_search_percentage": (self.stats["real_web_searches"] / max(self.stats["total_requests"], 1)) * 100,
-                "current_info_percentage": (self.stats["current_info_queries"] / max(self.stats["total_requests"], 1)) * 100
+                "web_search_percentage": (
+                    self.stats["real_web_searches"]
+                    / max(self.stats["total_requests"], 1)
+                )
+                * 100,
+                "current_info_percentage": (
+                    self.stats["current_info_queries"]
+                    / max(self.stats["total_requests"], 1)
+                )
+                * 100,
             },
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     def get_stats(self) -> dict[str, Any]:
@@ -348,10 +381,15 @@ Always cite your sources and mention that you have real internet access.
         total = self.stats["total_requests"]
         return {
             **self.stats,
-            "web_search_percentage": (self.stats["real_web_searches"] / max(total, 1)) * 100,
-            "scraping_percentage": (self.stats["web_pages_scraped"] / max(total, 1)) * 100,
-            "current_info_percentage": (self.stats["current_info_queries"] / max(total, 1)) * 100,
-            "average_cost_per_request": self.stats["cost_savings"] / max(total, 1)
+            "web_search_percentage": (self.stats["real_web_searches"] / max(total, 1))
+            * 100,
+            "scraping_percentage": (self.stats["web_pages_scraped"] / max(total, 1))
+            * 100,
+            "current_info_percentage": (
+                self.stats["current_info_queries"] / max(total, 1)
+            )
+            * 100,
+            "average_cost_per_request": self.stats["cost_savings"] / max(total, 1),
         }
 
 
@@ -375,7 +413,7 @@ app = FastAPI(
     title="Sophia AI - Real Internet",
     description="AI system with REAL internet connectivity and current information access",
     version="4.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -394,7 +432,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     """Serve the enhanced Sophia AI web interface"""
-    return FileResponse('static/index.html')
+    return FileResponse("static/index.html")
 
 
 @app.post("/chat")
@@ -454,7 +492,7 @@ async def api_info():
             "Live News and Events",
             "Real-time Fact Checking",
             "Current President Information",
-            "Breaking News Access"
+            "Breaking News Access",
         ],
         "endpoints": {
             "ui": "/",
@@ -463,9 +501,9 @@ async def api_info():
             "president": "/president",
             "health": "/health",
             "stats": "/stats",
-            "docs": "/docs"
+            "docs": "/docs",
         },
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -487,12 +525,7 @@ def main():
         logger.info("🎯 Open http://localhost:8000 for real internet AI")
 
         # Start server
-        uvicorn.run(
-            app,
-            host=host,
-            port=port,
-            log_level="info"
-        )
+        uvicorn.run(app, host=host, port=port, log_level="info")
 
     except Exception as e:
         logger.error(f"❌ Failed to start real internet system: {e}")

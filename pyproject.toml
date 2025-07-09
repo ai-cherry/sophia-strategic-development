@@ -218,9 +218,6 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [ "locust>=2.37.11",]
 
-[project.license]
-text = "Proprietary"
-
 [tool.uv]
 dev-dependencies = [ "pytest>=8.0.0", "pytest-asyncio>=0.23.0", "pytest-cov>=4.1.0", "black>=24.0.0", "ruff>=0.1.0", "mypy>=1.8.0", "coverage>=7.4.0", "pre-commit>=3.6.0", "httpx>=0.26.0", "aioresponses>=0.7.6",]
 

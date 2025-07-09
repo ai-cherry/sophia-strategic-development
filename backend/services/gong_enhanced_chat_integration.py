@@ -36,38 +36,38 @@ class GongEnhancedChatIntegration:
                 "project risks mentioned in calls",
                 "risks discussed in meetings",
                 "blockers from conversations",
-                "what risks were mentioned"
+                "what risks were mentioned",
             ],
             "customer_feedback": [
                 "customer feedback from calls",
                 "what customers are saying",
                 "customer satisfaction from conversations",
-                "support call insights"
+                "support call insights",
             ],
             "competitive_intelligence": [
                 "competitors mentioned in calls",
                 "competitive intelligence from conversations",
                 "what competitors are discussed",
-                "competitive mentions"
+                "competitive mentions",
             ],
             "team_performance": [
                 "team performance from meetings",
                 "how is the team performing",
                 "team feedback from conversations",
-                "meeting effectiveness"
+                "meeting effectiveness",
             ],
             "sales_pipeline": [
                 "sales insights from calls",
                 "deal status from conversations",
                 "pipeline updates from meetings",
-                "prospect feedback"
+                "prospect feedback",
             ],
             "technical_decisions": [
                 "technical decisions from calls",
                 "architecture discussions",
                 "technology choices from meetings",
-                "development decisions"
-            ]
+                "development decisions",
+            ],
         }
 
     def is_gong_query(self, query: str) -> bool:
@@ -77,9 +77,21 @@ class GongEnhancedChatIntegration:
 
         # Check for conversation/call related keywords
         conversation_keywords = [
-            "call", "calls", "conversation", "conversations", "meeting", "meetings",
-            "discussion", "discussions", "feedback", "mentioned", "discussed",
-            "from calls", "from conversations", "from meetings", "in calls"
+            "call",
+            "calls",
+            "conversation",
+            "conversations",
+            "meeting",
+            "meetings",
+            "discussion",
+            "discussions",
+            "feedback",
+            "mentioned",
+            "discussed",
+            "from calls",
+            "from conversations",
+            "from meetings",
+            "in calls",
         ]
 
         # Check for Gong-specific patterns
@@ -91,7 +103,9 @@ class GongEnhancedChatIntegration:
         # Check for conversation keywords
         return any(keyword in query_lower for keyword in conversation_keywords)
 
-    async def process_gong_query(self, query: str, context: dict[str, Any] = None) -> dict[str, Any]:
+    async def process_gong_query(
+        self, query: str, context: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Process a query through Gong conversation intelligence"""
 
         try:
@@ -109,18 +123,26 @@ class GongEnhancedChatIntegration:
 
             if query_category == "natural_language":
                 # Use natural language processing for complex queries
-                result = await self.gong_intelligence.get_natural_language_insights(query)
+                result = await self.gong_intelligence.get_natural_language_insights(
+                    query
+                )
             elif query_category == "project_management":
                 # Get project-specific intelligence
-                project_insights = await self.gong_intelligence.get_project_management_intelligence(14)
+                project_insights = (
+                    await self.gong_intelligence.get_project_management_intelligence(14)
+                )
                 result = self._format_project_insights_response(query, project_insights)
             elif query_category == "multi_purpose":
                 # Get multi-purpose insights
-                insights = await self.gong_intelligence.extract_multi_purpose_insights(7)
+                insights = await self.gong_intelligence.extract_multi_purpose_insights(
+                    7
+                )
                 result = self._format_multi_purpose_response(query, insights)
             else:
                 # Fallback to natural language processing
-                result = await self.gong_intelligence.get_natural_language_insights(query)
+                result = await self.gong_intelligence.get_natural_language_insights(
+                    query
+                )
 
             # Enhanced response formatting
             enhanced_result = {
@@ -133,8 +155,10 @@ class GongEnhancedChatIntegration:
                 "current_date": self.current_date,
                 "category": query_category,
                 "supporting_data": result.get("supporting_calls", []),
-                "suggested_follow_ups": self._generate_follow_up_questions(query, result),
-                "processing_time": datetime.now().isoformat()
+                "suggested_follow_ups": self._generate_follow_up_questions(
+                    query, result
+                ),
+                "processing_time": datetime.now().isoformat(),
             }
 
             return enhanced_result
@@ -146,7 +170,7 @@ class GongEnhancedChatIntegration:
                 "query": query,
                 "response_type": "gong_intelligence",
                 "error": str(e),
-                "current_date": self.current_date
+                "current_date": self.current_date,
             }
 
     def _categorize_gong_query(self, query: str) -> str:
@@ -164,14 +188,23 @@ class GongEnhancedChatIntegration:
                         return "multi_purpose"
 
         # Check for project-specific keywords
-        project_keywords = ["project", "sprint", "deadline", "feature", "development", "milestone"]
+        project_keywords = [
+            "project",
+            "sprint",
+            "deadline",
+            "feature",
+            "development",
+            "milestone",
+        ]
         if any(keyword in query_lower for keyword in project_keywords):
             return "project_management"
 
         # Default to natural language processing
         return "natural_language"
 
-    def _format_project_insights_response(self, query: str, project_insights) -> dict[str, Any]:
+    def _format_project_insights_response(
+        self, query: str, project_insights
+    ) -> dict[str, Any]:
         """Format project intelligence insights into a response"""
 
         # Determine what aspect of project insights to highlight
@@ -195,8 +228,8 @@ class GongEnhancedChatIntegration:
             answer = f"Based on recent conversations, I found {len(focus_data)} {focus_type}:\n\n"
 
             for i, item in enumerate(focus_data[:5], 1):  # Top 5 items
-                content = item.get('content', 'No content available')
-                call_date = item.get('call_date', 'Unknown date')
+                content = item.get("content", "No content available")
+                call_date = item.get("call_date", "Unknown date")
                 answer += f"{i}. {content} (from call on {call_date})\n\n"
 
             if len(focus_data) > 5:
@@ -212,12 +245,15 @@ class GongEnhancedChatIntegration:
             "supporting_calls": [
                 {
                     "call_date": item.get("call_date"),
-                    "content": item.get("content", "")[:200] + "..."
-                } for item in focus_data[:3]
-            ]
+                    "content": item.get("content", "")[:200] + "...",
+                }
+                for item in focus_data[:3]
+            ],
         }
 
-    def _format_multi_purpose_response(self, query: str, insights: dict[str, list]) -> dict[str, Any]:
+    def _format_multi_purpose_response(
+        self, query: str, insights: dict[str, list]
+    ) -> dict[str, Any]:
         """Format multi-purpose insights into a response"""
 
         # Determine which category is most relevant to the query
@@ -246,8 +282,12 @@ class GongEnhancedChatIntegration:
             answer = "Based on recent conversations, here are the key insights:\n\n"
 
             for i, insight in enumerate(focus_insights[:5], 1):
-                insight_content = insight.insight if hasattr(insight, 'insight') else str(insight)
-                call_date = insight.call_date if hasattr(insight, 'call_date') else 'Recent'
+                insight_content = (
+                    insight.insight if hasattr(insight, "insight") else str(insight)
+                )
+                call_date = (
+                    insight.call_date if hasattr(insight, "call_date") else "Recent"
+                )
                 answer += f"{i}. {insight_content} (from {call_date})\n\n"
 
             if len(focus_insights) > 5:
@@ -260,10 +300,12 @@ class GongEnhancedChatIntegration:
             "sources": len(focus_insights),
             "confidence": 0.8,
             "category": relevant_category or "general",
-            "supporting_calls": []
+            "supporting_calls": [],
         }
 
-    def _generate_follow_up_questions(self, original_query: str, result: dict[str, Any]) -> list[str]:
+    def _generate_follow_up_questions(
+        self, original_query: str, result: dict[str, Any]
+    ) -> list[str]:
         """Generate suggested follow-up questions based on the query and result"""
 
         follow_ups = []
@@ -271,36 +313,46 @@ class GongEnhancedChatIntegration:
 
         # Context-aware follow-up suggestions
         if "risk" in query_lower:
-            follow_ups.extend([
-                "What are the most critical risks mentioned in recent calls?",
-                "How are teams addressing these risks?",
-                "Are there any patterns in the risks being identified?"
-            ])
+            follow_ups.extend(
+                [
+                    "What are the most critical risks mentioned in recent calls?",
+                    "How are teams addressing these risks?",
+                    "Are there any patterns in the risks being identified?",
+                ]
+            )
         elif "customer" in query_lower:
-            follow_ups.extend([
-                "What are customers saying about our new features?",
-                "Are there any churn risk signals in recent calls?",
-                "What expansion opportunities were mentioned?"
-            ])
+            follow_ups.extend(
+                [
+                    "What are customers saying about our new features?",
+                    "Are there any churn risk signals in recent calls?",
+                    "What expansion opportunities were mentioned?",
+                ]
+            )
         elif "team" in query_lower:
-            follow_ups.extend([
-                "How effective are our team meetings?",
-                "What coaching opportunities were identified?",
-                "Are there any process improvement suggestions?"
-            ])
+            follow_ups.extend(
+                [
+                    "How effective are our team meetings?",
+                    "What coaching opportunities were identified?",
+                    "Are there any process improvement suggestions?",
+                ]
+            )
         elif "competitor" in query_lower:
-            follow_ups.extend([
-                "Which competitors are mentioned most frequently?",
-                "How do we compare to alternatives in customer discussions?",
-                "What competitive advantages are customers recognizing?"
-            ])
+            follow_ups.extend(
+                [
+                    "Which competitors are mentioned most frequently?",
+                    "How do we compare to alternatives in customer discussions?",
+                    "What competitive advantages are customers recognizing?",
+                ]
+            )
         else:
             # General follow-ups
-            follow_ups.extend([
-                "What other insights can you extract from recent conversations?",
-                "Are there any urgent action items from recent calls?",
-                "What trends are emerging in our conversations?"
-            ])
+            follow_ups.extend(
+                [
+                    "What other insights can you extract from recent conversations?",
+                    "Are there any urgent action items from recent calls?",
+                    "What trends are emerging in our conversations?",
+                ]
+            )
 
         return follow_ups[:3]  # Return top 3 follow-up questions
 
@@ -315,7 +367,9 @@ class EnhancedChatWithGongIntegration:
         self.gong_integration = GongEnhancedChatIntegration()
         self.current_date = "July 9, 2025"
 
-    async def process_query_with_gong_intelligence(self, query: str, context: dict[str, Any] = None) -> dict[str, Any]:
+    async def process_query_with_gong_intelligence(
+        self, query: str, context: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Process query with enhanced Gong intelligence routing"""
 
         if context is None:
@@ -336,7 +390,9 @@ class EnhancedChatWithGongIntegration:
                 return gong_result
             else:
                 # Fallback to base orchestrator if Gong doesn't have good results
-                logger.info("Gong intelligence had limited results, falling back to base orchestrator")
+                logger.info(
+                    "Gong intelligence had limited results, falling back to base orchestrator"
+                )
                 base_result = await self.base_orchestrator.process_query(query, context)
 
                 # Combine results
@@ -346,16 +402,21 @@ class EnhancedChatWithGongIntegration:
                     "primary_response": base_result.get("response", ""),
                     "gong_insights": gong_result.get("answer", ""),
                     "sources": ["enhanced_orchestrator", "gong_intelligence"],
-                    "confidence": max(base_result.get("confidence", 0), gong_result.get("confidence", 0)),
+                    "confidence": max(
+                        base_result.get("confidence", 0),
+                        gong_result.get("confidence", 0),
+                    ),
                     "current_date": self.current_date,
-                    "processing_approach": "hybrid_gong_enhanced"
+                    "processing_approach": "hybrid_gong_enhanced",
                 }
         else:
             # Process through base orchestrator
             logger.info(f"Processing query through base orchestrator: {query}")
             return await self.base_orchestrator.process_query(query, context)
 
-    async def stream_process_with_gong(self, query: str, context: dict[str, Any] = None):
+    async def stream_process_with_gong(
+        self, query: str, context: dict[str, Any] = None
+    ):
         """Stream processing with Gong intelligence integration"""
 
         # First yield Gong intelligence if applicable
@@ -363,7 +424,7 @@ class EnhancedChatWithGongIntegration:
             yield {
                 "type": "gong_analysis_started",
                 "message": "Analyzing conversation intelligence...",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
             gong_result = await self.gong_integration.process_gong_query(query, context)
@@ -371,7 +432,7 @@ class EnhancedChatWithGongIntegration:
             yield {
                 "type": "gong_analysis_complete",
                 "data": gong_result,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
         # Then stream through base orchestrator
