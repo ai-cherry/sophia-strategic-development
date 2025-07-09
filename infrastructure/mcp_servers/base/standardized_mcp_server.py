@@ -971,7 +971,7 @@ class StandardizedMCPServer(ABC):
         try:
             # Test basic Cortex functionality
             test_query = "SELECT CURRENT_TIMESTAMP() as health_check"
-            result = await self.cortex_service.execute_query(test_query)
+            result = await self.cortex_service.execute_query(test_query)  # type: ignore[attr-defined]
             response_time = (time.time() - start_time) * 1000
 
             return HealthCheckResult(
