@@ -18,6 +18,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
+from backend.core.date_time_manager import date_manager
 from infrastructure.mcp_servers.gong_v2.handlers.memory_integration import (
     GongMemoryIntegration,
 )
@@ -79,7 +80,7 @@ class GongMultiPurposeIntelligence:
     def __init__(self):
         self.cortex_service = SnowflakeCortexService()
         self.gong_memory = GongMemoryIntegration()
-        self.current_date = "July 9, 2025"
+        self.current_date = date_manager.get_current_date_str()
 
         # Intelligence categories with enhanced prompts
         self.intelligence_categories = {
