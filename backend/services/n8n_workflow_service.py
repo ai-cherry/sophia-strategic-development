@@ -87,9 +87,11 @@ class N8nWorkflowService:
 
         self.client = httpx.AsyncClient(
             base_url=self.base_url,
-            headers={"X-N8N-API-KEY": self.api_key, "Content-Type": "application/json"}
-            if self.api_key
-            else {},
+            headers=(
+                {"X-N8N-API-KEY": self.api_key, "Content-Type": "application/json"}
+                if self.api_key
+                else {}
+            ),
             timeout=30.0,
         )
 
@@ -340,13 +342,17 @@ class N8nWorkflowService:
             return WorkflowExecution(
                 id=result["id"],
                 workflow_id=workflow_id,
-                status=WorkflowStatus.COMPLETED
-                if result.get("finished")
-                else WorkflowStatus.EXECUTING,
+                status=(
+                    WorkflowStatus.COMPLETED
+                    if result.get("finished")
+                    else WorkflowStatus.EXECUTING
+                ),
                 started_at=datetime.fromisoformat(result["startedAt"]),
-                finished_at=datetime.fromisoformat(result["stoppedAt"])
-                if result.get("stoppedAt")
-                else None,
+                finished_at=(
+                    datetime.fromisoformat(result["stoppedAt"])
+                    if result.get("stoppedAt")
+                    else None
+                ),
                 data=result.get("data", {}),
             )
 
@@ -432,13 +438,17 @@ class N8nWorkflowService:
                     WorkflowExecution(
                         id=exec_data["id"],
                         workflow_id=workflow_id,
-                        status=WorkflowStatus.COMPLETED
-                        if exec_data.get("finished")
-                        else WorkflowStatus.FAILED,
+                        status=(
+                            WorkflowStatus.COMPLETED
+                            if exec_data.get("finished")
+                            else WorkflowStatus.FAILED
+                        ),
                         started_at=datetime.fromisoformat(exec_data["startedAt"]),
-                        finished_at=datetime.fromisoformat(exec_data["stoppedAt"])
-                        if exec_data.get("stoppedAt")
-                        else None,
+                        finished_at=(
+                            datetime.fromisoformat(exec_data["stoppedAt"])
+                            if exec_data.get("stoppedAt")
+                            else None
+                        ),
                         data=exec_data.get("data", {}),
                     )
                 )

@@ -7,11 +7,11 @@ Migrated to official Anthropic SDK on 2025-07-10
 
 import asyncio
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from mcp import Server, Tool
+from mcp import Server
 from mcp.server.stdio import stdio_server
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,9 +30,13 @@ class UIUXAgentServer:
 
         @self.server.tool()
         async def generate_component(
-            component_type: str = Field(description="Type of component (button, card, form, etc)"),
-            style: str = Field(description="Style preferences (modern, minimal, glassmorphism)"),
-            props: Dict[str, Any] = Field(description="Component properties")
+            component_type: str = Field(
+                description="Type of component (button, card, form, etc)"
+            ),
+            style: str = Field(
+                description="Style preferences (modern, minimal, glassmorphism)"
+            ),
+            props: Dict[str, Any] = Field(description="Component properties"),
         ) -> Dict[str, Any]:
             """Generate a React component with styling"""
             logger.info(f"Generating {component_type} component")
@@ -60,13 +64,13 @@ export const {component_name}: React.FC<{component_name}Props> = (props) => {{
                 "component_type": component_type,
                 "code": component_code,
                 "style": style,
-                "props": props
+                "props": props,
             }
 
         @self.server.tool()
         async def check_accessibility(
             html: str = Field(description="HTML content to check"),
-            wcag_level: str = Field(default="AA", description="WCAG compliance level")
+            wcag_level: str = Field(default="AA", description="WCAG compliance level"),
         ) -> Dict[str, Any]:
             """Check accessibility compliance"""
             logger.info(f"Checking accessibility for WCAG {wcag_level}")
@@ -75,22 +79,24 @@ export const {component_name}: React.FC<{component_name}Props> = (props) => {{
             issues = []
 
             if "<img" in html and 'alt="' not in html:
-                issues.append({
-                    "type": "error",
-                    "rule": "images-alt",
-                    "message": "Images must have alt text"
-                })
+                issues.append(
+                    {
+                        "type": "error",
+                        "rule": "images-alt",
+                        "message": "Images must have alt text",
+                    }
+                )
 
             return {
                 "wcag_level": wcag_level,
                 "passed": len(issues) == 0,
                 "issues": issues,
-                "score": 100 - (len(issues) * 10)
+                "score": 100 - (len(issues) * 10),
             }
 
         @self.server.tool()
         async def optimize_performance(
-            component_code: str = Field(description="React component code to optimize")
+            component_code: str = Field(description="React component code to optimize"),
         ) -> Dict[str, Any]:
             """Optimize component performance"""
             logger.info("Optimizing component performance")
@@ -98,16 +104,18 @@ export const {component_name}: React.FC<{component_name}Props> = (props) => {{
             optimizations = []
 
             if "useState" in component_code and "useMemo" not in component_code:
-                optimizations.append({
-                    "type": "memoization",
-                    "suggestion": "Consider using useMemo for expensive computations"
-                })
+                optimizations.append(
+                    {
+                        "type": "memoization",
+                        "suggestion": "Consider using useMemo for expensive computations",
+                    }
+                )
 
             return {
                 "original_size": len(component_code),
                 "optimized_size": int(len(component_code) * 0.9),
                 "optimizations": optimizations,
-                "performance_gain": "10%"
+                "performance_gain": "10%",
             }
 
 
@@ -120,7 +128,7 @@ async def main():
         await server_instance.server.run(
             read_stream,
             write_stream,
-            server_instance.server.create_initialization_options()
+            server_instance.server.create_initialization_options(),
         )
 
 

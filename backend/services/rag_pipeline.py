@@ -407,9 +407,9 @@ class ContextBuilder:
         metadata = {
             "total_chunks_retrieved": len(chunks),
             "chunks_used": len(selected_chunks),
-            "avg_relevance_score": sum(selected_scores) / len(selected_scores)
-            if selected_scores
-            else 0,
+            "avg_relevance_score": (
+                sum(selected_scores) / len(selected_scores) if selected_scores else 0
+            ),
             "sources": list(set(c.document_id for c in selected_chunks)),
         }
 

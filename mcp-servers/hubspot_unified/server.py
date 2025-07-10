@@ -303,9 +303,7 @@ class HubSpotUnifiedMCPServer(StandardizedMCPServer):
 
         except Exception as e:
             logger.error(f"Error searching contacts: {e}")
-            return [
-                TextContent(type="text", text=f"Error searching contacts: {e!s}")
-            ]
+            return [TextContent(type="text", text=f"Error searching contacts: {e!s}")]
 
     async def _list_deals(self, params: dict) -> list[TextContent]:
         """List deals"""

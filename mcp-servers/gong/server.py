@@ -216,9 +216,7 @@ class GongMCPServer(StandardizedMCPServer):
 
         except Exception as e:
             logger.error(f"Error getting transcript: {e}")
-            return [
-                TextContent(type="text", text=f"Error getting transcript: {e!s}")
-            ]
+            return [TextContent(type="text", text=f"Error getting transcript: {e!s}")]
 
     async def _get_call_insights(self, call_id: str) -> list[TextContent]:
         """Get AI-generated insights"""
@@ -380,9 +378,7 @@ class GongMCPServer(StandardizedMCPServer):
         except Exception as e:
             logger.error(f"Error getting deal intelligence: {e}")
             return [
-                TextContent(
-                    type="text", text=f"Error getting deal intelligence: {e!s}"
-                )
+                TextContent(type="text", text=f"Error getting deal intelligence: {e!s}")
             ]
 
 

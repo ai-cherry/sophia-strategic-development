@@ -400,11 +400,15 @@ class SecurityPolicyEnforcer:
                         PolicyViolation(
                             violation_id=f"sensitive_{keyword.replace(' ', '_')}_{hashlib.md5(content.encode()).hexdigest()[:8]}",
                             policy_type=PolicyType.SECURITY,
-                            severity=PolicyViolationSeverity.WARNING
-                            if severity == "medium"
-                            else PolicyViolationSeverity.ERROR
-                            if severity == "high"
-                            else PolicyViolationSeverity.INFO,
+                            severity=(
+                                PolicyViolationSeverity.WARNING
+                                if severity == "medium"
+                                else (
+                                    PolicyViolationSeverity.ERROR
+                                    if severity == "high"
+                                    else PolicyViolationSeverity.INFO
+                                )
+                            ),
                             description=f"Content contains sensitive keyword: {keyword}",
                             affected_item="content",
                             metadata={

@@ -140,9 +140,9 @@ class MemoryServiceAdapter:
     def health_check(self) -> dict[str, Any]:
         """Check health of memory service"""
         return {
-            "status": "healthy"
-            if not self.memory_service.degraded_mode
-            else "degraded",
+            "status": (
+                "healthy" if not self.memory_service.degraded_mode else "degraded"
+            ),
             "degraded_mode": self.memory_service.degraded_mode,
             "redis_available": self.memory_service.redis_client is not None,
             "mem0_available": self.memory_service.mem0_client is not None,

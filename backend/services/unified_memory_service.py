@@ -27,7 +27,7 @@ from backend.core.date_time_manager import date_manager
 from backend.core.redis_helper import RedisHelper
 from backend.core.unified_config import UnifiedConfig
 from shared.utils.monitoring import log_execution_time
-from shared.utils.errors import ConnectionError, DataValidationError
+from shared.utils.errors import DataValidationError
 
 # Check if Mem0 is available
 try:
@@ -65,7 +65,7 @@ class UnifiedMemoryService:
         self.redis_helper = None
         self.mem0_client = None
         self.cache_ttl = 3600  # 1 hour default TTL
-        
+
         # Configuration - must be set before initialize_mem0
         self.vector_dimension = 768  # Standard for CORTEX.EMBED_TEXT_768
         self.default_limit = 10
@@ -107,12 +107,14 @@ class UnifiedMemoryService:
 
             # Test connection
             redis_client.ping()
-            
+
             # Initialize RedisHelper with metrics and enhanced functionality
             self.redis_client = redis_client
             self.redis_helper = RedisHelper(redis_client, default_ttl=self.cache_ttl)
-            
-            logger.info({"event": "✅ L1 Redis initialized successfully with enhanced helper"})
+
+            logger.info(
+                {"event": "✅ L1 Redis initialized successfully with enhanced helper"}
+            )
 
         except Exception as e:
             logger.warning({"event": f"⚠️ L1 Redis not available: {e}"})
@@ -275,8 +277,7 @@ class UnifiedMemoryService:
             if self.redis_helper:
                 cache_key = f"knowledge:{query_id}"
                 await self.redis_helper.cache_set(
-                    cache_key,
-                    {"content": content, "metadata": metadata}
+                    cache_key, {"content": content, "metadata": metadata}
                 )
 
             return query_id
@@ -374,10 +375,10 @@ class UnifiedMemoryService:
             logger.info(
                 f"Found {len(formatted_results)} results for query: {query[:50]}..."
             )
-            
+
             # Cache the results for future queries
             await self.cache_search_results(query, formatted_results)
-            
+
             return formatted_results
 
         except Exception as e:
@@ -445,111 +446,103 @@ class UnifiedMemoryService:
             return []
 
     async def execute_snowflake_query(
-        self,
-        query: str,
-        params: tuple = None
+        self, query: str, params: tuple = None
     ) -> list[dict[str, Any]]:
         """
         Execute a raw Snowflake query.
-        
+
         Args:
             query: SQL query to execute
             params: Query parameters
-            
+
         Returns:
             Query results as list of dictionaries
         """
         if self.degraded_mode or not self.snowflake_conn:
             logger.warning("Snowflake not available for query execution")
             return []
-            
+
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-            
+
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-                
+
             results = cursor.fetchall()
             cursor.close()
-            
+
             return results
-            
+
         except Exception as e:
             logger.error(f"Snowflake query failed: {e}")
             return []
-            
-    async def get_document_metadata(
-        self,
-        doc_id: str
-    ) -> dict[str, Any]:
+
+    async def get_document_metadata(self, doc_id: str) -> dict[str, Any]:
         """
         Get metadata for a specific document.
-        
+
         Args:
             doc_id: Document ID
-            
+
         Returns:
             Document metadata
         """
         if self.degraded_mode:
             return {}
-            
+
         try:
             query = """
             SELECT metadata
             FROM AI_MEMORY.VECTORS.KNOWLEDGE_BASE
             WHERE id = %s
             """
-            
+
             cursor = self.snowflake_conn.cursor(DictCursor)
             cursor.execute(query, (doc_id,))
             result = cursor.fetchone()
             cursor.close()
-            
+
             if result:
-                return result.get('METADATA', {})
+                return result.get("METADATA", {})
             return {}
-            
+
         except Exception as e:
             logger.error(f"Failed to get document metadata: {e}")
             return {}
-            
-    async def update_access_metadata(
-        self,
-        doc_id: str
-    ) -> None:
+
+    async def update_access_metadata(self, doc_id: str) -> None:
         """
         Update access count and timestamp for a document.
-        
+
         Args:
             doc_id: Document ID
         """
         if self.degraded_mode:
             return
-            
+
         try:
             # Get current metadata
             metadata = await self.get_document_metadata(doc_id)
-            
+
             # Update access info
-            metadata['access_count'] = metadata.get('access_count', 0) + 1
-            metadata['last_accessed'] = datetime.utcnow().isoformat()
-            
+            metadata["access_count"] = metadata.get("access_count", 0) + 1
+            metadata["last_accessed"] = datetime.utcnow().isoformat()
+
             # Update in database
             update_query = """
             UPDATE AI_MEMORY.VECTORS.KNOWLEDGE_BASE
             SET metadata = PARSE_JSON(%s)
             WHERE id = %s
             """
-            
+
             cursor = self.snowflake_conn.cursor()
             cursor.execute(update_query, (json.dumps(metadata), doc_id))
             cursor.close()
-            
+
             logger.debug(f"Updated access metadata for {doc_id}")
-            
+
         except Exception as e:
             logger.error(f"Failed to update access metadata: {e}")
 
@@ -607,52 +600,50 @@ class UnifiedMemoryService:
     ) -> bool:
         """
         Cache vector embedding in Redis for fast retrieval.
-        
+
         Args:
             content: Original content
             embedding: Vector embedding
             metadata: Optional metadata
-            
+
         Returns:
             Success status
         """
         if not self.redis_helper:
             return False
-            
+
         # Create hash of content for key
         import hashlib
+
         content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
-        
+
         return await self.redis_helper.cache_vector(
             key=content_hash,
             vector=embedding,
-            metadata={
-                "content": content,
-                **(metadata or {})
-            }
+            metadata={"content": content, **(metadata or {})},
         )
-        
+
     async def get_cached_vector_embedding(
-        self,
-        content: str
+        self, content: str
     ) -> Optional[dict[str, Any]]:
         """
         Get cached vector embedding from Redis.
-        
+
         Args:
             content: Original content
-            
+
         Returns:
             Cached vector data or None
         """
         if not self.redis_helper:
             return None
-            
+
         import hashlib
+
         content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
-        
+
         return await self.redis_helper.get_cached_vector(content_hash)
-        
+
     async def cache_search_results(
         self,
         query: str,
@@ -661,58 +652,57 @@ class UnifiedMemoryService:
     ) -> bool:
         """
         Cache search results in Redis.
-        
+
         Args:
             query: Search query
             results: Search results
             ttl: Cache duration (default 30 minutes)
-            
+
         Returns:
             Success status
         """
         if not self.redis_helper:
             return False
-            
+
         import hashlib
+
         query_hash = hashlib.sha256(query.encode()).hexdigest()[:16]
-        
+
         return await self.redis_helper.cache_search_results(
-            query_hash=query_hash,
-            results=results,
-            ttl=ttl
+            query_hash=query_hash, results=results, ttl=ttl
         )
-        
+
     async def get_cached_search_results(
-        self,
-        query: str
+        self, query: str
     ) -> Optional[list[dict[str, Any]]]:
         """
         Get cached search results from Redis.
-        
+
         Args:
             query: Search query
-            
+
         Returns:
             Cached results or None
         """
         if not self.redis_helper:
             return None
-            
+
         import hashlib
+
         query_hash = hashlib.sha256(query.encode()).hexdigest()[:16]
-        
+
         return await self.redis_helper.get_cached_search_results(query_hash)
-        
+
     async def get_cache_statistics(self) -> dict[str, Any]:
         """
         Get cache statistics from Redis.
-        
+
         Returns:
             Cache statistics
         """
         if not self.redis_helper:
             return {"available": False}
-            
+
         stats = await self.redis_helper.get_cache_stats()
         stats["available"] = True
         return stats
