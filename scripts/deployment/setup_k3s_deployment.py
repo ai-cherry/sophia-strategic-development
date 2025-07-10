@@ -11,36 +11,38 @@ import yaml
 from pathlib import Path
 from datetime import datetime
 import logging
-import subprocess
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 class K3sDeploymentSetup:
     def __init__(self):
         self.root_dir = Path.cwd()
         self.k8s_dir = self.root_dir / "kubernetes"
         self.lambda_labs_ip = "192.222.58.232"
-        
+
     def validate_yaml_files(self):
         """Validate all YAML files are properly formatted."""
         logger.info("🔍 Validating YAML files...")
-        
-        yaml_files = list(self.k8s_dir.rglob("*.yaml")) + list(self.k8s_dir.rglob("*.yml"))
+
+        yaml_files = list(self.k8s_dir.rglob("*.yaml")) + list(
+            self.k8s_dir.rglob("*.yml")
+        )
         errors = []
-        
+
         for yaml_file in yaml_files:
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file, "r") as f:
                     yaml.safe_load_all(f)
                 logger.info(f"✅ Valid: {yaml_file.relative_to(self.root_dir)}")
             except yaml.YAMLError as e:
                 error_msg = f"❌ Invalid: {yaml_file.relative_to(self.root_dir)} - {e}"
                 logger.error(error_msg)
                 errors.append(error_msg)
-                
+
         return len(errors) == 0
-        
+
     def generate_deployment_script(self):
         """Generate deployment script for GitHub Actions."""
         deployment_script = f"""#!/bin/bash
@@ -79,50 +81,44 @@ kubectl get all -n $NAMESPACE
 
 echo "🎉 Deployment complete!"
 """
-        
+
         script_path = self.root_dir / ".github" / "scripts" / "deploy-k3s.sh"
         script_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(script_path, 'w') as f:
+
+        with open(script_path, "w") as f:
             f.write(deployment_script)
-            
+
         # Make executable
         os.chmod(script_path, 0o755)
-        logger.info(f"📝 Created deployment script: {script_path.relative_to(self.root_dir)}")
-        
+        logger.info(
+            f"📝 Created deployment script: {script_path.relative_to(self.root_dir)}"
+        )
+
     def generate_github_action(self):
         """Generate GitHub Actions workflow for K3s deployment."""
         workflow = {
             "name": "Deploy to K3s",
-            "on": {
-                "push": {
-                    "branches": ["main"]
-                },
-                "workflow_dispatch": {}
-            },
+            "on": {"push": {"branches": ["main"]}, "workflow_dispatch": {}},
             "env": {
                 "DOCKER_REGISTRY": "scoobyjava15",
-                "K3S_SERVER": self.lambda_labs_ip
+                "K3S_SERVER": self.lambda_labs_ip,
             },
             "jobs": {
                 "deploy": {
                     "runs-on": "ubuntu-latest",
                     "steps": [
-                        {
-                            "name": "Checkout code",
-                            "uses": "actions/checkout@v4"
-                        },
+                        {"name": "Checkout code", "uses": "actions/checkout@v4"},
                         {
                             "name": "Set up Docker Buildx",
-                            "uses": "docker/setup-buildx-action@v3"
+                            "uses": "docker/setup-buildx-action@v3",
                         },
                         {
                             "name": "Log in to Docker Hub",
                             "uses": "docker/login-action@v3",
                             "with": {
                                 "username": "${{ secrets.DOCKER_HUB_USERNAME }}",
-                                "password": "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}"
-                            }
+                                "password": "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}",
+                            },
                         },
                         {
                             "name": "Build and push API image",
@@ -132,37 +128,37 @@ echo "🎉 Deployment complete!"
                                 "file": "backend/Dockerfile",
                                 "push": True,
                                 "tags": "${{ env.DOCKER_REGISTRY }}/sophia-api:${{ github.sha }},${{ env.DOCKER_REGISTRY }}/sophia-api:latest",
-                                "platforms": "linux/amd64"
-                            }
+                                "platforms": "linux/amd64",
+                            },
                         },
                         {
                             "name": "Set up kubectl",
                             "uses": "azure/setup-kubectl@v3",
-                            "with": {
-                                "version": "v1.28.0"
-                            }
+                            "with": {"version": "v1.28.0"},
                         },
                         {
                             "name": "Configure kubectl",
                             "run": """echo "${{ secrets.LAMBDA_LABS_KUBECONFIG }}" | base64 -d > kubeconfig
-export KUBECONFIG=kubeconfig"""
+export KUBECONFIG=kubeconfig""",
                         },
                         {
                             "name": "Update deployment image",
-                            "run": f"""kubectl set image deployment/sophia-api sophia-api=${{{{ env.DOCKER_REGISTRY }}}}/sophia-api:${{{{ github.sha }}}} -n sophia-ai-prod
-kubectl rollout status deployment/sophia-api -n sophia-ai-prod"""
-                        }
-                    ]
+                            "run": """kubectl set image deployment/sophia-api sophia-api=${{ env.DOCKER_REGISTRY }}/sophia-api:${{ github.sha }} -n sophia-ai-prod
+kubectl rollout status deployment/sophia-api -n sophia-ai-prod""",
+                        },
+                    ],
                 }
-            }
+            },
         }
-        
+
         workflow_path = self.root_dir / ".github" / "workflows" / "deploy-k3s.yml"
-        with open(workflow_path, 'w') as f:
+        with open(workflow_path, "w") as f:
             yaml.dump(workflow, f, default_flow_style=False, sort_keys=False)
-            
-        logger.info(f"📝 Created GitHub Actions workflow: {workflow_path.relative_to(self.root_dir)}")
-        
+
+        logger.info(
+            f"📝 Created GitHub Actions workflow: {workflow_path.relative_to(self.root_dir)}"
+        )
+
     def create_setup_instructions(self):
         """Create setup instructions for K3s deployment."""
         instructions = f"""# K3s Deployment Setup Instructions
@@ -252,38 +248,44 @@ kubectl describe pod <pod-name> -n sophia-ai-prod
 kubectl get events -n sophia-ai-prod
 ```
 """
-        
-        instructions_path = self.root_dir / "docs" / "deployment" / "K3S_DEPLOYMENT_SETUP.md"
+
+        instructions_path = (
+            self.root_dir / "docs" / "deployment" / "K3S_DEPLOYMENT_SETUP.md"
+        )
         instructions_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(instructions_path, 'w') as f:
+
+        with open(instructions_path, "w") as f:
             f.write(instructions)
-            
-        logger.info(f"📝 Created setup instructions: {instructions_path.relative_to(self.root_dir)}")
-        
+
+        logger.info(
+            f"📝 Created setup instructions: {instructions_path.relative_to(self.root_dir)}"
+        )
+
     def run(self):
         """Run the K3s deployment setup."""
         logger.info("🚀 Starting K3s deployment setup...")
-        
+
         # Validate YAML files
         if not self.validate_yaml_files():
-            logger.error("❌ YAML validation failed. Please fix errors before proceeding.")
+            logger.error(
+                "❌ YAML validation failed. Please fix errors before proceeding."
+            )
             return
-            
+
         # Generate deployment script
         self.generate_deployment_script()
-        
+
         # Generate GitHub Actions workflow
         self.generate_github_action()
-        
+
         # Create setup instructions
         self.create_setup_instructions()
-        
+
         logger.info("\n✨ K3s deployment setup complete!")
-        
-        print("\n" + "="*60)
+
+        print("\n" + "=" * 60)
         print("K3S DEPLOYMENT SETUP COMPLETE")
-        print("="*60)
+        print("=" * 60)
         print("\n✅ Generated:")
         print("  - Deployment script: .github/scripts/deploy-k3s.sh")
         print("  - GitHub Actions workflow: .github/workflows/deploy-k3s.yml")
@@ -292,8 +294,9 @@ kubectl get events -n sophia-ai-prod
         print("  1. Follow setup instructions to configure kubectl")
         print("  2. Add required secrets to GitHub repository")
         print("  3. Push to main branch to trigger deployment")
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
+
 
 if __name__ == "__main__":
     setup = K3sDeploymentSetup()
-    setup.run() 
+    setup.run()

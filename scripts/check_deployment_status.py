@@ -1,313 +1,114 @@
 #!/usr/bin/env python3
 """
-Deployment Status Checker for Sophia AI
-
-Monitors the deployment status by checking:
-- Docker Hub image registry
-- GitHub Actions workflow status
-- Lambda Labs connectivity
-- Expected deployment indicators
+Check deployment status of Sophia AI services
 """
 
-import asyncio
-import json
-import subprocess
+import requests
+from typing import Dict
 import time
-from datetime import datetime
-from typing import Any
-
-import aiohttp
 
 
-class DeploymentStatusChecker:
-    """Check comprehensive deployment status"""
+def check_service_health(name: str, url: str, timeout: int = 5) -> Dict:
+    """Check if a service is healthy"""
+    try:
+        start = time.time()
+        response = requests.get(url, timeout=timeout)
+        elapsed = time.time() - start
 
-    def __init__(self):
-        self.lambda_labs_ip = "165.1.69.44"
-        self.docker_hub_user = "scoobyjava15"
-        self.expected_services = {
-            "Codacy MCP": 3008,
-            "Main API": 8000,
-            "MCP Gateway": 8080,
-            "AI Memory": 9001,
-            "Grafana": 3000,
-            "Prometheus": 9090,
+        return {
+            "name": name,
+            "status": "healthy" if response.status_code == 200 else "unhealthy",
+            "status_code": response.status_code,
+            "response_time": f"{elapsed:.3f}s",
+            "url": url,
         }
+    except requests.exceptions.ConnectionError:
+        return {
+            "name": name,
+            "status": "down",
+            "error": "Connection refused",
+            "url": url,
+        }
+    except requests.exceptions.Timeout:
+        return {
+            "name": name,
+            "status": "timeout",
+            "error": f"Timeout after {timeout}s",
+            "url": url,
+        }
+    except Exception as e:
+        return {"name": name, "status": "error", "error": str(e), "url": url}
 
-    async def check_docker_hub_images(self) -> dict[str, Any]:
-        """Check if Docker images are available on Docker Hub"""
 
-        # Expected image names based on docker-compose.cloud.yml
-        expected_images = [
-            "sophia-ai-codacy-mcp",
-            "sophia-ai-memory",
-            "sophia-snowflake-admin",
-            "sophia-codacy",
-            "sophia-linear",
-            "sophia-github",
-            "sophia-asana",
-            "sophia-notion",
-        ]
+def main():
+    """Check all services"""
+    print("🔍 Checking Sophia AI Deployment Status...\n")
 
-        image_status = {}
+    services = [
+        ("Backend API", "http://localhost:8001/health"),
+        ("Backend Docs", "http://localhost:8001/docs"),
+        ("Frontend", "http://localhost:3000"),
+        ("AI Memory MCP", "http://localhost:9001/health"),
+        ("Codacy MCP", "http://localhost:3008/health"),
+        ("GitHub MCP", "http://localhost:9003/health"),
+        ("Linear MCP", "http://localhost:9004/health"),
+        ("Asana MCP", "http://localhost:9006/health"),
+        ("Notion MCP", "http://localhost:9102/health"),
+        ("Slack MCP", "http://localhost:9101/health"),
+    ]
 
-        for image_name in expected_images:
-            try:
-                # Check Docker Hub API for image existence
-                url = f"https://hub.docker.com/v2/repositories/{self.docker_hub_user}/{image_name}/tags/"
+    results = []
+    healthy_count = 0
 
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(
-                        url, timeout=aiohttp.ClientTimeout(total=10)
-                    ) as response:
-                        if response.status == 200:
-                            data = await response.json()
-                            tags = [tag["name"] for tag in data.get("results", [])]
-                            latest_tag = tags[0] if tags else None
-                            image_status[image_name] = {
-                                "exists": True,
-                                "latest_tag": latest_tag,
-                                "total_tags": len(tags),
-                                "status": "✅ Available",
-                            }
-                        else:
-                            image_status[image_name] = {
-                                "exists": False,
-                                "status": f"❌ Not found (HTTP {response.status})",
-                            }
-            except Exception as e:
-                image_status[image_name] = {
-                    "exists": False,
-                    "error": str(e),
-                    "status": f"❌ Error: {str(e)[:30]}",
-                }
+    for name, url in services:
+        result = check_service_health(name, url)
+        results.append(result)
+        if result["status"] == "healthy":
+            healthy_count += 1
 
-        return image_status
-
-    def check_recent_commits(self) -> dict[str, Any]:
-        """Check recent Git commits for deployment-related changes"""
-
-        try:
-            # Get last 5 commits
-            result = subprocess.run(
-                ["git", "log", "--oneline", "-5"],
-                capture_output=True,
-                text=True,
-                check=True,
+        # Print result
+        if result["status"] == "healthy":
+            print(f"✅ {name}: {result['status']} ({result['response_time']})")
+        elif result["status"] == "down":
+            print(
+                f"❌ {name}: {result['status']} - {result.get('error', 'Unknown error')}"
             )
-
-            commits = result.stdout.strip().split("\n")
-            recent_commits = []
-
-            for commit_line in commits:
-                if commit_line.strip():
-                    commit_hash = commit_line.split()[0]
-                    commit_msg = " ".join(commit_line.split()[1:])
-
-                    # Get commit timestamp
-                    timestamp_result = subprocess.run(
-                        ["git", "show", "-s", "--format=%ct", commit_hash],
-                        capture_output=True,
-                        text=True,
-                        check=True,
-                    )
-
-                    timestamp = int(timestamp_result.stdout.strip())
-                    commit_date = datetime.fromtimestamp(timestamp)
-
-                    recent_commits.append(
-                        {
-                            "hash": commit_hash,
-                            "message": commit_msg,
-                            "timestamp": commit_date.isoformat(),
-                            "age_minutes": (
-                                datetime.now() - commit_date
-                            ).total_seconds()
-                            / 60,
-                        }
-                    )
-
-            return {
-                "commits": recent_commits,
-                "latest_commit_age_minutes": (
-                    recent_commits[0]["age_minutes"] if recent_commits else 0
-                ),
-            }
-
-        except subprocess.CalledProcessError as e:
-            return {"error": str(e)}
-
-    async def quick_connectivity_test(self) -> dict[str, Any]:
-        """Quick connectivity test to key services"""
-
-        results = {}
-
-        for service_name, port in self.expected_services.items():
-            try:
-                start_time = time.time()
-                timeout = aiohttp.ClientTimeout(
-                    total=3.0
-                )  # Shorter timeout for quick test
-
-                async with aiohttp.ClientSession(timeout=timeout) as session:
-                    url = f"http://{self.lambda_labs_ip}:{port}/health"
-                    async with session.get(url) as response:
-                        response_time = (time.time() - start_time) * 1000
-
-                        if response.status == 200:
-                            results[service_name] = {
-                                "status": "✅ Healthy",
-                                "response_time": response_time,
-                                "port": port,
-                            }
-                        else:
-                            results[service_name] = {
-                                "status": f"⚠️ HTTP {response.status}",
-                                "response_time": response_time,
-                                "port": port,
-                            }
-
-            except TimeoutError:
-                results[service_name] = {"status": "❌ Timeout", "port": port}
-            except Exception as e:
-                results[service_name] = {"status": f"❌ {str(e)[:30]}", "port": port}
-
-        return results
-
-    def analyze_deployment_status(
-        self, docker_status: dict, git_status: dict, connectivity_status: dict
-    ) -> dict:
-        """Analyze overall deployment status"""
-
-        # Calculate metrics
-        total_images = len(docker_status)
-        available_images = len(
-            [img for img in docker_status.values() if img.get("exists", False)]
-        )
-
-        total_services = len(connectivity_status)
-        healthy_services = len(
-            [
-                svc
-                for svc in connectivity_status.values()
-                if "✅" in svc.get("status", "")
-            ]
-        )
-
-        latest_commit_age = git_status.get("latest_commit_age_minutes", 999)
-
-        # Determine deployment phase
-        if available_images == 0:
-            phase = "Not Started"
-            phase_emoji = "⏳"
-        elif available_images < total_images:
-            phase = "Building Images"
-            phase_emoji = "🔨"
-        elif healthy_services == 0 and latest_commit_age < 30:
-            phase = "Deploying Services"
-            phase_emoji = "🚀"
-        elif healthy_services > 0 and healthy_services < total_services:
-            phase = "Partial Deployment"
-            phase_emoji = "⚠️"
-        elif healthy_services == total_services:
-            phase = "Fully Deployed"
-            phase_emoji = "✅"
         else:
-            phase = "Unknown"
-            phase_emoji = "❓"
+            print(
+                f"⚠️  {name}: {result['status']} - {result.get('error', 'Unknown error')}"
+            )
 
-        analysis = {
-            "phase": phase,
-            "phase_emoji": phase_emoji,
-            "metrics": {
-                "images_available": f"{available_images}/{total_images}",
-                "services_healthy": f"{healthy_services}/{total_services}",
-                "latest_commit_age_minutes": latest_commit_age,
+    print(f"\n📊 Summary: {healthy_count}/{len(services)} services are healthy")
+
+    # Check unified chat endpoint
+    print("\n🔍 Testing Unified Chat Endpoint...")
+    try:
+        response = requests.post(
+            "http://localhost:8001/api/v4/orchestrate",
+            json={
+                "query": "What is the status of the system?",
+                "user_id": "test_user",
+                "session_id": "test_session",
             },
-            "recommendations": [],
-        }
-
-        # Generate recommendations
-        if phase == "Not Started":
-            analysis["recommendations"].append(
-                "Check if GitHub Actions workflow is triggered"
-            )
-            analysis["recommendations"].append(
-                "Verify Docker Hub credentials in GitHub secrets"
-            )
-        elif phase == "Building Images":
-            analysis["recommendations"].append(
-                "Wait for Docker image builds to complete"
-            )
-            analysis["recommendations"].append("Check GitHub Actions workflow logs")
-        elif phase == "Deploying Services":
-            analysis["recommendations"].append(
-                "Wait for services to start (usually 2-5 minutes)"
-            )
-            analysis["recommendations"].append(
-                "Monitor connectivity for service health"
-            )
-        elif phase == "Partial Deployment":
-            analysis["recommendations"].append("Check logs for failed services")
-            analysis["recommendations"].append(
-                "Verify all required secrets are available"
-            )
-        elif phase == "Fully Deployed":
-            analysis["recommendations"].append("Run comprehensive health checks")
-            analysis["recommendations"].append("Test all API endpoints")
-
-        if analysis["recommendations"]:
-            for _i, _rec in enumerate(analysis["recommendations"], 1):
-                pass
-
-        return analysis
-
-    async def run_comprehensive_check(self):
-        """Run comprehensive deployment status check"""
-
-        # Run all checks
-        docker_status = await self.check_docker_hub_images()
-        git_status = self.check_recent_commits()
-        connectivity_status = await self.quick_connectivity_test()
-
-        # Analyze results
-        analysis = self.analyze_deployment_status(
-            docker_status, git_status, connectivity_status
+            timeout=10,
         )
+        if response.status_code == 200:
+            print("✅ Chat endpoint is working")
+            print(f"Response: {response.json().get('response', '')[:100]}...")
+        else:
+            print(f"❌ Chat endpoint returned {response.status_code}")
+    except Exception as e:
+        print(f"❌ Chat endpoint error: {e}")
 
-        # Save detailed report
-        report = {
-            "timestamp": datetime.now().isoformat(),
-            "lambda_labs_ip": self.lambda_labs_ip,
-            "docker_status": docker_status,
-            "git_status": git_status,
-            "connectivity_status": connectivity_status,
-            "analysis": analysis,
-        }
+    # Print access URLs
+    print("\n🌐 Access URLs:")
+    print("- Frontend Dashboard: http://localhost:3000")
+    print("- Backend API Docs: http://localhost:8001/docs")
+    print("- Health Check: http://localhost:8001/health")
 
-        report_file = f"deployment_status_report_{int(time.time())}.json"
-        with open(report_file, "w") as f:
-            json.dump(report, f, indent=2)
-
-        # Final status
-
-        if analysis["phase"] in ["Fully Deployed", "Partial Deployment"]:
-            for status in connectivity_status.values():
-                if "✅" in status.get("status", ""):
-                    status["port"]
-
-        return analysis
-
-
-async def main():
-    """Main function"""
-    checker = DeploymentStatusChecker()
-    analysis = await checker.run_comprehensive_check()
-
-    # If deployment is in progress, offer to monitor
-    if analysis["phase"] in ["Building Images", "Deploying Services"]:
-        pass
+    return healthy_count, len(services)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    healthy, total = main()
+    exit(0 if healthy == total else 1)
