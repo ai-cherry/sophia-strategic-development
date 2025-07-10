@@ -3,7 +3,6 @@ Snowflake Cortex Metrics
 Comprehensive Prometheus metrics for monitoring Cortex operations.
 """
 
-
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Info
 
 # Create a registry for Cortex-specific metrics

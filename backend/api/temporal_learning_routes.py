@@ -182,7 +182,7 @@ async def get_dashboard_data(current_user: dict[str, Any] = Depends(get_current_
 
 @router.get("/dashboard/suggestions")
 async def get_learning_suggestions(
-    current_user: dict[str, Any] = Depends(get_current_user)
+    current_user: dict[str, Any] = Depends(get_current_user),
 ):
     """
     Get suggestions for improving temporal learning
@@ -198,7 +198,7 @@ async def get_learning_suggestions(
 
 @router.get("/analytics/summary")
 async def get_analytics_summary(
-    current_user: dict[str, Any] = Depends(get_current_user)
+    current_user: dict[str, Any] = Depends(get_current_user),
 ):
     """
     Get analytics summary for temporal learning

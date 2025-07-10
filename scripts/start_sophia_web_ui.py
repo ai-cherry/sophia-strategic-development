@@ -125,15 +125,15 @@ class SophiaWebService:
 
         return {
             **self.stats,
-            "serverless_percentage": (self.stats["serverless_requests"] / total * 100)
-            if total > 0
-            else 0,
-            "dedicated_percentage": (self.stats["dedicated_requests"] / total * 100)
-            if total > 0
-            else 0,
-            "average_cost_per_request": self.stats["cost_savings"] / total
-            if total > 0
-            else 0,
+            "serverless_percentage": (
+                (self.stats["serverless_requests"] / total * 100) if total > 0 else 0
+            ),
+            "dedicated_percentage": (
+                (self.stats["dedicated_requests"] / total * 100) if total > 0 else 0
+            ),
+            "average_cost_per_request": (
+                self.stats["cost_savings"] / total if total > 0 else 0
+            ),
         }
 
     async def get_health(self) -> dict[str, Any]:

@@ -189,7 +189,9 @@ def test_mcp_compatibility() -> list[tuple[str, bool, str]]:
             )
         )
     except ImportError as e:
-        results.append(("MCP Compatibility", False, f"❌ MCP compatibility failed: {e}"))
+        results.append(
+            ("MCP Compatibility", False, f"❌ MCP compatibility failed: {e}")
+        )
     except Exception as e:
         results.append(("MCP Compatibility", False, f"❌ MCP error: {e}"))
 

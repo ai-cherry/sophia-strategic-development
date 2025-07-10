@@ -404,9 +404,7 @@ class CompletePlatformDeployment:
             (
                 "✅"
                 if status["status"] == "completed"
-                else "⚠️"
-                if status["status"] == "partial"
-                else "❌"
+                else "⚠️" if status["status"] == "partial" else "❌"
             )
 
         for _capability, _deployed in report["capabilities_deployed"].items():

@@ -187,9 +187,9 @@ class SecretSynchronizer:
                 "total_secrets": len(self.sync_results),
                 "successful": len(successful),
                 "failed": len(failed),
-                "success_rate": len(successful) / len(self.sync_results)
-                if self.sync_results
-                else 0,
+                "success_rate": (
+                    len(successful) / len(self.sync_results) if self.sync_results else 0
+                ),
             },
             "successful_syncs": successful,
             "failed_syncs": failed,

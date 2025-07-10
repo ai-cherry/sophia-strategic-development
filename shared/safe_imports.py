@@ -11,6 +11,7 @@ Example
 >>> aiohttp.ClientSession  # either real class or `object` stub
 <object ...>
 """
+
 from __future__ import annotations
 
 import sys

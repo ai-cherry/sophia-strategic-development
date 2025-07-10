@@ -278,7 +278,9 @@ class PerformanceBaseline:
 
         # General recommendations
         if not recommendations:
-            recommendations.append("✅ All performance metrics within acceptable ranges")
+            recommendations.append(
+                "✅ All performance metrics within acceptable ranges"
+            )
 
         return recommendations
 

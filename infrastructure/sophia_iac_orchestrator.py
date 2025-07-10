@@ -501,9 +501,9 @@ Respond with specific, actionable steps and use the available tools to execute o
                 health_report["platforms"][name] = {"status": "error", "error": str(e)}
 
         # Analyze dependencies
-        health_report[
-            "dependencies"
-        ] = await self.dependency_manager.analyze_dependencies()
+        health_report["dependencies"] = (
+            await self.dependency_manager.analyze_dependencies()
+        )
 
         # Generate recommendations
         health_report["recommendations"] = await self._generate_recommendations(

@@ -180,21 +180,29 @@ class BusinessIntelligenceAgent:
                 "agent_type": "business_intelligence",
                 "success": True,
                 "results": {
-                    "gong_intelligence": gong_data
-                    if not isinstance(gong_data, Exception)
-                    else None,
-                    "hubspot_insights": hubspot_data
-                    if not isinstance(hubspot_data, Exception)
-                    else None,
-                    "salesforce_data": salesforce_data
-                    if not isinstance(salesforce_data, Exception)
-                    else None,
-                    "financial_metrics": financial_data
-                    if not isinstance(financial_data, Exception)
-                    else None,
-                    "customer_health": customer_data
-                    if not isinstance(customer_data, Exception)
-                    else None,
+                    "gong_intelligence": (
+                        gong_data if not isinstance(gong_data, Exception) else None
+                    ),
+                    "hubspot_insights": (
+                        hubspot_data
+                        if not isinstance(hubspot_data, Exception)
+                        else None
+                    ),
+                    "salesforce_data": (
+                        salesforce_data
+                        if not isinstance(salesforce_data, Exception)
+                        else None
+                    ),
+                    "financial_metrics": (
+                        financial_data
+                        if not isinstance(financial_data, Exception)
+                        else None
+                    ),
+                    "customer_health": (
+                        customer_data
+                        if not isinstance(customer_data, Exception)
+                        else None
+                    ),
                 },
                 "confidence": 0.90,
                 "processing_time": 2.0,
@@ -398,18 +406,22 @@ class CommunicationIntelligenceAgent:
                 "agent_type": "communication_intelligence",
                 "success": True,
                 "results": {
-                    "slack_intelligence": slack_data
-                    if not isinstance(slack_data, Exception)
-                    else None,
-                    "teams_data": teams_data
-                    if not isinstance(teams_data, Exception)
-                    else None,
-                    "intercom_insights": intercom_data
-                    if not isinstance(intercom_data, Exception)
-                    else None,
-                    "support_channels": support_data
-                    if not isinstance(support_data, Exception)
-                    else None,
+                    "slack_intelligence": (
+                        slack_data if not isinstance(slack_data, Exception) else None
+                    ),
+                    "teams_data": (
+                        teams_data if not isinstance(teams_data, Exception) else None
+                    ),
+                    "intercom_insights": (
+                        intercom_data
+                        if not isinstance(intercom_data, Exception)
+                        else None
+                    ),
+                    "support_channels": (
+                        support_data
+                        if not isinstance(support_data, Exception)
+                        else None
+                    ),
                 },
                 "confidence": 0.85,
                 "processing_time": 1.5,
@@ -578,21 +590,21 @@ class ProjectIntelligenceAgent:
                 "agent_type": "project_intelligence",
                 "success": True,
                 "results": {
-                    "linear_intelligence": linear_data
-                    if not isinstance(linear_data, Exception)
-                    else None,
-                    "asana_insights": asana_data
-                    if not isinstance(asana_data, Exception)
-                    else None,
-                    "notion_data": notion_data
-                    if not isinstance(notion_data, Exception)
-                    else None,
-                    "github_activity": github_data
-                    if not isinstance(github_data, Exception)
-                    else None,
-                    "project_health": health_data
-                    if not isinstance(health_data, Exception)
-                    else None,
+                    "linear_intelligence": (
+                        linear_data if not isinstance(linear_data, Exception) else None
+                    ),
+                    "asana_insights": (
+                        asana_data if not isinstance(asana_data, Exception) else None
+                    ),
+                    "notion_data": (
+                        notion_data if not isinstance(notion_data, Exception) else None
+                    ),
+                    "github_activity": (
+                        github_data if not isinstance(github_data, Exception) else None
+                    ),
+                    "project_health": (
+                        health_data if not isinstance(health_data, Exception) else None
+                    ),
                 },
                 "confidence": 0.90,
                 "processing_time": 2.0,
@@ -1415,7 +1427,9 @@ class EnhancedMultiAgentOrchestrator:
                     "success": False,
                     "response": f"Orchestration failed: {e!s}",
                     "confidence": 0.0,
-                    "processing_time": (date_manager.now() - start_time).total_seconds(),
+                    "processing_time": (
+                        date_manager.now() - start_time
+                    ).total_seconds(),
                     "agents_used": [],
                     "current_date": self.current_date.strftime("%Y-%m-%d"),
                     "system_date_validated": True,

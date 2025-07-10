@@ -850,23 +850,17 @@ class CostEngineeringService:
                     "cache_effectiveness": (
                         "high"
                         if cache_hit_rate > 0.3
-                        else "medium"
-                        if cache_hit_rate > 0.1
-                        else "low"
+                        else "medium" if cache_hit_rate > 0.1 else "low"
                     ),
                     "cost_efficiency": (
                         "high"
                         if cost_per_request < 0.01
-                        else "medium"
-                        if cost_per_request < 0.05
-                        else "low"
+                        else "medium" if cost_per_request < 0.05 else "low"
                     ),
                     "performance": (
                         "fast"
                         if metrics.avg_latency_ms < 1000
-                        else "medium"
-                        if metrics.avg_latency_ms < 2000
-                        else "slow"
+                        else "medium" if metrics.avg_latency_ms < 2000 else "slow"
                     ),
                 },
                 "recommendations": await self._generate_cost_recommendations(metrics),

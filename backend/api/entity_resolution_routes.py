@@ -441,7 +441,7 @@ async def _populate_entities_background():
 
 
 def generate_clarification_options(
-    entity_matches: dict[str, Any]
+    entity_matches: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Generate user-friendly clarification options"""
     options = []

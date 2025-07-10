@@ -639,9 +639,9 @@ class LambdaLabsServerlessService:
                     "requests": len(model_requests),
                     "avg_cost": avg_cost,
                     "avg_response_time": avg_response_time,
-                    "efficiency_score": avg_response_time / avg_cost
-                    if avg_cost > 0
-                    else 0,
+                    "efficiency_score": (
+                        avg_response_time / avg_cost if avg_cost > 0 else 0
+                    ),
                 }
 
         # Find most efficient model

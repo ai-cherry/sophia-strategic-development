@@ -194,9 +194,9 @@ class SecretScanner:
                             "file": str(file_path.relative_to(self.root_path)),
                             "line": line_start,
                             "type": pattern_name,
-                            "secret": secret[:20] + "..."
-                            if len(secret) > 20
-                            else secret,
+                            "secret": (
+                                secret[:20] + "..." if len(secret) > 20 else secret
+                            ),
                             "context": context_line.strip()[:100],
                             "severity": self.get_severity(pattern_name),
                         }
@@ -302,9 +302,11 @@ class SecretScanner:
                                     {
                                         "commit": commit,
                                         "type": pattern_name,
-                                        "secret": secret[:20] + "..."
-                                        if len(secret) > 20
-                                        else secret,
+                                        "secret": (
+                                            secret[:20] + "..."
+                                            if len(secret) > 20
+                                            else secret
+                                        ),
                                         "context": line.strip()[:100],
                                         "severity": self.get_severity(pattern_name),
                                     }

@@ -1,6 +1,5 @@
 """Error classes for Snowflake Cortex service."""
 
-
 from .enums import ErrorSeverity
 
 

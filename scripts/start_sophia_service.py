@@ -344,9 +344,9 @@ class HybridMCPLoadBalancer:
             * 100,
             "dedicated_percentage": (self.routing_stats["dedicated_requests"] / total)
             * 100,
-            "average_cost_per_request": self.routing_stats["cost_savings"] / total
-            if total > 0
-            else 0,
+            "average_cost_per_request": (
+                self.routing_stats["cost_savings"] / total if total > 0 else 0
+            ),
         }
 
 

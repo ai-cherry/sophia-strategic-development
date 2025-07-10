@@ -539,9 +539,11 @@ class TemporalQALearningService:
             "recent_activity": [
                 {
                     "id": i.id,
-                    "question": i.user_question[:100] + "..."
-                    if len(i.user_question) > 100
-                    else i.user_question,
+                    "question": (
+                        i.user_question[:100] + "..."
+                        if len(i.user_question) > 100
+                        else i.user_question
+                    ),
                     "learning_type": i.learning_type.value,
                     "confidence": i.confidence.value,
                     "timestamp": i.timestamp.isoformat(),

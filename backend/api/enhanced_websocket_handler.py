@@ -568,7 +568,10 @@ class EnhancedWebSocketHandler:
             EnhancedWebSocketMessage(
                 type="agent_status_response",
                 channel="agents",
-                data={"agent_status": agent_status, "timestamp": date_manager.get_current_isoformat()},
+                data={
+                    "agent_status": agent_status,
+                    "timestamp": date_manager.get_current_isoformat(),
+                },
                 timestamp=date_manager.get_current_isoformat(),
                 session_id=session.session_id,
                 user_id=session.user_id,
@@ -616,15 +619,16 @@ class EnhancedWebSocketHandler:
     async def get_session_metrics(self) -> dict[str, Any]:
         """Get metrics for all active sessions"""
         now = date_manager.now()
-        
+
         # Count actual subscriptions per channel
         channel_subscriptions = {}
         for channel in self.channels.keys():
             channel_subscriptions[channel] = sum(
-                1 for session in self.active_sessions.values()
+                1
+                for session in self.active_sessions.values()
                 if session.is_subscribed_to(channel)
             )
-        
+
         return {
             "active_sessions": len(self.active_sessions),
             "channel_subscriptions": channel_subscriptions,
@@ -654,15 +658,16 @@ class EnhancedWebSocketHandler:
     async def health_check(self) -> dict[str, Any]:
         """Perform a health check of the WebSocket handler"""
         self.system_status["last_health_check"] = date_manager.get_current_isoformat()
-        
+
         # Count actual subscriptions per channel
         channel_subscriptions = {}
         for channel in self.channels.keys():
             channel_subscriptions[channel] = sum(
-                1 for session in self.active_sessions.values()
+                1
+                for session in self.active_sessions.values()
                 if session.is_subscribed_to(channel)
             )
-        
+
         return {
             "status": "healthy",
             "active_sessions": len(self.active_sessions),

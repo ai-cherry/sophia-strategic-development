@@ -261,9 +261,9 @@ class UnifiedAIOrchestrator:
         elif request.use_case == "sql":
             result = await self.snowflake_service.natural_language_to_sql(
                 query=request.prompt,
-                schema_context=request.context.get("schema")
-                if request.context
-                else None,
+                schema_context=(
+                    request.context.get("schema") if request.context else None
+                ),
             )
             response_text = result.get("generated_sql", "")
 
@@ -480,14 +480,14 @@ Provide specific, actionable recommendations in JSON format with:
             "total_requests": total_requests,
             "cost_savings": {
                 "percentage": savings_percentage,
-                "monthly_savings": 6444 - (avg_cost * total_requests * 30)
-                if total_requests > 0
-                else 0,
+                "monthly_savings": (
+                    6444 - (avg_cost * total_requests * 30) if total_requests > 0 else 0
+                ),
             },
             "routing_distribution": {
-                provider.value: metrics["requests"] / total_requests
-                if total_requests > 0
-                else 0
+                provider.value: (
+                    metrics["requests"] / total_requests if total_requests > 0 else 0
+                )
                 for provider, metrics in self.provider_metrics.items()
             },
         }

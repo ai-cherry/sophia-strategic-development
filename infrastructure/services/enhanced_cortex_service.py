@@ -179,9 +179,9 @@ SELECT
         }
 
         if operation.operation_type == "ml_training":
-            interpretation[
-                "executive_summary"
-            ] = f"Machine learning model trained with {results.get('accuracy_score', 0)*100:.1f}% accuracy"
+            interpretation["executive_summary"] = (
+                f"Machine learning model trained with {results.get('accuracy_score', 0)*100:.1f}% accuracy"
+            )
             interpretation["key_findings"] = [
                 f"Forecast accuracy: {results.get('accuracy_score', 0)*100:.1f}%",
                 f"Generated {len(results.get('predictions', []))} period forecasts",

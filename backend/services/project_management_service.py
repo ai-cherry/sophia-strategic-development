@@ -2,6 +2,7 @@
 Unified Project Management Service
 Connects to Linear, Asana, Notion, and Slack MCP servers
 """
+
 import asyncio
 import logging
 from dataclasses import dataclass

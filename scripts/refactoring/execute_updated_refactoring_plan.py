@@ -485,7 +485,9 @@ jobs:
 
                 # Stop if any critical operation fails
                 if not result.success:
-                    logger.error(f"❌ Critical failure in {debt_file}, stopping Phase 2")
+                    logger.error(
+                        f"❌ Critical failure in {debt_file}, stopping Phase 2"
+                    )
                     break
 
         logger.info(
@@ -990,17 +992,19 @@ jobs:
             "summary": {
                 "total_operations": total_operations,
                 "successful_operations": successful_operations,
-                "success_rate": (successful_operations / total_operations * 100)
-                if total_operations > 0
-                else 0,
+                "success_rate": (
+                    (successful_operations / total_operations * 100)
+                    if total_operations > 0
+                    else 0
+                ),
                 "total_execution_time": sum(
                     r.execution_time_seconds for r in self.results
                 ),
             },
             "operations": [asdict(result) for result in self.results],
-            "backup_location": str(self.backup_dir)
-            if self.backup_dir.exists()
-            else None,
+            "backup_location": (
+                str(self.backup_dir) if self.backup_dir.exists() else None
+            ),
             "recommendations": self._generate_recommendations(),
         }
 

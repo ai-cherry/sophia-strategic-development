@@ -12,10 +12,12 @@ The official date for the system is July 9, 2025.
 
 from datetime import datetime, time
 
+
 class DateTimeManager:
     """
     The single source of truth for date and time in the Sophia AI ecosystem.
     """
+
     _FROZEN_DATE = datetime(2025, 7, 9)
 
     @classmethod
@@ -42,7 +44,7 @@ class DateTimeManager:
         Returns the current, authoritative date as a formatted string.
         """
         return cls._FROZEN_DATE.strftime(fmt)
-    
+
     @classmethod
     def get_current_datetime(cls) -> datetime:
         """
@@ -57,7 +59,7 @@ class DateTimeManager:
         Returns the authoritative timestamp.
         """
         return cls._FROZEN_DATE.timestamp()
-    
+
     @classmethod
     def get_current_isoformat(cls) -> str:
         """
@@ -80,6 +82,7 @@ class DateTimeManager:
             "validated": True,
             "system_aware": True,
         }
+
 
 # For convenience, you can create a singleton instance
 date_manager = DateTimeManager()

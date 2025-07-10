@@ -27,8 +27,9 @@ router = APIRouter(prefix="/api/v1/project-intelligence", tags=["project-intelli
 @router.get("/gong-insights")
 async def get_gong_project_insights(
     timeframe_days: int = Query(default=7, description="Number of days to analyze"),
-    category: str
-    | None = Query(default=None, description="Specific category to filter"),
+    category: str | None = Query(
+        default=None, description="Specific category to filter"
+    ),
 ):
     """Get project intelligence insights from Gong conversations"""
 
@@ -62,9 +63,11 @@ async def get_gong_project_insights(
             "category": category or "project_management",
             "insights": insights,
             "current_date": "July 9, 2025",
-            "total_insights": len(insights)
-            if isinstance(insights, list)
-            else sum(len(v) for v in insights.values()),
+            "total_insights": (
+                len(insights)
+                if isinstance(insights, list)
+                else sum(len(v) for v in insights.values())
+            ),
         }
 
     except Exception as e:

@@ -1336,9 +1336,9 @@ class MCPOrchestrationService:
                 "Implement suggested code quality improvements",
                 "Schedule regular automated security audits",
             ]
-            synthesis[
-                "summary"
-            ] = f"Comprehensive code analysis completed with {len(successful_results)} services contributing to security and quality assessment."
+            synthesis["summary"] = (
+                f"Comprehensive code analysis completed with {len(successful_results)} services contributing to security and quality assessment."
+            )
 
         elif synthesis_type == "project_health_dashboard":
             synthesis["insights"] = [
@@ -1351,9 +1351,9 @@ class MCPOrchestrationService:
                 "Optimize team workflow based on insights",
                 "Implement predictive project monitoring",
             ]
-            synthesis[
-                "summary"
-            ] = f"Project health dashboard synthesized from {len(successful_results)} data sources providing comprehensive project visibility."
+            synthesis["summary"] = (
+                f"Project health dashboard synthesized from {len(successful_results)} data sources providing comprehensive project visibility."
+            )
 
         elif synthesis_type == "executive_business_intelligence":
             synthesis["insights"] = [
@@ -1366,14 +1366,14 @@ class MCPOrchestrationService:
                 "Optimize resource allocation based on insights",
                 "Implement data-driven decision making processes",
             ]
-            synthesis[
-                "summary"
-            ] = f"Executive business intelligence synthesized from {len(successful_results)} business systems."
+            synthesis["summary"] = (
+                f"Executive business intelligence synthesized from {len(successful_results)} business systems."
+            )
 
         else:  # general synthesis
-            synthesis[
-                "summary"
-            ] = f"Task completed with {len(successful_results)} successful server responses."
+            synthesis["summary"] = (
+                f"Task completed with {len(successful_results)} successful server responses."
+            )
             synthesis["insights"] = [
                 "Task executed across distributed server architecture"
             ]

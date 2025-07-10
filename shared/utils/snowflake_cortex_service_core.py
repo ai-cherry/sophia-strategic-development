@@ -16,6 +16,7 @@ except ImportError:  # pragma: no cover – allows type checking outside full re
     def get_config_value(key: str, default: str | None = None) -> str:  # type: ignore[override]
         return default or ""
 
+
 logger = logging.getLogger(__name__)
 
 

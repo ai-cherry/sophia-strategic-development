@@ -321,12 +321,12 @@ async def system_status():
     temporal_status = {
         "available": TEMPORAL_LEARNING_AVAILABLE,
         "service_healthy": temporal_service is not None,
-        "interactions_count": len(temporal_service.learning_interactions)
-        if temporal_service
-        else 0,
-        "knowledge_count": len(temporal_service.temporal_knowledge)
-        if temporal_service
-        else 0,
+        "interactions_count": (
+            len(temporal_service.learning_interactions) if temporal_service else 0
+        ),
+        "knowledge_count": (
+            len(temporal_service.temporal_knowledge) if temporal_service else 0
+        ),
     }
 
     return {

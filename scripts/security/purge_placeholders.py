@@ -140,13 +140,15 @@ class PlaceholderDetector:
             pattern = (
                 "PLACEHOLDER_"
                 if "PLACEHOLDER_" in v["match"]
-                else "your_*_key"
-                if "your_" in v["match"].lower()
-                else "YOUR_*_KEY"
-                if "YOUR_" in v["match"]
-                else "REPLACE_ME"
-                if "REPLACE_ME" in v["match"]
-                else "other"
+                else (
+                    "your_*_key"
+                    if "your_" in v["match"].lower()
+                    else (
+                        "YOUR_*_KEY"
+                        if "YOUR_" in v["match"]
+                        else "REPLACE_ME" if "REPLACE_ME" in v["match"] else "other"
+                    )
+                )
             )
             pattern_counts[pattern] = pattern_counts.get(pattern, 0) + 1
 

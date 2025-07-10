@@ -720,9 +720,9 @@ class PureEstuaryDataPipeline:
         snowflake_materialization = (
             aligned_snowflake_config.get_estuary_materialization_config()
         )
-        snowflake_materialization[
-            "name"
-        ] = f"{self.config.flow_prefix}/snowflake_materialization"
+        snowflake_materialization["name"] = (
+            f"{self.config.flow_prefix}/snowflake_materialization"
+        )
 
         await self.estuary_orchestrator.create_materialization(
             snowflake_materialization

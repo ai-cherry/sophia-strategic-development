@@ -282,10 +282,11 @@ class LambdaLabsServerlessTest:
                         "model": model,
                         "response_time": result["response_time"],
                         "total_tokens": result["usage"]["total_tokens"],
-                        "tokens_per_second": result["usage"]["total_tokens"]
-                        / result["response_time"]
-                        if result["response_time"] > 0
-                        else 0,
+                        "tokens_per_second": (
+                            result["usage"]["total_tokens"] / result["response_time"]
+                            if result["response_time"] > 0
+                            else 0
+                        ),
                     }
                 )
 

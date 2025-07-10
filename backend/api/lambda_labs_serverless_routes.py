@@ -375,16 +375,22 @@ async def get_cost_breakdown(
             "budget_utilization": (stats["daily_cost"] / service.daily_budget) * 100,
             "cost_per_model": model_costs,
             "hourly_trends": hourly_trends,
-            "cost_per_request": stats["total_cost"] / stats["total_requests"]
-            if stats["total_requests"] > 0
-            else 0,
+            "cost_per_request": (
+                stats["total_cost"] / stats["total_requests"]
+                if stats["total_requests"] > 0
+                else 0
+            ),
             "cost_per_token": {
-                "input": stats["total_cost"] / stats["total_input_tokens"]
-                if stats["total_input_tokens"] > 0
-                else 0,
-                "output": stats["total_cost"] / stats["total_output_tokens"]
-                if stats["total_output_tokens"] > 0
-                else 0,
+                "input": (
+                    stats["total_cost"] / stats["total_input_tokens"]
+                    if stats["total_input_tokens"] > 0
+                    else 0
+                ),
+                "output": (
+                    stats["total_cost"] / stats["total_output_tokens"]
+                    if stats["total_output_tokens"] > 0
+                    else 0
+                ),
             },
         }
 

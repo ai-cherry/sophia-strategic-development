@@ -1,4 +1,5 @@
 """Naively fix lines with excessive closing parentheses."""
+
 import re
 from pathlib import Path
 

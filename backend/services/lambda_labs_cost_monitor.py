@@ -507,9 +507,11 @@ class LambdaLabsCostMonitor:
                 0.0,
                 min(
                     1.0,
-                    1.0 - (cost_variance / avg_hourly_cost)
-                    if avg_hourly_cost > 0
-                    else 0.0,
+                    (
+                        1.0 - (cost_variance / avg_hourly_cost)
+                        if avg_hourly_cost > 0
+                        else 0.0
+                    ),
                 ),
             )
 

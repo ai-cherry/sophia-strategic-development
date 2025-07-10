@@ -611,7 +611,9 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
                 ],
                 "summary": summary,
             }
-            logger.info(f"✅ Generated intelligence report for {len(projects)} projects")
+            logger.info(
+                f"✅ Generated intelligence report for {len(projects)} projects"
+            )
             return report
         except Exception as e:
             logger.exception(f"❌ Failed to generate intelligence report: {e}")

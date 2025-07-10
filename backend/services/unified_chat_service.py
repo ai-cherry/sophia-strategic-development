@@ -261,12 +261,12 @@ class UnifiedChatService:
 
                     if temporal_result.get("learning_applied", False):
                         response["metadata"]["temporal_learning_applied"] = True
-                        response["metadata"][
-                            "temporal_interaction_id"
-                        ] = temporal_result.get("interaction_id")
-                        response["metadata"][
-                            "temporal_confidence"
-                        ] = temporal_result.get("confidence", 0.0)
+                        response["metadata"]["temporal_interaction_id"] = (
+                            temporal_result.get("interaction_id")
+                        )
+                        response["metadata"]["temporal_confidence"] = (
+                            temporal_result.get("confidence", 0.0)
+                        )
 
                         # If temporal learning provided a complete response, use it
                         if temporal_result.get("response"):
@@ -331,9 +331,9 @@ class UnifiedChatService:
 
         except Exception as e:
             logger.error(f"Query processing error: {e}")
-            response[
-                "response"
-            ] = f"I encountered an error processing your query: {e!s}"
+            response["response"] = (
+                f"I encountered an error processing your query: {e!s}"
+            )
             response["metadata"]["error"] = str(e)
 
             # Calculate processing time even for errors
