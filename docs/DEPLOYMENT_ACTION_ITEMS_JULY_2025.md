@@ -10,10 +10,10 @@
 - [ ] Document current MCP migration status (56.25% complete)
 - [ ] Preserve work done on 9 migrated servers
 
-### 2. Make Strategic Decision
-- [ ] **Choose ONE orchestrator**: Docker Swarm (recommended) OR Kubernetes
-- [ ] Document decision with clear rationale
-- [ ] Get stakeholder sign-off
+### 2. Execute Strategic Decision
+- [ ] **Confirmed direction**: Kubernetes via K3s migration path
+- [ ] Review existing migration plan in ORCHESTRATION_MIGRATION.md
+- [ ] Confirm 16-week timeline with stakeholders
 
 ### 3. Fix Critical Gaps
 - [ ] Fix broken GitHub Actions that reference non-existent files:
