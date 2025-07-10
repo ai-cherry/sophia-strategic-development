@@ -7,7 +7,7 @@ Integrates with existing unified chat and knowledge base infrastructure
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 

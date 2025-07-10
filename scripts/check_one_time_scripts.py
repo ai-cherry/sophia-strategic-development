@@ -65,7 +65,7 @@ def is_one_time_script(filepath: str) -> bool:
 def has_deletion_marker(filepath: str) -> bool:
     """Check if file contains a deletion marker"""
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
 
         # Check first 1000 characters for efficiency

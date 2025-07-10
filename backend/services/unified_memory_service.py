@@ -92,7 +92,9 @@ class UnifiedMemoryService:
     def initialize_mem0(self):
         """Initialize L2: Mem0 for agent memory"""
         if not MEM0_AVAILABLE or Memory is None:
-            logger.warning("⚠️ L2 Mem0 not available - install with: pip install mem0ai")
+            logger.warning(
+                "⚠️ L2 Mem0 not available - install with: pip install mem0ai"
+            )
             self.mem0_client = None
             return
 

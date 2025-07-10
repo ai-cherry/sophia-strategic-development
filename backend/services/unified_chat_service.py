@@ -5,11 +5,20 @@ Handles multi-source chat processing with temporal learning integration and enti
 
 import asyncio
 import logging
+import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
 
 import aiohttp
+
+# DEPRECATION WARNING
+warnings.warn(
+    "UnifiedChatService is deprecated and will be removed in version 6.0. "
+    "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 logger = logging.getLogger(__name__)
 
@@ -261,12 +270,12 @@ class UnifiedChatService:
 
                     if temporal_result.get("learning_applied", False):
                         response["metadata"]["temporal_learning_applied"] = True
-                        response["metadata"]["temporal_interaction_id"] = (
-                            temporal_result.get("interaction_id")
-                        )
-                        response["metadata"]["temporal_confidence"] = (
-                            temporal_result.get("confidence", 0.0)
-                        )
+                        response["metadata"][
+                            "temporal_interaction_id"
+                        ] = temporal_result.get("interaction_id")
+                        response["metadata"][
+                            "temporal_confidence"
+                        ] = temporal_result.get("confidence", 0.0)
 
                         # If temporal learning provided a complete response, use it
                         if temporal_result.get("response"):
@@ -331,9 +340,9 @@ class UnifiedChatService:
 
         except Exception as e:
             logger.error(f"Query processing error: {e}")
-            response["response"] = (
-                f"I encountered an error processing your query: {e!s}"
-            )
+            response[
+                "response"
+            ] = f"I encountered an error processing your query: {e!s}"
             response["metadata"]["error"] = str(e)
 
             # Calculate processing time even for errors

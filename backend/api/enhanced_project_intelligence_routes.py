@@ -27,9 +27,8 @@ router = APIRouter(prefix="/api/v1/project-intelligence", tags=["project-intelli
 @router.get("/gong-insights")
 async def get_gong_project_insights(
     timeframe_days: int = Query(default=7, description="Number of days to analyze"),
-    category: str | None = Query(
-        default=None, description="Specific category to filter"
-    ),
+    category: str
+    | None = Query(default=None, description="Specific category to filter"),
 ):
     """Get project intelligence insights from Gong conversations"""
 

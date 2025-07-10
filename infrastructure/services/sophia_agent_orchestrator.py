@@ -7,10 +7,19 @@ with Portkey gateway and OpenRouter model selection
 import asyncio
 import json
 import time
+import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any
+
+# DEPRECATION WARNING
+warnings.warn(
+    "SophiaAgentOrchestrator is deprecated and will be removed in version 6.0. "
+    "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from infrastructure.services.llm_router import TaskType, llm_router
 from shared.utils.custom_logger import logger

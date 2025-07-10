@@ -17,10 +17,19 @@ Date: July 9, 2025
 import asyncio
 import json
 import logging
+import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
+
+# DEPRECATION WARNING
+warnings.warn(
+    "EnhancedMultiAgentOrchestrator is deprecated and will be removed in version 6.0. "
+    "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from langgraph.graph import END, START, StateGraph
 

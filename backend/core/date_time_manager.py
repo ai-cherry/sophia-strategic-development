@@ -10,7 +10,7 @@ different execution environments.
 The official date for the system is July 9, 2025.
 """
 
-from datetime import datetime, time
+from datetime import datetime
 
 
 class DateTimeManager:

@@ -146,7 +146,9 @@ class PlaceholderDetector:
                     else (
                         "YOUR_*_KEY"
                         if "YOUR_" in v["match"]
-                        else "REPLACE_ME" if "REPLACE_ME" in v["match"] else "other"
+                        else "REPLACE_ME"
+                        if "REPLACE_ME" in v["match"]
+                        else "other"
                     )
                 )
             )

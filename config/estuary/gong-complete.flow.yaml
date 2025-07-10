@@ -1,0 +1,292 @@
+# Estuary Flow Specification for Gong Data
+# Replaces direct API ingestion with Estuary Flow
+# Date: July 9, 2025
+
+collections:
+  sophia/gong-calls:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique call identifier
+        title:
+          type: string
+          description: Call title/subject
+        scheduled:
+          type: string
+          format: date-time
+          description: Scheduled call time
+        started:
+          type: string
+          format: date-time
+          description: Actual call start time
+        duration:
+          type: integer
+          description: Call duration in seconds
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              email:
+                type: string
+              title:
+                type: string
+        isExternal:
+          type: boolean
+          description: Whether call includes external participants
+        content:
+          type: object
+          properties:
+            trackers:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  count:
+                    type: integer
+                  type:
+                    type: string
+        purpose:
+          type: string
+          description: Call purpose/type
+        outcome:
+          type: string
+          description: Call outcome
+        notes:
+          type: string
+          description: Call notes
+      required: [id, title, started]
+    
+    key: [/id]
+
+  sophia/gong-call-transcripts:
+    schema:
+      type: object
+      properties:
+        callId:
+          type: string
+          description: Reference to call ID
+        speakerId:
+          type: string
+          description: Speaker identifier
+        speakerName:
+          type: string
+          description: Speaker name
+        topic:
+          type: string
+          description: Conversation topic
+        sentiment:
+          type: number
+          description: Sentiment score (-1 to 1)
+        startTime:
+          type: number
+          description: Start time in seconds
+        endTime:
+          type: number
+          description: End time in seconds
+        transcript:
+          type: string
+          description: Transcript text
+      required: [callId, speakerId, transcript]
+    
+    key: [/callId, /startTime]
+
+  sophia/gong-users:
+    schema:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        title:
+          type: string
+        phoneNumber:
+          type: string
+        extension:
+          type: string
+        personalMeetingUrls:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+        active:
+          type: boolean
+        emailAliases:
+          type: array
+          items:
+            type: string
+        trustedEmailAddress:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        managerId:
+          type: string
+      required: [id, email]
+    
+    key: [/id]
+
+  sophia/gong-scorecards:
+    schema:
+      type: object
+      properties:
+        scorecardId:
+          type: string
+        scorecardName:
+          type: string
+        callId:
+          type: string
+        reviewId:
+          type: string
+        reviewedCallScore:
+          type: number
+        notReviewedCallScore:
+          type: number
+        overallCallScore:
+          type: number
+        answers:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId:
+                type: string
+              question:
+                type: string
+              answerText:
+                type: string
+              answerScore:
+                type: number
+      required: [scorecardId, callId]
+    
+    key: [/scorecardId, /callId]
+
+# Captures - Source Configuration
+captures:
+  sophia/gong-capture:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/source-gong:latest
+        config:
+          api_base_url: https://api.gong.io
+          access_key: ${GONG_ACCESS_KEY}
+          access_key_secret: ${GONG_ACCESS_KEY_SECRET}
+          # Start date for historical data
+          start_date: "2024-01-01T00:00:00Z"
+          # Refresh interval in minutes
+          refresh_interval: 60
+    
+    bindings:
+      - target: sophia/gong-calls
+        resource:
+          stream: calls
+          
+      - target: sophia/gong-call-transcripts
+        resource:
+          stream: call-transcripts
+          
+      - target: sophia/gong-users
+        resource:
+          stream: users
+          
+      - target: sophia/gong-scorecards
+        resource:
+          stream: scorecards
+
+# Materializations - Snowflake Destination
+materializations:
+  sophia/gong-to-snowflake:
+    endpoint:
+      connector:
+        image: ghcr.io/estuary/materialize-snowflake:latest
+        config:
+          account: ${SNOWFLAKE_ACCOUNT}
+          user: ${SNOWFLAKE_USER}
+          password: ${SNOWFLAKE_PASSWORD}
+          role: ${SNOWFLAKE_ROLE}
+          database: SOPHIA_AI
+          schema: GONG_DATA
+          warehouse: COMPUTE_WH
+          # Performance settings
+          threads: 16
+          keepalive: 60
+    
+    bindings:
+      - source: sophia/gong-calls
+        resource:
+          table: STG_GONG_CALLS
+          delta_updates: true
+          
+      - source: sophia/gong-call-transcripts
+        resource:
+          table: STG_GONG_CALL_TRANSCRIPTS
+          delta_updates: true
+          
+      - source: sophia/gong-users
+        resource:
+          table: STG_GONG_USERS
+          delta_updates: true
+          
+      - source: sophia/gong-scorecards
+        resource:
+          table: STG_GONG_SCORECARDS
+          delta_updates: true
+
+# Transformations - Enrichment
+# These run in Snowflake after materialization
+transformations:
+  - name: enrich_gong_calls
+    schedule: "*/15 * * * *"  # Every 15 minutes
+    sql: |
+      -- Update AI enrichment fields
+      UPDATE GONG_DATA.STG_GONG_CALLS
+      SET 
+        ai_sentiment = SNOWFLAKE.CORTEX.SENTIMENT(notes),
+        ai_topics = SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+          notes,
+          'What are the main topics discussed?'
+        ),
+        ai_next_steps = SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+          notes,
+          'What are the next steps or action items?'
+        ),
+        ai_risks = SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+          notes,
+          'What risks or concerns were mentioned?'
+        ),
+        ai_embedding = SNOWFLAKE.CORTEX.EMBED_TEXT_768(
+          'e5-base-v2',
+          CONCAT(title, ' ', COALESCE(notes, ''))
+        ),
+        enriched_at = CURRENT_TIMESTAMP()
+      WHERE enriched_at IS NULL 
+         OR enriched_at < DATEADD(hour, -24, CURRENT_TIMESTAMP());
+
+  - name: create_gong_summary_views
+    schedule: "0 * * * *"  # Hourly
+    sql: |
+      -- Create summary view for dashboards
+      CREATE OR REPLACE VIEW GONG_DATA.VW_CALL_ANALYTICS AS
+      SELECT 
+        DATE_TRUNC('day', started) as call_date,
+        COUNT(*) as total_calls,
+        AVG(duration) as avg_duration,
+        AVG(ai_sentiment) as avg_sentiment,
+        COUNT(DISTINCT participants) as unique_participants
+      FROM GONG_DATA.STG_GONG_CALLS
+      WHERE started >= DATEADD(day, -90, CURRENT_DATE())
+      GROUP BY 1; 

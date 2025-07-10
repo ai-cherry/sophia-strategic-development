@@ -1,348 +1,217 @@
 """
 Sophia AI - Unified Standardized MCP Server Base Class
 The definitive base class for all MCP servers in the Sophia AI ecosystem
-Deployed on Lambda Labs Cloud Server: 104.171.202.117
+Using official Anthropic MCP SDK
+
+Date: July 9, 2025
 """
 
+import asyncio
 import logging
-import os
-import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from datetime import UTC, datetime
-from enum import Enum
-from typing import Any, Optional
+from datetime import datetime, UTC
+from typing import Any, Dict, List, Optional, Sequence
 
-from fastapi import FastAPI, HTTPException, Response
-from fastapi.middleware.cors import CORSMiddleware
-from prometheus_client import Counter, Gauge, Histogram, Info
-
-# Safe imports for optional dependencies
-try:
-    from anthropic_mcp_python_sdk import mcp_tool
-
-    MCP_SDK_AVAILABLE = True
-except ImportError:
-    MCP_SDK_AVAILABLE = False
-
-    def mcp_tool(func):
-        """Dummy decorator when MCP SDK not available"""
-        return func
-
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
+from pydantic import BaseModel
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Lambda Labs Configuration
-LAMBDA_LABS_HOST = os.getenv("LAMBDA_LABS_HOST", "104.171.202.117")
-ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
 
-# Prometheus Metrics
-REQUEST_COUNT = Counter(
-    "mcp_server_requests_total", "Total requests", ["server", "method"]
-)
-REQUEST_DURATION = Histogram(
-    "mcp_server_request_duration_seconds", "Request duration", ["server", "method"]
-)
-ERROR_COUNT = Counter(
-    "mcp_server_errors_total", "Total errors", ["server", "error_type"]
-)
-ACTIVE_CONNECTIONS = Gauge(
-    "mcp_server_active_connections", "Active connections", ["server"]
-)
-HEALTH_STATUS = Gauge(
-    "mcp_server_health_status", "Health status (1=healthy, 0=unhealthy)", ["server"]
-)
-
-
-class ServerTier(str, Enum):
-    """Server tier classification"""
-
-    PRIMARY = "PRIMARY"  # Mission-critical, 99.9% uptime
-    SECONDARY = "SECONDARY"  # Important, 99% uptime
-    TERTIARY = "TERTIARY"  # Optional, best effort
-
-
-class ServerCapability(str, Enum):
-    """Standard server capabilities"""
-
-    ANALYTICS = "ANALYTICS"
-    EMBEDDING = "EMBEDDING"
-    SEARCH = "SEARCH"
-    COMPLETION = "COMPLETION"
-    CACHE = "CACHE"
-    PUBSUB = "PUBSUB"
-    MEMORY = "MEMORY"
-    CRM = "CRM"
-    WORKFLOW = "WORKFLOW"
-    CODE_ANALYSIS = "CODE_ANALYSIS"
-    INFRASTRUCTURE = "INFRASTRUCTURE"
-    COMMUNICATION = "COMMUNICATION"
-
-
-@dataclass
-class MCPServerConfig:
-    """Unified configuration for MCP servers"""
-
+class ServerConfig(BaseModel):
+    """Configuration for MCP servers"""
     name: str
-    port: int
-    tier: ServerTier
-    capabilities: list[ServerCapability]
-    version: str = "2.0.0"
-    health_endpoint: str = "/health"
-    metrics_endpoint: str = "/metrics"
-    lambda_labs_host: str = LAMBDA_LABS_HOST
-    environment: str = ENVIRONMENT
-    enable_cors: bool = True
-    cors_origins: Optional[list[str]] = None
-    max_connections: int = 100
-    timeout_seconds: int = 30
-    retry_attempts: int = 3
-
-    def __post_init__(self):
-        if self.cors_origins is None:
-            self.cors_origins = ["*"]
+    version: str = "1.0.0"
+    description: str = ""
 
 
-@dataclass
-class HealthCheckResult:
-    """Standard health check result"""
-
-    status: str  # "healthy", "degraded", "unhealthy"
-    timestamp: datetime
-    server_name: str
-    version: str
-    uptime_seconds: float
-    checks: dict[str, dict[str, Any]]
-    lambda_labs_connected: bool = False
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "status": self.status,
-            "timestamp": self.timestamp.isoformat(),
-            "server_name": self.server_name,
-            "version": self.version,
-            "uptime_seconds": self.uptime_seconds,
-            "checks": self.checks,
-            "lambda_labs_connected": self.lambda_labs_connected,
-            "environment": ENVIRONMENT,
-        }
-
-
-class UnifiedStandardizedMCPServer(ABC):
+class StandardizedMCPServer(ABC):
     """
-    The definitive base class for all MCP servers in Sophia AI.
-    Provides comprehensive functionality with enterprise-grade features.
+    Standardized base class for all MCP servers
+    Uses official Anthropic MCP SDK
     """
-
-    def __init__(self, config: MCPServerConfig):
+    
+    def __init__(self, config: ServerConfig):
         self.config = config
-        self.start_time = time.time()
-        self.app = FastAPI(
-            title=f"{config.name} MCP Server",
-            version=config.version,
-            docs_url="/docs",
-            redoc_url="/redoc",
-        )
-        self._setup_middleware()
-        self._setup_routes()
-        self._active_connections: set[str] = set()
-        self._initialized = False
-
-        # Update Prometheus info
-        Info(f"mcp_server_{config.name}_info", "Server information").info(
-            {
-                "version": config.version,
-                "tier": config.tier.value,
-                "capabilities": ",".join([c.value for c in config.capabilities]),
-                "lambda_labs_host": config.lambda_labs_host,
-            }
-        )
-
-    def _setup_middleware(self):
-        """Configure FastAPI middleware"""
-        if self.config.enable_cors:
-            self.app.add_middleware(
-                CORSMiddleware,
-                allow_origins=self.config.cors_origins or ["*"],
-                allow_credentials=True,
-                allow_methods=["*"],
-                allow_headers=["*"],
-            )
-
-    def _setup_routes(self):
-        """Configure standard routes"""
-        self.app.get(self.config.health_endpoint)(self._health_check)
-        self.app.get(self.config.metrics_endpoint)(self._metrics)
-        self.app.get("/capabilities")(self._get_capabilities)
-        self.app.get("/info")(self._get_info)
-        self.app.on_event("startup")(self._startup)
-        self.app.on_event("shutdown")(self._shutdown)
-
-    async def _startup(self):
-        """Startup event handler"""
-        logger.info(
-            f"Starting {self.config.name} MCP Server on port {self.config.port}"
-        )
-        logger.info(f"Lambda Labs Host: {self.config.lambda_labs_host}")
-        logger.info(f"Environment: {self.config.environment}")
-        logger.info(f"Tier: {self.config.tier.value}")
-        logger.info(f"Capabilities: {[c.value for c in self.config.capabilities]}")
-
-        try:
-            await self.initialize()
-            self._initialized = True
-            HEALTH_STATUS.labels(server=self.config.name).set(1)
-            logger.info(f"{self.config.name} MCP Server started successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize {self.config.name}: {e}")
-            HEALTH_STATUS.labels(server=self.config.name).set(0)
-            raise
-
-    async def _shutdown(self):
-        """Shutdown event handler"""
-        logger.info(f"Shutting down {self.config.name} MCP Server")
-        try:
-            await self.cleanup()
-            HEALTH_STATUS.labels(server=self.config.name).set(0)
-        except Exception as e:
-            logger.error(f"Error during shutdown: {e}")
-
-    async def _health_check(self) -> dict[str, Any]:
-        """Standard health check endpoint"""
-        try:
-            checks = await self.perform_health_checks()
-
-            # Determine overall status
-            status = "healthy"
-            for check_name, check_result in checks.items():
-                if not check_result.get("healthy", False):
-                    status = "degraded" if status == "healthy" else "unhealthy"
-
-            # Test Lambda Labs connectivity
-            lambda_labs_connected = await self._test_lambda_labs_connection()
-
-            result = HealthCheckResult(
-                status=status,
-                timestamp=datetime.now(UTC),
-                server_name=self.config.name,
-                version=self.config.version,
-                uptime_seconds=time.time() - self.start_time,
-                checks=checks,
-                lambda_labs_connected=lambda_labs_connected,
-            )
-
-            HEALTH_STATUS.labels(server=self.config.name).set(
-                1 if status == "healthy" else 0
-            )
-
-            return result.to_dict()
-        except Exception as e:
-            logger.error(f"Health check failed: {e}")
-            ERROR_COUNT.labels(server=self.config.name, error_type="health_check").inc()
-            raise HTTPException(status_code=503, detail=str(e))
-
-    async def _test_lambda_labs_connection(self) -> bool:
-        """Test connection to Lambda Labs host"""
-        try:
-            # Simple connectivity test (can be enhanced)
-            return True  # Placeholder - implement actual test
-        except:
-            return False
-
-    async def _metrics(self) -> Response:
-        """Prometheus metrics endpoint"""
-        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-
-        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
-
-    async def _get_capabilities(self) -> dict[str, Any]:
-        """Get server capabilities"""
+        self.server = Server(config.name)
+        self.start_time = datetime.now(UTC)
+        self.request_count = 0
+        self.error_count = 0
+        
+        # Set up logging
+        self.logger = logging.getLogger(f"mcp.{config.name}")
+        
+        # Register handlers
+        self._register_handlers()
+        
+    def _register_handlers(self):
+        """Register MCP handlers"""
+        
+        @self.server.list_tools()
+        async def list_tools() -> List[Tool]:
+            """List all available tools"""
+            base_tools = [
+                Tool(
+                    name="health_check",
+                    description="Check server health and status",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "required": []
+                    }
+                ),
+                Tool(
+                    name="get_server_info",
+                    description="Get information about this server",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "required": []
+                    }
+                )
+            ]
+            
+            # Add custom tools from subclass
+            custom_tools = await self.get_custom_tools()
+            return base_tools + custom_tools
+        
+        @self.server.call_tool()
+        async def call_tool(name: str, arguments: dict) -> Sequence[TextContent]:
+            """Handle tool calls"""
+            self.request_count += 1
+            
+            try:
+                # Handle base tools
+                if name == "health_check":
+                    result = await self._health_check()
+                elif name == "get_server_info":
+                    result = await self._get_server_info()
+                else:
+                    # Delegate to subclass
+                    result = await self.handle_custom_tool(name, arguments)
+                
+                # Convert dict result to JSON text
+                import json
+                return [TextContent(
+                    type="text",
+                    text=json.dumps(result, indent=2)
+                )]
+                
+            except Exception as e:
+                self.error_count += 1
+                self.logger.error(f"Tool error: {e}")
+                raise
+    
+    async def _health_check(self) -> Dict[str, Any]:
+        """Check server health"""
+        uptime = (datetime.now(UTC) - self.start_time).total_seconds()
+        
         return {
+            "status": "healthy",
             "server": self.config.name,
-            "tier": self.config.tier.value,
-            "capabilities": [c.value for c in self.config.capabilities],
             "version": self.config.version,
-            "lambda_labs_host": self.config.lambda_labs_host,
+            "uptime_seconds": uptime,
+            "request_count": self.request_count,
+            "error_count": self.error_count,
+            "timestamp": datetime.now(UTC).isoformat()
         }
-
-    async def _get_info(self) -> dict[str, Any]:
+    
+    async def _get_server_info(self) -> Dict[str, Any]:
         """Get server information"""
         return {
             "name": self.config.name,
             "version": self.config.version,
-            "tier": self.config.tier.value,
-            "port": self.config.port,
-            "uptime_seconds": time.time() - self.start_time,
-            "environment": self.config.environment,
-            "lambda_labs_host": self.config.lambda_labs_host,
-            "active_connections": len(self._active_connections),
-            "capabilities": [c.value for c in self.config.capabilities],
+            "description": self.config.description,
+            "start_time": self.start_time.isoformat()
         }
-
-    def track_request(self, method: str):
-        """Track request metrics"""
-        REQUEST_COUNT.labels(server=self.config.name, method=method).inc()
-        return REQUEST_DURATION.labels(server=self.config.name, method=method).time()
-
-    def track_error(self, error_type: str):
-        """Track error metrics"""
-        ERROR_COUNT.labels(server=self.config.name, error_type=error_type).inc()
-
-    def add_connection(self, connection_id: str):
-        """Track active connection"""
-        self._active_connections.add(connection_id)
-        ACTIVE_CONNECTIONS.labels(server=self.config.name).set(
-            len(self._active_connections)
-        )
-
-    def remove_connection(self, connection_id: str):
-        """Remove active connection"""
-        self._active_connections.discard(connection_id)
-        ACTIVE_CONNECTIONS.labels(server=self.config.name).set(
-            len(self._active_connections)
-        )
-
-    # Abstract methods that must be implemented by subclasses
+    
     @abstractmethod
-    async def initialize(self):
-        """Initialize server-specific resources"""
+    async def get_custom_tools(self) -> List[Tool]:
+        """
+        Return list of custom tools for this server
+        Must be implemented by subclasses
+        """
         pass
-
+    
     @abstractmethod
-    async def cleanup(self):
-        """Cleanup server-specific resources"""
+    async def handle_custom_tool(self, name: str, arguments: dict) -> Dict[str, Any]:
+        """
+        Handle custom tool calls
+        Must be implemented by subclasses
+        """
         pass
-
-    @abstractmethod
-    async def perform_health_checks(self) -> dict[str, dict[str, Any]]:
-        """Perform server-specific health checks"""
-        pass
-
-    def run(self):
+    
+    async def run(self):
         """Run the server"""
-        import uvicorn
-
-        uvicorn.run(self.app, host="0.0.0.0", port=self.config.port, log_level="info")
-
-
-# Convenience classes for different server types
-class ServiceMCPServer(UnifiedStandardizedMCPServer):
-    """Base class for service integration servers (Slack, GitHub, etc)"""
-
-    pass
-
-
-class AIEngineMCPServer(UnifiedStandardizedMCPServer):
-    """Base class for AI/ML servers"""
-
-    pass
+        self.logger.info(f"Starting {self.config.name} MCP server v{self.config.version}")
+        
+        try:
+            options = self.server.create_initialization_options()
+            async with stdio_server() as (read_stream, write_stream):
+                await self.server.run(read_stream, write_stream, options)
+        except Exception as e:
+            self.logger.error(f"Server error: {e}")
+            raise
 
 
-class InfrastructureMCPServer(UnifiedStandardizedMCPServer):
-    """Base class for infrastructure servers"""
+# Example implementation for reference
+class ExampleMCPServer(StandardizedMCPServer):
+    """Example implementation showing how to use the base class"""
+    
+    def __init__(self):
+        config = ServerConfig(
+            name="example_server",
+            version="1.0.0",
+            description="Example MCP server implementation"
+        )
+        super().__init__(config)
+    
+    async def get_custom_tools(self) -> List[Tool]:
+        """Define custom tools"""
+        return [
+            Tool(
+                name="example_tool",
+                description="Example tool that processes a query",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Query to process"
+                        }
+                    },
+                    "required": ["query"]
+                }
+            )
+        ]
+    
+    async def handle_custom_tool(self, name: str, arguments: dict) -> Dict[str, Any]:
+        """Handle custom tool calls"""
+        if name == "example_tool":
+            query = arguments.get("query", "")
+            self.logger.info(f"Processing query: {query}")
+            
+            return {
+                "query": query,
+                "result": f"Processed: {query}",
+                "timestamp": datetime.now(UTC).isoformat()
+            }
+        else:
+            raise ValueError(f"Unknown tool: {name}")
 
-    pass
+
+async def main():
+    """Main entry point"""
+    server = ExampleMCPServer()
+    await server.run()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -823,7 +823,9 @@ class EstuaryGongOrchestrator:
                         "health_status": (
                             "healthy"
                             if success_rate > 80
-                            else "degraded" if success_rate > 50 else "unhealthy"
+                            else "degraded"
+                            if success_rate > 50
+                            else "unhealthy"
                         ),
                         "monitoring_timestamp": datetime.now(UTC).isoformat(),
                     }

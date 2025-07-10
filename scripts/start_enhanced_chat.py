@@ -52,9 +52,7 @@ class EcosystemChatDemo:
     async def run_demo(self):
         """Run comprehensive ecosystem chat demonstration"""
 
-        print(
-            "🚀 Sophia AI v3.0 - Enhanced Unified Chat with Complete Ecosystem Access"
-        )
+        print("🚀 Sophia AI v3.0 - Enhanced Unified Chat with Complete Ecosystem Access")
         print("=" * 80)
         print("Current Date: July 9, 2025")
         print("System: Real Internet Sophia AI with complete Pay Ready ecosystem")
@@ -299,9 +297,7 @@ class EcosystemChatDemo:
                 print(f"{result['response']}")
 
                 if result["ecosystem_sources_used"]:
-                    print(
-                        f"\n📊 Sources: {', '.join(result['ecosystem_sources_used'])}"
-                    )
+                    print(f"\n📊 Sources: {', '.join(result['ecosystem_sources_used'])}")
 
                 if result["ecosystem_patterns"]:
                     print(

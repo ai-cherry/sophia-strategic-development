@@ -410,9 +410,9 @@ class ContinuousLearningFramework:
         # Get pattern insights for each intent category
         pattern_insights = {}
         for category in IntentCategory:
-            pattern_insights[category.value] = (
-                self.pattern_learner.get_performance_insights(category)
-            )
+            pattern_insights[
+                category.value
+            ] = self.pattern_learner.get_performance_insights(category)
 
         # Get recent successful patterns from memory
         recent_successes = await self.memory_service.recall_kb_articles(

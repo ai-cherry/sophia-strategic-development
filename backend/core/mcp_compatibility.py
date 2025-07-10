@@ -12,9 +12,11 @@ logger = logging.getLogger(__name__)
 class MCPServerProtocol(Protocol):
     """Protocol for MCP server interface"""
 
-    async def handle_request(self, request: Any) -> Any: ...
+    async def handle_request(self, request: Any) -> Any:
+        ...
 
-    async def list_tools(self) -> list: ...
+    async def list_tools(self) -> list:
+        ...
 
 
 def get_mcp_server_class():

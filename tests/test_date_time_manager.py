@@ -4,7 +4,6 @@ Unit tests for DateTimeManager
 
 import unittest
 from datetime import datetime
-from unittest.mock import patch
 
 from backend.core.date_time_manager import DateTimeManager, date_manager
 

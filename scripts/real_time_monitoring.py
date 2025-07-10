@@ -187,7 +187,9 @@ class RealTimeMonitor:
         (
             "🟢"
             if summary["health_percentage"] == 100
-            else "🟡" if summary["health_percentage"] >= 80 else "🔴"
+            else "🟡"
+            if summary["health_percentage"] >= 80
+            else "🔴"
         )
 
         # Service Details
@@ -214,12 +216,16 @@ class RealTimeMonitor:
             (
                 "📈"
                 if recent_health[-1] > recent_health[0]
-                else "📉" if recent_health[-1] < recent_health[0] else "➡️"
+                else "📉"
+                if recent_health[-1] < recent_health[0]
+                else "➡️"
             )
             (
                 "📈"
                 if recent_response[-1] > recent_response[0]
-                else "📉" if recent_response[-1] < recent_response[0] else "➡️"
+                else "📉"
+                if recent_response[-1] < recent_response[0]
+                else "➡️"
             )
 
         # Controls

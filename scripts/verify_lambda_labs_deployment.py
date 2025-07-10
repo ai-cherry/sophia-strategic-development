@@ -135,9 +135,7 @@ class DeploymentVerifier:
             if result.returncode == 0:
                 self.successes.append(f"✅ SSH connection to {CORRECT_IP} successful")
             else:
-                self.issues.append(
-                    f"❌ SSH connection failed: {result.stderr.decode()}"
-                )
+                self.issues.append(f"❌ SSH connection failed: {result.stderr.decode()}")
 
             return True
         else:

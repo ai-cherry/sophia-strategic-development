@@ -37,7 +37,7 @@ class SnowflakeCortexService:
             )
         except ImportError:  # pragma: no cover
             # Fallback dummy connection manager for environments where full infra is absent
-            class _DummyConnectionManager:  # noqa: D401 – simple stub
+            class _DummyConnectionManager:  # – simple stub
                 async def initialize(self) -> None:  # type: ignore
                     pass
 

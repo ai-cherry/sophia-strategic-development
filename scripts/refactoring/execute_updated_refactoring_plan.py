@@ -485,9 +485,7 @@ jobs:
 
                 # Stop if any critical operation fails
                 if not result.success:
-                    logger.error(
-                        f"❌ Critical failure in {debt_file}, stopping Phase 2"
-                    )
+                    logger.error(f"❌ Critical failure in {debt_file}, stopping Phase 2")
                     break
 
         logger.info(

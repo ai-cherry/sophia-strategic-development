@@ -164,7 +164,9 @@ class SophiaPerformanceOptimizer:
                 (
                     "🔴"
                     if bottleneck["severity"] == "critical"
-                    else "🟠" if bottleneck["severity"] == "high" else "🟡"
+                    else "🟠"
+                    if bottleneck["severity"] == "high"
+                    else "🟡"
                 )
 
         for _rec in recommendations:

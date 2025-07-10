@@ -126,9 +126,7 @@ class PulumiESCManager:
             )
 
             if result.returncode != 0:
-                logger.error(
-                    f"❌ Failed to set environment definition: {result.stderr}"
-                )
+                logger.error(f"❌ Failed to set environment definition: {result.stderr}")
                 return False
 
             logger.info(f"✅ Created ESC environment: {self.full_env}")
