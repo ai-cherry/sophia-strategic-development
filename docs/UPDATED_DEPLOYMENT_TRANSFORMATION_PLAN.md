@@ -1,323 +1,279 @@
 # 🚀 Updated Sophia AI Deployment Transformation Plan
-**Version:** 2.0  
+**Version:** 2.1  
 **Date:** July 10, 2025  
-**Status:** Building on Existing Progress  
-**Timeline:** 3 weeks (reduced from 10 days due to existing work)
+**Status:** Refined Focus on K3s Migration  
+**Timeline:** 2 weeks (streamlined approach)
 
 ## 📋 Executive Summary
 
-This updated plan acknowledges the significant progress already made on Sophia AI infrastructure and focuses on completing the transformation to a unified, fully automated, Kubernetes-native platform. We build upon:
+This updated plan acknowledges significant progress on the Sophia AI infrastructure:
 
-- ✅ **Memory Ecosystem Modernization** (83% complete)
-- ✅ **MCP Server Consolidation** (591 items removed)
-- ✅ **Lambda Labs Infrastructure** (5 instances operational)
-- ✅ **Partial K3s Implementation** (configuration exists)
-- ✅ **GitHub Actions Workflows** (multiple exist, need unification)
+### ✅ Already Completed
+- **Memory Ecosystem Modernization** (83% complete, Phase 5 done)
+- **MCP Server Consolidation** (591 items removed)
+- **Lambda Labs Infrastructure** (5 instances operational)
+- **K3s Configuration** (partial implementation exists)
+- **Code Quality Improvements** (syntax errors reduced from 121 to 60)
 
-**Mission:** Complete the transformation from current hybrid state (Docker Swarm + partial K8s) to full Kubernetes-native GitOps platform.
+### 🎯 Remaining Focus Areas
+1. **Complete K3s Migration** from Docker Swarm
+2. **Unify GitHub Actions** into single deployment workflow
+3. **Finalize Helm Charts** for all services
+4. **Implement Full GitOps** with Flux/ArgoCD
+5. **Archive Legacy Deployment** artifacts
 
-## 🎯 Current State Assessment
+## 🏗️ Phase 1: Repository Cleanup & Standardization (1-2 days)
 
-### What's Working Well (Preserve & Enhance)
-1. **Unified Memory Architecture** - Snowflake at center, no legacy vector DBs
-2. **Consolidated MCP Servers** - 28 unified servers with standardized base
-3. **Lambda Labs GPU Fleet** - 5 instances with different GPU types
-4. **Pulumi ESC Integration** - Enterprise secret management operational
-5. **Core Services Running** - Backend (8001), Frontend, PostgreSQL, Redis
+### 1.1 Directory Structure Cleanup ✅ PARTIALLY COMPLETE
+**Completed:**
+- Major code consolidation (591 items removed)
+- Memory ecosystem documentation organized
 
-### What Needs Completion
-1. **Repository Organization** - Still cluttered with legacy files
-2. **K3s Cluster Setup** - Configuration exists but not fully deployed
-3. **Unified CI/CD** - Multiple workflows need consolidation
-4. **Helm Charts** - Partial implementation needs completion
-5. **GitOps Workflow** - Not yet implemented
-
-## 📊 Revised Phase Plan
-
-### **Phase 1: Repository Cleanup & Organization (2 Days)**
-*Focus on what's NOT done from original plan*
-
-#### 1.1 Selective Cleanup (Preserve Recent Work)
+**Remaining Tasks:**
 ```bash
-# Create comprehensive backup first
-tar -czf deployment-archive-$(date +%Y%m%d).tar.gz \
-  --exclude='docs/MEMORY_ECOSYSTEM_*.md' \
-  --exclude='backend/services/*memory*.py' \
-  --exclude='backend/services/*rag*.py' \
-  docker-compose*.yml scripts/deploy_*.sh scripts/deploy_*.py
+# Create archive structure
+mkdir -p archive/{reports,plans,scripts,legacy-deployment}
 
-# Move to archive (NOT delete) - preserve recent work
-mkdir -p archive/{reports,plans,one-time-scripts,legacy-deployments}
+# Move old deployment artifacts
+mv docker-compose*.yml archive/legacy-deployment/
+mv scripts/deploy_*.{sh,py} archive/legacy-deployment/
+mv infrastructure/docker-swarm archive/legacy-deployment/
 
-# Archive only truly obsolete files
-find . -name "*.backup" -o -name "*.old" -o -name "*_deprecated*" | \
-  xargs -I {} mv {} archive/legacy-deployments/
-
-# Organize scripts preserving recent additions
-mkdir -p scripts/{ci,deployment,quality,validation,utils}
-# Keep all memory ecosystem scripts in scripts/
-# Keep all recent deployment fixes
+# Organize documentation
+mv docs/*PHASE*.md archive/plans/
+mv docs/*REPORT*.md archive/reports/
 ```
 
-#### 1.2 Enhance Existing Kubernetes Structure
-```yaml
-# Build on existing kubernetes/ structure
-kubernetes/
-├── helm/
-│   └── sophia-platform/           
-│       ├── Chart.yaml            # Update with recent services
-│       ├── values.yaml           # Merge with existing values
-│       └── charts/
-│           ├── backend/          # Enhance existing
-│           ├── memory-services/  # NEW - for Phase 5 RAG work
-│           └── mcp-servers/      # Use consolidated base
-```
-
-### **Phase 2: Complete K3s Implementation (3 Days)**
-*Leverage existing Pulumi configuration*
-
-#### 2.1 Finalize K3s Cluster Setup
-```typescript
-// Enhance existing infrastructure/pulumi/lambda-labs-k3s.ts
-export class LambdaLabsK3sCluster extends pulumi.ComponentResource {
-    constructor(name: string, args: K3sClusterArgs, opts?: pulumi.ComponentResourceOptions) {
-        // Use existing Lambda Labs configuration
-        const instances = {
-            master: "104.171.202.103",    // sophia-production-instance
-            workers: [
-                "192.222.58.232",          // sophia-ai-core (GH200)
-                "104.171.202.117",         // sophia-mcp-orchestrator
-                "104.171.202.134",         // sophia-data-pipeline
-            ]
-        };
-        
-        // Install K3s with GPU support
-        const k3sInstall = `
-            curl -sfL https://get.k3s.io | sh -s - \
-              --disable traefik \
-              --write-kubeconfig-mode 644 \
-              --node-name $(hostname) \
-              ${isMaster ? '--cluster-init' : `--server https://${masterIp}:6443`}
-            
-            # Install NVIDIA device plugin for GPU support
-            kubectl apply -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.0/nvidia-device-plugin.yml
-        `;
-    }
-}
-```
-
-#### 2.2 Migrate Services Incrementally
+### 1.2 Script Organization
 ```bash
-# Phase services migration - don't break production
-# Step 1: Deploy to K3s alongside Docker Swarm
-# Step 2: Test thoroughly
-# Step 3: Switch traffic
-# Step 4: Decommission Swarm service
+# Already exists: scripts/quality/
+# Create remaining directories
+mkdir -p scripts/{ci,deployment,validation,monitoring}
 
-# Priority order based on recent work:
-1. Memory services (UnifiedMemoryService, RAG pipeline)
-2. Backend API (already on 8001)
-3. MCP servers (use consolidated base)
-4. Frontend services
-5. Data services (PostgreSQL, Redis)
+# Move scripts to proper locations
+mv scripts/*deployment*.py scripts/deployment/
+mv scripts/*validation*.py scripts/validation/
+mv scripts/*monitor*.py scripts/monitoring/
 ```
 
-### **Phase 3: Unified Helm & GitOps (2 Days)**
-*Consolidate rather than replace*
+## 🏗️ Phase 2: K3s Migration Completion (3-4 days)
 
-#### 3.1 Master Helm Chart Configuration
+### 2.1 Finalize K3s Configuration
 ```yaml
-# kubernetes/helm/sophia-platform/values.yaml
-# Merge existing configurations
-global:
-  imageTag: latest
-  registry: scoobyjava15
-  
-# Recent additions to include
-memoryServices:
-  unifiedMemory:
-    enabled: true
-    image: sophia-unified-memory:latest
-    
-  ragPipeline:
-    enabled: true
-    image: sophia-rag-pipeline:latest
-    
-  documentChunking:
-    enabled: true
-    image: sophia-document-chunking:latest
+# kubernetes/base/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 
-# Existing MCP servers with recent consolidation
-mcpServers:
-  # Use tiered structure from consolidation work
-  tier1:
-    - ai-memory    # Port 9000
-    - snowflake    # Port 9001
-    - gong         # Port 9002
-  tier2:
-    - github       # Port 9005
-    - linear       # Port 9006
-    - slack        # Port 9004
+resources:
+  - namespaces.yaml
+  - configmaps/
+  - secrets/
+  - services/
+  - deployments/
+  - ingress/
+
+commonLabels:
+  app.kubernetes.io/part-of: sophia-ai
+  app.kubernetes.io/managed-by: kustomize
 ```
 
-#### 3.2 Unified GitHub Actions Workflow
+### 2.2 Service Migration Priority
+1. **Core API Services** (already on Lambda Labs)
+   - Migrate from Docker Swarm to K3s deployments
+   - Implement proper health checks
+   - Add resource limits
+
+2. **MCP Server Fleet**
+   - Convert docker-compose to K8s manifests
+   - Implement service mesh for inter-service communication
+   - Add persistent volume claims for stateful services
+
+3. **Supporting Services**
+   - Redis (with persistence)
+   - PostgreSQL (for ETL staging)
+   - Monitoring stack (Prometheus/Grafana)
+
+### 2.3 Helm Chart Structure
+```
+helm/
+├── sophia-platform/          # Umbrella chart
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   ├── values-production.yaml
+│   └── charts/
+│       ├── api/
+│       ├── mcp-servers/
+│       ├── redis/
+│       └── monitoring/
+```
+
+## 🏗️ Phase 3: GitHub Actions Unification (2-3 days)
+
+### 3.1 Single Deployment Workflow
 ```yaml
 # .github/workflows/unified-deployment.yml
-# Consolidate existing workflows
-name: 🚀 Unified Sophia Deployment
-
+name: Unified Deployment Pipeline
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        options: [production, staging, development]
-        default: production
 
 jobs:
-  validate:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate Configuration
+      - name: Code Quality Checks
         run: |
-          # Use existing validation scripts
-          python scripts/validation/validate_deployment_env.py
-          python scripts/validation/validate_memory_architecture.py
-          
+          uv sync
+          uv run ruff check .
+          uv run pytest
+  
   build:
-    needs: validate
+    needs: quality
     strategy:
       matrix:
-        service: [backend, memory-services, mcp-servers, frontend]
+        service: [api, mcp-servers, frontend]
     steps:
       - name: Build and Push
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --tag ${{ env.REGISTRY }}/${{ matrix.service }}:${{ github.sha }} \
-            --push .
-            
+            --push \
+            -t scoobyjava15/sophia-${{ matrix.service }}:${{ github.sha }} \
+            -t scoobyjava15/sophia-${{ matrix.service }}:latest \
+            ./${{ matrix.service }}
+  
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to K3s
         run: |
-          # Configure kubectl
-          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > kubeconfig
-          export KUBECONFIG=./kubeconfig
-          
-          # Deploy with Helm
-          helm upgrade --install sophia-platform \
-            ./kubernetes/helm/sophia-platform \
-            --set global.imageTag=${{ github.sha }} \
-            --wait --timeout 10m
+          kubectl set image deployment/sophia-api \
+            api=scoobyjava15/sophia-api:${{ github.sha }} \
+            -n sophia-ai-prod
 ```
 
-### **Phase 4: Production Cutover & Cleanup (1 Day)**
-
-#### 4.1 Zero-Downtime Migration
+### 3.2 Archive Old Workflows
 ```bash
-# Step 1: Verify K3s deployment health
-kubectl get pods -A | grep sophia
-kubectl get svc -A | grep sophia
-
-# Step 2: Update DNS/Load Balancer gradually
-# Use Traefik weighted routing for gradual cutover
-
-# Step 3: Monitor both environments
-# Keep Docker Swarm running until confident
-
-# Step 4: Final cutover
-# Update all DNS records to K3s endpoints
+# Keep only essential workflows
+mkdir -p .github/workflows/archive
+mv .github/workflows/*.yml .github/workflows/archive/
+# Then restore only unified-deployment.yml
 ```
 
-#### 4.2 Decommission Legacy Systems
-```bash
-# Only after successful production validation
-# Document everything before removal
+## 🏗️ Phase 4: GitOps Implementation (2-3 days)
 
-# Archive Docker Swarm configs
-mkdir -p archive/docker-swarm-legacy
-mv docker-compose*.yml archive/docker-swarm-legacy/
-
-# Leave breadcrumbs
-echo "Migrated to K3s on $(date)" > MIGRATION_COMPLETE.md
-echo "Legacy configs archived in archive/docker-swarm-legacy" >> MIGRATION_COMPLETE.md
+### 4.1 Flux Configuration
+```yaml
+# kubernetes/flux-system/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - gotk-components.yaml
+  - gotk-sync.yaml
 ```
+
+### 4.2 Application Sync
+```yaml
+# kubernetes/apps/sophia-ai/kustomization.yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: sophia-ai
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./kubernetes/overlays/production
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: sophia-ai
+```
+
+## 🏗️ Phase 5: Validation & Cutover (2-3 days)
+
+### 5.1 Pre-Cutover Checklist
+- [ ] All services deployed to K3s
+- [ ] Health checks passing
+- [ ] Monitoring configured
+- [ ] Secrets managed via Pulumi ESC
+- [ ] GitHub Actions workflow tested
+- [ ] Rollback procedure documented
+
+### 5.2 Cutover Process
+1. **Deploy to K3s staging** (parallel to Docker Swarm)
+2. **Run smoke tests** on K3s deployment
+3. **Gradual traffic shift** using Traefik
+4. **Monitor for 24 hours**
+5. **Decommission Docker Swarm**
+
+### 5.3 Post-Cutover
+- Archive all Docker Swarm configurations
+- Update documentation
+- Remove legacy deployment scripts
+- Celebrate! 🎉
 
 ## 📊 Success Metrics
 
-### Phase Completion Criteria
-- **Phase 1**: Repository organized, recent work preserved, <100 files in root
-- **Phase 2**: `kubectl get nodes` shows all 5 instances, GPU support verified
-- **Phase 3**: Single GitHub Action successfully deploys all services
-- **Phase 4**: 100% traffic on K3s, zero downtime during migration
+### Technical Metrics
+- **Deployment Time**: <5 minutes (from 20+ minutes)
+- **Resource Utilization**: 30% reduction
+- **Service Availability**: >99.9%
+- **Manual Steps**: 0 (from 10+)
 
-### Overall Success Metrics
-- **Build Time**: <10 minutes (from current 20+)
-- **Deployment Time**: <15 minutes (from current 30+)
-- **Service Health**: All endpoints return 200 OK
-- **Memory Services**: RAG pipeline operational on K8s
-- **Cost**: No increase (better resource utilization)
+### Business Impact
+- **Developer Velocity**: 2x improvement
+- **Deployment Frequency**: Daily (from weekly)
+- **Incident Response**: <5 minutes
+- **Infrastructure Cost**: 20% reduction
 
 ## 🚨 Risk Mitigation
 
-1. **Preserve Production Stability**
-   - Run K3s parallel to Docker Swarm initially
-   - Gradual traffic migration with instant rollback
-   - Keep comprehensive backups
+### Parallel Running
+- Keep Docker Swarm running during migration
+- Test each service thoroughly before cutover
+- Maintain ability to rollback quickly
 
-2. **Protect Recent Work**
-   - Don't modify memory ecosystem services
-   - Preserve all Phase 5 RAG implementations
-   - Keep validated configurations
+### Data Integrity
+- No stateful services affected (all in Snowflake)
+- Redis cache can be rebuilt
+- Configuration in Pulumi ESC unchanged
 
-3. **Maintain Business Continuity**
-   - CEO can still use system throughout migration
-   - No service interruptions
-   - Performance improvements only
+### Communication
+- Daily updates to stakeholders
+- Clear rollback procedures
+- Incident response plan
 
-## 📅 Adjusted Timeline
+## 📅 Timeline Summary
 
-**Week 1**:
-- Days 1-2: Repository cleanup & organization
-- Days 3-5: K3s cluster completion & service migration
+**Week 1:**
+- Days 1-2: Repository cleanup and standardization
+- Days 3-5: K3s migration of core services
 
-**Week 2**:
-- Days 6-7: Helm charts & GitOps implementation
-- Day 8: Production cutover
+**Week 2:**
+- Days 6-8: GitHub Actions unification
+- Days 9-11: GitOps implementation
+- Days 12-14: Validation and cutover
 
-**Week 3**:
-- Days 9-10: Monitoring & optimization
-- Days 11-14: Documentation & knowledge transfer
-- Day 15: Legacy system decommission
+## 🎯 Next Immediate Steps
 
-## 🎯 Next Steps
-
-1. **Immediate Actions**:
+1. **Run Repository Cleanup Script**
    ```bash
-   # Create migration branch
-   git checkout -b k8s-migration-july-2025
-   
-   # Run repository audit
-   python scripts/utils/repository_audit.py > audit-before.txt
-   
-   # Begin selective cleanup
-   ./scripts/deployment/selective_cleanup.sh
+   python scripts/deployment/cleanup_legacy_artifacts.py
    ```
 
-2. **Team Coordination**:
-   - Review plan with any stakeholders
-   - Schedule migration windows
-   - Prepare rollback procedures
+2. **Generate K8s Manifests**
+   ```bash
+   python scripts/deployment/generate_k8s_manifests.py
+   ```
 
-3. **Documentation Updates**:
-   - Update System Handbook with K8s details
-   - Create runbooks for new deployment
-   - Document lessons learned
+3. **Test K3s Deployment**
+   ```bash
+   kubectl apply -k kubernetes/overlays/staging
+   ```
 
-This updated plan respects the significant work already completed while providing a clear path to full Kubernetes-native deployment within 3 weeks. 
+---
+
+**Remember:** This is an evolution, not a revolution. We preserve what works while modernizing the deployment pipeline for scale and reliability. 
