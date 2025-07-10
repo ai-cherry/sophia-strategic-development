@@ -22,9 +22,9 @@ import snowflake.connector
 from snowflake.connector import DictCursor
 
 from backend.core.unified_config import UnifiedConfig
-from backend.services.logging_service import logger
-from shared.utils.errors import ConnectionError, DataValidationError
-from shared.utils.monitoring import get_logger, log_execution_time
+from shared.utils.errors import DataValidationError
+from shared.utils.monitoring import log_execution_time
+import logging
 
 # Try to import Mem0, but make it optional for now
 try:
@@ -35,7 +35,7 @@ except ImportError:
     MEM0_AVAILABLE = False
     Memory = None
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class UnifiedMemoryService:
@@ -199,7 +199,9 @@ class UnifiedMemoryService:
 
         except Exception as e:
             logger.error(f"❌ Snowflake initialization failed: {e}")
-            raise ConnectionError(f"Failed to connect to Snowflake: {e}")
+            # Don't raise - let the caller handle degraded mode
+            self.snowflake_conn = None
+            self.degraded_mode = True
 
     @log_execution_time
     async def add_knowledge(

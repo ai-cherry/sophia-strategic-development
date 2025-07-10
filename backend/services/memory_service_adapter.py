@@ -31,18 +31,21 @@ class MemoryServiceAdapter:
     ) -> bool:
         """Add a conversation to memory"""
         try:
-            # Store in Mem0 if available
+            # Store conversation using UnifiedMemoryService's method
+            messages = []
+            messages.append({"role": "user", "content": user_message})
+            if ai_response:
+                messages.append({"role": "assistant", "content": ai_response})
+
             metadata = {
                 "session_id": session_id,
                 "type": "conversation",
-                "user_message": user_message,
-                "ai_response": ai_response,
             }
 
-            # Use the remember_conversation method from UnifiedMemoryService
-            success = self.memory_service.remember_conversation(
+            # Use the correct method from UnifiedMemoryService
+            await self.memory_service.add_conversation_memory(
                 user_id=user_id,
-                content=f"User: {user_message}\nAI: {ai_response or 'Pending...'}",
+                messages=messages,
                 metadata=metadata,
             )
 
@@ -59,7 +62,7 @@ class MemoryServiceAdapter:
                 }
             )
 
-            return success
+            return True
 
         except Exception as e:
             logger.error(f"Failed to add conversation: {e}")
@@ -77,13 +80,18 @@ class MemoryServiceAdapter:
                 last_conv = self._conversations[session_id][-1]
                 last_conv["ai_response"] = ai_response
 
-                # Update in Mem0 as well
+                # Update in memory service as well
                 user_id = last_conv["user_id"]
                 user_message = last_conv["user_message"]
 
-                return self.memory_service.remember_conversation(
+                messages = [
+                    {"role": "user", "content": user_message},
+                    {"role": "assistant", "content": ai_response},
+                ]
+
+                await self.memory_service.add_conversation_memory(
                     user_id=user_id,
-                    content=f"User: {user_message}\nAI: {ai_response}",
+                    messages=messages,
                     metadata={
                         "session_id": session_id,
                         "type": "conversation",
@@ -91,7 +99,7 @@ class MemoryServiceAdapter:
                     },
                 )
 
-            return False
+            return True
 
         except Exception as e:
             logger.error(f"Failed to update conversation: {e}")
@@ -105,34 +113,41 @@ class MemoryServiceAdapter:
     ) -> list[dict[str, Any]]:
         """Search conversations for a user"""
         try:
-            # Use the recall_conversations method from UnifiedMemoryService
-            return self.memory_service.recall_conversations(
+            # Use the get_conversation_context method from UnifiedMemoryService
+            return await self.memory_service.get_conversation_context(
                 user_id=user_id,
-                query=query,
                 limit=limit,
             )
         except Exception as e:
             logger.error(f"Failed to search conversations: {e}")
             return []
 
-    def search_knowledge(
+    async def search_knowledge(
         self,
         query: str,
         limit: int = 10,
         metadata_filter: Optional[dict[str, Any]] = None,
-        threshold: float = 0.7,
+        user_id: Optional[str] = None,
     ) -> list[dict[str, Any]]:
-        """Direct passthrough to UnifiedMemoryService.search_knowledge"""
-        return self.memory_service.search_knowledge(
+        """Async passthrough to UnifiedMemoryService.search_knowledge"""
+        return await self.memory_service.search_knowledge(
             query=query,
             limit=limit,
             metadata_filter=metadata_filter,
-            threshold=threshold,
+            user_id=user_id,
         )
 
     def health_check(self) -> dict[str, Any]:
-        """Direct passthrough to UnifiedMemoryService.health_check"""
-        return self.memory_service.health_check()
+        """Check health of memory service"""
+        return {
+            "status": "healthy"
+            if not self.memory_service.degraded_mode
+            else "degraded",
+            "degraded_mode": self.memory_service.degraded_mode,
+            "redis_available": self.memory_service.redis_client is not None,
+            "mem0_available": self.memory_service.mem0_client is not None,
+            "snowflake_available": self.memory_service.snowflake_conn is not None,
+        }
 
     # Passthrough all other methods
     def __getattr__(self, name):

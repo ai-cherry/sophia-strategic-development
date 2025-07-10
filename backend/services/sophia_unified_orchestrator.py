@@ -19,7 +19,14 @@ from enum import Enum
 from typing import Any, Optional
 
 from backend.core.date_time_manager import date_manager
+from backend.services.memory_service_adapter import MemoryServiceAdapter
 from backend.services.unified_memory_service import get_unified_memory_service
+
+# Import WorkflowStatus from n8n service if available
+try:
+    from backend.services.n8n_workflow_service import WorkflowStatus
+except ImportError:
+    WorkflowStatus = None
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +38,7 @@ class IntentType(Enum):
     CODE_ANALYSIS = "code_analysis"
     INFRASTRUCTURE = "infrastructure"
     MEMORY_QUERY = "memory_query"
+    WORKFLOW_AUTOMATION = "workflow_automation"
     GENERAL = "general"
 
 
@@ -84,20 +92,68 @@ class SophiaUnifiedOrchestrator:
     """
 
     def __init__(self):
-        # Get the underlying memory service
-        from backend.services.memory_service_adapter import MemoryServiceAdapter
-
+        """Initialize the orchestrator with memory and MCP services"""
+        # Initialize memory service with adapter
         base_memory_service = get_unified_memory_service()
         self.memory_service = MemoryServiceAdapter(base_memory_service)
 
-        self.mcp_orchestrator = None  # Will lazy load with adapter
+        logger.info(
+            f"✅ SophiaUnifiedOrchestrator initialized - Date: {date_manager.now()}"
+        )
+
+        # Initialize MCP orchestration service
+        try:
+            from infrastructure.services.mcp_orchestration_service import (
+                MCPOrchestrationService,
+            )
+
+            self.mcp_orchestrator = MCPOrchestrationService()
+            # Initialize adapter
+            from backend.services.mcp_service_adapter import MCPServiceAdapter
+
+            self.mcp_adapter = MCPServiceAdapter(self.mcp_orchestrator)
+            logger.info("✅ MCP Orchestration Service initialized with adapter")
+        except Exception as e:
+            logger.warning(f"MCP Orchestration Service not available: {e}")
+            self.mcp_orchestrator = None
+            self.mcp_adapter = None
+
+        # Initialize n8n workflow service
+        try:
+            from backend.services.n8n_workflow_service import get_n8n_service
+
+            self.n8n_service = get_n8n_service()
+            logger.info("✅ n8n Workflow Service initialized")
+        except Exception as e:
+            logger.warning(f"n8n Workflow Service not available: {e}")
+            self.n8n_service = None
+
+        # Initialize capability mapping
+        self._initialize_capabilities()
+
+        logger.info("✅ SophiaUnifiedOrchestrator fully initialized")
+
+    def _initialize_capabilities(self):
+        """Initialize capability mapping for intent routing"""
+        self.capability_mapping = {
+            "WORKFLOW": ["n8n", "workflow_automation"],
+            "AUTOMATION": ["n8n", "zapier", "make"],
+            "SCHEDULING": ["n8n", "cron", "temporal"],
+            "CRM": ["hubspot", "salesforce"],
+            "ANALYTICS": ["snowflake", "data_analysis"],
+            "CALLS": ["gong", "call_analysis"],
+            "CODE_ANALYSIS": ["codacy", "github", "sonarqube"],
+            "SECURITY": ["codacy", "snyk", "dependabot"],
+            "INFRASTRUCTURE": ["pulumi", "terraform", "k8s"],
+            "DEPLOYMENT": ["github_actions", "jenkins", "circleci"],
+            "MONITORING": ["prometheus", "grafana", "datadog"],
+            "MEMORY": ["unified_memory", "snowflake"],
+            "SEARCH": ["elasticsearch", "algolia", "unified_memory"],
+        }
+
+        self.initialized = False
         self.current_date = date_manager.now()
         self.metrics = OrchestrationMetrics()
-        self.initialized = False
-
-        logger.info(
-            f"✅ SophiaUnifiedOrchestrator initialized - Date: {self.current_date}"
-        )
 
     async def initialize(self):
         """Initialize all services"""
@@ -200,6 +256,10 @@ class SophiaUnifiedOrchestrator:
                 )
             elif intent.type == IntentType.MEMORY_QUERY:
                 response = await self._handle_memory_query(
+                    query, intent, user_id, session_id, context
+                )
+            elif intent.type == IntentType.WORKFLOW_AUTOMATION:
+                response = await self._handle_workflow_automation(
                     query, intent, user_id, session_id, context
                 )
             else:
@@ -341,6 +401,31 @@ class SophiaUnifiedOrchestrator:
                 capabilities_needed={"MEMORY", "SEARCH"},
             )
 
+        # Workflow automation keywords
+        elif any(
+            word in query_lower
+            for word in [
+                "workflow",
+                "automate",
+                "automation",
+                "schedule",
+                "trigger",
+                "n8n",
+                "daily report",
+                "monitor",
+                "alert",
+                "notify",
+                "when",
+                "every",
+                "if",
+            ]
+        ):
+            return Intent(
+                type=IntentType.WORKFLOW_AUTOMATION,
+                confidence=0.9,
+                capabilities_needed={"WORKFLOW", "AUTOMATION", "SCHEDULING"},
+            )
+
         # Default to general
         else:
             return Intent(
@@ -432,7 +517,7 @@ class SophiaUnifiedOrchestrator:
         if not tasks:
             try:
                 # Try to search memory for relevant information
-                results = self.memory_service.search_knowledge(
+                results = await self.memory_service.search_knowledge(
                     query=query,
                     limit=5,
                     metadata_filter={"user_id": user_id} if user_id else None,
@@ -585,6 +670,172 @@ class SophiaUnifiedOrchestrator:
                 "sources": ["unified_memory"],
             }
 
+    async def _handle_workflow_automation(
+        self,
+        query: str,
+        intent: Intent,
+        user_id: str,
+        session_id: str,
+        context: Optional[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Handle workflow automation queries"""
+
+        if not self.n8n_service:
+            return {
+                "response": "Workflow automation service is not available. Please ensure n8n is running and configured.",
+                "sources": ["n8n"],
+                "error": "service_unavailable",
+            }
+
+        query_lower = query.lower()
+
+        try:
+            # Check if user wants to create a workflow
+            if any(
+                word in query_lower
+                for word in ["create", "build", "make", "setup", "configure"]
+            ):
+                # Create workflow from description
+                workflow = await self.n8n_service.create_workflow_from_description(
+                    query
+                )
+
+                return {
+                    "response": f"I've created a workflow named '{workflow['name']}' for you. The workflow is now {('active' if workflow.get('active') else 'inactive')}.\n\nWorkflow ID: {workflow['id']}\n\nYou can execute it by saying 'run workflow {workflow['id']}' or modify it through the n8n interface.",
+                    "sources": ["n8n"],
+                    "data": {"workflow": workflow},
+                }
+
+            # Check if user wants to list workflows
+            elif any(word in query_lower for word in ["list", "show", "what", "which"]):
+                workflows = await self.n8n_service.list_workflows()
+
+                if not workflows:
+                    return {
+                        "response": "You don't have any workflows yet. Would you like me to create one? Just describe what you want to automate.",
+                        "sources": ["n8n"],
+                    }
+
+                response_parts = ["Here are your workflows:"]
+                for wf in workflows[:10]:  # Limit to 10
+                    status = "✅ Active" if wf.get("active") else "⏸️ Inactive"
+                    response_parts.append(f"- **{wf['name']}** ({wf['id']}) - {status}")
+
+                if len(workflows) > 10:
+                    response_parts.append(
+                        f"\n... and {len(workflows) - 10} more workflows"
+                    )
+
+                return {
+                    "response": "\n".join(response_parts),
+                    "sources": ["n8n"],
+                    "data": {"workflows": workflows},
+                }
+
+            # Check if user wants to execute a workflow
+            elif any(
+                word in query_lower for word in ["run", "execute", "trigger", "start"]
+            ):
+                # Extract workflow ID or name from query
+                # This is simplified - in production you'd use better parsing
+                workflows = await self.n8n_service.list_workflows()
+
+                # Try to find workflow by name match
+                target_workflow = None
+                for wf in workflows:
+                    if wf["name"].lower() in query_lower or wf["id"] in query:
+                        target_workflow = wf
+                        break
+
+                if not target_workflow:
+                    return {
+                        "response": "I couldn't identify which workflow to run. Please specify the workflow name or ID.",
+                        "sources": ["n8n"],
+                    }
+
+                # Execute the workflow
+                execution = await self.n8n_service.execute_workflow(
+                    target_workflow["id"]
+                )
+
+                if execution.status == WorkflowStatus.COMPLETED:
+                    return {
+                        "response": f"Successfully executed workflow '{target_workflow['name']}'!\n\nExecution ID: {execution.id}\nStatus: {execution.status.value}",
+                        "sources": ["n8n"],
+                        "data": {"execution": execution.dict()},
+                    }
+                else:
+                    return {
+                        "response": f"Workflow execution failed.\n\nError: {execution.error}",
+                        "sources": ["n8n"],
+                        "data": {"execution": execution.dict()},
+                    }
+
+            # Check if user wants metrics
+            elif any(
+                word in query_lower
+                for word in ["metrics", "statistics", "performance", "health"]
+            ):
+                metrics = await self.n8n_service.get_workflow_metrics()
+
+                return {
+                    "response": f"**Workflow Automation Metrics:**\n\n- Total Workflows: {metrics['total_workflows']}\n- Active Workflows: {metrics['active_workflows']}\n- Total Executions: {metrics['execution_stats']['total']}\n- Successful: {metrics['execution_stats']['successful']}\n- Failed: {metrics['execution_stats']['failed']}\n- Success Rate: {(metrics['execution_stats']['successful'] / max(1, metrics['execution_stats']['total']) * 100):.1f}%",
+                    "sources": ["n8n"],
+                    "data": {"metrics": metrics},
+                }
+
+            # Check for specific workflow templates
+            elif (
+                "daily report" in query_lower or "business intelligence" in query_lower
+            ):
+                template = self.n8n_service.workflow_templates.get(
+                    "daily_business_intelligence"
+                )
+                workflow = await self.n8n_service.create_workflow(template)
+
+                return {
+                    "response": f"I've created a Daily Business Intelligence workflow for you!\n\nThis workflow will:\n- Run every day at 9 AM\n- Query business metrics from Snowflake\n- Generate AI-powered insights\n- Send a summary to Slack\n\nWorkflow ID: {workflow['id']}",
+                    "sources": ["n8n"],
+                    "data": {"workflow": workflow},
+                }
+
+            elif "customer health" in query_lower or "monitor customer" in query_lower:
+                template = self.n8n_service.workflow_templates.get(
+                    "customer_health_monitoring"
+                )
+                workflow = await self.n8n_service.create_workflow(template)
+
+                return {
+                    "response": f"I've created a Customer Health Monitoring workflow!\n\nThis workflow will:\n- Monitor customer events\n- Analyze call sentiment from Gong\n- Check deal status in HubSpot\n- Calculate health scores\n- Alert when scores drop below 70%\n\nWorkflow ID: {workflow['id']}",
+                    "sources": ["n8n"],
+                    "data": {"workflow": workflow},
+                }
+
+            elif "code quality" in query_lower or "code review" in query_lower:
+                template = self.n8n_service.workflow_templates.get("code_quality_gate")
+                workflow = await self.n8n_service.create_workflow(template)
+
+                return {
+                    "response": f"I've created a Code Quality Gate workflow!\n\nThis workflow will:\n- Trigger on GitHub PRs\n- Run Codacy security scans\n- Perform AI code review\n- Post results as PR comments\n\nWorkflow ID: {workflow['id']}",
+                    "sources": ["n8n"],
+                    "data": {"workflow": workflow},
+                }
+
+            else:
+                # General workflow help
+                return {
+                    "response": "I can help you with workflow automation! Here's what I can do:\n\n**Create Workflows:**\n- 'Create a workflow to [describe task]'\n- 'Set up daily business report'\n- 'Monitor customer health'\n- 'Automate code reviews'\n\n**Manage Workflows:**\n- 'List my workflows'\n- 'Run workflow [name/id]'\n- 'Pause workflow [name/id]'\n- 'Show workflow metrics'\n\nWhat would you like to automate?",
+                    "sources": ["n8n"],
+                }
+
+        except Exception as e:
+            logger.error(f"Error handling workflow automation: {e}")
+            return {
+                "response": f"I encountered an error with the workflow service: {str(e)}",
+                "sources": ["n8n"],
+                "error": str(e),
+            }
+
     async def _handle_general(
         self,
         query: str,
@@ -596,7 +847,9 @@ class SophiaUnifiedOrchestrator:
         """Handle general queries"""
 
         # For general queries, search knowledge base and provide helpful response
-        knowledge_results = self.memory_service.search_knowledge(query=query, limit=3)
+        knowledge_results = await self.memory_service.search_knowledge(
+            query=query, limit=3
+        )
 
         if knowledge_results:
             response_parts = ["Here's what I found:"]
@@ -619,6 +872,20 @@ class SophiaUnifiedOrchestrator:
         """Query an MCP server"""
         try:
             # This will be implemented with actual MCP server calls
+            return {
+                "response": f"Query to {server_name} {query_type} is being processed.",
+                "source": server_name,
+            }
+        except Exception as e:
+            logger.error(f"Query to {server_name} {query_type} failed: {e}")
+            raise
+
+    async def _query_n8n_server(
+        self, server_name: str, query_type: str, query_params: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Query an n8n server"""
+        try:
+            # This will be implemented with actual n8n server calls
             return {
                 "response": f"Query to {server_name} {query_type} is being processed.",
                 "source": server_name,
@@ -720,13 +987,22 @@ class SophiaUnifiedOrchestrator:
         num_sources = len(response_parts)
         return f'**Business Intelligence Summary**\nFound relevant information from {num_sources} sources for your query: "{query}". Details below:'
 
+    async def _generate_workflow_summary(
+        self, query: str, response_parts: list[str]
+    ) -> str:
+        """Generate a summary of workflow automation results"""
+        # For now, return a simple summary
+        # TODO: Use Snowflake Cortex to generate intelligent summary
+        num_sources = len(response_parts)
+        return f'**Workflow Automation Summary**\nFound relevant information from {num_sources} sources for your query: "{query}". Details below:'
+
     async def _handle_memory_fallback(
         self, query: str, user_id: str, session_id: str
     ) -> dict[str, Any]:
         """Fallback handler when MCP orchestrator is not available"""
         try:
             # Try to search memory for relevant information
-            results = self.memory_service.search_knowledge(
+            results = await self.memory_service.search_knowledge(
                 query=query,
                 limit=5,
                 metadata_filter={"user_id": user_id} if user_id else None,

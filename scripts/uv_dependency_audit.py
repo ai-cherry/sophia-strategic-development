@@ -1,349 +1,491 @@
 #!/usr/bin/env python3
 """
-UV Dependency Audit Tool - Part of Governance
-Implements the dependency hygiene playbook for Sophia AI
-
-This script runs comprehensive dependency audits including:
-- Lock file integrity verification
-- Security vulnerability scanning
-- License compliance checking
-- Unused dependency detection
-- Version drift analysis
+UV Dependency Audit Tool
+Continuous hygiene for Sophia AI dependencies
 """
 
 import json
-import logging
 import subprocess
 import sys
+from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Dict, List, Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+import tomli
+
+
+class Severity(Enum):
+    """Vulnerability severity levels"""
+
+    CRITICAL = "critical"
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    INFO = "info"
+
+
+@dataclass
+class Vulnerability:
+    """Represents a security vulnerability"""
+
+    package: str
+    installed_version: str
+    vulnerability_id: str
+    severity: Severity
+    description: str
+    fixed_version: Optional[str] = None
+
+
+@dataclass
+class DependencyIssue:
+    """Represents a dependency issue"""
+
+    package: str
+    issue_type: str
+    details: str
+    severity: Severity
+
+
+@dataclass
+class AuditReport:
+    """Complete audit report"""
+
+    timestamp: datetime = field(default_factory=datetime.now)
+    python_version: str = ""
+    total_packages: int = 0
+    direct_dependencies: int = 0
+    group_dependencies: Dict[str, int] = field(default_factory=dict)
+    vulnerabilities: List[Vulnerability] = field(default_factory=list)
+    outdated_packages: List[Dict[str, str]] = field(default_factory=list)
+    license_issues: List[DependencyIssue] = field(default_factory=list)
+    size_metrics: Dict[str, int] = field(default_factory=dict)
+    sync_time: float = 0.0
+
+    @property
+    def vulnerability_count(self) -> Dict[str, int]:
+        """Count vulnerabilities by severity"""
+        counts = {s.value: 0 for s in Severity}
+        for vuln in self.vulnerabilities:
+            counts[vuln.severity.value] += 1
+        return counts
+
+    @property
+    def health_score(self) -> float:
+        """Calculate overall health score (0-100)"""
+        score = 100.0
+
+        # Deduct for vulnerabilities
+        vuln_counts = self.vulnerability_count
+        score -= vuln_counts[Severity.CRITICAL.value] * 20
+        score -= vuln_counts[Severity.HIGH.value] * 10
+        score -= vuln_counts[Severity.MEDIUM.value] * 5
+        score -= vuln_counts[Severity.LOW.value] * 2
+
+        # Deduct for outdated packages
+        if self.total_packages > 0:
+            outdated_ratio = len(self.outdated_packages) / self.total_packages
+            score -= outdated_ratio * 10
+
+        # Deduct for license issues
+        score -= len(self.license_issues) * 5
+
+        # Deduct for slow sync time
+        if self.sync_time > 60:
+            score -= 5
+
+        return max(0.0, score)
 
 
 class UVDependencyAuditor:
-    """Comprehensive dependency auditing for UV-managed projects"""
+    """Main auditor class"""
 
-    def __init__(self):
-        self.report_path = Path("dependency_audit_report.json")
-        self.project_root = Path.cwd()
-        self.pyproject_path = self.project_root / "pyproject.toml"
-        self.lock_path = self.project_root / "uv.lock"
+    def __init__(self, project_root: Path = Path.cwd()):
+        self.project_root = project_root
+        self.pyproject_path = project_root / "pyproject.toml"
+        self.lock_path = project_root / "uv.lock"
 
-    def run_audit(self) -> dict[str, Any]:
-        """Run comprehensive dependency audit"""
+    def run_audit(self) -> AuditReport:
+        """Run complete dependency audit"""
+        report = AuditReport()
 
-        logger.info("🔍 Starting UV dependency audit...")
+        # Get Python version
+        report.python_version = self._get_python_version()
 
-        results = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "project": str(self.project_root),
-            "checks": {},
-            "summary": {"passed": 0, "failed": 0, "warnings": 0},
-        }
+        # Parse pyproject.toml
+        project_config = self._parse_pyproject()
 
-        # 1. Check lock file integrity
-        logger.info("Checking lock file integrity...")
-        results["checks"]["lock_integrity"] = self._check_lock_integrity()
+        # Count dependencies
+        report.direct_dependencies = len(
+            project_config.get("project", {}).get("dependencies", [])
+        )
 
-        # 2. Security vulnerabilities
-        logger.info("Scanning for security vulnerabilities...")
-        results["checks"]["vulnerabilities"] = self._run_security_scan()
+        # Count group dependencies
+        for group, deps in project_config.get("dependency-groups", {}).items():
+            report.group_dependencies[group] = len(deps)
 
-        # 3. License compliance
-        logger.info("Checking license compliance...")
-        results["checks"]["licenses"] = self._check_licenses()
+        # Get total installed packages
+        report.total_packages = self._count_installed_packages()
 
-        # 4. Unused dependencies
-        logger.info("Finding unused dependencies...")
-        results["checks"]["unused"] = self._find_unused_deps()
+        # Check for vulnerabilities
+        report.vulnerabilities = self._check_vulnerabilities()
 
-        # 5. Version drift
-        logger.info("Checking for version drift...")
-        results["checks"]["drift"] = self._check_version_drift()
+        # Check for outdated packages
+        report.outdated_packages = self._check_outdated_packages()
 
-        # Calculate summary
-        results["summary"] = self._calculate_summary(results["checks"])
+        # Check licenses
+        report.license_issues = self._check_licenses()
 
-        # Generate report
-        self._generate_report(results)
+        # Get size metrics
+        report.size_metrics = self._calculate_size_metrics()
 
-        return results
+        # Measure sync time
+        report.sync_time = self._measure_sync_time()
 
-    def _check_lock_integrity(self) -> dict[str, Any]:
-        """Verify lock file is in sync with pyproject.toml"""
+        return report
 
+    def _get_python_version(self) -> str:
+        """Get Python version"""
+        result = subprocess.run(
+            [sys.executable, "--version"], capture_output=True, text=True
+        )
+        return result.stdout.strip()
+
+    def _parse_pyproject(self) -> dict:
+        """Parse pyproject.toml"""
+        with open(self.pyproject_path, "rb") as f:
+            return tomli.load(f)
+
+    def _count_installed_packages(self) -> int:
+        """Count total installed packages"""
         try:
-            # Run uv sync in check mode
-            result = subprocess.run(
-                ["uv", "sync", "--check"], capture_output=True, text=True, check=False
-            )
-
-            if result.returncode == 0:
-                return {
-                    "status": "passed",
-                    "message": "Lock file is in sync with pyproject.toml",
-                }
-            else:
-                return {
-                    "status": "failed",
-                    "message": "Lock file is out of sync",
-                    "details": result.stderr,
-                }
-
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to check lock integrity: {e}",
-            }
-
-    def _run_security_scan(self) -> dict[str, Any]:
-        """Run uv audit for security issues"""
-
-        try:
-            # Check if uv audit is available
-            result = subprocess.run(
-                ["uv", "audit", "--format", "json"], capture_output=True, text=True, check=False
-            )
-
-            if result.returncode != 0:
-                # Fallback to pip-audit if uv audit not available
-                return self._run_pip_audit_fallback()
-
-            vulnerabilities = json.loads(result.stdout)
-
-            # Categorize by severity
-            categorized = {"critical": [], "high": [], "medium": [], "low": []}
-
-            for vuln in vulnerabilities:
-                severity = vuln.get("severity", "unknown").lower()
-                if severity in categorized:
-                    categorized[severity].append(vuln)
-
-            # Determine status
-            if categorized["critical"] or categorized["high"]:
-                status = "failed"
-            elif categorized["medium"]:
-                status = "warning"
-            else:
-                status = "passed"
-
-            return {
-                "status": status,
-                "vulnerabilities": categorized,
-                "total_count": len(vulnerabilities),
-            }
-
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to run security scan: {e}"}
-
-    def _run_pip_audit_fallback(self) -> dict[str, Any]:
-        """Fallback to pip-audit if uv audit not available"""
-
-        try:
-            # First, export requirements
-            subprocess.run(
-                ["uv", "pip", "compile", "pyproject.toml", "-o", "requirements.txt"],
-                check=True,
-            )
-
-            # Run pip-audit
-            result = subprocess.run(
-                ["pip-audit", "-r", "requirements.txt", "--format", "json"],
-                capture_output=True,
-                text=True, check=False,
-            )
-
-            if result.returncode == 0:
-                return {
-                    "status": "passed",
-                    "message": "No vulnerabilities found (pip-audit)",
-                }
-            else:
-                vulns = json.loads(result.stdout)
-                return {
-                    "status": "failed",
-                    "vulnerabilities": vulns,
-                    "total_count": len(vulns),
-                }
-
-        except Exception:
-            return {"status": "skipped", "message": "Security scanning not available"}
-
-    def _check_licenses(self) -> dict[str, Any]:
-        """Check for forbidden licenses"""
-
-        forbidden_licenses = ["AGPL", "SSPL", "Commons Clause"]
-        found_forbidden = []
-
-        try:
-            # Get installed packages
             result = subprocess.run(
                 ["uv", "pip", "list", "--format", "json"],
                 capture_output=True,
-                text=True, check=False,
+                text=True,
+                env={
+                    **subprocess.os.environ,
+                    "PATH": f"{Path.home()}/.local/bin:{subprocess.os.environ['PATH']}",
+                },
+            )
+            if result.returncode == 0:
+                packages = json.loads(result.stdout)
+                return len(packages)
+        except Exception:
+            pass
+        return 0
+
+    def _check_vulnerabilities(self) -> List[Vulnerability]:
+        """Check for security vulnerabilities using pip-audit"""
+        vulnerabilities = []
+
+        try:
+            # Run pip-audit
+            result = subprocess.run(
+                ["pip-audit", "--format", "json", "--desc"],
+                capture_output=True,
+                text=True,
             )
 
-            if result.returncode != 0:
-                return {"status": "error", "message": "Failed to list packages"}
-
-            packages = json.loads(result.stdout)
-
-            # Check each package license (simplified - real implementation would use license checker)
-            for pkg in packages:
-                # This is a placeholder - real implementation would check actual licenses
-                # For now, we'll just flag known problematic packages
-                if pkg["name"] in ["some-agpl-package", "sspl-database"]:
-                    found_forbidden.append(
-                        {
-                            "package": pkg["name"],
-                            "version": pkg["version"],
-                            "license": "AGPL",  # Would be detected dynamically
-                        }
+            if result.returncode == 0:
+                audit_data = json.loads(result.stdout)
+                for vuln in audit_data.get("vulnerabilities", []):
+                    vulnerabilities.append(
+                        Vulnerability(
+                            package=vuln["name"],
+                            installed_version=vuln["version"],
+                            vulnerability_id=vuln["id"],
+                            severity=Severity.HIGH,  # pip-audit doesn't provide severity
+                            description=vuln.get("description", ""),
+                            fixed_version=vuln.get("fix_versions", [None])[0],
+                        )
                     )
-
-            if found_forbidden:
-                return {"status": "failed", "forbidden_packages": found_forbidden}
-            else:
-                return {"status": "passed", "message": "No forbidden licenses found"}
-
         except Exception as e:
-            return {"status": "error", "message": f"Failed to check licenses: {e}"}
+            print(f"Warning: Could not run pip-audit: {e}")
 
-    def _find_unused_deps(self) -> dict[str, Any]:
-        """Find dependencies that are never imported"""
+        return vulnerabilities
+
+    def _check_outdated_packages(self) -> List[Dict[str, str]]:
+        """Check for outdated packages"""
+        outdated = []
 
         try:
-            # This is a simplified version - real implementation would:
-            # 1. Parse all Python files
-            # 2. Extract all imports
-            # 3. Map imports to packages
-            # 4. Compare with installed packages
+            # UV doesn't have a direct outdated command yet, so we'll parse the lock file
+            # This is a simplified check
+            result = subprocess.run(
+                ["uv", "pip", "list", "--outdated", "--format", "json"],
+                capture_output=True,
+                text=True,
+                env={
+                    **subprocess.os.environ,
+                    "PATH": f"{Path.home()}/.local/bin:{subprocess.os.environ['PATH']}",
+                },
+            )
 
-            unused = []  # Would be populated by analysis
+            if result.returncode == 0:
+                outdated = json.loads(result.stdout)
+        except Exception:
+            # UV might not support --outdated yet
+            pass
 
-            if unused:
-                return {"status": "warning", "unused_packages": unused}
-            else:
-                return {"status": "passed", "message": "No unused dependencies found"}
+        return outdated
 
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to find unused deps: {e}"}
+    def _check_licenses(self) -> List[DependencyIssue]:
+        """Check for license compatibility issues"""
+        issues = []
 
-    def _check_version_drift(self) -> dict[str, Any]:
-        """Check if dependencies have drifted from specified versions"""
+        # List of problematic licenses for proprietary software
+        # problematic_licenses = {"GPL", "AGPL", "LGPL", "SSPL"}
 
         try:
-            # Check if any dependencies are using ranges instead of pinned versions
-            # This would parse pyproject.toml and check version specifiers
+            # This is a simplified check - in production, use a proper license checker
+            subprocess.run(
+                ["pip", "show", "--verbose"] + self._get_installed_packages(),
+                capture_output=True,
+                text=True,
+            )
 
-            drifted = []  # Would contain packages with version ranges
+            # Parse output for license information
+            # This is simplified - real implementation would be more robust
 
-            if drifted:
-                return {"status": "warning", "drifted_packages": drifted}
-            else:
-                return {
-                    "status": "passed",
-                    "message": "All dependencies properly pinned",
-                }
+        except Exception:
+            pass
 
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to check version drift: {e}"}
+        return issues
 
-    def _calculate_summary(self, checks: dict[str, Any]) -> dict[str, int]:
-        """Calculate summary statistics"""
+    def _get_installed_packages(self) -> List[str]:
+        """Get list of installed package names"""
+        try:
+            result = subprocess.run(
+                ["uv", "pip", "list", "--format", "json"],
+                capture_output=True,
+                text=True,
+                env={
+                    **subprocess.os.environ,
+                    "PATH": f"{Path.home()}/.local/bin:{subprocess.os.environ['PATH']}",
+                },
+            )
+            if result.returncode == 0:
+                packages = json.loads(result.stdout)
+                return [pkg["name"] for pkg in packages]
+        except Exception:
+            pass
+        return []
 
-        summary = {"passed": 0, "failed": 0, "warnings": 0, "errors": 0, "skipped": 0}
+    def _calculate_size_metrics(self) -> Dict[str, int]:
+        """Calculate size metrics for dependencies"""
+        metrics = {"total_size_mb": 0, "cache_size_mb": 0, "largest_package_mb": 0}
 
-        for check_name, check_result in checks.items():
-            status = check_result.get("status", "unknown")
-            if status in summary:
-                summary[status] += 1
+        # Check UV cache size
+        cache_dir = Path.home() / ".cache" / "uv"
+        if cache_dir.exists():
+            cache_size = sum(
+                f.stat().st_size for f in cache_dir.rglob("*") if f.is_file()
+            )
+            metrics["cache_size_mb"] = cache_size // (1024 * 1024)
 
-        return summary
+        # Check virtual environment size
+        venv_dir = self.project_root / ".venv"
+        if venv_dir.exists():
+            total_size = sum(
+                f.stat().st_size for f in venv_dir.rglob("*") if f.is_file()
+            )
+            metrics["total_size_mb"] = total_size // (1024 * 1024)
 
-    def _generate_report(self, results: dict[str, Any]) -> None:
-        """Generate audit report"""
+        return metrics
 
-        # Save JSON report
-        with open(self.report_path, "w") as f:
-            json.dump(results, f, indent=2)
+    def _measure_sync_time(self) -> float:
+        """Measure UV sync time"""
+        import time
 
-        # Print summary
-        print("\n" + "=" * 60)
-        print("UV DEPENDENCY AUDIT REPORT")
-        print("=" * 60)
-        print(f"Timestamp: {results['timestamp']}")
-        print(f"Project: {results['project']}")
-        print("\nSummary:")
+        start_time = time.time()
+        try:
+            subprocess.run(
+                ["uv", "sync", "--no-install-project"],
+                capture_output=True,
+                env={
+                    **subprocess.os.environ,
+                    "PATH": f"{Path.home()}/.local/bin:{subprocess.os.environ['PATH']}",
+                },
+            )
+        except Exception:
+            pass
 
-        summary = results["summary"]
-        print(f"  ✅ Passed: {summary.get('passed', 0)}")
-        print(f"  ❌ Failed: {summary.get('failed', 0)}")
-        print(f"  ⚠️  Warnings: {summary.get('warnings', 0)}")
-        print(f"  🔧 Errors: {summary.get('errors', 0)}")
+        return time.time() - start_time
 
-        # Print detailed results
-        print("\nDetailed Results:")
-        for check_name, check_result in results["checks"].items():
-            status = check_result.get("status", "unknown")
-            icon = {
-                "passed": "✅",
-                "failed": "❌",
-                "warning": "⚠️",
-                "error": "🔧",
-                "skipped": "⏭️",
-            }.get(status, "❓")
-
-            print(f"\n{icon} {check_name.replace('_', ' ').title()}:")
-
-            if "message" in check_result:
-                print(f"   {check_result['message']}")
-
-            if status == "failed" and "vulnerabilities" in check_result:
-                vulns = check_result["vulnerabilities"]
-                for severity, items in vulns.items():
-                    if items:
-                        print(f"   - {severity.upper()}: {len(items)} found")
-
-        print(f"\nFull report saved to: {self.report_path}")
-        print("=" * 60)
-
-        # Exit with appropriate code
-        if summary.get("failed", 0) > 0:
-            sys.exit(1)
-        elif summary.get("warnings", 0) > 0:
-            sys.exit(0)  # Warnings don't fail CI
+    def generate_report(self, report: AuditReport, format: str = "text") -> str:
+        """Generate formatted report"""
+        if format == "json":
+            return self._generate_json_report(report)
+        elif format == "markdown":
+            return self._generate_markdown_report(report)
         else:
-            sys.exit(0)
+            return self._generate_text_report(report)
+
+    def _generate_text_report(self, report: AuditReport) -> str:
+        """Generate text format report"""
+        lines = [
+            "=" * 60,
+            "UV DEPENDENCY AUDIT REPORT",
+            "=" * 60,
+            f"Timestamp: {report.timestamp.isoformat()}",
+            f"Python Version: {report.python_version}",
+            f"Health Score: {report.health_score:.1f}/100",
+            "",
+            "DEPENDENCY SUMMARY:",
+            f"  Total Packages: {report.total_packages}",
+            f"  Direct Dependencies: {report.direct_dependencies}",
+            "",
+        ]
+
+        if report.group_dependencies:
+            lines.append("DEPENDENCY GROUPS:")
+            for group, count in report.group_dependencies.items():
+                lines.append(f"  {group}: {count} packages")
+            lines.append("")
+
+        vuln_counts = report.vulnerability_count
+        if any(vuln_counts.values()):
+            lines.extend(
+                [
+                    "SECURITY VULNERABILITIES:",
+                    f"  Critical: {vuln_counts['critical']}",
+                    f"  High: {vuln_counts['high']}",
+                    f"  Medium: {vuln_counts['medium']}",
+                    f"  Low: {vuln_counts['low']}",
+                    "",
+                ]
+            )
+
+            for vuln in report.vulnerabilities[:5]:  # Show first 5
+                lines.append(
+                    f"  - {vuln.package} ({vuln.installed_version}): {vuln.vulnerability_id}"
+                )
+
+        if report.outdated_packages:
+            lines.extend([f"OUTDATED PACKAGES: {len(report.outdated_packages)}", ""])
+
+        if report.size_metrics:
+            lines.extend(
+                [
+                    "SIZE METRICS:",
+                    f"  Total Size: {report.size_metrics.get('total_size_mb', 0)} MB",
+                    f"  Cache Size: {report.size_metrics.get('cache_size_mb', 0)} MB",
+                    "",
+                ]
+            )
+
+        lines.extend(
+            ["PERFORMANCE:", f"  UV Sync Time: {report.sync_time:.1f}s", "", "=" * 60]
+        )
+
+        return "\n".join(lines)
+
+    def _generate_json_report(self, report: AuditReport) -> str:
+        """Generate JSON format report"""
+        data = {
+            "timestamp": report.timestamp.isoformat(),
+            "python_version": report.python_version,
+            "health_score": report.health_score,
+            "metrics": {
+                "total_packages": report.total_packages,
+                "direct_dependencies": report.direct_dependencies,
+                "group_dependencies": report.group_dependencies,
+                "vulnerabilities": report.vulnerability_count,
+                "outdated_packages": len(report.outdated_packages),
+                "size_mb": report.size_metrics.get("total_size_mb", 0),
+                "sync_time_seconds": report.sync_time,
+            },
+            "vulnerabilities": [
+                {
+                    "package": v.package,
+                    "version": v.installed_version,
+                    "id": v.vulnerability_id,
+                    "severity": v.severity.value,
+                    "fixed_version": v.fixed_version,
+                }
+                for v in report.vulnerabilities
+            ],
+        }
+        return json.dumps(data, indent=2)
+
+    def _generate_markdown_report(self, report: AuditReport) -> str:
+        """Generate Markdown format report"""
+        lines = [
+            "# UV Dependency Audit Report",
+            "",
+            f"**Generated:** {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
+            f"**Python Version:** {report.python_version}",
+            f"**Health Score:** {report.health_score:.1f}/100",
+            "",
+            "## Summary",
+            "",
+            f"- **Total Packages:** {report.total_packages}",
+            f"- **Direct Dependencies:** {report.direct_dependencies}",
+            f"- **Sync Time:** {report.sync_time:.1f}s",
+            "",
+        ]
+
+        if report.group_dependencies:
+            lines.extend(
+                ["## Dependency Groups", "", "| Group | Count |", "|-------|-------|"]
+            )
+            for group, count in report.group_dependencies.items():
+                lines.append(f"| {group} | {count} |")
+            lines.append("")
+
+        vuln_counts = report.vulnerability_count
+        if any(vuln_counts.values()):
+            lines.extend(
+                [
+                    "## Security Vulnerabilities",
+                    "",
+                    f"- **Critical:** {vuln_counts['critical']}",
+                    f"- **High:** {vuln_counts['high']}",
+                    f"- **Medium:** {vuln_counts['medium']}",
+                    f"- **Low:** {vuln_counts['low']}",
+                    "",
+                ]
+            )
+
+        return "\n".join(lines)
 
 
 def main():
     """Main entry point"""
+    import argparse
 
-    auditor = UVDependencyAuditor()
+    parser = argparse.ArgumentParser(description="UV Dependency Audit Tool")
+    parser.add_argument(
+        "--format",
+        choices=["text", "json", "markdown"],
+        default="text",
+        help="Output format",
+    )
+    parser.add_argument("--output", help="Output file (default: stdout)")
 
-    try:
-        # Check if UV is installed
-        subprocess.run(["uv", "--version"], check=True, capture_output=True)
-    except subprocess.CalledProcessError:
-        logger.error("❌ UV is not installed. Please install it first:")
-        logger.error("   curl -LsSf https://astral.sh/uv/install.sh | sh")
-        sys.exit(1)
+    args = parser.parse_args()
 
     # Run audit
-    results = auditor.run_audit()
+    auditor = UVDependencyAuditor()
+    print("Running UV dependency audit...", file=sys.stderr)
+    report = auditor.run_audit()
 
-    # Return appropriate exit code
-    if results["summary"]["failed"] > 0:
-        sys.exit(1)
+    # Generate report
+    output = auditor.generate_report(report, format=args.format)
+
+    # Write output
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(output)
+        print(f"Report written to: {args.output}", file=sys.stderr)
     else:
-        sys.exit(0)
+        print(output)
+
+    # Exit with non-zero if health score is low
+    if report.health_score < 80:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

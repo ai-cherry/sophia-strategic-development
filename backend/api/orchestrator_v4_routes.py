@@ -10,8 +10,9 @@ Features:
 - Parallel MCP server orchestration
 - ML-based intent classification
 - Comprehensive monitoring and metrics
+- n8n workflow automation integration
 
-Date: July 9, 2025
+Date: July 10, 2025
 """
 
 import asyncio
@@ -25,20 +26,33 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from backend.services.sophia_unified_orchestrator import (
+    get_unified_orchestrator,
+)
+
+# Import workflow routes
+try:
+    from backend.api.v4.workflows import router as workflows_router
+
+    WORKFLOWS_AVAILABLE = True
+except ImportError:
+    WORKFLOWS_AVAILABLE = False
+    workflows_router = None
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/api/v4", tags=["orchestrator"])
+
+# Include workflow routes if available
+if WORKFLOWS_AVAILABLE and workflows_router:
+    router.include_router(workflows_router)
+    logger.info("✅ Workflow automation routes included in v4 API")
+
 
 # Simple auth mock for now - replace with proper auth when available
 async def get_current_user():
     """Mock auth function - replace with proper implementation"""
     return {"id": "user_default", "name": "Default User", "role": "admin"}
-
-
-from backend.services.sophia_unified_orchestrator import (
-    get_unified_orchestrator,
-)
-
-logger = logging.getLogger(__name__)
-
-router = APIRouter(prefix="/api/v4", tags=["orchestrator"])
 
 
 class OrchestrationRequest(BaseModel):

@@ -2,8 +2,8 @@
 
 ## 🌟 Living Architecture Document
 **Last Updated:** July 10, 2025  
-**Version:** 3.0 - Intelligent Automation Era  
-**Status:** Production-Ready with Phase 2 Enhancements
+**Version:** 3.2 - Intelligence-First UI Era  
+**Status:** Production-Ready with v2.0 Interface Design
 
 ---
 
@@ -19,7 +19,8 @@
 8. [UV Dependency Governance](#uv-dependency-governance) **[NEW]**
 9. [LLM Strategy & Routing](#llm-strategy--routing) **[NEW]**
 10. [Workflow Automation](#workflow-automation) **[NEW]**
-11. [Operational Procedures](#operational-procedures)
+11. [User Interface Architecture](#user-interface-architecture) **[NEW v2.0]**
+12. [Operational Procedures](#operational-procedures)
 
 ---
 
@@ -28,6 +29,7 @@
 Sophia AI is an enterprise-grade AI orchestration platform that serves as the "brain" for Pay Ready operations, providing:
 
 - **Unified Intelligence**: Single point of access for all business insights
+- **Intelligence-First Interface**: Natural language as the primary interaction paradigm **[v2.0]**
 - **Real-Time Processing**: Event-driven architecture with < 200ms response times
 - **Multi-Agent Coordination**: 16+ specialized MCP servers working in harmony
 - **Autonomous Operations**: Self-managing through n8n workflows and intelligent routing
@@ -39,6 +41,7 @@ Sophia AI is an enterprise-grade AI orchestration platform that serves as the "b
 - **Model Currency**: New models available within 72h of release
 - **Automation Rate**: 80% of routine tasks automated
 - **Build Speed**: < 35s with UV package manager
+- **Natural Language Usage**: > 80% of interactions via chat **[v2.0]**
 
 ---
 
@@ -49,7 +52,7 @@ Sophia AI is an enterprise-grade AI orchestration platform that serves as the "b
 ```mermaid
 graph TB
     subgraph "Presentation Layer"
-        UI[Unified Dashboard]
+        UI[Intelligence-First UI v2.0]
         API[v4 REST API]
         WS[WebSocket Real-time]
     end
@@ -71,7 +74,7 @@ graph TB
 
 ### Component Responsibilities
 
-1. **Unified Dashboard** - Single interface for all interactions
+1. **Intelligence-First UI** - Natural language interaction with rich visualizations **[v2.0]**
 2. **v4 Orchestrator** - Intelligent request handling and routing
 3. **MCP Ecosystem** - Specialized agents for domain tasks
 4. **Memory Architecture** - Hierarchical storage with graceful degradation
@@ -358,6 +361,74 @@ nodes:
     false_path: log_normal
 ```
 
+### 5.3 Automation & Workflows
+
+#### n8n Workflow Automation (NEW - Phase 2 Week 2)
+- Natural language workflow creation
+- Pre-built templates for common tasks
+- Real-time execution and scheduling
+- Deep integration with all data sources
+- See: `/docs/N8N_WORKFLOW_INTEGRATION.md`
+
+#### Temporal Workflow Engine
+- Long-running process orchestration
+- Distributed task management
+- Fault-tolerant execution
+
+#### GitHub Actions Integration
+- CI/CD pipeline automation
+- Deployment workflows
+- Automated testing
+
+---
+
+## 🎨 User Interface Architecture **[NEW v2.0]**
+
+### Intelligence-First Design
+
+The v2.0 interface represents a paradigm shift from traditional dashboard navigation to an **intelligence-first approach** where natural language is the primary interaction method.
+
+### Core Principles
+- **"Ask First, Click Second"**: Every feature accessible via natural language
+- **Rich Responses**: Visualizations, citations, and actions in responses
+- **Context Awareness**: UI adapts based on conversation context
+- **Predictive Assistance**: Sophia anticipates user needs
+- **Live Intelligence**: Real-time system health always visible
+
+### Component Architecture
+```
+SophiaIntelligence (Root)
+├── Sidebar (Collapsible Navigation)
+│   ├── Chat & Search (Primary)
+│   ├── Projects Hub (Linear + Asana + Notion)
+│   ├── Agent Factory
+│   └── System Intelligence
+├── IntelligenceCanvas (Main Area)
+│   ├── Conversational Interface
+│   ├── Rich Response Renderer
+│   └── Live System Monitoring
+└── Context Controls
+    ├── System Context Selector
+    └── Persona Management
+```
+
+### Natural Language Commands
+```typescript
+// Everything accessible via chat
+"Show me projects at risk" → Opens filtered project view
+"Create monitoring agent" → Opens agent factory with context
+"Deploy staging to prod" → Executes with confirmation
+"Why is revenue down?" → Multi-source analysis with charts
+```
+
+### Design System
+- **Dark Theme**: Midnight Intelligence palette
+- **Glass Morphism**: Semi-transparent surfaces with blur
+- **Typography**: Inter for UI, JetBrains Mono for code
+- **Animation**: Smooth transitions with Framer Motion
+
+For complete details, see [11_UI_ARCHITECTURE.md](./11_UI_ARCHITECTURE.md)
+
 ---
 
 ## 🛠️ Operational Procedures
@@ -408,6 +479,8 @@ python scripts/test_v4_orchestrator_integration.py
 - [07_PERFORMANCE_OPTIMIZATION.md](07_PERFORMANCE_OPTIMIZATION.md) - Tuning guide
 - [08_MEMORY_AUGMENTED_ARCHITECTURE.md](08_MEMORY_AUGMENTED_ARCHITECTURE.md) - Learning system
 - [09_AI_SQL_CORTEX_AGENT_LIFECYCLE.md](09_AI_SQL_CORTEX_AGENT_LIFECYCLE.md) - Query lifecycle
+- [10_PORTKEY_LLM_GATEWAY.md](10_PORTKEY_LLM_GATEWAY.md) - LLM routing **[Create if missing]**
+- [11_UI_ARCHITECTURE.md](11_UI_ARCHITECTURE.md) - Intelligence-First UI **[NEW v2.0]**
 
 ---
 
