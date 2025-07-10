@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: sophia-ai-prod
+resources:
+- namespace.yaml
+- redis-pvc.yaml
+- deployments/sophia-api-deployment.yaml
+- deployments/redis-deployment.yaml
+- deployments/mcp-servers-deployment.yaml
+- services/redis-service.yaml
+- services/mcp-servers-service.yaml
+- services/sophia-api-service.yaml
+- ingress/ingress.yaml

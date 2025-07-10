@@ -1,0 +1,44 @@
+name: Deploy to K3s
+'on':
+  push:
+    branches:
+    - main
+  workflow_dispatch: {}
+env:
+  DOCKER_REGISTRY: scoobyjava15
+  K3S_SERVER: 192.222.58.232
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Build and push API image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: backend/Dockerfile
+        push: true
+        tags: ${{ env.DOCKER_REGISTRY }}/sophia-api:${{ github.sha }},${{ env.DOCKER_REGISTRY
+          }}/sophia-api:latest
+        platforms: linux/amd64
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: v1.28.0
+    - name: Configure kubectl
+      run: 'echo "${{ secrets.LAMBDA_LABS_KUBECONFIG }}" | base64 -d > kubeconfig
+
+        export KUBECONFIG=kubeconfig'
+    - name: Update deployment image
+      run: 'kubectl set image deployment/sophia-api sophia-api=${{ env.DOCKER_REGISTRY
+        }}/sophia-api:${{ github.sha }} -n sophia-ai-prod
+
+        kubectl rollout status deployment/sophia-api -n sophia-ai-prod'
