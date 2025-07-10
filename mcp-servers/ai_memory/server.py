@@ -1,20 +1,19 @@
 """
-Sophia AI Memory MCP Server
-Unified implementation for Lambda Labs Kubernetes deployment
+Sophia AI Memory MCP Server V2
+Refactored to use UnifiedMemoryService for all operations
+Date: July 10, 2025
 """
 
-import json
-
-# Add parent directory to path
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
-import numpy as np
 from pydantic import BaseModel, Field
 
+# Add parent directories to path
+sys.path.append(str(Path(__file__).parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent))
 
 from base.unified_standardized_base import (
@@ -24,35 +23,44 @@ from base.unified_standardized_base import (
     UnifiedStandardizedMCPServer,
 )
 
+# Import UnifiedMemoryService
+from backend.services.unified_memory_service import get_unified_memory_service
+
 
 class MemoryRecord(BaseModel):
-    """Memory record model"""
+    """Memory record model for MCP interface"""
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     content: str
     category: str
     metadata: dict[str, Any] = Field(default_factory=dict)
-    embedding: Optional[list[float]] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     score: float = 1.0
 
 
-class AIMemoryServer(UnifiedStandardizedMCPServer):
-    """AI Memory MCP Server with unified architecture"""
+class AIMemoryServerV2(UnifiedStandardizedMCPServer):
+    """AI Memory MCP Server using UnifiedMemoryService"""
 
     def __init__(self):
         config = ServerConfig(
             name="ai-memory",
-            version="2.1.0",
+            version="2.2.0",
             port=9000,
             capabilities=["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS"],
             tier="PRIMARY",
         )
         super().__init__(config)
 
-        # Memory storage
-        self.memories: dict[str, MemoryRecord] = {}
-        self.memory_index: dict[str, list[str]] = {}  # category -> memory_ids
+        # Initialize UnifiedMemoryService
+        try:
+            self.memory_service = get_unified_memory_service()
+            self.logger.info(
+                f"UnifiedMemoryService initialized - Degraded mode: {self.memory_service.degraded_mode}"
+            )
+        except Exception as e:
+            self.logger.error(f"Failed to initialize UnifiedMemoryService: {e}")
+            # Still allow server to start but in limited mode
+            self.memory_service = None
 
     def get_tool_definitions(self) -> list[ToolDefinition]:
         """Define AI Memory tools"""
@@ -79,6 +87,13 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
                         description="Additional metadata",
                         required=False,
                     ),
+                    ToolParameter(
+                        name="user_id",
+                        type="string",
+                        description="User ID for the memory",
+                        required=False,
+                        default="system",
+                    ),
                 ],
             ),
             ToolDefinition(
@@ -104,11 +119,17 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
                         required=False,
                         default=10,
                     ),
+                    ToolParameter(
+                        name="user_id",
+                        type="string",
+                        description="Filter by user",
+                        required=False,
+                    ),
                 ],
             ),
             ToolDefinition(
                 name="get_memory",
-                description="Get a specific memory by ID",
+                description="Get a specific memory by ID (from search results)",
                 parameters=[
                     ToolParameter(
                         name="memory_id",
@@ -119,44 +140,51 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
                 ],
             ),
             ToolDefinition(
-                name="update_memory",
-                description="Update an existing memory",
+                name="store_conversation",
+                description="Store a conversation in memory",
                 parameters=[
                     ToolParameter(
-                        name="memory_id",
+                        name="user_id",
                         type="string",
-                        description="Memory ID",
+                        description="User ID",
                         required=True,
                     ),
                     ToolParameter(
-                        name="content",
-                        type="string",
-                        description="Updated content",
-                        required=False,
+                        name="messages",
+                        type="array",
+                        description="Array of message objects with 'role' and 'content'",
+                        required=True,
                     ),
                     ToolParameter(
                         name="metadata",
                         type="object",
-                        description="Updated metadata",
+                        description="Conversation metadata",
                         required=False,
                     ),
                 ],
             ),
             ToolDefinition(
-                name="delete_memory",
-                description="Delete a memory",
+                name="get_conversation_context",
+                description="Get conversation history for a user",
                 parameters=[
                     ToolParameter(
-                        name="memory_id",
+                        name="user_id",
                         type="string",
-                        description="Memory ID to delete",
+                        description="User ID",
                         required=True,
-                    )
+                    ),
+                    ToolParameter(
+                        name="limit",
+                        type="integer",
+                        description="Maximum messages to retrieve",
+                        required=False,
+                        default=10,
+                    ),
                 ],
             ),
             ToolDefinition(
                 name="get_memory_stats",
-                description="Get memory statistics",
+                description="Get memory statistics and health",
                 parameters=[],
             ),
         ]
@@ -164,7 +192,10 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
     async def execute_tool(
         self, tool_name: str, parameters: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute memory operations"""
+        """Execute memory operations using UnifiedMemoryService"""
+
+        if not self.memory_service:
+            return {"success": False, "error": "Memory service not available"}
 
         if tool_name == "store_memory":
             return await self.store_memory(parameters)
@@ -172,45 +203,42 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
             return await self.search_memories(parameters)
         elif tool_name == "get_memory":
             return await self.get_memory(parameters)
-        elif tool_name == "update_memory":
-            return await self.update_memory(parameters)
-        elif tool_name == "delete_memory":
-            return await self.delete_memory(parameters)
+        elif tool_name == "store_conversation":
+            return await self.store_conversation(parameters)
+        elif tool_name == "get_conversation_context":
+            return await self.get_conversation_context(parameters)
         elif tool_name == "get_memory_stats":
             return await self.get_memory_stats()
         else:
             raise ValueError(f"Unknown tool: {tool_name}")
 
     async def store_memory(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Store a new memory"""
+        """Store a new memory using UnifiedMemoryService"""
         try:
-            # Create memory record
-            memory = MemoryRecord(
+            # Add category to metadata
+            metadata = params.get("metadata", {})
+            metadata["category"] = params["category"]
+
+            # Store in Snowflake via UnifiedMemoryService
+            memory_id = await self.memory_service.add_knowledge(
                 content=params["content"],
-                category=params["category"],
-                metadata=params.get("metadata", {}),
+                source=f"ai_memory_mcp/{params['category']}",
+                metadata=metadata,
+                user_id=params.get("user_id", "system"),
             )
 
-            # Generate embedding (placeholder - would use real embedding model)
-            memory.embedding = np.random.rand(768).tolist()
-
-            # Store memory
-            self.memories[memory.id] = memory
-
-            # Update index
-            if memory.category not in self.memory_index:
-                self.memory_index[memory.category] = []
-            self.memory_index[memory.category].append(memory.id)
-
-            self.logger.info(f"Stored memory {memory.id} in category {memory.category}")
+            self.logger.info(
+                f"Stored memory {memory_id} in category {params['category']}"
+            )
             self.metrics["operations_total"].labels(
                 operation="store", status="success"
             ).inc()
 
             return {
                 "success": True,
-                "memory_id": memory.id,
-                "timestamp": memory.timestamp.isoformat(),
+                "memory_id": memory_id,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "storage": "snowflake_cortex",
             }
 
         except Exception as e:
@@ -221,53 +249,53 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
             return {"success": False, "error": str(e)}
 
     async def search_memories(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Search memories"""
+        """Search memories using UnifiedMemoryService"""
         try:
             query = params.get("query", "")
             category = params.get("category")
             limit = params.get("limit", 10)
+            user_id = params.get("user_id")
 
-            # Get candidate memories
-            candidates = []
+            # Build metadata filter
+            metadata_filter = {}
             if category:
-                memory_ids = self.memory_index.get(category, [])
-                candidates = [
-                    self.memories[mid] for mid in memory_ids if mid in self.memories
-                ]
-            else:
-                candidates = list(self.memories.values())
+                metadata_filter["category"] = category
 
-            # Simple text search (would use vector search in production)
-            if query:
-                results = []
-                for memory in candidates:
-                    if query.lower() in memory.content.lower():
-                        results.append(memory)
-            else:
-                results = candidates
-
-            # Sort by timestamp and limit
-            results.sort(key=lambda m: m.timestamp, reverse=True)
-            results = results[:limit]
+            # Search using Snowflake Cortex
+            results = await self.memory_service.search_knowledge(
+                query=query
+                or category
+                or "",  # Use category as query if no query provided
+                limit=limit,
+                metadata_filter=metadata_filter if metadata_filter else None,
+                user_id=user_id,
+            )
 
             self.metrics["operations_total"].labels(
                 operation="search", status="success"
             ).inc()
 
+            # Format results for MCP interface
+            memories = []
+            for result in results:
+                memories.append(
+                    {
+                        "id": result["id"],
+                        "content": result["content"],
+                        "category": result["metadata"].get("category", "unknown"),
+                        "metadata": result["metadata"],
+                        "timestamp": result.get(
+                            "created_at", datetime.now(UTC).isoformat()
+                        ),
+                        "score": result.get("similarity", 1.0),
+                    }
+                )
+
             return {
                 "success": True,
-                "memories": [
-                    {
-                        "id": m.id,
-                        "content": m.content,
-                        "category": m.category,
-                        "metadata": m.metadata,
-                        "timestamp": m.timestamp.isoformat(),
-                        "score": m.score,
-                    }
-                    for m in results
-                ],
-                "total": len(results),
+                "memories": memories,
+                "total": len(memories),
+                "storage": "snowflake_cortex",
             }
 
         except Exception as e:
@@ -278,13 +306,21 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
             return {"success": False, "error": str(e)}
 
     async def get_memory(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Get specific memory"""
+        """Get specific memory by searching for its ID"""
         try:
             memory_id = params["memory_id"]
-            memory = self.memories.get(memory_id)
 
-            if not memory:
+            # Search by ID in metadata
+            results = await self.memory_service.search_knowledge(
+                query=memory_id,
+                limit=1,
+                metadata_filter={"id": memory_id},
+            )
+
+            if not results:
                 return {"success": False, "error": "Memory not found"}
+
+            result = results[0]
 
             self.metrics["operations_total"].labels(
                 operation="get", status="success"
@@ -293,13 +329,16 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
             return {
                 "success": True,
                 "memory": {
-                    "id": memory.id,
-                    "content": memory.content,
-                    "category": memory.category,
-                    "metadata": memory.metadata,
-                    "timestamp": memory.timestamp.isoformat(),
-                    "score": memory.score,
+                    "id": result["id"],
+                    "content": result["content"],
+                    "category": result["metadata"].get("category", "unknown"),
+                    "metadata": result["metadata"],
+                    "timestamp": result.get(
+                        "created_at", datetime.now(UTC).isoformat()
+                    ),
+                    "score": result.get("similarity", 1.0),
                 },
+                "storage": "snowflake_cortex",
             }
 
         except Exception as e:
@@ -309,90 +348,108 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
             ).inc()
             return {"success": False, "error": str(e)}
 
-    async def update_memory(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Update memory"""
+    async def store_conversation(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Store conversation using UnifiedMemoryService"""
         try:
-            memory_id = params["memory_id"]
-            memory = self.memories.get(memory_id)
+            user_id = params["user_id"]
+            messages = params["messages"]
+            metadata = params.get("metadata", {})
 
-            if not memory:
-                return {"success": False, "error": "Memory not found"}
-
-            # Update fields
-            if "content" in params:
-                memory.content = params["content"]
-                # Regenerate embedding
-                memory.embedding = np.random.rand(768).tolist()
-
-            if "metadata" in params:
-                memory.metadata.update(params["metadata"])
-
-            memory.timestamp = datetime.now(UTC)
+            # Store conversation in Mem0
+            await self.memory_service.add_conversation_memory(
+                user_id=user_id,
+                messages=messages,
+                metadata=metadata,
+            )
 
             self.metrics["operations_total"].labels(
-                operation="update", status="success"
+                operation="store_conversation", status="success"
             ).inc()
 
-            return {"success": True, "memory_id": memory.id, "updated": True}
+            return {
+                "success": True,
+                "user_id": user_id,
+                "messages_stored": len(messages),
+                "timestamp": datetime.now(UTC).isoformat(),
+                "storage": "mem0",
+            }
 
         except Exception as e:
-            self.logger.error(f"Error updating memory: {e}")
+            self.logger.error(f"Error storing conversation: {e}")
             self.metrics["operations_total"].labels(
-                operation="update", status="error"
+                operation="store_conversation", status="error"
             ).inc()
             return {"success": False, "error": str(e)}
 
-    async def delete_memory(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Delete memory"""
+    async def get_conversation_context(self, params: dict[str, Any]) -> dict[str, Any]:
+        """Get conversation context using UnifiedMemoryService"""
         try:
-            memory_id = params["memory_id"]
-            memory = self.memories.get(memory_id)
+            user_id = params["user_id"]
+            limit = params.get("limit", 10)
 
-            if not memory:
-                return {"success": False, "error": "Memory not found"}
-
-            # Remove from index
-            if memory.category in self.memory_index:
-                self.memory_index[memory.category] = [
-                    mid
-                    for mid in self.memory_index[memory.category]
-                    if mid != memory_id
-                ]
-
-            # Delete memory
-            del self.memories[memory_id]
+            # Get conversation from Mem0
+            context = await self.memory_service.get_conversation_context(
+                user_id=user_id,
+                limit=limit,
+            )
 
             self.metrics["operations_total"].labels(
-                operation="delete", status="success"
+                operation="get_conversation", status="success"
             ).inc()
 
-            return {"success": True, "deleted": True, "memory_id": memory_id}
+            return {
+                "success": True,
+                "user_id": user_id,
+                "conversations": context,
+                "total": len(context),
+                "storage": "mem0",
+            }
 
         except Exception as e:
-            self.logger.error(f"Error deleting memory: {e}")
+            self.logger.error(f"Error getting conversation context: {e}")
             self.metrics["operations_total"].labels(
-                operation="delete", status="error"
+                operation="get_conversation", status="error"
             ).inc()
             return {"success": False, "error": str(e)}
 
     async def get_memory_stats(self) -> dict[str, Any]:
-        """Get memory statistics"""
+        """Get memory statistics from UnifiedMemoryService"""
         try:
             stats = {
-                "total_memories": len(self.memories),
-                "categories": {},
-                "memory_size_bytes": 0,
+                "service_status": "healthy"
+                if not self.memory_service.degraded_mode
+                else "degraded",
+                "degraded_mode": self.memory_service.degraded_mode,
+                "tiers": {
+                    "L1_redis": "available"
+                    if self.memory_service.redis_client
+                    else "unavailable",
+                    "L2_mem0": "available"
+                    if self.memory_service.mem0_client
+                    else "unavailable",
+                    "L3_L4_L5_snowflake": "available"
+                    if self.memory_service.snowflake_conn
+                    else "unavailable",
+                },
+                "features": {
+                    "vector_search": not self.memory_service.degraded_mode,
+                    "conversation_memory": self.memory_service.mem0_client is not None,
+                    "knowledge_storage": not self.memory_service.degraded_mode,
+                    "cortex_ai": not self.memory_service.degraded_mode,
+                },
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
-            # Category stats
-            for category, memory_ids in self.memory_index.items():
-                stats["categories"][category] = len(memory_ids)
-
-            # Calculate approximate memory size
-            for memory in self.memories.values():
-                stats["memory_size_bytes"] += len(
-                    json.dumps(memory.model_dump()).encode()
-                )
+            # Get Redis stats if available
+            if self.memory_service.redis_client:
+                try:
+                    redis_info = self.memory_service.redis_client.info()
+                    stats["redis_stats"] = {
+                        "used_memory_human": redis_info.get("used_memory_human", "0"),
+                        "connected_clients": redis_info.get("connected_clients", 0),
+                    }
+                except Exception:
+                    pass
 
             self.metrics["operations_total"].labels(
                 operation="stats", status="success"
@@ -409,24 +466,35 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
 
     async def on_startup(self):
         """Initialize AI Memory server"""
-        self.logger.info("AI Memory server starting...")
+        self.logger.info("AI Memory server V2 starting with UnifiedMemoryService...")
 
-        # Load any persisted memories (from database/file)
-        # In production, this would load from Snowflake or Redis
-
-        self.logger.info(f"AI Memory server ready with {len(self.memories)} memories")
+        if self.memory_service:
+            self.logger.info("Memory tiers available:")
+            self.logger.info(
+                f"  L1 Redis: {self.memory_service.redis_client is not None}"
+            )
+            self.logger.info(
+                f"  L2 Mem0: {self.memory_service.mem0_client is not None}"
+            )
+            self.logger.info(
+                f"  L3-L5 Snowflake: {self.memory_service.snowflake_conn is not None}"
+            )
+            self.logger.info(f"  Degraded mode: {self.memory_service.degraded_mode}")
+        else:
+            self.logger.error("AI Memory server running without UnifiedMemoryService!")
 
     async def on_shutdown(self):
         """Cleanup AI Memory server"""
-        self.logger.info("AI Memory server shutting down...")
+        self.logger.info("AI Memory server V2 shutting down...")
 
-        # Persist memories to storage
-        # In production, this would save to Snowflake or Redis
+        # UnifiedMemoryService handles its own cleanup
+        if self.memory_service:
+            self.memory_service.close()
 
-        self.logger.info("AI Memory server stopped")
+        self.logger.info("AI Memory server V2 stopped")
 
 
 # Create and run server
 if __name__ == "__main__":
-    server = AIMemoryServer()
+    server = AIMemoryServerV2()
     server.run()

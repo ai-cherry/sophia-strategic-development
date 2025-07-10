@@ -1,8 +1,0 @@
-{
-  "status": "passed",
-  "checks": {
-    "environment": "passed",
-    "dependencies": "passed",
-    "configuration": "passed"
-  }
-}

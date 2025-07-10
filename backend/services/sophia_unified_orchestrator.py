@@ -109,9 +109,11 @@ class SophiaUnifiedOrchestrator:
 
             self.mcp_orchestrator = MCPOrchestrationService()
             # Initialize adapter
-            from backend.services.mcp_service_adapter import MCPServiceAdapter
+            from backend.services.mcp_orchestration_adapter import (
+                MCPOrchestrationAdapter,
+            )
 
-            self.mcp_adapter = MCPServiceAdapter(self.mcp_orchestrator)
+            self.mcp_adapter = MCPOrchestrationAdapter(self.mcp_orchestrator)
             logger.info("✅ MCP Orchestration Service initialized with adapter")
         except Exception as e:
             logger.warning(f"MCP Orchestration Service not available: {e}")

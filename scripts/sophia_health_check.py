@@ -205,12 +205,12 @@ class SophiaHealthChecker:
 
         # Check for forbidden imports
         forbidden_patterns = [
-            "import pinecone",
-            "import weaviate",
-            "from pinecone",
-            "from weaviate",
-            "ChromaDB",
-            "chromadb",
+            "import " + "pine" + "cone",  # Split to avoid self-detection
+            "import " + "weav" + "iate",  # Split to avoid self-detection
+            "from " + "pine" + "cone",  # Split to avoid self-detection
+            "from " + "weav" + "iate",  # Split to avoid self-detection
+            "Chroma" + "DB",  # Split to avoid self-detection
+            "chroma" + "db",  # Split to avoid self-detection
         ]
 
         violations = []

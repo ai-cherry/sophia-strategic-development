@@ -17,8 +17,6 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "SNOWFLAKE_WAREHOUSE": "snowflake_warehouse",
     "SNOWFLAKE_DATABASE": "snowflake_database",
     "SNOWFLAKE_ROLE": "snowflake_role",
-    "PINECONE_API_KEY": "pinecone_api_key",
-    "PINECONE_ENVIRONMENT": "pinecone_environment",
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",
@@ -28,8 +26,7 @@ GITHUB_TO_INTERNAL_MAPPING = {
     # Lambda Labs Infrastructure (Clean Configuration)
     "LAMBDA_LABS_API_KEY": "lambda_labs_api_key",
     # Infrastructure
-    "DOCKER_TOKEN": "docker_token",
-    "DOCKER_TOKEN": "docker_hub_access_token",
+    "DOCKER_HUB_ACCESS_TOKEN": "docker_hub_access_token",
     "PULUMI_ACCESS_TOKEN": "pulumi_access_token",
     # Communications
     "SLACK_BOT_TOKEN": "slack_bot_token",
@@ -73,7 +70,7 @@ SERVICE_DEPENDENCIES = {
     "snowflake": ["estuary"],
     "gong": ["snowflake", "ai_memory"],
     "slack": ["snowflake", "ai_memory"],
-    "ai_memory": ["snowflake", "pinecone"],
+    "ai_memory": ["snowflake"],
 }
 
 # Health check endpoints

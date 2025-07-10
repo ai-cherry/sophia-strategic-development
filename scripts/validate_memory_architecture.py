@@ -1,302 +1,161 @@
 #!/usr/bin/env python3
 """
 Validate Memory Architecture Compliance
-Ensures no code uses forbidden vector databases (Pinecone, Weaviate, etc.)
-and that all memory operations go through UnifiedMemoryService
-
-Date: July 9, 2025
+Ensures no forbidden vector databases are used
 """
 
-import ast
 import sys
+import re
 from pathlib import Path
 
-# Forbidden imports that should NEVER appear
-FORBIDDEN_IMPORTS = [
-    "pinecone",
-    "weaviate",
-    "chromadb",
-    "qdrant_client",  # Except for Mem0's internal use
-    "chroma",
-    "milvus",
-    "faiss",
-]
+# Forbidden imports that violate our memory architecture
+FORBIDDEN_IMPORTS = ["pinecone", "weaviate", "chromadb", "qdrant", "milvus", "faiss"]
 
-# Allowed memory-related imports
-ALLOWED_IMPORTS = [
-    "backend.services.unified_memory_service",
-    "redis",
-    "snowflake.connector",
-    "mem0",
-]
-
-# Files/directories to ignore
-IGNORE_PATTERNS = [
-    ".git",
-    "__pycache__",
-    ".pytest_cache",
-    "node_modules",
-    ".venv",
-    "venv",
-    "external/",  # External repos might have their own vector DBs
-    "scripts/audit_vector_databases.py",  # Our audit script mentions them
-    "scripts/validate_memory_architecture.py",  # This file
-    "vector_database_audit_report.json",  # Audit report
-]
+# Allowed exceptions (Qdrant is only allowed internally within Mem0)
+ALLOWED_EXCEPTIONS = {"qdrant": ["mem0/", ".venv/", "site-packages/"]}
 
 
-class MemoryArchitectureValidator:
-    """Validates compliance with unified memory architecture"""
+def check_file_for_forbidden_imports(file_path: Path) -> list[str]:
+    """Check a single file for forbidden imports"""
+    violations = []
 
-    def __init__(self):
-        self.violations = []
-        self.warnings = []
-        self.validated_files = 0
-        self.total_violations = 0
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-    def should_ignore_file(self, filepath: Path) -> bool:
-        """Check if file should be ignored"""
-        filepath_str = str(filepath)
-
-        return any(pattern in filepath_str for pattern in IGNORE_PATTERNS)
-
-    def check_imports(self, filepath: Path) -> list[tuple[int, str, str]]:
-        """Check a Python file for forbidden imports"""
-        violations = []
-
-        try:
-            with open(filepath, encoding="utf-8") as f:
-                content = f.read()
-
-            # Parse the AST
-            tree = ast.parse(content)
-
-            for node in ast.walk(tree):
-                # Check import statements
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        for forbidden in FORBIDDEN_IMPORTS:
-                            if forbidden in alias.name:
-                                violations.append(
-                                    (node.lineno, f"import {alias.name}", forbidden)
-                                )
-
-                # Check from imports
-                elif isinstance(node, ast.ImportFrom) and node.module:
-                    for forbidden in FORBIDDEN_IMPORTS:
-                        if forbidden in node.module:
-                            violations.append(
-                                (
-                                    node.lineno,
-                                    f"from {node.module} import ...",
-                                    forbidden,
-                                )
-                            )
-
-        except Exception as e:
-            self.warnings.append(f"Error parsing {filepath}: {e}")
-
-        return violations
-
-    def check_direct_usage(self, filepath: Path) -> list[tuple[int, str]]:
-        """Check for direct usage of forbidden libraries"""
-        violations = []
-
-        try:
-            with open(filepath, encoding="utf-8") as f:
-                lines = f.readlines()
-
-            forbidden_patterns = [
-                ("pinecone.init", "Pinecone initialization"),
-                ("pinecone.Index", "Pinecone index usage"),
-                ("weaviate.Client", "Weaviate client usage"),
-                ("chromadb.Client", "ChromaDB client usage"),
-                ("QdrantClient", "Qdrant client usage"),
-                ("Pinecone(", "Pinecone client creation"),
-                ("Weaviate(", "Weaviate client creation"),
+        # Check for various import patterns
+        for forbidden in FORBIDDEN_IMPORTS:
+            patterns = [
+                f"import {forbidden}",
+                f"from {forbidden}",
+                f"{forbidden}\\.",
+                f"{forbidden}\\(",
+                f'"{forbidden}"',
+                f"'{forbidden}'",
             ]
 
-            for line_num, line in enumerate(lines, 1):
-                for pattern, description in forbidden_patterns:
-                    if pattern in line and not line.strip().startswith("#"):
-                        violations.append((line_num, description))
+            for pattern in patterns:
+                if re.search(pattern, content):
+                    # Check if it's an allowed exception
+                    is_exception = False
+                    if forbidden in ALLOWED_EXCEPTIONS:
+                        for allowed_path in ALLOWED_EXCEPTIONS[forbidden]:
+                            if allowed_path in str(file_path):
+                                is_exception = True
+                                break
 
-        except Exception as e:
-            self.warnings.append(f"Error reading {filepath}: {e}")
-
-        return violations
-
-    def check_unified_memory_usage(self, filepath: Path) -> bool:
-        """Check if file uses UnifiedMemoryService correctly"""
-        try:
-            with open(filepath, encoding="utf-8") as f:
-                content = f.read()
-
-            # Check for correct import
-            has_unified_import = any(
-                [
-                    "from backend.services.unified_memory_service import" in content,
-                    "import backend.services.unified_memory_service" in content,
-                    "from backend.services import unified_memory_service" in content,
-                ]
-            )
-
-            # Check for vector operations
-            has_vector_ops = any(
-                [
-                    "search_knowledge" in content,
-                    "add_knowledge" in content,
-                    "embed" in content.lower() and "snowflake" not in content.lower(),
-                    "vector" in content.lower() and "snowflake" not in content.lower(),
-                ]
-            )
-
-            # If file has vector operations but no unified import, it's suspicious
-            return not (has_vector_ops and not has_unified_import)
-
-        except Exception as e:
-            self.warnings.append(f"Error checking unified usage in {filepath}: {e}")
-            return True
-
-    def validate_file(self, filepath: Path) -> bool:
-        """Validate a single Python file"""
-        if self.should_ignore_file(filepath):
-            return True
-
-        self.validated_files += 1
-        file_valid = True
-
-        # Check for forbidden imports
-        import_violations = self.check_imports(filepath)
-        if import_violations:
-            file_valid = False
-            for line_num, code, forbidden in import_violations:
-                self.violations.append(
-                    {
-                        "file": str(filepath),
-                        "line": line_num,
-                        "type": "forbidden_import",
-                        "code": code,
-                        "forbidden": forbidden,
-                    }
-                )
-                self.total_violations += 1
-
-        # Check for direct usage
-        usage_violations = self.check_direct_usage(filepath)
-        if usage_violations:
-            file_valid = False
-            for line_num, description in usage_violations:
-                self.violations.append(
-                    {
-                        "file": str(filepath),
-                        "line": line_num,
-                        "type": "direct_usage",
-                        "description": description,
-                    }
-                )
-                self.total_violations += 1
-
-        # Check for proper unified memory usage
-        if not self.check_unified_memory_usage(filepath):
-            self.warnings.append(
-                f"{filepath} appears to have vector operations without UnifiedMemoryService"
-            )
-
-        return file_valid
-
-    def validate_directory(self, root_dir: str = ".") -> bool:
-        """Validate all Python files in directory"""
-        root_path = Path(root_dir)
-        all_valid = True
-
-        print("🔍 Validating memory architecture compliance...")
-        print(f"📍 Directory: {root_path.absolute()}")
-        print("=" * 80)
-
-        for filepath in root_path.rglob("*.py"):
-            if not self.validate_file(filepath):
-                all_valid = False
-
-        return all_valid
-
-    def print_report(self):
-        """Print validation report"""
-        print("\n" + "=" * 80)
-        print("📊 MEMORY ARCHITECTURE VALIDATION REPORT")
-        print("📅 Date: July 9, 2025")
-        print("=" * 80)
-
-        print(f"\n✅ Files validated: {self.validated_files}")
-        print(f"❌ Total violations: {self.total_violations}")
-
-        if self.violations:
-            print("\n🚨 VIOLATIONS FOUND:")
-
-            # Group by file
-            by_file = {}
-            for violation in self.violations:
-                file_path = violation["file"]
-                if file_path not in by_file:
-                    by_file[file_path] = []
-                by_file[file_path].append(violation)
-
-            for file_path, file_violations in by_file.items():
-                print(f"\n📄 {file_path}")
-                for v in file_violations:
-                    if v["type"] == "forbidden_import":
-                        print(
-                            f"   Line {v['line']}: {v['code']} (forbidden: {v['forbidden']})"
+                    if not is_exception:
+                        violations.append(
+                            f"{file_path}: Found forbidden import '{forbidden}'"
                         )
-                    else:
-                        print(f"   Line {v['line']}: {v['description']}")
+                        break
 
-        if self.warnings:
-            print("\n⚠️  WARNINGS:")
-            for warning in self.warnings:
-                print(f"   {warning}")
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
 
-        if not self.violations:
-            print("\n✅ NO VIOLATIONS FOUND! Architecture is compliant.")
-        else:
-            print("\n❌ VIOLATIONS MUST BE FIXED!")
-            print("Replace all vector database usage with UnifiedMemoryService")
+    return violations
 
-        return len(self.violations) == 0
+
+def scan_directory(root_dir: Path) -> list[str]:
+    """Scan directory tree for violations"""
+    violations = []
+
+    # Directories to skip
+    skip_dirs = {".git", ".venv", "__pycache__", "node_modules", "archive", "external"}
+
+    for path in root_dir.rglob("*"):
+        # Skip directories
+        if path.is_dir():
+            continue
+
+        # Skip non-Python files
+        if path.suffix not in [".py", ".yaml", ".yml", ".json"]:
+            continue
+
+        # Skip if in skip directory
+        if any(skip_dir in path.parts for skip_dir in skip_dirs):
+            continue
+
+        # Skip the validation script itself
+        if path.name == "validate_memory_architecture.py":
+            continue
+
+        # Check file
+        file_violations = check_file_for_forbidden_imports(path)
+        violations.extend(file_violations)
+
+    return violations
+
+
+def check_config_files() -> list[str]:
+    """Check configuration files for problematic settings"""
+    violations = []
+
+    # Check unified MCP configuration
+    mcp_config_path = Path("config/unified_mcp_configuration.yaml")
+    if mcp_config_path.exists():
+        with open(mcp_config_path, "r") as f:
+            content = f.read()
+            if "pinecone_enabled: true" in content:
+                violations.append(f"{mcp_config_path}: pinecone_enabled is set to true")
+
+    # Check other config files
+    config_patterns = {
+        "pinecone_api_key": "Pinecone API key configured",
+        "weaviate_url": "Weaviate URL configured",
+        "chromadb_host": "ChromaDB host configured",
+    }
+
+    for config_file in Path("config").glob("*.yaml"):
+        with open(config_file, "r") as f:
+            content = f.read().lower()
+            for pattern, message in config_patterns.items():
+                if pattern in content:
+                    violations.append(f"{config_file}: {message}")
+
+    return violations
 
 
 def main():
-    """Run validation"""
-    validator = MemoryArchitectureValidator()
+    """Main validation function"""
+    print("🔍 Validating Memory Architecture Compliance...")
+    print("=" * 60)
 
-    # Check if running as pre-commit hook
-    if len(sys.argv) > 1:
-        # Validate specific files
-        all_valid = True
-        for filepath in sys.argv[1:]:
-            if filepath.endswith(".py"):
-                if not validator.validate_file(Path(filepath)):
-                    all_valid = False
+    # Get project root
+    project_root = Path(__file__).parent.parent
 
-        if not all_valid:
-            validator.print_report()
-            sys.exit(1)
+    # Run checks
+    import_violations = scan_directory(project_root)
+    config_violations = check_config_files()
+
+    all_violations = import_violations + config_violations
+
+    if all_violations:
+        print("❌ VALIDATION FAILED - Forbidden dependencies detected:")
+        print()
+        for violation in all_violations:
+            print(f"  - {violation}")
+        print()
+        print(f"Total violations: {len(all_violations)}")
+        print()
+        print("To fix:")
+        print("1. Remove/replace forbidden imports with UnifiedMemoryService")
+        print("2. Update configuration files to disable forbidden services")
+        print(
+            "3. Use 'from backend.services.unified_memory_service import get_unified_memory_service'"
+        )
+        sys.exit(1)
     else:
-        # Validate entire directory
-        valid = validator.validate_directory(".")
-        validator.print_report()
-
-        if not valid:
-            print("\n🔧 To fix violations:")
-            print("1. Remove all Pinecone/Weaviate imports")
-            print(
-                "2. Replace with: from backend.services.unified_memory_service import get_unified_memory_service"
-            )
-            print("3. Use memory.search_knowledge() instead of pinecone.query()")
-            print("4. Use memory.add_knowledge() instead of pinecone.upsert()")
-            sys.exit(1)
-
-    sys.exit(0)
+        print("✅ VALIDATION PASSED - No forbidden dependencies detected!")
+        print()
+        print("Memory architecture compliance verified:")
+        print("  - No Pinecone imports found")
+        print("  - No Weaviate imports found")
+        print("  - No ChromaDB imports found")
+        print("  - Configuration files are clean")
+        print()
+        print("All memory operations properly use UnifiedMemoryService! 🎉")
+        sys.exit(0)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,13 @@
 {
   "snowflake": {
     "type": "database",
-    "description": "Snowflake data warehouse for business intelligence",
+    "description": "Snowflake data warehouse - PRIMARY VECTOR STORE via Cortex",
     "config_keys": ["account", "warehouse", "database", "schema", "role"],
     "secret_keys": ["user", "password"],
     "rotation_schedule": "30d",
     "owner": "data-team",
-    "dependencies": []
+    "dependencies": [],
+    "notes": "Handles all vector operations via Snowflake Cortex"
   },
   "gong": {
     "type": "api",
@@ -49,32 +50,24 @@
     "owner": "ml-team",
     "dependencies": []
   },
-  "estuary": {
-    "type": "api",
-    "description": "Estuary data integration platform",
-    "config_keys": [],
-    "secret_keys": ["api_key", "password"],
+  "redis": {
+    "type": "cache",
+    "description": "Redis for L1 ephemeral cache and hot vector storage",
+    "config_keys": ["host", "port", "db"],
+    "secret_keys": ["password"],
     "rotation_schedule": "60d",
-    "owner": "data-team",
+    "owner": "backend-team",
     "dependencies": []
   },
-  "pinecone": {
-    "type": "api",
-    "description": "Pinecone vector database for semantic search",
-    "config_keys": ["environment"],
+  "mem0": {
+    "type": "memory",
+    "description": "Mem0 for L2 agent conversational memory",
+    "config_keys": ["collection_name"],
     "secret_keys": ["api_key"],
     "rotation_schedule": "90d",
     "owner": "ml-team",
-    "dependencies": []
-  },
-  "weaviate": {
-    "type": "api",
-    "description": "Weaviate vector database for semantic search",
-    "config_keys": ["url"],
-    "secret_keys": ["api_key"],
-    "rotation_schedule": "90d",
-    "owner": "ml-team",
-    "dependencies": []
+    "dependencies": ["openai"],
+    "notes": "Internal Qdrant usage is acceptable within Mem0 only"
   },
   "openai": {
     "type": "api",
@@ -96,7 +89,7 @@
   },
   "postgres": {
     "type": "database",
-    "description": "PostgreSQL database for application data",
+    "description": "PostgreSQL database for application data and ETL staging",
     "config_keys": ["host", "port", "database"],
     "secret_keys": ["user", "password"],
     "rotation_schedule": "30d",
@@ -111,5 +104,15 @@
     "rotation_schedule": "90d",
     "owner": "devops-team",
     "dependencies": []
+  },
+  "unified_memory": {
+    "type": "service",
+    "description": "Unified Memory Service - the ONLY memory interface",
+    "config_keys": ["tier_ttl", "cache_size", "vector_dimension"],
+    "secret_keys": [],
+    "rotation_schedule": "never",
+    "owner": "platform-team",
+    "dependencies": ["snowflake", "redis", "mem0"],
+    "notes": "All memory operations MUST go through this service"
   }
-}
+} 
