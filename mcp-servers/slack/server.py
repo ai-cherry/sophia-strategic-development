@@ -8,34 +8,34 @@ Date: July 10, 2025
 import asyncio
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from mcp.types import Tool, TextContent
+from base.unified_standardized_base import ServerConfig, StandardizedMCPServer
+from mcp.types import Tool
 
-from base.unified_standardized_base import StandardizedMCPServer, ServerConfig
 from backend.core.auto_esc_config import get_config_value
 
 
 class SlackMCPServer(StandardizedMCPServer):
     """Slack MCP Server using official SDK"""
-    
+
     def __init__(self):
         config = ServerConfig(
             name="slack",
             version="1.0.0",
-            description="Slack team communication and notification server"
+            description="Slack team communication and notification server",
         )
         super().__init__(config)
-        
+
         # Slack configuration
         self.slack_token = get_config_value("slack_bot_token")
         self.default_channel = get_config_value("slack_default_channel", "#general")
-        
-    async def get_custom_tools(self) -> List[Tool]:
+
+    async def get_custom_tools(self) -> list[Tool]:
         """Define custom tools for Slack operations"""
         return [
             Tool(
@@ -46,15 +46,15 @@ class SlackMCPServer(StandardizedMCPServer):
                     "properties": {
                         "types": {
                             "type": "string",
-                            "description": "Channel types: public, private, all (default: public)"
+                            "description": "Channel types: public, private, all (default: public)",
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum channels (default: 20)"
-                        }
+                            "description": "Maximum channels (default: 20)",
+                        },
                     },
-                    "required": []
-                }
+                    "required": [],
+                },
             ),
             Tool(
                 name="send_message",
@@ -64,19 +64,16 @@ class SlackMCPServer(StandardizedMCPServer):
                     "properties": {
                         "channel": {
                             "type": "string",
-                            "description": f"Channel name (default: {self.default_channel})"
+                            "description": f"Channel name (default: {self.default_channel})",
                         },
-                        "text": {
-                            "type": "string",
-                            "description": "Message text"
-                        },
+                        "text": {"type": "string", "description": "Message text"},
                         "thread_ts": {
                             "type": "string",
-                            "description": "Thread timestamp for replies"
-                        }
+                            "description": "Thread timestamp for replies",
+                        },
                     },
-                    "required": ["text"]
-                }
+                    "required": ["text"],
+                },
             ),
             Tool(
                 name="search_messages",
@@ -84,21 +81,18 @@ class SlackMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "Search query"
-                        },
+                        "query": {"type": "string", "description": "Search query"},
                         "channel": {
                             "type": "string",
-                            "description": "Limit to specific channel"
+                            "description": "Limit to specific channel",
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum results (default: 10)"
-                        }
+                            "description": "Maximum results (default: 10)",
+                        },
                     },
-                    "required": ["query"]
-                }
+                    "required": ["query"],
+                },
             ),
             Tool(
                 name="get_channel_history",
@@ -106,17 +100,14 @@ class SlackMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "channel": {
-                            "type": "string",
-                            "description": "Channel name"
-                        },
+                        "channel": {"type": "string", "description": "Channel name"},
                         "limit": {
                             "type": "integer",
-                            "description": "Number of messages (default: 10)"
-                        }
+                            "description": "Number of messages (default: 10)",
+                        },
                     },
-                    "required": ["channel"]
-                }
+                    "required": ["channel"],
+                },
             ),
             Tool(
                 name="get_user_info",
@@ -126,11 +117,11 @@ class SlackMCPServer(StandardizedMCPServer):
                     "properties": {
                         "user_id": {
                             "type": "string",
-                            "description": "User ID or @username"
+                            "description": "User ID or @username",
                         }
                     },
-                    "required": ["user_id"]
-                }
+                    "required": ["user_id"],
+                },
             ),
             Tool(
                 name="upload_file",
@@ -140,23 +131,20 @@ class SlackMCPServer(StandardizedMCPServer):
                     "properties": {
                         "channel": {
                             "type": "string",
-                            "description": "Channel to upload to"
+                            "description": "Channel to upload to",
                         },
-                        "file_path": {
-                            "type": "string",
-                            "description": "Path to file"
-                        },
+                        "file_path": {"type": "string", "description": "Path to file"},
                         "comment": {
                             "type": "string",
-                            "description": "Optional comment"
-                        }
+                            "description": "Optional comment",
+                        },
                     },
-                    "required": ["channel", "file_path"]
-                }
-            )
+                    "required": ["channel", "file_path"],
+                },
+            ),
         ]
-    
-    async def handle_custom_tool(self, name: str, arguments: dict) -> Dict[str, Any]:
+
+    async def handle_custom_tool(self, name: str, arguments: dict) -> dict[str, Any]:
         """Handle custom tool calls"""
         try:
             if name == "list_channels":
@@ -176,13 +164,13 @@ class SlackMCPServer(StandardizedMCPServer):
         except Exception as e:
             self.logger.error(f"Error handling tool {name}: {e}")
             return {"status": "error", "error": str(e)}
-    
-    async def _list_channels(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _list_channels(self, params: dict[str, Any]) -> dict[str, Any]:
         """List channels"""
         try:
             types = params.get("types", "public")
             limit = params.get("limit", 20)
-            
+
             # In production, would use Slack API
             # Simulate response
             channels = [
@@ -190,45 +178,45 @@ class SlackMCPServer(StandardizedMCPServer):
                     "id": "C123456",
                     "name": "general",
                     "is_private": False,
-                    "num_members": 50
+                    "num_members": 50,
                 },
                 {
                     "id": "C234567",
                     "name": "engineering",
                     "is_private": False,
-                    "num_members": 25
+                    "num_members": 25,
                 },
                 {
                     "id": "C345678",
                     "name": "ai-team",
                     "is_private": True,
-                    "num_members": 10
-                }
+                    "num_members": 10,
+                },
             ]
-            
+
             # Filter by type
             if types == "public":
                 channels = [c for c in channels if not c["is_private"]]
             elif types == "private":
                 channels = [c for c in channels if c["is_private"]]
-            
+
             return {
                 "status": "success",
                 "channels": channels[:limit],
-                "total": len(channels)
+                "total": len(channels),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error listing channels: {e}")
             raise
-    
-    async def _send_message(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _send_message(self, params: dict[str, Any]) -> dict[str, Any]:
         """Send message"""
         try:
             channel = params.get("channel", self.default_channel)
             text = params["text"]
             thread_ts = params.get("thread_ts")
-            
+
             # In production, would use Slack API
             # Simulate response
             message = {
@@ -237,27 +225,24 @@ class SlackMCPServer(StandardizedMCPServer):
                 "text": text,
                 "thread_ts": thread_ts,
                 "user": "U123456",
-                "team": "T123456"
+                "team": "T123456",
             }
-            
+
             self.logger.info(f"Sent message to {channel}")
-            
-            return {
-                "status": "success",
-                "message": message
-            }
-            
+
+            return {"status": "success", "message": message}
+
         except Exception as e:
             self.logger.error(f"Error sending message: {e}")
             raise
-    
-    async def _search_messages(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _search_messages(self, params: dict[str, Any]) -> dict[str, Any]:
         """Search messages"""
         try:
             query = params["query"]
             channel = params.get("channel")
             limit = params.get("limit", 10)
-            
+
             # In production, would use Slack API
             # Simulate response
             messages = [
@@ -266,27 +251,27 @@ class SlackMCPServer(StandardizedMCPServer):
                     "ts": "1625761234.000100",
                     "user": "U123456",
                     "text": f"Found message containing: {query}",
-                    "channel": channel or "C123456"
+                    "channel": channel or "C123456",
                 }
             ]
-            
+
             return {
                 "status": "success",
                 "query": query,
                 "messages": messages[:limit],
-                "total": len(messages)
+                "total": len(messages),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error searching messages: {e}")
             raise
-    
-    async def _get_channel_history(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _get_channel_history(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get channel history"""
         try:
             channel = params["channel"]
             limit = params.get("limit", 10)
-            
+
             # In production, would use Slack API
             # Simulate response
             messages = [
@@ -295,33 +280,33 @@ class SlackMCPServer(StandardizedMCPServer):
                     "ts": "1625761234.000100",
                     "user": "U123456",
                     "text": "Latest message in channel",
-                    "channel": channel
+                    "channel": channel,
                 },
                 {
                     "type": "message",
                     "ts": "1625761230.000100",
                     "user": "U234567",
                     "text": "Previous message",
-                    "channel": channel
-                }
+                    "channel": channel,
+                },
             ]
-            
+
             return {
                 "status": "success",
                 "channel": channel,
                 "messages": messages[:limit],
-                "has_more": len(messages) > limit
+                "has_more": len(messages) > limit,
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error getting channel history: {e}")
             raise
-    
-    async def _get_user_info(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _get_user_info(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get user info"""
         try:
             user_id = params["user_id"]
-            
+
             # In production, would use Slack API
             # Simulate response
             user_info = {
@@ -332,25 +317,22 @@ class SlackMCPServer(StandardizedMCPServer):
                 "is_admin": False,
                 "is_bot": False,
                 "status_text": "Working on Sophia AI",
-                "status_emoji": ":robot:"
+                "status_emoji": ":robot:",
             }
-            
-            return {
-                "status": "success",
-                "user": user_info
-            }
-            
+
+            return {"status": "success", "user": user_info}
+
         except Exception as e:
             self.logger.error(f"Error getting user info: {e}")
             raise
-    
-    async def _upload_file(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _upload_file(self, params: dict[str, Any]) -> dict[str, Any]:
         """Upload file"""
         try:
             channel = params["channel"]
             file_path = params["file_path"]
             comment = params.get("comment", "")
-            
+
             # In production, would use Slack API
             # Simulate response
             file_info = {
@@ -361,16 +343,13 @@ class SlackMCPServer(StandardizedMCPServer):
                 "size": 1234,
                 "url_private": "https://files.slack.com/...",
                 "channels": [channel],
-                "initial_comment": comment
+                "initial_comment": comment,
             }
-            
+
             self.logger.info(f"Uploaded file to {channel}")
-            
-            return {
-                "status": "success",
-                "file": file_info
-            }
-            
+
+            return {"status": "success", "file": file_info}
+
         except Exception as e:
             self.logger.error(f"Error uploading file: {e}")
             raise
@@ -383,4 +362,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

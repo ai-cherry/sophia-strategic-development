@@ -1,0 +1,157 @@
+{
+  "description": "MCP Servers Migrated to Official Anthropic SDK",
+  "version": "1.0.0",
+  "last_updated": "2025-07-10",
+  "environment": "prod",
+  
+  "servers": {
+    "ai_memory": {
+      "name": "AI Memory v2",
+      "port": 9000,
+      "status": "implemented",
+      "version": "2.0.0",
+      "tools": 6,
+      "description": "Memory management and search"
+    },
+    "snowflake_unified": {
+      "name": "Snowflake Unified v2",
+      "port": 9001,
+      "status": "implemented",
+      "version": "2.0.0",
+      "tools": 6,
+      "description": "Data operations and AI"
+    },
+    "ui_ux_agent": {
+      "name": "UI/UX Agent",
+      "port": 9002,
+      "status": "existing",
+      "version": "1.0.0",
+      "tools": 5,
+      "description": "Design and component generation"
+    },
+    "github": {
+      "name": "GitHub v1",
+      "port": 9003,
+      "status": "implemented",
+      "version": "1.0.0",
+      "tools": 7,
+      "description": "Repository management"
+    },
+    "slack": {
+      "name": "Slack v1",
+      "port": 9004,
+      "status": "implemented",
+      "version": "1.0.0",
+      "tools": 6,
+      "description": "Team communication"
+    },
+    "gong_v2": {
+      "name": "Gong v2",
+      "port": 9005,
+      "status": "implemented",
+      "version": "2.0.0",
+      "tools": 6,
+      "description": "Sales call analytics"
+    },
+    "asana": {
+      "name": "Asana v1",
+      "port": 9007,
+      "status": "implemented",
+      "version": "1.0.0",
+      "tools": 7,
+      "description": "Project management"
+    },
+    "codacy": {
+      "name": "Codacy v1",
+      "port": 9008,
+      "status": "implemented",
+      "version": "1.0.0",
+      "tools": 6,
+      "description": "Code quality analysis"
+    },
+    "hubspot_unified": {
+      "name": "HubSpot Unified",
+      "port": 9009,
+      "status": "implemented",
+      "version": "1.0.0",
+      "tools": 7,
+      "description": "CRM operations"
+    },
+    "linear_v2": {
+      "name": "Linear v2",
+      "port": 9010,
+      "status": "planned",
+      "version": "1.0.0",
+      "tools": 7,
+      "description": "Project tracking"
+    },
+    "notion_v2": {
+      "name": "Notion v2",
+      "port": 9011,
+      "status": "planned",
+      "version": "1.0.0",
+      "tools": 6,
+      "description": "Knowledge base"
+    },
+    "postgres": {
+      "name": "PostgreSQL",
+      "port": 9012,
+      "status": "planned",
+      "version": "1.0.0",
+      "tools": 5,
+      "description": "Database operations"
+    },
+    "portkey_admin": {
+      "name": "Portkey Admin",
+      "port": 9013,
+      "status": "planned",
+      "version": "1.0.0",
+      "tools": 6,
+      "description": "LLM routing and cost"
+    },
+    "figma_context": {
+      "name": "Figma Context",
+      "port": 9014,
+      "status": "planned",
+      "version": "1.0.0",
+      "tools": 5,
+      "description": "Design integration"
+    },
+    "openrouter_search": {
+      "name": "OpenRouter Search",
+      "port": 9015,
+      "status": "planned",  
+      "version": "1.0.0",
+      "tools": 4,
+      "description": "AI model selection"
+    },
+    "lambda_labs_cli": {
+      "name": "Lambda Labs CLI",
+      "port": 9016,
+      "status": "planned",
+      "version": "1.0.0",
+      "tools": 6,
+      "description": "Infrastructure management"
+    }
+  },
+  
+  "statistics": {
+    "total_servers": 16,
+    "implemented": 9,
+    "planned": 7,
+    "progress_percentage": 56.25,
+    "total_tools": 96
+  },
+  
+  "implementation_order": [
+    "gong_v2 (done)",
+    "hubspot_unified (done)",
+    "linear_v2 (next)",
+    "notion_v2",
+    "postgres",
+    "portkey_admin",
+    "figma_context",
+    "openrouter_search",
+    "lambda_labs_cli"
+  ]
+} 

@@ -8,34 +8,34 @@ Date: July 10, 2025
 import asyncio
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from mcp.types import Tool, TextContent
+from base.unified_standardized_base import ServerConfig, StandardizedMCPServer
+from mcp.types import Tool
 
-from base.unified_standardized_base import StandardizedMCPServer, ServerConfig
 from backend.core.auto_esc_config import get_config_value
 
 
 class GitHubMCPServer(StandardizedMCPServer):
     """GitHub MCP Server using official SDK"""
-    
+
     def __init__(self):
         config = ServerConfig(
             name="github",
             version="1.0.0",
-            description="GitHub repository and issue management server"
+            description="GitHub repository and issue management server",
         )
         super().__init__(config)
-        
+
         # GitHub configuration
         self.github_token = get_config_value("github_token")
         self.default_org = get_config_value("github_org", "ai-cherry")
-        
-    async def get_custom_tools(self) -> List[Tool]:
+
+    async def get_custom_tools(self) -> list[Tool]:
         """Define custom tools for GitHub operations"""
         return [
             Tool(
@@ -46,15 +46,15 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "properties": {
                         "org": {
                             "type": "string",
-                            "description": f"Organization name (default: {self.default_org})"
+                            "description": f"Organization name (default: {self.default_org})",
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum number of repositories (default: 20)"
-                        }
+                            "description": "Maximum number of repositories (default: 20)",
+                        },
                     },
-                    "required": []
-                }
+                    "required": [],
+                },
             ),
             Tool(
                 name="get_repository_info",
@@ -64,11 +64,11 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "properties": {
                         "repo": {
                             "type": "string",
-                            "description": "Repository name (e.g., 'sophia-main')"
+                            "description": "Repository name (e.g., 'sophia-main')",
                         }
                     },
-                    "required": ["repo"]
-                }
+                    "required": ["repo"],
+                },
             ),
             Tool(
                 name="list_issues",
@@ -76,21 +76,18 @@ class GitHubMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "repo": {
-                            "type": "string",
-                            "description": "Repository name"
-                        },
+                        "repo": {"type": "string", "description": "Repository name"},
                         "state": {
                             "type": "string",
-                            "description": "Issue state: open, closed, all (default: open)"
+                            "description": "Issue state: open, closed, all (default: open)",
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum issues (default: 10)"
-                        }
+                            "description": "Maximum issues (default: 10)",
+                        },
                     },
-                    "required": ["repo"]
-                }
+                    "required": ["repo"],
+                },
             ),
             Tool(
                 name="create_issue",
@@ -98,26 +95,17 @@ class GitHubMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "repo": {
-                            "type": "string",
-                            "description": "Repository name"
-                        },
-                        "title": {
-                            "type": "string",
-                            "description": "Issue title"
-                        },
-                        "body": {
-                            "type": "string",
-                            "description": "Issue description"
-                        },
+                        "repo": {"type": "string", "description": "Repository name"},
+                        "title": {"type": "string", "description": "Issue title"},
+                        "body": {"type": "string", "description": "Issue description"},
                         "labels": {
                             "type": "array",
                             "items": {"type": "string"},
-                            "description": "Issue labels"
-                        }
+                            "description": "Issue labels",
+                        },
                     },
-                    "required": ["repo", "title", "body"]
-                }
+                    "required": ["repo", "title", "body"],
+                },
             ),
             Tool(
                 name="list_pull_requests",
@@ -125,21 +113,18 @@ class GitHubMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "repo": {
-                            "type": "string",
-                            "description": "Repository name"
-                        },
+                        "repo": {"type": "string", "description": "Repository name"},
                         "state": {
                             "type": "string",
-                            "description": "PR state: open, closed, all (default: open)"
+                            "description": "PR state: open, closed, all (default: open)",
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum PRs (default: 10)"
-                        }
+                            "description": "Maximum PRs (default: 10)",
+                        },
                     },
-                    "required": ["repo"]
-                }
+                    "required": ["repo"],
+                },
             ),
             Tool(
                 name="get_file_content",
@@ -147,21 +132,18 @@ class GitHubMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "repo": {
-                            "type": "string",
-                            "description": "Repository name"
-                        },
+                        "repo": {"type": "string", "description": "Repository name"},
                         "path": {
                             "type": "string",
-                            "description": "File path in repository"
+                            "description": "File path in repository",
                         },
                         "branch": {
                             "type": "string",
-                            "description": "Branch name (default: main)"
-                        }
+                            "description": "Branch name (default: main)",
+                        },
                     },
-                    "required": ["repo", "path"]
-                }
+                    "required": ["repo", "path"],
+                },
             ),
             Tool(
                 name="search_code",
@@ -169,25 +151,22 @@ class GitHubMCPServer(StandardizedMCPServer):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "Search query"
-                        },
+                        "query": {"type": "string", "description": "Search query"},
                         "repo": {
                             "type": "string",
-                            "description": "Limit to specific repository"
+                            "description": "Limit to specific repository",
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum results (default: 10)"
-                        }
+                            "description": "Maximum results (default: 10)",
+                        },
                     },
-                    "required": ["query"]
-                }
-            )
+                    "required": ["query"],
+                },
+            ),
         ]
-    
-    async def handle_custom_tool(self, name: str, arguments: dict) -> Dict[str, Any]:
+
+    async def handle_custom_tool(self, name: str, arguments: dict) -> dict[str, Any]:
         """Handle custom tool calls"""
         try:
             if name == "list_repositories":
@@ -209,13 +188,13 @@ class GitHubMCPServer(StandardizedMCPServer):
         except Exception as e:
             self.logger.error(f"Error handling tool {name}: {e}")
             return {"status": "error", "error": str(e)}
-    
-    async def _list_repositories(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _list_repositories(self, params: dict[str, Any]) -> dict[str, Any]:
         """List repositories"""
         try:
             org = params.get("org", self.default_org)
             limit = params.get("limit", 20)
-            
+
             # In production, would use GitHub API
             # Simulate response
             repos = [
@@ -223,32 +202,32 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "name": "sophia-main",
                     "description": "Main Sophia AI repository",
                     "stars": 42,
-                    "language": "Python"
+                    "language": "Python",
                 },
                 {
                     "name": "sophia-docs",
                     "description": "Sophia AI documentation",
                     "stars": 15,
-                    "language": "Markdown"
-                }
+                    "language": "Markdown",
+                },
             ]
-            
+
             return {
                 "status": "success",
                 "organization": org,
                 "repositories": repos[:limit],
-                "total": len(repos)
+                "total": len(repos),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error listing repositories: {e}")
             raise
-    
-    async def _get_repository_info(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _get_repository_info(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get repository information"""
         try:
             repo = params["repo"]
-            
+
             # In production, would use GitHub API
             # Simulate response
             info = {
@@ -260,25 +239,22 @@ class GitHubMCPServer(StandardizedMCPServer):
                 "open_issues": 12,
                 "language": "Python",
                 "created_at": "2024-01-15T00:00:00Z",
-                "updated_at": "2025-07-10T00:00:00Z"
+                "updated_at": "2025-07-10T00:00:00Z",
             }
-            
-            return {
-                "status": "success",
-                "repository": info
-            }
-            
+
+            return {"status": "success", "repository": info}
+
         except Exception as e:
             self.logger.error(f"Error getting repository info: {e}")
             raise
-    
-    async def _list_issues(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _list_issues(self, params: dict[str, Any]) -> dict[str, Any]:
         """List issues"""
         try:
             repo = params["repo"]
             state = params.get("state", "open")
             limit = params.get("limit", 10)
-            
+
             # In production, would use GitHub API
             # Simulate response
             issues = [
@@ -288,7 +264,7 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "state": "open",
                     "created_at": "2025-07-09T00:00:00Z",
                     "author": "user1",
-                    "labels": ["enhancement", "mcp"]
+                    "labels": ["enhancement", "mcp"],
                 },
                 {
                     "number": 122,
@@ -296,29 +272,29 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "state": "open",
                     "created_at": "2025-07-08T00:00:00Z",
                     "author": "user2",
-                    "labels": ["bug", "etl"]
-                }
+                    "labels": ["bug", "etl"],
+                },
             ]
-            
+
             return {
                 "status": "success",
                 "repository": repo,
                 "issues": issues[:limit],
-                "total": len(issues)
+                "total": len(issues),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error listing issues: {e}")
             raise
-    
-    async def _create_issue(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _create_issue(self, params: dict[str, Any]) -> dict[str, Any]:
         """Create issue"""
         try:
             repo = params["repo"]
             title = params["title"]
             body = params["body"]
             labels = params.get("labels", [])
-            
+
             # In production, would use GitHub API
             # Simulate response
             issue = {
@@ -329,27 +305,24 @@ class GitHubMCPServer(StandardizedMCPServer):
                 "created_at": "2025-07-10T00:00:00Z",
                 "author": "sophia-ai",
                 "labels": labels,
-                "html_url": f"https://github.com/{self.default_org}/{repo}/issues/124"
+                "html_url": f"https://github.com/{self.default_org}/{repo}/issues/124",
             }
-            
+
             self.logger.info(f"Created issue #{issue['number']} in {repo}")
-            
-            return {
-                "status": "success",
-                "issue": issue
-            }
-            
+
+            return {"status": "success", "issue": issue}
+
         except Exception as e:
             self.logger.error(f"Error creating issue: {e}")
             raise
-    
-    async def _list_pull_requests(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _list_pull_requests(self, params: dict[str, Any]) -> dict[str, Any]:
         """List pull requests"""
         try:
             repo = params["repo"]
             state = params.get("state", "open")
             limit = params.get("limit", 10)
-            
+
             # In production, would use GitHub API
             # Simulate response
             prs = [
@@ -360,52 +333,52 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "created_at": "2025-07-09T00:00:00Z",
                     "author": "developer1",
                     "base": "main",
-                    "head": "feature/mcp-standardization"
+                    "head": "feature/mcp-standardization",
                 }
             ]
-            
+
             return {
                 "status": "success",
                 "repository": repo,
                 "pull_requests": prs[:limit],
-                "total": len(prs)
+                "total": len(prs),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error listing pull requests: {e}")
             raise
-    
-    async def _get_file_content(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _get_file_content(self, params: dict[str, Any]) -> dict[str, Any]:
         """Get file content"""
         try:
             repo = params["repo"]
             path = params["path"]
             branch = params.get("branch", "main")
-            
+
             # In production, would use GitHub API
             # Simulate response
             content = f"# Sample content for {path}\n\nThis is simulated content."
-            
+
             return {
                 "status": "success",
                 "repository": repo,
                 "path": path,
                 "branch": branch,
                 "content": content,
-                "encoding": "utf-8"
+                "encoding": "utf-8",
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error getting file content: {e}")
             raise
-    
-    async def _search_code(self, params: Dict[str, Any]) -> Dict[str, Any]:
+
+    async def _search_code(self, params: dict[str, Any]) -> dict[str, Any]:
         """Search code"""
         try:
             query = params["query"]
             repo = params.get("repo")
             limit = params.get("limit", 10)
-            
+
             # In production, would use GitHub API
             # Simulate response
             results = [
@@ -413,17 +386,17 @@ class GitHubMCPServer(StandardizedMCPServer):
                     "repository": repo or "sophia-main",
                     "path": "backend/services/mcp_service.py",
                     "match": f"...{query}...",
-                    "line_number": 42
+                    "line_number": 42,
                 }
             ]
-            
+
             return {
                 "status": "success",
                 "query": query,
                 "results": results[:limit],
-                "total": len(results)
+                "total": len(results),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error searching code: {e}")
             raise
@@ -436,4 +409,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

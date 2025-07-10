@@ -30,7 +30,7 @@ warnings.warn(
     "SophiaAIOrchestrator is deprecated and will be removed in version 6.0. "
     "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 from core.use_cases.interactive_sales_coach_agent import (

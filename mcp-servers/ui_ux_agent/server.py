@@ -20,14 +20,14 @@ logger = logging.getLogger(__name__)
 
 class UIUXAgentServer:
     """MCP server for UI/UX design automation"""
-    
+
     def __init__(self):
         self.server = Server("ui_ux_agent")
         self._setup_tools()
-        
+
     def _setup_tools(self):
         """Set up UI/UX tools"""
-        
+
         @self.server.tool()
         async def generate_component(
             component_type: str = Field(description="Type of component (button, card, form, etc)"),
@@ -36,32 +36,33 @@ class UIUXAgentServer:
         ) -> Dict[str, Any]:
             """Generate a React component with styling"""
             logger.info(f"Generating {component_type} component")
-            
+
             # Component generation logic
+            component_name = component_type.capitalize()
             component_code = f"""
 import React from 'react';
 import './{component_type}.css';
 
-interface {component_type.capitalize()}Props {
-    // Add props based on input
-}
+interface {component_name}Props {{
+    /* Add props based on input */
+}}
 
-export const {component_type.capitalize()}: React.FC<{component_type.capitalize()}Props> = (props) => {
+export const {component_name}: React.FC<{component_name}Props> = (props) => {{
     return (
         <div className="{component_type}">
-            {/* Component implementation */}
+            {{/* Component implementation */}}
         </div>
     );
-};
+}};
 """
-            
+
             return {
                 "component_type": component_type,
                 "code": component_code,
                 "style": style,
                 "props": props
             }
-        
+
         @self.server.tool()
         async def check_accessibility(
             html: str = Field(description="HTML content to check"),
@@ -69,39 +70,39 @@ export const {component_type.capitalize()}: React.FC<{component_type.capitalize(
         ) -> Dict[str, Any]:
             """Check accessibility compliance"""
             logger.info(f"Checking accessibility for WCAG {wcag_level}")
-            
+
             # Simplified accessibility check
             issues = []
-            
+
             if "<img" in html and 'alt="' not in html:
                 issues.append({
                     "type": "error",
                     "rule": "images-alt",
                     "message": "Images must have alt text"
                 })
-                
+
             return {
                 "wcag_level": wcag_level,
                 "passed": len(issues) == 0,
                 "issues": issues,
                 "score": 100 - (len(issues) * 10)
             }
-        
+
         @self.server.tool()
         async def optimize_performance(
             component_code: str = Field(description="React component code to optimize")
         ) -> Dict[str, Any]:
             """Optimize component performance"""
             logger.info("Optimizing component performance")
-            
+
             optimizations = []
-            
+
             if "useState" in component_code and "useMemo" not in component_code:
                 optimizations.append({
                     "type": "memoization",
                     "suggestion": "Consider using useMemo for expensive computations"
                 })
-                
+
             return {
                 "original_size": len(component_code),
                 "optimized_size": int(len(component_code) * 0.9),
@@ -113,7 +114,7 @@ export const {component_type.capitalize()}: React.FC<{component_type.capitalize(
 async def main():
     """Main entry point"""
     server_instance = UIUXAgentServer()
-    
+
     # Run the server
     async with stdio_server() as (read_stream, write_stream):
         await server_instance.server.run(

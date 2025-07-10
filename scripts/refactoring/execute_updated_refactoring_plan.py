@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
+🚨 ONE-TIME SCRIPT - DELETE AFTER USE
 Updated Safe Refactoring Plan Implementation Script
 Executes the comprehensive refactoring plan for Sophia AI based on current state
+
+Purpose: Execute one-time refactoring plan
+Created: July 2025
 
 Usage:
     python scripts/refactoring/execute_updated_refactoring_plan.py --phase 1

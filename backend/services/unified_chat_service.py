@@ -17,7 +17,7 @@ warnings.warn(
     "UnifiedChatService is deprecated and will be removed in version 6.0. "
     "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 logger = logging.getLogger(__name__)

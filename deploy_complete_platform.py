@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-from datetime import UTC, datetime
-
-from backend.core.auto_esc_config import get_config_value
-
 """
+🚨 ONE-TIME SCRIPT - DELETE AFTER USE
 Complete Sophia AI Platform Deployment Script
 Orchestrates deployment across Snowflake, Estuary Flow, and application services
-"""
 
+Purpose: Initial platform deployment
+Created: July 2025
+"""
 import asyncio
 import json
 import logging
 import os
 import subprocess
+from datetime import UTC, datetime
 from typing import Any
+
+from backend.core.auto_esc_config import get_config_value
 
 # Configure logging
 logging.basicConfig(

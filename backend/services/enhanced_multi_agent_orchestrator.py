@@ -28,7 +28,7 @@ warnings.warn(
     "EnhancedMultiAgentOrchestrator is deprecated and will be removed in version 6.0. "
     "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 from langgraph.graph import END, START, StateGraph

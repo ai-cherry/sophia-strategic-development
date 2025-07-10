@@ -18,7 +18,7 @@ warnings.warn(
     "SophiaAgentOrchestrator is deprecated and will be removed in version 6.0. "
     "Please use backend.services.sophia_unified_orchestrator.SophiaUnifiedOrchestrator instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 from infrastructure.services.llm_router import TaskType, llm_router
