@@ -246,9 +246,7 @@ users:
             else:
                 print(f"⚠️ {name}: {status} ({instance_type})")
 
-        print(
-            f"\n📊 Health Summary: {healthy_count}/{len(instances)} instances healthy"
-        )
+        print(f"\n📊 Health Summary: {healthy_count}/{len(instances)} instances healthy")
 
         return healthy_count == len(instances)
 

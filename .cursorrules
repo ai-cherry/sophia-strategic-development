@@ -592,11 +592,11 @@ The external repository collection enables:
        return env in ["prod", "staging", "dev"]
    ```
 
-## 🧠 **UNIFIED MEMORY ARCHITECTURE RULES (CRITICAL - JULY 9, 2025)**
+## 🧠 **UNIFIED MEMORY ARCHITECTURE RULES (CRITICAL - JULY 10, 2025)**
 
 ### **🚨 IMMUTABLE MEMORY ARCHITECTURE RULES 🚨**
 
-**THE DATE IS JULY 9, 2025 - REMEMBER THIS!**
+**THE DATE IS JULY 10, 2025 - REMEMBER THIS!**
 
 1. **FORBIDDEN - NEVER USE THESE:**
    - ❌ **Pinecone** - DEPRECATED, being migrated to Snowflake
@@ -658,9 +658,9 @@ The external repository collection enables:
 
 6. **DATE AWARENESS:**
    ```python
-   # The system MUST be aware that today is July 9, 2025
+   # The system MUST be aware that today is July 10, 2025
    from backend.core.date_time_manager import date_manager
-   current_date = date_manager.now()  # Returns July 9, 2025
+   current_date = date_manager.now()  # Returns July 10, 2025
    ```
 
 ### **🛡️ ENFORCEMENT MECHANISMS**
@@ -713,11 +713,168 @@ Any code that:
 - Imports Pinecone, Weaviate, ChromaDB, or other vector DBs
 - Uses vector databases directly instead of UnifiedMemoryService
 - Stores vectors outside of Snowflake
-- Ignores the date (July 9, 2025)
+- Ignores the date (July 10, 2025)
 
 **WILL BE REJECTED IN CODE REVIEW**
 
 Remember: **Snowflake is the Center of the Universe** for Sophia AI!
+
+## 📦 **UV DEPENDENCY GOVERNANCE (MANDATORY)**
+
+### **🎯 CORE PRINCIPLES**
+
+1. **Single Lock File of Truth**: `uv.lock` is canonical
+2. **Group-Based Isolation**: Dependencies in exactly ONE group
+3. **SemVer Pinning**: All direct deps use `==` versions
+4. **Zero Unvetted Wheels**: Only PyPI or approved sources
+5. **No Direct Transitive Fixes**: Use `tool.uv.transitive-overrides`
+
+### **🔧 UV WORKFLOW**
+
+```bash
+# CORRECT - Add dependency to group
+uv add package==1.0.0 --group core
+
+# CORRECT - Sync environment
+uv sync --strict --require-hashes
+
+# CORRECT - Run with UV
+uv run pytest
+
+# WRONG - Never use pip directly
+pip install package  # ❌ FORBIDDEN
+```
+
+### **📋 DEPENDENCY GROUPS**
+
+```toml
+[tool.uv.dependency-groups]
+core = ["fastapi==0.111.0", "redis==5.0.4", "snowflake-connector-python==3.10.0"]
+mcp-servers = ["anthropic-mcp-python-sdk==1.2.4"]
+ai-enhanced = ["openai==1.30.0", "anthropic==0.25.6", "langchain==0.2.0"]
+automation = ["n8n-python-client==0.2.0", "temporal-sdk==1.5.0"]
+dev = ["pytest==8.2.2", "ruff==0.4.4", "mypy==1.10.0", "black==24.4.0"]
+```
+
+### **🛡️ CONTINUOUS HYGIENE**
+
+1. **Pre-commit Hooks**: `uv sync --check`
+2. **CI/CD Security**: `uv audit` on every PR
+3. **Renovate Bot**: Weekly dependency updates
+4. **Nightly Drift Hunter**: Automated vulnerability scanning
+
+### **📊 SUCCESS METRICS**
+
+- Mean `uv sync` duration: < 35s
+- High/Critical vulns open > 7 days: 0
+- Duplicate direct deps: 0
+- Build reproducibility: ≥ 99.9%
+- License compliance: 100%
+
+## 🚀 **HIGH-PERFORMANCE LLM STRATEGY (MANDATORY)**
+
+### **🏗️ ARCHITECTURE**
+
+```
+Request → Portkey Gateway → Policy Engine → OpenRouter → Best Model
+             ↓                    ↓              ↓
+         Trace/Metrics      Scoring Logic   200+ Models
+```
+
+### **📊 MODEL SCORING POLICY**
+
+| Criterion | Weight | Rule |
+|-----------|--------|------|
+| Freshness | 40% | Release < 90d = 40pts, else 20pts |
+| Latency | 25% | p95 < 800ms = 25pts, else 15pts |
+| Quality | 25% | Benchmark percentile → linear score |
+| Cost | 10% | Only penalize if > $0.01/1k tokens |
+
+### **🎯 ROUTING PATTERNS**
+
+```python
+# PERFORMANCE FIRST
+response = await portkey.invoke_llm(
+    prompt="Quick task",
+    preferences={"prefer_fast": True}  # Boosts latency weight
+)
+
+# QUALITY CRITICAL
+response = await portkey.invoke_llm(
+    prompt="Complex analysis",
+    preferences={"prefer_quality": True}  # Boosts quality weight
+)
+
+# DEFAULT - BALANCED
+response = await portkey.invoke_llm(prompt="Standard request")
+```
+
+### **📈 PERFORMANCE TARGETS**
+
+- **First Token**: < 150ms with streaming
+- **Total Latency**: p95 < 2s
+- **Availability**: > 99.5% with failover
+- **Model Currency**: New models < 72h
+- **Route Score**: > 80/100
+
+### **🚫 FORBIDDEN PATTERNS**
+
+```python
+# ❌ NEVER direct SDK usage
+import openai
+client = openai.Client()  # FORBIDDEN
+
+# ❌ NEVER bypass Portkey
+response = requests.post("https://api.openai.com/...")  # FORBIDDEN
+
+# ✅ ALWAYS use Portkey
+from backend.services.portkey_gateway import invoke_llm
+response = await invoke_llm(prompt)
+```
+
+## 🔄 **N8N WORKFLOW AUTOMATION**
+
+### **📋 WORKFLOW PATTERNS**
+
+```yaml
+# Workflow Structure
+name: Business Process
+triggers:
+  - schedule: "0 9 * * *"
+  - webhook: "/webhook/process"
+  - event: "gong.call_completed"
+nodes:
+  - data: ["snowflake_query", "api_fetch"]
+  - ai: ["llm_analysis", "embedding_generation"]
+  - action: ["slack_notify", "linear_create_task"]
+  - condition: ["if_threshold", "switch_sentiment"]
+```
+
+### **🎯 PRE-BUILT WORKFLOWS**
+
+1. **Daily Business Intelligence**
+   - Query Snowflake metrics
+   - AI analysis and insights
+   - Executive summary to Slack
+
+2. **Customer Health Monitoring**
+   - Gong sentiment tracking
+   - HubSpot deal analysis
+   - Automated alerts
+
+3. **Code Quality Gates**
+   - GitHub PR triggers
+   - Codacy security scans
+   - AI code review
+
+### **🚀 NATURAL LANGUAGE COMMANDS**
+
+```bash
+"Create a workflow to monitor revenue anomalies"
+"Set up daily customer health reports"
+"Automate PR review process with AI"
+"Build workflow for lead scoring"
+```
 
 ## 🧠 **ENHANCED MCP INTEGRATION WITH CLINE v3.18**
 

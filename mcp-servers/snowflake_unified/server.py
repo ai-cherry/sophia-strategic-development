@@ -70,9 +70,7 @@ class SnowflakeUnifiedServer(K3sUnifiedMCPServer):
             cursor.close()
             conn.close()
 
-            self.logger.info(
-                f"✅ Snowflake connection established (version: {version})"
-            )
+            self.logger.info(f"✅ Snowflake connection established (version: {version})")
             self.logger.info(
                 f"Snowflake Unified server ready - Warehouse: {self.warehouse}"
             )
