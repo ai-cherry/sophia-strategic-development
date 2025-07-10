@@ -18,10 +18,9 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from base.unified_standardized_base import (
     ServerConfig,
-    ToolDefinition,
-    ToolParameter,
-    UnifiedStandardizedMCPServer,
+    StandardizedMCPServer,
 )
+from mcp.types import Tool
 
 # Import UnifiedMemoryService
 from backend.services.unified_memory_service import get_unified_memory_service
@@ -38,16 +37,14 @@ class MemoryRecord(BaseModel):
     score: float = 1.0
 
 
-class AIMemoryServerV2(UnifiedStandardizedMCPServer):
+class AIMemoryServerV2(StandardizedMCPServer):
     """AI Memory MCP Server using UnifiedMemoryService"""
 
     def __init__(self):
         config = ServerConfig(
             name="ai-memory",
             version="2.2.0",
-            port=9000,
-            capabilities=["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS"],
-            tier="PRIMARY",
+            description="AI Memory server with UnifiedMemoryService backend",
         )
         super().__init__(config)
 
@@ -62,155 +59,129 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
             # Still allow server to start but in limited mode
             self.memory_service = None
 
-    def get_tool_definitions(self) -> list[ToolDefinition]:
+    async def get_custom_tools(self) -> list[Tool]:
         """Define AI Memory tools"""
         return [
-            ToolDefinition(
+            Tool(
                 name="store_memory",
                 description="Store a new memory with category and metadata",
-                parameters=[
-                    ToolParameter(
-                        name="content",
-                        type="string",
-                        description="Memory content to store",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="category",
-                        type="string",
-                        description="Memory category",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="metadata",
-                        type="object",
-                        description="Additional metadata",
-                        required=False,
-                    ),
-                    ToolParameter(
-                        name="user_id",
-                        type="string",
-                        description="User ID for the memory",
-                        required=False,
-                        default="system",
-                    ),
-                ],
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "content": {
+                            "type": "string",
+                            "description": "Memory content to store",
+                        },
+                        "category": {
+                            "type": "string",
+                            "description": "Memory category",
+                        },
+                        "metadata": {
+                            "type": "object",
+                            "description": "Additional metadata",
+                        },
+                        "user_id": {
+                            "type": "string",
+                            "description": "User ID for the memory",
+                            "default": "system",
+                        },
+                    },
+                    "required": ["content", "category"],
+                },
             ),
-            ToolDefinition(
+            Tool(
                 name="search_memories",
                 description="Search memories by query or category",
-                parameters=[
-                    ToolParameter(
-                        name="query",
-                        type="string",
-                        description="Search query",
-                        required=False,
-                    ),
-                    ToolParameter(
-                        name="category",
-                        type="string",
-                        description="Filter by category",
-                        required=False,
-                    ),
-                    ToolParameter(
-                        name="limit",
-                        type="integer",
-                        description="Maximum results",
-                        required=False,
-                        default=10,
-                    ),
-                    ToolParameter(
-                        name="user_id",
-                        type="string",
-                        description="Filter by user",
-                        required=False,
-                    ),
-                ],
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Search query"},
+                        "category": {
+                            "type": "string",
+                            "description": "Filter by category",
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum results",
+                            "default": 10,
+                        },
+                        "user_id": {"type": "string", "description": "Filter by user"},
+                    },
+                    "required": [],
+                },
             ),
-            ToolDefinition(
+            Tool(
                 name="get_memory",
                 description="Get a specific memory by ID (from search results)",
-                parameters=[
-                    ToolParameter(
-                        name="memory_id",
-                        type="string",
-                        description="Memory ID",
-                        required=True,
-                    )
-                ],
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "memory_id": {"type": "string", "description": "Memory ID"}
+                    },
+                    "required": ["memory_id"],
+                },
             ),
-            ToolDefinition(
+            Tool(
                 name="store_conversation",
                 description="Store a conversation in memory",
-                parameters=[
-                    ToolParameter(
-                        name="user_id",
-                        type="string",
-                        description="User ID",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="messages",
-                        type="array",
-                        description="Array of message objects with 'role' and 'content'",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="metadata",
-                        type="object",
-                        description="Conversation metadata",
-                        required=False,
-                    ),
-                ],
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "user_id": {"type": "string", "description": "User ID"},
+                        "messages": {
+                            "type": "array",
+                            "description": "Array of message objects with 'role' and 'content'",
+                        },
+                        "metadata": {
+                            "type": "object",
+                            "description": "Conversation metadata",
+                        },
+                    },
+                    "required": ["user_id", "messages"],
+                },
             ),
-            ToolDefinition(
+            Tool(
                 name="get_conversation_context",
                 description="Get conversation history for a user",
-                parameters=[
-                    ToolParameter(
-                        name="user_id",
-                        type="string",
-                        description="User ID",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="limit",
-                        type="integer",
-                        description="Maximum messages to retrieve",
-                        required=False,
-                        default=10,
-                    ),
-                ],
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "user_id": {"type": "string", "description": "User ID"},
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum messages to retrieve",
+                            "default": 10,
+                        },
+                    },
+                    "required": ["user_id"],
+                },
             ),
-            ToolDefinition(
+            Tool(
                 name="get_memory_stats",
                 description="Get memory statistics and health",
-                parameters=[],
+                inputSchema={"type": "object", "properties": {}, "required": []},
             ),
         ]
 
-    async def execute_tool(
-        self, tool_name: str, parameters: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Execute memory operations using UnifiedMemoryService"""
-
+    async def handle_custom_tool(self, name: str, arguments: dict) -> dict[str, Any]:
+        """Handle custom tool calls"""
         if not self.memory_service:
             return {"success": False, "error": "Memory service not available"}
 
-        if tool_name == "store_memory":
-            return await self.store_memory(parameters)
-        elif tool_name == "search_memories":
-            return await self.search_memories(parameters)
-        elif tool_name == "get_memory":
-            return await self.get_memory(parameters)
-        elif tool_name == "store_conversation":
-            return await self.store_conversation(parameters)
-        elif tool_name == "get_conversation_context":
-            return await self.get_conversation_context(parameters)
-        elif tool_name == "get_memory_stats":
+        if name == "store_memory":
+            return await self.store_memory(arguments)
+        elif name == "search_memories":
+            return await self.search_memories(arguments)
+        elif name == "get_memory":
+            return await self.get_memory(arguments)
+        elif name == "store_conversation":
+            return await self.store_conversation(arguments)
+        elif name == "get_conversation_context":
+            return await self.get_conversation_context(arguments)
+        elif name == "get_memory_stats":
             return await self.get_memory_stats()
         else:
-            raise ValueError(f"Unknown tool: {tool_name}")
+            raise ValueError(f"Unknown tool: {name}")
 
     async def store_memory(self, params: dict[str, Any]) -> dict[str, Any]:
         """Store a new memory using UnifiedMemoryService"""
@@ -230,9 +201,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
             self.logger.info(
                 f"Stored memory {memory_id} in category {params['category']}"
             )
-            self.metrics["operations_total"].labels(
-                operation="store", status="success"
-            ).inc()
 
             return {
                 "success": True,
@@ -243,9 +211,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
         except Exception as e:
             self.logger.error(f"Error storing memory: {e}")
-            self.metrics["operations_total"].labels(
-                operation="store", status="error"
-            ).inc()
             return {"success": False, "error": str(e)}
 
     async def search_memories(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -270,10 +235,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
                 metadata_filter=metadata_filter if metadata_filter else None,
                 user_id=user_id,
             )
-
-            self.metrics["operations_total"].labels(
-                operation="search", status="success"
-            ).inc()
 
             # Format results for MCP interface
             memories = []
@@ -300,9 +261,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
         except Exception as e:
             self.logger.error(f"Error searching memories: {e}")
-            self.metrics["operations_total"].labels(
-                operation="search", status="error"
-            ).inc()
             return {"success": False, "error": str(e)}
 
     async def get_memory(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -322,10 +280,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
             result = results[0]
 
-            self.metrics["operations_total"].labels(
-                operation="get", status="success"
-            ).inc()
-
             return {
                 "success": True,
                 "memory": {
@@ -343,9 +297,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
         except Exception as e:
             self.logger.error(f"Error getting memory: {e}")
-            self.metrics["operations_total"].labels(
-                operation="get", status="error"
-            ).inc()
             return {"success": False, "error": str(e)}
 
     async def store_conversation(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -362,10 +313,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
                 metadata=metadata,
             )
 
-            self.metrics["operations_total"].labels(
-                operation="store_conversation", status="success"
-            ).inc()
-
             return {
                 "success": True,
                 "user_id": user_id,
@@ -376,9 +323,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
         except Exception as e:
             self.logger.error(f"Error storing conversation: {e}")
-            self.metrics["operations_total"].labels(
-                operation="store_conversation", status="error"
-            ).inc()
             return {"success": False, "error": str(e)}
 
     async def get_conversation_context(self, params: dict[str, Any]) -> dict[str, Any]:
@@ -393,10 +337,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
                 limit=limit,
             )
 
-            self.metrics["operations_total"].labels(
-                operation="get_conversation", status="success"
-            ).inc()
-
             return {
                 "success": True,
                 "user_id": user_id,
@@ -407,9 +347,6 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
         except Exception as e:
             self.logger.error(f"Error getting conversation context: {e}")
-            self.metrics["operations_total"].labels(
-                operation="get_conversation", status="error"
-            ).inc()
             return {"success": False, "error": str(e)}
 
     async def get_memory_stats(self) -> dict[str, Any]:
@@ -451,17 +388,10 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
                 except Exception:
                     pass
 
-            self.metrics["operations_total"].labels(
-                operation="stats", status="success"
-            ).inc()
-
             return {"success": True, "stats": stats}
 
         except Exception as e:
             self.logger.error(f"Error getting stats: {e}")
-            self.metrics["operations_total"].labels(
-                operation="stats", status="error"
-            ).inc()
             return {"success": False, "error": str(e)}
 
     async def on_startup(self):
@@ -496,5 +426,10 @@ class AIMemoryServerV2(UnifiedStandardizedMCPServer):
 
 # Create and run server
 if __name__ == "__main__":
-    server = AIMemoryServerV2()
-    server.run()
+    import asyncio
+
+    async def main():
+        server = AIMemoryServerV2()
+        await server.run()
+
+    asyncio.run(main())
