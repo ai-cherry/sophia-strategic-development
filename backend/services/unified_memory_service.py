@@ -17,6 +17,7 @@ CRITICAL: This replaces ALL usage of Pinecone, Weaviate, ChromaDB, Qdrant
 import json
 import logging
 from typing import Any, Optional
+from datetime import datetime
 
 import redis
 import snowflake.connector
@@ -25,7 +26,7 @@ from snowflake.connector import DictCursor
 from backend.core.date_time_manager import date_manager
 from backend.core.redis_helper import RedisHelper
 from backend.core.unified_config import UnifiedConfig
-from backend.utils.performance import log_execution_time
+from shared.utils.monitoring import log_execution_time
 from shared.utils.errors import ConnectionError, DataValidationError
 
 # Check if Mem0 is available
@@ -446,33 +447,111 @@ class UnifiedMemoryService:
     async def execute_snowflake_query(
         self,
         query: str,
-        params: tuple | None = None,
+        params: tuple = None
     ) -> list[dict[str, Any]]:
         """
-        Execute a query on L4 Snowflake tables.
-
-        This is for structured data queries, not vector search.
+        Execute a raw Snowflake query.
+        
+        Args:
+            query: SQL query to execute
+            params: Query parameters
+            
+        Returns:
+            Query results as list of dictionaries
         """
-        if self.degraded_mode:
-            logger.warning("Running in degraded mode - cannot execute queries")
+        if self.degraded_mode or not self.snowflake_conn:
+            logger.warning("Snowflake not available for query execution")
             return []
-
+            
         try:
             cursor = self.snowflake_conn.cursor(DictCursor)
-
+            
             if params:
                 cursor.execute(query, params)
             else:
                 cursor.execute(query)
-
+                
             results = cursor.fetchall()
             cursor.close()
-
+            
             return results
-
+            
         except Exception as e:
-            logger.error(f"Failed to execute query: {e}")
-            raise
+            logger.error(f"Snowflake query failed: {e}")
+            return []
+            
+    async def get_document_metadata(
+        self,
+        doc_id: str
+    ) -> dict[str, Any]:
+        """
+        Get metadata for a specific document.
+        
+        Args:
+            doc_id: Document ID
+            
+        Returns:
+            Document metadata
+        """
+        if self.degraded_mode:
+            return {}
+            
+        try:
+            query = """
+            SELECT metadata
+            FROM AI_MEMORY.VECTORS.KNOWLEDGE_BASE
+            WHERE id = %s
+            """
+            
+            cursor = self.snowflake_conn.cursor(DictCursor)
+            cursor.execute(query, (doc_id,))
+            result = cursor.fetchone()
+            cursor.close()
+            
+            if result:
+                return result.get('METADATA', {})
+            return {}
+            
+        except Exception as e:
+            logger.error(f"Failed to get document metadata: {e}")
+            return {}
+            
+    async def update_access_metadata(
+        self,
+        doc_id: str
+    ) -> None:
+        """
+        Update access count and timestamp for a document.
+        
+        Args:
+            doc_id: Document ID
+        """
+        if self.degraded_mode:
+            return
+            
+        try:
+            # Get current metadata
+            metadata = await self.get_document_metadata(doc_id)
+            
+            # Update access info
+            metadata['access_count'] = metadata.get('access_count', 0) + 1
+            metadata['last_accessed'] = datetime.utcnow().isoformat()
+            
+            # Update in database
+            update_query = """
+            UPDATE AI_MEMORY.VECTORS.KNOWLEDGE_BASE
+            SET metadata = PARSE_JSON(%s)
+            WHERE id = %s
+            """
+            
+            cursor = self.snowflake_conn.cursor()
+            cursor.execute(update_query, (json.dumps(metadata), doc_id))
+            cursor.close()
+            
+            logger.debug(f"Updated access metadata for {doc_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to update access metadata: {e}")
 
     async def analyze_with_cortex_ai(
         self,
