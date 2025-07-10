@@ -270,7 +270,10 @@ frontend-backup-*
 
 # Environment files
 *.env
-!*.env.example
+.env.local
+local.env
+.env.*
+!.env.example
 !*.env.template
 
 # Cleanup archives

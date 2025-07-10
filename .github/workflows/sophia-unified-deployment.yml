@@ -95,20 +95,16 @@ jobs:
           INSTANCE_IP=$(pulumi stack output lambdaLabsInstanceIp --stack ${{ env.PULUMI_ORG }}/sophia-ai-${{ env.ENVIRONMENT }} || echo "192.222.51.122")
           echo "instance_ip=$INSTANCE_IP" >> $GITHUB_OUTPUT
 
-  # 4. Deploy to Docker Swarm
-  deploy-stack:
-    name: Deploy Stack
-    needs: [build, infrastructure]
-    if: |
-      always() &&
-      needs.build.result == 'success' &&
-      (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
-    uses: ./.github/workflows/reusable-swarm-deploy.yml
+  # 4. Deploy to K3s
+  deploy-k3s:
+    name: Deploy to K3s
+    needs: [build-images]
+    if: success()
+    uses: ./.github/workflows/reusable-k3s-deploy.yml
     with:
-      compose_file: docker-compose.unified.yml
-      environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
-      stack_name: sophia-ai
-      host: ${{ needs.infrastructure.outputs.instance_ip || '192.222.51.122' }}
+      environment: production
+      namespace: sophia-ai-prod
+      overlay: production
     secrets: inherit
 
   # 5. Deploy Frontend to Vercel

@@ -1,7 +1,10 @@
 # Unified Orchestration Strategy
 
 **Date:** July 9, 2025  
-**Version:** 1.0
+**Version:** 2.0
+**Status:** UPDATED - Migration to SophiaUnifiedOrchestrator in Progress
+
+> **Note**: This document is being updated to reflect the migration from multiple orchestrators to the single SophiaUnifiedOrchestrator. Some sections may still reference deprecated services that will be removed by October 1, 2025.
 
 ## Executive Summary
 

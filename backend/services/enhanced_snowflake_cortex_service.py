@@ -287,12 +287,18 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             )
             model = self.model_mappings.get(ai_model, "llama3.1-70b")
 
+            # Build filter conditions with parameters
+            filter_clause = ""
+            filter_params = {}
+            if filters:
+                filter_clause, filter_params = self._build_filter_conditions(filters)
+
             # Build aggregation query
             aggregation_query = f"""
             WITH data_subset AS (
                 SELECT * FROM {data_source}
                 WHERE 1=1
-                {self._build_filter_conditions(filters) if filters else ""}
+                {filter_clause}
             )
             SELECT
                 AI_AGG(
@@ -306,7 +312,7 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
             FROM data_subset
             """
 
-            results = await self.execute_query(aggregation_query)
+            results = await self.execute_query(aggregation_query, filter_params)
 
             if results:
                 return {
@@ -337,26 +343,44 @@ class EnhancedSnowflakeCortexService(SnowflakeCortexService):
                 "error": str(e),
             }
 
-    def _build_filter_conditions(self, filters: dict[str, Any]) -> str:
-        """Build SQL filter conditions from filter dictionary"""
+    def _build_filter_conditions(
+        self, filters: dict[str, Any]
+    ) -> tuple[str, dict[str, Any]]:
+        """Build SQL filter conditions from filter dictionary with parameterized queries"""
 
         conditions = []
+        params = {}
+        param_counter = 0
 
         for key, value in filters.items():
+            param_name = f"filter_{param_counter}"
+            param_counter += 1
+
             if isinstance(value, str):
-                conditions.append(f"AND {key} = '{value}'")
+                conditions.append(f"AND {key} = %({param_name})s")
+                params[param_name] = value
             elif isinstance(value, (int, float)):
-                conditions.append(f"AND {key} = {value}")
+                conditions.append(f"AND {key} = %({param_name})s")
+                params[param_name] = value
             elif isinstance(value, list):
-                value_str = "', '".join(str(v) for v in value)
-                conditions.append(f"AND {key} IN ('{value_str}')")
+                # Create multiple parameters for IN clause
+                in_params = []
+                for i, v in enumerate(value):
+                    in_param_name = f"{param_name}_{i}"
+                    in_params.append(f"%({in_param_name})s")
+                    params[in_param_name] = v
+                conditions.append(f"AND {key} IN ({', '.join(in_params)})")
             elif isinstance(value, dict):
                 if "start" in value and "end" in value:
+                    start_param = f"{param_name}_start"
+                    end_param = f"{param_name}_end"
                     conditions.append(
-                        f"AND {key} BETWEEN '{value['start']}' AND '{value['end']}'"
+                        f"AND {key} BETWEEN %({start_param})s AND %({end_param})s"
                     )
+                    params[start_param] = value["start"]
+                    params[end_param] = value["end"]
 
-        return " ".join(conditions)
+        return " ".join(conditions), params
 
     async def semantic_similarity_search(
         self,

@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mcp-codacy
+    service-tier: secondary
+    tier: mcp
+    version: v1.0.0
+  name: mcp-codacy
+  namespace: sophia-mcp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mcp-codacy
+  template:
+    metadata:
+      labels:
+        app: mcp-codacy
+        service-tier: secondary
+        tier: mcp
+    spec:
+      containers:
+      - env:
+        - name: ENVIRONMENT
+          value: prod
+        - name: PULUMI_ORG
+          value: scoobyjava-org
+        - name: K3S_DEPLOYMENT
+          value: 'true'
+        - name: ENVIRONMENT
+          value: ${ENVIRONMENT:-prod}
+        - name: PULUMI_ORG
+          value: ${PULUMI_ORG:-scoobyjava-org}
+        - name: PORT
+          value: '9005'
+        - name: REDIS_URL
+          value: redis://redis:6379
+        envFrom:
+        - secretRef:
+            name: mcp-codacy-secrets
+        image: ${DOCKER_REGISTRY}/sophia-codacy-v2:${IMAGE_TAG}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: mcp
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: codacy
+        ports:
+        - containerPort: 9008
+          name: mcp
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: mcp
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: '1'
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mcp-codacy
+  name: mcp-codacy
+  namespace: sophia-mcp
+spec:
+  ports:
+  - name: mcp
+    port: 9008
+    protocol: TCP
+    targetPort: mcp
+  selector:
+    app: mcp-codacy
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  server-config.json: "{\n  \"name\": \"codacy\",\n  \"version\": \"1.0.0\",\n  \"\
+    port\": 9008,\n  \"tier\": \"SECONDARY\",\n  \"description\": \"MCP codacy server\"\
+    \n}"
+kind: ConfigMap
+metadata:
+  name: mcp-codacy-config
+  namespace: sophia-mcp
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mcp-codacy-hpa
+  namespace: sophia-mcp
+spec:
+  maxReplicas: 5
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 70
+        type: Utilization
+    type: Resource
+  - resource:
+      name: memory
+      target:
+        averageUtilization: 80
+        type: Utilization
+    type: Resource
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mcp-codacy

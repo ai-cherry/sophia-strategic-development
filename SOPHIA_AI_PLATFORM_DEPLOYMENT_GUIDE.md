@@ -1,4 +1,4 @@
-# Sophia AI Complete Platform Deployment Guide
+# Sophia AI Platform - K3s Deployment Guide
 
 ## 🚀 Overview
 
@@ -127,42 +127,39 @@ for server in ai-memory gong snowflake slack notion linear github codacy asana p
 done
 ```
 
-### 3. Deploy to Lambda Labs
+### 3. Deploy Infrastructure via GitHub Actions (Recommended)
+
+The deployment is fully automated through GitHub Actions:
 
 ```bash
-# Copy compose file to Lambda Labs
-scp docker-compose.cloud.yml root@192.222.58.232:/opt/sophia-ai/
+# Ensure you're on main branch
+git checkout main
 
-# SSH to Lambda Labs
-ssh root@192.222.58.232
+# Push your changes
+git push origin main
 
-# Initialize Docker Swarm (if needed)
-docker swarm init
-
-# Create required directories
-mkdir -p /opt/sophia-ai/data/{redis,postgres,prometheus,grafana,traefik}
-
-# Deploy the stack
-cd /opt/sophia-ai
-docker stack deploy -c docker-compose.cloud.yml sophia-ai --with-registry-auth
+# Monitor deployment at:
+# https://github.com/[your-org]/sophia-ai/actions
 ```
 
-### 4. Start Local MCP Servers (Development)
+### 4. Manual Deployment (Emergency Only)
+
+If GitHub Actions is unavailable:
 
 ```bash
-# Start MCP servers locally
-cd mcp-servers
+# 1. SSH to Lambda Labs
+ssh root@192.222.58.232
 
-# AI Memory Server
-cd ai_memory && MCP_SERVER_PORT=9001 python ai_memory_mcp_server.py &
+# 2. Pull latest configuration
+cd /opt/sophia-ai
+git pull origin main
 
-# Codacy Server
-cd ../codacy && MCP_SERVER_PORT=9008 python codacy_mcp_server.py &
+# 3. Apply K3s manifests
+kubectl apply -k k8s/overlays/production
 
-# Linear Server
-cd ../linear && MCP_SERVER_PORT=9006 python linear_mcp_server.py &
-
-# Continue for other servers...
+# 4. Verify deployment
+kubectl get pods -n sophia-ai-prod
+kubectl get pods -n mcp-servers
 ```
 
 ## 🔍 Validation
@@ -407,3 +404,250 @@ For issues or questions:
 **Last Updated**: January 2025
 **Version**: 1.0.0
 **Status**: Production Ready
+
+## Deployment Architecture
+
+### Infrastructure Stack
+- **Compute**: Lambda Labs H100 GPU Instance (192.222.58.232)
+- **Orchestration**: K3s (Lightweight Kubernetes)
+- **Container Registry**: Docker Hub (scoobyjava15)
+- **Frontend Hosting**: Vercel
+- **Secrets Management**: Pulumi ESC
+- **CI/CD**: GitHub Actions
+
+### Service Architecture
+
+#### Core Services (Kubernetes Deployments)
+1. **Backend API** - FastAPI application
+2. **PostgreSQL** - Primary database  
+3. **Redis** - Cache and pub/sub
+4. **MCP Gateway** - MCP server orchestration
+5. **16 MCP Servers** - Specialized microservices
+
+#### K3s Manifest Structure
+```
+k8s/
+├── base/
+│   ├── backend/
+│   ├── database/
+│   ├── mcp-gateway/
+│   └── mcp-servers/
+├── overlays/
+│   ├── production/
+│   └── staging/
+└── kustomization.yaml
+```
+
+## Deployment Commands
+
+### Initial Setup (One Time)
+
+```bash
+# On Lambda Labs instance
+# Install K3s
+curl -sfL https://get.k3s.io | sh -
+
+# Get kubeconfig for remote access
+sudo cat /etc/rancher/k3s/k3s.yaml
+
+# Create namespaces
+kubectl create namespace sophia-ai-prod
+kubectl create namespace mcp-servers
+kubectl create namespace monitoring
+```
+
+### Deploy Application
+
+```bash
+# Via GitHub Actions (push to main branch)
+git push origin main
+
+# Or manually
+kubectl apply -k k8s/overlays/production
+```
+
+### Verify Deployment
+
+```bash
+# Check all pods
+kubectl get pods -A
+
+# Check specific namespace
+kubectl get pods -n sophia-ai-prod
+kubectl get pods -n mcp-servers
+
+# Get service endpoints
+kubectl get svc -A
+
+# View ingress routes
+kubectl get ingress -A
+```
+
+## Monitoring and Management
+
+### View Logs
+
+```bash
+# Backend API logs
+kubectl logs -n sophia-ai-prod deployment/backend-api -f
+
+# MCP Gateway logs  
+kubectl logs -n mcp-servers deployment/mcp-gateway -f
+
+# Specific MCP server logs
+kubectl logs -n mcp-servers deployment/mcp-slack -f
+```
+
+### Scale Services
+
+```bash
+# Scale backend API
+kubectl scale deployment backend-api -n sophia-ai-prod --replicas=3
+
+# Scale MCP servers
+kubectl scale deployment -n mcp-servers -l tier=mcp --replicas=2
+```
+
+### Update Services
+
+```bash
+# Update via rolling deployment
+kubectl set image deployment/backend-api -n sophia-ai-prod \
+  backend-api=scoobyjava15/sophia-backend:v2.0.0
+
+# Or apply updated manifests
+kubectl apply -k k8s/overlays/production
+```
+
+### Health Checks
+
+```bash
+# Cluster health
+kubectl get nodes
+kubectl top nodes
+
+# Pod health
+kubectl get pods -A
+kubectl top pods -A
+
+# Service endpoints
+curl https://api.sophia-ai.com/health
+curl https://mcp.sophia-ai.com/health
+```
+
+## Secret Management
+
+All secrets are managed through Pulumi ESC and automatically synced to K3s:
+
+```bash
+# List secrets (names only)
+kubectl get secrets -n sophia-ai-prod
+
+# Secrets are automatically created from Pulumi ESC
+# Never create secrets manually
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Pod CrashLoopBackOff**
+```bash
+kubectl describe pod [pod-name] -n [namespace]
+kubectl logs [pod-name] -n [namespace] --previous
+```
+
+2. **Service Not Accessible**
+```bash
+# Check service endpoints
+kubectl get endpoints -n [namespace]
+
+# Test DNS resolution
+kubectl run -it --rm debug --image=busybox --restart=Never -- \
+  nslookup [service-name].[namespace].svc.cluster.local
+```
+
+3. **Resource Constraints**
+```bash
+# Check resource usage
+kubectl top nodes
+kubectl top pods -A
+
+# Check resource limits
+kubectl describe pod [pod-name] -n [namespace]
+```
+
+### Emergency Procedures
+
+```bash
+# Rollback deployment
+kubectl rollout undo deployment/[deployment-name] -n [namespace]
+
+# Emergency pod deletion
+kubectl delete pod [pod-name] -n [namespace] --force --grace-period=0
+
+# Restart all pods in namespace
+kubectl delete pods --all -n [namespace]
+```
+
+## Backup and Recovery
+
+### Backup Database
+```bash
+# Create database backup
+kubectl exec -n sophia-ai-prod deployment/postgres -- \
+  pg_dump -U postgres sophia_ai > backup.sql
+```
+
+### Restore Database
+```bash
+# Restore from backup
+kubectl exec -i -n sophia-ai-prod deployment/postgres -- \
+  psql -U postgres sophia_ai < backup.sql
+```
+
+## Security Considerations
+
+1. **Network Policies**: Implemented via K3s default policies
+2. **RBAC**: Role-based access control configured
+3. **Secrets**: All secrets encrypted at rest
+4. **TLS**: Automatic via cert-manager and Let's Encrypt
+5. **Pod Security**: Security contexts enforced
+
+## Maintenance
+
+### Update K3s
+```bash
+# On Lambda Labs instance
+curl -sfL https://get.k3s.io | sh -
+```
+
+### Cleanup Old Resources
+```bash
+# Remove completed jobs
+kubectl delete jobs --field-selector status.successful=1 -A
+
+# Remove evicted pods
+kubectl delete pods --field-selector status.phase=Failed -A
+```
+
+## Monitoring Stack
+
+Prometheus and Grafana are deployed for monitoring:
+
+```bash
+# Access Grafana
+kubectl port-forward -n monitoring svc/grafana 3000:3000
+# Visit http://localhost:3000
+
+# Access Prometheus
+kubectl port-forward -n monitoring svc/prometheus 9090:9090
+# Visit http://localhost:9090
+```
+
+## References
+
+- K3s Documentation: https://docs.k3s.io/
+- Kubernetes Documentation: https://kubernetes.io/docs/
+- GitHub Actions Workflows: `.github/workflows/`
+- Architecture Documentation: `docs/system_handbook/`

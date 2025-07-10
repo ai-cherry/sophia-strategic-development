@@ -63,27 +63,20 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
-      - name: Deploy to Swarm
+      - name: 🔑 Setup K3s access
         run: |
-          # Setup SSH
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ env.LAMBDA_LABS_HOST }} >> ~/.ssh/known_hosts
+          mkdir -p ~/.kube
+          echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
 
-          # Deploy stack
-          ssh ubuntu@${{ env.LAMBDA_LABS_HOST }} << 'EOF'
-            docker service update \
-              --image ${{ env.DOCKER_REGISTRY }}/sophia-backend:emergency-${{ github.sha }} \
-              --update-parallelism 1 \
-              --update-delay 10s \
-              sophia-ai_backend || \
-            docker service create \
-              --name sophia-ai_backend \
-              --replicas 3 \
-              --publish 8000:8000 \
-              ${{ env.DOCKER_REGISTRY }}/sophia-backend:emergency-${{ github.sha }}
-          EOF
+      - name: Deploy to K3s
+        run: |
+          # Apply K3s manifests
+          kubectl apply -k k8s/overlays/production
+          
+          # Wait for deployments to be ready
+          kubectl rollout status deployment -n sophia-ai-prod --timeout=600s
+          kubectl rollout status deployment -n mcp-servers --timeout=600s
 
       - name: Verify Deployment
         run: |

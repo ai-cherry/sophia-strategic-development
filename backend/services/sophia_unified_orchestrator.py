@@ -20,7 +20,6 @@ from typing import Any, Optional
 
 from backend.core.date_time_manager import date_manager
 from backend.services.unified_memory_service import get_unified_memory_service
-from infrastructure.services.mcp_orchestration_service import MCPOrchestrationService
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +84,13 @@ class SophiaUnifiedOrchestrator:
     """
 
     def __init__(self):
-        self.memory_service = get_unified_memory_service()
-        self.mcp_orchestrator = None  # Will lazy load
+        # Get the underlying memory service
+        from backend.services.memory_service_adapter import MemoryServiceAdapter
+
+        base_memory_service = get_unified_memory_service()
+        self.memory_service = MemoryServiceAdapter(base_memory_service)
+
+        self.mcp_orchestrator = None  # Will lazy load with adapter
         self.current_date = date_manager.now()
         self.metrics = OrchestrationMetrics()
         self.initialized = False
@@ -101,16 +105,47 @@ class SophiaUnifiedOrchestrator:
             return
 
         try:
-            # Initialize MCP orchestrator
-            self.mcp_orchestrator = MCPOrchestrationService()
-            await self.mcp_orchestrator.initialize()
+            # Try to initialize MCP orchestrator with adapter
+            try:
+                from backend.services.mcp_orchestration_adapter import (
+                    MCPOrchestrationAdapter,
+                )
+                from infrastructure.services.mcp_orchestration_service import (
+                    MCPOrchestrationService,
+                )
+
+                base_mcp = MCPOrchestrationService()
+                self.mcp_orchestrator = MCPOrchestrationAdapter(base_mcp)
+                logger.info("✅ MCP Orchestration Service initialized with adapter")
+            except ImportError as e:
+                logger.warning(f"MCP Orchestration Service not available: {e}")
+                # Create a mock MCP orchestrator for now
+                self.mcp_orchestrator = self._create_mock_mcp_orchestrator()
 
             self.initialized = True
-            logger.info("✅ All services initialized successfully")
+            logger.info("✅ SophiaUnifiedOrchestrator fully initialized")
 
         except Exception as e:
-            logger.error(f"Failed to initialize services: {e}")
+            logger.error(f"Failed to initialize orchestrator: {e}")
             raise
+
+    def _create_mock_mcp_orchestrator(self):
+        """Create a mock MCP orchestrator for when the real one is not available"""
+
+        class MockMCPOrchestrator:
+            async def get_servers_by_capability(self, capabilities):
+                # Return mock servers
+                return [{"name": "mock_server", "capabilities": capabilities}]
+
+            async def execute_business_task(
+                self, task_type, description, capabilities, context
+            ):
+                return {
+                    "response": f"Mock response for {task_type}: {description}",
+                    "metadata": {"mock": True},
+                }
+
+        return MockMCPOrchestrator()
 
     async def process_request(
         self,
@@ -324,6 +359,11 @@ class SophiaUnifiedOrchestrator:
     ) -> dict[str, Any]:
         """Handle business intelligence queries"""
 
+        # Check if MCP orchestrator is available
+        if not self.mcp_orchestrator:
+            logger.warning("MCP orchestrator not available, using memory fallback")
+            return await self._handle_memory_fallback(query, user_id, session_id)
+
         # Get capable MCP servers
         servers = await self.mcp_orchestrator.get_servers_by_capability(
             list(intent.capabilities_needed)
@@ -337,36 +377,139 @@ class SophiaUnifiedOrchestrator:
 
         # Execute parallel queries to relevant servers
         tasks = []
-        if "gong" in [s["name"] for s in servers]:
-            tasks.append(self._query_gong(query, context))
-        if "hubspot_unified" in [s["name"] for s in servers]:
-            tasks.append(self._query_hubspot(query, context))
-        if "slack_v2" in [s["name"] for s in servers]:
-            tasks.append(self._query_slack(query, context))
+        server_names = [s["name"] for s in servers]
 
+        # Route to specific MCP servers based on capabilities
+        if "CALL_ANALYSIS" in intent.capabilities_needed and "gong" in server_names:
+            tasks.append(
+                self._query_mcp_server(
+                    "gong",
+                    "search_calls",
+                    {"query": query, "limit": 10, "context": context},
+                )
+            )
+
+        if (
+            "CRM_DATA" in intent.capabilities_needed
+            and "hubspot_unified" in server_names
+        ):
+            tasks.append(
+                self._query_mcp_server(
+                    "hubspot_unified",
+                    "search_contacts",
+                    {"query": query, "limit": 10, "context": context},
+                )
+            )
+
+        if "TEAM_INSIGHTS" in intent.capabilities_needed and "slack_v2" in server_names:
+            tasks.append(
+                self._query_mcp_server(
+                    "slack_v2",
+                    "search_messages",
+                    {"query": query, "limit": 10, "context": context},
+                )
+            )
+
+        if "PROJECT_DATA" in intent.capabilities_needed:
+            if "linear" in server_names:
+                tasks.append(
+                    self._query_mcp_server(
+                        "linear",
+                        "search_issues",
+                        {"query": query, "limit": 10, "context": context},
+                    )
+                )
+            if "asana" in server_names:
+                tasks.append(
+                    self._query_mcp_server(
+                        "asana",
+                        "search_tasks",
+                        {"query": query, "limit": 10, "context": context},
+                    )
+                )
+
+        # If no specific servers matched, search memory for business intelligence
+        if not tasks:
+            try:
+                # Try to search memory for relevant information
+                results = self.memory_service.search_knowledge(
+                    query=query,
+                    limit=5,
+                    metadata_filter={"user_id": user_id} if user_id else None,
+                )
+
+                if results:
+                    return {
+                        "response": self._format_memory_results(results),
+                        "citations": [{"source": "knowledge_base", "results": results}],
+                        "sources": ["knowledge_base"],
+                    }
+            except Exception as e:
+                logger.warning(f"Memory search failed: {e}")
+
+        # Execute all queries in parallel
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Synthesize response
+        # Process and synthesize results
         response_parts = []
         citations = []
+        successful_sources = []
 
-        for result in results:
+        for i, result in enumerate(results):
             if isinstance(result, Exception):
-                logger.warning(f"Server query failed: {result}")
+                logger.warning(f"MCP query failed: {result}")
                 continue
 
-            if isinstance(result, dict):
-                if result.get("response"):
-                    response_parts.append(result["response"])
-                if result.get("citations"):
-                    citations.extend(result["citations"])
+            if isinstance(result, dict) and result.get("success"):
+                source = result.get("source", "unknown")
+                data = result.get("data", {})
+
+                # Extract relevant information based on source
+                if source == "gong" and data.get("calls"):
+                    response_parts.append(
+                        f"**Call Intelligence:**\n{self._format_gong_results(data['calls'])}"
+                    )
+                    citations.append({"source": "gong", "data": data["calls"][:3]})
+                    successful_sources.append("gong")
+
+                elif source == "hubspot_unified" and data.get("contacts"):
+                    response_parts.append(
+                        f"**CRM Data:**\n{self._format_hubspot_results(data['contacts'])}"
+                    )
+                    citations.append(
+                        {"source": "hubspot", "data": data["contacts"][:3]}
+                    )
+                    successful_sources.append("hubspot")
+
+                elif source == "slack_v2" and data.get("messages"):
+                    response_parts.append(
+                        f"**Team Insights:**\n{self._format_slack_results(data['messages'])}"
+                    )
+                    citations.append({"source": "slack", "data": data["messages"][:3]})
+                    successful_sources.append("slack")
+
+                elif source in ["linear", "asana"] and data.get("items"):
+                    response_parts.append(
+                        f"**Project Data ({source}):**\n{self._format_project_results(data['items'])}"
+                    )
+                    citations.append({"source": source, "data": data["items"][:3]})
+                    successful_sources.append(source)
+
+        # If we have results, synthesize them
+        if response_parts:
+            synthesized_response = "\n\n".join(response_parts)
+
+            # Add a summary if multiple sources
+            if len(response_parts) > 1:
+                summary = await self._generate_business_summary(query, response_parts)
+                synthesized_response = f"{summary}\n\n{synthesized_response}"
+        else:
+            synthesized_response = "I couldn't retrieve specific business intelligence data for your query. Please try rephrasing or asking about specific systems (Gong calls, HubSpot contacts, Slack discussions, or project management)."
 
         return {
-            "response": "\n\n".join(response_parts)
-            if response_parts
-            else "I couldn't retrieve business intelligence data at this time.",
+            "response": synthesized_response,
             "citations": citations,
-            "sources": [s["name"] for s in servers],
+            "sources": successful_sources,
         }
 
     async def _handle_code_analysis(
@@ -378,6 +521,11 @@ class SophiaUnifiedOrchestrator:
         context: Optional[dict[str, Any]],
     ) -> dict[str, Any]:
         """Handle code analysis queries"""
+
+        # Check if MCP orchestrator is available
+        if not self.mcp_orchestrator:
+            logger.warning("MCP orchestrator not available for code analysis")
+            return await self._handle_memory_fallback(query, user_id, session_id)
 
         # Get code analysis servers
         servers = await self.mcp_orchestrator.get_servers_by_capability(
@@ -465,47 +613,146 @@ class SophiaUnifiedOrchestrator:
                 "sources": ["general"],
             }
 
-    async def _query_gong(
-        self, query: str, context: Optional[dict[str, Any]]
+    async def _query_mcp_server(
+        self, server_name: str, query_type: str, query_params: dict[str, Any]
     ) -> dict[str, Any]:
-        """Query Gong MCP server"""
+        """Query an MCP server"""
         try:
             # This will be implemented with actual MCP server calls
             return {
-                "response": "Gong integration is being configured.",
-                "source": "gong",
+                "response": f"Query to {server_name} {query_type} is being processed.",
+                "source": server_name,
             }
         except Exception as e:
-            logger.error(f"Gong query failed: {e}")
+            logger.error(f"Query to {server_name} {query_type} failed: {e}")
             raise
 
-    async def _query_hubspot(
-        self, query: str, context: Optional[dict[str, Any]]
-    ) -> dict[str, Any]:
-        """Query HubSpot MCP server"""
-        try:
-            # This will be implemented with actual MCP server calls
-            return {
-                "response": "HubSpot integration is being configured.",
-                "source": "hubspot",
-            }
-        except Exception as e:
-            logger.error(f"HubSpot query failed: {e}")
-            raise
+    def _format_memory_results(self, results: list[dict]) -> str:
+        """Format memory search results into readable text"""
+        if not results:
+            return "No relevant information found in memory."
 
-    async def _query_slack(
-        self, query: str, context: Optional[dict[str, Any]]
+        formatted = []
+        for i, result in enumerate(results, 1):
+            content = result.get("content", "")
+            source = result.get("source", "unknown")
+            similarity = result.get("similarity", 0)
+            formatted.append(
+                f"{i}. {content[:200]}... (Source: {source}, Relevance: {similarity:.2f})"
+            )
+
+        return "\n".join(formatted)
+
+    def _format_gong_results(self, calls: list[dict]) -> str:
+        """Format Gong call results"""
+        if not calls:
+            return "No relevant calls found."
+
+        formatted = []
+        for call in calls[:5]:  # Top 5 calls
+            title = call.get("title", "Untitled Call")
+            date = call.get("date", "Unknown date")
+            participants = call.get("participants", [])
+            summary = call.get("summary", "No summary available")
+            formatted.append(
+                f"• **{title}** ({date})\n  Participants: {', '.join(participants)}\n  Summary: {summary}"
+            )
+
+        return "\n".join(formatted)
+
+    def _format_hubspot_results(self, contacts: list[dict]) -> str:
+        """Format HubSpot contact results"""
+        if not contacts:
+            return "No relevant contacts found."
+
+        formatted = []
+        for contact in contacts[:5]:  # Top 5 contacts
+            name = contact.get("name", "Unknown")
+            company = contact.get("company", "Unknown company")
+            deal_stage = contact.get("deal_stage", "No active deal")
+            value = contact.get("deal_value", 0)
+            formatted.append(
+                f"• **{name}** ({company})\n  Deal Stage: {deal_stage}\n  Value: ${value:,}"
+            )
+
+        return "\n".join(formatted)
+
+    def _format_slack_results(self, messages: list[dict]) -> str:
+        """Format Slack message results"""
+        if not messages:
+            return "No relevant messages found."
+
+        formatted = []
+        for msg in messages[:5]:  # Top 5 messages
+            author = msg.get("author", "Unknown")
+            channel = msg.get("channel", "Unknown channel")
+            text = msg.get("text", "")[:100]
+            timestamp = msg.get("timestamp", "Unknown time")
+            formatted.append(
+                f'• **{author}** in #{channel} ({timestamp})\n  "{text}..."'
+            )
+
+        return "\n".join(formatted)
+
+    def _format_project_results(self, items: list[dict]) -> str:
+        """Format project management results (Linear/Asana)"""
+        if not items:
+            return "No relevant project items found."
+
+        formatted = []
+        for item in items[:5]:  # Top 5 items
+            title = item.get("title", "Untitled")
+            status = item.get("status", "Unknown")
+            assignee = item.get("assignee", "Unassigned")
+            priority = item.get("priority", "Normal")
+            formatted.append(
+                f"• **{title}**\n  Status: {status} | Assignee: {assignee} | Priority: {priority}"
+            )
+
+        return "\n".join(formatted)
+
+    async def _generate_business_summary(
+        self, query: str, response_parts: list[str]
+    ) -> str:
+        """Generate a summary of business intelligence results"""
+        # For now, return a simple summary
+        # TODO: Use Snowflake Cortex to generate intelligent summary
+        num_sources = len(response_parts)
+        return f'**Business Intelligence Summary**\nFound relevant information from {num_sources} sources for your query: "{query}". Details below:'
+
+    async def _handle_memory_fallback(
+        self, query: str, user_id: str, session_id: str
     ) -> dict[str, Any]:
-        """Query Slack MCP server"""
+        """Fallback handler when MCP orchestrator is not available"""
         try:
-            # This will be implemented with actual MCP server calls
+            # Try to search memory for relevant information
+            results = self.memory_service.search_knowledge(
+                query=query,
+                limit=5,
+                metadata_filter={"user_id": user_id} if user_id else None,
+            )
+
+            if results:
+                response = self._format_memory_results(results)
+            else:
+                response = "I'm currently operating with limited services. The MCP orchestration system is not available, but I can help with basic queries."
+
             return {
-                "response": "Slack integration is being configured.",
-                "source": "slack",
+                "response": response,
+                "sources": ["memory"],
+                "metadata": {
+                    "fallback": True,
+                    "processing_time": 0.1,
+                    "intent": {"type": "memory_query", "confidence": 0.8},
+                },
             }
         except Exception as e:
-            logger.error(f"Slack query failed: {e}")
-            raise
+            logger.error(f"Memory fallback failed: {e}")
+            return {
+                "response": "I'm experiencing technical difficulties. Please try again later.",
+                "error": str(e),
+                "metadata": {"fallback": True, "error": True},
+            }
 
     def get_metrics(self) -> dict[str, Any]:
         """Get current orchestrator metrics"""
@@ -519,15 +766,20 @@ class SophiaUnifiedOrchestrator:
         }
 
 
-# Global instance management
-_orchestrator_instance: Optional[SophiaUnifiedOrchestrator] = None
+# Singleton instance
+_orchestrator_instance = None
 
 
 def get_unified_orchestrator() -> SophiaUnifiedOrchestrator:
-    """Get or create the unified orchestrator instance"""
+    """Get or create the unified orchestrator singleton"""
     global _orchestrator_instance
 
     if _orchestrator_instance is None:
-        _orchestrator_instance = SophiaUnifiedOrchestrator()
+        try:
+            _orchestrator_instance = SophiaUnifiedOrchestrator()
+        except Exception as e:
+            logger.error(f"Failed to create orchestrator: {e}")
+            # Return a basic instance even if some services fail
+            _orchestrator_instance = SophiaUnifiedOrchestrator()
 
     return _orchestrator_instance

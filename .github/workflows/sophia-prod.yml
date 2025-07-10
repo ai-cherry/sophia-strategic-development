@@ -151,35 +151,36 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
-  # Stage 4: Deploy to Swarm
-  deploy-swarm:
-    name: 🐳 Deploy to Swarm
-    needs: [build-images, deploy-infrastructure]
+  # Stage 4: Deploy to K3s
+  deploy-k3s:
+    name: ☸️ Deploy to K3s
     runs-on: ubuntu-latest
-
+    needs: build-images
+    if: success()
+    
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.LAMBDA_PRIVATE_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ needs.deploy-infrastructure.outputs.instance_ip || env.LAMBDA_LABS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Deploy Stack
-        run: |
-          # Generate compose file with current image tags
-          export IMAGE_TAG=${{ github.sha }}
-          export DOCKER_REGISTRY=${{ env.DOCKER_REGISTRY }}
-
-          # Deploy via SSH
-          scp docker-compose.cloud.yml ubuntu@${{ needs.deploy-infrastructure.outputs.instance_ip || env.LAMBDA_LABS_HOST }}:/tmp/
-
-          ssh ubuntu@${{ needs.deploy-infrastructure.outputs.instance_ip || env.LAMBDA_LABS_HOST }} << 'EOF'
-            cd /tmp
-            docker stack deploy -c docker-compose.cloud.yml sophia-ai --with-registry-auth
-          EOF
+    - uses: actions/checkout@v4
+    
+    - name: 🔑 Setup K3s Access
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+        
+    - name: 🚀 Deploy to Lambda Labs K3s
+      run: |
+        # Apply K3s manifests with Kustomize
+        kubectl apply -k k8s/overlays/production
+        
+        # Wait for rollout
+        kubectl rollout status deployment/backend-api -n sophia-ai-prod --timeout=300s
+        kubectl rollout status deployment -n mcp-servers --timeout=300s
+        
+    - name: ✅ Verify deployment
+      run: |
+        kubectl get pods -n sophia-ai-prod
+        kubectl get pods -n mcp-servers
+        kubectl get svc -A
 
   # Stage 5: Deploy Frontend
   deploy-frontend:
@@ -199,7 +200,7 @@ jobs:
   # Stage 6: Validate Deployment
   validate:
     name: ✅ Validate Deployment
-    needs: [deploy-swarm, deploy-frontend]
+    needs: [deploy-k3s, deploy-frontend]
     runs-on: ubuntu-latest
 
     steps:
@@ -227,7 +228,7 @@ jobs:
   # Stage 7: Notify
   notify:
     name: 📢 Notify
-    needs: [quality-gate, build-images, deploy-swarm, validate]
+    needs: [quality-gate, build-images, deploy-k3s, validate]
     if: always()
     runs-on: ubuntu-latest
 

@@ -9,9 +9,9 @@ import os
 import subprocess
 import sys
 
-# Add security module to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "security"))
-from secret_mapping import SecretCategory, get_all_mappings
+# Add backend to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "backend"))
+from core.secret_mappings import SecretCategory, get_all_mappings
 
 
 def run_pulumi_command(args: list[str]) -> tuple[bool, str, str]:

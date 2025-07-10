@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""
+Direct Secret Sync Script - Simple and Working
+Syncs secrets from GitHub to Pulumi ESC without complex dependencies
+"""
+
+import os
+import subprocess
+import sys
+from datetime import datetime
+
+# ESC environment
+ESC_ENVIRONMENT = "scoobyjava-org/default/sophia-ai-production"
+
+# Critical secrets we need to sync
+CRITICAL_SECRETS = {
+    # Snowflake (highest priority)
+    "SNOWFLAKE_ACCOUNT": "values.sophia.data.snowflake.account",
+    "SNOWFLAKE_USER": "values.sophia.data.snowflake.user",
+    "SNOWFLAKE_PASSWORD": "values.sophia.data.snowflake.password",
+    "SNOWFLAKE_WAREHOUSE": "values.sophia.data.snowflake.warehouse",
+    "SNOWFLAKE_DATABASE": "values.sophia.data.snowflake.database",
+    "SNOWFLAKE_ROLE": "values.sophia.data.snowflake.role",
+    # AI Services
+    "OPENAI_API_KEY": "values.sophia.ai.openai_api_key",
+    "ANTHROPIC_API_KEY": "values.sophia.ai.anthropic_api_key",
+    # Business Intelligence
+    "GONG_ACCESS_KEY": "values.sophia.business.gong.access_key",
+    "GONG_ACCESS_KEY_SECRET": "values.sophia.business.gong.access_key_secret",
+    "PINECONE_API_KEY": "values.sophia.ai.pinecone_api_key",
+    # Infrastructure
+    "LAMBDA_LABS_API_KEY": "values.sophia.infrastructure.lambda_labs.api_key",
+    "DOCKER_HUB_USERNAME": "values.sophia.infrastructure.docker.username",
+    "DOCKER_HUB_ACCESS_TOKEN": "values.sophia.infrastructure.docker.access_token",
+    # Other services
+    "SLACK_BOT_TOKEN": "values.sophia.communication.slack.bot_token",
+    "LINEAR_API_KEY": "values.sophia.development.linear.api_key",
+    "HUBSPOT_ACCESS_TOKEN": "values.sophia.business.hubspot.access_token",
+}
+
+
+def run_command(cmd):
+    """Run a command and return success, stdout, stderr"""
+    try:
+        result = subprocess.run(
+            cmd, shell=True, capture_output=True, text=True, check=False
+        )
+        return result.returncode == 0, result.stdout, result.stderr
+    except Exception as e:
+        return False, "", str(e)
+
+
+def get_github_secret_value(secret_name):
+    """Get a secret value from GitHub using gh CLI"""
+    cmd = f'gh secret list --repo ai-cherry/sophia-main --json name,updatedAt | grep -q "{secret_name}"'
+    exists, _, _ = run_command(cmd)
+
+    if exists:
+        # We can't get the actual value from GitHub, so we'll use environment variables
+        env_key = f"SECRET_{secret_name}"
+        value = os.environ.get(env_key, "")
+        return value
+    return None
+
+
+def sync_secret_to_pulumi(github_name, esc_path, value):
+    """Sync a single secret to Pulumi ESC"""
+    if not value:
+        return False, "No value provided"
+
+    # Mask the value for display
+    masked = value[:4] + "***" + value[-4:] if len(value) > 8 else "***"
+
+    # Set the secret in Pulumi ESC
+    cmd = f'pulumi env set {ESC_ENVIRONMENT} {esc_path} "{value}" --secret'
+    success, stdout, stderr = run_command(cmd)
+
+    if success:
+        print(f"✅ {github_name} → {esc_path} ({masked})")
+        return True, "Success"
+    else:
+        print(f"❌ {github_name} → {esc_path} FAILED: {stderr}")
+        return False, stderr
+
+
+def main():
+    """Main sync function"""
+    print("=" * 60)
+    print("🔐 Direct Secret Sync: GitHub → Pulumi ESC")
+    print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"🎯 Target: {ESC_ENVIRONMENT}")
+    print("=" * 60)
+
+    # Check Pulumi login
+    success, stdout, stderr = run_command("pulumi whoami")
+    if not success:
+        print("❌ Not logged into Pulumi. Please set PULUMI_ACCESS_TOKEN")
+        sys.exit(1)
+
+    print(f"👤 Logged in as: {stdout.strip()}\n")
+
+    # First, let's fetch all secrets from GitHub
+    print("📥 Fetching GitHub secrets...")
+    cmd = "gh secret list --repo ai-cherry/sophia-main --json name | jq -r '.[].name'"
+    success, stdout, stderr = run_command(cmd)
+
+    if success:
+        github_secrets = stdout.strip().split("\n")
+        print(f"Found {len(github_secrets)} secrets in GitHub\n")
+
+        # Now set them as environment variables
+        print("🔄 Setting up environment variables...")
+        for secret in github_secrets:
+            if secret:
+                # GitHub Actions sets these as environment variables
+                env_value = os.environ.get(secret, "")
+                if env_value:
+                    os.environ[f"SECRET_{secret}"] = env_value
+
+    # Sync critical secrets
+    print("\n🔄 Syncing Critical Secrets...")
+    print("-" * 40)
+
+    synced = 0
+    failed = 0
+
+    for github_name, esc_path in CRITICAL_SECRETS.items():
+        # Try to get from environment
+        value = os.environ.get(github_name, "")
+
+        if value and value != "FROM_GITHUB":
+            success, _ = sync_secret_to_pulumi(github_name, esc_path, value)
+            if success:
+                synced += 1
+            else:
+                failed += 1
+        else:
+            print(f"⏭️  {github_name} → SKIPPED (no value)")
+
+    # Summary
+    print("\n" + "=" * 60)
+    print("📊 SYNC SUMMARY")
+    print("=" * 60)
+    print(f"✅ Synced: {synced} secrets")
+    print(f"❌ Failed: {failed} secrets")
+    print(f"📋 Total: {len(CRITICAL_SECRETS)} critical secrets")
+
+    # Verify one secret
+    print("\n🔍 Verifying sync...")
+    cmd = f"pulumi env get {ESC_ENVIRONMENT} values.sophia.ai.openai_api_key"
+    success, stdout, stderr = run_command(cmd)
+
+    if success and stdout.strip() and not stdout.strip().startswith("FROM_GITHUB"):
+        print("✅ Verification successful - secrets are accessible in ESC")
+    else:
+        print("⚠️  Verification warning - could not read back test secret")
+
+    if failed > 0:
+        print("\n❌ Some secrets failed to sync")
+        sys.exit(1)
+    else:
+        print("\n✅ Sync completed successfully!")
+
+
+if __name__ == "__main__":
+    # Ensure we have required tokens
+    if not os.environ.get("PULUMI_ACCESS_TOKEN"):
+        print("❌ PULUMI_ACCESS_TOKEN not set")
+        sys.exit(1)
+
+    if not os.environ.get("GITHUB_TOKEN"):
+        print("❌ GITHUB_TOKEN not set")
+        sys.exit(1)
+
+    main()

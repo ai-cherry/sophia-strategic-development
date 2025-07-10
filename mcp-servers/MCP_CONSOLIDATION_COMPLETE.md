@@ -64,6 +64,8 @@ docker/
 
 docs/
 └── MCP_SERVERS_UNIFIED_DEPLOYMENT.md  # Complete documentation
+
+README.md                        # Documentation
 ```
 
 ## 🚀 Deployment Details
@@ -172,4 +174,16 @@ This consolidation represents a major architectural improvement for Sophia AI, t
 **Total Time**: ~30 minutes
 **Technical Debt Removed**: 591 items
 **Servers Unified**: 13
-**Status**: ✅ Ready for Production Deployment 
+**Status**: ✅ Ready for Production Deployment
+
+### 2.2 Deployment Process
+
+### 4.3 Deploy to Production
+
+```bash
+# Deploy via GitHub Actions (recommended)
+git push origin main
+
+# Or manually apply K3s manifests
+kubectl apply -k k8s/overlays/production
+``` 

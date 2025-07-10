@@ -1,0 +1,132 @@
+name: Deploy to K3s
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: false
+        type: string
+        default: 'production'
+      namespace:
+        required: false
+        type: string
+        default: 'sophia-ai-prod'
+      overlay:
+        required: false  
+        type: string
+        default: 'production'
+    secrets:
+      K3S_KUBECONFIG:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to K3s Cluster
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+        
+    - name: 🔑 Configure K3s access
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.K3S_KUBECONFIG }}" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+        
+        # Test connection
+        kubectl version --client
+        kubectl cluster-info
+        
+    - name: 🚀 Deploy to K3s
+      run: |
+        echo "Deploying to K3s cluster..."
+        echo "Environment: ${{ inputs.environment }}"
+        echo "Namespace: ${{ inputs.namespace }}"
+        echo "Overlay: ${{ inputs.overlay }}"
+        
+        # Apply manifests with Kustomize
+        kubectl apply -k k8s/overlays/${{ inputs.overlay }}
+        
+        # Wait for deployments
+        echo "Waiting for deployments to complete..."
+        kubectl rollout status deployment --timeout=600s -n ${{ inputs.namespace }}
+        
+        if [ "${{ inputs.namespace }}" = "sophia-ai-prod" ]; then
+          # Also wait for MCP servers
+          kubectl rollout status deployment --timeout=600s -n mcp-servers
+        fi
+        
+    - name: ✅ Verify deployment
+      run: |
+        echo "=== Deployment Status ==="
+        kubectl get deployments -n ${{ inputs.namespace }}
+        
+        echo "=== Pods Status ==="
+        kubectl get pods -n ${{ inputs.namespace }}
+        
+        if [ "${{ inputs.namespace }}" = "sophia-ai-prod" ]; then
+          echo "=== MCP Servers Status ==="
+          kubectl get pods -n mcp-servers
+        fi
+        
+        echo "=== Services ==="
+        kubectl get svc -n ${{ inputs.namespace }}
+        
+        echo "=== Ingress ==="
+        kubectl get ingress -n ${{ inputs.namespace }}
+        
+    - name: 🔍 Health checks
+      run: |
+        # Get service endpoints
+        BACKEND_SVC=$(kubectl get svc -n ${{ inputs.namespace }} -l app=backend-api -o jsonpath='{.items[0].metadata.name}')
+        
+        if [ ! -z "$BACKEND_SVC" ]; then
+          # Port forward for health check
+          kubectl port-forward -n ${{ inputs.namespace }} svc/$BACKEND_SVC 8000:8000 &
+          PF_PID=$!
+          sleep 5
+          
+          # Check health
+          curl -f http://localhost:8000/health || echo "Health check failed"
+          
+          # Cleanup
+          kill $PF_PID || true
+        fi
+        
+    - name: 📊 Generate deployment report
+      if: always()
+      run: |
+        mkdir -p artifacts
+        
+        {
+          echo "# K3s Deployment Report"
+          echo "Date: $(date)"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Namespace: ${{ inputs.namespace }}"
+          echo ""
+          echo "## Deployments"
+          kubectl get deployments -n ${{ inputs.namespace }} -o wide
+          echo ""
+          echo "## Pods"
+          kubectl get pods -n ${{ inputs.namespace }} -o wide
+          echo ""
+          echo "## Services"
+          kubectl get svc -n ${{ inputs.namespace }}
+          echo ""
+          echo "## Events"
+          kubectl get events -n ${{ inputs.namespace }} --sort-by='.lastTimestamp' | tail -20
+        } > artifacts/deployment-report.txt
+        
+    - name: 📤 Upload deployment report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: k3s-deployment-report
+        path: artifacts/deployment-report.txt 

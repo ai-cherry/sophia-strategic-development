@@ -54,7 +54,7 @@ create_secret "snowflake_warehouse" "$(get_secret '.snowflake_warehouse')"
 create_secret "snowflake_role" "$(get_secret '.snowflake_role')"
 
 # Database secrets
-create_secret "postgres_password" "$(get_secret '.snowflake_password')"  # Use Snowflake password for PostgreSQL
+create_secret "postgres_password" "$(get_secret '.postgres_password')"  # Use dedicated PostgreSQL password from ESC
 create_secret "redis_password" "$(get_secret '.redis_password')"
 create_secret "redis_url" "$(get_secret '.redis_url')"
 

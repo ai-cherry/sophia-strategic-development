@@ -364,18 +364,18 @@ const UnifiedDashboard = () => {
 **Primary Deployment**: Vercel (Frontend) + Lambda Labs GH200 Clusters (Backend)
 **Database**: Snowflake (Enhanced with GPU acceleration)
 **Secrets Management**: Pulumi ESC (Automated pipeline)
-**Container Orchestration**: Docker Swarm on Lambda Labs
+**Container Orchestration**: K3s on Lambda Labs
 **GPU Architecture**: NVIDIA GH200 (96GB HBM3e, 4.8TB/s bandwidth)
 **Memory Architecture**: 6-Tier with GPU acceleration
 **Monitoring**: Enhanced Grafana + Prometheus + GPU metrics
 
 ### Enhanced Infrastructure Components
 
-**Docker Swarm**:
-- **Docker Compose**: `docker-compose.cloud.yml` (single source of truth)
-- **Monitoring**: `unified_monitoring.sh`
-- **Troubleshooting**: `unified_troubleshooting.sh`
-- **Secret Sync**: `unified_secret_sync.py`
+**K3s Configuration**:
+- **Manifests**: Kustomize-based in `k8s/` directory
+- **Namespaces**: sophia-ai-prod, mcp-servers, monitoring
+- **Ingress**: Traefik with automatic TLS
+- **Secrets**: Pulumi ESC with automatic sync
 
 **6-Tier Memory Architecture**:
 - **L0 (GPU Memory)**: 96GB HBM3e per node (<10ms latency)
@@ -1122,5 +1122,94 @@ healthy = registry.get_healthy_servers()
 - **PRIMARY Tier**: 9 servers (Snowflake, Redis, AI Memory, Gong, HubSpot, Slack, GitHub, Linear, Codacy)
 - **SECONDARY Tier**: 9 servers (Pulumi, Portkey, Lambda Labs, PostgreSQL, UI/UX Agent, Estuary)
 - **TERTIARY Tier**: 7 servers (OpenRouter, n8n, Notion, Asana, Perplexity, v0dev, Salesforce)
+
+---
+
+## 2. Core Architecture
+### 2.1 Phoenix Plan Overview
+The Phoenix Plan represents our strategic architecture, rising from the ashes of complexity into a clean, maintainable system.
+
+**Core Principles:**
+- Single source of truth for configuration
+- Unified deployment pipeline
+- Clear separation of concerns
+- Production-first mindset
+
+**Key Components:**
+- **Orchestration**: K3s on Lambda Labs (lightweight Kubernetes)
+- **Frontend**: Vercel (Next.js)
+- **Registry**: Docker Hub (scoobyjava15)
+- **Secrets**: Pulumi ESC
+
+### 2.3 Infrastructure Layer
+**Deployment Target**: Lambda Labs GPU Infrastructure
+- **Primary**: 192.222.58.232 (H100 instance)
+- **Orchestration**: K3s (Lightweight Kubernetes)
+- **Registry**: scoobyjava15 (Docker Hub)
+- **Deployment**: GitHub Actions only
+
+**K3s Architecture**:
+```
+k8s/
+├── base/           # Base manifests
+├── overlays/       # Environment configs
+│   ├── production/
+│   └── staging/
+└── helm/          # Helm charts
+```
+
+### 2.4 Data Architecture
+**Storage Layers**:
+1. **PostgreSQL**: Primary relational data
+2. **Redis**: Session cache, pub/sub
+3. **Snowflake**: Analytics, vector operations
+4. **K3s PVCs**: Persistent volume claims for stateful services
+
+## 5. Deployment Procedures
+### 5.1 Golden Rule
+**ALL DEPLOYMENTS VIA GITHUB ACTIONS - NO LOCAL DEPLOYMENTS**
+
+### 5.2 Deployment Pipeline
+1. **Code Push**: Developer pushes to main branch
+2. **CI Pipeline**: Tests, linting, security scans
+3. **Build**: Docker images built and pushed to registry
+4. **Deploy**: K3s manifests applied via kubectl
+5. **Verify**: Health checks and monitoring
+
+### 5.3 K3s Deployment
+- **Primary Method**: GitHub Actions workflow
+- **Manifests**: Kustomize-based in `k8s/` directory
+- **Secrets**: Pulumi ESC automatic sync
+- **Monitoring**: Prometheus + Grafana stack
+
+### 5.5 Emergency Procedures
+**K3s Cluster Recovery**:
+```bash
+# Rollback deployment
+kubectl rollout undo deployment/[name] -n [namespace]
+
+# Emergency restart
+kubectl delete pods --all -n [namespace]
+
+# Cluster diagnostics
+kubectl get events -A --sort-by='.lastTimestamp'
+```
+
+## 10. Operational Excellence
+### 10.1 Deployment Checklist
+- [ ] All changes committed to Git
+- [ ] GitHub Actions workflow passing
+- [ ] K3s manifests validated
+- [ ] Resource limits defined
+- [ ] Health checks implemented
+- [ ] Monitoring configured
+
+### 10.2 K3s Best Practices
+- Use Kustomize for environment management
+- Define resource limits on all containers
+- Implement proper health checks
+- Use rolling updates for zero downtime
+- Monitor resource usage continuously
+- Regular backups of stateful data
 
 ---

@@ -13,7 +13,7 @@
 ### **Core Principles (Non-Negotiable):**
 1.  **Single Point of Truth**: The `main` branch on GitHub is the single source of truth for what is deployed.
 2.  **Push-to-Deploy**: All deployments to any environment (Production, Staging) are triggered **exclusively** by a `git push` to the relevant branch.
-3.  **No Local Operations**: You MUST NOT run `docker build`, `docker push`, or `docker stack deploy` from your local machine for deployment purposes. Your role is to write the code and the GitHub Actions workflows; the cloud does the rest.
+3.  **No Local Operations**: You MUST NOT run `docker build`, `docker push`, or `kubectl apply` from your local machine for deployment purposes. Your role is to write the code and the GitHub Actions workflows; the cloud does the rest.
 4.  **Automated Secret Management**: All secrets (`DOCKER_HUB_ACCESS_TOKEN`, `LAMBDA_LABS_SSH_KEY`, etc.) are managed in GitHub Organization Secrets and injected into the GitHub Actions workflow at runtime. You MUST NOT handle credentials locally.
 
 ### **The Correct Workflow:**
@@ -482,6 +482,7 @@ The external repository collection enables:
    # All environment variables MUST be set persistently
    export ENVIRONMENT="prod"
    export PULUMI_ORG="scoobyjava-org"
+   export KUBECONFIG="$HOME/.kube/k3s-lambda-labs"
    # Add to ~/.bashrc, ~/.zshrc, ~/.profile
    ```
 
@@ -489,10 +490,10 @@ The external repository collection enables:
 
 1. **ALL Docker deployments target Lambda Labs (NOT local):**
    ```yaml
-   # Primary deployment: docker-compose.cloud.yml
-   # Target: 146.235.200.1 (Lambda Labs)
+   # Primary deployment: K3s cluster on Lambda Labs
+   # Target: 192.222.58.232 (Lambda Labs)
    # Registry: scoobyjava15 (Docker Hub)
-   # Orchestration: Docker Swarm
+   # Orchestration: K3s Kubernetes
    ```
 
 2. **Container environment configuration:**
@@ -502,20 +503,57 @@ The external repository collection enables:
    # Secrets via Docker Secrets, NOT environment variables
    ```
 
-3. **Docker Compose for production MUST use:**
-   ```yaml
-   # docker-compose.cloud.yml with:
-   - mode: replicated  # Swarm mode
-   - secrets:          # Docker secrets
-   - deploy:           # Swarm deployment config
-   - healthcheck:      # Required for all services
+3. **K3s deployment patterns:**
+   ```bash
+   # All deployments via K3s manifests
+   kubectl apply -f k8s/
+   # Secrets via Pulumi ESC integration
+   # No manual kubectl from local machine
    ```
 
-4. **NEVER use local Docker deployment:**
-   - ❌ No `docker-compose up` locally
-   - ❌ No `.env` files
-   - ✅ Use `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
-   - ✅ All secrets via Pulumi ESC
+4. **PERSISTENT ENVIRONMENT SETUP**
+   ```bash
+   # All environment variables MUST be set persistently
+   export ENVIRONMENT="prod"
+   export PULUMI_ORG="scoobyjava-org"
+   export KUBECONFIG="$HOME/.kube/k3s-lambda-labs"
+   # Add to ~/.bashrc, ~/.zshrc, ~/.profile
+   ```
+
+### **☸️ K3S DEPLOYMENT RULES**
+
+1. **ALL Kubernetes deployments target Lambda Labs K3s cluster:**
+   ```yaml
+   # Primary cluster: k3s.lambda-labs.sophia-ai.com
+   # Control plane: 192.222.58.232:6443
+   # Registry: scoobyjava15 (Docker Hub)
+   # Orchestration: K3s (lightweight Kubernetes)
+   ```
+
+2. **K3s namespace organization:**
+   ```yaml
+   # Production namespace
+   namespace: sophia-ai-prod
+   # MCP servers namespace  
+   namespace: mcp-servers
+   # Monitoring namespace
+   namespace: monitoring
+   ```
+
+3. **Deployment patterns:**
+   ```bash
+   # GitHub Actions deploys via:
+   kubectl apply -k k8s/overlays/production
+   # Kustomize for environment management
+   # Helm charts for complex deployments
+   ```
+
+4. **Secret management:**
+   ```yaml
+   # All secrets via Pulumi ESC
+   # Automatic sync to K3s secrets
+   # No manual secret creation
+   ```
 
 ### **🔧 MCP SERVER ENVIRONMENT RULES**
 
@@ -1015,13 +1053,12 @@ config/               # Centralized configurations
 - Include confidence scores in AI responses
 
 ## Deployment Considerations
-- **Target**: Lambda Labs infrastructure ONLY (146.235.200.1)
-- **Docker Cloud**: Use docker-compose.cloud.yml with Docker Swarm
-- **Registry**: Push all images to scoobyjava15 Docker Hub
+- **Target**: Lambda Labs K3s cluster (192.222.58.232)
+- **Container Registry**: Push all images to scoobyjava15 Docker Hub
 - **Secrets**: All secrets via Pulumi ESC (NO .env files)
-- **Deployment**: `docker stack deploy -c docker-compose.cloud.yml sophia-ai`
-- **Scaling**: Use Swarm replicas and resource limits
-- **Zero-downtime**: Rolling updates with health checks
+- **Deployment**: `kubectl apply -k k8s/overlays/production`
+- **Scaling**: Horizontal Pod Autoscaler with GPU awareness
+- **Zero-downtime**: Rolling updates with readiness probes
 
 ## Performance Requirements
 - API response times < 200ms for critical paths
@@ -1502,3 +1539,35 @@ Before any code change, AI must:
 **Success Formula**: Technical Excellence + Clean Codebase + Secure Secrets + Zero Waste = Executive-Grade AI Platform
 
 **Remember**: Every file matters, every secret matters, every line of code matters. Keep it clean, keep it secure, keep it excellent.
+
+## 🔧 **K3S CLUSTER CONFIGURATION**
+
+### **Cluster Access (Via GitHub Actions Only)**
+```bash
+# K3s cluster endpoint
+https://192.222.58.232:6443
+
+# Namespaces
+- sophia-ai-prod (main application)
+- mcp-servers (MCP microservices)
+- monitoring (Prometheus/Grafana)
+- ingress (Traefik)
+```
+
+### **Resource Organization**
+```yaml
+# Deployment structure
+k8s/
+├── base/           # Base manifests
+├── overlays/       # Environment-specific
+│   ├── production/
+│   └── staging/
+└── helm/           # Helm charts
+```
+
+### **K3s-Specific Features**
+- Lightweight Kubernetes distribution
+- Built-in Traefik ingress controller
+- Integrated local storage provisioner
+- GPU device plugin for Lambda Labs
+- Automatic TLS with cert-manager

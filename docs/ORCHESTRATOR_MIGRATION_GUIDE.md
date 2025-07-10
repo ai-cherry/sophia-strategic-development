@@ -11,7 +11,7 @@ This guide helps developers migrate from the deprecated orchestrators to the new
 
 - **July 9, 2025**: Deprecation warnings added to all old orchestrators
 - **July 16, 2025**: New unified orchestrator fully functional with all capabilities
-- **August 1, 2025**: Old orchestrators will be removed from codebase
+- **October 1, 2025**: Old orchestrators will be removed from codebase
 
 ## What's Changing
 
@@ -292,11 +292,11 @@ response = await orchestrator.process_request(
 **Q: Why are we consolidating orchestrators?**  
 A: To reduce complexity, improve performance, and provide a single, consistent interface for all Sophia AI operations.
 
-**Q: What happens if I don't migrate by August 1?**  
+**Q: What happens if I don't migrate by October 1?**  
 A: Your code will break when the old orchestrators are removed. Start migrating now!
 
 **Q: Can I use both old and new orchestrators during migration?**  
-A: Yes, but you'll see deprecation warnings. Both will work until August 1, 2025.
+A: Yes, but you'll see deprecation warnings. Both will work until October 1, 2025.
 
 **Q: What about SophiaIaCOrchestrator?**  
 A: It remains separate for now since it handles infrastructure-specific operations. It will be integrated in Phase 2.

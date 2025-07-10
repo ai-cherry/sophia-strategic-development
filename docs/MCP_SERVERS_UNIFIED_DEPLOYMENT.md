@@ -94,8 +94,14 @@ This document outlines the unified MCP server architecture deployed on Lambda La
 
 ### Quick Deploy
 ```bash
-# Deploy all MCP servers to Lambda Labs Kubernetes
-python scripts/deploy_to_lambda_labs_kubernetes.py
+# Deploy all MCP servers via GitHub Actions
+git push origin main
+
+# Or manually deploy to K3s
+kubectl apply -k k8s/overlays/production
+
+# Verify deployment
+kubectl get pods -n mcp-servers
 ```
 
 ### Manual Deployment

@@ -162,20 +162,48 @@ def get_snowflake_config() -> dict[str, Any]:
     Returns:
         Snowflake configuration dictionary with CORRECT account
     """
+    # Check environment variables first (for immediate use)
+    account = os.getenv("SNOWFLAKE_ACCOUNT") or get_config_value(
+        "snowflake_account", "UHDECNO-CVB64222"
+    )
+    user = os.getenv("SNOWFLAKE_USER") or get_config_value(
+        "snowflake_user", "SCOOBYJAVA15"
+    )
+
+    # Try PAT token first, then regular password
+    pat_token = os.getenv("SNOWFLAKE_PAT")
+    password = (
+        pat_token
+        if pat_token
+        else (os.getenv("SNOWFLAKE_PASSWORD") or get_config_value("snowflake_password"))
+    )
+
     return {
-        "account": get_config_value(
-            "snowflake_account", "ZNB04675.us-east-1.us-east-1"
-        ),  # PERMANENT FIX: Correct account
-        "user": get_config_value("snowflake_user", "SCOOBYJAVA15"),
-        "password": get_config_value("snowflake_password"),  # Will load PAT from ESC
+        "account": account,
+        "user": user,
+        "password": password,  # Will use PAT or password from ESC/env
         "role": get_config_value("snowflake_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value(
-            "snowflake_warehouse", "SOPHIA_AI_WH"
-        ),  # PERMANENT FIX: Correct warehouse
-        "database": get_config_value(
-            "snowflake_database", "SOPHIA_AI"
-        ),  # PERMANENT FIX: Correct database
-        "schema": get_config_value("snowflake_schema", "PROCESSED_AI"),
+        "warehouse": get_config_value("snowflake_warehouse", "SOPHIA_AI_COMPUTE_WH"),
+        "database": get_config_value("snowflake_database", "AI_MEMORY"),
+        "schema": get_config_value("snowflake_schema", "VECTORS"),
+    }
+
+
+def get_postgres_config() -> dict[str, Any]:
+    """
+    Get PostgreSQL configuration
+
+    Returns:
+        PostgreSQL configuration dictionary
+    """
+    return {
+        "host": get_config_value("postgres_host", "postgres"),
+        "port": int(get_config_value("postgres_port", "5432")),
+        "database": get_config_value("postgres_database", "sophia_ai"),
+        "user": get_config_value("postgres_user", "postgres"),
+        "password": get_config_value(
+            "postgres_password"
+        ),  # Separate password from Snowflake
     }
 
 

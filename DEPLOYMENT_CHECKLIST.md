@@ -1,276 +1,228 @@
-# 🚀 Sophia AI Docker Swarm Deployment Checklist
+# 🚀 Sophia AI K3s Deployment Checklist
 
-**Deployment Package**: `sophia-deployment-20250704-022911.tar.gz`
-**Target**: Lambda Labs (192.222.58.232)
-**Date**: January 4, 2025
+## 📋 Pre-Deployment Verification
 
-## ✅ Pre-Deployment Verification
+### Infrastructure Requirements
+- [x] **Lambda Labs Instance**: 192.222.58.232 (H100 GPU)
+- [x] **GitHub Actions**: Configured with organization secrets
+- [x] **Docker Hub Registry**: scoobyjava15 authenticated
+- [x] **Pulumi ESC**: Environment configuration synced
+- [x] **K3s**: Ready on Lambda Labs instance
+- [x] **kubectl**: Configured for remote access
 
-### Infrastructure Ready ✅
-- [x] **Lambda Labs Instance**: `sophia-ai-production` (192.222.58.232) - Active
-- [x] **Docker Cloud Setup**: `scoobyjava15` registry authenticated
-- [x] **SSH Access**: Key `cae55cb8d0f5443cbdf9129f7cec8770` configured
-- [x] **Docker Swarm**: Ready for initialization on Lambda Labs instance
+### Configuration Files
+- [x] **k8s/**: Kubernetes manifests and Kustomization files
+- [x] **GitHub Workflows**: `.github/workflows/deploy-*.yml`
+- [x] **Secrets**: All managed via Pulumi ESC
 
-### Configuration Files ✅
-- [x] **docker-compose.cloud.yml**: Docker Swarm stack configuration
-- [x] **Dockerfile**: Multi-stage production build optimized
-- [x] **deploy_to_lambda_labs_cloud.py**: Automated deployment script
-- [x] **Docker secrets**: 7 secrets mapped to Pulumi ESC
+## 🚀 Deployment Steps
 
-### Build Validation ✅
-- [x] **Dependencies**: Requirements.txt approach implemented
-- [x] **Multi-stage build**: Production, development, testing targets
-- [x] **Health checks**: All services have health monitoring
-- [x] **Security**: Non-root user, minimal attack surface
-
-## 🎯 Deployment Process
-
-### Step 1: SSH into Lambda Labs Instance
+### Step 1: Verify GitHub Secrets
 ```bash
-# Use the SSH key provided in the infrastructure setup
-ssh -i ~/.ssh/sophia-ai-key ubuntu@192.222.58.232
+# All secrets should be configured at organization level:
+# - DOCKER_HUB_USERNAME
+# - DOCKER_HUB_ACCESS_TOKEN  
+# - LAMBDA_PRIVATE_SSH_KEY
+# - PULUMI_ACCESS_TOKEN
 ```
 
-### Step 2: Initialize Docker Swarm (First Time Only)
+### Step 2: Initialize K3s Cluster (First Time Only)
 ```bash
 # On Lambda Labs instance
-docker swarm init
+curl -sfL https://get.k3s.io | sh -
+# Get kubeconfig for remote access
+sudo cat /etc/rancher/k3s/k3s.yaml
 ```
 
-### Step 3: Deploy from Local Machine
+### Step 3: Deploy via GitHub Actions
 ```bash
-# Production deployment
-python scripts/deploy_to_lambda_labs_cloud.py --environment prod
+# Push to main branch triggers deployment
+git add .
+git commit -m "Deploy: Update configuration"
+git push origin main
 
-# OR with staging environment
-python scripts/deploy_to_lambda_labs_cloud.py --environment staging
+# Monitor deployment
+# Go to: https://github.com/[org]/[repo]/actions
 ```
 
 ### Step 4: Verify Deployment
 ```bash
-# Check stack status
-docker stack services sophia-ai-prod
+# Check pod status
+kubectl get pods -n sophia-ai-prod
 
-# Check service health
-docker service ps sophia-ai-prod_sophia-backend
+# Check services
+kubectl get svc -n sophia-ai-prod
+
+# Check MCP servers
+kubectl get pods -n mcp-servers
+
+# View logs
+kubectl logs -n sophia-ai-prod deployment/backend-api
 ```
 
-## 🔐 Secret Management
+## 📊 Monitoring
 
-### Pulumi ESC Integration
-All secrets are automatically managed through Pulumi ESC:
-
+### Health Checks
 ```bash
-# Secrets are loaded from: scoobyjava-org/default/sophia-ai-production
-# Structure: values.sophia.*
-# No manual secret management required
+# Backend API
+curl https://api.sophia-ai.com/health
+
+# MCP Gateway  
+curl https://mcp.sophia-ai.com/health
+
+# Individual MCP servers
+for port in {9000..9015}; do
+  echo "Checking MCP server on port $port"
+  curl http://192.222.58.232:$port/health
+done
 ```
 
-### Required Secrets
-- `pulumi_access_token` - Pulumi ESC access
-- `postgres_password` - Database password
-- `mem0_api_key` - Mem0 service API key
-- `snowflake_account` - Snowflake account identifier
-- `snowflake_user` - Snowflake username
-- `snowflake_password` - Snowflake password
-- `grafana_password` - Grafana admin password
-
-## 🌐 Service Endpoints
-
-### Production URLs
-| Service | URL | Purpose |
-|---------|-----|---------|
-| **Main API** | `http://192.222.58.232:8000` | Sophia AI Backend |
-| **API Docs** | `http://192.222.58.232:8000/docs` | OpenAPI Documentation |
-| **Health Check** | `http://192.222.58.232:8000/api/health` | Service Health |
-| **Mem0 Server** | `http://192.222.58.232:8080` | Memory Management |
-| **Cortex Server** | `http://192.222.58.232:8081` | AI SQL Processing |
-| **Traefik Dashboard** | `http://192.222.58.232:8090` | Load Balancer |
-| **Grafana** | `http://192.222.58.232:3000` | Monitoring Dashboard |
-| **Prometheus** | `http://192.222.58.232:9090` | Metrics Collection |
-
-### Health Check Commands
+### Resource Usage
 ```bash
-# Main API health
-curl http://192.222.58.232:8000/api/health
+# Overall cluster resources
+kubectl top nodes
 
-# Mem0 server health
-curl http://192.222.58.232:8080/health
+# Pod resource usage
+kubectl top pods -n sophia-ai-prod
 
-# Cortex server health
-curl http://192.222.58.232:8081/health
-
-# Traefik dashboard
-curl http://192.222.58.232:8090/api/overview
+# GPU utilization
+nvidia-smi
 ```
 
-## 📊 Monitoring & Scaling
-
-### Service Scaling
+### Logs
 ```bash
-# Scale main backend
-docker service scale sophia-ai-prod_sophia-backend=5
+# Backend logs
+kubectl logs -n sophia-ai-prod -l app=backend-api --tail=100 -f
 
-# Scale Mem0 servers
-docker service scale sophia-ai-prod_mem0-server=3
+# MCP Gateway logs
+kubectl logs -n mcp-servers -l app=mcp-gateway --tail=100 -f
 
-# Scale Cortex servers
-docker service scale sophia-ai-prod_cortex-server=4
+# All MCP server logs
+kubectl logs -n mcp-servers -l tier=mcp --tail=50
 ```
 
-### Resource Monitoring
+## 🔄 Common Operations
+
+### Update Deployment
 ```bash
-# Service resource usage
-docker service ps sophia-ai-prod_sophia-backend
+# Via GitHub Actions (recommended)
+git push origin main
 
-# Node resource usage
-docker node ls
-
-# Stack overview
-docker stack ps sophia-ai-prod
+# Manual update (emergency only)
+kubectl apply -k k8s/overlays/production
 ```
 
-## 🔄 Updates & Maintenance
-
-### Rolling Updates
+### Scale Services
 ```bash
-# Update main service image
-docker service update --image scoobyjava15/sophia-ai:v2.0 sophia-ai-prod_sophia-backend
+# Scale backend
+kubectl scale deployment backend-api -n sophia-ai-prod --replicas=3
 
-# Update environment variables
-docker service update --env-add NEW_CONFIG=value sophia-ai-prod_sophia-backend
+# Scale MCP servers
+kubectl scale deployment -n mcp-servers -l tier=mcp --replicas=2
 ```
 
-### Rollback
+### Restart Services
 ```bash
-# Rollback to previous version
-docker service rollback sophia-ai-prod_sophia-backend
+# Restart backend
+kubectl rollout restart deployment/backend-api -n sophia-ai-prod
 
-# Check rollback status
-docker service ps sophia-ai-prod_sophia-backend
+# Restart all MCP servers
+kubectl rollout restart deployment -n mcp-servers
 ```
 
-### Log Monitoring
+### View Configuration
 ```bash
-# Service logs
-docker service logs --tail 100 sophia-ai-prod_sophia-backend
+# Current deployments
+kubectl get deployments -A
 
-# Follow logs in real-time
-docker service logs -f sophia-ai-prod_sophia-backend
+# ConfigMaps
+kubectl get configmaps -n sophia-ai-prod
+
+# Secrets (names only)
+kubectl get secrets -n sophia-ai-prod
 ```
 
 ## 🚨 Troubleshooting
 
-### Common Issues
-
-#### 1. Service Not Starting
+### Pod Issues
 ```bash
-# Check service events
-docker service ps sophia-ai-prod_sophia-backend
+# Describe pod for events
+kubectl describe pod [pod-name] -n [namespace]
 
-# Check detailed logs
-docker service logs --tail 50 sophia-ai-prod_sophia-backend
+# Get pod logs
+kubectl logs [pod-name] -n [namespace] --previous
+
+# Execute into pod
+kubectl exec -it [pod-name] -n [namespace] -- /bin/bash
 ```
 
-#### 2. Image Pull Issues
+### Service Connectivity
 ```bash
-# Verify registry access
-docker pull scoobyjava15/sophia-ai:latest
+# Test service DNS
+kubectl run test-pod --image=busybox -it --rm --restart=Never -- \
+  nslookup backend-api.sophia-ai-prod.svc.cluster.local
 
-# Re-authenticate if needed
-docker login
+# Port forward for local testing
+kubectl port-forward -n sophia-ai-prod svc/backend-api 8000:8000
 ```
 
-#### 3. Network Connectivity
+### Resource Constraints
 ```bash
-# Check overlay networks
-docker network ls
+# Check resource quotas
+kubectl describe resourcequota -n sophia-ai-prod
 
-# Inspect network details
-docker network inspect sophia-ai-prod_sophia-overlay
+# Check persistent volumes
+kubectl get pv
+kubectl get pvc -A
 ```
 
-#### 4. Secret Access Issues
-```bash
-# List available secrets
-docker secret ls
+## 🔥 Emergency Procedures
 
-# Update secret with new value
-docker secret rm postgres_password
-echo "new_password" | docker secret create postgres_password -
+### Rollback Deployment
+```bash
+# Via kubectl
+kubectl rollout undo deployment/backend-api -n sophia-ai-prod
+
+# Check rollout history
+kubectl rollout history deployment/backend-api -n sophia-ai-prod
 ```
 
-## 🎯 Post-Deployment Tasks
-
-### Immediate (Day 1)
-- [ ] Verify all service endpoints respond correctly
-- [ ] Test API functionality with sample requests
-- [ ] Configure Grafana dashboards
-- [ ] Set up basic monitoring alerts
-
-### Short-term (Week 1)
-- [ ] Configure custom domain names
-- [ ] Set up SSL certificates via Traefik Let's Encrypt
-- [ ] Implement backup procedures for PostgreSQL
-- [ ] Configure log aggregation
-
-### Long-term (Month 1)
-- [ ] Set up comprehensive monitoring alerts
-- [ ] Implement disaster recovery procedures
-- [ ] Configure auto-scaling policies
-- [ ] Performance optimization based on metrics
-
-## 📋 Success Criteria
-
-### Deployment Success ✅
-- [ ] All 8 services running with 1/1 replicas ready
-- [ ] Health checks passing for all services
-- [ ] API endpoints responding correctly
-- [ ] Monitoring dashboards accessible
-- [ ] No error logs in service outputs
-
-### Performance Targets
-- [ ] API response times < 200ms (95th percentile)
-- [ ] Memory usage < 80% on all nodes
-- [ ] CPU usage < 70% average
-- [ ] Zero failed health checks
-- [ ] Uptime > 99.9%
-
-## 🔧 Emergency Procedures
-
-### Complete Stack Restart
+### Emergency Access
 ```bash
-# Remove stack
-docker stack rm sophia-ai-prod
+# Direct SSH to Lambda Labs
+ssh root@192.222.58.232
 
-# Wait for cleanup (30 seconds)
-sleep 30
+# Check K3s status
+sudo systemctl status k3s
+
+# View K3s logs
+sudo journalctl -u k3s -f
+```
+
+### Complete Reset
+```bash
+# WARNING: This removes everything
+kubectl delete namespace sophia-ai-prod
+kubectl delete namespace mcp-servers
 
 # Redeploy
-docker stack deploy -c docker-compose.cloud.yml sophia-ai-prod
+kubectl apply -k k8s/overlays/production
 ```
 
-### Single Service Restart
-```bash
-# Force restart a service
-docker service update --force sophia-ai-prod_sophia-backend
-```
+## ✅ Post-Deployment Validation
 
-### Backup Procedures
-```bash
-# Database backup
-docker exec $(docker ps -q -f name=sophia-ai-prod_postgres) pg_dump -U sophia sophia > backup.sql
+- [ ] All pods running (kubectl get pods -A)
+- [ ] Services accessible via ingress
+- [ ] Health endpoints responding
+- [ ] Logs showing normal operation
+- [ ] GPU resources properly allocated
+- [ ] Monitoring stack operational
+- [ ] Secrets properly mounted
+- [ ] Persistent volumes attached
 
-# Configuration backup
-docker config ls
-docker secret ls
-```
+## 📚 Documentation
 
----
-
-## 🎉 Ready for Production Deployment!
-
-All infrastructure is configured and ready. The Sophia AI platform can now be deployed to Lambda Labs with enterprise-grade monitoring, auto-scaling, and security.
-
-**Next Command**: `python scripts/deploy_to_lambda_labs_cloud.py --environment prod`
+- K3s Documentation: https://docs.k3s.io/
+- Kubernetes Docs: https://kubernetes.io/docs/
+- GitHub Actions: `.github/workflows/`
+- Architecture: `docs/system_handbook/`

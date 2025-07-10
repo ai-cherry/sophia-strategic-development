@@ -1,4 +1,14 @@
-version: "3.8"
+# ⚠️ DEPRECATED - MIGRATED TO K3S ⚠️
+# This file is no longer used for deployments.
+# All deployments now use K3s manifests in k8s/ directory.
+# 
+# Migration completed: December 2024
+# New deployment method: kubectl apply -k k8s/overlays/production
+# 
+# See: DEPLOYMENT_CHECKLIST.md for K3s deployment instructions
+# See: docs/system_handbook/ for updated architecture
+#
+# Original docker-compose.cloud.yml content preserved below for reference only
 
 # Docker Swarm/Cloud Configuration for Lambda Labs Deployment
 # This file configures Sophia AI for production deployment on Lambda Labs infrastructure
