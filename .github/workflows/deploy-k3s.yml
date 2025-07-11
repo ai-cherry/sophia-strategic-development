@@ -37,8 +37,7 @@ jobs:
       run: 'echo "${{ secrets.LAMBDA_LABS_KUBECONFIG }}" | base64 -d > kubeconfig
 
         export KUBECONFIG=kubeconfig'
-    - name: Update deployment image
-      run: 'kubectl set image deployment/sophia-api sophia-api=${{ env.DOCKER_REGISTRY
-        }}/sophia-api:${{ github.sha }} -n sophia-ai-prod
+    - name: Deploy all services to K3s
+      run: 'kubectl apply -f kubernetes/production/
 
-        kubectl rollout status deployment/sophia-api -n sophia-ai-prod'
+        kubectl rollout status deployment/sophia-api -n sophia-ai-prod --timeout=5m'

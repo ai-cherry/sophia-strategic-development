@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: ai-memory
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-ai-memory
         image: scoobyjava15/sophia-mcp-ai-memory:latest

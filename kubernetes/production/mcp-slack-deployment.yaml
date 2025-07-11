@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: slack
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-slack
         image: scoobyjava15/sophia-mcp-slack:latest

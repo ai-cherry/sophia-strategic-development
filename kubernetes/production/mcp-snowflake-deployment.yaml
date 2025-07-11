@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: snowflake
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-snowflake
         image: scoobyjava15/sophia-mcp-snowflake:latest

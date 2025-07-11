@@ -19,6 +19,8 @@ spec:
         component: mcp-server
         server: github
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: sophia-mcp-orchestrator
       containers:
       - name: mcp-github
         image: scoobyjava15/sophia-mcp-github:latest
