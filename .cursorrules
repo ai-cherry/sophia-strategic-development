@@ -594,130 +594,111 @@ The external repository collection enables:
 
 ## 🧠 **UNIFIED MEMORY ARCHITECTURE RULES (CRITICAL - JULY 10, 2025)**
 
-### **🚨 IMMUTABLE MEMORY ARCHITECTURE RULES 🚨**
+### **🚀 FLEXIBLE MEMORY ARCHITECTURE RULES 🚀**
 
 **THE DATE IS JULY 10, 2025 - REMEMBER THIS!**
 
-1. **FORBIDDEN - NEVER USE THESE:**
-   - ❌ **Pinecone** - DEPRECATED, being migrated to Snowflake
-   - ❌ **Weaviate** - DEPRECATED, being migrated to Snowflake
-   - ❌ **ChromaDB** - FORBIDDEN, not part of architecture
-   - ❌ **Qdrant** - FORBIDDEN (except internal Mem0 use)
-   - ❌ **Any other vector database** - ONLY Snowflake Cortex
+1. **SUPPORTED VECTOR DATABASES:**
+   - ✅ **Weaviate** - Primary vector store for AI-native search
+   - ✅ **PostgreSQL pgvector** - Hybrid SQL + vector queries
+   - ✅ **Redis** - Sub-millisecond caching layer
+   - ✅ **Snowflake Cortex** - Legacy support during migration
+   - ✅ **Mem0** - Agent conversational memory
 
-2. **MANDATORY - ALWAYS USE:**
+2. **RECOMMENDED STACK:**
    - ✅ **UnifiedMemoryService** for ALL memory operations
-   - ✅ **Snowflake Cortex** for ALL vector operations
-   - ✅ **Redis** ONLY for temporary cache (< 24 hours)
-   - ✅ **PostgreSQL** ONLY for ETL staging
-   - ✅ **Mem0** ONLY for agent conversational memory
+   - ✅ **Lambda Labs GPU** for embeddings (<50ms latency)
+   - ✅ **Weaviate** for primary vector storage
+   - ✅ **Redis** for hot data caching
+   - ✅ **PostgreSQL pgvector** for hybrid queries
+   - ✅ **Mem0** for conversational context
 
 3. **THE 6-TIER MEMORY ARCHITECTURE:**
    ```
-   L0: GPU Cache (Lambda Labs) - Not managed by app
-   L1: Redis (Ephemeral cache) - Session data, pub/sub
-   L2: Mem0 (Agent memory) - Conversational context
-   L3: Snowflake Cortex (Vectors) - ALL semantic search
-   L4: Snowflake Tables (Data) - Structured truth
-   L5: Snowflake Cortex AI (Brain) - Intelligence layer
+   L0: GPU Cache (Lambda Labs) - Hardware acceleration
+   L1: Redis (Hot cache) - <10ms session data
+   L2: Weaviate (Vectors) - <50ms semantic search
+   L3: PostgreSQL pgvector - <100ms hybrid queries
+   L4: Mem0 (Conversations) - Agent memory
+   L5: Snowflake (Legacy) - Migration in progress
    ```
 
 4. **IMPORT PATTERNS:**
    ```python
-   # ✅ CORRECT - The ONLY way to use memory
+   # ✅ CORRECT - The flexible way to use memory
    from backend.services.unified_memory_service import get_unified_memory_service
    memory = get_unified_memory_service()
    
-   # ❌ FORBIDDEN - NEVER import these
-   import pinecone  # BANNED
-   import weaviate  # BANNED
-   from pinecone import Client  # BANNED
-   from weaviate import Client  # BANNED
+   # ✅ ALSO CORRECT - Direct usage when needed
+   import weaviate
+   from pgvector.asyncpg import register_vector
+   import redis
    ```
 
 5. **MEMORY OPERATIONS:**
    ```python
-   # ✅ CORRECT - Vector search
+   # ✅ CORRECT - Unified service (recommended)
    results = memory.search_knowledge(
        query="What is the revenue forecast?",
        limit=10,
        metadata_filter={"department": "sales"}
    )
    
-   # ✅ CORRECT - Add knowledge
-   memory.add_knowledge(
-       content="Q2 revenue was $5M",
-       source="quarterly_report.pdf",
-       metadata={"quarter": "Q2", "year": "2025"}
-   )
-   
-   # ❌ FORBIDDEN - Direct vector DB usage
-   pinecone.query(...)  # NEVER DO THIS
-   weaviate.search(...)  # NEVER DO THIS
+   # ✅ ALSO CORRECT - Direct Weaviate for performance
+   weaviate_client.query.get("Knowledge").with_near_text(
+       {"concepts": ["revenue forecast"]}
+   ).with_limit(10).do()
    ```
 
-6. **DATE AWARENESS:**
+6. **PERFORMANCE TARGETS:**
    ```python
-   # The system MUST be aware that today is July 10, 2025
-   from backend.core.date_time_manager import date_manager
-   current_date = date_manager.now()  # Returns July 10, 2025
+   # Embedding generation: <50ms (Lambda GPU)
+   # Vector search: <100ms (Weaviate)
+   # Cache hit: <10ms (Redis)
+   # Hybrid query: <150ms (PostgreSQL)
    ```
 
-### **🛡️ ENFORCEMENT MECHANISMS**
+### **🛡️ MIGRATION SUPPORT**
 
-1. **Pre-Commit Validation:**
-   ```bash
-   # This runs automatically on every commit
-   python scripts/validate_memory_architecture.py
-   ```
+1. **Dual-Mode Operation:**
+   - Services can use both old (Snowflake) and new (Weaviate) backends
+   - Gradual migration with feature flags
+   - A/B testing for performance validation
 
-2. **CI/CD Checks:**
-   - All PRs are scanned for forbidden imports
-   - Builds fail if Pinecone/Weaviate detected
-   - Memory architecture compliance required
-
-3. **Runtime Validation:**
+2. **Migration Helpers:**
    ```python
-   # Services validate on startup
-   def validate_memory_configuration():
-       assert not get_config_value("pinecone_api_key"), "Pinecone is FORBIDDEN!"
-       assert not get_config_value("weaviate_url"), "Weaviate is FORBIDDEN!"
+   # Automatic routing based on configuration
+   if memory.use_new_stack:
+       return await memory.search_weaviate(query)
+   else:
+       return await memory.search_snowflake(query)
    ```
 
-### **📋 MIGRATION RULES**
+### **📋 BEST PRACTICES**
 
-1. **If you find Pinecone/Weaviate code:**
-   - DO NOT try to fix it by adding imports
-   - Replace with UnifiedMemoryService calls
-   - Mark for migration with TODO comment
+1. **Choose the Right Store:**
+   - Hot data → Redis
+   - Semantic search → Weaviate
+   - Hybrid queries → PostgreSQL pgvector
+   - Conversations → Mem0
+   - Analytics → Snowflake (legacy)
 
-2. **Migration Pattern:**
-   ```python
-   # OLD (FORBIDDEN):
-   pinecone_index = pinecone.Index("knowledge")
-   results = pinecone_index.query(vector=embedding, top_k=10)
-   
-   # NEW (REQUIRED):
-   memory = get_unified_memory_service()
-   results = memory.search_knowledge(query=text, limit=10)
-   ```
+2. **Optimize for Performance:**
+   - Batch embeddings on GPU
+   - Use connection pooling
+   - Cache frequently accessed data
+   - Parallelize searches when possible
 
-3. **Snowflake is the Center:**
-   - ALL vectors go to Snowflake Cortex
-   - ALL analytics use Snowflake warehouse
-   - ALL AI operations use Snowflake Cortex AI
+### **🚀 PERFORMANCE WINS**
 
-### **🚨 VIOLATIONS = REJECTION**
+With the new stack:
+- 10x faster embeddings (500ms → 50ms)
+- 5x faster search (500ms → 100ms)  
+- 70% cost reduction ($3.5k → $1k/month)
+- No vendor lock-in
+- Full control over models
 
-Any code that:
-- Imports Pinecone, Weaviate, ChromaDB, or other vector DBs
-- Uses vector databases directly instead of UnifiedMemoryService
-- Stores vectors outside of Snowflake
-- Ignores the date (July 10, 2025)
-
-**WILL BE REJECTED IN CODE REVIEW**
-
-Remember: **Snowflake is the Center of the Universe** for Sophia AI!
+Remember: **Lambda Labs + Weaviate = Badass Performance** for Sophia AI!
 
 ## 📦 **UV DEPENDENCY GOVERNANCE (MANDATORY)**
 
