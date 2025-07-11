@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
+  "env": {
+    "ENVIRONMENT": "prod",
+    "SNOWFLAKE_ACCOUNT": "@snowflake-account",
+    "SNOWFLAKE_USER": "@snowflake-user",
+    "SNOWFLAKE_PRIVATE_KEY_PASSPHRASE": "@snowflake-passphrase",
+    "REDIS_URL": "@redis-url",
+    "OPENAI_API_KEY": "@openai-api-key",
+    "ANTHROPIC_API_KEY": "@anthropic-api-key"
+  },
+  "functions": {
+    "api/*.py": {
+      "maxDuration": 30,
+      "memory": 1024,
+      "runtime": "python3.12"
+    }
+  }
+}

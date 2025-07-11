@@ -56,7 +56,7 @@ interface SystemStatus {
   };
 }
 
-const CHAT_API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8001';
+const CHAT_API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 const UnifiedChatDashboard: React.FC = () => {
   // State management
@@ -351,7 +351,7 @@ const UnifiedChatDashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium">Overall Status</span>
                 <span className={`font-bold ${getStatusColor(systemStatus.overall_status)}`}>
-                  {systemStatus.overall_status.toUpperCase()}
+                  {(systemStatus.overall_status || 'unknown').toUpperCase()}
                 </span>
               </div>
               <div className="text-sm text-gray-600 space-y-1">

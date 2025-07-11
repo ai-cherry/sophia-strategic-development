@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: sophia-ai-backend
+    runtime: python
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && python app/unified_chat_backend.py"
+    envVars:
+      - key: PORT
+        value: 8001
+      - key: ENVIRONMENT
+        value: production
+      - key: SNOWFLAKE_ACCOUNT
+        sync: false
+      - key: SNOWFLAKE_USER
+        sync: false
+      - key: SNOWFLAKE_PAT
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: sophia-redis
+          property: connectionString
+  
+  - type: redis
+    name: sophia-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru 
