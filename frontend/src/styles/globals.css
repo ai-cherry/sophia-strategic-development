@@ -113,6 +113,83 @@
   }
 }
 
+/* Glassmorphism Styles */
+@layer components {
+  .glass-card {
+    @apply relative overflow-hidden rounded-xl p-6;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+
+  .glass-card-sm {
+    @apply relative overflow-hidden rounded-lg p-4;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 48px 0 rgba(59, 130, 246, 0.4);
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+
+  /* GPU Performance Indicators */
+  .gpu-indicator {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: rgba(34, 197, 94, 0.2);
+    color: rgb(34, 197, 94);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .latency-badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+    background: rgba(59, 130, 246, 0.2);
+    color: rgb(96, 165, 250);
+  }
+
+  /* Gradient Backgrounds */
+  .gradient-purple-blue {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .gradient-blue-cyan {
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  }
+
+  .gradient-green-teal {
+    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+  }
+}
+
+/* Animation Classes */
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
 /* Smooth transitions */
 * {
   @apply transition-colors duration-200;
