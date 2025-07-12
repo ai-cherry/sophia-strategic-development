@@ -17,3 +17,5 @@ __all__ = [
     "get_lambda_labs_config",
     "get_snowflake_config",
 ]
+
+# This file makes the backend directory a Python package.

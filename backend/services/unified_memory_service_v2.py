@@ -4,6 +4,8 @@ Goodbye Snowflake's 500ms torture, hello sub-50ms nirvana!
 Lambda B200 GPUs + Weaviate + Redis + pgvector = 🚀
 """
 
+import backend.utils.path_utils  # noqa: F401, must be before other imports
+
 import asyncio
 import json
 import time
@@ -12,7 +14,9 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import numpy as np
 import aiohttp
-from weaviate import Client
+import weaviate
+from weaviate.classes.config import Property, DataType, Configure
+from weaviate.classes.query import MetadataQuery
 from weaviate.util import generate_uuid5
 from redis.asyncio import Redis
 import asyncpg
@@ -20,7 +24,7 @@ from portkey_ai import Portkey
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from backend.core.auto_esc_config import get_config_value
-from backend.utils.logger_config import get_logger
+from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -33,18 +37,20 @@ class UnifiedMemoryServiceV2:
 
     def __init__(self):
         # Service endpoints (K8s internal)
-        self.weaviate_url = get_config_value(
-            "weaviate_url", "http://weaviate.sophia-ai-prod:8080"
-        )
-        self.redis_host = get_config_value("redis_host", "redis.sophia-ai-prod")
-        self.redis_port = int(get_config_value("redis_port", "6379"))
+        self.weaviate_url = get_config_value("weaviate_url", "http://localhost:8080")
+        self.redis_host = get_config_value("redis_host", "localhost")
+        self.redis_port = int(get_config_value("redis_port", "6379") or "6379")
         self.lambda_url = get_config_value(
-            "lambda_inference_url", "http://lambda-inference.sophia-ai-prod:8080"
+            "lambda_inference_url", "http://localhost:8081"
         )
 
         # Clients
-        self.weaviate: Optional[Client] = None
-        self.redis: Optional[Redis] = None
+        self.weaviate = weaviate.Client(self.weaviate_url)
+        self.redis = Redis(
+            host=self.redis_host,
+            port=self.redis_port,
+            decode_responses=True,
+        )
         self.pg_pool: Optional[asyncpg.Pool] = None
 
         # Portkey for OpenRouter fallback
@@ -74,126 +80,69 @@ class UnifiedMemoryServiceV2:
 
         # Initialize Weaviate and create schema if needed
         try:
-            # Check if Knowledge class exists
-            try:
-                self.weaviate.collections.get("Knowledge")
-                logger.info("✅ Weaviate Knowledge schema exists")
-            except:
-                logger.info("Creating Weaviate Knowledge schema...")
-                # Create Knowledge collection
-                import weaviate.classes as wvc
-                from weaviate.classes.config import Property, DataType
-
-                self.weaviate.collections.create(
-                    name="Knowledge",
-                    properties=[
-                        Property(
-                            name="content",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=True,
-                        ),
-                        Property(
-                            name="source",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="user_id",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="timestamp",
-                            data_type=DataType.DATE,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="metadata",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="category",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="importance",
-                            data_type=DataType.NUMBER,
-                            vectorize_property_name=False,
-                        ),
-                    ],
-                    vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(
-                        model="sentence-transformers/all-MiniLM-L6-v2",
-                        vectorize_collection_name=False,
-                    ),
-                )
-                logger.info("✅ Weaviate Knowledge schema created")
-
-            # Check UserProfile schema
-            try:
-                self.weaviate.collections.get("UserProfile")
-                logger.info("✅ Weaviate UserProfile schema exists")
-            except:
-                logger.info("Creating Weaviate UserProfile schema...")
-                import weaviate.classes as wvc
-                from weaviate.classes.config import Property, DataType
-
-                self.weaviate.collections.create(
-                    name="UserProfile",
-                    properties=[
-                        Property(
-                            name="user_id",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="personality_preferences",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=True,
-                        ),
-                        Property(
-                            name="interaction_history",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=True,
-                        ),
-                        Property(
-                            name="communication_style",
-                            data_type=DataType.TEXT,
-                            vectorize_property_name=False,
-                        ),
-                        Property(
-                            name="last_updated",
-                            data_type=DataType.DATE,
-                            vectorize_property_name=False,
-                        ),
-                    ],
-                    vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(
-                        model="sentence-transformers/all-MiniLM-L6-v2",
-                        vectorize_collection_name=False,
-                    ),
-                )
-                logger.info("✅ Weaviate UserProfile schema created")
-
+            self._create_weaviate_schemas()
         except Exception as e:
-            logger.error(f"❌ Weaviate initialization failed: {e}")
+            logger.error(f"❌ Weaviate schema creation failed: {e}")
 
         # Initialize PostgreSQL
         try:
-            async with self.pg_pool.acquire() as conn:
-                await conn.fetchval("SELECT 1")
-            logger.info("✅ PostgreSQL connected successfully")
+            if self.pg_pool:
+                async with self.pg_pool.acquire() as conn:
+                    await conn.fetchval("SELECT 1")
+                logger.info("✅ PostgreSQL connected successfully")
         except Exception as e:
             logger.error(f"❌ PostgreSQL connection failed: {e}")
 
         logger.info("✅ Unified Memory Service v2 initialized")
 
+    def _create_weaviate_schemas(self):
+        try:
+            if not self.weaviate.collections.exists("Knowledge"):
+                logger.info("Creating Weaviate Knowledge schema...")
+                self.weaviate.collections.create(
+                    name="Knowledge",
+                    properties=[
+                        Property(name="content", data_type=DataType.TEXT),
+                        Property(name="source", data_type=DataType.TEXT),
+                        Property(name="user_id", data_type=DataType.TEXT),
+                        Property(name="timestamp", data_type=DataType.DATE),
+                        Property(name="metadata", data_type=DataType.TEXT),
+                        Property(name="category", data_type=DataType.TEXT),
+                        Property(name="importance", data_type=DataType.NUMBER),
+                    ],
+                    vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
+                )
+                logger.info("✅ Weaviate Knowledge schema created")
+            else:
+                logger.info("✅ Weaviate Knowledge schema exists")
+
+            if not self.weaviate.collections.exists("UserProfile"):
+                logger.info("Creating Weaviate UserProfile schema...")
+                self.weaviate.collections.create(
+                    name="UserProfile",
+                    properties=[
+                        Property(name="user_id", data_type=DataType.TEXT),
+                        Property(
+                            name="personality_preferences",
+                            data_type=DataType.TEXT,
+                        ),
+                        Property(name="interaction_history", data_type=DataType.TEXT),
+                        Property(name="communication_style", data_type=DataType.TEXT),
+                        Property(name="last_updated", data_type=DataType.DATE),
+                    ],
+                    vectorizer_config=Configure.Vectorizer.text2vec_transformers(),
+                )
+                logger.info("✅ Weaviate UserProfile schema created")
+            else:
+                logger.info("✅ Weaviate UserProfile schema exists")
+
+        except Exception as e:
+            logger.error(f"❌ Weaviate schema creation failed: {e}")
+
     @retry(
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10)
     )
-    async def generate_embedding(
-        self, text: str, model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    ) -> np.ndarray:
+    async def generate_embedding(self, text: str) -> np.ndarray:
         """
         Generate embeddings at GPU speed - bye bye 500ms Snowflake lag!
         Lambda B200: 2x FLOPS, 2.3x VRAM = embeddings go brrrr
@@ -203,7 +152,7 @@ class UnifiedMemoryServiceV2:
         try:
             # Primary: Lambda GPU inference
             async with aiohttp.ClientSession() as session:
-                payload = {"input": text, "model": model, "normalize": True}
+                payload = {"input": text, "normalize": True}
 
                 async with session.post(
                     f"{self.lambda_url}/embed",
@@ -224,7 +173,10 @@ class UnifiedMemoryServiceV2:
                             )
 
                         return embedding
-
+                    else:
+                        raise aiohttp.ClientError(
+                            f"Lambda embedding failed with status: {resp.status}"
+                        )
         except Exception as e:
             logger.warning(
                 f"Lambda GPU failed ({e}), falling back to Portkey/OpenRouter"
@@ -233,7 +185,7 @@ class UnifiedMemoryServiceV2:
         # Fallback: Portkey/OpenRouter
         try:
             response = await self.portkey.embeddings.acreate(
-                model="openai/text-embedding-3-small", input=text  # Fast and good
+                model="openai/text-embedding-3-small", input=[text]
             )
             embedding = np.array(response.data[0].embedding, dtype=np.float32)
 
@@ -300,17 +252,17 @@ class UnifiedMemoryServiceV2:
         metadata: Dict[str, Any],
     ):
         """Store in Weaviate - AI-native vector DB that actually performs"""
+        knowledge_collection = self.weaviate.collections.get("Knowledge")
         data_object = {
             "content": content,
             "source": source,
-            "metadata": metadata,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
-            "embedding_model": "all-MiniLM-L6-v2",
+            "metadata": json.dumps(metadata),
+            "timestamp": datetime.utcnow(),
+            **metadata,
         }
 
-        self.weaviate.data_object.create(
-            data_object=data_object,
-            class_name="Knowledge",
+        knowledge_collection.data.insert(
+            properties=data_object,
             uuid=uuid,
             vector=embedding.tolist(),
         )
@@ -414,36 +366,27 @@ class UnifiedMemoryServiceV2:
         query_text: str,
         limit: int,
         metadata_filter: Optional[Dict[str, Any]],
-    ) -> List[Dict[str, Any]]:
+    ) -> List[Any]:
         """Weaviate hybrid search - dense + sparse = badass"""
-        near_vector = {"vector": query_embedding.tolist()}
+        knowledge_collection = self.weaviate.collections.get("Knowledge")
 
-        query_builder = (
-            self.weaviate.query.get(
-                "Knowledge", ["content", "source", "metadata", "timestamp"]
-            )
-            .with_near_vector(near_vector)
-            .with_limit(limit * 2)  # Get extra for merging
-            .with_additional(["certainty", "id"])
+        filters = None
+        if metadata_filter:
+            filter_list = [
+                MetadataQuery.by_property(key).equal(value)
+                for key, value in metadata_filter.items()
+            ]
+            filters = MetadataQuery.all_of(filter_list)
+
+        response = knowledge_collection.query.hybrid(
+            query=query_text,
+            vector=query_embedding.tolist(),
+            limit=limit * 2,
+            filters=filters,
+            return_metadata=MetadataQuery(score=True, distance=True),
         )
 
-        # Add metadata filter if provided
-        if metadata_filter:
-            where_filter = {
-                "path": ["metadata"],
-                "operator": "ContainsAny",
-                "valueObject": metadata_filter,
-            }
-            query_builder = query_builder.with_where(where_filter)
-
-        # Execute hybrid search
-        results = query_builder.do()
-
-        if "errors" in results:
-            logger.error(f"Weaviate search error: {results['errors']}")
-            return []
-
-        return results.get("data", {}).get("Get", {}).get("Knowledge", [])
+        return response.objects
 
     async def _search_pg(
         self,
@@ -481,7 +424,7 @@ class UnifiedMemoryServiceV2:
 
     def _merge_results(
         self,
-        weaviate_results: List[Dict[str, Any]],
+        weaviate_results: List[Any],
         pg_results: List[Dict[str, Any]],
         limit: int,
     ) -> List[Dict[str, Any]]:
@@ -494,15 +437,15 @@ class UnifiedMemoryServiceV2:
 
         # Process Weaviate results
         for result in weaviate_results:
-            content = result.get("content", "")
+            content = result.properties.get("content", "")
             if content not in seen_content:
                 seen_content.add(content)
                 merged.append(
                     {
                         "content": content,
-                        "source": result.get("source"),
-                        "metadata": result.get("metadata", {}),
-                        "score": result.get("_additional", {}).get("certainty", 0),
+                        "source": result.properties.get("source"),
+                        "metadata": json.loads(result.properties.get("metadata", "{}")),
+                        "score": result.metadata.score if result.metadata else 0,
                         "origin": "weaviate",
                     }
                 )
@@ -526,6 +469,27 @@ class UnifiedMemoryServiceV2:
         merged.sort(key=lambda x: x["score"], reverse=True)
 
         return merged[:limit]
+
+    async def search_knowledge_personalized(
+        self,
+        query: str,
+        user_id: str,
+        limit: int = 10,
+        metadata_filter: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Search with user personalization.
+        This is a placeholder for true Weaviate v1.26 agent search.
+        For now, it just filters by user_id.
+        """
+        logger.info(f"Performing personalized search for user: {user_id}")
+        if metadata_filter is None:
+            metadata_filter = {}
+        metadata_filter["user_id"] = user_id
+
+        return await self.search_knowledge(
+            query=query, limit=limit, metadata_filter=metadata_filter
+        )
 
     async def get_performance_stats(self) -> Dict[str, Any]:
         """
@@ -604,34 +568,27 @@ class UnifiedMemoryServiceV2:
 
         # Analyze past interactions from Weaviate
         try:
-            past_queries = (
-                self.weaviate.query.get("Memory")
-                .with_where(
-                    {
-                        "path": ["metadata", "user_id"],
-                        "operator": "Equal",
-                        "valueString": user_id,
-                    }
-                )
-                .with_limit(100)
-                .do()
+            knowledge_collection = self.weaviate.collections.get("Knowledge")
+            past_queries = knowledge_collection.query.fetch_objects(
+                limit=100, filters=MetadataQuery(path="user_id").equal(user_id)
             )
 
-            if past_queries and "data" in past_queries:
-                memories = past_queries["data"]["Get"]["Memory"]
+            if past_queries.objects:
+                memories = past_queries.objects
                 profile["interaction_count"] = len(memories)
 
                 # Extract patterns
                 topics = {}
                 for mem in memories[-20:]:  # Last 20 interactions
-                    if "category" in mem:
-                        topics[mem["category"]] = topics.get(mem["category"], 0) + 1
+                    if "category" in mem.properties:
+                        cat = mem.properties["category"]
+                        topics[cat] = topics.get(cat, 0) + 1
 
                 profile["focus_areas"] = sorted(
                     topics.keys(), key=topics.get, reverse=True
                 )[:5]
                 profile["recent_topics"] = [
-                    m.get("category", "general") for m in memories[-5:]
+                    m.properties.get("category", "general") for m in memories[-5:]
                 ]
         except Exception as e:
             logger.warning(f"Failed to build profile from history: {e}")
@@ -695,37 +652,39 @@ class UnifiedMemoryServiceV2:
             if profile and profile["preferences"]["technical_depth"] == "expert":
                 alpha = 0.8  # Even more semantic for experts
 
-            response = (
-                self.weaviate.query.get(
-                    "Memory", ["content", "category", "metadata", "source", "timestamp"]
+            knowledge_collection = self.weaviate.collections.get("Knowledge")
+
+            response = knowledge_collection.query.hybrid(
+                query=personalized_query,
+                vector=embedding.tolist(),
+                alpha=alpha,
+                limit=limit * 2,
+                return_metadata=["score", "distance"],
+                filters=MetadataQuery.by_property("metadata").contains_any(
+                    json.dumps(metadata_filter)
                 )
-                .with_hybrid(query=personalized_query, alpha=alpha, vector=embedding)
-                .with_additional(["score", "distance"])
+                if metadata_filter
+                else None,
             )
-
-            if where_filter:
-                response = response.with_where(where_filter)
-
-            response = response.with_limit(limit * 2).do()  # Get extra for reranking
 
             # Process results
             results = []
-            if response and "data" in response and "Get" in response["data"]:
-                memories = response["data"]["Get"]["Memory"] or []
+            if response.objects:
+                memories = response.objects
 
                 for memory in memories:
                     results.append(
                         {
-                            "id": memory.get("_additional", {}).get("id", ""),
-                            "content": memory.get("content", ""),
-                            "category": memory.get("category", "general"),
-                            "metadata": memory.get("metadata", {}),
-                            "source": memory.get("source", "unknown"),
-                            "timestamp": memory.get("timestamp", ""),
-                            "score": memory.get("_additional", {}).get("score", 0),
-                            "distance": memory.get("_additional", {}).get(
-                                "distance", 1.0
+                            "id": memory.uuid,
+                            "content": memory.properties.get("content", ""),
+                            "category": memory.properties.get("category", "general"),
+                            "metadata": json.loads(
+                                memory.properties.get("metadata", "{}")
                             ),
+                            "source": memory.properties.get("source", "unknown"),
+                            "timestamp": memory.properties.get("timestamp", ""),
+                            "score": memory.metadata.score,
+                            "distance": memory.metadata.distance,
                         }
                     )
 

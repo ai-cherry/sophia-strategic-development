@@ -3,15 +3,28 @@ Sophia Unified Orchestrator - Multi-Hop Reasoning Engine
 Because single-shot prompts are for amateurs
 """
 
-from typing import Dict, Any
+import sys
+from pathlib import Path
+
+# Add project root to path for consistent imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(project_root))
+
+import logging
+from typing import Dict, Any, List
 from enum import Enum
 import json
 from datetime import datetime
+from typing_extensions import TypedDict
+
 from langgraph.graph import StateGraph, END
 
+import backend.utils.path_utils  # noqa: F401
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.services.mcp_orchestration_service import MCPOrchestrationService
+
+logger = logging.getLogger(__name__)
 
 
 class IntentComplexity(Enum):
@@ -19,6 +32,29 @@ class IntentComplexity(Enum):
     MODERATE = "moderate"  # 2-3 MCP calls
     COMPLEX = "complex"  # Multi-hop reasoning required
     NUCLEAR = "nuclear"  # CEO asking about everything
+
+
+class OrchestratorState(TypedDict):
+    """The state of the reasoning graph."""
+
+    query: str
+    user_id: str
+    complexity: IntentComplexity
+    required_servers: List[str]
+    sub_tasks: List[Dict[str, Any]]
+    task_dependencies: Dict[str, List[str]]
+    mcp_results: Dict[str, Any]
+    synthesized_response: str
+    synthesis_metadata: Dict[str, Any]
+    quality: str
+    critique_notes: List[str]
+    iteration_count: int
+    final_response: str
+    personalization_applied: bool
+    execution_errors: List[str]
+    snark: str
+    current_task_index: int
+    routing_path: str
 
 
 class SophiaUnifiedOrchestrator:
@@ -39,7 +75,7 @@ class SophiaUnifiedOrchestrator:
 
     def _build_reasoning_graph(self) -> StateGraph:
         """Build the LangGraph for multi-hop reasoning"""
-        graph = StateGraph(Dict[str, Any])
+        graph = StateGraph(OrchestratorState)
 
         # Add nodes for multi-hop reasoning
         graph.add_node("analyze_intent", self.analyze_intent)
@@ -47,9 +83,11 @@ class SophiaUnifiedOrchestrator:
         graph.add_node("execute_mcp", self.execute_mcp_chain)
         graph.add_node("fuse", self.fuse_results)
         graph.add_node("critique", self.self_critique)
-        graph.add_node("enhance", self.enhance_with_memory)
+        graph.add_node("enhance_with_rag", self.enhance_with_rag)
+        graph.add_node("enhance_with_memory", self.enhance_with_memory)
 
-        # Add conditional edges based on complexity
+        # Define graph flow
+        graph.set_entry_point("analyze_intent")
         graph.add_edge("analyze_intent", "decompose")
         graph.add_conditional_edges(
             "decompose",
@@ -60,22 +98,24 @@ class SophiaUnifiedOrchestrator:
         graph.add_edge("execute_mcp", "fuse")
         graph.add_edge("fuse", "critique")
 
-        # Self-critique loop
+        # Self-critique and enhancement loop
         graph.add_conditional_edges(
             "critique",
             self.critique_quality,
             {
-                "good": "enhance",
-                "bad": "execute_mcp",  # Re-execute with better params
-                "terrible": "decompose",  # Start over, you failed
+                "perfect": "enhance_with_memory",
+                "needs_data": "enhance_with_rag",
+                "needs_refining": "fuse",
+                "total_failure": "decompose",
             },
         )
 
-        graph.add_edge("enhance", END)
+        graph.add_edge("enhance_with_rag", "fuse")  # Re-fuse after getting more data
+        graph.add_edge("enhance_with_memory", END)
 
         return graph
 
-    async def analyze_intent(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def analyze_intent(self, state: OrchestratorState) -> OrchestratorState:
         """Analyze query complexity and intent"""
         query = state["query"]
 
@@ -106,7 +146,7 @@ class SophiaUnifiedOrchestrator:
 
         return state
 
-    async def decompose_intent(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def decompose_intent(self, state: OrchestratorState) -> OrchestratorState:
         """Break complex queries into sub-tasks"""
         query = state["query"]
         complexity = state["complexity"]
@@ -142,7 +182,7 @@ class SophiaUnifiedOrchestrator:
 
         return state
 
-    async def execute_mcp_chain(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute_mcp_chain(self, state: OrchestratorState) -> OrchestratorState:
         """Execute MCP calls in dependency order"""
         sub_tasks = state["sub_tasks"]
         dependencies = state.get("task_dependencies", {})
@@ -179,7 +219,7 @@ class SophiaUnifiedOrchestrator:
         state["mcp_results"] = results
         return state
 
-    async def fuse_results(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def fuse_results(self, state: OrchestratorState) -> OrchestratorState:
         """Synthesize results from multiple MCP calls"""
         results = state["mcp_results"]
         query = state["query"]
@@ -215,77 +255,108 @@ class SophiaUnifiedOrchestrator:
 
         return state
 
-    async def self_critique(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def self_critique(self, state: OrchestratorState) -> OrchestratorState:
         """Critique the synthesized response and determine quality"""
         response = state["synthesized_response"]
         query = state["query"]
         errors = state.get("execution_errors", [])
 
-        critique_prompt = f"""Critique this response brutally. No sugarcoating.
-        
-        Query: {query}
-        Response: {response}
-        Errors: {errors}
-        
-        Rate quality: good/bad/terrible
-        - good: Answers the question completely
-        - bad: Missing info but salvageable  
-        - terrible: Total failure, start over
-        
-        Provide specific issues if not good.
+        critique_prompt = f"""Critique this synthesized response with extreme prejudice.
+
+        Original Query: {query}
+        Synthesized Response: {response}
+        Execution Errors: {errors}
+
+        Rate the quality on this scale:
+        - perfect: The answer is complete, accurate, and requires no changes.
+        - needs_data: The answer is good but incomplete. It needs more information from a knowledge source (RAG).
+        - needs_refining: The components are all here, but the synthesis is weak or poorly worded. Re-running synthesis might fix it.
+        - total_failure: The entire approach was wrong. Decompose the problem again from scratch.
+
+        Provide your reasoning in 'critique_notes'.
+        Output JSON: {{"quality": "...", "critique_notes": "..."}}
         """
 
-        critique = await self.portkey.completions.create(
+        critique_response = await self.portkey.completions.create(
             model="claude-3-5-sonnet-20240620",
             messages=[{"role": "user", "content": critique_prompt}],
-            temperature=0.2,
+            temperature=0.1,
+            response_format={"type": "json_object"},
         )
 
-        critique_result = json.loads(critique.choices[0].message.content)
+        critique_result = json.loads(critique_response.choices[0].message.content)
         state["quality"] = critique_result["quality"]
-        state["critique_notes"] = critique_result.get("issues", [])
+        state["critique_notes"] = critique_result.get("critique_notes", [])
         state["iteration_count"] = state.get("iteration_count", 0) + 1
 
-        # Prevent infinite loops
+        # Prevent infinite loops of pure failure
         if state["iteration_count"] > 3:
-            state["quality"] = "good"  # Force exit after 3 tries
-            state["critique_notes"].append("Max iterations reached - shipping as is")
+            state["quality"] = "perfect"  # Force exit
+            state["critique_notes"].append("Max iterations reached. Shipping as is.")
 
         return state
 
-    async def enhance_with_memory(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """Enhance response with personalized context from memory"""
+    async def enhance_with_rag(self, state: OrchestratorState) -> OrchestratorState:
+        """
+        Enhance the context with a targeted RAG query to fill in missing information.
+        """
+        critique_notes = state.get("critique_notes", "Missing general context.")
+        logger.info(f"Enhancing with RAG based on critique: {critique_notes}")
+
+        rag_query = f"Find information to address the following critique of an AI-generated answer: {critique_notes}"
+
+        rag_results = await self.memory.search_knowledge(
+            query=rag_query,
+            limit=3,
+        )
+
+        # Add RAG results to the state to be re-fused
+        existing_results = state.get("mcp_results", {})
+        existing_results["rag_enhancement"] = {
+            "source": "weaviate_rag",
+            "results": [res.get("content") for res in rag_results],
+        }
+        state["mcp_results"] = existing_results
+        state["execution_errors"] = []  # Clear previous errors before re-fusing
+
+        logger.info("RAG enhancement complete. Returning to fuse results.")
+        return state
+
+    async def enhance_with_memory(self, state: OrchestratorState) -> OrchestratorState:
+        """Enhance response with personalized context using Weaviate v1.26 agents."""
         response = state["synthesized_response"]
         user_id = state.get("user_id", "ceo_user")
 
-        # Fetch user profile and relevant memories
-        profile = await self.memory.get_user_profile(user_id)
-        relevant_memories = await self.memory.search_knowledge(
-            query=state["query"], limit=5, metadata_filter={"user_id": user_id}
+        # Weaviate v1.26+ allows for personalization agents in the search itself
+        logger.info(
+            f"Enhancing final response with personalized memory for user: {user_id}"
+        )
+        personalized_results = await self.memory.search_knowledge_personalized(
+            query=state["query"],
+            user_id=user_id,
+            limit=5,
         )
 
-        # Enhance with personalization
-        enhance_prompt = f"""Enhance this response with user context.
-        
-        Response: {response}
-        
-        User profile: {json.dumps(profile)}
-        Relevant memories: {json.dumps([m['content'] for m in relevant_memories])}
-        
-        Make it personal and relevant to their history/preferences.
-        Keep the snark level appropriate to their tolerance.
+        enhance_prompt = f"""Rewrite this response to be hyper-personalized for the user based on their context.
+
+        Generic Response: {response}
+
+        User's Personal Context & Memories:
+        {json.dumps([res.get('content') for res in personalized_results], indent=2)}
+
+        Make it personal, relevant, and adopt the user's preferred tone (e.g., CEO snark).
         """
 
-        enhanced = await self.portkey.completions.create(
+        enhanced_response = await self.portkey.completions.create(
             model="claude-3-5-sonnet-20240620",
             messages=[{"role": "user", "content": enhance_prompt}],
             temperature=0.6,
         )
 
-        state["final_response"] = enhanced.choices[0].message.content
+        state["final_response"] = enhanced_response.choices[0].message.content
         state["personalization_applied"] = True
 
-        # Store interaction in memory for future personalization
+        # Store the final, personalized interaction in memory
         await self.memory.add_knowledge(
             content=f"Q: {state['query']}\nA: {state['final_response']}",
             source="chat_interaction",
@@ -297,9 +368,11 @@ class SophiaUnifiedOrchestrator:
             },
         )
 
+        state["routing_path"] = "simple"
+
         return state
 
-    async def route_simple_query(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def route_simple_query(self, state: OrchestratorState) -> OrchestratorState:
         """Fast path for simple queries"""
         query = state["query"]
 
@@ -311,46 +384,69 @@ class SophiaUnifiedOrchestrator:
 
         return state
 
-    def _route_by_complexity(self, state: Dict[str, Any]) -> str:
+    def _route_by_complexity(self, state: OrchestratorState) -> str:
         """Route based on complexity analysis"""
-        return state["complexity"]
+        return state["complexity"].value
 
-    def _check_quality(self, state: Dict[str, Any]) -> str:
+    def _check_quality(self, state: OrchestratorState) -> str:
         """Check critique quality for routing"""
         return state["quality"]
 
-    def should_execute_directly(self, state: Dict[str, Any]) -> bool:
+    def should_execute_directly(self, state: OrchestratorState) -> bool:
         """Determine if we should execute directly or decompose further"""
         # If we have sub-tasks, execute; otherwise decompose more
         return len(state.get("sub_tasks", [])) > 0
 
-    def critique_quality(self, state: Dict[str, Any]) -> str:
-        """Return the quality assessment from critique"""
-        return state.get("quality", "good")
+    def critique_quality(self, state: OrchestratorState) -> str:
+        """Return the quality assessment from critique for routing"""
+        return state.get("quality", "perfect")
 
     async def orchestrate(
         self, query: str, user_id: str = "ceo_user"
     ) -> Dict[str, Any]:
         """Main orchestration entry point"""
-        initial_state = {
+        initial_state: OrchestratorState = {
             "query": query,
             "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "complexity": IntentComplexity.SIMPLE,
+            "required_servers": [],
+            "sub_tasks": [],
+            "task_dependencies": {},
             "mcp_results": {},
+            "synthesized_response": "",
+            "synthesis_metadata": {},
+            "quality": "",
+            "critique_notes": [],
             "iteration_count": 0,
+            "final_response": "",
+            "personalization_applied": False,
+            "execution_errors": [],
+            "snark": "",
+            "current_task_index": 0,
+            "routing_path": "",
         }
 
         # Run the graph
         result = await self.compiled_graph.ainvoke(initial_state)
 
+        final_response = result.get(
+            "final_response", result.get("synthesized_response")
+        )
+        if not final_response:
+            final_response = "Execution failed. Could not generate a response."
+            if result.get("execution_errors"):
+                final_response += f"\nErrors: {result.get('execution_errors')}"
+
         return {
-            "response": result.get(
-                "final_response",
-                result.get("synthesized_response", "Failed to generate response"),
-            ),
+            "response": final_response,
             "metadata": {
                 "complexity": result.get("complexity", IntentComplexity.SIMPLE).value,
-                "routing_path": result.get("routing_path", "complex"),
+                "confidence_score": 0.95
+                if result.get("quality") == "perfect"
+                else 0.7,  # Example score
+                "reasoning_trace": "->".join(
+                    self.compiled_graph.get_graph().nodes
+                ),  # Simplified trace
                 "iterations": result.get("iteration_count", 1),
                 "sources": result.get("synthesis_metadata", {}).get("sources", []),
                 "personalized": result.get("personalization_applied", False),
