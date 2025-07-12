@@ -7,7 +7,7 @@ from typing import Dict, Any
 from enum import Enum
 import json
 from datetime import datetime
-from langgraph.graph import Graph, END
+from langgraph.graph import StateGraph, END
 
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 from backend.services.portkey_gateway import PortkeyGateway
@@ -37,46 +37,33 @@ class SophiaUnifiedOrchestrator:
         self.graph = self._build_reasoning_graph()
         self.compiled_graph = self.graph.compile()
 
-    def _build_reasoning_graph(self) -> Graph:
+    def _build_reasoning_graph(self) -> StateGraph:
         """Build the LangGraph for multi-hop reasoning"""
-        graph = Graph()
+        graph = StateGraph(Dict[str, Any])
 
-        # Nodes
+        # Add nodes for multi-hop reasoning
         graph.add_node("analyze_intent", self.analyze_intent)
         graph.add_node("decompose", self.decompose_intent)
-        graph.add_node("route_simple", self.route_simple_query)
         graph.add_node("execute_mcp", self.execute_mcp_chain)
-        graph.add_node("synthesize", self.fuse_results)
+        graph.add_node("fuse", self.fuse_results)
         graph.add_node("critique", self.self_critique)
         graph.add_node("enhance", self.enhance_with_memory)
 
-        # Edges - conditional routing based on complexity
-        graph.set_entry_point("analyze_intent")
-
-        # Route based on complexity
+        # Add conditional edges based on complexity
+        graph.add_edge("analyze_intent", "decompose")
         graph.add_conditional_edges(
-            "analyze_intent",
-            self._route_by_complexity,
-            {
-                IntentComplexity.SIMPLE: "route_simple",
-                IntentComplexity.MODERATE: "decompose",
-                IntentComplexity.COMPLEX: "decompose",
-                IntentComplexity.NUCLEAR: "decompose",
-            },
+            "decompose",
+            self.should_execute_directly,
+            {True: "execute_mcp", False: "decompose"},
         )
 
-        # Simple path
-        graph.add_edge("route_simple", END)
+        graph.add_edge("execute_mcp", "fuse")
+        graph.add_edge("fuse", "critique")
 
-        # Complex path with loops
-        graph.add_edge("decompose", "execute_mcp")
-        graph.add_edge("execute_mcp", "synthesize")
-        graph.add_edge("synthesize", "critique")
-
-        # Self-critique loop - if shit, try again
+        # Self-critique loop
         graph.add_conditional_edges(
             "critique",
-            self._check_quality,
+            self.critique_quality,
             {
                 "good": "enhance",
                 "bad": "execute_mcp",  # Re-execute with better params
@@ -331,6 +318,15 @@ class SophiaUnifiedOrchestrator:
     def _check_quality(self, state: Dict[str, Any]) -> str:
         """Check critique quality for routing"""
         return state["quality"]
+
+    def should_execute_directly(self, state: Dict[str, Any]) -> bool:
+        """Determine if we should execute directly or decompose further"""
+        # If we have sub-tasks, execute; otherwise decompose more
+        return len(state.get("sub_tasks", [])) > 0
+
+    def critique_quality(self, state: Dict[str, Any]) -> str:
+        """Return the quality assessment from critique"""
+        return state.get("quality", "good")
 
     async def orchestrate(
         self, query: str, user_id: str = "ceo_user"

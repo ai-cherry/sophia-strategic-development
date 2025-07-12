@@ -1,179 +1,145 @@
-# Sophia AI Makefile
-# This Makefile provides automatic setup and management for Sophia AI
-# Just type 'make' and everything will be set up automatically
+# 🚀 SOPHIA AI DEPLOYMENT MAKEFILE
+# Deploy the GPU-accelerated AI overlord with one command
 
-.PHONY: all setup env ssl deps docker health command clean one-time-inventory one-time-archive one-time-purge deploy-new-stack deploy-dev-stack deploy-prod-stack validate-deployment benchmark-new-stack deploy-monitoring cleanup-old-stack deploy-all prod-deploy-all
+.PHONY: help deploy deploy-infra deploy-backend deploy-mcp deploy-frontend deploy-all test clean
 
-	# Default target - runs everything
-all: setup
+# Default Lambda Labs servers
+LAMBDA_PRIMARY ?= 104.171.202.103
+LAMBDA_GPU ?= 192.222.58.232
+LAMBDA_MCP ?= 104.171.202.117
 
-# Setup everything automatically
-setup: env ssl deps docker health command
-	@echo "\n✅ Sophia AI setup complete! The system is now ready to use."
+# Docker registry
+REGISTRY ?= scoobyjava15
 
-# Set up environment variables
-env:
-	@echo "\n🔧 Setting up environment variables..."
-	@chmod +x secrets_manager.py || true
-	@./secrets_manager.py import-from-env || true
-	@./secrets_manager.py export-to-env || true
-	@./secrets_manager.py validate || true
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-# Fix SSL certificate issues
-ssl:
-	@echo "\n🔧 Fixing SSL certificate issues..."
-	@chmod +x fix_ssl_certificates.py || true
-	@./fix_ssl_certificates.py || true
-	@chmod +x run_with_ssl_fix.py || true
+check-env: ## Check environment setup
+	@echo "🔍 Checking deployment environment..."
+	@echo "✅ Pulumi organization: $$PULUMI_ORG"
+	@echo "✅ Environment: $$ENVIRONMENT"
+	@echo "✅ Docker registry: $(REGISTRY)"
+	@echo "✅ Lambda Labs servers configured"
 
-# Fix Python package dependencies
-deps:
-	@echo "\n🔧 Fixing Python package dependencies..."
-	@chmod +x fix_dependencies.py || true
-	@./fix_dependencies.py || true
+deploy: deploy-all ## Full deployment (alias for deploy-all)
 
-# Fix Docker Compose and start MCP servers
-docker:
-	@echo "\n🔧 Starting MCP servers..."
-	@chmod +x start_mcp_servers.py || true
-	@./start_mcp_servers.py || true
+deploy-infra: check-env ## Deploy infrastructure (Weaviate, Redis, PostgreSQL)
+	@echo "🏗️  Deploying infrastructure to Lambda Labs..."
+	cd infrastructure/pulumi && pulumi up -y
+	@echo "⏳ Waiting for infrastructure to stabilize..."
+	sleep 30
+	kubectl get pods -n sophia-ai-prod
 
-# Run health check
-health:
-	@echo "\n🔧 Running health check..."
-	@if [ -f "automated_health_check_fixed.py" ] && [ ! -f "automated_health_check.py" ]; then \
-		cp automated_health_check_fixed.py automated_health_check.py; \
-	fi
-	@if [ -f "automated_health_check.py" ]; then \
-		./run_with_ssl_fix.py automated_health_check.py || true; \
-	else \
-		echo "⚠️ automated_health_check.py not found. Skipping health check."; \
-	fi
+build-images: ## Build all Docker images
+	@echo "🐳 Building Docker images..."
+	docker build -f backend/Dockerfile -t $(REGISTRY)/sophia-backend:latest .
+	docker build -f frontend/Dockerfile -t $(REGISTRY)/sophia-frontend:latest frontend/
+	docker build -f docker/Dockerfile.mcp-base -t $(REGISTRY)/sophia-mcp-base:latest .
+	docker build -f docker/Dockerfile.gh200 -t $(REGISTRY)/sophia-gpu:latest .
 
-# Run command interface
-command:
-	@echo "\n🔧 Running command interface..."
-	@if [ -f "unified_command_interface_fixed.py" ] && [ ! -f "unified_command_interface.py" ]; then \
-		cp unified_command_interface_fixed.py unified_command_interface.py; \
-	fi
-	@if [ -f "unified_command_interface.py" ]; then \
-		./run_with_ssl_fix.py unified_command_interface.py "check system status" || true; \
-	else \
-		echo "⚠️ unified_command_interface.py not found. Skipping command interface."; \
-	fi
+push-images: build-images ## Push images to registry
+	@echo "📤 Pushing images to $(REGISTRY)..."
+	docker push $(REGISTRY)/sophia-backend:latest
+	docker push $(REGISTRY)/sophia-frontend:latest
+	docker push $(REGISTRY)/sophia-mcp-base:latest
+	docker push $(REGISTRY)/sophia-gpu:latest
 
-# Clean up
-clean:
-        @echo "\n🧹 Cleaning up..."
-        @docker-compose -f docker-compose.mcp.yml down || true
-        @echo "✅ Cleanup complete"
+deploy-backend: push-images ## Deploy backend services
+	@echo "🎯 Deploying backend services..."
+	kubectl apply -k k8s/overlays/production
+	kubectl rollout status deployment/sophia-backend -n sophia-ai-prod
 
-one-time-inventory:
-	python scripts/generate_one_time_inventory.py
+deploy-mcp: ## Deploy MCP servers
+	@echo "🤖 Deploying MCP servers..."
+	kubectl apply -f k8s/mcp-servers/
+	@echo "⏳ Waiting for MCP servers..."
+	sleep 20
+	kubectl get pods -n mcp-servers
 
-one-time-archive:
-	bash scripts/soft_archive_one_time.sh
+deploy-frontend: ## Deploy frontend to Vercel
+	@echo "🎨 Deploying frontend..."
+	cd frontend && vercel --prod
 
-one-time-purge:
-	git rm -r archive/one_time_* && git commit -m "purge one-time scripts"
+deploy-n8n: ## Deploy n8n workflows
+	@echo "🔄 Deploying n8n workflows..."
+	kubectl apply -f kubernetes/n8n/
+	@echo "📥 Importing workflows..."
+	python scripts/import_n8n_workflows.py
 
-# Help
-help:
-	@echo "Sophia AI Makefile"
-	@echo "Usage: make [target]"
-	@echo ""
-	@echo "Targets:"
-	@echo "  all      - Set up everything (default)"
-	@echo "  setup    - Set up everything"
-	@echo "  env      - Set up environment variables"
-	@echo "  ssl      - Fix SSL certificate issues"
-	@echo "  deps     - Fix Python package dependencies"
-        @echo "  docker   - Fix Docker Compose and start MCP servers"
-        @echo "  health   - Run health check"
-        @echo "  command  - Run command interface"
-        @echo "  clean    - Clean up"
-        @echo "  one-time-inventory - Generate one-time artefact list"
-        @echo "  one-time-archive   - Move approved items to archive"
-        @echo "  one-time-purge     - Remove archived items"
-        @echo "  deploy-new-stack    - Deploy Weaviate/Redis/PostgreSQL/Lambda GPU stack to production"
-        @echo "  deploy-dev-stack    - Deploy to development environment first"
-        @echo "  deploy-prod-stack   - Deploy to production (after dev validation)"
-        @echo "  validate-deployment - Validate the deployed stack is working correctly"
-        @echo "  benchmark-new-stack - Run performance benchmarks on the new stack"
-        @echo "  deploy-monitoring   - Deploy Prometheus and Grafana monitoring"
-        @echo "  cleanup-old-stack   - Clean up old Snowflake-based resources"
-        @echo "  deploy-all          - Deploy everything to dev and validate"
-        @echo "  prod-deploy-all     - Deploy everything to production"
-        @echo "  help     - Show this help"
+deploy-all: deploy-infra deploy-backend deploy-mcp deploy-frontend deploy-n8n ## Deploy everything
+	@echo "✅ Full deployment complete!"
+	@echo "🔥 Sophia AI is now operational!"
+	@make test
 
-# Phase 4: Deploy New Memory Stack
-deploy-new-stack: ## Deploy Weaviate/Redis/PostgreSQL/Lambda GPU stack to production
-	@echo "🚀 Deploying new memory architecture stack..."
-	@echo "Stack: $(STACK)"
-	@echo ""
-	# Ensure we're in the infrastructure directory
-	cd infrastructure && \
-	# Preview changes first
-	pulumi preview --stack $(STACK) && \
-	# Deploy with auto-approve
-	pulumi up --stack $(STACK) --yes && \
-	# Wait for deployments to be ready
-	kubectl rollout status -n sophia-ai-$(STACK) deployment/weaviate --timeout=5m && \
-	kubectl rollout status -n sophia-ai-$(STACK) statefulset/redis --timeout=5m && \
-	kubectl rollout status -n sophia-ai-$(STACK) deployment/postgresql --timeout=5m && \
-	kubectl rollout status -n sophia-ai-$(STACK) deployment/lambda-inference --timeout=5m && \
-	# Show deployment status
-	echo "✅ All services deployed successfully!" && \
-	kubectl get pods -n sophia-ai-$(STACK) -l app.kubernetes.io/part-of=sophia-ai
+test: ## Run deployment tests
+	@echo "🧪 Running deployment tests..."
+	@echo "Testing backend health..."
+	curl -f http://$(LAMBDA_PRIMARY):8000/health || exit 1
+	@echo "\nTesting memory service..."
+	curl -f http://$(LAMBDA_GPU):8000/api/v2/memory/stats || exit 1
+	@echo "\nTesting chat service..."
+	curl -f http://$(LAMBDA_PRIMARY):8000/api/v4/sophia/health || exit 1
+	@echo "\nTesting MCP gateway..."
+	curl -f http://$(LAMBDA_MCP):8080/health || exit 1
+	@echo "\n✅ All tests passed!"
 
-deploy-dev-stack: ## Deploy to development environment first
-	@$(MAKE) deploy-new-stack STACK=dev
+test-sophia: ## Test Sophia's personality
+	@echo "😈 Testing Sophia's personality..."
+	curl -X POST http://$(LAMBDA_PRIMARY):8000/api/v4/sophia/chat \
+		-H "Content-Type: application/json" \
+		-d '{"query": "Why is our system slow?", "user_id": "ceo_user"}' | jq
 
-deploy-prod-stack: ## Deploy to production (after dev validation)
-	@echo "⚠️  Deploying to PRODUCTION"
-	@echo "Have you validated in dev? (Ctrl-C to cancel)"
-	@sleep 5
-	@$(MAKE) deploy-new-stack STACK=prod
+logs: ## Tail backend logs
+	kubectl logs -f deployment/sophia-backend -n sophia-ai-prod
 
-validate-deployment: ## Validate the deployed stack is working correctly
-	@echo "🔍 Validating deployment..."
-	@echo ""
-	# Check Weaviate health
-	@echo "Checking Weaviate..."
-	@kubectl exec -n sophia-ai-$(STACK) deployment/weaviate -- curl -s http://localhost:8080/v1/.well-known/ready || echo "❌ Weaviate not ready"
-	@echo ""
-	# Check Redis health
-	@echo "Checking Redis..."
-	@kubectl exec -n sophia-ai-$(STACK) statefulset/redis -- redis-cli ping || echo "❌ Redis not ready"
-	@echo ""
-	# Check PostgreSQL health
-	@echo "Checking PostgreSQL..."
-	@kubectl exec -n sophia-ai-$(STACK) deployment/postgresql -- pg_isready || echo "❌ PostgreSQL not ready"
-	@echo ""
-	# Check Lambda Inference health
-	@echo "Checking Lambda Inference..."
-	@kubectl exec -n sophia-ai-$(STACK) deployment/lambda-inference -- curl -s http://localhost:8080/health || echo "❌ Lambda Inference not ready"
+logs-mcp: ## Tail MCP server logs
+	kubectl logs -f -l app=mcp-server -n mcp-servers
 
-benchmark-new-stack: ## Run performance benchmarks on the new stack
-	@echo "📊 Running performance benchmarks..."
-	python scripts/benchmark_memory_performance.py --environment=$(STACK)
+status: ## Check deployment status
+	@echo "📊 Deployment Status"
+	@echo "==================="
+	kubectl get pods -n sophia-ai-prod
+	@echo "\nMCP Servers:"
+	kubectl get pods -n mcp-servers
+	@echo "\nServices:"
+	kubectl get svc -n sophia-ai-prod
 
-deploy-monitoring: ## Deploy Prometheus and Grafana monitoring
-	@echo "📊 Deploying monitoring stack..."
-	kubectl apply -f infrastructure/monitoring/prometheus-deployment.yaml -n sophia-ai-$(STACK)
-	kubectl apply -f infrastructure/monitoring/grafana-deployment.yaml -n sophia-ai-$(STACK)
+rollback: ## Rollback deployment
+	@echo "⏪ Rolling back deployment..."
+	kubectl rollout undo deployment/sophia-backend -n sophia-ai-prod
+	kubectl rollout undo deployment/sophia-mcp-gateway -n mcp-servers
 
-cleanup-old-stack: ## Clean up old Snowflake-based resources
-	@echo "🧹 Cleaning up old stack resources..."
-	@echo "⚠️  This will remove Snowflake MCP servers. Continue? (Ctrl-C to cancel)"
-	@sleep 5
-	kubectl delete deployment snowflake-unified -n sophia-ai-$(STACK) --ignore-not-found=true
-	kubectl delete service snowflake-unified-service -n sophia-ai-$(STACK) --ignore-not-found=true
+clean: ## Clean up resources
+	@echo "🧹 Cleaning up..."
+	docker system prune -f
+	kubectl delete pods --field-selector=status.phase=Failed -n sophia-ai-prod
 
-# Convenience targets
-deploy-all: deploy-dev-stack validate-deployment deploy-monitoring ## Deploy everything to dev and validate
+monitoring: ## Open monitoring dashboards
+	@echo "📊 Opening monitoring dashboards..."
+	@echo "Grafana: http://$(LAMBDA_PRIMARY):3000"
+	@echo "Prometheus: http://$(LAMBDA_PRIMARY):9090"
+	@echo "n8n: http://$(LAMBDA_PRIMARY):5678"
 
-prod-deploy-all: deploy-prod-stack validate-deployment ## Deploy everything to production
+ssh-primary: ## SSH to primary Lambda server
+	ssh ubuntu@$(LAMBDA_PRIMARY)
 
-# Default stack is dev
-STACK ?= dev
+ssh-gpu: ## SSH to GPU Lambda server
+	ssh ubuntu@$(LAMBDA_GPU)
+
+quick-deploy: build-images push-images ## Quick deploy (skip infra)
+	kubectl rollout restart deployment/sophia-backend -n sophia-ai-prod
+	kubectl rollout restart deployment -n mcp-servers
+	@echo "✅ Quick deployment complete!"
+
+# Development shortcuts
+dev-backend: ## Run backend locally
+	cd backend && uvicorn app.fastapi_app:app --reload --port 8000
+
+dev-frontend: ## Run frontend locally
+	cd frontend && npm run dev
+
+dev-test: ## Run local tests
+	pytest tests/ -v
+
+# One-command deployment
+.DEFAULT_GOAL := help

@@ -1,221 +1,187 @@
 #!/usr/bin/env python3
-"""Monitor Sophia AI deployment progress"""
+"""
+Monitor Sophia AI deployment status
+Shows real-time health of all components
+"""
 
-import json
-import os
-import subprocess
 import time
-from datetime import datetime
-
 import requests
+import subprocess
+from datetime import datetime
+from typing import Tuple
 
-# Configuration
-SERVICES = {
-    "Frontend (Vercel)": {
-        "url": "https://app.sophia-intel.ai",
-        "expected_status": 200,
-        "type": "web",
-    },
-    "API Documentation": {
-        "url": "https://api.sophia-intel.ai",
-        "expected_status": [200, 404],  # 404 is ok if not deployed yet
-        "type": "api",
-    },
-    "Lambda Labs Instances": {
-        "192.222.58.232": {
-            "name": "lynn-sophia-gh200-master-01",
-            "services": {
-                "API": {"port": 8000, "path": "/health"},
-                "Frontend": {"port": 3000, "path": "/"},
-                "Grafana": {"port": 3001, "path": "/"},
-            },
-        },
-        "192.222.58.232": {
-            "name": "sophia-platform-prod",
-            "services": {
-                "API": {"port": 8000, "path": "/health"},
-            },
-        },
-        "165.1.69.44": {
-            "name": "sophia-mcp-prod",
-            "services": {
-                "AI Memory": {"port": 9000, "path": "/health"},
-                "Codacy": {"port": 3008, "path": "/health"},
-                "Linear": {"port": 9004, "path": "/health"},
-            },
-        },
-    },
+# Lambda Labs servers
+SERVERS = {
+    "primary": "104.171.202.103",
+    "gpu": "192.222.58.232",
+    "mcp": "104.171.202.117",
 }
 
-# Colors
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-RED = "\033[91m"
-BLUE = "\033[94m"
-RESET = "\033[0m"
+# Service endpoints to check
+HEALTH_CHECKS = [
+    ("Backend API", f"http://{SERVERS['primary']}:8000/health"),
+    ("Memory Service", f"http://{SERVERS['gpu']}:8000/api/v2/memory/stats"),
+    ("Chat Service", f"http://{SERVERS['primary']}:8000/api/v4/sophia/health"),
+    ("MCP Gateway", f"http://{SERVERS['mcp']}:8080/health"),
+    ("AI Memory MCP", f"http://{SERVERS['mcp']}:9001/health"),
+    ("Gong MCP", f"http://{SERVERS['mcp']}:9007/health"),
+]
 
 
-def check_url(url: str, expected_status=200, timeout=5) -> tuple[bool, int, str]:
-    """Check if a URL is accessible"""
+def check_health(name: str, url: str) -> Tuple[str, int, str]:
+    """Check health of a service"""
     try:
-        response = requests.get(url, timeout=timeout, allow_redirects=True)
-        if isinstance(expected_status, list):
-            success = response.status_code in expected_status
+        response = requests.get(url, timeout=5)
+        status_code = response.status_code
+
+        if status_code == 200:
+            return "✅", status_code, "Healthy"
         else:
-            success = response.status_code == expected_status
-        return (
-            success,
-            response.status_code,
-            "OK" if success else f"Status: {response.status_code}",
-        )
-    except requests.exceptions.Timeout:
-        return False, 0, "Timeout"
+            return "⚠️", status_code, f"HTTP {status_code}"
     except requests.exceptions.ConnectionError:
-        return False, 0, "Connection Error"
+        return "❌", 0, "Connection Failed"
+    except requests.exceptions.Timeout:
+        return "⏱️", 0, "Timeout"
     except Exception as e:
-        return False, 0, str(e)
+        return "❓", 0, str(e)[:30]
 
 
-def check_lambda_labs_service(
-    host: str, port: int, path: str = "/", timeout=3
-) -> tuple[bool, str]:
-    """Check a service on Lambda Labs"""
-    url = f"http://{host}:{port}{path}"
-    success, status, message = check_url(url, timeout=timeout)
-    return success, message
-
-
-def get_github_actions_status() -> list[dict]:
-    """Get recent GitHub Actions runs"""
+def check_docker_builds():
+    """Check if Docker builds are still running"""
     try:
-        # Use gh CLI to get workflow runs
         result = subprocess.run(
-            [
-                "gh",
-                "api",
-                "/repos/ai-cherry/sophia-main/actions/runs",
-                "--jq",
-                ".workflow_runs[:5] | .[] | {name: .name, status: .status, conclusion: .conclusion, created_at: .created_at}",
-            ],
+            "ps aux | grep 'docker build' | grep -v grep",
+            shell=True,
             capture_output=True,
             text=True,
-            timeout=10,
-            check=False,
+        )
+        return len(result.stdout.strip()) > 0
+    except:
+        return False
+
+
+def check_kubernetes_pods():
+    """Check Kubernetes pod status"""
+    try:
+        # Check main namespace
+        result = subprocess.run(
+            "kubectl get pods -n sophia-ai-prod --no-headers 2>/dev/null",
+            shell=True,
+            capture_output=True,
+            text=True,
+        )
+
+        pods = []
+        if result.returncode == 0 and result.stdout:
+            for line in result.stdout.strip().split("\n"):
+                if line:
+                    parts = line.split()
+                    if len(parts) >= 3:
+                        name = parts[0]
+                        ready = parts[1]
+                        status = parts[2]
+                        pods.append(f"{name}: {ready} ({status})")
+
+        # Check MCP namespace
+        result = subprocess.run(
+            "kubectl get pods -n mcp-servers --no-headers 2>/dev/null",
+            shell=True,
+            capture_output=True,
+            text=True,
         )
 
         if result.returncode == 0 and result.stdout:
-            # Parse each JSON object from output
-            runs = []
             for line in result.stdout.strip().split("\n"):
                 if line:
-                    try:
-                        runs.append(json.loads(line))
-                    except:
-                        pass
-            return runs
-        return []
+                    parts = line.split()
+                    if len(parts) >= 3:
+                        name = parts[0]
+                        ready = parts[1]
+                        status = parts[2]
+                        pods.append(f"MCP/{name}: {ready} ({status})")
+
+        return pods
     except:
         return []
 
 
-def print_status_line(name: str, status: bool, message: str = ""):
-    """Print a formatted status line"""
-    status_icon = f"{GREEN}✅{RESET}" if status else f"{RED}❌{RESET}"
-    status_text = f"{GREEN}OK{RESET}" if status else f"{RED}FAILED{RESET}"
-
-    print(f"  {status_icon} {name:<40} [{status_text}] {message}")
-
-
-def monitor_deployment():
-    """Main monitoring function"""
-    print(f"\n{BLUE}🔍 Sophia AI Deployment Monitor{RESET}")
-    print(f"{BLUE}{'='*60}{RESET}")
-    print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-
-    # Check web services
-    print(f"{YELLOW}📡 Web Services:{RESET}")
-    for service_name, config in SERVICES.items():
-        if isinstance(config, dict) and "url" in config:
-            success, status, message = check_url(
-                config["url"], config.get("expected_status", 200)
-            )
-            print_status_line(service_name, success, f"({message})")
-
-    # Check Lambda Labs instances
-    print(f"\n{YELLOW}🖥️  Lambda Labs Instances:{RESET}")
-    lambda_config = SERVICES.get("Lambda Labs Instances", {})
-
-    for host, instance_config in lambda_config.items():
-        print(f"\n  {BLUE}{instance_config['name']} ({host}):{RESET}")
-
-        # First check if host is reachable
-        reachable, _, _ = check_url(f"http://{host}", timeout=3)
-        if not reachable:
-            print(f"    {RED}❌ Host not reachable{RESET}")
-            continue
-
-        # Check each service on the instance
-        for service_name, service_config in instance_config.get("services", {}).items():
-            success, message = check_lambda_labs_service(
-                host, service_config["port"], service_config.get("path", "/")
-            )
-            print_status_line(
-                f"  {service_name}", success, f"(Port {service_config['port']})"
-            )
-
-    # Check GitHub Actions
-    print(f"\n{YELLOW}🚀 GitHub Actions Status:{RESET}")
-    runs = get_github_actions_status()
-
-    if runs:
-        for run in runs[:5]:  # Show last 5 runs
-            status = run.get("status", "unknown")
-            conclusion = run.get("conclusion", "pending")
-            name = run.get("name", "Unknown")
-            created = run.get("created_at", "")[:19]  # Trim microseconds
-
-            if status == "completed":
-                success = conclusion == "success"
-                status_text = (
-                    f"{GREEN}✅ Success{RESET}"
-                    if success
-                    else f"{RED}❌ {conclusion}{RESET}"
-                )
-            else:
-                status_text = f"{YELLOW}⏳ {status}{RESET}"
-
-            print(f"  {status_text} {name:<40} ({created})")
-    else:
-        print(f"  {YELLOW}Unable to fetch GitHub Actions status{RESET}")
-
-    print(f"\n{BLUE}{'='*60}{RESET}")
-    print(f"Check complete at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-
-def continuous_monitor(interval: int = 30):
-    """Continuously monitor deployment"""
-    print(f"{BLUE}Starting continuous monitoring (interval: {interval}s){RESET}")
-    print(f"{YELLOW}Press Ctrl+C to stop{RESET}\n")
-
+def test_sophia_personality():
+    """Test if Sophia's personality is working"""
     try:
-        while True:
-            os.system("clear" if os.name == "posix" else "cls")
-            monitor_deployment()
-            print(f"\n{YELLOW}Next check in {interval} seconds...{RESET}")
-            time.sleep(interval)
-    except KeyboardInterrupt:
-        print(f"\n{YELLOW}Monitoring stopped.{RESET}")
+        response = requests.post(
+            f"http://{SERVERS['primary']}:8000/api/v4/sophia/chat",
+            json={"query": "Test query", "user_id": "test_user"},
+            timeout=10,
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            personality = data.get("metadata", {}).get("personality", "Unknown")
+            return f"✅ Personality: {personality}"
+        else:
+            return "❌ Personality test failed"
+    except:
+        return "⏳ Personality not ready"
+
+
+def main():
+    """Main monitoring loop"""
+    print("🔍 SOPHIA AI DEPLOYMENT MONITOR")
+    print("=" * 60)
+    print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("Press Ctrl+C to stop")
+    print("=" * 60)
+
+    iteration = 0
+    while True:
+        iteration += 1
+        print(f"\n📊 Status Check #{iteration} - {datetime.now().strftime('%H:%M:%S')}")
+        print("-" * 60)
+
+        # Check Docker builds
+        if check_docker_builds():
+            print("🐳 Docker builds: Still running...")
+        else:
+            print("🐳 Docker builds: Complete or not running")
+
+        # Check Kubernetes pods
+        pods = check_kubernetes_pods()
+        if pods:
+            print("\n☸️  Kubernetes Pods:")
+            for pod in pods[:10]:  # Show first 10
+                print(f"  {pod}")
+            if len(pods) > 10:
+                print(f"  ... and {len(pods) - 10} more")
+
+        # Check service health
+        print("\n🏥 Service Health:")
+        all_healthy = True
+        for name, url in HEALTH_CHECKS:
+            status, code, message = check_health(name, url)
+            print(f"  {status} {name}: {message}")
+            if status != "✅":
+                all_healthy = False
+
+        # Test personality if backend is up
+        if all_healthy:
+            personality_status = test_sophia_personality()
+            print(f"\n{personality_status}")
+
+        # Summary
+        if all_healthy:
+            print("\n✅ ALL SYSTEMS OPERATIONAL!")
+            print("🔥 Sophia AI is ready to rock!")
+        else:
+            print("\n⏳ Deployment in progress...")
+
+        # Wait before next check
+        time.sleep(10)
 
 
 if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) > 1 and sys.argv[1] == "--continuous":
-        interval = int(sys.argv[2]) if len(sys.argv) > 2 else 30
-        continuous_monitor(interval)
-    else:
-        monitor_deployment()
-        print(f"\n{YELLOW}Tip: Run with --continuous for continuous monitoring{RESET}")
-        print(
-            f"{YELLOW}Example: python3 scripts/monitor_deployment.py --continuous 30{RESET}"
-        )
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\n👋 Monitoring stopped")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")

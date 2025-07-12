@@ -4,15 +4,22 @@ Replaces estuary with Estuary Flow for real-time data pipeline management
 Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → Snowflake
 """
 
+import backend.utils.path_utils  # noqa: F401, must be before other imports
+
 import asyncio
 import logging
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import aiohttp
 
-from core.config_manager import get_config_value
-from core.secure_snowflake_config import secure_snowflake_config
+# Add project root to path for consistent imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(project_root))
+
+from backend.core.auto_esc_config import get_config_value, get_snowflake_config
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +53,10 @@ class EstuaryFlowOrchestrator:
 
     def __init__(self):
         self.config = EstuaryFlowConfig(
-            api_url=get_config_value("estuary_flow_api_url", "https://api.estuary.dev"),
-            access_token=get_config_value("estuary_flow_access_token"),
-            tenant=get_config_value("estuary_flow_tenant", "sophia-ai"),
+            api_url=get_config_value("estuary_flow_api_url", "https://api.estuary.dev")
+            or "https://api.estuary.dev",
+            access_token=get_config_value("estuary_flow_access_token") or "",
+            tenant=get_config_value("estuary_flow_tenant", "sophia-ai") or "sophia-ai",
         )
         self.session: aiohttp.ClientSession | None = None
         self._validate_config()
@@ -117,7 +125,7 @@ class EstuaryFlowOrchestrator:
             destination_type="destination-postgres",
             destination_config={
                 "host": get_config_value("postgresql_host"),
-                "port": get_config_value("postgresql_port", 5432),
+                "port": get_config_value("postgresql_port", "5432"),
                 "database": get_config_value("postgresql_database", "sophia_staging"),
                 "schema": "hubspot_raw",
                 "username": get_config_value("postgresql_user"),
@@ -163,7 +171,7 @@ class EstuaryFlowOrchestrator:
             destination_type="destination-postgres",
             destination_config={
                 "host": get_config_value("postgresql_host"),
-                "port": get_config_value("postgresql_port", 5432),
+                "port": get_config_value("postgresql_port", "5432"),
                 "database": get_config_value("postgresql_database", "sophia_staging"),
                 "schema": "gong_raw",
                 "username": get_config_value("postgresql_user"),
@@ -210,7 +218,7 @@ class EstuaryFlowOrchestrator:
             destination_type="destination-postgres",
             destination_config={
                 "host": get_config_value("postgresql_host"),
-                "port": get_config_value("postgresql_port", 5432),
+                "port": get_config_value("postgresql_port", "5432"),
                 "database": get_config_value("postgresql_database", "sophia_staging"),
                 "schema": "slack_raw",
                 "username": get_config_value("postgresql_user"),
@@ -233,19 +241,176 @@ class EstuaryFlowOrchestrator:
 
         return await self._create_flow(flow_spec)
 
+    async def create_salesforce_flow(self) -> dict[str, Any]:
+        """
+        Create Salesforce -> PostgreSQL data flow
+        Real-time ingestion of accounts, opportunities, contacts, and leads
+        """
+        flow_spec = DataFlowSpec(
+            name="salesforce-to-postgresql",
+            source_type="source-salesforce",
+            source_config={
+                "client_id": get_config_value("salesforce_client_id"),
+                "client_secret": get_config_value("salesforce_client_secret"),
+                "refresh_token": get_config_value("salesforce_refresh_token"),
+                "instance_url": get_config_value("salesforce_instance_url"),
+                "streams": [
+                    "Account",
+                    "Opportunity",
+                    "Contact",
+                    "Lead",
+                    "User",
+                    "Campaign",
+                ],
+            },
+            destination_type="destination-postgres",
+            destination_config={
+                "host": get_config_value("postgresql_host"),
+                "port": get_config_value("postgresql_port", "5432"),
+                "database": get_config_value("postgresql_database", "sophia_staging"),
+                "schema": "salesforce_raw",
+                "username": get_config_value("postgresql_user"),
+                "password": get_config_value("postgresql_password"),
+                "ssl_mode": "require",
+            },
+            transforms=[
+                {
+                    "name": "add_ingestion_metadata",
+                    "type": "sql",
+                    "sql": """
+                        SELECT *,
+                               CURRENT_TIMESTAMP as _estuary_ingested_at,
+                               'salesforce' as _estuary_source_system
+                        FROM source_data
+                    """,
+                }
+            ],
+        )
+        return await self._create_flow(flow_spec)
+
+    async def create_asana_flow(self) -> dict[str, Any]:
+        """
+        Create Asana -> PostgreSQL data flow
+        Real-time ingestion of tasks, projects, teams, and users
+        """
+        flow_spec = DataFlowSpec(
+            name="asana-to-postgresql",
+            source_type="source-asana",
+            source_config={
+                "personal_access_token": get_config_value(
+                    "asana_personal_access_token"
+                ),
+                "workspace_ids": (
+                    get_config_value("asana_workspace_ids", "") or ""
+                ).split(","),
+                "streams": ["tasks", "projects", "teams", "users", "stories", "tags"],
+            },
+            destination_type="destination-postgres",
+            destination_config={
+                "host": get_config_value("postgresql_host"),
+                "port": get_config_value("postgresql_port", "5432"),
+                "database": get_config_value("postgresql_database", "sophia_staging"),
+                "schema": "asana_raw",
+                "username": get_config_value("postgresql_user"),
+                "password": get_config_value("postgresql_password"),
+                "ssl_mode": "require",
+            },
+            transforms=[
+                {
+                    "name": "add_ingestion_metadata",
+                    "type": "sql",
+                    "sql": """
+                        SELECT *,
+                               CURRENT_TIMESTAMP as _estuary_ingested_at,
+                               'asana' as _estuary_source_system
+                        FROM source_data
+                    """,
+                }
+            ],
+        )
+        return await self._create_flow(flow_spec)
+
+    async def create_linear_flow(self) -> dict[str, Any]:
+        """
+        Create Linear -> PostgreSQL data flow
+        Real-time ingestion of issues, projects, cycles, and teams
+        """
+        flow_spec = DataFlowSpec(
+            name="linear-to-postgresql",
+            source_type="source-linear",
+            source_config={"api_key": get_config_value("linear_api_key")},
+            destination_type="destination-postgres",
+            destination_config={
+                "host": get_config_value("postgresql_host"),
+                "port": get_config_value("postgresql_port", "5432"),
+                "database": get_config_value("postgresql_database", "sophia_staging"),
+                "schema": "linear_raw",
+                "username": get_config_value("postgresql_user"),
+                "password": get_config_value("postgresql_password"),
+                "ssl_mode": "require",
+            },
+            transforms=[
+                {
+                    "name": "add_ingestion_metadata",
+                    "type": "sql",
+                    "sql": """
+                        SELECT *,
+                               CURRENT_TIMESTAMP as _estuary_ingested_at,
+                               'linear' as _estuary_source_system
+                        FROM source_data
+                    """,
+                }
+            ],
+        )
+        return await self._create_flow(flow_spec)
+
+    async def create_notion_flow(self) -> dict[str, Any]:
+        """
+        Create Notion -> PostgreSQL data flow
+        Real-time ingestion of pages, databases, and users
+        """
+        flow_spec = DataFlowSpec(
+            name="notion-to-postgresql",
+            source_type="source-notion",
+            source_config={"access_token": get_config_value("notion_access_token")},
+            destination_type="destination-postgres",
+            destination_config={
+                "host": get_config_value("postgresql_host"),
+                "port": get_config_value("postgresql_port", "5432"),
+                "database": get_config_value("postgresql_database", "sophia_staging"),
+                "schema": "notion_raw",
+                "username": get_config_value("postgresql_user"),
+                "password": get_config_value("postgresql_password"),
+                "ssl_mode": "require",
+            },
+            transforms=[
+                {
+                    "name": "add_ingestion_metadata",
+                    "type": "sql",
+                    "sql": """
+                        SELECT *,
+                               CURRENT_TIMESTAMP as _estuary_ingested_at,
+                               'notion' as _estuary_source_system
+                        FROM source_data
+                    """,
+                }
+            ],
+        )
+        return await self._create_flow(flow_spec)
+
     async def create_postgresql_to_snowflake_flow(self) -> dict[str, Any]:
         """
         Create PostgreSQL → Snowflake data flow
         ELT pattern: Transform and load processed data to Snowflake
         """
-        snowflake_creds = secure_snowflake_config.credentials
+        snowflake_creds = get_snowflake_config()
 
         flow_spec = DataFlowSpec(
             name="postgresql-to-snowflake",
             source_type="source-postgres",
             source_config={
                 "host": get_config_value("postgresql_host"),
-                "port": get_config_value("postgresql_port", 5432),
+                "port": get_config_value("postgresql_port", "5432"),
                 "database": get_config_value("postgresql_database", "sophia_staging"),
                 "schemas": ["hubspot_processed", "gong_processed", "slack_processed"],
                 "username": get_config_value("postgresql_user"),
@@ -255,13 +420,12 @@ class EstuaryFlowOrchestrator:
             },
             destination_type="destination-snowflake",
             destination_config={
-                "host": f"{snowflake_creds.account}.snowflakecomputing.com",
-                "role": snowflake_creds.role,
-                "warehouse": snowflake_creds.warehouse,
-                "database": snowflake_creds.database,
-                "schema": "PROCESSED_DATA",
-                "username": snowflake_creds.user,
-                "password": snowflake_creds.password,
+                "host": f"{snowflake_creds.get('account')}.snowflakecomputing.com",
+                "role": snowflake_creds.get("role"),
+                "warehouse": snowflake_creds.get("warehouse"),
+                "database": snowflake_creds.get("database"),
+                "username": snowflake_creds.get("user"),
+                "password": snowflake_creds.get("password"),
                 "jdbc_url_params": "CLIENT_SESSION_KEEP_ALIVE=true",
             },
         )
@@ -311,16 +475,20 @@ class EstuaryFlowOrchestrator:
     async def setup_complete_pipeline(self) -> dict[str, Any]:
         """
         Set up the complete data pipeline:
-        HubSpot/Gong/Slack → PostgreSQL → Snowflake
+        HubSpot/Gong/Slack/Salesforce/Asana/Linear/Notion -> PostgreSQL -> Snowflake
         """
         results = {}
 
         try:
             # Create source flows
-            logger.info("Setting up source data flows...")
+            logger.info("Setting up source data flows for all 7 services...")
             results["hubspot_flow"] = await self.create_hubspot_flow()
             results["gong_flow"] = await self.create_gong_flow()
             results["slack_flow"] = await self.create_slack_flow()
+            results["salesforce_flow"] = await self.create_salesforce_flow()
+            results["asana_flow"] = await self.create_asana_flow()
+            results["linear_flow"] = await self.create_linear_flow()
+            results["notion_flow"] = await self.create_notion_flow()
 
             # Wait for source flows to be ready
             await asyncio.sleep(5)
@@ -335,6 +503,10 @@ class EstuaryFlowOrchestrator:
                 "hubspot-to-postgresql",
                 "gong-to-postgresql",
                 "slack-to-postgresql",
+                "salesforce-to-postgresql",
+                "asana-to-postgresql",
+                "linear-to-postgresql",
+                "notion-to-postgresql",
                 "postgresql-to-snowflake",
             ]:
                 await self.start_flow(flow_name)

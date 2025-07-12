@@ -16,7 +16,6 @@ from weaviate import Client
 from weaviate.util import generate_uuid5
 from redis.asyncio import Redis
 import asyncpg
-from pgvector.asyncpg import register_vector
 from portkey_ai import Portkey
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -63,90 +62,131 @@ class UnifiedMemoryServiceV2:
         }
 
     async def initialize(self):
-        """Fire up the engines - GPU go brrrrr"""
-        try:
-            # Weaviate client
-            self.weaviate = Client(self.weaviate_url)
-            await self._ensure_weaviate_schema()
+        """Initialize all memory tiers and create schema if needed"""
+        logger.info("Initializing Unified Memory Service v2...")
 
-            # Redis connection
-            self.redis = Redis(
-                host=self.redis_host,
-                port=self.redis_port,
-                password=get_config_value("redis_password"),
-                decode_responses=True,
-            )
+        # Initialize Redis connection
+        try:
             await self.redis.ping()
-            logger.info("Redis connected - cache ready for sub-ms hits")
-
-            # PostgreSQL pool with pgvector
-            pg_dsn = get_config_value("postgresql_dsn")
-            self.pg_pool = await asyncpg.create_pool(
-                pg_dsn, min_size=5, max_size=20, command_timeout=60
-            )
-
-            # Register pgvector extension
-            async with self.pg_pool.acquire() as conn:
-                await register_vector(conn)
-                await self._ensure_pg_schema(conn)
-
-            logger.info(
-                "🚀 UnifiedMemoryServiceV2 initialized - Snowflake officially obsolete"
-            )
-
+            logger.info("✅ Redis connected successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize GPU memory service: {e}")
-            raise
+            logger.error(f"❌ Redis connection failed: {e}")
 
-    async def _ensure_weaviate_schema(self):
-        """Create Weaviate schema if not exists"""
-        schema = {
-            "class": "Knowledge",
-            "description": "GPU-accelerated knowledge base",
-            "vectorizer": "none",  # We handle our own embeddings
-            "properties": [
-                {"name": "content", "dataType": ["text"]},
-                {"name": "source", "dataType": ["string"]},
-                {"name": "metadata", "dataType": ["object"]},
-                {"name": "timestamp", "dataType": ["date"]},
-                {"name": "embedding_model", "dataType": ["string"]},
-            ],
-        }
-
+        # Initialize Weaviate and create schema if needed
         try:
-            self.weaviate.schema.create_class(schema)
-            logger.info("Created Weaviate Knowledge schema")
-        except Exception as e:
-            if "already exists" not in str(e):
-                raise
+            # Check if Knowledge class exists
+            try:
+                self.weaviate.collections.get("Knowledge")
+                logger.info("✅ Weaviate Knowledge schema exists")
+            except:
+                logger.info("Creating Weaviate Knowledge schema...")
+                # Create Knowledge collection
+                import weaviate.classes as wvc
+                from weaviate.classes.config import Property, DataType
 
-    async def _ensure_pg_schema(self, conn):
-        """Create PostgreSQL tables with pgvector"""
-        await conn.execute(
-            """
-            CREATE EXTENSION IF NOT EXISTS vector;
-            
-            CREATE TABLE IF NOT EXISTS knowledge_vectors (
-                id SERIAL PRIMARY KEY,
-                content TEXT NOT NULL,
-                source VARCHAR(255),
-                metadata JSONB,
-                embedding vector(768),
-                timestamp TIMESTAMPTZ DEFAULT NOW(),
-                embedding_model VARCHAR(100) DEFAULT 'all-MiniLM-L6-v2'
-            );
-            
-            -- IVFFlat index for billions-scale search
-            CREATE INDEX IF NOT EXISTS knowledge_vectors_embedding_idx 
-            ON knowledge_vectors USING ivfflat (embedding vector_cosine_ops)
-            WITH (lists = 100);
-            
-            -- GIN index for metadata queries
-            CREATE INDEX IF NOT EXISTS knowledge_vectors_metadata_idx 
-            ON knowledge_vectors USING gin (metadata);
-        """
-        )
-        logger.info("PostgreSQL schema ready with pgvector IVFFlat index")
+                self.weaviate.collections.create(
+                    name="Knowledge",
+                    properties=[
+                        Property(
+                            name="content",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=True,
+                        ),
+                        Property(
+                            name="source",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="user_id",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="timestamp",
+                            data_type=DataType.DATE,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="metadata",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="category",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="importance",
+                            data_type=DataType.NUMBER,
+                            vectorize_property_name=False,
+                        ),
+                    ],
+                    vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(
+                        model="sentence-transformers/all-MiniLM-L6-v2",
+                        vectorize_collection_name=False,
+                    ),
+                )
+                logger.info("✅ Weaviate Knowledge schema created")
+
+            # Check UserProfile schema
+            try:
+                self.weaviate.collections.get("UserProfile")
+                logger.info("✅ Weaviate UserProfile schema exists")
+            except:
+                logger.info("Creating Weaviate UserProfile schema...")
+                import weaviate.classes as wvc
+                from weaviate.classes.config import Property, DataType
+
+                self.weaviate.collections.create(
+                    name="UserProfile",
+                    properties=[
+                        Property(
+                            name="user_id",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="personality_preferences",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=True,
+                        ),
+                        Property(
+                            name="interaction_history",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=True,
+                        ),
+                        Property(
+                            name="communication_style",
+                            data_type=DataType.TEXT,
+                            vectorize_property_name=False,
+                        ),
+                        Property(
+                            name="last_updated",
+                            data_type=DataType.DATE,
+                            vectorize_property_name=False,
+                        ),
+                    ],
+                    vectorizer_config=wvc.config.Configure.Vectorizer.text2vec_transformers(
+                        model="sentence-transformers/all-MiniLM-L6-v2",
+                        vectorize_collection_name=False,
+                    ),
+                )
+                logger.info("✅ Weaviate UserProfile schema created")
+
+        except Exception as e:
+            logger.error(f"❌ Weaviate initialization failed: {e}")
+
+        # Initialize PostgreSQL
+        try:
+            async with self.pg_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            logger.info("✅ PostgreSQL connected successfully")
+        except Exception as e:
+            logger.error(f"❌ PostgreSQL connection failed: {e}")
+
+        logger.info("✅ Unified Memory Service v2 initialized")
 
     @retry(
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10)

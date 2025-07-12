@@ -1,9 +1,36 @@
-fastapi==0.115.5
-uvicorn[standard]==0.32.1
-pydantic==2.10.5
-redis==5.2.2
-snowflake-connector-python==3.16.0
+# Core dependencies
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.7.0
+pydantic-settings==2.6.1
+
+# Memory Stack (GPU-accelerated)
+weaviate-client==4.6.1
+redis[hiredis]==5.0.4
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+pgvector==0.4.1
+
+# AI/LLM
+openai==1.30.0
+anthropic==0.25.0
+langchain==0.2.0
+langchain-community==0.2.0
+langgraph==0.5.1
+tiktoken==0.6.0
+
+# Utils
+python-dotenv==1.0.1
+structlog==24.4.0
 httpx==0.28.1
-python-multipart==0.0.12
-openai==1.30.5
-anthropic==0.45.0
+aiohttp==3.11.10
+orjson==3.9.0
+
+# Data
+pandas==2.2.2
+numpy==1.26.4
+sqlalchemy==2.0.28
+
+# Monitoring
+prometheus-client==0.19.0
+psutil==5.9.8
