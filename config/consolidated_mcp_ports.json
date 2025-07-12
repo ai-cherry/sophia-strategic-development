@@ -40,7 +40,6 @@
     "snowflake_admin": 9012,
     "snowflake_cli_enhanced": 9021,
     "snowflake_cortex": 9201,
-    "snowflake_unified": 9203,
     "sophia_ai_intelligence": 9016,
     "sophia_business_intelligence": 9015,
     "sophia_data_intelligence": 9010,
@@ -62,7 +61,7 @@
     "monitoring_port": 9090
   },
   "lambda_labs_cli_v2": 9006,
-  "last_updated": "2025-07-03T13:39:27",
+  "last_updated": "2025-07-12T15:45:00",
   "linear_v2": 9014,
   "mcp_servers": {
     "business_intelligence": {
@@ -83,7 +82,7 @@
     },
     "core_intelligence": {
       "ai_memory": {
-        "description": "AI Memory and context management",
+        "description": "AI Memory and context management with GPU acceleration",
         "port": 9000
       },
       "asana": {
@@ -252,29 +251,19 @@
     ]
   },
   "snowflake_v2": 9001,
-  "version": "4.0",
+  "version": "5.0",
   "unified_mcp_servers": {
     "tier_1_primary": {
       "ai_memory": {
-        "name": "AI Memory",
+        "name": "AI Memory v2",
         "port": 9000,
         "status": "active",
-        "capabilities": ["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS"],
-        "replicas": 2,
+        "capabilities": ["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS", "GPU_ACCEL"],
+        "replicas": 3,
         "resources": {
-          "memory": "4Gi",
-          "cpu": "2000m"
-        }
-      },
-      "snowflake_unified": {
-        "name": "Snowflake Unified",
-        "port": 9001,
-        "status": "active",
-        "capabilities": ["ANALYTICS", "EMBEDDING", "SEARCH", "COMPLETION"],
-        "replicas": 2,
-        "resources": {
-          "memory": "4Gi",
-          "cpu": "2000m"
+          "memory": "8Gi",
+          "cpu": "4000m",
+          "gpu": "1"
         }
       },
       "gong": {
@@ -438,6 +427,7 @@
     "graphiti",
     "lambda_labs_unified",
     "lambda_labs_serverless",
-    "various_v2_duplicates"
+    "various_v2_duplicates",
+    "snowflake_unified"
   ]
 }

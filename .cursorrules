@@ -1709,3 +1709,70 @@ k8s/
 - Integrated local storage provisioner
 - GPU device plugin for Lambda Labs
 - Automatic TLS with cert-manager
+
+## Memory Architecture Rules (CRITICAL - Updated July 12, 2025)
+
+### ✅ MANDATORY - Use GPU-Accelerated Memory Stack
+- **ALWAYS** use `UnifiedMemoryServiceV2` from `backend.services.unified_memory_service_v2`
+- **ALWAYS** use Weaviate for vector storage (primary)
+- **ALWAYS** use Redis for caching layer
+- **ALWAYS** use PostgreSQL with pgvector for hybrid queries
+- **ALWAYS** use Lambda GPU inference for embeddings
+
+### ❌ FORBIDDEN - Deprecated Systems
+- **NEVER** use `UnifiedMemoryService` (old version)
+- **NEVER** use Snowflake Cortex for new features
+- **NEVER** reference `snowflake_unified` MCP server
+- **NEVER** use `CORTEX.EMBED_TEXT_768()` - use GPU embeddings instead
+
+### 🚀 Performance Targets
+- Embedding generation: <50ms (GPU accelerated)
+- Vector search: <50ms P95 (Weaviate)
+- Cache hits: >80% (Redis)
+- ETL pipeline: <200ms end-to-end
+
+### 📝 Code Examples
+
+```python
+# CORRECT - Using new memory service
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+
+memory_service = UnifiedMemoryServiceV2()
+await memory_service.initialize()
+
+# Store with GPU embeddings
+memory_id = await memory_service.add_knowledge(
+    content="Important information",
+    source="mcp/source",
+    metadata={"category": "insights"}
+)
+
+# Search with GPU acceleration
+results = await memory_service.search_knowledge(
+    query="find insights",
+    limit=10
+)
+```
+
+```python
+# WRONG - Using old services
+from backend.services.unified_memory_service import UnifiedMemoryService  # NO!
+from snowflake.cortex import embed_text_768  # FORBIDDEN!
+```
+
+### 🔧 MCP Server Integration
+- All MCP servers MUST use `UnifiedMemoryServiceV2` for memory operations
+- Set environment variables: `WEAVIATE_URL`, `REDIS_URL`, `POSTGRESQL_URL`, `LAMBDA_INFERENCE_URL`
+- Include `GPU_ACCEL` capability for memory-intensive servers
+
+## Infrastructure Rules
+
+### GPU Resources
+- Lambda B200 GPUs for inference (2.3x VRAM advantage)
+- Request GPU resources in K8s manifests: `nvidia.com/gpu: "1"`
+- Use GPU node selectors and tolerations
+
+### Database Connections
+- Weaviate: Use v1.25.4+ for stability
+- Redis: Use hiredis for performance
+- PostgreSQL: Use pgvector 0.3.6+ with IVFFlat indexes

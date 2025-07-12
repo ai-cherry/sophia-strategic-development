@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Sophia AI Gong MCP Server
-Provides sales call analytics and insights
+Sophia AI Gong MCP Server V2
+Provides sales call analytics and insights with GPU-accelerated memory storage
 Using official Anthropic MCP SDK
 
-Date: July 10, 2025
+Date: July 12, 2025
 """
 
 import asyncio
@@ -28,18 +28,19 @@ from base.unified_standardized_base import (
 from mcp.types import TextContent, Tool
 
 from backend.core.auto_esc_config import get_config_value
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
 
 class GongMCPServer(StandardizedMCPServer):
-    """Gong MCP Server for sales call analytics"""
+    """Gong MCP Server for sales call analytics with GPU-accelerated memory"""
 
     def __init__(self):
         config = ServerConfig(
             name="gong_v2",
-            version="2.0.0",
-            description="Sales call analytics and insights",
+            version="3.0.0",
+            description="Sales call analytics with GPU-accelerated memory storage",
         )
         super().__init__(config)
 
@@ -50,6 +51,14 @@ class GongMCPServer(StandardizedMCPServer):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
+
+        # Initialize memory service
+        try:
+            self.memory_service = UnifiedMemoryServiceV2()
+            logger.info("UnifiedMemoryServiceV2 initialized for Gong")
+        except Exception as e:
+            logger.error(f"Failed to initialize memory service: {e}")
+            self.memory_service = None
 
     async def get_custom_tools(self) -> list[Tool]:
         """Define custom tools for Gong operations"""
@@ -78,22 +87,32 @@ class GongMCPServer(StandardizedMCPServer):
             ),
             Tool(
                 name="get_call_transcript",
-                description="Retrieve transcript for a specific call",
+                description="Retrieve transcript for a specific call and store in GPU-accelerated memory",
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "call_id": {"type": "string", "description": "The call ID"}
+                        "call_id": {"type": "string", "description": "The call ID"},
+                        "store_in_memory": {
+                            "type": "boolean",
+                            "description": "Store transcript in memory for future reference",
+                            "default": True,
+                        },
                     },
                     "required": ["call_id"],
                 },
             ),
             Tool(
                 name="get_call_insights",
-                description="Get AI-generated insights for a call",
+                description="Get AI-generated insights for a call and store in memory",
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "call_id": {"type": "string", "description": "The call ID"}
+                        "call_id": {"type": "string", "description": "The call ID"},
+                        "store_in_memory": {
+                            "type": "boolean",
+                            "description": "Store insights in memory",
+                            "default": True,
+                        },
                     },
                     "required": ["call_id"],
                 },
@@ -135,6 +154,22 @@ class GongMCPServer(StandardizedMCPServer):
                     "required": ["deal_id"],
                 },
             ),
+            Tool(
+                name="search_call_memory",
+                description="Search stored call transcripts and insights using GPU-accelerated vector search",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Search query"},
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum results",
+                            "default": 5,
+                        },
+                    },
+                    "required": ["query"],
+                },
+            ),
         ]
 
     async def handle_custom_tool(self, name: str, arguments: dict) -> list[TextContent]:
@@ -143,15 +178,21 @@ class GongMCPServer(StandardizedMCPServer):
             if name == "list_calls":
                 return await self._list_calls(arguments)
             elif name == "get_call_transcript":
-                return await self._get_call_transcript(arguments["call_id"])
+                return await self._get_call_transcript(
+                    arguments["call_id"], arguments.get("store_in_memory", True)
+                )
             elif name == "get_call_insights":
-                return await self._get_call_insights(arguments["call_id"])
+                return await self._get_call_insights(
+                    arguments["call_id"], arguments.get("store_in_memory", True)
+                )
             elif name == "search_calls":
                 return await self._search_calls(arguments)
             elif name == "get_speaker_stats":
                 return await self._get_speaker_stats(arguments["call_id"])
             elif name == "get_deal_intelligence":
                 return await self._get_deal_intelligence(arguments["deal_id"])
+            elif name == "search_call_memory":
+                return await self._search_call_memory(arguments)
             else:
                 raise ValueError(f"Unknown tool: {name}")
         except Exception as e:
@@ -195,8 +236,10 @@ class GongMCPServer(StandardizedMCPServer):
             logger.error(f"Error listing calls: {e}")
             return [TextContent(type="text", text=f"Error listing calls: {e!s}")]
 
-    async def _get_call_transcript(self, call_id: str) -> list[TextContent]:
-        """Get call transcript"""
+    async def _get_call_transcript(
+        self, call_id: str, store_in_memory: bool = True
+    ) -> list[TextContent]:
+        """Get call transcript and optionally store in GPU-accelerated memory"""
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -206,11 +249,47 @@ class GongMCPServer(StandardizedMCPServer):
 
             transcript = response.json()
 
+            # Get call metadata for context
+            call_response = await client.get(
+                f"{self.base_url}/calls/{call_id}", headers=self.headers
+            )
+            call_data = call_response.json() if call_response.status_code == 200 else {}
+
             result = f"Transcript for Call {call_id}:\n\n"
+            full_transcript = ""
+
             for segment in transcript.get("transcript", []):
                 speaker = segment.get("speakerName", "Unknown")
                 text = segment.get("text", "")
                 result += f"{speaker}: {text}\n\n"
+                full_transcript += f"{speaker}: {text}\n"
+
+            # Store in GPU-accelerated memory if requested
+            if store_in_memory and self.memory_service and full_transcript:
+                try:
+                    metadata = {
+                        "call_id": call_id,
+                        "type": "call_transcript",
+                        "title": call_data.get("title", "Unknown"),
+                        "date": call_data.get("scheduled", datetime.now().isoformat()),
+                        "duration": call_data.get("duration", 0),
+                        "participants": [
+                            p.get("email", "unknown")
+                            for p in call_data.get("participants", [])
+                        ],
+                    }
+
+                    memory_id = await self.memory_service.add_knowledge(
+                        content=full_transcript,
+                        source=f"gong/call/{call_id}",
+                        metadata=metadata,
+                    )
+
+                    result += f"\n✅ Transcript stored in GPU-accelerated memory (ID: {memory_id})"
+                    logger.info(f"Stored transcript for call {call_id} in memory")
+                except Exception as e:
+                    logger.error(f"Failed to store transcript in memory: {e}")
+                    result += f"\n⚠️ Failed to store in memory: {e}"
 
             return [TextContent(type="text", text=result)]
 
@@ -218,8 +297,10 @@ class GongMCPServer(StandardizedMCPServer):
             logger.error(f"Error getting transcript: {e}")
             return [TextContent(type="text", text=f"Error getting transcript: {e!s}")]
 
-    async def _get_call_insights(self, call_id: str) -> list[TextContent]:
-        """Get AI-generated insights"""
+    async def _get_call_insights(
+        self, call_id: str, store_in_memory: bool = True
+    ) -> list[TextContent]:
+        """Get AI-generated insights and store in memory"""
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -230,31 +311,62 @@ class GongMCPServer(StandardizedMCPServer):
             highlights = response.json()
 
             result = f"Insights for Call {call_id}:\n\n"
+            insights_content = f"Call {call_id} Insights:\n"
 
             # Topics discussed
             topics = highlights.get("topics", [])
             if topics:
                 result += "Topics Discussed:\n"
+                insights_content += "Topics: "
                 for topic in topics:
                     result += (
                         f"- {topic['name']} (confidence: {topic.get('score', 0):.2f})\n"
                     )
+                    insights_content += f"{topic['name']}, "
                 result += "\n"
+                insights_content = insights_content.rstrip(", ") + "\n"
 
             # Key moments
             moments = highlights.get("keyMoments", [])
             if moments:
                 result += "Key Moments:\n"
+                insights_content += "Key Moments:\n"
                 for moment in moments:
                     result += f"- {moment['text']} (at {moment['time']})\n"
+                    insights_content += f"- {moment['text']}\n"
                 result += "\n"
 
             # Action items
             actions = highlights.get("actionItems", [])
             if actions:
                 result += "Action Items:\n"
+                insights_content += "Action Items:\n"
                 for action in actions:
                     result += f"- {action['text']} (assigned to: {action.get('assignee', 'TBD')})\n"
+                    insights_content += f"- {action['text']} (assignee: {action.get('assignee', 'TBD')})\n"
+
+            # Store insights in memory if requested
+            if store_in_memory and self.memory_service and insights_content:
+                try:
+                    metadata = {
+                        "call_id": call_id,
+                        "type": "call_insights",
+                        "topics": [t["name"] for t in topics],
+                        "action_items": [a["text"] for a in actions],
+                        "key_moments": len(moments),
+                    }
+
+                    memory_id = await self.memory_service.add_knowledge(
+                        content=insights_content,
+                        source=f"gong/insights/{call_id}",
+                        metadata=metadata,
+                    )
+
+                    result += f"\n✅ Insights stored in GPU-accelerated memory (ID: {memory_id})"
+                    logger.info(f"Stored insights for call {call_id} in memory")
+                except Exception as e:
+                    logger.error(f"Failed to store insights in memory: {e}")
+                    result += f"\n⚠️ Failed to store in memory: {e}"
 
             return [TextContent(type="text", text=result)]
 
@@ -380,6 +492,59 @@ class GongMCPServer(StandardizedMCPServer):
             return [
                 TextContent(type="text", text=f"Error getting deal intelligence: {e!s}")
             ]
+
+    async def _search_call_memory(self, params: dict) -> list[TextContent]:
+        """Search stored call transcripts and insights using GPU-accelerated vector search"""
+        if not self.memory_service:
+            return [TextContent(type="text", text="Memory service not available")]
+
+        try:
+            # Search for Gong-related content
+            results = await self.memory_service.search_knowledge(
+                query=params["query"],
+                limit=params.get("limit", 5),
+                metadata_filter={"source": {"$contains": "gong"}},
+            )
+
+            if not results:
+                return [
+                    TextContent(
+                        type="text",
+                        text=f"No stored call data found for '{params['query']}'",
+                    )
+                ]
+
+            result = f"Found {len(results)} relevant call memories:\n\n"
+
+            for idx, res in enumerate(results, 1):
+                metadata = res.get("metadata", {})
+                result += f"{idx}. {metadata.get('type', 'Unknown')} - Call {metadata.get('call_id', 'Unknown')}\n"
+                result += f"   Date: {metadata.get('date', 'Unknown')}\n"
+                result += f"   Score: {res.get('similarity', 0):.3f}\n"
+                result += f"   Content preview: {res['content'][:200]}...\n\n"
+
+            result += f"\n⚡ Search completed in {results[0].get('latency_ms', 0)}ms using GPU acceleration"
+
+            return [TextContent(type="text", text=result)]
+
+        except Exception as e:
+            logger.error(f"Error searching call memory: {e}")
+            return [TextContent(type="text", text=f"Error searching memory: {e!s}")]
+
+    async def on_startup(self):
+        """Initialize Gong server with memory service"""
+        await super().on_startup()
+
+        if self.memory_service:
+            await self.memory_service.initialize()
+            logger.info("Gong server ready with GPU-accelerated memory storage")
+
+    async def on_shutdown(self):
+        """Cleanup on shutdown"""
+        if self.memory_service:
+            await self.memory_service.close()
+
+        await super().on_shutdown()
 
 
 # Main entry point

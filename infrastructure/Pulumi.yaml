@@ -1,7 +1,7 @@
 name: sophia-ai-infrastructure
 runtime: nodejs
 description: Sophia AI Enterprise Infrastructure
-main: main.ts
+main: pulumi/index.ts
 config:
   aws:region:
     description: The AWS region to deploy into
