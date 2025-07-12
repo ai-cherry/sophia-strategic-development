@@ -1,0 +1,33 @@
+# Lambda Inference Service Requirements
+# Optimized for GPU inference with minimal dependencies
+
+# Core web framework
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pydantic==2.8.2
+
+# PyTorch with CUDA 12.2 support
+torch==2.3.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+torchvision==0.18.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+
+# Transformers and tokenizers
+transformers==4.42.4
+tokenizers==0.19.1
+sentence-transformers==3.0.1
+
+# Numerical computing
+numpy==1.26.4
+scipy==1.13.1
+
+# Portkey fallback
+portkey-ai==1.3.2
+
+# Monitoring
+prometheus-client==0.20.0
+
+# Async support
+aiofiles==24.1.0
+httpx==0.27.0
+
+# Logging
+python-json-logger==2.0.7 
