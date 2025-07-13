@@ -26,15 +26,15 @@ from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
 from backend.services.project_management_service import ProjectManagementService
-from backend.services.unified_chat_service_enhanced import (
+from backend.services.enhanced_chat_service_v4 import (
     ECOSYSTEM_QUERY_EXAMPLES,
-    EnhancedUnifiedChatService,
+    EnhancedSophiaUnifiedOrchestrator,
 )
 
 logger = logging.getLogger(__name__)
 
 # Initialize services
-enhanced_chat_service = EnhancedUnifiedChatService()
+enhanced_chat_service = EnhancedSophiaUnifiedOrchestrator()
 enhanced_orchestrator = EnhancedMultiAgentOrchestrator()
 project_service = ProjectManagementService()
 

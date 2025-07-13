@@ -18,7 +18,7 @@ from backend.core.date_time_manager import date_manager
 from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ class EnhancedWebSocketHandler:
 
         # Services
         self.enhanced_orchestrator = EnhancedMultiAgentOrchestrator()
-        self.unified_chat_service = UnifiedChatService()
+        self.unified_chat_service = SophiaUnifiedOrchestrator()
 
         # System state
         self.current_date = date_manager.get_current_date_str()

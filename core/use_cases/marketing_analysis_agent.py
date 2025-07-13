@@ -18,7 +18,6 @@ Provides comprehensive marketing analysis capabilities including:
 # - marketing_analysis_agent_models.py - Data models
 # - marketing_analysis_agent_handlers.py - Request handlers
 #
-# TODO: Implement file decomposition
 
 from __future__ import annotations
 

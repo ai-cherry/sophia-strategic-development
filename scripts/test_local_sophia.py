@@ -30,7 +30,7 @@ def test_imports():
         (
             "Services",
             "backend.services.enhanced_unified_chat_service",
-            "EnhancedUnifiedChatService",
+            "EnhancedSophiaUnifiedOrchestrator",
         ),
         ("Core config", "backend.core.auto_esc_config", "get_config_value"),
     ]
@@ -56,11 +56,11 @@ async def test_chat_service():
 
     try:
         from backend.services.enhanced_unified_chat_service import (
-            EnhancedUnifiedChatService,
+            EnhancedSophiaUnifiedOrchestrator,
         )
 
         # Create service instance
-        service = EnhancedUnifiedChatService()
+        service = EnhancedSophiaUnifiedOrchestrator()
         print("  ✅ Chat service created")
 
         # Test basic query

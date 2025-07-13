@@ -294,8 +294,8 @@ class PersonalityEngine:
                         role_scores[role] += 1
         
         # Return role with highest score, default to Analyst
-                 best_role = max(role_scores.items(), key=lambda x: x[1])[0]
-         return best_role if role_scores[best_role] > 0 else "Analyst"
+        best_role = max(role_scores.items(), key=lambda x: x[1])[0]
+        return best_role if role_scores[best_role] > 0 else "Analyst"
     
     def _extract_communication_style(self, interactions: List[Dict[str, Any]]) -> str:
         """Extract communication style preferences"""

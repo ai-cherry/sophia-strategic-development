@@ -11,7 +11,7 @@ import pytest
 
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from backend.services.lambda_labs_service import LambdaLabsService
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 from core.services.natural_language_infrastructure_controller import (
     NaturalLanguageInfrastructureController,
 )
@@ -146,13 +146,13 @@ class TestLambdaLabsChatIntegration:
         assert intent["recommended_model"] == "llama3.1-8b-instruct"
 
 
-class TestUnifiedChatServiceIntegration:
+class TestSophiaUnifiedOrchestratorIntegration:
     """Test unified chat service Lambda Labs integration"""
 
     @pytest.fixture
     def chat_service(self):
         """Create chat service instance"""
-        return UnifiedChatService()
+        return SophiaUnifiedOrchestrator()
 
     @pytest.mark.asyncio
     async def test_lambda_labs_in_service_map(self, chat_service):
@@ -275,7 +275,7 @@ class TestEndToEndScenarios:
     @pytest.mark.asyncio
     async def test_ceo_query_flow(self):
         """Test CEO query processing flow"""
-        chat = UnifiedChatService()
+        chat = SophiaUnifiedOrchestrator()
 
         with patch.object(chat, "process_message_with_lambda") as mock_process:
             mock_process.return_value = {

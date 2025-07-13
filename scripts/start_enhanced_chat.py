@@ -33,9 +33,9 @@ import logging
 from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
-from backend.services.unified_chat_service_enhanced import (
+from backend.services.enhanced_chat_service_v4 import (
     ECOSYSTEM_QUERY_EXAMPLES,
-    EnhancedUnifiedChatService,
+    EnhancedSophiaUnifiedOrchestrator,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -46,7 +46,7 @@ class EcosystemChatDemo:
     """Demonstration of complete ecosystem chat capabilities"""
 
     def __init__(self):
-        self.enhanced_chat = EnhancedUnifiedChatService()
+        self.enhanced_chat = EnhancedSophiaUnifiedOrchestrator()
         self.orchestrator = EnhancedMultiAgentOrchestrator()
 
     async def run_demo(self):

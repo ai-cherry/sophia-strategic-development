@@ -17,7 +17,7 @@ from backend.services.gong_multi_purpose_intelligence import (
     GongMultiPurposeIntelligence,
 )
 from backend.services.project_management_service import ProjectManagementService
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ async def process_natural_language_query(request: dict[str, Any]):
             result = await gong_intelligence.get_natural_language_insights(query)
         else:
             # Unified chat service for general project queries
-            chat_service = UnifiedChatService()
+            chat_service = SophiaUnifiedOrchestrator()
             result = await chat_service.process_enhanced_query(
                 query,
                 {

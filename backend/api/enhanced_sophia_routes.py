@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field
 import json
 
-from backend.services.enhanced_unified_chat_service import EnhancedUnifiedChatService
+from backend.services.enhanced_unified_chat_service import EnhancedSophiaUnifiedOrchestrator
 from backend.services.external_knowledge_service import ExternalKnowledgeService
 from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
@@ -17,7 +17,7 @@ from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 router = APIRouter(prefix="/api/v4/sophia", tags=["Enhanced Sophia"])
 
 # Services
-chat_service = EnhancedUnifiedChatService()
+chat_service = EnhancedSophiaUnifiedOrchestrator()
 external_service = ExternalKnowledgeService()
 orchestrator = SophiaUnifiedOrchestrator()
 memory_service = UnifiedMemoryServiceV2()

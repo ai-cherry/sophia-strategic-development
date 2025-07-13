@@ -13,7 +13,7 @@ from backend.services.portkey_gateway import PortkeyGateway
 from backend.core.logging_config import get_logger
 
 
-class EnhancedUnifiedChatService:
+class EnhancedSophiaUnifiedOrchestrator:
     """
     Chat service with personality injection and adaptive responses
     No more boring bot syndrome

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # SQL Injection fixes applied by phase1_ruff_remediation.py
 """
 Snowflake Gong Connector
@@ -24,8 +26,6 @@ Recommended decomposition:
 
 TODO: Implement file decomposition
 """
-
-from __future__ import annotations
 
 import logging
 from dataclasses import dataclass

@@ -97,10 +97,10 @@ async def test_services():
     # Test Enhanced Chat Service
     try:
         from backend.services.enhanced_unified_chat_service import (
-            EnhancedUnifiedChatService,
+            EnhancedSophiaUnifiedOrchestrator,
         )
 
-        service = EnhancedUnifiedChatService()
+        service = EnhancedSophiaUnifiedOrchestrator()
         print("  ✅ Enhanced Chat Service instantiated")
         working_services.append("enhanced_chat_service")
 

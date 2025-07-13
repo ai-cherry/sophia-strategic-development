@@ -10,7 +10,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class EntityResolutionResponse(BaseModel):
 # ENTITY RESOLUTION SERVICE INSTANCE
 # ========================================================================================
 
-chat_service = UnifiedChatService()
+chat_service = SophiaUnifiedOrchestrator()
 
 # ========================================================================================
 # API ENDPOINTS

@@ -10,12 +10,12 @@ from backend.services.knowledge_service import KnowledgeService
 from backend.services.okr_service import OKRService
 from backend.services.project_management_service import ProjectManagementService
 from backend.services.system_monitoring_service import SystemMonitoringService
-from backend.services.unified_chat_service import UnifiedChatService
+from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 router = APIRouter(prefix="/api/v3", tags=["unified-chat"])
 
 # Services
-chat_service = UnifiedChatService()
+chat_service = SophiaUnifiedOrchestrator()
 knowledge_service = KnowledgeService()
 project_service = ProjectManagementService()
 system_service = SystemMonitoringService()

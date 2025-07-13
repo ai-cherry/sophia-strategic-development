@@ -32,7 +32,7 @@ from backend.services.lambda_labs_cost_monitor import (
     start_cost_monitoring,
 )
 from backend.services.lambda_labs_serverless_service import get_lambda_service
-from backend.services.unified_chat_service_enhanced import get_enhanced_chat_service
+from backend.services.enhanced_chat_service_v4 import get_enhanced_chat_service
 
 # Configure logging
 logging.basicConfig(
