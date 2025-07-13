@@ -1,15 +1,16 @@
 # Sophia AI Production Deployment Configuration
-# This file should be encrypted with Pulumi ESC
+# Secrets are managed via Pulumi ESC
 
 deployment:
   environment: production
   version: v2025.7.12
   
 domains:
-  primary: "YOUR_DOMAIN.com"  # Replace with your domain
-  api: "api.YOUR_DOMAIN.com"
-  dashboard: "dashboard.YOUR_DOMAIN.com"
-  docs: "docs.YOUR_DOMAIN.com"
+  primary: "sophia-intel.ai"
+  api: "api.sophia-intel.ai"
+  dashboard: "dashboard.sophia-intel.ai"
+  docs: "docs.sophia-intel.ai"
+  www: "www.sophia-intel.ai"
 
 infrastructure:
   lambda_labs:
@@ -22,11 +23,12 @@ infrastructure:
     namespace: "sophia-ai-prod"
     
   vercel:
-    project: "sophia-ai-dashboard"
-    team: "YOUR_TEAM"  # Replace with your Vercel team
+    project: "sophia-intel-ai"
+    team: "scoobyjava"
     
 dns:
   provider: "namecheap"
+  domain: "sophia-intel.ai"
   records:
     - type: "A"
       name: "@"
@@ -40,6 +42,9 @@ dns:
     - type: "CNAME"
       name: "dashboard"
       value: "cname.vercel-dns.com"
+    - type: "A"
+      name: "docs"
+      value: "76.76.21.21"  # Vercel IP
 
 services:
   frontend:
@@ -47,6 +52,9 @@ services:
     framework: "nextjs"
     build_command: "npm run build"
     output_directory: ".next"
+    env_production:
+      NEXT_PUBLIC_API_URL: "https://api.sophia-intel.ai"
+      NEXT_PUBLIC_APP_URL: "https://sophia-intel.ai"
     
   backend:
     orchestrator:
@@ -68,19 +76,21 @@ monitoring:
     storage: "50Gi"
   grafana:
     admin_user: "admin"
+    domain: "grafana.sophia-intel.ai"
     dashboards:
       - "system-overview"
       - "mcp-health"
       - "cache-performance"
 
 secrets:
-  # These will be stored in Pulumi ESC
-  namecheap_api_key: "ENCRYPTED"
-  namecheap_api_user: "ENCRYPTED"
-  vercel_token: "ENCRYPTED"
-  openai_api_key: "ENCRYPTED"
-  anthropic_api_key: "ENCRYPTED"
-  github_token: "ENCRYPTED"
+  # Managed by Pulumi ESC - DO NOT COMMIT ACTUAL VALUES
+  namecheap_api_key: "PULUMI_ESC"
+  namecheap_api_user: "scoobyjava"
+  namecheap_client_ip: "PULUMI_ESC"
+  vercel_token: "PULUMI_ESC"
+  openai_api_key: "PULUMI_ESC"
+  anthropic_api_key: "PULUMI_ESC"
+  github_token: "PULUMI_ESC"
   
 backup:
   strategy: "3-2-1"
