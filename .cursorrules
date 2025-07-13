@@ -79,34 +79,53 @@ Before adding any new tool or framework:
 3. Consider the long-term maintenance cost
 4. Prefer enhancing existing tools over adding new ones
 
-## 🧹 **Code Hygiene Rules (MANDATORY)**
+## 🧹 **ENHANCED CODE HYGIENE RULES (MANDATORY)**
 
-### **One-Time Scripts and Documents:**
-1. **ALWAYS DELETE after use:**
-   - Migration scripts after successful migration
-   - Test scripts after tests pass
-   - Setup scripts after setup complete
-   - Temporary analysis documents
-   - One-time reports
+### **Automated Technical Debt Prevention:**
+Our "Clean by Design" framework prevents the accumulation of technical debt through:
 
-2. **NEVER DELETE:**
-   - Reusable utilities
-   - Documentation in `docs/`
-   - Configuration files
-   - Test suites
-   - Core scripts
+1. **Automated Daily Cleanup**: Removes expired one-time scripts, backup files, and empty archive directories
+2. **Pre-Commit Blocking**: Prevents commits that would introduce technical debt patterns
+3. **Documentation Lifecycle**: Automatic archiving of temporary documentation
+4. **Zero Tolerance Enforcement**: Immediate rejection of forbidden patterns
 
-3. **Before Creating Files:**
-   - Ask: "Will this be used more than once?"
-   - If NO → Plan to delete after use
-   - If YES → Place in appropriate permanent location
+### **One-Time Script Management (Enhanced):**
+```python
+# REQUIRED: All one-time scripts must use this pattern
+"""
+🚨 ONE-TIME SCRIPT - DELETE AFTER USE
+Purpose: [specific purpose]
+Created: [date]
+DELETE AFTER: [date]
+Usage: python scripts/one_time/script_name_DELETE_YYYY_MM_DD.py
 
-4. **Cleanup Pattern:**
-   ```python
-   # At the end of any one-time script:
-   print("✅ Task completed successfully")
-   print("🧹 This script can now be deleted: rm scripts/one_time_script.py")
-   ```
+🧹 CLEANUP: This script will be auto-deleted after expiration date
+"""
+
+# At the end of any one-time script:
+print("✅ Task completed successfully")
+print(f"🧹 This script will auto-delete on: {DELETE_DATE}")
+print("📍 Located in: scripts/one_time/ for automatic cleanup")
+```
+
+### **File Creation Decision Tree:**
+```
+Creating a file? → Ask: "Will this be used more than once?"
+├── NO (One-time use)
+│   ├── Script → scripts/one_time/name_DELETE_YYYY_MM_DD.py
+│   ├── Doc → Mark for auto-archive with retention period
+│   └── Data → /tmp/ or delete immediately after use
+└── YES (Permanent)
+    ├── Utility → scripts/utils/
+    ├── Monitoring → scripts/monitoring/
+    ├── Reference Doc → docs/99-reference/
+    └── Core Logic → appropriate permanent directory
+```
+
+### **Automated Enforcement:**
+- **Daily**: `python scripts/utils/daily_cleanup.py` (runs automatically)
+- **Pre-commit**: `python scripts/utils/pre_push_debt_check.py` (blocks bad commits)
+- **Monitoring**: Technical debt score tracking and alerting
 
 ## 📅 **Timeline and Budget Guidelines (CRITICAL)**
 
@@ -1451,65 +1470,79 @@ TIMELINE_AND_BUDGET_GUIDELINES: |
     - Focus on "what" and "how", not "when"
     - Technical complexity over time estimates
 
-## 🧹 **MANDATORY FILE CLEANUP POLICY**
+## 🛡️ **AUTOMATED TECHNICAL DEBT PREVENTION SYSTEM**
 
-### **🚨 CRITICAL: DELETE ONE-TIME FILES IMMEDIATELY AFTER USE**
+### **🚀 SYSTEM OVERVIEW**
+Our comprehensive "Clean by Design" framework **automatically prevents** the accumulation of technical debt that led to our recent cleanup of **290 dead code items**.
 
-**ALWAYS DELETE after successful completion:**
-- [ ] Migration scripts (after migration verified)
-- [ ] Setup scripts (after setup completed)
-- [ ] Data analysis scripts (after analysis documented)
-- [ ] Test data generators (after test data created)
-- [ ] Temporary debugging files
-- [ ] One-time configuration scripts
-- [ ] Database seeding scripts (after seeding completed)
-- [ ] Performance testing scripts (after results captured)
+### **🤖 AUTOMATED TOOLS IN PLACE**
+1. **Daily Cleanup Automation**: `scripts/utils/daily_cleanup.py`
+   - Removes expired one-time scripts (30-day lifecycle)
+   - Prevents archive directory creation
+   - Cleans up backup files automatically
+   - Monitors for large files and stale documentation
 
-**NEVER DELETE:**
-- [ ] Reusable utilities in `scripts/utils/`
-- [ ] Documentation in `docs/`
-- [ ] Configuration templates
-- [ ] Automated test suites
-- [ ] Monitoring scripts
-- [ ] Deployment automation
+2. **Pre-Commit Debt Prevention**: `scripts/utils/pre_push_debt_check.py`
+   - Blocks commits with technical debt patterns
+   - Validates one-time script placement
+   - Prevents forbidden documentation patterns
+   - Enforces file naming conventions
 
-### **🔍 Pre-Creation File Assessment**
-Before creating ANY file, AI must ask:
-1. **"Will this be used more than once?"**
-   - If NO → Plan immediate deletion after use
-   - If YES → Place in permanent location with proper naming
+3. **Documentation Lifecycle Management**:
+   - Automatic archiving of temporary documentation
+   - Retention policies for different document types
+   - Stale documentation detection and alerts
 
-2. **"Is this for debugging/testing only?"**
-   - If YES → Add deletion reminder in file header
-   - If NO → Ensure proper documentation
+### **📋 DEVELOPER WORKFLOW INTEGRATION**
+The prevention system is now **fully automated** and integrated into the development workflow:
 
-3. **"Does this duplicate existing functionality?"**
-   - If YES → Use existing file or consolidate
-   - If NO → Proceed with creation
+```bash
+# 1. Daily cleanup runs automatically (GitHub Actions)
+# 2. Pre-commit checks run on every commit attempt
+# 3. Developers just follow the "Clean by Design" principles
 
-### **📋 Mandatory Cleanup Pattern**
+# Manual commands available:
+python scripts/utils/daily_cleanup.py           # Check current status
+python scripts/utils/pre_push_debt_check.py     # Validate before commit
+```
+
+### **🎯 ZERO MAINTENANCE OVERHEAD**
+- **No manual cleanup needed**: All technical debt prevention is automated
+- **No reminder checklists**: System enforces policies automatically  
+- **No human error**: Automated tools prevent debt introduction
+- **No major cleanups**: Prevention eliminates the need for large-scale cleanup operations
+
+### **📊 SUCCESS METRICS**
+Target: **Zero major cleanups** like the 290-item cleanup we just completed
+- One-time scripts: <10 at any time (auto-managed)
+- Archive directories: 0 (zero tolerance, auto-prevented)
+- Backup files: 0 (zero tolerance, auto-removed)
+- Stale documentation: <5 files >90 days (auto-detected)
+
+**See**: `docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md` for complete documentation.
+
+### **📋 Enhanced One-Time Script Pattern (Auto-Managed)**
 ```python
-# REQUIRED: All one-time scripts must include this pattern
+# REQUIRED: All one-time scripts must use this pattern
 """
-🚨 ONE-TIME SCRIPT - DELETE AFTER USE
+🚨 ONE-TIME SCRIPT - AUTO-DELETION ENABLED
 Purpose: [specific purpose]
 Created: [date]
-Usage: python scripts/one_time_migration.py
-Status: PENDING_DELETION after successful execution
+DELETE AFTER: [date]
+Usage: python scripts/one_time/script_name_DELETE_YYYY_MM_DD.py
 
-🧹 CLEANUP REMINDER: This file should be deleted after successful execution
+🤖 AUTOMATION: This script will be auto-deleted by daily cleanup
 """
 
 def main():
     try:
         # Script logic here
         print("✅ Operation completed successfully")
-        print("🧹 CLEANUP REQUIRED: Delete this file now")
-        print(f"   Command: rm {__file__}")
-        print("   Reason: One-time script no longer needed")
+        print("🤖 AUTO-CLEANUP: This script will auto-delete on expiration date")
+        print("📍 Managed by: scripts/utils/daily_cleanup.py")
     except Exception as e:
         print(f"❌ Operation failed: {e}")
-        print("🔄 Fix issues and retry - DO NOT DELETE until successful")
+        print("🔄 Fix issues and retry - script remains until successful")
 
 if __name__ == "__main__":
     main()
@@ -1776,3 +1809,134 @@ from snowflake.cortex import embed_text_768  # FORBIDDEN!
 - Weaviate: Use v1.25.4+ for stability
 - Redis: Use hiredis for performance
 - PostgreSQL: Use pgvector 0.3.6+ with IVFFlat indexes
+
+## 🛡️ **TECHNICAL DEBT PREVENTION - "CLEAN BY DESIGN" (MANDATORY)**
+
+**CRITICAL**: Based on our recent cleanup of **290 dead code items** (279 files, 11 directories, 3MB), we now enforce a **Zero Technical Debt Policy** with automated prevention.
+
+### **🚨 ZERO TOLERANCE PATTERNS (IMMEDIATE REJECTION)**
+1. **Archive directories**: `archive/`, `backup/`, `_archived/`, `migration_backup/` ❌
+2. **Backup files**: `*.backup`, `*.bak`, `*.old`, `*.tmp`, `*.temp` ❌
+3. **One-time scripts** outside `scripts/one_time/` ❌
+4. **Completion documentation**: `*_COMPLETE.md`, `*_SUCCESS.md`, `*_FINAL.md` ❌
+5. **Implementation reports**: `*_IMPLEMENTATION_COMPLETE.md` ❌
+
+### **🔧 MANDATORY ONE-TIME SCRIPT MANAGEMENT**
+**BEFORE creating ANY script, ask: "Will this be used more than once?"**
+
+#### **If NO (One-time use):**
+```bash
+# CORRECT - One-time script with deletion date
+scripts/one_time/fix_auth_issue_DELETE_2025_08_15.py
+
+# REQUIRED header:
+"""
+One-time script: Fix authentication issue
+DELETE AFTER: 2025-08-15
+Created: 2025-07-13
+Purpose: Fix specific auth bug in production
+"""
+```
+
+#### **If YES (Permanent utility):**
+```bash
+# CORRECT - Permanent utilities
+scripts/utils/deploy_production.py        # Reusable deployment
+scripts/monitoring/health_check.py        # Ongoing monitoring
+scripts/maintenance/cleanup_logs.py       # Regular maintenance
+```
+
+### **📄 DOCUMENTATION LIFECYCLE MANAGEMENT**
+**All documentation MUST be categorized:**
+
+#### **PERMANENT (No Expiration)**
+- `docs/01-getting-started/` - User guides
+- `docs/03-architecture/` - Core architecture
+- `docs/99-reference/` - Reference documentation
+- `README.md`, `CHANGELOG.md` - Project essentials
+
+#### **TEMPORARY (Auto-Archive/Delete)**
+- `docs/implementation/` - **90 days** → Archive
+- `docs/deployment/` - **60 days** → Archive
+- `docs/migration/` - **30 days after completion** → Delete
+- `*_PLAN.md`, `*_STRATEGY.md` - **60 days** → Archive
+
+### **🤖 AUTOMATED ENFORCEMENT TOOLS**
+
+#### **Daily Cleanup (Automatic)**
+```bash
+# Runs automatically via GitHub Actions
+python scripts/utils/daily_cleanup.py
+
+# Features:
+✅ One-time script expiration (30 days)
+✅ Archive directory prevention
+✅ Backup file removal
+✅ Stale documentation detection
+✅ Large file monitoring (>10MB alerts)
+```
+
+#### **Pre-Commit Prevention (Mandatory)**
+```bash
+# Blocks commits that introduce technical debt
+python scripts/utils/pre_push_debt_check.py
+
+# Automatically blocks:
+❌ One-time scripts outside scripts/one_time/
+❌ Backup files (*.backup, *.bak, *.old)
+❌ Archive directories
+❌ Forbidden documentation patterns
+```
+
+### **📊 PREVENTION METRICS & TARGETS**
+- **One-time scripts**: <10 at any time
+- **Archive directories**: 0 (zero tolerance)
+- **Backup files**: 0 (zero tolerance)
+- **Stale documentation**: <5 files >90 days old
+- **Technical debt score**: <20/100
+
+### **🎯 "CLEAN BY DESIGN" PRINCIPLES**
+
+#### **1. Script Lifecycle Awareness**
+- **Before creating**: Ask "Will this be used more than once?"
+- **If NO**: Use `scripts/one_time/` with deletion date
+- **If YES**: Use appropriate permanent directory
+
+#### **2. Zero Archive Policy**
+- **Never create**: `archive/`, `backup/`, `old/` directories
+- **Use git history**: For accessing old versions
+- **Use branches**: For experimental work
+- **Use tags**: For release snapshots
+
+#### **3. Documentation Lifecycle**
+- **Implementation docs**: Include completion criteria
+- **Plans/strategies**: Set review dates
+- **Migration docs**: Delete after completion
+- **Reference docs**: Keep permanently updated
+
+#### **4. File Naming Conventions**
+```bash
+# ✅ GOOD
+scripts/utils/deploy_production.py           # Permanent utility
+scripts/one_time/fix_auth_DELETE_2025_08_15.py  # One-time with date
+docs/99-reference/api_documentation.md      # Permanent reference
+
+# ❌ BAD
+deploy_auth_fix.py                          # Unclear lifecycle
+docs/implementation_complete.md             # Completion doc
+backup_config.json                         # Backup file
+```
+
+### **🚀 QUICK PREVENTION COMMANDS**
+```bash
+# Check current debt status
+python scripts/utils/daily_cleanup.py
+
+# Validate before commit
+python scripts/utils/pre_push_debt_check.py
+
+# View prevention strategy
+cat docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md
+```
+
+**Remember**: *Prevention is 100x easier than cleanup!* We just removed 290 items - let's never do that again! 🧹✨

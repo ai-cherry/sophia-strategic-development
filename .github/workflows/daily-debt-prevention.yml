@@ -1,0 +1,126 @@
+name: Daily Technical Debt Prevention
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC (6 PM PST previous day)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  debt-prevention:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run daily cleanup
+      id: cleanup
+      run: |
+        echo "🧹 Running daily technical debt prevention..."
+        python scripts/utils/daily_cleanup.py > cleanup_report.txt 2>&1
+        
+        # Capture results
+        echo "cleanup_output<<EOF" >> $GITHUB_OUTPUT
+        cat cleanup_report.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+        # Check if any actions were taken
+        if grep -q "Total actions: 0" cleanup_report.txt && grep -q "Total warnings: 0" cleanup_report.txt; then
+          echo "actions_taken=false" >> $GITHUB_OUTPUT
+        else
+          echo "actions_taken=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit cleanup changes
+      if: steps.cleanup.outputs.actions_taken == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action - Daily Cleanup"
+        
+        # Add any changes made by cleanup
+        git add -A
+        
+        # Check if there are changes to commit
+        if ! git diff --cached --quiet; then
+          git commit -m "🤖 Automated daily cleanup - technical debt prevention
+          
+          Automated cleanup performed by daily-debt-prevention workflow:
+          - Removed expired one-time scripts
+          - Cleaned up backup files
+          - Removed empty archive directories
+          - Updated cleanup logs
+          
+          See cleanup report in workflow logs for details."
+          
+          git push
+        else
+          echo "No changes to commit"
+        fi
+    
+    - name: Create issue for high debt
+      if: contains(steps.cleanup.outputs.cleanup_output, 'Large file') || contains(steps.cleanup.outputs.cleanup_output, 'Stale documentation')
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const cleanupOutput = `${{ steps.cleanup.outputs.cleanup_output }}`;
+          
+          // Count warnings
+          const warnings = cleanupOutput.match(/⚠️.*$/gm) || [];
+          
+          if (warnings.length > 5) {
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Technical Debt Alert - Daily Cleanup Report',
+              body: `## Technical Debt Detection Alert
+              
+              The daily cleanup process detected ${warnings.length} warnings that require attention:
+              
+              ### Cleanup Report
+              \`\`\`
+              ${cleanupOutput}
+              \`\`\`
+              
+              ### Recommended Actions
+              - Review large files for Git LFS migration
+              - Archive or update stale documentation
+              - Check for accumulating technical debt patterns
+              
+              ### Prevention Tools
+              - Run: \`python scripts/utils/daily_cleanup.py\`
+              - Validate: \`python scripts/utils/pre_push_debt_check.py\`
+              - Strategy: \`docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md\`
+              
+              **This issue was automatically created by the daily debt prevention system.**`,
+              labels: ['technical-debt', 'automated', 'cleanup-required']
+            });
+          }
+    
+    - name: Post success summary
+      if: steps.cleanup.outputs.actions_taken == 'false'
+      run: |
+        echo "✅ Daily cleanup completed successfully"
+        echo "🎉 Repository is clean - no technical debt detected"
+        echo "📊 Prevention system working effectively"
+    
+    - name: Upload cleanup report
+      uses: actions/upload-artifact@v4
+      with:
+        name: daily-cleanup-report-${{ github.run_number }}
+        path: cleanup_report.txt
+        retention-days: 30 

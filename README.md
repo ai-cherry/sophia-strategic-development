@@ -313,3 +313,37 @@ The Sophia AI platform now uses a unified naming convention and deployment strat
 ### Current Status (July 2025)
 
 ✅ **Production MCP Servers** (All 16 Migrated to Official SDK):
+
+## 🛡️ Technical Debt Prevention - "Clean by Design"
+
+**NEW**: Sophia AI now features a comprehensive **"Clean by Design"** framework that automatically prevents technical debt accumulation.
+
+### 🚨 Zero Technical Debt Policy
+Based on our recent cleanup of **290 dead code items** (279 files, 11 directories, 3MB), we've implemented automated prevention:
+
+- **Zero tolerance** for archive directories (`archive/`, `backup/`, `_archived/`)
+- **Automated cleanup** of one-time scripts after 30 days
+- **Pre-commit blocking** of technical debt patterns
+- **Documentation lifecycle** management with auto-archiving
+
+### 🤖 Automated Tools
+```bash
+# Daily cleanup (runs automatically)
+python scripts/utils/daily_cleanup.py
+
+# Pre-commit validation (blocks bad commits)
+python scripts/utils/pre_push_debt_check.py
+
+# View complete strategy
+cat docs/99-reference/TECHNICAL_DEBT_PREVENTION_STRATEGY.md
+```
+
+### 🎯 Success Metrics
+- **One-time scripts**: <10 at any time (auto-managed)
+- **Archive directories**: 0 (zero tolerance)
+- **Backup files**: 0 (zero tolerance)
+- **Stale documentation**: <5 files >90 days old
+
+**Result**: Zero major cleanups needed - prevention eliminates technical debt before it accumulates.
+
+---
