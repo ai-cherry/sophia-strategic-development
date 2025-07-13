@@ -227,13 +227,13 @@ const EnhancedSearchInterface: React.FC = () => {
               {result.processing_time && (
                 <div className="flex items-center space-x-1">
                   <Clock className="w-3 h-3" />
-                  <span>{result.processing_time.toFixed(2)}s</span>
+                  <span>{typeof result.processing_time === 'number' ? result.processing_time.toFixed(2) : 'N/A'}s</span>
                 </div>
               )}
               {result.confidence && (
                 <div className="flex items-center space-x-1">
                   <Star className="w-3 h-3" />
-                  <span>{(result.confidence * 100).toFixed(0)}%</span>
+                  <span>{typeof result.confidence === 'number' ? (result.confidence * 100).toFixed(0) : 'N/A'}%</span>
                 </div>
               )}
             </div>
@@ -273,7 +273,7 @@ const EnhancedSearchInterface: React.FC = () => {
           <p className="text-gray-300 whitespace-pre-wrap">{result.data?.synthesis}</p>
           {result.data?.confidence && (
             <div className="mt-2 text-xs text-gray-400">
-              Confidence: {(result.data.confidence * 100).toFixed(0)}%
+              Confidence: {typeof result.data.confidence === 'number' ? (result.data.confidence * 100).toFixed(0) : 'N/A'}%
             </div>
           )}
         </div>

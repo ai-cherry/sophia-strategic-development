@@ -291,7 +291,7 @@ const UnifiedChatDashboard: React.FC = () => {
                       <span>📊 Sources: {message.sources.join(', ')}</span>
                     )}
                     {message.metadata && (
-                      <span>⚡ {message.metadata.response_time.toFixed(3)}s</span>
+                      <span>⚡ {typeof message.metadata.response_time === 'number' ? message.metadata.response_time.toFixed(3) : 'N/A'}s</span>
                     )}
                   </div>
                   <span>{formatTime(message.timestamp)}</span>
@@ -356,7 +356,7 @@ const UnifiedChatDashboard: React.FC = () => {
               </div>
               <div className="text-sm text-gray-600 space-y-1">
                 <div>Servers: {systemStatus.metrics.healthy_servers}/{systemStatus.metrics.total_servers}</div>
-                <div>Avg Response: {systemStatus.metrics.avg_response_time.toFixed(3)}s</div>
+                <div>Avg Response: {typeof systemStatus.metrics.avg_response_time === 'number' ? systemStatus.metrics.avg_response_time.toFixed(3) : 'N/A'}s</div>
                 <div>Connections: {systemStatus.metrics.active_connections}</div>
               </div>
             </div>
@@ -372,7 +372,7 @@ const UnifiedChatDashboard: React.FC = () => {
                   </div>
                   <div className="text-xs text-gray-600 mb-1">{server.description}</div>
                   {server.healthy && (
-                    <div className="text-xs text-green-600">⚡ {server.response_time.toFixed(3)}s</div>
+                    <div className="text-xs text-green-600">⚡ {typeof server.response_time === 'number' ? server.response_time.toFixed(3) : 'N/A'}s</div>
                   )}
                 </div>
               ))}
