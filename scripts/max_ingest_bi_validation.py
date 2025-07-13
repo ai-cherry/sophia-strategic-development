@@ -15,13 +15,15 @@ from datetime import datetime
 from dataclasses import dataclass, field
 
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-from backend.integrations.gong_integration import GongIntegration
-from backend.integrations.hubspot_integration import HubSpotIntegration
-from backend.integrations.slack_integration import SlackIntegration
-from backend.integrations.notion_integration import NotionIntegration
-from backend.integrations.asana_integration import AsanaIntegration
-from backend.integrations.github_integration import GitHubIntegration
-from backend.integrations.linear_integration import LinearIntegration
+from backend.integrations.mock_integrations import (
+    GongIntegration,
+    HubSpotIntegration,
+    SlackIntegration,
+    NotionIntegration,
+    AsanaIntegration,
+    GitHubIntegration,
+    LinearIntegration,
+)
 
 
 @dataclass
