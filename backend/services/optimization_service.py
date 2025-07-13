@@ -1,6 +1,6 @@
 """
-Consolidated Chat Services
-Auto-generated consolidated service combining: enhanced_chat_service_v4.py, enhanced_unified_chat_service.py, gong_enhanced_chat_integration.py, lambda_labs_chat_integration.py
+Consolidated Optimization Services
+Auto-generated consolidated service combining: n8n_alpha_optimizer.py
 """
 
 from typing import Dict, Any, List, Optional, Union
@@ -10,10 +10,10 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-class UnifiedChatService:
+class OptimizationService:
     """
-    Consolidated service for chat services
-    Combines functionality from: enhanced_chat_service_v4.py, enhanced_unified_chat_service.py, gong_enhanced_chat_integration.py, lambda_labs_chat_integration.py
+    Consolidated service for optimization services
+    Combines functionality from: n8n_alpha_optimizer.py
     """
     
     def __init__(self):
@@ -31,10 +31,10 @@ class UnifiedChatService:
             # TODO: Add specific initialization logic based on consolidated services
             self.initialized = True
             self.metrics["last_activity"] = datetime.now()
-            logger.info(f"UnifiedChatService initialized successfully")
+            logger.info(f"OptimizationService initialized successfully")
             return True
         except Exception as e:
-            logger.error(f"Failed to initialize UnifiedChatService: {e}")
+            logger.error(f"Failed to initialize OptimizationService: {e}")
             return False
     
     async def process_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
@@ -49,7 +49,7 @@ class UnifiedChatService:
             # TODO: Add consolidated processing logic
             result = {
                 "status": "success",
-                "service": "UnifiedChatService",
+                "service": "OptimizationService",
                 "processed_at": datetime.now().isoformat(),
                 "request_id": self.metrics["requests_processed"]
             }
@@ -58,11 +58,11 @@ class UnifiedChatService:
             
         except Exception as e:
             self.metrics["errors_count"] += 1
-            logger.error(f"Error processing request in UnifiedChatService: {e}")
+            logger.error(f"Error processing request in OptimizationService: {e}")
             return {
                 "status": "error",
                 "error": str(e),
-                "service": "UnifiedChatService"
+                "service": "OptimizationService"
             }
     
     def get_metrics(self) -> Dict[str, Any]:
@@ -73,13 +73,10 @@ class UnifiedChatService:
         """Perform health check"""
         return {
             "status": "healthy" if self.initialized else "unhealthy",
-            "service": "UnifiedChatService",
+            "service": "OptimizationService",
             "metrics": self.get_metrics(),
             "timestamp": datetime.now().isoformat()
         }
 
 # Backward compatibility aliases
-# EnhancedChatServiceV4 = EnhancedChatServiceV4  # Backward compatibility
-# EnhancedUnifiedChatService = EnhancedUnifiedChatService  # Backward compatibility
-# GongEnhancedChatIntegration = GongEnhancedChatIntegration  # Backward compatibility
-# LambdaLabsChatIntegration = LambdaLabsChatIntegration  # Backward compatibility
+# N8nAlphaOptimizer = N8nAlphaOptimizer  # Backward compatibility
