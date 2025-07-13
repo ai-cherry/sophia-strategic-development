@@ -108,7 +108,7 @@ export const CacheMonitoringWidget: React.FC = () => {
               <span className="text-sm font-medium">Cache Hit Rate</span>
             </div>
             <span className="text-2xl font-bold text-green-600">
-              {hitRatePercent.toFixed(1)}%
+              {typeof hitRatePercent === 'number' ? hitRatePercent.toFixed(1) : 'N/A'}%
             </span>
           </div>
           <Progress value={hitRatePercent} className="h-2" />
@@ -133,7 +133,7 @@ export const CacheMonitoringWidget: React.FC = () => {
               <span className="text-xs text-gray-500">Avg Similarity</span>
             </div>
             <p className="text-lg font-semibold">
-              {(stats.avg_similarity * 100).toFixed(1)}%
+              {(typeof stats.avg_similarity === 'number' ? (stats.avg_similarity * 100).toFixed(1) : 'N/A')}%
             </p>
           </div>
         </div>
@@ -146,7 +146,7 @@ export const CacheMonitoringWidget: React.FC = () => {
           </div>
           <div className="flex items-center justify-between text-xs mt-1">
             <span className="text-gray-500">Threshold</span>
-            <span className="font-mono">{(stats.threshold * 100).toFixed(0)}%</span>
+            <span className="font-mono">{typeof stats.threshold === 'number' ? (stats.threshold * 100).toFixed(0) : 'N/A'}%</span>
           </div>
         </div>
 
@@ -158,7 +158,7 @@ export const CacheMonitoringWidget: React.FC = () => {
               <p className="font-medium text-blue-900">Performance Impact</p>
               <p className="text-blue-700 mt-1">
                 {hitRatePercent > 70
-                  ? `Excellent! Saving ~${((stats.hits * 150) / 1000).toFixed(1)}s in query time`
+                  ? `Excellent! Saving ~${typeof stats.hits === 'number' ? ((stats.hits * 150) / 1000).toFixed(1) : 'N/A'}s in query time`
                   : hitRatePercent > 50
                   ? `Good performance. Consider pre-warming more queries`
                   : `Low hit rate. Cache may need optimization`

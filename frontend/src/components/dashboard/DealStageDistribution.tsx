@@ -57,7 +57,7 @@ const DealStageDistribution = ({ dealData }) => {
                         const label = context.label || '';
                         const value = context.parsed || 0;
                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = ((value / total) * 100).toFixed(1);
+                        const percentage = (total > 0 && value != null) ? ((value / total) * 100).toFixed(1) : '0';
                         return `${label}: ${value} (${percentage}%)`;
                     }
                 }

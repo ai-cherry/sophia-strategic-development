@@ -1,7 +1,22 @@
 {
+  "name": "sophia-ai-frontend",
+  "version": 2,
+  "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "framework": "vite",
+  "installCommand": "npm install",
+  "env": {
+    "REACT_APP_BACKEND_URL": "http://localhost:8000",
+    "REACT_APP_ENVIRONMENT": "production",
+    "REACT_APP_VERSION": "2.0.0",
+    "REACT_APP_APP_NAME": "Sophia AI Production"
+  },
+  "build": {
+    "env": {
+      "REACT_APP_BACKEND_URL": "http://localhost:8000",
+      "REACT_APP_ENVIRONMENT": "production"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",

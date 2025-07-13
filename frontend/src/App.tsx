@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import UnifiedChatDashboard from './components/UnifiedChatDashboard';
+import ProductionChatDashboard from './components/ProductionChatDashboard';
 import UnifiedDashboard from './components/UnifiedDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -27,14 +27,14 @@ const App: React.FC = () => {
                 <div className="flex items-center justify-between h-16">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <h1 className="text-xl font-bold text-white">Sophia AI</h1>
+                      <h1 className="text-xl font-bold text-white">Sophia AI Production</h1>
                     </div>
                     <div className="ml-10 flex items-baseline space-x-4">
                       <Link
                         to="/"
                         className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                       >
-                        Chat Interface
+                        Executive Chat
                       </Link>
                       <Link
                         to="/memory"
@@ -46,7 +46,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex items-center">
                     <span className="text-green-400 text-sm">
-                      ⚡ GPU Accelerated
+                      ⚡ Production Ready
                     </span>
                   </div>
                 </div>
@@ -55,7 +55,7 @@ const App: React.FC = () => {
 
             {/* Routes */}
             <Routes>
-              <Route path="/" element={<UnifiedChatDashboard />} />
+              <Route path="/" element={<ProductionChatDashboard />} />
               <Route path="/memory" element={<UnifiedDashboard />} />
             </Routes>
           </div>

@@ -56,7 +56,7 @@ const SalesRevenueChart: React.FC<SalesRevenueChartProps> = ({ salesData }) => {
                     tickLine={false}
                     axisLine={false}
                     tick={{ fill: '#9ca3af' }}
-                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    tickFormatter={(value) => value != null ? `$${(value / 1000).toFixed(0)}k` : ''}
                 />
 
                 <Tooltip
