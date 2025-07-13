@@ -3,37 +3,22 @@
     "ag_ui": 9039,
     "ai_memory": 9000,
     "apify_intelligence": 9017,
-    "apollo_io": 9102,
-    "asana": 9004,
     "bright_data": 9018,
-    "codacy": 9003,
-    "code_modifier": 9035,
     "cortex_aisql": 9034,
-    "docker": 9024,
     "estuary": 9202,
     "estuary_flow_cli": 9022,
     "figma_context": 9001,
     "github": 9007,
     "gong": 9101,
-    "graphiti": 9019,
-    "hubspot": 9100,
     "hubspot_unified": 9103,
-    "huggingface_ai": 9038,
-    "intercom": 9106,
     "lambda_labs_cli": 9020,
-    "linear": 9006,
     "mem0_bridge": 9031,
     "mem0_openmemory": 9032,
     "mem0_persistent": 9033,
     "migration_orchestrator": 9036,
-    "notion": 9005,
     "openrouter_search": 9014,
     "portkey_admin": 9013,
-    "postgres": 9009,
     "prompt_optimizer": 9030,
-    "pulumi": 9023,
-    "salesforce": 9107,
-    "slack": 9008,
     "slack_integration": 9104,
     "slack_unified": 9105,
     "snowflake": 9200,
@@ -41,17 +26,23 @@
     "snowflake_cli_enhanced": 9021,
     "snowflake_cortex": 9201,
     "sophia_ai_intelligence": 9016,
-    "sophia_business_intelligence": 9015,
-    "sophia_data_intelligence": 9010,
     "sophia_infrastructure": 9011,
     "sophia_intelligence_unified": 9037,
     "ui_ux_agent": 9002,
     "v0dev": 9040,
-    "lambda_labs_serverless": 9025
+    "lambda_labs_serverless": 9025,
+    "unified_project": 9005,
+    "unified_crm": 9006,
+    "unified_communication": 9007,
+    "unified_analytics": 9008,
+    "unified_code": 9009,
+    "unified_infrastructure": 9010,
+    "unified_ai": 9011,
+    "unified_data": 9012
   },
   "ai_memory_v2": 9002,
   "asana_v2": 9015,
-  "description": "Consolidated MCP Server Port Configuration - 48+ Servers",
+  "description": "Consolidated MCP Server Port Configuration - 30 Servers",
   "gong_v2": 9013,
   "hubspot_unified_v2": 9012,
   "infrastructure_management_v2": 9005,
@@ -61,7 +52,7 @@
     "monitoring_port": 9090
   },
   "lambda_labs_cli_v2": 9006,
-  "last_updated": "2025-07-12T15:45:00",
+  "last_updated": "2025-07-13T02:34:13.238322",
   "linear_v2": 9014,
   "mcp_servers": {
     "business_intelligence": {
@@ -258,7 +249,13 @@
         "name": "AI Memory v2",
         "port": 9000,
         "status": "active",
-        "capabilities": ["MEMORY", "EMBEDDING", "SEARCH", "ANALYTICS", "GPU_ACCEL"],
+        "capabilities": [
+          "MEMORY",
+          "EMBEDDING",
+          "SEARCH",
+          "ANALYTICS",
+          "GPU_ACCEL"
+        ],
         "replicas": 3,
         "resources": {
           "memory": "8Gi",
@@ -270,7 +267,11 @@
         "name": "Gong v2",
         "port": 9002,
         "status": "active",
-        "capabilities": ["ANALYTICS", "CRM", "COMMUNICATION"],
+        "capabilities": [
+          "ANALYTICS",
+          "CRM",
+          "COMMUNICATION"
+        ],
         "replicas": 2,
         "resources": {
           "memory": "2Gi",
@@ -281,7 +282,11 @@
         "name": "HubSpot Unified",
         "port": 9003,
         "status": "active",
-        "capabilities": ["CRM", "ANALYTICS", "WORKFLOW"],
+        "capabilities": [
+          "CRM",
+          "ANALYTICS",
+          "WORKFLOW"
+        ],
         "replicas": 2,
         "resources": {
           "memory": "2Gi",
@@ -292,7 +297,11 @@
         "name": "Slack v2",
         "port": 9004,
         "status": "active",
-        "capabilities": ["COMMUNICATION", "SEARCH", "WORKFLOW"],
+        "capabilities": [
+          "COMMUNICATION",
+          "SEARCH",
+          "WORKFLOW"
+        ],
         "replicas": 2,
         "resources": {
           "memory": "2Gi",
@@ -305,7 +314,11 @@
         "name": "GitHub v2",
         "port": 9005,
         "status": "active",
-        "capabilities": ["CODE_ANALYSIS", "WORKFLOW", "SEARCH"],
+        "capabilities": [
+          "CODE_ANALYSIS",
+          "WORKFLOW",
+          "SEARCH"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "2Gi",
@@ -316,7 +329,11 @@
         "name": "Linear v2",
         "port": 9006,
         "status": "active",
-        "capabilities": ["WORKFLOW", "ANALYTICS", "SEARCH"],
+        "capabilities": [
+          "WORKFLOW",
+          "ANALYTICS",
+          "SEARCH"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "2Gi",
@@ -327,7 +344,11 @@
         "name": "Asana v2",
         "port": 9007,
         "status": "active",
-        "capabilities": ["WORKFLOW", "ANALYTICS", "SEARCH"],
+        "capabilities": [
+          "WORKFLOW",
+          "ANALYTICS",
+          "SEARCH"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "2Gi",
@@ -338,7 +359,11 @@
         "name": "Notion v2",
         "port": 9008,
         "status": "active",
-        "capabilities": ["WORKFLOW", "SEARCH", "MEMORY"],
+        "capabilities": [
+          "WORKFLOW",
+          "SEARCH",
+          "MEMORY"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "2Gi",
@@ -349,7 +374,10 @@
         "name": "Codacy Production",
         "port": 3008,
         "status": "active",
-        "capabilities": ["CODE_ANALYSIS", "ANALYTICS"],
+        "capabilities": [
+          "CODE_ANALYSIS",
+          "ANALYTICS"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "2Gi",
@@ -362,7 +390,10 @@
         "name": "Figma Context",
         "port": 9009,
         "status": "active",
-        "capabilities": ["WORKFLOW", "ANALYTICS"],
+        "capabilities": [
+          "WORKFLOW",
+          "ANALYTICS"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "1Gi",
@@ -373,7 +404,10 @@
         "name": "Lambda Labs CLI",
         "port": 9010,
         "status": "active",
-        "capabilities": ["INFRASTRUCTURE", "ANALYTICS"],
+        "capabilities": [
+          "INFRASTRUCTURE",
+          "ANALYTICS"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "1Gi",
@@ -384,7 +418,10 @@
         "name": "UI/UX Agent",
         "port": 9011,
         "status": "active",
-        "capabilities": ["WORKFLOW", "CODE_ANALYSIS"],
+        "capabilities": [
+          "WORKFLOW",
+          "CODE_ANALYSIS"
+        ],
         "replicas": 1,
         "resources": {
           "memory": "2Gi",
@@ -429,5 +466,20 @@
     "lambda_labs_serverless",
     "various_v2_duplicates",
     "snowflake_unified"
-  ]
+  ],
+  "consolidation": {
+    "date": "2025-07-13T02:34:13.238328",
+    "from_count": 53,
+    "to_count": 30,
+    "unified_servers": [
+      "unified_project",
+      "unified_crm",
+      "unified_communication",
+      "unified_analytics",
+      "unified_code",
+      "unified_infrastructure",
+      "unified_ai",
+      "unified_data"
+    ]
+  }
 }
