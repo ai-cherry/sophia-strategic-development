@@ -10,7 +10,7 @@ Date: July 9, 2025
 import logging
 from typing import Any, Optional
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class MemoryServiceAdapter:
     """Adapter to add conversation methods to UnifiedMemoryService"""
 
-    def __init__(self, memory_service: UnifiedMemoryService):
+    def __init__(self, memory_service: UnifiedMemoryServiceV2):
         self.memory_service = memory_service
         self._conversations = {}  # In-memory storage for conversations
 

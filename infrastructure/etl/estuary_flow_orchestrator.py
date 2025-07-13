@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 import aiohttp
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Add project root to path for consistent imports
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -85,10 +86,15 @@ class EstuaryFlowOrchestrator:
         if self.session:
             await self.session.close()
 
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=2, min=4, max=60),
+        reraise=True
+    )
     async def _make_request(
         self, method: str, endpoint: str, data: dict | None = None
     ) -> dict[str, Any]:
-        """Make authenticated request to Estuary Flow API"""
+        """Make authenticated request to Estuary Flow API with rate limiting retry"""
         if not self.session:
             raise RuntimeError("Session not initialized. Use async context manager.")
 
@@ -254,6 +260,13 @@ class EstuaryFlowOrchestrator:
                 "client_secret": get_config_value("salesforce_client_secret"),
                 "refresh_token": get_config_value("salesforce_refresh_token"),
                 "instance_url": get_config_value("salesforce_instance_url"),
+                "api_version": "v58.0",
+                "rate_limit": {
+                    "requests_per_day": 300000,
+                    "concurrent_requests": 10,
+                    "retry_on_rate_limit": True,
+                    "backoff_multiplier": 2.0,
+                },
                 "streams": [
                     "Account",
                     "Opportunity",

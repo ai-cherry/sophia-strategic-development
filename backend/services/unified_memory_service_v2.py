@@ -792,7 +792,7 @@ class UnifiedMemoryServiceV2:
 _instance = None
 
 
-async def get_unified_memory_service() -> UnifiedMemoryServiceV2:
+async def get_unified_memory_service() -> UnifiedMemoryServiceV2V2:
     """Get or create the singleton instance"""
     global _instance
     if _instance is None:

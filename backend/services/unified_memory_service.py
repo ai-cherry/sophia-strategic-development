@@ -1,4 +1,6 @@
 """
+DEPRECATED: This is the legacy memory service. Use UnifiedMemoryServiceV2 instead.
+
 Unified Memory Service for Sophia AI
 THE ONLY MEMORY SERVICE - ALL MEMORY OPERATIONS MUST GO THROUGH HERE
 Date: July 9, 2025
@@ -13,6 +15,14 @@ This service implements the 6-tier memory architecture:
 
 CRITICAL: This replaces ALL usage of Pinecone, Weaviate, ChromaDB, Qdrant
 """
+
+import warnings
+warnings.warn(
+    "UnifiedMemoryService is deprecated. Use UnifiedMemoryServiceV2 from "
+    "backend.services.unified_memory_service_v2 instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import json
 import logging
@@ -719,7 +729,7 @@ class UnifiedMemoryService:
 _memory_service_instance = None
 
 
-def get_unified_memory_service(require_snowflake: bool = False) -> UnifiedMemoryService:
+def get_unified_memory_service(require_snowflake: bool = False) -> UnifiedMemoryServiceV2:
     """
     Get the singleton UnifiedMemoryService instance.
 
@@ -732,7 +742,7 @@ def get_unified_memory_service(require_snowflake: bool = False) -> UnifiedMemory
     global _memory_service_instance
 
     if _memory_service_instance is None:
-        _memory_service_instance = UnifiedMemoryService(
+        _memory_service_instance = UnifiedMemoryServiceV2(
             require_snowflake=require_snowflake
         )
 

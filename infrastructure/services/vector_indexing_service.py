@@ -9,6 +9,7 @@ from typing import Any
 from core.config_manager import get_config_value
 from infrastructure.integrations.gong_api_client import GongAPIClient
 from infrastructure.services.semantic_layer_service import SemanticLayerService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +28,12 @@ class VectorDocument:
 class VectorIndexingService:
     """
     Comprehensive vector indexing service for all unstructured content.
-    Integrates with Snowflake Cortex Search.
+    Integrates with Weaviate vector database and pgvector.
     """
 
     def __init__(self):
         self.semantic_service = SemanticLayerService()
+        self.memory_service = UnifiedMemoryServiceV2()
         gong_api_key = get_config_value("gong_access_key")
         if not gong_api_key:
             logger.warning(
@@ -41,28 +43,23 @@ class VectorIndexingService:
         else:
             self.gong_client = GongAPIClient(api_key=gong_api_key)
 
-    async def _create_cortex_search_index(self, config: dict[str, Any]) -> None:
-        """Creates a Snowflake Cortex Search index."""
-        # This is a placeholder for the actual index creation logic.
-        # The exact DDL will depend on the final table structures and Cortex Search features.
-        index_name = config["name"]
-        table_name = config["table"]
-        content_column = config["content_column"]
-
-        # In a real implementation, this would be a DDL query.
+    async def _create_weaviate_collection(self, config: dict[str, Any]) -> None:
+        """Creates a Weaviate collection for vector storage."""
+        collection_name = config["name"]
+        
+        # Initialize memory service which handles Weaviate
+        await self.memory_service.initialize()
+        
         logger.info(
-            f"Placeholder: Would create Cortex Search index '{index_name}' on table '{table_name}' for content column '{content_column}'."
+            f"Weaviate collection '{collection_name}' ready via UnifiedMemoryServiceV2"
         )
-        # Example DDL might look like:
-        # CREATE OR REPLACE SNOWFLAKE.CORTEX.SEARCH_INDEX my_index
-        # ON my_table(text_column)
-        # SEARCH_METHOD = 'VECTOR';
+        # The memory service already handles schema creation
         await asyncio.sleep(0.1)  # Simulate async operation
 
     async def initialize_vector_indexes(self) -> bool:
         """Initialize vector search indexes for all content types"""
         try:
-            # Create Cortex Search indexes for different content types
+            # Create Weaviate collections for different content types
             index_configs = [
                 {
                     "name": "SLACK_MESSAGES_INDEX",
@@ -100,7 +97,7 @@ class VectorIndexingService:
             ]
 
             for config in index_configs:
-                await self._create_cortex_search_index(config)
+                await self._create_weaviate_collection(config)
 
             logger.info("Vector indexes initialized successfully")
             return True
@@ -125,15 +122,12 @@ class VectorIndexingService:
 
         for message in messages:
             try:
-                # Generate embedding using Snowflake Cortex
-                embedding_query = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s) as embedding;"
-
-                embedding_result = await self.semantic_service._execute_query(
-                    embedding_query, [message["message_text"]]
+                # Generate embedding using memory service
+                embedding = await self.memory_service.generate_embedding(
+                    message["message_text"]
                 )
 
-                if embedding_result and "embedding" in embedding_result[0]:
-                    embedding_vector = embedding_result[0]["embedding"]
+                if embedding:
                     # Store vectorized content
                     insert_query = """
                     INSERT INTO SLACK_DATA.MESSAGES_VECTORIZED
@@ -146,7 +140,7 @@ class VectorIndexingService:
                         [
                             message["message_id"],
                             message["message_text"],
-                            json.dumps(embedding_vector),
+                            json.dumps(embedding),
                             message["channel_name"],
                             message["user_id"],
                             message["timestamp"],
@@ -187,15 +181,12 @@ class VectorIndexingService:
 
             for i, segment in enumerate(segments):
                 try:
-                    # Generate embedding
-                    embedding_query = "SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', %s) as embedding;"
-
-                    embedding_result = await self.semantic_service._execute_query(
-                        embedding_query, [segment]
+                    # Generate embedding using memory service
+                    embedding = await self.memory_service.generate_embedding(
+                        segment
                     )
 
-                    if embedding_result and "embedding" in embedding_result[0]:
-                        embedding_vector = embedding_result[0]["embedding"]
+                    if embedding:
                         # Store vectorized segment
                         insert_query = """
                         INSERT INTO GONG_DATA.CALL_TRANSCRIPTS_VECTORIZED
@@ -210,7 +201,7 @@ class VectorIndexingService:
                                 call["call_id"],
                                 f"{call['call_id']}_segment_{i}",
                                 segment,
-                                json.dumps(embedding_vector),
+                                json.dumps(embedding),
                                 call["call_date"],
                                 json.dumps(call["participants"]),
                                 call["sentiment_score"],

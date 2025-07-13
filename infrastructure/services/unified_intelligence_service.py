@@ -13,23 +13,11 @@ import pandas as pd
 # Setup logging first
 logger = logging.getLogger(__name__)
 
-# Optional Snowflake import
-try:
-    from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
-
-    SNOWFLAKE_AVAILABLE = True
-except ImportError as e:
-    logger.warning(f"Snowflake Cortex service not available: {e}")
-    SnowflakeCortexService = None
-    SNOWFLAKE_AVAILABLE = False
+# Import unified memory service v2
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 from core.services.data_transformer import DataTransformer
 from infrastructure.services.advanced_llm_service import AdvancedLLMService
-from infrastructure.services.data_source_manager import (
-    DataError,
-    DataSourceManager,
-    DataSourceType,
-)
 
 
 class UnifiedIntelligenceService:
@@ -39,7 +27,7 @@ class UnifiedIntelligenceService:
 
     def __init__(self, config: dict | None = None):
         self.config = config or {}
-        self.data_manager = DataSourceManager()
+        self.memory_service = UnifiedMemoryServiceV2()
         self.llm_service = AdvancedLLMService()
         self.transformer = DataTransformer()
         logger.info("UnifiedIntelligenceService initialized.")
@@ -71,8 +59,8 @@ class UnifiedIntelligenceService:
                 "response": response,
             }
 
-        except DataError as e:
-            logger.exception(f"DataError while processing query '{query}': {e}")
+        except ValueError as e:
+            logger.exception(f"ValueError while processing query '{query}': {e}")
             return {"error": str(e), "type": "data_error"}
         except Exception:
             logger.exception(f"Unexpected error processing query: '{query}'")
@@ -100,20 +88,28 @@ class UnifiedIntelligenceService:
 
     async def _handle_sales_query(
         self, query: str, context: dict
-    ) -> (list[dict], list[str]):
+    ) -> tuple[list[dict], list[str]]:
         """Handles sales-related queries."""
         # This is where we replace the mock logic
         logger.info("Handling sales query...")
 
-        # In a real scenario, the query to the data manager would be more specific
-        sales_data_raw = await self.data_manager.fetch_data(
-            DataSourceType.SNOWFLAKE, "get_top_deals"
+        # Use unified memory service for data retrieval
+        memory_service = UnifiedMemoryServiceV2()
+        await memory_service.initialize()
+        
+        # Search for sales data using semantic search
+        sales_results = await memory_service.search_knowledge(
+            query="top sales deals revenue opportunities",
+            limit=50,
+            metadata_filter={"type": "sales_data"}
         )
-
-        if not sales_data_raw:
+        
+        if not sales_results:
             return [], ["No sales data could be retrieved."]
-
-        sales_df = self.transformer.transform_snowflake_results(sales_data_raw)
+            
+        # Transform results to DataFrame format
+        sales_data_raw = [result["content"] for result in sales_results]
+        sales_df = pd.DataFrame(sales_data_raw)
         self.transformer.validate_sales_data(sales_df)
 
         insights = self._generate_sales_insights(sales_df)
@@ -122,7 +118,7 @@ class UnifiedIntelligenceService:
 
     async def _handle_general_query(
         self, query: str, context: dict
-    ) -> (list[dict], list[str]):
+    ) -> tuple[list[dict], list[str]]:
         """Handles general queries."""
         logger.info("Handling general query...")
         # For general queries, we might search multiple sources.
