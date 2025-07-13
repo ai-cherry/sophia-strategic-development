@@ -50,7 +50,7 @@ class IntelligentQueryRouter:
     """AI-powered query router using Snowflake Cortex for intent analysis"""
 
     def __init__(self):
-        self.cortex_service = EnhancedSnowflakeCortexService()
+        self.cortex_service = EnhancedUnifiedMemoryServiceV2()
 
         # Business domain mappings
         self.domain_keywords = {

@@ -78,7 +78,7 @@ class GongMultiPurposeIntelligence:
     """
 
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
         self.gong_memory = GongMemoryIntegration()
         self.current_date = date_manager.get_current_date_str()
 

@@ -50,7 +50,7 @@ from infrastructure.services.cost_engineering_service import (
     TaskRequest,
     cost_engineering_service,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +136,7 @@ class EnhancedSnowflakeCortexService:
     """
 
     def __init__(self):
-        self.base_service = SnowflakeCortexService()
+        self.base_service = UnifiedMemoryServiceV2()
         self.audit_logger = AuditLogger()
         self.cache_manager = EnhancedCacheManager()
 
@@ -1138,4 +1138,4 @@ class EnhancedSnowflakeCortexService:
 
 
 # Global instance
-enhanced_cortex_service = EnhancedSnowflakeCortexService()
+enhanced_cortex_service = EnhancedUnifiedMemoryServiceV2()

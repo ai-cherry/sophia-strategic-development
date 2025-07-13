@@ -48,7 +48,7 @@ from tqdm import tqdm
 from core.snowflake_config_manager import SnowflakeConfigManager
 
 # Import Sophia AI components
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 # Configure structured logging
 logging.basicConfig(level=logging.INFO)
@@ -125,7 +125,7 @@ class BatchEmbeddingProcessor:
     """Main class for batch embedding processing"""
 
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
         self.config_manager = SnowflakeConfigManager()
         self.stats = ProcessingStats()
 

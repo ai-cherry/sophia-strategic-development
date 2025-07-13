@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # Optional Snowflake import
 try:
-    from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+    from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
     SNOWFLAKE_AVAILABLE = True
 except ImportError as e:

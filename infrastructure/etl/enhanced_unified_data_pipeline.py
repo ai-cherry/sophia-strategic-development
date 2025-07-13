@@ -31,7 +31,7 @@ import redis.asyncio as redis
 from core.aligned_snowflake_config import aligned_snowflake_config
 from core.config_manager import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ class PureEstuaryDataPipeline:
             logger.info("✅ Redis connection initialized")
 
             # Initialize Snowflake service
-            self.snowflake_service = SnowflakeCortexService()
+            self.snowflake_service = UnifiedMemoryServiceV2()
             logger.info("✅ Snowflake service initialized")
 
             # Initialize Estuary Flow orchestrator

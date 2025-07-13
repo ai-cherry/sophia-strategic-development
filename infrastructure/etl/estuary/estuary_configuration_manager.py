@@ -33,7 +33,7 @@ import aiohttp
 import structlog
 
 from core.config_manager import get_config_value
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = structlog.get_logger(__name__)
 
@@ -219,7 +219,7 @@ class EnhancedEstuaryManager:
                 timeout=timeout, headers=headers, auth=auth
             )
 
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             await self.cortex_service.initialize()
 
             logger.info("✅ Enhanced Estuary Manager initialized successfully")

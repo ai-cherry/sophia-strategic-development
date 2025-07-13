@@ -66,7 +66,7 @@ import snowflake.connector
 
 from backend.core.date_time_manager import date_manager
 from core.config_manager import get_config_value
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 # Configure logging
 logging.basicConfig(
@@ -682,7 +682,7 @@ class SophiaDataPipelineUltimate:
         self.snowflake_loader = SnowflakeDataLoader(self.config)
 
         if self.config.enable_ai_processing:
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             await self.cortex_service.initialize()
 
         logger.info("✅ All services initialized successfully")

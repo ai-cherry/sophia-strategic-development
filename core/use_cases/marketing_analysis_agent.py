@@ -40,7 +40,7 @@ from infrastructure.services.unified_llm_service import (
     TaskType,
     get_unified_llm_service,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
 logger = logging.getLogger(__name__)
@@ -194,7 +194,7 @@ class MarketingAnalysisAgent(BaseAgent):
 
         try:
             # Initialize services
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             self.hubspot_connector = SnowflakeHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             self.knowledge_service = FoundationalKnowledgeService()

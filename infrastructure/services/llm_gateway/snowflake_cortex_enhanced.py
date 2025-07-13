@@ -24,7 +24,7 @@ class SnowflakeCortexEnhanced:
 
     def __init__(self):
         self.config = ConfigManager()
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
 
         # Cortex capabilities configuration
         self.cortex_capabilities = {

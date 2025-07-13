@@ -24,7 +24,7 @@ MIGRATION_PATTERNS = [
         "replacement": "get_gateway()",
         "imports_add": ["from core.infra.cortex_gateway import get_gateway"],
         "imports_remove": [
-            "from shared.utils.snowflake_cortex_service import SnowflakeCortexService"
+            "from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2"
         ],
     },
     # Direct Cortex SQL patterns
@@ -248,7 +248,7 @@ class SnowflakeMigrator:
                     [
                         "import snowflake.connector",
                         "from snowflake.connector import",
-                        "from shared.utils.snowflake_cortex_service import SnowflakeCortexService",
+                        "from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2",
                     ],
                 )
 

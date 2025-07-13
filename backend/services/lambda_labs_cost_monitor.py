@@ -16,7 +16,7 @@ from typing import Any
 import aiohttp
 
 from backend.core.auto_esc_config import get_config_value
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class LambdaLabsCostMonitor:
         self.model_analytics: dict[str, ModelCostAnalysis] = {}
 
         # Snowflake integration
-        self.snowflake = SnowflakeCortexService()
+        self.snowflake = UnifiedMemoryServiceV2()
 
         # Monitoring task
         self.monitoring_task: asyncio.Task | None = None

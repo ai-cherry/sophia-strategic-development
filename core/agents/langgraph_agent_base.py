@@ -171,11 +171,11 @@ class LangGraphAgentBase(ABC):
                 EnhancedAiMemoryMCPServer,
             )
             from infrastructure.services.llm_router import llm_router
-            from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+            from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
             self.llm_service = await get_unified_llm_service()
             await self.llm_service.initialize()
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             await self.cortex_service.initialize()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()

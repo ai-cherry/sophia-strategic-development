@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class EnhancedDeploymentTracker:
     """Enhanced deployment tracking with monitoring and rollback capabilities."""
 
     def __init__(self):
-        self.snowflake_service = SnowflakeCortexService()
+        self.snowflake_service = UnifiedMemoryServiceV2()
         self.deployment_history: list[DeploymentEvent] = []
         self.active_deployments: dict[str, DeploymentEvent] = {}
 

@@ -36,7 +36,7 @@ from core.use_cases.sales_coach_agent import SalesCoachAgent
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
 from shared.utils.snowflake_hubspot_connector import SnowflakeHubSpotConnector
 
@@ -111,7 +111,7 @@ class CallAnalysisAgent:
             return
 
         try:
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             self.gong_connector = SnowflakeGongConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
@@ -408,7 +408,7 @@ class SupervisorAgent:
             return
 
         try:
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             self.hubspot_connector = SnowflakeHubSpotConnector()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 

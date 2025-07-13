@@ -43,7 +43,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.security.audit_logger import AuditLogger
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +180,7 @@ class CostEngineeringService:
 
         try:
             # Initialize services
-            self.cortex_service = SnowflakeCortexService()
+            self.cortex_service = UnifiedMemoryServiceV2()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
 

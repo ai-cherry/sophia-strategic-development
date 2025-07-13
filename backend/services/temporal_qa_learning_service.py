@@ -85,7 +85,7 @@ class TemporalQALearningService:
     def __init__(self):
         if CORTEX_AVAILABLE:
             try:
-                self.cortex_service = SnowflakeCortexService()
+                self.cortex_service = UnifiedMemoryServiceV2()
             except Exception as e:
                 logger.warning(f"Failed to initialize Snowflake Cortex service: {e}")
                 self.cortex_service = None

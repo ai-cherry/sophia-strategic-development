@@ -103,7 +103,7 @@ class DatabaseSearchAgent:
     def __init__(self):
         self.knowledge_service = FoundationalKnowledgeService()
         self.ai_memory_service = AIMemoryService()
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = UnifiedMemoryServiceV2()
 
     async def search(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute database search with enhanced context"""
@@ -122,7 +122,7 @@ class DatabaseSearchAgent:
             )
 
             # Search Snowflake with Cortex
-            cortex_results = await self.snowflake_cortex.semantic_search(
+            cortex_results = await self.memory_service.semantic_search(
                 query=enhanced_query, limit=10
             )
 
@@ -157,7 +157,7 @@ class BusinessIntelligenceAgent:
     """
 
     def __init__(self):
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = UnifiedMemoryServiceV2()
 
     async def analyze_business_context(
         self, query: str, context: dict[str, Any]
@@ -234,7 +234,7 @@ class BusinessIntelligenceAgent:
         """Get comprehensive Gong conversation intelligence"""
 
         # Use Snowflake Cortex to analyze Gong data
-        gong_analysis = await self.snowflake_cortex.execute_query(
+        gong_analysis = await self.memory_service.execute_query(
             f"""
         SELECT
             gc.call_id,
@@ -276,7 +276,7 @@ class BusinessIntelligenceAgent:
     ) -> dict[str, Any]:
         """Get HubSpot CRM insights"""
 
-        hubspot_analysis = await self.snowflake_cortex.execute_query(
+        hubspot_analysis = await self.memory_service.execute_query(
             f"""
         SELECT
             h.deal_id,
@@ -329,7 +329,7 @@ class BusinessIntelligenceAgent:
     ) -> dict[str, Any]:
         """Get financial metrics and KPIs"""
 
-        financial_analysis = await self.snowflake_cortex.execute_query(
+        financial_analysis = await self.memory_service.execute_query(
             """
         SELECT
             'revenue' as metric_type,
@@ -357,7 +357,7 @@ class BusinessIntelligenceAgent:
     ) -> dict[str, Any]:
         """Get customer health and satisfaction data"""
 
-        customer_health = await self.snowflake_cortex.execute_query(
+        customer_health = await self.memory_service.execute_query(
             """
         SELECT
             customer_id,
@@ -391,7 +391,7 @@ class CommunicationIntelligenceAgent:
     """
 
     def __init__(self):
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = UnifiedMemoryServiceV2()
 
     async def analyze_communication_context(
         self, query: str, context: dict[str, Any]
@@ -452,7 +452,7 @@ class CommunicationIntelligenceAgent:
     ) -> dict[str, Any]:
         """Get Slack conversation intelligence"""
 
-        slack_analysis = await self.snowflake_cortex.execute_query(
+        slack_analysis = await self.memory_service.execute_query(
             f"""
         SELECT
             s.channel_name,
@@ -568,7 +568,7 @@ class ProjectIntelligenceAgent:
 
     def __init__(self):
         self.sophia_orchestrator = SophiaAIOrchestrator()
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = UnifiedMemoryServiceV2()
 
     async def analyze_project_context(
         self, query: str, context: dict[str, Any]
@@ -635,7 +635,7 @@ class ProjectIntelligenceAgent:
     ) -> dict[str, Any]:
         """Get Linear engineering task intelligence"""
 
-        linear_analysis = await self.snowflake_cortex.execute_query(
+        linear_analysis = await self.memory_service.execute_query(
             f"""
         SELECT
             l.issue_id,
@@ -677,7 +677,7 @@ class ProjectIntelligenceAgent:
     ) -> dict[str, Any]:
         """Get Asana project management insights"""
 
-        asana_analysis = await self.snowflake_cortex.execute_query(
+        asana_analysis = await self.memory_service.execute_query(
             f"""
         SELECT
             a.task_id,
@@ -715,7 +715,7 @@ class ProjectIntelligenceAgent:
     async def _get_notion_data(self, query: str, current_date: str) -> dict[str, Any]:
         """Get Notion documentation and knowledge data"""
 
-        notion_analysis = await self.snowflake_cortex.execute_query(
+        notion_analysis = await self.memory_service.execute_query(
             f"""
         SELECT
             n.page_id,
@@ -766,7 +766,7 @@ class ProjectIntelligenceAgent:
         """Assess overall project health across all systems"""
 
         # Cross-system project health analysis
-        health_analysis = await self.snowflake_cortex.complete_text(
+        health_analysis = await self.memory_service.complete_text(
             f"""
         Analyze project health for query: {query} as of {current_date}
 
@@ -798,7 +798,7 @@ class SynthesisAgent:
     """Specialized agent for result synthesis and fusion across ALL ecosystem data"""
 
     def __init__(self):
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = UnifiedMemoryServiceV2()
 
     async def synthesize_results(
         self, agent_results: list[dict[str, Any]], query: str, context: dict[str, Any]
@@ -852,7 +852,7 @@ class SynthesisAgent:
             """
 
             # Use Snowflake Cortex for synthesis
-            synthesis_response = await self.snowflake_cortex.complete_text(
+            synthesis_response = await self.memory_service.complete_text(
                 prompt=synthesis_prompt, max_tokens=2000
             )
 

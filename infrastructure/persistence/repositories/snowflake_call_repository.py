@@ -14,7 +14,7 @@ from domain.value_objects.call_participant import (
     ParticipantRole,
 )
 from domain.value_objects.sentiment import Sentiment
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 
 class SnowflakeCallRepository(CallRepository):

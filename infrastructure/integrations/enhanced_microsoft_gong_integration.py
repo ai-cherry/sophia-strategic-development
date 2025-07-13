@@ -27,7 +27,7 @@ from infrastructure.services.enhanced_sentiment_analyzer import (
     EnhancedSentimentAnalyzer,
     SentimentChannel,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 from shared.utils.snowflake_gong_connector import SnowflakeGongConnector
 
 logger = logging.getLogger(__name__)
@@ -86,7 +86,7 @@ class EnhancedMicrosoftGongIntegration:
 
     def __init__(self):
         self.gong_connector = SnowflakeGongConnector()
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
         self.sentiment_analyzer = EnhancedSentimentAnalyzer()
         self.initialized = False
 

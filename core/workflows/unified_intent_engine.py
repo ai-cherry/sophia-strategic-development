@@ -14,7 +14,7 @@ from typing import Any
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class UnifiedIntentEngine:
     """
 
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
         self.memory_service = EnhancedAiMemoryMCPServer()
         self.intent_patterns: dict[str, list[dict]] = {}
         self.capability_mapping: dict[IntentCategory, list[AgentCapability]] = {

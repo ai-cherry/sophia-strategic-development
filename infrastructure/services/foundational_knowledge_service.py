@@ -25,7 +25,7 @@ from enum import Enum
 from typing import Any
 
 from core.logger import logger
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 # logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class FoundationalKnowledgeService:
     """Service for managing foundational Pay Ready knowledge"""
 
     def __init__(self):
-        self.cortex_service = SnowflakeCortexService()
+        self.cortex_service = UnifiedMemoryServiceV2()
         self.knowledge_service = KnowledgeService()
         self.schema = "FOUNDATIONAL_KNOWLEDGE"
 

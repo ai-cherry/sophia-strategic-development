@@ -19,7 +19,7 @@ import backoff
 from openai import AsyncOpenAI
 
 from backend.core.auto_esc_config import get_config_value
-from shared.utils.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +193,7 @@ class LambdaLabsServerlessService:
         ]
 
         # Integration with Snowflake Cortex
-        self.snowflake_cortex = SnowflakeCortexService()
+        self.snowflake_cortex = UnifiedMemoryServiceV2()
 
         logger.info(
             "🚀 Lambda Labs Serverless Service initialized with 5 premium models"
