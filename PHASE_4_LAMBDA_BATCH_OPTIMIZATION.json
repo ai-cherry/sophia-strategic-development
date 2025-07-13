@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-07-13T07:31:39.650117",
+  "optimization_results": {
+    "optimization_time_seconds": 1.6233830451965332,
+    "batch_sizes_tested": [
+      64,
+      128,
+      256,
+      512,
+      768,
+      1024,
+      1280,
+      1536
+    ],
+    "optimal_batch_size": 1536,
+    "optimal_metrics": {
+      "batch_size": 1536,
+      "avg_processing_time": 0.11904000000000002,
+      "avg_memory_gb": 0.0029246012369791665,
+      "avg_gpu_memory_gb": 0.017547607421875,
+      "avg_throughput": 12903.225806451612,
+      "blackwell_throughput": 32258.06451612902,
+      "oom_occurred": false
+    },
+    "all_results": {
+      "64": {
+        "batch_size": 64,
+        "avg_processing_time": 0.006340000000000001,
+        "avg_memory_gb": 0.0003814697265625,
+        "avg_gpu_memory_gb": 9.5367431640625e-05,
+        "avg_throughput": 10094.637223974763,
+        "blackwell_throughput": 25236.593059936906,
+        "oom_occurred": false
+      },
+      "128": {
+        "batch_size": 128,
+        "avg_processing_time": 0.01256,
+        "avg_memory_gb": 0.0,
+        "avg_gpu_memory_gb": 0.0,
+        "avg_throughput": 10191.082802547771,
+        "blackwell_throughput": 25477.707006369426,
+        "oom_occurred": false
+      },
+      "256": {
+        "batch_size": 256,
+        "avg_processing_time": 0.024640000000000006,
+        "avg_memory_gb": 0.0,
+        "avg_gpu_memory_gb": 0.0,
+        "avg_throughput": 10389.610389610389,
+        "blackwell_throughput": 25974.025974025968,
+        "oom_occurred": false
+      },
+      "512": {
+        "batch_size": 512,
+        "avg_processing_time": 0.047360000000000006,
+        "avg_memory_gb": 0.0,
+        "avg_gpu_memory_gb": 0.0,
+        "avg_throughput": 10810.81081081081,
+        "blackwell_throughput": 27027.027027027027,
+        "oom_occurred": false
+      },
+      "768": {
+        "batch_size": 768,
+        "avg_processing_time": 0.06816000000000001,
+        "avg_memory_gb": 0.0,
+        "avg_gpu_memory_gb": 0.0,
+        "avg_throughput": 11267.605633802816,
+        "blackwell_throughput": 28169.01408450704,
+        "oom_occurred": false
+      },
+      "1024": {
+        "batch_size": 1024,
+        "avg_processing_time": 0.08704,
+        "avg_memory_gb": 0.0,
+        "avg_gpu_memory_gb": 0.0,
+        "avg_throughput": 11764.705882352942,
+        "blackwell_throughput": 29411.76470588235,
+        "oom_occurred": false
+      },
+      "1280": {
+        "batch_size": 1280,
+        "avg_processing_time": 0.104,
+        "avg_memory_gb": 0.011113484700520834,
+        "avg_gpu_memory_gb": 0.055567423502604164,
+        "avg_throughput": 12307.692307692307,
+        "blackwell_throughput": 30769.23076923077,
+        "oom_occurred": false
+      },
+      "1536": {
+        "batch_size": 1536,
+        "avg_processing_time": 0.11904000000000002,
+        "avg_memory_gb": 0.0029246012369791665,
+        "avg_gpu_memory_gb": 0.017547607421875,
+        "avg_throughput": 12903.225806451612,
+        "blackwell_throughput": 32258.06451612902,
+        "oom_occurred": false
+      }
+    },
+    "blackwell_efficiency": 2.5
+  },
+  "recommendation": {
+    "optimal_batch_size": 1536,
+    "memory_safe": true,
+    "blackwell_optimized": true,
+    "expected_throughput": 32258.06451612902
+  }
+}
