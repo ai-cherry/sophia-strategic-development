@@ -27,8 +27,8 @@ spec:
           value: "prod"
         - name: MCP_PORT
           value: "9001"
-        - name: WEAVIATE_URL
-          value: "http://weaviate:8080"
+        - name: QDRANT_URL
+          value: "https://cloud.qdrant.io"
         - name: REDIS_URL
           value: "redis://redis-master:6379"
         - name: POSTGRESQL_URL
