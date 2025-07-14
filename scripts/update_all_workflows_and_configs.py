@@ -46,8 +46,8 @@ STANDARD_SECRET_NAMES = {
     # Gong - Use GONG_ACCESS_KEY
     "GONG_API_KEY": "GONG_ACCESS_KEY",
     "GONG_TOKEN": "GONG_ACCESS_KEY",
-    # Vercel - Use VERCEL_ACCESS_TOKEN
-    "VERCEL_TOKEN": "VERCEL_ACCESS_TOKEN",
+    # Vercel - Use # Lambda Labs Deploy to Lambda Labs
+    "# Lambda Labs Deploy to Lambda Labs
     # Asana - Use ASANA_API_TOKEN
     "ASANA_API_KEY": "ASANA_API_TOKEN",
     "ASANA_TOKEN": "ASANA_API_TOKEN",

@@ -55,8 +55,13 @@ except ImportError:
     DOCLING_AVAILABLE = False
     docling = None
 
-# Core imports - Pure Qdrant Architecture
-# Weaviate eliminated for pure Qdrant-centric design
+# Core imports
+try:
+    import weaviate
+    WEAVIATE_AVAILABLE = True
+except ImportError:
+    WEAVIATE_AVAILABLE = False
+    weaviate = None
 
 try:
     from redis.asyncio import Redis
@@ -142,7 +147,7 @@ class RAGState(TypedDict):
 class MemoryTier:
     """Enhanced memory tier configuration"""
     name: str
-    storage_type: str  # redis, qdrant, neo4j
+    storage_type: str  # redis, weaviate, qdrant, neo4j
     ttl_seconds: int
     max_entries: int
     embedding_model: str
@@ -188,7 +193,7 @@ class UnifiedMemoryService:
             ),
             "semantic": MemoryTier(
                 name="Semantic Memory", 
-                storage_type="qdrant",
+                storage_type="weaviate",
                 ttl_seconds=86400 * 30,  # 30 days
                 max_entries=100000,
                 embedding_model="lambda-gpu",

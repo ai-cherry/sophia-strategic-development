@@ -186,7 +186,7 @@ def display_system_status():
     print("2. Secret management is unified across all business services")
     print("3. Ready for Phase 1 implementation (Dynamic Routing)")
     print("4. MCP servers can be deployed to Lambda Labs infrastructure")
-    print("5. Frontend can be deployed to Lambda Labs or kept on Vercel")
+    print("5. Frontend (Lambda Labs)
     
     print("\n✅ SOPHIA AI ENHANCED ORCHESTRATOR: READY FOR PRODUCTION")
 

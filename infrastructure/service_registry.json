@@ -1,159 +1,28 @@
 {
-  "gong": {
-    "type": "api",
-    "description": "Gong conversation intelligence platform",
-    "config_keys": [
-      "base_url"
-    ],
-    "secret_keys": [
-      "api_key",
-      "api_secret",
-      "client_secret"
-    ],
-    "rotation_schedule": "60d",
-    "owner": "sales-ops",
-    "dependencies": []
-  },
-  "vercel": {
-    "type": "api",
-    "description": "Vercel deployment platform for frontend applications",
-    "config_keys": [
-      "team_id",
-      "project_id",
-      "org_id"
-    ],
-    "secret_keys": [
-      "token"
-    ],
-    "rotation_schedule": "90d",
-    "owner": "frontend-team",
-    "dependencies": []
-  },
-  "estuary": {
-    "type": "api",
-    "description": "Estuary Flow real-time data streaming platform",
-    "config_keys": [
-      "api_url"
-    ],
-    "secret_keys": [
-      "api_key"
-    ],
-    "rotation_schedule": "60d",
-    "owner": "data-team",
-    "dependencies": []
-  },
-  "lambda_labs": {
-    "type": "infrastructure",
-    "description": "Lambda Labs GPU compute resources",
-    "config_keys": [],
-    "secret_keys": [
-      "api_key",
-      "jupyter_password",
-      "ssh_public_key",
-      "ssh_private_key"
-    ],
-    "rotation_schedule": "90d",
-    "owner": "ml-team",
-    "dependencies": []
-  },
-  "redis": {
-    "type": "cache",
-    "description": "Redis for L1 ephemeral cache and hot vector storage",
-    "config_keys": [
-      "host",
-      "port",
-      "db"
-    ],
-    "secret_keys": [
-      "password"
-    ],
-    "rotation_schedule": "60d",
-    "owner": "backend-team",
-    "dependencies": []
-  },
-  "mem0": {
-    "type": "memory",
-    "description": "Mem0 for L2 agent conversational memory",
-    "config_keys": [
-      "collection_name"
-    ],
-    "secret_keys": [
-      "api_key"
-    ],
-    "rotation_schedule": "90d",
-    "owner": "ml-team",
-    "dependencies": [
-      "openai"
-    ],
-    "notes": "Internal Qdrant usage is acceptable within Mem0 only"
-  },
-  "openai": {
-    "type": "api",
-    "description": "OpenAI API for language models",
-    "config_keys": [],
-    "secret_keys": [
-      "api_key"
-    ],
-    "rotation_schedule": "30d",
-    "owner": "ml-team",
-    "dependencies": []
-  },
-  "anthropic": {
-    "type": "api",
-    "description": "Anthropic API for Claude language models",
-    "config_keys": [],
-    "secret_keys": [
-      "api_key"
-    ],
-    "rotation_schedule": "30d",
-    "owner": "ml-team",
-    "dependencies": []
-  },
-  "postgres": {
-    "type": "database",
-    "description": "PostgreSQL database for application data and ETL staging",
-    "config_keys": [
-      "host",
-      "port",
-      "database"
-    ],
-    "secret_keys": [
-      "user",
-      "password"
-    ],
-    "rotation_schedule": "30d",
-    "owner": "backend-team",
-    "dependencies": []
-  },
-  "github": {
-    "type": "api",
-    "description": "GitHub API for repository management",
-    "config_keys": [
-      "org"
-    ],
-    "secret_keys": [
-      "token"
-    ],
-    "rotation_schedule": "90d",
-    "owner": "devops-team",
-    "dependencies": []
-  },
-  "unified_memory": {
-    "type": "service",
-    "description": "Unified Memory Service - the ONLY memory interface",
-    "config_keys": [
-      "tier_ttl",
-      "cache_size",
-      "vector_dimension"
-    ],
-    "secret_keys": [],
-    "rotation_schedule": "never",
-    "owner": "platform-team",
-    "dependencies": [
-      "ELIMINATED",
-      "redis",
-      "mem0"
-    ],
-    "notes": "All memory operations MUST go through this service"
+  "services": {
+    "sophia-ai-backend": {
+      "id": "sophia-ai-backend",
+      "description": "Main Sophia AI backend service",
+      "type": "api",
+      "url": "http://192.222.58.232:8000",
+      "health_endpoint": "/health",
+      "status": "active"
+    },
+    "lambda-labs": {
+      "id": "lambda-labs",
+      "description": "Lambda Labs GPU infrastructure for AI processing",
+      "type": "infrastructure",
+      "url": "http://192.222.58.232",
+      "health_endpoint": "/health",
+      "status": "active"
+    },
+    "mcp-orchestrator": {
+      "id": "mcp-orchestrator",
+      "description": "MCP server orchestration service",
+      "type": "orchestration",
+      "url": "http://192.222.58.232:8001",
+      "health_endpoint": "/health",
+      "status": "active"
+    }
   }
 }

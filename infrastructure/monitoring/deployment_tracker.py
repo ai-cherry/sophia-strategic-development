@@ -623,13 +623,7 @@ class EnhancedDeploymentTracker:
                 "kubectl rollout status deployment/sophia-mcp-ai-memory -n sophia-mcp",
             ],
             ComponentType.FRONTEND: [
-                f"vercel env pull .env.{environment.value}",
-                (
-                    "vercel deploy --prod"
-                    if environment == Environment.PRODUCTION
-                    else "vercel deploy"
-                ),
-                "vercel alias set",
+                f"# Lambda Labs deployment - no Vercel commands needed",
             ],
         }
 

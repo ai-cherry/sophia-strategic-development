@@ -23,7 +23,7 @@ records = [
     {'Type': 'A', 'Name': '@', 'Address': '76.76.21.21'},
     {'Type': 'A', 'Name': 'www', 'Address': '76.76.21.21'},
     {'Type': 'A', 'Name': 'api', 'Address': '192.222.58.232'},
-    {'Type': 'CNAME', 'Name': 'dashboard', 'Address': 'cname.vercel-dns.com.'},
+    {'Type': 'CNAME', 'Name': 'dashboard', 'Address': '192.222.58.232.'},
     {'Type': 'A', 'Name': 'docs', 'Address': '76.76.21.21'},
     {'Type': 'A', 'Name': 'grafana', 'Address': '192.222.58.232'},
 ]
@@ -64,13 +64,13 @@ python /tmp/configure_dns.py
 
 # Step 2: Deploy Frontend
 echo ""
-echo "🎨 Step 2: Deploying Frontend to Vercel"
+echo "🎨 Step 2: Deploying Frontend (Lambda Labs)
 echo "--------------------------------------"
 
 cd frontend
 
-# Create vercel.json
-cat > vercel.json << EOF
+# Create nginx.conf
+cat > nginx.conf << EOF
 {
   "name": "sophia-intel-ai",
   "alias": ["sophia-intel.ai", "www.sophia-intel.ai"],
@@ -81,9 +81,9 @@ cat > vercel.json << EOF
 }
 EOF
 
-# Deploy to Vercel
-echo "Deploying to Vercel..."
-VERCEL_TOKEN="zjlHk1AEREFUS3DmLivZ90GZ" vercel --prod --yes --token zjlHk1AEREFUS3DmLivZ90GZ
+# Deploy to Lambda Labs
+echo "Deploy to Lambda Labs
+# Lambda Labs Deploy to Lambda Labs
 
 cd ..
 

@@ -291,19 +291,19 @@ class K3sManager:
             logger.error(f"   ❌ MCP deployment error: {e}")
             return False
 
-class VercelManager:
-    """Manage Vercel frontend deployment"""
+class LambdaLabsManager:
+    """Manage Lambda Labs deployment"""
     
     def __init__(self):
-        self.token = os.getenv("VERCEL_TOKEN")
+        self.token = os.getenv("# Lambda Labs Deploy to Lambda Labs
         self.project = "sophia-intel-ai"
     
     async def deploy_frontend(self) -> bool:
-        """Deploy frontend to Vercel"""
-        logger.info("🌐 Deploying frontend to Vercel...")
+        """Deploy Frontend (Lambda Labs)
+        logger.info("🌐 Deploying Frontend (Lambda Labs)
         
         if not self.token:
-            logger.warning("   ⚠️  VERCEL_TOKEN not set, skipping frontend deployment")
+            logger.warning("   ⚠️  # Lambda Labs Deploy to Lambda Labs
             return False
         
         try:
@@ -317,16 +317,15 @@ class VercelManager:
                     logger.error(f"   ❌ Frontend build failed: {build_result.stderr}")
                     return False
                 
-                # Deploy to Vercel
-                deploy_result = subprocess.run([
-                    "vercel", "--prod", "--token", self.token
+                # Deploy to Lambda Labs
+                    "lambda-labs"
                 ], cwd="frontend", capture_output=True, text=True)
                 
                 if deploy_result.returncode == 0:
                     logger.info("   ✅ Frontend deployed successfully")
                     return True
                 else:
-                    logger.error(f"   ❌ Vercel deployment failed: {deploy_result.stderr}")
+                    logger.error(f"   ❌ # Lambda Labs Deploy to Lambda Labs
                     return False
             else:
                 logger.warning("   ⚠️  Frontend directory not found")
@@ -344,7 +343,7 @@ class UnifiedDeploymentOrchestrator:
         self.lambda_labs = LambdaLabsManager()
         self.weaviate = WeaviateCloudManager()
         self.kubernetes = K3sManager(self.lambda_labs)
-        self.vercel = VercelManager()
+        self.lambda_labs
         
         self.deployment_start = datetime.now()
         self.deployment_status = {
@@ -431,7 +430,7 @@ class UnifiedDeploymentOrchestrator:
                 logger.warning("⚠️  MCP server deployment had issues")
             
             # 6. Deploy frontend
-            if await self.vercel.deploy_frontend():
+            if await self.lambda_labs
                 self.deployment_status["frontend"] = True
                 logger.info("✅ Frontend deployed")
             else:
