@@ -10,6 +10,8 @@ import logging
 import time
 from contextlib import contextmanager
 from functools import wraps
+import subprocess
+import threading
 
 from prometheus_client import (
     CollectorRegistry,
@@ -210,6 +212,59 @@ class SophiaMetrics:
         self.system_info = Info(
             "sophia_system_info", "System information", registry=self.registry
         )
+
+        # GPU metrics
+        self.gpu_memory_used = Gauge(
+            "sophia_gpu_memory_used_mb",
+            "GPU memory used (MB)",
+            ["gpu_index"],
+            registry=self.registry,
+        )
+        self.gpu_memory_total = Gauge(
+            "sophia_gpu_memory_total_mb",
+            "GPU memory total (MB)",
+            ["gpu_index"],
+            registry=self.registry,
+        )
+        self.gpu_utilization = Gauge(
+            "sophia_gpu_utilization",
+            "GPU utilization (percent)",
+            ["gpu_index"],
+            registry=self.registry,
+        )
+        self.gpu_temperature = Gauge(
+            "sophia_gpu_temperature_celsius",
+            "GPU temperature (C)",
+            ["gpu_index"],
+            registry=self.registry,
+        )
+
+        # Start GPU monitoring thread
+        threading.Thread(target=self._gpu_monitor_loop, daemon=True).start()
+
+    def _gpu_monitor_loop(self):
+        while True:
+            try:
+                # Query nvidia-smi for all GPUs
+                result = subprocess.run(
+                    [
+                        "nvidia-smi",
+                        "--query-gpu=index,memory.used,memory.total,utilization.gpu,temperature.gpu",
+                        "--format=csv,noheader,nounits",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                for line in result.stdout.strip().split("\n"):
+                    idx, mem_used, mem_total, util, temp = [x.strip() for x in line.split(",")]
+                    self.gpu_memory_used.labels(gpu_index=idx).set(float(mem_used))
+                    self.gpu_memory_total.labels(gpu_index=idx).set(float(mem_total))
+                    self.gpu_utilization.labels(gpu_index=idx).set(float(util))
+                    self.gpu_temperature.labels(gpu_index=idx).set(float(temp))
+            except Exception as e:
+                logger.warning(f"GPU monitoring failed: {e}")
+            time.sleep(10)
 
     @contextmanager
     def time_operation(self, metric: Histogram, **labels):

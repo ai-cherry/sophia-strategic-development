@@ -22,12 +22,31 @@ from redis.asyncio import Redis
 import asyncpg
 from portkey_ai import Portkey
 from tenacity import retry, stop_after_attempt, wait_exponential
+import prometheus_client
+from prometheus_client import Histogram, Counter, Gauge, start_http_server
+from opentelemetry import trace
+from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
+from opentelemetry.instrumentation.aiohttp_client import create_trace_config
+from opentelemetry.instrumentation.redis import RedisInstrumentor
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Prometheus metrics
+embedding_latency_hist = Histogram(
+    'embedding_latency_ms', 'Embedding generation latency (ms)', buckets=(5, 10, 20, 30, 50, 100, 200, 500)
+)
+search_latency_hist = Histogram(
+    'search_latency_ms', 'Knowledge search latency (ms)', buckets=(10, 20, 30, 50, 100, 200, 500, 1000)
+)
+redis_cache_hits = Counter('redis_cache_hits_total', 'Redis cache hits')
+redis_cache_misses = Counter('redis_cache_misses_total', 'Redis cache misses')
+redis_cache_hit_ratio = Gauge('redis_cache_hit_ratio', 'Redis cache hit ratio')
+
+# OpenTelemetry tracer
+tracer = trace.get_tracer(__name__)
 
 class UnifiedMemoryServiceV2:
     """
@@ -144,59 +163,45 @@ class UnifiedMemoryServiceV2:
     )
     async def generate_embedding(self, text: str) -> np.ndarray:
         """
-        Generate embeddings at GPU speed - bye bye 500ms Snowflake lag!
-        Lambda B200: 2x FLOPS, 2.3x VRAM = embeddings go brrrr
+        Generate embeddings at GPU speed - now with real metrics!
         """
         start_time = time.time()
-
-        try:
-            # Primary: Lambda GPU inference
-            async with aiohttp.ClientSession() as session:
-                payload = {"input": text, "normalize": True}
-
-                async with session.post(
-                    f"{self.lambda_url}/embed",
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=5),
-                ) as resp:
-                    if resp.status == 200:
-                        result = await resp.json()
-                        embedding = np.array(result["embedding"], dtype=np.float32)
-
-                        elapsed_ms = (time.time() - start_time) * 1000
-                        self.perf_stats["embeddings"]["count"] += 1
-                        self.perf_stats["embeddings"]["total_ms"] += elapsed_ms
-
-                        if elapsed_ms < 50:
-                            logger.debug(
-                                f"GPU embedding in {elapsed_ms:.1f}ms - Snowflake would've taken {elapsed_ms * 10:.0f}ms"
-                            )
-
-                        return embedding
-                    else:
-                        raise aiohttp.ClientError(
-                            f"Lambda embedding failed with status: {resp.status}"
-                        )
-        except Exception as e:
-            logger.warning(
-                f"Lambda GPU failed ({e}), falling back to Portkey/OpenRouter"
-            )
-
-        # Fallback: Portkey/OpenRouter
-        try:
-            response = await self.portkey.embeddings.acreate(
-                model="openai/text-embedding-3-small", input=[text]
-            )
-            embedding = np.array(response.data[0].embedding, dtype=np.float32)
-
-            elapsed_ms = (time.time() - start_time) * 1000
-            logger.info(f"Portkey fallback embedding in {elapsed_ms:.1f}ms")
-
-            return embedding
-
-        except Exception as e:
-            logger.error(f"All embedding methods failed: {e}")
-            raise
+        with embedding_latency_hist.time():
+            with tracer.start_as_current_span("generate_embedding"):
+                try:
+                    # Primary: Lambda GPU inference
+                    async with aiohttp.ClientSession(trace_configs=[create_trace_config()]) as session:
+                        payload = {"input": text, "normalize": True}
+                        async with session.post(
+                            f"{self.lambda_url}/embed",
+                            json=payload,
+                            timeout=aiohttp.ClientTimeout(total=5),
+                        ) as resp:
+                            if resp.status == 200:
+                                result = await resp.json()
+                                embedding = np.array(result["embedding"], dtype=np.float32)
+                                elapsed_ms = (time.time() - start_time) * 1000
+                                self.perf_stats["embeddings"]["count"] += 1
+                                self.perf_stats["embeddings"]["total_ms"] += elapsed_ms
+                                return embedding
+                            else:
+                                raise aiohttp.ClientError(
+                                    f"Lambda embedding failed with status: {resp.status}"
+                                )
+                except Exception as e:
+                    logger.warning(
+                        f"Lambda GPU failed ({e}), falling back to Portkey/OpenRouter"
+                    )
+                # Fallback: Portkey/OpenRouter
+                try:
+                    response = await self.portkey.embeddings.acreate(
+                        model="openai/text-embedding-3-small", input=[text]
+                    )
+                    embedding = np.array(response.data[0].embedding, dtype=np.float32)
+                    return embedding
+                except Exception as e:
+                    logger.error(f"All embedding methods failed: {e}")
+                    raise
 
     async def add_knowledge(
         self, content: str, source: str, metadata: Optional[Dict[str, Any]] = None
@@ -316,49 +321,56 @@ class UnifiedMemoryServiceV2:
         similarity_threshold: float = 0.7,
     ) -> List[Dict[str, Any]]:
         """
-        Search at the speed of light - or at least 10x faster than Snowflake
+        Search at the speed of light - now with real metrics!
         """
         start_time = time.time()
+        with search_latency_hist.time():
+            with tracer.start_as_current_span("search_knowledge"):
+                # Check cache first
+                cache_key = f"search:{hashlib.md5(f'{query}:{limit}:{metadata_filter}'.encode()).hexdigest()}"
+                cached = await self.redis.get(cache_key)
+                if cached:
+                    self.perf_stats["cache_hits"] += 1
+                    redis_cache_hits.inc()
+                    hit_rate = self.perf_stats["cache_hits"] / max(1, self.perf_stats["searches"]["count"])
+                    redis_cache_hit_ratio.set(hit_rate)
+                    logger.debug("Cache hit - returning in <10ms")
+                    return json.loads(cached)
+                else:
+                    redis_cache_misses.inc()
+                    hit_rate = self.perf_stats["cache_hits"] / max(1, self.perf_stats["searches"]["count"])
+                    redis_cache_hit_ratio.set(hit_rate)
 
-        # Check cache first (because we're not idiots)
-        cache_key = f"search:{hashlib.md5(f'{query}:{limit}:{metadata_filter}'.encode()).hexdigest()}"
-        cached = await self.redis.get(cache_key)
+                # Generate query embedding
+                query_embedding = await self.generate_embedding(query)
 
-        if cached:
-            self.perf_stats["cache_hits"] += 1
-            logger.debug("Cache hit - returning in <10ms")
-            return json.loads(cached)
+                # Parallel search across stores
+                tasks = [
+                    self._search_weaviate(query_embedding, query, limit, metadata_filter),
+                    self._search_pg(
+                        query_embedding, limit, metadata_filter, similarity_threshold
+                    ),
+                ]
 
-        # Generate query embedding
-        query_embedding = await self.generate_embedding(query)
+                weaviate_results, pg_results = await asyncio.gather(*tasks)
 
-        # Parallel search across stores
-        tasks = [
-            self._search_weaviate(query_embedding, query, limit, metadata_filter),
-            self._search_pg(
-                query_embedding, limit, metadata_filter, similarity_threshold
-            ),
-        ]
+                # Merge and rank results
+                merged_results = self._merge_results(weaviate_results, pg_results, limit)
 
-        weaviate_results, pg_results = await asyncio.gather(*tasks)
+                # Cache results
+                await self.redis.setex(
+                    cache_key, 300, json.dumps(merged_results)
+                )  # 5 min cache
 
-        # Merge and rank results
-        merged_results = self._merge_results(weaviate_results, pg_results, limit)
+                elapsed_ms = (time.time() - start_time) * 1000
+                self.perf_stats["searches"]["count"] += 1
+                self.perf_stats["searches"]["total_ms"] += elapsed_ms
 
-        # Cache results
-        await self.redis.setex(
-            cache_key, 300, json.dumps(merged_results)
-        )  # 5 min cache
+                logger.info(
+                    f"Search completed in {elapsed_ms:.1f}ms (Snowflake is still warming up at {elapsed_ms * 6:.0f}ms)"
+                )
 
-        elapsed_ms = (time.time() - start_time) * 1000
-        self.perf_stats["searches"]["count"] += 1
-        self.perf_stats["searches"]["total_ms"] += elapsed_ms
-
-        logger.info(
-            f"Search completed in {elapsed_ms:.1f}ms (Snowflake is still warming up at {elapsed_ms * 6:.0f}ms)"
-        )
-
-        return merged_results
+                return merged_results
 
     async def _search_weaviate(
         self,
@@ -792,10 +804,18 @@ class UnifiedMemoryServiceV2:
 _instance = None
 
 
-async def get_unified_memory_service() -> UnifiedMemoryServiceV2V2:
+async def get_unified_memory_service() -> UnifiedMemoryServiceV2:
     """Get or create the singleton instance"""
     global _instance
     if _instance is None:
         _instance = UnifiedMemoryServiceV2()
         await _instance.initialize()
     return _instance
+
+# Expose Prometheus metrics endpoint
+import threading
+
+def start_metrics_server():
+    start_http_server(9100)  # Port 9100 for metrics
+
+threading.Thread(target=start_metrics_server, daemon=True).start()

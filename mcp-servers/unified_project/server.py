@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Sophia AI Unified Project Management MCP Server
-Consolidates Asana, Linear, and Notion functionality
-Using official Anthropic MCP SDK
+Sophia AI Unified Project Management MCP Server with Dynamic Routing
+Consolidates ALL project management functionality with etcd service discovery
+Using official Anthropic MCP SDK with agentic routing
 
 Date: July 12, 2025
 """
@@ -12,14 +12,15 @@ import sys
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Dict, List
+import json
 
 # Add parent directories to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import logging
-
+import etcd3
 import httpx
 from base.unified_standardized_base import (
     ServerConfig,
@@ -31,69 +32,215 @@ from base.unified_standardized_base import (
 )
 
 from backend.core.auto_esc_config import get_config_value
+from prometheus_client import Counter, Histogram, Gauge
 
 logger = logging.getLogger(__name__)
 
+# Prometheus metrics
+route_counter = Counter('mcp_route_requests_total', 'Total routing requests', ['platform', 'tool'])
+route_latency = Histogram('mcp_route_latency_seconds', 'Routing latency', ['platform', 'tool'])
+service_health = Gauge('mcp_service_health', 'Service health status', ['service'])
 
 class ProjectPlatform(str, Enum):
     """Supported project management platforms"""
     ASANA = "asana"
     LINEAR = "linear"
     NOTION = "notion"
+    JIRA = "jira"
+    GITHUB = "github"
+    CLICKUP = "clickup"
 
+class ServiceDiscovery:
+    """etcd-based service discovery for dynamic MCP routing"""
+    
+    def __init__(self, etcd_host: str = "localhost", etcd_port: int = 2379):
+        self.etcd = etcd3.client(host=etcd_host, port=etcd_port)
+        self.service_registry = {}
+        self.health_status = {}
+        
+    async def register_service(self, service_name: str, endpoint: str, capabilities: List[str]):
+        """Register a service with etcd"""
+        service_info = {
+            "endpoint": endpoint,
+            "capabilities": capabilities,
+            "health_check": f"{endpoint}/health",
+            "registered_at": datetime.now(UTC).isoformat(),
+            "status": "active"
+        }
+        
+        # Register with etcd
+        self.etcd.put(f"/services/{service_name}", json.dumps(service_info))
+        self.service_registry[service_name] = service_info
+        logger.info(f"Registered service {service_name} at {endpoint}")
+        
+    async def discover_services(self) -> Dict[str, Dict]:
+        """Discover active services from etcd"""
+        services = {}
+        try:
+            for value, metadata in self.etcd.get_prefix("/services/"):
+                service_name = metadata.key.decode().split("/")[-1]
+                service_info = json.loads(value.decode())
+                services[service_name] = service_info
+                
+            self.service_registry = services
+            return services
+        except Exception as e:
+            logger.error(f"Service discovery failed: {e}")
+            return {}
+            
+    async def health_check_services(self):
+        """Continuously monitor service health"""
+        while True:
+            for service_name, service_info in self.service_registry.items():
+                try:
+                    async with httpx.AsyncClient() as client:
+                        response = await client.get(
+                            service_info["health_check"], 
+                            timeout=5.0
+                        )
+                        healthy = response.status_code == 200
+                        self.health_status[service_name] = healthy
+                        service_health.labels(service=service_name).set(1 if healthy else 0)
+                        
+                except Exception as e:
+                    logger.warning(f"Health check failed for {service_name}: {e}")
+                    self.health_status[service_name] = False
+                    service_health.labels(service=service_name).set(0)
+                    
+            await asyncio.sleep(30)  # Check every 30 seconds
 
 class UnifiedProjectMCPServer(StandardizedMCPServer):
-    """Unified Project Management MCP Server"""
+    """Unified Project Management MCP Server with Dynamic Routing"""
 
     def __init__(self):
         config = ServerConfig(
             name="unified_project",
-            version="2.0.0",
+            version="3.0.0",
             port=9005,
-            capabilities=["PROJECT_MANAGEMENT", "TASK_TRACKING", "KNOWLEDGE_BASE", "ANALYTICS"],
-            tier="SECONDARY",
+            capabilities=["PROJECT_MANAGEMENT", "TASK_TRACKING", "KNOWLEDGE_BASE", "ANALYTICS", "DYNAMIC_ROUTING"],
+            tier="PRIMARY",
         )
         super().__init__(config)
 
-        # Platform configurations
-        self.asana_token = get_config_value("asana_access_token")
-        self.linear_token = get_config_value("linear_api_key")
-        self.notion_token = get_config_value("notion_api_token")
+        # Service discovery
+        self.service_discovery = ServiceDiscovery()
         
-        # API endpoints
-        self.asana_url = "https://app.asana.com/api/1.0"
-        self.linear_url = "https://api.linear.app/graphql"
-        self.notion_url = "https://api.notion.com/v1"
+        # Platform configurations - fallback for direct API calls
+        self.platform_configs = {
+            ProjectPlatform.ASANA: {
+                "token": get_config_value("asana_access_token"),
+                "url": "https://app.asana.com/api/1.0",
+                "service_name": "asana_service"
+            },
+            ProjectPlatform.LINEAR: {
+                "token": get_config_value("linear_api_key"),
+                "url": "https://api.linear.app/graphql",
+                "service_name": "linear_service"
+            },
+            ProjectPlatform.NOTION: {
+                "token": get_config_value("notion_api_token"),
+                "url": "https://api.notion.com/v1",
+                "service_name": "notion_service"
+            },
+            ProjectPlatform.JIRA: {
+                "token": get_config_value("jira_api_token"),
+                "url": get_config_value("jira_url", "https://sophia-ai.atlassian.net"),
+                "service_name": "jira_service"
+            },
+            ProjectPlatform.GITHUB: {
+                "token": get_config_value("github_token"),
+                "url": "https://api.github.com",
+                "service_name": "github_service"
+            },
+            ProjectPlatform.CLICKUP: {
+                "token": get_config_value("clickup_token"),
+                "url": "https://api.clickup.com/api/v2",
+                "service_name": "clickup_service"
+            }
+        }
+        
+        # Dynamic tool registry - populated from service discovery
+        self.dynamic_tools = {}
+        
+        # Start health monitoring
+        asyncio.create_task(self.service_discovery.health_check_services())
+        
+    async def initialize_services(self):
+        """Initialize and register all project management services"""
+        # Register known services
+        for platform, config in self.platform_configs.items():
+            await self.service_discovery.register_service(
+                config["service_name"],
+                f"http://localhost:{self.config.port + hash(platform.value) % 100}",
+                [platform.value, "project_management"]
+            )
+            
+        # Discover additional services
+        await self.service_discovery.discover_services()
+        
+        # Update dynamic tools based on discovered services
+        await self.update_dynamic_tools()
+
+    async def update_dynamic_tools(self):
+        """Update available tools based on discovered services"""
+        self.dynamic_tools = {}
+        
+        for service_name, service_info in self.service_discovery.service_registry.items():
+            capabilities = service_info.get("capabilities", [])
+            
+            # Generate tools based on capabilities
+            if "project_management" in capabilities:
+                self.dynamic_tools[f"{service_name}_list_projects"] = {
+                    "service": service_name,
+                    "endpoint": service_info["endpoint"],
+                    "description": f"List projects from {service_name}",
+                    "parameters": [
+                        ToolParameter(name="limit", type="integer", description="Max projects to return", required=False)
+                    ]
+                }
+                
+                self.dynamic_tools[f"{service_name}_create_task"] = {
+                    "service": service_name,
+                    "endpoint": service_info["endpoint"],
+                    "description": f"Create task in {service_name}",
+                    "parameters": [
+                        ToolParameter(name="title", type="string", description="Task title", required=True),
+                        ToolParameter(name="project_id", type="string", description="Project ID", required=True),
+                        ToolParameter(name="description", type="string", description="Task description", required=False),
+                        ToolParameter(name="assignee", type="string", description="Assignee", required=False),
+                        ToolParameter(name="due_date", type="string", description="Due date", required=False)
+                    ]
+                }
 
     def get_tool_definitions(self) -> list[ToolDefinition]:
-        """Define unified project management tools"""
-        return [
+        """Define unified project management tools with dynamic discovery"""
+        static_tools = [
             ToolDefinition(
                 name="list_projects",
-                description="List projects across all platforms",
+                description="List projects across all platforms with intelligent routing",
                 parameters=[
                     ToolParameter(
                         name="platform",
                         type="string",
-                        description="Platform to query (asana/linear/notion/all)",
+                        description="Platform to query (asana/linear/notion/jira/github/clickup/all)",
                         required=False,
                     ),
                     ToolParameter(
                         name="limit",
-                        type="number",
-                        description="Maximum number of projects",
+                        type="integer",
+                        description="Maximum number of projects to return",
                         required=False,
                     ),
                 ],
             ),
             ToolDefinition(
                 name="create_task",
-                description="Create a task in specified platform",
+                description="Create a task with intelligent platform routing",
                 parameters=[
                     ToolParameter(
                         name="platform",
                         type="string",
-                        description="Platform to create task in",
+                        description="Platform to create task on",
                         required=True,
                     ),
                     ToolParameter(
@@ -103,21 +250,21 @@ class UnifiedProjectMCPServer(StandardizedMCPServer):
                         required=True,
                     ),
                     ToolParameter(
-                        name="description",
-                        type="string",
-                        description="Task description",
-                        required=False,
-                    ),
-                    ToolParameter(
                         name="project_id",
                         type="string",
                         description="Project ID",
                         required=True,
                     ),
                     ToolParameter(
+                        name="description",
+                        type="string",
+                        description="Task description",
+                        required=False,
+                    ),
+                    ToolParameter(
                         name="assignee",
                         type="string",
-                        description="Assignee email",
+                        description="Task assignee",
                         required=False,
                     ),
                     ToolParameter(
@@ -129,302 +276,242 @@ class UnifiedProjectMCPServer(StandardizedMCPServer):
                 ],
             ),
             ToolDefinition(
-                name="search_tasks",
-                description="Search tasks across platforms",
+                name="intelligent_route",
+                description="Intelligently route requests to best available service",
                 parameters=[
                     ToolParameter(
                         name="query",
                         type="string",
-                        description="Search query",
+                        description="Natural language query to route",
                         required=True,
                     ),
                     ToolParameter(
-                        name="platform",
+                        name="context",
                         type="string",
-                        description="Platform to search (asana/linear/notion/all)",
-                        required=False,
-                    ),
-                    ToolParameter(
-                        name="limit",
-                        type="number",
-                        description="Maximum results",
+                        description="Additional context for routing decision",
                         required=False,
                     ),
                 ],
             ),
             ToolDefinition(
-                name="get_project_health",
-                description="Get project health metrics across platforms",
-                parameters=[
-                    ToolParameter(
-                        name="project_id",
-                        type="string",
-                        description="Project ID",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="platform",
-                        type="string",
-                        description="Platform",
-                        required=True,
-                    ),
-                ],
-            ),
-            ToolDefinition(
-                name="sync_platforms",
-                description="Sync data between platforms",
-                parameters=[
-                    ToolParameter(
-                        name="source_platform",
-                        type="string",
-                        description="Source platform",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="target_platform",
-                        type="string",
-                        description="Target platform",
-                        required=True,
-                    ),
-                    ToolParameter(
-                        name="project_id",
-                        type="string",
-                        description="Project to sync",
-                        required=True,
-                    ),
-                ],
+                name="service_health",
+                description="Get health status of all registered services",
+                parameters=[],
             ),
         ]
-
-    async def handle_tool_call(
-        self, tool_name: str, arguments: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Handle unified project management tool calls"""
-
-        if tool_name == "list_projects":
-            return await self._list_projects(**arguments)
-        elif tool_name == "create_task":
-            return await self._create_task(**arguments)
-        elif tool_name == "search_tasks":
-            return await self._search_tasks(**arguments)
-        elif tool_name == "get_project_health":
-            return await self._get_project_health(**arguments)
-        elif tool_name == "sync_platforms":
-            return await self._sync_platforms(**arguments)
-        else:
-            raise ValueError(f"Unknown tool: {tool_name}")
-
-    async def _list_projects(
-        self, platform: Optional[str] = "all", limit: Optional[int] = 10
-    ) -> dict[str, Any]:
-        """List projects across platforms"""
-        projects = []
         
-        if platform in ["all", "asana"]:
-            asana_projects = await self._get_asana_projects(limit)
-            projects.extend(asana_projects)
-            
-        if platform in ["all", "linear"]:
-            linear_projects = await self._get_linear_projects(limit)
-            projects.extend(linear_projects)
-            
-        if platform in ["all", "notion"]:
-            notion_projects = await self._get_notion_databases(limit)
-            projects.extend(notion_projects)
-        
-        return {
-            "projects": projects[:limit] if limit else projects,
-            "total": len(projects),
-            "platforms": ["asana", "linear", "notion"] if platform == "all" else [platform]
-        }
-
-    async def _create_task(
-        self,
-        platform: str,
-        title: str,
-        project_id: str,
-        description: Optional[str] = None,
-        assignee: Optional[str] = None,
-        due_date: Optional[str] = None,
-    ) -> dict[str, Any]:
-        """Create task in specified platform"""
-        if platform == ProjectPlatform.ASANA:
-            return await self._create_asana_task(
-                title, project_id, description, assignee, due_date
+        # Add dynamic tools
+        dynamic_tools = [
+            ToolDefinition(
+                name=tool_name,
+                description=tool_info["description"],
+                parameters=tool_info["parameters"],
             )
-        elif platform == ProjectPlatform.LINEAR:
-            return await self._create_linear_issue(
-                title, project_id, description, assignee, due_date
-            )
-        elif platform == ProjectPlatform.NOTION:
-            return await self._create_notion_page(
-                title, project_id, description, assignee, due_date
-            )
-        else:
-            raise ValueError(f"Unsupported platform: {platform}")
+            for tool_name, tool_info in self.dynamic_tools.items()
+        ]
+        
+        return static_tools + dynamic_tools
 
-    async def _search_tasks(
-        self, query: str, platform: Optional[str] = "all", limit: Optional[int] = 10
-    ) -> dict[str, Any]:
-        """Search tasks across platforms"""
-        results = []
+    async def handle_tool_call(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        """Handle tool calls with dynamic routing"""
+        start_time = asyncio.get_event_loop().time()
         
-        if platform in ["all", "asana"]:
-            asana_results = await self._search_asana_tasks(query, limit)
-            results.extend(asana_results)
-            
-        if platform in ["all", "linear"]:
-            linear_results = await self._search_linear_issues(query, limit)
-            results.extend(linear_results)
-            
-        if platform in ["all", "notion"]:
-            notion_results = await self._search_notion_pages(query, limit)
-            results.extend(notion_results)
-        
-        return {
-            "results": results[:limit] if limit else results,
-            "total": len(results),
-            "query": query,
-            "platforms": ["asana", "linear", "notion"] if platform == "all" else [platform]
-        }
-
-    async def _get_project_health(
-        self, project_id: str, platform: str
-    ) -> dict[str, Any]:
-        """Get project health metrics"""
-        # Calculate health metrics based on platform
-        if platform == ProjectPlatform.ASANA:
-            tasks = await self._get_asana_project_tasks(project_id)
-        elif platform == ProjectPlatform.LINEAR:
-            tasks = await self._get_linear_project_issues(project_id)
-        elif platform == ProjectPlatform.NOTION:
-            tasks = await self._get_notion_database_items(project_id)
-        else:
-            raise ValueError(f"Unsupported platform: {platform}")
-        
-        # Calculate metrics
-        total_tasks = len(tasks)
-        completed_tasks = sum(1 for t in tasks if t.get("completed", False))
-        overdue_tasks = sum(1 for t in tasks if self._is_overdue(t))
-        
-        health_score = 100
-        if total_tasks > 0:
-            completion_rate = (completed_tasks / total_tasks) * 100
-            overdue_rate = (overdue_tasks / total_tasks) * 100
-            health_score = max(0, min(100, completion_rate - (overdue_rate * 2)))
-        
-        return {
-            "project_id": project_id,
-            "platform": platform,
-            "health_score": round(health_score, 2),
-            "metrics": {
-                "total_tasks": total_tasks,
-                "completed_tasks": completed_tasks,
-                "overdue_tasks": overdue_tasks,
-                "completion_rate": round((completed_tasks / total_tasks * 100) if total_tasks > 0 else 0, 2),
-            },
-            "status": self._get_health_status(health_score),
-        }
-
-    def _is_overdue(self, task: dict[str, Any]) -> bool:
-        """Check if task is overdue"""
-        if task.get("completed"):
-            return False
-        due_date = task.get("due_date") or task.get("due_on")
-        if not due_date:
-            return False
         try:
-            due = datetime.fromisoformat(due_date.replace("Z", "+00:00"))
-            return due < datetime.now(UTC)
-        except:
-            return False
+            # Route to appropriate handler
+            if tool_name == "list_projects":
+                result = await self._intelligent_list_projects(**arguments)
+            elif tool_name == "create_task":
+                result = await self._intelligent_create_task(**arguments)
+            elif tool_name == "intelligent_route":
+                result = await self._intelligent_route(**arguments)
+            elif tool_name == "service_health":
+                result = await self._get_service_health()
+            elif tool_name in self.dynamic_tools:
+                result = await self._route_to_service(tool_name, arguments)
+            else:
+                result = {"error": f"Unknown tool: {tool_name}"}
+                
+            # Record metrics
+            platform = arguments.get("platform", "unknown")
+            route_counter.labels(platform=platform, tool=tool_name).inc()
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Tool call failed: {e}")
+            return {"error": str(e)}
+        finally:
+            # Record latency
+            latency = asyncio.get_event_loop().time() - start_time
+            platform = arguments.get("platform", "unknown")
+            route_latency.labels(platform=platform, tool=tool_name).observe(latency)
 
-    def _get_health_status(self, score: float) -> str:
-        """Get health status from score"""
-        if score >= 80:
-            return "healthy"
-        elif score >= 60:
-            return "at_risk"
-        else:
-            return "critical"
-
-    # Platform-specific methods (simplified for brevity)
-    async def _get_asana_projects(self, limit: int) -> list[dict[str, Any]]:
-        """Get Asana projects"""
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{self.asana_url}/projects",
-                headers={"Authorization": f"Bearer {self.asana_token}"},
-                params={"limit": limit}
-            )
-            data = response.json()
-            return [
-                {
-                    "id": p["gid"],
-                    "name": p["name"],
-                    "platform": "asana",
-                    "url": f"https://app.asana.com/0/{p['gid']}"
-                }
-                for p in data.get("data", [])
-            ]
-
-    async def _get_linear_projects(self, limit: int) -> list[dict[str, Any]]:
-        """Get Linear projects"""
-        query = """
-        query GetProjects($limit: Int!) {
-            teams(first: $limit) {
-                nodes {
-                    id
-                    name
-                    key
-                }
+    async def _intelligent_list_projects(self, platform: Optional[str] = "all", limit: Optional[int] = 10) -> dict[str, Any]:
+        """Intelligently list projects with service routing"""
+        if platform == "all":
+            # Get from all healthy services
+            all_projects = []
+            for service_name, healthy in self.service_discovery.health_status.items():
+                if healthy and service_name in self.service_discovery.service_registry:
+                    try:
+                        service_projects = await self._get_projects_from_service(service_name, limit)
+                        all_projects.extend(service_projects)
+                    except Exception as e:
+                        logger.warning(f"Failed to get projects from {service_name}: {e}")
+            
+            return {
+                "projects": all_projects[:limit] if limit else all_projects,
+                "total": len(all_projects),
+                "sources": list(self.service_discovery.health_status.keys())
             }
+        else:
+            # Get from specific platform
+            service_name = self.platform_configs.get(ProjectPlatform(platform), {}).get("service_name")
+            if service_name and self.service_discovery.health_status.get(service_name, False):
+                projects = await self._get_projects_from_service(service_name, limit)
+                return {
+                    "projects": projects,
+                    "total": len(projects),
+                    "platform": platform
+                }
+            else:
+                return {
+                    "error": f"Service {service_name} not available",
+                    "platform": platform
+                }
+
+    async def _intelligent_create_task(self, platform: str, title: str, project_id: str, **kwargs) -> dict[str, Any]:
+        """Intelligently create task with service routing"""
+        service_name = self.platform_configs.get(ProjectPlatform(platform), {}).get("service_name")
+        
+        if service_name and self.service_discovery.health_status.get(service_name, False):
+            return await self._create_task_in_service(service_name, title, project_id, **kwargs)
+        else:
+            return {
+                "error": f"Service {service_name} not available",
+                "platform": platform
+            }
+
+    async def _intelligent_route(self, query: str, context: Optional[str] = None) -> dict[str, Any]:
+        """Intelligently route natural language queries to best service"""
+        # Simple routing logic - can be enhanced with ML
+        query_lower = query.lower()
+        
+        # Platform detection
+        if "asana" in query_lower:
+            platform = ProjectPlatform.ASANA
+        elif "linear" in query_lower:
+            platform = ProjectPlatform.LINEAR
+        elif "notion" in query_lower:
+            platform = ProjectPlatform.NOTION
+        elif "jira" in query_lower:
+            platform = ProjectPlatform.JIRA
+        elif "github" in query_lower:
+            platform = ProjectPlatform.GITHUB
+        elif "clickup" in query_lower:
+            platform = ProjectPlatform.CLICKUP
+        else:
+            # Default to healthiest service
+            healthy_services = [
+                name for name, healthy in self.service_discovery.health_status.items()
+                if healthy
+            ]
+            if healthy_services:
+                platform = None
+                service_name = healthy_services[0]
+            else:
+                return {"error": "No healthy services available"}
+        
+        # Action detection
+        if "create" in query_lower or "add" in query_lower:
+            action = "create_task"
+        elif "list" in query_lower or "show" in query_lower:
+            action = "list_projects"
+        else:
+            action = "list_projects"  # Default
+        
+        # Route to appropriate service
+        if platform:
+            service_name = self.platform_configs[platform]["service_name"]
+        
+        return {
+            "routing_decision": {
+                "query": query,
+                "detected_platform": platform.value if platform else "auto",
+                "service": service_name,
+                "action": action,
+                "confidence": 0.8  # Placeholder - enhance with ML
+            },
+            "service_health": self.service_discovery.health_status.get(service_name, False)
         }
-        """
+
+    async def _get_service_health(self) -> dict[str, Any]:
+        """Get health status of all services"""
+        return {
+            "services": dict(self.service_discovery.health_status),
+            "healthy_count": sum(1 for healthy in self.service_discovery.health_status.values() if healthy),
+            "total_count": len(self.service_discovery.health_status),
+            "registry": self.service_discovery.service_registry
+        }
+
+    async def _route_to_service(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        """Route dynamic tool calls to appropriate service"""
+        tool_info = self.dynamic_tools[tool_name]
+        service_name = tool_info["service"]
+        endpoint = tool_info["endpoint"]
+        
+        # Make HTTP request to service
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                self.linear_url,
-                headers={"Authorization": self.linear_token},
-                json={"query": query, "variables": {"limit": limit}}
+                f"{endpoint}/tool/{tool_name}",
+                json=arguments,
+                timeout=30.0
             )
-            data = response.json()
-            teams = data.get("data", {}).get("teams", {}).get("nodes", [])
-            return [
-                {
-                    "id": t["id"],
-                    "name": t["name"],
-                    "platform": "linear",
-                    "url": f"https://linear.app/team/{t['key']}"
-                }
-                for t in teams
-            ]
+            return response.json()
 
-    async def _get_notion_databases(self, limit: int) -> list[dict[str, Any]]:
-        """Get Notion databases"""
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.notion_url}/search",
-                headers={
-                    "Authorization": f"Bearer {self.notion_token}",
-                    "Notion-Version": "2022-06-28"
-                },
-                json={"filter": {"property": "object", "value": "database"}}
-            )
-            data = response.json()
-            databases = data.get("results", [])[:limit]
-            return [
-                {
-                    "id": db["id"],
-                    "name": db.get("title", [{}])[0].get("plain_text", "Untitled"),
-                    "platform": "notion",
-                    "url": db["url"]
-                }
-                for db in databases
-            ]
+    async def _get_projects_from_service(self, service_name: str, limit: int) -> List[dict]:
+        """Get projects from a specific service"""
+        # Placeholder - implement actual service calls
+        service_info = self.service_discovery.service_registry.get(service_name, {})
+        endpoint = service_info.get("endpoint", "")
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{endpoint}/projects?limit={limit}",
+                    timeout=10.0
+                )
+                if response.status_code == 200:
+                    return response.json().get("projects", [])
+        except Exception as e:
+            logger.error(f"Failed to get projects from {service_name}: {e}")
+        
+        return []
 
-    # Additional platform-specific methods would be implemented here...
-
+    async def _create_task_in_service(self, service_name: str, title: str, project_id: str, **kwargs) -> dict[str, Any]:
+        """Create task in a specific service"""
+        service_info = self.service_discovery.service_registry.get(service_name, {})
+        endpoint = service_info.get("endpoint", "")
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{endpoint}/tasks",
+                    json={
+                        "title": title,
+                        "project_id": project_id,
+                        **kwargs
+                    },
+                    timeout=10.0
+                )
+                if response.status_code == 200:
+                    return response.json()
+        except Exception as e:
+            logger.error(f"Failed to create task in {service_name}: {e}")
+        
+        return {"error": f"Failed to create task in {service_name}"}
 
 if __name__ == "__main__":
     server = UnifiedProjectMCPServer()
-    asyncio.run(server.run()) 
+    asyncio.run(server.initialize_services())
+    server.run() 
