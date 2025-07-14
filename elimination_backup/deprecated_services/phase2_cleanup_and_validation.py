@@ -184,12 +184,12 @@ class Phase2CleanupValidator:
                 
                 # Update deprecated imports
                 replacements = {
-                    "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service_v3 import",
-                    "UnifiedMemoryService": "UnifiedMemoryServiceV3",
+                    "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service import",
+                    "UnifiedMemoryService": "UnifiedMemoryService",
                     "get_unified_memory_service()": "get_unified_memory_service_v3()",
-                    "from backend.services.qdrant_memory_service import": "# DEPRECATED - Use UnifiedMemoryServiceV3",
-                    "await self.lambda_gpu.embed_text": "# DEPRECATED - Use GPU embeddings via UnifiedMemoryServiceV3",
-                    "qdrant_unified": "# DEPRECATED - Use UnifiedMemoryServiceV3"
+                    "from backend.services.qdrant_memory_service import": "# DEPRECATED - Use UnifiedMemoryService",
+                    "await self.lambda_gpu.embed_text": "# DEPRECATED - Use GPU embeddings via UnifiedMemoryService",
+                    "qdrant_unified": "# DEPRECATED - Use UnifiedMemoryService"
                 }
                 
                 for old_pattern, new_pattern in replacements.items():
@@ -265,7 +265,7 @@ class Phase2CleanupValidator:
                         # Fix the conflict
                         content = content.replace(
                             "UnifiedMemoryService",
-                            "UnifiedMemoryServiceV3"
+                            "UnifiedMemoryService"
                         )
                         
                         with open(file_path, 'w') as f:

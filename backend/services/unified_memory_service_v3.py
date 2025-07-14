@@ -66,7 +66,7 @@ from prometheus_client import Histogram, Counter, Gauge
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = get_logger(__name__)
 
@@ -119,7 +119,7 @@ class ProcessingStage(Enum):
     HYPOTHETICAL_GENERATION = "hypothetical_generation"
     FINAL_SYNTHESIS = "final_synthesis"
 
-class UnifiedMemoryServiceV3:
+class UnifiedMemoryService:
     """
     Agentic RAG with LangGraph Multi-Actor Cycles
     
@@ -133,7 +133,7 @@ class UnifiedMemoryServiceV3:
     
     def __init__(self):
         # Inherit base functionality from V2
-        self.v2_service = UnifiedMemoryServiceV2()
+        self.v2_service = UnifiedMemoryService()
         
         # Enhanced memory tiers with multimodal support
         self.memory_tiers = {
@@ -913,10 +913,10 @@ class UnifiedMemoryServiceV3:
 # Singleton instance
 _memory_service_v3_instance = None
 
-async def get_unified_memory_service_v3() -> UnifiedMemoryServiceV3:
-    """Get the singleton UnifiedMemoryServiceV3 instance"""
+async def get_unified_memory_service_v3() -> UnifiedMemoryService:
+    """Get the singleton UnifiedMemoryService instance"""
     global _memory_service_v3_instance
     if _memory_service_v3_instance is None:
-        _memory_service_v3_instance = UnifiedMemoryServiceV3()
+        _memory_service_v3_instance = UnifiedMemoryService()
         await _memory_service_v3_instance.initialize()
     return _memory_service_v3_instance 

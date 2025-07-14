@@ -5,7 +5,7 @@ This module provides webhook processing capabilities for Gong integration.
 Simplified version to resolve import and indentation issues.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import logging
 import time
 from dataclasses import dataclass

@@ -9,7 +9,7 @@ This MCP server enables the AI to manage Estuary Flow pipelines for:
 - Data pipeline monitoring and management
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import logging
 
 # CRITICAL: Load environment before any other imports

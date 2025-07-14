@@ -2,7 +2,7 @@
 """
 
 # Modern stack imports
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
 import redis.asyncio as redis
 import asyncpg
@@ -60,7 +60,7 @@ class HubSpotUnifiedMCPServer(StandardizedMCPServer):
 
 
         # Initialize modern stack services
-        self.memory_service = UnifiedMemoryServiceV3()
+        self.memory_service = UnifiedMemoryService()
         self.lambda_gpu = LambdaLabsServerlessService()
         self.redis = redis.Redis(host='localhost', port=6379)
 

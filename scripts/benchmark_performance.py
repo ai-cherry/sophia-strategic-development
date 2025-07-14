@@ -4,7 +4,7 @@ Sophia AI Performance Benchmark - July 2025
 Tests GPU memory stack performance vs old Qdrant approach
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import asyncio
 import time
 import statistics

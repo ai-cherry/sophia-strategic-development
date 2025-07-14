@@ -6,7 +6,7 @@ This service manages Estuary Flow for real-time CDC (Change Data Capture)
 and data replication across systems.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional

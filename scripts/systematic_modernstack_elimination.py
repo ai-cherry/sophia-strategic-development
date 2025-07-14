@@ -24,8 +24,8 @@ class QdrantEliminator:
              'from backend.integrations.hubspot_client import'),
             
             # Class name replacements
-            ('QdrantUnifiedMemoryServiceV2', 'QdrantUnifiedMemoryServiceV2'),
-            ('EnhancedQdrantUnifiedMemoryServiceV2', 'QdrantUnifiedMemoryServiceV2'),
+            ('QdrantUnifiedMemoryService', 'QdrantUnifiedMemoryService'),
+            ('EnhancedQdrantUnifiedMemoryService', 'QdrantUnifiedMemoryService'),
             ('GongAPIClient', 'GongAPIClient'),
             ('HubSpotClient', 'HubSpotClient'),
             
@@ -213,7 +213,7 @@ def main():
     print("\nNext steps:")
     print("1. Review the elimination report")
     print("2. Fix any remaining syntax errors")
-    print("3. Test the QdrantUnifiedMemoryServiceV2 integration")
+    print("3. Test the QdrantUnifiedMemoryService integration")
     print("4. Run comprehensive tests")
 
 if __name__ == "__main__":

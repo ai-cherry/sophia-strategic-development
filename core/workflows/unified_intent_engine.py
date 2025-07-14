@@ -11,12 +11,12 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryServiceV2
+from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
-    UnifiedMemoryServiceV3,
+    UnifiedMemoryService,
 )
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +67,8 @@ class UnifiedIntentEngine:
     """
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryServiceV2()
-        self.memory_service = UnifiedMemoryServiceV3()
+        self.cortex_service = UnifiedMemoryService()
+        self.memory_service = UnifiedMemoryService()
         self.intent_patterns: dict[str, list[dict]] = {}
         self.capability_mapping: dict[IntentCategory, list[AgentCapability]] = {
             IntentCategory.BUSINESS_INTELLIGENCE: [
@@ -148,8 +148,8 @@ class UnifiedIntentEngine:
         """
 
         try:
-            # Use QdrantUnifiedMemoryServiceV2 for intent analysis
-            qdrant_service = QdrantUnifiedMemoryServiceV2()
+            # Use QdrantUnifiedMemoryService for intent analysis
+            qdrant_service = QdrantUnifiedMemoryService()
             await qdrant_service.initialize()
             
             # Use the enhanced router for LLM calls

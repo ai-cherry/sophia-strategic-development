@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Migrate all imports from legacy UnifiedMemoryServiceV2 to UnifiedMemoryServiceV2
+Migrate all imports from legacy UnifiedMemoryService to UnifiedMemoryService
 Part of Phase 1: Legacy Purge
 """
 
@@ -18,36 +18,36 @@ def update_imports_in_file(file_path: Path) -> bool:
         
         # Pattern 1: Direct import
         content = re.sub(
-            r'from backend\.services\.unified_memory_service import UnifiedMemoryServiceV2',
-            'from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2',
+            r'from backend\.services\.unified_memory_service import UnifiedMemoryService',
+            'from backend.services.unified_memory_service import UnifiedMemoryService',
             content
         )
         
         # Pattern 2: Import with alias
         content = re.sub(
-            r'from backend\.services\.unified_memory_service import UnifiedMemoryServiceV2 as (\w+)',
-            r'from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2 as \1',
+            r'from backend\.services\.unified_memory_service import UnifiedMemoryService as (\w+)',
+            r'from backend.services.unified_memory_service import UnifiedMemoryService as \1',
             content
         )
         
         # Pattern 3: Class instantiation
         content = re.sub(
-            r'UnifiedMemoryServiceV2\(',
-            'UnifiedMemoryServiceV2(',
+            r'UnifiedMemoryService\(',
+            'UnifiedMemoryService(',
             content
         )
         
         # Pattern 4: Type hints
         content = re.sub(
-            r': UnifiedMemoryServiceV2',
-            ': UnifiedMemoryServiceV2V2',
+            r': UnifiedMemoryService',
+            ': UnifiedMemoryService',
             content
         )
         
-        # Pattern 5: Function that returns UnifiedMemoryServiceV2
+        # Pattern 5: Function that returns UnifiedMemoryService
         content = re.sub(
-            r'-> UnifiedMemoryServiceV2',
-            '-> UnifiedMemoryServiceV2V2',
+            r'-> UnifiedMemoryService',
+            '-> UnifiedMemoryService',
             content
         )
         
@@ -63,7 +63,7 @@ def update_imports_in_file(file_path: Path) -> bool:
 
 def main():
     """Main migration function"""
-    print("🚀 Starting UnifiedMemoryServiceV2 → UnifiedMemoryServiceV2 migration")
+    print("🚀 Starting UnifiedMemoryService → UnifiedMemoryService migration")
     
     # Get repository root
     repo_root = Path(__file__).parent.parent

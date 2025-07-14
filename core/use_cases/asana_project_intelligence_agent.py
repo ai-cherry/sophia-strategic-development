@@ -25,7 +25,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.services.llm_router import TaskType, llm_router
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class AsanaProjectIntelligenceAgent(LangGraphAgentBase):
         """Initialize the Asana intelligence agent"""
         try:
             await super().initialize()
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             await self.cortex_service.initialize()
             self.ai_memory_service = EnhancedAiMemoryMCPServer()
             await self.ai_memory_service.initialize()

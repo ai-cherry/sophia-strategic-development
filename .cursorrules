@@ -618,7 +618,7 @@ The external repository collection enables:
 **THE DATE IS JULY 10, 2025 - REMEMBER THIS!**
 
 1. **SUPPORTED VECTOR DATABASES:**
-   - ✅ **Weaviate** - Primary vector store for AI-native search
+   - ✅ **Qdrant** - Primary vector store for AI-native search
    - ✅ **PostgreSQL pgvector** - Hybrid SQL + vector queries
    - ✅ **Redis** - Sub-millisecond caching layer
    - ✅ **qdrant Cortex** - Legacy support during migration
@@ -627,7 +627,7 @@ The external repository collection enables:
 2. **RECOMMENDED STACK:**
    - ✅ **UnifiedMemoryService** for ALL memory operations
    - ✅ **Lambda Labs GPU** for embeddings (<50ms latency)
-   - ✅ **Weaviate** for primary vector storage
+   - ✅ **Qdrant** for primary vector storage
    - ✅ **Redis** for hot data caching
    - ✅ **PostgreSQL pgvector** for hybrid queries
    - ✅ **Mem0** for conversational context

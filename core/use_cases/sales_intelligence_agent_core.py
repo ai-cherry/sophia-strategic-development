@@ -25,7 +25,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
 from infrastructure.services.foundational_knowledge_service import (
     FoundationalKnowledgeService,
 )
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.integrations.gong_api_client import GongAPIClient
 from backend.integrations.hubspot_client import HubSpotClient
 
@@ -66,7 +66,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
         self.agent_role = AgentRole.ANALYZER  # Primary role in workflows
 
         # Service integrations
-        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
         self.gong_connector: GongAPIClient | None = None
         self.hubspot_connector: HubSpotClient | None = None
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
@@ -88,7 +88,7 @@ class SalesIntelligenceAgentCore(BaseAgent, AgentWorkflowInterface):
 
         try:
             # Initialize services
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             self.gong_connector = GongAPIClient()
             self.hubspot_connector = HubSpotClient()
             self.ai_memory = EnhancedAiMemoryMCPServer()

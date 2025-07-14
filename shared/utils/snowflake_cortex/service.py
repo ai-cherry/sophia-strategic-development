@@ -1,6 +1,6 @@
 """Main Lambda GPU service with dual-mode support."""
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import os
 from contextlib import asynccontextmanager
 from typing import Any, Union
@@ -29,7 +29,7 @@ CORTEX_LATENCY = Histogram(
 CORTEX_CACHE_HITS = Counter("cortex_cache_hits_total", "Cache hits", ["task_type"])
 
 
-class QdrantUnifiedMemoryServiceV2:
+class QdrantUnifiedMemoryService:
     """Unified Lambda GPU service with dual-mode support."""
 
     def __init__(

@@ -8,8 +8,8 @@ from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemorySe
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 # Assuming an MCP orchestrator exists to call other MCPs
 # from core.workflows.langgraph_mcp_orchestrator import LangGraphMCPOrchestrator

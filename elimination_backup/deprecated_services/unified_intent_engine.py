@@ -15,8 +15,8 @@ from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemorySe
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAIMemoryMCPServer,
 )
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ class UnifiedIntentEngine:
     """
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryServiceV2()
+        self.cortex_service = UnifiedMemoryService()
         self.memory_service = EnhancedAIMemoryMCPServer()
         self.intent_patterns: dict[str, list[dict]] = {}
         self.capability_mapping: dict[IntentCategory, list[AgentCapability]] = {

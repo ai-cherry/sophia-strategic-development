@@ -5,7 +5,7 @@ Pure Python base class for all Sophia AI agents designed for LangGraph integrati
 Replaces AgnoMCPBridge with optimized Python patterns and LangGraph compatibility.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from __future__ import annotations
 
 import logging
@@ -172,11 +172,11 @@ class LangGraphAgentBase(ABC):
                 EnhancedAiMemoryMCPServer,
             )
             from infrastructure.services.llm_router import llm_router
-            from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+            from backend.services.unified_memory_service import UnifiedMemoryService
 
             self.llm_service = await get_unified_llm_service()
             await self.llm_service.initialize()
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             await self.cortex_service.initialize()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()

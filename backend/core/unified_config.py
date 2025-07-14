@@ -6,7 +6,7 @@ This module provides a centralized way to access configuration values
 with clear precedence rules and type safety.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import json
 import os
 from pathlib import Path

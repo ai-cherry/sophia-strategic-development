@@ -65,8 +65,8 @@ class DeprecatedServiceEliminator:
             "unified_memory_service": DeprecatedService(
                 old_path="backend/services/unified_memory_service.py",
                 new_path="backend/services/unified_memory_service_v2.py",
-                old_import="from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2",
-                new_import="from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2",
+                old_import="from backend.services.unified_memory_service import UnifiedMemoryService",
+                new_import="from backend.services.unified_memory_service import UnifiedMemoryService",
                 description="Legacy memory service replaced by V2 with Qdrant integration",
                 risk_level="HIGH"
             ),
@@ -81,8 +81,8 @@ class DeprecatedServiceEliminator:
             "enhanced_ai_memory_mcp_server": DeprecatedService(
                 old_path="mcp-servers/enhanced_ai_memory_mcp_server.py",
                 new_path="backend/services/unified_memory_service_v3.py",
-                old_import="from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3",
-                new_import="from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3",
+                old_import="from backend.services.unified_memory_service import UnifiedMemoryService",
+                new_import="from backend.services.unified_memory_service import UnifiedMemoryService",
                 description="Enhanced AI Memory MCP server replaced by V3 service",
                 risk_level="HIGH"
             )
@@ -91,16 +91,16 @@ class DeprecatedServiceEliminator:
         # Import patterns to update
         self.import_patterns = {
             # Legacy memory service patterns
-            r"from backend\.services\.unified_memory_service import": "from backend.services.unified_memory_service_v2 import",
-            r"UnifiedMemoryServiceV2\b": "UnifiedMemoryServiceV2",
+            r"from backend\.services\.unified_memory_service import": "from backend.services.unified_memory_service import",
+            r"UnifiedMemoryService\b": "UnifiedMemoryService",
             
             # Snowflake to Qdrant migration
             r"from backend\.services\.snowflake_cortex_service import": "from backend.services.qdrant_foundation_service import",
             r"QdrantFoundationService\b": "QdrantFoundationService",
             
             # Enhanced AI Memory patterns
-            r"from mcp_servers\.enhanced_ai_memory_mcp_server import": "from backend.services.unified_memory_service_v3 import",
-            r"UnifiedMemoryServiceV3\b": "UnifiedMemoryServiceV3",
+            r"from mcp_servers\.enhanced_ai_memory_mcp_server import": "from backend.services.unified_memory_service import",
+            r"UnifiedMemoryService\b": "UnifiedMemoryService",
             
             # Generic deprecated patterns
             r"# MIGRATED: Updated to current service version
@@ -200,9 +200,9 @@ class DeprecatedServiceEliminator:
         
         # Test import resolution
         test_imports = [
-            "from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2",
+            "from backend.services.unified_memory_service import UnifiedMemoryService",
             "from backend.services.qdrant_foundation_service import QdrantFoundationService",
-            "from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3",
+            "from backend.services.unified_memory_service import UnifiedMemoryService",
         ]
         
         for import_stmt in test_imports:

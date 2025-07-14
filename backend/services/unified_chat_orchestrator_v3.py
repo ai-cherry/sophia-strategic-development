@@ -16,7 +16,7 @@ from backend.services.enhanced_multi_hop_orchestrator import enhanced_orchestrat
 from backend.services.n8n_alpha_optimizer import n8n_optimizer
 from backend.services.x_trends_injector import x_trends_injector
 from backend.services.personality_engine import personality_engine
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.services.portkey_gateway import PortkeyGateway
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
@@ -121,7 +121,7 @@ class UnifiedChatOrchestratorV3:
     
     def __init__(self):
         # Core services
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         self.portkey = PortkeyGateway()
         
         # Phase 2 service integrations

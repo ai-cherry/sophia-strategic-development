@@ -174,10 +174,10 @@ class EnhancedMemoryArchitecture:
     async def initialize_qdrant_connection(self):
         """Initialize Qdrant connection for L2-L5 tiers"""
         try:
-            # Use QdrantUnifiedMemoryServiceV2 for L2-L5 tiers
-            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryServiceV2
+            # Use QdrantUnifiedMemoryService for L2-L5 tiers
+            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
             
-            self.qdrant_service = QdrantUnifiedMemoryServiceV2()
+            self.qdrant_service = QdrantUnifiedMemoryService()
             await self.qdrant_service.initialize()
             
             logger.info("✅ Qdrant connection established for L2-L5 tiers")

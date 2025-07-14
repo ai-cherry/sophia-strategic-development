@@ -1,5 +1,5 @@
 """
-DEPRECATED: This is the legacy memory service. Use UnifiedMemoryServiceV2 instead.
+DEPRECATED: This is the legacy memory service. Use UnifiedMemoryService instead.
 
 Unified Memory Service for Sophia AI
 THE ONLY MEMORY SERVICE - ALL MEMORY OPERATIONS MUST GO THROUGH HERE
@@ -18,7 +18,7 @@ CRITICAL: This replaces ALL usage of Pinecone, Weaviate, ChromaDB, Qdrant
 
 import warnings
 warnings.warn(
-    "UnifiedMemoryServiceV2 is deprecated. Use UnifiedMemoryServiceV2 from "
+    "UnifiedMemoryService is deprecated. Use UnifiedMemoryService from "
     "backend.services.unified_memory_service_v2 instead.",
     DeprecationWarning,
     stacklevel=2
@@ -51,7 +51,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class UnifiedMemoryServiceV2:
+class UnifiedMemoryService:
     """
     The single, authoritative memory service for Sophia AI.
 
@@ -94,12 +94,12 @@ class UnifiedMemoryServiceV2:
                 logger.warning(f"Qdrant unavailable, running in degraded mode: {e}")
                 self.degraded_mode = True
 
-        logger.info(f"UnifiedMemoryServiceV2 initialized - Date: {self.current_date}")
+        logger.info(f"UnifiedMemoryService initialized - Date: {self.current_date}")
 
     def initialize_date_awareness(self):
         """Initialize date awareness for the service"""
         self.current_date = date_manager.now()
-        logger.info(f"🗓️ UnifiedMemoryServiceV2 aware of date: {self.current_date}")
+        logger.info(f"🗓️ UnifiedMemoryService aware of date: {self.current_date}")
 
     def initialize_redis(self) -> None:
         """Initialize L1 - Redis for ephemeral cache with enhanced helper"""
@@ -168,10 +168,10 @@ class UnifiedMemoryServiceV2:
     def initialize_qdrant(self) -> None:
         """Initialize Qdrant connection for L3/L4/L5 tiers"""
         try:
-            # Use QdrantUnifiedMemoryServiceV2 for L3/L4/L5 tiers
-            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryServiceV2
+            # Use QdrantUnifiedMemoryService for L3/L4/L5 tiers
+            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
             
-            self.qdrant_service = QdrantUnifiedMemoryServiceV2()
+            self.qdrant_service = QdrantUnifiedMemoryService()
             # Note: Async initialization will be called when needed
             
             logger.info("✅ Qdrant service initialized for L3/L4/L5 tiers")
@@ -687,9 +687,9 @@ class UnifiedMemoryServiceV2:
 _memory_service_instance = None
 
 
-def get_unified_memory_service(require_qdrant: bool = False) -> UnifiedMemoryServiceV2:
+def get_unified_memory_service(require_qdrant: bool = False) -> UnifiedMemoryService:
     """
-    Get the singleton UnifiedMemoryServiceV2 instance.
+    Get the singleton UnifiedMemoryService instance.
 
     Args:
         require_qdrant: If True, raise error if Qdrant is unavailable
@@ -700,7 +700,7 @@ def get_unified_memory_service(require_qdrant: bool = False) -> UnifiedMemorySer
     global _memory_service_instance
 
     if _memory_service_instance is None:
-        _memory_service_instance = UnifiedMemoryServiceV2(
+        _memory_service_instance = UnifiedMemoryService(
             require_qdrant=require_qdrant
         )
 

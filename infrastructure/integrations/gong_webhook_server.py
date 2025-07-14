@@ -5,7 +5,7 @@ This server processes Gong webhooks, enhances data via API calls, stores in Qdra
 and notifies Sophia agents via Redis pub/sub.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from __future__ import annotations
 
 import asyncio

@@ -14,7 +14,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 from dataclasses import dataclass, field
 
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.integrations.mock_integrations import (
     GongIntegration,
     HubSpotIntegration,
@@ -56,7 +56,7 @@ class MaxIngestValidator:
     """Max-scale ingestion and validation system"""
     
     def __init__(self):
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         self.integrations = {
             'gong': (GongIntegration(), 5000),
             'hubspot': (HubSpotIntegration(), 3000),

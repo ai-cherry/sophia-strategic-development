@@ -7,7 +7,7 @@ CortexGateway: unified async entry-point for all Lambda GPU and SQL operations.
     complete(), embed(), batch_embed(), search(), sentiment(), execute_sql(), health_check()
 
 Downstream services & agents should call:
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
     from core.infra.cortex_gateway import get_gateway
     gateway = get_gateway()
     await gateway.complete("Hello")

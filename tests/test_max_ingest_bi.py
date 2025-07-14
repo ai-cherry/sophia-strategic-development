@@ -17,7 +17,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from faker import Faker
 
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator
 from backend.services.enhanced_chat_v4 import EnhancedChatV4
 
@@ -68,7 +68,7 @@ class DataGenerator:
 @pytest.fixture
 async def memory_service():
     """Mock memory service for testing"""
-    service = AsyncMock(spec=UnifiedMemoryServiceV2)
+    service = AsyncMock(spec=UnifiedMemoryService)
     service.initialized = True
     service.add_knowledge = AsyncMock(return_value="mock_id")
     service.search_knowledge = AsyncMock(return_value=[])
@@ -79,7 +79,7 @@ async def memory_service():
 @pytest.fixture
 async def orchestrator(memory_service):
     """Mock orchestrator for testing"""
-    with patch('backend.services.sophia_unified_orchestrator.UnifiedMemoryServiceV2', return_value=memory_service):
+    with patch('backend.services.sophia_unified_orchestrator.UnifiedMemoryService', return_value=memory_service):
         orch = SophiaUnifiedOrchestrator()
         orch.initialized = True
         orch.memory_service = memory_service

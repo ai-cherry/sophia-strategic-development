@@ -30,7 +30,7 @@ Recommended decomposition:
 
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -43,7 +43,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.security.audit_logger import AuditLogger
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +145,7 @@ class CostEngineeringService:
     """
 
     def __init__(self):
-        self.cortex_service: QdrantUnifiedMemoryServiceV2 | None = None
+        self.cortex_service: QdrantUnifiedMemoryService | None = None
         self.cache_manager = EnhancedCacheManager()
         self.audit_logger = AuditLogger()
         self.ai_memory: EnhancedAiMemoryMCPServer | None = None
@@ -180,7 +180,7 @@ class CostEngineeringService:
 
         try:
             # Initialize services
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
             await self.ai_memory.initialize()
 

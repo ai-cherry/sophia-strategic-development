@@ -8,7 +8,7 @@ import asyncio
 from typing import Dict, Any, List
 from datetime import datetime
 
-from backend.services.unified_memory_service_v2 import get_unified_memory_service
+from backend.services.unified_memory_service import get_unified_memory_service
 from backend.utils.logger_config import get_logger
 
 logger = get_logger(__name__)

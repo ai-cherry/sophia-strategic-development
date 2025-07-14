@@ -8,7 +8,7 @@ Features:
 - Qdrant vector storage for visual elements
 - Multi-format document support (PDF, DOCX, images)
 - Visual question answering capabilities
-- Integration with UnifiedMemoryServiceV3
+- Integration with UnifiedMemoryService
 
 Performance Targets:
 - Visual QA Accuracy: >88%

@@ -2,7 +2,7 @@
 """
 
 # Modern stack imports
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
 import redis.asyncio as redis
 import asyncpg
@@ -35,7 +35,7 @@ from base.unified_standardized_base import (
 from mcp.types import TextContent, Tool
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -61,15 +61,15 @@ class GongMCPServer(StandardizedMCPServer):
 
         # Initialize memory service
         try:
-            self.memory_service = UnifiedMemoryServiceV2()
-            logger.info("UnifiedMemoryServiceV2 initialized for Gong")
+            self.memory_service = UnifiedMemoryService()
+            logger.info("UnifiedMemoryService initialized for Gong")
         except Exception as e:
             logger.error(f"Failed to initialize memory service: {e}")
             self.memory_service = None
 
 
         # Initialize modern stack services
-        self.memory_service = UnifiedMemoryServiceV3()
+        self.memory_service = UnifiedMemoryService()
         self.lambda_gpu = LambdaLabsServerlessService()
         self.redis = redis.Redis(host='localhost', port=6379)
 

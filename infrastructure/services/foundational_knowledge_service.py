@@ -24,7 +24,7 @@ from enum import Enum
 from typing import Any
 
 from core.logger import logger
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 # logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class FoundationalKnowledgeService:
     """Service for managing foundational Pay Ready knowledge"""
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryServiceV2()
+        self.cortex_service = UnifiedMemoryService()
         self.knowledge_service = KnowledgeService()
         self.schema = "FOUNDATIONAL_KNOWLEDGE"
 

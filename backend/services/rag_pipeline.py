@@ -13,7 +13,7 @@ from enum import Enum
 import json
 
 from backend.services.hybrid_search_engine import HybridSearchEngine, SearchResult
-from backend.services.unified_memory_service_v2 import get_unified_memory_service
+from backend.services.unified_memory_service import get_unified_memory_service
 from backend.services.query_optimizer import QueryOptimizer, QueryType
 from backend.services.document_chunking_service import DocumentChunk
 from backend.services.redis_helper import RedisHelper

@@ -1,7 +1,7 @@
 """
 Memory Service Adapter for Sophia Unified Orchestrator
 
-This adapter adds the missing conversation methods to UnifiedMemoryServiceV2
+This adapter adds the missing conversation methods to UnifiedMemoryService
 for compatibility with SophiaUnifiedOrchestrator.
 
 Date: July 9, 2025
@@ -10,15 +10,15 @@ Date: July 9, 2025
 import logging
 from typing import Any, Optional
 
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
 
 class MemoryServiceAdapter:
-    """Adapter to add conversation methods to UnifiedMemoryServiceV2"""
+    """Adapter to add conversation methods to UnifiedMemoryService"""
 
-    def __init__(self, memory_service: UnifiedMemoryServiceV2):
+    def __init__(self, memory_service: UnifiedMemoryService):
         self.memory_service = memory_service
         self._conversations = {}  # In-memory storage for conversations
 
@@ -31,7 +31,7 @@ class MemoryServiceAdapter:
     ) -> bool:
         """Add a conversation to memory"""
         try:
-            # Store conversation using UnifiedMemoryServiceV2's method
+            # Store conversation using UnifiedMemoryService's method
             messages = []
             messages.append({"role": "user", "content": user_message})
             if ai_response:
@@ -42,7 +42,7 @@ class MemoryServiceAdapter:
                 "type": "conversation",
             }
 
-            # Use the correct method from UnifiedMemoryServiceV2
+            # Use the correct method from UnifiedMemoryService
             await self.memory_service.add_conversation_memory(
                 user_id=user_id,
                 messages=messages,
@@ -113,7 +113,7 @@ class MemoryServiceAdapter:
     ) -> list[dict[str, Any]]:
         """Search conversations for a user"""
         try:
-            # Use the get_conversation_context method from UnifiedMemoryServiceV2
+            # Use the get_conversation_context method from UnifiedMemoryService
             return await self.memory_service.get_conversation_context(
                 user_id=user_id,
                 limit=limit,
@@ -129,7 +129,7 @@ class MemoryServiceAdapter:
         metadata_filter: Optional[dict[str, Any]] = None,
         user_id: Optional[str] = None,
     ) -> list[dict[str, Any]]:
-        """Async passthrough to UnifiedMemoryServiceV2.search_knowledge"""
+        """Async passthrough to UnifiedMemoryService.search_knowledge"""
         return await self.memory_service.search_knowledge(
             query=query,
             limit=limit,

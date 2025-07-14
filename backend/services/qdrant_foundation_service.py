@@ -4,7 +4,7 @@ Unified integration of all advanced Qdrant-based services
 
 This service provides the foundation layer for the rebuilt Sophia AI platform,
 integrating:
-- UnifiedMemoryServiceV3 (Agentic RAG with LangGraph)
+- UnifiedMemoryService (Agentic RAG with LangGraph)
 - HypotheticalRAGService (Proactive query understanding)
 - MultimodalMemoryService (Visual document understanding)
 - Enhanced Router Service (Cost optimization)
@@ -29,7 +29,7 @@ import numpy as np
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3, get_unified_memory_service_v3
+from backend.services.unified_memory_service import UnifiedMemoryService, get_unified_memory_service_v3
 from backend.services.hypothetical_rag_service import HypotheticalRAGService, get_hypothetical_rag_service
 from backend.services.multimodal_memory_service import MultimodalMemoryService, get_multimodal_memory_service
 
@@ -80,7 +80,7 @@ class QdrantFoundationService:
     
     def __init__(self):
         # Core services
-        self.unified_memory: Optional[UnifiedMemoryServiceV3] = None
+        self.unified_memory: Optional[UnifiedMemoryService] = None
         self.hypothetical_rag: Optional[HypotheticalRAGService] = None
         self.multimodal_memory: Optional[MultimodalMemoryService] = None
         
@@ -137,9 +137,9 @@ class QdrantFoundationService:
         try:
             self.unified_memory = await get_unified_memory_service_v3()
             await self.unified_memory.initialize()
-            logger.info("✅ UnifiedMemoryServiceV3 initialized")
+            logger.info("✅ UnifiedMemoryService initialized")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize UnifiedMemoryServiceV3: {e}")
+            logger.error(f"❌ Failed to initialize UnifiedMemoryService: {e}")
             raise
 
     async def _initialize_hypothetical_rag(self):

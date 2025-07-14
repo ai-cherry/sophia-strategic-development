@@ -5,7 +5,7 @@ Revolutionary serverless AI infrastructure using Lambda Labs Inference API
 with intelligent model routing, cost optimization, and enterprise-grade monitoring.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import asyncio
 import json
 import logging
@@ -20,7 +20,7 @@ import backoff
 from openai import AsyncOpenAI
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

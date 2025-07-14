@@ -17,7 +17,7 @@ Recommended decomposition:
 TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import json
 import logging
 from dataclasses import dataclass, field
@@ -29,7 +29,7 @@ from core.agents.base_agent import BaseAgent
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +159,7 @@ class LinearProjectHealthAgent(BaseAgent):
             return
 
         try:
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             self.ai_memory = EnhancedAiMemoryMCPServer()
 
             await self.ai_memory.initialize()

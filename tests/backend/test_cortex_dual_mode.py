@@ -1,6 +1,6 @@
 """Tests for dual-mode Lambda GPU adapter."""
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import os
 from unittest.mock import MagicMock, patch
 
@@ -11,7 +11,7 @@ from shared.utils.qdrant_cortex import (
     CortexAuthenticationError,
     CortexModel,
     MCPMode,
-    QdrantUnifiedMemoryServiceV2,
+    QdrantUnifiedMemoryService,
 )
 
 
@@ -40,8 +40,8 @@ def mock_mcp_response():
     )
 
 
-class TestQdrantUnifiedMemoryServiceV2:
-    """Test QdrantUnifiedMemoryServiceV2 dual-mode functionality."""
+class TestQdrantUnifiedMemoryService:
+    """Test QdrantUnifiedMemoryService dual-mode functionality."""
 
     @pytest.mark.asyncio
     async def test_auto_mode_prefers_mcp(self):
@@ -56,7 +56,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                     "postgres_password": "test-pass",
                 }.get(key, default)
 
-                service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.AUTO)
+                service = QdrantUnifiedMemoryService(mode=MCPMode.AUTO)
                 assert service.mode == MCPMode.MCP
 
     @pytest.mark.asyncio
@@ -72,7 +72,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                     "postgres_host": "test-account",
                 }.get(key, default)
 
-                service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.AUTO)
+                service = QdrantUnifiedMemoryService(mode=MCPMode.AUTO)
                 assert service.mode == MCPMode.DIRECT
 
     @pytest.mark.asyncio
@@ -84,7 +84,7 @@ class TestQdrantUnifiedMemoryServiceV2:
             mock_config.return_value = None
 
             with pytest.raises(CortexAuthenticationError):
-                QdrantUnifiedMemoryServiceV2(mode=MCPMode.AUTO)
+                QdrantUnifiedMemoryService(mode=MCPMode.AUTO)
 
     @pytest.mark.asyncio
     async def test_mcp_mode_embedding(self):
@@ -97,7 +97,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -125,7 +125,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "postgres_schema": "test-schema",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.DIRECT)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
             with patch("self.qdrant_serviceection") as mock_connect:
@@ -151,7 +151,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -180,7 +180,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "postgres_schema": "test-schema",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.DIRECT)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.DIRECT)
 
             # Mock connection pool
             with patch("self.qdrant_serviceection") as mock_connect:
@@ -208,7 +208,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.MCP, enable_cache=True)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP, enable_cache=True)
 
             # Mock cache
             with patch(
@@ -231,7 +231,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Mock MCP client
             with patch("httpx.AsyncClient.post") as mock_post:
@@ -257,7 +257,7 @@ class TestQdrantUnifiedMemoryServiceV2:
                 "qdrant_mcp_url": "http://test-mcp:8080",
             }.get(key, default)
 
-            service = QdrantUnifiedMemoryServiceV2(mode=MCPMode.MCP)
+            service = QdrantUnifiedMemoryService(mode=MCPMode.MCP)
 
             # Test initialization
             assert not service.is_initialized

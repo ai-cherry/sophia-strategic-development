@@ -10,7 +10,7 @@ import hashlib
 import logging
 from typing import Any, Optional
 
-from backend.services.unified_memory_service_v2 import get_unified_memory_service
+from backend.services.unified_memory_service import get_unified_memory_service
 from shared.utils.monitoring import log_execution_time
 
 logger = logging.getLogger(__name__)
@@ -224,7 +224,7 @@ class HybridSearchEngine:
         """
         Perform vector similarity search.
 
-        This delegates to the UnifiedMemoryServiceV2's vector search
+        This delegates to the UnifiedMemoryService's vector search
         which uses Lambda GPU.
         """
         try:

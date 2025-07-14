@@ -3,7 +3,7 @@ Enhanced Lambda GPU Integration Service for Project Chimera
 Provides natural language to advanced analytics capabilities
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import logging
 from dataclasses import dataclass
 from datetime import datetime

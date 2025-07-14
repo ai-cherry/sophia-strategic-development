@@ -1,6 +1,6 @@
 """Tests for dual-mode Lambda GPU adapter."""
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import os
 from unittest.mock import MagicMock, patch
 

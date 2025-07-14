@@ -11,7 +11,7 @@ Builds on existing Gong integration to extract insights for multiple business fu
 Date: July 9, 2025
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import json
 import logging
 from dataclasses import dataclass
@@ -79,7 +79,7 @@ class GongMultiPurposeIntelligence:
     """
 
     def __init__(self):
-        self.cortex_service = UnifiedMemoryServiceV2()
+        self.cortex_service = UnifiedMemoryService()
         self.gong_memory = GongMemoryIntegration()
         self.current_date = date_manager.get_current_date_str()
 

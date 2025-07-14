@@ -15,7 +15,7 @@ import hashlib
 import aiohttp
 import numpy as np
 
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
 
@@ -69,7 +69,7 @@ class XTrendsInjector:
     """
     
     def __init__(self):
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         
         # X/Twitter API configuration (using Bearer token)
         self.x_bearer_token = get_config_value("x_bearer_token", "")

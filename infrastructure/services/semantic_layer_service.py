@@ -1,13 +1,13 @@
 # File: backend/services/semantic_layer_service.py
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import logging
 from pathlib import Path
 from typing import Any
 
 from core.performance_monitor import performance_monitor
 from backend.services.qdrant_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryServiceV2,
+    EnhancedQdrantUnifiedMemoryService,
 )
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class SemanticLayerService:
 
     def __init__(self):
         """Initializes the service and the connection to Qdrant."""
-        self.memory_service_v3 = EnhancedQdrantUnifiedMemoryServiceV2()
+        self.memory_service_v3 = EnhancedQdrantUnifiedMemoryService()
 
     @performance_monitor.monitor_performance("semantic_get_connection")
     async def _get_connection(self):

@@ -24,7 +24,7 @@ Key design principles
    zero while we validate usefulness.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from __future__ import annotations
 
 import logging

@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
@@ -34,7 +34,7 @@ import aiohttp
 import structlog
 
 from core.config_manager import get_config_value
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = structlog.get_logger(__name__)
 
@@ -220,7 +220,7 @@ class EnhancedEstuaryManager:
                 timeout=timeout, headers=headers, auth=auth
             )
 
-            self.cortex_service = UnifiedMemoryServiceV2()
+            self.cortex_service = UnifiedMemoryService()
             await self.cortex_service.initialize()
 
             logger.info("✅ Enhanced Estuary Manager initialized successfully")

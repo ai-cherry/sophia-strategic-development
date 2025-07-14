@@ -30,7 +30,7 @@ from infrastructure.mcp_servers.base.standardized_mcp_server import (
     SyncPriority as ServerSyncPriority,
 )
 from backend.services.qdrant_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryServiceV2,
+    EnhancedQdrantUnifiedMemoryService,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,7 +123,7 @@ class SyncMetrics:
 class DataConflictResolver:
     """Resolves data conflicts between platforms."""
 
-    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryServiceV2):
+    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService):
         self.cortex_service = cortex_service
 
     async def resolve_conflict(self, conflict: DataConflict) -> dict[str, Any]:
@@ -323,8 +323,8 @@ class CrossPlatformSyncOrchestrator:
     - AI-enhanced data processing
     """
 
-    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryServiceV2 | None = None):
-        self.cortex_service = cortex_service or EnhancedQdrantUnifiedMemoryServiceV2()
+    def __init__(self, cortex_service: EnhancedQdrantUnifiedMemoryService | None = None):
+        self.cortex_service = cortex_service or EnhancedQdrantUnifiedMemoryService()
         self.sync_configs = self._load_sync_configurations()
         self.conflict_resolver = DataConflictResolver(self.cortex_service)
 

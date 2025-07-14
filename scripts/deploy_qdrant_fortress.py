@@ -241,23 +241,23 @@ This service provides unified access to:
 - Lambda GPU embeddings
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 # Export V3 as primary service
-UnifiedMemoryService = UnifiedMemoryServiceV3
+UnifiedMemoryService = UnifiedMemoryService
 
 # Backward compatibility
-class UnifiedMemoryServiceV2:
+class UnifiedMemoryService:
     """Deprecated V2 service - redirects to V3"""
     
     def __init__(self, *args, **kwargs):
         import warnings
         warnings.warn(
-            "UnifiedMemoryServiceV2 is deprecated. Use UnifiedMemoryService instead.",
+            "UnifiedMemoryService is deprecated. Use UnifiedMemoryService instead.",
             DeprecationWarning,
             stacklevel=2
         )
-        self._service = UnifiedMemoryServiceV3(*args, **kwargs)
+        self._service = UnifiedMemoryService(*args, **kwargs)
     
     def __getattr__(self, name):
         return getattr(self._service, name)
@@ -280,19 +280,19 @@ class UnifiedMemoryServiceV2:
                 
                 # Fix imports
                 content = content.replace(
-                    "from backend.services.unified_memory_service_v2",
+                    "from backend.services.unified_memory_service",
                     "from backend.services.unified_memory_service"
                 )
                 content = content.replace(
-                    "from backend.services.unified_memory_service_v3",
+                    "from backend.services.unified_memory_service",
                     "from backend.services.unified_memory_service"
                 )
                 content = content.replace(
-                    "UnifiedMemoryServiceV2",
+                    "UnifiedMemoryService",
                     "UnifiedMemoryService"
                 )
                 content = content.replace(
-                    "UnifiedMemoryServiceV3",
+                    "UnifiedMemoryService",
                     "UnifiedMemoryService"
                 )
                 

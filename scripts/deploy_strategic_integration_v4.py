@@ -470,9 +470,9 @@ class StrategicIntegrationV4Deployer:
         logger.info("🔍 Testing Qdrant integration...")
         
         try:
-            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryServiceV2
+            from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
             
-            qdrant_service = QdrantUnifiedMemoryServiceV2()
+            qdrant_service = QdrantUnifiedMemoryService()
             await qdrant_service.initialize()
             
             # Test basic operations

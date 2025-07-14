@@ -85,7 +85,7 @@ class TemporalQALearningService:
     def __init__(self):
         if CORTEX_AVAILABLE:
             try:
-                self.cortex_service = UnifiedMemoryServiceV2()
+                self.cortex_service = UnifiedMemoryService()
             except Exception as e:
                 logger.warning(f"Failed to initialize Lambda GPU service: {e}")
                 self.cortex_service = None

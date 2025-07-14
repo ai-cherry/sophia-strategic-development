@@ -1,7 +1,7 @@
 """Decomposed auto_esc_config module"""
 
 # Import from the original auto_esc_config.py file
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from ..auto_esc_config import (
     config,
     get_config_value,

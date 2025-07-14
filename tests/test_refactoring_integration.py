@@ -23,7 +23,7 @@ class TestServiceIntegration:
             from backend.services.unified_chat_service import UnifiedChatService
             
             # Test memory services  
-            from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+            from backend.services.unified_memory_service import UnifiedMemoryService
             
             # Test orchestrator
             from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator

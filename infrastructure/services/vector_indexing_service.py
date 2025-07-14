@@ -9,7 +9,7 @@ from typing import Any
 from core.config_manager import get_config_value
 from infrastructure.integrations.gong_api_client import GongAPIClient
 from infrastructure.services.semantic_layer_service import SemanticLayerService
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class VectorIndexingService:
 
     def __init__(self):
         self.semantic_service = SemanticLayerService()
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         gong_api_key = get_config_value("gong_access_key")
         if not gong_api_key:
             logger.warning(
@@ -51,7 +51,7 @@ class VectorIndexingService:
         await self.memory_service.initialize()
         
         logger.info(
-            f"Weaviate collection '{collection_name}' ready via UnifiedMemoryServiceV2"
+            f"Weaviate collection '{collection_name}' ready via UnifiedMemoryService"
         )
         # The memory service already handles schema creation
         await asyncio.sleep(0.1)  # Simulate async operation

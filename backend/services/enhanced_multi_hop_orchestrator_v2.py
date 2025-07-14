@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from typing import Any, Optional
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,7 @@ class EnhancedMultiHopOrchestrator:
     """Enhanced multi-hop orchestrator with v1.26 improvements"""
     
     def __init__(self):
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         self.reranker = PersonalizedReranker()
         self.hop_limit = 5
         self.min_confidence = 0.7

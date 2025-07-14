@@ -17,7 +17,7 @@ Recommended decomposition:
 
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -31,7 +31,7 @@ import redis.asyncio as redis
 
 from core.config_manager import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +98,7 @@ class PureEstuaryDataPipeline:
         self.estuary_orchestrator: EstuaryFlowOrchestrator | None = None
         self.postgresql_pool: asyncpg.Pool | None = None
         self.redis_client: redis.Redis | None = None
-        self.memory_service_v3: QdrantUnifiedMemoryServiceV2 | None = None
+        self.memory_service_v3: QdrantUnifiedMemoryService | None = None
         self.status = PipelineStatus()
 
         # Initialize configurations
@@ -164,7 +164,7 @@ class PureEstuaryDataPipeline:
             logger.info("✅ Redis connection initialized")
 
             # Initialize Qdrant service
-            self.memory_service_v3 = UnifiedMemoryServiceV2()
+            self.memory_service_v3 = UnifiedMemoryService()
             logger.info("✅ Qdrant service initialized")
 
             # Initialize Estuary Flow orchestrator

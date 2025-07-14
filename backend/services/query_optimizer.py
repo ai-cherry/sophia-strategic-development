@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
-from backend.services.unified_memory_service_v2 import get_unified_memory_service
+from backend.services.unified_memory_service import get_unified_memory_service
 
 logger = logging.getLogger(__name__)
 

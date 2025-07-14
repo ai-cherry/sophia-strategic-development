@@ -44,14 +44,14 @@ def test_imports():
         print(f"❌ QdrantFoundationService import failed: {e}")
         traceback.print_exc()
     
-    # Test 2: UnifiedMemoryServiceV3 Import
+    # Test 2: UnifiedMemoryService Import
     tests_total += 1
     try:
-        from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
-        print("✅ UnifiedMemoryServiceV3 imports successfully")
+        from backend.services.unified_memory_service import UnifiedMemoryService
+        print("✅ UnifiedMemoryService imports successfully")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ UnifiedMemoryServiceV3 import failed: {e}")
+        print(f"❌ UnifiedMemoryService import failed: {e}")
     
     # Test 3: HypotheticalRAGService Import
     tests_total += 1
@@ -163,15 +163,15 @@ def test_service_instantiation():
     except Exception as e:
         print(f"❌ QdrantFoundationService instantiation failed: {e}")
     
-    # Test 2: UnifiedMemoryServiceV3 Instantiation
+    # Test 2: UnifiedMemoryService Instantiation
     tests_total += 1
     try:
-        from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
-        service = UnifiedMemoryServiceV3()
-        print("✅ UnifiedMemoryServiceV3 instantiated successfully")
+        from backend.services.unified_memory_service import UnifiedMemoryService
+        service = UnifiedMemoryService()
+        print("✅ UnifiedMemoryService instantiated successfully")
         tests_passed += 1
     except Exception as e:
-        print(f"❌ UnifiedMemoryServiceV3 instantiation failed: {e}")
+        print(f"❌ UnifiedMemoryService instantiation failed: {e}")
     
     # Test 3: HypotheticalRAGService Instantiation
     tests_total += 1

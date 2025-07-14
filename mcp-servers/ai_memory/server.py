@@ -1,11 +1,11 @@
 """
 Sophia AI Memory MCP Server V2 - GPU Accelerated
-Refactored to use UnifiedMemoryServiceV2 with Weaviate/Redis/PostgreSQL
+Refactored to use UnifiedMemoryService with Weaviate/Redis/PostgreSQL
 Date: July 12, 2025
 """
 
 # Modern stack imports
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from backend.services.lambda_labs_serverless_service import LambdaLabsServerlessService
 import redis.asyncio as redis
 import asyncpg
@@ -29,8 +29,8 @@ from base.unified_standardized_base import (
 )
 from mcp.types import Tool
 
-# Import UnifiedMemoryServiceV2
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+# Import UnifiedMemoryService
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 
 class MemoryRecord(BaseModel):
@@ -45,7 +45,7 @@ class MemoryRecord(BaseModel):
 
 
 class AIMemoryServerV2(StandardizedMCPServer):
-    """AI Memory MCP Server using GPU-accelerated UnifiedMemoryServiceV2"""
+    """AI Memory MCP Server using GPU-accelerated UnifiedMemoryService"""
 
     def __init__(self):
         config = ServerConfig(
@@ -55,23 +55,23 @@ class AIMemoryServerV2(StandardizedMCPServer):
         )
         super().__init__(config)
 
-        # Initialize UnifiedMemoryServiceV2
+        # Initialize UnifiedMemoryService
         try:
-            self.memory_service = UnifiedMemoryServiceV2()
-            self.logger.info("UnifiedMemoryServiceV2 initialized with GPU acceleration")
+            self.memory_service = UnifiedMemoryService()
+            self.logger.info("UnifiedMemoryService initialized with GPU acceleration")
             self.logger.info(
                 f"  Weaviate: {self.memory_service.weaviate_client is not None}"
             )
             self.logger.info(f"  Redis: {self.memory_service.redis_client is not None}")
             self.logger.info(f"  PostgreSQL: {self.memory_service.pg_conn is not None}")
         except Exception as e:
-            self.logger.error(f"Failed to initialize UnifiedMemoryServiceV2: {e}")
+            self.logger.error(f"Failed to initialize UnifiedMemoryService: {e}")
             # Still allow server to start but in limited mode
             self.memory_service = None
 
 
         # Initialize modern stack services
-        self.memory_service = UnifiedMemoryServiceV3()
+        self.memory_service = UnifiedMemoryService()
         self.lambda_gpu = LambdaLabsServerlessService()
         self.redis = redis.Redis(host='localhost', port=6379)
 
@@ -200,7 +200,7 @@ class AIMemoryServerV2(StandardizedMCPServer):
             raise ValueError(f"Unknown tool: {name}")
 
     async def store_memory(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Store a new memory using GPU-accelerated UnifiedMemoryServiceV2"""
+        """Store a new memory using GPU-accelerated UnifiedMemoryService"""
         try:
             # Add category to metadata
             metadata = params.get("metadata", {})

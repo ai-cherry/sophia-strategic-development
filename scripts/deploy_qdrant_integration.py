@@ -29,7 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryServiceV2
+from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemoryService
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -221,7 +221,7 @@ def get_qdrant_config() -> Dict[str, str]:
         logger.info("📋 Phase 2: Qdrant Cluster Setup")
         
         # Initialize Qdrant service to test connection
-        qdrant_service = QdrantUnifiedMemoryServiceV2()
+        qdrant_service = QdrantUnifiedMemoryService()
         
         try:
             await qdrant_service.initialize()
@@ -241,7 +241,7 @@ def get_qdrant_config() -> Dict[str, str]:
         """Phase 3: Create all required collections"""
         logger.info("📋 Phase 3: Collection Creation")
         
-        qdrant_service = QdrantUnifiedMemoryServiceV2()
+        qdrant_service = QdrantUnifiedMemoryService()
         
         try:
             await qdrant_service.initialize()
@@ -327,7 +327,7 @@ def get_qdrant_config() -> Dict[str, str]:
         """Phase 7: Validation and Testing"""
         logger.info("📋 Phase 7: Validation & Testing")
         
-        qdrant_service = QdrantUnifiedMemoryServiceV2()
+        qdrant_service = QdrantUnifiedMemoryService()
         
         try:
             await qdrant_service.initialize()
@@ -425,7 +425,7 @@ def get_qdrant_config() -> Dict[str, str]:
         logger.info("🚀 Quick Qdrant Setup for Development")
         
         # Just initialize the service and create collections
-        qdrant_service = QdrantUnifiedMemoryServiceV2()
+        qdrant_service = QdrantUnifiedMemoryService()
         
         try:
             await qdrant_service.initialize()

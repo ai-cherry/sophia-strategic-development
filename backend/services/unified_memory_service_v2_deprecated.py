@@ -48,7 +48,7 @@ redis_cache_hit_ratio = Gauge('redis_cache_hit_ratio', 'Redis cache hit ratio')
 # OpenTelemetry tracer
 tracer = trace.get_tracer(__name__)
 
-class UnifiedMemoryServiceV2:
+class UnifiedMemoryService:
     """
     The new brain of Sophia AI - 10x faster, 80% cheaper.
     Qdrant can kiss our GPU-accelerated ass.
@@ -550,7 +550,7 @@ class UnifiedMemoryServiceV2:
             await self.redis.close()
         if self.pg_pool:
             await self.pg_pool.close()
-        logger.info("UnifiedMemoryServiceV2 shutdown - GPU cooling down")
+        logger.info("UnifiedMemoryService shutdown - GPU cooling down")
 
     async def get_user_profile(self, user_id: str) -> Dict[str, Any]:
         """
@@ -804,11 +804,11 @@ class UnifiedMemoryServiceV2:
 _instance = None
 
 
-async def get_unified_memory_service() -> UnifiedMemoryServiceV2:
+async def get_unified_memory_service() -> UnifiedMemoryService:
     """Get or create the singleton instance"""
     global _instance
     if _instance is None:
-        _instance = UnifiedMemoryServiceV2()
+        _instance = UnifiedMemoryService()
         await _instance.initialize()
     return _instance
 

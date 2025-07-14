@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 """\nCore functionality\n"""
 
 # TODO: Extract specific classes/functions from original file

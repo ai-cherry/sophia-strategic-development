@@ -1,6 +1,6 @@
 """Configuration utilities for the Sophia AI backend."""
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from __future__ import annotations
 
 from typing import Any

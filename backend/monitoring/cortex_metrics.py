@@ -3,7 +3,7 @@ Lambda GPU Metrics
 Comprehensive Prometheus metrics for monitoring Cortex operations.
 """
 
-from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
+from backend.services.unified_memory_service import UnifiedMemoryService
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, Info
 
 # Create a registry for Cortex-specific metrics

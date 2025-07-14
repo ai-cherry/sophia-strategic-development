@@ -27,7 +27,7 @@ from infrastructure.services.enhanced_knowledge_base_service import (
     EnhancedKnowledgeBaseService,
 )
 from backend.services.qdrant_unified_memory_service import (
-    EnhancedQdrantUnifiedMemoryServiceV2,
+    EnhancedQdrantUnifiedMemoryService,
 )
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
 
         # Service integrations
         self.knowledge_base: EnhancedKnowledgeBaseService | None = None
-        self.cortex_service: EnhancedQdrantUnifiedMemoryServiceV2 | None = None
+        self.cortex_service: EnhancedQdrantUnifiedMemoryService | None = None
 
         # Coaching analytics
         self.coaching_analytics = {
@@ -127,7 +127,7 @@ class InteractiveSalesCoachAgent(BaseAgent):
             self.knowledge_base = EnhancedKnowledgeBaseService()
             await self.knowledge_base.initialize()
 
-            self.cortex_service = EnhancedQdrantUnifiedMemoryServiceV2()
+            self.cortex_service = EnhancedQdrantUnifiedMemoryService()
 
             self.initialized = True
             logger.info("✅ Interactive Sales Coach Agent initialized successfully")

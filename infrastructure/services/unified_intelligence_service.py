@@ -14,7 +14,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 # Import unified memory service v2
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 from core.services.data_transformer import DataTransformer
 from infrastructure.services.advanced_llm_service import AdvancedLLMService
@@ -27,7 +27,7 @@ class UnifiedIntelligenceService:
 
     def __init__(self, config: dict | None = None):
         self.config = config or {}
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         self.llm_service = AdvancedLLMService()
         self.transformer = DataTransformer()
         logger.info("UnifiedIntelligenceService initialized.")
@@ -94,7 +94,7 @@ class UnifiedIntelligenceService:
         logger.info("Handling sales query...")
 
         # Use unified memory service for data retrieval
-        memory_service = UnifiedMemoryServiceV2()
+        memory_service = UnifiedMemoryService()
         await memory_service.initialize()
         
         # Search for sales data using semantic search

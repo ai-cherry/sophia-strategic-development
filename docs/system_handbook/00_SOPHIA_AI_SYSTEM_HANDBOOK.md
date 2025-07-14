@@ -93,7 +93,7 @@ graph TB
 **📋 CURRENT MEMORY STRATEGY**
 
 1. **PRIMARY SYSTEMS:**
-   - ✅ Weaviate - Primary vector database for semantic search
+   - ✅ Qdrant - Primary vector database for semantic search
    - ✅ PostgreSQL pgvector - Hybrid SQL + vector queries  
    - ✅ Redis - High-performance caching layer
    - ✅ Mem0 - Conversational agent memory
@@ -118,7 +118,7 @@ graph TB
 |------|------------|---------|---------|--------|
 | L0 | GPU Cache | Hardware acceleration | <1ms | ✅ Automatic |
 | L1 | Redis | Session cache + metrics | <10ms | ✅ Enhanced |
-| L2 | Weaviate | Vector search + embeddings | <50ms | ✅ Primary |
+| L2 | Qdrant | Vector search + embeddings | <50ms | ✅ Primary |
 | L3 | PostgreSQL pgvector | Hybrid SQL + vectors | <100ms | ✅ Operational |
 | L4 | Mem0 | Conversational memory | <150ms | ✅ Integrated |
 | L5 | Modern Stack (Legacy) | Structured data backup | <500ms | ⚠️ Phasing out |

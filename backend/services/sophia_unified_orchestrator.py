@@ -19,7 +19,7 @@ from backend.core.auto_esc_config import get_config_value
 from backend.services.enhanced_multi_hop_orchestrator_v2 import EnhancedMultiHopOrchestrator
 from backend.services.n8n_alpha_optimizer_v2 import AlphaGridOptimizer, XTrendFetcher
 from backend.services.personality_engine import PersonalityEngine
-from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
+from backend.services.unified_memory_service import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ class SophiaUnifiedOrchestrator:
         self.multi_hop = EnhancedMultiHopOrchestrator()
         self.n8n_optimizer = AlphaGridOptimizer()
         self.personality = PersonalityEngine()
-        self.memory_service = UnifiedMemoryServiceV2()
+        self.memory_service = UnifiedMemoryService()
         self.x_trends = XTrendFetcher()
         self.critique_engine = RouteCritique()
         self.video_injector = VideoContentInjector()
