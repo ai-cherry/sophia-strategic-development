@@ -31,7 +31,7 @@ from collections import defaultdict, deque
 
 from backend.core.auto_esc_config import get_config_value
 from backend.utils.logger import get_logger
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = get_logger(__name__)
 

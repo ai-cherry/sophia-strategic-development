@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from typing import Any, Optional
 
 from backend.core.auto_esc_config import get_config_value
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

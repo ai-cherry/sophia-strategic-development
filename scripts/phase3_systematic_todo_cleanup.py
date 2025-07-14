@@ -111,7 +111,7 @@ class SystematicTODOCleaner:
                 "replacement": '''# Initialize Qdrant services
 # Implement actual memory storage call
         try:
-            from backend.services.unified_memory_service import UnifiedMemoryService
+            from backend.services.unified_memory_service_primary import UnifiedMemoryService
             memory_service = UnifiedMemoryService()
             await memory_service.store_knowledge(
                 content=content,
@@ -142,7 +142,7 @@ class SystematicTODOCleaner:
         logger.info("✅ Agent monitoring and metrics initialized")
             
             # Memory storage implementations
-            r"# TODO: Implement actual memory storage call": {
+            r"# TODO: [ARCH-001] Implement placeholder functionality actual memory storage call": {
                 "category": TODOCategory.CRITICAL_IMPLEMENTATION,
                 "priority": 1,
                 "action": "implement",
@@ -158,7 +158,7 @@ class SystematicTODOCleaner:
         await self.feedback_integrator.enable_feedback_loops()
         
         logger.info("✅ Analytics and feedback systems initialized")
-            from backend.services.unified_memory_service import UnifiedMemoryService
+            from backend.services.unified_memory_service_primary import UnifiedMemoryService
             memory_service = UnifiedMemoryService()
             await memory_service.store_knowledge(
                 content=content,

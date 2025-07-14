@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import shlex
 from datetime import UTC, datetime
 
@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

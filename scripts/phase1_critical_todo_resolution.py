@@ -241,7 +241,7 @@ class CriticalTODOResolver:
             CriticalTODO(
                 file_path="core/workflows/intelligent_meta_orchestrator.py",
                 line_number=71,
-                original_todo="# TODO: Implement adaptive workflow creation logic",
+                original_todo="# TODO: [ARCH-001] Implement placeholder functionality adaptive workflow creation logic",
                 resolution_code="""
         # Implement adaptive workflow creation logic
         try:
@@ -289,7 +289,7 @@ class CriticalTODOResolver:
             CriticalTODO(
                 file_path="core/workflows/intelligent_meta_orchestrator.py",
                 line_number=130,
-                original_todo="# TODO: Implement actual workflow execution logic",
+                original_todo="# TODO: [ARCH-001] Implement placeholder functionality actual workflow execution logic",
                 resolution_code="""
         # Implement actual workflow execution logic
         try:

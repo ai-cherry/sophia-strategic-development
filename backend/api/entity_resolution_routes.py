@@ -10,7 +10,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 

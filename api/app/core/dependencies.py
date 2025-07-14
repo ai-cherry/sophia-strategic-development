@@ -23,7 +23,7 @@ async def get_current_user(
     if not credentials:
         return {"user_id": "anonymous", "role": "guest"}
 
-    # TODO: Implement actual token validation
+    # TODO: [ARCH-001] Implement placeholder functionality actual token validation
     return {"user_id": "user123", "role": "user"}
 
 

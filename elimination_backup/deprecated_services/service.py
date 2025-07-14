@@ -1,6 +1,6 @@
 """Main Lambda GPU service with dual-mode support."""
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import os
 from contextlib import asynccontextmanager
 from typing import Any, Union

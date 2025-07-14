@@ -17,8 +17,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from faker import Faker
 
-from backend.services.unified_memory_service import UnifiedMemoryService
-from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
 from backend.services.enhanced_chat_v4 import EnhancedChatV4
 
 logger = logging.getLogger(__name__)

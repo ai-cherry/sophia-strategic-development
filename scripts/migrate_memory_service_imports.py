@@ -19,14 +19,14 @@ def update_imports_in_file(file_path: Path) -> bool:
         # Pattern 1: Direct import
         content = re.sub(
             r'from backend\.services\.unified_memory_service import UnifiedMemoryService',
-            'from backend.services.unified_memory_service import UnifiedMemoryService',
+            'from backend.services.unified_memory_service_primary import UnifiedMemoryService',
             content
         )
         
         # Pattern 2: Import with alias
         content = re.sub(
             r'from backend\.services\.unified_memory_service import UnifiedMemoryService as (\w+)',
-            r'from backend.services.unified_memory_service import UnifiedMemoryService as \1',
+            r'from backend.services.unified_memory_service_primary import UnifiedMemoryService as \1',
             content
         )
         

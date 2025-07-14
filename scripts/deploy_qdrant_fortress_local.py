@@ -420,7 +420,7 @@ Primary memory service for Sophia AI using Qdrant as vector store
 
 # Use V3 as primary implementation
 try:
-    from backend.services.unified_memory_service import UnifiedMemoryService
+    from backend.services.unified_memory_service_primary import UnifiedMemoryService
     UnifiedMemoryService = UnifiedMemoryService
 except ImportError:
     # Fallback if V3 not available

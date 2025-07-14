@@ -3,7 +3,7 @@ Centralized Settings Configuration
 Uses Pydantic for validation and environment variable loading
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from functools import lru_cache
 from typing import Any
 

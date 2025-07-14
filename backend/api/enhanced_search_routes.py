@@ -17,7 +17,7 @@ from backend.services.enhanced_search_service import (
     SearchRequest,
     SearchTier,
 )
-from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 

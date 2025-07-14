@@ -15,8 +15,8 @@ from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemorySe
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAIMemoryMCPServer,
 )
-from backend.services.unified_memory_service import UnifiedMemoryService
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

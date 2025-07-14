@@ -26,7 +26,7 @@ from infrastructure.services.enhanced_sentiment_analyzer import (
     EnhancedSentimentAnalyzer,
     SentimentChannel,
 )
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.integrations.gong_api_client import GongAPIClient
 
 logger = logging.getLogger(__name__)

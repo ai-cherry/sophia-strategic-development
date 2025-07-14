@@ -9,7 +9,7 @@ from typing import Any
 from core.config_manager import get_config_value
 from infrastructure.integrations.gong_api_client import GongAPIClient
 from infrastructure.services.semantic_layer_service import SemanticLayerService
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

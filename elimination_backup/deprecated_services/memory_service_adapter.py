@@ -10,7 +10,7 @@ Date: July 9, 2025
 import logging
 from typing import Any, Optional
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

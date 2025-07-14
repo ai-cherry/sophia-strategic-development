@@ -132,7 +132,7 @@ class UnifiedSophiaService:
 
     async def submit_feedback(self, workflow_id: str, feedback: Feedback):
         """Submit user feedback for a specific interaction"""
-        # TODO: Implement feedback submission to the learning framework
+        # TODO: [ARCH-001] Implement placeholder functionality feedback submission to the learning framework
         logger.info(f"Feedback submitted for workflow {workflow_id}: {feedback}")
         pass
 

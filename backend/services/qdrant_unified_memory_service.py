@@ -659,7 +659,7 @@ class QdrantUnifiedMemoryService:
         """Extract embedding from router service response"""
         # This would parse the actual router response format
         # For now, return a placeholder
-        return [0.0] * 768  # TODO: Implement based on actual router response format
+        return [0.0] * 768  # TODO: [ARCH-001] Implement placeholder functionality based on actual router response format
         
     async def _cache_knowledge(self, point_id: str, payload: Dict[str, Any], embedding: List[float]):
         """Cache knowledge in Redis"""

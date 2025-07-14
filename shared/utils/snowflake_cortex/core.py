@@ -1,6 +1,6 @@
 """Core direct SQL adapter for Lambda GPU."""
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import asyncio
 import json
 from typing import Any

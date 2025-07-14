@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from __future__ import annotations
 
 import os

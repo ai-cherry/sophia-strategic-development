@@ -18,7 +18,7 @@ Recommended decomposition:
 TODO: Implement file decomposition (Plan created: 2025-07-13)
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import asyncio
 import logging
 from dataclasses import dataclass, field
@@ -32,7 +32,7 @@ import redis.asyncio as redis
 
 from core.config_manager import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

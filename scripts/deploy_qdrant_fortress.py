@@ -241,7 +241,7 @@ This service provides unified access to:
 - Lambda GPU embeddings
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 # Export V3 as primary service
 UnifiedMemoryService = UnifiedMemoryService

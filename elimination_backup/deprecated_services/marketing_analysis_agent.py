@@ -19,7 +19,7 @@ Provides comprehensive marketing analysis capabilities including:
 # - marketing_analysis_agent_handlers.py - Request handlers
 #
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from __future__ import annotations
 
 import logging
@@ -40,7 +40,7 @@ from infrastructure.services.unified_llm_service import (
     TaskType,
     get_unified_llm_service,
 )
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.integrations.hubspot_client import HubSpotClient
 
 logger = logging.getLogger(__name__)

@@ -24,7 +24,7 @@ from enum import Enum
 from typing import Any
 
 from core.logger import logger
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 # logger = logging.getLogger(__name__)
 

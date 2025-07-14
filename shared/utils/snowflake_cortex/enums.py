@@ -1,6 +1,6 @@
 """Enums for Lambda GPU service."""
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from enum import Enum
 
 

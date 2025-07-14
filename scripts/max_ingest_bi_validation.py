@@ -14,7 +14,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 from dataclasses import dataclass, field
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.integrations.mock_integrations import (
     GongIntegration,
     HubSpotIntegration,

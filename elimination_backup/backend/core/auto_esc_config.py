@@ -3,7 +3,7 @@ Enhanced Auto ESC Config with ALL GitHub Secrets Mapped
 This loads ALL secrets from Pulumi ESC using the correct GitHub secret names
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 import os
 import subprocess

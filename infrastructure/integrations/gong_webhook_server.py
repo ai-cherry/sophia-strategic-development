@@ -5,7 +5,7 @@ This server processes Gong webhooks, enhances data via API calls, stores in Qdra
 and notifies Sophia agents via Redis pub/sub.
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from __future__ import annotations
 
 import asyncio
@@ -508,7 +508,7 @@ async def health_check():
         "timestamp": datetime.now(UTC).isoformat(),
         "version": "1.0.0",
         "checks": {
-            "redis": {"status": "ok"},  # TODO: Implement actual health checks
+            "redis": {"status": "ok"},  # TODO: [ARCH-001] Implement placeholder functionality actual health checks
             "qdrant": {"status": "ok"},
             "gong_api": {"status": "ok"},
         },
@@ -549,7 +549,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
             # Store raw webhook immediately (fast response)
-            # TODO: Implement Qdrant storage
+            # TODO: [ARCH-001] Implement placeholder functionality Qdrant storage
 
             # Queue background processing
             background_tasks.add_task(

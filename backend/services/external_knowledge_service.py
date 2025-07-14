@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import hashlib
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.core.auto_esc_config import get_config_value
 from backend.core.logging_config import get_logger
 

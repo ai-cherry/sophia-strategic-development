@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from datetime import UTC, datetime
 
 """

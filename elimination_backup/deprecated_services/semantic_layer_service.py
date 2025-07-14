@@ -1,6 +1,6 @@
 # File: backend/services/semantic_layer_service.py
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 from pathlib import Path
 from typing import Any

@@ -8,8 +8,8 @@ from backend.services.qdrant_unified_memory_service import QdrantUnifiedMemorySe
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service import UnifiedMemoryService
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 # Assuming an MCP orchestrator exists to call other MCPs
 # from core.workflows.langgraph_mcp_orchestrator import LangGraphMCPOrchestrator
@@ -88,7 +88,7 @@ class OrchestrationResearchAgent(BaseAgent):
             for query in research_queries
         ]
 
-        # TODO: Implement actual memory storage call
+        # TODO: [ARCH-001] Implement placeholder functionality actual memory storage call
         # await self.research_memory.store_research_findings(...)
 
         logger.info("Research complete. Generating report.")

@@ -18,7 +18,7 @@ from backend.core.date_time_manager import date_manager
 from backend.services.enhanced_multi_agent_orchestrator import (
     EnhancedMultiAgentOrchestrator,
 )
-from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 
 logger = logging.getLogger(__name__)
 

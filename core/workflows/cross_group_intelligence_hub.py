@@ -14,7 +14,7 @@ from typing import Any
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

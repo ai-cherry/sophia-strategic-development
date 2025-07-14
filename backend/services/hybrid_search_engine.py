@@ -317,7 +317,7 @@ class HybridSearchEngine:
         - Considering user preferences
         - Click-through rate optimization
         """
-        # TODO: Implement personalization based on user history
+        # TODO: [ARCH-001] Implement placeholder functionality personalization based on user history
         # For now, just return results as-is
         return results
 
@@ -351,7 +351,7 @@ class HybridSearchEngine:
     ) -> None:
         """Cache search results"""
         # This would use the enhanced Redis caching from Phase 3
-        # TODO: Implement caching with RedisHelper
+        # TODO: [ARCH-001] Implement placeholder functionality caching with RedisHelper
         pass
 
     async def _update_access_patterns(
@@ -364,7 +364,7 @@ class HybridSearchEngine:
         This tracks which documents are accessed frequently
         to inform hot/cold data tiering.
         """
-        # TODO: Implement access pattern tracking
+        # TODO: [ARCH-001] Implement placeholder functionality access pattern tracking
         pass
 
     def update_weights(

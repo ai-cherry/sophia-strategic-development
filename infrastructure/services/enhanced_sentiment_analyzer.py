@@ -4,7 +4,7 @@ Enhanced Sentiment Analyzer for Sophia AI
 Implements advanced multi-channel sentiment analysis with nuanced emotion detection
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 from dataclasses import dataclass
 from datetime import datetime

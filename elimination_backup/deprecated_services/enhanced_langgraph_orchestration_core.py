@@ -3,7 +3,7 @@ EnhancedLangGraphOrchestration Core
 Main service implementation
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from __future__ import annotations
 import asyncio
 import json
@@ -23,7 +23,7 @@ from tenacity import (  # type: ignore[import-not-found]
 from core.enhanced_cache_manager import EnhancedCacheManager
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
 from infrastructure.security.audit_logger import AuditLogger
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 from .models.enhanced_langgraph_orchestration_models import (
     AGGREGATOR,
@@ -522,7 +522,7 @@ from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
 from infrastructure.security.audit_logger import AuditLogger
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 

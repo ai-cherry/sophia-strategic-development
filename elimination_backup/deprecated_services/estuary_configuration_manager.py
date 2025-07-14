@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from datetime import UTC, datetime
 
 #!/usr/bin/env python3
@@ -34,7 +34,7 @@ import aiohttp
 import structlog
 
 from core.config_manager import get_config_value
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = structlog.get_logger(__name__)
 

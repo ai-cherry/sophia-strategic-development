@@ -11,7 +11,7 @@ import pytest
 
 from backend.services.lambda_labs_chat_integration import LambdaLabsChatIntegration
 from backend.services.lambda_labs_service import LambdaLabsService
-from backend.services.sophia_unified_orchestrator import SophiaUnifiedOrchestrator as SophiaUnifiedOrchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator as SophiaUnifiedOrchestrator
 from core.services.natural_language_infrastructure_controller import (
     NaturalLanguageInfrastructureController,
 )

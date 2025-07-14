@@ -1,4 +1,24 @@
 """
+DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
+Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+Date deprecated: 2025-07-14
+"""
+
+# Redirect to new unified orchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+
+# Backward compatibility
+"""
+DEPRECATED: This orchestrator has been consolidated into SophiaAIUnifiedOrchestrator
+Please use: from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+Date deprecated: 2025-07-14
+"""
+
+# Redirect to new unified orchestrator
+from backend.services.sophia_ai_unified_orchestrator import SophiaAIUnifiedOrchestrator
+
+# Backward compatibility
+"""
 Sophia AI Unified Orchestrator with Dynamic Routing
 Critique capabilities + n8n optimization + X/video integration
 Target: <150ms rerouting
@@ -19,7 +39,7 @@ from backend.core.auto_esc_config import get_config_value
 from backend.services.enhanced_multi_hop_orchestrator_v2 import EnhancedMultiHopOrchestrator
 from backend.services.n8n_alpha_optimizer_v2 import AlphaGridOptimizer, XTrendFetcher
 from backend.services.personality_engine import PersonalityEngine
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 logger = logging.getLogger(__name__)
 
@@ -337,3 +357,5 @@ def get_orchestrator() -> SophiaUnifiedOrchestrator:
     if _orchestrator is None:
         _orchestrator = SophiaUnifiedOrchestrator()
     return _orchestrator
+
+

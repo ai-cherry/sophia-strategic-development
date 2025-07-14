@@ -3,7 +3,7 @@ Unified AI Orchestrator
 Intelligent routing between Lambda GPU and Lambda Labs with cost optimization
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import logging
 import time
 from dataclasses import dataclass

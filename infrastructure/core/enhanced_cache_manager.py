@@ -250,7 +250,7 @@ class EnhancedCacheManager:
             semantic_key = f"semantic:{cache_type}:{content_hash}"
 
             # For now, use exact hash matching (semantic similarity would require embeddings)
-            # TODO: Implement actual semantic similarity with embeddings
+            # TODO: [ARCH-001] Implement placeholder functionality actual semantic similarity with embeddings
             return await self.get(semantic_key, f"semantic_{cache_type}")
 
         except Exception as e:
@@ -391,7 +391,7 @@ class EnhancedCacheManager:
         """
         try:
             # For now, just clear all cache since we don't have pattern matching
-            # TODO: Implement actual pattern matching with Redis SCAN
+            # TODO: [ARCH-001] Implement placeholder functionality actual pattern matching with Redis SCAN
             logger.info(f"Invalidating cache pattern: {pattern}")
             await self.clear()
             return 1

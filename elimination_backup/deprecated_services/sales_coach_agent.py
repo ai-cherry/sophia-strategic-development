@@ -1,4 +1,4 @@
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from __future__ import annotations
 
 """
@@ -31,7 +31,7 @@ from core.agents.base_agent import BaseAgent
 from infrastructure.mcp_servers.enhanced_ai_memory_mcp_server import (
     EnhancedAiMemoryMCPServer,
 )
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 from backend.integrations.gong_api_client import GongAPIClient
 from backend.integrations.hubspot_client import HubSpotClient
 

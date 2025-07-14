@@ -14,7 +14,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 # Import unified memory service v2
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 
 from core.services.data_transformer import DataTransformer
 from infrastructure.services.advanced_llm_service import AdvancedLLMService

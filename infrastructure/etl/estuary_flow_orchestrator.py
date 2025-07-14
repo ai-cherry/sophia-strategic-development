@@ -4,7 +4,7 @@ Replaces estuary with Estuary Flow for real-time data pipeline management
 Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → Qdrant
 """
 
-from backend.services.unified_memory_service import UnifiedMemoryService
+from backend.services.unified_memory_service_primary import UnifiedMemoryService
 import backend.utils.path_utils  # noqa: F401, must be before other imports
 
 import asyncio
