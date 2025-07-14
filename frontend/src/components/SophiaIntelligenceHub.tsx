@@ -39,6 +39,10 @@ import {
   CheckCircle
 } from 'lucide-react';
 
+// Import intelligence components
+import ExternalIntelligenceMonitor from './intelligence/ExternalIntelligenceMonitor';
+import BusinessIntelligenceLive from './intelligence/BusinessIntelligenceLive';
+
 // Types
 interface ChatMessage {
   id: string;
@@ -152,7 +156,7 @@ const SophiaIntelligenceHub: React.FC = () => {
       timestamp: new Date().toISOString(),
       sources: ['sophia_ai_core'],
       insights: ['Intelligence-first interface active', 'Pure Qdrant architecture operational', 'MCP orchestration ready'],
-      recommendations: ['Try: "Show me MCP server status"', 'Try: "What\'s our memory performance?"', 'Try: "Monitor business intelligence"']
+      recommendations: ['Try: "Show me external intelligence"', 'Try: "What\'s our business performance?"', 'Try: "Monitor MCP server status"']
     };
     setMessages([welcomeMessage]);
 
@@ -175,6 +179,15 @@ const SophiaIntelligenceHub: React.FC = () => {
         urgency: 'medium',
         timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
         actionable: true
+      },
+      {
+        id: '3',
+        type: 'business',
+        title: 'Revenue forecast exceeded',
+        description: 'Monthly revenue tracking 8.5% above forecast',
+        urgency: 'low',
+        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        actionable: false
       }
     ]);
   }, []);
@@ -200,14 +213,33 @@ const SophiaIntelligenceHub: React.FC = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentMessage = inputMessage;
     setInputMessage('');
     setIsLoading(true);
 
     try {
+      // Handle natural language commands
+      if (currentMessage.toLowerCase().includes('external intelligence') || 
+          currentMessage.toLowerCase().includes('market intelligence') ||
+          currentMessage.toLowerCase().includes('competitor')) {
+        setActiveTab('external');
+      } else if (currentMessage.toLowerCase().includes('business intelligence') ||
+                 currentMessage.toLowerCase().includes('revenue') ||
+                 currentMessage.toLowerCase().includes('customer health')) {
+        setActiveTab('business');
+      } else if (currentMessage.toLowerCase().includes('mcp') ||
+                 currentMessage.toLowerCase().includes('agent') ||
+                 currentMessage.toLowerCase().includes('server status')) {
+        setActiveTab('agents');
+      } else if (currentMessage.toLowerCase().includes('memory') ||
+                 currentMessage.toLowerCase().includes('qdrant')) {
+        setActiveTab('memory');
+      }
+
       const response = await fetch(`${BACKEND_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: inputMessage })
+        body: JSON.stringify({ message: currentMessage })
       });
 
       const data = await response.json();
@@ -340,7 +372,7 @@ const SophiaIntelligenceHub: React.FC = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Ask Sophia anything... (try: 'Show me MCP server status')"
+              placeholder="Ask Sophia anything... (try: 'Show me external intelligence')"
               className="w-full bg-gray-800 text-white rounded-lg px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -362,6 +394,18 @@ const SophiaIntelligenceHub: React.FC = () => {
         {/* Quick actions */}
         <div className="mt-3 flex flex-wrap gap-2">
           <button
+            onClick={() => handleQuickCommand('Show me external intelligence')}
+            className="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600"
+          >
+            🌐 External Intelligence
+          </button>
+          <button
+            onClick={() => handleQuickCommand('What is our business performance?')}
+            className="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600"
+          >
+            📊 Business Intelligence
+          </button>
+          <button
             onClick={() => handleQuickCommand('Show me MCP server status')}
             className="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600"
           >
@@ -372,18 +416,6 @@ const SophiaIntelligenceHub: React.FC = () => {
             className="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600"
           >
             💾 Memory Performance
-          </button>
-          <button
-            onClick={() => handleQuickCommand('Monitor business intelligence')}
-            className="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600"
-          >
-            📊 Business Intel
-          </button>
-          <button
-            onClick={() => handleQuickCommand('Deploy latest updates')}
-            className="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600"
-          >
-            🚀 Deploy Updates
           </button>
         </div>
       </div>
@@ -580,20 +612,10 @@ const SophiaIntelligenceHub: React.FC = () => {
         {/* Primary content */}
         <div className="flex-1">
           {activeTab === 'chat' && renderChatInterface()}
+          {activeTab === 'external' && <ExternalIntelligenceMonitor />}
+          {activeTab === 'business' && <BusinessIntelligenceLive />}
           {activeTab === 'agents' && renderMCPOrchestration()}
           {activeTab === 'memory' && renderMemoryArchitecture()}
-          {activeTab === 'external' && (
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">External Intelligence Monitor</h2>
-              <div className="text-gray-400">External intelligence monitoring will be implemented here...</div>
-            </div>
-          )}
-          {activeTab === 'business' && (
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-4">Business Intelligence Live</h2>
-              <div className="text-gray-400">Business intelligence dashboard will be implemented here...</div>
-            </div>
-          )}
           {activeTab === 'workflow' && (
             <div className="p-6">
               <h2 className="text-2xl font-bold text-white mb-4">Workflow Automation</h2>
