@@ -71,7 +71,7 @@
     }
   },
   "infrastructure": {
-    "weaviate": {
+    "qdrant": {
       "port": 8080,
       "status": "available",
       "description": "Weaviate vector database"

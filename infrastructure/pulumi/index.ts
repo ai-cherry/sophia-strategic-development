@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
 // Import deployment configurations
-import * as weaviate from "./weaviate-deployment";
+import * as weaviate from "./qdrant-deployment";
 import * as redis from "./redis-deployment";
 import * as postgresql from "./postgresql-deployment";
 
@@ -26,9 +26,9 @@ const ns = new k8s.core.v1.Namespace("sophia-ai-namespace", {
 const weaviateAuthSecret = new k8s.core.v1.Secret("weaviate-auth", {
     metadata: { namespace },
     stringData: {
-        "oidc-issuer": config.requireSecret("WEAVIATE_OIDC_ISSUER"),
-        "client-id": config.requireSecret("WEAVIATE_CLIENT_ID"),
-        "admin-users": config.requireSecret("WEAVIATE_ADMIN_USERS")
+        "oidc-issuer": config.requireSecret("QDRANT_OIDC_ISSUER"),
+        "client-id": config.requireSecret("QDRANT_CLIENT_ID"),
+        "admin-users": config.requireSecret("QDRANT_ADMIN_USERS")
     }
 });
 
@@ -175,7 +175,7 @@ scrape_configs:
   
   - job_name: 'lambda-inference'
     static_configs:
-      - targets: ['lambda-inference-service:8080']
+      - targets: ['lambda-inference-service:6333']
     metrics_path: '/metrics'
 `
     }
@@ -221,23 +221,23 @@ groups:
 });
 
 // Export stack outputs
-export const weaviateEndpoint = pulumi.interpolate`http://${weaviate.weaviateService.metadata.name}.${namespace}.svc.cluster.local:8080`;
+export const qdrantEndpoint = pulumi.interpolate`http://${weaviate.qdrantService.metadata.name}.${namespace}.svc.cluster.local:6333`;
 export const redisEndpoint = pulumi.interpolate`redis://${redis.redisService.metadata.name}.${namespace}.svc.cluster.local:6379`;
 export const postgresqlEndpoint = pulumi.interpolate`postgresql://${postgresql.postgresqlService.metadata.name}.${namespace}.svc.cluster.local:5432/sophia_vectors`;
-export const lambdaInferenceEndpoint = pulumi.interpolate`http://${lambdaInferenceService.metadata.name}.${namespace}.svc.cluster.local:8080`;
+export const lambdaInferenceEndpoint = pulumi.interpolate`http://${lambdaInferenceService.metadata.name}.${namespace}.svc.cluster.local:6333`;
 
 // Stack information
 export const stackInfo = {
     namespace: namespace,
     stack: stack,
     deployments: {
-        weaviate: weaviate.weaviateDeployment.metadata.name,
+        weaviate: weaviate.qdrantDeployment.metadata.name,
         redis: redis.redisStatefulSet.metadata.name,
         postgresql: postgresql.postgresqlDeployment.metadata.name,
         lambdaInference: lambdaInferenceDeployment.metadata.name
     },
     services: {
-        weaviate: weaviate.weaviateService.metadata.name,
+        weaviate: weaviate.qdrantService.metadata.name,
         redis: redis.redisService.metadata.name,
         postgresql: postgresql.postgresqlService.metadata.name,
         lambdaInference: lambdaInferenceService.metadata.name

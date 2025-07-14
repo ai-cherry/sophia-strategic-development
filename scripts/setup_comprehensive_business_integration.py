@@ -415,7 +415,7 @@ data:
                     "executive_reporting": True
                 },
                 "memory_integration": {
-                    "weaviate": {
+                    "qdrant": {
                         "business_patterns": True,
                         "customer_insights": True,
                         "sales_intelligence": True

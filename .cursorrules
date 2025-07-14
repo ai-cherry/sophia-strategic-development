@@ -1745,17 +1745,18 @@ k8s/
 
 ## Memory Architecture Rules (CRITICAL - Updated July 12, 2025)
 
-### ✅ MANDATORY - Use GPU-Accelerated Memory Stack
-- **ALWAYS** use `UnifiedMemoryServiceV2` from `backend.services.unified_memory_service_v2`
-- **ALWAYS** use Weaviate for vector storage (primary)
+### ✅ MANDATORY - Use Pure Qdrant Memory Stack
+- **ALWAYS** use `UnifiedMemoryServiceV3` from `backend.services.unified_memory_service_v3`
+- **ALWAYS** use Qdrant for vector storage (ONLY vector database)
 - **ALWAYS** use Redis for caching layer
 - **ALWAYS** use PostgreSQL with pgvector for hybrid queries
 - **ALWAYS** use Lambda GPU inference for embeddings
 
-### ❌ FORBIDDEN - Deprecated Systems
-- **NEVER** use `UnifiedMemoryService` (old version)
-- **NEVER** use qdrant Cortex for new features
-- **NEVER** reference `qdrant_unified` MCP server
+### ❌ FORBIDDEN - Eliminated Systems
+- **NEVER** use Weaviate (completely eliminated from architecture)
+- **NEVER** use Snowflake Cortex for new features
+- **NEVER** reference any Weaviate clients or configurations
+- **NEVER** use mixed vector database architectures
 - **NEVER** use `CORTEX.EMBED_TEXT_768()` - use GPU embeddings instead
 
 ### 🚀 Performance Targets

@@ -1,6 +1,4 @@
 name: Deploy to Lambda Labs (Aligned)
-# DISABLED: Weaviate contamination - use qdrant_production_deploy.yml instead
-if: false
 
 on:
   push:

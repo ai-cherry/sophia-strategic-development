@@ -1,6 +1,4 @@
 name: 🚀 Lambda Labs K3s Fortress Deployment
-# DISABLED: Weaviate contamination - use qdrant_production_deploy.yml instead
-if: false
 # Zero-touch GitOps deployment to Lambda Labs K3s cluster
 # Chaos-tested, GPU-optimized, 10M events/day ready
 
@@ -240,7 +238,7 @@ jobs:
           # Wait for deployments to be ready
           kubectl rollout status deployment/sophia-ai-backend -n ${{ env.NAMESPACE }} --timeout=300s
           kubectl rollout status deployment/sophia-mcp-gpu-cluster -n ${{ env.NAMESPACE }} --timeout=300s
-          kubectl rollout status statefulset/weaviate-gpu -n ${{ env.NAMESPACE }} --timeout=300s
+          kubectl rollout status statefulset/qdrant-gpu -n ${{ env.NAMESPACE }} --timeout=300s
           
       - name: 🔍 Verify deployment
         run: |
@@ -259,7 +257,7 @@ jobs:
           echo "Namespace: ${{ env.NAMESPACE }}"
           echo "Backend replicas: $(kubectl get deployment sophia-ai-backend -n ${{ env.NAMESPACE }} -o jsonpath='{.status.readyReplicas}')"
           echo "MCP GPU replicas: $(kubectl get deployment sophia-mcp-gpu-cluster -n ${{ env.NAMESPACE }} -o jsonpath='{.status.readyReplicas}')"
-          echo "Weaviate status: $(kubectl get statefulset weaviate-gpu -n ${{ env.NAMESPACE }} -o jsonpath='{.status.readyReplicas}')"
+          echo "Qdrant status: $(kubectl get statefulset qdrant-gpu -n ${{ env.NAMESPACE }} -o jsonpath='{.status.readyReplicas}')"
           
   # Phase 4: ArgoCD GitOps Setup
   argocd-setup:

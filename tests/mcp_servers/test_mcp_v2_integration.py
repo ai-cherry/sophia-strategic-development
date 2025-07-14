@@ -114,7 +114,7 @@ class TestMCPV2Integration:
                     assert result["response"].get("gpu_accelerated") == True
                     assert (
                         result["response"].get("storage", {}).get("primary")
-                        == "weaviate"
+                        == "qdrant"
                     )
 
                 # Check latency targets

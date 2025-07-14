@@ -321,7 +321,7 @@
     },
     {
       "id": "3",
-      "name": "weaviate"
+      "name": "qdrant"
     }
   ],
   "updatedAt": "2025-07-11T20:00:00.000Z",

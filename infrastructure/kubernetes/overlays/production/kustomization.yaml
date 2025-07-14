@@ -12,7 +12,7 @@ resources:
 patches:
   - target:
       kind: Deployment
-      name: weaviate
+      name: qdrant
     patch: |-
       - op: replace
         path: /spec/replicas
@@ -43,7 +43,7 @@ configMapGenerator:
   - name: environment-config
     literals:
       - ENVIRONMENT=production
-      - WEAVIATE_URL=http://weaviate-service:8080
+      - WEAVIATE_URL=http://qdrant-service:8080
       - REDIS_URL=redis://redis-service:6379
       - POSTGRESQL_URL=postgresql://postgresql-service:5432/sophia_vectors
       - LAMBDA_INFERENCE_URL=http://lambda-inference-service:8080
@@ -56,7 +56,7 @@ secretGenerator:
       - secrets.env
 
 replicas:
-  - name: weaviate
+  - name: qdrant
     count: 3
   - name: redis
     count: 3

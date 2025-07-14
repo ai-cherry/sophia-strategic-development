@@ -50,7 +50,7 @@
       "executive_reporting": true
     },
     "memory_integration": {
-      "weaviate": {
+      "qdrant": {
         "business_patterns": true,
         "customer_insights": true,
         "sales_intelligence": true

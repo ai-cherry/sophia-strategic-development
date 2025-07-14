@@ -60,7 +60,7 @@ class EnhancedMemoryServiceV3:
         self.redis_client: Optional[redis.Redis] = None
         self.l2_metrics = CacheMetrics()
         
-        # Persistent L3 cache (Weaviate/pgvector)
+        # Qdrant vector database
         self.l3_metrics = CacheMetrics()
         
         # Global metrics
@@ -81,7 +81,7 @@ class EnhancedMemoryServiceV3:
             )
             await self.redis_client.ping()
             
-            # Initialize other connections (Weaviate, pgvector)
+            # Qdrant vector database
             # Mock for now
             
             self.initialized = True
@@ -209,13 +209,13 @@ class EnhancedMemoryServiceV3:
     
     async def _get_from_l3(self, key: str) -> Optional[Any]:
         """Get from L3 persistent cache (mock)"""
-        # In production, this would query Weaviate or pgvector
+        # Qdrant vector database
         await asyncio.sleep(0.01)  # Simulate latency
         return None
     
     async def _set_in_l3(self, key: str, value: Any):
         """Set in L3 persistent cache (mock)"""
-        # In production, this would store in Weaviate or pgvector
+        # Qdrant vector database
         await asyncio.sleep(0.01)  # Simulate latency
     
     def _update_latency(self, latency_ms: float):

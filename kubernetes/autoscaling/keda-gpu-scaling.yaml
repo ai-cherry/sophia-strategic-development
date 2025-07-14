@@ -91,11 +91,11 @@ spec:
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: weaviate-gpu-scaler
+  name: qdrant-gpu-scaler
   namespace: sophia-ai
 spec:
   scaleTargetRef:
-    name: weaviate
+    name: qdrant
   minReplicaCount: 1
   maxReplicaCount: 6
   pollingInterval: 20
@@ -114,7 +114,7 @@ spec:
       serverAddress: http://prometheus:9090
       metricName: weaviate_gpu_memory_usage
       threshold: "70"
-      query: avg(nvidia_gpu_memory_used_percent{job="weaviate-gpu-exporter"})
+      query: avg(nvidia_gpu_memory_used_percent{job="qdrant-gpu-exporter"})
   # Cache miss rate (scale up if cache is ineffective)
   - type: prometheus
     metadata:
@@ -287,9 +287,9 @@ spec:
             - job_name: 'lambda-labs-gpu-exporter'
               static_configs:
               - targets: ['lambda-labs-gpu-exporter:9100']
-            - job_name: 'weaviate-gpu-exporter'
+            - job_name: 'qdrant-gpu-exporter'
               static_configs:
-              - targets: ['weaviate-gpu-exporter:9100']
+              - targets: ['qdrant-gpu-exporter:9100']
             - job_name: 'unified-memory-service'
               static_configs:
               - targets: ['unified-memory-service:9100']

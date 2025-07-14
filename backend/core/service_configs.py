@@ -29,7 +29,7 @@ class DataServiceConfig:
         self.postgres_password = get_config_value("postgres_password")
         self.postgres_database = get_config_value("postgres_database")
         self.redis_url = get_config_value("redis_url")
-        self.weaviate_url = get_config_value("weaviate_url")
+        self.qdrant_client_url = get_config_value("qdrant_url")
         self.pinecone_api_key = get_config_value("pinecone_api_key")
 
     def get_postgres_url(self) -> str:

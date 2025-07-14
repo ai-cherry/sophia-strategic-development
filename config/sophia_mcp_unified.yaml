@@ -218,7 +218,7 @@ deprecated_servers:
     removal_date: "2025-08-01"
     migration_guide: "Use UnifiedMemoryService.search_knowledge() instead"
     
-  - name: weaviate_server
+  - name: qdrant_server
     reason: "Replaced by Lambda GPU in UnifiedMemoryService"
     removal_date: "2025-08-01"
     migration_guide: "Use UnifiedMemoryService.search_knowledge() instead"

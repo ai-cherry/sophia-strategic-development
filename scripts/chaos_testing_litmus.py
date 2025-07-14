@@ -32,7 +32,7 @@ class ChaosTestingFramework:
             "sophia-orchestrator",
             "enhanced-chat-v4",
             "unified-memory-service",
-            "weaviate",
+            "qdrant",
             "redis"
         ]
         self.results = {}

@@ -1,6 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import {
-    weaviateEndpoint,
+    qdrantEndpoint,
     redisEndpoint,
     postgresqlEndpoint,
     lambdaInferenceEndpoint,
@@ -8,15 +8,19 @@ import {
 } from "./pulumi/index";
 
 // Export the new infrastructure outputs
-export const weaviateUrl = weaviateEndpoint;
+export const qdrantUrl = qdrantEndpoint;
 export const redisUrl = redisEndpoint;
 export const postgresqlUrl = postgresqlEndpoint;
 export const lambdaInferenceUrl = lambdaInferenceEndpoint;
 export const deploymentInfo = stackInfo;
 
+// Export all infrastructure endpoints
+export const endpoints = {
+  qdrant: qdrantEndpoint,
+  // Add other endpoints as needed
+};
+
 // Log deployment info
-pulumi.log.info("Sophia AI Memory Architecture deployed:");
-pulumi.log.info(`- Weaviate: ${weaviateEndpoint}`);
-pulumi.log.info(`- Redis: ${redisEndpoint}`);
-pulumi.log.info(`- PostgreSQL: ${postgresqlEndpoint}`);
-pulumi.log.info(`- Lambda Inference: ${lambdaInferenceEndpoint}`);
+pulumi.log.info("Sophia AI Infrastructure Deployed:");
+pulumi.log.info(`- Qdrant: ${qdrantEndpoint}`);
+pulumi.log.info(`- Pure Qdrant Architecture: ✅`);

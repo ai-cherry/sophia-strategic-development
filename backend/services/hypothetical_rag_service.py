@@ -436,7 +436,7 @@ class HypotheticalRAGService:
         # For now, simulate search results
         
         # In production, this would:
-        # 1. Use the embedding to search Weaviate
+        # Qdrant vector database
         # 2. Search PostgreSQL with pgvector
         # 3. Combine and rank results
         

@@ -473,7 +473,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
                 containers: [
                     {
                         name: "weaviate",
-                        image: "semitechnologies/weaviate:1.26.0",
+                        image: "qdrant/qdrant:v1.8.0
                         ports: [
                             {
                                 containerPort: 8080,
@@ -491,7 +491,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
                             },
                             {
                                 name: "PERSISTENCE_DATA_PATH",
-                                value: "/var/lib/weaviate"
+                                value: "/var/lib/qdrant/storage"
                             },
                             {
                                 name: "DEFAULT_VECTORIZER_MODULE",
@@ -503,7 +503,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
                             },
                             {
                                 name: "TRANSFORMERS_INFERENCE_API",
-                                value: "http://t2v-transformers:8080"
+                                value: "http://t2v-transformers:6333"
                             },
                             {
                                 name: "CUDA_VISIBLE_DEVICES",
@@ -525,7 +525,7 @@ const weaviateGpu = new kubernetes.apps.v1.StatefulSet("weaviate-gpu", {
                         volumeMounts: [
                             {
                                 name: "weaviate-data",
-                                mountPath: "/var/lib/weaviate"
+                                mountPath: "/var/lib/qdrant/storage"
                             }
                         ],
                         livenessProbe: {
@@ -1081,7 +1081,7 @@ export const deploymentSummary = pulumi.all([
     endpoints: {
         api: `https://${lambdaLabsConfig.masterNode}:8000`,
         monitoring: `https://${lambdaLabsConfig.masterNode}:3000`,
-        weaviate: `https://${lambdaLabsConfig.masterNode}:8080`
+        weaviate: `https://${lambdaLabsConfig.masterNode}:6333`
     },
     capabilities: {
         maxEvents: "10M/day",

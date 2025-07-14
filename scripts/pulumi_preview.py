@@ -38,7 +38,7 @@ class PulumiPreview:
             # Data services
             "postgresql": 100,
             "redis": 50,
-            "weaviate": 200,  # Vector DB hosting
+            "qdrant": 200,  # Vector DB hosting
             
             # External services
             "vercel": 20,
@@ -173,7 +173,7 @@ class PulumiPreview:
             "lambda_labs_storage": self.resource_costs["lambda_labs_storage"],
             "postgresql": self.resource_costs["postgresql"],
             "redis": self.resource_costs["redis"],
-            "weaviate": self.resource_costs["weaviate"]
+            "qdrant": self.resource_costs["qdrant"]
         })
         
         # Variable costs based on resources

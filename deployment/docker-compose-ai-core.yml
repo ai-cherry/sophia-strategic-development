@@ -144,7 +144,7 @@ services:
       - sophia-public
     logging: *default-logging
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -505,13 +505,13 @@ services:
           cpus: '2'
           memory: 4G
     volumes:
-      - weaviate-data:/var/lib/weaviate
+      - qdrant-data:/var/lib/weaviate
     networks:
       - sophia-ai-network
       - sophia-private
     logging: *default-logging
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/v1/.well-known/ready"]
+      test: ["CMD", "curl", "-f", "http://localhost:6333/v1/.well-known/ready"]
       interval: 30s
       timeout: 10s
       retries: 3
