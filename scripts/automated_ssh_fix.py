@@ -28,7 +28,7 @@ def add_ssh_key_to_server(ip):
     
     # Use the existing sophia2025 private key to add the new key
     ssh_command = f'''
-    ssh -i ~/.ssh/sophia_working_key -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@{ip} "
+    ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o StrictHostKeyChecking=no ubuntu@{ip} "
     echo '{SSH_PUBLIC_KEY}' >> ~/.ssh/authorized_keys && 
     chmod 600 ~/.ssh/authorized_keys && 
     echo 'SSH key added successfully to {ip}'
@@ -51,7 +51,7 @@ def test_new_ssh_key(ip):
     """Test the new SSH key works"""
     print(f"🧪 Testing new SSH key on {ip}...")
     
-    ssh_command = f'ssh -i ~/.ssh/sophia_working_key -o ConnectTimeout=5 ubuntu@{ip} "echo \'New SSH key working on {ip}\'"'
+    ssh_command = f'ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 ubuntu@{ip} "echo \'New SSH key working on {ip}\'"'
     
     try:
         result = subprocess.run(ssh_command, shell=True, capture_output=True, text=True, timeout=15)

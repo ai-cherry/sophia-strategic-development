@@ -111,7 +111,7 @@ def test_ssh_access(ip):
     import subprocess
     try:
         result = subprocess.run([
-            "ssh", "-i", "~/.ssh/sophia_working_key",
+            "ssh", "-i", "~/.ssh/sophia_final_key",
             "-o", "ConnectTimeout=10",
             "-o", "StrictHostKeyChecking=no",
             f"ubuntu@{ip}",

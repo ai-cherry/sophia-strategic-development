@@ -1,11 +1,41 @@
 {
-  "name": "sophia-intel-ai",
-  "alias": [
-    "sophia-intel.ai",
-    "www.sophia-intel.ai"
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/**/*",
+      "use": "@vercel/static"
+    }
   ],
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://api.sophia-intel.ai",
-    "NEXT_PUBLIC_APP_URL": "https://sophia-intel.ai"
-  }
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "http://192.222.58.232:8000/api/$1"
+    },
+    {
+      "src": "/health",
+      "dest": "http://192.222.58.232:8000/health"
+    },
+    {
+      "src": "/chat",
+      "dest": "http://192.222.58.232:8000/chat"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "http://192.222.58.232:8000/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "http://192.222.58.232:8000/health"
+    },
+    {
+      "source": "/chat",
+      "destination": "http://192.222.58.232:8000/chat"
+    }
+  ]
 }

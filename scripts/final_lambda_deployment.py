@@ -140,20 +140,20 @@ def deploy_to_server(ip, private_key_path, server_name):
     # Upload deployment files
     commands = [
         # Create deployment directory
-        f'ssh -i {private_key_path} -o StrictHostKeyChecking=no ubuntu@{ip} "mkdir -p ~/sophia-deployment"',
+        f'ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@{ip} "mkdir -p ~/sophia-deployment"',
         
         # Copy Docker files
-        f'scp -i {private_key_path} -o StrictHostKeyChecking=no backend/Dockerfile ubuntu@{ip}:~/sophia-deployment/',
-        f'scp -i {private_key_path} -o StrictHostKeyChecking=no requirements.txt ubuntu@{ip}:~/sophia-deployment/',
+        f'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no backend/Dockerfile ubuntu@{ip}:~/sophia-deployment/',
+        f'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no requirements.txt ubuntu@{ip}:~/sophia-deployment/',
         
         # Copy deployment scripts
-        f'scp -i {private_key_path} -o StrictHostKeyChecking=no scripts/deploy_to_lambda_labs.py ubuntu@{ip}:~/sophia-deployment/',
+        f'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no scripts/deploy_to_lambda_labs.py ubuntu@{ip}:~/sophia-deployment/',
         
         # Install Docker if needed
-        f'ssh -i {private_key_path} -o StrictHostKeyChecking=no ubuntu@{ip} "which docker || (curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh && sudo usermod -aG docker ubuntu)"',
+        f'ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@{ip} "which docker || (curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh && sudo usermod -aG docker ubuntu)"',
         
         # Build and run Sophia AI
-        f'ssh -i {private_key_path} -o StrictHostKeyChecking=no ubuntu@{ip} "cd ~/sophia-deployment && sudo docker build -t sophia-ai . && sudo docker run -d -p 8000:8000 sophia-ai"'
+        f'ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@{ip} "cd ~/sophia-deployment && sudo docker build -t sophia-ai . && sudo docker run -d -p 8000:8000 sophia-ai"'
     ]
     
     for cmd in commands:

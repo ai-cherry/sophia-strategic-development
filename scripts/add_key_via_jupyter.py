@@ -121,7 +121,7 @@ def main():
     
     print("\n🧪 After adding keys, test SSH access:")
     for session in JUPYTER_SESSIONS:
-        print(f"   ssh -i ~/.ssh/lambda_labs_private_key ubuntu@{session['ip']}")
+        print(f"   ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@{session['ip']}")
 
 if __name__ == "__main__":
     main() 

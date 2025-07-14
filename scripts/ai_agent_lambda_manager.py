@@ -204,9 +204,9 @@ class LambdaLabsAIAgent:
         
         # Upload files
         upload_commands = [
-            f'scp -i {private_key_path} -o StrictHostKeyChecking=no -r backend ubuntu@{instance_ip}:~/',
-            f'scp -i {private_key_path} -o StrictHostKeyChecking=no requirements.txt ubuntu@{instance_ip}:~/',
-            f'scp -i {private_key_path} -o StrictHostKeyChecking=no backend/Dockerfile ubuntu@{instance_ip}:~/'
+            f'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r backend ubuntu@{instance_ip}:~/',
+            f'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no requirements.txt ubuntu@{instance_ip}:~/',
+            f'scp -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no backend/Dockerfile ubuntu@{instance_ip}:~/'
         ]
         
         for cmd in upload_commands:
@@ -290,7 +290,7 @@ class LambdaLabsAIAgent:
             if success:
                 print("\n🎉 DEPLOYMENT SUCCESSFUL!")
                 print(f"🌐 Access Sophia AI at: {result['access_url']}")
-                print(f"🔑 SSH access: ssh -i {key_info['private_key_path']} ubuntu@{instance_ip}")
+                print(f"🔑 SSH access: ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@{instance_ip}")
             
             return result
             
@@ -315,7 +315,7 @@ def main():
     if result["success"]:
         print(f"\n✅ Deployment complete!")
         print(f"🌐 URL: {result['access_url']}")
-        print(f"🔑 SSH: ssh -i {result['ssh_key_path']} ubuntu@{result['instance_ip']}")
+        print(f"🔑 SSH: ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@{result['instance_ip']}")
     else:
         print(f"\n❌ Deployment failed: {result.get('error')}")
     

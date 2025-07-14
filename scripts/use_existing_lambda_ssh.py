@@ -73,35 +73,35 @@ def update_ssh_config():
 Host sophia-primary
     HostName 192.222.58.232
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_private_key
+    IdentityFile ~/.ssh/sophia_final_key
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 
 Host sophia-mcp
     HostName 104.171.202.117
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_private_key
+    IdentityFile ~/.ssh/sophia_final_key
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 
 Host sophia-data
     HostName 104.171.202.134
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_private_key
+    IdentityFile ~/.ssh/sophia_final_key
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 
 Host sophia-prod
     HostName 104.171.202.103
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_private_key
+    IdentityFile ~/.ssh/sophia_final_key
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 
 Host sophia-dev
     HostName 155.248.194.183
     User ubuntu
-    IdentityFile ~/.ssh/lambda_labs_private_key
+    IdentityFile ~/.ssh/sophia_final_key
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
 """

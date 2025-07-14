@@ -90,7 +90,7 @@ def main():
     print()
     print("🧪 Test SSH access with:")
     for ip, description in servers:
-        print(f"   ssh -i ~/.ssh/lambda_labs_private_key ubuntu@{ip}")
+        print(f"   ssh -i ~/.ssh/sophia_final_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@{ip}")
     
     print()
     print("🚀 Once SSH access is working, run deployment:")

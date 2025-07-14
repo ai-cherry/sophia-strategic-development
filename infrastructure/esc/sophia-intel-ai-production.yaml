@@ -76,11 +76,8 @@ values:
           dev_api: "https://dev.api.sophia-intel.ai"
           dev_services: "155.248.194.183:8000"
 
-  # Vercel Configuration
-  vercel:
-    api_token:
-      fn::secret: ${VERCEL_API_TOKEN}
-
+      api_token:
+      fn::secret: ${
     projects:
       app:
         name: "sophia-intel-ai-app"
@@ -167,27 +164,27 @@ values:
         ttl: 300
       - name: "app"
         type: "CNAME"
-        value: "cname.vercel-dns.com"
+        value: "192.222.58.232"
         ttl: 300
       - name: "admin"
         type: "CNAME"
-        value: "cname.vercel-dns.com"
+        value: "192.222.58.232"
         ttl: 300
       - name: "docs"
         type: "CNAME"
-        value: "cname.vercel-dns.com"
+        value: "192.222.58.232"
         ttl: 300
       - name: "status"
         type: "CNAME"
-        value: "cname.vercel-dns.com"
+        value: "192.222.58.232"
         ttl: 300
       - name: "dev.app"
         type: "CNAME"
-        value: "cname.vercel-dns.com"
+        value: "192.222.58.232"
         ttl: 300
       - name: "staging"
         type: "CNAME"
-        value: "cname.vercel-dns.com"
+        value: "192.222.58.232"
         ttl: 300
       - name: "www"
         type: "CNAME"
@@ -318,9 +315,7 @@ environmentVariables:
   LAMBDA_LABS_CORE_IP: ${lambda_labs.instances.core.ip}
   LAMBDA_LABS_API_ENDPOINT: ${lambda_labs.instances.core.endpoints.api}
 
-  # Vercel Configuration
-  VERCEL_API_TOKEN: ${vercel.api_token}
-
+  
   # Namecheap Configuration
   NAMECHEAP_API_KEY: ${namecheap.api_key}
 
