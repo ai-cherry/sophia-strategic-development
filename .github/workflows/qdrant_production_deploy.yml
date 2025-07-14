@@ -42,6 +42,66 @@ env:
   NAMESPACE: sophia-ai
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install qdrant-client pulumi pulumi-esc
+
+      - name: Configure Pulumi ESC
+        run: |
+          pulumi login
+          # Sync QDRANT_API_KEY to Pulumi ESC
+          pulumi env set scoobyjava-org/default/sophia-ai-production qdrant_api_key "${{ secrets.QDRANT_API_KEY }}" --secret
+          pulumi env set scoobyjava-org/default/sophia-ai-production qdrant_url "${{ secrets.QDRANT_URL }}" --secret
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Validate Qdrant Configuration
+        run: |
+          python -c "
+          from backend.core.auto_esc_config import get_qdrant_config
+          config = get_qdrant_config()
+          print('✅ Qdrant configuration loaded successfully')
+          print(f'URL: {config[\"url\"]}')
+          print(f'API Key: {config[\"api_key\"][:8]}...')
+          "
+        env:
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+
+      - name: Test Qdrant Connectivity
+        run: |
+          curl -X GET "${{ secrets.QDRANT_URL }}/collections" \
+            -H "Authorization: Bearer ${{ secrets.QDRANT_API_KEY }}" \
+            -H "Content-Type: application/json"
+
+      - name: Deploy Qdrant Infrastructure
+        run: |
+          python scripts/deploy_qdrant_fortress.py --environment production
+        env:
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+      - name: Validate Deployment
+        run: |
+          python scripts/validate_qdrant_fortress.py --environment production
+        env:
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+
   validate-qdrant:
     name: 🔍 Validate Qdrant Configuration
     runs-on: ubuntu-latest

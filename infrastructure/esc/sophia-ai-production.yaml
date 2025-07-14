@@ -26,6 +26,14 @@ values:
         fn::secret: ${ELIMINATED_DATABASE}
       role:
         fn::secret: ${ELIMINATED_ROLE}
+    qdrant:
+      api_key:
+        fn::secret: ${QDRANT_API_KEY}
+      url:
+        fn::secret: ${QDRANT_URL}
+      cluster_name: "sophia-ai-production"
+      timeout: 30
+      prefer_grpc: false
     pinecone:
       api_key:
         fn::secret: ${PINECONE_API_KEY}

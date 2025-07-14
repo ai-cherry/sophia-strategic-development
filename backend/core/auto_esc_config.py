@@ -155,40 +155,14 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-def get_qdrant_config() -> Dict[str, Any]:
-    """
-    Get Qdrant configuration from Pulumi ESC - PERMANENT FIX
-
-    Returns:
-        Qdrant configuration dictionary with CORRECT account
-    """
-    # Check environment variables first (for immediate use)
-    
-    #     "postgres_host", "UHDECNO-CVB64222"
-    # )
-    
-    #     "qdrant_user", "SCOOBYJAVA15"
-    # )
-
-    # Try PAT token first, then regular password
-    pat_token = os.getenv("qdrant_PAT")
-    password = (
-        pat_token
-        if pat_token
-        else get_config_value("postgres_password")
-    )
-
-    account = get_config_value("postgres_host", "UHDECNO-CVB64222")
-    user = get_config_value("qdrant_user", "SCOOBYJAVA15")
-
+def get_qdrant_config() -> Dict[str, str]:
+    """Get Qdrant configuration from Pulumi ESC"""
     return {
-        "account": account,
-        "user": user,
-        "password": password,  # Will use PAT or password from ESC/env
-        "role": get_config_value("qdrant_role", "ACCOUNTADMIN"),
-        "warehouse": get_config_value("postgres_database", "SOPHIA_AI_COMPUTE_WH"),
-        "database": get_config_value("postgres_database", "AI_MEMORY"),
-        "schema": get_config_value("postgres_schema", "VECTORS"),
+        "api_key": get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY"),
+        "url": get_config_value("qdrant_url") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
+        "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
+        "timeout": int(get_config_value("qdrant_timeout", "30")),
+        "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"
     }
 
 
@@ -758,8 +732,8 @@ def validate_lambda_labs_config() -> bool:
 def get_qdrant_config() -> Dict[str, str]:
     """Get Qdrant configuration from Pulumi ESC"""
     return {
-        "api_key": get_config_value("qdrant_api_key"),
-        "url": get_config_value("qdrant_url", "https://xyz.qdrant.tech"),
+        "api_key": get_config_value("qdrant_api_key") or get_config_value("QDRANT_API_KEY"),
+        "url": get_config_value("qdrant_url") or get_config_value("QDRANT_URL", "https://xyz.qdrant.tech"),
         "cluster_name": get_config_value("qdrant_cluster_name", "sophia-ai-production"),
         "timeout": int(get_config_value("qdrant_timeout", "30")),
         "prefer_grpc": get_config_value("qdrant_prefer_grpc", "false").lower() == "true"

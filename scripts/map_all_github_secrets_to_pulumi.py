@@ -33,6 +33,8 @@ GITHUB_TO_PULUMI_MAPPING = {
     "DOCKERHUB_USERNAME": "docker_username",
     "DOCKERHUB_USERNAME": "docker_username",  # Map to same
     # Qdrant
+    "QDRANT_API_KEY": "qdrant_api_key",
+    "QDRANT_URL": "qdrant_url",
     "qdrant_ACCOUNT": "postgres_host",
     "qdrant_USER": "qdrant_user",
     "qdrant_PASSWORD": "postgres_password",
