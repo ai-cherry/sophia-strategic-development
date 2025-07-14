@@ -7,13 +7,13 @@ import logging
 import os
 import subprocess
 from functools import lru_cache
-from typing import Any
+from typing import Any, Dict, Optional, Union
 
 logger = logging.getLogger(__name__)
 
 # Configuration cache
-_config_cache: dict[str, Any] = {}
-_esc_cache: dict[str, Any] | None = None
+_config_cache: Dict[str, Any] = {}
+_esc_cache: Optional[Dict[str, Any]] = None
 
 # Environment configuration
 ENVIRONMENT = os.getenv("ENVIRONMENT", "prod")
@@ -22,7 +22,7 @@ PULUMI_STACK = f"{PULUMI_ORG}/default/sophia-ai-production"
 
 
 @lru_cache(maxsize=1)
-def get_pulumi_config() -> dict[str, Any]:
+def get_pulumi_config() -> Dict[str, Any]:
     """Get all configuration from Pulumi ESC"""
     try:
         # Try to get the config using pulumi env get
@@ -53,7 +53,7 @@ def get_pulumi_config() -> dict[str, Any]:
         return {}
 
 
-def get_config_value(key: str, default: str | None = None) -> str | None:
+def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     """Get a configuration value from Pulumi ESC or environment variables"""
     # Try environment variable first
     env_value = os.getenv(key.upper())
@@ -81,7 +81,7 @@ def _get_security_config():
         return None
 
 
-def _load_esc_environment() -> dict[str, Any]:
+def _load_esc_environment() -> Dict[str, Any]:
     """
     Load configuration from Pulumi ESC environment
 
@@ -155,7 +155,7 @@ def set_config_value(key: str, value: Any) -> None:
     _config_cache[key] = value
 
 
-def get_snowflake_config() -> dict[str, Any]:
+def get_snowflake_config() -> Dict[str, Any]:
     """
     Get Snowflake configuration from Pulumi ESC - PERMANENT FIX
 
@@ -189,7 +189,7 @@ def get_snowflake_config() -> dict[str, Any]:
     }
 
 
-def get_postgres_config() -> dict[str, Any]:
+def get_postgres_config() -> Dict[str, Any]:
     """
     Get PostgreSQL configuration
 
@@ -207,7 +207,7 @@ def get_postgres_config() -> dict[str, Any]:
     }
 
 
-def get_estuary_config() -> dict[str, Any]:
+def get_estuary_config() -> Dict[str, Any]:
     """
     Get Estuary configuration
 
@@ -221,7 +221,7 @@ def get_estuary_config() -> dict[str, Any]:
     }
 
 
-def get_integration_config() -> dict[str, Any]:
+def get_integration_config() -> Dict[str, Any]:
     """
     Get integration configuration for external services
 
@@ -300,7 +300,7 @@ def initialize_default_config():
 initialize_default_config()
 
 
-def get_lambda_labs_config() -> dict[str, Any]:
+def get_lambda_labs_config() -> Dict[str, Any]:
     """
     Get Lambda Labs configuration from Pulumi ESC
 
@@ -317,7 +317,7 @@ def get_lambda_labs_config() -> dict[str, Any]:
     }
 
 
-def get_docker_hub_config() -> dict[str, Any]:
+def get_docker_hub_config() -> Dict[str, Any]:
     """
     Get Docker Hub configuration from Pulumi ESC
 
@@ -419,7 +419,7 @@ SNOWFLAKE_OPTIMIZATION_CONFIG = {
 }
 
 
-def get_snowflake_pat(environment: str | None = None) -> str:
+def get_snowflake_pat(environment: Optional[str] = None) -> str:
     """
     Get Snowflake PAT (Programmatic Access Token) for MCP authentication
 
@@ -462,7 +462,7 @@ def get_snowflake_pat(environment: str | None = None) -> str:
     return pat
 
 
-def get_snowflake_mcp_config() -> dict[str, Any]:
+def get_snowflake_mcp_config() -> Dict[str, Any]:
     """
     Get Snowflake MCP server configuration
 
@@ -537,7 +537,7 @@ def validate_snowflake_pat() -> bool:
     return False
 
 
-def get_snowflake_config_enhanced() -> dict[str, Any]:
+def get_snowflake_config_enhanced() -> Dict[str, Any]:
     """
     Get enhanced Snowflake configuration with PAT support
 
@@ -587,7 +587,7 @@ AI_OPTIMIZATION_CONFIG = {
 }
 
 
-def get_lambda_labs_serverless_config() -> dict[str, Any]:
+def get_lambda_labs_serverless_config() -> Dict[str, Any]:
     """
     Get Lambda Labs Serverless configuration from Pulumi ESC
 
@@ -638,7 +638,7 @@ def get_lambda_labs_serverless_config() -> dict[str, Any]:
     }
 
 
-def get_ai_orchestration_config() -> dict[str, Any]:
+def get_ai_orchestration_config() -> Dict[str, Any]:
     """
     Get AI orchestration configuration for unified chat service
 
