@@ -23,11 +23,11 @@ lambda_labs_config = {
     ],
 }
 
-# REMOVED: Snowflake dependencyuration
-# REMOVED: Snowflake dependency {
-    "account": config.require("snowflake_account"),
-    "user": config.require("snowflake_user"),
-    "password": config.require_secret("snowflake_password"),
+# REMOVED: modern_stack dependencyuration
+# REMOVED: modern_stack dependency {
+    "account": config.require("modern_stack_account"),
+    "user": config.require("modern_stack_user"),
+    "password": config.require_secret("modern_stack_password"),
     "warehouses": {
         "compute": "SOPHIA_AI_COMPUTE_WH",
         "analytics": "SOPHIA_AI_ANALYTICS_WH",
@@ -36,5 +36,5 @@ lambda_labs_config = {
 
 # Export configurations
 pulumi.export("lambda_labs_config", lambda_labs_config)
-# REMOVED: Snowflake dependency)
+# REMOVED: modern_stack dependency)
 pulumi.export("environment", env)

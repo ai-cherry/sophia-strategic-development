@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Final Snowflake Cleanup Script
-Handles remaining Snowflake references including comments, documentation, and edge cases
+Final modern_stack Cleanup Script
+Handles remaining modern_stack references including comments, documentation, and edge cases
 
 This script performs final cleanup after the main elimination process:
 1. Updates comments and documentation
@@ -10,7 +10,7 @@ This script performs final cleanup after the main elimination process:
 4. Validates complete elimination
 
 Usage:
-    python scripts/final_snowflake_cleanup.py
+    python scripts/final_modern_stack_cleanup.py
 """
 
 import os
@@ -23,8 +23,8 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-class FinalSnowflakeCleanup:
-    """Final comprehensive Snowflake cleanup"""
+class Finalmodern_stackCleanup:
+    """Final comprehensive modern_stack cleanup"""
     
     def __init__(self):
         self.files_processed = []
@@ -39,32 +39,32 @@ class FinalSnowflakeCleanup:
         
         # String replacements for remaining functional code
         self.string_replacements = {
-            'snowflake_username': 'postgres_username',
-            'snowflake_password': 'postgres_password', 
-            'snowflake_account': 'postgres_host',
-            'snowflake_warehouse': 'postgres_database',
-            'snowflake_database': 'postgres_database',
-            'snowflake_schema': 'postgres_schema',
-            'SNOWFLAKE.CORTEX.': 'await self.lambda_gpu.',
-            'SNOWFLAKE.': 'self.modern_stack.',
-            'Snowflake Cortex': 'Lambda GPU',
-            'snowflake cortex': 'lambda gpu',
-            'Snowflake': 'ModernStack',
-            'snowflake': 'modern_stack'
+            'modern_stack_username': 'postgres_username',
+            'modern_stack_password': 'postgres_password', 
+            'modern_stack_account': 'postgres_host',
+            'modern_stack_warehouse': 'postgres_database',
+            'modern_stack_database': 'postgres_database',
+            'modern_stack_schema': 'postgres_schema',
+            'modern_stack.CORTEX.': 'await self.lambda_gpu.',
+            'modern_stack.': 'self.modern_stack.',
+            'modern_stack Cortex': 'Lambda GPU',
+            'modern_stack cortex': 'lambda gpu',
+            'modern_stack': 'ModernStack',
+            'modern_stack': 'modern_stack'
         }
         
         # Files to completely remove or rename
         self.files_to_remove = [
-            'start_mcp_services.py',  # Has Snowflake MCP server import
-            'mcp_servers/snowflake/',  # Entire Snowflake MCP directory
+            'start_mcp_services.py',  # Has modern_stack MCP server import
+            'mcp_servers/modern_stack/',  # Entire modern_stack MCP directory
         ]
         
     def execute_final_cleanup(self) -> Dict[str, int]:
         """Execute comprehensive final cleanup"""
-        logger.info("🧹 Starting final Snowflake cleanup...")
+        logger.info("🧹 Starting final modern_stack cleanup...")
         
-        # Remove Snowflake-specific files
-        self.remove_snowflake_files()
+        # Remove modern_stack-specific files
+        self.remove_modern_stack_files()
         
         # Clean remaining Python files
         self.clean_python_files()
@@ -87,8 +87,8 @@ class FinalSnowflakeCleanup:
         logger.info(f"✅ Final cleanup complete: {results}")
         return results
     
-    def remove_snowflake_files(self):
-        """Remove files that are entirely Snowflake-specific"""
+    def remove_modern_stack_files(self):
+        """Remove files that are entirely modern_stack-specific"""
         for file_pattern in self.files_to_remove:
             path = Path(file_pattern)
             
@@ -109,7 +109,7 @@ class FinalSnowflakeCleanup:
         
         for py_file in python_files:
             # Skip backup files and our own scripts
-            if any(skip in str(py_file) for skip in ['.backup', 'final_snowflake_cleanup.py', 'execute_snowflake_elimination.py']):
+            if any(skip in str(py_file) for skip in ['.backup', 'final_modern_stack_cleanup.py', 'execute_modern_stack_elimination.py']):
                 continue
                 
             try:
@@ -157,30 +157,30 @@ class FinalSnowflakeCleanup:
     def handle_special_cases(self, content: str, file_path: Path) -> str:
         """Handle special case patterns"""
         
-        # Remove Snowflake MCP server imports
+        # Remove modern_stack MCP server imports
         content = re.sub(
-            r'from mcp_servers\.snowflake.*import.*\n',
-            '# REMOVED: Snowflake MCP server import\n',
+            r'from mcp_servers\.modern_stack.*import.*\n',
+            '# REMOVED: modern_stack MCP server import\n',
             content
         )
         
-        # Remove Snowflake server references in lists/tuples
+        # Remove modern_stack server references in lists/tuples
         content = re.sub(
-            r'\("Snowflake",.*snowflake_server\),?\n',
-            '# REMOVED: Snowflake server reference\n',
+            r'\("modern_stack",.*modern_stack_server\),?\n',
+            '# REMOVED: modern_stack server reference\n',
             content
         )
         
-        # Update SQL queries that reference Snowflake functions
+        # Update SQL queries that reference modern_stack functions
         content = re.sub(
-            r'SELECT SNOWFLAKE\.',
+            r'SELECT modern_stack\.',
             'SELECT /* Modern Stack */ ',
             content
         )
         
         # Update connection type references
         content = re.sub(
-            r'ConnectionType\.SNOWFLAKE',
+            r'ConnectionType\.modern_stack',
             'ConnectionType.POSTGRESQL',
             content
         )
@@ -196,21 +196,21 @@ class FinalSnowflakeCleanup:
         
         # Replace class description
         content = re.sub(
-            r'CortexGateway: unified async entry-point for all Snowflake Cortex and SQL operations\.',
+            r'CortexGateway: unified async entry-point for all modern_stack Cortex and SQL operations\.',
             'CortexGateway: unified async entry-point for all Lambda GPU and modern stack operations.',
             content
         )
         
         # Replace method descriptions
         content = re.sub(
-            r'Log usage to Snowflake table',
+            r'Log usage to modern_stack table',
             'Log usage to PostgreSQL table',
             content
         )
         
         # Replace singleton description
         content = re.sub(
-            r'Async singleton that routes every Snowflake call through one pooled connection\.',
+            r'Async singleton that routes every modern_stack call through one pooled connection\.',
             'Async singleton that routes every modern stack call through optimized connections.',
             content
         )
@@ -282,12 +282,12 @@ class FinalSnowflakeCleanup:
         
         # Update documentation references
         doc_replacements = {
-            'Snowflake Cortex': 'Lambda GPU',
-            'Snowflake database': 'PostgreSQL database',
-            'Snowflake warehouse': 'compute cluster',
-            'Snowflake connector': 'PostgreSQL connector',
-            'snowflake-connector-python': 'asyncpg',
-            'Snowflake': 'Modern Stack'
+            'modern_stack Cortex': 'Lambda GPU',
+            'modern_stack database': 'PostgreSQL database',
+            'modern_stack warehouse': 'compute cluster',
+            'modern_stack connector': 'PostgreSQL connector',
+            'modern_stack-connector-python': 'asyncpg',
+            'modern_stack': 'Modern Stack'
         }
         
         for old, new in doc_replacements.items():
@@ -310,7 +310,7 @@ class FinalSnowflakeCleanup:
         try:
             # Count remaining references (excluding backups and removed comments)
             result = subprocess.run(
-                ["grep", "-r", "-i", "snowflake", "--include=*.py", "--include=*.yaml", "--include=*.yml", "--include=*.json", "."],
+                ["grep", "-r", "-i", "modern_stack", "--include=*.py", "--include=*.yaml", "--include=*.yml", "--include=*.json", "."],
                 capture_output=True,
                 text=True
             )
@@ -322,8 +322,8 @@ class FinalSnowflakeCleanup:
                 
                 for line in lines:
                     if line and not any(skip in line for skip in [
-                        'backup', 'archive', '# REMOVED:', 'final_snowflake_cleanup.py',
-                        'execute_snowflake_elimination.py', '.git/', 'logs/'
+                        'backup', 'archive', '# REMOVED:', 'final_modern_stack_cleanup.py',
+                        'execute_modern_stack_elimination.py', '.git/', 'logs/'
                     ]):
                         active_refs.append(line)
                 
@@ -336,11 +336,11 @@ class FinalSnowflakeCleanup:
                     if remaining_count > 10:
                         logger.warning(f"  ... and {remaining_count - 10} more")
                 else:
-                    logger.info("✅ No active Snowflake references found!")
+                    logger.info("✅ No active modern_stack references found!")
                 
                 return remaining_count
             else:
-                logger.info("✅ No Snowflake references found!")
+                logger.info("✅ No modern_stack references found!")
                 return 0
                 
         except Exception as e:
@@ -349,19 +349,19 @@ class FinalSnowflakeCleanup:
 
 def main():
     """Execute final cleanup"""
-    cleanup = FinalSnowflakeCleanup()
+    cleanup = Finalmodern_stackCleanup()
     results = cleanup.execute_final_cleanup()
     
     print("\n" + "="*60)
-    print("FINAL SNOWFLAKE CLEANUP SUMMARY")
+    print("FINAL modern_stack CLEANUP SUMMARY")
     print("="*60)
     print(f"Files Processed: {results['files_processed']}")
     print(f"Changes Made: {results['changes_made']}")
     print(f"Remaining References: {results['remaining_references']}")
     
     if results['remaining_references'] == 0:
-        print("\n🎉 COMPLETE SUCCESS: All Snowflake references eliminated!")
-        print("🚀 Sophia AI is now 100% Snowflake-free!")
+        print("\n🎉 COMPLETE SUCCESS: All modern_stack references eliminated!")
+        print("🚀 Sophia AI is now 100% modern_stack-free!")
     elif results['remaining_references'] < 10:
         print(f"\n✅ NEAR COMPLETE: Only {results['remaining_references']} references remain")
         print("🔧 Manual review may be needed for final cleanup")

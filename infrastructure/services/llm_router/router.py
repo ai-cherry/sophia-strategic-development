@@ -125,7 +125,7 @@ class LLMRouter:
                 TaskType.EMBEDDINGS,
             }:
                 # Use Lambda GPU for data operations
-                provider = Provider.SNOWFLAKE
+                provider = Provider.modern_stack
                 async for chunk in self._# REMOVED: ModernStack dependency(
                     prompt=prompt,
                     task=task,

@@ -65,7 +65,7 @@ class FoundationalKnowledgeService:
 
     async def sync_foundational_data_to_knowledge_base(self) -> dict[str, Any]:
         """
-        Sync all foundational data from Snowflake to the knowledge base system
+        Sync all foundational data from modern_stack to the knowledge base system
 
         Returns:
             Summary of sync operation
@@ -106,7 +106,7 @@ class FoundationalKnowledgeService:
     async def _sync_data_type(self, data_type: FoundationalDataType) -> dict[str, int]:
         """Sync a specific data type to knowledge base"""
 
-        # Get records from Snowflake
+        # Get records from modern_stack
         records = await self._get_foundational_records(data_type)
 
         result = {"total": len(records), "synced": 0, "failed": 0}
@@ -130,7 +130,7 @@ class FoundationalKnowledgeService:
     async def _get_foundational_records(
         self, data_type: FoundationalDataType
     ) -> list[FoundationalRecord]:
-        """Get foundational records from Snowflake by type"""
+        """Get foundational records from modern_stack by type"""
 
         queries = {
             FoundationalDataType.EMPLOYEE: """
@@ -451,7 +451,7 @@ class FoundationalKnowledgeService:
         self, record_id: str, data_type: FoundationalDataType, updates: dict[str, Any]
     ) -> bool:
         """
-        Update a foundational record in both Snowflake and knowledge base
+        Update a foundational record in both modern_stack and knowledge base
 
         Args:
             record_id: ID of the record to update
@@ -462,7 +462,7 @@ class FoundationalKnowledgeService:
             True if update successful, False otherwise
         """
         try:
-            # Update in Snowflake first
+            # Update in modern_stack first
             table_map = {
                 FoundationalDataType.EMPLOYEE: "EMPLOYEES",
                 FoundationalDataType.CUSTOMER: "CUSTOMERS",
@@ -527,7 +527,7 @@ class FoundationalKnowledgeService:
 
     async def generate_foundational_insights(self) -> dict[str, Any]:
         """
-        Generate insights about foundational knowledge using Snowflake Cortex
+        Generate insights about foundational knowledge using modern_stack Cortex
 
         Returns:
             Dictionary containing various insights about the foundational knowledge

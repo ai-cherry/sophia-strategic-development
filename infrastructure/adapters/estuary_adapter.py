@@ -535,7 +535,7 @@ class EstuaryAdapter(PlatformAdapter):
             "name": "Sophia AI ModernStack",
             "destination_type": "modern_stack",
             "configuration": {
-                "host": f"{os.getenv('SNOWFLAKE_ACCOUNT')}.modern_stackcomputing.com",
+                "host": f"{os.getenv('modern_stack_ACCOUNT')}.modern_stackcomputing.com",
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",

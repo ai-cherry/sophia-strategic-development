@@ -26,28 +26,28 @@ class DataServiceConfig:
     """Configuration for data services"""
 
     def __init__(self):
-# REMOVED: Snowflake dependency_value("snowflake_account")
-# REMOVED: Snowflake dependency_value("snowflake_user")
-# REMOVED: Snowflake dependency_value("snowflake_password")
-# REMOVED: Snowflake dependency_value("snowflake_warehouse")
-# REMOVED: Snowflake dependency_value("snowflake_database")
-# REMOVED: Snowflake dependency_value("snowflake_role")
+# REMOVED: modern_stack dependency_value("modern_stack_account")
+# REMOVED: modern_stack dependency_value("modern_stack_user")
+# REMOVED: modern_stack dependency_value("modern_stack_password")
+# REMOVED: modern_stack dependency_value("modern_stack_warehouse")
+# REMOVED: modern_stack dependency_value("modern_stack_database")
+# REMOVED: modern_stack dependency_value("modern_stack_role")
         self.pinecone_api_key = get_config_value("pinecone_api_key")
 
-    def get_snowflake_url(self) -> str:
-        """Generate Snowflake connection URL"""
+    def get_modern_stack_url(self) -> str:
+        """Generate modern_stack connection URL"""
         if not all(
-            [self.snowflake_account, self.snowflake_user, self.snowflake_password]
+            [self.modern_stack_account, self.modern_stack_user, self.modern_stack_password]
         ):
-# REMOVED: Snowflake dependencyuration")
-        return f"snowflake://{self.snowflake_user}:{self.snowflake_password}@{self.snowflake_account}"
+# REMOVED: modern_stack dependencyuration")
+        return f"modern_stack://{self.modern_stack_user}:{self.modern_stack_password}@{self.modern_stack_account}"
 
     def validate(self) -> bool:
-# REMOVED: Snowflake dependencyuration"""
+# REMOVED: modern_stack dependencyuration"""
         required = [
-            self.snowflake_account,
-            self.snowflake_user,
-            self.snowflake_password,
+            self.modern_stack_account,
+            self.modern_stack_user,
+            self.modern_stack_password,
         ]
         return all(config is not None for config in required)
 

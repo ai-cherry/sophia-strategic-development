@@ -104,7 +104,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
-    SNOWFLAKE = "modern_stack"
+    modern_stack = "modern_stack"
     POSTGRES = "postgres"
     MYSQL = "mysql"
     REDIS = "redis"

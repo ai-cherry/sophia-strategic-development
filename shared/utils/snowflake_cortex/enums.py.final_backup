@@ -1,4 +1,4 @@
-"""Enums for Snowflake Cortex service."""
+"""Enums for modern_stack Cortex service."""
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 from enum import Enum
@@ -18,7 +18,7 @@ class CortexModel(str, Enum):
 
     # Embedding models
     E5_BASE_V2 = "e5-base-v2"
-    # REMOVED: Snowflake dependency "snowflake-arctic-embed-m"
+    # REMOVED: modern_stack dependency "modern_stack-arctic-embed-m"
 
     # Specialized models
     MIXTRAL_7B_INSTRUCT = "mixtral-7b-instruct"

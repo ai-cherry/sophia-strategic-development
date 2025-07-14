@@ -187,7 +187,7 @@ await auth_manager.execute_operation(
 # Create database schema
 await auth_manager.execute_operation(
     agent_type="data_agent",
-    service="snowflake",
+    service="modern_stack",
     operation="schema_creation",
     params={"schema": "AI_AGENT_TEST"}
 )

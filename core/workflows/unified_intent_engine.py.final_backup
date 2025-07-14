@@ -148,7 +148,7 @@ class UnifiedIntentEngine:
 
         try:
             async with self.cortex_service as cortex:
-                intent_result = await # REMOVED: Snowflake dependency_text_with_cortex(
+                intent_result = await # REMOVED: modern_stack dependency_text_with_cortex(
                     prompt=analysis_prompt, max_tokens=500
                 )
 
@@ -230,7 +230,7 @@ class UnifiedIntentEngine:
         }
 
         # Simple pattern matching for demo
-        # In production, use Snowflake Cortex or spaCy
+        # In production, use modern_stack Cortex or spaCy
         import re
 
         # Company names (simple capitalized words for demo)
@@ -247,7 +247,7 @@ class UnifiedIntentEngine:
             "react",
             "docker",
             "kubernetes",
-            "snowflake",
+            "modern_stack",
             "langchain",
         ]
         message_lower = message.lower()

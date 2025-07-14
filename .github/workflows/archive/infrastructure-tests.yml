@@ -145,9 +145,9 @@ jobs
       env
         PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
         PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-        SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-        SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-        SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        modern_stack_ACCOUNT: ${{ secrets.modern_stack_ACCOUNT }}
+        modern_stack_USER: ${{ secrets.modern_stack_USER }}
+        modern_stack_PASSWORD: ${{ secrets.modern_stack_PASSWORD }}
         PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
         GONG_API_KEY: ${{ secrets.GONG_API_KEY }}
 

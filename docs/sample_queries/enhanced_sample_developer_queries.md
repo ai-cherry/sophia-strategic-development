@@ -611,7 +611,7 @@ ORDER BY payment_volume DESC;
 ```sql
 -- Semantic search across all schemas using embeddings
 WITH search_query AS (
-    SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', 'payment processing innovation') as query_embedding
+    SELECT modern_stack.CORTEX.EMBED_TEXT_768('e5-base-v2', 'payment processing innovation') as query_embedding
 )
 SELECT
     'PAYREADY_CORE_SQL.PAYMENT_TRANSACTIONS' as source_table,

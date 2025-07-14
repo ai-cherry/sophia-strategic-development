@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        server: [ai-memory, codacy, github, linear, snowflake-admin]
+        server: [ai-memory, codacy, github, linear, modern_stack-admin]
 
     steps:
       - uses: actions/checkout@v4

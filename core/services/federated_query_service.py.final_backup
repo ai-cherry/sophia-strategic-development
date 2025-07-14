@@ -29,7 +29,7 @@ class FederatedQueryService:
         self.data_sources = {
             "postgresql": None,  # Will be injected
             "redis": None,  # Will be injected
-            "snowflake": None,  # Will be injected
+            "modern_stack": None,  # Will be injected
             "vector_stores": None,  # Will be injected
         }
         self.query_cache = {}
@@ -70,10 +70,10 @@ class FederatedQueryService:
 
         return QueryPlan(
             query_id=f"query_{datetime.utcnow().timestamp()}",
-            data_sources=["postgresql", "snowflake"],
+            data_sources=["postgresql", "modern_stack"],
             execution_steps=[
                 {"source": "postgresql", "operation": "fetch_operational_data"},
-                {"source": "snowflake", "operation": "fetch_analytical_data"},
+                {"source": "modern_stack", "operation": "fetch_analytical_data"},
                 {"operation": "correlate_results"},
             ],
             estimated_cost=0.05,

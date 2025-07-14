@@ -115,8 +115,8 @@ build_ai_services() {
     # AI Memory V2
     build_and_push "sophia-ai-memory-v2" "mcp-servers/ai-memory/Dockerfile" "mcp-servers/ai-memory"
     
-    # Snowflake Cortex
-    build_and_push "sophia-snowflake-cortex" "mcp-servers/snowflake_cortex/Dockerfile" "mcp-servers/snowflake_cortex"
+    # modern_stack Cortex
+    build_and_push "sophia-modern_stack-cortex" "mcp-servers/modern_stack_cortex/Dockerfile" "mcp-servers/modern_stack_cortex"
     
     # Mem0 OpenMemory
     build_and_push "sophia-mem0-openmemory" "mcp-servers/mem0/Dockerfile" "mcp-servers/mem0"
@@ -164,9 +164,9 @@ build_data_services() {
     print_info "Building Data Pipeline Services"
     print_info "===================================================="
     
-    # Snowflake services
-    build_and_push "sophia-snowflake-v2" "mcp-servers/snowflake/Dockerfile" "mcp-servers/snowflake"
-    build_and_push "sophia-snowflake-unified" "mcp-servers/snowflake_unified/Dockerfile" "mcp-servers/snowflake_unified"
+    # modern_stack services
+    build_and_push "sophia-modern_stack-v2" "mcp-servers/modern_stack/Dockerfile" "mcp-servers/modern_stack"
+    build_and_push "sophia-modern_stack-unified" "mcp-servers/modern_stack_unified/Dockerfile" "mcp-servers/modern_stack_unified"
     
     # Gong Webhook
     build_and_push "sophia-gong-webhook" "gong-webhook-service/Dockerfile" "gong-webhook-service"

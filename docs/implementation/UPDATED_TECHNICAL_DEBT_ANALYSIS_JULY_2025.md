@@ -88,7 +88,7 @@ scripts/verify_secret_migration.py         # Archive after migration
 
 **Infrastructure Services** (9 files):
 ```python
-infrastructure/services/enhanced_snowflake_cortex_service.py    # Large service
+infrastructure/services/enhanced_modern_stack_cortex_service.py    # Large service
 infrastructure/services/sophia_ai_orchestrator.py              # Core orchestrator  
 infrastructure/services/enhanced_ingestion_service.py          # Data ingestion
 infrastructure/services/mcp_orchestration_service.py           # MCP coordination
@@ -188,7 +188,7 @@ scripts/one_time/
 
 **Enhanced Lambda GPU Service** (Split into 4 files):
 ```python
-infrastructure/services/snowflake_cortex/
+infrastructure/services/modern_stack_cortex/
 ├── __init__.py
 ├── cortex_service.py           # Main service interface
 ├── handlers/

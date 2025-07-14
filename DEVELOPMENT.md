@@ -68,7 +68,7 @@ from backend.core.auto_esc_config import config
 
 # Access secrets
 openai_key = config.openai_api_key
-snowflake_account = config.snowflake_account
+modern_stack_account = config.modern_stack_account
 ```
 
 ## Code Quality Standards

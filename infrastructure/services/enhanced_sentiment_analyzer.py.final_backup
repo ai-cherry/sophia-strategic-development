@@ -172,7 +172,7 @@ class EnhancedSentimentAnalyzer:
         Perform comprehensive sentiment analysis
         """
         try:
-            # Basic sentiment analysis (placeholder for Snowflake Cortex integration)
+            # Basic sentiment analysis (placeholder for modern_stack Cortex integration)
             primary_sentiment = await self._analyze_primary_sentiment(text, channel)
 
             # Emotion categorization
@@ -222,8 +222,8 @@ class EnhancedSentimentAnalyzer:
         self, text: str, channel: SentimentChannel
     ) -> float:
         """Analyze primary sentiment score"""
-        # Placeholder for Snowflake Cortex integration
-        # In real implementation, this would call SNOWFLAKE.await self.lambda_gpu.analyze_sentiment()
+        # Placeholder for modern_stack Cortex integration
+        # In real implementation, this would call modern_stack.await self.lambda_gpu.analyze_sentiment()
 
         base_sentiment = 0.0
 
@@ -279,8 +279,8 @@ class EnhancedSentimentAnalyzer:
         self, text: str, channel: SentimentChannel
     ) -> list[EmotionCategory]:
         """Categorize emotions in the text"""
-        # Placeholder for Snowflake Cortex CLASSIFY function
-        # In real implementation, this would call SNOWFLAKE.CORTEX.CLASSIFY()
+        # Placeholder for modern_stack Cortex CLASSIFY function
+        # In real implementation, this would call modern_stack.CORTEX.CLASSIFY()
 
         emotions = []
         text_lower = text.lower()

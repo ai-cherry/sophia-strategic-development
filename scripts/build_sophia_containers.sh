@@ -56,7 +56,7 @@ echo -e "\n${BLUE}Building Backend...${NC}"
 cat > backend/Dockerfile << 'EOF'
 FROM python:3.12-slim
 
-# Install build dependencies for snowflake-connector
+# Install build dependencies for modern_stack-connector
 RUN apt-get update && apt-get install -y \
     build-essential \
     g++ \
@@ -106,7 +106,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir \
     fastapi \
     uvicorn \
-    snowflake-connector-python \
+    modern_stack-connector-python \
     redis \
     pydantic \
     httpx \

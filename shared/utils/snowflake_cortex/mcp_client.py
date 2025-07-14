@@ -26,14 +26,14 @@ class ModernStackMCPClient:
             timeout: Request timeout in seconds
         """
         self._base_url = base_url or os.getenv(
-            "SNOWFLAKE_MCP_URL", "http://modern_stack-mcp:9130"
+            "modern_stack_MCP_URL", "http://modern_stack-mcp:9130"
         )
-        self._token = pat_token or os.getenv("SNOWFLAKE_MCP_PAT")
+        self._token = pat_token or os.getenv("modern_stack_MCP_PAT")
 
         if not self._token:
             raise CortexAuthenticationError(
                 "No PAT token provided for MCP authentication",
-                details={"env_var": "SNOWFLAKE_MCP_PAT"},
+                details={"env_var": "modern_stack_MCP_PAT"},
             )
 
         self._client = httpx.AsyncClient(

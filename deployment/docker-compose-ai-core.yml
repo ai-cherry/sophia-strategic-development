@@ -90,7 +90,7 @@ services:
       - PULUMI_ORG=scoobyjava-org
       - INSTANCE_NAME=ai-core
       - MCP_SERVER_PORT=8081
-      - SNOWFLAKE_CORTEX_ENABLED=true
+      - modern_stack_CORTEX_ENABLED=true
       - ENABLE_GPU_ACCELERATION=true
       - CUDA_VISIBLE_DEVICES=0
     deploy:
@@ -159,7 +159,7 @@ services:
       - PULUMI_ORG=scoobyjava-org
       - INSTANCE_NAME=ai-core
       - MCP_SERVER_PORT=8082
-      - SNOWFLAKE_CORTEX_ENHANCED=true
+      - modern_stack_CORTEX_ENHANCED=true
       - ENABLE_GPU_ACCELERATION=true
       - CUDA_VISIBLE_DEVICES=0
     deploy:

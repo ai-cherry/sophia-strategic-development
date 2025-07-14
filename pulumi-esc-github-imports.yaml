@@ -79,12 +79,12 @@ values:
       password: ${REDIS_PASSWORD}
 
     modern_stack:
-      account: ${SNOWFLAKE_ACCOUNT}
-      username: ${SNOWFLAKE_USERNAME}
-      password: ${SNOWFLAKE_PASSWORD}
-      warehouse: ${SNOWFLAKE_WAREHOUSE}
-      database: ${SNOWFLAKE_DATABASE}
-      schema: ${SNOWFLAKE_SCHEMA}
+      account: ${modern_stack_ACCOUNT}
+      username: ${modern_stack_USERNAME}
+      password: ${modern_stack_PASSWORD}
+      warehouse: ${modern_stack_WAREHOUSE}
+      database: ${modern_stack_DATABASE}
+      schema: ${modern_stack_SCHEMA}
 
 # Environment variables for applications
 environmentVariables:
@@ -132,9 +132,9 @@ environmentVariables:
   POSTGRESQL_PASSWORD: ${database.postgresql.password}
   REDIS_URL: ${database.redis.url}
   REDIS_PASSWORD: ${database.redis.password}
-  SNOWFLAKE_ACCOUNT: ${database.modern_stack.account}
-  SNOWFLAKE_USERNAME: ${database.modern_stack.username}
-  SNOWFLAKE_PASSWORD: ${database.modern_stack.password}
-  SNOWFLAKE_WAREHOUSE: ${database.modern_stack.warehouse}
-  SNOWFLAKE_DATABASE: ${database.modern_stack.database}
-  SNOWFLAKE_SCHEMA: ${database.modern_stack.schema}
+  modern_stack_ACCOUNT: ${database.modern_stack.account}
+  modern_stack_USERNAME: ${database.modern_stack.username}
+  modern_stack_PASSWORD: ${database.modern_stack.password}
+  modern_stack_WAREHOUSE: ${database.modern_stack.warehouse}
+  modern_stack_DATABASE: ${database.modern_stack.database}
+  modern_stack_SCHEMA: ${database.modern_stack.schema}

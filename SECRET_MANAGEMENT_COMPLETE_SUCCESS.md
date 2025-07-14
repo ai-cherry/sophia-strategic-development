@@ -91,15 +91,15 @@ Production Ready System ✅
 - **DOCKERHUB_USERNAME** → values.sophia.infrastructure.docker_username
 
 ### ❄️ Modern Stack (9 secrets)
-- SNOWFLAKE_ACCOUNT → values.sophia.data.snowflake_account
-- SNOWFLAKE_USER → values.sophia.data.snowflake_user
-- SNOWFLAKE_PASSWORD → values.sophia.data.snowflake_password
-- SNOWFLAKE_WAREHOUSE → values.sophia.data.snowflake_warehouse
-- SNOWFLAKE_DATABASE → values.sophia.data.snowflake_database
-- SNOWFLAKE_SCHEMA → values.sophia.data.snowflake_schema
-- SNOWFLAKE_ROLE → values.sophia.data.snowflake_role
-- SNOWFLAKE_PRIVATE_KEY → values.sophia.data.snowflake_private_key
-- SNOWFLAKE_PRIVATE_KEY_PASSPHRASE → values.sophia.data.snowflake_private_key_passphrase
+- modern_stack_ACCOUNT → values.sophia.data.modern_stack_account
+- modern_stack_USER → values.sophia.data.modern_stack_user
+- modern_stack_PASSWORD → values.sophia.data.modern_stack_password
+- modern_stack_WAREHOUSE → values.sophia.data.modern_stack_warehouse
+- modern_stack_DATABASE → values.sophia.data.modern_stack_database
+- modern_stack_SCHEMA → values.sophia.data.modern_stack_schema
+- modern_stack_ROLE → values.sophia.data.modern_stack_role
+- modern_stack_PRIVATE_KEY → values.sophia.data.modern_stack_private_key
+- modern_stack_PRIVATE_KEY_PASSPHRASE → values.sophia.data.modern_stack_private_key_passphrase
 
 ### 🚀 Lambda Labs (4 secrets)
 - LAMBDA_API_KEY → values.sophia.infrastructure.lambda_api_key

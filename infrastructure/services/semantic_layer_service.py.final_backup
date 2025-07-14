@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any
 
 from core.performance_monitor import performance_monitor
-from shared.utils.enhanced_snowflake_cortex_service import (
-    EnhancedSnowflakeCortexService,
+from shared.utils.enhanced_modern_stack_cortex_service import (
+    Enhancedmodern_stackCortexService,
 )
 
 logger = logging.getLogger(__name__)
@@ -15,17 +15,17 @@ logger = logging.getLogger(__name__)
 
 class SemanticLayerService:
     """
-    Service for managing Snowflake semantic layer operations.
+    Service for managing modern_stack semantic layer operations.
     Integrates with existing MCP server architecture and Cortex services.
     """
 
     def __init__(self):
-        """Initializes the service and the connection to Snowflake."""
-        self.memory_service_v3 = EnhancedSnowflakeCortexService()
+        """Initializes the service and the connection to modern_stack."""
+        self.memory_service_v3 = Enhancedmodern_stackCortexService()
 
     @performance_monitor.monitor_performance("semantic_get_connection")
     async def _get_connection(self):
-        """Gets a snowflake connection."""
+        """Gets a modern_stack connection."""
         # Initialize the service if not already done
         if (
             not hasattr(self.memory_service_v3, "initialized")
@@ -60,9 +60,9 @@ class SemanticLayerService:
         try:
             # Execute semantic view creation scripts
             semantic_scripts = [
-                "backend/snowflake_setup/semantic_layer_foundation.sql",
-                "backend/snowflake_setup/business_vocabulary_definitions.sql",
-                "backend/snowflake_setup/entity_relationships.sql",
+                "backend/modern_stack_setup/semantic_layer_foundation.sql",
+                "backend/modern_stack_setup/business_vocabulary_definitions.sql",
+                "backend/modern_stack_setup/entity_relationships.sql",
             ]
 
             for script in semantic_scripts:
@@ -133,7 +133,7 @@ class SemanticLayerService:
         try:
             conn = await self._get_connection()
             conn.close()
-            return {"status": "healthy", "message": "Snowflake connection successful."}
+            return {"status": "healthy", "message": "modern_stack connection successful."}
         except Exception as e:
             return {"status": "unhealthy", "message": str(e)}
 

@@ -94,15 +94,15 @@ The file decomposition implementation has achieved **outstanding results** that 
 
 ### **1. Enhanced Lambda GPU Service**
 ```
-infrastructure/services/enhanced_snowflake_cortex_service/
+infrastructure/services/enhanced_modern_stack_cortex_service/
 ├── __init__.py                                    # Module initialization
-├── enhanced_snowflake_cortex_service_core.py      # Core implementation
+├── enhanced_modern_stack_cortex_service_core.py      # Core implementation
 ├── models/
-│   └── enhanced_snowflake_cortex_service_models.py # Data models
+│   └── enhanced_modern_stack_cortex_service_models.py # Data models
 ├── handlers/
-│   └── enhanced_snowflake_cortex_service_handlers.py # Request handlers
+│   └── enhanced_modern_stack_cortex_service_handlers.py # Request handlers
 └── utils/
-    └── enhanced_snowflake_cortex_service_utils.py  # Utility functions
+    └── enhanced_modern_stack_cortex_service_utils.py  # Utility functions
 ```
 
 ### **2. Enhanced Ingestion Service**

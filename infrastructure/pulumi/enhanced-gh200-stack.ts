@@ -19,7 +19,7 @@ const namespace = new k8s.core.v1.Namespace("sophia-ai-enhanced", {
         labels: {
             "sophia.ai/gpu-tier": "h200",
             "sophia.ai/memory-architecture": "6-tier",
-            "sophia.ai/snowflake-integration": "enabled",
+            "sophia.ai/modern_stack-integration": "enabled",
         },
     },
 }, { provider: lambdaLabsProvider });
@@ -82,16 +82,16 @@ const sophiaEnhancedSecrets = new k8s.core.v1.Secret("sophia-enhanced-secrets", 
     },
 }, { provider: lambdaLabsProvider });
 
-// Snowflake secrets with enhanced configuration
-const snowflakeEnhancedSecrets = new k8s.core.v1.Secret("sophia-snowflake-enhanced", {
+// modern_stack secrets with enhanced configuration
+const modern_stackEnhancedSecrets = new k8s.core.v1.Secret("sophia-modern_stack-enhanced", {
     metadata: {
-        name: "sophia-snowflake-enhanced",
+        name: "sophia-modern_stack-enhanced",
         namespace: namespace.metadata.name,
     },
     stringData: {
-        "account": config.requireSecret("snowflakeAccount"),
-        "username": config.requireSecret("snowflakeUsername"),
-        "password": config.requireSecret("snowflakePassword"),
+        "account": config.requireSecret("modern_stackAccount"),
+        "username": config.requireSecret("modern_stackUsername"),
+        "password": config.requireSecret("modern_stackPassword"),
         "warehouse": "SOPHIA_AI_COMPUTE_WH",
         "database": "SOPHIA_AI_PRODUCTION",
         "schema": "PRODUCTION",
@@ -118,8 +118,8 @@ server:
   port: 8000
   workers: 6  # Increased for H200 capabilities
 
-# Snowflake Cortex Configuration
-snowflake:
+# modern_stack Cortex Configuration
+modern_stack:
   warehouse: "SOPHIA_AI_COMPUTE_WH"
   cortex_warehouse: "SOPHIA_AI_CORTEX_WH"
   role: "SOPHIA_AI_ROLE"
@@ -148,32 +148,32 @@ memory_architecture:
   l2_cortex_cache:
     size: "unlimited"
     latency: "<100ms"
-    type: "Snowflake"
+    type: "modern_stack"
     gpu_acceleration: true
 
   l3_persistent_memory:
     size: "unlimited"
     latency: "<200ms"
-    type: "Snowflake"
+    type: "modern_stack"
     tables: ["SOPHIA_AI_MEMORY.MEMORY_RECORDS"]
 
   l4_knowledge_graph:
     size: "unlimited"
     latency: "<300ms"
-    type: "Snowflake"
+    type: "modern_stack"
     vector_search: true
 
   l5_workflow_memory:
     size: "unlimited"
     latency: "<400ms"
-    type: "Snowflake"
+    type: "modern_stack"
     long_term_storage: true
 
 # LLM Routing Configuration
 llm_routing:
   sensitive_data_route: "lambda_labs_local"
   complex_reasoning_route: "external_api"
-  simple_tasks_route: "snowflake_cortex"
+  simple_tasks_route: "modern_stack_cortex"
   cost_optimization: true
 
 # GPU Optimization
@@ -251,7 +251,7 @@ const enhancedServiceAccount = new k8s.core.v1.ServiceAccount("sophia-enhanced-s
         namespace: namespace.metadata.name,
         annotations: {
             "sophia.ai/gpu-access": "enabled",
-            "sophia.ai/snowflake-integration": "enabled",
+            "sophia.ai/modern_stack-integration": "enabled",
         },
     },
 }, { provider: lambdaLabsProvider });
@@ -318,37 +318,37 @@ const enhancedDeployment = new k8s.apps.v1.Deployment("sophia-enhanced-deploymen
                         { name: "GPU_TIER", value: "h200" },
                         { name: "MEMORY_ARCHITECTURE", value: "6-tier" },
                         {
-                            name: "SNOWFLAKE_ACCOUNT",
+                            name: "modern_stack_ACCOUNT",
                             valueFrom: {
                                 secretKeyRef: {
-                                    name: snowflakeEnhancedSecrets.metadata.name,
+                                    name: modern_stackEnhancedSecrets.metadata.name,
                                     key: "account",
                                 },
                             },
                         },
                         {
-                            name: "SNOWFLAKE_DATABASE",
+                            name: "modern_stack_DATABASE",
                             valueFrom: {
                                 secretKeyRef: {
-                                    name: snowflakeEnhancedSecrets.metadata.name,
+                                    name: modern_stackEnhancedSecrets.metadata.name,
                                     key: "database",
                                 },
                             },
                         },
                         {
-                            name: "SNOWFLAKE_WAREHOUSE",
+                            name: "modern_stack_WAREHOUSE",
                             valueFrom: {
                                 secretKeyRef: {
-                                    name: snowflakeEnhancedSecrets.metadata.name,
+                                    name: modern_stackEnhancedSecrets.metadata.name,
                                     key: "warehouse",
                                 },
                             },
                         },
                         {
-                            name: "SNOWFLAKE_CORTEX_WAREHOUSE",
+                            name: "modern_stack_CORTEX_WAREHOUSE",
                             valueFrom: {
                                 secretKeyRef: {
-                                    name: snowflakeEnhancedSecrets.metadata.name,
+                                    name: modern_stackEnhancedSecrets.metadata.name,
                                     key: "cortex_warehouse",
                                 },
                             },
@@ -557,4 +557,4 @@ export const enhancedImageUri = sophiaEnhancedImage.imageName;
 export const gpuTier = "h200";
 export const memoryArchitecture = "6-tier";
 export const gpuMemorySize = "96GB";
-export const snowflakeIntegration = "enabled";
+export const modern_stackIntegration = "enabled";

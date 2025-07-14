@@ -36,12 +36,12 @@ captures:
     endpoint:
       connector:
         config:
-          account: ${SNOWFLAKE_ACCOUNT}
+          account: ${modern_stack_ACCOUNT}
           database: SOPHIA_AI
-          password: ${SNOWFLAKE_PASSWORD}
+          password: ${modern_stack_PASSWORD}
           schema: PUBLIC
-          user: ${SNOWFLAKE_USER}
-          warehouse: ${SNOWFLAKE_WAREHOUSE}
+          user: ${modern_stack_USER}
+          warehouse: ${modern_stack_WAREHOUSE}
         image: ghcr.io/estuary/source-modern_stack:dev
 collections:
   sophia/conversations:

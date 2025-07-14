@@ -208,7 +208,7 @@ spec:
 # Format: {service-name}.{namespace}.svc.cluster.local
 
 # Example in Python code:
-SNOWFLAKE_MCP_URL = "http://mcp-snowflake.sophia-ai.svc.cluster.local:9001"
+modern_stack_MCP_URL = "http://mcp-modern_stack.sophia-ai.svc.cluster.local:9001"
 AI_MEMORY_MCP_URL = "http://mcp-ai-memory.sophia-ai.svc.cluster.local:9000"
 ```
 
@@ -252,7 +252,7 @@ spec:
 
 ### Phase 1: Core MCP Servers
 1. ai_memory (GPU-enabled)
-2. snowflake_unified
+2. modern_stack_unified
 3. github
 4. slack
 
@@ -289,7 +289,7 @@ helm/mcp-servers/
 │   └── networkpolicy.yaml
 └── values/
     ├── ai-memory.yaml
-    ├── snowflake.yaml
+    ├── modern_stack.yaml
     ├── github.yaml
     └── ...
 ```

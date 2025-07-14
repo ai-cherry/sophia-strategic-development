@@ -214,10 +214,10 @@ materializations:
       connector:
         image: ghcr.io/estuary/materialize-modern_stack:latest
         config:
-          account: ${SNOWFLAKE_ACCOUNT}
-          user: ${SNOWFLAKE_USER}
-          password: ${SNOWFLAKE_PASSWORD}
-          role: ${SNOWFLAKE_ROLE}
+          account: ${modern_stack_ACCOUNT}
+          user: ${modern_stack_USER}
+          password: ${modern_stack_PASSWORD}
+          role: ${modern_stack_ROLE}
           database: SOPHIA_AI
           schema: GONG_DATA
           warehouse: COMPUTE_WH

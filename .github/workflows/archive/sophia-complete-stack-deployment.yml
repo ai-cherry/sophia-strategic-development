@@ -58,12 +58,12 @@ env:
   HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
   GONG_ACCESS_KEY: ${{ secrets.GONG_ACCESS_KEY }}
   GONG_ACCESS_KEY_SECRET: ${{ secrets.GONG_ACCESS_KEY_SECRET }}
-  SNOWFLAKE_USER: "PROGRAMMATIC_SERVICE_USER"
-  SNOWFLAKE_PASSWORD: ${{ secrets.SOPHIA_AI_TOKEN }}
-  SNOWFLAKE_ACCOUNT: "MYJDJNU-FP71296"
-  SNOWFLAKE_DATABASE: "SOPHIA_AI_DB"
-  SNOWFLAKE_WAREHOUSE: "SOPHIA_AI_WH"
-  SNOWFLAKE_ROLE: "SOPHIA_AI_ROLE"
+  modern_stack_USER: "PROGRAMMATIC_SERVICE_USER"
+  modern_stack_PASSWORD: ${{ secrets.SOPHIA_AI_TOKEN }}
+  modern_stack_ACCOUNT: "MYJDJNU-FP71296"
+  modern_stack_DATABASE: "SOPHIA_AI_DB"
+  modern_stack_WAREHOUSE: "SOPHIA_AI_WH"
+  modern_stack_ROLE: "SOPHIA_AI_ROLE"
 
 jobs:
   pre-deployment-validation:
@@ -91,7 +91,7 @@ jobs:
         run: |
           COMPONENTS="${{ github.event.inputs.deploy_components || 'all' }}"
           if [ "$COMPONENTS" = "all" ]; then
-            COMPONENTS="environment_setup,secrets_management,lambda_labs_infrastructure,postgresql_setup,redis_setup,snowflake_setup,estuary_flow_pipeline,api_deployment,monitoring_setup,health_checks"
+            COMPONENTS="environment_setup,secrets_management,lambda_labs_infrastructure,postgresql_setup,redis_setup,modern_stack_setup,estuary_flow_pipeline,api_deployment,monitoring_setup,health_checks"
           fi
           echo "components=$COMPONENTS" >> $GITHUB_OUTPUT
           echo "📦 Components to deploy: $COMPONENTS"
@@ -140,7 +140,7 @@ jobs:
           REQUIRED_FILES=(
             "scripts/deploy-complete-sophia-stack.py"
             "backend/etl/enhanced_unified_data_pipeline.py"
-            "backend/snowflake_setup/enhanced_data_pipeline_schema.sql"
+            "backend/modern_stack_setup/enhanced_data_pipeline_schema.sql"
             "infrastructure/pulumi-esc-comprehensive-update.py"
           )
 
@@ -212,7 +212,7 @@ jobs:
     name: Deploy Database Components
     runs-on: ubuntu-latest
     needs: [pre-deployment-validation, deploy-infrastructure]
-    if: always() && (contains(needs.pre-deployment-validation.outputs.components-to-deploy, 'postgresql_setup') || contains(needs.pre-deployment-validation.outputs.components-to-deploy, 'snowflake_setup') || contains(needs.pre-deployment-validation.outputs.components-to-deploy, 'all'))
+    if: always() && (contains(needs.pre-deployment-validation.outputs.components-to-deploy, 'postgresql_setup') || contains(needs.pre-deployment-validation.outputs.components-to-deploy, 'modern_stack_setup') || contains(needs.pre-deployment-validation.outputs.components-to-deploy, 'all'))
 
     steps:
       - name: Checkout repository
@@ -227,11 +227,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install uv && uv pip install .[dev]
-          pip install snowflake-connector-python asyncpg redis
+          pip install modern_stack-connector-python asyncpg redis
 
-      - name: Install Snowflake CLI
+      - name: Install modern_stack CLI
         run: |
-          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.28-linux_x86_64.bash
+          curl -O https://sfc-repo.modern_stackcomputing.com/snowsql/bootstrap/1.2/linux_x86_64/snowsql-1.2.28-linux_x86_64.bash
           bash snowsql-1.2.28-linux_x86_64.bash
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
@@ -246,17 +246,17 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
-      - name: Set up Snowflake schemas
+      - name: Set up modern_stack schemas
         run: |
-          echo "❄️ Setting up Snowflake schemas..."
-          snowsql -f backend/snowflake_setup/enhanced_data_pipeline_schema.sql
+          echo "❄️ Setting up modern_stack schemas..."
+          snowsql -f backend/modern_stack_setup/enhanced_data_pipeline_schema.sql
         env:
-          SNOWSQL_USER: ${{ env.SNOWFLAKE_USER }}
-          SNOWSQL_PWD: ${{ env.SNOWFLAKE_PASSWORD }}
-          SNOWSQL_ACCOUNT: ${{ env.SNOWFLAKE_ACCOUNT }}
-          SNOWSQL_DATABASE: ${{ env.SNOWFLAKE_DATABASE }}
-          SNOWSQL_WAREHOUSE: ${{ env.SNOWFLAKE_WAREHOUSE }}
-          SNOWSQL_ROLE: ${{ env.SNOWFLAKE_ROLE }}
+          SNOWSQL_USER: ${{ env.modern_stack_USER }}
+          SNOWSQL_PWD: ${{ env.modern_stack_PASSWORD }}
+          SNOWSQL_ACCOUNT: ${{ env.modern_stack_ACCOUNT }}
+          SNOWSQL_DATABASE: ${{ env.modern_stack_DATABASE }}
+          SNOWSQL_WAREHOUSE: ${{ env.modern_stack_WAREHOUSE }}
+          SNOWSQL_ROLE: ${{ env.modern_stack_ROLE }}
 
       - name: Test database connections
         run: |
@@ -265,7 +265,7 @@ jobs:
           import asyncio
           import asyncpg
           import redis
-          import snowflake.connector
+          import modern_stack.connector
           import os
 
           async def test_connections():
@@ -295,20 +295,20 @@ jobs:
               except Exception as e:
                   print(f'❌ Redis connection failed: {e}')
 
-              # Test Snowflake
+              # Test modern_stack
               try:
-                  conn = snowflake.connector.connect(
-                      user=os.getenv('SNOWFLAKE_USER'),
-                      password=os.getenv('SNOWFLAKE_PASSWORD'),
-                      account=os.getenv('SNOWFLAKE_ACCOUNT'),
-                      warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
-                      database=os.getenv('SNOWFLAKE_DATABASE'),
-                      role=os.getenv('SNOWFLAKE_ROLE')
+                  conn = modern_stack.connector.connect(
+                      user=os.getenv('modern_stack_USER'),
+                      password=os.getenv('modern_stack_PASSWORD'),
+                      account=os.getenv('modern_stack_ACCOUNT'),
+                      warehouse=os.getenv('modern_stack_WAREHOUSE'),
+                      database=os.getenv('modern_stack_DATABASE'),
+                      role=os.getenv('modern_stack_ROLE')
                   )
                   conn.close()
-                  print('✅ Snowflake connection successful')
+                  print('✅ modern_stack connection successful')
               except Exception as e:
-                  print(f'❌ Snowflake connection failed: {e}')
+                  print(f'❌ modern_stack connection failed: {e}')
 
           asyncio.run(test_connections())
           "

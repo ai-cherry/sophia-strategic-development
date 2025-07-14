@@ -41,7 +41,7 @@ sophia-main/
 │   ├── asana/                # Project management
 │   └── codacy/               # Code quality
 ├── scripts/                   # 250 utility scripts
-│   └── migrate_snowflake_to_weaviate.py  # NEW migration tool
+│   └── migrate_modern_stack_to_weaviate.py  # NEW migration tool
 ├── config/                    # Configuration files
 │   └── estuary/              # NEW: Weaviate flow configs
 ├── docs/                      # 293 documentation files
@@ -77,7 +77,7 @@ Targets:
 ```
 
 ### 3. **Migration Infrastructure**
-- `scripts/migrate_snowflake_to_weaviate.py` - Data migration tool
+- `scripts/migrate_modern_stack_to_weaviate.py` - Data migration tool
 - `scripts/benchmark_memory_performance.py` - Performance validation
 - `config/n8n/workflows/sophia-etl-gpu.json` - ETL workflow
 
@@ -273,10 +273,10 @@ The Sophia AI platform leverages 11 strategic external repositories for world-cl
 - **V0.dev Integration** - AI-powered UI generation
 
 #### Data Intelligence
-- **snowflake_cortex_official** - Official Modern Stack AI patterns
-- **davidamom_snowflake** - Community Modern Stack approaches
-- **dynamike_snowflake** - Performance-optimized patterns
-- **isaacwasserman_snowflake** - Specialized operations
+- **modern_stack_cortex_official** - Official Modern Stack AI patterns
+- **davidamom_modern_stack** - Community Modern Stack approaches
+- **dynamike_modern_stack** - Performance-optimized patterns
+- **isaacwasserman_modern_stack** - Specialized operations
 
 #### AI Gateway & Optimization
 - **portkey_admin** - AI gateway optimization, cost reduction
@@ -289,7 +289,7 @@ These repositories provide proven implementation patterns, best practices, and c
 ## 📚 Quick Links
 
 - [Architecture Diagram](docs/system_handbook/diagrams/gpu_memory_architecture.png)
-- [Migration Guide](scripts/migrate_snowflake_to_weaviate.py)
+- [Migration Guide](scripts/migrate_modern_stack_to_weaviate.py)
 - [Performance Benchmarks](docs/07-performance/LAMBDA_GPU_BENCHMARKS.md)
 - [Deployment Guide](docs/04-deployment/WEAVIATE_DEPLOYMENT_GUIDE.md)
 

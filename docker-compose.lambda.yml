@@ -8,9 +8,9 @@ services:
     environment:
       - PORT=8001
       - ENVIRONMENT=production
-      - SNOWFLAKE_ACCOUNT=${SNOWFLAKE_ACCOUNT}
-      - SNOWFLAKE_USER=${SNOWFLAKE_USER}
-      - SNOWFLAKE_PAT=${SNOWFLAKE_PAT}
+      - modern_stack_ACCOUNT=${modern_stack_ACCOUNT}
+      - modern_stack_USER=${modern_stack_USER}
+      - modern_stack_PAT=${modern_stack_PAT}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     restart: unless-stopped
     healthcheck:

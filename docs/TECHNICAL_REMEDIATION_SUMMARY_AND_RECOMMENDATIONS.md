@@ -40,8 +40,8 @@ CORE INTELLIGENCE (9000-9099):
 
 INFRASTRUCTURE (9200-9299):
 ├─ lambda_labs_cli: 9200 (moved from 9020)
-├─ snowflake_cortex: 9201
-├─ snowflake_admin: 9202
+├─ modern_stack_cortex: 9201
+├─ modern_stack_admin: 9202
 
 GATEWAY (8000-8099):
 ├─ mcp_gateway: 8080

@@ -23,23 +23,23 @@ logger = logging.getLogger(__name__)
 # REMOVED: ModernStack dependency(BaseSettings):
 # REMOVED: ModernStack dependencyuration with PAT authentication"""
 
-    account: str = Field(default="UHDECNO-CVB64222", env="SNOWFLAKE_ACCOUNT")
-    user: str = Field(default="SCOOBYJAVA15", env="SNOWFLAKE_USER")
+    account: str = Field(default="UHDECNO-CVB64222", env="modern_stack_ACCOUNT")
+    user: str = Field(default="SCOOBYJAVA15", env="modern_stack_USER")
     password: str = Field(
         default="eyJraWQiOiI1MDg3NDc2OTQxMyIsImFsZyI6IkVTMjU2In0.eyJwIjoiMTk4NzI5NDc2OjUwODc0NzQ1NDc3IiwiaXNzIjoiU0Y6MTA0OSIsImV4cCI6MTc4MjI4MDQ3OH0.8m-fWI5rvCs6b8bvw1quiM-UzW9uPRxMUmE6VAgOFFylAhRkCzch7ojh7CRLeMdii6DD1Owqap0KoOmyxsW77A",
-        env="SNOWFLAKE_PAT_TOKEN",
+        env="modern_stack_PAT_TOKEN",
     )
-    role: str = Field(default="ACCOUNTADMIN", env="SNOWFLAKE_ROLE")
-    database: str = Field(default="SOPHIA_AI_UNIFIED", env="SNOWFLAKE_DATABASE")
-    schema: str = Field(default="PRODUCTION", env="SNOWFLAKE_SCHEMA")
-    warehouse: str = Field(default="AI_COMPUTE_WH", env="SNOWFLAKE_WAREHOUSE")
+    role: str = Field(default="ACCOUNTADMIN", env="modern_stack_ROLE")
+    database: str = Field(default="SOPHIA_AI_UNIFIED", env="modern_stack_DATABASE")
+    schema: str = Field(default="PRODUCTION", env="modern_stack_SCHEMA")
+    warehouse: str = Field(default="AI_COMPUTE_WH", env="modern_stack_WAREHOUSE")
 
     # Redis configuration for caching
     redis_url: str = Field(default="redis://localhost:6379", env="REDIS_URL")
 
     # Credit limits
-    daily_credit_limit: int = Field(default=100, env="SNOWFLAKE_DAILY_CREDIT_LIMIT")
-    query_timeout: int = Field(default=300, env="SNOWFLAKE_QUERY_TIMEOUT")
+    daily_credit_limit: int = Field(default=100, env="modern_stack_DAILY_CREDIT_LIMIT")
+    query_timeout: int = Field(default=300, env="modern_stack_QUERY_TIMEOUT")
 
     class Config:
         env_file = ".env"

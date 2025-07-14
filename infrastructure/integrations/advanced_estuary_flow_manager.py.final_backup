@@ -217,7 +217,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
         logger.info("🧠 Deploying AI-powered materializations...")
 
         materializations_config = {
-            "snowflake_multimodal_materialization": await self._create_snowflake_multimodal_materialization(),
+            "modern_stack_multimodal_materialization": await self._create_modern_stack_multimodal_materialization(),
             "real_time_analytics_materialization": await self._create_realtime_analytics_materialization(),
             "compliance_monitoring_materialization": await self._create_compliance_monitoring_materialization(),
         }
@@ -235,19 +235,19 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
 
         return deployment_results
 
-    async def _create_snowflake_multimodal_materialization(self) -> dict[str, Any]:
-        """Create Snowflake materialization with multimodal support"""
+    async def _create_modern_stack_multimodal_materialization(self) -> dict[str, Any]:
+        """Create modern_stack materialization with multimodal support"""
         return {
             "type": "materialization",
-            "name": "Pay_Ready/snowflake-multimodal-ai",
+            "name": "Pay_Ready/modern_stack-multimodal-ai",
             "endpoint": {
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-snowflake:dev",
+                    "image": "ghcr.io/estuary/materialize-modern_stack:dev",
                     "config": {
-                        "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-                        "account": get_config_value("snowflake_account"),
-                        "user": get_config_value("snowflake_user"),
-                        "password": get_config_value("snowflake_password"),
+                        "host": f"{get_config_value('modern_stack_account')}.modern_stackcomputing.com",
+                        "account": get_config_value("modern_stack_account"),
+                        "user": get_config_value("modern_stack_user"),
+                        "password": get_config_value("modern_stack_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_SOPHIA_AI_WH",
                         "database": self.advanced_database,
@@ -296,12 +296,12 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             "name": "Pay_Ready/realtime-analytics",
             "endpoint": {
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-snowflake:dev",
+                    "image": "ghcr.io/estuary/materialize-modern_stack:dev",
                     "config": {
-                        "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-                        "account": get_config_value("snowflake_account"),
-                        "user": get_config_value("snowflake_user"),
-                        "password": get_config_value("snowflake_password"),
+                        "host": f"{get_config_value('modern_stack_account')}.modern_stackcomputing.com",
+                        "account": get_config_value("modern_stack_account"),
+                        "user": get_config_value("modern_stack_user"),
+                        "password": get_config_value("modern_stack_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "REALTIME_ANALYTICS_WH",
                         "database": self.advanced_database,
@@ -340,12 +340,12 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             "name": "Pay_Ready/compliance-monitoring",
             "endpoint": {
                 "connector": {
-                    "image": "ghcr.io/estuary/materialize-snowflake:dev",
+                    "image": "ghcr.io/estuary/materialize-modern_stack:dev",
                     "config": {
-                        "host": f"{get_config_value('snowflake_account')}.snowflakecomputing.com",
-                        "account": get_config_value("snowflake_account"),
-                        "user": get_config_value("snowflake_user"),
-                        "password": get_config_value("snowflake_password"),
+                        "host": f"{get_config_value('modern_stack_account')}.modern_stackcomputing.com",
+                        "account": get_config_value("modern_stack_account"),
+                        "user": get_config_value("modern_stack_user"),
+                        "password": get_config_value("modern_stack_password"),
                         "role": "ACCOUNTADMIN",
                         "warehouse": "AI_SOPHIA_AI_WH",
                         "database": self.advanced_database,
@@ -403,7 +403,7 @@ class AdvancedEstuaryFlowManager(EstuaryFlowManager):
             import { Document } from 'flow/document';
 
             export function transform(doc: Document): Document[] {
-                // Real-time sentiment analysis using Snowflake Cortex
+                // Real-time sentiment analysis using modern_stack Cortex
                 if (doc.transcript_text || doc.message_text) {
                     const text = doc.transcript_text || doc.message_text;
 

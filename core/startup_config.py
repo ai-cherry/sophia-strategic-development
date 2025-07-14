@@ -1,5 +1,5 @@
 """
-Sophia AI Startup Configuration - PERMANENT SNOWFLAKE FIX
+Sophia AI Startup Configuration - PERMANENT modern_stack FIX
 Ensures correct configuration is loaded at application startup
 This file permanently fixes the ZNB04675.us-east-1.us-east-1.us-east-1.us-east-1 → ZNB04675.us-east-1.us-east-1.us-east-1 issue
 """
@@ -16,12 +16,12 @@ def configure_modern_stack_environment():
 
 # REMOVED: ModernStack dependencyURATION - DO NOT MODIFY
     correct_config = {
-        "SNOWFLAKE_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
-        "SNOWFLAKE_USER": "SCOOBYJAVA15",
-        "SNOWFLAKE_DATABASE": "SOPHIA_AI",
-        "SNOWFLAKE_WAREHOUSE": "SOPHIA_AI_WH",
-        "SNOWFLAKE_ROLE": "ACCOUNTADMIN",
-        "SNOWFLAKE_SCHEMA": "PROCESSED_AI",
+        "modern_stack_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
+        "modern_stack_USER": "SCOOBYJAVA15",
+        "modern_stack_DATABASE": "SOPHIA_AI",
+        "modern_stack_WAREHOUSE": "SOPHIA_AI_WH",
+        "modern_stack_ROLE": "ACCOUNTADMIN",
+        "modern_stack_SCHEMA": "PROCESSED_AI",
     }
 
     for key, value in correct_config.items():
@@ -36,7 +36,7 @@ def configure_modern_stack_environment():
 
 def apply_startup_configuration():
     """Apply all startup configuration - CALLED AUTOMATICALLY"""
-    logger.info("🚀 Applying Sophia AI startup configuration (PERMANENT SNOWFLAKE FIX)")
+    logger.info("🚀 Applying Sophia AI startup configuration (PERMANENT modern_stack FIX)")
 
     # Configure ModernStack with correct account
     configure_modern_stack_environment()

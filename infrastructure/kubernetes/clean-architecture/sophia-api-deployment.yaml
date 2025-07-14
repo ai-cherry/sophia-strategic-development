@@ -46,12 +46,12 @@ spec:
               value: "prod"
             - name: PULUMI_ORG
               value: "scoobyjava-org"
-            - name: SNOWFLAKE_ACCOUNT
+            - name: modern_stack_ACCOUNT
               valueFrom:
                 secretKeyRef:
                   name: sophia-modern_stack-secrets
                   key: account
-            - name: SNOWFLAKE_DATABASE
+            - name: modern_stack_DATABASE
               value: "SOPHIA_AI"
             - name: PORTKEY_API_KEY
               valueFrom:

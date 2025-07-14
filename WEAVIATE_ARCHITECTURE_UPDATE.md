@@ -48,7 +48,7 @@ We are transitioning from Lambda GPU to Weaviate as our primary vector database 
 ### Backend Services:
 ```python
 # Old approach (deprecated)
-from snowflake.cortex import embed_text_768
+from modern_stack.cortex import embed_text_768
 embeddings = embed_text_768(text)
 
 # New approach

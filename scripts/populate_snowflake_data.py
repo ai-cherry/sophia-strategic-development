@@ -21,13 +21,13 @@ print("🔍 Populating ModernStack with Sophia AI data...")
 try:
     # Connect
     conn = self.modern_stack_connection(
-        account=os.environ.get("SNOWFLAKE_ACCOUNT"),
-        user=os.environ.get("SNOWFLAKE_USER"),
-        password=os.environ.get("SNOWFLAKE_PAT"),
-        role=os.environ.get("SNOWFLAKE_ROLE", "ACCOUNTADMIN"),
-        warehouse=os.environ.get("SNOWFLAKE_WAREHOUSE", "SOPHIA_AI_COMPUTE_WH"),
-        database=os.environ.get("SNOWFLAKE_DATABASE", "AI_MEMORY"),
-        schema=os.environ.get("SNOWFLAKE_SCHEMA", "VECTORS"),
+        account=os.environ.get("modern_stack_ACCOUNT"),
+        user=os.environ.get("modern_stack_USER"),
+        password=os.environ.get("modern_stack_PAT"),
+        role=os.environ.get("modern_stack_ROLE", "ACCOUNTADMIN"),
+        warehouse=os.environ.get("modern_stack_WAREHOUSE", "SOPHIA_AI_COMPUTE_WH"),
+        database=os.environ.get("modern_stack_DATABASE", "AI_MEMORY"),
+        schema=os.environ.get("modern_stack_SCHEMA", "VECTORS"),
     )
 
     cursor = conn.cursor()

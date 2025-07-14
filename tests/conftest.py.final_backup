@@ -26,7 +26,7 @@ def project_root():
 def test_config():
     """Test configuration."""
     return {
-        "snowflake": {
+        "modern_stack": {
             "account": "test_account",
             "user": "test_user",
             "password": "test_password",

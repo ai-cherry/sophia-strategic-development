@@ -145,14 +145,14 @@ class LambdaLabsService:
     ) -> str:
         """Convert natural language to optimized SQL using Lambda AI"""
 
-        prompt = f"""Convert this natural language query to optimized Snowflake SQL:
+        prompt = f"""Convert this natural language query to optimized modern_stack SQL:
 
 Query: {query}
 
 Schema Context: {schema_context}
 
 Requirements:
-- Use proper Snowflake syntax and functions
+- Use proper modern_stack syntax and functions
 - Optimize for performance
 - Include appropriate JOINs and WHERE clauses
 - Return only the SQL query

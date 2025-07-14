@@ -72,7 +72,7 @@ class MCPServerType(str, Enum):
     """Types of MCP servers"""
 
     GONG = "gong"
-    SNOWFLAKE = "snowflake"
+    modern_stack = "modern_stack"
     SLACK = "slack"
     LINEAR = "linear"
     VERCEL = "vercel"
@@ -822,8 +822,8 @@ class MCPOrchestrationService:
                     "monitoring",
                 ],
             ),
-            "snowflake_admin": MCPServerEndpoint(
-                server_name="snowflake_admin",
+            "modern_stack_admin": MCPServerEndpoint(
+                server_name="modern_stack_admin",
                 port=9012,
                 capabilities=[
                     "database_administration",
@@ -858,11 +858,11 @@ class MCPOrchestrationService:
                     "cost_tracking",
                 ],
             ),
-            "snowflake_cli_enhanced": MCPServerEndpoint(
-                server_name="snowflake_cli_enhanced",
+            "modern_stack_cli_enhanced": MCPServerEndpoint(
+                server_name="modern_stack_cli_enhanced",
                 port=9021,
                 capabilities=[
-                    "advanced_snowflake_ops",
+                    "advanced_modern_stack_ops",
                     "cortex_integration",
                     "cost_analysis",
                 ],
@@ -933,8 +933,8 @@ class MCPOrchestrationService:
                 ],
                 "server_sequence": [
                     "sophia_data",
-                    "snowflake_admin",
-                    "snowflake_cli_enhanced",
+                    "modern_stack_admin",
+                    "modern_stack_cli_enhanced",
                     "ai_memory",
                 ],
                 "synthesis_type": "data_optimization_report",
@@ -988,7 +988,7 @@ class MCPOrchestrationService:
                     "asana",
                     "linear",
                     "github",
-                    "snowflake_admin",
+                    "modern_stack_admin",
                 ],
                 "synthesis_type": "executive_business_intelligence",
                 "parallel_execution": True,
@@ -1415,7 +1415,7 @@ class MCPOrchestrationService:
         preferred_tier: str = "PRIMARY",
     ) -> MCPServerEndpoint:
         """
-        Intelligent routing for Snowflake Cortex requests with capability matching
+        Intelligent routing for modern_stack Cortex requests with capability matching
 
         Args:
             query: CortexQuery object with task information

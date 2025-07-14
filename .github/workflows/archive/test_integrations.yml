@@ -35,14 +35,14 @@ jobs
           echo "Setting up environment variables..."
           touch .env
 
-          # Snowflake
-          echo "SNOWFLAKE_ACCOUNT=${{ secrets.SNOWFLAKE_ACCOUNT }}" >> .env
-          echo "SNOWFLAKE_USER=${{ secrets.SNOWFLAKE_USER }}" >> .env
-          echo "SNOWFLAKE_PASSWORD=${{ secrets.SNOWFLAKE_PASSWORD }}" >> .env
-          echo "SNOWFLAKE_WAREHOUSE=${{ secrets.SNOWFLAKE_WAREHOUSE }}" >> .env
-          echo "SNOWFLAKE_DATABASE=${{ secrets.SNOWFLAKE_DATABASE }}" >> .env
-          echo "SNOWFLAKE_SCHEMA=${{ secrets.SNOWFLAKE_SCHEMA }}" >> .env
-          echo "SNOWFLAKE_ROLE=${{ secrets.SNOWFLAKE_ROLE }}" >> .env
+          # modern_stack
+          echo "modern_stack_ACCOUNT=${{ secrets.modern_stack_ACCOUNT }}" >> .env
+          echo "modern_stack_USER=${{ secrets.modern_stack_USER }}" >> .env
+          echo "modern_stack_PASSWORD=${{ secrets.modern_stack_PASSWORD }}" >> .env
+          echo "modern_stack_WAREHOUSE=${{ secrets.modern_stack_WAREHOUSE }}" >> .env
+          echo "modern_stack_DATABASE=${{ secrets.modern_stack_DATABASE }}" >> .env
+          echo "modern_stack_SCHEMA=${{ secrets.modern_stack_SCHEMA }}" >> .env
+          echo "modern_stack_ROLE=${{ secrets.modern_stack_ROLE }}" >> .env
 
           # Gong
           echo "GONG_API_KEY=${{ secrets.GONG_API_KEY }}" >> .env

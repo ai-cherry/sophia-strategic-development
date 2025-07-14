@@ -60,11 +60,11 @@ class AIService(ABC):
 
 #### Modern Stack Integration
 ```python
-# backend/infrastructure/persistence/repositories/snowflake_call_repository.py
+# backend/infrastructure/persistence/repositories/modern_stack_call_repository.py
 class Modern StackCallRepository(CallRepository):
-    def __init__(self, snowflake_service: Modern StackCortexService):
+    def __init__(self, modern_stack_service: Modern StackCortexService):
         # Reuses existing Lambda GPU service
-        self.snowflake = snowflake_service
+        self.modern_stack = modern_stack_service
 ```
 
 - Leverages Lambda GPU for AI operations

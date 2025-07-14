@@ -35,10 +35,10 @@ values:
   # Enhanced ModernStack configuration (aligned with existing GONG_ANALYTICS)
   modern_stack:
     account:
-      fn::secret: "${SNOWFLAKE_ACCOUNT}"
+      fn::secret: "${modern_stack_ACCOUNT}"
     user: "SCOOBYJAVA15"
     password:
-      fn::secret: "${SNOWFLAKE_PASSWORD}"
+      fn::secret: "${modern_stack_PASSWORD}"
     database: "GONG_ANALYTICS"
     warehouse: "SOPHIA_AI_WH"
     schema: "RAW"
@@ -46,11 +46,11 @@ values:
     # OAuth configuration for enhanced security
     oauth:
       client_id:
-        fn::secret: "${SNOWFLAKE_OAUTH_CLIENT_ID}"
+        fn::secret: "${modern_stack_OAUTH_CLIENT_ID}"
       client_secret:
-        fn::secret: "${SNOWFLAKE_OAUTH_CLIENT_SECRET}"
+        fn::secret: "${modern_stack_OAUTH_CLIENT_SECRET}"
       refresh_token:
-        fn::secret: "${SNOWFLAKE_OAUTH_REFRESH_TOKEN}"
+        fn::secret: "${modern_stack_OAUTH_REFRESH_TOKEN}"
       scope: "session:role-any"
     # Connection pool settings
     connection_pool:
@@ -324,9 +324,9 @@ environmentVariables:
   WEBHOOK_JWT_PUBLIC_KEY: ${webhook.jwt_public_key}
 
   # Enhanced ModernStack OAuth
-  SNOWFLAKE_OAUTH_CLIENT_ID: ${modern_stack.oauth.client_id}
-  SNOWFLAKE_OAUTH_CLIENT_SECRET: ${modern_stack.oauth.client_secret}
-  SNOWFLAKE_OAUTH_REFRESH_TOKEN: ${modern_stack.oauth.refresh_token}
+  modern_stack_OAUTH_CLIENT_ID: ${modern_stack.oauth.client_id}
+  modern_stack_OAUTH_CLIENT_SECRET: ${modern_stack.oauth.client_secret}
+  modern_stack_OAUTH_REFRESH_TOKEN: ${modern_stack.oauth.refresh_token}
 
   # Redis cluster authentication
   REDIS_CLUSTER_PASSWORD: ${redis.cluster.password}

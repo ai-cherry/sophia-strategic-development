@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Start the Snowflake monitoring service with Prometheus metrics export.
-This service monitors Snowflake usage, costs, and performance.
+Start the modern_stack monitoring service with Prometheus metrics export.
+This service monitors modern_stack usage, costs, and performance.
 """
 
 import asyncio
@@ -12,8 +12,8 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from infrastructure.monitoring.snowflake_monitoring import (
-    snowflake_monitor,
+from infrastructure.monitoring.modern_stack_monitoring import (
+    modern_stack_monitor,
     start_monitoring_service,
 )
 
@@ -27,10 +27,10 @@ logger = logging.getLogger(__name__)
 
 async def run_initial_check():
     """Run initial monitoring check to verify setup"""
-    logger.info("🔍 Running initial Snowflake monitoring check...")
+    logger.info("🔍 Running initial modern_stack monitoring check...")
 
     try:
-        result = await snowflake_monitor.run_monitoring_cycle()
+        result = await modern_stack_monitor.run_monitoring_cycle()
 
         if result:
             logger.info("✅ Initial monitoring check completed successfully")
@@ -55,7 +55,7 @@ def main():
     """Main entry point"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Start Snowflake monitoring service")
+    parser = argparse.ArgumentParser(description="Start modern_stack monitoring service")
     parser.add_argument(
         "--port", type=int, default=8003, help="Prometheus metrics port (default: 8003)"
     )
@@ -70,12 +70,12 @@ def main():
         sys.exit(0 if success else 1)
     else:
         # Start monitoring service
-        logger.info(f"🚀 Starting Snowflake monitoring service on port {args.port}")
+        logger.info(f"🚀 Starting modern_stack monitoring service on port {args.port}")
         logger.info(
             f"📊 Prometheus metrics will be available at http://localhost:{args.port}/metrics"
         )
         logger.info(
-            "📈 Monitoring dashboard data will be saved to reports/snowflake_monitoring_latest.json"
+            "📈 Monitoring dashboard data will be saved to reports/modern_stack_monitoring_latest.json"
         )
         logger.info("⏰ Monitoring cycles will run every 15 minutes")
 

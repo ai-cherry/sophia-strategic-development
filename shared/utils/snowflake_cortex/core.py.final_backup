@@ -1,4 +1,4 @@
-"""Core direct SQL adapter for Snowflake Cortex."""
+"""Core direct SQL adapter for modern_stack Cortex."""
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import asyncio
@@ -86,7 +86,7 @@ class DirectCortexCore:
     ) -> list[float]:
         """Generate embeddings using Cortex."""
         query = f"""
-        SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('{model}', %s) as embedding
+        SELECT modern_stack.CORTEX.EMBED_TEXT('{model}', %s) as embedding
         """
 
         try:
@@ -121,7 +121,7 @@ class DirectCortexCore:
         options_json = json.dumps(options)
 
         query = f"""
-        SELECT SNOWFLAKE.await self.lambda_gpu.complete(
+        SELECT modern_stack.await self.lambda_gpu.complete(
             '{model.value}',
             %s,
             '{options_json}'
@@ -147,7 +147,7 @@ class DirectCortexCore:
     async def analyze_sentiment(self, text: str) -> dict[str, Any]:
         """Analyze sentiment using Cortex."""
         query = """
-        SELECT SNOWFLAKE.await self.lambda_gpu.analyze_sentiment(%s) as sentiment
+        SELECT modern_stack.await self.lambda_gpu.analyze_sentiment(%s) as sentiment
         """
 
         try:
@@ -168,7 +168,7 @@ class DirectCortexCore:
     async def summarize_text(self, text: str, max_length: int = 500) -> str:
         """Summarize text using Cortex."""
         query = """
-        SELECT SNOWFLAKE.await self.lambda_gpu.summarize(%s) as summary
+        SELECT modern_stack.await self.lambda_gpu.summarize(%s) as summary
         """
 
         try:
@@ -188,7 +188,7 @@ class DirectCortexCore:
     ) -> str:
         """Translate text using Cortex."""
         query = f"""
-        SELECT SNOWFLAKE.await self.lambda_gpu.translate(
+        SELECT modern_stack.await self.lambda_gpu.translate(
             %s,
             '{from_language}',
             '{to_language}'
@@ -210,7 +210,7 @@ class DirectCortexCore:
     async def extract_answer(self, question: str, context: str) -> str:
         """Extract answer from context using Cortex."""
         query = """
-        SELECT SNOWFLAKE.CORTEX.EXTRACT_ANSWER(%s, %s) as answer
+        SELECT modern_stack.CORTEX.EXTRACT_ANSWER(%s, %s) as answer
         """
 
         try:

@@ -98,8 +98,8 @@ def main():
         prefix = 'lambda_labs.'
     elif 'vercel' in env_file.lower():
         prefix = 'vercel.'
-    elif 'snowflake' in env_file.lower():
-        prefix = 'snowflake.'
+    elif 'modern_stack' in env_file.lower():
+        prefix = 'modern_stack.'
     
     # Migrate to Pulumi ESC
     migrate_to_pulumi_esc(env_vars, prefix)

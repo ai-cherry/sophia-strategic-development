@@ -1,5 +1,5 @@
 """
-Snowflake PAT (Programmatic Access Token) Manager
+modern_stack PAT (Programmatic Access Token) Manager
 Handles secure PAT lifecycle management with rotation alerts.
 """
 
@@ -18,11 +18,11 @@ logger = structlog.get_logger(__name__)
 
 # Prometheus metrics
 pat_days_until_expiry = Gauge(
-    "snowflake_pat_days_until_expiry", "Days until PAT expiration", ["environment"]
+    "modern_stack_pat_days_until_expiry", "Days until PAT expiration", ["environment"]
 )
 
 pat_rotation_alerts = Gauge(
-    "snowflake_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
+    "modern_stack_pat_rotation_alerts", "Number of PATs needing rotation", ["severity"]
 )
 
 
@@ -64,13 +64,13 @@ class SecurityError(Exception):
     pass
 
 
-class SnowflakePATManager:
+class modern_stackPATManager:
     """
-    Manages Snowflake PAT lifecycle including validation, rotation tracking, and alerts.
+    Manages modern_stack PAT lifecycle including validation, rotation tracking, and alerts.
     """
 
     def __init__(self):
-        self.rotation_days = 90  # Snowflake PAT expires after 90 days
+        self.rotation_days = 90  # modern_stack PAT expires after 90 days
         self.alert_days_before = 7  # Alert 7 days before expiry
         self.critical_days = 1  # Critical alert 1 day before expiry
 
@@ -78,7 +78,7 @@ class SnowflakePATManager:
         self._pat_metadata: dict[str, PATMetadata] = self._load_pat_metadata()
 
         logger.info(
-            "SnowflakePATManager initialized",
+            "modern_stackPATManager initialized",
             rotation_days=self.rotation_days,
             alert_threshold=self.alert_days_before,
         )
@@ -100,10 +100,10 @@ class SnowflakePATManager:
             environment = get_config_value("environment", "prod")
 
         # Get PAT using auto_esc_config helper
-        from backend.core.auto_esc_config import get_snowflake_pat
+        from backend.core.auto_esc_config import get_modern_stack_pat
 
         try:
-            pat = get_snowflake_pat(environment)
+            pat = get_modern_stack_pat(environment)
         except ValueError as e:
             raise SecurityError(f"PAT not configured: {e}")
 
@@ -129,7 +129,7 @@ class SnowflakePATManager:
         """
         Validate PAT format
 
-        Snowflake PATs typically:
+        modern_stack PATs typically:
         - Start with specific prefix
         - Have minimum length
         - Contain only valid characters
@@ -137,7 +137,7 @@ class SnowflakePATManager:
         if not pat:
             return False
 
-        # Basic validation - adjust based on actual Snowflake PAT format
+        # Basic validation - adjust based on actual modern_stack PAT format
         if len(pat) < 32:
             return False
 
@@ -237,7 +237,7 @@ class SnowflakePATManager:
             raise SecurityError("Invalid new PAT format")
 
         # Store in configuration (would be Pulumi ESC in production)
-        pat_key = f"snowflake_pat_{environment}"
+        pat_key = f"modern_stack_pat_{environment}"
         set_config_value(pat_key, new_pat)
 
         # Update metadata
@@ -298,7 +298,7 @@ class SnowflakePATManager:
         metadata = {}
 
         # Try to load from configuration
-        metadata_json = get_config_value("snowflake_pat_metadata")
+        metadata_json = get_config_value("modern_stack_pat_metadata")
 
         if metadata_json:
             try:
@@ -324,9 +324,9 @@ class SnowflakePATManager:
             for env in ["prod", "staging"]:
                 # Check if PAT exists
                 try:
-                    from backend.core.auto_esc_config import get_snowflake_pat
+                    from backend.core.auto_esc_config import get_modern_stack_pat
 
-                    pat = get_snowflake_pat(env)
+                    pat = get_modern_stack_pat(env)
                     if pat:
                         # Assume PAT was created today (conservative)
                         metadata[env] = PATMetadata(
@@ -354,7 +354,7 @@ class SnowflakePATManager:
                 "created_by": metadata.created_by,
             }
 
-        set_config_value("snowflake_pat_metadata", json.dumps(data))
+        set_config_value("modern_stack_pat_metadata", json.dumps(data))
 
     async def generate_rotation_report(self) -> dict[str, Any]:
         """
@@ -413,12 +413,12 @@ class SnowflakePATManager:
 
 
 # Singleton instance
-_pat_manager: SnowflakePATManager | None = None
+_pat_manager: modern_stackPATManager | None = None
 
 
-def get_pat_manager() -> SnowflakePATManager:
+def get_pat_manager() -> modern_stackPATManager:
     """Get or create PAT manager instance"""
     global _pat_manager
     if _pat_manager is None:
-        _pat_manager = SnowflakePATManager()
+        _pat_manager = modern_stackPATManager()
     return _pat_manager

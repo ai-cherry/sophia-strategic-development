@@ -1,5 +1,5 @@
 """
-Snowflake Connection Pool Manager
+modern_stack Connection Pool Manager
 Manages separate connection pools for direct and MCP execution modes.
 """
 
@@ -13,19 +13,19 @@ import structlog
 from prometheus_client import Gauge
 
 from backend.core.config import get_config_value
-from backend.integrations.snowflake_mcp_client import Session, SnowflakeMCPClient
+from backend.integrations.modern_stack_mcp_client import Session, modern_stackMCPClient
 
 logger = structlog.get_logger(__name__)
 
 # Prometheus metrics
-# REMOVED: Snowflake dependency Gauge("snowflake_pool_size", "Current pool size", ["mode"])
+# REMOVED: modern_stack dependency Gauge("modern_stack_pool_size", "Current pool size", ["mode"])
 
-# REMOVED: Snowflake dependency Gauge(
-    "snowflake_pool_in_use", "Connections currently in use", ["mode"]
+# REMOVED: modern_stack dependency Gauge(
+    "modern_stack_pool_in_use", "Connections currently in use", ["mode"]
 )
 
-# REMOVED: Snowflake dependency Gauge(
-    "snowflake_pool_wait_time_ms",
+# REMOVED: modern_stack dependency Gauge(
+    "modern_stack_pool_wait_time_ms",
     "Average wait time for connection acquisition",
     ["mode"],
 )
@@ -62,7 +62,7 @@ class PoolExhaustedError(Exception):
 
 
 class ConnectionWrapper:
-    """Wrapper for direct Snowflake connections"""
+    """Wrapper for direct modern_stack connections"""
 
     def __init__(self, connection, pool_id: str):
         self.connection = connection
@@ -77,7 +77,7 @@ class ConnectionWrapper:
         self.use_count += 1
 
         # For now, use sync execution in thread pool
-        # In production, use snowflake-connector-python[async]
+        # In production, use modern_stack-connector-python[async]
         import concurrent.futures
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -105,7 +105,7 @@ class ConnectionWrapper:
             logger.warning("Error closing connection", error=str(e))
 
 
-class SnowflakePoolManager:
+class modern_stackPoolManager:
     """
     Manages connection pools for both direct and MCP modes.
     Provides connection acquisition, release, and health monitoring.
@@ -135,13 +135,13 @@ class SnowflakePoolManager:
         self.mcp_metrics = PoolMetrics()
 
         # MCP client for creating sessions
-        self.mcp_client: SnowflakeMCPClient | None = None
+        self.mcp_client: modern_stackMCPClient | None = None
 
         # Background tasks
         self._cleanup_task: asyncio.Task | None = None
 
         logger.info(
-            "SnowflakePoolManager initialized",
+            "modern_stackPoolManager initialized",
             direct_pool_size=self.config.direct_pool_size,
             mcp_pool_size=self.config.mcp_pool_size,
         )
@@ -150,7 +150,7 @@ class SnowflakePoolManager:
         """Initialize the pool manager and create initial connections"""
         # Create MCP client
         try:
-            self.mcp_client = SnowflakeMCPClient()
+            self.mcp_client = modern_stackMCPClient()
             logger.info("MCP client initialized")
         except Exception as e:
             logger.warning("Failed to initialize MCP client", error=str(e))
@@ -285,24 +285,24 @@ class SnowflakePoolManager:
             logger.warning("Attempted to release unknown connection", mode=mode)
 
     async def _create_direct_connection(self) -> ConnectionWrapper:
-        """Create a new direct Snowflake connection"""
-        # REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+        """Create a new direct modern_stack connection"""
+        # REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
 
         # Get connection parameters from config
         conn_params = {
-            "account": get_config_value("snowflake_account"),
-            "user": get_config_value("snowflake_user"),
-            "password": get_config_value("snowflake_password"),
-            "warehouse": get_config_value("snowflake_warehouse"),
-            "database": get_config_value("snowflake_database"),
-            "schema": get_config_value("snowflake_schema", "PUBLIC"),
-            "role": get_config_value("snowflake_role", "SOPHIA_AI_ROLE"),
+            "account": get_config_value("modern_stack_account"),
+            "user": get_config_value("modern_stack_user"),
+            "password": get_config_value("modern_stack_password"),
+            "warehouse": get_config_value("modern_stack_warehouse"),
+            "database": get_config_value("modern_stack_database"),
+            "schema": get_config_value("modern_stack_schema", "PUBLIC"),
+            "role": get_config_value("modern_stack_role", "SOPHIA_AI_ROLE"),
         }
 
         # Remove None values
         conn_params = {k: v for k, v in conn_params.items() if v is not None}
 
-        logger.info("Creating new direct Snowflake connection")
+        logger.info("Creating new direct modern_stack connection")
 
         connection = self.modern_stack_connection(**conn_params)
         return ConnectionWrapper(connection, f"direct-{uuid.uuid4().hex[:8]}")
@@ -388,9 +388,9 @@ class SnowflakePoolManager:
         )
         self.direct_metrics.in_use = len(self.direct_in_use)
 
-        # REMOVED: Snowflake dependency"direct").set(self.direct_metrics.current_size)
-        # REMOVED: Snowflake dependency"direct").set(self.direct_metrics.in_use)
-        # REMOVED: Snowflake dependency"direct").set(
+        # REMOVED: modern_stack dependency"direct").set(self.direct_metrics.current_size)
+        # REMOVED: modern_stack dependency"direct").set(self.direct_metrics.in_use)
+        # REMOVED: modern_stack dependency"direct").set(
             self.direct_metrics.avg_wait_ms
         )
 
@@ -398,9 +398,9 @@ class SnowflakePoolManager:
         self.mcp_metrics.current_size = self.mcp_pool.qsize() + len(self.mcp_in_use)
         self.mcp_metrics.in_use = len(self.mcp_in_use)
 
-        # REMOVED: Snowflake dependency"mcp").set(self.mcp_metrics.current_size)
-        # REMOVED: Snowflake dependency"mcp").set(self.mcp_metrics.in_use)
-        # REMOVED: Snowflake dependency"mcp").set(self.mcp_metrics.avg_wait_ms)
+        # REMOVED: modern_stack dependency"mcp").set(self.mcp_metrics.current_size)
+        # REMOVED: modern_stack dependency"mcp").set(self.mcp_metrics.in_use)
+        # REMOVED: modern_stack dependency"mcp").set(self.mcp_metrics.avg_wait_ms)
 
     async def get_health(self) -> dict[str, Any]:
         """Get pool health status"""
@@ -424,7 +424,7 @@ class SnowflakePoolManager:
 
     async def close(self):
         """Close all connections and cleanup"""
-        logger.info("Closing SnowflakePoolManager")
+        logger.info("Closing modern_stackPoolManager")
 
         # Cancel cleanup task
         if self._cleanup_task:
@@ -445,4 +445,4 @@ class SnowflakePoolManager:
         if self.mcp_client:
             await self.mcp_client.close()
 
-        logger.info("SnowflakePoolManager closed")
+        logger.info("modern_stackPoolManager closed")

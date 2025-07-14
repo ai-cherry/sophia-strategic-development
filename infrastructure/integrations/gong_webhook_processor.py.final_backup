@@ -75,11 +75,11 @@ class WebhookProcessor:
     def __init__(
         self,
         gong_api_key: str,
-# REMOVED: Snowflake dependency: dict[str, str],
+# REMOVED: modern_stack dependency: dict[str, str],
         redis_url: str = "redis://localhost:6379",
     ):
         self.gong_api_key = gong_api_key
-# REMOVED: Snowflake dependency
+# REMOVED: modern_stack dependency
         self.redis_url = redis_url
         self.logger = logger
 

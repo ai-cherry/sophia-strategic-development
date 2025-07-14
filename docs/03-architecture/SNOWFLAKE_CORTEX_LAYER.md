@@ -68,7 +68,7 @@ graph TD
 ### Module Structure
 
 ```
-shared/utils/snowflake_cortex/
+shared/utils/modern_stack_cortex/
 ├── __init__.py          # Public API exports
 ├── service.py           # Main Modern StackCortexService class
 ├── core.py             # DirectCortexCore for SQL operations
@@ -125,11 +125,11 @@ Manages MCP server communication:
 
 | Function | SQL Function | Description |
 |----------|--------------|-------------|
-| Embedding | `SNOWFLAKE.CORTEX.EMBED_TEXT()` | Generate text embeddings |
-| Completion | `SNOWFLAKE.CORTEX.COMPLETE()` | Text generation |
-| Sentiment | `SNOWFLAKE.CORTEX.SENTIMENT()` | Sentiment analysis |
-| Summarization | `SNOWFLAKE.CORTEX.SUMMARIZE()` | Text summarization |
-| Translation | `SNOWFLAKE.CORTEX.TRANSLATE()` | Language translation |
+| Embedding | `modern_stack.CORTEX.EMBED_TEXT()` | Generate text embeddings |
+| Completion | `modern_stack.CORTEX.COMPLETE()` | Text generation |
+| Sentiment | `modern_stack.CORTEX.SENTIMENT()` | Sentiment analysis |
+| Summarization | `modern_stack.CORTEX.SUMMARIZE()` | Text summarization |
+| Translation | `modern_stack.CORTEX.TRANSLATE()` | Language translation |
 
 ### MCP Mode Exclusive
 
@@ -148,16 +148,16 @@ Manages MCP server communication:
 CORTEX_MODE=auto|direct|mcp
 
 # MCP Configuration
-SNOWFLAKE_MCP_PAT=<your-pat-token>
-SNOWFLAKE_MCP_URL=http://snowflake-mcp:9130
+modern_stack_MCP_PAT=<your-pat-token>
+modern_stack_MCP_URL=http://modern_stack-mcp:9130
 
 # Direct Mode (from Pulumi ESC)
-SNOWFLAKE_ACCOUNT=<account>
-SNOWFLAKE_USER=<username>
-SNOWFLAKE_PASSWORD=<password>
-SNOWFLAKE_WAREHOUSE=<warehouse>
-SNOWFLAKE_DATABASE=<database>
-SNOWFLAKE_SCHEMA=<schema>
+modern_stack_ACCOUNT=<account>
+modern_stack_USER=<username>
+modern_stack_PASSWORD=<password>
+modern_stack_WAREHOUSE=<warehouse>
+modern_stack_DATABASE=<database>
+modern_stack_SCHEMA=<schema>
 ```
 
 ### Pulumi ESC Integration
@@ -166,11 +166,11 @@ The service automatically loads credentials from Pulumi ESC:
 
 ```python
 # Direct mode credentials
-snowflake_user = get_config_value("snowflake_user")
-snowflake_password = get_config_value("snowflake_password")
+modern_stack_user = get_config_value("modern_stack_user")
+modern_stack_password = get_config_value("modern_stack_password")
 
 # MCP mode credentials
-snowflake_pat = get_config_value("snowflake_mcp_pat")
+modern_stack_pat = get_config_value("modern_stack_mcp_pat")
 ```
 
 ## Usage Examples
@@ -178,7 +178,7 @@ snowflake_pat = get_config_value("snowflake_mcp_pat")
 ### Basic Usage
 
 ```python
-from shared.utils.snowflake_cortex import Modern StackCortexService
+from shared.utils.modern_stack_cortex import Modern StackCortexService
 
 # Auto mode (recommended)
 service = Modern StackCortexService()
@@ -250,16 +250,16 @@ if service.is_initialized:
 
 ```python
 # Old import (still works via compatibility wrapper)
-from shared.utils.snowflake_cortex_service import Modern StackCortexService
+from shared.utils.modern_stack_cortex_service import Modern StackCortexService
 
 # New import (recommended)
-from shared.utils.snowflake_cortex import Modern StackCortexService
+from shared.utils.modern_stack_cortex import Modern StackCortexService
 ```
 
 ### Adding PAT Support
 
 1. Generate PAT in Modern Stack UI or via SQL
-2. Add to GitHub Organization Secrets: `SNOWFLAKE_MCP_PAT_PROD`
+2. Add to GitHub Organization Secrets: `modern_stack_MCP_PAT_PROD`
 3. Sync to Pulumi ESC via GitHub Actions
 4. Service auto-detects and uses MCP mode
 

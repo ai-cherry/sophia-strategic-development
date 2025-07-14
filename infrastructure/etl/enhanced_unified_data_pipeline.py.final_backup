@@ -2,7 +2,7 @@
 """
 Pure Estuary Flow Data Pipeline for Sophia AI
 Comprehensive data pipeline orchestrator using only Estuary Flow
-Implements robust ELT pattern: Sources → PostgreSQL → Redis → Snowflake → Vector DBs
+Implements robust ELT pattern: Sources → PostgreSQL → Redis → modern_stack → Vector DBs
 """
 
 """
@@ -29,7 +29,7 @@ from typing import Any
 import asyncpg
 import redis.asyncio as redis
 
-# REMOVED: Snowflake dependency
+# REMOVED: modern_stack dependency
 from core.config_manager import get_config_value
 from infrastructure.etl.estuary_flow_orchestrator import EstuaryFlowOrchestrator
 from backend.services.unified_memory_service_v2 import UnifiedMemoryServiceV2
@@ -65,7 +65,7 @@ class EstuaryPipelineConfig:
     )
     postgresql_config: dict[str, Any] = field(default_factory=dict)
     redis_config: dict[str, Any] = field(default_factory=dict)
-    # REMOVED: Snowflake dependencydict)
+    # REMOVED: modern_stack dependencydict)
     estuary_config: dict[str, Any] = field(default_factory=dict)
     monitoring_enabled: bool = True
     auto_retry: bool = True
@@ -99,7 +99,7 @@ class PureEstuaryDataPipeline:
         self.estuary_orchestrator: EstuaryFlowOrchestrator | None = None
         self.postgresql_pool: asyncpg.Pool | None = None
         self.redis_client: redis.Redis | None = None
-        self.memory_service_v3: SnowflakeCortexService | None = None
+        self.memory_service_v3: modern_stackCortexService | None = None
         self.status = PipelineStatus()
 
         # Initialize configurations
@@ -136,8 +136,8 @@ class PureEstuaryDataPipeline:
             "namespace": get_config_value("estuary_namespace", "sophia/ai"),
         }
 
-# REMOVED: Snowflake dependencyuration (aligned with actual setup)
-# REMOVED: Snowflake dependency.get_connection_params()
+# REMOVED: modern_stack dependencyuration (aligned with actual setup)
+# REMOVED: modern_stack dependency.get_connection_params()
 
     async def __aenter__(self):
         """Async context manager entry"""
@@ -164,9 +164,9 @@ class PureEstuaryDataPipeline:
             await self.redis_client.ping()
             logger.info("✅ Redis connection initialized")
 
-            # Initialize Snowflake service
+            # Initialize modern_stack service
             self.memory_service_v3 = UnifiedMemoryServiceV2()
-            logger.info("✅ Snowflake service initialized")
+            logger.info("✅ modern_stack service initialized")
 
             # Initialize Estuary Flow orchestrator
             self.estuary_orchestrator = EstuaryFlowOrchestrator()
@@ -234,9 +234,9 @@ class PureEstuaryDataPipeline:
             await self._setup_data_transformations()
             results["destinations_configured"].append("data_transformations")
 
-            # Set up Snowflake integration
-            await self._setup_snowflake_integration()
-            results["destinations_configured"].append("snowflake")
+            # Set up modern_stack integration
+            await self._setup_modern_stack_integration()
+            results["destinations_configured"].append("modern_stack")
 
             # Set up Redis caching
             await self._setup_redis_caching()
@@ -713,24 +713,24 @@ class PureEstuaryDataPipeline:
 
         logger.info("✅ Data transformations configured successfully")
 
-    async def _setup_snowflake_integration(self):
-        """Set up Estuary Flow materialization to Snowflake"""
-        logger.info("❄️ Setting up Snowflake integration...")
+    async def _setup_modern_stack_integration(self):
+        """Set up Estuary Flow materialization to modern_stack"""
+        logger.info("❄️ Setting up modern_stack integration...")
 
-# REMOVED: Snowflake dependencyuration
-        # REMOVED: Snowflake dependency (
-# REMOVED: Snowflake dependency()
+# REMOVED: modern_stack dependencyuration
+        # REMOVED: modern_stack dependency (
+# REMOVED: modern_stack dependency()
         )
-        snowflake_materialization[
+        modern_stack_materialization[
             "name"
-        ] = f"{self.config.flow_prefix}/snowflake_materialization"
+        ] = f"{self.config.flow_prefix}/modern_stack_materialization"
 
         await self.estuary_orchestrator.create_materialization(
-            snowflake_materialization
+            modern_stack_materialization
         )
 
-        self.status.destinations_active["snowflake"] = FlowStatus.ACTIVE
-# REMOVED: Snowflake dependencyured successfully")
+        self.status.destinations_active["modern_stack"] = FlowStatus.ACTIVE
+# REMOVED: modern_stack dependencyured successfully")
 
     async def _setup_redis_caching(self):
         """Set up Redis caching for real-time data access"""
@@ -790,7 +790,7 @@ class PureEstuaryDataPipeline:
             f"{self.config.flow_prefix}/slack_messages_capture",
             f"{self.config.flow_prefix}/unified_contacts",
             f"{self.config.flow_prefix}/deal_intelligence",
-            f"{self.config.flow_prefix}/snowflake_materialization",
+            f"{self.config.flow_prefix}/modern_stack_materialization",
         ]
 
         for flow_name in flows_to_enable:

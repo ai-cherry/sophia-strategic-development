@@ -1,5 +1,5 @@
 """
-Snowflake Cortex Service - Handlers Module
+modern_stack Cortex Service - Handlers Module
 Contains AI operation handlers and business-specific methods
 """
 
@@ -8,13 +8,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from .snowflake_cortex_service_utils import PerformanceMonitor
+from .modern_stack_cortex_service_utils import PerformanceMonitor
 
 logger = logging.getLogger(__name__)
 
 
 class CortexHandlers:
-    """Handlers for Snowflake Cortex AI operations"""
+    """Handlers for modern_stack Cortex AI operations"""
 
     def __init__(self, service):
         self.service = service
@@ -24,21 +24,21 @@ class CortexHandlers:
         """Get performance statistics for handlers"""
         return self.performance_monitor.get_performance_stats()
 
-    async def summarize_text_in_snowflake(
+    async def summarize_text_in_modern_stack(
         self,
         text_column: str,
         table_name: str,
         conditions: str | None = None,
         max_length: int = 200,
     ) -> list[dict[str, Any]]:
-        """Summarize text data using Snowflake Cortex SUMMARIZE function"""
+        """Summarize text data using modern_stack Cortex SUMMARIZE function"""
         # Actual implementation will go here
         return []
 
-    async def analyze_sentiment_in_snowflake(
+    async def analyze_sentiment_in_modern_stack(
         self, text_column: str, table_name: str, conditions: str | None = None
     ) -> list[dict[str, Any]]:
-        """Analyze sentiment using Snowflake Cortex SENTIMENT function"""
+        """Analyze sentiment using modern_stack Cortex SENTIMENT function"""
         # Actual implementation will go here
         return []
 

@@ -54,17 +54,17 @@ spec:
             secretKeyRef:
               name: sophia-secrets
               key: anthropic-api-key
-        - name: SNOWFLAKE_ACCOUNT
+        - name: modern_stack_ACCOUNT
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
               key: modern_stack-account
-        - name: SNOWFLAKE_USER
+        - name: modern_stack_USER
           valueFrom:
             secretKeyRef:
               name: sophia-secrets
               key: modern_stack-user
-        - name: SNOWFLAKE_PASSWORD
+        - name: modern_stack_PASSWORD
           valueFrom:
             secretKeyRef:
               name: sophia-secrets

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sophia AI - Snowflake Platform Adapter
+Sophia AI - modern_stack Platform Adapter
 Enhanced adapter that integrates with the central orchestrator
 """
 
@@ -15,8 +15,8 @@ from typing import Any
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3  # type: ignore[import-not-found]
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3 import SnowflakeConnection  # type: ignore[import-not-found]
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3  # type: ignore[import-not-found]
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3 import modern_stackConnection  # type: ignore[import-not-found]
 from tenacity import (  # type: ignore[import-not-found]
     retry,
     stop_after_attempt,
@@ -31,32 +31,32 @@ from backend.infrastructure.sophia_iac_orchestrator import (
     PlatformStatus,
     PlatformType,
 )
-# REMOVED: Snowflake dependencyManager
+# REMOVED: modern_stack dependencyManager
 
 logger = logging.getLogger(__name__)
 
 
-class SnowflakeAdapter(PlatformAdapter):
+class modern_stackAdapter(PlatformAdapter):
     """
-    Enhanced Snowflake adapter that integrates with the central orchestrator.
-    Provides comprehensive Snowflake management capabilities.
+    Enhanced modern_stack adapter that integrates with the central orchestrator.
+    Provides comprehensive modern_stack management capabilities.
     """
 
     def __init__(self, name: str, platform_type: PlatformType):
         super().__init__(name, platform_type)
-# REMOVED: Snowflake dependencyManager()
+# REMOVED: modern_stack dependencyManager()
         self.last_health_check = None
 
     async def configure(self, config: dict[str, Any]) -> dict[str, Any]:
-        """Configure Snowflake with given settings."""
+        """Configure modern_stack with given settings."""
         try:
             self.logger.info(
-# REMOVED: Snowflake dependency.keys())}"
+# REMOVED: modern_stack dependency.keys())}"
             )
 
-            # Connect to Snowflake
+            # Connect to modern_stack
             if not await self.config_manager.connect():
-                return {"success": False, "error": "Failed to connect to Snowflake"}
+                return {"success": False, "error": "Failed to connect to modern_stack"}
 
             results = {"success": True, "operations": [], "errors": []}
 
@@ -105,7 +105,7 @@ class SnowflakeAdapter(PlatformAdapter):
             return {"success": False, "error": str(e)}
 
     async def get_status(self) -> PlatformStatus:
-        """Get current Snowflake status and health."""
+        """Get current modern_stack status and health."""
         try:
             # Connect to get status
             if not await self.config_manager.connect():
@@ -141,14 +141,14 @@ class SnowflakeAdapter(PlatformAdapter):
 
             # Get configuration info
             configuration = {
-                "account": get_config_value("snowflake_account", "ZNB04675.us-east-1"),
+                "account": get_config_value("modern_stack_account", "ZNB04675.us-east-1"),
                 "role": "ACCOUNTADMIN",
                 "warehouse": "SOPHIA_AI_ANALYTICS_WH",
                 "database": "SOPHIA_AI_CORE",
             }
 
             # Dependencies
-            dependencies = ["estuary"]  # Estuary loads data into Snowflake
+            dependencies = ["estuary"]  # Estuary loads data into modern_stack
 
             self.config_manager.close_connection()
             self.last_health_check = datetime.now()
@@ -161,7 +161,7 @@ class SnowflakeAdapter(PlatformAdapter):
                 configuration=configuration,
                 metrics=metrics,
                 dependencies=dependencies,
-                webhooks_active=False,  # Snowflake doesn't have outbound webhooks
+                webhooks_active=False,  # modern_stack doesn't have outbound webhooks
             )
 
         except Exception as e:
@@ -176,10 +176,10 @@ class SnowflakeAdapter(PlatformAdapter):
             )
 
     async def handle_webhook(self, payload: dict[str, Any]) -> None:
-        """Handle incoming webhooks (Snowflake doesn't typically send webhooks)."""
+        """Handle incoming webhooks (modern_stack doesn't typically send webhooks)."""
         self.logger.info(f"Received webhook payload: {payload}")
-        # Snowflake doesn't typically send webhooks, but we could handle
-        # notifications from other systems about Snowflake operations
+        # modern_stack doesn't typically send webhooks, but we could handle
+        # notifications from other systems about modern_stack operations
 
     async def validate_configuration(self, config: dict[str, Any]) -> bool:
         """Validate configuration before applying."""
@@ -213,7 +213,7 @@ class SnowflakeAdapter(PlatformAdapter):
         """Rollback to a previous configuration state."""
         try:
             self.logger.info(
-                f"Rolling back Snowflake to checkpoint: {checkpoint.get('id', 'unknown')}"
+                f"Rolling back modern_stack to checkpoint: {checkpoint.get('id', 'unknown')}"
             )
 
             if not await self.config_manager.connect():
@@ -235,7 +235,7 @@ class SnowflakeAdapter(PlatformAdapter):
             self.logger.exception(f"Rollback failed: {e}")
             return {"success": False, "error": str(e)}
 
-    # Additional Snowflake-specific methods
+    # Additional modern_stack-specific methods
 
     async def _create_database(self, config: dict[str, Any]) -> dict[str, Any]:
         """Create a new database."""
@@ -331,7 +331,7 @@ class SnowflakeAdapter(PlatformAdapter):
         return await self.configure({"create_schema": parameters})
 
     async def get_data_statistics(self) -> dict[str, Any]:
-        """Get detailed data statistics # REMOVED: Snowflake dependency
+        """Get detailed data statistics # REMOVED: modern_stack dependency
         try:
             if not await self.config_manager.connect():
                 return {"error": "Connection failed"}
@@ -463,7 +463,7 @@ class SnowflakeAdapter(PlatformAdapter):
 
             lambda_service = LambdaLabsService()
 
-            optimization_prompt = f"""Optimize this Snowflake SQL query for performance:
+            optimization_prompt = f"""Optimize this modern_stack SQL query for performance:
 
 Original Query:
 {query}
@@ -498,8 +498,8 @@ Optimized Query:"""
             }
 
 
-# REMOVED: Snowflake dependencyManager:
-# REMOVED: Snowflake dependencyuration with retry logic.
+# REMOVED: modern_stack dependencyManager:
+# REMOVED: modern_stack dependencyuration with retry logic.
 
     This manager provides:
     - Automatic connection retry with exponential backoff
@@ -508,7 +508,7 @@ Optimized Query:"""
     - Graceful error handling
 
     Attributes:
-        account: Snowflake account identifier
+        account: modern_stack account identifier
         user: Username for authentication
         password: Password for authentication
         warehouse: Default warehouse
@@ -525,7 +525,7 @@ Optimized Query:"""
         schema: str = "AI_INSIGHTS",
         role: str = "SOPHIA_ADMIN_ROLE",
     ):
-# REMOVED: Snowflake dependencyuration.
+# REMOVED: modern_stack dependencyuration.
 
         Args:
             warehouse: Default warehouse name
@@ -533,25 +533,25 @@ Optimized Query:"""
             schema: Default schema name
             role: Default role name
         """
-        self.account = get_config_value("snowflake_account")
-        self.user = get_config_value("snowflake_user")
-        self.password = get_config_value("snowflake_password")
+        self.account = get_config_value("modern_stack_account")
+        self.user = get_config_value("modern_stack_user")
+        self.password = get_config_value("modern_stack_password")
         self.warehouse = warehouse
         self.database = database
         self.schema = schema
         self.role = role
-        self.connection: SnowflakeConnection | None = None
+        self.connection: modern_stackConnection | None = None
 
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=1, max=8),
         reraise=True,
     )
-    async def _create_connection(self) -> SnowflakeConnection:
-        """Create Snowflake connection with retry logic.
+    async def _create_connection(self) -> modern_stackConnection:
+        """Create modern_stack connection with retry logic.
 
         Returns:
-            Active Snowflake connection
+            Active modern_stack connection
 
         Raises:
             ConnectionError: If connection fails after retries
@@ -576,14 +576,14 @@ Optimized Query:"""
                 },
             )
 
-            logger.info(f"Connected to Snowflake: {self.database}.{self.schema}")
+            logger.info(f"Connected to modern_stack: {self.database}.{self.schema}")
             return connection
 
         except Exception as e:
-            logger.error(f"Failed to connect to Snowflake: {e}")
-            raise ConnectionError(f"Snowflake connection failed: {e}")
+            logger.error(f"Failed to connect to modern_stack: {e}")
+            raise ConnectionError(f"modern_stack connection failed: {e}")
 
-# REMOVED: Snowflake dependencyManager":
+# REMOVED: modern_stack dependencyManager":
         """Async context manager entry.
 
         Returns:
@@ -596,7 +596,7 @@ Optimized Query:"""
             self.connection = await self._create_connection()
             return self
         except Exception as e:
-            logger.error(f"Failed to enter Snowflake context: {e}")
+            logger.error(f"Failed to enter modern_stack context: {e}")
             raise
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
@@ -611,9 +611,9 @@ Optimized Query:"""
             try:
                 loop = asyncio.get_event_loop()
                 await loop.run_in_executor(None, self.connection.close)
-                logger.info("Closed Snowflake connection")
+                logger.info("Closed modern_stack connection")
             except Exception as e:
-                logger.error(f"Error closing Snowflake connection: {e}")
+                logger.error(f"Error closing modern_stack connection: {e}")
             finally:
                 self.connection = None
 
@@ -636,7 +636,7 @@ Optimized Query:"""
             ValueError: If query is invalid
         """
         if not self.connection:
-            raise RuntimeError("No active Snowflake connection")
+            raise RuntimeError("No active modern_stack connection")
 
         if not isinstance(query, str) or not query.strip():
             raise ValueError("Query must be a non-empty string")
@@ -677,7 +677,7 @@ Optimized Query:"""
         error_message: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
-        """Record Lambda Labs usage to Snowflake.
+        """Record Lambda Labs usage to modern_stack.
 
         Args:
             request_id: Unique request identifier
@@ -694,7 +694,7 @@ Optimized Query:"""
             metadata: Optional additional metadata
         """
         if not self.connection:
-            raise RuntimeError("No active Snowflake connection")
+            raise RuntimeError("No active modern_stack connection")
 
         await self.execute_query(
             """
@@ -732,16 +732,16 @@ Optimized Query:"""
 
 # CLI interface for testing
 async def main():
-    """Test the Snowflake adapter."""
+    """Test the modern_stack adapter."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Snowflake Adapter Test")
+    parser = argparse.ArgumentParser(description="modern_stack Adapter Test")
     parser.add_argument("command", choices=["status", "configure", "stats"])
     parser.add_argument("--config", help="Configuration JSON string")
 
     args = parser.parse_args()
 
-    adapter = SnowflakeAdapter("snowflake", PlatformType.DATA_STACK)
+    adapter = modern_stackAdapter("modern_stack", PlatformType.DATA_STACK)
 
     if args.command == "status":
         await adapter.get_status()

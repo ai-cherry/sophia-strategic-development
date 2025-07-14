@@ -11,8 +11,8 @@
 ### ✅ COMPLETED IMPLEMENTATIONS
 
 #### 1. **CRITICAL SECURITY FIXES** ✅
-- **Removed Hardcoded Credentials:** Eliminated `absolute_snowflake_override.py` security vulnerability
-- **Implemented Secure Authentication:** New `secure_snowflake_config.py` with programmatic service user
+- **Removed Hardcoded Credentials:** Eliminated `absolute_modern_stack_override.py` security vulnerability
+- **Implemented Secure Authentication:** New `secure_modern_stack_config.py` with programmatic service user
 - **Updated Connection Manager:** Migrated to secure credential consumption pattern
 - **ESC Integration:** Full integration with Pulumi ESC for credential management
 
@@ -112,15 +112,15 @@ FROM hubspot_raw.contacts
 ```
 
 ### **3. Production Lambda GPU MCP**
-**File:** `mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py`
+**File:** `mcp-servers/modern_stack_cortex/production_modern_stack_cortex_mcp_server.py`
 
 **Real Cortex Functions Implemented:**
-- **Text Generation:** `SNOWFLAKE.CORTEX.COMPLETE()` with multiple models
-- **Sentiment Analysis:** `SNOWFLAKE.CORTEX.SENTIMENT()` with classification
-- **Translation:** `SNOWFLAKE.CORTEX.TRANSLATE()` for multilingual support
-- **Question Answering:** `SNOWFLAKE.CORTEX.EXTRACT_ANSWER()` for document QA
-- **Summarization:** `SNOWFLAKE.CORTEX.SUMMARIZE()` with compression metrics
-- **Embeddings:** `SNOWFLAKE.CORTEX.EMBED_TEXT_768/384()` for vector operations
+- **Text Generation:** `modern_stack.CORTEX.COMPLETE()` with multiple models
+- **Sentiment Analysis:** `modern_stack.CORTEX.SENTIMENT()` with classification
+- **Translation:** `modern_stack.CORTEX.TRANSLATE()` for multilingual support
+- **Question Answering:** `modern_stack.CORTEX.EXTRACT_ANSWER()` for document QA
+- **Summarization:** `modern_stack.CORTEX.SUMMARIZE()` with compression metrics
+- **Embeddings:** `modern_stack.CORTEX.EMBED_TEXT_768/384()` for vector operations
 - **Vector Similarity:** Cosine, Euclidean, and dot product calculations
 
 **Performance Features:**
@@ -130,7 +130,7 @@ FROM hubspot_raw.contacts
 - **Error Recovery:** Automatic retry and fallback mechanisms
 
 ### **4. Connection Pool Manager**
-**File:** `backend/services/snowflake/connection_pool_manager.py`
+**File:** `backend/services/modern_stack/connection_pool_manager.py`
 
 **Pool Configuration:**
 - **Min/Max Connections:** 5-20 connection range
@@ -248,9 +248,9 @@ flows:
       - sentiment_analysis
       - speaker_identification
 
-  postgresql-to-snowflake:
+  postgresql-to-modern_stack:
     source: source-postgres
-    destination: destination-snowflake
+    destination: destination-modern_stack
     replication_method: CDC
 ```
 
@@ -272,12 +272,12 @@ CREATE INDEX CONCURRENTLY idx_messages_channel ON slack_raw.messages(channel);
 ```python
 # Real Cortex function calls
 async def cortex_complete(prompt: str, model: str = "mistral-7b"):
-    sql = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{prompt}')"
-    return await execute_snowflake_query_async(sql)
+    sql = f"SELECT modern_stack.CORTEX.COMPLETE('{model}', '{prompt}')"
+    return await execute_modern_stack_query_async(sql)
 
 async def cortex_embed_text(text: str, model: str = "e5-base-v2"):
-    sql = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('{model}', '{text}')"
-    return await execute_snowflake_query_async(sql)
+    sql = f"SELECT modern_stack.CORTEX.EMBED_TEXT_768('{model}', '{text}')"
+    return await execute_modern_stack_query_async(sql)
 ```
 
 ---

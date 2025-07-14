@@ -56,7 +56,7 @@
    - setup_ssh_from_esc.py
    - setup_correct_ssh_key.py
    - setup_lambda_labs_infrastructure.py
-   - configure_snowflake_pat.py
+   - configure_modern_stack_pat.py
    - setup_pulumi_esc_secrets.py
    - configure_github_pat.py
 
@@ -80,7 +80,7 @@
 2. **File Decomposition** (5 high-priority files):
    ```python
    High-Priority Decomposition Targets:
-   - infrastructure/services/enhanced_snowflake_cortex_service.py
+   - infrastructure/services/enhanced_modern_stack_cortex_service.py
    - infrastructure/services/sophia_ai_orchestrator.py
    - infrastructure/services/enhanced_ingestion_service.py
    - core/workflows/enhanced_langgraph_orchestration.py

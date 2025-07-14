@@ -32,30 +32,30 @@
 
 **Current Security Risk:**
 ```python
-# backend/core/absolute_snowflake_override.py - IMMEDIATE REMOVAL REQUIRED
-os.environ["SNOWFLAKE_ACCOUNT"] = "ZNB04675"
-os.environ["SNOWFLAKE_USER"] = "SCOOBYJAVA15"
-os.environ["SNOWFLAKE_ROLE"] = "ACCOUNTADMIN"
+# backend/core/absolute_modern_stack_override.py - IMMEDIATE REMOVAL REQUIRED
+os.environ["modern_stack_ACCOUNT"] = "ZNB04675"
+os.environ["modern_stack_USER"] = "SCOOBYJAVA15"
+os.environ["modern_stack_ROLE"] = "ACCOUNTADMIN"
 ```
 
 **Recommended Implementation:**
 ```python
-# backend/core/secure_snowflake_config.py
+# backend/core/secure_modern_stack_config.py
 from backend.core.auto_esc_config import get_config_value
 
 class SecureModern StackConfig:
     def __init__(self):
-        self.account = get_config_value("snowflake_account")
+        self.account = get_config_value("modern_stack_account")
         self.user = "PROGRAMMATIC_SERVICE_USER"  # From knowledge base
         self.password = get_config_value("sophia_ai_token")  # Secure token
-        self.role = get_config_value("snowflake_role", "SYSADMIN")
-        self.warehouse = get_config_value("snowflake_warehouse", "COMPUTE_WH")
-        self.database = get_config_value("snowflake_database", "SOPHIA_AI")
+        self.role = get_config_value("modern_stack_role", "SYSADMIN")
+        self.warehouse = get_config_value("modern_stack_warehouse", "COMPUTE_WH")
+        self.database = get_config_value("modern_stack_database", "SOPHIA_AI")
 ```
 
 **Action Items:**
-1. ✅ **Delete** `backend/core/absolute_snowflake_override.py`
-2. ✅ **Create** `backend/core/secure_snowflake_config.py`
+1. ✅ **Delete** `backend/core/absolute_modern_stack_override.py`
+2. ✅ **Create** `backend/core/secure_modern_stack_config.py`
 3. ✅ **Update** all imports to use secure configuration
 4. ✅ **Verify** ESC environment variables are properly configured
 
@@ -65,7 +65,7 @@ class SecureModern StackConfig:
 ```yaml
 # Pulumi ESC: scoobyjava-org/default/sophia-ai-production
 values:
-  snowflake:
+  modern_stack:
     account: "ZNB04675"
     user: "PROGRAMMATIC_SERVICE_USER"
     password: "eyJraWQiOiIxNzAwMTAwMDk2OSIsImFsZyI6IkVTMjU2In0..."
@@ -85,28 +85,28 @@ values:
 
 **Implementation Plan:**
 ```python
-# mcp-servers/snowflake_cortex/production_snowflake_cortex_mcp_server.py
-import snowflake.connector
-from snowflake.cortex import complete, sentiment, translate, embed_text
+# mcp-servers/modern_stack_cortex/production_modern_stack_cortex_mcp_server.py
+import modern_stack.connector
+from modern_stack.cortex import complete, sentiment, translate, embed_text
 
 class ProductionModern StackCortexMCP:
     def __init__(self):
         self.connection = self._create_secure_connection()
 
     def _create_secure_connection(self):
-        return snowflake.connector.connect(
-            account=get_config_value("snowflake_account"),
+        return modern_stack.connector.connect(
+            account=get_config_value("modern_stack_account"),
             user="PROGRAMMATIC_SERVICE_USER",
             password=get_config_value("sophia_ai_token"),
-            warehouse=get_config_value("snowflake_warehouse"),
-            database=get_config_value("snowflake_database")
+            warehouse=get_config_value("modern_stack_warehouse"),
+            database=get_config_value("modern_stack_database")
         )
 
     @app.tool()
     async def cortex_complete(self, prompt: str, model: str = "mistral-7b") -> dict:
         """Real Lambda GPU COMPLETE function"""
         cursor = self.connection.cursor()
-        query = f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{model}', '{prompt}')"
+        query = f"SELECT modern_stack.CORTEX.COMPLETE('{model}', '{prompt}')"
         result = cursor.execute(query).fetchone()
         return {
             "status": "success",
@@ -119,7 +119,7 @@ class ProductionModern StackCortexMCP:
     async def cortex_embed_text(self, text: str) -> dict:
         """Generate embeddings using Lambda GPU"""
         cursor = self.connection.cursor()
-        query = f"SELECT SNOWFLAKE.CORTEX.EMBED_TEXT_768('e5-base-v2', '{text}')"
+        query = f"SELECT modern_stack.CORTEX.EMBED_TEXT_768('e5-base-v2', '{text}')"
         result = cursor.execute(query).fetchone()
         return {
             "status": "success",
@@ -139,7 +139,7 @@ class ProductionModern StackCortexMCP:
 
 **Recommended Unified Architecture:**
 ```
-snowflake_unified_mcp_server/
+modern_stack_unified_mcp_server/
 ├── __init__.py
 ├── core/
 │   ├── connection_manager.py
@@ -154,7 +154,7 @@ snowflake_unified_mcp_server/
 │   ├── test_cortex_integration.py
 │   ├── test_data_ingestion.py
 │   └── test_security.py
-└── unified_snowflake_mcp_server.py
+└── unified_modern_stack_mcp_server.py
 ```
 
 **Benefits:**
@@ -314,17 +314,17 @@ class SchemaManager:
 **Recommended:** Connection pooling for improved performance
 
 ```python
-# backend/services/snowflake/connection_pool.py
-from snowflake.connector.pooling import Modern StackConnectionPool
+# backend/services/modern_stack/connection_pool.py
+from modern_stack.connector.pooling import Modern StackConnectionPool
 
 class Modern StackConnectionManager:
     def __init__(self):
         self.pool = Modern StackConnectionPool(
-            account=get_config_value("snowflake_account"),
+            account=get_config_value("modern_stack_account"),
             user="PROGRAMMATIC_SERVICE_USER",
             password=get_config_value("sophia_ai_token"),
-            warehouse=get_config_value("snowflake_warehouse"),
-            database=get_config_value("snowflake_database"),
+            warehouse=get_config_value("modern_stack_warehouse"),
+            database=get_config_value("modern_stack_database"),
             pool_size=10,
             max_pool_size=20
         )
@@ -371,14 +371,14 @@ class QueryOptimizer:
 ### 1. Advanced Monitoring and Observability
 
 ```python
-# backend/monitoring/snowflake_monitor.py
+# backend/monitoring/modern_stack_monitor.py
 from prometheus_client import Counter, Histogram, Gauge
 
 class Modern StackMonitor:
     def __init__(self):
-        self.query_counter = Counter('snowflake_queries_total', 'Total queries')
-        self.query_duration = Histogram('snowflake_query_duration_seconds', 'Query duration')
-        self.active_connections = Gauge('snowflake_active_connections', 'Active connections')
+        self.query_counter = Counter('modern_stack_queries_total', 'Total queries')
+        self.query_duration = Histogram('modern_stack_query_duration_seconds', 'Query duration')
+        self.active_connections = Gauge('modern_stack_active_connections', 'Active connections')
 
     def record_query(self, query_type: str, duration: float):
         self.query_counter.labels(type=query_type).inc()
@@ -388,9 +388,9 @@ class Modern StackMonitor:
 ### 2. Automated Testing Framework
 
 ```python
-# tests/integration/test_snowflake_integration.py
+# tests/integration/test_modern_stack_integration.py
 import pytest
-from backend.core.secure_snowflake_config import SecureModern StackConfig
+from backend.core.secure_modern_stack_config import SecureModern StackConfig
 
 class TestModern StackIntegration:
     def test_secure_connection(self):

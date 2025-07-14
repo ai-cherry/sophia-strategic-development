@@ -201,7 +201,7 @@ class ModernStackAdminAgent:
         if not LANGCHAIN_AVAILABLE:
             raise ImportError("LangChain is required for ModernStack Admin Agent")
 
-        if not SNOWFLAKE_AVAILABLE:
+        if not modern_stack_AVAILABLE:
             raise ImportError(
                 "ModernStack connector is required for ModernStack Admin Agent"
             )
@@ -694,7 +694,7 @@ Thought: I should understand what the user wants to do and determine if it's a s
         health_status = {
             "initialized": self.initialized,
             "langchain_available": LANGCHAIN_AVAILABLE,
-            "modern_stack_available": SNOWFLAKE_AVAILABLE,
+            "modern_stack_available": modern_stack_AVAILABLE,
             "openai_available": OPENAI_AVAILABLE,
             "environments": {},
         }

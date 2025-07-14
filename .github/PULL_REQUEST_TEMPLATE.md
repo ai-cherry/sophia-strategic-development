@@ -52,7 +52,7 @@
 ### **Affected Servers**
 - [ ] AI Memory (`ai_memory`)
 - [ ] Codacy (`codacy`)
-- [ ] Modern Stack Admin (`snowflake_admin`)
+- [ ] Modern Stack Admin (`modern_stack_admin`)
 - [ ] Asana (`asana`)
 - [ ] Notion (`notion`)
 - [ ] Sophia Intelligence (`sophia_intelligence`)

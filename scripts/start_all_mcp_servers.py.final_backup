@@ -45,14 +45,14 @@ class MCPServerOrchestrator:
                 "health_endpoint": "/health",
             },
             # Data infrastructure (start second)
-            "snowflake_admin": {
-                "path": "snowflake_admin",
+            "modern_stack_admin": {
+                "path": "modern_stack_admin",
                 "port": self.port_registry["port_allocation"]["data_infrastructure"][
-                    "snowflake_admin"
+                    "modern_stack_admin"
                 ],
                 "priority": 2,
                 "dependencies": [],
-                "startup_command": ["python", "snowflake_admin_mcp_server.py"],
+                "startup_command": ["python", "modern_stack_admin_mcp_server.py"],
                 "health_endpoint": "/health",
             },
             # Business intelligence (start third)
@@ -72,7 +72,7 @@ class MCPServerOrchestrator:
                     "hubspot"
                 ],
                 "priority": 3,
-                "dependencies": ["snowflake_admin"],
+                "dependencies": ["modern_stack_admin"],
                 "startup_command": ["python", "hubspot_mcp_server.py"],
                 "health_endpoint": "/health",
             },

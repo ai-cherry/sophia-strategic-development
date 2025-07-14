@@ -412,7 +412,7 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
         self.logger.info("AI Memory server starting...")
 
         # Load any persisted memories (from database/file)
-        # In production, this would load from Snowflake or Redis
+        # In production, this would load from modern_stack or Redis
 
         self.logger.info(f"AI Memory server ready with {len(self.memories)} memories")
 
@@ -421,7 +421,7 @@ class AIMemoryServer(UnifiedStandardizedMCPServer):
         self.logger.info("AI Memory server shutting down...")
 
         # Persist memories to storage
-        # In production, this would save to Snowflake or Redis
+        # In production, this would save to modern_stack or Redis
 
         self.logger.info("AI Memory server stopped")
 

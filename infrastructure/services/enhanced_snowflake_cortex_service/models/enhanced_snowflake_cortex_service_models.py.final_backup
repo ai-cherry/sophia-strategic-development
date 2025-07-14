@@ -1,5 +1,5 @@
 """
-Enhanced Snowflake Cortex Service Models
+Enhanced modern_stack Cortex Service Models
 Data models and Pydantic schemas
 """
 
@@ -11,8 +11,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3 import DictCursor
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3 import DictCursor
 from core.enhanced_cache_manager import EnhancedCacheManager
 from infrastructure.security.audit_logger import AuditLogger
 from infrastructure.services.cost_engineering_service import (

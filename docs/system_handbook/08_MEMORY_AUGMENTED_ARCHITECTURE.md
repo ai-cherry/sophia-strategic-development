@@ -172,10 +172,10 @@ spec:
             secretKeyRef:
               name: mem0-credentials
               key: api-key
-        - name: SNOWFLAKE_ACCOUNT
+        - name: modern_stack_ACCOUNT
           valueFrom:
             secretKeyRef:
-              name: snowflake-credentials
+              name: modern_stack-credentials
               key: account
         resources:
           requests:
@@ -225,7 +225,7 @@ class ConversationalTrainingService:
 
     def __init__(self):
         self.mem0_client = Mem0PersistentMCPServer()
-        self.snowflake_cortex = Modern StackCortexService()
+        self.modern_stack_cortex = Modern StackCortexService()
         self.ai_memory = EnhancedAiMemoryMCPServer()
 
     async def process_user_feedback(self, feedback: RLHFFeedback) -> Dict[str, Any]:
@@ -243,7 +243,7 @@ class ConversationalTrainingService:
         )
 
         # Update learning analytics in Modern Stack
-        await self.snowflake_cortex.execute_sql(
+        await self.modern_stack_cortex.execute_sql(
             """
             INSERT INTO SOPHIA_AI_MEMORY.MEMORY_LEARNING_ANALYTICS
             (analytics_id, memory_id, learning_type, feedback_score, learning_outcome)
@@ -292,13 +292,13 @@ class BusinessIntelligenceTrainingService:
         """Train on natural language to SQL conversion"""
 
         # Use Lambda GPU for natural language to SQL
-        sql_response = await self.snowflake_cortex.complete(
+        sql_response = await self.modern_stack_cortex.complete(
             messages=[
                 {"role": "system", "content": "Convert business questions to SQL queries using our schema"},
                 {"role": "user", "content": business_question}
             ],
             options={
-                "model": "snowflake-arctic",
+                "model": "modern_stack-arctic",
                 "temperature": 0.1
             }
         )
@@ -307,7 +307,7 @@ class BusinessIntelligenceTrainingService:
 
         # Execute and validate SQL
         try:
-            results = await self.snowflake_cortex.execute_sql(generated_sql)
+            results = await self.modern_stack_cortex.execute_sql(generated_sql)
             success = True
             error_msg = None
         except Exception as e:
@@ -445,20 +445,20 @@ class GraphMemoryService:
 
     def __init__(self):
         self.memory_graph = nx.DiGraph()
-        self.snowflake_cortex = Modern StackCortexService()
+        self.modern_stack_cortex = Modern StackCortexService()
         self.mem0_client = Mem0PersistentMCPServer()
 
     async def extract_entities_and_relationships(self, content: str) -> Dict[str, Any]:
         """Extract entities and relationships from content"""
 
         # Use Lambda GPU for entity extraction
-        entity_response = await self.snowflake_cortex.complete(
+        entity_response = await self.modern_stack_cortex.complete(
             messages=[
                 {"role": "system", "content": "Extract business entities and relationships from text"},
                 {"role": "user", "content": content}
             ],
             options={
-                "model": "snowflake-arctic",
+                "model": "modern_stack-arctic",
                 "temperature": 0.1
             }
         )
@@ -542,9 +542,9 @@ jobs:
         MEM0_API_KEY: ${{ secrets.MEM0_API_KEY }}
         MEM0_ENVIRONMENT: ${{ secrets.MEM0_ENVIRONMENT }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-        SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-        SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        modern_stack_ACCOUNT: ${{ secrets.modern_stack_ACCOUNT }}
+        modern_stack_USER: ${{ secrets.modern_stack_USER }}
+        modern_stack_PASSWORD: ${{ secrets.modern_stack_PASSWORD }}
         PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
       run: |
         # Sync secrets to Pulumi ESC

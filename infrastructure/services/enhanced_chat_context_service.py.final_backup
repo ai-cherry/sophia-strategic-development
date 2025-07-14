@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3 import DictCursor
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
 logger = logging.getLogger(__name__)
 
@@ -74,14 +74,14 @@ class ContextWindow:
 class EnhancedChatContextService:
     """Enhanced chat service with large contextual windows and intelligent context management"""
 
-# REMOVED: Snowflake dependency: dict[str, str]):
-# REMOVED: Snowflake dependency
+# REMOVED: modern_stack dependency: dict[str, str]):
+# REMOVED: modern_stack dependency
         self.connection = None
         self.context_window = ContextWindow()
 
     @performance_monitor.track_performance
     async def connect(self):
-        """Connect to Snowflake"""
+        """Connect to modern_stack"""
         try:
             self.connection = await connection_manager.get_connection()
             logger.info("✅ Enhanced Chat Context Service connected")

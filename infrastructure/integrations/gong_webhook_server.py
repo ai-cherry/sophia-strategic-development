@@ -86,12 +86,12 @@ class WebhookServerConfig(BaseSettings):
     GONG_API_BURST_LIMIT: int = 10
 
     # Database settings
-    # REMOVED: ModernStack dependency"SNOWFLAKE_ACCOUNT")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_USER")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_PASSWORD")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_WAREHOUSE")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_DATABASE")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_SCHEMA")
+    # REMOVED: ModernStack dependency"modern_stack_ACCOUNT")
+    # REMOVED: ModernStack dependency"modern_stack_USER")
+    # REMOVED: ModernStack dependency"modern_stack_PASSWORD")
+    # REMOVED: ModernStack dependency"modern_stack_WAREHOUSE")
+    # REMOVED: ModernStack dependency"modern_stack_DATABASE")
+    # REMOVED: ModernStack dependency"modern_stack_SCHEMA")
 
     # Redis settings
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
@@ -484,12 +484,12 @@ def get_webhook_processor() -> WebhookProcessor:
         _webhook_processor = WebhookProcessor(
             gong_api_key=config.GONG_API_KEY,
             # REMOVED: ModernStack dependency{
-                "account": config.SNOWFLAKE_ACCOUNT,
-                "user": config.SNOWFLAKE_USER,
-                "password": config.SNOWFLAKE_PASSWORD,
-                "warehouse": config.SNOWFLAKE_WAREHOUSE,
-                "database": config.SNOWFLAKE_DATABASE,
-                "schema": config.SNOWFLAKE_SCHEMA,
+                "account": config.modern_stack_ACCOUNT,
+                "user": config.modern_stack_USER,
+                "password": config.modern_stack_PASSWORD,
+                "warehouse": config.modern_stack_WAREHOUSE,
+                "database": config.modern_stack_DATABASE,
+                "schema": config.modern_stack_SCHEMA,
             },
             redis_url=config.REDIS_URL,
         )

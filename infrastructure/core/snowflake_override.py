@@ -18,12 +18,12 @@ logger = logging.getLogger(__name__)
 
     # PERMANENT CONFIGURATION - CANNOT BE OVERRIDDEN
     correct_config = {
-        "SNOWFLAKE_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
-        "SNOWFLAKE_USER": "SCOOBYJAVA15",
-        "SNOWFLAKE_DATABASE": "SOPHIA_AI",
-        "SNOWFLAKE_WAREHOUSE": "SOPHIA_AI_WH",
-        "SNOWFLAKE_ROLE": "ACCOUNTADMIN",
-        "SNOWFLAKE_SCHEMA": "PROCESSED_AI",
+        "modern_stack_ACCOUNT": "ZNB04675.us-east-1.us-east-1.us-east-1",
+        "modern_stack_USER": "SCOOBYJAVA15",
+        "modern_stack_DATABASE": "SOPHIA_AI",
+        "modern_stack_WAREHOUSE": "SOPHIA_AI_WH",
+        "modern_stack_ROLE": "ACCOUNTADMIN",
+        "modern_stack_SCHEMA": "PROCESSED_AI",
     }
 
     for key, value in correct_config.items():

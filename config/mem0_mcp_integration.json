@@ -15,7 +15,7 @@
       "environment_variables": [
         "MEM0_API_KEY",
         "MEM0_ENVIRONMENT",
-        "SNOWFLAKE_ACCOUNT",
+        "modern_stack_ACCOUNT",
         "ENVIRONMENT"
       ]
     }

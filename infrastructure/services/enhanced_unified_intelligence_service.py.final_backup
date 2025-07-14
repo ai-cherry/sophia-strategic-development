@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 """
 Enhanced Unified Intelligence Service for Sophia AI
 
-This service integrates the existing unified intelligence with Snowflake Cortex AI,
+This service integrates the existing unified intelligence with modern_stack Cortex AI,
 Estuary Flow, and the complete ecosystem to provide a seamless experience.
 """
 
@@ -23,18 +23,18 @@ logger = logging.getLogger(__name__)
 
 
 class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
-    """Enhanced service with Snowflake-native AI integration"""
+    """Enhanced service with modern_stack-native AI integration"""
 
     def __init__(self):
         super().__init__()
-        self.# REMOVED: Snowflake dependency True
+        self.# REMOVED: modern_stack dependency True
         self.estuary_flow_enabled = False  # Will be enabled when configured
         self.llm_service = None  # Will be initialized when available
 
         # Performance tracking
         self.performance_metrics = {
             "total_queries": 0,
-            "snowflake_queries": 0,
+            "modern_stack_queries": 0,
             "constitutional_violations": 0,
             "average_response_time": 0.0,
             "cost_savings": 0.0,
@@ -207,11 +207,11 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
             "timestamp": query_context["timestamp"],
         }
 
-    def _should_use_snowflake(self, query: str, context: dict[str, Any]) -> bool:
-        """Determine if query should be processed by Snowflake Cortex AI"""
+    def _should_use_modern_stack(self, query: str, context: dict[str, Any]) -> bool:
+        """Determine if query should be processed by modern_stack Cortex AI"""
 
-        # Use Snowflake for structured business data queries
-        # REMOVED: Snowflake dependency [
+        # Use modern_stack for structured business data queries
+        # REMOVED: modern_stack dependency [
             "revenue",
             "sales",
             "deals",
@@ -226,28 +226,28 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         query_lower = query.lower()
         has_business_keywords = any(
-            keyword in query_lower for keyword in snowflake_keywords
+            keyword in query_lower for keyword in modern_stack_keywords
         )
 
         # Check context preferences
-        prefer_snowflake = context.get("prefer_snowflake", True)
+        prefer_modern_stack = context.get("prefer_modern_stack", True)
         user_role = context.get("user_role", "employee")
 
-        # Executives get Snowflake processing by default
+        # Executives get modern_stack processing by default
         if user_role in ["ceo", "executive", "manager"]:
             return True
 
-        return has_business_keywords and prefer_snowflake
+        return has_business_keywords and prefer_modern_stack
 
-    async def _execute_snowflake_intelligence(
+    async def _execute_modern_stack_intelligence(
         self, query: str, context: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute Snowflake Cortex AI intelligence function"""
+        """Execute modern_stack Cortex AI intelligence function"""
 
         try:
-            # Check if we have Snowflake Cortex service
-            if hasattr(self, "snowflake_cortex") and self.snowflake_cortex:
-                # Use the Snowflake function we created
+            # Check if we have modern_stack Cortex service
+            if hasattr(self, "modern_stack_cortex") and self.modern_stack_cortex:
+                # Use the modern_stack function we created
                 sql = """
                 SELECT
                     insights,
@@ -257,7 +257,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 FROM TABLE(sophia_business_intelligence(?, ?, ?))
                 """
 
-                results = await self.snowflake_cortex.execute_query(
+                results = await self.modern_stack_cortex.execute_query(
                     sql,
                     [
                         query,
@@ -273,27 +273,27 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                         "confidence_score": row.get("CONFIDENCE_SCORE", 0.8),
                         "processing_cost": row.get("PROCESSING_COST", 0.001),
                         "optimization_insights": row.get("OPTIMIZATION_SUGGESTIONS"),
-                        "source": "snowflake_cortex_ai",
+                        "source": "modern_stack_cortex_ai",
                         "business_data": self._extract_business_data(
                             row.get("INSIGHTS")
                         ),
                     }
 
-            # Fallback: simulate Snowflake response for now
-            return await self._simulate_snowflake_response(query, context)
+            # Fallback: simulate modern_stack response for now
+            return await self._simulate_modern_stack_response(query, context)
 
         except Exception as e:
-            logger.exception(f"Snowflake intelligence execution failed: {e}")
+            logger.exception(f"modern_stack intelligence execution failed: {e}")
             raise
 
-    async def _simulate_snowflake_response(
+    async def _simulate_modern_stack_response(
         self, query: str, context: dict[str, Any]
     ) -> dict[str, Any]:
-        """Simulate Snowflake Cortex AI response until functions are deployed"""
+        """Simulate modern_stack Cortex AI response until functions are deployed"""
 
-        # This will be replaced with actual Snowflake function calls
+        # This will be replaced with actual modern_stack function calls
         return {
-            "unified_insights": f"Simulated Snowflake Cortex AI analysis for: {query}",
+            "unified_insights": f"Simulated modern_stack Cortex AI analysis for: {query}",
             "confidence_score": 0.85,
             "processing_cost": 0.002,
             "optimization_insights": {
@@ -304,7 +304,7 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 ],
                 "next_optimization_cycle": datetime.now(UTC).isoformat(),
             },
-            "source": "snowflake_cortex_ai_simulation",
+            "source": "modern_stack_cortex_ai_simulation",
             "business_data": {
                 "query_type": "business_intelligence",
                 "data_sources": ["ENRICHED_HUBSPOT_DEALS", "ENRICHED_GONG_CALLS"],
@@ -313,30 +313,30 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         }
 
     def _merge_intelligence_results(
-        self, snowflake_results: dict, external_results: dict
+        self, modern_stack_results: dict, external_results: dict
     ) -> dict[str, Any]:
-        """Merge Snowflake and external AI results intelligently"""
+        """Merge modern_stack and external AI results intelligently"""
 
         merged = {
             "unified_insights": {
-                "snowflake_analysis": snowflake_results.get("unified_insights"),
+                "modern_stack_analysis": modern_stack_results.get("unified_insights"),
                 "external_analysis": external_results.get("unified_insights"),
-                "synthesis": "Combined analysis from Snowflake Cortex AI and external services",
+                "synthesis": "Combined analysis from modern_stack Cortex AI and external services",
             },
             "confidence_score": max(
-                snowflake_results.get("confidence_score", 0),
+                modern_stack_results.get("confidence_score", 0),
                 external_results.get("confidence_score", 0),
             ),
             "processing_cost": (
-                snowflake_results.get("processing_cost", 0)
+                modern_stack_results.get("processing_cost", 0)
                 + external_results.get("processing_cost", 0)
             ),
             "business_data": {
-                **snowflake_results.get("business_data", {}),
+                **modern_stack_results.get("business_data", {}),
                 **external_results.get("business_data", {}),
             },
-            "optimization_insights": snowflake_results.get("optimization_insights"),
-            "sources": ["snowflake_cortex_ai", "external_ai_services"],
+            "optimization_insights": modern_stack_results.get("optimization_insights"),
+            "sources": ["modern_stack_cortex_ai", "external_ai_services"],
         }
 
         return merged
@@ -362,8 +362,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
 
         sources = []
 
-        if "snowflake_cortex_ai" in results.get("source", ""):
-            sources.append("Snowflake Cortex AI")
+        if "modern_stack_cortex_ai" in results.get("source", ""):
+            sources.append("modern_stack Cortex AI")
 
         if results.get("business_data", {}).get("data_sources"):
             sources.extend(results["business_data"]["data_sources"])
@@ -386,8 +386,8 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
                 "constitutional_ai": (
                     "operational" if self.constitutional_ai else "disabled"
                 ),
-                "snowflake_cortex": (
-                    "operational" if self.snowflake_integration else "disabled"
+                "modern_stack_cortex": (
+                    "operational" if self.modern_stack_integration else "disabled"
                 ),
                 "estuary_flow": (
                     "operational" if self.estuary_flow_enabled else "disabled"
@@ -417,12 +417,12 @@ class EnhancedUnifiedIntelligenceService(SophiaUnifiedIntelligenceService):
         )
         score -= violation_rate * 0.3
 
-        # Reward Snowflake usage (more efficient)
-        # REMOVED: Snowflake dependency (
-            self.performance_metrics["snowflake_queries"]
+        # Reward modern_stack usage (more efficient)
+        # REMOVED: modern_stack dependency (
+            self.performance_metrics["modern_stack_queries"]
             / self.performance_metrics["total_queries"]
         )
-        score += snowflake_rate * 0.1
+        score += modern_stack_rate * 0.1
 
         # Factor in response time (assume target is 200ms)
         if self.performance_metrics["average_response_time"] > 0:

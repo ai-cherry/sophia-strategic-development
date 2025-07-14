@@ -32,9 +32,9 @@ data:
   GONG_API_BURST_LIMIT: "10"
 
   # Database configuration
-  SNOWFLAKE_WAREHOUSE: "SOPHIA_AI_WH"
-  SNOWFLAKE_DATABASE: "SOPHIA_AI"
-  SNOWFLAKE_SCHEMA: "GONG_WEBHOOKS"
+  modern_stack_WAREHOUSE: "SOPHIA_AI_WH"
+  modern_stack_DATABASE: "SOPHIA_AI"
+  modern_stack_SCHEMA: "GONG_WEBHOOKS"
 
   # Redis configuration
   REDIS_URL: "redis://redis-service:6379"
@@ -70,9 +70,9 @@ stringData:
   # Populated by Pulumi ESC - these are placeholders
   GONG_API_KEY: "" # Will be injected by ESC
   GONG_WEBHOOK_SECRETS: "" # Will be injected by ESC
-  SNOWFLAKE_ACCOUNT: "" # Will be injected by ESC
-  SNOWFLAKE_USER: "" # Will be injected by ESC
-  SNOWFLAKE_PASSWORD: "" # Will be injected by ESC
+  modern_stack_ACCOUNT: "" # Will be injected by ESC
+  modern_stack_USER: "" # Will be injected by ESC
+  modern_stack_PASSWORD: "" # Will be injected by ESC
 
 ---
 # Deployment for Gong webhook service
@@ -159,21 +159,21 @@ spec:
                 configMapKeyRef:
                   name: gong-webhook-config
                   key: GONG_API_BURST_LIMIT
-            - name: SNOWFLAKE_WAREHOUSE
+            - name: modern_stack_WAREHOUSE
               valueFrom:
                 configMapKeyRef:
                   name: gong-webhook-config
-                  key: SNOWFLAKE_WAREHOUSE
-            - name: SNOWFLAKE_DATABASE
+                  key: modern_stack_WAREHOUSE
+            - name: modern_stack_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: gong-webhook-config
-                  key: SNOWFLAKE_DATABASE
-            - name: SNOWFLAKE_SCHEMA
+                  key: modern_stack_DATABASE
+            - name: modern_stack_SCHEMA
               valueFrom:
                 configMapKeyRef:
                   name: gong-webhook-config
-                  key: SNOWFLAKE_SCHEMA
+                  key: modern_stack_SCHEMA
             - name: REDIS_URL
               valueFrom:
                 configMapKeyRef:
@@ -225,21 +225,21 @@ spec:
                 secretKeyRef:
                   name: gong-webhook-secrets
                   key: GONG_WEBHOOK_SECRETS
-            - name: SNOWFLAKE_ACCOUNT
+            - name: modern_stack_ACCOUNT
               valueFrom:
                 secretKeyRef:
                   name: gong-webhook-secrets
-                  key: SNOWFLAKE_ACCOUNT
-            - name: SNOWFLAKE_USER
+                  key: modern_stack_ACCOUNT
+            - name: modern_stack_USER
               valueFrom:
                 secretKeyRef:
                   name: gong-webhook-secrets
-                  key: SNOWFLAKE_USER
-            - name: SNOWFLAKE_PASSWORD
+                  key: modern_stack_USER
+            - name: modern_stack_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: gong-webhook-secrets
-                  key: SNOWFLAKE_PASSWORD
+                  key: modern_stack_PASSWORD
           resources:
             requests:
               memory: "512Mi"

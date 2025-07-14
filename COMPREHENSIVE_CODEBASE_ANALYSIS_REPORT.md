@@ -33,8 +33,8 @@
 - **Impact:** Service will fail to load
 - **Fix:** Correct indentation in personality engine service
 
-#### **SyntaxError in snowflake_gong_connector.py**
-- **File:** `shared/utils/snowflake_gong_connector.py`
+#### **SyntaxError in modern_stack_gong_connector.py**
+- **File:** `shared/utils/modern_stack_gong_connector.py`
 - **Line:** 28
 - **Issue:** `from __future__ import annotations` not at beginning of file
 - **Impact:** Import will fail
@@ -124,7 +124,7 @@ unified_memory_service_v2.py
 - **Dead Functions:** Several services have backup/fallback methods
 
 ### **Backup and Old Files**
-- **Modern Stack Purge Backups:** `backup_snowflake_purge/` directory
+- **Modern Stack Purge Backups:** `backup_modern_stack_purge/` directory
 - **Old Configuration Files:** Multiple `.old` and `.backup` files
 - **Deprecated Modules:** Properly quarantined in `_deprecated/`
 
@@ -212,7 +212,7 @@ requires-python = ">=3.12,<3.13"
 1. **Fix Syntax Errors:**
    ```bash
    # Fix personality_engine.py indentation
-   # Fix snowflake_gong_connector.py future import
+   # Fix modern_stack_gong_connector.py future import
    ```
 
 2. **Resolve Import Issues:**

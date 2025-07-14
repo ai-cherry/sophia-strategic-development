@@ -121,7 +121,7 @@ spec:
               value: "all"
             - name: PYTORCH_CUDA_ALLOC_CONF
               value: "max_split_size_mb:1024"
-            - name: SNOWFLAKE_CORTEX_ENABLED
+            - name: modern_stack_CORTEX_ENABLED
               value: "true"
             - name: GPU_MEMORY_FRACTION
               value: "0.8"

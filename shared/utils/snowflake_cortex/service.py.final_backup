@@ -1,4 +1,4 @@
-"""Main Snowflake Cortex service with dual-mode support."""
+"""Main modern_stack Cortex service with dual-mode support."""
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 import os
@@ -13,7 +13,7 @@ from .cache import CortexCache
 from .core import DirectCortexCore
 from .enums import CortexModel, MCPMode, TaskType
 from .errors import CortexAuthenticationError, CortexError
-from .mcp_client import SnowflakeMCPClient
+from .mcp_client import modern_stackMCPClient
 from .pool import AsyncConnectionPool
 
 # Metrics
@@ -29,8 +29,8 @@ CORTEX_LATENCY = Histogram(
 CORTEX_CACHE_HITS = Counter("cortex_cache_hits_total", "Cache hits", ["task_type"])
 
 
-class SnowflakeCortexService:
-    """Unified Snowflake Cortex service with dual-mode support."""
+class modern_stackCortexService:
+    """Unified modern_stack Cortex service with dual-mode support."""
 
     def __init__(
         self,
@@ -50,7 +50,7 @@ class SnowflakeCortexService:
 
         # Initialize components
         self._direct: DirectCortexCore | None = None
-        self._mcp: SnowflakeMCPClient | None = None
+        self._mcp: modern_stackMCPClient | None = None
         self._pool: AsyncConnectionPool | None = None
         self._cache: CortexCache | None = None
 
@@ -64,26 +64,26 @@ class SnowflakeCortexService:
     def _load_config(self) -> None:
         """Load configuration from Pulumi ESC."""
         # Direct mode credentials
-        self._# REMOVED: Snowflake dependency {
-            "user": get_config_value("snowflake_user"),
-            "password": get_config_value("snowflake_password"),
-            "account": get_config_value("snowflake_account"),
-            "warehouse": get_config_value("snowflake_warehouse"),
-            "database": get_config_value("snowflake_database"),
-            "schema": get_config_value("snowflake_schema"),
-            "role": get_config_value("snowflake_role", "SYSADMIN"),
+        self._# REMOVED: modern_stack dependency {
+            "user": get_config_value("modern_stack_user"),
+            "password": get_config_value("modern_stack_password"),
+            "account": get_config_value("modern_stack_account"),
+            "warehouse": get_config_value("modern_stack_warehouse"),
+            "database": get_config_value("modern_stack_database"),
+            "schema": get_config_value("modern_stack_schema"),
+            "role": get_config_value("modern_stack_role", "SYSADMIN"),
         }
 
         # MCP mode configuration
         self._mcp_config = {
-            "pat_token": get_config_value("snowflake_mcp_pat"),
-            "mcp_url": get_config_value("snowflake_mcp_url"),
+            "pat_token": get_config_value("modern_stack_mcp_pat"),
+            "mcp_url": get_config_value("modern_stack_mcp_url"),
         }
 
         # Context for direct mode
-# REMOVED: Snowflake dependency.get("warehouse")
-# REMOVED: Snowflake dependency.get("database")
-# REMOVED: Snowflake dependency.get("schema")
+# REMOVED: modern_stack dependency.get("warehouse")
+# REMOVED: modern_stack dependency.get("database")
+# REMOVED: modern_stack dependency.get("schema")
 
     def _determine_mode(self) -> None:
         """Auto-determine the best mode based on available credentials."""
@@ -99,7 +99,7 @@ class SnowflakeCortexService:
         # Prefer MCP if PAT is available
         if self._mcp_config.get("pat_token"):
             self.mode = MCPMode.MCP
-# REMOVED: Snowflake dependency.get(
+# REMOVED: modern_stack dependency.get(
             "password"
         ):
             self.mode = MCPMode.DIRECT
@@ -109,8 +109,8 @@ class SnowflakeCortexService:
                 details={
                     "pat_available": bool(self._mcp_config.get("pat_token")),
                     "user_pwd_available": bool(
-# REMOVED: Snowflake dependency.get("user")
-# REMOVED: Snowflake dependency.get("password")
+# REMOVED: modern_stack dependency.get("user")
+# REMOVED: modern_stack dependency.get("password")
                     ),
                 },
             )
@@ -125,7 +125,7 @@ class SnowflakeCortexService:
         # Initialize based on mode
         if self.mode == MCPMode.MCP:
             if not self._mcp:
-                self._mcp = SnowflakeMCPClient(
+                self._mcp = modern_stackMCPClient(
                     base_url=self._mcp_config.get("mcp_url"),
                     pat_token=self._mcp_config.get("pat_token"),
                 )
@@ -134,7 +134,7 @@ class SnowflakeCortexService:
                 self._pool = AsyncConnectionPool(
                     maxsize=8,
                     minsize=2,
-# REMOVED: Snowflake dependency.items() if v},
+# REMOVED: modern_stack dependency.items() if v},
                 )
                 await self._pool.initialize()
 

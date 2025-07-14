@@ -30,11 +30,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     pinecone_api_key: str = ""
 
-    # Snowflake
-    # REMOVED: Snowflake dependency ""
-    # REMOVED: Snowflake dependency ""
-    # REMOVED: Snowflake dependency ""
-    # REMOVED: Snowflake dependency "SOPHIA_AI"
+    # modern_stack
+    # REMOVED: modern_stack dependency ""
+    # REMOVED: modern_stack dependency ""
+    # REMOVED: modern_stack dependency ""
+    # REMOVED: modern_stack dependency "SOPHIA_AI"
 
     # Rate Limiting
     rate_limit_per_minute: int = 60

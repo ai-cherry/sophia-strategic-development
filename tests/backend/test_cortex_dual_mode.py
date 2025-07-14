@@ -46,7 +46,7 @@ class TestModernStackCortexService:
     @pytest.mark.asyncio
     async def test_auto_mode_prefers_mcp(self):
         """Test that AUTO mode prefers MCP when PAT is available."""
-        with patch.dict(os.environ, {"SNOWFLAKE_MCP_PAT": "test-pat"}):
+        with patch.dict(os.environ, {"modern_stack_MCP_PAT": "test-pat"}):
             with patch(
 # REMOVED: ModernStack dependency_value"
             ) as mock_config:

@@ -17,11 +17,11 @@ The testing framework provides multi-layer validation:
 tests/infrastructure/
 ├── conftest.py              # Shared test fixtures and configuration
 ├── unit/                    # Unit tests for individual components
-│   ├── test_snowflake_component.py
+│   ├── test_modern_stack_component.py
 │   ├── test_pinecone_component.py
 │   └── ...
 ├── integration/             # Integration tests for service interactions
-│   ├── test_snowflake_gong_integration.py
+│   ├── test_modern_stack_gong_integration.py
 │   └── ...
 ├── e2e/                     # End-to-end deployment tests
 │   └── test_complete_infrastructure.py
@@ -95,9 +95,9 @@ Example:
 def test_database_creation(self, pulumi_mock, mock_pulumi_config):
     """Test that the component creates a PostgreSQL database"""
     with pulumi_mock.mocked_provider():
-        component = Modern StackComponent("test-snowflake")
+        component = Modern StackComponent("test-modern_stack")
         pulumi_mock.assert_resource_created(
-            "snowflake:index/database:Database",
+            "modern_stack:index/database:Database",
             {"name": "SOPHIA_DB_TEST"}
         )
 ```
@@ -112,14 +112,14 @@ Test interactions between multiple components:
 
 Example:
 ```python
-async def test_gong_data_flow_to_snowflake(self, mock_gong_client, mock_snowflake_client):
+async def test_gong_data_flow_to_modern_stack(self, mock_gong_client, mock_modern_stack_client):
     """Test data flows correctly from Gong to Modern Stack"""
     # Send test data to Gong
     test_data = {"call_id": "test-123", "duration": 300}
     mock_gong_client.send_test_data(test_data)
 
     # Verify data in Modern Stack
-    result = mock_snowflake_client.query(
+    result = mock_modern_stack_client.query(
         f"SELECT * FROM gong_calls WHERE call_id = '{test_data['call_id']}'"
     )
     assert len(result) == 1
@@ -187,7 +187,7 @@ Common test fixtures are defined in `conftest.py`:
 
 - `pulumi_mock`: Mock Pulumi runtime for unit tests
 - `mock_pulumi_config`: Mock configuration values
-- `mock_snowflake_client`: Mock Modern Stack client
+- `mock_modern_stack_client`: Mock Modern Stack client
 - `mock_pinecone_client`: Mock Pinecone client
 - `mock_gong_client`: Mock Gong client
 - `test_environment_manager`: Test stack management

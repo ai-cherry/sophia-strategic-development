@@ -27,7 +27,7 @@ Phase 1 has been successfully completed with all legacy Modern Stack/Cortex code
 
 | Issue Category | Files Affected | Action Taken | Risk Level | Status |
 |----------------|----------------|--------------|------------|--------|
-| Modern Stack PAT Service | `infrastructure/services/snowflake_pat_service.py` | **DELETED** - Entire file obsolete | LOW | ✅ |
+| Modern Stack PAT Service | `infrastructure/services/modern_stack_pat_service.py` | **DELETED** - Entire file obsolete | LOW | ✅ |
 | Unified Intelligence | `infrastructure/services/unified_intelligence_service.py` | **REFACTORED** - Removed Modern Stack imports, using pgvector | MEDIUM | ✅ |
 | Vector Indexing | `infrastructure/services/vector_indexing_service.py` | **REFACTORED** - Replaced Cortex Search with Weaviate | MEDIUM | ✅ |
 | Memory Service | `backend/services/unified_memory_service.py` | **DEPRECATED** - Added warning, redirect to V2 | LOW | ✅ |
@@ -47,7 +47,7 @@ Phase 1 has been successfully completed with all legacy Modern Stack/Cortex code
 - `pydantic`: 2.7.0 → 2.7.4 ✅
 
 **Removed Dependencies**:
-- `pulumi-snowflake` ✅
+- `pulumi-modern_stack` ✅
 
 ### 4. Integration Enhancements
 

@@ -40,9 +40,9 @@ OPENAI_API_KEY: OpenAI API key
 ANTHROPIC_API_KEY: Anthropic API key
 
 # Database
-SNOWFLAKE_ACCOUNT: Your Modern Stack account
-SNOWFLAKE_USER: Modern Stack username
-SNOWFLAKE_PASSWORD: Modern Stack password
+modern_stack_ACCOUNT: Your Modern Stack account
+modern_stack_USER: Modern Stack username
+modern_stack_PASSWORD: Modern Stack password
 
 # Other Services
 GONG_ACCESS_KEY: Gong API access key
@@ -107,7 +107,7 @@ SERVICE_TYPE_ENVIRONMENT
 
 Examples:
 DOCKER_TOKEN_PROD
-SNOWFLAKE_PASSWORD_DEV
+modern_stack_PASSWORD_DEV
 OPENAI_API_KEY_STAGING
 ```
 

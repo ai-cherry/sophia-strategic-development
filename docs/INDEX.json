@@ -128,7 +128,7 @@
   "system_handbook/06_PHOENIX_MEM0_INTEGRATION_ARCHITECTURE.md": {
     "title": "06 Phoenix Mem0 Integration Architecture"
   },
-  "system_handbook/10_SNOWFLAKE_CORTEX_MCP_INTEGRATION.md": {
+  "system_handbook/10_modern_stack_CORTEX_MCP_INTEGRATION.md": {
     "title": "10 Lambda GPU Mcp Integration"
   },
   "system_handbook/08_1_Implementation_Roadmap.md": {
@@ -194,7 +194,7 @@
   "03-architecture/README.md": {
     "title": "Readme"
   },
-  "03-architecture/SNOWFLAKE_CORTEX_LAYER.md": {
+  "03-architecture/modern_stack_CORTEX_LAYER.md": {
     "title": "Lambda GPU Layer"
   },
   "03-architecture/ADR-007_lambda_serverless_first.md": {
@@ -212,10 +212,10 @@
   "08-security/DEPENDENCY_SECURITY_AUDIT.md": {
     "title": "Dependency Security Audit"
   },
-  "04-deployment/SNOWFLAKE_MIGRATION_README.md": {
+  "04-deployment/modern_stack_MIGRATION_README.md": {
     "title": "ModernStack Migration Readme"
   },
-  "04-deployment/SNOWFLAKE_CORTEX_UNIFIED_IMPLEMENTATION_PLAN.md": {
+  "04-deployment/modern_stack_CORTEX_UNIFIED_IMPLEMENTATION_PLAN.md": {
     "title": "Lambda GPU Unified Implementation Plan"
   },
   "04-deployment/DEPLOYMENT_GUIDE.md": {
@@ -266,7 +266,7 @@
   "04-deployment/PRODUCTION_DEPLOYMENT_ARCHITECTURE.md": {
     "title": "Production Deployment Architecture"
   },
-  "04-deployment/SNOWFLAKE_CORTEX_DEPLOYMENT_SUMMARY.md": {
+  "04-deployment/modern_stack_CORTEX_DEPLOYMENT_SUMMARY.md": {
     "title": "Lambda GPU Deployment Summary"
   },
   "monorepo/MONOREPO_TRANSITION_GUIDE.md": {
@@ -278,7 +278,7 @@
   "monorepo/MIGRATION_MAPPING.md": {
     "title": "Migration Mapping"
   },
-  "monorepo/SNOWFLAKE_CORTEX_AUTH_FLOW.md": {
+  "monorepo/modern_stack_CORTEX_AUTH_FLOW.md": {
     "title": "Lambda GPU Auth Flow"
   },
   "monorepo/CURRENT_STATE_INVENTORY.md": {
@@ -362,7 +362,7 @@
   "implementation/LLM_UNIFICATION_IMPLEMENTATION_SUMMARY.md": {
     "title": "Llm Unification Implementation Summary"
   },
-  "implementation/SNOWFLAKE_CORTEX_MCP_OPTIMIZATION_SUMMARY.md": {
+  "implementation/modern_stack_CORTEX_MCP_OPTIMIZATION_SUMMARY.md": {
     "title": "Lambda GPU Mcp Optimization Summary"
   },
   "implementation/strategic_alignment_and_next_phase.md": {
@@ -398,7 +398,7 @@
   "01-getting-started/README.md": {
     "title": "Readme"
   },
-  "architecture/SNOWFLAKE_CORTEX_REFACTORING_EXAMPLE.md": {
+  "architecture/modern_stack_CORTEX_REFACTORING_EXAMPLE.md": {
     "title": "Lambda GPU Refactoring Example"
   },
   "architecture/WEEK1_CODE_QUALITY_AUDIT_SUMMARY.md": {

@@ -9,11 +9,11 @@ services:
         value: 8001
       - key: ENVIRONMENT
         value: production
-      - key: SNOWFLAKE_ACCOUNT
+      - key: modern_stack_ACCOUNT
         sync: false
-      - key: SNOWFLAKE_USER
+      - key: modern_stack_USER
         sync: false
-      - key: SNOWFLAKE_PAT
+      - key: modern_stack_PAT
         sync: false
       - key: OPENAI_API_KEY
         sync: false

@@ -66,10 +66,10 @@ Token: [REDACTED - Use GitHub CLI or environment variable]
 
 ### 📋 Automated Scripts Created
 
-1. **configure_snowflake_pat.py**: Sets up Modern Stack PAT authentication
-2. **deploy_everything_with_snowflake.py**: Full deployment with proper environment
-3. **test_snowflake_direct.py**: Direct Modern Stack connection testing
-4. **test_snowflake_with_password.py**: Password-based authentication testing
+1. **configure_modern_stack_pat.py**: Sets up Modern Stack PAT authentication
+2. **deploy_everything_with_modern_stack.py**: Full deployment with proper environment
+3. **test_modern_stack_direct.py**: Direct Modern Stack connection testing
+4. **test_modern_stack_with_password.py**: Password-based authentication testing
 5. **deploy_all_mcp_servers.sh**: Quick MCP server deployment
 6. **monitor_mcp_servers.py**: Service health monitoring
 
@@ -98,14 +98,14 @@ curl -X POST http://localhost:8001/api/v3/chat \
 python scripts/monitor_mcp_servers.py
 
 # Test Modern Stack (when unlocked)
-python scripts/test_snowflake_direct.py
+python scripts/test_modern_stack_direct.py
 ```
 
 ### 🎯 Immediate Next Steps
 
 1. **Wait for Modern Stack Unlock** (15-30 minutes)
    - Or use web console to unlock immediately
-   - URL: https://app.snowflake.com
+   - URL: https://app.modern_stack.com
 
 2. **Once Unlocked**:
    ```bash
@@ -114,7 +114,7 @@ python scripts/test_snowflake_direct.py
    python backend/app/unified_chat_backend.py &
    
    # Test connection
-   python scripts/test_snowflake_direct.py
+   python scripts/test_modern_stack_direct.py
    ```
 
 3. **Configure kubectl** (Can do now):
@@ -173,7 +173,7 @@ Despite the temporary Modern Stack lockout, we have:
 ### 📞 Support Information
 
 **Modern Stack Account Unlock**:
-- Web Console: https://app.snowflake.com
+- Web Console: https://app.modern_stack.com
 - Account ID: UHDECNO-CVB64222
 - Region: AWS US West (Oregon)
 

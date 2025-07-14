@@ -17,10 +17,10 @@ class DataTransformer:
     """Transform and validate data from various sources"""
 
     @staticmethod
-    def transform_snowflake_results(results: list[dict]) -> pd.DataFrame:
-        """Transform Snowflake results to standardized format"""
+    def transform_modern_stack_results(results: list[dict]) -> pd.DataFrame:
+        """Transform modern_stack results to standardized format"""
         if not results:
-            raise EmptyResultError("Received empty results from Snowflake")
+            raise EmptyResultError("Received empty results from modern_stack")
 
         df = pd.DataFrame(results)
 
@@ -42,7 +42,7 @@ class DataTransformer:
         if "stage" in df.columns:
             df["stage"] = df["stage"].fillna("Unknown")
 
-        logger.info(f"Transformed Snowflake results. Shape: {df.shape}")
+        logger.info(f"Transformed modern_stack results. Shape: {df.shape}")
         return df
 
     @staticmethod

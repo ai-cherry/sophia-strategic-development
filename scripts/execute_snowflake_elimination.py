@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Comprehensive Snowflake Elimination Execution Script
+Comprehensive modern_stack Elimination Execution Script
 Implements the complete migration strategy to modern stack
 
 This script automates:
-1. Snowflake dependency removal
+1. modern_stack dependency removal
 2. Service migration to modern stack
 3. Data migration validation
 4. Performance optimization
 5. Comprehensive testing
 
 Usage:
-    python scripts/execute_snowflake_elimination.py --phase=all
-    python scripts/execute_snowflake_elimination.py --phase=cleanup --dry-run
+    python scripts/execute_modern_stack_elimination.py --phase=all
+    python scripts/execute_modern_stack_elimination.py --phase=cleanup --dry-run
 """
 
 import argparse
@@ -36,8 +36,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class SnowflakeEliminator:
-    """Comprehensive Snowflake elimination and modern stack migration"""
+class modern_stackEliminator:
+    """Comprehensive modern_stack elimination and modern stack migration"""
     
     def __init__(self, dry_run: bool = False):
         self.dry_run = dry_run
@@ -50,37 +50,37 @@ class SnowflakeEliminator:
             "migration_summary": {}
         }
         
-        # Snowflake patterns to remove
-        self.snowflake_patterns = [
-            r'import snowflake\..*',
-            r'from snowflake\..*',
-            r'snowflake\.connector\.connect',
+        # modern_stack patterns to remove
+        self.modern_stack_patterns = [
+            r'import modern_stack\..*',
+            r'from modern_stack\..*',
+            r'modern_stack\.connector\.connect',
             r'CORTEX\.EMBED_TEXT_768',
             r'CORTEX\.SENTIMENT',
             r'CORTEX\.SUMMARIZE',
             r'CORTEX\.TRANSLATE',
             r'CORTEX\.COMPLETE',
-            r'snowflake_.*=',
-            r'.*snowflake.*config',
+            r'modern_stack_.*=',
+            r'.*modern_stack.*config',
         ]
         
         # Modern stack replacements
         self.replacements = {
-            'import snowflake.connector': '# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3',
-            'from snowflake.connector': '# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3',
-            'snowflake.connector.connect': 'self.modern_stack_connection',
+            'import modern_stack.connector': '# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3',
+            'from modern_stack.connector': '# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3',
+            'modern_stack.connector.connect': 'self.modern_stack_connection',
             'CORTEX.EMBED_TEXT_768': 'await self.lambda_gpu.embed_text',
             'CORTEX.SENTIMENT': 'await self.lambda_gpu.analyze_sentiment',
             'CORTEX.SUMMARIZE': 'await self.lambda_gpu.summarize',
             'CORTEX.TRANSLATE': 'await self.lambda_gpu.translate',
             'CORTEX.COMPLETE': 'await self.lambda_gpu.complete',
-            'SnowflakeService': 'UnifiedMemoryServiceV3',
-            'snowflake_service': 'memory_service_v3'
+            'modern_stackService': 'UnifiedMemoryServiceV3',
+            'modern_stack_service': 'memory_service_v3'
         }
         
     async def execute_complete_elimination(self) -> Dict[str, Any]:
-        """Execute the complete Snowflake elimination strategy"""
-        logger.info("🚀 Starting comprehensive Snowflake elimination...")
+        """Execute the complete modern_stack elimination strategy"""
+        logger.info("🚀 Starting comprehensive modern_stack elimination...")
         
         start_time = time.time()
         
@@ -111,11 +111,11 @@ class SnowflakeEliminator:
                 "errors": len(self.results["errors"])
             }
             
-            logger.info(f"🎉 Snowflake elimination completed in {execution_time:.2f} seconds!")
+            logger.info(f"🎉 modern_stack elimination completed in {execution_time:.2f} seconds!")
             return self.results
             
         except Exception as e:
-            logger.error(f"❌ Snowflake elimination failed: {e}")
+            logger.error(f"❌ modern_stack elimination failed: {e}")
             self.results["migration_summary"] = {
                 "status": "FAILED",
                 "error": str(e),
@@ -124,14 +124,14 @@ class SnowflakeEliminator:
             return self.results
     
     async def phase1_code_cleanup(self):
-        """Phase 1: Remove all Snowflake dependencies from codebase"""
+        """Phase 1: Remove all modern_stack dependencies from codebase"""
         logger.info("🧹 Starting code cleanup phase...")
         
-        # Find all Python files with Snowflake references
-        snowflake_files = await self.find_snowflake_files()
-        logger.info(f"Found {len(snowflake_files)} files with Snowflake references")
+        # Find all Python files with modern_stack references
+        modern_stack_files = await self.find_modern_stack_files()
+        logger.info(f"Found {len(modern_stack_files)} files with modern_stack references")
         
-        for file_path in snowflake_files:
+        for file_path in modern_stack_files:
             try:
                 await self.process_python_file(file_path)
                 self.results["files_processed"].append(str(file_path))
@@ -139,28 +139,28 @@ class SnowflakeEliminator:
                 logger.error(f"Failed to process {file_path}: {e}")
                 self.results["errors"].append(f"File processing error: {file_path} - {e}")
         
-        # Remove Snowflake configuration files
-        await self.remove_snowflake_configs()
+        # Remove modern_stack configuration files
+        await self.remove_modern_stack_configs()
         
         # Update requirements files
         await self.update_requirements()
         
         logger.info(f"✅ Phase 1 complete: {len(self.results['files_processed'])} files processed")
     
-    async def find_snowflake_files(self) -> List[Path]:
-        """Find all Python files containing Snowflake references"""
-        snowflake_files = []
+    async def find_modern_stack_files(self) -> List[Path]:
+        """Find all Python files containing modern_stack references"""
+        modern_stack_files = []
         
         # Files to exclude from processing
         exclude_files = {
-            'scripts/execute_snowflake_elimination.py',
-            './scripts/execute_snowflake_elimination.py'
+            'scripts/execute_modern_stack_elimination.py',
+            './scripts/execute_modern_stack_elimination.py'
         }
         
-        # Use grep to find files with Snowflake references
+        # Use grep to find files with modern_stack references
         try:
             result = subprocess.run(
-                ["grep", "-r", "-l", "-i", "snowflake", "--include=*.py", "."],
+                ["grep", "-r", "-l", "-i", "modern_stack", "--include=*.py", "."],
                 capture_output=True,
                 text=True,
                 cwd=Path.cwd()
@@ -168,7 +168,7 @@ class SnowflakeEliminator:
             
             if result.returncode == 0:
                 files = result.stdout.strip().split('\n')
-                snowflake_files = [Path(f) for f in files if f and Path(f).exists() and str(f) not in exclude_files]
+                modern_stack_files = [Path(f) for f in files if f and Path(f).exists() and str(f) not in exclude_files]
             
         except Exception as e:
             logger.warning(f"grep command failed, falling back to manual search: {e}")
@@ -179,15 +179,15 @@ class SnowflakeEliminator:
                 try:
                     with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
                         content = f.read().lower()
-                        if 'snowflake' in content:
-                            snowflake_files.append(py_file)
+                        if 'modern_stack' in content:
+                            modern_stack_files.append(py_file)
                 except Exception:
                     continue
         
-        return snowflake_files
+        return modern_stack_files
     
     async def process_python_file(self, file_path: Path):
-        """Process individual Python file to remove Snowflake dependencies"""
+        """Process individual Python file to remove modern_stack dependencies"""
         logger.debug(f"Processing file: {file_path}")
         
         # Read file content
@@ -205,18 +205,18 @@ class SnowflakeEliminator:
                 logger.debug(f"Replaced '{old_pattern}' in {file_path}")
         
         # Apply regex patterns for more complex replacements
-        for pattern in self.snowflake_patterns:
+        for pattern in self.modern_stack_patterns:
             matches = re.findall(pattern, modified_content, re.IGNORECASE)
             if matches:
                 modified_content = re.sub(
                     pattern, 
-                    '# REMOVED: Snowflake dependency', 
+                    '# REMOVED: modern_stack dependency', 
                     modified_content, 
                     flags=re.IGNORECASE
                 )
                 changes_made += len(matches)
         
-        # Add modern stack import if Snowflake was removed
+        # Add modern stack import if modern_stack was removed
         if changes_made > 0 and 'UnifiedMemoryServiceV3' not in modified_content:
             # Add import at the top of the file
             lines = modified_content.split('\n')
@@ -250,18 +250,18 @@ class SnowflakeEliminator:
         elif changes_made > 0:
             logger.info(f"🔍 DRY RUN: Would modify {file_path}: {changes_made} changes")
     
-    async def remove_snowflake_configs(self):
-        """Remove Snowflake configuration files and directories"""
-        snowflake_configs = [
-            "config/snowflake/",
-            "infrastructure/snowflake_setup/",
-            "infrastructure/snowflake_iac/",
-            "config/snowflake_admin_config.yaml",
-            "snowflake_complete_alignment.sql",
-            "advanced_snowflake_features_roadmap.md"
+    async def remove_modern_stack_configs(self):
+        """Remove modern_stack configuration files and directories"""
+        modern_stack_configs = [
+            "config/modern_stack/",
+            "infrastructure/modern_stack_setup/",
+            "infrastructure/modern_stack_iac/",
+            "config/modern_stack_admin_config.yaml",
+            "modern_stack_complete_alignment.sql",
+            "advanced_modern_stack_features_roadmap.md"
         ]
         
-        for config_path in snowflake_configs:
+        for config_path in modern_stack_configs:
             path = Path(config_path)
             if path.exists():
                 if not self.dry_run:
@@ -277,17 +277,17 @@ class SnowflakeEliminator:
                 self.results["dependencies_removed"].append(str(path))
     
     async def update_requirements(self):
-        """Update requirements files to remove Snowflake dependencies"""
+        """Update requirements files to remove modern_stack dependencies"""
         requirements_files = [
             "requirements.txt",
             "requirements-phase2.txt",
             "backend/requirements.txt"
         ]
         
-        snowflake_packages = [
-            "snowflake-connector-python",
-            "snowflake-sqlalchemy", 
-            "snowflake-cortex"
+        modern_stack_packages = [
+            "modern_stack-connector-python",
+            "modern_stack-sqlalchemy", 
+            "modern_stack-cortex"
         ]
         
         for req_file in requirements_files:
@@ -296,13 +296,13 @@ class SnowflakeEliminator:
                 with open(path, 'r') as f:
                     lines = f.readlines()
                 
-                # Filter out Snowflake packages
+                # Filter out modern_stack packages
                 filtered_lines = []
                 removed_packages = []
                 
                 for line in lines:
                     line_lower = line.lower()
-                    if any(pkg in line_lower for pkg in snowflake_packages):
+                    if any(pkg in line_lower for pkg in modern_stack_packages):
                         removed_packages.append(line.strip())
                         logger.info(f"Removing package: {line.strip()}")
                     else:
@@ -311,7 +311,7 @@ class SnowflakeEliminator:
                 if removed_packages and not self.dry_run:
                     with open(path, 'w') as f:
                         f.writelines(filtered_lines)
-                    logger.info(f"✅ Updated {path}: removed {len(removed_packages)} Snowflake packages")
+                    logger.info(f"✅ Updated {path}: removed {len(removed_packages)} modern_stack packages")
                 elif removed_packages:
                     logger.info(f"🔍 DRY RUN: Would remove {len(removed_packages)} packages from {path}")
     
@@ -474,14 +474,14 @@ import asyncpg
         logger.info("✅ Phase 3 complete: Infrastructure updated")
     
     async def update_kubernetes_configs(self):
-        """Update Kubernetes configurations to remove Snowflake dependencies"""
+        """Update Kubernetes configurations to remove modern_stack dependencies"""
         k8s_files = list(Path('.').rglob('*.yaml')) + list(Path('.').rglob('*.yml'))
         
         for k8s_file in k8s_files:
-            if 'snowflake' in k8s_file.name.lower():
+            if 'modern_stack' in k8s_file.name.lower():
                 if not self.dry_run:
                     # Move to archive instead of deleting
-                    archive_dir = Path('archive/kubernetes/snowflake/')
+                    archive_dir = Path('archive/kubernetes/modern_stack/')
                     archive_dir.mkdir(parents=True, exist_ok=True)
                     shutil.move(k8s_file, archive_dir / k8s_file.name)
                     logger.info(f"🗃️ Archived Kubernetes config: {k8s_file}")
@@ -489,17 +489,17 @@ import asyncpg
                     logger.info(f"🔍 DRY RUN: Would archive {k8s_file}")
     
     async def update_environment_config(self):
-        """Update environment configuration to remove Snowflake variables"""
+        """Update environment configuration to remove modern_stack variables"""
         env_files = ['.env', '.env.local', '.env.production', 'local.env']
         
-        snowflake_env_vars = [
-            'SNOWFLAKE_ACCOUNT',
-            'SNOWFLAKE_USER', 
-            'SNOWFLAKE_PASSWORD',
-            'SNOWFLAKE_WAREHOUSE',
-            'SNOWFLAKE_DATABASE',
-            'SNOWFLAKE_SCHEMA',
-            'SNOWFLAKE_ROLE'
+        modern_stack_env_vars = [
+            'modern_stack_ACCOUNT',
+            'modern_stack_USER', 
+            'modern_stack_PASSWORD',
+            'modern_stack_WAREHOUSE',
+            'modern_stack_DATABASE',
+            'modern_stack_SCHEMA',
+            'modern_stack_ROLE'
         ]
         
         for env_file in env_files:
@@ -508,12 +508,12 @@ import asyncpg
                 with open(path, 'r') as f:
                     lines = f.readlines()
                 
-                # Filter out Snowflake environment variables
+                # Filter out modern_stack environment variables
                 filtered_lines = []
                 removed_vars = []
                 
                 for line in lines:
-                    if any(var in line for var in snowflake_env_vars):
+                    if any(var in line for var in modern_stack_env_vars):
                         removed_vars.append(line.strip())
                     else:
                         filtered_lines.append(line)
@@ -521,7 +521,7 @@ import asyncpg
                 if removed_vars and not self.dry_run:
                     with open(path, 'w') as f:
                         f.writelines(filtered_lines)
-                    logger.info(f"✅ Updated {path}: removed {len(removed_vars)} Snowflake variables")
+                    logger.info(f"✅ Updated {path}: removed {len(removed_vars)} modern_stack variables")
                 elif removed_vars:
                     logger.info(f"🔍 DRY RUN: Would remove {len(removed_vars)} variables from {path}")
     
@@ -535,11 +535,11 @@ import asyncpg
                 with open(path, 'r') as f:
                     content = f.read()
                 
-                if 'snowflake' in content.lower():
-                    # Remove Snowflake-related configurations
+                if 'modern_stack' in content.lower():
+                    # Remove modern_stack-related configurations
                     modified_content = re.sub(
-                        r'.*snowflake.*\n', 
-                        '# REMOVED: Snowflake dependency\n', 
+                        r'.*modern_stack.*\n', 
+                        '# REMOVED: modern_stack dependency\n', 
                         content, 
                         flags=re.IGNORECASE
                     )
@@ -555,8 +555,8 @@ import asyncpg
         """Phase 4: Comprehensive validation and testing"""
         logger.info("✅ Starting validation phase...")
         
-        # Validate Snowflake elimination
-        snowflake_count = await self.validate_snowflake_elimination()
+        # Validate modern_stack elimination
+        modern_stack_count = await self.validate_modern_stack_elimination()
         
         # Test modern stack functionality
         await self.test_modern_stack()
@@ -569,13 +569,13 @@ import asyncpg
         
         logger.info("✅ Phase 4 complete: Validation successful")
     
-    async def validate_snowflake_elimination(self) -> int:
-        """Validate that all Snowflake references have been eliminated"""
-        logger.info("🔍 Validating Snowflake elimination...")
+    async def validate_modern_stack_elimination(self) -> int:
+        """Validate that all modern_stack references have been eliminated"""
+        logger.info("🔍 Validating modern_stack elimination...")
         
         try:
             result = subprocess.run(
-                ["grep", "-r", "-i", "snowflake", "--include=*.py", "."],
+                ["grep", "-r", "-i", "modern_stack", "--include=*.py", "."],
                 capture_output=True,
                 text=True
             )
@@ -590,15 +590,15 @@ import asyncpg
                         actual_refs.append(line)
                 
                 if actual_refs:
-                    logger.warning(f"⚠️ Found {len(actual_refs)} remaining Snowflake references:")
+                    logger.warning(f"⚠️ Found {len(actual_refs)} remaining modern_stack references:")
                     for ref in actual_refs[:10]:  # Show first 10
                         logger.warning(f"  {ref}")
                     return len(actual_refs)
                 else:
-                    logger.info("✅ No active Snowflake references found!")
+                    logger.info("✅ No active modern_stack references found!")
                     return 0
             else:
-                logger.info("✅ No Snowflake references found!")
+                logger.info("✅ No modern_stack references found!")
                 return 0
                 
         except Exception as e:
@@ -709,7 +709,7 @@ import asyncpg
         }
         
         # Save report
-        report_path = f"reports/snowflake_elimination_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_path = f"reports/modern_stack_elimination_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         os.makedirs("reports", exist_ok=True)
         
         if not self.dry_run:
@@ -722,14 +722,14 @@ import asyncpg
         return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Execute comprehensive Snowflake elimination")
+    parser = argparse.ArgumentParser(description="Execute comprehensive modern_stack elimination")
     parser.add_argument("--phase", choices=["cleanup", "migration", "infrastructure", "validation", "all"],
                        default="all", help="Phase to execute")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without making changes")
     
     args = parser.parse_args()
     
-    eliminator = SnowflakeEliminator(dry_run=args.dry_run)
+    eliminator = modern_stackEliminator(dry_run=args.dry_run)
     
     async def run_elimination():
         if args.phase == "all":
@@ -749,7 +749,7 @@ def main():
         
         # Print summary
         print("\n" + "="*60)
-        print("SNOWFLAKE ELIMINATION SUMMARY")
+        print("modern_stack ELIMINATION SUMMARY")
         print("="*60)
         print(f"Status: {results.get('migration_summary', {}).get('status', 'UNKNOWN')}")
         print(f"Files Processed: {len(results.get('files_processed', []))}")
@@ -762,7 +762,7 @@ def main():
             for operation, metrics in results['performance_improvements'].items():
                 print(f"  {operation}: {metrics['improvement']} faster")
         
-        print("\n🎉 Snowflake elimination process complete!")
+        print("\n🎉 modern_stack elimination process complete!")
         print("🚀 Sophia AI is now running on modern GPU-accelerated stack!")
         
         return results

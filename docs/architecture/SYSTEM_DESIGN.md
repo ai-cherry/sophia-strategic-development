@@ -94,7 +94,7 @@
   elif intent == "code":
       return "llama3-70b"  # Powerful
   else:
-      return "snowflake-arctic"  # Most capable
+      return "modern_stack-arctic"  # Most capable
   ```
 
 ### Orchestration Layer

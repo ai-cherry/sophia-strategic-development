@@ -193,8 +193,8 @@ class LambdaLabsServerlessService:
             "qwen-3-32b",
         ]
 
-        # Integration with Snowflake Cortex
-        self.# REMOVED: Snowflake dependency UnifiedMemoryServiceV2()
+        # Integration with modern_stack Cortex
+        self.# REMOVED: modern_stack dependency UnifiedMemoryServiceV2()
 
         logger.info(
             "🚀 Lambda Labs Serverless Service initialized with 5 premium models"

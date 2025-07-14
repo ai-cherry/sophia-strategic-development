@@ -1,7 +1,7 @@
 """
 Estuary Flow Orchestrator for Sophia AI
 Replaces estuary with Estuary Flow for real-time data pipeline management
-Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → Snowflake
+Implements ELT pattern: Estuary Flow → PostgreSQL → Redis → modern_stack
 """
 
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
@@ -21,7 +21,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(project_root))
 
-# REMOVED: Snowflake dependency
+# REMOVED: modern_stack dependency
 
 logger = logging.getLogger(__name__)
 
@@ -412,15 +412,15 @@ class EstuaryFlowOrchestrator:
         )
         return await self._create_flow(flow_spec)
 
-    async def create_postgresql_to_snowflake_flow(self) -> dict[str, Any]:
+    async def create_postgresql_to_modern_stack_flow(self) -> dict[str, Any]:
         """
-        Create PostgreSQL → Snowflake data flow
-        ELT pattern: Transform and load processed data to Snowflake
+        Create PostgreSQL → modern_stack data flow
+        ELT pattern: Transform and load processed data to modern_stack
         """
-# REMOVED: Snowflake dependency()
+# REMOVED: modern_stack dependency()
 
         flow_spec = DataFlowSpec(
-            name="postgresql-to-snowflake",
+            name="postgresql-to-modern_stack",
             source_type="source-postgres",
             source_config={
                 "host": get_config_value("postgresql_host"),
@@ -432,14 +432,14 @@ class EstuaryFlowOrchestrator:
                 "ssl_mode": "require",
                 "replication_method": "CDC",  # Change Data Capture for real-time
             },
-            destination_type="destination-snowflake",
+            destination_type="destination-modern_stack",
             destination_config={
-                "host": f"{snowflake_creds.get('account')}.snowflakecomputing.com",
-                "role": snowflake_creds.get("role"),
-                "warehouse": snowflake_creds.get("warehouse"),
-                "database": snowflake_creds.get("database"),
-                "username": snowflake_creds.get("user"),
-                "password": snowflake_creds.get("password"),
+                "host": f"{modern_stack_creds.get('account')}.modern_stackcomputing.com",
+                "role": modern_stack_creds.get("role"),
+                "warehouse": modern_stack_creds.get("warehouse"),
+                "database": modern_stack_creds.get("database"),
+                "username": modern_stack_creds.get("user"),
+                "password": modern_stack_creds.get("password"),
                 "jdbc_url_params": "CLIENT_SESSION_KEEP_ALIVE=true",
             },
         )
@@ -489,7 +489,7 @@ class EstuaryFlowOrchestrator:
     async def setup_complete_pipeline(self) -> dict[str, Any]:
         """
         Set up the complete data pipeline:
-        HubSpot/Gong/Slack/Salesforce/Asana/Linear/Notion -> PostgreSQL -> Snowflake
+        HubSpot/Gong/Slack/Salesforce/Asana/Linear/Notion -> PostgreSQL -> modern_stack
         """
         results = {}
 
@@ -508,8 +508,8 @@ class EstuaryFlowOrchestrator:
             await asyncio.sleep(5)
 
             # Create destination flow
-            logger.info("Setting up Snowflake destination flow...")
-            results["# REMOVED: Snowflake dependency await self.create_postgresql_to_snowflake_flow()
+            logger.info("Setting up modern_stack destination flow...")
+            results["# REMOVED: modern_stack dependency await self.create_postgresql_to_modern_stack_flow()
 
             # Start all flows
             logger.info("Starting all data flows...")
@@ -521,7 +521,7 @@ class EstuaryFlowOrchestrator:
                 "asana-to-postgresql",
                 "linear-to-postgresql",
                 "notion-to-postgresql",
-                "postgresql-to-snowflake",
+                "postgresql-to-modern_stack",
             ]:
                 await self.start_flow(flow_name)
 

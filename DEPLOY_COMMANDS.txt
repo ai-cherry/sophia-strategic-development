@@ -16,9 +16,9 @@ export POSTGRES_PASSWORD="your-postgres-password"
 export GRAFANA_PASSWORD="your-grafana-password"
 export PULUMI_ACCESS_TOKEN="your-pulumi-token"
 export MEM0_API_KEY="your-mem0-key"
-export SNOWFLAKE_ACCOUNT="your-snowflake-account"
-export SNOWFLAKE_USER="your-snowflake-user"
-export SNOWFLAKE_PASSWORD="your-snowflake-password"
+export modern_stack_ACCOUNT="your-modern_stack-account"
+export modern_stack_USER="your-modern_stack-user"
+export modern_stack_PASSWORD="your-modern_stack-password"
 export VERCEL_V0DEV_API_KEY="your-vercel-key"
 
 # 5. Deploy the stack:

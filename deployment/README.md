@@ -134,7 +134,7 @@ services:
 # deployment/docker-compose-ai-core.yml
 services:
   - ai-memory-v2            # AI Memory (Port 9000)
-  - snowflake-cortex        # Modern Stack AI (Port 8081)
+  - modern_stack-cortex        # Modern Stack AI (Port 8081)
   - mem0-openmemory         # Memory Persistence (Port 8080)
   - huggingface-ai          # ML Models (Port 9012)
   - portkey-admin           # LLM Gateway (Port 9013)
@@ -175,10 +175,10 @@ services:
 ```yaml
 # deployment/docker-compose-data-pipeline.yml
 services:
-  - snowflake-v2            # Data Hub (Port 9001)
-  - snowflake-unified       # Data Processing (Port 9028)
+  - modern_stack-v2            # Data Hub (Port 9001)
+  - modern_stack-unified       # Data Processing (Port 9028)
   - gong-webhook            # Webhooks (Port 8080)
-  - snowflake-cortex        # Cortex Processing (Port 9029)
+  - modern_stack-cortex        # Cortex Processing (Port 9029)
   - postgres                # Database Management (Port 9030)
   - estuary-flow            # Real-time Pipeline (Port 9031)
   - graphiti                # Knowledge Graph (Port 9032)

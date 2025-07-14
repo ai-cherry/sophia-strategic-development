@@ -54,12 +54,12 @@
       ],
       "cwd": "/home/ubuntu/sophia-main",
       "env": {
-        "SNOWFLAKE_ACCOUNT": "${ESC_SNOWFLAKE_ACCOUNT}",
-        "SNOWFLAKE_USER": "${ESC_SNOWFLAKE_USER}",
-        "SNOWFLAKE_PASSWORD": "${ESC_SNOWFLAKE_PASSWORD}",
-        "SNOWFLAKE_WAREHOUSE": "${ESC_SNOWFLAKE_WAREHOUSE}",
-        "SNOWFLAKE_DATABASE": "${ESC_SNOWFLAKE_DATABASE}",
-        "SNOWFLAKE_SCHEMA": "${ESC_SNOWFLAKE_SCHEMA}",
+        "modern_stack_ACCOUNT": "${ESC_modern_stack_ACCOUNT}",
+        "modern_stack_USER": "${ESC_modern_stack_USER}",
+        "modern_stack_PASSWORD": "${ESC_modern_stack_PASSWORD}",
+        "modern_stack_WAREHOUSE": "${ESC_modern_stack_WAREHOUSE}",
+        "modern_stack_DATABASE": "${ESC_modern_stack_DATABASE}",
+        "modern_stack_SCHEMA": "${ESC_modern_stack_SCHEMA}",
         "PINECONE_API_KEY": "${ESC_PINECONE_API_KEY}",
         "LOOKER_API_KEY": "${ESC_LOOKER_API_KEY}",
         "MIXPANEL_API_KEY": "${ESC_MIXPANEL_API_KEY}"

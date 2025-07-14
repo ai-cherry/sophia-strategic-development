@@ -1,5 +1,5 @@
 """
-Snowflake Connection Pool Manager
+modern_stack Connection Pool Manager
 Implements connection pooling for improved performance and resource management
 Replaces individual connections with managed pool
 """
@@ -13,10 +13,10 @@ from dataclasses import dataclass
 from queue import Empty, Queue
 from typing import Any
 
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3 import DictCursor
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
-# REMOVED: Snowflake dependency
+# REMOVED: modern_stack dependency
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +35,9 @@ class PoolConfig:
 
 @dataclass
 class PooledConnection:
-    """Wrapper for pooled Snowflake connection"""
+    """Wrapper for pooled modern_stack connection"""
 
-    connection: snowflake.connector.SnowflakeConnection
+    connection: modern_stack.connector.modern_stackConnection
     created_at: float
     last_used: float
     in_use: bool = False
@@ -53,15 +53,15 @@ class PooledConnection:
         return time.time() - self.created_at
 
 
-class SnowflakeConnectionPool:
+class modern_stackConnectionPool:
     """
-    Thread-safe connection pool for Snowflake
+    Thread-safe connection pool for modern_stack
     Manages connection lifecycle, health checks, and automatic cleanup
     """
 
     def __init__(self, config: PoolConfig | None = None):
         self.config = config or PoolConfig()
-# REMOVED: Snowflake dependency.get_connection_params()
+# REMOVED: modern_stack dependency.get_connection_params()
 
         # Pool management
         self._pool: Queue[PooledConnection] = Queue(maxsize=self.config.max_size)
@@ -90,7 +90,7 @@ class SnowflakeConnectionPool:
         self._health_check_thread.start()
 
         logger.info(
-# REMOVED: Snowflake dependency.max_size} connections"
+# REMOVED: modern_stack dependency.max_size} connections"
         )
 
     def _initialize_pool(self):
@@ -118,11 +118,11 @@ class SnowflakeConnectionPool:
                 connection=raw_conn, created_at=time.time(), last_used=time.time()
             )
 
-            logger.debug("Created new Snowflake connection")
+            logger.debug("Created new modern_stack connection")
             return pooled_conn
 
         except Exception as e:
-            logger.exception(f"Failed to create Snowflake connection: {e}")
+            logger.exception(f"Failed to create modern_stack connection: {e}")
             raise
 
     def _destroy_connection(self, pooled_conn: PooledConnection):
@@ -131,7 +131,7 @@ class SnowflakeConnectionPool:
             if pooled_conn.connection and not pooled_conn.connection.is_closed():
                 pooled_conn.connection.close()
             self._stats["total_destroyed"] += 1
-            logger.debug("Destroyed Snowflake connection")
+            logger.debug("Destroyed modern_stack connection")
         except Exception as e:
             logger.warning(f"Error destroying connection: {e}")
 
@@ -339,7 +339,7 @@ class SnowflakeConnectionPool:
 
             return {
                 "status": "healthy",
-                "snowflake_version": version,
+                "modern_stack_version": version,
                 "pool_stats": stats,
                 "timestamp": time.time(),
             }
@@ -354,7 +354,7 @@ class SnowflakeConnectionPool:
 
     def shutdown(self):
         """Shutdown the connection pool"""
-        logger.info("Shutting down Snowflake connection pool...")
+        logger.info("Shutting down modern_stack connection pool...")
         self._shutdown = True
         self._shutdown_event.set()  # Signal shutdown to health check worker
 
@@ -379,18 +379,18 @@ class SnowflakeConnectionPool:
 
 
 # Global connection pool instance
-_global_pool: SnowflakeConnectionPool | None = None
+_global_pool: modern_stackConnectionPool | None = None
 _pool_lock = threading.Lock()
 
 
-def get_connection_pool() -> SnowflakeConnectionPool:
+def get_connection_pool() -> modern_stackConnectionPool:
     """Get the global connection pool instance"""
     global _global_pool
 
     if _global_pool is None:
         with _pool_lock:
             if _global_pool is None:
-                _global_pool = SnowflakeConnectionPool()
+                _global_pool = modern_stackConnectionPool()
 
     return _global_pool
 
@@ -405,20 +405,20 @@ def shutdown_connection_pool():
 
 
 # Convenience functions
-def execute_snowflake_query(query: str, *args, **kwargs) -> Any:
-    """Execute a Snowflake query using the global connection pool"""
+def execute_modern_stack_query(query: str, *args, **kwargs) -> Any:
+    """Execute a modern_stack query using the global connection pool"""
     pool = get_connection_pool()
     return pool.execute_query(query, *args, **kwargs)
 
 
-async def execute_snowflake_query_async(query: str, *args, **kwargs) -> Any:
-    """Execute a Snowflake query asynchronously using the global connection pool"""
+async def execute_modern_stack_query_async(query: str, *args, **kwargs) -> Any:
+    """Execute a modern_stack query asynchronously using the global connection pool"""
     pool = get_connection_pool()
     return await pool.execute_query_async(query, *args, **kwargs)
 
 
-def get_snowflake_connection():
-    """Get a Snowflake connection from the global pool"""
+def get_modern_stack_connection():
+    """Get a modern_stack connection from the global pool"""
     pool = get_connection_pool()
     return pool.get_connection()
 

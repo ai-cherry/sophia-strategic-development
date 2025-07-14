@@ -92,7 +92,7 @@ async def call_tool(name: str, arguments: dict) -> Sequence[TextContent]:
 | Server | Expected | Actual | Status |
 |--------|----------|--------|--------|
 | ai_memory | ✅ | ✅ | Exists |
-| snowflake_unified | ✅ | ✅ | Exists |
+| modern_stack_unified | ✅ | ✅ | Exists |
 | asana | ✅ | ❌ | Missing |
 | github | ✅ | ❌ | Missing |
 | slack | ✅ | ❌ | Missing |
@@ -104,7 +104,7 @@ async def call_tool(name: str, arguments: dict) -> Sequence[TextContent]:
 - [x] Create unified base class with official SDK
 - [x] Create migration helper script
 - [ ] Migrate ai_memory server
-- [ ] Migrate snowflake_unified server
+- [ ] Migrate modern_stack_unified server
 - [ ] Implement missing core servers
 
 ### Week 3-4: ETL Migration

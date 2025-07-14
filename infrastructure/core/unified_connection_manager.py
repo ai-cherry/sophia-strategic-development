@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class ConnectionType(str, Enum):
     """Supported connection types"""
 
-    SNOWFLAKE = "modern_stack"
+    modern_stack = "modern_stack"
     POSTGRES = "postgres"
     REDIS = "redis"
 
@@ -187,7 +187,7 @@ class ConnectionPool:
 
     async def _create_modern_stack_connection(self):
         """Create ModernStack connection"""
-        if not SNOWFLAKE_AVAILABLE:
+        if not modern_stack_AVAILABLE:
             raise ImportError("ModernStack connector not available")
 
         # Get configuration from environment or config
@@ -357,7 +357,7 @@ class UnifiedConnectionManager:
         logger.info("🚀 Initializing Unified Connection Manager...")
 
         # Initialize ModernStack pool
-        if SNOWFLAKE_AVAILABLE:
+        if modern_stack_AVAILABLE:
 # REMOVED: ModernStack dependency(
                 min_connections=5,
                 max_connections=25,

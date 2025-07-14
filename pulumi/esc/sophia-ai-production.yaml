@@ -22,7 +22,7 @@ values:
   # Database Credentials (SECRETS)
   # =============================================================================
 
-  postgres_password: os.getenv("SNOWFLAKE_PASSWORD")
+  postgres_password: os.getenv("modern_stack_PASSWORD")
   # ModernStack database password/PAT
 
   redis_password: "PLACEHOLDER_REDIS_PASSWORD"
@@ -118,7 +118,7 @@ values:
     PINECONE_API_KEY: ${pinecone_api_key}
 
     # Database Credentials
-    SNOWFLAKE_PASSWORD: ${postgres_password}
+    modern_stack_PASSWORD: ${postgres_password}
     REDIS_PASSWORD: ${redis_password}
 
     # Business Integration API Keys
@@ -139,12 +139,12 @@ values:
     PULUMI_ACCESS_TOKEN: ${pulumi_access_token}
 
     # Non-Secret Configuration
-    SNOWFLAKE_ACCOUNT: ${postgres_host}
-    SNOWFLAKE_USER: ${modern_stack_user}
-    SNOWFLAKE_ROLE: ${modern_stack_role}
-    SNOWFLAKE_WAREHOUSE: ${postgres_database}
-    SNOWFLAKE_DATABASE: ${postgres_database}
-    SNOWFLAKE_SCHEMA: ${postgres_schema}
+    modern_stack_ACCOUNT: ${postgres_host}
+    modern_stack_USER: ${modern_stack_user}
+    modern_stack_ROLE: ${modern_stack_role}
+    modern_stack_WAREHOUSE: ${postgres_database}
+    modern_stack_DATABASE: ${postgres_database}
+    modern_stack_SCHEMA: ${postgres_schema}
     REDIS_HOST: ${redis_host}
     REDIS_PORT: ${redis_port}
     REDIS_DB: ${redis_db}

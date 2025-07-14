@@ -29,7 +29,7 @@ Successfully merged PR #184 on July 11, 2025, which addresses critical deploymen
   - `mcp-gong-deployment.yaml`
   - `mcp-linear-deployment.yaml`
   - `mcp-slack-deployment.yaml`
-  - `mcp-snowflake-deployment.yaml`
+  - `mcp-modern_stack-deployment.yaml`
 
 ## Current Deployment Alignment Status
 

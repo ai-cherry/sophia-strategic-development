@@ -65,14 +65,14 @@
 | elasticsearch | unified_data | Unified data access layer | 9012 |
 | ai_memory | ai_memory | (kept as-is) | existing |
 | gong | gong | (kept as-is) | existing |
-| snowflake_unified | snowflake_unified | (kept as-is) | existing |
+| modern_stack_unified | modern_stack_unified | (kept as-is) | existing |
 | github | github | (kept as-is) | existing |
 | figma_context | figma_context | (kept as-is) | existing |
 | lambda_labs_cli | lambda_labs_cli | (kept as-is) | existing |
 | portkey_admin | portkey_admin | (kept as-is) | existing |
 | ui_ux_agent | ui_ux_agent | (kept as-is) | existing |
 | estuary | estuary | (kept as-is) | existing |
-| snowflake_cortex | snowflake_cortex | (kept as-is) | existing |
+| modern_stack_cortex | modern_stack_cortex | (kept as-is) | existing |
 | ... | ... | (12 more kept) | ... |
 
 ## Next Steps

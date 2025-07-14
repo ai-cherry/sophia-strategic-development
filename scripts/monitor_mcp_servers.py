@@ -108,7 +108,7 @@ async def test_backend_api():
 
 async def verify_modern_stack_connection():
     """Verify ModernStack is receiving data"""
-    print("\n❄️  SNOWFLAKE VERIFICATION:")
+    print("\n❄️  modern_stack VERIFICATION:")
 
     try:
         # REMOVED: ModernStack dependency - use UnifiedMemoryServiceV3

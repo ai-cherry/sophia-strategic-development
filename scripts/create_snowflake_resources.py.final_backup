@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Create and configure Snowflake resources for Sophia AI
+Create and configure modern_stack resources for Sophia AI
 """
 import os
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
 from pathlib import Path
 
 # Load environment
@@ -16,14 +16,14 @@ if env_file.exists():
                 key, value = line.split("=", 1)
                 os.environ[key] = value.strip('"').strip("'")
 
-print("🔍 Setting up Snowflake resources for Sophia AI...")
+print("🔍 Setting up modern_stack resources for Sophia AI...")
 
 try:
     conn = self.modern_stack_connection(
-        account=os.environ.get("SNOWFLAKE_ACCOUNT"),
-        user=os.environ.get("SNOWFLAKE_USER"),
-        password=os.environ.get("SNOWFLAKE_PAT"),
-        role=os.environ.get("SNOWFLAKE_ROLE", "ACCOUNTADMIN"),
+        account=os.environ.get("modern_stack_ACCOUNT"),
+        user=os.environ.get("modern_stack_USER"),
+        password=os.environ.get("modern_stack_PAT"),
+        role=os.environ.get("modern_stack_ROLE", "ACCOUNTADMIN"),
     )
 
     cursor = conn.cursor()
@@ -118,7 +118,7 @@ try:
         """
         INSERT INTO KNOWLEDGE_BASE (id, content, source, metadata)
         SELECT 'test_' || CURRENT_TIMESTAMP()::VARCHAR, 
-               'Sophia AI is operational with Snowflake!',
+               'Sophia AI is operational with modern_stack!',
                'system_test',
                OBJECT_CONSTRUCT('test', TRUE, 'version', '4.0.0')
     """
@@ -141,11 +141,11 @@ try:
     cursor.close()
     conn.close()
 
-    print("\n✅ All Snowflake resources are ready!")
+    print("\n✅ All modern_stack resources are ready!")
     print("\n📝 Configuration to use:")
-    print("   # REMOVED: Snowflake dependencySOPHIA_AI_COMPUTE_WH")
-    print("   # REMOVED: Snowflake dependencyAI_MEMORY")
-    print("   # REMOVED: Snowflake dependencyVECTORS")
+    print("   # REMOVED: modern_stack dependencySOPHIA_AI_COMPUTE_WH")
+    print("   # REMOVED: modern_stack dependencyAI_MEMORY")
+    print("   # REMOVED: modern_stack dependencyVECTORS")
 
 except Exception as e:
     print(f"\n❌ Error: {e}")

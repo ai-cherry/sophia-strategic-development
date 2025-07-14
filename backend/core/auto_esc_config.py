@@ -172,7 +172,7 @@ def set_config_value(key: str, value: Any) -> None:
     )
 
     # Try PAT token first, then regular password
-    pat_token = os.getenv("SNOWFLAKE_PAT")
+    pat_token = os.getenv("modern_stack_PAT")
     password = (
         pat_token
         if pat_token

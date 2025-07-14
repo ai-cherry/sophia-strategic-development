@@ -1,5 +1,5 @@
 """
-Snowflake Cortex Service - Models Module
+modern_stack Cortex Service - Models Module
 Contains all data models, enums, and type definitions
 """
 
@@ -12,13 +12,13 @@ from typing import Any
 
 # Custom Exception Classes
 class CortexEmbeddingError(Exception):
-    """Raised when Snowflake Cortex embedding generation fails"""
+    """Raised when modern_stack Cortex embedding generation fails"""
 
     pass
 
 
 class InsufficientPermissionsError(Exception):
-    """Raised when user lacks required Snowflake permissions"""
+    """Raised when user lacks required modern_stack permissions"""
 
     pass
 
@@ -36,7 +36,7 @@ class InvalidInputError(Exception):
 
 
 class CortexModel(Enum):
-    """Available Snowflake Cortex models"""
+    """Available modern_stack Cortex models"""
 
     # Text generation models
     LLAMA2_70B = "llama2-70b-chat"

@@ -1,11 +1,11 @@
 from backend.services.unified_memory_service_v3 import UnifiedMemoryServiceV3
 """
-# REMOVED: Snowflake dependencyuration - SINGLE SOURCE OF TRUTH
-# REMOVED: Snowflake dependency.py
+# REMOVED: modern_stack dependencyuration - SINGLE SOURCE OF TRUTH
+# REMOVED: modern_stack dependency.py
 DO NOT MODIFY - This is the authoritative configuration
 """
 
-# REMOVED: Snowflake dependency {
+# REMOVED: modern_stack dependency {
     "account": "ZNB04675.us-east-1.us-east-1",
     "user": "SCOOBYJAVA15",
     "database": "SOPHIA_AI",
@@ -16,7 +16,7 @@ DO NOT MODIFY - This is the authoritative configuration
 }
 
 # Environment-specific overrides (if needed)
-# REMOVED: Snowflake dependency {
+# REMOVED: modern_stack dependency {
     "production": {
         "database": "SOPHIA_AI",
         "warehouse": "SOPHIA_AI_WH",
@@ -35,11 +35,11 @@ DO NOT MODIFY - This is the authoritative configuration
 }
 
 
-def get_# REMOVED: Snowflake dependency "production") -> dict:
-# REMOVED: Snowflake dependencyuration for the specified environment"""
-# REMOVED: Snowflake dependency.copy()
+def get_# REMOVED: modern_stack dependency "production") -> dict:
+# REMOVED: modern_stack dependencyuration for the specified environment"""
+# REMOVED: modern_stack dependency.copy()
 
-# REMOVED: Snowflake dependency:
-# REMOVED: Snowflake dependency[environment])
+# REMOVED: modern_stack dependency:
+# REMOVED: modern_stack dependency[environment])
 
     return config

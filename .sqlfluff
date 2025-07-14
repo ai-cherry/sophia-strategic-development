@@ -1,6 +1,6 @@
 [sqlfluff]
-# Snowflake-specific configuration for Sophia AI
-dialect = snowflake
+# modern_stack-specific configuration for Sophia AI
+dialect = modern_stack
 templater = jinja
 sql_file_exts = .sql,.SQL
 max_line_length = 120
@@ -19,19 +19,19 @@ spacing_before = touch
 line_position = trailing
 
 [sqlfluff:rules]
-# Allow Snowflake-specific syntax
+# Allow modern_stack-specific syntax
 allow_scalar = true
 single_table_references = consistent
 unquoted_identifiers_policy = all
 
-# Disable overly strict ANSI compliance rules for Snowflake
+# Disable overly strict ANSI compliance rules for modern_stack
 sqlfluff.rules.LT05 = disabled  # Line too long
 sqlfluff.rules.CP01 = disabled  # Inconsistent capitalisation
 sqlfluff.rules.AL01 = disabled  # Implicit aliasing
 sqlfluff.rules.AL02 = disabled  # Implicit aliasing
 sqlfluff.rules.ST06 = disabled  # Select wildcards
 
-# Allow Snowflake-specific features
+# Allow modern_stack-specific features
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
 
@@ -44,14 +44,14 @@ capitalisation_policy = upper
 [sqlfluff:rules:capitalisation.literals]
 capitalisation_policy = upper
 
-# Snowflake-specific exclusions
+# modern_stack-specific exclusions
 [sqlfluff:rules:structure.subquery]
 forbid_subquery_in = both
 
-# Allow Snowflake syntax patterns
+# Allow modern_stack syntax patterns
 [sqlfluff:templater:jinja]
 apply_dbt_builtins = false
 
-# Custom rules for Snowflake
+# Custom rules for modern_stack
 [sqlfluff:rules:references.from]
 force_enable = false

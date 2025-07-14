@@ -46,7 +46,7 @@ def main():
     load_local_env()
 
     # Ensure critical variables are set
-    critical_vars = ["SNOWFLAKE_USER", "SNOWFLAKE_ACCOUNT"]
+    critical_vars = ["modern_stack_USER", "modern_stack_ACCOUNT"]
     missing = [var for var in critical_vars if not os.getenv(var)]
 
     if missing:

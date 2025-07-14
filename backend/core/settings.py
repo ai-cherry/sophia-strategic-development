@@ -41,13 +41,13 @@ class Settings(BaseSettings):
     portkey_api_key: str | None = Field(None, env="PORTKEY_API_KEY")
 
     # ModernStack
-    # REMOVED: ModernStack dependency"SNOWFLAKE_ACCOUNT")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_USER")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_PASSWORD")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_WAREHOUSE")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_DATABASE")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_SCHEMA")
-    # REMOVED: ModernStack dependency"SNOWFLAKE_ROLE")
+    # REMOVED: ModernStack dependency"modern_stack_ACCOUNT")
+    # REMOVED: ModernStack dependency"modern_stack_USER")
+    # REMOVED: ModernStack dependency"modern_stack_PASSWORD")
+    # REMOVED: ModernStack dependency"modern_stack_WAREHOUSE")
+    # REMOVED: ModernStack dependency"modern_stack_DATABASE")
+    # REMOVED: ModernStack dependency"modern_stack_SCHEMA")
+    # REMOVED: ModernStack dependency"modern_stack_ROLE")
 
     # Vector Databases
     pinecone_api_key: str | None = Field(None, env="PINECONE_API_KEY")

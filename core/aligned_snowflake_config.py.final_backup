@@ -1,6 +1,6 @@
 """
-# REMOVED: Snowflake dependencyuration for Sophia AI
-Uses the actual Snowflake setup created during alignment process
+# REMOVED: modern_stack dependencyuration for Sophia AI
+Uses the actual modern_stack setup created during alignment process
 Implements secure authentication with the provided PAT token
 """
 
@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class SnowflakeCredentials:
-    """Aligned Snowflake credentials from actual setup"""
+class modern_stackCredentials:
+    """Aligned modern_stack credentials from actual setup"""
 
     account: str = "ZNB04675.us-east-1"
     user: str = "SCOOBYJAVA15"
@@ -26,7 +26,7 @@ class SnowflakeCredentials:
 
 
 @dataclass
-class SnowflakeSchemas:
+class modern_stackSchemas:
     """Aligned schema configuration from actual setup"""
 
     raw_data: str = "RAW_DATA"
@@ -38,25 +38,25 @@ class SnowflakeSchemas:
     monitoring: str = "MONITORING"
 
 
-# REMOVED: Snowflake dependency:
+# REMOVED: modern_stack dependency:
     """
-# REMOVED: Snowflake dependencyuration manager
-    Uses the actual Snowflake setup created during alignment
+# REMOVED: modern_stack dependencyuration manager
+    Uses the actual modern_stack setup created during alignment
     Provides secure access to all configured schemas and tables
     """
 
     def __init__(self):
-        self._credentials = SnowflakeCredentials()
-        self._schemas = SnowflakeSchemas()
+        self._credentials = modern_stackCredentials()
+        self._schemas = modern_stackSchemas()
         self._connection_params: dict | None = None
         self._validate_setup()
 
     def _validate_setup(self):
-        """Validate the Snowflake setup alignment"""
+        """Validate the modern_stack setup alignment"""
         try:
             # Check if connection info file exists
             connection_info_path = (
-                "/home/ubuntu/sophia-project/snowflake_connection_info.json"
+                "/home/ubuntu/sophia-project/modern_stack_connection_info.json"
             )
             if os.path.exists(connection_info_path):
                 import json
@@ -66,7 +66,7 @@ class SnowflakeSchemas:
 
                 # Validate alignment
                 if connection_info.get("account") == self._credentials.account:
-# REMOVED: Snowflake dependencyuration aligned with actual setup")
+# REMOVED: modern_stack dependencyuration aligned with actual setup")
                 else:
                     logger.warning("⚠️ Configuration mismatch detected")
             else:
@@ -78,7 +78,7 @@ class SnowflakeSchemas:
             logger.warning(f"⚠️ Setup validation failed: {e}")
 
     def get_connection_params(self) -> dict:
-        """Get connection parameters for Snowflake"""
+        """Get connection parameters for modern_stack"""
         if not self._connection_params:
             self._connection_params = {
                 "account": self._credentials.account,
@@ -159,11 +159,11 @@ class SnowflakeSchemas:
         return {
             "schema": self._schemas.cortex_ai,
             "functions": {
-                "complete": "SNOWFLAKE.await self.lambda_gpu.complete",
-                "sentiment": "SNOWFLAKE.await self.lambda_gpu.analyze_sentiment",
-                "extract_answer": "SNOWFLAKE.CORTEX.EXTRACT_ANSWER",
-                "summarize": "SNOWFLAKE.await self.lambda_gpu.summarize",
-                "translate": "SNOWFLAKE.await self.lambda_gpu.translate",
+                "complete": "modern_stack.await self.lambda_gpu.complete",
+                "sentiment": "modern_stack.await self.lambda_gpu.analyze_sentiment",
+                "extract_answer": "modern_stack.CORTEX.EXTRACT_ANSWER",
+                "summarize": "modern_stack.await self.lambda_gpu.summarize",
+                "translate": "modern_stack.await self.lambda_gpu.translate",
             },
             "models": {
                 "default": "mistral-7b",
@@ -181,9 +181,9 @@ class SnowflakeSchemas:
         }
 
     def validate_connection(self) -> bool:
-        """Validate Snowflake connection"""
+        """Validate modern_stack connection"""
         try:
-            # REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+            # REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
 
             conn = self.modern_stack_connection(**self.get_connection_params())
             cursor = conn.cursor()
@@ -192,17 +192,17 @@ class SnowflakeSchemas:
             cursor.close()
             conn.close()
 
-            logger.info(f"✅ Snowflake connection validated. Version: {version}")
+            logger.info(f"✅ modern_stack connection validated. Version: {version}")
             return True
 
         except Exception as e:
-            logger.exception(f"❌ Snowflake connection validation failed: {e}")
+            logger.exception(f"❌ modern_stack connection validation failed: {e}")
             return False
 
     def get_estuary_materialization_config(self) -> dict:
-        """Get Estuary Flow materialization configuration for Snowflake"""
+        """Get Estuary Flow materialization configuration for modern_stack"""
         return {
-            "connector_image": "ghcr.io/estuary/materialize-snowflake:dev",
+            "connector_image": "ghcr.io/estuary/materialize-modern_stack:dev",
             "config": {
                 "account": self._credentials.account,
                 "user": self._credentials.user,
@@ -239,33 +239,33 @@ class SnowflakeSchemas:
 
 
 # Global instance for easy access
-# REMOVED: Snowflake dependency()
+# REMOVED: modern_stack dependency()
 
 
 # Convenience functions
-def get_snowflake_connection():
-# REMOVED: Snowflake dependencyuration"""
-    # REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+def get_modern_stack_connection():
+# REMOVED: modern_stack dependencyuration"""
+    # REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
 
     return self.modern_stack_connection(
-# REMOVED: Snowflake dependency.get_connection_params()
+# REMOVED: modern_stack dependency.get_connection_params()
     )
 
 
-def get_snowflake_connection_for_schema(schema_name: str):
-    """Get Snowflake connection for specific schema"""
-    # REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+def get_modern_stack_connection_for_schema(schema_name: str):
+    """Get modern_stack connection for specific schema"""
+    # REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
 
     return self.modern_stack_connection(
-# REMOVED: Snowflake dependency.get_connection_params_for_schema(schema_name)
+# REMOVED: modern_stack dependency.get_connection_params_for_schema(schema_name)
     )
 
 
-def execute_# REMOVED: Snowflake dependency "estuary_flow"):
-# REMOVED: Snowflake dependencyuration"""
-    # REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3 import DictCursor
+def execute_# REMOVED: modern_stack dependency "estuary_flow"):
+# REMOVED: modern_stack dependencyuration"""
+    # REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3 import DictCursor
 
-    conn = get_snowflake_connection_for_schema(schema)
+    conn = get_modern_stack_connection_for_schema(schema)
     try:
         cursor = conn.cursor(DictCursor)
         cursor.execute(query)
@@ -276,18 +276,18 @@ def execute_# REMOVED: Snowflake dependency "estuary_flow"):
         conn.close()
 
 
-def test_# REMOVED: Snowflake dependency "mistral-7b"):
-    """Test Snowflake Cortex AI function"""
+def test_# REMOVED: modern_stack dependency "mistral-7b"):
+    """Test modern_stack Cortex AI function"""
     query = f"""
-    SELECT SNOWFLAKE.await self.lambda_gpu.complete('{model}', '{prompt}') as AI_RESPONSE
+    SELECT modern_stack.await self.lambda_gpu.complete('{model}', '{prompt}') as AI_RESPONSE
     """
-    result = execute_snowflake_query(query, "cortex_ai")
+    result = execute_modern_stack_query(query, "cortex_ai")
     return result[0]["AI_RESPONSE"] if result else None
 
 
 if __name__ == "__main__":
     # Test the configuration
-# REMOVED: Snowflake dependency()
+# REMOVED: modern_stack dependency()
 
     # Test connection
     if config.validate_connection():
@@ -301,7 +301,7 @@ if __name__ == "__main__":
 
         # Test Cortex AI
         with contextlib.suppress(Exception):
-            response = test_snowflake_cortex("What is Estuary Flow?")
+            response = test_modern_stack_cortex("What is Estuary Flow?")
 
     else:
         pass

@@ -1,7 +1,7 @@
 """
 Gong Webhook Server - Production-ready FastAPI webhook processor for Gong integrations.
 
-This server processes Gong webhooks, enhances data via API calls, stores in Snowflake,
+This server processes Gong webhooks, enhances data via API calls, stores in modern_stack,
 and notifies Sophia agents via Redis pub/sub.
 """
 
@@ -86,12 +86,12 @@ class WebhookServerConfig(BaseSettings):
     GONG_API_BURST_LIMIT: int = 10
 
     # Database settings
-    # REMOVED: Snowflake dependency"SNOWFLAKE_ACCOUNT")
-    # REMOVED: Snowflake dependency"SNOWFLAKE_USER")
-    # REMOVED: Snowflake dependency"SNOWFLAKE_PASSWORD")
-    # REMOVED: Snowflake dependency"SNOWFLAKE_WAREHOUSE")
-    # REMOVED: Snowflake dependency"SNOWFLAKE_DATABASE")
-    # REMOVED: Snowflake dependency"SNOWFLAKE_SCHEMA")
+    # REMOVED: modern_stack dependency"modern_stack_ACCOUNT")
+    # REMOVED: modern_stack dependency"modern_stack_USER")
+    # REMOVED: modern_stack dependency"modern_stack_PASSWORD")
+    # REMOVED: modern_stack dependency"modern_stack_WAREHOUSE")
+    # REMOVED: modern_stack dependency"modern_stack_DATABASE")
+    # REMOVED: modern_stack dependency"modern_stack_SCHEMA")
 
     # Redis settings
     REDIS_URL: str = Field(default="redis://localhost:6379", env="REDIS_URL")
@@ -483,13 +483,13 @@ def get_webhook_processor() -> WebhookProcessor:
         config = get_server_config()
         _webhook_processor = WebhookProcessor(
             gong_api_key=config.GONG_API_KEY,
-            # REMOVED: Snowflake dependency{
-                "account": config.SNOWFLAKE_ACCOUNT,
-                "user": config.SNOWFLAKE_USER,
-                "password": config.SNOWFLAKE_PASSWORD,
-                "warehouse": config.SNOWFLAKE_WAREHOUSE,
-                "database": config.SNOWFLAKE_DATABASE,
-                "schema": config.SNOWFLAKE_SCHEMA,
+            # REMOVED: modern_stack dependency{
+                "account": config.modern_stack_ACCOUNT,
+                "user": config.modern_stack_USER,
+                "password": config.modern_stack_PASSWORD,
+                "warehouse": config.modern_stack_WAREHOUSE,
+                "database": config.modern_stack_DATABASE,
+                "schema": config.modern_stack_SCHEMA,
             },
             redis_url=config.REDIS_URL,
         )
@@ -506,7 +506,7 @@ async def health_check():
         "version": "1.0.0",
         "checks": {
             "redis": {"status": "ok"},  # TODO: Implement actual health checks
-            "snowflake": {"status": "ok"},
+            "modern_stack": {"status": "ok"},
             "gong_api": {"status": "ok"},
         },
     }
@@ -546,7 +546,7 @@ async def handle_call_webhook(request: Request, background_tasks: BackgroundTask
             )
 
             # Store raw webhook immediately (fast response)
-            # TODO: Implement Snowflake storage
+            # TODO: Implement modern_stack storage
 
             # Queue background processing
             background_tasks.add_task(

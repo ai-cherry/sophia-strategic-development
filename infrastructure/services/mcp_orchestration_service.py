@@ -72,7 +72,7 @@ class MCPServerType(str, Enum):
     """Types of MCP servers"""
 
     GONG = "gong"
-    SNOWFLAKE = "modern_stack"
+    modern_stack = "modern_stack"
     SLACK = "slack"
     LINEAR = "linear"
     VERCEL = "vercel"

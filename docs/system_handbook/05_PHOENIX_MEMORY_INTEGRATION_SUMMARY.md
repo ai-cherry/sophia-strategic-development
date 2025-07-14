@@ -140,7 +140,7 @@ User Message → Multi-Tier Memory Processing → Contextual Response
 
 ### Files Created (Phase 1)
 ```
-backend/snowflake_setup/
+backend/modern_stack_setup/
 ├── mem0_integration_schema.sql      # Modern Stack schema enhancements
 └── mem0_sync_procedures.sql         # Mem0 sync procedures
 
@@ -168,7 +168,7 @@ Core Intelligence (8 servers):
 ├── ai_memory (9000) - Enhanced with 5-tier integration
 ├── mem0_persistent (9010) - NEW: Cross-session learning
 ├── sophia_intelligence_unified (8001) - Memory-aware orchestration
-├── snowflake_unified (8080) - Cortex + Mem0 sync
+├── modern_stack_unified (8080) - Cortex + Mem0 sync
 ├── codacy (3008) - Memory-aware code analysis
 ├── github (9003) - Repository memory context
 ├── linear (9004) - Project memory tracking
@@ -217,7 +217,7 @@ Core Intelligence (8 servers):
 ```bash
 # 1. Add MEM0_API_KEY to GitHub Organization Secrets
 # 2. Deploy Modern Stack schema updates
-python backend/snowflake_setup/deploy_mem0_integration.py
+python backend/modern_stack_setup/deploy_mem0_integration.py
 
 # 3. Start enhanced development environment
 source activate_env.sh

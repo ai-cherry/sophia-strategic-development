@@ -66,12 +66,12 @@ backend/core/
 ├── config/
 │   ├── base.py          # Interfaces
 │   ├── manager.py       # Implementation
-│   ├── snowflake.py     # Modern Stack-specific
+│   ├── modern_stack.py     # Modern Stack-specific
 │   └── integrations.py  # External services
 └── connections/
     ├── base.py          # Interfaces
     ├── pool.py          # Connection pooling
-    ├── snowflake.py     # Modern Stack connections
+    ├── modern_stack.py     # Modern Stack connections
     └── external.py      # External services
 ```
 

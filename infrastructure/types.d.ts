@@ -288,7 +288,7 @@ declare module 'sophia-ai/components' {
         };
     }
 
-    export interface SnowflakeCortexArgs {
+    export interface modern_stackCortexArgs {
         account: string;
         user: string;
         password: string;
@@ -403,11 +403,11 @@ declare module 'sophia-ai/data' {
     export interface DataPipelineArgs {
         name: string;
         source: {
-            type: 'snowflake' | 'postgres' | 'api' | 'file';
+            type: 'modern_stack' | 'postgres' | 'api' | 'file';
             connection: any;
         };
         destination: {
-            type: 'snowflake' | 'pinecone' | 'weaviate' | 'file';
+            type: 'modern_stack' | 'pinecone' | 'weaviate' | 'file';
             connection: any;
         };
         transformations: Array<{

@@ -97,7 +97,7 @@ class EstuaryMCPServer(StandardizedMCPServer):
         List all materialization pipelines.
 
         Materializations write data from Estuary collections to:
-        - Snowflake
+        - modern_stack
         - BigQuery
         - Redshift
         - ClickHouse
@@ -166,34 +166,34 @@ class EstuaryMCPServer(StandardizedMCPServer):
             return {"status": "error", "error": str(e)}
 
     @mcp_tool(
-        description="Create a Snowflake materialization pipeline", include_context=True
+        description="Create a modern_stack materialization pipeline", include_context=True
     )
-    async def create_snowflake_materialization(
+    async def create_modern_stack_materialization(
         self, name: str, collection_mappings: list[dict[str, str]], context: dict
     ) -> dict[str, Any]:
         """
-        Create a Snowflake materialization pipeline.
+        Create a modern_stack materialization pipeline.
 
         Args:
-            name: Name for the materialization (e.g., "sophia-to-snowflake")
+            name: Name for the materialization (e.g., "sophia-to-modern_stack")
             collection_mappings: List of dicts mapping collections to tables
                 Example: [{"collection": "sophia/cdc/users", "table": "STG_USERS"}]
         """
         try:
-# REMOVED: Snowflake dependency
-# REMOVED: Snowflake dependency()
+# REMOVED: modern_stack dependency
+# REMOVED: modern_stack dependency()
 
             async with EstuaryService() as service:
-                success = await service.create_snowflake_materialization(
+                success = await service.create_modern_stack_materialization(
                     name=name,
-# REMOVED: Snowflake dependency,
+# REMOVED: modern_stack dependency,
                     collections=collection_mappings,
                 )
 
                 if success:
                     return {
                         "status": "success",
-                        "message": f"Created Snowflake materialization: {name}",
+                        "message": f"Created modern_stack materialization: {name}",
                         "materialization_name": name,
                         "mappings": collection_mappings,
                     }
@@ -204,7 +204,7 @@ class EstuaryMCPServer(StandardizedMCPServer):
                     }
 
         except Exception as e:
-            logger.error(f"Failed to create Snowflake materialization: {e}")
+            logger.error(f"Failed to create modern_stack materialization: {e}")
             return {"status": "error", "error": str(e)}
 
     @mcp_tool(

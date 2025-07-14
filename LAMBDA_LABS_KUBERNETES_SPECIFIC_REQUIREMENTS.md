@@ -24,7 +24,7 @@ mcpServers:
         memory: "2Gi"         # INCREASE FROM 1Gi
         cpu: "1000m"          # INCREASE FROM 500m
 
-  snowflakeAdmin:
+  modern_stackAdmin:
     resources:
       requests:
         nvidia.com/gpu: 0.25  # ADD THIS LINE
@@ -86,7 +86,7 @@ tolerations:
 #### **All MCP Server Dockerfiles Need GPU Base Image:**
 **Files to Update:**
 - `mcp-servers/ai_memory/Dockerfile`
-- `mcp-servers/snowflake/Dockerfile`
+- `mcp-servers/modern_stack/Dockerfile`
 - `mcp-servers/codacy/Dockerfile`
 - `mcp-servers/asana/Dockerfile`
 - `mcp-servers/notion/Dockerfile`

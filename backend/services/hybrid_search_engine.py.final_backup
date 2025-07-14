@@ -157,9 +157,9 @@ class HybridSearchEngine:
         metadata_filter: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """
-        Perform BM25 keyword search using Snowflake.
+        Perform BM25 keyword search using modern_stack.
 
-        This uses Snowflake's built-in text search capabilities
+        This uses modern_stack's built-in text search capabilities
         with BM25-like scoring.
         """
         try:
@@ -193,7 +193,7 @@ class HybridSearchEngine:
 
             search_sql += " ORDER BY relevance_score DESC LIMIT 100"
 
-            results = await self.memory_service.execute_snowflake_query(
+            results = await self.memory_service.execute_modern_stack_query(
                 search_sql, tuple(params)
             )
 
@@ -225,7 +225,7 @@ class HybridSearchEngine:
         Perform vector similarity search.
 
         This delegates to the UnifiedMemoryService's vector search
-        which uses Snowflake Cortex.
+        which uses modern_stack Cortex.
         """
         try:
             results = await self.memory_service.search_knowledge(

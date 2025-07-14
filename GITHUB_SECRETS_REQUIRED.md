@@ -57,15 +57,15 @@
 **Description**: Linear API key for project management
 **Required**: 🟡 Important
 
-### `SNOWFLAKE_ACCOUNT`
+### `modern_stack_ACCOUNT`
 **Description**: Modern Stack account identifier
 **Required**: 🟡 Important
 
-### `SNOWFLAKE_USER`
+### `modern_stack_USER`
 **Description**: Modern Stack username
 **Required**: 🟡 Important
 
-### `SNOWFLAKE_PASSWORD`
+### `modern_stack_PASSWORD`
 **Description**: Modern Stack password or PAT
 **Required**: 🟡 Important
 

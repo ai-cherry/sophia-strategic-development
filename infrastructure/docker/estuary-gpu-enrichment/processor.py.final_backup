@@ -2,7 +2,7 @@
 """
 Estuary Flow GPU Enrichment Processor
 Processes streaming data: generates embeddings and stores in Weaviate
-No more Snowflake lag - just pure GPU speed!
+No more modern_stack lag - just pure GPU speed!
 """
 
 import asyncio
@@ -284,7 +284,7 @@ class GPUEnrichmentProcessor:
 ║ Avg Processing Time:   {avg_time:>8.1f}ms            ║
 ║ Total Time:            {self.stats['total_time_ms']/1000:>8.1f}s             ║
 ║                                                      ║
-║ Snowflake would have taken: ~{avg_time * 8:.0f}ms per record ║
+║ modern_stack would have taken: ~{avg_time * 8:.0f}ms per record ║
 ╚══════════════════════════════════════════════════════╝
         """
         )

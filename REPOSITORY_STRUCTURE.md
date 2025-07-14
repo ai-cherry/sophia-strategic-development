@@ -61,7 +61,7 @@ backend/
 │   └── 📄 date_time_manager.py      # Date/time utilities
 ├── 📁 etl/                          # Extract, Transform, Load pipelines
 ├── 📁 integrations/                 # External service integrations
-│   ├── 📁 snowflake/                # Lambda GPU AI integration
+│   ├── 📁 modern_stack/                # Lambda GPU AI integration
 │   ├── 📁 gong/                     # Gong.io call analysis
 │   └── 📁 hubspot/                  # HubSpot CRM integration
 ├── 📁 mcp_servers/                  # MCP server implementations
@@ -124,8 +124,8 @@ infrastructure/
 ├── 📁 pulumi/                       # Pulumi project files
 ├── 📁 security/                     # Security infrastructure
 ├── 📁 services/                     # Infrastructure services
-├── 📁 snowflake_iac/                # Modern Stack infrastructure
-├── 📁 snowflake_setup/              # Modern Stack setup scripts
+├── 📁 modern_stack_iac/                # Modern Stack infrastructure
+├── 📁 modern_stack_setup/              # Modern Stack setup scripts
 ├── 📁 templates/                    # Infrastructure templates
 ├── 📁 vercel/                       # Vercel deployment configs
 └── 📁 websocket/                    # WebSocket infrastructure
@@ -147,7 +147,7 @@ mcp-servers/
 ├── 📁 n8n/                          # N8N workflow automation
 ├── 📁 openai/                       # OpenAI API integration
 ├── 📁 slack/                        # Slack communication
-├── 📁 snowflake_unified/            # 🏔️ Lambda GPU AI
+├── 📁 modern_stack_unified/            # 🏔️ Lambda GPU AI
 ├── 📁 temporal/                     # Temporal workflow engine
 ├── 📁 vercel/                       # Vercel deployment
 └── 📁 ... (38 additional servers)   # Comprehensive integration suite
@@ -163,7 +163,7 @@ external/
 ├── 📁 glips_figma_context/          # Design-to-code (8.7k stars)
 ├── 📁 microsoft_playwright/         # Browser automation (13.4k stars)
 ├── 📁 portkey_admin/                # AI gateway optimization
-├── 📁 snowflake_cortex_official/    # Official Modern Stack AI
+├── 📁 modern_stack_cortex_official/    # Official Modern Stack AI
 └── 📁 ... (4 additional repos)      # Strategic community patterns
 ```
 
@@ -210,13 +210,13 @@ archive/
 │   ├── 📄 execute_strategic_plan.py          # Strategic implementation (44KB)
 │   ├── 📄 enhanced_coding_workflow_integration.py  # Workflow integration (22KB)
 │   ├── 📄 deploy_complete_platform.py        # Platform deployment (16KB)
-│   ├── 📄 snowflake_advanced_features_implementation.py  # Modern Stack integration
+│   ├── 📄 modern_stack_advanced_features_implementation.py  # Modern Stack integration
 │   └── 📄 ... (15 additional scripts)        # Various one-time implementations
 ├── 📁 scattered_docs/               # 172 organized documentation files
 │   ├── 📄 UNIFIED_DEPLOYMENT_*.md            # Deployment documentation
 │   ├── 📄 BACKEND_CLEAN_ARCHITECTURE_*.md    # Architecture documentation
 │   ├── 📄 LAMBDA_LABS_*.md                   # Lambda Labs documentation
-│   ├── 📄 SNOWFLAKE_*.md                     # Modern Stack documentation
+│   ├── 📄 modern_stack_*.md                     # Modern Stack documentation
 │   └── 📄 ... (168 additional docs)          # Comprehensive historical docs
 ├── 📁 placeholders/                 # 2 removed placeholder files
 │   ├── 📄 .FUTURE_USE_ONLY (apps)            # Apps placeholder
@@ -299,7 +299,7 @@ npm run dev  # Starts on http://localhost:3000
 python scripts/start_all_mcp_servers.py
 
 # Start specific MCP server
-cd mcp-servers/snowflake_unified
+cd mcp-servers/modern_stack_unified
 python server.py
 ```
 

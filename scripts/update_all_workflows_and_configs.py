@@ -28,9 +28,9 @@ STANDARD_SECRET_NAMES = {
     # Pulumi - Use PULUMI_ACCESS_TOKEN
     "PULUMI_TOKEN": "PULUMI_ACCESS_TOKEN",
     # ModernStack - Standardize
-    "SNOWFLAKE_ACCOUNT_IDENTIFIER": "SNOWFLAKE_ACCOUNT",
-    "SNOWFLAKE_USERNAME": "SNOWFLAKE_USER",
-    "SNOWFLAKE_DB": "SNOWFLAKE_DATABASE",
+    "modern_stack_ACCOUNT_IDENTIFIER": "modern_stack_ACCOUNT",
+    "modern_stack_USERNAME": "modern_stack_USER",
+    "modern_stack_DB": "modern_stack_DATABASE",
     # Lambda Labs - Use LAMBDA_LABS_API_KEY
     "LAMBDA_API_KEY": "LAMBDA_LABS_API_KEY",
     "LAMBDA_CLOUD_API_KEY": "LAMBDA_LABS_API_KEY",

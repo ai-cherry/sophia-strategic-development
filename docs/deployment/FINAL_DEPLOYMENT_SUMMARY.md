@@ -103,7 +103,7 @@ git push origin main
 The UnifiedMemoryService needs Modern Stack user credentials:
 ```python
 # In backend/core/auto_esc_config.py, ensure:
-SNOWFLAKE_USER = get_config_value("snowflake_username")
+modern_stack_USER = get_config_value("modern_stack_username")
 ```
 
 ## 📈 TESTING & VERIFICATION

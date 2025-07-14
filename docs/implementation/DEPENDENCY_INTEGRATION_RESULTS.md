@@ -173,7 +173,7 @@
 - `backend/services/enhanced_search_service.py` - Core search service (900+ lines)
 - `backend/api/enhanced_search_routes.py` - API endpoints (420+ lines)
 - `frontend/src/components/enhanced-search/EnhancedSearchInterface.tsx` - UI component (400+ lines)
-- `backend/services/enhanced_snowflake_cortex_service.py` - AI integration (760+ lines)
+- `backend/services/enhanced_modern_stack_cortex_service.py` - AI integration (760+ lines)
 
 ### **3. Validation & Testing**
 - `scripts/test_enhanced_search_dependencies.py` - Comprehensive test suite (200+ lines)

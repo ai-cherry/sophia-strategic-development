@@ -5,22 +5,22 @@ This document demonstrates the step-by-step refactoring of the monolithic `Moder
 ## Current Monolithic Structure
 
 ```python
-# backend/utils/snowflake_cortex_service.py (2,134 lines)
+# backend/utils/modern_stack_cortex_service.py (2,134 lines)
 class Modern StackCortexService:
     def __init__(self):
         # Connection management
-        self.connection = snowflake.connector.connect(...)
+        self.connection = modern_stack.connector.connect(...)
 
-    async def summarize_text_in_snowflake(self, ...):
+    async def summarize_text_in_modern_stack(self, ...):
         # Text summarization logic
 
-    async def analyze_sentiment_in_snowflake(self, ...):
+    async def analyze_sentiment_in_modern_stack(self, ...):
         # Sentiment analysis logic
 
-    async def generate_embedding_in_snowflake(self, ...):
+    async def generate_embedding_in_modern_stack(self, ...):
         # Embedding generation logic
 
-    async def vector_search_in_snowflake(self, ...):
+    async def vector_search_in_modern_stack(self, ...):
         # Vector search logic
 
     async def search_hubspot_deals_with_ai_memory(self, ...):
@@ -162,8 +162,8 @@ class AnalyzeTextUseCase:
 ### 3. Infrastructure Layer
 
 ```python
-# backend/infrastructure/ai/snowflake_cortex_client.py
-import snowflake.connector
+# backend/infrastructure/ai/modern_stack_cortex_client.py
+import modern_stack.connector
 from backend.application.ports import AIService
 from backend.domain.value_objects import Sentiment, TextSummary, Embedding
 
@@ -177,7 +177,7 @@ class Modern StackCortexClient(AIService):
         """Use Lambda GPU SUMMARIZE function."""
         async with self._pool.get_connection() as conn:
             query = f"""
-            SELECT SNOWFLAKE.CORTEX.SUMMARIZE(?, ?) as summary
+            SELECT modern_stack.CORTEX.SUMMARIZE(?, ?) as summary
             """
             result = await conn.execute(query, (text, max_length))
             return TextSummary(
@@ -190,7 +190,7 @@ class Modern StackCortexClient(AIService):
         """Use Lambda GPU SENTIMENT function."""
         async with self._pool.get_connection() as conn:
             query = """
-            SELECT SNOWFLAKE.CORTEX.SENTIMENT(?) as sentiment_score
+            SELECT modern_stack.CORTEX.SENTIMENT(?) as sentiment_score
             """
             result = await conn.execute(query, (text,))
             return Sentiment(
@@ -202,7 +202,7 @@ class Modern StackCortexClient(AIService):
         """Use Lambda GPU EMBED_TEXT function."""
         async with self._pool.get_connection() as conn:
             query = """
-            SELECT SNOWFLAKE.CORTEX.EMBED_TEXT('e5-base-v2', ?) as embedding
+            SELECT modern_stack.CORTEX.EMBED_TEXT('e5-base-v2', ?) as embedding
             """
             result = await conn.execute(query, (text,))
             return Embedding(
@@ -213,11 +213,11 @@ class Modern StackCortexClient(AIService):
 ```
 
 ```python
-# backend/infrastructure/persistence/snowflake_connection_pool.py
+# backend/infrastructure/persistence/modern_stack_connection_pool.py
 import asyncio
 from contextlib import asynccontextmanager
-import snowflake.connector
-from snowflake.connector.pool import ConnectionPool
+import modern_stack.connector
+from modern_stack.connector.pool import ConnectionPool
 
 class Modern StackConnectionPool:
     """Manages PostgreSQL database connections."""
@@ -229,7 +229,7 @@ class Modern StackConnectionPool:
     async def initialize(self):
         """Initialize the connection pool."""
         self._pool = ConnectionPool(
-            'snowflake_pool',
+            'modern_stack_pool',
             max_connections=10,
             min_connections=2,
             **self._config
@@ -246,7 +246,7 @@ class Modern StackConnectionPool:
 ```
 
 ```python
-# backend/infrastructure/search/snowflake_vector_search.py
+# backend/infrastructure/search/modern_stack_vector_search.py
 from typing import List
 from backend.application.ports import VectorSearchService
 from backend.domain.entities import SearchResult
@@ -358,7 +358,7 @@ class Container(containers.DeclarativeContainer):
     # Infrastructure - Connection Pool
     connection_pool = providers.Singleton(
         Modern StackConnectionPool,
-        config=config.snowflake
+        config=config.modern_stack
     )
 
     # Infrastructure - AI Service

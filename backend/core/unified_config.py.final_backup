@@ -178,16 +178,16 @@ class UnifiedConfig:
         return value
 
     @classmethod
-# REMOVED: Snowflake dependency(cls) -> dict:
-# REMOVED: Snowflake dependencyuration"""
+# REMOVED: modern_stack dependency(cls) -> dict:
+# REMOVED: modern_stack dependencyuration"""
         return {
-            "account": cls.get("snowflake_account", "UHDECNO-CVB64222"),
-            "user": cls.get("snowflake_user", "SCOOBYJAVA15"),
-            "password": cls.get("snowflake_password") or cls.get("snowflake_pat"),
-            "warehouse": cls.get("snowflake_warehouse", "SOPHIA_AI_COMPUTE_WH"),
-            "database": cls.get("snowflake_database", "AI_MEMORY"),
-            "schema": cls.get("snowflake_schema", "PUBLIC"),
-            "role": cls.get("snowflake_role", "ACCOUNTADMIN"),
+            "account": cls.get("modern_stack_account", "UHDECNO-CVB64222"),
+            "user": cls.get("modern_stack_user", "SCOOBYJAVA15"),
+            "password": cls.get("modern_stack_password") or cls.get("modern_stack_pat"),
+            "warehouse": cls.get("modern_stack_warehouse", "SOPHIA_AI_COMPUTE_WH"),
+            "database": cls.get("modern_stack_database", "AI_MEMORY"),
+            "schema": cls.get("modern_stack_schema", "PUBLIC"),
+            "role": cls.get("modern_stack_role", "ACCOUNTADMIN"),
         }
 
     @classmethod
@@ -241,12 +241,12 @@ class UnifiedConfig:
             "environment",
             "debug",
             "log_level",
-            "snowflake_account",
-            "snowflake_user",
-            "snowflake_password",
-            "snowflake_warehouse",
-            "snowflake_database",
-            "snowflake_schema",
+            "modern_stack_account",
+            "modern_stack_user",
+            "modern_stack_password",
+            "modern_stack_warehouse",
+            "modern_stack_database",
+            "modern_stack_schema",
             "redis_host",
             "redis_port",
             "postgres_host",

@@ -62,9 +62,9 @@ class IntelligentRouter:
     def __init__(self):
         self.routing_rules = {
             # Use case routing
-            "embedding": AIProvider.SNOWFLAKE_CORTEX,
-            "sql": AIProvider.SNOWFLAKE_CORTEX,
-            "data_analysis": AIProvider.SNOWFLAKE_CORTEX,
+            "embedding": AIProvider.modern_stack_CORTEX,
+            "sql": AIProvider.modern_stack_CORTEX,
+            "data_analysis": AIProvider.modern_stack_CORTEX,
             "code_generation": AIProvider.LAMBDA_LABS,
             "creative": AIProvider.LAMBDA_LABS,
             "reasoning": AIProvider.LAMBDA_LABS,
@@ -101,7 +101,7 @@ class IntelligentRouter:
             "warehouse",
         ]
         if any(kw in request.prompt.lower() for kw in data_keywords):
-            return AIProvider.SNOWFLAKE_CORTEX
+            return AIProvider.modern_stack_CORTEX
 
         # Complex reasoning prefers Lambda Labs
         if request.complexity == TaskComplexity.COMPLEX:
@@ -111,7 +111,7 @@ class IntelligentRouter:
         if request.cost_priority == "cost":
             # Small requests to ModernStack, large to Lambda
             if prompt_tokens < self.cost_thresholds["medium"]:
-                return AIProvider.SNOWFLAKE_CORTEX
+                return AIProvider.modern_stack_CORTEX
             else:
                 return AIProvider.LAMBDA_LABS
 
@@ -123,7 +123,7 @@ class IntelligentRouter:
         if prompt_tokens < self.cost_thresholds["simple"]:
             return AIProvider.LAMBDA_LABS  # Fast for simple
         elif prompt_tokens > self.cost_thresholds["complex"]:
-            return AIProvider.SNOWFLAKE_CORTEX  # Better for large context
+            return AIProvider.modern_stack_CORTEX  # Better for large context
         else:
             return AIProvider.LAMBDA_LABS  # Default
 
@@ -142,7 +142,7 @@ class UnifiedAIOrchestrator:
         # Performance tracking
         self.request_history = []
         self.provider_metrics = {
-            AIProvider.SNOWFLAKE_CORTEX: {
+            AIProvider.modern_stack_CORTEX: {
                 "requests": 0,
                 "total_duration": 0,
                 "total_cost": 0,
@@ -290,7 +290,7 @@ class UnifiedAIOrchestrator:
 
         return AIResponse(
             response=response_text,
-            provider=AIProvider.SNOWFLAKE_CORTEX.value,
+            provider=AIProvider.modern_stack_CORTEX.value,
             model=request.model or "mistral-large",
             duration=duration,
             cost_estimate=cost_estimate,

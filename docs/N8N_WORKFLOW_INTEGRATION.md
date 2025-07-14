@@ -142,7 +142,7 @@ Ensure n8n has access to:
       "parameters": { "interval": "hourly" }
     },
     {
-      "type": "snowflake",
+      "type": "modern_stack",
       "parameters": { 
         "query": "SELECT hour, revenue FROM metrics WHERE..."
       }

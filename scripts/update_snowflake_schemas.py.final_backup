@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Update Snowflake schemas for Sophia AI
+Update modern_stack schemas for Sophia AI
 Creates all necessary tables, views, and procedures
 """
 
 import sys
 
-# REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+# REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
 
 
-def update_snowflake_schemas():
-    """Update all Snowflake schemas for Sophia AI"""
+def update_modern_stack_schemas():
+    """Update all modern_stack schemas for Sophia AI"""
 
     try:
         # Connect using PAT
@@ -173,7 +173,7 @@ def update_snowflake_schemas():
             AS
             $$
             BEGIN
-                -- This would use Snowflake Cortex to generate embeddings
+                -- This would use modern_stack Cortex to generate embeddings
                 -- Placeholder for actual implementation
                 RETURN 'Embeddings generated for ' || table_name;
             END;
@@ -310,4 +310,4 @@ def update_snowflake_schemas():
 
 
 if __name__ == "__main__":
-    update_snowflake_schemas()
+    update_modern_stack_schemas()

@@ -96,7 +96,7 @@ sophia-main/
 │       ├── notion/          # Documentation
 │       ├── portkey_admin/   # LLM gateway
 │       ├── slack/           # Team communication
-│       ├── snowflake/       # Data warehouse
+│       ├── modern_stack/       # Data warehouse
 │       ├── ui_ux_agent/     # UI automation
 │       └── [40+ more servers...]
 │

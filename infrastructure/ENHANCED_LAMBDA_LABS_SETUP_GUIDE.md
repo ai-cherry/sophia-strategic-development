@@ -332,7 +332,7 @@ EOF
 
 ---
 
-## ❄️ PHASE 6: SNOWFLAKE INTEGRATION
+## ❄️ PHASE 6: modern_stack INTEGRATION
 
 ### **Step 6.1: Configure Modern Stack External Functions**
 
@@ -570,8 +570,8 @@ python3 << EOF
 # Current costs with H200 enhancement
 h200_monthly_cost = 1800  # Same as A10
 external_llm_cost = 1200  # 60% reduction from $3000
-snowflake_cost = 2200     # 10% increase for enhanced warehouses
-total_enhanced = h200_monthly_cost + external_llm_cost + snowflake_cost
+modern_stack_cost = 2200     # 10% increase for enhanced warehouses
+total_enhanced = h200_monthly_cost + external_llm_cost + modern_stack_cost
 
 # Previous costs
 previous_total = 6800

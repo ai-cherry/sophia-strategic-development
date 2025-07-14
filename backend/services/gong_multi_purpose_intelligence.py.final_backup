@@ -23,7 +23,7 @@ from backend.core.date_time_manager import date_manager
 from infrastructure.mcp_servers.gong_v2.handlers.memory_integration import (
     GongMemoryIntegration,
 )
-from infrastructure.services.snowflake_cortex_service import SnowflakeCortexService
+from infrastructure.services.modern_stack_cortex_service import modern_stackCortexService
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +188,7 @@ class GongMultiPurposeIntelligence:
                 f"Extracting multi-purpose insights for last {timeframe_days} days"
             )
 
-            # Query Gong data using existing Snowflake integration
+            # Query Gong data using existing modern_stack integration
             gong_data = await self._fetch_gong_conversations(timeframe_days)
 
             # Process conversations through enhanced AI analysis
@@ -232,51 +232,51 @@ class GongMultiPurposeIntelligence:
                     transcript_text,
                     call_type,
 
-                    -- Enhanced project identification using Snowflake Cortex
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    -- Enhanced project identification using modern_stack Cortex
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'What specific projects, repositories, features, or development tasks are discussed?
                          Include project names, current status, and any progress updates mentioned.'
                     ) as project_references,
 
                     -- Timeline and deadline analysis
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'Are there any sprint updates, deadline discussions, timeline changes, or milestone planning mentioned?
                          Include specific dates and urgency indicators.'
                     ) as timeline_intelligence,
 
                     -- Enhanced risk and blocker detection
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'What blockers, risks, dependencies, challenges, or impediments are discussed?
                          Include severity level and any mitigation strategies mentioned.'
                     ) as risk_intelligence,
 
                     -- Resource and capacity planning
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'Are there discussions about team capacity, resource allocation, staffing needs,
                          or workload distribution? Include specific team members or skills mentioned.'
                     ) as resource_intelligence,
 
                     -- Technical decisions and architecture
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'What technical decisions, architecture discussions, technology choices,
                          or implementation approaches are mentioned? Include reasoning if available.'
                     ) as technical_intelligence,
 
                     -- Quality and testing discussions
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'Are there discussions about code quality, testing strategies, bug reports,
                          performance issues, or quality assurance processes?'
                     ) as quality_intelligence,
 
                     -- Enhanced sentiment and urgency
-                    SNOWFLAKE.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score,
-                    SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
+                    modern_stack.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score,
+                    modern_stack.CORTEX.CLASSIFY_TEXT(
                         transcript_text,
                         ['urgent', 'high_priority', 'normal', 'low_priority']
                     ) as urgency_level
@@ -285,7 +285,7 @@ class GongMultiPurposeIntelligence:
                 WHERE call_date >= DATEADD(day, -{timeframe_days}, CURRENT_TIMESTAMP())
                 AND (
                     -- Enhanced filtering for project-related content
-                    SNOWFLAKE.CORTEX.CLASSIFY_TEXT(transcript_text, ['technical_discussion', 'other']) = 'technical_discussion'
+                    modern_stack.CORTEX.CLASSIFY_TEXT(transcript_text, ['technical_discussion', 'other']) = 'technical_discussion'
                     OR LOWER(transcript_text) LIKE ANY ('%sprint%', '%project%', '%deadline%', '%feature%', '%development%', '%milestone%', '%release%')
                     OR call_type IN ('standup', 'sprint_planning', 'retrospective', 'technical_review')
                 )
@@ -395,7 +395,7 @@ class GongMultiPurposeIntelligence:
             if not category:
                 category = GongIntelligenceCategory.PROJECT_MANAGEMENT  # Default
 
-            # Generate contextual Snowflake query based on natural language
+            # Generate contextual modern_stack query based on natural language
             contextual_query = f"""
             WITH relevant_conversations AS (
                 SELECT
@@ -404,15 +404,15 @@ class GongMultiPurposeIntelligence:
                     participants,
                     transcript_text,
                     call_type,
-                    SNOWFLAKE.CORTEX.EXTRACT_ANSWER(
+                    modern_stack.CORTEX.EXTRACT_ANSWER(
                         transcript_text,
                         'Based on this conversation, answer the following question: {query}.
                          Provide specific details and context from the conversation.'
                     ) as extracted_answer,
-                    SNOWFLAKE.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score
+                    modern_stack.await self.lambda_gpu.analyze_sentiment(transcript_text) as sentiment_score
                 FROM GONG_CALLS_ENHANCED
                 WHERE call_date >= DATEADD(day, -30, CURRENT_TIMESTAMP())
-                AND SNOWFLAKE.CORTEX.EXTRACT_ANSWER(transcript_text, '{query}') IS NOT NULL
+                AND modern_stack.CORTEX.EXTRACT_ANSWER(transcript_text, '{query}') IS NOT NULL
             )
             SELECT * FROM relevant_conversations
             WHERE extracted_answer IS NOT NULL

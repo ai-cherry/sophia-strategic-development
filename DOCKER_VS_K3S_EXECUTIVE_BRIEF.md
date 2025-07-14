@@ -150,7 +150,7 @@
 
 ### **Week 1 Critical Path**
 1. **Fix GitHub Actions Crisis** (Priority 1)
-   - Syntax error in `enhanced_snowflake_config.py`
+   - Syntax error in `enhanced_modern_stack_config.py`
    - Update deprecated actions in workflows
    - Test end-to-end deployment pipeline
 

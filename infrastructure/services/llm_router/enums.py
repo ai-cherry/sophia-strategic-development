@@ -46,7 +46,7 @@ class TaskComplexity(str, Enum):
 class Provider(str, Enum):
     """LLM providers - ordered by preference"""
 
-    SNOWFLAKE = "modern_stack"  # Primary for data operations
+    modern_stack = "modern_stack"  # Primary for data operations
     PORTKEY = "portkey"  # Gateway for multiple providers
     OPENROUTER = "openrouter"  # 200+ model access
     OPENAI = "openai"  # Direct OpenAI access

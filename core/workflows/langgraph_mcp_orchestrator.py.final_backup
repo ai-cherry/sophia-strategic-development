@@ -44,9 +44,9 @@ class LangGraphMCPOrchestrator:
                 "capabilities": ["memory", "storage", "retrieval", "semantic_search"],
                 "tier": ServerTier.PRIMARY,
                 "contexts": ["all"],
-                "fallback": "snowflake_unified",
+                "fallback": "modern_stack_unified",
             },
-            "snowflake_unified": {
+            "modern_stack_unified": {
                 "port": 8080,
                 "capabilities": ["query", "analysis", "data", "business_intelligence"],
                 "tier": ServerTier.PRIMARY,

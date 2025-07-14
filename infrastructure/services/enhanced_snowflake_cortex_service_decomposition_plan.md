@@ -1,4 +1,4 @@
-# File Decomposition Plan: enhanced_snowflake_cortex_service.py
+# File Decomposition Plan: enhanced_modern_stack_cortex_service.py
 
 ## Current State
 - **Lines**: 1142
@@ -10,19 +10,19 @@
 
 ### Target Structure
 ```
-infrastructure/services/enhanced_snowflake_cortex_service/
+infrastructure/services/enhanced_modern_stack_cortex_service/
 ├── __init__.py
-├── enhanced_snowflake_cortex_service_core.py      # Main functionality
+├── enhanced_modern_stack_cortex_service_core.py      # Main functionality
 ├── models/
-│   └── enhanced_snowflake_cortex_service_models.py    # Data models
+│   └── enhanced_modern_stack_cortex_service_models.py    # Data models
 ├── handlers/
-│   └── enhanced_snowflake_cortex_service_handlers.py  # Request handlers
+│   └── enhanced_modern_stack_cortex_service_handlers.py  # Request handlers
 └── utils/
-    └── enhanced_snowflake_cortex_service_utils.py     # Utility functions
+    └── enhanced_modern_stack_cortex_service_utils.py     # Utility functions
 ```
 
 ### Implementation Steps
-1. **Create module directory**: `enhanced_snowflake_cortex_service/`
+1. **Create module directory**: `enhanced_modern_stack_cortex_service/`
 2. **Extract models**: Move data classes and Pydantic models
 3. **Extract handlers**: Move request/response handlers
 4. **Extract utilities**: Move helper functions

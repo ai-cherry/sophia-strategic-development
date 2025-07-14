@@ -2,9 +2,9 @@ name: 🎯 Cursor AI Development Workflow
 
 on
   push
-    branches: [ main, Snowflake, develop ]
+    branches: [ main, modern_stack, develop ]
   pull_request
-    branches: [ main, Snowflake ]
+    branches: [ main, modern_stack ]
   workflow_dispatch
     inputs
       environment
@@ -92,7 +92,7 @@ jobs
         mcp-server
           - ai_memory
           - codacy
-          - snowflake_admin
+          - modern_stack_admin
           - asana
           - notion
     steps

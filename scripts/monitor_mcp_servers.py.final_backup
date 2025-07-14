@@ -19,7 +19,7 @@ MCP_SERVERS = [
     {"name": "Asana", "port": 9006, "url": "http://localhost:9006/health"},
     {"name": "Notion", "port": 9102, "url": "http://localhost:9102/health"},
     {"name": "Slack", "port": 9101, "url": "http://localhost:9101/health"},
-    {"name": "Snowflake", "port": 9001, "url": "http://localhost:9001/health"},
+    {"name": "modern_stack", "port": 9001, "url": "http://localhost:9001/health"},
     {"name": "Gong", "port": 9100, "url": "http://localhost:9100/health"},
     {"name": "HubSpot", "port": 9105, "url": "http://localhost:9105/health"},
 ]
@@ -106,22 +106,22 @@ async def test_backend_api():
             print("  ❌ Orchestration endpoint failed")
 
 
-async def verify_snowflake_connection():
-    """Verify Snowflake is receiving data"""
-    print("\n❄️  SNOWFLAKE VERIFICATION:")
+async def verify_modern_stack_connection():
+    """Verify modern_stack is receiving data"""
+    print("\n❄️  modern_stack VERIFICATION:")
 
     try:
-        # REMOVED: Snowflake dependency - use UnifiedMemoryServiceV3
+        # REMOVED: modern_stack dependency - use UnifiedMemoryServiceV3
         from backend.core.auto_esc_config import get_config_value
 
-        # Get Snowflake credentials
-        account = get_config_value("snowflake_account")
-        user = get_config_value("snowflake_user")
-        password = get_config_value("snowflake_password")
-        warehouse = get_config_value("snowflake_warehouse", "SOPHIA_AI_WH")
-        database = get_config_value("snowflake_database", "SOPHIA_AI")
+        # Get modern_stack credentials
+        account = get_config_value("modern_stack_account")
+        user = get_config_value("modern_stack_user")
+        password = get_config_value("modern_stack_password")
+        warehouse = get_config_value("modern_stack_warehouse", "SOPHIA_AI_WH")
+        database = get_config_value("modern_stack_database", "SOPHIA_AI")
 
-        print(f"  Connecting to Snowflake as {user}@{account}...")
+        print(f"  Connecting to modern_stack as {user}@{account}...")
 
         conn = self.modern_stack_connection(
             account=account,
@@ -165,7 +165,7 @@ async def verify_snowflake_connection():
         conn.close()
 
     except Exception as e:
-        print(f"  ❌ Snowflake verification failed: {e}")
+        print(f"  ❌ modern_stack verification failed: {e}")
 
 
 async def main():
@@ -206,8 +206,8 @@ async def main():
     # Test backend API
     await test_backend_api()
 
-    # Verify Snowflake
-    await verify_snowflake_connection()
+    # Verify modern_stack
+    await verify_modern_stack_connection()
 
     print("\n" + "=" * 60)
     print("Monitoring complete!")

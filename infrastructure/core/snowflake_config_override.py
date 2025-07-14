@@ -31,7 +31,7 @@ def get_# REMOVED: ModernStack dependency None) -> str:
         Configuration value
     """
     # First try environment variable override
-    env_key = f"SNOWFLAKE_{key.upper()}"
+    env_key = f"modern_stack_{key.upper()}"
     env_value = os.getenv(env_key)
     if env_value:
         return env_value

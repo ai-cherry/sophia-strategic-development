@@ -11,12 +11,12 @@ GITHUB_TO_INTERNAL_MAPPING = {
     "OPENROUTER_API_KEY": "openrouter_api_key",
     "MEM0_API_KEY": "mem0_api_key",
     # Data Infrastructure
-    "SNOWFLAKE_ACCOUNT": "postgres_host",
-    "SNOWFLAKE_USER": "modern_stack_user",
-    "SNOWFLAKE_PASSWORD": "postgres_password",
-    "SNOWFLAKE_WAREHOUSE": "postgres_database",
-    "SNOWFLAKE_DATABASE": "postgres_database",
-    "SNOWFLAKE_ROLE": "modern_stack_role",
+    "modern_stack_ACCOUNT": "postgres_host",
+    "modern_stack_USER": "modern_stack_user",
+    "modern_stack_PASSWORD": "postgres_password",
+    "modern_stack_WAREHOUSE": "postgres_database",
+    "modern_stack_DATABASE": "postgres_database",
+    "modern_stack_ROLE": "modern_stack_role",
     # Business Intelligence
     "GONG_ACCESS_KEY": "gong_access_key",
     "GONG_ACCESS_KEY_SECRET": "gong_access_key_secret",

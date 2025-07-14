@@ -44,7 +44,7 @@ class EstuaryConnectorType(Enum):
     GITHUB = "ghcr.io/estuary/source-github:dev"
     HUBSPOT = "ghcr.io/estuary/source-hubspot:dev"
     SLACK = "ghcr.io/estuary/source-slack:dev"
-    SNOWFLAKE = "ghcr.io/estuary/materialize-modern_stack:dev"
+    modern_stack = "ghcr.io/estuary/materialize-modern_stack:dev"
     PINECONE = "ghcr.io/estuary/materialize-pinecone:dev"
     HTTP_INBOUND = "ghcr.io/estuary/source-http-inbound:dev"
     WEBHOOK = "ghcr.io/estuary/source-webhook:dev"
@@ -644,7 +644,7 @@ class EstuaryFlowManager:
             # REMOVED: ModernStack dependency {
                 "account": "ZNB04675.us-east-1",
                 "user": "SCOOBYJAVA15",
-                "password": "${SNOWFLAKE_PAT_TOKEN}",  # Will be replaced with actual token
+                "password": "${modern_stack_PAT_TOKEN}",  # Will be replaced with actual token
                 "role": "ACCOUNTADMIN",
                 "warehouse": "CORTEX_SOPHIA_AI_WH",
                 "database": "SOPHIA_AI",

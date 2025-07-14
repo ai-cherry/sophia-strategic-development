@@ -22,9 +22,9 @@
     "REACT_APP_VERSION": "2.0.0",
     "REACT_APP_APP_NAME": "Sophia AI Production",
     "ENVIRONMENT": "prod",
-    "SNOWFLAKE_ACCOUNT": "@modern_stack-account",
-    "SNOWFLAKE_USER": "@modern_stack-user",
-    "SNOWFLAKE_PRIVATE_KEY_PASSPHRASE": "@modern_stack-passphrase",
+    "modern_stack_ACCOUNT": "@modern_stack-account",
+    "modern_stack_USER": "@modern_stack-user",
+    "modern_stack_PRIVATE_KEY_PASSPHRASE": "@modern_stack-passphrase",
     "REDIS_URL": "@redis-url",
     "OPENAI_API_KEY": "@openai-api-key",
     "ANTHROPIC_API_KEY": "@anthropic-api-key"

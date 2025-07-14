@@ -279,7 +279,7 @@ MCP_INTEGRATION_PATTERNS = {
 ### **External Service Integration**
 ```python
 EXTERNAL_SERVICE_PATTERNS = {
-    "snowflake_cortex": {
+    "modern_stack_cortex": {
         "primary_use": "Data analysis and SQL generation",
         "fallback": "External LLM with Modern Stack context",
         "optimization": "Cache query results and embeddings"

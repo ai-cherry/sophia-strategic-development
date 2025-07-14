@@ -20,10 +20,10 @@ print("🔍 Setting up ModernStack resources for Sophia AI...")
 
 try:
     conn = self.modern_stack_connection(
-        account=os.environ.get("SNOWFLAKE_ACCOUNT"),
-        user=os.environ.get("SNOWFLAKE_USER"),
-        password=os.environ.get("SNOWFLAKE_PAT"),
-        role=os.environ.get("SNOWFLAKE_ROLE", "ACCOUNTADMIN"),
+        account=os.environ.get("modern_stack_ACCOUNT"),
+        user=os.environ.get("modern_stack_USER"),
+        password=os.environ.get("modern_stack_PAT"),
+        role=os.environ.get("modern_stack_ROLE", "ACCOUNTADMIN"),
     )
 
     cursor = conn.cursor()

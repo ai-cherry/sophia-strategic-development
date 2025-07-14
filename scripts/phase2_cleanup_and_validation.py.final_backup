@@ -53,12 +53,12 @@ class Phase2CleanupValidator:
         self.cleanup_targets = {
             "deprecated_services": [
                 "backend/services/unified_memory_service.py",  # V1 - deprecated
-                "backend/services/snowflake_cortex_service.py",  # Replaced by V3
+                "backend/services/modern_stack_cortex_service.py",  # Replaced by V3
             ],
             "deprecated_imports": [
                 "from backend.services.unified_memory_service import",
-                "from backend.services.snowflake_cortex_service import",
-                "import snowflake_unified",
+                "from backend.services.modern_stack_cortex_service import",
+                "import modern_stack_unified",
                 "await self.lambda_gpu.embed_text"
             ],
             "temporary_files": [
@@ -187,9 +187,9 @@ class Phase2CleanupValidator:
                     "from backend.services.unified_memory_service import": "from backend.services.unified_memory_service_v3 import",
                     "UnifiedMemoryService": "UnifiedMemoryServiceV3",
                     "get_unified_memory_service()": "get_unified_memory_service_v3()",
-                    "from backend.services.snowflake_cortex_service import": "# DEPRECATED - Use UnifiedMemoryServiceV3",
+                    "from backend.services.modern_stack_cortex_service import": "# DEPRECATED - Use UnifiedMemoryServiceV3",
                     "await self.lambda_gpu.embed_text": "# DEPRECATED - Use GPU embeddings via UnifiedMemoryServiceV3",
-                    "snowflake_unified": "# DEPRECATED - Use UnifiedMemoryServiceV3"
+                    "modern_stack_unified": "# DEPRECATED - Use UnifiedMemoryServiceV3"
                 }
                 
                 for old_pattern, new_pattern in replacements.items():
@@ -293,9 +293,9 @@ class Phase2CleanupValidator:
                 # Check for deprecated imports still being used
                 deprecated_patterns = [
                     r'from backend\.services\.unified_memory_service import',
-                    r'from backend\.services\.snowflake_cortex_service import',
+                    r'from backend\.services\.modern_stack_cortex_service import',
                     r'CORTEX\.EMBED_TEXT_768',
-                    r'snowflake_unified'
+                    r'modern_stack_unified'
                 ]
                 
                 for pattern in deprecated_patterns:

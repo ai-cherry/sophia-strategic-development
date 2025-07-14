@@ -257,8 +257,8 @@ const LambdaLabsHealthTab: React.FC = () => {
             active_connections: 6
           },
           {
-            id: 'snowflake-admin',
-            name: 'snowflake-admin-mcp',
+            id: 'modern_stack-admin',
+            name: 'modern_stack-admin-mcp',
             port: 9020,
             status: 'degraded',
             response_time: 234,
@@ -310,10 +310,10 @@ const LambdaLabsHealthTab: React.FC = () => {
           {
             id: 'alert-3',
             severity: 'warning',
-            title: 'Snowflake Admin Slow Response',
+            title: 'modern_stack Admin Slow Response',
             message: 'Response time degraded to 234ms (target: <100ms)',
             timestamp: '2025-07-05T10:59:45Z',
-            server: 'snowflake-admin-mcp'
+            server: 'modern_stack-admin-mcp'
           }
         ],
         performance_trends: {

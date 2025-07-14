@@ -14,8 +14,8 @@ During Week 1 of our quality-first development phase, we conducted a comprehensi
 
 ### Most Critical Circular Dependencies:
 - `auto_esc_config` ↔ `security_config` ↔ `config` (configuration triangle)
-- `optimized_connection_manager` ↔ `data_flow_manager` ↔ `snowflake_config_override`
-- `snowflake_cortex_service` ↔ `snowflake_cortex_service_handlers`
+- `optimized_connection_manager` ↔ `data_flow_manager` ↔ `modern_stack_config_override`
+- `modern_stack_cortex_service` ↔ `modern_stack_cortex_service_handlers`
 
 ## Decision
 We will implement a phased approach to eliminate circular dependencies:

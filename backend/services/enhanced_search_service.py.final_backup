@@ -20,7 +20,7 @@ from playwright.async_api import Browser, Page, async_playwright
 
 from backend.core.auto_esc_config import get_config_value
 from backend.services.ai_memory_service import AIMemoryService
-from backend.services.snowflake_cortex_service import SnowflakeCortexService
+from backend.services.modern_stack_cortex_service import modern_stackCortexService
 from infrastructure.services.unified_ai_orchestrator import (
     AIRequest,
     UnifiedAIOrchestrator,
@@ -92,7 +92,7 @@ class CacheEntry:
 class SemanticCache:
     """4-layer semantic caching system"""
 
-    def __init__(self, cortex_service: SnowflakeCortexService):
+    def __init__(self, cortex_service: modern_stackCortexService):
         self.cortex = cortex_service
         self.l1_cache: dict[str, CacheEntry] = {}  # Memory cache
         self.l2_cache: dict[str, CacheEntry] = {}  # Session cache
@@ -157,7 +157,7 @@ class SemanticCache:
     async def _calculate_semantic_similarity(self, query1: str, query2: str) -> float:
         """Calculate semantic similarity between queries"""
         try:
-            # Use Snowflake Cortex for semantic similarity
+            # Use modern_stack Cortex for semantic similarity
             similarity = await self.cortex.calculate_similarity(query1, query2)
             return similarity
         except Exception as e:
@@ -696,7 +696,7 @@ class EnhancedSearchService:
                 time_range=request.time_range,
             )
 
-            # Search Snowflake knowledge base
+            # Search modern_stack knowledge base
             cortex_results = await self.cortex.search_knowledge_base(
                 query=request.query, max_results=request.max_results
             )
@@ -720,8 +720,8 @@ class EnhancedSearchService:
                     {
                         "title": result.get("title", "Knowledge Base"),
                         "content": result.get("content", ""),
-                        "url": f"snowflake://{result.get('id')}",
-                        "source": "snowflake",
+                        "url": f"modern_stack://{result.get('id')}",
+                        "source": "modern_stack",
                         "timestamp": result.get("timestamp"),
                         "confidence": result.get("confidence", 0.0),
                     }
